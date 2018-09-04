@@ -1,0 +1,61 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "Socket",
+        "repositoryURL": "https://github.com/IBM-Swift/BlueSocket",
+        "state": {
+          "branch": null,
+          "revision": "26c8f4e4e3000421a0c97aaf0c7b5e9aa5475222",
+          "version": "0.12.94"
+        }
+      },
+      {
+        "package": "CSSH",
+        "repositoryURL": "https://github.com/jakeheis/CSSH",
+        "state": {
+          "branch": null,
+          "revision": "579a20508ab598f78713a60fed95706efd06bbcb",
+          "version": "1.0.3"
+        }
+      },
+      {
+        "package": "Shout",
+        "repositoryURL": "https://github.com/beefon/Shout",
+        "state": {
+          "branch": "master",
+          "revision": "b0111c62c1a0b67dd602d3ccf10508dd6ec53fa4",
+          "version": null
+        }
+      },
+      {
+        "package": "SwiftPM",
+        "repositoryURL": "https://github.com/apple/swift-package-manager.git",
+        "state": {
+          "branch": null,
+          "revision": "6983434787dec4e543e9d398a0a9acf63ccd4da1",
+          "version": "0.2.1"
+        }
+      },
+      {
+        "package": "Swifter",
+        "repositoryURL": "https://github.com/httpswift/swifter.git",
+        "state": {
+          "branch": "stable",
+          "revision": "b366f5ed088d9d0d216a9ce18ec726f7912c30f3",
+          "version": null
+        }
+      },
+      {
+        "package": "ZIPFoundation",
+        "repositoryURL": "https://github.com/weichsel/ZIPFoundation/",
+        "state": {
+          "branch": null,
+          "revision": "b5c53bef2deb7b20659b03b1223f0942599e5c41",
+          "version": "0.9.6"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
