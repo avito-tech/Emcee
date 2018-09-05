@@ -75,8 +75,8 @@ final class BucketConfigurationFactory {
             path: packagePath(containerPath, .xctestBundle),
             pathExtension: "xctest")
             .elementAtIndex(0, "First and single xctest bundle")
-        let simulatorLocalizationSettings = try fileInPackage(containerPath, .simulatorLocalizationSettings)
-        let watchdogSettings = try fileInPackage(containerPath, .watchdogSettings)
+        let simulatorLocalizationSettings = try fileInPackageIfExists(containerPath, .simulatorLocalizationSettings)
+        let watchdogSettings = try fileInPackageIfExists(containerPath, .watchdogSettings)
         
         let configuration = SchedulerConfiguration(
             auxiliaryPaths: AuxiliaryPaths(fbxctest: fbxctest, fbsimctl: fbsimctl, tempFolder: tempFolder),
@@ -104,5 +104,10 @@ final class BucketConfigurationFactory {
     private func fileInPackage(_ containerPath: String, _ package: PackageName) throws -> String {
         let result = packagePath(containerPath, package)
         return result.appending(pathComponent: try PackageName.targetFileName(package))
+    }
+    
+    private func fileInPackageIfExists(_ containerPath: String, _ package: PackageName) throws -> String? {
+        let path = try fileInPackage(containerPath, package)
+        return FileManager.default.fileExists(atPath: path) ? path : nil
     }
 }

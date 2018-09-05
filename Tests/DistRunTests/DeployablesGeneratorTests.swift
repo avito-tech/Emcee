@@ -7,19 +7,19 @@ import XCTest
 class DeployablesGeneratorTests: XCTestCase {
     
     var deployables = [PackageName: [DeployableItem]]()
+    let defaultBuildArtifacts = BuildArtifacts(
+        appBundle: String(#file),
+        runner: String(#file),
+        xcTestBundle: String(#file),
+        additionalApplicationBundles: [String(#file)])
     
     override func setUp() {
         super.setUp()
         
-        let buildArtifacts = BuildArtifacts(
-            appBundle: String(#file),
-            runner: String(#file),
-            xcTestBundle: String(#file),
-            additionalApplicationBundles: [String(#file)])
         let generator = DeployablesGenerator(
             targetAvitoRunnerPath: "AvitoRunner",
             auxiliaryPaths: AuxiliaryPaths(fbxctest: String(#file), fbsimctl: String(#file), tempFolder: ""),
-            buildArtifacts: buildArtifacts,
+            buildArtifacts: defaultBuildArtifacts,
             environmentFilePath: String(#file),
             targetEnvironmentPath: "env.json",
             simulatorSettings: SimulatorSettings(
@@ -36,6 +36,10 @@ class DeployablesGeneratorTests: XCTestCase {
     }
     
     private func filterDeployables(_ packageName: PackageName) -> [DeployableItem] {
+        return filterDeployables(packageName, in: self.deployables)
+    }
+    
+    private func filterDeployables(_ packageName: PackageName, in deployables: [PackageName: [DeployableItem]]) -> [DeployableItem] {
         return deployables[packageName] ?? []
     }
     
@@ -108,5 +112,21 @@ class DeployablesGeneratorTests: XCTestCase {
         XCTAssertEqual(deployables.count, 1)
         XCTAssertEqual(deployables[0].files.first?.source, String(#file))
         XCTAssertEqual(deployables[0].files.first?.destination, "wd.json")
+    }
+    
+    func testOptionalWatchdogAndSimulatorLocalizationSettongs() throws {
+        let generator = DeployablesGenerator(
+            targetAvitoRunnerPath: "AvitoRunner",
+            auxiliaryPaths: AuxiliaryPaths(fbxctest: String(#file), fbsimctl: String(#file), tempFolder: ""),
+            buildArtifacts: defaultBuildArtifacts,
+            environmentFilePath: String(#file),
+            targetEnvironmentPath: "env.json",
+            simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: nil, watchdogSettings: nil),
+            targetSimulatorLocalizationSettingsPath: "sim.json",
+            targetWatchdogSettingsPath: "wd.json")
+        let deployables = try generator.deployables()
+        
+        XCTAssertEqual(filterDeployables(.watchdogSettings, in: deployables).count, 0)
+        XCTAssertEqual(filterDeployables(.simulatorLocalizationSettings, in: deployables).count, 0)
     }
 }

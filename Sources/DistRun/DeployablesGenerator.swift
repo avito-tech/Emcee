@@ -41,43 +41,47 @@ public final class DeployablesGenerator {
             return try DeployableBundle(name: name, bundleUrl: url)
         }
         
-        return [
-            .avitoRunner: [runnerTool()],
-            .fbsimctl: [try toolForBinary(binaryPath: auxiliaryPaths.fbsimctl, toolName: PackageName.fbsimctl.rawValue)],
-            .fbxctest: [try toolForBinary(binaryPath: auxiliaryPaths.fbxctest, toolName: PackageName.fbxctest.rawValue)],
-            .app: [
-                try DeployableBundle(
-                    name: PackageName.app.rawValue,
-                    bundleUrl: URL(fileURLWithPath: buildArtifacts.appBundle))
-            ],
-            .additionalApp: addtionalAppDeployables,
-            .testRunner: [
-                try DeployableBundle(
-                    name: PackageName.testRunner.rawValue,
-                    bundleUrl: URL(fileURLWithPath: buildArtifacts.runner))],
-            .xctestBundle: [
-                try DeployableBundle(
-                    name: PackageName.xctestBundle.rawValue,
-                    bundleUrl: URL(fileURLWithPath: buildArtifacts.xcTestBundle))],
-            .environment: [
-                DeployableItem(
-                    name: PackageName.environment.rawValue,
-                    files: [DeployableFile(source: environmentFilePath, destination: targetEnvironmentPath)])],
-            .simulatorLocalizationSettings: [
+        var deployables =  [PackageName: [DeployableItem]]()
+        deployables[.avitoRunner] = [runnerTool()]
+        deployables[.fbsimctl] = [try toolForBinary(binaryPath: auxiliaryPaths.fbsimctl, toolName: PackageName.fbsimctl.rawValue)]
+        deployables[.fbxctest] = [try toolForBinary(binaryPath: auxiliaryPaths.fbxctest, toolName: PackageName.fbxctest.rawValue)]
+        deployables[.app] = [
+            try DeployableBundle(
+                name: PackageName.app.rawValue,
+                bundleUrl: URL(fileURLWithPath: buildArtifacts.appBundle))
+        ]
+        deployables[.additionalApp] = addtionalAppDeployables
+        deployables[.testRunner] = [
+            try DeployableBundle(
+                name: PackageName.testRunner.rawValue,
+                bundleUrl: URL(fileURLWithPath: buildArtifacts.runner))]
+        deployables[.xctestBundle] = [
+            try DeployableBundle(
+                name: PackageName.xctestBundle.rawValue,
+                bundleUrl: URL(fileURLWithPath: buildArtifacts.xcTestBundle))]
+        deployables[.environment] = [
+            DeployableItem(
+                name: PackageName.environment.rawValue,
+                files: [DeployableFile(source: environmentFilePath, destination: targetEnvironmentPath)])]
+        if let simulatorLocalizationSettings = simulatorSettings.simulatorLocalizationSettings {
+            deployables[.simulatorLocalizationSettings] = [
                 DeployableItem(
                     name: PackageName.simulatorLocalizationSettings.rawValue,
                     files: [
                         DeployableFile(
-                            source: simulatorSettings.simulatorLocalizationSettings,
-                            destination: targetSimulatorLocalizationSettingsPath)])],
-            .watchdogSettings: [
+                            source: simulatorLocalizationSettings,
+                            destination: targetSimulatorLocalizationSettingsPath)])]
+        }
+        if let watchdogSettings = simulatorSettings.watchdogSettings {
+            deployables[.watchdogSettings] = [
                 DeployableItem(
                     name: PackageName.watchdogSettings.rawValue,
                     files: [
                         DeployableFile(
-                            source: simulatorSettings.watchdogSettings,
+                            source: watchdogSettings,
                             destination: targetWatchdogSettingsPath)])]
-        ]
+        }
+        return deployables
     }
     
     func runnerTool() -> DeployableTool {

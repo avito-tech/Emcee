@@ -98,10 +98,12 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
         comment: "Defines how to scatter tests to the destination machines. Can be: \(ScheduleStrategyType.availableRawValues.joined(separator: ", "))"),
     KnownStringArguments.simulatorLocalizationSettings: ArgumentDescriptionHolder(
         name: "--simulator-localization-settings",
-        comment: "Path to JSON with localization settings"),
+        comment: "Path to JSON with localization settings",
+        optional: true),
     KnownStringArguments.watchdogSettings: ArgumentDescriptionHolder(
         name: "--watchdog-settings",
-        comment: "Path to JSON with watchdog settings"),
+        comment: "Path to JSON with watchdog settings",
+        optional: true),
     KnownStringArguments.tempFolder: ArgumentDescriptionHolder(
         name: "--temp-folder",
         comment: "Where to store temporary stuff, including simulator data"),

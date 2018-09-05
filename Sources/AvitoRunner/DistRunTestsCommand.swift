@@ -176,14 +176,14 @@ final class DistRunTestsCommand: Command {
             environmentValues = [:]
         }
         
-        guard let simulatorLocalizationSettings = arguments.get(self.simulatorLocalizationSettings),
-            fileManager.fileExists(atPath: simulatorLocalizationSettings) else
+        let simulatorLocalizationSettings = arguments.get(self.simulatorLocalizationSettings)
+        if let simulatorLocalizationSettings = simulatorLocalizationSettings,
+            !fileManager.fileExists(atPath: simulatorLocalizationSettings)
         {
             throw ArgumentsError.argumentIsMissing(KnownStringArguments.simulatorLocalizationSettings)
         }
-        guard let watchdogSettings = arguments.get(self.watchdogSettings),
-            fileManager.fileExists(atPath: watchdogSettings) else
-        {
+        let watchdogSettings = arguments.get(self.watchdogSettings)
+        if let watchdogSettings = watchdogSettings, !fileManager.fileExists(atPath: watchdogSettings) {
             throw ArgumentsError.argumentIsMissing(KnownStringArguments.watchdogSettings)
         }
         
