@@ -152,6 +152,18 @@ let package = Package(
             ]),
         
         .target(
+            name: "FileCache",
+            dependencies: [
+                "Extensions",
+                "Utility"
+            ]),
+        .testTarget(
+            name: "FileCacheTests",
+            dependencies: [
+                "FileCache"
+            ]),
+        
+        .target(
             name: "HostDeterminer",
             dependencies: [
                 "Logging"
