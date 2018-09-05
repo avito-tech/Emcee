@@ -100,8 +100,12 @@ public final class Runner {
                 + buildArtifacts.additionalApplicationBundles
             
             arguments += [components.joined(separator: ":")]
-            arguments += ["-simulator-localization-settings", configuration.simulatorSettings.simulatorLocalizationSettings]
-            arguments += ["-watchdog-settings", configuration.simulatorSettings.watchdogSettings]
+            if let simulatorLocatizationSettings = configuration.simulatorSettings.simulatorLocalizationSettings {
+                arguments += ["-simulator-localization-settings", simulatorLocatizationSettings]
+            }
+            if let watchdogSettings = configuration.simulatorSettings.watchdogSettings {
+                arguments += ["-watchdog-settings", watchdogSettings]
+            }
         }
         
         arguments += entriesToRun.flatMap { ["-only", "\(buildArtifacts.xcTestBundle):\($0.testName)"] }
