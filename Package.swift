@@ -321,6 +321,21 @@ let package = Package(
             dependencies: []),
         .testTarget(
             name: "SynchronousWaiterTests",
-            dependencies: ["SynchronousWaiter"])
+            dependencies: ["SynchronousWaiter"]),
+        
+        .target(
+            name: "URLResource",
+            dependencies: [
+                "FileCache",
+                "Utility"
+            ]),
+        .testTarget(
+            name: "URLResourceTests",
+            dependencies: [
+                "FileCache",
+                "Swifter",
+                "URLResource",
+                "Utility"
+            ])
     ]
 )

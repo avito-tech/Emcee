@@ -13,7 +13,7 @@ public final class FileCache {
     
     // MARK: - Public API
     
-    public func contains(itemWithName name: String) throws -> Bool {
+    public func contains(itemWithName name: String) -> Bool {
         do {
             let fileUrl = try url(forItemWithName: name)
             return fileManager.fileExists(atPath: fileUrl.path)
@@ -28,7 +28,7 @@ public final class FileCache {
     }
     
     public func store(itemAtURL itemUrl: URL, underName name: String) throws {
-        if try contains(itemWithName: name) {
+        if contains(itemWithName: name) {
             try remove(itemWithName: name)
         }
         
@@ -51,7 +51,7 @@ public final class FileCache {
     
     // MARK: - Internals
     
-    struct CachedItemInfo: Codable {
+    private struct CachedItemInfo: Codable {
         let fileName: String
     }
     
