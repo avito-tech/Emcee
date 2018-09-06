@@ -38,7 +38,7 @@ public final class FileCache {
             at: itemUrl,
             to: container.appendingPathComponent(filename, isDirectory: false))
         
-        let itemInfo = CachedItemInfo(fileName: filename)
+        let itemInfo = CachedItemInfo(fileName: filename, timestamp: Date().timeIntervalSince1970)
         let data = try encoder.encode(itemInfo)
         try data.write(to: try cachedItemInfoFileUrl(forItemWithName: name), options: .atomicWrite)
     }
@@ -53,6 +53,7 @@ public final class FileCache {
     
     private struct CachedItemInfo: Codable {
         let fileName: String
+        let timestamp: TimeInterval
     }
     
     private let encoder = JSONEncoder()

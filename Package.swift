@@ -37,6 +37,8 @@ let package = Package(
                 "DistWork",
                 "JunitReporting",
                 "LaunchdUtils",
+                "ModelFactories",
+                "Models",
                 "ProcessController",
                 "SSHDeployer",
                 "ScheduleStrategy",
@@ -90,7 +92,8 @@ let package = Package(
             name: "DistRunTests",
             dependencies: [
                 "Deployer",
-                "DistRun"
+                "DistRun",
+                "ModelFactories"
             ]),
         
         .target(
@@ -98,6 +101,7 @@ let package = Package(
             dependencies: [
                 "Extensions",
                 "Logging",
+                "ModelFactories",
                 "Models",
                 "RESTMethods",
                 "Scheduler",
@@ -215,6 +219,16 @@ let package = Package(
             ]),
         
         .target(
+            name: "ModelFactories",
+            dependencies: [
+                "Extensions",
+                "FileCache",
+                "Models",
+                "URLResource",
+                "ZIPFoundation"
+            ]),
+        
+        .target(
             name: "Models",
             dependencies: []),
         
@@ -327,6 +341,7 @@ let package = Package(
             name: "URLResource",
             dependencies: [
                 "FileCache",
+                "Logging",
                 "Utility"
             ]),
         .testTarget(

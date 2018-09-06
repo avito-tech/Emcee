@@ -1,5 +1,6 @@
 import FileCache
 import Foundation
+import Logging
 
 public final class URLResource {
     private let fileCache: FileCache
@@ -17,12 +18,14 @@ public final class URLResource {
     public func fetchResource(url: URL, handler: Handler) {
         if fileCache.contains(itemForURL: url) {
             do {
+                log("Found already cached resource for url '\(url)'")
                 let cacheUrl = try fileCache.urlForCachedContents(ofUrl: url)
                 handler.resourceUrl(contentUrl: cacheUrl, forUrl: url)
             } catch {
                 handler.failedToGetContents(forUrl: url, error: error)
             }
         } else {
+            log("Will fetch resource for url '\(url)'")
             let task = urlSession.downloadTask(with: url) { (localUrl: URL?, response: URLResponse?, error: Swift.Error?) in
                 if let error = error {
                     handler.failedToGetContents(forUrl: url, error: error)
@@ -32,6 +35,7 @@ public final class URLResource {
                     do {
                         try self.fileCache.store(contentsUrl: localUrl, ofUrl: url)
                         let cachedUrl = try self.fileCache.urlForCachedContents(ofUrl: url)
+                        log("Stored resource for '\(url)' in file cache")
                         handler.resourceUrl(contentUrl: cachedUrl, forUrl: url)
                     } catch {
                         handler.failedToGetContents(forUrl: url, error: error)

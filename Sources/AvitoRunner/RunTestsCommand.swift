@@ -4,11 +4,12 @@ import Extensions
 import Foundation
 import JunitReporting
 import Logging
+import ModelFactories
 import Models
-import RuntimeDump
 import Runner
-import Scheduler
+import RuntimeDump
 import ScheduleStrategy
+import Scheduler
 import SimulatorPool
 import Utility
 
@@ -181,11 +182,6 @@ final class RunTestsCommand: Command {
         guard let tempFolder = arguments.get(self.tempFolder) else {
             throw ArgumentsError.argumentIsMissing(KnownStringArguments.tempFolder)
         }
-        do {
-            try fileManager.createDirectory(atPath: tempFolder, withIntermediateDirectories: true, attributes: nil)
-        } catch let error {
-            throw ArgumentsError.argumentValueCannotBeUsed(KnownStringArguments.tempFolder, error)
-        }
         
         let videoPath = arguments.get(self.videoPath)
         let oslogPath = arguments.get(self.oslogPath)
@@ -216,7 +212,10 @@ final class RunTestsCommand: Command {
                 numberOfSimulators: numberOfSimulators,
                 environment: environmentValues,
                 scheduleStrategy: scheduleStrategy),
-            auxiliaryPaths: AuxiliaryPaths(fbxctest: fbxctest, fbsimctl: fbsimctl, tempFolder: tempFolder),
+            auxiliaryPaths: AuxiliaryPathsFactory().createWith(
+                fbxctest: ResourceLocation.from(fbxctest),
+                fbsimctl: ResourceLocation.from(fbsimctl),
+                tempFolder: tempFolder),
             buildArtifacts: BuildArtifacts(
                 appBundle: app,
                 runner: runner,

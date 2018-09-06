@@ -4,6 +4,7 @@ import DistRun
 import Foundation
 import JunitReporting
 import Logging
+import ModelFactories
 import Models
 import RuntimeDump
 import Scheduler
@@ -45,7 +46,7 @@ final class DumpRuntimeTestsCommand: Command {
         } catch {
             throw ArgumentsError.argumentValueCannotBeUsed(KnownStringArguments.testDestinations, error)
         }
-        guard let fbxctest = arguments.get(fbxctest), fileManager.fileExists(atPath: fbxctest) else {
+        guard let fbxctest = arguments.get(fbxctest) else {
             throw ArgumentsError.argumentIsMissing(KnownStringArguments.fbxctest)
         }
         guard let xcTestBundle = arguments.get(xctestBundle), fileManager.fileExists(atPath: xcTestBundle) else {
@@ -55,8 +56,13 @@ final class DumpRuntimeTestsCommand: Command {
             throw ArgumentsError.argumentIsMissing(KnownStringArguments.output)
         }
         
+        let resolver = ResourceLocationResolver.sharedResolver
+        let fbxctestPath = try resolver.resolvePathToBinary(
+            resourceLocation: ResourceLocation.from(fbxctest),
+            binaryName: "fbxctest")
+        
         let configuration = RuntimeDumpConfiguration(
-            fbxctest: fbxctest,
+            fbxctest: fbxctestPath,
             xcTestBundle: xcTestBundle,
             simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: "", watchdogSettings: ""),
             testDestination: testDestinationConfigurations[0].testDestination,
