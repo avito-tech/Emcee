@@ -30,7 +30,6 @@ final class URLResourceTests: XCTestCase {
         let expectedContents = "some fetched contents"
         server?["/get"] = { _ in HttpResponse.ok(.text(expectedContents)) }
         
-        
         let resource = URLResource(fileCache: fileCache, urlSession: URLSession.shared)
         let handler = BlockingHandler()
         resource.fetchResource(

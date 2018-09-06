@@ -224,8 +224,8 @@ let package = Package(
                 "Extensions",
                 "FileCache",
                 "Models",
-                "URLResource",
-                "ZIPFoundation"
+                "ProcessController",
+                "URLResource"
             ]),
         
         .target(

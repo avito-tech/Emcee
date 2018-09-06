@@ -1,25 +1,33 @@
 import Extensions
 import FileCache
 import Foundation
+import Logging
 import Models
+import ProcessController
 import URLResource
-import ZIPFoundation
 
 public final class ResourceLocationResolver {
     private let fileCache: FileCache
     private let urlResource: URLResource
+    private let fileManager = FileManager()
     
-    public enum PathValidationError: Error {
+    public enum ValidationError: Error {
         case binaryNotFoundAtPath(String)
+        case unpackProcessError
     }
     
-    public static let sharedResolver: ResourceLocationResolver = {
-        guard let cachesUrl = try? FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {
+    public static let sharedResolver = ResourceLocationResolver(cachesUrl: cachesUrl())
+    
+    private static func cachesUrl() -> URL {
+        let cacheContainer: URL
+        if let cachesUrl = try? FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true) {
+            cacheContainer = cachesUrl
+        } else {
             let pathToBinaryContainer = ProcessInfo.processInfo.arguments[0].deletingLastPathComponent
-            return ResourceLocationResolver(cachesUrl: URL(fileURLWithPath: pathToBinaryContainer))
+            cacheContainer = URL(fileURLWithPath: pathToBinaryContainer)
         }
-        return ResourceLocationResolver(cachesUrl: cachesUrl)
-    }()
+        return cacheContainer.appendingPathComponent("ru.avito.Runner.cache", isDirectory: true)
+    }
     
     private init(cachesUrl: URL) {
         self.fileCache = FileCache(cachesUrl: cachesUrl)
@@ -31,7 +39,7 @@ public final class ResourceLocationResolver {
         let path = resourceUrl.lastPathComponent == binaryName
             ? resourceUrl.path
             : resourceUrl.appendingPathComponent(binaryName, isDirectory: false).path
-        guard FileManager.default.fileExists(atPath: path) else { throw PathValidationError.binaryNotFoundAtPath(path) }
+        guard fileManager.fileExists(atPath: path) else { throw ValidationError.binaryNotFoundAtPath(path) }
         return path
     }
     
@@ -48,9 +56,14 @@ public final class ResourceLocationResolver {
         let handler = BlockingHandler()
         urlResource.fetchResource(url: url, handler: handler)
         let zipUrl = try handler.wait()
-        let contentsUrl = zipUrl.appendingPathComponent("zip_contents", isDirectory: true)
-        if !FileManager.default.fileExists(atPath: contentsUrl.path) {
-            try FileManager.default.unzipItem(at: zipUrl, to: contentsUrl)
+        let contentsUrl = zipUrl.deletingLastPathComponent().appendingPathComponent("zip_contents", isDirectory: true)
+        if !fileManager.fileExists(atPath: contentsUrl.path) {
+            log("Will unzip '\(zipUrl)' into '\(contentsUrl)'")
+            let controller = ProcessController(
+                subprocess: Subprocess(arguments: ["/usr/bin/unzip", zipUrl.path, "-d", contentsUrl.path]),
+                maximumAllowedSilenceDuration: nil)
+            controller.startAndListenUntilProcessDies()
+            guard controller.terminationStatus() == 0 else { throw ValidationError.unpackProcessError }
         }
         return contentsUrl
     }

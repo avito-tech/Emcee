@@ -156,10 +156,10 @@ final class RunTestsCommand: Command {
             throw ArgumentsError.argumentIsMissing(KnownStringArguments.watchdogSettings)
         }
         
-        guard let fbxctest = arguments.get(self.fbxctest), fileManager.fileExists(atPath: fbxctest) else {
+        guard let fbxctest = arguments.get(self.fbxctest) else {
             throw ArgumentsError.argumentIsMissing(KnownStringArguments.fbxctest)
         }
-        guard let fbsimctl = arguments.get(self.fbsimctl), fileManager.fileExists(atPath: fbsimctl) else {
+        guard let fbsimctl = arguments.get(self.fbsimctl) else {
             throw ArgumentsError.argumentIsMissing(KnownStringArguments.fbsimctl)
         }
         
