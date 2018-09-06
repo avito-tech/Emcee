@@ -15,7 +15,7 @@ public final class URLResource {
         self.urlSession = urlSession
     }
     
-    public func fetchResource(url: URL, handler: Handler) {
+    public func fetchResource(url: URL, handler: URLResourceHandler) {
         if fileCache.contains(itemForURL: url) {
             do {
                 log("Found already cached resource for url '\(url)'")

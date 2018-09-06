@@ -8,14 +8,16 @@ public final class AuxiliaryPathsFactory {
     public func createWith(
         fbxctest: ResourceLocation,
         fbsimctl: ResourceLocation,
-        tempFolder: String)
+        tempFolder: String = "")
         throws -> AuxiliaryPaths
     {
-        try fileManager.createDirectory(atPath: tempFolder, withIntermediateDirectories: true, attributes: [:])
+        if !tempFolder.isEmpty {
+            try fileManager.createDirectory(atPath: tempFolder, withIntermediateDirectories: true, attributes: [:])
+        }
         
         let resolver = ResourceLocationResolver.sharedResolver
-        let fbxctestPath = try resolver.resolvePathToBinary(resourceLocation: fbxctest, binaryName: "fbxctest")
-        let fbsimctlPath = try resolver.resolvePathToBinary(resourceLocation: fbsimctl, binaryName: "fbsimctl")
+        let fbxctestPath = try resolver.resolvePath(resourceLocation: fbxctest).with(archivedFile: "fbxctest")
+        let fbsimctlPath = try resolver.resolvePath(resourceLocation: fbsimctl).with(archivedFile: "fbsimctl")
         
         return AuxiliaryPaths.withoutValidatingValues(
             fbxctest: fbxctestPath,

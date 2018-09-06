@@ -31,11 +31,11 @@ final class URLResourceTests: XCTestCase {
         server?["/get"] = { _ in HttpResponse.ok(.text(expectedContents)) }
         
         let resource = URLResource(fileCache: fileCache, urlSession: URLSession.shared)
-        let handler = BlockingHandler()
+        let handler = BlockingURLResourceHandler()
         resource.fetchResource(
             url: URL(string: "http://localhost:\(serverPort)/get/")!,
             handler: handler)
-        let contentUrl = try handler.wait(until: Date().addingTimeInterval(5))
+        let contentUrl = try handler.wait(limit: 5)
         
         XCTAssertEqual(try String(contentsOf: contentUrl), expectedContents)
     }
@@ -44,10 +44,10 @@ final class URLResourceTests: XCTestCase {
         server?["/get"] = { _ in HttpResponse.internalServerError }
         
         let resource = URLResource(fileCache: fileCache, urlSession: URLSession.shared)
-        let handler = BlockingHandler()
+        let handler = BlockingURLResourceHandler()
         resource.fetchResource(
             url: URL(string: "http://localhost:\(serverPort)/get/")!,
             handler: handler)
-        XCTAssertThrowsError(try handler.wait(until: Date().addingTimeInterval(5)))
+        XCTAssertThrowsError(try handler.wait(limit: 5))
     }
 }

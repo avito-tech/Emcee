@@ -16,6 +16,20 @@ public final class ResourceLocationResolver {
         case unpackProcessError
     }
     
+    public enum Result {
+        case directlyAccessibleFile(path: String)
+        case contentsOfArchive(folderPath: String)
+        
+        public func with(archivedFile: String) -> String {
+            switch self {
+            case .directlyAccessibleFile(let path):
+                return path
+            case .contentsOfArchive(let folderPath):
+                return folderPath.appending(pathComponent: archivedFile)
+            }
+        }
+    }
+    
     public static let sharedResolver = ResourceLocationResolver(cachesUrl: cachesUrl())
     
     private static func cachesUrl() -> URL {
@@ -34,26 +48,18 @@ public final class ResourceLocationResolver {
         self.urlResource = URLResource(fileCache: fileCache, urlSession: URLSession.shared)
     }
     
-    public func resolvePathToBinary(resourceLocation: ResourceLocation, binaryName: String) throws -> String {
-        let resourceUrl = try resolvePath(resourceLocation: resourceLocation)
-        let path = resourceUrl.lastPathComponent == binaryName
-            ? resourceUrl.path
-            : resourceUrl.appendingPathComponent(binaryName, isDirectory: false).path
-        guard fileManager.fileExists(atPath: path) else { throw ValidationError.binaryNotFoundAtPath(path) }
-        return path
-    }
-    
-    public func resolvePath(resourceLocation: ResourceLocation) throws -> URL {
+    public func resolvePath(resourceLocation: ResourceLocation) throws -> Result {
         switch resourceLocation {
         case .localFilePath(let path):
-            return URL(fileURLWithPath: path)
+            return Result.directlyAccessibleFile(path: path)
         case .remoteUrl(let url):
-            return try cachedContentsOfUrl(url)
+            let path = try cachedContentsOfUrl(url).path
+            return Result.contentsOfArchive(folderPath: path)
         }
     }
     
     private func cachedContentsOfUrl(_ url: URL) throws -> URL {
-        let handler = BlockingHandler()
+        let handler = BlockingURLResourceHandler()
         urlResource.fetchResource(url: url, handler: handler)
         let zipUrl = try handler.wait()
         let contentsUrl = zipUrl.deletingLastPathComponent().appendingPathComponent("zip_contents", isDirectory: true)

@@ -3,7 +3,7 @@ import Dispatch
 import Foundation
 import Logging
 
-public final class BlockingHandler: Handler {
+public final class BlockingURLResourceHandler: URLResourceHandler {
     
     private let semaphore = DispatchSemaphore(value: 0)
     private var result: Result<URL, HandlerError> = Result.failure(HandlerError.timeout)
