@@ -23,7 +23,7 @@ The CLI is split into subcommands. Currently there are 4 commands supported:
 
 - `runTests` - actually runs the UI tests on local machine and generates a report.
 - `distRunTests` - brings up the queue with tests to run, deploys the required data to the remote machines over SSH and then starts 
-remote agents that run UI tests on remote machines. After runnng all tests, creates a report on local machine.
+remote agents that run UI tests on remote machines. After running all tests, creates a report on local machine.
 - `distWork` - starts the runner as a client to the queue server that you start using the `distRunTests` command on the remote machines.
 This can be considered as a worker instance of the runner.
 - `dump` - runs runtime dump. This is a feature that allows you to filter the tests before running them. Read more about runtime dump [here](Sources/RuntimeDump).
