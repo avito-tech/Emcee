@@ -4,6 +4,7 @@ import DistRun
 import Foundation
 import JunitReporting
 import Logging
+import ModelFactories
 import Models
 import RuntimeDump
 import Scheduler
@@ -15,7 +16,7 @@ final class DumpRuntimeTestsCommand: Command {
     let overview = "Dumps all available runtime tests into JSON file"
     
     private let testDestinations: OptionArgument<String>
-    private let fbxctest: OptionArgument<String>
+    private let fbxctestValue: OptionArgument<String>
     private let xctestBundle: OptionArgument<String>
     private let output: OptionArgument<String>
     private let encoder: JSONEncoder = {
@@ -27,7 +28,7 @@ final class DumpRuntimeTestsCommand: Command {
     required init(parser: ArgumentParser) {
         let subparser = parser.add(subparser: command, overview: overview)
         testDestinations = subparser.add(stringArgument: KnownStringArguments.testDestinations)
-        fbxctest = subparser.add(stringArgument: KnownStringArguments.fbxctest)
+        fbxctestValue = subparser.add(stringArgument: KnownStringArguments.fbxctest)
         xctestBundle = subparser.add(stringArgument: KnownStringArguments.xctestBundle)
         output = subparser.add(stringArgument: KnownStringArguments.output)
     }
@@ -45,7 +46,7 @@ final class DumpRuntimeTestsCommand: Command {
         } catch {
             throw ArgumentsError.argumentValueCannotBeUsed(KnownStringArguments.testDestinations, error)
         }
-        guard let fbxctest = arguments.get(fbxctest), fileManager.fileExists(atPath: fbxctest) else {
+        guard let fbxctestValue = arguments.get(fbxctestValue) else {
             throw ArgumentsError.argumentIsMissing(KnownStringArguments.fbxctest)
         }
         guard let xcTestBundle = arguments.get(xctestBundle), fileManager.fileExists(atPath: xcTestBundle) else {
@@ -54,6 +55,9 @@ final class DumpRuntimeTestsCommand: Command {
         guard let output = arguments.get(output) else {
             throw ArgumentsError.argumentIsMissing(KnownStringArguments.output)
         }
+        
+        let resolver = ResourceLocationResolver.sharedResolver
+        let fbxctest = try resolver.resolvePath(resourceLocation: ResourceLocation.from(fbxctestValue)).with(archivedFile: "fbxctest")
         
         let configuration = RuntimeDumpConfiguration(
             fbxctest: fbxctest,

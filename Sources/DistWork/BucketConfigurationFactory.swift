@@ -1,5 +1,6 @@
 import Foundation
 import Logging
+import ModelFactories
 import Models
 import Runner
 import Scheduler
@@ -41,7 +42,6 @@ final class BucketConfigurationFactory {
          /remote_path/some_run_id/avitoRunner/tempFolder/someUUID
          */
         let tempFolder = packagePath(containerPath, .avitoRunner).appending(pathComponent: "tempFolder")
-        try FileManager.default.createDirectory(atPath: tempFolder, withIntermediateDirectories: true, attributes: nil)
         
         /*
          All paths below are resolved against containerPath.
@@ -79,7 +79,10 @@ final class BucketConfigurationFactory {
         let watchdogSettings = try fileInPackageIfExists(containerPath, .watchdogSettings)
         
         let configuration = SchedulerConfiguration(
-            auxiliaryPaths: AuxiliaryPaths(fbxctest: fbxctest, fbsimctl: fbsimctl, tempFolder: tempFolder),
+            auxiliaryPaths: try AuxiliaryPathsFactory().createWith(
+                fbxctest: ResourceLocation.from(fbxctest),
+                fbsimctl: ResourceLocation.from(fbsimctl),
+                tempFolder: tempFolder),
             testType: .uiTest,
             buildArtifacts: BuildArtifacts(
                 appBundle: app,

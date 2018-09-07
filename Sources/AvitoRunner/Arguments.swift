@@ -52,7 +52,7 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
         comment: "A JSON file with test destination configurations. For runtime dump first destination will be used."),
     KnownStringArguments.fbxctest: ArgumentDescriptionHolder(
         name: "--fbxctest",
-        comment: "Path to fbxctest binary"),
+        comment: "Local path to fbxctest binary, or URL to ZIP archive"),
     KnownStringArguments.xctestBundle: ArgumentDescriptionHolder(
         name: "--xctest-bundle",
         comment: "Path to .xctest bundle with your tests"),
@@ -67,7 +67,7 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
         comment: "Where the Chrome trace should be created"),
     KnownStringArguments.fbsimctl: ArgumentDescriptionHolder(
         name: "--fbsimctl",
-        comment: "Path to fbsimctl binary"),
+        comment: "Local path to fbsimctl binary, or URL to ZIP archive"),
     KnownStringArguments.app: ArgumentDescriptionHolder(
         name: "--app",
         comment: "Path to your app that will be tested by the UI tests"),

@@ -8,7 +8,7 @@ class SynchronousWaiterTest: XCTestCase {
         let start = Date()
         SynchronousWaiter.wait(pollPeriod: 0.01, timeout: expectedDuration)
         let actualDuration = Date().timeIntervalSince(start)
-        XCTAssertEqual(actualDuration, expectedDuration, accuracy: 0.03)
+        XCTAssertEqual(actualDuration, expectedDuration, accuracy: 0.1)
     }
     
     func testWaitFromEmptyRunLoop() {

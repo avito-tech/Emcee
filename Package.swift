@@ -37,6 +37,8 @@ let package = Package(
                 "DistWork",
                 "JunitReporting",
                 "LaunchdUtils",
+                "ModelFactories",
+                "Models",
                 "ProcessController",
                 "SSHDeployer",
                 "ScheduleStrategy",
@@ -90,7 +92,8 @@ let package = Package(
             name: "DistRunTests",
             dependencies: [
                 "Deployer",
-                "DistRun"
+                "DistRun",
+                "ModelFactories"
             ]),
         
         .target(
@@ -98,6 +101,7 @@ let package = Package(
             dependencies: [
                 "Extensions",
                 "Logging",
+                "ModelFactories",
                 "Models",
                 "RESTMethods",
                 "Scheduler",
@@ -152,6 +156,18 @@ let package = Package(
             ]),
         
         .target(
+            name: "FileCache",
+            dependencies: [
+                "Extensions",
+                "Utility"
+            ]),
+        .testTarget(
+            name: "FileCacheTests",
+            dependencies: [
+                "FileCache"
+            ]),
+        
+        .target(
             name: "HostDeterminer",
             dependencies: [
                 "Logging"
@@ -200,6 +216,16 @@ let package = Package(
             name: "Logging",
             dependencies: [
                 "Ansi"
+            ]),
+        
+        .target(
+            name: "ModelFactories",
+            dependencies: [
+                "Extensions",
+                "FileCache",
+                "Models",
+                "ProcessController",
+                "URLResource"
             ]),
         
         .target(
@@ -309,6 +335,22 @@ let package = Package(
             dependencies: []),
         .testTarget(
             name: "SynchronousWaiterTests",
-            dependencies: ["SynchronousWaiter"])
+            dependencies: ["SynchronousWaiter"]),
+        
+        .target(
+            name: "URLResource",
+            dependencies: [
+                "FileCache",
+                "Logging",
+                "Utility"
+            ]),
+        .testTarget(
+            name: "URLResourceTests",
+            dependencies: [
+                "FileCache",
+                "Swifter",
+                "URLResource",
+                "Utility"
+            ])
     ]
 )

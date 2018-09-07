@@ -3,6 +3,7 @@ import Deployer
 import DistRun
 import Foundation
 import Logging
+import ModelFactories
 import Models
 import ScheduleStrategy
 import Utility
@@ -187,10 +188,10 @@ final class DistRunTestsCommand: Command {
             throw ArgumentsError.argumentIsMissing(KnownStringArguments.watchdogSettings)
         }
         
-        guard let fbxctest = arguments.get(self.fbxctest), fileManager.fileExists(atPath: fbxctest) else {
+        guard let fbxctest = arguments.get(self.fbxctest) else {
             throw ArgumentsError.argumentIsMissing(KnownStringArguments.fbxctest)
         }
-        guard let fbsimctl = arguments.get(self.fbsimctl), fileManager.fileExists(atPath: fbsimctl) else {
+        guard let fbsimctl = arguments.get(self.fbsimctl) else {
             throw ArgumentsError.argumentIsMissing(KnownStringArguments.fbsimctl)
         }
         
@@ -239,9 +240,9 @@ final class DistRunTestsCommand: Command {
                 numberOfSimulators: numberOfSimulators,
                 environment: environmentValues,
                 scheduleStrategy: scheduleStrategy),
-            auxiliaryPaths: AuxiliaryPaths(
-                fbxctest: fbxctest,
-                fbsimctl: fbsimctl,
+            auxiliaryPaths: try AuxiliaryPathsFactory().createWith(
+                fbxctest: ResourceLocation.from(fbxctest),
+                fbsimctl: ResourceLocation.from(fbsimctl),
                 tempFolder: NSTemporaryDirectory()),
             buildArtifacts: BuildArtifacts(
                 appBundle: app,

@@ -1,6 +1,7 @@
 import Extensions
 import Deployer
 @testable import DistRun
+import ModelFactories
 import Models
 import XCTest
 
@@ -15,19 +16,21 @@ class DeployablesGeneratorTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        
-        let generator = DeployablesGenerator(
-            targetAvitoRunnerPath: "AvitoRunner",
-            auxiliaryPaths: AuxiliaryPaths(fbxctest: String(#file), fbsimctl: String(#file), tempFolder: ""),
-            buildArtifacts: defaultBuildArtifacts,
-            environmentFilePath: String(#file),
-            targetEnvironmentPath: "env.json",
-            simulatorSettings: SimulatorSettings(
-                simulatorLocalizationSettings: String(#file),
-                watchdogSettings: String(#file)),
-            targetSimulatorLocalizationSettingsPath: "sim.json",
-            targetWatchdogSettingsPath: "wd.json")
         do {
+            let generator = DeployablesGenerator(
+                targetAvitoRunnerPath: "AvitoRunner",
+                auxiliaryPaths: try AuxiliaryPathsFactory().createWith(
+                    fbxctest: ResourceLocation.from(String(#file)),
+                    fbsimctl: ResourceLocation.from(String(#file)),
+                    tempFolder: ""),
+                buildArtifacts: defaultBuildArtifacts,
+                environmentFilePath: String(#file),
+                targetEnvironmentPath: "env.json",
+                simulatorSettings: SimulatorSettings(
+                    simulatorLocalizationSettings: String(#file),
+                    watchdogSettings: String(#file)),
+                targetSimulatorLocalizationSettingsPath: "sim.json",
+                targetWatchdogSettingsPath: "wd.json")
             self.deployables = try generator.deployables()
         } catch {
             self.continueAfterFailure = false
@@ -117,7 +120,10 @@ class DeployablesGeneratorTests: XCTestCase {
     func testOptionalWatchdogAndSimulatorLocalizationSettongs() throws {
         let generator = DeployablesGenerator(
             targetAvitoRunnerPath: "AvitoRunner",
-            auxiliaryPaths: AuxiliaryPaths(fbxctest: String(#file), fbsimctl: String(#file), tempFolder: ""),
+            auxiliaryPaths: try AuxiliaryPathsFactory().createWith(
+                fbxctest: ResourceLocation.from(String(#file)),
+                fbsimctl: ResourceLocation.from(String(#file)),
+                tempFolder: ""),
             buildArtifacts: defaultBuildArtifacts,
             environmentFilePath: String(#file),
             targetEnvironmentPath: "env.json",

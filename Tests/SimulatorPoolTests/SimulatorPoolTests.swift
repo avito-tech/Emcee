@@ -9,7 +9,7 @@ class SimulatorPoolTests: XCTestCase {
         let pool = SimulatorPool<DefaultSimulatorController>(
             numberOfSimulators: 1,
             testDestination: try TestDestination(deviceType: "", iOSVersion: "11.0"),
-            auxiliaryPaths: AuxiliaryPaths(fbxctest: "", fbsimctl: "", tempFolder: ""))
+            auxiliaryPaths: AuxiliaryPaths.empty)
         _ = try pool.allocateSimulator()
         XCTAssertThrowsError(_ = try pool.allocateSimulator(), "Expected to throw") { error in
             XCTAssertEqual(error as? BorrowError, BorrowError.noSimulatorsLeft)
@@ -21,7 +21,7 @@ class SimulatorPoolTests: XCTestCase {
         let pool = SimulatorPool<DefaultSimulatorController>(
             numberOfSimulators: UInt(numberOfThreads),
             testDestination: try TestDestination(deviceType: "", iOSVersion: "11.0"),
-            auxiliaryPaths: AuxiliaryPaths(fbxctest: "", fbsimctl: "", tempFolder: ""))
+            auxiliaryPaths: AuxiliaryPaths.empty)
         let queue = OperationQueue()
         queue.maxConcurrentOperationCount = Int(numberOfThreads)
         
@@ -45,7 +45,7 @@ class SimulatorPoolTests: XCTestCase {
         let pool = SimulatorPool<FakeSimulatorController>(
             numberOfSimulators: 1,
             testDestination: try TestDestination(deviceType: "Fake Device", iOSVersion: "11.3"),
-            auxiliaryPaths: AuxiliaryPaths(fbxctest: "", fbsimctl: "", tempFolder: ""),
+            auxiliaryPaths: AuxiliaryPaths.empty,
             automaticCleanupTiumeout: 1)
         let simulatorController = try pool.allocateSimulator()
         pool.freeSimulator(simulatorController)
