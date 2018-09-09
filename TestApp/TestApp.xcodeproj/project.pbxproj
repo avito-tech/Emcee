@@ -13,6 +13,14 @@
 		6489A21F2142C9D600B96C4F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6489A21E2142C9D600B96C4F /* Assets.xcassets */; };
 		6489A2222142C9D600B96C4F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6489A2202142C9D600B96C4F /* LaunchScreen.storyboard */; };
 		6489A22D2142C9D600B96C4F /* TestAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6489A22C2142C9D600B96C4F /* TestAppUITests.swift */; };
+		E9BE5CAD2145460B00EDFBBC /* TestGetter.h in Resources */ = {isa = PBXBuildFile; fileRef = E9BE5CA52145460700EDFBBC /* TestGetter.h */; };
+		E9BE5CAF2145460B00EDFBBC /* TestQuery.swift in Resources */ = {isa = PBXBuildFile; fileRef = E9BE5CA32145460700EDFBBC /* TestQuery.swift */; };
+		E9BE5CB02145460B00EDFBBC /* TestSuiteInfo.h in Resources */ = {isa = PBXBuildFile; fileRef = E9BE5CA62145460800EDFBBC /* TestSuiteInfo.h */; };
+		E9BE5CB12145460B00EDFBBC /* TestSuiteInfo.m in Resources */ = {isa = PBXBuildFile; fileRef = E9BE5CA42145460700EDFBBC /* TestSuiteInfo.m */; };
+		E9BE5CB32145463200EDFBBC /* TestQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9BE5CA32145460700EDFBBC /* TestQuery.swift */; };
+		E9BE5CB42145463200EDFBBC /* TestSuiteInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = E9BE5CA42145460700EDFBBC /* TestSuiteInfo.m */; };
+		E9EB057C214546C90070CECD /* TestGetter.m in Sources */ = {isa = PBXBuildFile; fileRef = E9EB057B214546C90070CECD /* TestGetter.m */; };
+		E9EB0580214547540070CECD /* PrincipalClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9EB057F214547540070CECD /* PrincipalClass.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +44,14 @@
 		6489A2282142C9D600B96C4F /* TestAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TestAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6489A22C2142C9D600B96C4F /* TestAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestAppUITests.swift; sourceTree = "<group>"; };
 		6489A22E2142C9D600B96C4F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E9BE5CA32145460700EDFBBC /* TestQuery.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestQuery.swift; sourceTree = "<group>"; };
+		E9BE5CA42145460700EDFBBC /* TestSuiteInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestSuiteInfo.m; sourceTree = "<group>"; };
+		E9BE5CA52145460700EDFBBC /* TestGetter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestGetter.h; sourceTree = "<group>"; };
+		E9BE5CA62145460800EDFBBC /* TestSuiteInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestSuiteInfo.h; sourceTree = "<group>"; };
+		E9EB0578214546900070CECD /* TestApp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TestApp-Bridging-Header.h"; sourceTree = "<group>"; };
+		E9EB057B214546C90070CECD /* TestGetter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestGetter.m; sourceTree = "<group>"; };
+		E9EB057D214547080070CECD /* TestAppUITests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "TestAppUITests-Bridging-Header.h"; path = "TestAppUITests/TestAppUITests-Bridging-Header.h"; sourceTree = SOURCE_ROOT; };
+		E9EB057F214547540070CECD /* PrincipalClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrincipalClass.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,6 +99,7 @@
 				6489A21E2142C9D600B96C4F /* Assets.xcassets */,
 				6489A2202142C9D600B96C4F /* LaunchScreen.storyboard */,
 				6489A2232142C9D600B96C4F /* Info.plist */,
+				E9EB0578214546900070CECD /* TestApp-Bridging-Header.h */,
 			);
 			path = TestApp;
 			sourceTree = "<group>";
@@ -90,10 +107,25 @@
 		6489A22B2142C9D600B96C4F /* TestAppUITests */ = {
 			isa = PBXGroup;
 			children = (
+				E9EB057E214547130070CECD /* RuntimeDump */,
+				E9EB057D214547080070CECD /* TestAppUITests-Bridging-Header.h */,
 				6489A22C2142C9D600B96C4F /* TestAppUITests.swift */,
 				6489A22E2142C9D600B96C4F /* Info.plist */,
 			);
 			path = TestAppUITests;
+			sourceTree = "<group>";
+		};
+		E9EB057E214547130070CECD /* RuntimeDump */ = {
+			isa = PBXGroup;
+			children = (
+				E9EB057F214547540070CECD /* PrincipalClass.swift */,
+				E9BE5CA32145460700EDFBBC /* TestQuery.swift */,
+				E9BE5CA52145460700EDFBBC /* TestGetter.h */,
+				E9EB057B214546C90070CECD /* TestGetter.m */,
+				E9BE5CA62145460800EDFBBC /* TestSuiteInfo.h */,
+				E9BE5CA42145460700EDFBBC /* TestSuiteInfo.m */,
+			);
+			path = RuntimeDump;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -146,6 +178,7 @@
 				TargetAttributes = {
 					6489A2132142C9D300B96C4F = {
 						CreatedOnToolsVersion = 9.4.1;
+						LastSwiftMigration = 0940;
 					};
 					6489A2272142C9D600B96C4F = {
 						CreatedOnToolsVersion = 9.4.1;
@@ -187,6 +220,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E9BE5CB02145460B00EDFBBC /* TestSuiteInfo.h in Resources */,
+				E9BE5CB12145460B00EDFBBC /* TestSuiteInfo.m in Resources */,
+				E9BE5CAF2145460B00EDFBBC /* TestQuery.swift in Resources */,
+				E9BE5CAD2145460B00EDFBBC /* TestGetter.h in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -206,6 +243,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E9EB0580214547540070CECD /* PrincipalClass.swift in Sources */,
+				E9BE5CB32145463200EDFBBC /* TestQuery.swift in Sources */,
+				E9BE5CB42145463200EDFBBC /* TestSuiteInfo.m in Sources */,
+				E9EB057C214546C90070CECD /* TestGetter.m in Sources */,
 				6489A22D2142C9D600B96C4F /* TestAppUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -358,16 +399,20 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = TestApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = ru.avito.TestApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "TestApp/TestApp-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -375,16 +420,19 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = TestApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = ru.avito.TestApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "TestApp/TestApp-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -401,6 +449,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = ru.avito.TestAppUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "TestAppUITests/TestAppUITests-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = TestApp;
@@ -420,6 +469,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = ru.avito.TestAppUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "TestAppUITests/TestAppUITests-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = TestApp;

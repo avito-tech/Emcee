@@ -38,34 +38,26 @@ should be stored as a JSON file.
 
 The environment variable is `AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH`. An example input value could be any path like `/tmp/runtimedump.json`.
 
-The JSON should have the following schema:
-
-```
-[
-    {"className": "LoginTests", testMethods: ["testLogin", "testLoginFailsWithoutCredentials"], "path": "/src/LoginTests.swift"},
-    ...
-]
-```
-So, the JSON contents should be an array of objects, each object consists of the following three fields:
+JSON contents should be an array of objects, each object consists of the following three fields:
 
 - `className` - a runtime name of the `XCTestCase` subclass.
 - `testMethods` - all test methods of the `className`, usually those are the functions that have prefix `test` and have `Void` return type
 - `path` - the full path to the source file which contains this `className`. This could be an empty string, but the value must be present.
 
-You could implement the main functionality like that:
+Example:
 
 ```
-func main() {
-    exportAvailableTestCasesIfNeeded()
-}
-
-func exportAvailableTestCasesIfNeeded() {
-    let exportPath = ProcessInfo.processInfo.environment["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH"]
-    if let exportPath = exportPath, !exportPath.isEmpty {
-        TestQuery(outputPath: exportPath).export()
-    }
-}
+[
+    {
+        "className": "LoginTests", 
+        "testMethods": [
+            "testLogin",
+            "testLoginFailsWithoutCredentials"
+        ], 
+        "path": "/src/LoginTests.swift"
+    },
+    ...
+]
 ```
 
-You may find the sample implementation of the `TestQuery` class as well as sample classes that walk the runtime and 
-find the `XCTestCase` subclasses in the corresponding `*.example` files.
+You may find the sample implementation of the runtime dump in [`TestApp/TestAppUITests/RuntimeDump`](../../TestApp/TestAppUITests/RuntimeDump)
