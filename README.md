@@ -6,10 +6,6 @@ It can generate the Junit and trace to make you see how the test run behaved on 
 
 # Getting Started
 
-## Requirements:
-
-- `brew install libssh2`
-
 ## Using Emcee
 
 The most easy way to run your tests is to invoke a command line tool.
@@ -140,6 +136,12 @@ General commands that help you with a development workflow:
 - Running integration tests: `make integration-test`
 
 # Dependencies
+
+## libssh2
+
+`brew install libssh2`
+
+## FBSimulatorControl
 
 Emcee depends heavily on [FBSimulatorControl](https://github.com/beefon/FBSimulatorControl) library, which is a set of APIs to work with iOS Simulator and iOS devices. 
 We have a [fork](https://github.com/beefon/FBSimulatorControl) which contains some extensions, so please check it out and 
