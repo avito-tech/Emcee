@@ -2,7 +2,7 @@
 
 This folder contains a basic set of tests.
 
-### `run_smoke_tests.sh`:
+### `auxiliary/run_smoke_tests.sh`:
 
 - Builds for testing the TestApp
 - Runs UI tests in TestApp using `AvitoRunner`

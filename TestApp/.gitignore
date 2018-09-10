@@ -1,8 +1,6 @@
 .DS_Store
 
-dd/
-Build/
-Index/
+auxiliary/dd/
 
 *.ignored*
 *.pyc
@@ -18,6 +16,5 @@ xcuserdata/
 *.xcscmblueprint
 *.orig
 IDEWorkspaceChecks.plist
-DerivedData/
 
-test-results
+auxiliary/tempfolder
