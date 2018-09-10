@@ -43,7 +43,8 @@ General commands that help you with a development workflow:
 
 - Generating an Xcode project: `make open`
 - Building the binary: `make build`
-- Running all tests: `make test`
+- Running unit tests: `make test`
+- Running integration tests: `make integration-test`
 
 # Dependencies
 
