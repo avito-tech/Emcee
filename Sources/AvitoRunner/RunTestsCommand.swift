@@ -146,7 +146,7 @@ final class RunTestsCommand: Command {
         }
 
         let simulatorLocalizationSettings = arguments.get(self.simulatorLocalizationSettings)
-        if let simulatorLocalizationSettings = simulatorLocalizationSettings, fileManager.fileExists(atPath: simulatorLocalizationSettings) {
+        if let simulatorLocalizationSettings = simulatorLocalizationSettings, !fileManager.fileExists(atPath: simulatorLocalizationSettings) {
             throw ArgumentsError.argumentIsMissing(KnownStringArguments.simulatorLocalizationSettings)
         }
 
