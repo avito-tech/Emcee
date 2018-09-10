@@ -29,5 +29,5 @@ tempFolderPath="$(pwd)/tempfolder/"
 echo "Deleting: $tempFolderPath"
 rm -rf "$tempFolderPath"
 
-pip install pytest
+pip3 install pytest
 pytest "analyze_results.py"
