@@ -13,3 +13,6 @@ run:
 
 test:
 	swift test -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.13"
+
+integration-test:
+	cd TestApp && ./auxiliary/run_smoke_tests.sh

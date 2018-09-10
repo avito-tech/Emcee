@@ -1,3 +1,20 @@
-dd/
+.DS_Store
 
-*.ignored
+auxiliary/dd/
+
+*.ignored*
+*.pyc
+.idea/
+.cache/
+__pycache__/
+
+xcuserdata
+xcuserdata/
+*.xccheckout
+*.xcuserstate
+*.xcuserdatad
+*.xcscmblueprint
+*.orig
+IDEWorkspaceChecks.plist
+
+auxiliary/tempfolder
