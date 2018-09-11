@@ -151,7 +151,7 @@ final class RunTestsCommand: Command {
         }
 
         let watchdogSettings = arguments.get(self.watchdogSettings)
-        if let watchdogSettings = watchdogSettings, fileManager.fileExists(atPath: watchdogSettings) {
+        if let watchdogSettings = watchdogSettings, !fileManager.fileExists(atPath: watchdogSettings) {
             throw ArgumentsError.argumentIsMissing(KnownStringArguments.watchdogSettings)
         }
         
