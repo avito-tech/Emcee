@@ -35,6 +35,7 @@ final class RunTestsCommand: Command {
     private let onlyId: OptionArgument<[UInt]>
     private let onlyTest: OptionArgument<[String]>
     private let oslogPath: OptionArgument<String>
+    private let plugins: OptionArgument<[String]>
     private let runner: OptionArgument<String>
     private let scheduleStrategy: OptionArgument<String>
     private let simulatorLocalizationSettings: OptionArgument<String>
@@ -67,6 +68,7 @@ final class RunTestsCommand: Command {
         onlyId = subparser.add(multipleIntArgument: KnownUIntArguments.onlyId)
         onlyTest = subparser.add(multipleStringArgument: KnownStringArguments.onlyTest)
         oslogPath = subparser.add(stringArgument: KnownStringArguments.oslogPath)
+        plugins = subparser.add(multipleStringArgument: KnownStringArguments.plugin)
         runner = subparser.add(stringArgument: KnownStringArguments.runner)
         scheduleStrategy = subparser.add(stringArgument: KnownStringArguments.scheduleStrategy)
         simulatorLocalizationSettings = subparser.add(stringArgument: KnownStringArguments.simulatorLocalizationSettings)
@@ -92,6 +94,7 @@ final class RunTestsCommand: Command {
         let onlyId: [TestToRun] = (arguments.get(self.onlyId) ?? []).map { TestToRun.caseId($0) }
         let onlyTest: [TestToRun] = (arguments.get(self.onlyTest) ?? []).map { TestToRun.testName($0) }
         let oslogPath = arguments.get(self.oslogPath)
+        let plugins = try ArgumentsReader.validateResourceLocations(arguments.get(self.plugins) ?? [], key: KnownStringArguments.plugin)
         let runner = try ArgumentsReader.validateNotNil(arguments.get(self.runner), key: KnownStringArguments.runner)
         let scheduleStrategy = try ArgumentsReader.scheduleStrategy(arguments.get(self.scheduleStrategy), key: KnownStringArguments.scheduleStrategy)
         let simulatorLocalizationSettings = try ArgumentsReader.validateNilOrFileExists(arguments.get(self.simulatorLocalizationSettings), key: KnownStringArguments.simulatorLocalizationSettings)
@@ -128,6 +131,7 @@ final class RunTestsCommand: Command {
             auxiliaryPaths: AuxiliaryPathsFactory().createWith(
                 fbxctest: fbxctest,
                 fbsimctl: fbsimctl,
+                plugins: plugins,
                 tempFolder: tempFolder),
             buildArtifacts: BuildArtifacts(
                 appBundle: app,

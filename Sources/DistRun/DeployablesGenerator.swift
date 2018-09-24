@@ -2,6 +2,7 @@ import Foundation
 import Deployer
 import Extensions
 import Models
+import PluginManager
 
 public final class DeployablesGenerator {
     let targetAvitoRunnerPath: String
@@ -34,54 +35,56 @@ public final class DeployablesGenerator {
     }
     
     public func deployables() throws -> [PackageName: [DeployableItem]] {
-        let addtionalAppDeployables: [DeployableItem] = try buildArtifacts.additionalApplicationBundles.map {
+        var deployables =  [PackageName: [DeployableItem]]()
+        deployables[.additionalApp] = try additionalAppDeployables()
+        deployables[.app] = try appDeployables()
+        deployables[.avitoRunner] = [runnerTool()]
+        deployables[.environment] = try environmentDeployables()
+        deployables[.fbsimctl] = [try toolForBinary(binaryPath: auxiliaryPaths.fbsimctl, toolName: PackageName.fbsimctl.rawValue)]
+        deployables[.fbxctest] = [try toolForBinary(binaryPath: auxiliaryPaths.fbxctest, toolName: PackageName.fbxctest.rawValue)]
+        deployables[.plugin] = try pluginDeployables()
+        deployables[.simulatorLocalizationSettings] = try simulatorLocalizationSettingsDeployables()
+        deployables[.testRunner] = try testRunnerDeployables()
+        deployables[.watchdogSettings] = try watchdogSettingsDeployables()
+        deployables[.xctestBundle] = try xctestDeployables()
+        return deployables
+    }
+    
+    func appDeployables() throws -> [DeployableItem] {
+        return [
+            try DeployableBundle(
+                name: PackageName.app.rawValue,
+                bundleUrl: URL(fileURLWithPath: buildArtifacts.appBundle))]
+    }
+    
+    func additionalAppDeployables() throws -> [DeployableItem] {
+        return try buildArtifacts.additionalApplicationBundles.map {
             let url = URL(fileURLWithPath: $0)
             let name = PackageName.additionalApp.rawValue.appending(
                 pathComponent: url.lastPathComponent.deletingPathExtension)
             return try DeployableBundle(name: name, bundleUrl: url)
         }
-        
-        var deployables =  [PackageName: [DeployableItem]]()
-        deployables[.avitoRunner] = [runnerTool()]
-        deployables[.fbsimctl] = [try toolForBinary(binaryPath: auxiliaryPaths.fbsimctl, toolName: PackageName.fbsimctl.rawValue)]
-        deployables[.fbxctest] = [try toolForBinary(binaryPath: auxiliaryPaths.fbxctest, toolName: PackageName.fbxctest.rawValue)]
-        deployables[.app] = [
-            try DeployableBundle(
-                name: PackageName.app.rawValue,
-                bundleUrl: URL(fileURLWithPath: buildArtifacts.appBundle))
-        ]
-        deployables[.additionalApp] = addtionalAppDeployables
-        deployables[.testRunner] = [
-            try DeployableBundle(
-                name: PackageName.testRunner.rawValue,
-                bundleUrl: URL(fileURLWithPath: buildArtifacts.runner))]
-        deployables[.xctestBundle] = [
+    }
+    
+    func xctestDeployables() throws -> [DeployableItem] {
+        return [
             try DeployableBundle(
                 name: PackageName.xctestBundle.rawValue,
                 bundleUrl: URL(fileURLWithPath: buildArtifacts.xcTestBundle))]
-        deployables[.environment] = [
+    }
+    
+    func testRunnerDeployables() throws -> [DeployableItem] {
+        return [
+            try DeployableBundle(
+                name: PackageName.testRunner.rawValue,
+                bundleUrl: URL(fileURLWithPath: buildArtifacts.runner))]
+    }
+    
+    func environmentDeployables() throws -> [DeployableItem] {
+        return [
             DeployableItem(
                 name: PackageName.environment.rawValue,
                 files: [DeployableFile(source: environmentFilePath, destination: targetEnvironmentPath)])]
-        if let simulatorLocalizationSettings = simulatorSettings.simulatorLocalizationSettings {
-            deployables[.simulatorLocalizationSettings] = [
-                DeployableItem(
-                    name: PackageName.simulatorLocalizationSettings.rawValue,
-                    files: [
-                        DeployableFile(
-                            source: simulatorLocalizationSettings,
-                            destination: targetSimulatorLocalizationSettingsPath)])]
-        }
-        if let watchdogSettings = simulatorSettings.watchdogSettings {
-            deployables[.watchdogSettings] = [
-                DeployableItem(
-                    name: PackageName.watchdogSettings.rawValue,
-                    files: [
-                        DeployableFile(
-                            source: watchdogSettings,
-                            destination: targetWatchdogSettingsPath)])]
-        }
-        return deployables
     }
     
     func runnerTool() -> DeployableTool {
@@ -110,5 +113,36 @@ public final class DeployablesGenerator {
                 return DeployableFile(source: file.source, destination: updatedDestination)
             }
         return DeployableTool(name: toolName, files: Set(files))
+    }
+    
+    func simulatorLocalizationSettingsDeployables() throws -> [DeployableItem] {
+        guard let simulatorLocalizationSettings = simulatorSettings.simulatorLocalizationSettings else { return [] }
+        return [
+            DeployableItem(
+                name: PackageName.simulatorLocalizationSettings.rawValue,
+                files: [
+                    DeployableFile(
+                        source: simulatorLocalizationSettings,
+                        destination: targetSimulatorLocalizationSettingsPath)])]
+    }
+    
+    func watchdogSettingsDeployables() throws -> [DeployableItem] {
+        guard let watchdogSettings = simulatorSettings.watchdogSettings else { return [] }
+        return [
+            DeployableItem(
+                name: PackageName.watchdogSettings.rawValue,
+                files: [
+                    DeployableFile(
+                        source: watchdogSettings,
+                        destination: targetWatchdogSettingsPath)])]
+    }
+    
+    func pluginDeployables() throws -> [DeployableItem] {
+        return try PluginManager.pathsForPluginBundles(pluginLocations: auxiliaryPaths.plugins).map {
+            let url = URL(fileURLWithPath: $0)
+            let name = PackageName.plugin.rawValue.appending(
+                pathComponent: url.lastPathComponent.deletingPathExtension)
+            return try DeployableBundle(name: name, bundleUrl: url)
+        }
     }
 }

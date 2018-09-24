@@ -30,6 +30,7 @@ final class DistRunTestsCommand: Command {
     private let numberOfSimulators: OptionArgument<UInt>
     private let onlyId: OptionArgument<[UInt]>
     private let onlyTest: OptionArgument<[String]>
+    private let plugins: OptionArgument<[String]>
     private let remoteScheduleStrategy: OptionArgument<String>
     private let runId: OptionArgument<String>
     private let runner: OptionArgument<String>
@@ -62,6 +63,7 @@ final class DistRunTestsCommand: Command {
         numberOfSimulators = subparser.add(intArgument: KnownUIntArguments.numberOfSimulators)
         onlyId = subparser.add(multipleIntArgument: KnownUIntArguments.onlyId)
         onlyTest = subparser.add(multipleStringArgument: KnownStringArguments.onlyTest)
+        plugins = subparser.add(multipleStringArgument: KnownStringArguments.plugin)
         remoteScheduleStrategy = subparser.add(stringArgument: KnownStringArguments.remoteScheduleStrategy)
         runId = subparser.add(stringArgument: KnownStringArguments.runId)
         runner = subparser.add(stringArgument: KnownStringArguments.runner)
@@ -87,6 +89,7 @@ final class DistRunTestsCommand: Command {
         let numberOfSimulators = try ArgumentsReader.validateNotNil(arguments.get(self.numberOfSimulators), key: KnownUIntArguments.numberOfSimulators)
         let onlyId: [TestToRun] = (arguments.get(self.onlyId) ?? []).map { TestToRun.caseId($0) }
         let onlyTest: [TestToRun] = (arguments.get(self.onlyTest) ?? []).map { TestToRun.testName($0) }
+        let plugins = try ArgumentsReader.validateResourceLocations(arguments.get(self.plugins) ?? [], key: KnownStringArguments.plugin)
         let remoteScheduleStrategy = try ArgumentsReader.scheduleStrategy(arguments.get(self.remoteScheduleStrategy), key: KnownStringArguments.remoteScheduleStrategy)
         let runId = try ArgumentsReader.validateNotNil(arguments.get(self.runId), key: KnownStringArguments.runId)
         let runner = try ArgumentsReader.validateNotNil(arguments.get(self.runner), key: KnownStringArguments.runner)
@@ -126,6 +129,7 @@ final class DistRunTestsCommand: Command {
             auxiliaryPaths: try AuxiliaryPathsFactory().createWith(
                 fbxctest: fbxctest,
                 fbsimctl: fbsimctl,
+                plugins: plugins,
                 tempFolder: NSTemporaryDirectory()),
             buildArtifacts: BuildArtifacts(
                 appBundle: app,

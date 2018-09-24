@@ -1,4 +1,5 @@
 import Dispatch
+import EventBus
 import Extensions
 import Foundation
 import SimulatorPool
@@ -86,7 +87,7 @@ public final class Scheduler {
                     log("Failed to release resources: \(error)")
                 }
                 self.didReceiveResults(testingResult: testingResult)
-                self.configuration.eventBus.didObtain(testingResult: testingResult)
+                self.configuration.eventBus.post(event: .didObtainTestingResult(testingResult))
                 self.fetchAndRunBucket()
             }
             acquireResources.addCascadeCancellableDependency(runTestsInBucketAfterAcquiringResources)

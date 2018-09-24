@@ -14,15 +14,9 @@ public final class EventBus {
         }
     }
     
-    public func didObtain(testingResult: TestingResult) {
+    public func post(event: BusEvent) {
         forEachStream { stream in
-            stream.didObtain(testingResult: testingResult)
-        }
-    }
-    
-    public func tearDown() {
-        forEachStream { stream in
-            stream.tearDown()
+            stream.process(event: event)
         }
     }
     

@@ -72,6 +72,13 @@ final class ArgumentsReader {
         return try ResourceLocation.from(string)
     }
     
+    public static func validateResourceLocations(_ values: [String], key: ArgumentDescription) throws -> [ResourceLocation] {
+        return try values.map { value in
+            let string = try validateNotNil(value, key: key)
+            return try ResourceLocation.from(string)
+        }
+    }
+    
     public static func validateFileExists(_ value: String?, key: ArgumentDescription) throws -> String {
         let path = try validateNotNil(value, key: key)
         if !FileManager.default.fileExists(atPath: path) {

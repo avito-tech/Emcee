@@ -17,7 +17,7 @@ final class EventBusTest: XCTestCase {
             failedTests: [],
             unfilteredTestRuns: [])
         
-        bus.didObtain(testingResult: testingResult)
+        bus.post(event: .didObtainTestingResult(testingResult))
         
         try SynchronousWaiter.waitWhile(timeout: 5.0, description: "Waiting for event bus to deliver events") {
             stream.testingResults.count == 0
@@ -30,7 +30,7 @@ final class EventBusTest: XCTestCase {
         let bus = EventBus()
         let stream = Listener()
         bus.add(stream: stream)
-        bus.tearDown()
+        bus.post(event: .tearDown)
         
         try SynchronousWaiter.waitWhile(timeout: 5.0, description: "Waiting for event bus to deliver events") {
             stream.didTearDown == nil
@@ -40,13 +40,13 @@ final class EventBusTest: XCTestCase {
     }
 }
 
-private final class Listener: EventStream {
+private final class Listener: DefaultBusListener {
     public var testingResults = [TestingResult]()
     public var didTearDown: Bool?
-    func didObtain(testingResult: TestingResult) {
+    override func didObtain(testingResult: TestingResult) {
         testingResults.append(testingResult)
     }
-    func tearDown() {
+    override func tearDown() {
         didTearDown = true
     }
 }

@@ -127,6 +127,11 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
     KnownStringArguments.runId: ArgumentDescriptionHolder(
         name: "--run-id",
         comment: "A logical test run id, usually UUID."),
+    KnownStringArguments.plugin: ArgumentDescriptionHolder(
+        name: "--plugin",
+        comment: ".emceeplugin bundle local path (or URL to ZIP). Plugin bundle should contain an executable: MyPlugin.emceeplugin/Plugin",
+        multiple: true,
+        optional: true),
     KnownStringArguments.queueServer: ArgumentDescriptionHolder(
         name: "--queue-server",
         comment: "An address to a server which runs distRun command, e.g. 127.0.0.1:1234"),
@@ -188,6 +193,7 @@ enum KnownStringArguments: ArgumentDescription {
     case onlyTest
     case oslogPath
     case output
+    case plugin
     case queueServer
     case remoteScheduleStrategy
     case runId

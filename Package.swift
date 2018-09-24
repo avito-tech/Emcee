@@ -7,6 +7,7 @@ let package = Package(
     products: [
         .executable(name: "AvitoRunner", targets: ["AvitoRunner"]),
         .executable(name: "fake_fbxctest", targets: ["FakeFbxctest"]),
+        .executable(name: "testing_plugin", targets: ["TestingPlugin"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-package-manager.git", from: "0.2.1"),
@@ -40,6 +41,7 @@ let package = Package(
                 "LaunchdUtils",
                 "ModelFactories",
                 "Models",
+                "PluginManager",
                 "ProcessController",
                 "SSHDeployer",
                 "ScheduleStrategy",
@@ -81,6 +83,7 @@ let package = Package(
                 "LaunchdUtils",
                 "Logging",
                 "Models",
+                "PluginManager",
                 "RESTMethods",
                 "RuntimeDump",
                 "ScheduleStrategy",
@@ -122,6 +125,18 @@ let package = Package(
             ]),
         
         .target(
+            name: "EventBus",
+            dependencies: [
+                "Models",
+                ]),
+        .testTarget(
+            name: "EventBusTests",
+            dependencies: [
+                "EventBus",
+                "SynchronousWaiter"
+            ]),
+        
+        .target(
             name: "Extensions",
             dependencies: []),
         .testTarget(
@@ -148,25 +163,6 @@ let package = Package(
                 "Logging",
                 "ProcessController",
                 "Utility"
-            ]),
-        .target(
-            name: "TestingFakeFbxctest",
-            dependencies: [
-                "Extensions",
-                "fbxctest",
-                "Logging"
-            ]),
-        
-        .target(
-            name: "EventBus",
-            dependencies: [
-                "Models",
-                ]),
-        .testTarget(
-            name: "EventBusTests",
-            dependencies: [
-                "EventBus",
-                "SynchronousWaiter"
             ]),
         
         .target(
@@ -245,6 +241,35 @@ let package = Package(
         .target(
             name: "Models",
             dependencies: []),
+        
+        .target(
+            name: "Plugin",
+            dependencies: [
+                "EventBus",
+                "JSONStream",
+                "Logging",
+                "Models",
+                "SynchronousWaiter",
+                "Utility"
+            ]),
+        
+        .target(
+            name: "PluginManager",
+            dependencies: [
+                "EventBus",
+                "Logging",
+                "ModelFactories",
+                "Models",
+                "ProcessController",
+                "Scheduler",
+                "SynchronousWaiter"
+            ]),
+        .testTarget(
+            name: "PluginManagerTests",
+            dependencies: [
+                "PluginManager",
+                "Utility"
+            ]),
         
         .target(
             name: "ProcessController",
@@ -358,6 +383,22 @@ let package = Package(
         .testTarget(
             name: "SynchronousWaiterTests",
             dependencies: ["SynchronousWaiter"]),
+        
+        .target(
+            name: "TestingFakeFbxctest",
+            dependencies: [
+                "Extensions",
+                "fbxctest",
+                "Logging"
+            ]),
+        .target(
+            name: "TestingPlugin",
+            dependencies: [
+                "Models",
+                "JSONStream",
+                "Logging",
+                "Plugin"
+            ]),
         
         .target(
             name: "URLResource",

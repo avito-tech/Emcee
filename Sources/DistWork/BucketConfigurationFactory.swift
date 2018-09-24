@@ -28,6 +28,7 @@ final class BucketConfigurationFactory {
          /remote_path/some_run_id/fbxctest/fbxctest
          /remote_path/some_run_id/app/AppUnderTest.app
          /remote_path/some_run_id/additionalApp/OneMoreApp/OneMoreApp.app
+         /remote_path/some_run_id/plugin/SomePluginName/SomePluginName.emceeplugin
          and so on.
          */
         let pathToBinary = ProcessInfo.processInfo.arguments[0]
@@ -67,6 +68,20 @@ final class BucketConfigurationFactory {
                 log("Additional app candidate at \(path) exists: \(result), isDir: \(isDir)")
                 return result && isDir.boolValue == true
         }
+        let plugins = FileManager.default.findFiles(
+            path: packagePath(containerPath, .plugin),
+            defaultValue: [])
+            .map { path -> String in
+                let path = path.appending(pathComponent: "\(path.lastPathComponent).emceeplugin")
+                log("Found plugin candidate: \(path)")
+                return path
+            }
+            .filter { path -> Bool in
+                var isDir: ObjCBool = false
+                let result = FileManager.default.fileExists(atPath: path, isDirectory: &isDir)
+                log("Plugin candidate at \(path) exists: \(result), isDir: \(isDir)")
+                return result && isDir.boolValue == true
+        }
         let runner = try FileManager.default.findFiles(
             path: packagePath(containerPath, .testRunner),
             suffix: "-Runner",
@@ -83,6 +98,7 @@ final class BucketConfigurationFactory {
             auxiliaryPaths: try AuxiliaryPathsFactory().createWith(
                 fbxctest: ResourceLocation.from(fbxctest),
                 fbsimctl: ResourceLocation.from(fbsimctl),
+                plugins: ResourceLocation.from(plugins),
                 tempFolder: tempFolder),
             testType: .uiTest,
             buildArtifacts: BuildArtifacts(

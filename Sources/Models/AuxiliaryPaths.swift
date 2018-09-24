@@ -11,12 +11,16 @@ public struct AuxiliaryPaths: Hashable {
     /** Absolute path to fbsimctl binary. */
     public let fbsimctl: String
     
+    /** Locations (path or ZIP file URL) of .emceeplugin bundles. */
+    public let plugins: [ResourceLocation]
+    
     /** Where the runner can store temporary stuff. */
     public let tempFolder: String
 
-    private init(fbxctest: String, fbsimctl: String, tempFolder: String) {
+    private init(fbxctest: String, fbsimctl: String, plugins: [ResourceLocation], tempFolder: String) {
         self.fbxctest = fbxctest
         self.fbsimctl = fbsimctl
+        self.plugins = plugins
         self.tempFolder = tempFolder
     }
 
@@ -24,10 +28,15 @@ public struct AuxiliaryPaths: Hashable {
     public static func withoutValidatingValues(
         fbxctest: String,
         fbsimctl: String,
+        plugins: [ResourceLocation],
         tempFolder: String) -> AuxiliaryPaths
     {
-        return AuxiliaryPaths(fbxctest: fbxctest, fbsimctl: fbsimctl, tempFolder: tempFolder)
+        return AuxiliaryPaths(fbxctest: fbxctest, fbsimctl: fbsimctl, plugins: plugins, tempFolder: tempFolder)
     }
     
-    public static let empty = AuxiliaryPaths(fbxctest: "", fbsimctl: "", tempFolder: "")
+    public var hashValue: Int {
+        return fbxctest.hashValue ^ fbsimctl.hashValue ^ plugins.count ^ tempFolder.hashValue
+    }
+    
+    public static let empty = AuxiliaryPaths(fbxctest: "", fbsimctl: "", plugins: [], tempFolder: "")
 }

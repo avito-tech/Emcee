@@ -22,6 +22,7 @@ class DeployablesGeneratorTests: XCTestCase {
                 auxiliaryPaths: try AuxiliaryPathsFactory().createWith(
                     fbxctest: ResourceLocation.from(String(#file)),
                     fbsimctl: ResourceLocation.from(String(#file)),
+                    plugins: [ResourceLocation.from(String(#file))],
                     tempFolder: ""),
                 buildArtifacts: defaultBuildArtifacts,
                 environmentFilePath: String(#file),
@@ -117,12 +118,20 @@ class DeployablesGeneratorTests: XCTestCase {
         XCTAssertEqual(deployables[0].files.first?.destination, "wd.json")
     }
     
+    func testPluginIsPresent() throws {
+        let deployables = filterDeployables(.plugin)
+        XCTAssertEqual(deployables.count, 1)
+        XCTAssertEqual(deployables[0].files.first?.source, String(#file))
+        XCTAssertEqual(deployables[0].files.first?.destination, "plugin.emceeplugin")
+    }
+    
     func testOptionalWatchdogAndSimulatorLocalizationSettongs() throws {
         let generator = DeployablesGenerator(
             targetAvitoRunnerPath: "AvitoRunner",
             auxiliaryPaths: try AuxiliaryPathsFactory().createWith(
                 fbxctest: ResourceLocation.from(String(#file)),
                 fbsimctl: ResourceLocation.from(String(#file)),
+                plugins: [],
                 tempFolder: ""),
             buildArtifacts: defaultBuildArtifacts,
             environmentFilePath: String(#file),

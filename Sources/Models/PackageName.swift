@@ -1,14 +1,15 @@
 import Foundation
 
 public enum PackageName: String {
+    case additionalApp
+    case app
     case avitoRunner
+    case environment
     case fbsimctl
     case fbxctest
-    case app
-    case additionalApp
-    case testRunner
-    case environment
+    case plugin
     case simulatorLocalizationSettings
+    case testRunner
     case watchdogSettings
     case xctestBundle
     
@@ -17,6 +18,7 @@ public enum PackageName: String {
         .fbxctest: "fbxctest",
         .fbsimctl: "fbsimctl",
         .environment: "environment.json",
+        .plugin: "plugin.emceeplugin",
         .simulatorLocalizationSettings: "simulator_settings.json",
         .watchdogSettings: "watchdog_settings.json"
     ]

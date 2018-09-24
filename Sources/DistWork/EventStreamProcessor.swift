@@ -3,7 +3,7 @@ import Foundation
 import Models
 import Scheduler
 
-public final class EventStreamProcessor: EventStream {
+public final class EventStreamProcessor: DefaultBusListener {
     
     public typealias OnReceiveTestingResult = (TestingResult) -> Void
     
@@ -13,13 +13,7 @@ public final class EventStreamProcessor: EventStream {
         self.onReceiveTestingResult = onReceiveTestingResultForBucket
     }
     
-    // MARK: - Stream API
-    
-    public func didObtain(testingResult: TestingResult) {
+    public override func didObtain(testingResult: TestingResult) {
         onReceiveTestingResult(testingResult)
-    }
-    
-    public func tearDown() {
-        
     }
 }
