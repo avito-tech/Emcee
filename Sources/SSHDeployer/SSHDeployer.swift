@@ -1,9 +1,10 @@
+import Ansi
+import Deployer
+import Extensions
 import Foundation
 import Logging
-import Ansi
-import Extensions
+import Models
 import ProcessController
-import Deployer
 
 public final class SSHDeployer: Deployer {
     

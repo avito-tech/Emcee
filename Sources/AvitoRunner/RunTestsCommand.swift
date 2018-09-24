@@ -138,7 +138,7 @@ final class RunTestsCommand: Command {
                 simulatorLocalizationSettings: simulatorLocalizationSettings,
                 watchdogSettings: watchdogSettings),
             testDestinationConfigurations: testDestinations,
-            testsToRun: [onlyId, onlyTest].flatMap { $0 },
+            testsToRun: onlyId + onlyTest,
             testDiagnosticOutput: TestDiagnosticOutput(
                 iOSVersion: testDestinations[0].testDestination.iOSVersion,
                 videoOutputPath: videoPath,

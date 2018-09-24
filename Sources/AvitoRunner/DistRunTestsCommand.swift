@@ -75,137 +75,34 @@ final class DistRunTestsCommand: Command {
     }
     
     func run(with arguments: ArgumentParser.Result) throws {
-        let fileManager = FileManager.default
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        
-        guard let runId = arguments.get(self.runId) else {
-            throw ArgumentsError.argumentIsMissing(KnownStringArguments.runId)
-        }
-        guard let destinationsFile = arguments.get(self.destinations),
-            fileManager.fileExists(atPath: destinationsFile) else
-        {
-            throw ArgumentsError.argumentIsMissing(KnownStringArguments.destinations)
-        }
-        
-        let deploymentDestinations: [DeploymentDestination]
-        do {
-            let data = try Data(contentsOf: URL(fileURLWithPath: destinationsFile), options: .mappedIfSafe)
-            deploymentDestinations = try decoder.decode([DeploymentDestination].self, from: data)
-        } catch {
-            throw ArgumentsError.argumentValueCannotBeUsed(KnownStringArguments.destinations, error)
-        }
-        
-        let destinationConfigurations: [DestinationConfiguration]
-        if let destinationConfigurationsFile = arguments.get(self.destinationConfigurations) {
-            do {
-                let data = try Data(
-                    contentsOf: URL(fileURLWithPath: destinationConfigurationsFile),
-                    options: .mappedIfSafe)
-                destinationConfigurations = try decoder.decode([DestinationConfiguration].self, from: data)
-            } catch {
-                throw ArgumentsError.argumentValueCannotBeUsed(KnownStringArguments.destinationConfigurations, error)
-            }
-        } else {
-            destinationConfigurations = []
-        }
-
-        guard let remoteScheduleStrategyRawType = arguments.get(self.remoteScheduleStrategy),
-            let remoteScheduleStrategy = ScheduleStrategyType(rawValue: remoteScheduleStrategyRawType) else
-        {
-            throw ArgumentsError.argumentIsMissing(KnownStringArguments.remoteScheduleStrategy)
-        }
-        
-        guard let testDestinationFile = arguments.get(self.testDestinations) else {
-            throw ArgumentsError.argumentIsMissing(KnownStringArguments.testDestinations)
-        }
-        let testDestinationConfigurations: [TestDestinationConfiguration]
-        do {
-            let data = try Data(contentsOf: URL(fileURLWithPath: testDestinationFile))
-            testDestinationConfigurations = try decoder.decode([TestDestinationConfiguration].self, from: data)
-        } catch {
-            throw ArgumentsError.argumentValueCannotBeUsed(KnownStringArguments.testDestinations, error)
-        }
-        
+        let additionalApp = try ArgumentsReader.validateFilesExist(arguments.get(self.additionalApp) ?? [], key: KnownStringArguments.additionalApp)
+        let app = try ArgumentsReader.validateFileExists(arguments.get(self.app), key: KnownStringArguments.app)
+        let deploymentDestinations = try ArgumentsReader.deploymentDestinations(arguments.get(self.destinations), key: KnownStringArguments.destinations)
+        let destinationConfigurations = try ArgumentsReader.destinationConfigurations(arguments.get(self.destinationConfigurations), key: KnownStringArguments.destinationConfigurations)
+        let environmentValues = try ArgumentsReader.environment(file: arguments.get(self.environment), key: KnownStringArguments.environment)
+        let fbsimctl = try ArgumentsReader.validateResourceLocation(arguments.get(self.fbsimctl), key: KnownStringArguments.fbsimctl)
+        let fbxctest = try ArgumentsReader.validateResourceLocation(arguments.get(self.fbxctest), key: KnownStringArguments.fbxctest)
+        let junit = try ArgumentsReader.validateNotNil(arguments.get(self.junit), key: KnownStringArguments.junit)
+        let numberOfRetries = try ArgumentsReader.validateNotNil(arguments.get(self.numberOfRetries), key: KnownUIntArguments.numberOfRetries)
+        let numberOfSimulators = try ArgumentsReader.validateNotNil(arguments.get(self.numberOfSimulators), key: KnownUIntArguments.numberOfSimulators)
         let onlyId: [TestToRun] = (arguments.get(self.onlyId) ?? []).map { TestToRun.caseId($0) }
         let onlyTest: [TestToRun] = (arguments.get(self.onlyTest) ?? []).map { TestToRun.testName($0) }
-        let testsToRun: [TestToRun] = [onlyId, onlyTest].flatMap { $0 }
-        
-        guard let junit = arguments.get(self.junit) else {
-            throw ArgumentsError.argumentIsMissing(KnownStringArguments.junit)
-        }
-        guard let trace = arguments.get(self.trace) else {
-            throw ArgumentsError.argumentIsMissing(KnownStringArguments.trace)
-        }
-        
-        guard let numberOfSimulators = arguments.get(self.numberOfSimulators) else {
-            throw ArgumentsError.argumentIsMissing(KnownUIntArguments.numberOfSimulators)
-        }
-        guard let numberOfRetries = arguments.get(self.numberOfRetries) else {
-            throw ArgumentsError.argumentIsMissing(KnownUIntArguments.numberOfRetries)
-        }
-        guard let strategyRawType = arguments.get(self.scheduleStrategy),
-            let scheduleStrategy = ScheduleStrategyType(rawValue: strategyRawType) else
-        {
-            throw ArgumentsError.argumentIsMissing(KnownStringArguments.scheduleStrategy)
-        }
-        
-        let environmentValues: [String: String]
-        if let environmentFile = arguments.get(self.environment), fileManager.fileExists(atPath: environmentFile) {
-            do {
-                let environmentData = try Data(contentsOf: URL(fileURLWithPath: environmentFile))
-                environmentValues = try JSONDecoder().decode([String: String].self, from: environmentData)
-            } catch let error {
-                log("Unable to read or decode environments file", color: .red)
-                throw ArgumentsError.argumentValueCannotBeUsed(KnownStringArguments.environment, error)
-            }
-        } else {
-            environmentValues = [:]
-        }
-        
-        let simulatorLocalizationSettings = arguments.get(self.simulatorLocalizationSettings)
-        if let simulatorLocalizationSettings = simulatorLocalizationSettings,
-            !fileManager.fileExists(atPath: simulatorLocalizationSettings)
-        {
-            throw ArgumentsError.argumentIsMissing(KnownStringArguments.simulatorLocalizationSettings)
-        }
-        let watchdogSettings = arguments.get(self.watchdogSettings)
-        if let watchdogSettings = watchdogSettings, !fileManager.fileExists(atPath: watchdogSettings) {
-            throw ArgumentsError.argumentIsMissing(KnownStringArguments.watchdogSettings)
-        }
-        
-        guard let fbxctest = arguments.get(self.fbxctest) else {
-            throw ArgumentsError.argumentIsMissing(KnownStringArguments.fbxctest)
-        }
-        guard let fbsimctl = arguments.get(self.fbsimctl) else {
-            throw ArgumentsError.argumentIsMissing(KnownStringArguments.fbsimctl)
-        }
-        
-        guard let app = arguments.get(self.app), fileManager.fileExists(atPath: app) else {
-            throw ArgumentsError.argumentIsMissing(KnownStringArguments.app)
-        }
-        let additionalApp = arguments.get(self.additionalApp) ?? []
-        if !fileManager.filesExist(additionalApp) {
-            throw ArgumentsError.argumentValueCannotBeUsed(
-                KnownStringArguments.additionalApp,
-                AdditionalArgumentValidationError.someAdditionalAppBundlesCannotBeFound)
-        }
-        guard let runner = arguments.get(self.runner), fileManager.fileExists(atPath: runner) else {
-            throw ArgumentsError.argumentIsMissing(KnownStringArguments.runner)
-        }
-        guard let xctestBundle = arguments.get(self.xctestBundle), fileManager.fileExists(atPath: xctestBundle) else {
-            throw ArgumentsError.argumentIsMissing(KnownStringArguments.xctestBundle)
-        }
-        
-        guard let singleTestTimeout = arguments.get(self.singleTestTimeout) else {
-            throw ArgumentsError.argumentIsMissing(KnownUIntArguments.singleTestTimeout)
-        }
+        let remoteScheduleStrategy = try ArgumentsReader.scheduleStrategy(arguments.get(self.remoteScheduleStrategy), key: KnownStringArguments.remoteScheduleStrategy)
+        let runId = try ArgumentsReader.validateNotNil(arguments.get(self.runId), key: KnownStringArguments.runId)
+        let runner = try ArgumentsReader.validateNotNil(arguments.get(self.runner), key: KnownStringArguments.runner)
+        let scheduleStrategy = try ArgumentsReader.scheduleStrategy(arguments.get(self.scheduleStrategy), key: KnownStringArguments.scheduleStrategy)
+        let simulatorLocalizationSettings = try ArgumentsReader.validateNilOrFileExists(arguments.get(self.simulatorLocalizationSettings), key: KnownStringArguments.simulatorLocalizationSettings)
+        let singleTestTimeout = try ArgumentsReader.validateNotNil(arguments.get(self.singleTestTimeout), key: KnownUIntArguments.singleTestTimeout)
         let fbxctestSilenceTimeout = arguments.get(self.fbxctestSilenceTimeout) ?? singleTestTimeout
+        let fbxtestBundleReadyTimeout = arguments.get(self.fbxtestBundleReadyTimeout) ?? singleTestTimeout
+        let fbxtestCrashCheckTimeout = arguments.get(self.fbxtestCrashCheckTimeout) ?? singleTestTimeout
         let fbxtestFastTimeout = arguments.get(self.fbxtestFastTimeout) ?? singleTestTimeout
         let fbxtestRegularTimeout = arguments.get(self.fbxtestRegularTimeout) ?? singleTestTimeout
         let fbxtestSlowTimeout = arguments.get(self.fbxtestSlowTimeout) ?? singleTestTimeout
-        let fbxtestBundleReadyTimeout = arguments.get(self.fbxtestBundleReadyTimeout) ?? singleTestTimeout
-        let fbxtestCrashCheckTimeout = arguments.get(self.fbxtestCrashCheckTimeout) ?? singleTestTimeout
+        let testDestinations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
+        let trace = try ArgumentsReader.validateNotNil(arguments.get(self.trace), key: KnownStringArguments.trace)
+        let watchdogSettings = try ArgumentsReader.validateNilOrFileExists(arguments.get(self.watchdogSettings), key: KnownStringArguments.watchdogSettings)
+        let xctestBundle = try ArgumentsReader.validateFileExists(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle)
         
         let distRunConfiguration = DistRunConfiguration(
             runId: runId,
@@ -227,8 +124,8 @@ final class DistRunTestsCommand: Command {
                 environment: environmentValues,
                 scheduleStrategy: scheduleStrategy),
             auxiliaryPaths: try AuxiliaryPathsFactory().createWith(
-                fbxctest: ResourceLocation.from(fbxctest),
-                fbsimctl: ResourceLocation.from(fbsimctl),
+                fbxctest: fbxctest,
+                fbsimctl: fbsimctl,
                 tempFolder: NSTemporaryDirectory()),
             buildArtifacts: BuildArtifacts(
                 appBundle: app,
@@ -238,8 +135,8 @@ final class DistRunTestsCommand: Command {
             simulatorSettings: SimulatorSettings(
                 simulatorLocalizationSettings: simulatorLocalizationSettings,
                 watchdogSettings: watchdogSettings),
-            testsToRun: testsToRun,
-            testDestinationConfigurations: testDestinationConfigurations)
+            testsToRun: onlyId + onlyTest,
+            testDestinationConfigurations: testDestinations)
         try run(distRunConfiguration: distRunConfiguration)
     }
     

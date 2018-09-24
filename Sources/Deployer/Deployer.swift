@@ -1,13 +1,15 @@
-import Foundation
 import Basic
+import Foundation
 import Logging
+import Models
 
 /** Basic class that defines a logic for deploying a number of DeployableItems. */
 open class Deployer {
     /**
      * Some unique id.
      * Allows to avoid a conflict when you deploy the same (or similar) deployables.
-     * Used as an identifier for a container. */
+     * Used as an identifier for a container.
+     */
     public let deploymentId: String
     /** All deployables that must be deployed. */
     public let deployables: [DeployableItem]

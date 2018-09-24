@@ -5,24 +5,38 @@ import Models
 final class ArgumentsReader {
     private init() {}
     
+    private static let decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return decoder
+    }()
+    
     public static func environment(file: String?, key: ArgumentDescription) throws -> [String: String] {
-        guard let environmentFile = try validateNilOrFileExists(file, key: key) else { return [:] }
-        do {
-            let environmentData = try Data(contentsOf: URL(fileURLWithPath: environmentFile))
-            return try JSONDecoder().decode([String: String].self, from: environmentData)
-        } catch {
-            log("Unable to read or decode environments file: \(error)", color: .red)
-            throw ArgumentsError.argumentValueCannotBeUsed(key, error)
-        }
+        return try decodeModelsFromFile(file, defaultValueIfFileIsMissing: [:], key: key)
     }
     
     public static func testDestinations(_ file: String?, key: ArgumentDescription) throws -> [TestDestinationConfiguration] {
-        let testDestinationFile = try validateFileExists(file, key: key)
+        return try decodeModelsFromFile(file, key: key)
+    }
+    
+    public static func deploymentDestinations(_ file: String?, key: ArgumentDescription) throws -> [DeploymentDestination] {
+        return try decodeModelsFromFile(file, key: key)
+    }
+    
+    public static func destinationConfigurations(_ file: String?, key: ArgumentDescription) throws -> [DestinationConfiguration] {
+        return try decodeModelsFromFile(file, defaultValueIfFileIsMissing: [], key: key)
+    }
+    
+    private static func decodeModelsFromFile<T>(_ file: String?, defaultValueIfFileIsMissing: T? = nil, key: ArgumentDescription) throws -> T where T: Decodable {
+        if file == nil, let defaultValue = defaultValueIfFileIsMissing {
+            return defaultValue
+        }
+        let path = try validateFileExists(file, key: key)
         do {
-            let data = try Data(contentsOf: URL(fileURLWithPath: testDestinationFile))
-            return try JSONDecoder().decode([TestDestinationConfiguration].self, from: data)
+            let data = try Data(contentsOf: URL(fileURLWithPath: path))
+            return try JSONDecoder().decode(T.self, from: data)
         } catch {
-            log("Unable to read or decode test destinations file: \(error)", color: .red)
+            log("Unable to read or decode file \(path): \(error)", color: .red)
             throw ArgumentsError.argumentValueCannotBeUsed(key, error)
         }
     }
