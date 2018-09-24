@@ -12,8 +12,10 @@ import Runner
  * This class manages Runner instances, and provides back a TestingResult object with all results for all tests.
  * It fetches the Bucket it will process using the SchedulerDataSource object.
  * It will request Bucket for each Simulator as soon as it becomes available.
- * You can listen to the events via SchedulerStream. In this case you will receive information about the run
+ * You can listen to the events via EventStream. In this case you will receive information about the run
  * quicker than if you'd wait until run() method finishes.
+ *
+ * Scheduler uses `ListeningSemaphore` to allocate resources and limit maximum number of running tests.
  *
  * The flow can be described like that:
  * 1. Enter the Queue and fetch Bucket, add Operation to the Queue if Bucket has been fetched.
@@ -28,7 +30,6 @@ import Runner
 public final class Scheduler {
     private let configuration: SchedulerConfiguration
     private let resourceSemaphore: ListeningSemaphore
-    public var schedulerStream: SchedulerStream?
     private var testingResults = [TestingResult]()
     private let queue = OperationQueue()
     private let syncQueue = DispatchQueue(label: "ru.avito.Scheduler")
@@ -43,7 +44,7 @@ public final class Scheduler {
     /**
      * Runs the tests. This method blocks until all Buckets from the Data Source will be executed.
      * It returns a single TestingResult object that contains all test resutls for all tests in all Buckets.
-     * You can listen to the live events for each Bucket via SchedulerStream interface.
+     * You can listen to the live events for each Bucket via EventStream.
      */
     public func run() throws -> [TestingResult] {
         startFetchingAndRunningTests()
@@ -85,7 +86,7 @@ public final class Scheduler {
                     log("Failed to release resources: \(error)")
                 }
                 self.didReceiveResults(testingResult: testingResult)
-                self.schedulerStream?.scheduler(self, didReceiveTestingResult: testingResult)
+                self.configuration.eventBus.didObtain(testingResult: testingResult)
                 self.fetchAndRunBucket()
             }
             acquireResources.addCascadeCancellableDependency(runTestsInBucketAfterAcquiringResources)

@@ -35,6 +35,7 @@ let package = Package(
                 "Deployer",
                 "DistRun",
                 "DistWork",
+                "EventBus",
                 "JunitReporting",
                 "LaunchdUtils",
                 "ModelFactories",
@@ -99,6 +100,7 @@ let package = Package(
         .target(
             name: "DistWork",
             dependencies: [
+                "EventBus",
                 "Extensions",
                 "Logging",
                 "ModelFactories",
@@ -153,6 +155,18 @@ let package = Package(
                 "Extensions",
                 "fbxctest",
                 "Logging"
+            ]),
+        
+        .target(
+            name: "EventBus",
+            dependencies: [
+                "Models",
+                ]),
+        .testTarget(
+            name: "EventBusTests",
+            dependencies: [
+                "EventBus",
+                "SynchronousWaiter"
             ]),
         
         .target(
@@ -283,6 +297,7 @@ let package = Package(
         .target(
             name: "Scheduler",
             dependencies: [
+                "EventBus",
                 "ListeningSemaphore",
                 "Logging",
                 "Models",

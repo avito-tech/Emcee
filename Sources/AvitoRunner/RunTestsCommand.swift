@@ -1,5 +1,6 @@
 import ArgumentsParser
 import ChromeTracing
+import EventBus
 import Extensions
 import Foundation
 import JunitReporting
@@ -250,7 +251,8 @@ final class RunTestsCommand: Command {
             schedulerDataSource: try LocalRunSchedulerDataSource(
                 configuration: configuration,
                 runAllTestsIfTestsToRunIsEmpty: true),
-            onDemandSimulatorPool: onDemandSimulatorPool)
+            onDemandSimulatorPool: onDemandSimulatorPool,
+            eventBus: EventBus())
         let scheduler = Scheduler(configuration: schedulerConfiguration)
         let testingResults = try scheduler.run()
         try ResultingOutputGenerator(
