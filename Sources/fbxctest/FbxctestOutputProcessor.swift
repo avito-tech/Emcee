@@ -16,15 +16,12 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
     public init(
         subprocess: Subprocess,
         simulatorId: String,
-        maximumAllowedSilenceDuration: TimeInterval?,
         singleTestMaximumDuration: TimeInterval)
     {
         self.simulatorId = simulatorId
         self.eventsListener = TestEventsListener()
         self.singleTestMaximumDuration = singleTestMaximumDuration
-        self.processController = ProcessController(
-            subprocess: subprocess,
-            maximumAllowedSilenceDuration: maximumAllowedSilenceDuration)
+        self.processController = ProcessController(subprocess: subprocess)
         self.processController.delegate = self
     }
     

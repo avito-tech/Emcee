@@ -238,6 +238,13 @@ let package = Package(
                 "Extensions",
                 "Logging"
             ]),
+        .testTarget(
+            name: "ProcessControllerTests",
+            dependencies: [
+                "Extensions",
+                "ProcessController",
+                "Utility"
+            ]),
         
         .target(
             name: "RESTMethods",

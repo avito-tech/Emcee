@@ -84,8 +84,8 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
                 arguments: [
                     fbsimctlPath,
                     "--json", "--set", simulator.fbxctestContainerPath,
-                    "create", "iOS \(simulator.testDestination.iOSVersion)", simulator.testDestination.deviceType]),
-            maximumAllowedSilenceDuration: 30)
+                    "create", "iOS \(simulator.testDestination.iOSVersion)", simulator.testDestination.deviceType],
+                maximumAllowedSilenceDuration: 30))
         controller.delegate = self
         controller.startAndListenUntilProcessDies()
         
@@ -118,8 +118,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
                     "--json", "--set", simulator.fbxctestContainerPath,
                     simulatorUuid, "boot",
                     "--locale", "ru_US",
-                    "--direct-launch", "--", "listen"]),
-            maximumAllowedSilenceDuration: nil)
+                    "--direct-launch", "--", "listen"]))
         
         try waitForSimulatorBoot()
         
@@ -169,8 +168,8 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
                 arguments: [
                     fbsimctlPath,
                     "--json", "--set", simulator.fbxctestContainerPath,
-                    "--simulators", "delete"]),
-            maximumAllowedSilenceDuration: 90)
+                    "--simulators", "delete"],
+                maximumAllowedSilenceDuration: 90))
         controller.delegate = self
         controller.startAndListenUntilProcessDies()
         
