@@ -67,9 +67,9 @@ public final class Runner {
         let fbxctestOutputProcessor = FbxctestOutputProcessor(
             subprocess: Subprocess(
                 arguments: fbxctestArguments(entriesToRun: entriesToRun, simulator: simulator),
-                environment: configuration.environment),
+                environment: configuration.environment,
+                maximumAllowedSilenceDuration: configuration.maximumAllowedSilenceDuration ?? 0),
             simulatorId: simulator.identifier,
-            maximumAllowedSilenceDuration: configuration.maximumAllowedSilenceDuration,
             singleTestMaximumDuration: configuration.singleTestMaximumDuration)
         fbxctestOutputProcessor.processOutputAndWaitForProcessTermination()
         

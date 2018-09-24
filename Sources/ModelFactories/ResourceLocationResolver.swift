@@ -66,8 +66,7 @@ public final class ResourceLocationResolver {
         if !fileManager.fileExists(atPath: contentsUrl.path) {
             log("Will unzip '\(zipUrl)' into '\(contentsUrl)'")
             let controller = ProcessController(
-                subprocess: Subprocess(arguments: ["/usr/bin/unzip", zipUrl.path, "-d", contentsUrl.path]),
-                maximumAllowedSilenceDuration: nil)
+                subprocess: Subprocess(arguments: ["/usr/bin/unzip", zipUrl.path, "-d", contentsUrl.path]))
             controller.startAndListenUntilProcessDies()
             guard controller.terminationStatus() == 0 else { throw ValidationError.unpackProcessError }
         }

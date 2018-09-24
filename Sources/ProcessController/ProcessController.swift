@@ -4,38 +4,39 @@ import Dispatch
 import Logging
 
 public final class ProcessController {
+    private let subprocess: Subprocess
     private let process: Process
-    public let processName: String
+    public var processName: String {
+        return subprocess.arguments[0].lastPathComponent
+    }
     private var didInitiateKillOfProcess = false
-    private let maximumAllowedSilenceDuration: TimeInterval
     private var lastDataTimestamp: TimeInterval = Date().timeIntervalSince1970
     private let processTerminationQueue = DispatchQueue(label: "ru.avito.runner.ProcessListener.processTerminationQueue")
+    private let stdReadQueue = DispatchQueue(label: "ru.avito.runner.ProcessListener.stdReadQueue", attributes: .concurrent)
+    private let stdinWriteQueue = DispatchQueue(label: "ru.avito.runner.ProcessListener.stdinWriteQueue")
     private let silenceTrackingTimerQueue = DispatchQueue(label: "ru.avito.runner.ProcessListener.silenceTrackingTimerQueue")
     private var silenceTrackingTimer: DispatchSourceTimer?
-    
-    private let uuid = UUID().uuidString
-    private lazy var stdoutContentsFile = NSTemporaryDirectory().appending("\(uuid)_stdout.txt")
-    private lazy var stderrContentsFile = NSTemporaryDirectory().appending("\(uuid)_stderr.txt")
-    private var stdoutHandle: FileHandle?
-    private var stderrHandle: FileHandle?
+    private var stdinHandle: FileHandle?
+    private let processStdinPipe = Pipe()
+    private static let newLineCharacterData = Data(bytes: [UInt8(10)])
     
     private var didStartProcess = false
     public var processId: Int32 = 0
     public weak var delegate: ProcessControllerDelegate?
     
-    public init(subprocess: Subprocess, maximumAllowedSilenceDuration: TimeInterval?) {
-        self.process = ProcessController.createProcess(subprocess)
-        self.processName = subprocess.arguments[0].lastPathComponent
-        self.maximumAllowedSilenceDuration = maximumAllowedSilenceDuration ?? 0
+    public init(subprocess: Subprocess) {
+        self.subprocess = subprocess
+        self.process = ProcessController.createProcess(subprocess, processStdinPipe: processStdinPipe)
         setUpProcessListening()
     }
     
-    private static func createProcess(_ subprocess: Subprocess) -> Process {
+    private static func createProcess(_ subprocess: Subprocess, processStdinPipe: Pipe) -> Process {
         let executable = subprocess.arguments[0]
         let process = Process()
         process.launchPath = executable
         process.arguments = Array(subprocess.arguments.dropFirst())
         process.environment = subprocess.environment
+        process.standardInput = processStdinPipe
         do {
             try process.setStartsNewProcessGroup(false)
         } catch {
@@ -57,8 +58,11 @@ public final class ProcessController {
         
         didStartProcess = true
         log("Starting process", subprocessName: self.processName)
-        openFileHandles()
         process.launch()
+        process.terminationHandler = { _ in
+            OrphanProcessTracker().removeProcessFromCleanup(pid: self.processId, name: self.processName)
+            self.closeFileHandles()
+        }
         processId = process.processIdentifier
         OrphanProcessTracker().storeProcessForCleanup(pid: processId, name: processName)
         log("Started process \(processId)", subprocessName: self.processName, subprocessId: processId, color: .boldBlue)
@@ -72,8 +76,6 @@ public final class ProcessController {
     
     public func waitForProcessToDie() {
         process.waitUntilExit()
-        OrphanProcessTracker().removeProcessFromCleanup(pid: processId, name: processName)
-        closeFileHandles()
     }
     
     public var isProcessRunning: Bool {
@@ -88,6 +90,24 @@ public final class ProcessController {
             return nil
         }
         return process.terminationStatus
+    }
+    
+    public func writeToStdIn(data: Data) throws {
+        guard isProcessRunning else { throw StdinError.processInNotRunning(self) }
+        let condition = NSCondition()
+        
+        stdinWriteQueue.async {
+            self.processStdinPipe.fileHandleForWriting.write(data)
+            fsync(self.processStdinPipe.fileHandleForWriting.fileDescriptor)
+            self.stdinHandle?.write(data)
+            if self.subprocess.allowedTimeToConsumeStdin > 0 {
+                condition.signal()
+            }
+        }
+        
+        if !condition.wait(until: Date().addingTimeInterval(subprocess.allowedTimeToConsumeStdin)) {
+            throw StdinError.didNotConsumeStdinInTime(self)
+        }
     }
     
     public func interruptAndForceKillIfNeeded() {
@@ -107,24 +127,23 @@ public final class ProcessController {
             log("Failed to interrupt the process in time, terminating", subprocessName: self.processName, subprocessId: processId, color: .boldRed)
             process.terminate()
         }
-        closeFileHandles()
     }
     
     // MARK: - Hang Monitoring
     
     private func startMonitoringForHangs() {
-        guard maximumAllowedSilenceDuration > 0 else {
-            log("Can't track hangs as maximumAllowedSilenceDuration must be positive, but it is \(maximumAllowedSilenceDuration)", subprocessName: self.processName, subprocessId: processId, color: .red)
+        guard subprocess.maximumAllowedSilenceDuration > 0 else {
+            log("Will not track hangs as maximumAllowedSilenceDuration must be positive, but it is \(subprocess.maximumAllowedSilenceDuration)", subprocessName: self.processName, subprocessId: processId, color: .yellow)
             return
         }
         
-        log("Will track silences with timeout \(maximumAllowedSilenceDuration)", subprocessName: self.processName, subprocessId: processId, color: .boldBlue)
+        log("Will track silences with timeout \(subprocess.maximumAllowedSilenceDuration)", subprocessName: self.processName, subprocessId: processId, color: .boldBlue)
         
         let timer = DispatchSource.makeTimerSource(queue: silenceTrackingTimerQueue)
         timer.schedule(deadline: .now(), repeating: .seconds(1), leeway: .seconds(1))
         timer.setEventHandler { [weak self] in
             if let strongSelf = self {
-                if Date().timeIntervalSince1970 - strongSelf.lastDataTimestamp > strongSelf.maximumAllowedSilenceDuration {
+                if Date().timeIntervalSince1970 - strongSelf.lastDataTimestamp > strongSelf.subprocess.maximumAllowedSilenceDuration {
                     strongSelf.didDetectLongPeriodOfSilence()
                 }
             }
@@ -140,78 +159,86 @@ public final class ProcessController {
         delegate?.processControllerDidNotReceiveAnyOutputWithinAllowedSilenceDuration(self)
     }
     
-    private func openFileHandles() {
-        if FileManager.default.createFile(atPath: stdoutContentsFile, contents: nil, attributes: [:]),
-            let stdoutHandle = FileHandle(forWritingAtPath: stdoutContentsFile)
-        {
-            self.stdoutHandle = stdoutHandle
-            log("Will store stdout output at: \(stdoutContentsFile)", subprocessName: self.processName, subprocessId: processId, color: .blue)
-        } else {
-            log("WARNING: Will not store stdout output at file, failed to open a file handle", color: .yellow)
-        }
-        if FileManager.default.createFile(atPath: stderrContentsFile, contents: nil, attributes: [:]),
-            let stderrHandle = FileHandle(forWritingAtPath: stderrContentsFile)
-        {
-            log("Will store stderr output at: \(stderrContentsFile)", subprocessName: self.processName, subprocessId: processId, color: .blue)
-            self.stderrHandle = stderrHandle
-        } else {
-            log("WARNING: Will not store stderr output at file, failed to open a file handle", color: .yellow)
-        }
-    }
-    
     private func closeFileHandles() {
-        stdoutHandle?.closeFile()
-        stdoutHandle = nil
-        stderrHandle?.closeFile()
-        stderrHandle = nil
+        stdinHandle?.closeFile()
+        stdinHandle = nil
     }
     
     // MARK: - Processing Output
     
-    private func setUpProcessListening() {
-        storeStdForProcess(
-            stdoutContentsFile,
-            pipeAssigningClosure: { process.standardOutput = $0 }) { [weak self] in
-                if let strongSelf = self {
-                    strongSelf.stdoutHandle?.write($0)
-                    strongSelf.delegate?.processController(strongSelf, newStdoutData: $0)
-                }
-            }
-        
-        storeStdForProcess(
-            stderrContentsFile,
-            pipeAssigningClosure: { process.standardError = $0 }) { [weak self] in
-                if let strongSelf = self {
-                    strongSelf.stderrHandle?.write($0)
-                    strongSelf.delegate?.processController(strongSelf, newStderrData: $0)
-                }
-            }
-    }
-    
-    private func storeStdForProcess(_ path: String, pipeAssigningClosure: (Pipe) -> (), onNewData: @escaping (Data) -> ()) {
-        if FileManager.default.createFile(atPath: path, contents: nil, attributes: [:]),
-            let storageHandle = FileHandle(forWritingAtPath: path) {
-            let pipe = Pipe()
-            pipeAssigningClosure(pipe)
-            
-            let pipeHandle = pipe.fileHandleForReading
-            pipeHandle.waitForDataInBackgroundAndNotify()
-            
-            var observer: NSObjectProtocol?
-            observer = NotificationCenter.default.addObserver(
-            forName: NSNotification.Name.NSFileHandleDataAvailable, object: pipeHandle, queue: nil) { [weak self] _ in
-                let data = pipeHandle.availableData
+    private func streamFromPipeIntoHandle(_ pipe: Pipe, _ storageHandle: FileHandle, onNewData: @escaping (Data) -> ()) {
+        stdReadQueue.async {
+            while true {
+                let data = pipe.fileHandleForReading.availableData
                 if data.isEmpty {
                     storageHandle.closeFile()
-                    if let observer = observer {
-                        NotificationCenter.default.removeObserver(observer)
-                    }
+                    break
+                } else {
+                    storageHandle.write(data)
+                    onNewData(data)
                 }
-                storageHandle.write(data)
-                pipeHandle.waitForDataInBackgroundAndNotify()
-                onNewData(data)
-                self?.didProcessDataFromProcess()
             }
+        }
+    }
+    
+    private func setUpProcessListening() {
+        storeStdForProcess(
+            path: self.subprocess.stdoutContentsFile,
+            onError: { message in
+                log("WARNING: Will not store stdout output: \(message)", subprocessName: self.processName, subprocessId: self.processId, color: .yellow)
+            },
+            pipeAssigningClosure: { pipe in
+                log("Will store stdout output at: \(self.subprocess.stdoutContentsFile)", subprocessName: self.processName, subprocessId: self.processId, color: .blue)
+                self.process.standardOutput = pipe
+            },
+            onNewData: { data in
+                self.delegate?.processController(self, newStdoutData: data)
+            }
+        )
+        
+        storeStdForProcess(
+            path: self.subprocess.stderrContentsFile,
+            onError: { message in
+                log("WARNING: Will not store stderr output: \(message)", subprocessName: self.processName, subprocessId: self.processId, color: .yellow)
+            },
+            pipeAssigningClosure: { pipe in
+                log("Will store stderr output at: \(self.subprocess.stderrContentsFile)", subprocessName: self.processName, subprocessId: self.processId, color: .blue)
+                self.process.standardError = pipe
+            },
+            onNewData: { data in
+                self.delegate?.processController(self, newStderrData: data)
+            }
+        )
+        
+        if FileManager.default.createFile(atPath: subprocess.stdinContentsFile, contents: nil),
+            let stdinHandle = FileHandle(forWritingAtPath: subprocess.stdinContentsFile)
+        {
+            log("Will store stdin input at: \(subprocess.stdinContentsFile)", subprocessName: self.processName, subprocessId: processId, color: .blue)
+            self.stdinHandle = stdinHandle
+        } else {
+            log("WARNING: Will not store stdin input at file, failed to open a file handle", color: .yellow)
+        }
+    }
+    
+    private func storeStdForProcess(
+        path: String,
+        onError: (String) -> (),
+        pipeAssigningClosure: (Pipe) -> (),
+        onNewData: @escaping (Data) -> ())
+    {
+        guard FileManager.default.createFile(atPath: path, contents: nil) else {
+            onError("Failed to create a file at path: '\(path)'")
+            return
+        }
+        guard let storageHandle = FileHandle(forWritingAtPath: path) else {
+            onError("Failed to open file handle")
+            return
+        }
+        let pipe = Pipe()
+        pipeAssigningClosure(pipe)
+        streamFromPipeIntoHandle(pipe, storageHandle) { data in
+            self.didProcessDataFromProcess()
+            onNewData(data)
         }
     }
     
