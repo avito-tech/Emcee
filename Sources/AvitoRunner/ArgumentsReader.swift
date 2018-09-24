@@ -34,7 +34,7 @@ final class ArgumentsReader {
         let path = try validateFileExists(file, key: key)
         do {
             let data = try Data(contentsOf: URL(fileURLWithPath: path))
-            return try JSONDecoder().decode(T.self, from: data)
+            return try decoder.decode(T.self, from: data)
         } catch {
             log("Unable to read or decode file \(path): \(error)", color: .red)
             throw ArgumentsError.argumentValueCannotBeUsed(key, error)
