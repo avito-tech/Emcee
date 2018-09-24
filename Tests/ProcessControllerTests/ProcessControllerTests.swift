@@ -23,6 +23,18 @@ final class ProcessControllerTests: XCTestCase {
         XCTAssertEqual(delegate.noActivityDetected, true)
     }
     
+    func testWhenSubprocessFinishesSilenceIsNotReported() {
+        let controller = ProcessController(
+            subprocess: Subprocess(
+                arguments: ["/bin/sleep"],
+                maximumAllowedSilenceDuration: 1.0))
+        let delegate = FakeDelegate()
+        controller.delegate = delegate
+        controller.startAndListenUntilProcessDies()
+        
+        XCTAssertEqual(delegate.noActivityDetected, false)
+    }
+    
     func testGettingStdout() throws {
         let tempFile = try TemporaryFile()
         
