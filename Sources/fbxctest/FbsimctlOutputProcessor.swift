@@ -88,7 +88,7 @@ public final class FbsimctlOutputProcessor: ProcessControllerDelegate, JSONReade
     // MARK: - ProcessControllerDelegate
     
     public func processController(_ sender: ProcessController, newStdoutData data: Data) {
-        jsonStream.append(data.map { Unicode.Scalar($0) })
+        jsonStream.append(data)
     }
     
     public func processController(_ sender: ProcessController, newStderrData data: Data) {

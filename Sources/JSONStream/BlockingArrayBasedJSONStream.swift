@@ -24,6 +24,10 @@ public final class BlockingArrayBasedJSONStream: JSONStream {
         }
     }
     
+    public func append(_ data: Data) {
+        append(data.map { Unicode.Scalar($0) })
+    }
+    
     // MARK: - JSONStream
     
     public func touch() -> Unicode.Scalar? {
