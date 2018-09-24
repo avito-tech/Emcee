@@ -5,36 +5,40 @@ import Models
 final class ArgumentsReader {
     private init() {}
     
-    private static let decoder: JSONDecoder = {
+    private static let decoderWithSnakeCaseSupport: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
     }()
     
-    public static func environment(file: String?, key: ArgumentDescription) throws -> [String: String] {
-        return try decodeModelsFromFile(file, defaultValueIfFileIsMissing: [:], key: key)
+    public static func environment(_ file: String?, key: ArgumentDescription) throws -> [String: String] {
+        return try decodeModelsFromFile(file, defaultValueIfFileIsMissing: [:], key: key, jsonDecoder: JSONDecoder())
     }
     
     public static func testDestinations(_ file: String?, key: ArgumentDescription) throws -> [TestDestinationConfiguration] {
-        return try decodeModelsFromFile(file, key: key)
+        return try decodeModelsFromFile(file, key: key, jsonDecoder: decoderWithSnakeCaseSupport)
     }
     
     public static func deploymentDestinations(_ file: String?, key: ArgumentDescription) throws -> [DeploymentDestination] {
-        return try decodeModelsFromFile(file, key: key)
+        return try decodeModelsFromFile(file, key: key, jsonDecoder: decoderWithSnakeCaseSupport)
     }
     
     public static func destinationConfigurations(_ file: String?, key: ArgumentDescription) throws -> [DestinationConfiguration] {
-        return try decodeModelsFromFile(file, defaultValueIfFileIsMissing: [], key: key)
+        return try decodeModelsFromFile(file, defaultValueIfFileIsMissing: [], key: key, jsonDecoder: decoderWithSnakeCaseSupport)
     }
     
-    private static func decodeModelsFromFile<T>(_ file: String?, defaultValueIfFileIsMissing: T? = nil, key: ArgumentDescription) throws -> T where T: Decodable {
+    private static func decodeModelsFromFile<T>(
+        _ file: String?,
+        defaultValueIfFileIsMissing: T? = nil,
+        key: ArgumentDescription,
+        jsonDecoder: JSONDecoder) throws -> T where T: Decodable {
         if file == nil, let defaultValue = defaultValueIfFileIsMissing {
             return defaultValue
         }
         let path = try validateFileExists(file, key: key)
         do {
             let data = try Data(contentsOf: URL(fileURLWithPath: path))
-            return try decoder.decode(T.self, from: data)
+            return try jsonDecoder.decode(T.self, from: data)
         } catch {
             log("Unable to read or decode file \(path): \(error)", color: .red)
             throw ArgumentsError.argumentValueCannotBeUsed(key, error)

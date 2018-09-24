@@ -83,7 +83,7 @@ final class RunTestsCommand: Command {
     func run(with arguments: ArgumentParser.Result) throws {
         let additionalApp = try ArgumentsReader.validateFilesExist(arguments.get(self.additionalApp) ?? [], key: KnownStringArguments.additionalApp)
         let app = try ArgumentsReader.validateFileExists(arguments.get(self.app), key: KnownStringArguments.app)
-        let environmentValues = try ArgumentsReader.environment(file: arguments.get(self.environment), key: KnownStringArguments.environment)
+        let environmentValues = try ArgumentsReader.environment(arguments.get(self.environment), key: KnownStringArguments.environment)
         let fbsimctl = try ArgumentsReader.validateResourceLocation(arguments.get(self.fbsimctl), key: KnownStringArguments.fbsimctl)
         let fbxctest = try ArgumentsReader.validateResourceLocation(arguments.get(self.fbxctest), key: KnownStringArguments.fbxctest)
         let junit = try ArgumentsReader.validateNotNil(arguments.get(self.junit), key: KnownStringArguments.junit)
