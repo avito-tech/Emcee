@@ -8,17 +8,6 @@ final class DistWorkCommand: Command {
     let command = "distWork"
     let overview = "Takes jobs from a dist runner queue and performs them"
     
-    enum DistWorkArgumentError: Error, CustomStringConvertible {
-        case incorrectFormat
-        
-        var description: String {
-            switch self {
-            case .incorrectFormat:
-                return "Argument value has incorrect format or unexpected"
-            }
-        }
-    }
-    
     private let queueServer: OptionArgument<String>
     private let workerId: OptionArgument<String>
     
@@ -29,20 +18,10 @@ final class DistWorkCommand: Command {
     }
     
     func run(with arguments: ArgumentParser.Result) throws {
-        guard let queueServer = arguments.get(queueServer) else {
-            throw ArgumentsError.argumentIsMissing(KnownStringArguments.queueServer)
-        }
-        guard let workerId = arguments.get(workerId) else {
-            throw ArgumentsError.argumentIsMissing(KnownStringArguments.workerId)
-        }
-        let components = queueServer.components(separatedBy: ":")
-        guard components.count == 2, let serverAddress = components.first, let serverPort = Int(components[1]) else {
-            throw ArgumentsError.argumentValueCannotBeUsed(
-                KnownStringArguments.queueServer,
-                DistWorkArgumentError.incorrectFormat)
-        }
+        let queueServer = try ArgumentsReader.queueServer(arguments.get(self.queueServer), key: KnownStringArguments.queueServer)
+        let workerId = try ArgumentsReader.validateNotNil(arguments.get(self.workerId), key: KnownStringArguments.workerId)
         
-        let distWorker = DistWorker(queueServerAddress: serverAddress, queueServerPort: serverPort, workerId: workerId)
+        let distWorker = DistWorker(queueServerAddress: queueServer.host, queueServerPort: queueServer.port, workerId: workerId)
         try distWorker.start()
     }
 }

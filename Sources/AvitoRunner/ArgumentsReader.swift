@@ -30,11 +30,18 @@ final class ArgumentsReader {
     public static func scheduleStrategy(_ value: String?, key: ArgumentDescription) throws -> ScheduleStrategyType {
         let strategyRawType = try validateNotNil(value, key: key)
         guard let scheduleStrategy = ScheduleStrategyType(rawValue: strategyRawType) else {
-            throw ArgumentsError.argumentValueCannotBeUsed(
-                KnownStringArguments.scheduleStrategy,
-                AdditionalArgumentValidationError.unknownScheduleStrategy(strategyRawType))
+            throw ArgumentsError.argumentValueCannotBeUsed(key, AdditionalArgumentValidationError.unknownScheduleStrategy(strategyRawType))
         }
         return scheduleStrategy
+    }
+    
+    public static func queueServer(_ value: String?, key: ArgumentDescription) throws -> (host: String, port: Int) {
+        let queueServer = try validateNotNil(value, key: key)
+        let components = queueServer.components(separatedBy: ":")
+        guard components.count == 2, let serverAddress = components.first, let serverPort = Int(components[1]) else {
+            throw ArgumentsError.argumentValueCannotBeUsed(key, AdditionalArgumentValidationError.incorrectQueueServerFormat(queueServer))
+        }
+        return (host: serverAddress, port: serverPort)
     }
     
     public static func validateNotNil<T>(_ value: T?, key: ArgumentDescription) throws -> T {

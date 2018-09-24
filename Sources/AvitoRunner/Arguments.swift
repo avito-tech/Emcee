@@ -326,6 +326,7 @@ enum AdditionalArgumentValidationError: Error, CustomStringConvertible {
     case unknownScheduleStrategy(String)
     case notFound(String)
     case someAdditionalAppBundlesCannotBeFound
+    case incorrectQueueServerFormat(String)
     
     var description: String {
         switch self {
@@ -335,6 +336,8 @@ enum AdditionalArgumentValidationError: Error, CustomStringConvertible {
             return "File not found: '\(path)'"
         case .someAdditionalAppBundlesCannotBeFound:
             return "Additional app bundle path(s) cannot be found"
+        case .incorrectQueueServerFormat(let actual):
+            return "Queue server address has unexpected format. Expected to be: 'example.com:1234' or '127.0.0.1:1234', found: \(actual)"
         }
     }
 }
