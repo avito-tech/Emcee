@@ -1,3 +1,4 @@
+import EventBus
 import Foundation
 import Logging
 import ModelFactories
@@ -96,7 +97,8 @@ final class BucketConfigurationFactory {
             testTimeoutConfiguration: workerConfiguration.testTimeoutConfiguration,
             testDiagnosticOutput: TestDiagnosticOutput.nullOutput,
             schedulerDataSource: schedulerDataSource,
-            onDemandSimulatorPool: onDemandSimulatorPool)
+            onDemandSimulatorPool: onDemandSimulatorPool,
+            eventBus: EventBus())
         return configuration
     }
     

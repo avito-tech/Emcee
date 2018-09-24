@@ -1,9 +1,10 @@
+import EventBus
 import Foundation
 import Models
 import Runner
 import SimulatorPool
 
-public struct SchedulerConfiguration {
+public class SchedulerConfiguration {
     public let auxiliaryPaths: AuxiliaryPaths
     public let testType: TestType
     public let buildArtifacts: BuildArtifacts
@@ -13,6 +14,7 @@ public struct SchedulerConfiguration {
     public let testDiagnosticOutput: TestDiagnosticOutput
     public let schedulerDataSource: SchedulerDataSource
     public let onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>
+    public let eventBus: EventBus
     
     public var runnerConfiguration: RunnerConfiguration {
         return RunnerConfiguration(
@@ -34,7 +36,8 @@ public struct SchedulerConfiguration {
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testDiagnosticOutput: TestDiagnosticOutput,
         schedulerDataSource: SchedulerDataSource,
-        onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>)
+        onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>,
+        eventBus: EventBus)
     {
         self.auxiliaryPaths = auxiliaryPaths
         self.testType = testType
@@ -45,5 +48,6 @@ public struct SchedulerConfiguration {
         self.testDiagnosticOutput = testDiagnosticOutput
         self.schedulerDataSource = schedulerDataSource
         self.onDemandSimulatorPool = onDemandSimulatorPool
+        self.eventBus = eventBus
     }
 }

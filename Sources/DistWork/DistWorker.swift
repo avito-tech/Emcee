@@ -35,7 +35,10 @@ public final class DistWorker {
             schedulerDataSource: DistRunSchedulerDataSource(onNextBucketRequest: fetchNextBucket),
             onDemandSimulatorPool: onDemandSimulatorPool)
         let scheduler = Scheduler(configuration: configuration)
-        scheduler.schedulerStream = SchedulerStreamProcessor(onReceiveTestingResultForBucket: didReceiveTestResult)
+        let eventStreamProcessor = EventStreamProcessor { [weak self] testingResult in
+            self?.didReceiveTestResult(testingResult: testingResult)
+        }
+        configuration.eventBus.add(stream: eventStreamProcessor)
         return try scheduler.run()
     }
     

@@ -1,8 +1,9 @@
+import EventBus
 import Foundation
 import Models
 import Scheduler
 
-public final class SchedulerStreamProcessor: SchedulerStream {
+public final class EventStreamProcessor: EventStream {
     
     public typealias OnReceiveTestingResult = (TestingResult) -> Void
     
@@ -14,7 +15,11 @@ public final class SchedulerStreamProcessor: SchedulerStream {
     
     // MARK: - Stream API
     
-    public func scheduler(_ sender: Scheduler, didReceiveTestingResult testingResult: TestingResult) {
+    public func didObtain(testingResult: TestingResult) {
         onReceiveTestingResult(testingResult)
+    }
+    
+    public func tearDown() {
+        
     }
 }
