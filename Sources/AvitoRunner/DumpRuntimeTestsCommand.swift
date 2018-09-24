@@ -15,10 +15,10 @@ final class DumpRuntimeTestsCommand: Command {
     let command = "dump"
     let overview = "Dumps all available runtime tests into JSON file"
     
-    private let testDestinations: OptionArgument<String>
     private let fbxctestValue: OptionArgument<String>
-    private let xctestBundle: OptionArgument<String>
     private let output: OptionArgument<String>
+    private let testDestinations: OptionArgument<String>
+    private let xctestBundle: OptionArgument<String>
     private let encoder: JSONEncoder = {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
@@ -27,15 +27,21 @@ final class DumpRuntimeTestsCommand: Command {
     
     required init(parser: ArgumentParser) {
         let subparser = parser.add(subparser: command, overview: overview)
-        testDestinations = subparser.add(stringArgument: KnownStringArguments.testDestinations)
         fbxctestValue = subparser.add(stringArgument: KnownStringArguments.fbxctest)
-        xctestBundle = subparser.add(stringArgument: KnownStringArguments.xctestBundle)
         output = subparser.add(stringArgument: KnownStringArguments.output)
+        testDestinations = subparser.add(stringArgument: KnownStringArguments.testDestinations)
+        xctestBundle = subparser.add(stringArgument: KnownStringArguments.xctestBundle)
     }
     
     func run(with arguments: ArgumentParser.Result) throws {
         let fileManager = FileManager.default
         let decoder = JSONDecoder()
+        guard let fbxctestValue = arguments.get(fbxctestValue) else {
+            throw ArgumentsError.argumentIsMissing(KnownStringArguments.fbxctest)
+        }
+        guard let output = arguments.get(output) else {
+            throw ArgumentsError.argumentIsMissing(KnownStringArguments.output)
+        }
         guard let testDestinationFile = arguments.get(self.testDestinations) else {
             throw ArgumentsError.argumentIsMissing(KnownStringArguments.testDestinations)
         }
@@ -46,18 +52,12 @@ final class DumpRuntimeTestsCommand: Command {
         } catch {
             throw ArgumentsError.argumentValueCannotBeUsed(KnownStringArguments.testDestinations, error)
         }
-        guard let fbxctestValue = arguments.get(fbxctestValue) else {
-            throw ArgumentsError.argumentIsMissing(KnownStringArguments.fbxctest)
-        }
         guard let xcTestBundle = arguments.get(xctestBundle), fileManager.fileExists(atPath: xcTestBundle) else {
             throw ArgumentsError.argumentIsMissing(KnownStringArguments.xctestBundle)
         }
-        guard let output = arguments.get(output) else {
-            throw ArgumentsError.argumentIsMissing(KnownStringArguments.output)
-        }
         
         let resolver = ResourceLocationResolver.sharedResolver
-        let fbxctest = try resolver.resolvePath(resourceLocation: ResourceLocation.from(fbxctestValue)).with(archivedFile: "fbxctest")
+        let fbxctest = try resolver.resolvePath(resourceLocation: .from(fbxctestValue)).with(archivedFile: "fbxctest")
         
         let configuration = RuntimeDumpConfiguration(
             fbxctest: fbxctest,

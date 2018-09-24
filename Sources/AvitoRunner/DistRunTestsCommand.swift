@@ -12,80 +12,66 @@ final class DistRunTestsCommand: Command {
     let command = "distRunTests"
     let overview = "Performs distributed UI tests run and writes report"
     
-    private let runId: OptionArgument<String>
-    private let destinations: OptionArgument<String>
-    private let destinationConfigurations: OptionArgument<String>
-    private let remoteScheduleStrategy: OptionArgument<String>
-    
-    private let testDestinations: OptionArgument<String>
-    private let onlyId: OptionArgument<[UInt]>
-    private let onlyTest: OptionArgument<[String]>
-    
-    private let junit: OptionArgument<String>
-    private let trace: OptionArgument<String>
-    
-    private let numberOfSimulators: OptionArgument<UInt>
-    private let numberOfRetries: OptionArgument<UInt>
-    private let scheduleStrategy: OptionArgument<String>
-    private let environment: OptionArgument<String>
-    
-    private let simulatorLocalizationSettings: OptionArgument<String>
-    private let watchdogSettings: OptionArgument<String>
-    
-    private let fbxctest: OptionArgument<String>
-    private let fbsimctl: OptionArgument<String>
-    
-    private let app: OptionArgument<String>
     private let additionalApp: OptionArgument<[String]>
-    private let runner: OptionArgument<String>
-    private let xctestBundle: OptionArgument<String>
-    
-    private let singleTestTimeout: OptionArgument<UInt>
+    private let app: OptionArgument<String>
+    private let destinationConfigurations: OptionArgument<String>
+    private let destinations: OptionArgument<String>
+    private let environment: OptionArgument<String>
+    private let fbsimctl: OptionArgument<String>
+    private let fbxctest: OptionArgument<String>
     private let fbxctestSilenceTimeout: OptionArgument<UInt>
+    private let fbxtestBundleReadyTimeout: OptionArgument<UInt>
+    private let fbxtestCrashCheckTimeout: OptionArgument<UInt>
     private let fbxtestFastTimeout: OptionArgument<UInt>
     private let fbxtestRegularTimeout: OptionArgument<UInt>
     private let fbxtestSlowTimeout: OptionArgument<UInt>
-    private let fbxtestBundleReadyTimeout: OptionArgument<UInt>
-    private let fbxtestCrashCheckTimeout: OptionArgument<UInt>
+    private let junit: OptionArgument<String>
+    private let numberOfRetries: OptionArgument<UInt>
+    private let numberOfSimulators: OptionArgument<UInt>
+    private let onlyId: OptionArgument<[UInt]>
+    private let onlyTest: OptionArgument<[String]>
+    private let remoteScheduleStrategy: OptionArgument<String>
+    private let runId: OptionArgument<String>
+    private let runner: OptionArgument<String>
+    private let scheduleStrategy: OptionArgument<String>
+    private let simulatorLocalizationSettings: OptionArgument<String>
+    private let singleTestTimeout: OptionArgument<UInt>
+    private let testDestinations: OptionArgument<String>
+    private let trace: OptionArgument<String>
+    private let watchdogSettings: OptionArgument<String>
+    private let xctestBundle: OptionArgument<String>
 
     required init(parser: ArgumentParser) {
         let subparser = parser.add(subparser: command, overview: overview)
         
-        runId = subparser.add(stringArgument: KnownStringArguments.runId)
-        destinations = subparser.add(stringArgument: KnownStringArguments.destinations)
-        destinationConfigurations = subparser.add(stringArgument: KnownStringArguments.destinationConfigurations)
-        remoteScheduleStrategy = subparser.add(stringArgument: KnownStringArguments.remoteScheduleStrategy)
-        
-        testDestinations = subparser.add(stringArgument: KnownStringArguments.testDestinations)
-        onlyId = subparser.add(multipleIntArgument: KnownUIntArguments.onlyId)
-        onlyTest = subparser.add(multipleStringArgument: KnownStringArguments.onlyTest)
-        
-        junit = subparser.add(stringArgument: KnownStringArguments.junit)
-        trace = subparser.add(stringArgument: KnownStringArguments.trace)
-        
-        numberOfSimulators = subparser.add(intArgument: KnownUIntArguments.numberOfSimulators)
-        numberOfRetries = subparser.add(intArgument: KnownUIntArguments.numberOfRetries)
-        scheduleStrategy = subparser.add(stringArgument: KnownStringArguments.scheduleStrategy)
-        environment = subparser.add(stringArgument: KnownStringArguments.environment)
-        
-        simulatorLocalizationSettings = subparser.add(stringArgument: KnownStringArguments.simulatorLocalizationSettings)
-        watchdogSettings = subparser.add(stringArgument: KnownStringArguments.watchdogSettings)
-        
-        fbxctest = subparser.add(stringArgument: KnownStringArguments.fbxctest)
-        fbsimctl = subparser.add(stringArgument: KnownStringArguments.fbsimctl)
-        
-        app = subparser.add(stringArgument: KnownStringArguments.app)
         additionalApp = subparser.add(multipleStringArgument: KnownStringArguments.additionalApp)
-        runner = subparser.add(stringArgument: KnownStringArguments.runner)
-        xctestBundle = subparser.add(stringArgument: KnownStringArguments.xctestBundle)
-        
-        singleTestTimeout = subparser.add(intArgument: KnownUIntArguments.singleTestTimeout)
+        app = subparser.add(stringArgument: KnownStringArguments.app)
+        destinationConfigurations = subparser.add(stringArgument: KnownStringArguments.destinationConfigurations)
+        destinations = subparser.add(stringArgument: KnownStringArguments.destinations)
+        environment = subparser.add(stringArgument: KnownStringArguments.environment)
+        fbsimctl = subparser.add(stringArgument: KnownStringArguments.fbsimctl)
+        fbxctest = subparser.add(stringArgument: KnownStringArguments.fbxctest)
         fbxctestSilenceTimeout = subparser.add(intArgument: KnownUIntArguments.fbxctestSilenceTimeout)
+        fbxtestBundleReadyTimeout = subparser.add(intArgument: KnownUIntArguments.fbxtestBundleReadyTimeout)
+        fbxtestCrashCheckTimeout = subparser.add(intArgument: KnownUIntArguments.fbxtestCrashCheckTimeout)
         fbxtestFastTimeout = subparser.add(intArgument: KnownUIntArguments.fbxtestFastTimeout)
         fbxtestRegularTimeout = subparser.add(intArgument: KnownUIntArguments.fbxtestRegularTimeout)
         fbxtestSlowTimeout = subparser.add(intArgument: KnownUIntArguments.fbxtestSlowTimeout)
-        fbxtestBundleReadyTimeout = subparser.add(intArgument: KnownUIntArguments.fbxtestBundleReadyTimeout)
-        fbxtestCrashCheckTimeout = subparser.add(intArgument: KnownUIntArguments.fbxtestCrashCheckTimeout)
+        junit = subparser.add(stringArgument: KnownStringArguments.junit)
+        numberOfRetries = subparser.add(intArgument: KnownUIntArguments.numberOfRetries)
+        numberOfSimulators = subparser.add(intArgument: KnownUIntArguments.numberOfSimulators)
+        onlyId = subparser.add(multipleIntArgument: KnownUIntArguments.onlyId)
+        onlyTest = subparser.add(multipleStringArgument: KnownStringArguments.onlyTest)
+        remoteScheduleStrategy = subparser.add(stringArgument: KnownStringArguments.remoteScheduleStrategy)
+        runId = subparser.add(stringArgument: KnownStringArguments.runId)
+        runner = subparser.add(stringArgument: KnownStringArguments.runner)
+        scheduleStrategy = subparser.add(stringArgument: KnownStringArguments.scheduleStrategy)
+        simulatorLocalizationSettings = subparser.add(stringArgument: KnownStringArguments.simulatorLocalizationSettings)
+        singleTestTimeout = subparser.add(intArgument: KnownUIntArguments.singleTestTimeout)
+        testDestinations = subparser.add(stringArgument: KnownStringArguments.testDestinations)
+        trace = subparser.add(stringArgument: KnownStringArguments.trace)
+        watchdogSettings = subparser.add(stringArgument: KnownStringArguments.watchdogSettings)
+        xctestBundle = subparser.add(stringArgument: KnownStringArguments.xctestBundle)
     }
     
     func run(with arguments: ArgumentParser.Result) throws {
@@ -202,7 +188,7 @@ final class DistRunTestsCommand: Command {
         if !fileManager.filesExist(additionalApp) {
             throw ArgumentsError.argumentValueCannotBeUsed(
                 KnownStringArguments.additionalApp,
-                AdditionalAppValidationError.someAdditionalAppBundlesCannotBeFound)
+                AdditionalArgumentValidationError.someAdditionalAppBundlesCannotBeFound)
         }
         guard let runner = arguments.get(self.runner), fileManager.fileExists(atPath: runner) else {
             throw ArgumentsError.argumentIsMissing(KnownStringArguments.runner)

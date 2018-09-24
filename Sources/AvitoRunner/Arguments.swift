@@ -61,10 +61,10 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
         comment: "Path to where should output be stored as JSON file"),
     KnownStringArguments.junit: ArgumentDescriptionHolder(
         name: "--junit",
-        comment: "Where the Jnnit report should be created"),
+        comment: "Where the combined (the one for all test destinations) Junit report should be created"),
     KnownStringArguments.trace: ArgumentDescriptionHolder(
         name: "--trace",
-        comment: "Where the Chrome trace should be created"),
+        comment: "Where the combined (the one for all test destinations) Chrome trace should be created"),
     KnownStringArguments.fbsimctl: ArgumentDescriptionHolder(
         name: "--fbsimctl",
         comment: "Local path to fbsimctl binary, or URL to ZIP archive"),
@@ -177,31 +177,31 @@ private let knownUIntArguments: [KnownUIntArguments: ArgumentDescriptionHolder] 
 ]
 
 enum KnownStringArguments: ArgumentDescription {
-    case testDestinations
-    case fbxctest
-    case xctestBundle
-    case output
-    case junit
-    case trace
-    case fbsimctl
-    case app
-    case runner
-    case environment
-    case destinations
-    case destinationConfigurations
-    case onlyTest
-    case scheduleStrategy
-    case remoteScheduleStrategy
-    case simulatorLocalizationSettings
-    case watchdogSettings
-    case tempFolder
-    case videoPath
-    case oslogPath
-    case testLogPath
     case additionalApp
-    case runId
+    case app
+    case destinationConfigurations
+    case destinations
+    case environment
+    case fbsimctl
+    case fbxctest
+    case junit
+    case onlyTest
+    case oslogPath
+    case output
     case queueServer
+    case remoteScheduleStrategy
+    case runId
+    case runner
+    case scheduleStrategy
+    case simulatorLocalizationSettings
+    case tempFolder
+    case testDestinations
+    case testLogPath
+    case trace
+    case videoPath
+    case watchdogSettings
     case workerId
+    case xctestBundle
     
     var name: String {
         return knownStringArguments[self]!.name
@@ -221,16 +221,16 @@ enum KnownStringArguments: ArgumentDescription {
 }
 
 enum KnownUIntArguments: ArgumentDescription {
-    case onlyId
-    case numberOfSimulators
-    case numberOfRetries
-    case singleTestTimeout
     case fbxctestSilenceTimeout
+    case fbxtestBundleReadyTimeout
+    case fbxtestCrashCheckTimeout
     case fbxtestFastTimeout
     case fbxtestRegularTimeout
     case fbxtestSlowTimeout
-    case fbxtestBundleReadyTimeout
-    case fbxtestCrashCheckTimeout
+    case numberOfRetries
+    case numberOfSimulators
+    case onlyId
+    case singleTestTimeout
     
     var name: String {
         return knownUIntArguments[self]!.name
@@ -322,6 +322,19 @@ extension UInt: ArgumentKind {
     public static let completion: ShellCompletion = .none
 }
 
-enum AdditionalAppValidationError: Error {
+enum AdditionalArgumentValidationError: Error, CustomStringConvertible {
+    case unknownScheduleStrategy(String)
+    case notFound(String)
     case someAdditionalAppBundlesCannotBeFound
+    
+    var description: String {
+        switch self {
+        case .unknownScheduleStrategy(let value):
+            return "Unsupported schedule strategy value: \(value). Supported values: \(ScheduleStrategyType.availableRawValues)"
+        case .notFound(let path):
+            return "File not found: '\(path)'"
+        case .someAdditionalAppBundlesCannotBeFound:
+            return "Additional app bundle path(s) cannot be found"
+        }
+    }
 }
