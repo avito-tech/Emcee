@@ -49,6 +49,11 @@ final class ArgumentsReader {
         return value
     }
     
+    public static func validateResourceLocation(_ value: String?, key: ArgumentDescription) throws -> ResourceLocation {
+        let string = try validateNotNil(value, key: key)
+        return try ResourceLocation.from(string)
+    }
+    
     public static func validateFileExists(_ value: String?, key: ArgumentDescription) throws -> String {
         let path = try validateNotNil(value, key: key)
         if !FileManager.default.fileExists(atPath: path) {
@@ -63,9 +68,6 @@ final class ArgumentsReader {
     }
     
     public static func validateFilesExist(_ values: [String], key: ArgumentDescription) throws -> [String] {
-        for value in values {
-            _ = try validateFileExists(value, key: key)
-        }
-        return values
+        return try values.map { try validateFileExists($0, key: key) }
     }
 }
