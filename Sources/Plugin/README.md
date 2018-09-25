@@ -9,7 +9,7 @@ All events are broadcasted from main executable into running plugins, but not ba
 Main Executable Event Bus Events     --------->     Plugin
 ```
 
-## How should the plugin use the provided APIs?
+## Using `Plugin`
 
 The main class for plugin is `Plugin`. The most common scenario is:
 

@@ -42,10 +42,11 @@ func main() -> Int32 {
     log("Started plugin")
     
     let eventBus = EventBus()
-    let plugin = Plugin(eventBus: eventBus)
-    plugin.streamPluginEvents()
     let listener = Listener(outputPath: outputPath)
     eventBus.add(stream: listener)
+    
+    let plugin = Plugin(eventBus: eventBus)
+    plugin.streamPluginEvents()
     plugin.join()
     
     return 0

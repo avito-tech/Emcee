@@ -18,7 +18,6 @@ public enum PackageName: String {
         .fbxctest: "fbxctest",
         .fbsimctl: "fbsimctl",
         .environment: "environment.json",
-        .plugin: "plugin.emceeplugin",
         .simulatorLocalizationSettings: "simulator_settings.json",
         .watchdogSettings: "watchdog_settings.json"
     ]
