@@ -6,11 +6,11 @@ public final class DeployableBundle: DeployableItem {
     public init(name: String, bundleUrl: URL) throws {
         super.init(
             name: name,
-            files: try DeployableBundle.filesForBundle(bundleUrl: bundleUrl)
+            files: try DeployableBundle.filesForBundle(bundleUrl: bundleUrl))
     }
     
     public static func filesForBundle(bundleUrl: URL) throws -> Set<DeployableFile> {
-        return filesForBundle(withResolvedSymlinksBundleUrl: bundleUrl.resolvingSymlinksInPath())
+        return try filesForBundle(withResolvedSymlinksBundleUrl: bundleUrl.resolvingSymlinksInPath())
     }
     
     private static func filesForBundle(withResolvedSymlinksBundleUrl bundleUrl: URL) throws -> Set<DeployableFile> {

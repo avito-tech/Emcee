@@ -1,4 +1,5 @@
 import Basic
+import EventBus
 import Models
 import PluginManager
 import XCTest
@@ -88,9 +89,13 @@ final class PluginManagerTests: XCTestCase {
             pluginLocations: [.from(pluginBundlePath.asString)],
             environment: ["AVITO_TEST_PLUGIN_OUTPUT": outputPath.path.asString])
         manager.startPlugins()
-        manager.process(event: .didObtainTestingResult(testingResult1))
-        manager.process(event: .didObtainTestingResult(testingResult2))
-        manager.process(event: .tearDown)
+        
+        let eventBus = EventBus()
+        eventBus.add(stream: manager)
+        eventBus.post(event: .didObtainTestingResult(testingResult1))
+        eventBus.post(event: .didObtainTestingResult(testingResult2))
+        eventBus.post(event: .tearDown)
+        eventBus.waitForDeliveryOfAllPendingEvents()
         
         let data = try Data(contentsOf: URL(fileURLWithPath: outputPath.path.asString))
         let actualTestingResults: [TestingResult] = try JSONDecoder().decode([TestingResult].self, from: data)

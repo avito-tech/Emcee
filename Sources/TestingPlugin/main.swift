@@ -8,11 +8,9 @@ class Listener: DefaultBusListener {
     var allEvents = [TestingResult]()
     var allSignals = [UInt32]()
     let outputPath: String
-    let plugin: Plugin
     
-    public init(outputPath: String, plugin: Plugin) {
+    public init(outputPath: String) {
         self.outputPath = outputPath
-        self.plugin = plugin
         super.init()
     }
     
@@ -22,7 +20,6 @@ class Listener: DefaultBusListener {
     
     override func tearDown() {
         write()
-        plugin.interrupt()
     }
     
     private func write() {
@@ -47,7 +44,7 @@ func main() -> Int32 {
     let eventBus = EventBus()
     let plugin = Plugin(eventBus: eventBus)
     plugin.streamPluginEvents()
-    let listener = Listener(outputPath: outputPath, plugin: plugin)
+    let listener = Listener(outputPath: outputPath)
     eventBus.add(stream: listener)
     plugin.join()
     

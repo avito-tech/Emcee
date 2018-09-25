@@ -32,6 +32,8 @@ public final class Plugin {
     }
     
     public func streamPluginEvents() {
+        automaticallyInterruptOnTearDown()
+        
         let jsonReader = JSONReader(inputStream: jsonInputStream, eventStream: jsonStreamToEventBusAdapter)
         readDataInBackground()
         jsonReaderQueue.async {
@@ -52,9 +54,18 @@ public final class Plugin {
         }
     }
     
-    public func interrupt() {
-        jsonStreamHasFinished = true
-        jsonInputStream.willProvideMoreData = false
+    private func automaticallyInterruptOnTearDown() {
+        let tearDownHandler = TearDownHandler { [weak self] in
+            self?.interrupt()
+        }
+        eventBus.add(stream: tearDownHandler)
+    }
+    
+    private func interrupt() {
+        eventBus.uponDeliverOfAllEvents {
+            self.jsonInputStream.willProvideMoreData = false
+            self.jsonStreamHasFinished = true
+        }
     }
     
     private func readDataInBackground() {

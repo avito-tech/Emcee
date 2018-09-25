@@ -20,6 +20,16 @@ public final class EventBus {
         }
     }
     
+    public func waitForDeliveryOfAllPendingEvents() {
+        workQueue.sync {}
+    }
+    
+    public func uponDeliverOfAllEvents(work: @escaping () -> ()) {
+        workQueue.async {
+            work()
+        }
+    }
+    
     private func forEachStream(work: @escaping (EventStream) -> ()) {
         workQueue.async {
             for stream in self.streams {
