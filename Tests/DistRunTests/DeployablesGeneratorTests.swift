@@ -1,3 +1,4 @@
+import Basic
 import Extensions
 import Deployer
 @testable import DistRun
@@ -8,6 +9,7 @@ import XCTest
 class DeployablesGeneratorTests: XCTestCase {
     
     var deployables = [PackageName: [DeployableItem]]()
+    var tempFolder: TemporaryDirectory!
     let defaultBuildArtifacts = BuildArtifacts(
         appBundle: String(#file),
         runner: String(#file),
@@ -17,12 +19,13 @@ class DeployablesGeneratorTests: XCTestCase {
     override func setUp() {
         super.setUp()
         do {
+            self.tempFolder = try TemporaryDirectory(removeTreeOnDeinit: true)
             let generator = DeployablesGenerator(
                 targetAvitoRunnerPath: "AvitoRunner",
                 auxiliaryPaths: try AuxiliaryPathsFactory().createWith(
                     fbxctest: ResourceLocation.from(String(#file)),
                     fbsimctl: ResourceLocation.from(String(#file)),
-                    plugins: [ResourceLocation.from(String(#file))],
+                    plugins: [ResourceLocation.from(pathToPlugin())],
                     tempFolder: ""),
                 buildArtifacts: defaultBuildArtifacts,
                 environmentFilePath: String(#file),
@@ -37,6 +40,13 @@ class DeployablesGeneratorTests: XCTestCase {
             self.continueAfterFailure = false
             XCTFail("Failed to generate deployables: \(error)")
         }
+    }
+    
+    private func pathToPlugin() throws -> String {
+        let path = tempFolder.path.appending(component: "TestPlugin.emceeplugin").asString
+        try FileManager.default.createDirectory(at: URL(fileURLWithPath: path), withIntermediateDirectories: true)
+        FileManager.default.createFile(atPath: path.appending(pathComponent: "Plugin"), contents: nil)
+        return path
     }
     
     private func filterDeployables(_ packageName: PackageName) -> [DeployableItem] {
@@ -121,8 +131,14 @@ class DeployablesGeneratorTests: XCTestCase {
     func testPluginIsPresent() throws {
         let deployables = filterDeployables(.plugin)
         XCTAssertEqual(deployables.count, 1)
-        XCTAssertEqual(deployables[0].files.first?.source, String(#file))
-        XCTAssertEqual(deployables[0].files.first?.destination, "plugin.emceeplugin")
+        XCTAssertEqual(deployables[0].files.count, 2)
+        
+        let files = deployables[0].files
+        let expectedFiles = Set([
+            DeployableFile(source: tempFolder.path.appending(component: "TestPlugin.emceeplugin").asString, destination: "TestPlugin.emceeplugin"),
+            DeployableFile(source: tempFolder.path.appending(components: "TestPlugin.emceeplugin", "Plugin").asString, destination: "TestPlugin.emceeplugin/Plugin")
+            ])
+        XCTAssertEqual(files, expectedFiles)
     }
     
     func testOptionalWatchdogAndSimulatorLocalizationSettongs() throws {

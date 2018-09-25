@@ -100,7 +100,7 @@ public final class DeployablesGenerator {
         let parentDirPath = binaryPath.deletingLastPathComponent
         let bundleName = parentDirPath.lastPathComponent
         let url = URL(fileURLWithPath: parentDirPath)
-        let files = try DeployableBundle.filesForBundle(bundleUrl: url)
+        let files = try DeployableBundle.filesForBundle(bundleUrl: url.resolvingSymlinksInPath())
             .filter { file -> Bool in
                 // We remove the bundle directory itself: we do deploy tool with some surrounding files,
                 // so we don't deploy its parent folder

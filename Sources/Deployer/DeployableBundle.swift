@@ -6,7 +6,7 @@ public final class DeployableBundle: DeployableItem {
     public init(name: String, bundleUrl: URL) throws {
         super.init(
             name: name,
-            files: try DeployableBundle.filesForBundle(bundleUrl: bundleUrl))
+            files: try DeployableBundle.filesForBundle(bundleUrl: bundleUrl.resolvingSymlinksInPath()))
     }
     
     public static func filesForBundle(bundleUrl: URL) throws -> Set<DeployableFile> {
@@ -18,7 +18,7 @@ public final class DeployableBundle: DeployableItem {
         }
         
         while let url = enumerator.nextObject() as? URL {
-            let localPath = url.path
+            let localPath = url.resolvingSymlinksInPath().path
             guard let relativePath = localPath.stringWithPathRelativeTo(anchorPath: bundleUrl.path) else {
                 throw DeploymentError.failedToRelativizePath(localPath, anchorPath: bundleUrl.path)
             }
