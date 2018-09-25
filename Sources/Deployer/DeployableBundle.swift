@@ -10,14 +10,10 @@ public final class DeployableBundle: DeployableItem {
     }
     
     public static func filesForBundle(bundleUrl: URL) throws -> Set<DeployableFile> {
-        return try filesForBundle(withResolvedSymlinksBundleUrl: bundleUrl.resolvingSymlinksInPath())
-    }
-    
-    private static func filesForBundle(withResolvedSymlinksBundleUrl bundleUrl: URL) throws -> Set<DeployableFile> {
         let bundleName = bundleUrl.lastPathComponent
         var files: Set<DeployableFile> = [DeployableFile(source: bundleUrl.path, destination: bundleName)]
         
-        guard let enumerator = FileManager.default.enumerator(at: bundleUrl, includingPropertiesForKeys: nil) else {
+        guard let enumerator = FileManager.default.enumerator(at: bundleUrl.resolvingSymlinksInPath(), includingPropertiesForKeys: nil) else {
             throw DeploymentError.failedToEnumerateContentsOfDirectory(bundleUrl)
         }
         
