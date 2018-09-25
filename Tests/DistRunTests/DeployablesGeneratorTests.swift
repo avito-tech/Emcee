@@ -131,7 +131,6 @@ class DeployablesGeneratorTests: XCTestCase {
     func testPluginIsPresent() throws {
         let deployables = filterDeployables(.plugin)
         XCTAssertEqual(deployables.count, 1)
-        XCTAssertEqual(deployables[0].files.count, 2)
         
         let files = deployables[0].files
         let expectedFiles = Set([

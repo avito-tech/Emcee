@@ -48,7 +48,7 @@ public extension String {
      * anchorPath: "~/Library/Developer/Xcode"
      * self relative to anchorPath: "../"
      */
-    public func stringWithPathRelativeTo(anchorPath: String) -> String? {
+    public func stringWithPathRelativeTo(anchorPath: String, allowUpwardRelation: Bool = true) -> String? {
         let pathComponents = self.pathComponents
         let anchorComponents = anchorPath.pathComponents
         
@@ -66,6 +66,9 @@ public extension String {
         var relativeComponents = [String]()
         relativeComponents.reserveCapacity(numberOfParentComponents + numberOfPathComponents)
         for _ in 0..<numberOfParentComponents {
+            if !allowUpwardRelation {
+                return nil
+            }
             relativeComponents.append("..")
         }
         relativeComponents.append(contentsOf: pathComponents[componentsInCommon..<pathComponents.count])
