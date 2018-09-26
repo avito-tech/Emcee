@@ -6,6 +6,11 @@ let package = Package(
     name: "AvitoUITestRunner",
     products: [
         .executable(name: "AvitoRunner", targets: ["AvitoRunner"]),
+        .library(name: "EmceePlugin", targets: [
+            "Models",
+            "Logging",
+            "Plugin"
+            ]),
         .executable(name: "fake_fbxctest", targets: ["FakeFbxctest"]),
         .executable(name: "testing_plugin", targets: ["TestingPlugin"]),
     ],
@@ -395,7 +400,6 @@ let package = Package(
             name: "TestingPlugin",
             dependencies: [
                 "Models",
-                "JSONStream",
                 "Logging",
                 "Plugin"
             ]),
