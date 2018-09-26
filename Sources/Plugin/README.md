@@ -11,9 +11,32 @@ Main Executable Event Bus Events     --------->     Plugin
 
 ## Using `Plugin`
 
+In your `Package.swift`, import the library that has all required APIs to implement a plugin:
+
+```
+dependencies: [
+    .package(url: "https://github.com/avito-tech/Emcee", .branch("master"))
+]
+```
+
+In your plugin target add `EmceePlugin` dependency: 
+
+```
+targets: [
+    .target(
+        name: "TestPlugin",
+        dependencies: [
+            "EmceePlugin"
+        ])
+]
+```
+
 The main class for plugin is `Plugin`. The most common scenario is:
 
 ```
+import EventBus
+import Plugin
+
 // Create an event bus that will get the events from the main executable:
 let eventBus = EventBus()
 
