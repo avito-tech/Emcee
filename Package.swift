@@ -83,6 +83,7 @@ let package = Package(
             name: "DistRun",
             dependencies: [
                 "Deployer",
+                "EventBus",
                 "Extensions",
                 "HostDeterminer",
                 "LaunchdUtils",

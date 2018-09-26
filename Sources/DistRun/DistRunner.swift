@@ -1,5 +1,6 @@
 import Basic
 import Deployer
+import EventBus
 import Extensions
 import Foundation
 import HostDeterminer
@@ -19,19 +20,24 @@ public final class DistRunner {
         case avitoRunnerDeployableItemIsMissing
     }
     
+    private let eventBus: EventBus
     private let distRunConfiguration: DistRunConfiguration
     private let temporaryDirectory: TemporaryDirectory
     private let avitoRunnerTargetPath = "AvitoRunner"
     private let launchdPlistTargetPath = "launchd.plist"
     
-    public init(distRunConfiguration: DistRunConfiguration) throws {
+    public init(eventBus: EventBus, distRunConfiguration: DistRunConfiguration) throws {
+        self.eventBus = eventBus
         self.distRunConfiguration = distRunConfiguration
         self.temporaryDirectory = try TemporaryDirectory()
     }
     
     public func run() throws -> [TestingResult] {
         let queue = try prepareQueue()
-        let queueServer = QueueServer(queue: queue, workerIdToRunConfiguration: createWorkerConfigurations())
+        let queueServer = QueueServer(
+            eventBus: eventBus,
+            queue: queue,
+            workerIdToRunConfiguration: createWorkerConfigurations())
         try queueServer.start()
         try deployAndStartLaucnhdJob(serverPort: try queueServer.port())
         try queueServer.waitForAllResultsToCome()

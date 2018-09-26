@@ -1,3 +1,4 @@
+import EventBus
 import Extensions
 import Foundation
 import Logging
@@ -8,6 +9,7 @@ import Swifter
 import SynchronousWaiter
 
 public final class QueueServer {
+    private let eventBus: EventBus
     private let buckets: [Bucket]
     private var queue: [Bucket]
     private var dequeuedBuckets = Set<DequeuedBucket>()
@@ -24,7 +26,8 @@ public final class QueueServer {
     private var stuckDequeuedBucketsTimer: DispatchSourceTimer?
     private let stuckDequeuedBucketsTimerQueue = DispatchQueue(label: "ru.avito.QueueServer.stuckBucketsTimerQueue")
     
-    public init(queue: [Bucket], workerIdToRunConfiguration: [String: WorkerConfiguration]) {
+    public init(eventBus: EventBus, queue: [Bucket], workerIdToRunConfiguration: [String: WorkerConfiguration]) {
+        self.eventBus = eventBus
         self.buckets = queue
         self.queue = queue
         self.workerIdToRunConfiguration = workerIdToRunConfiguration
@@ -155,11 +158,16 @@ public final class QueueServer {
                 providedResults: request.bucketResult.testingResult.unfilteredTestRuns)
         }
         
+        didReceive(testingResult: request.bucketResult.testingResult, previouslyDequeuedBucket: dequeuedBucket)
+    }
+    
+    private func didReceive(testingResult: TestingResult, previouslyDequeuedBucket: DequeuedBucket) {
         syncQueue.sync {
-            let testingResult = request.bucketResult.testingResult
             testingResults.append(testingResult)
+            eventBus.post(event: .didObtainTestingResult(testingResult))
+            
             log("Accepted result for bucket: \(testingResult.bucket.bucketId), dequeued buckets count: \(dequeuedBuckets.count): \(dequeuedBuckets)")
-            if dequeuedBuckets.remove(dequeuedBucket) != nil {
+            if dequeuedBuckets.remove(previouslyDequeuedBucket) != nil {
                 log("Removing dequeued bucket as we have result for it now: \(dequeuedBucket) from dequeued buckets: \(dequeuedBuckets)")
             } else {
                 log("ERROR: Failed to remove dequeued bucket: \(dequeuedBucket) from dequeued buckets: \(dequeuedBuckets)")

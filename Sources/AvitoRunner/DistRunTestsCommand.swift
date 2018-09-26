@@ -146,8 +146,12 @@ final class DistRunTestsCommand: Command {
     
     func run(distRunConfiguration: DistRunConfiguration) throws {
         log("Using dist run configuration: \(distRunConfiguration)", color: .blue)
-        let distRunner = try DistRunner(distRunConfiguration: distRunConfiguration)
+        let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
+            pluginLocations: distRunConfiguration.auxiliaryPaths.plugins,
+            environment: distRunConfiguration.testExecutionBehavior.environment)
+        let distRunner = try DistRunner(eventBus: eventBus, distRunConfiguration: distRunConfiguration)
         let testingResults = try distRunner.run()
+        eventBus.post(event: .tearDown)
         try ResultingOutputGenerator(
             testingResults: testingResults,
             commonReportOutput: distRunConfiguration.reportOutput,

@@ -26,21 +26,24 @@ xcodebuild build-for-testing \
 
 echo "Running integration tests"
 avitoRunnerBinaryPath="../.build/x86_64-apple-macosx10.10/debug/AvitoRunner"
+testPluginBundlePath=`realpath $(pwd)/../TestPlugin/.build/debug/TestPlugin.emceeplugin`
 
 "$avitoRunnerBinaryPath" runTests \
+--app "$derivedDataPath/Build/Products/Debug-iphonesimulator/TestApp.app" \
+--environment "auxiliary/environment.json" \
 --fbsimctl "https://github.com/beefon/FBSimulatorControl/releases/download/avito0.0.1/fbsimctl_20180831T142903.zip" \
 --fbxctest "https://github.com/beefon/FBSimulatorControl/releases/download/avito0.0.1/fbxctest_20180831T142535.zip" \
 --junit "$(pwd)/test-results/junit.combined.xml" \
---trace "$(pwd)/test-results/trace.combined.json" \
 --number-of-retries 1 \
 --number-of-simulators 2 \
---app "$derivedDataPath/Build/Products/Debug-iphonesimulator/TestApp.app" \
+--plugin "$testPluginBundlePath" \
 --runner "$derivedDataPath/Build/Products/Debug-iphonesimulator/TestAppUITests-Runner.app" \
---xctest-bundle "$derivedDataPath/Build/Products/Debug-iphonesimulator/TestAppUITests-Runner.app/PlugIns/TestAppUITests.xctest" \
 --schedule-strategy "individual" \
 --single-test-timeout 100 \
 --temp-folder "$derivedDataPath" \
---test-destinations "auxiliary/destination_iphone_se_ios103.json"
+--test-destinations "auxiliary/destination_iphone_se_ios103.json" \
+--trace "$(pwd)/test-results/trace.combined.json" \
+--xctest-bundle "$derivedDataPath/Build/Products/Debug-iphonesimulator/TestAppUITests-Runner.app/PlugIns/TestAppUITests.xctest"
 
 rm -rf "$derivedDataPath"
 

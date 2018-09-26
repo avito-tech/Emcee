@@ -1,5 +1,6 @@
 import os
 import unittest
+import json
 from xml.etree import ElementTree
 
 
@@ -40,3 +41,9 @@ class IntegrationTests(unittest.TestCase):
 
         self.assertEqual(successful_tests, {"testSlowTest", "testAlwaysSuccess", "testQuickTest"})
         self.assertEqual(failed_tests, {"testAlwaysFails"})
+
+    def test_plugin_output(self):
+        output_path = open("test-results/test_plugin_output.json", 'r')
+        json_contents = set(json.load(output_path))
+        expected_contents = set(['TestAppUITests/testQuickTest', 'TestAppUITests/testSlowTest', 'TestAppUITests/testAlwaysSuccess', 'TestAppUITests/testAlwaysFails'])
+        self.assertEqual(json_contents, expected_contents)

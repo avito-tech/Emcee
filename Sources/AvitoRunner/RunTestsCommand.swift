@@ -7,6 +7,7 @@ import JunitReporting
 import Logging
 import ModelFactories
 import Models
+import PluginManager
 import Runner
 import RuntimeDump
 import ScheduleStrategy
@@ -157,6 +158,9 @@ final class RunTestsCommand: Command {
         let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>()
         defer { onDemandSimulatorPool.deleteSimulators() }
         
+        let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
+            pluginLocations: configuration.auxiliaryPaths.plugins,
+            environment: configuration.testExecutionBehavior.environment)
         let schedulerConfiguration = SchedulerConfiguration(
             auxiliaryPaths: configuration.auxiliaryPaths,
             testType: .uiTest,
@@ -169,9 +173,10 @@ final class RunTestsCommand: Command {
                 configuration: configuration,
                 runAllTestsIfTestsToRunIsEmpty: true),
             onDemandSimulatorPool: onDemandSimulatorPool,
-            eventBus: EventBus())
+            eventBus: eventBus)
         let scheduler = Scheduler(configuration: schedulerConfiguration)
         let testingResults = try scheduler.run()
+        eventBus.post(event: .tearDown)
         try ResultingOutputGenerator(
             testingResults: testingResults,
             commonReportOutput: configuration.reportOutput,

@@ -7,13 +7,9 @@ open: generate
 
 build:
 	swift build -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.13" --static-swift-stdlib
+	rm -rf .build/debug/TestPlugin.emceeplugin/
+	mkdir -p .build/debug/TestPlugin.emceeplugin/
+	cp .build/debug/Plugin .build/debug/TestPlugin.emceeplugin/
 
 run:
 	swift run -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.13" --static-swift-stdlib
-
-test:
-	swift test -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.13"
-
-integration-test: build
-	cd TestPlugin && make build
-	cd TestApp && ./auxiliary/run_smoke_tests.sh
