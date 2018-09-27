@@ -38,7 +38,7 @@ class QueueClientTests: XCTestCase {
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
         try queueClient.fetchBucket(requestId: "id")
-        try SynchronousWaiter.waitWhile(timeout: 1.0) { delegate.responses.isEmpty }
+        try SynchronousWaiter.waitWhile(timeout: 5.0) { delegate.responses.isEmpty }
         
         switch delegate.responses[0] {
         case .queueIsEmpty:
@@ -58,7 +58,7 @@ class QueueClientTests: XCTestCase {
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
         try queueClient.fetchBucket(requestId: "id")
-        try SynchronousWaiter.waitWhile(timeout: 1.0) { delegate.responses.isEmpty }
+        try SynchronousWaiter.waitWhile(timeout: 5.0) { delegate.responses.isEmpty }
         
         switch delegate.responses[0] {
         case .bucket(let dequeuedBucket):
@@ -75,7 +75,7 @@ class QueueClientTests: XCTestCase {
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
         try queueClient.fetchBucket(requestId: "id")
-        try SynchronousWaiter.waitWhile(timeout: 1.0) { delegate.responses.isEmpty }
+        try SynchronousWaiter.waitWhile(timeout: 5.0) { delegate.responses.isEmpty }
         
         switch delegate.responses[0] {
         case .checkAfter(let after):
@@ -100,7 +100,7 @@ class QueueClientTests: XCTestCase {
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
         try queueClient.registerWithServer()
-        try SynchronousWaiter.waitWhile(timeout: 1.0) { delegate.responses.isEmpty }
+        try SynchronousWaiter.waitWhile(timeout: 5.0) { delegate.responses.isEmpty }
         
         switch delegate.responses[0] {
         case .workerConfiguration(let configuration):
@@ -152,7 +152,7 @@ class QueueClientTests: XCTestCase {
         }
         
         try queueClient.registerWithServer()
-        try SynchronousWaiter.waitWhile(timeout: 1.0) { !didReceiveAliveRequest }
+        try SynchronousWaiter.waitWhile(timeout: 5.0) { !didReceiveAliveRequest }
         
         XCTAssertTrue(didReceiveAliveRequest)
     }

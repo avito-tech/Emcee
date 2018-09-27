@@ -93,7 +93,7 @@ public final class ProcessController {
     }
     
     public func writeToStdIn(data: Data) throws {
-        guard isProcessRunning else { throw StdinError.processInNotRunning(self) }
+        guard isProcessRunning else { throw StdinError.processIsNotRunning(self) }
         let condition = NSCondition()
         
         stdinWriteQueue.async {
