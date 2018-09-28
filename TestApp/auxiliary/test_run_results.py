@@ -34,7 +34,7 @@ class IntegrationTests(unittest.TestCase):
 
     def test_junit_contents(self):
         iphone_se_junit = get_test_cases_from_xml_file("test-results/iphone_se_ios_103.xml")
-        self.assertEqual(len(iphone_se_junit), 4)
+        self.assertEqual(len(iphone_se_junit), 5)
 
         successful_tests = set([item["name"] for item in iphone_se_junit if item.get("failure") is None])
         failed_tests = set([item["name"] for item in iphone_se_junit if item.get("failure") is not None])
@@ -45,5 +45,5 @@ class IntegrationTests(unittest.TestCase):
     def test_plugin_output(self):
         output_path = open("test-results/test_plugin_output.json", 'r')
         json_contents = set(json.load(output_path))
-        expected_contents = set(['TestAppUITests/testQuickTest', 'TestAppUITests/testSlowTest', 'TestAppUITests/testAlwaysSuccess', 'TestAppUITests/testAlwaysFails', 'TestAppUITests/testWritingToTestWorkingDirAndReturnError:'])
+        expected_contents = set(['TestAppUITests/testQuickTest', 'TestAppUITests/testSlowTest', 'TestAppUITests/testAlwaysSuccess', 'TestAppUITests/testAlwaysFails', 'TestAppUITests/testWritingToTestWorkingDir'])
         self.assertEqual(json_contents, expected_contents)
