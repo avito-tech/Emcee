@@ -17,7 +17,7 @@ public enum TestToRun: Decodable, CustomStringConvertible {
     public var description: String {
         switch self {
         case .testName(let testName):
-            return "(\(TestToRun.self) \(testName))"
+            return "(\(TestToRun.self) '\(testName))'"
         case .caseId(let caseId):
             return "(\(TestToRun.self) caseId = \(caseId))"
         }

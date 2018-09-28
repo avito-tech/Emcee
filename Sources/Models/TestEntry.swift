@@ -27,7 +27,7 @@ public struct TestEntry: CustomStringConvertible, Codable, Hashable {
     public var description: String {
         var components = [String]()
         
-        components.append(testName)
+        components.append("'\(testName)'")
         if let caseId = caseId {
             components.append("case id: \(caseId)")
         }
