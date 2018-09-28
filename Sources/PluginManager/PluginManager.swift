@@ -95,12 +95,16 @@ public final class PluginManager: EventStream {
         switch event {
         case .didObtainTestingResult(let testingResult):
             didObtain(testingResult: testingResult)
+        case .runnerEvent(let event):
+            runnerEvent(event)
         case .tearDown:
             tearDown()
         }
     }
     
     private func didObtain(testingResult: TestingResult) {}
+    
+    private func runnerEvent(_ event: RunnerEvent) {}
     
     private func tearDown() {
         do {

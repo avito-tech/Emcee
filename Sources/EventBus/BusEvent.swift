@@ -2,17 +2,19 @@ import Foundation
 import Models
 
 public enum BusEvent: Codable {
-    case 
     case didObtainTestingResult(TestingResult)
+    case runnerEvent(RunnerEvent)
     case tearDown
     
     enum CodingKeys: CodingKey {
         case eventType
         case testingResult
+        case runnerEvent
     }
     
     private enum EventType: String, Codable {
         case didObtainTestingResult
+        case runnerEvent
         case tearDown
     }
     
@@ -23,6 +25,9 @@ public enum BusEvent: Codable {
         case .didObtainTestingResult:
             let testingResult = try container.decode(TestingResult.self, forKey: .testingResult)
             self = .didObtainTestingResult(testingResult)
+        case .runnerEvent:
+            let runnerEvent = try container.decode(RunnerEvent.self, forKey: .runnerEvent)
+            self = .runnerEvent(runnerEvent)
         case .tearDown:
             self = .tearDown
         }
@@ -34,6 +39,9 @@ public enum BusEvent: Codable {
         case let .didObtainTestingResult(testingResult):
             try container.encode(EventType.didObtainTestingResult, forKey: .eventType)
             try container.encode(testingResult, forKey: .testingResult)
+        case .runnerEvent(let runnerEvent):
+            try container.encode(EventType.runnerEvent, forKey: .eventType)
+            try container.encode(runnerEvent, forKey: .runnerEvent)
         case .tearDown:
             try container.encode(EventType.tearDown, forKey: .eventType)
         }

@@ -67,10 +67,14 @@ public final class Runner {
         
         log("Will run \(entriesToRun.count) tests on simulator \(simulator)", color: .blue)
         
+        let testContext = self.testContext(simulator: simulator)
+        
+        eventBus.post(event: .runnerEvent(.willRun(testEntries: entriesToRun, testContext: testContext)))
+        
         let fbxctestOutputProcessor = FbxctestOutputProcessor(
             subprocess: Subprocess(
                 arguments: fbxctestArguments(entriesToRun: entriesToRun, simulator: simulator),
-                environment: environment(simulator: simulator),
+                environment: testContext.environment,
                 maximumAllowedSilenceDuration: configuration.maximumAllowedSilenceDuration ?? 0),
             simulatorId: simulator.identifier,
             singleTestMaximumDuration: configuration.singleTestMaximumDuration)
@@ -79,6 +83,8 @@ public final class Runner {
         let result = prepareResults(
             requestedEntriesToRun: entriesToRun,
             testEventPairs: fbxctestOutputProcessor.testEventPairs)
+        
+        eventBus.post(event: .runnerEvent(.didRun(testEntries: entriesToRun, testContext: testContext, results: result)))
         
         log("Attempted to run \(entriesToRun.count) tests on simulator \(simulator): \(entriesToRun)", color: .blue)
         log("Did get \(result.count) results: \(result)", color: .boldBlue)
@@ -132,7 +138,7 @@ public final class Runner {
         return arguments
     }
     
-    private func environment(simulator: Simulator) -> [String: String] {
+    private func testContext(simulator: Simulator) -> TestContext {
         var environment = configuration.environment
         let testsWorkingDirectory = configuration.auxiliaryPaths.tempFolder.appending(pathComponents: ["testsWorkingDir", UUID().uuidString])
         do {
@@ -141,7 +147,7 @@ public final class Runner {
         } catch {
             log("Error: unable to create path: '\(testsWorkingDirectory)'", color: .red)
         }
-        return environment
+        return TestContext(environment: environment)
     }
     
     private func prepareResults(
