@@ -1,3 +1,4 @@
+import EventBus
 import Foundation
 import Models
 import Logging
@@ -21,10 +22,12 @@ public final class RuntimeTestQuerier {
         }
     }
     
+    private let eventBus: EventBus
     private let configuration: RuntimeDumpConfiguration
     private let testQueryEntry = TestEntry(className: "NonExistingTest", methodName: "fakeTest", caseId: nil)
     
-    public init(configuration: RuntimeDumpConfiguration) {
+    public init(eventBus: EventBus, configuration: RuntimeDumpConfiguration) {
+        self.eventBus = eventBus
         self.configuration = configuration
     }
     
@@ -42,7 +45,7 @@ public final class RuntimeTestQuerier {
         
         let runnerConfiguration = RunnerConfiguration(
             testType: .logicTest,
-            fbxctest: configuration.fbxctest,
+            auxiliaryPaths: AuxiliaryPaths.withoutValidatingValues(fbxctest: configuration.fbxctest, fbsimctl: "", plugins: [], tempFolder: ""),
             buildArtifacts: BuildArtifacts.onlyWithXctestBundle(xcTestBundle: configuration.xcTestBundle),
             testExecutionBehavior: configuration.testExecutionBehavior.withEnvironmentOverrides(
                 ["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH": runtimeEntriesJSONPath]),
@@ -53,7 +56,7 @@ public final class RuntimeTestQuerier {
                 videoOutputPath: nil,
                 oslogOutputPath: nil,
                 testLogOutputPath: nil))
-        _ = Runner(configuration: runnerConfiguration)
+        _ = Runner(eventBus: eventBus, configuration: runnerConfiguration)
             .runOnce(
                 entriesToRun: [testQueryEntry],
                 onSimulator: Shimulator.shimulator(testDestination: configuration.testDestination))

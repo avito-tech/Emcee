@@ -1,4 +1,5 @@
 import Dispatch
+import EventBus
 import Foundation
 import Logging
 import Models
@@ -34,11 +35,12 @@ public final class DistWorker {
             workerConfiguration: workerConfiguration,
             schedulerDataSource: DistRunSchedulerDataSource(onNextBucketRequest: fetchNextBucket),
             onDemandSimulatorPool: onDemandSimulatorPool)
-        let scheduler = Scheduler(configuration: configuration)
+        let eventBus = EventBus()
+        let scheduler = Scheduler(eventBus: eventBus, configuration: configuration)
         let eventStreamProcessor = EventStreamProcessor { [weak self] testingResult in
             self?.didReceiveTestResult(testingResult: testingResult)
         }
-        configuration.eventBus.add(stream: eventStreamProcessor)
+        eventBus.add(stream: eventStreamProcessor)
         return try scheduler.run()
     }
     

@@ -1,3 +1,4 @@
+import EventBus
 import Dispatch
 import Foundation
 import Logging
@@ -16,11 +17,13 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
     private let syncQueue = DispatchQueue(label: "ru.avito.LocalRunSchedulerDataSource")
 
     public init(
+        eventBus: EventBus,
         configuration: LocalTestRunConfiguration,
         runAllTestsIfTestsToRunIsEmpty: Bool) throws
     {
         self.configuration = configuration
         self.buckets = try LocalRunSchedulerDataSource.prepareBuckets(
+            eventBus: eventBus,
             configuration: configuration,
             runAllTestsIfTestsToRunIsEmpty: runAllTestsIfTestsToRunIsEmpty)
     }
@@ -32,11 +35,13 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
     }
     
     private static func prepareBuckets(
+        eventBus: EventBus,
         configuration: LocalTestRunConfiguration,
         runAllTestsIfTestsToRunIsEmpty: Bool)
         throws -> [Bucket]
     {
         let testEntries = try validatedTestEntries(
+            eventBus: eventBus,
             configuration: configuration,
             runAllTestsIfTestsToRunIsEmpty: runAllTestsIfTestsToRunIsEmpty)
         
@@ -55,11 +60,13 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
     }
     
     private static func validatedTestEntries(
+        eventBus: EventBus,
         configuration: LocalTestRunConfiguration,
         runAllTestsIfTestsToRunIsEmpty: Bool)
         throws -> [TestEntry]
     {
         let transformer = TestToRunIntoTestEntryTransformer(
+            eventBus: eventBus,
             configuration: RuntimeDumpConfiguration.fromLocalRunTestConfiguration(configuration),
             fetchAllTestsIfTestsToRunIsEmpty: runAllTestsIfTestsToRunIsEmpty)
         let testEntries = try transformer.transform().avito_shuffled()

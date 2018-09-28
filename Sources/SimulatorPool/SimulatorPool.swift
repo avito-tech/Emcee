@@ -84,8 +84,8 @@ public final class SimulatorPool<T>: CustomStringConvertible where T: SimulatorC
         var result = OrderedSet<T>()
         for index in 0 ..< count {
             let folderName = "sim_\(testDestination.deviceType.removingWhitespaces())_\(testDestination.iOSVersion)_\(index)"
-            let path = auxiliaryPaths.tempFolder.appending(pathComponent: folderName)
-            let simulator = Simulator(index: index, testDestination: testDestination, workingDirectory: path)
+            let workingDirectory = auxiliaryPaths.tempFolder.appending(pathComponent: folderName)
+            let simulator = Simulator(index: index, testDestination: testDestination, workingDirectory: workingDirectory)
             let controller = T(simulator: simulator, fbsimctlPath: auxiliaryPaths.fbsimctl)
             result.append(controller)
         }

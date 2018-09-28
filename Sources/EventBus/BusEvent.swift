@@ -2,6 +2,7 @@ import Foundation
 import Models
 
 public enum BusEvent: Codable {
+    case 
     case didObtainTestingResult(TestingResult)
     case tearDown
     

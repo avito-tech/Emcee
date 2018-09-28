@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="xctest" tests="5" failures="2">
+    <testsuite name="TestAppUITests" tests="5" failures="2">
+        <testcase classname="TestAppUITests" name="testSlowTest" time="26.4995269775391" processId="11127" simulatorId="simulator_1_iPhoneSE_10.3"></testcase>
+        <testcase classname="TestAppUITests" name="testAlwaysSuccess" time="10.0097969770432" processId="11269" simulatorId="simulator_1_iPhoneSE_10.3"></testcase>
+        <testcase classname="TestAppUITests" name="testQuickTest" time="26.3953510522842" processId="11249" simulatorId="simulator_0_iPhoneSE_10.3"></testcase>
+        <testcase classname="TestAppUITests" name="testAlwaysFails" time="10.027764081955" processId="11308" simulatorId="simulator_1_iPhoneSE_10.3">
+            <failure message="failed - I will always fail">/Users/vvalekseev/Developer/ios-test-runner/TestApp/TestAppUITests/TestAppUITests.swift:30</failure>
+        </testcase>
+        <testcase classname="TestAppUITests" name="testWritingToTestWorkingDirAndReturnError:" time="0.0" processId="0" simulatorId="no_simulator">
+            <failure message="Test did not run at all after all attempts to run it again">/Users/vvalekseev/Developer/ios-test-runner/Sources/Runner/Runner.swift:223</failure>
+        </testcase>
+    </testsuite>
+</testsuites>

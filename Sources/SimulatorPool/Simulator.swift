@@ -16,7 +16,7 @@ public class Simulator: Hashable, CustomStringConvertible {
     }
     
     var fbxctestContainerPath: String {
-        return (workingDirectory as NSString).appendingPathComponent("sim")
+        return workingDirectory.appending(pathComponent: "sim")
     }
  
     init(index: UInt, testDestination: TestDestination, workingDirectory: String) {

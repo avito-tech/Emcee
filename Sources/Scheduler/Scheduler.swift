@@ -29,13 +29,15 @@ import Runner
  * At this point we will merge the results and provide back an array of TestingResult objects for each Bucket.
  */
 public final class Scheduler {
+    private let eventBus: EventBus
     private let configuration: SchedulerConfiguration
     private let resourceSemaphore: ListeningSemaphore
     private var testingResults = [TestingResult]()
     private let queue = OperationQueue()
     private let syncQueue = DispatchQueue(label: "ru.avito.Scheduler")
     
-    public init(configuration: SchedulerConfiguration) {
+    public init(eventBus: EventBus, configuration: SchedulerConfiguration) {
+        self.eventBus = eventBus
         self.configuration = configuration
         self.resourceSemaphore = ListeningSemaphore(
             maximumValues: .of(
@@ -87,7 +89,7 @@ public final class Scheduler {
                     log("Failed to release resources: \(error)")
                 }
                 self.didReceiveResults(testingResult: testingResult)
-                self.configuration.eventBus.post(event: .didObtainTestingResult(testingResult))
+                self.eventBus.post(event: .didObtainTestingResult(testingResult))
                 self.fetchAndRunBucket()
             }
             acquireResources.addCascadeCancellableDependency(runTestsInBucketAfterAcquiringResources)
@@ -147,7 +149,7 @@ public final class Scheduler {
         let simulatorController = try simulatorPool.allocateSimulator()
         defer { simulatorPool.freeSimulator(simulatorController) }
             
-        let runner = Runner(configuration: configuration.runnerConfiguration)
+        let runner = Runner(eventBus: eventBus, configuration: configuration.runnerConfiguration)
         let simulator: Simulator
         do {
             simulator = try simulatorController.bootedSimulator()

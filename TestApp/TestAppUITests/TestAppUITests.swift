@@ -29,4 +29,15 @@ class TestAppUITests: XCTestCase {
         sleep(10)
         XCTFail("I will always fail")
     }
+    
+    func testWritingToTestWorkingDir() throws {
+        guard let testWorkingDir = ProcessInfo.processInfo.environment["EMCEE_TESTS_WORKING_DIRECTORY"] else {
+            XCTFail("EMCEE_TESTS_WORKING_DIRECTORY was not set")
+            return
+        }
+        
+        let file = (testWorkingDir as NSString).appendingPathComponent("test_artifact.txt")
+        let contents = "contents"
+        try contents.write(to: URL(fileURLWithPath: file), atomically: true, encoding: .utf8)
+    }
 }

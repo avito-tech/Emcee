@@ -113,8 +113,7 @@ final class BucketConfigurationFactory {
             testTimeoutConfiguration: workerConfiguration.testTimeoutConfiguration,
             testDiagnosticOutput: TestDiagnosticOutput.nullOutput,
             schedulerDataSource: schedulerDataSource,
-            onDemandSimulatorPool: onDemandSimulatorPool,
-            eventBus: EventBus())
+            onDemandSimulatorPool: onDemandSimulatorPool)
         return configuration
     }
     

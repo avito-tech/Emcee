@@ -1,3 +1,4 @@
+import EventBus
 import Extensions
 import fbxctest
 import Foundation
@@ -80,7 +81,7 @@ public final class RunnerTests: XCTestCase {
     }
     
     private func runTestEntries(_ testEntries: [TestEntry]) -> [TestRunResult] {
-        let runner = Runner(configuration: createRunnerConfig())
+        let runner = Runner(eventBus: EventBus(), configuration: createRunnerConfig())
         return runner.run(entries: testEntries, onSimulator: shimulator)
     }
     
@@ -114,7 +115,7 @@ public final class RunnerTests: XCTestCase {
         }
         let configuration = RunnerConfiguration(
             testType: .logicTest,
-            fbxctest: fbxctest,
+            auxiliaryPaths: AuxiliaryPaths.withoutValidatingValues(fbxctest: fbxctest, fbsimctl: "", plugins: [], tempFolder: ""),
             buildArtifacts: BuildArtifacts(
                 appBundle: "",
                 runner: "",

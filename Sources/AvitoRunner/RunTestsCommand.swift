@@ -170,11 +170,11 @@ final class RunTestsCommand: Command {
             testTimeoutConfiguration: configuration.testTimeoutConfiguration,
             testDiagnosticOutput: configuration.testDiagnosticOutput,
             schedulerDataSource: try LocalRunSchedulerDataSource(
+                eventBus: eventBus,
                 configuration: configuration,
                 runAllTestsIfTestsToRunIsEmpty: true),
-            onDemandSimulatorPool: onDemandSimulatorPool,
-            eventBus: eventBus)
-        let scheduler = Scheduler(configuration: schedulerConfiguration)
+            onDemandSimulatorPool: onDemandSimulatorPool)
+        let scheduler = Scheduler(eventBus: eventBus, configuration: schedulerConfiguration)
         let testingResults = try scheduler.run()
         eventBus.post(event: .tearDown)
         try ResultingOutputGenerator(

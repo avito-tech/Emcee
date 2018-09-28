@@ -39,11 +39,11 @@ class IntegrationTests(unittest.TestCase):
         successful_tests = set([item["name"] for item in iphone_se_junit if item.get("failure") is None])
         failed_tests = set([item["name"] for item in iphone_se_junit if item.get("failure") is not None])
 
-        self.assertEqual(successful_tests, {"testSlowTest", "testAlwaysSuccess", "testQuickTest"})
+        self.assertEqual(successful_tests, {"testSlowTest", "testAlwaysSuccess", "testQuickTest", "testWritingToTestWorkingDir"})
         self.assertEqual(failed_tests, {"testAlwaysFails"})
 
     def test_plugin_output(self):
         output_path = open("test-results/test_plugin_output.json", 'r')
         json_contents = set(json.load(output_path))
-        expected_contents = set(['TestAppUITests/testQuickTest', 'TestAppUITests/testSlowTest', 'TestAppUITests/testAlwaysSuccess', 'TestAppUITests/testAlwaysFails'])
+        expected_contents = set(['TestAppUITests/testQuickTest', 'TestAppUITests/testSlowTest', 'TestAppUITests/testAlwaysSuccess', 'TestAppUITests/testAlwaysFails', 'TestAppUITests/testWritingToTestWorkingDirAndReturnError:'])
         self.assertEqual(json_contents, expected_contents)

@@ -321,6 +321,7 @@ let package = Package(
         .target(
             name: "RuntimeDump",
             dependencies: [
+                "EventBus",
                 "Models",
                 "Runner"
             ]),

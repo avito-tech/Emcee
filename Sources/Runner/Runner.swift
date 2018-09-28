@@ -1,3 +1,4 @@
+import EventBus
 import Foundation
 import SimulatorPool
 import Models
@@ -6,11 +7,13 @@ import Logging
 import HostDeterminer
 import ProcessController
 
-/** This class runs the given tests on a single simulator. */
+/// This class runs the given tests on a single simulator.
 public final class Runner {
+    private let eventBus: EventBus
     private let configuration: RunnerConfiguration
     
-    public init(configuration: RunnerConfiguration) {
+    public init(eventBus: EventBus, configuration: RunnerConfiguration) {
+        self.eventBus = eventBus
         self.configuration = configuration
     }
     
@@ -48,11 +51,11 @@ public final class Runner {
             }
         }
         
-        let resultsForTestsThatFailedToFinish = self.resultsForTestsThatFailedToFinish(
+        let resultsForTestsThatDidNotRun = self.resultsForTestsThatDidNotRun(
             testEntries: entries,
             resultsForFinishedTests: results)
         
-        return results + resultsForTestsThatFailedToFinish
+        return results + resultsForTestsThatDidNotRun
     }
     
     /** Runs the given tests once without any attempts to restart the failed/crashed tests. */
@@ -67,7 +70,7 @@ public final class Runner {
         let fbxctestOutputProcessor = FbxctestOutputProcessor(
             subprocess: Subprocess(
                 arguments: fbxctestArguments(entriesToRun: entriesToRun, simulator: simulator),
-                environment: configuration.environment,
+                environment: environment(simulator: simulator),
                 maximumAllowedSilenceDuration: configuration.maximumAllowedSilenceDuration ?? 0),
             simulatorId: simulator.identifier,
             singleTestMaximumDuration: configuration.singleTestMaximumDuration)
@@ -85,7 +88,7 @@ public final class Runner {
     
     private func fbxctestArguments(entriesToRun: [TestEntry], simulator: Simulator) -> [String] {
         var arguments =
-            [configuration.fbxctest,
+            [configuration.auxiliaryPaths.fbxctest,
              "-destination", simulator.testDestination.destinationString] +
                 ["-\(configuration.testType.rawValue)"]
         
@@ -127,6 +130,18 @@ public final class Runner {
             arguments += ["-testlog", testLogPath]
         }
         return arguments
+    }
+    
+    private func environment(simulator: Simulator) -> [String: String] {
+        var environment = configuration.environment
+        let testsWorkingDirectory = configuration.auxiliaryPaths.tempFolder.appending(pathComponents: ["testsWorkingDir", UUID().uuidString])
+        do {
+            try FileManager.default.createDirectory(atPath: testsWorkingDirectory, withIntermediateDirectories: true, attributes: nil)
+            environment[RunnerConstants.envTestsWorkingDirectory.rawValue] = testsWorkingDirectory
+        } catch {
+            log("Error: unable to create path: '\(testsWorkingDirectory)'", color: .red)
+        }
+        return environment
     }
     
     private func prepareResults(
@@ -183,7 +198,7 @@ public final class Runner {
         return expectedEntriesToRun.filter { !receivedTestNames.contains($0.testName) }
     }
     
-    private func resultsForTestsThatFailedToFinish(
+    private func resultsForTestsThatDidNotRun(
         testEntries: [TestEntry],
         resultsForFinishedTests: [TestRunResult])
         -> [TestRunResult]
@@ -194,12 +209,12 @@ public final class Runner {
             if testNamesForFinishedTests.contains(testEntry.testName) {
                 return nil
             } else {
-                return resultForSingleTestThatFailedToFinish(testEntry: testEntry)
+                return resultForSingleTestThatDidNotRun(testEntry: testEntry)
             }
         }
     }
     
-    private func resultForSingleTestThatFailedToFinish(testEntry: TestEntry) -> TestRunResult {
+    private func resultForSingleTestThatDidNotRun(testEntry: TestEntry) -> TestRunResult {
         let timestamp = Date().timeIntervalSince1970
         return TestRunResult(
             testEntry: testEntry,

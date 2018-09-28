@@ -14,12 +14,11 @@ public class SchedulerConfiguration {
     public let testDiagnosticOutput: TestDiagnosticOutput
     public let schedulerDataSource: SchedulerDataSource
     public let onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>
-    public let eventBus: EventBus
     
     public var runnerConfiguration: RunnerConfiguration {
         return RunnerConfiguration(
             testType: testType,
-            fbxctest: auxiliaryPaths.fbxctest,
+            auxiliaryPaths: auxiliaryPaths,
             buildArtifacts: buildArtifacts,
             testExecutionBehavior: testExecutionBehavior,
             simulatorSettings: simulatorSettings,
@@ -36,8 +35,7 @@ public class SchedulerConfiguration {
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testDiagnosticOutput: TestDiagnosticOutput,
         schedulerDataSource: SchedulerDataSource,
-        onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>,
-        eventBus: EventBus)
+        onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>)
     {
         self.auxiliaryPaths = auxiliaryPaths
         self.testType = testType
@@ -48,6 +46,5 @@ public class SchedulerConfiguration {
         self.testDiagnosticOutput = testDiagnosticOutput
         self.schedulerDataSource = schedulerDataSource
         self.onDemandSimulatorPool = onDemandSimulatorPool
-        self.eventBus = eventBus
     }
 }

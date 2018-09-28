@@ -1,7 +1,9 @@
+import EventBus
 import Foundation
 import Models
 
 public final class TestToRunIntoTestEntryTransformer {
+    private let eventBus: EventBus
     private let configuration: RuntimeDumpConfiguration
     private let fetchAllTestsIfTestsToRunIsEmpty: Bool
     
@@ -22,13 +24,14 @@ public final class TestToRunIntoTestEntryTransformer {
         }
     }
     
-    public init(configuration: RuntimeDumpConfiguration, fetchAllTestsIfTestsToRunIsEmpty: Bool = true) {
+    public init(eventBus: EventBus, configuration: RuntimeDumpConfiguration, fetchAllTestsIfTestsToRunIsEmpty: Bool = true) {
+        self.eventBus = eventBus
         self.configuration = configuration
         self.fetchAllTestsIfTestsToRunIsEmpty = fetchAllTestsIfTestsToRunIsEmpty
     }
     
     public func transform() throws -> [TestEntry] {
-        let runtimeQueryResult = try RuntimeTestQuerier(configuration: configuration).queryRuntime()
+        let runtimeQueryResult = try RuntimeTestQuerier(eventBus: eventBus, configuration: configuration).queryRuntime()
         guard runtimeQueryResult.unavailableTestsToRun.isEmpty else {
             throw ValidationError.someTestsAreMissingInRuntime(runtimeQueryResult.unavailableTestsToRun)
         }
