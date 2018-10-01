@@ -77,22 +77,13 @@
 }
 
 - (BOOL)isTestMethod:(Method)method selectorName:(NSString *)selectorName {
-    if (![selectorName hasPrefix:@"test"]) { return NO; }
-    BOOL isSimpleTestMethod = [self methodHasVoidReturnType:method];
-    BOOL isSwiftThrowingTestMethod = [self methodHasBoolReturnType:method] && [selectorName hasSuffix:@"AndReturnError:"];
-    return isSimpleTestMethod || isSwiftThrowingTestMethod;
+    return [self methodHasVoidReturnType:method] && [selectorName hasPrefix:@"test"];
 }
 
 - (BOOL)methodHasVoidReturnType:(Method)method {
-    return [self method:method hasExpectedReturnType:"v"];
-}
-
-- (BOOL)methodHasBoolReturnType:(Method)method {
-    return [self method:method hasExpectedReturnType:"B"];
-}
-
-- (BOOL)method:(Method)method hasExpectedReturnType:(char [])expectedReturnType {
+    char expectedReturnType[] = "v";
     char *actualReturnType = method_copyReturnType(method);
+    
     return strcmp(expectedReturnType, actualReturnType) == 0;
 }
 
