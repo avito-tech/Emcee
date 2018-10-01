@@ -53,4 +53,4 @@ echo "Running integration tests"
 echo "Analyzing test results"
 pytest "auxiliary/test_run_results.py"
 
-#rm -rf "$tempfolder"
+rm -rf "$tempfolder"
