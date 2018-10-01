@@ -123,7 +123,6 @@ public final class PluginManager: EventStream {
     
     private func send(busEvent: BusEvent) {
         do {
-            log("Broadcasting bus event: \(busEvent)")
             let data = try encoder.encode(busEvent)
             sendData(data)
         } catch {
