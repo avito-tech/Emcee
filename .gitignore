@@ -1,5 +1,16 @@
 .DS_Store
+*/__pycache__
 .build
+.cache
 /Packages
 /*.xcodeproj
 xcuserdata
+
+*.ignored*
+*.pyc
+.idea/
+.cache/
+__pycache__/
+
+
+auxiliary/tempfolder

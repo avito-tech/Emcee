@@ -16,4 +16,4 @@ test:
 
 integration-test: build
 	cd TestPlugin && make build
-	cd TestApp && ./auxiliary/run_smoke_tests.sh
+	auxiliary/run_smoke_tests.sh

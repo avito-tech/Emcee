@@ -1,0 +1,12 @@
+[
+  {
+    "testDestination": {
+      "deviceType": "iPhone SE",
+      "iOSVersion": "10.3"
+    },
+    "reportOutput": {
+      "junit": "auxiliary/tempfolder/test-results/iphone_se_ios_103.xml",
+      "tracingReport": "auxiliary/tempfolder/test-results/iphone_se_ios_103.json"
+    }
+  }
+]
