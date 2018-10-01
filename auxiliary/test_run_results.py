@@ -80,6 +80,12 @@ class IntegrationTests(unittest.TestCase):
     
     def check_runner_events(self, events):
         all_runner_events = [event["runnerEvent"] for event in events]
+        all_events_envs = [event["testContext"]["environment"] for event in all_runner_events]
+        
+        working_directory_values = [event_env.get("EMCEE_TESTS_WORKING_DIRECTORY") for event_env in all_events_envs]
+        "Check that env.EMCEE_TESTS_WORKING_DIRECTORY is set"
+        [self.assertNotEqual(working_dir, None) for working_dir in working_directory_values]
+        
         all_will_run_events = [event for event in all_runner_events if event["eventType"] == "willRun"]
         all_did_run_events = [event for event in all_runner_events if event["eventType"] == "didRun"]
         "Check that number of willRun events equal to didRun events"
@@ -93,6 +99,16 @@ class IntegrationTests(unittest.TestCase):
         all_test_expected_to_be_ran = ["fakeTest", "testAlwaysSuccess", "testWritingToTestWorkingDir", "testSlowTest", "testQuickTest", "testAlwaysFails"]
         "Check that all expected tests have been invoked, including the fakeTest which is used for runtime dump feature"
         self.assertEquals(set(all_will_run_tests), set(all_test_expected_to_be_ran))
+        
+        self.check_that_testWritingToTestWorkingDir_writes_to_working_dir(all_runner_events)
+    
+    def check_that_testWritingToTestWorkingDir_writes_to_working_dir(self, all_runner_events):
+        event = [event for event in all_runner_events if event["eventType"] == "didRun" and event["testEntries"][0]["methodName"] == "testWritingToTestWorkingDir"][0]
+        expected_path = os.path.join(event["testContext"]["environment"]["EMCEE_TESTS_WORKING_DIRECTORY"], "test_artifact.txt")
+        file = open(expected_path, "r")
+        contents = file.read()
+        expected_contents = "contents"
+        self.assertEquals(contents, expected_contents)
     
     def check_tear_down_events(self, events):
         self.assertEqual(len(events), 1)
