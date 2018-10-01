@@ -48,22 +48,26 @@ class IntegrationTests(unittest.TestCase):
         
         testing_result_events = []
         tear_down_events = []
+        runner_events = []
         unknown_events = []
         
         for event in json_contents:
             if event["eventType"] == "didObtainTestingResult":
                 testing_result_events.append(event)
+            elif event["eventType"] == "runnerEvent":
+                runner_events.append(event)
             elif event["eventType"] == "tearDown":
                 tear_down_events.append(event)
             else:
                 unknown_events.append(event)
         
         self.check_test_result_events(testing_result_events)
+        self.check_runner_events(runner_events)
         self.check_tear_down_events(tear_down_events)
         self.check_unknown_events(unknown_events)
 
     def check_test_result_events(self, events):
-        all_test_entries = [testEntry for event in events for testEntry in event["testingResult"]["bucket"]["testEntries"]]
+        all_test_entries = [test_entry for event in events for test_entry in event["testingResult"]["bucket"]["testEntries"]]
         actual_tests = sorted([entry["methodName"] for entry in all_test_entries])
         expected_tests = sorted(["testAlwaysSuccess", "testWritingToTestWorkingDir", "testSlowTest", "testAlwaysFails", "testQuickTest"])
         self.assertEquals(actual_tests, expected_tests)
@@ -73,6 +77,22 @@ class IntegrationTests(unittest.TestCase):
         failed_tests = [test_run["testEntry"]["methodName"] for test_run in all_test_runs if test_run["succeeded"] == False]
         self.assertEquals(sorted(green_tests), sorted(["testAlwaysSuccess", "testWritingToTestWorkingDir", "testSlowTest", "testQuickTest"]))
         self.assertEquals(sorted(failed_tests), sorted(["testAlwaysFails", "testAlwaysFails"]))
+    
+    def check_runner_events(self, events):
+        all_runner_events = [event["runnerEvent"] for event in events]
+        all_will_run_events = [event for event in all_runner_events if event["eventType"] == "willRun"]
+        all_did_run_events = [event for event in all_runner_events if event["eventType"] == "didRun"]
+        "Check that number of willRun events equal to didRun events"
+        self.assertEquals(len(all_will_run_events), len(all_did_run_events))
+        
+        all_will_run_tests = [test_entry["methodName"] for event in all_will_run_events for test_entry in event["testEntries"]]
+        all_did_run_tests = [test_entry["methodName"] for event in all_did_run_events for test_entry in event["testEntries"]]
+        "Check that willRun events and didRun events match the test method names"
+        self.assertEquals(sorted(all_will_run_tests), sorted(all_did_run_tests))
+        
+        all_test_expected_to_be_ran = ["fakeTest", "testAlwaysSuccess", "testWritingToTestWorkingDir", "testSlowTest", "testQuickTest", "testAlwaysFails"]
+        "Check that all expected tests have been invoked, including the fakeTest which is used for runtime dump feature"
+        self.assertEquals(set(all_will_run_tests), set(all_test_expected_to_be_ran))
     
     def check_tear_down_events(self, events):
         self.assertEqual(len(events), 1)
