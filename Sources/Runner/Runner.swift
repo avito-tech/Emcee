@@ -147,7 +147,7 @@ public final class Runner {
         } catch {
             log("Error: unable to create path: '\(testsWorkingDirectory)'", color: .red)
         }
-        return TestContext(environment: environment)
+        return TestContext(environment: environment, testDestination: simulator.testDestination)
     }
     
     private func prepareResults(
