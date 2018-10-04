@@ -21,7 +21,7 @@ You can use `xcodebuild build-for-testing` command to generate these build artif
 
 To run UI tests locally, execute the following command:
 
-```
+```shell
 AvitoRunner runTests \
 --fbsimctl "https://github.com/beefon/FBSimulatorControl/releases/download/avito0.0.1/fbsimctl_20180831T142903.zip" \
 --fbxctest "https://github.com/beefon/FBSimulatorControl/releases/download/avito0.0.1/fbxctest_20180831T142535.zip" \
@@ -40,7 +40,7 @@ AvitoRunner runTests \
 
 Where `destination_iphone_se_ios103.json` might have the folllowing contents:
 
-```
+```json
 [{
     "testDestination": {
         "deviceType": "iPhone SE",
@@ -57,7 +57,7 @@ Where `destination_iphone_se_ios103.json` might have the folllowing contents:
 
 You can use `distRunTests` subcommand:
 
-```
+```shell
 AvitoRunner distRunTests \
 --fbsimctl "https://github.com/beefon/FBSimulatorControl/releases/download/avito0.0.1/fbsimctl_20180831T142903.zip" \
 --fbxctest "https://github.com/beefon/FBSimulatorControl/releases/download/avito0.0.1/fbxctest_20180831T142535.zip" \
@@ -79,7 +79,7 @@ AvitoRunner distRunTests \
 
 Where `remote_destinations.json` could contain the following contents:
 
-```
+```json
 [
     {
         "host": "build-agent-macmini-01",
