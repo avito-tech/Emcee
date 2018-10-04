@@ -5,6 +5,7 @@ import Foundation
 import Logging
 import ModelFactories
 import Models
+import PluginManager
 import ScheduleStrategy
 import Utility
 

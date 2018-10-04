@@ -3,6 +3,7 @@ import EventBus
 import Foundation
 import Logging
 import Models
+import PluginManager
 import Scheduler
 import SimulatorPool
 import SynchronousWaiter
@@ -35,7 +36,9 @@ public final class DistWorker {
             workerConfiguration: workerConfiguration,
             schedulerDataSource: DistRunSchedulerDataSource(onNextBucketRequest: fetchNextBucket),
             onDemandSimulatorPool: onDemandSimulatorPool)
-        let eventBus = EventBus()
+        let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
+            pluginLocations: configuration.auxiliaryPaths.plugins,
+            environment: configuration.testExecutionBehavior.environment)
         let scheduler = Scheduler(eventBus: eventBus, configuration: configuration)
         let eventStreamProcessor = EventStreamProcessor { [weak self] testingResult in
             self?.didReceiveTestResult(testingResult: testingResult)

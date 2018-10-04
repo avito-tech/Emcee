@@ -114,6 +114,7 @@ let package = Package(
                 "Logging",
                 "ModelFactories",
                 "Models",
+                "PluginManager",
                 "RESTMethods",
                 "Scheduler",
                 "SimulatorPool",

@@ -1,7 +1,6 @@
 import EventBus
 import Foundation
 import Models
-import PluginManager
 
 public final class EventBusFactory {
     private init() {}
