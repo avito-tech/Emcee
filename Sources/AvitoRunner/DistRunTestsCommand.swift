@@ -149,7 +149,7 @@ final class DistRunTestsCommand: Command {
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
             pluginLocations: distRunConfiguration.auxiliaryPaths.plugins,
             environment: distRunConfiguration.testExecutionBehavior.environment)
-        let distRunner = DistRunner(eventBus: eventBus, distRunConfiguration: distRunConfiguration)
+        let distRunner = try DistRunner(eventBus: eventBus, distRunConfiguration: distRunConfiguration)
         let testingResults = try distRunner.run()
         eventBus.post(event: .tearDown)
         try ResultingOutputGenerator(

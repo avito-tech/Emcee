@@ -23,28 +23,29 @@ public final class DistRunner {
     
     private let eventBus: EventBus
     private let distRunConfiguration: DistRunConfiguration
+    private let tempFolder: TempFolder
     private let avitoRunnerTargetPath = "AvitoRunner"
     private let launchdPlistTargetPath = "launchd.plist"
     
-    public init(eventBus: EventBus, distRunConfiguration: DistRunConfiguration) {
+    public init(eventBus: EventBus, distRunConfiguration: DistRunConfiguration) throws {
         self.eventBus = eventBus
         self.distRunConfiguration = distRunConfiguration
+        self.tempFolder = try TempFolder()
     }
     
     public func run() throws -> [TestingResult] {
-        let tempFolder = try TempFolder()
-        let queue = try prepareQueue(tempFolder: tempFolder)
+        let queue = try prepareQueue()
         let queueServer = QueueServer(
             eventBus: eventBus,
             queue: queue,
             workerIdToRunConfiguration: createWorkerConfigurations())
         try queueServer.start()
-        try deployAndStartLaunchdJob(serverPort: try queueServer.port(), tempFolder: tempFolder)
+        try deployAndStartLaunchdJob(serverPort: try queueServer.port())
         try queueServer.waitForAllResultsToCome()
         return queueServer.testingResults
     }
     
-    private func prepareQueue(tempFolder: TempFolder) throws -> [Bucket] {
+    private func prepareQueue() throws -> [Bucket] {
         let transformer = TestToRunIntoTestEntryTransformer(
             eventBus: eventBus,
             configuration: distRunConfiguration.runtimeDumpConfiguration(),
@@ -67,7 +68,7 @@ public final class DistRunner {
         return result
     }
     
-    private func deployAndStartLaunchdJob(serverPort: Int, tempFolder: TempFolder) throws  {
+    private func deployAndStartLaunchdJob(serverPort: Int) throws  {
         let encoder = JSONEncoder()
         let encodedEnvironment = try encoder.encode(distRunConfiguration.testExecutionBehavior.environment)
         let environmentFilePath = try tempFolder.createFile(filename: "envirtonment.json", contents: encodedEnvironment)
@@ -94,7 +95,7 @@ public final class DistRunner {
         guard let avitoRunnerDeployable = deployables[.avitoRunner]?.first else {
             throw DistRunnerError.avitoRunnerDeployableItemIsMissing
         }
-        try deployLaunchdPlist(avitoRunnerDeployable: avitoRunnerDeployable, serverPort: serverPort, tempFolder: tempFolder)
+        try deployLaunchdPlist(avitoRunnerDeployable: avitoRunnerDeployable, serverPort: serverPort)
     }
     
     private func launchdPlistData(
@@ -129,7 +130,7 @@ public final class DistRunner {
         return data
     }
     
-    private func deployLaunchdPlist(avitoRunnerDeployable: DeployableItem, serverPort: Int, tempFolder: TempFolder) throws {
+    private func deployLaunchdPlist(avitoRunnerDeployable: DeployableItem, serverPort: Int) throws {
         try distRunConfiguration.destinations.forEach { destination in
             let plistData = try launchdPlistData(
                 destination: destination,
