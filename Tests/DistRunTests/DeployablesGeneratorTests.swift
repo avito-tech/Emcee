@@ -31,7 +31,7 @@ class DeployablesGeneratorTests: XCTestCase {
     override func setUp() {
         super.setUp()
         self.continueAfterFailure = false
-        tempFolder = AXCTAssertNoThrow(try TempFolder())
+        XCTAssertNoThrow(tempFolder = try TempFolder())
         let generator = DeployablesGenerator(
             targetAvitoRunnerPath: "AvitoRunner",
             auxiliaryPaths: AuxiliaryPaths.withoutValidatingValues(
@@ -46,7 +46,7 @@ class DeployablesGeneratorTests: XCTestCase {
                 watchdogSettings: String(#file)),
             targetSimulatorLocalizationSettingsPath: "sim.json",
             targetWatchdogSettingsPath: "wd.json")
-        deployables = AXCTAssertNoThrow(try generator.deployables())
+        XCTAssertNoThrow(deployables = try generator.deployables())
     }
     
     private func pathToPlugin() throws -> String {
