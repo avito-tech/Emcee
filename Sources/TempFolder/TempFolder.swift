@@ -9,8 +9,10 @@ public final class TempFolder: Hashable {
     }
     
     public init(path: AbsolutePath? = nil, cleanUpAutomatically: Bool = true) throws {
+        if let path = path {
+            try FileManager.default.createDirectory(atPath: path.asString, withIntermediateDirectories: true)
+        }
         tempFolder = try TemporaryDirectory(dir: path, removeTreeOnDeinit: cleanUpAutomatically)
-        try FileManager.default.createDirectory(at: URL(fileURLWithPath: tempFolder.path.asString), withIntermediateDirectories: true)
     }
     
     public var path: AbsolutePath {
