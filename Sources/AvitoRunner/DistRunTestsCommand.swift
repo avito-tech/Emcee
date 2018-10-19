@@ -7,7 +7,6 @@ import ModelFactories
 import Models
 import PluginManager
 import ScheduleStrategy
-import TempFolder
 import Utility
 
 final class DistRunTestsCommand: Command {
@@ -150,10 +149,7 @@ final class DistRunTestsCommand: Command {
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
             pluginLocations: distRunConfiguration.auxiliaryPaths.plugins,
             environment: distRunConfiguration.testExecutionBehavior.environment)
-        let distRunner = DistRunner(
-            eventBus: eventBus,
-            distRunConfiguration: distRunConfiguration,
-            tempFolder: try TempFolder())
+        let distRunner = DistRunner(eventBus: eventBus, distRunConfiguration: distRunConfiguration)
         let testingResults = try distRunner.run()
         eventBus.post(event: .tearDown)
         try ResultingOutputGenerator(

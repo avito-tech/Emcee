@@ -1,6 +1,5 @@
 import Foundation
 import Models
-import TempFolder
 
 public struct RuntimeDumpConfiguration {
     
@@ -24,7 +23,7 @@ public struct RuntimeDumpConfiguration {
     
     /** All tests that need to be run */
     public let testsToRun: [TestToRun]
-    
+
     public init(
         fbxctest: String,
         xcTestBundle: String,

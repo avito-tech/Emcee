@@ -34,7 +34,7 @@ class DeployablesGeneratorTests: XCTestCase {
         tempFolder = AXCTAssertNoThrow(try TempFolder())
         let generator = DeployablesGenerator(
             targetAvitoRunnerPath: "AvitoRunner",
-            auxiliaryPaths: AuxiliaryPaths(
+            auxiliaryPaths: AuxiliaryPaths.withoutValidatingValues(
                 fbxctest: String(#file),
                 fbsimctl: String(#file),
                 plugins: [ResourceLocation.localFilePath(AXCTAssertNoThrow(try self.pathToPlugin()))]),

@@ -14,7 +14,7 @@ public struct AuxiliaryPaths: Hashable {
     /** Locations (path or ZIP file URL) of .emceeplugin bundles. */
     public let plugins: [ResourceLocation]
     
-    public init(fbxctest: String, fbsimctl: String, plugins: [ResourceLocation]) {
+    private init(fbxctest: String, fbsimctl: String, plugins: [ResourceLocation]) {
         self.fbxctest = fbxctest
         self.fbsimctl = fbsimctl
         self.plugins = plugins

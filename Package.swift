@@ -104,7 +104,8 @@ let package = Package(
             dependencies: [
                 "Deployer",
                 "DistRun",
-                "ModelFactories"
+                "ModelFactories",
+                "TempFolder"
             ]),
         
         .target(
@@ -317,7 +318,8 @@ let package = Package(
                 "Runner",
                 "ScheduleStrategy",
                 "SimulatorPool",
-                "TestingFakeFbxctest"
+                "TestingFakeFbxctest",
+                "TempFolder"
             ]
         ),
         
@@ -371,7 +373,8 @@ let package = Package(
             dependencies: [
                 "Models",
                 "SimulatorPool",
-                "SynchronousWaiter"
+                "SynchronousWaiter",
+                "TempFolder"
             ]),
         
         .target(

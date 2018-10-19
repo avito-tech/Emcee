@@ -1,7 +1,6 @@
 import EventBus
 import Foundation
 import Models
-import TempFolder
 
 /** LocalTestRunConfiguration object required by Runner in order to run tests. */
 public struct RunnerConfiguration {
