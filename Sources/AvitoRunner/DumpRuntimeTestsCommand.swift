@@ -50,7 +50,10 @@ final class DumpRuntimeTestsCommand: Command {
             testDestination: testDestinations[0].testDestination,
             testsToRun: [])
         
-        let runtimeTests = try RuntimeTestQuerier(eventBus: EventBus(), configuration: configuration).queryRuntime()
+        let runtimeTests = try RuntimeTestQuerier(
+            eventBus: EventBus(),
+            configuration: configuration)
+            .queryRuntime()
         let encodedTests = try encoder.encode(runtimeTests.availableRuntimeTests)
         try encodedTests.write(to: URL(fileURLWithPath: output), options: [.atomic])
         log("Wrote run time tests dump to file \(output)")

@@ -4,49 +4,54 @@ import Deployer
 @testable import DistRun
 import ModelFactories
 import Models
+import TempFolder
 import XCTest
 
 class DeployablesGeneratorTests: XCTestCase {
     
     var deployables = [PackageName: [DeployableItem]]()
-    var tempFolder: TemporaryDirectory!
     let defaultBuildArtifacts = BuildArtifacts(
         appBundle: String(#file),
         runner: String(#file),
         xcTestBundle: String(#file),
         additionalApplicationBundles: [String(#file)])
+    var tempFolder: TempFolder!
+    
+    func AXCTAssertNoThrow<T>(
+        _ expression: @autoclosure () throws -> T,
+        _ message: @autoclosure () -> String = "Unexpected throw call",
+        file: StaticString = #file,
+        line: UInt = #line) -> T
+    {
+        var result: T! = nil
+        XCTAssertNoThrow(result = try expression(), message, file: file, line: line)
+        return result
+    }
     
     override func setUp() {
         super.setUp()
-        do {
-            self.tempFolder = try TemporaryDirectory(removeTreeOnDeinit: true)
-            let generator = DeployablesGenerator(
-                targetAvitoRunnerPath: "AvitoRunner",
-                auxiliaryPaths: try AuxiliaryPathsFactory().createWith(
-                    fbxctest: ResourceLocation.from(String(#file)),
-                    fbsimctl: ResourceLocation.from(String(#file)),
-                    plugins: [ResourceLocation.from(pathToPlugin())],
-                    tempFolder: ""),
-                buildArtifacts: defaultBuildArtifacts,
-                environmentFilePath: String(#file),
-                targetEnvironmentPath: "env.json",
-                simulatorSettings: SimulatorSettings(
-                    simulatorLocalizationSettings: String(#file),
-                    watchdogSettings: String(#file)),
-                targetSimulatorLocalizationSettingsPath: "sim.json",
-                targetWatchdogSettingsPath: "wd.json")
-            self.deployables = try generator.deployables()
-        } catch {
-            self.continueAfterFailure = false
-            XCTFail("Failed to generate deployables: \(error)")
-        }
+        self.continueAfterFailure = false
+        tempFolder = AXCTAssertNoThrow(try TempFolder())
+        let generator = DeployablesGenerator(
+            targetAvitoRunnerPath: "AvitoRunner",
+            auxiliaryPaths: AuxiliaryPaths(
+                fbxctest: String(#file),
+                fbsimctl: String(#file),
+                plugins: [ResourceLocation.localFilePath(AXCTAssertNoThrow(try self.pathToPlugin()))]),
+            buildArtifacts: defaultBuildArtifacts,
+            environmentFilePath: String(#file),
+            targetEnvironmentPath: "env.json",
+            simulatorSettings: SimulatorSettings(
+                simulatorLocalizationSettings: String(#file),
+                watchdogSettings: String(#file)),
+            targetSimulatorLocalizationSettingsPath: "sim.json",
+            targetWatchdogSettingsPath: "wd.json")
+        deployables = AXCTAssertNoThrow(try generator.deployables())
     }
     
     private func pathToPlugin() throws -> String {
-        let path = tempFolder.path.appending(component: "TestPlugin.emceeplugin").asString
-        try FileManager.default.createDirectory(at: URL(fileURLWithPath: path), withIntermediateDirectories: true)
-        FileManager.default.createFile(atPath: path.appending(pathComponent: "Plugin"), contents: nil)
-        return path
+        let binaryPath = try tempFolder.createFile(components: ["TestPlugin.emceeplugin"], filename: "Plugin", contents: nil)
+        return binaryPath.parentDirectory.asString
     }
     
     private func filterDeployables(_ packageName: PackageName) -> [DeployableItem] {
@@ -146,8 +151,7 @@ class DeployablesGeneratorTests: XCTestCase {
             auxiliaryPaths: try AuxiliaryPathsFactory().createWith(
                 fbxctest: ResourceLocation.from(String(#file)),
                 fbsimctl: ResourceLocation.from(String(#file)),
-                plugins: [],
-                tempFolder: ""),
+                plugins: []),
             buildArtifacts: defaultBuildArtifacts,
             environmentFilePath: String(#file),
             targetEnvironmentPath: "env.json",

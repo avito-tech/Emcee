@@ -8,14 +8,9 @@ public final class AuxiliaryPathsFactory {
     public func createWith(
         fbxctest: ResourceLocation,
         fbsimctl: ResourceLocation,
-        plugins: [ResourceLocation],
-        tempFolder: String = "")
+        plugins: [ResourceLocation])
         throws -> AuxiliaryPaths
     {
-        if !tempFolder.isEmpty {
-            try fileManager.createDirectory(atPath: tempFolder, withIntermediateDirectories: true)
-        }
-        
         let resolver = ResourceLocationResolver.sharedResolver
         let fbxctestPath = try resolver.resolvePath(resourceLocation: fbxctest).with(archivedFile: "fbxctest")
         let fbsimctlPath = try resolver.resolvePath(resourceLocation: fbsimctl).with(archivedFile: "fbsimctl")
@@ -23,7 +18,6 @@ public final class AuxiliaryPathsFactory {
         return AuxiliaryPaths.withoutValidatingValues(
             fbxctest: fbxctestPath,
             fbsimctl: fbsimctlPath,
-            plugins: plugins,
-            tempFolder: tempFolder)
+            plugins: plugins)
     }
 }

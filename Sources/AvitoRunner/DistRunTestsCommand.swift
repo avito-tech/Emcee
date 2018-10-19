@@ -7,6 +7,7 @@ import ModelFactories
 import Models
 import PluginManager
 import ScheduleStrategy
+import TempFolder
 import Utility
 
 final class DistRunTestsCommand: Command {
@@ -130,8 +131,7 @@ final class DistRunTestsCommand: Command {
             auxiliaryPaths: try AuxiliaryPathsFactory().createWith(
                 fbxctest: fbxctest,
                 fbsimctl: fbsimctl,
-                plugins: plugins,
-                tempFolder: NSTemporaryDirectory()),
+                plugins: plugins),
             buildArtifacts: BuildArtifacts(
                 appBundle: app,
                 runner: runner,
@@ -150,7 +150,10 @@ final class DistRunTestsCommand: Command {
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
             pluginLocations: distRunConfiguration.auxiliaryPaths.plugins,
             environment: distRunConfiguration.testExecutionBehavior.environment)
-        let distRunner = try DistRunner(eventBus: eventBus, distRunConfiguration: distRunConfiguration)
+        let distRunner = DistRunner(
+            eventBus: eventBus,
+            distRunConfiguration: distRunConfiguration,
+            tempFolder: try TempFolder())
         let testingResults = try distRunner.run()
         eventBus.post(event: .tearDown)
         try ResultingOutputGenerator(

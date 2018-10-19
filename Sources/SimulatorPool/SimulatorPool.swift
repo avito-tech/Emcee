@@ -4,6 +4,7 @@ import Foundation
 import Extensions
 import Logging
 import Models
+import TempFolder
 
 /**
  * Every 'borrow' must have a corresponding 'free' call, otherwise the next borrow will throw an error.
@@ -27,15 +28,17 @@ public final class SimulatorPool<T>: CustomStringConvertible where T: SimulatorC
         numberOfSimulators: UInt,
         testDestination: TestDestination,
         auxiliaryPaths: AuxiliaryPaths,
-        automaticCleanupTiumeout: TimeInterval = 10)
+        tempFolder: TempFolder,
+        automaticCleanupTiumeout: TimeInterval = 10) throws
     {
         self.numberOfSimulators = numberOfSimulators
         self.testDestination = testDestination
         self.automaticCleanupTiumeout = automaticCleanupTiumeout
-        controllers = SimulatorPool.createControllers(
+        controllers = try SimulatorPool.createControllers(
             count: numberOfSimulators,
             testDestination: testDestination,
-            auxiliaryPaths: auxiliaryPaths)
+            auxiliaryPaths: auxiliaryPaths,
+            tempFolder: tempFolder)
     }
     
     deinit {
@@ -79,12 +82,13 @@ public final class SimulatorPool<T>: CustomStringConvertible where T: SimulatorC
     private static func createControllers(
         count: UInt,
         testDestination: TestDestination,
-        auxiliaryPaths: AuxiliaryPaths) -> OrderedSet<T>
+        auxiliaryPaths: AuxiliaryPaths,
+        tempFolder: TempFolder) throws -> OrderedSet<T>
     {
         var result = OrderedSet<T>()
         for index in 0 ..< count {
             let folderName = "sim_\(testDestination.deviceType.removingWhitespaces())_\(testDestination.iOSVersion)_\(index)"
-            let workingDirectory = auxiliaryPaths.tempFolder.appending(pathComponent: folderName)
+            let workingDirectory = try tempFolder.pathByCreatingDirectories(components: [folderName])
             let simulator = Simulator(index: index, testDestination: testDestination, workingDirectory: workingDirectory)
             let controller = T(simulator: simulator, fbsimctlPath: auxiliaryPaths.fbsimctl)
             result.append(controller)

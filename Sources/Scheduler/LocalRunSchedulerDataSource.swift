@@ -5,6 +5,7 @@ import Logging
 import Models
 import RuntimeDump
 import ScheduleStrategy
+import TempFolder
 
 /**
  * A data set for a Scheduler that splits the TestToRun into Buckets and provides them back to the Scheduler.
@@ -19,13 +20,15 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
     public init(
         eventBus: EventBus,
         configuration: LocalTestRunConfiguration,
-        runAllTestsIfTestsToRunIsEmpty: Bool) throws
+        runAllTestsIfTestsToRunIsEmpty: Bool,
+        tempFolder: TempFolder) throws
     {
         self.configuration = configuration
         self.buckets = try LocalRunSchedulerDataSource.prepareBuckets(
             eventBus: eventBus,
             configuration: configuration,
-            runAllTestsIfTestsToRunIsEmpty: runAllTestsIfTestsToRunIsEmpty)
+            runAllTestsIfTestsToRunIsEmpty: runAllTestsIfTestsToRunIsEmpty,
+            tempFolder: tempFolder)
     }
     
     public func nextBucket() -> Bucket? {
@@ -37,13 +40,15 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
     private static func prepareBuckets(
         eventBus: EventBus,
         configuration: LocalTestRunConfiguration,
-        runAllTestsIfTestsToRunIsEmpty: Bool)
+        runAllTestsIfTestsToRunIsEmpty: Bool,
+        tempFolder: TempFolder)
         throws -> [Bucket]
     {
         let testEntries = try validatedTestEntries(
             eventBus: eventBus,
             configuration: configuration,
-            runAllTestsIfTestsToRunIsEmpty: runAllTestsIfTestsToRunIsEmpty)
+            runAllTestsIfTestsToRunIsEmpty: runAllTestsIfTestsToRunIsEmpty,
+            tempFolder: tempFolder)
         
         let strategy = configuration.testExecutionBehavior.scheduleStrategy.scheduleStrategy()
         let buckets = BucketsGenerator.generateBuckets(
@@ -62,13 +67,15 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
     private static func validatedTestEntries(
         eventBus: EventBus,
         configuration: LocalTestRunConfiguration,
-        runAllTestsIfTestsToRunIsEmpty: Bool)
+        runAllTestsIfTestsToRunIsEmpty: Bool,
+        tempFolder: TempFolder)
         throws -> [TestEntry]
     {
         let transformer = TestToRunIntoTestEntryTransformer(
             eventBus: eventBus,
             configuration: RuntimeDumpConfiguration.fromLocalRunTestConfiguration(configuration),
-            fetchAllTestsIfTestsToRunIsEmpty: runAllTestsIfTestsToRunIsEmpty)
+            fetchAllTestsIfTestsToRunIsEmpty: runAllTestsIfTestsToRunIsEmpty,
+            tempFolder: tempFolder)
         let testEntries = try transformer.transform().avito_shuffled()
         if testEntries.isEmpty {
             log("No tests found.")

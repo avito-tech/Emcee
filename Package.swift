@@ -96,6 +96,7 @@ let package = Package(
                 "SSHDeployer",
                 "Swifter",
                 "SynchronousWaiter",
+                "TempFolder",
                 "Utility"
             ]),
         .testTarget(
@@ -305,7 +306,8 @@ let package = Package(
                 "HostDeterminer",
                 "Logging",
                 "Models",
-                "SimulatorPool"
+                "SimulatorPool",
+                "TempFolder"
             ]),
         .testTarget(
             name: "RunnerTests",
@@ -324,7 +326,8 @@ let package = Package(
             dependencies: [
                 "EventBus",
                 "Models",
-                "Runner"
+                "Runner",
+                "TempFolder"
             ]),
         
         .target(
@@ -337,7 +340,8 @@ let package = Package(
                 "Runner",
                 "RuntimeDump",
                 "ScheduleStrategy",
-                "SimulatorPool"
+                "SimulatorPool",
+                "TempFolder"
             ]),
         
         .target(
@@ -359,6 +363,7 @@ let package = Package(
                 "Logging",
                 "Models",
                 "ProcessController",
+                "TempFolder",
                 "Utility"
             ]),
         .testTarget(
@@ -391,6 +396,17 @@ let package = Package(
         .testTarget(
             name: "SynchronousWaiterTests",
             dependencies: ["SynchronousWaiter"]),
+        
+        .target(
+            name: "TempFolder",
+            dependencies: [
+                "Utility"
+            ]),
+        .testTarget(
+            name: "TempFolderTests",
+            dependencies: [
+                "TempFolder"
+            ]),
         
         .target(
             name: "TestingFakeFbxctest",

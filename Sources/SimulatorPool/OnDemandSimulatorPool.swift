@@ -2,6 +2,7 @@ import Dispatch
 import Foundation
 import Logging
 import Models
+import TempFolder
 
 public final class OnDemandSimulatorPool<T> where T: SimulatorController {
     
@@ -9,11 +10,13 @@ public final class OnDemandSimulatorPool<T> where T: SimulatorController {
         public let numberOfSimulators: UInt
         public let testDestination: TestDestination
         public let auxiliaryPaths: AuxiliaryPaths
+        public let tempFolder: TempFolder
         
-        public init(numberOfSimulators: UInt, testDestination: TestDestination, auxiliaryPaths: AuxiliaryPaths) {
+        public init(numberOfSimulators: UInt, testDestination: TestDestination, auxiliaryPaths: AuxiliaryPaths, tempFolder: TempFolder) {
             self.numberOfSimulators = numberOfSimulators
             self.testDestination = testDestination
             self.auxiliaryPaths = auxiliaryPaths
+            self.tempFolder = tempFolder
         }
         
         public var description: String {
@@ -30,17 +33,18 @@ public final class OnDemandSimulatorPool<T> where T: SimulatorController {
         deleteSimulators()
     }
     
-    public func pool(key: Key) -> SimulatorPool<T> {
+    public func pool(key: Key) throws -> SimulatorPool<T> {
         var pool: SimulatorPool<T>?
-        syncQueue.sync {
+        try syncQueue.sync {
             if let existingPool = pools[key] {
                 log("Got SimulatorPool for key \(key)")
                 pool = existingPool
             } else {
-                pool = SimulatorPool(
+                pool = try SimulatorPool(
                     numberOfSimulators: key.numberOfSimulators,
                     testDestination: key.testDestination,
-                    auxiliaryPaths: key.auxiliaryPaths)
+                    auxiliaryPaths: key.auxiliaryPaths,
+                    tempFolder: key.tempFolder)
                 pools[key] = pool
                 log("Created SimulatorPool for key \(key)")
             }

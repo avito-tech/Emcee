@@ -13,6 +13,7 @@ import RuntimeDump
 import ScheduleStrategy
 import Scheduler
 import SimulatorPool
+import TempFolder
 import Utility
 
 final class RunTestsCommand: Command {
@@ -106,7 +107,7 @@ final class RunTestsCommand: Command {
         let fbxtestSlowTimeout = arguments.get(self.fbxtestSlowTimeout) ?? singleTestTimeout
         let fbxtestBundleReadyTimeout = arguments.get(self.fbxtestBundleReadyTimeout) ?? singleTestTimeout
         let fbxtestCrashCheckTimeout = arguments.get(self.fbxtestCrashCheckTimeout) ?? singleTestTimeout
-        let tempFolder = try ArgumentsReader.validateNotNil(arguments.get(self.tempFolder), key: KnownStringArguments.tempFolder)
+        let tempFolder = try TempFolder.with(stringPath: try ArgumentsReader.validateNotNil(arguments.get(self.tempFolder), key: KnownStringArguments.tempFolder))
         let testDestinations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
         let testLogPath = arguments.get(self.testLogPath)
         let trace = try ArgumentsReader.validateNotNil(arguments.get(self.trace), key: KnownStringArguments.trace)
@@ -132,8 +133,7 @@ final class RunTestsCommand: Command {
             auxiliaryPaths: AuxiliaryPathsFactory().createWith(
                 fbxctest: fbxctest,
                 fbsimctl: fbsimctl,
-                plugins: plugins,
-                tempFolder: tempFolder),
+                plugins: plugins),
             buildArtifacts: BuildArtifacts(
                 appBundle: app,
                 runner: runner,
@@ -149,10 +149,10 @@ final class RunTestsCommand: Command {
                 videoOutputPath: videoPath,
                 oslogOutputPath: oslogPath,
                 testLogOutputPath: testLogPath))
-        try runTests(configuration: configuration)
+        try runTests(configuration: configuration, tempFolder: tempFolder)
     }
     
-    private func runTests(configuration: LocalTestRunConfiguration) throws {
+    private func runTests(configuration: LocalTestRunConfiguration, tempFolder: TempFolder) throws {
         log("Configuration: \(configuration)", color: .blue)
         
         let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>()
@@ -172,9 +172,10 @@ final class RunTestsCommand: Command {
             schedulerDataSource: try LocalRunSchedulerDataSource(
                 eventBus: eventBus,
                 configuration: configuration,
-                runAllTestsIfTestsToRunIsEmpty: true),
+                runAllTestsIfTestsToRunIsEmpty: true,
+                tempFolder: tempFolder),
             onDemandSimulatorPool: onDemandSimulatorPool)
-        let scheduler = Scheduler(eventBus: eventBus, configuration: schedulerConfiguration)
+        let scheduler = Scheduler(eventBus: eventBus, configuration: schedulerConfiguration, tempFolder: tempFolder)
         let testingResults = try scheduler.run()
         eventBus.post(event: .tearDown)
         try ResultingOutputGenerator(

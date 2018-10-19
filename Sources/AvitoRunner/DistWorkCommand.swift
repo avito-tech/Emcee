@@ -3,6 +3,7 @@ import ArgumentsParser
 import DistWork
 import Utility
 import Logging
+import TempFolder
 
 final class DistWorkCommand: Command {
     let command = "distWork"
@@ -21,7 +22,10 @@ final class DistWorkCommand: Command {
         let queueServer = try ArgumentsReader.queueServer(arguments.get(self.queueServer), key: KnownStringArguments.queueServer)
         let workerId = try ArgumentsReader.validateNotNil(arguments.get(self.workerId), key: KnownStringArguments.workerId)
         
-        let distWorker = DistWorker(queueServerAddress: queueServer.host, queueServerPort: queueServer.port, workerId: workerId)
+        let distWorker = DistWorker(
+            queueServerAddress: queueServer.host,
+            queueServerPort: queueServer.port,
+            workerId: workerId)
         try distWorker.start()
     }
 }

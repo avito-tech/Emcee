@@ -8,6 +8,7 @@ import ScheduleStrategy
 import ListeningSemaphore
 import Logging
 import Runner
+import TempFolder
 
 /**
  * This class manages Runner instances, and provides back a TestingResult object with all results for all tests.
@@ -35,13 +36,15 @@ public final class Scheduler {
     private var testingResults = [TestingResult]()
     private let queue = OperationQueue()
     private let syncQueue = DispatchQueue(label: "ru.avito.Scheduler")
+    private let tempFolder: TempFolder
     
-    public init(eventBus: EventBus, configuration: SchedulerConfiguration) {
+    public init(eventBus: EventBus, configuration: SchedulerConfiguration, tempFolder: TempFolder) {
         self.eventBus = eventBus
         self.configuration = configuration
         self.resourceSemaphore = ListeningSemaphore(
             maximumValues: .of(
                 runningTests: Int(configuration.testExecutionBehavior.numberOfSimulators)))
+        self.tempFolder = tempFolder
     }
     
     /**
@@ -141,15 +144,19 @@ public final class Scheduler {
     }
     
     private func runBucketOnce(bucket: Bucket, testsToRun: [TestEntry]) throws -> TestingResult {
-        let simulatorPool = configuration.onDemandSimulatorPool.pool(
+        let simulatorPool = try configuration.onDemandSimulatorPool.pool(
             key: OnDemandSimulatorPool.Key(
                 numberOfSimulators: configuration.testExecutionBehavior.numberOfSimulators,
                 testDestination: bucket.testDestination,
-                auxiliaryPaths: configuration.auxiliaryPaths))
+                auxiliaryPaths: configuration.auxiliaryPaths,
+                tempFolder: tempFolder))
         let simulatorController = try simulatorPool.allocateSimulator()
         defer { simulatorPool.freeSimulator(simulatorController) }
             
-        let runner = Runner(eventBus: eventBus, configuration: configuration.runnerConfiguration)
+        let runner = Runner(
+            eventBus: eventBus,
+            configuration: configuration.runnerConfiguration,
+            tempFolder: tempFolder)
         let simulator: Simulator
         do {
             simulator = try simulatorController.bootedSimulator()

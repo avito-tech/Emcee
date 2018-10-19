@@ -1,15 +1,23 @@
 import Models
 @testable import SimulatorPool
 import SynchronousWaiter
+import TempFolder
 import XCTest
 
 class SimulatorPoolTests: XCTestCase {
     
+    var tempFolder: TempFolder!
+    
+    override func setUp() {
+        XCTAssertNoThrow(tempFolder = try TempFolder())
+    }
+    
     func testThrowingError() throws {
-        let pool = SimulatorPool<DefaultSimulatorController>(
+        let pool = try SimulatorPool<DefaultSimulatorController>(
             numberOfSimulators: 1,
             testDestination: try TestDestination(deviceType: "", iOSVersion: "11.0"),
-            auxiliaryPaths: AuxiliaryPaths.empty)
+            auxiliaryPaths: AuxiliaryPaths.empty,
+            tempFolder: tempFolder)
         _ = try pool.allocateSimulator()
         XCTAssertThrowsError(_ = try pool.allocateSimulator(), "Expected to throw") { error in
             XCTAssertEqual(error as? BorrowError, BorrowError.noSimulatorsLeft)
@@ -18,10 +26,11 @@ class SimulatorPoolTests: XCTestCase {
     
     func testUsingFromQueue() throws {
         let numberOfThreads = 4
-        let pool = SimulatorPool<DefaultSimulatorController>(
+        let pool = try SimulatorPool<DefaultSimulatorController>(
             numberOfSimulators: UInt(numberOfThreads),
             testDestination: try TestDestination(deviceType: "", iOSVersion: "11.0"),
-            auxiliaryPaths: AuxiliaryPaths.empty)
+            auxiliaryPaths: AuxiliaryPaths.empty,
+            tempFolder: tempFolder)
         let queue = OperationQueue()
         queue.maxConcurrentOperationCount = Int(numberOfThreads)
         
@@ -42,10 +51,11 @@ class SimulatorPoolTests: XCTestCase {
     }
     
     func testAllocatingAndFreeing() throws {
-        let pool = SimulatorPool<FakeSimulatorController>(
+        let pool = try SimulatorPool<FakeSimulatorController>(
             numberOfSimulators: 1,
             testDestination: try TestDestination(deviceType: "Fake Device", iOSVersion: "11.3"),
             auxiliaryPaths: AuxiliaryPaths.empty,
+            tempFolder: tempFolder,
             automaticCleanupTiumeout: 1)
         let simulatorController = try pool.allocateSimulator()
         pool.freeSimulator(simulatorController)

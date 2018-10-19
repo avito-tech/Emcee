@@ -7,6 +7,7 @@ import PluginManager
 import Scheduler
 import SimulatorPool
 import SynchronousWaiter
+import TempFolder
 
 public final class DistWorker {
     private let queueClient: SynchronousQueueClient
@@ -32,14 +33,16 @@ public final class DistWorker {
     // MARK: - Private Stuff
     
     private func runTests(workerConfiguration: WorkerConfiguration) throws -> [TestingResult] {
-        let configuration = try BucketConfigurationFactory().createConfiguration(
+        let factory = BucketConfigurationFactory()
+        let configuration = try factory.createConfiguration(
             workerConfiguration: workerConfiguration,
             schedulerDataSource: DistRunSchedulerDataSource(onNextBucketRequest: fetchNextBucket),
             onDemandSimulatorPool: onDemandSimulatorPool)
+        let tempFolder = try factory.createTempFolder()
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
             pluginLocations: configuration.auxiliaryPaths.plugins,
             environment: configuration.testExecutionBehavior.environment)
-        let scheduler = Scheduler(eventBus: eventBus, configuration: configuration)
+        let scheduler = Scheduler(eventBus: eventBus, configuration: configuration, tempFolder: tempFolder)
         let eventStreamProcessor = EventStreamProcessor { [weak self] testingResult in
             self?.didReceiveTestResult(testingResult: testingResult)
         }

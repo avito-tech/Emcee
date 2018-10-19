@@ -64,10 +64,6 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
     }
     
     private func createAndBoot() throws {
-        try FileManager.default.createDirectory(
-            atPath: simulator.fbxctestContainerPath,
-            withIntermediateDirectories: true,
-            attributes: nil)
         try createSimulator()
         try bootSimulator()
     }
@@ -79,11 +75,13 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         
         stage = .creatingSimulator
         log("Creating simulator: \(simulator)")
+        let simulatorSetPath = simulator.fbxctestContainerPath.asString
+        try FileManager.default.createDirectory(atPath: simulatorSetPath, withIntermediateDirectories: true)
         let controller = ProcessController(
             subprocess: Subprocess(
                 arguments: [
                     fbsimctlPath,
-                    "--json", "--set", simulator.fbxctestContainerPath,
+                    "--json", "--set", simulatorSetPath,
                     "create", "iOS \(simulator.testDestination.iOSVersion)", simulator.testDestination.deviceType],
                 maximumAllowedSilenceDuration: 30))
         controller.delegate = self
@@ -101,7 +99,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
             throw SimulatorBootError.bootingAlreadyStarted
         }
         
-        let containerContents = try FileManager.default.contentsOfDirectory(atPath: simulator.fbxctestContainerPath)
+        let containerContents = try FileManager.default.contentsOfDirectory(atPath: simulator.fbxctestContainerPath.asString)
         let simulatorUuids = containerContents.filter { UUID(uuidString: $0) != nil }
         guard simulatorUuids.count > 0, let simulatorUuid = simulatorUuids.first else {
             throw SimulatorBootError.unableToLocateSimulatorUuid
@@ -115,7 +113,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
             subprocess: Subprocess(
                 arguments: [
                     fbsimctlPath,
-                    "--json", "--set", simulator.fbxctestContainerPath,
+                    "--json", "--set", simulator.fbxctestContainerPath.asString,
                     simulatorUuid, "boot",
                     "--locale", "ru_US",
                     "--direct-launch", "--", "listen"]))
@@ -167,7 +165,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
             subprocess: Subprocess(
                 arguments: [
                     fbsimctlPath,
-                    "--json", "--set", simulator.fbxctestContainerPath,
+                    "--json", "--set", simulator.fbxctestContainerPath.asString,
                     "--simulators", "delete"],
                 maximumAllowedSilenceDuration: 90))
         controller.delegate = self

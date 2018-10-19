@@ -1,3 +1,4 @@
+import Basic
 import Foundation
 import Extensions
 import Models
@@ -5,7 +6,7 @@ import Models
 public class Simulator: Hashable, CustomStringConvertible {
     public let index: UInt
     public let testDestination: TestDestination
-    public let workingDirectory: String
+    public let workingDirectory: AbsolutePath
     
     public var identifier: String {
         return "simulator_\(index)_\(testDestination.deviceType.removingWhitespaces())_\(testDestination.iOSVersion.removingWhitespaces())"
@@ -15,11 +16,11 @@ public class Simulator: Hashable, CustomStringConvertible {
         return "Simulator \(index): \(testDestination.deviceType) \(testDestination.iOSVersion) at: \(workingDirectory)"
     }
     
-    var fbxctestContainerPath: String {
-        return workingDirectory.appending(pathComponent: "sim")
+    var fbxctestContainerPath: AbsolutePath {
+        return workingDirectory.appending(component: "sim")
     }
  
-    init(index: UInt, testDestination: TestDestination, workingDirectory: String) {
+    init(index: UInt, testDestination: TestDestination, workingDirectory: AbsolutePath) {
         self.index = index
         self.testDestination = testDestination
         self.workingDirectory = workingDirectory

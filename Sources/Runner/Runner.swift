@@ -6,15 +6,18 @@ import fbxctest
 import Logging
 import HostDeterminer
 import ProcessController
+import TempFolder
 
 /// This class runs the given tests on a single simulator.
 public final class Runner {
     private let eventBus: EventBus
     private let configuration: RunnerConfiguration
+    private let tempFolder: TempFolder
     
-    public init(eventBus: EventBus, configuration: RunnerConfiguration) {
+    public init(eventBus: EventBus, configuration: RunnerConfiguration, tempFolder: TempFolder) {
         self.eventBus = eventBus
         self.configuration = configuration
+        self.tempFolder = tempFolder
     }
     
     /** Runs the given tests, attempting to restart the runner in case of crash. */
@@ -121,7 +124,7 @@ public final class Runner {
         arguments += ["run-tests", "-sdk", "iphonesimulator"]
       
         if type(of: simulator) != Shimulator.self {
-            arguments += ["-workingDirectory", simulator.workingDirectory]
+            arguments += ["-workingDirectory", simulator.workingDirectory.asString]
         }
         
         arguments += ["-keep-simulators-alive"]
@@ -140,12 +143,11 @@ public final class Runner {
     
     private func testContext(simulator: Simulator) -> TestContext {
         var environment = configuration.environment
-        let testsWorkingDirectory = configuration.auxiliaryPaths.tempFolder.appending(pathComponents: ["testsWorkingDir", UUID().uuidString])
         do {
-            try FileManager.default.createDirectory(atPath: testsWorkingDirectory, withIntermediateDirectories: true, attributes: nil)
-            environment[RunnerConstants.envTestsWorkingDirectory.rawValue] = testsWorkingDirectory
+            let testsWorkingDirectory = try tempFolder.pathByCreatingDirectories(components: ["testsWorkingDir", UUID().uuidString])
+            environment[RunnerConstants.envTestsWorkingDirectory.rawValue] = testsWorkingDirectory.asString
         } catch {
-            log("Error: unable to create path: '\(testsWorkingDirectory)'", color: .red)
+            log("Error: unable to create path tests working directory: \(error)", color: .red)
         }
         return TestContext(environment: environment, testDestination: simulator.testDestination)
     }

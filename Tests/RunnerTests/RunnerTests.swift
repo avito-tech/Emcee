@@ -3,6 +3,7 @@ import Extensions
 import fbxctest
 import Foundation
 import Models
+import TempFolder
 import TestingFakeFbxctest
 import Runner
 import ScheduleStrategy
@@ -15,9 +16,11 @@ public final class RunnerTests: XCTestCase {
     let shimulator = Shimulator.shimulator(testDestination: try! TestDestination(deviceType: "iPhone SE", iOSVersion: "11.4"))
     let testClassName = "ClassName"
     let testMethod = "testMethod"
+    var tempFolder: TempFolder!
     
     public override func setUp() {
-        try? FakeFbxctestExecutableProducer.eraseFakeOutputEvents()
+        XCTAssertNoThrow(try FakeFbxctestExecutableProducer.eraseFakeOutputEvents())
+        XCTAssertNoThrow(tempFolder = try? TempFolder())
     }
     
     func testRunningTestWithoutAnyFeedbackEventsGivesFailureResults() throws {
@@ -81,7 +84,7 @@ public final class RunnerTests: XCTestCase {
     }
     
     private func runTestEntries(_ testEntries: [TestEntry]) -> [TestRunResult] {
-        let runner = Runner(eventBus: EventBus(), configuration: createRunnerConfig())
+        let runner = Runner(eventBus: EventBus(), configuration: createRunnerConfig(), tempFolder: tempFolder)
         return runner.run(entries: testEntries, onSimulator: shimulator)
     }
     
@@ -115,7 +118,7 @@ public final class RunnerTests: XCTestCase {
         }
         let configuration = RunnerConfiguration(
             testType: .logicTest,
-            auxiliaryPaths: AuxiliaryPaths.withoutValidatingValues(fbxctest: fbxctest, fbsimctl: "", plugins: [], tempFolder: ""),
+            auxiliaryPaths: AuxiliaryPaths.withoutValidatingValues(fbxctest: fbxctest, fbsimctl: "", plugins: []),
             buildArtifacts: BuildArtifacts(
                 appBundle: "",
                 runner: "",

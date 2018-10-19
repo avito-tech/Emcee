@@ -1,3 +1,4 @@
+import Basic
 import EventBus
 import Foundation
 import Logging
@@ -6,22 +7,16 @@ import Models
 import Runner
 import Scheduler
 import SimulatorPool
+import TempFolder
 
 /**
  * This class takes a bucket, a worker configuration and walks the surroundings in order to create a configuration
  * suitable for running tests locally on worker's behalf.
  */
 final class BucketConfigurationFactory {
-    private static let tempFolderSuffix = UUID().uuidString
-    
     init() {}
     
-    func createConfiguration(
-        workerConfiguration: WorkerConfiguration,
-        schedulerDataSource: SchedulerDataSource,
-        onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>)
-        throws -> SchedulerConfiguration
-    {
+    private var containerPath: String {
         /*
          The expected structure is:
          /remote_path/some_run_id/avitoRunner/AvitoRunner
@@ -38,13 +33,25 @@ final class BucketConfigurationFactory {
          /remote_path/some_run_id/
          */
         let containerPath = pathToBinary.deletingLastPathComponent.deletingLastPathComponent
-        
+        return containerPath
+    }
+    
+    func createTempFolder() throws -> TempFolder {
         /*
          Temp folder is next to the binary:
          /remote_path/some_run_id/avitoRunner/tempFolder/someUUID
          */
-        let tempFolder = packagePath(containerPath, .avitoRunner).appending(pathComponent: "tempFolder")
-        
+        let path = try AbsolutePath(validating: packagePath(containerPath, .avitoRunner))
+            .appending(component: "tempFolder")
+        return try TempFolder(path: path, cleanUpAutomatically: true)
+    }
+    
+    func createConfiguration(
+        workerConfiguration: WorkerConfiguration,
+        schedulerDataSource: SchedulerDataSource,
+        onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>)
+        throws -> SchedulerConfiguration
+    {
         /*
          All paths below are resolved against containerPath.
          */
@@ -98,8 +105,7 @@ final class BucketConfigurationFactory {
             auxiliaryPaths: try AuxiliaryPathsFactory().createWith(
                 fbxctest: ResourceLocation.from(fbxctest),
                 fbsimctl: ResourceLocation.from(fbsimctl),
-                plugins: ResourceLocation.from(plugins),
-                tempFolder: tempFolder),
+                plugins: ResourceLocation.from(plugins)),
             testType: .uiTest,
             buildArtifacts: BuildArtifacts(
                 appBundle: app,

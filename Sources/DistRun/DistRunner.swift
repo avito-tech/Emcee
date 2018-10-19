@@ -11,6 +11,7 @@ import Models
 import RESTMethods
 import ScheduleStrategy
 import SSHDeployer
+import TempFolder
 
 public final class DistRunner {
     
@@ -22,14 +23,14 @@ public final class DistRunner {
     
     private let eventBus: EventBus
     private let distRunConfiguration: DistRunConfiguration
-    private let temporaryDirectory: TemporaryDirectory
+    private let tempFolder: TempFolder
     private let avitoRunnerTargetPath = "AvitoRunner"
     private let launchdPlistTargetPath = "launchd.plist"
     
-    public init(eventBus: EventBus, distRunConfiguration: DistRunConfiguration) throws {
+    public init(eventBus: EventBus, distRunConfiguration: DistRunConfiguration, tempFolder: TempFolder) {
         self.eventBus = eventBus
         self.distRunConfiguration = distRunConfiguration
-        self.temporaryDirectory = try TemporaryDirectory()
+        self.tempFolder = tempFolder
     }
     
     public func run() throws -> [TestingResult] {
@@ -45,7 +46,10 @@ public final class DistRunner {
     }
     
     private func prepareQueue() throws -> [Bucket] {
-        let transformer = TestToRunIntoTestEntryTransformer(eventBus: eventBus, configuration: distRunConfiguration.runtimeDumpConfiguration())
+        let transformer = TestToRunIntoTestEntryTransformer(
+            eventBus: eventBus,
+            configuration: distRunConfiguration.runtimeDumpConfiguration(),
+            tempFolder: tempFolder)
         let testEntries = try transformer.transform().avito_shuffled()
         
         let buckets = BucketsGenerator.generateBuckets(
@@ -67,14 +71,13 @@ public final class DistRunner {
     private func deployAndStartLaucnhdJob(serverPort: Int) throws  {
         let encoder = JSONEncoder()
         let encodedEnvironment = try encoder.encode(distRunConfiguration.testExecutionBehavior.environment)
-        let environmentFilePath = temporaryDirectory.path.appending(component: "envirtonment.json").asString
-        try encodedEnvironment.write(to: URL(fileURLWithPath: environmentFilePath), options: .atomicWrite)
+        let environmentFilePath = try tempFolder.createFile(filename: "envirtonment.json", contents: encodedEnvironment)
         
         let generator = DeployablesGenerator(
             targetAvitoRunnerPath: avitoRunnerTargetPath,
             auxiliaryPaths: distRunConfiguration.auxiliaryPaths,
             buildArtifacts: distRunConfiguration.buildArtifacts,
-            environmentFilePath: environmentFilePath,
+            environmentFilePath: environmentFilePath.asString,
             targetEnvironmentPath: try PackageName.targetFileName(.environment),
             simulatorSettings: distRunConfiguration.simulatorSettings,
             targetSimulatorLocalizationSettingsPath: try PackageName.targetFileName(.simulatorLocalizationSettings),
@@ -133,12 +136,12 @@ public final class DistRunner {
                 destination: destination,
                 avitoRunnerDeployable: avitoRunnerDeployable,
                 serverPort: serverPort)
-            let tempFile = temporaryDirectory.path.appending(component: launchdPlistTargetPath).asString
-            try plistData.write(to: URL(fileURLWithPath: tempFile), options: .atomicWrite)
+            
+            let filePath = try tempFolder.createFile(filename: launchdPlistTargetPath, contents: plistData)
             
             let lauchdDeployableItem = DeployableItem(
                 name: "launchd_plist",
-                files: [DeployableFile(source: tempFile, destination: launchdPlistTargetPath)])
+                files: [DeployableFile(source: filePath.asString, destination: launchdPlistTargetPath)])
             
             let deployer = try SSHDeployer(
                 sshClientType: DefaultSSHClient.self,
