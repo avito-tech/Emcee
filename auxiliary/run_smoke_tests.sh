@@ -4,7 +4,7 @@ avitoRunnerBinaryPath="$(pwd)/.build/x86_64-apple-macosx10.10/debug/AvitoRunner"
 echo "Assuming avito runner has been built already and available at: '$avitoRunnerBinaryPath'"
 
 testPluginBundlePath="$(pwd)/TestPlugin/.build/debug/TestPlugin.emceeplugin"
-echo "Assuming test plugin has been built already and available at: '$testPluginBundlePath  '"
+echo "Assuming test plugin has been built already and available at: '$testPluginBundlePath'"
 
 echo "Installing pytest"
 pip3 install pytest

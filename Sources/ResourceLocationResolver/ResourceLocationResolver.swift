@@ -24,21 +24,8 @@ public final class ResourceLocationResolver {
         case directlyAccessibleFile(path: String)
         
         /// A given `ResourceLocation` object is pointing to archive that has been fetched and extracted.
-        /// If URL had a fragment, then filenameInArchive will be non-nil.
+        /// If URL had a fragment, then `filenameInArchive` will be non-nil.
         case contentsOfArchive(containerPath: String, filenameInArchive: String?)
-        
-        public var localPath: String {
-            switch self {
-            case .directlyAccessibleFile(let path):
-                return path
-            case .contentsOfArchive(let folderPath, let filenameInArchive):
-                if let filenameInArchive = filenameInArchive {
-                    return folderPath.appending(pathComponent: filenameInArchive)
-                } else {
-                    return folderPath
-                }
-            }
-        }
     }
     
     public static let sharedResolver = ResourceLocationResolver(cachesUrl: cachesUrl())

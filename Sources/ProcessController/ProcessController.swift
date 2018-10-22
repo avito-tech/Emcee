@@ -55,7 +55,7 @@ public final class ProcessController {
         }
         
         didStartProcess = true
-        log("Starting process", subprocessName: self.processName)
+        log("Starting subprocess: \(subprocess)", subprocessName: self.processName)
         process.launch()
         process.terminationHandler = { _ in
             OrphanProcessTracker().removeProcessFromCleanup(pid: self.processId, name: self.processName)

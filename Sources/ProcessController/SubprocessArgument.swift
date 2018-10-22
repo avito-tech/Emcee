@@ -1,7 +1,6 @@
 import Basic
 import Foundation
 import Models
-import ResourceLocationResolver
 
 public protocol SubprocessArgument {
     func stringValue() throws -> String
@@ -10,12 +9,6 @@ public protocol SubprocessArgument {
 extension String: SubprocessArgument {
     public func stringValue() throws -> String {
         return self
-    }
-}
-
-extension ResourceLocation: SubprocessArgument {
-    public func stringValue() throws -> String {
-        return try ResourceLocationResolver.sharedResolver.resolvePath(resourceLocation: self).localPath
     }
 }
 

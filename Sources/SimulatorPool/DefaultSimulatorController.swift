@@ -81,7 +81,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: [
-                    fbsimctl,
+                    fbsimctl.asArgumentWith(packageName: PackageName.fbsimctl),
                     "--json", "--set", simulatorSetPath,
                     "create", "iOS \(simulator.testDestination.iOSVersion)", simulator.testDestination.deviceType],
                 maximumAllowedSilenceDuration: 30))
@@ -113,7 +113,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         simulatorKeepAliveProcessController = try ProcessController(
             subprocess: Subprocess(
                 arguments: [
-                    fbsimctl,
+                    fbsimctl.asArgumentWith(packageName: PackageName.fbsimctl),
                     "--json", "--set", simulator.fbxctestContainerPath.asString,
                     simulatorUuid, "boot",
                     "--locale", "ru_US",
@@ -165,7 +165,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: [
-                    fbsimctl,
+                    fbsimctl.asArgumentWith(packageName: PackageName.fbsimctl),
                     "--json", "--set", simulator.fbxctestContainerPath.asString,
                     "--simulators", "delete"],
                 maximumAllowedSilenceDuration: 90))
