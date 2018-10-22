@@ -8,16 +8,24 @@ import URLResource
 public final class ResourceLocationResolver {
     private let fileCache: FileCache
     private let urlResource: URLResource
-    private let fileManager = FileManager()
     
-    public enum ValidationError: Error {
-        case unpackProcessError
-        case resourceIsVoid
+    public enum ValidationError: String, Error, CustomStringConvertible {
+        case unpackProcessError = "unzip operation failed"
+        case resourceIsVoid = "Cannot resolve resource as resource location has 'void' value."
+        
+        public var description: String {
+            return self.rawValue
+        }
     }
     
+    /// A result of materializing `ResourceLocation` object.
     public enum Result {
+        /// A given `ResourceLocation` object is pointing to the local file on disk
         case directlyAccessibleFile(path: String)
-        case contentsOfArchive(folderPath: String, filenameInArchive: String?)
+        
+        /// A given `ResourceLocation` object is pointing to archive that has been fetched and extracted.
+        /// If URL had a fragment, then filenameInArchive will be non-nil.
+        case contentsOfArchive(containerPath: String, filenameInArchive: String?)
         
         public var localPath: String {
             switch self {
@@ -58,7 +66,7 @@ public final class ResourceLocationResolver {
         case .remoteUrl(let url):
             let path = try cachedContentsOfUrl(url).path
             let filenameInArchive = url.fragment
-            return Result.contentsOfArchive(folderPath: path, filenameInArchive: filenameInArchive)
+            return Result.contentsOfArchive(containerPath: path, filenameInArchive: filenameInArchive)
         case .void:
             throw ValidationError.resourceIsVoid
         }
@@ -69,7 +77,7 @@ public final class ResourceLocationResolver {
         urlResource.fetchResource(url: url, handler: handler)
         let zipUrl = try handler.wait()
         let contentsUrl = zipUrl.deletingLastPathComponent().appendingPathComponent("zip_contents", isDirectory: true)
-        if !fileManager.fileExists(atPath: contentsUrl.path) {
+        if !FileManager.default.fileExists(atPath: contentsUrl.path) {
             log("Will unzip '\(zipUrl)' into '\(contentsUrl)'")
             let process = Process.launchedProcess(
                 launchPath: "/usr/bin/unzip",

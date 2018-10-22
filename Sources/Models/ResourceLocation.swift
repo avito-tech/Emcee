@@ -6,7 +6,7 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
     case localFilePath(String)
     
     /// URL to archive that should be extracted in order to get the file.
-    /// Filename in this case is specified by fragment:
+    /// Filename in this case can be specified by fragment:
     /// http://example.com/file.zip#actualFileInsideZip
     case remoteUrl(URL)
     

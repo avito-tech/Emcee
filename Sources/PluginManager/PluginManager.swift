@@ -32,12 +32,13 @@ public final class PluginManager: EventStream {
         for location in pluginLocations {
             let resolvedPath = try resolver.resolvePath(resourceLocation: location)
             
-            let findPluginBundleExecutable: (String) throws -> () = { path in
+            let validatePathToPluginBundle: (String) throws -> () = { path in
                 guard path.lastPathComponent.pathExtension == PluginManager.pluginBundleExtension else {
                     throw ValidationError.unexpectedExtension(location, actual: path.lastPathComponent.pathExtension, expected: PluginManager.pluginBundleExtension)
                 }
                 let executablePath = path.appending(pathComponent: PluginManager.pluginExecutableName)
-                guard FileManager.default.fileExists(atPath: executablePath) else {
+                var isDir: ObjCBool = false
+                guard FileManager.default.fileExists(atPath: executablePath, isDirectory: &isDir), isDir.boolValue == false else {
                     throw ValidationError.noExecutableFound(location, expectedLocation: executablePath)
                 }
                 paths.append(try AbsolutePath(validating: path))
@@ -45,12 +46,20 @@ public final class PluginManager: EventStream {
             
             switch resolvedPath {
             case .directlyAccessibleFile(let path):
-                try findPluginBundleExecutable(path)
-            case .contentsOfArchive(let containerPath, _):
-                let availablePlugins = try FileManager.default.findFiles(path: containerPath, pathExtension: PluginManager.pluginBundleExtension) 
-                guard !availablePlugins.isEmpty else { throw ValidationError.noPluginsFound(location) }
-                for path in availablePlugins {
-                    try findPluginBundleExecutable(path)
+                try validatePathToPluginBundle(path)
+            case .contentsOfArchive(let containerPath, let concretePluginName):
+                if let concretePluginName = concretePluginName {
+                    var path = containerPath.appending(pathComponent: concretePluginName)
+                    if path.lastPathComponent.pathExtension != PluginManager.pluginBundleExtension {
+                        path = path + "." + PluginManager.pluginBundleExtension
+                    }
+                    try validatePathToPluginBundle(path)
+                } else {
+                    let availablePlugins = try FileManager.default.findFiles(path: containerPath, pathExtension: PluginManager.pluginBundleExtension)
+                    guard !availablePlugins.isEmpty else { throw ValidationError.noPluginsFound(location) }
+                    for path in availablePlugins {
+                        try validatePathToPluginBundle(path)
+                    }
                 }
             }
         }

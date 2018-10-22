@@ -284,7 +284,8 @@ let package = Package(
             dependencies: [
                 "Extensions",
                 "Logging",
-                "ModelFactories"
+                "ModelFactories",
+                "Utility"
             ]),
         .testTarget(
             name: "ProcessControllerTests",
