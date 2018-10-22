@@ -1,13 +1,30 @@
 import Foundation
 
-public enum ResourceLocation: Hashable, CustomStringConvertible {
+/// A location of the resource.
+public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
+    /// direct path to the file on disk
     case localFilePath(String)
+    
+    /// URL to archive that should be extracted in order to get the file.
+    /// Filename in this case is specified by fragment:
+    /// http://example.com/file.zip#actualFileInsideZip
     case remoteUrl(URL)
     
-    public enum ValidationError: Error {
+    /// void value can be used if location is unset
+    case void
+    
+    public enum ValidationError: Error, CustomStringConvertible {
         case cannotCreateUrl(String)
         case fileDoesNotExist(String)
-        case unsupportedUrlScheme(URL)
+        
+        public var description: String {
+            switch self {
+            case .cannotCreateUrl(let string):
+                return "Attempt to create a URL from string '\(string)' failed"
+            case .fileDoesNotExist(let path):
+                return "File does not exist at path: '\(path)'"
+            }
+        }
     }
     
     public static func from(_ string: String) throws -> ResourceLocation {
@@ -42,6 +59,8 @@ public enum ResourceLocation: Hashable, CustomStringConvertible {
             return path.hashValue
         case .remoteUrl(let url):
             return url.hashValue
+        case .void:
+            return 0
         }
     }
     
@@ -51,6 +70,8 @@ public enum ResourceLocation: Hashable, CustomStringConvertible {
             return "<local path: \(path)>"
         case .remoteUrl(let url):
             return "<url: \(url)>"
+        case .void:
+            return "<location is void>"
         }
     }
     
@@ -60,8 +81,53 @@ public enum ResourceLocation: Hashable, CustomStringConvertible {
             return leftPath == rightPath
         case (.remoteUrl(let leftUrl), .remoteUrl(let rightUrl)):
             return leftUrl == rightUrl
+        case (.void, .void):
+            return true
         default:
             return false
         }
     }
+    
+    private enum CodingKeys: String, CodingKey {
+        case caseId
+        case path
+        case url
+    }
+    
+    private enum CaseId: String, Codable {
+        case localFilePath
+        case remoteUrl
+        case void
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let caseId = try container.decode(CaseId.self, forKey: .caseId)
+        
+        switch caseId {
+        case .localFilePath:
+            let path = try container.decode(String.self, forKey: .path)
+            self = .localFilePath(path)
+        case .remoteUrl:
+            let url = try container.decode(URL.self, forKey: .url)
+            self = .remoteUrl(url)
+        case .void:
+            self = .void
+        }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .localFilePath(let path):
+            try container.encode(CaseId.localFilePath, forKey: .caseId)
+            try container.encode(path, forKey: .path)
+        case .remoteUrl(let url):
+            try container.encode(CaseId.remoteUrl, forKey: .caseId)
+            try container.encode(url, forKey: .url)
+        case .void:
+            try container.encode(CaseId.void, forKey: .caseId)
+        }
+    }
+    
 }

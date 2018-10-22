@@ -40,11 +40,9 @@ final class DumpRuntimeTestsCommand: Command {
         let output = try ArgumentsReader.validateNotNil(arguments.get(self.output), key: KnownStringArguments.output)
         let testDestinations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
         let xctestBundle = try ArgumentsReader.validateFileExists(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle)
-        
-        let resolver = ResourceLocationResolver.sharedResolver
-        
+                
         let configuration = RuntimeDumpConfiguration(
-            fbxctest: try resolver.resolvePath(resourceLocation: fbxctest).with(archivedFile: "fbxctest"),
+            fbxctest: fbxctest,
             xcTestBundle: xctestBundle,
             simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: "", watchdogSettings: ""),
             testDestination: testDestinations[0].testDestination,

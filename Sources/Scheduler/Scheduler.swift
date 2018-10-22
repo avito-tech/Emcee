@@ -166,7 +166,7 @@ public final class Scheduler {
             throw error
         }
 
-        let runnerResult = runner.run(entries: testsToRun, onSimulator: simulator)
+        let runnerResult = try runner.run(entries: testsToRun, onSimulator: simulator)
         return TestingResult(
             bucket: bucket,
             successfulTests: runnerResult.filter { $0.succeeded == true },

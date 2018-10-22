@@ -243,7 +243,6 @@ let package = Package(
                 "Extensions",
                 "FileCache",
                 "Models",
-                "ProcessController",
                 "URLResource"
             ]),
         
@@ -284,7 +283,8 @@ let package = Package(
             name: "ProcessController",
             dependencies: [
                 "Extensions",
-                "Logging"
+                "Logging",
+                "ModelFactories"
             ]),
         .testTarget(
             name: "ProcessControllerTests",

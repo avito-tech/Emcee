@@ -130,7 +130,7 @@ final class RunTestsCommand: Command {
                 numberOfSimulators: numberOfSimulators,
                 environment: environmentValues,
                 scheduleStrategy: scheduleStrategy),
-            auxiliaryPaths: AuxiliaryPathsFactory().createWith(
+            auxiliaryPaths: AuxiliaryPaths(
                 fbxctest: fbxctest,
                 fbsimctl: fbsimctl,
                 plugins: plugins),

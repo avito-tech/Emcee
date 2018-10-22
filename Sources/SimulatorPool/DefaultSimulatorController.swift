@@ -1,6 +1,7 @@
 import Dispatch
 import Foundation
 import Logging
+import Models
 import fbxctest
 import ProcessController
 
@@ -10,15 +11,15 @@ import ProcessController
  */
 public final class DefaultSimulatorController: SimulatorController, ProcessControllerDelegate, CustomStringConvertible {
     private let simulator: Simulator
-    private let fbsimctlPath: String
+    private let fbsimctl: ResourceLocation
     private let maximumBootAttempts = 2
     private var stage: Stage = .idle
     private var simulatorKeepAliveProcessController: ProcessController?
     private static let bootQueue = DispatchQueue(label: "SimulatorBootQueue")
     
-    public init(simulator: Simulator, fbsimctlPath: String) {
+    public init(simulator: Simulator, fbsimctl: ResourceLocation) {
         self.simulator = simulator
-        self.fbsimctlPath = fbsimctlPath
+        self.fbsimctl = fbsimctl
     }
     
     /**
@@ -77,10 +78,10 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         log("Creating simulator: \(simulator)")
         let simulatorSetPath = simulator.fbxctestContainerPath.asString
         try FileManager.default.createDirectory(atPath: simulatorSetPath, withIntermediateDirectories: true)
-        let controller = ProcessController(
+        let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: [
-                    fbsimctlPath,
+                    fbsimctl,
                     "--json", "--set", simulatorSetPath,
                     "create", "iOS \(simulator.testDestination.iOSVersion)", simulator.testDestination.deviceType],
                 maximumAllowedSilenceDuration: 30))
@@ -109,10 +110,10 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         log("Booting simulator: \(simulator)")
         
         // we keep this process alive throughout the run, as it owns the simulator process.
-        simulatorKeepAliveProcessController = ProcessController(
+        simulatorKeepAliveProcessController = try ProcessController(
             subprocess: Subprocess(
                 arguments: [
-                    fbsimctlPath,
+                    fbsimctl,
                     "--json", "--set", simulator.fbxctestContainerPath.asString,
                     simulatorUuid, "boot",
                     "--locale", "ru_US",
@@ -161,10 +162,10 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         stage = .deletingSimulator
         
         log("Deleting simulator: \(simulator)")
-        let controller = ProcessController(
+        let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: [
-                    fbsimctlPath,
+                    fbsimctl,
                     "--json", "--set", simulator.fbxctestContainerPath.asString,
                     "--simulators", "delete"],
                 maximumAllowedSilenceDuration: 90))

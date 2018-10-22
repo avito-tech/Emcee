@@ -5,13 +5,13 @@ import SimulatorPool
 final class FakeSimulatorController: SimulatorController {
     
     let simulator: Simulator
-    let fbsimctlPath: String
+    let fbsimctl: ResourceLocation
     
     var didCallDelete = false
     
-    init(simulator: Simulator, fbsimctlPath: String) {
+    init(simulator: Simulator, fbsimctl: ResourceLocation) {
         self.simulator = simulator
-        self.fbsimctlPath = fbsimctlPath
+        self.fbsimctl = fbsimctl
     }
     
     func bootedSimulator() throws -> Simulator {

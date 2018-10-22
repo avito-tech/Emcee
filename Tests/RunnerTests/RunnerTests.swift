@@ -27,7 +27,7 @@ public final class RunnerTests: XCTestCase {
         // do not stub, simulating a crash/silent exit
         
         let testEntry = TestEntry(className: testClassName, methodName: testMethod, caseId: nil)
-        let results = runTestEntries([testEntry])
+        let results = try runTestEntries([testEntry])
         
         XCTAssertEqual(results.count, 1)
         let testResult = results[0]
@@ -40,7 +40,7 @@ public final class RunnerTests: XCTestCase {
         try stubFbxctestEvent(success: true)
         
         let testEntry = TestEntry(className: testClassName, methodName: testMethod, caseId: nil)
-        let results = runTestEntries([testEntry])
+        let results = try runTestEntries([testEntry])
         
         XCTAssertEqual(results.count, 1)
         let testResult = results[0]
@@ -52,7 +52,7 @@ public final class RunnerTests: XCTestCase {
         try stubFbxctestEvent(success: false)
         
         let testEntry = TestEntry(className: testClassName, methodName: testMethod, caseId: nil)
-        let results = runTestEntries([testEntry])
+        let results = try runTestEntries([testEntry])
         
         XCTAssertEqual(results.count, 1)
         let testResult = results[0]
@@ -75,7 +75,7 @@ public final class RunnerTests: XCTestCase {
         try stubFbxctestEvent(success: true, runIndex: 1)
         
         let testEntry = TestEntry(className: testClassName, methodName: testMethod, caseId: nil)
-        let results = runTestEntries([testEntry])
+        let results = try runTestEntries([testEntry])
         
         XCTAssertEqual(results.count, 1)
         let testResult = results[0]
@@ -83,9 +83,9 @@ public final class RunnerTests: XCTestCase {
         XCTAssertEqual(testResult.testEntry, testEntry)
     }
     
-    private func runTestEntries(_ testEntries: [TestEntry]) -> [TestRunResult] {
+    private func runTestEntries(_ testEntries: [TestEntry]) throws -> [TestRunResult] {
         let runner = Runner(eventBus: EventBus(), configuration: createRunnerConfig(), tempFolder: tempFolder)
-        return runner.run(entries: testEntries, onSimulator: shimulator)
+        return try runner.run(entries: testEntries, onSimulator: shimulator)
     }
     
     private func stubFbxctestEvent(success: Bool, runIndex: Int = 0) throws {
@@ -118,7 +118,7 @@ public final class RunnerTests: XCTestCase {
         }
         let configuration = RunnerConfiguration(
             testType: .logicTest,
-            auxiliaryPaths: AuxiliaryPaths.withoutValidatingValues(fbxctest: fbxctest, fbsimctl: "", plugins: []),
+            auxiliaryPaths: AuxiliaryPaths(fbxctest: .localFilePath(fbxctest), fbsimctl: .void, plugins: []),
             buildArtifacts: BuildArtifacts(
                 appBundle: "",
                 runner: "",

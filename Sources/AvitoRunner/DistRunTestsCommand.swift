@@ -127,7 +127,7 @@ final class DistRunTestsCommand: Command {
                 numberOfSimulators: numberOfSimulators,
                 environment: environmentValues,
                 scheduleStrategy: scheduleStrategy),
-            auxiliaryPaths: try AuxiliaryPathsFactory().createWith(
+            auxiliaryPaths: AuxiliaryPaths(
                 fbxctest: fbxctest,
                 fbsimctl: fbsimctl,
                 plugins: plugins),

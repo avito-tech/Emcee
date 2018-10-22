@@ -21,7 +21,7 @@ public final class Runner {
     }
     
     /** Runs the given tests, attempting to restart the runner in case of crash. */
-    public func run(entries: [TestEntry], onSimulator simulator: Simulator) -> [TestRunResult] {
+    public func run(entries: [TestEntry], onSimulator simulator: Simulator) throws -> [TestRunResult] {
         if entries.isEmpty { return [] }
         
         var results = [TestRunResult]()
@@ -41,7 +41,7 @@ public final class Runner {
             let entriesToRun = missingEntriesForScheduledEntries(
                 expectedEntriesToRun: entries,
                 collectedResults: results)
-            let runResults = runOnce(entriesToRun: entriesToRun, onSimulator: simulator)
+            let runResults = try runOnce(entriesToRun: entriesToRun, onSimulator: simulator)
             results.append(contentsOf: runResults)
             
             if runResults.isEmpty {
@@ -62,7 +62,7 @@ public final class Runner {
     }
     
     /** Runs the given tests once without any attempts to restart the failed/crashed tests. */
-    public func runOnce(entriesToRun: [TestEntry], onSimulator simulator: Simulator) -> [TestRunResult] {
+    public func runOnce(entriesToRun: [TestEntry], onSimulator simulator: Simulator) throws -> [TestRunResult] {
         if entriesToRun.isEmpty {
             log("Nothing to run!", color: .blue)
             return []
@@ -74,7 +74,7 @@ public final class Runner {
         
         eventBus.post(event: .runnerEvent(.willRun(testEntries: entriesToRun, testContext: testContext)))
         
-        let fbxctestOutputProcessor = FbxctestOutputProcessor(
+        let fbxctestOutputProcessor = try FbxctestOutputProcessor(
             subprocess: Subprocess(
                 arguments: fbxctestArguments(entriesToRun: entriesToRun, simulator: simulator),
                 environment: testContext.environment,
@@ -95,8 +95,8 @@ public final class Runner {
         return result
     }
     
-    private func fbxctestArguments(entriesToRun: [TestEntry], simulator: Simulator) -> [String] {
-        var arguments =
+    private func fbxctestArguments(entriesToRun: [TestEntry], simulator: Simulator) -> [SubprocessArgument] {
+        var arguments: [SubprocessArgument] =
             [configuration.auxiliaryPaths.fbxctest,
              "-destination", simulator.testDestination.destinationString] +
                 ["-\(configuration.testType.rawValue)"]

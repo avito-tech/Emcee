@@ -6,9 +6,7 @@ import Logging
 public final class ProcessController {
     private let subprocess: Subprocess
     private let process: Process
-    public var processName: String {
-        return subprocess.arguments[0].lastPathComponent
-    }
+    public let processName: String
     private var didInitiateKillOfProcess = false
     private var lastDataTimestamp: TimeInterval = Date().timeIntervalSince1970
     private let processTerminationQueue = DispatchQueue(label: "ru.avito.runner.ProcessListener.processTerminationQueue")
@@ -24,24 +22,24 @@ public final class ProcessController {
     public var processId: Int32 = 0
     public weak var delegate: ProcessControllerDelegate?
     
-    public init(subprocess: Subprocess) {
+    public init(subprocess: Subprocess) throws {
         self.subprocess = subprocess
-        self.process = ProcessController.createProcess(subprocess, processStdinPipe: processStdinPipe)
+        let arguments = try subprocess.arguments.map { try $0.stringValue() }
+        self.processName = arguments.elementAtIndex(0, "First element is path to executable").lastPathComponent
+        self.process = try ProcessController.createProcess(
+            arguments: arguments,
+            environment: subprocess.environment,
+            processStdinPipe: processStdinPipe)
         setUpProcessListening()
     }
     
-    private static func createProcess(_ subprocess: Subprocess, processStdinPipe: Pipe) -> Process {
-        let executable = subprocess.arguments[0]
+    private static func createProcess(arguments: [String], environment: [String: String], processStdinPipe: Pipe) throws -> Process {
         let process = Process()
-        process.launchPath = executable
-        process.arguments = Array(subprocess.arguments.dropFirst())
-        process.environment = subprocess.environment
+        process.launchPath = arguments[0]
+        process.arguments = Array(arguments.dropFirst())
+        process.environment = environment
         process.standardInput = processStdinPipe
-        do {
-            try process.setStartsNewProcessGroup(false)
-        } catch {
-            log("WARNING: \(error)", color: .yellow)
-        }
+        try process.setStartsNewProcessGroup(false)
         return process
     }
     
@@ -182,13 +180,18 @@ public final class ProcessController {
     }
     
     private func setUpProcessListening() {
+        let uuid = UUID().uuidString
+        let stdoutContentsFile = subprocess.stdoutContentsFile ?? NSTemporaryDirectory().appending("\(uuid)_\(processName)_stdout.txt")
+        let stderrContentsFile = subprocess.stderrContentsFile ?? NSTemporaryDirectory().appending("\(uuid)_\(processName)_stderr.txt")
+        let stdinContentsFile = subprocess.stdinContentsFile ?? NSTemporaryDirectory().appending("\(uuid)_\(processName)_stdin.txt")
+        
         storeStdForProcess(
-            path: self.subprocess.stdoutContentsFile,
+            path: stdoutContentsFile,
             onError: { message in
                 log("WARNING: Will not store stdout output: \(message)", subprocessName: self.processName, subprocessId: self.processId, color: .yellow)
             },
             pipeAssigningClosure: { pipe in
-                log("Will store stdout output at: \(self.subprocess.stdoutContentsFile)", subprocessName: self.processName, subprocessId: self.processId, color: .blue)
+                log("Will store stdout output at: \(stdoutContentsFile)", subprocessName: self.processName, subprocessId: self.processId, color: .blue)
                 self.process.standardOutput = pipe
             },
             onNewData: { data in
@@ -197,12 +200,12 @@ public final class ProcessController {
         )
         
         storeStdForProcess(
-            path: self.subprocess.stderrContentsFile,
+            path: stderrContentsFile,
             onError: { message in
                 log("WARNING: Will not store stderr output: \(message)", subprocessName: self.processName, subprocessId: self.processId, color: .yellow)
             },
             pipeAssigningClosure: { pipe in
-                log("Will store stderr output at: \(self.subprocess.stderrContentsFile)", subprocessName: self.processName, subprocessId: self.processId, color: .blue)
+                log("Will store stderr output at: \(stderrContentsFile)", subprocessName: self.processName, subprocessId: self.processId, color: .blue)
                 self.process.standardError = pipe
             },
             onNewData: { data in
@@ -210,10 +213,10 @@ public final class ProcessController {
             }
         )
         
-        if FileManager.default.createFile(atPath: subprocess.stdinContentsFile, contents: nil),
-            let stdinHandle = FileHandle(forWritingAtPath: subprocess.stdinContentsFile)
+        if FileManager.default.createFile(atPath: stdinContentsFile, contents: nil),
+            let stdinHandle = FileHandle(forWritingAtPath: stdinContentsFile)
         {
-            log("Will store stdin input at: \(subprocess.stdinContentsFile)", subprocessName: self.processName, subprocessId: processId, color: .blue)
+            log("Will store stdin input at: \(stdinContentsFile)", subprocessName: self.processName, subprocessId: processId, color: .blue)
             self.stdinHandle = stdinHandle
         } else {
             log("WARNING: Will not store stdin input at file, failed to open a file handle", color: .yellow)

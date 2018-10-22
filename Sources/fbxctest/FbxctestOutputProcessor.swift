@@ -17,11 +17,12 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
         subprocess: Subprocess,
         simulatorId: String,
         singleTestMaximumDuration: TimeInterval)
+        throws
     {
         self.simulatorId = simulatorId
         self.eventsListener = TestEventsListener()
         self.singleTestMaximumDuration = singleTestMaximumDuration
-        self.processController = ProcessController(subprocess: subprocess)
+        self.processController = try ProcessController(subprocess: subprocess)
         self.processController.delegate = self
     }
     

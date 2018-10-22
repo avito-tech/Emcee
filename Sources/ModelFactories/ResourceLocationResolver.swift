@@ -3,7 +3,6 @@ import FileCache
 import Foundation
 import Logging
 import Models
-import ProcessController
 import URLResource
 
 public final class ResourceLocationResolver {
@@ -12,20 +11,24 @@ public final class ResourceLocationResolver {
     private let fileManager = FileManager()
     
     public enum ValidationError: Error {
-        case binaryNotFoundAtPath(String)
         case unpackProcessError
+        case resourceIsVoid
     }
     
     public enum Result {
         case directlyAccessibleFile(path: String)
-        case contentsOfArchive(folderPath: String)
+        case contentsOfArchive(folderPath: String, filenameInArchive: String?)
         
-        public func with(archivedFile: String) -> String {
+        public var localPath: String {
             switch self {
             case .directlyAccessibleFile(let path):
                 return path
-            case .contentsOfArchive(let folderPath):
-                return folderPath.appending(pathComponent: archivedFile)
+            case .contentsOfArchive(let folderPath, let filenameInArchive):
+                if let filenameInArchive = filenameInArchive {
+                    return folderPath.appending(pathComponent: filenameInArchive)
+                } else {
+                    return folderPath
+                }
             }
         }
     }
@@ -54,7 +57,10 @@ public final class ResourceLocationResolver {
             return Result.directlyAccessibleFile(path: path)
         case .remoteUrl(let url):
             let path = try cachedContentsOfUrl(url).path
-            return Result.contentsOfArchive(folderPath: path)
+            let filenameInArchive = url.fragment
+            return Result.contentsOfArchive(folderPath: path, filenameInArchive: filenameInArchive)
+        case .void:
+            throw ValidationError.resourceIsVoid
         }
     }
     
@@ -65,10 +71,13 @@ public final class ResourceLocationResolver {
         let contentsUrl = zipUrl.deletingLastPathComponent().appendingPathComponent("zip_contents", isDirectory: true)
         if !fileManager.fileExists(atPath: contentsUrl.path) {
             log("Will unzip '\(zipUrl)' into '\(contentsUrl)'")
-            let controller = ProcessController(
-                subprocess: Subprocess(arguments: ["/usr/bin/unzip", zipUrl.path, "-d", contentsUrl.path]))
-            controller.startAndListenUntilProcessDies()
-            guard controller.terminationStatus() == 0 else { throw ValidationError.unpackProcessError }
+            let process = Process.launchedProcess(
+                launchPath: "/usr/bin/unzip",
+                arguments: [zipUrl.path, "-d", contentsUrl.path])
+            process.waitUntilExit()
+            if process.terminationStatus != 0 {
+                throw ValidationError.unpackProcessError
+            }
         }
         return contentsUrl
     }

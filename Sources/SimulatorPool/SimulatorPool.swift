@@ -90,7 +90,7 @@ public final class SimulatorPool<T>: CustomStringConvertible where T: SimulatorC
             let folderName = "sim_\(testDestination.deviceType.removingWhitespaces())_\(testDestination.iOSVersion)_\(index)"
             let workingDirectory = try tempFolder.pathByCreatingDirectories(components: [folderName])
             let simulator = Simulator(index: index, testDestination: testDestination, workingDirectory: workingDirectory)
-            let controller = T(simulator: simulator, fbsimctlPath: auxiliaryPaths.fbsimctl)
+            let controller = T(simulator: simulator, fbsimctl: auxiliaryPaths.fbsimctl)
             result.append(controller)
         }
         return result

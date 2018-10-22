@@ -40,8 +40,8 @@ public final class DeployablesGenerator {
         deployables[.app] = try appDeployables()
         deployables[.avitoRunner] = [runnerTool()]
         deployables[.environment] = try environmentDeployables()
-        deployables[.fbsimctl] = [try toolForBinary(binaryPath: auxiliaryPaths.fbsimctl, toolName: PackageName.fbsimctl.rawValue)]
-        deployables[.fbxctest] = [try toolForBinary(binaryPath: auxiliaryPaths.fbxctest, toolName: PackageName.fbxctest.rawValue)]
+        deployables[.fbsimctl] = try toolForBinary(location: auxiliaryPaths.fbsimctl, toolName: PackageName.fbsimctl.rawValue)
+        deployables[.fbxctest] = try toolForBinary(location: auxiliaryPaths.fbxctest, toolName: PackageName.fbxctest.rawValue)
         deployables[.plugin] = try pluginDeployables()
         deployables[.simulatorLocalizationSettings] = try simulatorLocalizationSettingsDeployables()
         deployables[.testRunner] = try testRunnerDeployables()
@@ -96,23 +96,30 @@ public final class DeployablesGenerator {
             files: [DeployableFile(source: path, destination: targetAvitoRunnerPath)])
     }
     
-    func toolForBinary(binaryPath: String, toolName: String) throws -> DeployableTool {
-        let parentDirPath = binaryPath.deletingLastPathComponent
-        let bundleName = parentDirPath.lastPathComponent
-        let url = URL(fileURLWithPath: parentDirPath)
-        let files = try DeployableBundle.filesForBundle(bundleUrl: url)
-            .filter { file -> Bool in
-                // We remove the bundle directory itself: we do deploy tool with some surrounding files,
-                // so we don't deploy its parent folder
-                file.source != url.path
-            }
-            .map { (file: DeployableFile) -> DeployableFile in
-                guard let updatedDestination = file.destination.stringWithPathRelativeTo(anchorPath: bundleName) else {
-                    throw DeploymentError.failedToRelativizePath(file.destination, anchorPath: bundleName)
+    func toolForBinary(location: ResourceLocation, toolName: String) throws -> [DeployableTool] {
+        switch location {
+        case .localFilePath(let binaryPath):
+            let parentDirPath = binaryPath.deletingLastPathComponent
+            let bundleName = parentDirPath.lastPathComponent
+            let url = URL(fileURLWithPath: parentDirPath)
+            let files = try DeployableBundle.filesForBundle(bundleUrl: url)
+                .filter { file -> Bool in
+                    // We remove the bundle directory itself: we do deploy tool with some surrounding files,
+                    // so we don't deploy its parent folder
+                    file.source != url.path
                 }
-                return DeployableFile(source: file.source, destination: updatedDestination)
+                .map { (file: DeployableFile) -> DeployableFile in
+                    guard let updatedDestination = file.destination.stringWithPathRelativeTo(anchorPath: bundleName) else {
+                        throw DeploymentError.failedToRelativizePath(file.destination, anchorPath: bundleName)
+                    }
+                    return DeployableFile(source: file.source, destination: updatedDestination)
             }
-        return DeployableTool(name: toolName, files: Set(files))
+            return [DeployableTool(name: toolName, files: Set(files))]
+        case .void:
+            return []
+        case .remoteUrl:
+            return []
+        }
     }
     
     func simulatorLocalizationSettingsDeployables() throws -> [DeployableItem] {
@@ -138,11 +145,18 @@ public final class DeployablesGenerator {
     }
     
     func pluginDeployables() throws -> [DeployableItem] {
-        return try PluginManager.pathsForPluginBundles(pluginLocations: auxiliaryPaths.plugins).map {
-            let url = URL(fileURLWithPath: $0)
-            let name = PackageName.plugin.rawValue.appending(
-                pathComponent: url.lastPathComponent.deletingPathExtension)
-            return try DeployableBundle(name: name, bundleUrl: url)
+        return try auxiliaryPaths.plugins.flatMap { location -> [DeployableItem] in
+            switch location {
+            case .localFilePath(let path):
+                let url = URL(fileURLWithPath: path)
+                let name = PackageName.plugin.rawValue.appending(
+                    pathComponent: url.lastPathComponent.deletingPathExtension)
+                return [try DeployableBundle(name: name, bundleUrl: url)]
+            case .void:
+                return []
+            case .remoteUrl:
+                return []
+            }
         }
     }
 }

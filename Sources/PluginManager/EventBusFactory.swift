@@ -23,7 +23,7 @@ public final class EventBusFactory {
         let pluginManager = try PluginManager(
             pluginLocations: pluginLocations,
             environment: environment)
-        pluginManager.startPlugins()
+        try pluginManager.startPlugins()
         eventBus.add(stream: pluginManager)
     }
 }

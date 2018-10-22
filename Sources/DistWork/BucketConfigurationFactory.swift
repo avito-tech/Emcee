@@ -102,10 +102,10 @@ final class BucketConfigurationFactory {
         let watchdogSettings = try fileInPackageIfExists(containerPath, .watchdogSettings)
         
         let configuration = SchedulerConfiguration(
-            auxiliaryPaths: try AuxiliaryPathsFactory().createWith(
-                fbxctest: ResourceLocation.from(fbxctest),
-                fbsimctl: ResourceLocation.from(fbsimctl),
-                plugins: ResourceLocation.from(plugins)),
+            auxiliaryPaths: AuxiliaryPaths(
+                fbxctest: ResourceLocation.localFilePath(fbxctest),
+                fbsimctl: ResourceLocation.localFilePath(fbsimctl),
+                plugins: plugins.map { ResourceLocation.localFilePath($0) }),
             testType: .uiTest,
             buildArtifacts: BuildArtifacts(
                 appBundle: app,

@@ -46,7 +46,7 @@ public final class RuntimeTestQuerier {
         
         let runnerConfiguration = RunnerConfiguration(
             testType: .logicTest,
-            auxiliaryPaths: AuxiliaryPaths.withoutValidatingValues(fbxctest: configuration.fbxctest, fbsimctl: "", plugins: []),
+            auxiliaryPaths: AuxiliaryPaths(fbxctest: configuration.fbxctest, fbsimctl: .void, plugins: []),
             buildArtifacts: BuildArtifacts.onlyWithXctestBundle(xcTestBundle: configuration.xcTestBundle),
             testExecutionBehavior: configuration.testExecutionBehavior.withEnvironmentOverrides(
                 ["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH": runtimeEntriesJSONPath]),
@@ -57,7 +57,7 @@ public final class RuntimeTestQuerier {
                 videoOutputPath: nil,
                 oslogOutputPath: nil,
                 testLogOutputPath: nil))
-        _ = Runner(eventBus: eventBus, configuration: runnerConfiguration, tempFolder: try TempFolder())
+        _ = try Runner(eventBus: eventBus, configuration: runnerConfiguration, tempFolder: try TempFolder())
             .runOnce(
                 entriesToRun: [testQueryEntry],
                 onSimulator: Shimulator.shimulator(testDestination: configuration.testDestination))

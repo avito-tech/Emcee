@@ -5,14 +5,14 @@ import ProcessController
 import XCTest
 
 final class ProcessControllerTests: XCTestCase {
-    func testStartingSimpleSubprocess() {
-        let controller = ProcessController(subprocess: Subprocess(arguments: ["/usr/bin/env"]))
+    func testStartingSimpleSubprocess() throws {
+        let controller = try ProcessController(subprocess: Subprocess(arguments: ["/usr/bin/env"]))
         controller.startAndListenUntilProcessDies()
         XCTAssertEqual(controller.terminationStatus(), 0)
     }
     
-    func testSilence() {
-        let controller = ProcessController(
+    func testSilence() throws {
+        let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: ["/bin/sleep", "1"],
                 maximumAllowedSilenceDuration: 0.01))
@@ -23,8 +23,8 @@ final class ProcessControllerTests: XCTestCase {
         XCTAssertEqual(delegate.noActivityDetected, true)
     }
     
-    func testWhenSubprocessFinishesSilenceIsNotReported() {
-        let controller = ProcessController(
+    func testWhenSubprocessFinishesSilenceIsNotReported() throws {
+        let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: ["/bin/sleep"],
                 maximumAllowedSilenceDuration: 1.0))
@@ -38,7 +38,7 @@ final class ProcessControllerTests: XCTestCase {
     func testGettingStdout() throws {
         let tempFile = try TemporaryFile()
         
-        let controller = ProcessController(
+        let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: ["/bin/ls", "/"],
                 stdoutContentsFile: tempFile.path.asString))
@@ -56,7 +56,7 @@ final class ProcessControllerTests: XCTestCase {
         let tempFile = try TemporaryFile()
         
         let argument = "/\(UUID().uuidString)"
-        let controller = ProcessController(
+        let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: ["/bin/ls", argument],
                 stderrContentsFile: tempFile.path.asString))
@@ -77,7 +77,7 @@ final class ProcessControllerTests: XCTestCase {
         let stderrFile = try TemporaryFile()
         
         let argument = "/\(UUID().uuidString)"
-        let controller = ProcessController(
+        let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: ["/bin/ls", "/", argument],
                 stdoutContentsFile: stdoutFile.path.asString,
@@ -110,7 +110,7 @@ final class ProcessControllerTests: XCTestCase {
         swiftTestCode = swiftTestCode.replacingOccurrences(of: "//uncomment_from_tests", with: "")
         streamingSwiftTempFile.fileHandle.write(swiftTestCode)
         
-        let controller = ProcessController(
+        let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: ["/usr/bin/swift", streamingSwiftTempFile.path.asString],
                 maximumAllowedSilenceDuration: 10,

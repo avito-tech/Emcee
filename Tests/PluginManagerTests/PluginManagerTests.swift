@@ -88,7 +88,7 @@ final class PluginManagerTests: XCTestCase {
         let manager = try PluginManager(
             pluginLocations: [.from(pluginBundlePath.asString)],
             environment: ["AVITO_TEST_PLUGIN_OUTPUT": outputPath.path.asString])
-        manager.startPlugins()
+        try manager.startPlugins()
         
         let eventBus = EventBus()
         eventBus.add(stream: manager)
