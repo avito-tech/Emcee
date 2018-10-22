@@ -17,27 +17,18 @@ class DeployablesGeneratorTests: XCTestCase {
         additionalApplicationBundles: [String(#file)])
     var tempFolder: TempFolder!
     
-    func AXCTAssertNoThrow<T>(
-        _ expression: @autoclosure () throws -> T,
-        _ message: @autoclosure () -> String = "Unexpected throw call",
-        file: StaticString = #file,
-        line: UInt = #line) -> T
-    {
-        var result: T! = nil
-        XCTAssertNoThrow(result = try expression(), message, file: file, line: line)
-        return result
-    }
-    
     override func setUp() {
         super.setUp()
         self.continueAfterFailure = false
         XCTAssertNoThrow(tempFolder = try TempFolder())
+        var pluginPath: String!
+        XCTAssertNoThrow(pluginPath = try self.pathToPlugin())
         let generator = DeployablesGenerator(
             targetAvitoRunnerPath: "AvitoRunner",
             auxiliaryPaths: AuxiliaryPaths.withoutValidatingValues(
                 fbxctest: String(#file),
                 fbsimctl: String(#file),
-                plugins: [ResourceLocation.localFilePath(AXCTAssertNoThrow(try self.pathToPlugin()))]),
+                plugins: [ResourceLocation.localFilePath(pluginPath)]),
             buildArtifacts: defaultBuildArtifacts,
             environmentFilePath: String(#file),
             targetEnvironmentPath: "env.json",
@@ -139,8 +130,8 @@ class DeployablesGeneratorTests: XCTestCase {
         
         let files = deployables[0].files
         let expectedFiles = Set([
-            DeployableFile(source: tempFolder.path.appending(component: "TestPlugin.emceeplugin").asString, destination: "TestPlugin.emceeplugin"),
-            DeployableFile(source: tempFolder.path.appending(components: "TestPlugin.emceeplugin", "Plugin").asString, destination: "TestPlugin.emceeplugin/Plugin")
+            DeployableFile(source: tempFolder.pathWith(components: ["TestPlugin.emceeplugin"]).asString, destination: "TestPlugin.emceeplugin"),
+            DeployableFile(source: tempFolder.pathWith(components: ["TestPlugin.emceeplugin", "Plugin"]).asString, destination: "TestPlugin.emceeplugin/Plugin")
             ])
         XCTAssertEqual(files, expectedFiles)
     }
