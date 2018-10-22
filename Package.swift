@@ -44,7 +44,6 @@ let package = Package(
                 "EventBus",
                 "JunitReporting",
                 "LaunchdUtils",
-                "ModelFactories",
                 "Models",
                 "PluginManager",
                 "ProcessController",
@@ -104,7 +103,6 @@ let package = Package(
             dependencies: [
                 "Deployer",
                 "DistRun",
-                "ModelFactories",
                 "TempFolder"
             ]),
         
@@ -114,7 +112,6 @@ let package = Package(
                 "EventBus",
                 "Extensions",
                 "Logging",
-                "ModelFactories",
                 "Models",
                 "PluginManager",
                 "RESTMethods",
@@ -238,15 +235,6 @@ let package = Package(
             ]),
         
         .target(
-            name: "ModelFactories",
-            dependencies: [
-                "Extensions",
-                "FileCache",
-                "Models",
-                "URLResource"
-            ]),
-        
-        .target(
             name: "Models",
             dependencies: []),
         
@@ -266,7 +254,7 @@ let package = Package(
             dependencies: [
                 "EventBus",
                 "Logging",
-                "ModelFactories",
+                "ResourceLocationResolver",
                 "Models",
                 "ProcessController",
                 "Scheduler",
@@ -284,7 +272,7 @@ let package = Package(
             dependencies: [
                 "Extensions",
                 "Logging",
-                "ModelFactories",
+                "ResourceLocationResolver",
                 "Utility"
             ]),
         .testTarget(
@@ -293,6 +281,15 @@ let package = Package(
                 "Extensions",
                 "ProcessController",
                 "Utility"
+            ]),
+        
+        .target(
+            name: "ResourceLocationResolver",
+            dependencies: [
+                "Extensions",
+                "FileCache",
+                "Models",
+                "URLResource"
             ]),
         
         .target(

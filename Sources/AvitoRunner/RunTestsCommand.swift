@@ -5,7 +5,6 @@ import Extensions
 import Foundation
 import JunitReporting
 import Logging
-import ModelFactories
 import Models
 import PluginManager
 import Runner

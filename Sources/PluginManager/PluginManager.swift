@@ -3,9 +3,9 @@ import EventBus
 import Extensions
 import Foundation
 import Logging
-import ModelFactories
 import Models
 import ProcessController
+import ResourceLocationResolver
 import SynchronousWaiter
 
 public final class PluginManager: EventStream {

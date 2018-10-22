@@ -1,7 +1,7 @@
 import Basic
 import Foundation
 import Models
-import ModelFactories
+import ResourceLocationResolver
 
 public protocol SubprocessArgument {
     func stringValue() throws -> String
