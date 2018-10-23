@@ -5,6 +5,7 @@ import Foundation
 import Models
 import TempFolder
 import TestingFakeFbxctest
+import ResourceLocationResolver
 import Runner
 import ScheduleStrategy
 import SimulatorPool
@@ -118,7 +119,7 @@ public final class RunnerTests: XCTestCase {
         }
         let configuration = RunnerConfiguration(
             testType: .logicTest,
-            fbxctest: .localFilePath(fbxctest),
+            fbxctest: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(fbxctest), resolver: ResourceLocationResolver()),
             buildArtifacts: BuildArtifacts(
                 appBundle: "",
                 runner: "",

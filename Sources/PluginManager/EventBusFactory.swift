@@ -6,7 +6,7 @@ public final class EventBusFactory {
     private init() {}
     
     public static func createEventBusWithAttachedPluginManager(
-        pluginLocations: [ResourceLocation],
+        pluginLocations: [ResolvableResourceLocation],
         environment: [String : String]
         ) throws -> EventBus
     {
@@ -17,7 +17,7 @@ public final class EventBusFactory {
     
     private static func startPluginManager(
         eventBus: EventBus,
-        pluginLocations: [ResourceLocation],
+        pluginLocations: [ResolvableResourceLocation],
         environment: [String : String]) throws
     {
         let pluginManager = try PluginManager(

@@ -6,7 +6,6 @@ import Models
 import URLResource
 
 public final class ResourceLocationResolver {
-    private let fileCache: FileCache
     private let urlResource: URLResource
     
     public enum ValidationError: String, Error, CustomStringConvertible {
@@ -16,18 +15,6 @@ public final class ResourceLocationResolver {
             return self.rawValue
         }
     }
-    
-    /// A result of materializing `ResourceLocation` object.
-    public enum Result {
-        /// A given `ResourceLocation` object is pointing to the local file on disk
-        case directlyAccessibleFile(path: String)
-        
-        /// A given `ResourceLocation` object is pointing to archive that has been fetched and extracted.
-        /// If URL had a fragment, then `filenameInArchive` will be non-nil.
-        case contentsOfArchive(containerPath: String, filenameInArchive: String?)
-    }
-    
-    public static let sharedResolver = ResourceLocationResolver(cachesUrl: cachesUrl())
     
     private static func cachesUrl() -> URL {
         let cacheContainer: URL
@@ -40,19 +27,24 @@ public final class ResourceLocationResolver {
         return cacheContainer.appendingPathComponent("ru.avito.Runner.cache", isDirectory: true)
     }
     
-    private init(cachesUrl: URL) {
-        self.fileCache = FileCache(cachesUrl: cachesUrl)
-        self.urlResource = URLResource(fileCache: fileCache, urlSession: URLSession.shared)
+    public convenience init() {
+        let fileCache = FileCache(cachesUrl: ResourceLocationResolver.cachesUrl())
+        let urlResource = URLResource(fileCache: fileCache, urlSession: URLSession.shared)
+        self.init(urlResource: urlResource)
     }
     
-    public func resolvePath(resourceLocation: ResourceLocation) throws -> Result {
+    public init(urlResource: URLResource) {
+        self.urlResource = urlResource
+    }
+    
+    public func resolvePath(resourceLocation: ResourceLocation) throws -> ResolvingResult {
         switch resourceLocation {
         case .localFilePath(let path):
-            return Result.directlyAccessibleFile(path: path)
+            return .directlyAccessibleFile(path: path)
         case .remoteUrl(let url):
             let path = try cachedContentsOfUrl(url).path
             let filenameInArchive = url.fragment
-            return Result.contentsOfArchive(containerPath: path, filenameInArchive: filenameInArchive)
+            return .contentsOfArchive(containerPath: path, filenameInArchive: filenameInArchive)
         }
     }
     

@@ -9,10 +9,10 @@ public final class OnDemandSimulatorPool<T> where T: SimulatorController {
     public struct Key: Hashable, CustomStringConvertible {
         public let numberOfSimulators: UInt
         public let testDestination: TestDestination
-        public let fbsimctl: ResourceLocation
+        public let fbsimctl: ResolvableResourceLocation
         public let tempFolder: TempFolder
         
-        public init(numberOfSimulators: UInt, testDestination: TestDestination, fbsimctl: ResourceLocation, tempFolder: TempFolder) {
+        public init(numberOfSimulators: UInt, testDestination: TestDestination, fbsimctl: ResolvableResourceLocation, tempFolder: TempFolder) {
             self.numberOfSimulators = numberOfSimulators
             self.testDestination = testDestination
             self.fbsimctl = fbsimctl
@@ -21,6 +21,16 @@ public final class OnDemandSimulatorPool<T> where T: SimulatorController {
         
         public var description: String {
             return "<\(type(of: self)): \(numberOfSimulators) simulators, destination: \(testDestination)>"
+        }
+        
+        public var hashValue: Int {
+            return testDestination.hashValue ^ fbsimctl.resourceLocation.hashValue ^ numberOfSimulators.hashValue
+        }
+        
+        public static func == (left: OnDemandSimulatorPool<T>.Key, right: OnDemandSimulatorPool<T>.Key) -> Bool {
+            return left.testDestination == right.testDestination
+                && left.fbsimctl.resourceLocation == right.fbsimctl.resourceLocation
+                && left.numberOfSimulators == right.numberOfSimulators
         }
     }
     

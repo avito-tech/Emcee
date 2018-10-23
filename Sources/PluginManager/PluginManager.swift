@@ -17,7 +17,7 @@ public final class PluginManager: EventStream {
     private let pluginBundles: [AbsolutePath]
     
     public init(
-        pluginLocations: [ResourceLocation],
+        pluginLocations: [ResolvableResourceLocation],
         environment: [String: String] = ProcessInfo.processInfo.environment)
         throws
     {
@@ -26,11 +26,10 @@ public final class PluginManager: EventStream {
         self.environment = environment
     }
     
-    private static func pathsToPluginBundles(pluginLocations: [ResourceLocation]) throws -> [AbsolutePath] {
-        let resolver = ResourceLocationResolver.sharedResolver
+    private static func pathsToPluginBundles(pluginLocations: [ResolvableResourceLocation]) throws -> [AbsolutePath] {
         var paths = [AbsolutePath]()
         for location in pluginLocations {
-            let resolvedPath = try resolver.resolvePath(resourceLocation: location)
+            let resolvedPath = try location.resolve()
             
             let validatePathToPluginBundle: (String) throws -> () = { path in
                 guard path.lastPathComponent.pathExtension == PluginManager.pluginBundleExtension else {

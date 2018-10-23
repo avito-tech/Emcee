@@ -4,6 +4,7 @@ import Logging
 import Models
 import fbxctest
 import ProcessController
+import ResourceLocationResolver
 
 /**
  * Prepares and returns the simulator it owns. API is expected to be used from non multithreaded environment,
@@ -11,13 +12,13 @@ import ProcessController
  */
 public final class DefaultSimulatorController: SimulatorController, ProcessControllerDelegate, CustomStringConvertible {
     private let simulator: Simulator
-    private let fbsimctl: ResourceLocation
+    private let fbsimctl: ResolvableResourceLocation
     private let maximumBootAttempts = 2
     private var stage: Stage = .idle
     private var simulatorKeepAliveProcessController: ProcessController?
     private static let bootQueue = DispatchQueue(label: "SimulatorBootQueue")
     
-    public init(simulator: Simulator, fbsimctl: ResourceLocation) {
+    public init(simulator: Simulator, fbsimctl: ResolvableResourceLocation) {
         self.simulator = simulator
         self.fbsimctl = fbsimctl
     }

@@ -7,6 +7,7 @@ import JunitReporting
 import Logging
 import Models
 import PluginManager
+import ResourceLocationResolver
 import Runner
 import RuntimeDump
 import ScheduleStrategy
@@ -48,6 +49,8 @@ final class RunTestsCommand: Command {
     private let videoPath: OptionArgument<String>
     private let watchdogSettings: OptionArgument<String>
     private let xctestBundle: OptionArgument<String>
+    
+    private let resourceLocationResolver = ResourceLocationResolver()
     
     required init(parser: ArgumentParser) {
         let subparser = parser.add(subparser: command, overview: overview)
@@ -130,9 +133,9 @@ final class RunTestsCommand: Command {
                 environment: environmentValues,
                 scheduleStrategy: scheduleStrategy),
             auxiliaryResources: AuxiliaryResources(
-                fbxctest: fbxctest,
-                fbsimctl: fbsimctl,
-                plugins: plugins),
+                fbxctest: ResolvableResourceLocationImpl(resourceLocation: fbxctest, resolver: resourceLocationResolver),
+                fbsimctl: ResolvableResourceLocationImpl(resourceLocation: fbsimctl, resolver: resourceLocationResolver),
+                plugins: plugins.map { ResolvableResourceLocationImpl(resourceLocation: $0, resolver: resourceLocationResolver) }),
             buildArtifacts: BuildArtifacts(
                 appBundle: app,
                 runner: runner,

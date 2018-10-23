@@ -8,12 +8,14 @@ import Scheduler
 import SimulatorPool
 import SynchronousWaiter
 import TempFolder
+import ResourceLocationResolver
 
 public final class DistWorker {
     private let queueClient: SynchronousQueueClient
     private var onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>()
     private let syncQueue = DispatchQueue(label: "ru.avito.DistWorker")
     private var requestIdForBucketId = [String: String]()  // bucketId -> requestId
+    private let resourceLocationResolver = ResourceLocationResolver()
     
     public init(queueServerAddress: String, queueServerPort: Int, workerId: String) {
         queueClient = SynchronousQueueClient(
@@ -33,7 +35,7 @@ public final class DistWorker {
     // MARK: - Private Stuff
     
     private func runTests(workerConfiguration: WorkerConfiguration) throws -> [TestingResult] {
-        let factory = BucketConfigurationFactory()
+        let factory = BucketConfigurationFactory(resourceLocationResolver: resourceLocationResolver)
         let configuration = try factory.createConfiguration(
             workerConfiguration: workerConfiguration,
             schedulerDataSource: DistRunSchedulerDataSource(onNextBucketRequest: fetchNextBucket),

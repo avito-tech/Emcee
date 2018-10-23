@@ -6,6 +6,7 @@ import Foundation
 import JunitReporting
 import Logging
 import Models
+import ResourceLocationResolver
 import RuntimeDump
 import Scheduler
 import ScheduleStrategy
@@ -19,6 +20,7 @@ final class DumpRuntimeTestsCommand: Command {
     private let output: OptionArgument<String>
     private let testDestinations: OptionArgument<String>
     private let xctestBundle: OptionArgument<String>
+    private let resourceLocationResolver = ResourceLocationResolver()
     
     private let encoder: JSONEncoder = {
         let encoder = JSONEncoder()
@@ -41,7 +43,7 @@ final class DumpRuntimeTestsCommand: Command {
         let xctestBundle = try ArgumentsReader.validateFileExists(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle)
                 
         let configuration = RuntimeDumpConfiguration(
-            fbxctest: fbxctest,
+            fbxctest: ResolvableResourceLocationImpl(resourceLocation: fbxctest, resolver: resourceLocationResolver),
             xcTestBundle: xctestBundle,
             simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: "", watchdogSettings: ""),
             testDestination: testDestinations[0].testDestination,

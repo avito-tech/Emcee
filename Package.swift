@@ -47,6 +47,7 @@ let package = Package(
                 "Models",
                 "PluginManager",
                 "ProcessController",
+                "ResourceLocationResolver",
                 "SSHDeployer",
                 "ScheduleStrategy",
                 "Scheduler"
@@ -103,6 +104,7 @@ let package = Package(
             dependencies: [
                 "Deployer",
                 "DistRun",
+                "ResourceLocationResolver",
                 "TempFolder"
             ]),
         
@@ -114,6 +116,7 @@ let package = Package(
                 "Logging",
                 "Models",
                 "PluginManager",
+                "ResourceLocationResolver",
                 "RESTMethods",
                 "Scheduler",
                 "SimulatorPool",
@@ -264,6 +267,7 @@ let package = Package(
             name: "PluginManagerTests",
             dependencies: [
                 "PluginManager",
+                "ResourceLocationResolver",
                 "Utility"
             ]),
         
@@ -313,6 +317,7 @@ let package = Package(
             dependencies: [
                 "Extensions",
                 "Models",
+                "ResourceLocationResolver",
                 "Runner",
                 "ScheduleStrategy",
                 "SimulatorPool",
@@ -370,6 +375,7 @@ let package = Package(
             name: "SimulatorPoolTests",
             dependencies: [
                 "Models",
+                "ResourceLocationResolver",
                 "SimulatorPool",
                 "SynchronousWaiter",
                 "TempFolder"

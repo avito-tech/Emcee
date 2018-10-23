@@ -3,17 +3,20 @@ import Foundation
 import Models
 import ResourceLocationResolver
 
-private class ResourceLocationArg: SubprocessArgument, CustomStringConvertible {
-    private let resourceLocation: ResourceLocation
+private class ResolvableResourceLocationArg: SubprocessArgument, CustomStringConvertible {
+    private let resolvableResourceLocation: ResolvableResourceLocation
     private let packageName: PackageName
 
-    public init(resourceLocation: ResourceLocation, packageName: PackageName) {
-        self.resourceLocation = resourceLocation
+    public init(
+        resolvableResourceLocation: ResolvableResourceLocation,
+        packageName: PackageName)
+    {
+        self.resolvableResourceLocation = resolvableResourceLocation
         self.packageName = packageName
     }
     
     public func stringValue() throws -> String {
-        let result = try ResourceLocationResolver.sharedResolver.resolvePath(resourceLocation: resourceLocation)
+        let result = try resolvableResourceLocation.resolve()
         switch result {
         case .directlyAccessibleFile(let path):
             return path
@@ -30,13 +33,13 @@ private class ResourceLocationArg: SubprocessArgument, CustomStringConvertible {
         do {
             return try stringValue()
         } catch {
-            return "Error resolving resource location \(resourceLocation): \(error)"
+            return "Error resolving resource location \(resolvableResourceLocation): \(error)"
         }
     }
 }
 
-public extension ResourceLocation {
+public extension ResolvableResourceLocation {
     public func asArgumentWith(packageName: PackageName) -> SubprocessArgument {
-        return ResourceLocationArg(resourceLocation: self, packageName: packageName)
+        return ResolvableResourceLocationArg(resolvableResourceLocation: self, packageName: packageName)
     }
 }

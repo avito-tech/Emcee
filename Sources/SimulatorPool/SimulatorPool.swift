@@ -5,6 +5,7 @@ import Extensions
 import Logging
 import Models
 import TempFolder
+import ResourceLocationResolver
 
 /**
  * Every 'borrow' must have a corresponding 'free' call, otherwise the next borrow will throw an error.
@@ -27,7 +28,7 @@ public final class SimulatorPool<T>: CustomStringConvertible where T: SimulatorC
     public init(
         numberOfSimulators: UInt,
         testDestination: TestDestination,
-        fbsimctl: ResourceLocation,
+        fbsimctl: ResolvableResourceLocation,
         tempFolder: TempFolder,
         automaticCleanupTiumeout: TimeInterval = 10) throws
     {
@@ -82,7 +83,7 @@ public final class SimulatorPool<T>: CustomStringConvertible where T: SimulatorC
     private static func createControllers(
         count: UInt,
         testDestination: TestDestination,
-        fbsimctl: ResourceLocation,
+        fbsimctl: ResolvableResourceLocation,
         tempFolder: TempFolder) throws -> OrderedSet<T>
     {
         var result = OrderedSet<T>()

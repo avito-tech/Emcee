@@ -3,6 +3,7 @@ import Extensions
 import Deployer
 @testable import DistRun
 import Models
+import ResourceLocationResolver
 import TempFolder
 import XCTest
 
@@ -25,9 +26,9 @@ class DeployablesGeneratorTests: XCTestCase {
         let generator = DeployablesGenerator(
             targetAvitoRunnerPath: "AvitoRunner",
             auxiliaryResources: AuxiliaryResources(
-                fbxctest: .localFilePath(String(#file)),
-                fbsimctl: .localFilePath(String(#file)),
-                plugins: [.localFilePath(pluginPath)]),
+                fbxctest: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(#file), resolver: ResourceLocationResolver()),
+                fbsimctl: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(#file), resolver: ResourceLocationResolver()),
+                plugins: [ResolvableResourceLocationImpl(resourceLocation: .localFilePath(pluginPath), resolver: ResourceLocationResolver())]),
             buildArtifacts: defaultBuildArtifacts,
             environmentFilePath: String(#file),
             targetEnvironmentPath: "env.json",
@@ -139,8 +140,8 @@ class DeployablesGeneratorTests: XCTestCase {
         let generator = DeployablesGenerator(
             targetAvitoRunnerPath: "AvitoRunner",
             auxiliaryResources: AuxiliaryResources(
-                fbxctest: ResourceLocation.localFilePath(String(#file)),
-                fbsimctl: ResourceLocation.localFilePath(String(#file)),
+                fbxctest: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(#file), resolver: ResourceLocationResolver()),
+                fbsimctl: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(#file), resolver: ResourceLocationResolver()),
                 plugins: []),
             buildArtifacts: defaultBuildArtifacts,
             environmentFilePath: String(#file),

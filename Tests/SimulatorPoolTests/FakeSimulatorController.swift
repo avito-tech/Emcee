@@ -5,11 +5,11 @@ import SimulatorPool
 final class FakeSimulatorController: SimulatorController {
     
     let simulator: Simulator
-    let fbsimctl: ResourceLocation
+    let fbsimctl: ResolvableResourceLocation
     
     var didCallDelete = false
     
-    init(simulator: Simulator, fbsimctl: ResourceLocation) {
+    init(simulator: Simulator, fbsimctl: ResolvableResourceLocation) {
         self.simulator = simulator
         self.fbsimctl = fbsimctl
     }

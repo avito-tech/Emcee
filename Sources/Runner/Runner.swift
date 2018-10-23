@@ -7,6 +7,7 @@ import Logging
 import HostDeterminer
 import ProcessController
 import TempFolder
+import ResourceLocationResolver
 
 /// This class runs the given tests on a single simulator.
 public final class Runner {
@@ -14,7 +15,11 @@ public final class Runner {
     private let configuration: RunnerConfiguration
     private let tempFolder: TempFolder
     
-    public init(eventBus: EventBus, configuration: RunnerConfiguration, tempFolder: TempFolder) {
+    public init(
+        eventBus: EventBus,
+        configuration: RunnerConfiguration,
+        tempFolder: TempFolder)
+    {
         self.eventBus = eventBus
         self.configuration = configuration
         self.tempFolder = tempFolder

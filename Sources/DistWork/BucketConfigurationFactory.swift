@@ -8,13 +8,17 @@ import Runner
 import Scheduler
 import SimulatorPool
 import TempFolder
+import ResourceLocationResolver
 
 /**
  * This class takes a bucket, a worker configuration and walks the surroundings in order to create a configuration
  * suitable for running tests locally on worker's behalf.
  */
 final class BucketConfigurationFactory {
-    init() {}
+    private let resourceLocationResolver: ResourceLocationResolver
+    init(resourceLocationResolver: ResourceLocationResolver) {
+        self.resourceLocationResolver = resourceLocationResolver
+    }
     
     private var containerPath: String {
         /*
@@ -85,8 +89,8 @@ final class BucketConfigurationFactory {
         let watchdogSettings = try fileInPackageIfExists(containerPath, .watchdogSettings)
         
         let configuration = SchedulerConfiguration(
-            fbsimctl: ResourceLocation.localFilePath(fbsimctl),
-            fbxctest: ResourceLocation.localFilePath(fbxctest),
+            fbsimctl: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(fbsimctl), resolver: resourceLocationResolver),
+            fbxctest: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(fbxctest), resolver: resourceLocationResolver),
             testType: .uiTest,
             buildArtifacts: BuildArtifacts(
                 appBundle: app,
@@ -104,7 +108,7 @@ final class BucketConfigurationFactory {
         return configuration
     }
     
-    public var pluginLocations: [ResourceLocation] {
+    public var pluginLocations: [ResolvableResourceLocation] {
         let plugins = FileManager.default.findFiles(
             path: packagePath(containerPath, .plugin),
             defaultValue: [])
@@ -119,7 +123,9 @@ final class BucketConfigurationFactory {
                 log("Plugin candidate at \(path) exists: \(result), isDir: \(isDir)")
                 return result && isDir.boolValue == true
         }
-        return plugins.map { ResourceLocation.localFilePath($0) }
+        return plugins.map {
+            ResolvableResourceLocationImpl(resourceLocation: .localFilePath($0), resolver: resourceLocationResolver)
+        }
     }
     
     private func packagePath(_ containerPath: String, _ package: PackageName) -> String {

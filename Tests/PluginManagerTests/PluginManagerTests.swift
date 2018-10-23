@@ -2,6 +2,7 @@ import Basic
 import EventBus
 import Models
 import PluginManager
+import ResourceLocationResolver
 import XCTest
 
 final class PluginManagerTests: XCTestCase {
@@ -32,7 +33,11 @@ final class PluginManagerTests: XCTestCase {
             atPath: testingPluginExecutablePath,
             toPath: executablePath.asString)
         
-        XCTAssertNoThrow(_ = try PluginManager(pluginLocations: [.from(pluginBundlePath.asString)]))
+        
+        XCTAssertNoThrow(_ = try PluginManager(
+            pluginLocations: [
+                ResolvableResourceLocationImpl(resourceLocation: .localFilePath(pluginBundlePath.asString), resolver: ResourceLocationResolver())
+            ]))
     }
     
     func testStartingPluginWithinBundleButWithWrongExecutableNameFails() throws {
@@ -46,7 +51,10 @@ final class PluginManagerTests: XCTestCase {
         try FileManager.default.copyItem(
             atPath: testingPluginExecutablePath,
             toPath: executablePath.asString)
-        XCTAssertThrowsError(_ = try PluginManager(pluginLocations: [.from(pluginBundlePath.asString)]))
+        XCTAssertThrowsError(_ = try PluginManager(
+            pluginLocations: [
+                ResolvableResourceLocationImpl(resourceLocation: .localFilePath(pluginBundlePath.asString), resolver: ResourceLocationResolver())
+            ]))
     }
     
     func testStartingPluginWithoutBundleFails() throws {
@@ -54,7 +62,10 @@ final class PluginManagerTests: XCTestCase {
         try FileManager.default.copyItem(
             atPath: testingPluginExecutablePath,
             toPath: executablePath)
-        XCTAssertThrowsError(_ = try PluginManager(pluginLocations: [.from(executablePath)]))
+        XCTAssertThrowsError(_ = try PluginManager(
+            pluginLocations: [
+                ResolvableResourceLocationImpl(resourceLocation: .localFilePath(executablePath), resolver: ResourceLocationResolver())
+            ]))
     }
     
     func testExecutingPlugins() throws {
@@ -86,7 +97,9 @@ final class PluginManagerTests: XCTestCase {
             unfilteredTestRuns: [])
         
         let manager = try PluginManager(
-            pluginLocations: [.from(pluginBundlePath.asString)],
+            pluginLocations: [
+                ResolvableResourceLocationImpl(resourceLocation: .localFilePath(pluginBundlePath.asString), resolver: ResourceLocationResolver())
+            ],
             environment: ["AVITO_TEST_PLUGIN_OUTPUT": outputPath.path.asString])
         try manager.startPlugins()
         

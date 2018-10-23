@@ -5,8 +5,8 @@ import Runner
 import SimulatorPool
 
 public class SchedulerConfiguration {
-    public let fbsimctl: ResourceLocation
-    public let fbxctest: ResourceLocation
+    public let fbsimctl: ResolvableResourceLocation
+    public let fbxctest: ResolvableResourceLocation
     public let testType: TestType
     public let buildArtifacts: BuildArtifacts
     public let testExecutionBehavior: TestExecutionBehavior
@@ -28,8 +28,8 @@ public class SchedulerConfiguration {
     }
 
     public init(
-        fbsimctl: ResourceLocation,
-        fbxctest: ResourceLocation,
+        fbsimctl: ResolvableResourceLocation,
+        fbxctest: ResolvableResourceLocation,
         testType: TestType,
         buildArtifacts: BuildArtifacts,
         testExecutionBehavior: TestExecutionBehavior,
