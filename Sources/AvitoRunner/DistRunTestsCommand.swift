@@ -126,7 +126,7 @@ final class DistRunTestsCommand: Command {
                 numberOfSimulators: numberOfSimulators,
                 environment: environmentValues,
                 scheduleStrategy: scheduleStrategy),
-            auxiliaryPaths: AuxiliaryPaths(
+            auxiliaryResources: AuxiliaryResources(
                 fbxctest: fbxctest,
                 fbsimctl: fbsimctl,
                 plugins: plugins),
@@ -146,7 +146,7 @@ final class DistRunTestsCommand: Command {
     func run(distRunConfiguration: DistRunConfiguration) throws {
         log("Using dist run configuration: \(distRunConfiguration)", color: .blue)
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
-            pluginLocations: distRunConfiguration.auxiliaryPaths.plugins,
+            pluginLocations: distRunConfiguration.auxiliaryResources.plugins,
             environment: distRunConfiguration.testExecutionBehavior.environment)
         let distRunner = try DistRunner(eventBus: eventBus, distRunConfiguration: distRunConfiguration)
         let testingResults = try distRunner.run()

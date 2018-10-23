@@ -101,7 +101,7 @@ final class BucketConfigurationFactory {
         let watchdogSettings = try fileInPackageIfExists(containerPath, .watchdogSettings)
         
         let configuration = SchedulerConfiguration(
-            auxiliaryPaths: AuxiliaryPaths(
+            auxiliaryResources: AuxiliaryResources(
                 fbxctest: ResourceLocation.localFilePath(fbxctest),
                 fbsimctl: ResourceLocation.localFilePath(fbsimctl),
                 plugins: plugins.map { ResourceLocation.localFilePath($0) }),

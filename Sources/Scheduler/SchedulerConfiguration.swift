@@ -5,7 +5,7 @@ import Runner
 import SimulatorPool
 
 public class SchedulerConfiguration {
-    public let auxiliaryPaths: AuxiliaryPaths
+    public let auxiliaryResources: AuxiliaryResources
     public let testType: TestType
     public let buildArtifacts: BuildArtifacts
     public let testExecutionBehavior: TestExecutionBehavior
@@ -18,7 +18,7 @@ public class SchedulerConfiguration {
     public var runnerConfiguration: RunnerConfiguration {
         return RunnerConfiguration(
             testType: testType,
-            auxiliaryPaths: auxiliaryPaths,
+            auxiliaryResources: auxiliaryResources,
             buildArtifacts: buildArtifacts,
             testExecutionBehavior: testExecutionBehavior,
             simulatorSettings: simulatorSettings,
@@ -27,7 +27,7 @@ public class SchedulerConfiguration {
     }
 
     public init(
-        auxiliaryPaths: AuxiliaryPaths,
+        auxiliaryResources: AuxiliaryResources,
         testType: TestType,
         buildArtifacts: BuildArtifacts,
         testExecutionBehavior: TestExecutionBehavior,
@@ -37,7 +37,7 @@ public class SchedulerConfiguration {
         schedulerDataSource: SchedulerDataSource,
         onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>)
     {
-        self.auxiliaryPaths = auxiliaryPaths
+        self.auxiliaryResources = auxiliaryResources
         self.testType = testType
         self.buildArtifacts = buildArtifacts
         self.testExecutionBehavior = testExecutionBehavior

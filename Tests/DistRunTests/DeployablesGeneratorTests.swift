@@ -24,7 +24,7 @@ class DeployablesGeneratorTests: XCTestCase {
         XCTAssertNoThrow(pluginPath = try self.pathToPlugin())
         let generator = DeployablesGenerator(
             targetAvitoRunnerPath: "AvitoRunner",
-            auxiliaryPaths: AuxiliaryPaths(
+            auxiliaryResources: AuxiliaryResources(
                 fbxctest: .localFilePath(String(#file)),
                 fbsimctl: .localFilePath(String(#file)),
                 plugins: [.localFilePath(pluginPath)]),
@@ -138,7 +138,7 @@ class DeployablesGeneratorTests: XCTestCase {
     func testOptionalWatchdogAndSimulatorLocalizationSettongs() throws {
         let generator = DeployablesGenerator(
             targetAvitoRunnerPath: "AvitoRunner",
-            auxiliaryPaths: AuxiliaryPaths(
+            auxiliaryResources: AuxiliaryResources(
                 fbxctest: ResourceLocation.localFilePath(String(#file)),
                 fbsimctl: ResourceLocation.localFilePath(String(#file)),
                 plugins: []),

@@ -75,7 +75,7 @@ public final class DistRunner {
         
         let generator = DeployablesGenerator(
             targetAvitoRunnerPath: avitoRunnerTargetPath,
-            auxiliaryPaths: distRunConfiguration.auxiliaryPaths,
+            auxiliaryResources: distRunConfiguration.auxiliaryResources,
             buildArtifacts: distRunConfiguration.buildArtifacts,
             environmentFilePath: environmentFilePath.asString,
             targetEnvironmentPath: try PackageName.targetFileName(.environment),

@@ -129,7 +129,7 @@ final class RunTestsCommand: Command {
                 numberOfSimulators: numberOfSimulators,
                 environment: environmentValues,
                 scheduleStrategy: scheduleStrategy),
-            auxiliaryPaths: AuxiliaryPaths(
+            auxiliaryResources: AuxiliaryResources(
                 fbxctest: fbxctest,
                 fbsimctl: fbsimctl,
                 plugins: plugins),
@@ -158,10 +158,10 @@ final class RunTestsCommand: Command {
         defer { onDemandSimulatorPool.deleteSimulators() }
         
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
-            pluginLocations: configuration.auxiliaryPaths.plugins,
+            pluginLocations: configuration.auxiliaryResources.plugins,
             environment: configuration.testExecutionBehavior.environment)
         let schedulerConfiguration = SchedulerConfiguration(
-            auxiliaryPaths: configuration.auxiliaryPaths,
+            auxiliaryResources: configuration.auxiliaryResources,
             testType: .uiTest,
             buildArtifacts: configuration.buildArtifacts,
             testExecutionBehavior: configuration.testExecutionBehavior,

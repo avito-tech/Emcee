@@ -6,7 +6,7 @@ import PluginManager
 
 public final class DeployablesGenerator {
     let targetAvitoRunnerPath: String
-    let auxiliaryPaths: AuxiliaryPaths
+    let auxiliaryResources: AuxiliaryResources
     let buildArtifacts: BuildArtifacts
     let environmentFilePath: String
     let targetEnvironmentPath: String
@@ -16,7 +16,7 @@ public final class DeployablesGenerator {
 
     public init(
         targetAvitoRunnerPath: String,
-        auxiliaryPaths: AuxiliaryPaths,
+        auxiliaryResources: AuxiliaryResources,
         buildArtifacts: BuildArtifacts,
         environmentFilePath: String,
         targetEnvironmentPath: String,
@@ -25,7 +25,7 @@ public final class DeployablesGenerator {
         targetWatchdogSettingsPath: String)
     {
         self.targetAvitoRunnerPath = targetAvitoRunnerPath
-        self.auxiliaryPaths = auxiliaryPaths
+        self.auxiliaryResources = auxiliaryResources
         self.buildArtifacts = buildArtifacts
         self.environmentFilePath = environmentFilePath
         self.targetEnvironmentPath = targetEnvironmentPath
@@ -40,8 +40,8 @@ public final class DeployablesGenerator {
         deployables[.app] = try appDeployables()
         deployables[.avitoRunner] = [runnerTool()]
         deployables[.environment] = try environmentDeployables()
-        deployables[.fbsimctl] = try toolForBinary(location: auxiliaryPaths.fbsimctl, toolName: PackageName.fbsimctl.rawValue)
-        deployables[.fbxctest] = try toolForBinary(location: auxiliaryPaths.fbxctest, toolName: PackageName.fbxctest.rawValue)
+        deployables[.fbsimctl] = try toolForBinary(location: auxiliaryResources.fbsimctl, toolName: PackageName.fbsimctl.rawValue)
+        deployables[.fbxctest] = try toolForBinary(location: auxiliaryResources.fbxctest, toolName: PackageName.fbxctest.rawValue)
         deployables[.plugin] = try pluginDeployables()
         deployables[.simulatorLocalizationSettings] = try simulatorLocalizationSettingsDeployables()
         deployables[.testRunner] = try testRunnerDeployables()
@@ -145,7 +145,7 @@ public final class DeployablesGenerator {
     }
     
     func pluginDeployables() throws -> [DeployableItem] {
-        return try auxiliaryPaths.plugins.flatMap { location -> [DeployableItem] in
+        return try auxiliaryResources.plugins.flatMap { location -> [DeployableItem] in
             switch location {
             case .localFilePath(let path):
                 let url = URL(fileURLWithPath: path)

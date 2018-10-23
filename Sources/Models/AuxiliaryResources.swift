@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents locatios of the tools that are used by the runner.
-public struct AuxiliaryPaths: Hashable {
+public struct AuxiliaryResources: Hashable {
     /** Location of fbxctest tool. */
     public let fbxctest: ResourceLocation
     
@@ -21,5 +21,5 @@ public struct AuxiliaryPaths: Hashable {
         return fbxctest.hashValue ^ fbsimctl.hashValue ^ plugins.count
     }
     
-    public static let empty = AuxiliaryPaths(fbxctest: .void, fbsimctl: .void, plugins: [])
+    public static let empty = AuxiliaryResources(fbxctest: .void, fbsimctl: .void, plugins: [])
 }

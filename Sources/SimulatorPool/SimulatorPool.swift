@@ -27,7 +27,7 @@ public final class SimulatorPool<T>: CustomStringConvertible where T: SimulatorC
     public init(
         numberOfSimulators: UInt,
         testDestination: TestDestination,
-        auxiliaryPaths: AuxiliaryPaths,
+        auxiliaryResources: AuxiliaryResources,
         tempFolder: TempFolder,
         automaticCleanupTiumeout: TimeInterval = 10) throws
     {
@@ -37,7 +37,7 @@ public final class SimulatorPool<T>: CustomStringConvertible where T: SimulatorC
         controllers = try SimulatorPool.createControllers(
             count: numberOfSimulators,
             testDestination: testDestination,
-            auxiliaryPaths: auxiliaryPaths,
+            auxiliaryResources: auxiliaryResources,
             tempFolder: tempFolder)
     }
     
@@ -82,7 +82,7 @@ public final class SimulatorPool<T>: CustomStringConvertible where T: SimulatorC
     private static func createControllers(
         count: UInt,
         testDestination: TestDestination,
-        auxiliaryPaths: AuxiliaryPaths,
+        auxiliaryResources: AuxiliaryResources,
         tempFolder: TempFolder) throws -> OrderedSet<T>
     {
         var result = OrderedSet<T>()
@@ -90,7 +90,7 @@ public final class SimulatorPool<T>: CustomStringConvertible where T: SimulatorC
             let folderName = "sim_\(testDestination.deviceType.removingWhitespaces())_\(testDestination.iOSVersion)_\(index)"
             let workingDirectory = try tempFolder.pathByCreatingDirectories(components: [folderName])
             let simulator = Simulator(index: index, testDestination: testDestination, workingDirectory: workingDirectory)
-            let controller = T(simulator: simulator, fbsimctl: auxiliaryPaths.fbsimctl)
+            let controller = T(simulator: simulator, fbsimctl: auxiliaryResources.fbsimctl)
             result.append(controller)
         }
         return result

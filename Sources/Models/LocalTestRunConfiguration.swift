@@ -12,7 +12,7 @@ public struct LocalTestRunConfiguration {
     public let testExecutionBehavior: TestExecutionBehavior
 
     /** Paths that are required to make things work. */
-    public let auxiliaryPaths: AuxiliaryPaths
+    public let auxiliaryResources: AuxiliaryResources
     
     /** A set of paths to the build artifacts */
     public let buildArtifacts: BuildArtifacts
@@ -33,7 +33,7 @@ public struct LocalTestRunConfiguration {
         reportOutput: ReportOutput,
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testExecutionBehavior: TestExecutionBehavior,
-        auxiliaryPaths: AuxiliaryPaths,
+        auxiliaryResources: AuxiliaryResources,
         buildArtifacts: BuildArtifacts,
         simulatorSettings: SimulatorSettings,
         testDestinationConfigurations: [TestDestinationConfiguration],
@@ -43,7 +43,7 @@ public struct LocalTestRunConfiguration {
         self.reportOutput = reportOutput
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testExecutionBehavior = testExecutionBehavior
-        self.auxiliaryPaths = auxiliaryPaths
+        self.auxiliaryResources = auxiliaryResources
         self.buildArtifacts = buildArtifacts
         self.simulatorSettings = simulatorSettings
         self.testDestinationConfigurations = testDestinationConfigurations

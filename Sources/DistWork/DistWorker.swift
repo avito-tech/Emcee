@@ -40,7 +40,7 @@ public final class DistWorker {
             onDemandSimulatorPool: onDemandSimulatorPool)
         let tempFolder = try factory.createTempFolder()
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
-            pluginLocations: configuration.auxiliaryPaths.plugins,
+            pluginLocations: configuration.auxiliaryResources.plugins,
             environment: configuration.testExecutionBehavior.environment)
         let scheduler = Scheduler(eventBus: eventBus, configuration: configuration, tempFolder: tempFolder)
         let eventStreamProcessor = EventStreamProcessor { [weak self] testingResult in
