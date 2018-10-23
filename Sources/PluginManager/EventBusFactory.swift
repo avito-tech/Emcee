@@ -20,7 +20,7 @@ public final class EventBusFactory {
         pluginLocations: [ResolvableResourceLocation],
         environment: [String : String]) throws
     {
-        let pluginManager = try PluginManager(
+        let pluginManager = PluginManager(
             pluginLocations: pluginLocations,
             environment: environment)
         try pluginManager.startPlugins()

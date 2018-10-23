@@ -22,24 +22,6 @@ final class PluginManagerTests: XCTestCase {
         tempFolder = temporaryDirectory
     }
     
-    func testCreatingPluginManagerWithCorrectPluginSuccceds() throws {
-        let pluginBundlePath = tempFolder.path.appending(component: "MyPlugin." + PluginManager.pluginBundleExtension)
-        let executablePath = pluginBundlePath.appending(component: PluginManager.pluginExecutableName)
-        
-        try FileManager.default.createDirectory(
-            at: URL(fileURLWithPath: pluginBundlePath.asString),
-            withIntermediateDirectories: true)
-        try FileManager.default.copyItem(
-            atPath: testingPluginExecutablePath,
-            toPath: executablePath.asString)
-        
-        
-        XCTAssertNoThrow(_ = try PluginManager(
-            pluginLocations: [
-                ResolvableResourceLocationImpl(resourceLocation: .localFilePath(pluginBundlePath.asString), resolver: ResourceLocationResolver())
-            ]))
-    }
-    
     func testStartingPluginWithinBundleButWithWrongExecutableNameFails() throws {
         let pluginBundlePath = tempFolder.path.appending(component: "MyPlugin." + PluginManager.pluginBundleExtension)
         let executablePath = pluginBundlePath.appending(component: "WrongExecutableName")
@@ -51,10 +33,11 @@ final class PluginManagerTests: XCTestCase {
         try FileManager.default.copyItem(
             atPath: testingPluginExecutablePath,
             toPath: executablePath.asString)
-        XCTAssertThrowsError(_ = try PluginManager(
+        let manager = PluginManager(
             pluginLocations: [
                 ResolvableResourceLocationImpl(resourceLocation: .localFilePath(pluginBundlePath.asString), resolver: ResourceLocationResolver())
-            ]))
+            ])
+        XCTAssertThrowsError(try manager.startPlugins())
     }
     
     func testStartingPluginWithoutBundleFails() throws {
@@ -62,10 +45,11 @@ final class PluginManagerTests: XCTestCase {
         try FileManager.default.copyItem(
             atPath: testingPluginExecutablePath,
             toPath: executablePath)
-        XCTAssertThrowsError(_ = try PluginManager(
+        let manager = PluginManager(
             pluginLocations: [
                 ResolvableResourceLocationImpl(resourceLocation: .localFilePath(executablePath), resolver: ResourceLocationResolver())
-            ]))
+            ])
+        XCTAssertThrowsError(try manager.startPlugins())
     }
     
     func testExecutingPlugins() throws {
@@ -96,7 +80,7 @@ final class PluginManagerTests: XCTestCase {
             failedTests: [],
             unfilteredTestRuns: [])
         
-        let manager = try PluginManager(
+        let manager = PluginManager(
             pluginLocations: [
                 ResolvableResourceLocationImpl(resourceLocation: .localFilePath(pluginBundlePath.asString), resolver: ResourceLocationResolver())
             ],
