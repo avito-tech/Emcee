@@ -5,7 +5,7 @@ import Models
 /** LocalTestRunConfiguration object required by Runner in order to run tests. */
 public struct RunnerConfiguration {
     public let testType: TestType
-    public let auxiliaryResources: AuxiliaryResources
+    public let fbxctest: ResourceLocation
     public let buildArtifacts: BuildArtifacts
     public let environment: [String: String]
     public let simulatorSettings: SimulatorSettings
@@ -15,7 +15,7 @@ public struct RunnerConfiguration {
     
     public init(
         testType: TestType,
-        auxiliaryResources: AuxiliaryResources,
+        fbxctest: ResourceLocation,
         buildArtifacts: BuildArtifacts,
         testExecutionBehavior: TestExecutionBehavior,
         simulatorSettings: SimulatorSettings,
@@ -32,7 +32,7 @@ public struct RunnerConfiguration {
         testExecutionBehavior.environment.forEach { resultingEnvironment[$0] = $1 }
         
         self.testType = testType
-        self.auxiliaryResources = auxiliaryResources
+        self.fbxctest = fbxctest
         self.buildArtifacts = buildArtifacts
         self.environment = resultingEnvironment
         self.simulatorSettings = simulatorSettings

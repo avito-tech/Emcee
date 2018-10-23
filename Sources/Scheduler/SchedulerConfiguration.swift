@@ -18,7 +18,7 @@ public class SchedulerConfiguration {
     public var runnerConfiguration: RunnerConfiguration {
         return RunnerConfiguration(
             testType: testType,
-            auxiliaryResources: auxiliaryResources,
+            fbxctest: auxiliaryResources.fbxctest,
             buildArtifacts: buildArtifacts,
             testExecutionBehavior: testExecutionBehavior,
             simulatorSettings: simulatorSettings,

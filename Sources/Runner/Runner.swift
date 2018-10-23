@@ -97,7 +97,7 @@ public final class Runner {
     
     private func fbxctestArguments(entriesToRun: [TestEntry], simulator: Simulator) -> [SubprocessArgument] {
         var arguments: [SubprocessArgument] =
-            [configuration.auxiliaryResources.fbxctest.asArgumentWith(packageName: PackageName.fbxctest),
+            [configuration.fbxctest.asArgumentWith(packageName: PackageName.fbxctest),
              "-destination", simulator.testDestination.destinationString] +
                 ["-\(configuration.testType.rawValue)"]
         
