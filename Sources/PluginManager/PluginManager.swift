@@ -11,19 +11,19 @@ import SynchronousWaiter
 public final class PluginManager: EventStream {
     public static let pluginBundleExtension = "emceeplugin"
     public static let pluginExecutableName = "Plugin"
-    private var processControllers = [ProcessController]()
     private let encoder = JSONEncoder()
     private let environment: [String: String]
-    private let pluginBundles: [AbsolutePath]
+    private let pluginLocations: [ResolvableResourceLocation]
+    private var processControllers = [ProcessController]()
     
     public init(
         pluginLocations: [ResolvableResourceLocation],
         environment: [String: String] = ProcessInfo.processInfo.environment)
         throws
     {
-        self.pluginBundles = try PluginManager.pathsToPluginBundles(pluginLocations: pluginLocations)
         self.encoder.outputFormatting = [.sortedKeys, .prettyPrinted]
         self.environment = environment
+        self.pluginLocations = pluginLocations
     }
     
     private static func pathsToPluginBundles(pluginLocations: [ResolvableResourceLocation]) throws -> [AbsolutePath] {
@@ -66,11 +66,13 @@ public final class PluginManager: EventStream {
     }
     
     public func startPlugins() throws {
+        let pluginBundles = try PluginManager.pathsToPluginBundles(pluginLocations: pluginLocations)
         for bundlePath in pluginBundles {
             log("Starting plugin at '\(bundlePath)'", color: .blue)
+            let pluginExecutable = bundlePath.appending(component: PluginManager.pluginExecutableName)
             let controller = try ProcessController(
                 subprocess: Subprocess(
-                    arguments: [bundlePath.appending(component: PluginManager.pluginExecutableName)],
+                    arguments: [pluginExecutable],
                     environment: environment))
             controller.start()
             processControllers.append(controller)
