@@ -1,9 +1,7 @@
 import Foundation
 
 /// Represents locatios of the tools that are used by the runner.
-
-// TODO: remove hashable?
-public struct AuxiliaryResources: Hashable {
+public struct AuxiliaryResources {
     /** Location of fbxctest tool. */
     public let fbxctest: ResolvableResourceLocation
     
@@ -22,16 +20,4 @@ public struct AuxiliaryResources: Hashable {
         self.fbsimctl = fbsimctl
         self.plugins = plugins
     }
-    
-    public static func == (left: AuxiliaryResources, right: AuxiliaryResources) -> Bool {
-        return left.fbsimctl.resourceLocation == right.fbsimctl.resourceLocation
-            && left.fbxctest.resourceLocation == right.fbxctest.resourceLocation
-            && left.plugins.map { $0.resourceLocation } == right.plugins.map { $0.resourceLocation }
-    }
-    
-    public var hashValue: Int {
-        return fbxctest.resourceLocation.hashValue ^ fbsimctl.resourceLocation.hashValue ^ plugins.count
-    }
-    
-
 }
