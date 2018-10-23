@@ -10,9 +10,6 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
     /// http://example.com/file.zip#actualFileInsideZip
     case remoteUrl(URL)
     
-    /// void value can be used if location is unset
-    case void
-    
     public enum ValidationError: Error, CustomStringConvertible {
         case cannotCreateUrl(String)
         case fileDoesNotExist(String)
@@ -59,8 +56,6 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
             return path.hashValue
         case .remoteUrl(let url):
             return url.hashValue
-        case .void:
-            return 0
         }
     }
     
@@ -70,8 +65,6 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
             return "<local path: \(path)>"
         case .remoteUrl(let url):
             return "<url: \(url)>"
-        case .void:
-            return "<location is void>"
         }
     }
     
@@ -81,8 +74,6 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
             return leftPath == rightPath
         case (.remoteUrl(let leftUrl), .remoteUrl(let rightUrl)):
             return leftUrl == rightUrl
-        case (.void, .void):
-            return true
         default:
             return false
         }
@@ -97,7 +88,6 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
     private enum CaseId: String, Codable {
         case localFilePath
         case remoteUrl
-        case void
     }
     
     public init(from decoder: Decoder) throws {
@@ -111,8 +101,6 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
         case .remoteUrl:
             let url = try container.decode(URL.self, forKey: .url)
             self = .remoteUrl(url)
-        case .void:
-            self = .void
         }
     }
     
@@ -125,8 +113,6 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
         case .remoteUrl(let url):
             try container.encode(CaseId.remoteUrl, forKey: .caseId)
             try container.encode(url, forKey: .url)
-        case .void:
-            try container.encode(CaseId.void, forKey: .caseId)
         }
     }
     

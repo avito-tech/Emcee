@@ -20,6 +20,4 @@ public struct AuxiliaryResources: Hashable {
     public var hashValue: Int {
         return fbxctest.hashValue ^ fbsimctl.hashValue ^ plugins.count
     }
-    
-    public static let empty = AuxiliaryResources(fbxctest: .void, fbsimctl: .void, plugins: [])
 }

@@ -71,20 +71,7 @@ final class BucketConfigurationFactory {
                 log("Additional app candidate at \(path) exists: \(result), isDir: \(isDir)")
                 return result && isDir.boolValue == true
         }
-        let plugins = FileManager.default.findFiles(
-            path: packagePath(containerPath, .plugin),
-            defaultValue: [])
-            .map { path -> String in
-                let path = path.appending(pathComponent: "\(path.lastPathComponent).emceeplugin")
-                log("Found plugin candidate: \(path)")
-                return path
-            }
-            .filter { path -> Bool in
-                var isDir: ObjCBool = false
-                let result = FileManager.default.fileExists(atPath: path, isDirectory: &isDir)
-                log("Plugin candidate at \(path) exists: \(result), isDir: \(isDir)")
-                return result && isDir.boolValue == true
-        }
+        
         let runner = try FileManager.default.findFiles(
             path: packagePath(containerPath, .testRunner),
             suffix: "-Runner",
@@ -98,10 +85,8 @@ final class BucketConfigurationFactory {
         let watchdogSettings = try fileInPackageIfExists(containerPath, .watchdogSettings)
         
         let configuration = SchedulerConfiguration(
-            auxiliaryResources: AuxiliaryResources(
-                fbxctest: ResourceLocation.localFilePath(fbxctest),
-                fbsimctl: ResourceLocation.localFilePath(fbsimctl),
-                plugins: plugins.map { ResourceLocation.localFilePath($0) }),
+            fbsimctl: ResourceLocation.localFilePath(fbsimctl),
+            fbxctest: ResourceLocation.localFilePath(fbxctest),
             testType: .uiTest,
             buildArtifacts: BuildArtifacts(
                 appBundle: app,
@@ -117,6 +102,24 @@ final class BucketConfigurationFactory {
             schedulerDataSource: schedulerDataSource,
             onDemandSimulatorPool: onDemandSimulatorPool)
         return configuration
+    }
+    
+    public var pluginLocations: [ResourceLocation] {
+        let plugins = FileManager.default.findFiles(
+            path: packagePath(containerPath, .plugin),
+            defaultValue: [])
+            .map { path -> String in
+                let path = path.appending(pathComponent: "\(path.lastPathComponent).emceeplugin")
+                log("Found plugin candidate: \(path)")
+                return path
+            }
+            .filter { path -> Bool in
+                var isDir: ObjCBool = false
+                let result = FileManager.default.fileExists(atPath: path, isDirectory: &isDir)
+                log("Plugin candidate at \(path) exists: \(result), isDir: \(isDir)")
+                return result && isDir.boolValue == true
+        }
+        return plugins.map { ResourceLocation.localFilePath($0) }
     }
     
     private func packagePath(_ containerPath: String, _ package: PackageName) -> String {

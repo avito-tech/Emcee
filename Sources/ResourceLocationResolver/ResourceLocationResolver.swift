@@ -11,7 +11,6 @@ public final class ResourceLocationResolver {
     
     public enum ValidationError: String, Error, CustomStringConvertible {
         case unpackProcessError = "Unzip operation failed."
-        case resourceIsVoid = "Cannot resolve resource as resource location has 'void' value."
         
         public var description: String {
             return self.rawValue
@@ -54,8 +53,6 @@ public final class ResourceLocationResolver {
             let path = try cachedContentsOfUrl(url).path
             let filenameInArchive = url.fragment
             return Result.contentsOfArchive(containerPath: path, filenameInArchive: filenameInArchive)
-        case .void:
-            throw ValidationError.resourceIsVoid
         }
     }
     

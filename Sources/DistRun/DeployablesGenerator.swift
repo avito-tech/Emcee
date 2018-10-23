@@ -112,8 +112,6 @@ public final class DeployablesGenerator {
                     return DeployableFile(source: file.source, destination: updatedDestination)
             }
             return [DeployableTool(name: toolName, files: Set(files))]
-        case .void:
-            return []
         case .remoteUrl:
             return []
         }
@@ -149,8 +147,6 @@ public final class DeployablesGenerator {
                 let name = PackageName.plugin.rawValue.appending(
                     pathComponent: url.lastPathComponent.deletingPathExtension)
                 return [try DeployableBundle(name: name, bundleUrl: url)]
-            case .void:
-                return []
             case .remoteUrl:
                 return []
             }

@@ -161,7 +161,8 @@ final class RunTestsCommand: Command {
             pluginLocations: configuration.auxiliaryResources.plugins,
             environment: configuration.testExecutionBehavior.environment)
         let schedulerConfiguration = SchedulerConfiguration(
-            auxiliaryResources: configuration.auxiliaryResources,
+            fbsimctl: configuration.auxiliaryResources.fbsimctl,
+            fbxctest: configuration.auxiliaryResources.fbxctest,
             testType: .uiTest,
             buildArtifacts: configuration.buildArtifacts,
             testExecutionBehavior: configuration.testExecutionBehavior,
