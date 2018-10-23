@@ -10,7 +10,7 @@ public final class ResourceLocationResolver {
     private let urlResource: URLResource
     
     public enum ValidationError: String, Error, CustomStringConvertible {
-        case unpackProcessError = "unzip operation failed"
+        case unpackProcessError = "Unzip operation failed."
         case resourceIsVoid = "Cannot resolve resource as resource location has 'void' value."
         
         public var description: String {
@@ -35,7 +35,7 @@ public final class ResourceLocationResolver {
         if let cachesUrl = try? FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true) {
             cacheContainer = cachesUrl
         } else {
-            let pathToBinaryContainer = ProcessInfo.processInfo.arguments[0].deletingLastPathComponent
+            let pathToBinaryContainer = ProcessInfo.processInfo.executablePath.deletingLastPathComponent
             cacheContainer = URL(fileURLWithPath: pathToBinaryContainer)
         }
         return cacheContainer.appendingPathComponent("ru.avito.Runner.cache", isDirectory: true)

@@ -55,7 +55,7 @@ class DeployablesGeneratorTests: XCTestCase {
     func testAvitoRunnerIsPresent() {
         let deployables = filterDeployables(.avitoRunner)
         XCTAssertEqual(deployables.count, 1)
-        XCTAssertEqual(deployables[0].files.first?.source, ProcessInfo.processInfo.arguments[0])
+        XCTAssertEqual(deployables[0].files.first?.source, ProcessInfo.processInfo.executablePath)
         XCTAssertEqual(deployables[0].files.first?.destination, "AvitoRunner")
     }
     

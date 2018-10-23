@@ -4,7 +4,7 @@ import Logging
 import TestingFakeFbxctest
 
 func fakeFbxctestMain() -> Int32 {
-    let binaryContainerPath = ProcessInfo.processInfo.arguments[0].deletingLastPathComponent
+    let binaryContainerPath = ProcessInfo.processInfo.executablePath.deletingLastPathComponent
     let jsonOutputFiles = try? FileManager.default.findFiles(
         path: binaryContainerPath,
         prefix: FakeFbxctestExecutableProducer.fakeOutputJsonFilename.deletingPathExtension,

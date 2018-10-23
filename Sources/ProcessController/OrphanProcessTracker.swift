@@ -66,7 +66,7 @@ public final class OrphanProcessTracker {
         if let specificPath = ProcessInfo.processInfo.environment[OrphanProcessTracker.envName], !specificPath.isEmpty {
             return specificPath
         } else {
-            return ProcessInfo.processInfo.arguments[0].appending("_orphans.json.ignored")
+            return ProcessInfo.processInfo.executablePath.appending("_orphans.json.ignored")
         }
     }
     

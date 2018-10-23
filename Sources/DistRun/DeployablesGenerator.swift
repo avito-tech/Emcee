@@ -88,12 +88,9 @@ public final class DeployablesGenerator {
     }
     
     func runnerTool() -> DeployableTool {
-        let path = ProcessInfo.processInfo.arguments.elementAtIndex(
-            0,
-            "First launch arg which always set and points to executable")
         return DeployableTool(
             name: PackageName.avitoRunner.rawValue,
-            files: [DeployableFile(source: path, destination: targetAvitoRunnerPath)])
+            files: [DeployableFile(source: ProcessInfo.processInfo.executablePath, destination: targetAvitoRunnerPath)])
     }
     
     func toolForBinary(location: ResourceLocation, toolName: String) throws -> [DeployableTool] {

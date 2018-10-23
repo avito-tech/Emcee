@@ -61,7 +61,7 @@ final class Main {
         signal(SIGABRT, { _ in Main.innerProcess?.terminate() })
         signal(SIGTERM, { _ in Main.innerProcess?.terminate() })
         
-        process.launchPath = ProcessInfo.processInfo.arguments[0]
+        process.launchPath = ProcessInfo.processInfo.executablePath
         process.arguments = Array(ProcessInfo.processInfo.arguments.dropFirst())
         var environment = ProcessInfo.processInfo.environment
         environment[Main.runInProcessEnvName] = "true"

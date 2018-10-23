@@ -35,7 +35,7 @@ public final class ProcessController {
     
     private static func createProcess(arguments: [String], environment: [String: String], processStdinPipe: Pipe) throws -> Process {
         let process = Process()
-        process.launchPath = arguments[0]
+        process.launchPath = arguments.elementAtIndex(0, "Path to executable")
         process.arguments = Array(arguments.dropFirst())
         process.environment = environment
         process.standardInput = processStdinPipe

@@ -1,5 +1,6 @@
 import Basic
 import EventBus
+import Extensions
 import Foundation
 import Logging
 import Models
@@ -18,21 +19,17 @@ final class BucketConfigurationFactory {
     private var containerPath: String {
         /*
          The expected structure is:
-         /remote_path/some_run_id/avitoRunner/AvitoRunner
+         /remote_path/some_run_id/avitoRunner/AvitoRunner   <-- executable path
          /remote_path/some_run_id/fbxctest/fbxctest
          /remote_path/some_run_id/app/AppUnderTest.app
          /remote_path/some_run_id/additionalApp/OneMoreApp/OneMoreApp.app
          /remote_path/some_run_id/plugin/SomePluginName/SomePluginName.emceeplugin
          and so on.
-         */
-        let pathToBinary = ProcessInfo.processInfo.arguments[0]
-        
-        /*
+
          The containerPath is resolved into:
          /remote_path/some_run_id/
          */
-        let containerPath = pathToBinary.deletingLastPathComponent.deletingLastPathComponent
-        return containerPath
+        return ProcessInfo.processInfo.executablePath.deletingLastPathComponent.deletingLastPathComponent
     }
     
     func createTempFolder() throws -> TempFolder {

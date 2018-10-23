@@ -7,6 +7,6 @@ public final class Shimulator: Simulator {
         return Shimulator(
             index: 0,
             testDestination: testDestination,
-            workingDirectory: AbsolutePath(ProcessInfo.processInfo.arguments[0].deletingLastPathComponent))
+            workingDirectory: AbsolutePath(ProcessInfo.processInfo.executablePath.deletingLastPathComponent))
     }
 }
