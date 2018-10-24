@@ -10,13 +10,11 @@ public final class OnDemandSimulatorPool<T> where T: SimulatorController {
         public let numberOfSimulators: UInt
         public let testDestination: TestDestination
         public let fbsimctl: ResolvableResourceLocation
-        public let tempFolder: TempFolder
         
-        public init(numberOfSimulators: UInt, testDestination: TestDestination, fbsimctl: ResolvableResourceLocation, tempFolder: TempFolder) {
+        public init(numberOfSimulators: UInt, testDestination: TestDestination, fbsimctl: ResolvableResourceLocation) {
             self.numberOfSimulators = numberOfSimulators
             self.testDestination = testDestination
             self.fbsimctl = fbsimctl
-            self.tempFolder = tempFolder
         }
         
         public var description: String {
@@ -34,10 +32,13 @@ public final class OnDemandSimulatorPool<T> where T: SimulatorController {
         }
     }
     
+    private let tempFolder: TempFolder
     private var pools = [Key: SimulatorPool<T>]()
     private let syncQueue = DispatchQueue(label: "ru.avito.OnDemandSimulatorPool")
     
-    public init() {}
+    public init(tempFolder: TempFolder) {
+        self.tempFolder = tempFolder
+    }
     
     deinit {
         deleteSimulators()
@@ -54,7 +55,7 @@ public final class OnDemandSimulatorPool<T> where T: SimulatorController {
                     numberOfSimulators: key.numberOfSimulators,
                     testDestination: key.testDestination,
                     fbsimctl: key.fbsimctl,
-                    tempFolder: key.tempFolder)
+                    tempFolder: tempFolder)
                 pools[key] = pool
                 log("Created SimulatorPool for key \(key)")
             }

@@ -24,7 +24,7 @@ public final class EventBus {
         workQueue.sync {}
     }
     
-    public func uponDeliverOfAllEvents(work: @escaping () -> ()) {
+    public func uponDeliveryOfAllEvents(work: @escaping () -> ()) {
         workQueue.async {
             work()
         }

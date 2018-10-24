@@ -129,6 +129,7 @@ public final class PluginManager: EventStream {
         do {
             let data = try encoder.encode(busEvent)
             sendData(data)
+            log("PluginManager: broadcasted event: \(busEvent)")
         } catch {
             log("Failed to get data for \(busEvent) event: \(error)")
         }

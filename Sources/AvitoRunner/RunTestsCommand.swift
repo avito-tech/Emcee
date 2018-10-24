@@ -157,7 +157,7 @@ final class RunTestsCommand: Command {
     private func runTests(configuration: LocalTestRunConfiguration, tempFolder: TempFolder) throws {
         log("Configuration: \(configuration)", color: .blue)
         
-        let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>()
+        let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>(tempFolder: tempFolder)
         defer { onDemandSimulatorPool.deleteSimulators() }
         
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(

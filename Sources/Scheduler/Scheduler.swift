@@ -148,8 +148,7 @@ public final class Scheduler {
             key: OnDemandSimulatorPool.Key(
                 numberOfSimulators: configuration.testExecutionBehavior.numberOfSimulators,
                 testDestination: bucket.testDestination,
-                fbsimctl: configuration.fbsimctl,
-                tempFolder: tempFolder))
+                fbsimctl: configuration.fbsimctl))
         let simulatorController = try simulatorPool.allocateSimulator()
         defer { simulatorPool.freeSimulator(simulatorController) }
             

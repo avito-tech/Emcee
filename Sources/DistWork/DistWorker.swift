@@ -12,10 +12,9 @@ import ResourceLocationResolver
 
 public final class DistWorker {
     private let queueClient: SynchronousQueueClient
-    private var onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>()
     private let syncQueue = DispatchQueue(label: "ru.avito.DistWorker")
     private var requestIdForBucketId = [String: String]()  // bucketId -> requestId
-    private let resourceLocationResolver = ResourceLocationResolver()
+    private let bucketConfigurationFactory = BucketConfigurationFactory(resourceLocationResolver: ResourceLocationResolver())
     
     public init(queueServerAddress: String, queueServerPort: Int, workerId: String) {
         queueClient = SynchronousQueueClient(
@@ -25,24 +24,35 @@ public final class DistWorker {
     }
     
     public func start() throws {
+        let tempFolder = try bucketConfigurationFactory.createTempFolder()
         let workerConfiguration = try queueClient.registerWithServer()
         log("Registered with server. Worker configuration: \(workerConfiguration)")
-        _ = try runTests(workerConfiguration: workerConfiguration)
+        
+        let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>(tempFolder: tempFolder)
+        defer { onDemandSimulatorPool.deleteSimulators() }
+        
+        _ = try runTests(
+            workerConfiguration: workerConfiguration,
+            onDemandSimulatorPool: onDemandSimulatorPool,
+            tempFolder: tempFolder)
         log("Dist worker has finished")
         cleanUpAndStop()
     }
     
     // MARK: - Private Stuff
     
-    private func runTests(workerConfiguration: WorkerConfiguration) throws -> [TestingResult] {
-        let factory = BucketConfigurationFactory(resourceLocationResolver: resourceLocationResolver)
-        let configuration = try factory.createConfiguration(
+    private func runTests(
+        workerConfiguration: WorkerConfiguration,
+        onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>,
+        tempFolder: TempFolder)
+        throws -> [TestingResult]
+    {
+        let configuration = try bucketConfigurationFactory.createConfiguration(
             workerConfiguration: workerConfiguration,
             schedulerDataSource: DistRunSchedulerDataSource(onNextBucketRequest: fetchNextBucket),
             onDemandSimulatorPool: onDemandSimulatorPool)
-        let tempFolder = try factory.createTempFolder()
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
-            pluginLocations: factory.pluginLocations,
+            pluginLocations: bucketConfigurationFactory.pluginLocations,
             environment: configuration.testExecutionBehavior.environment)
         let scheduler = Scheduler(eventBus: eventBus, configuration: configuration, tempFolder: tempFolder)
         let eventStreamProcessor = EventStreamProcessor { [weak self] testingResult in
@@ -54,8 +64,6 @@ public final class DistWorker {
     
     private func cleanUpAndStop() {
         queueClient.close()
-        log("Cleaning up the simulators")
-        onDemandSimulatorPool.deleteSimulators()
     }
     
     // MARK: - Callbacks

@@ -12,6 +12,7 @@ final class EventBusListener: EventStream {
     }
     
     func process(event: BusEvent) {
+        log("Received event: \(event)")
         busEvents.append(event)
         if case BusEvent.tearDown = event {
             tearDown()

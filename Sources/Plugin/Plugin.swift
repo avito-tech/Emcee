@@ -62,7 +62,7 @@ public final class Plugin {
     }
     
     private func interrupt() {
-        eventBus.uponDeliverOfAllEvents {
+        eventBus.uponDeliveryOfAllEvents {
             self.jsonInputStream.willProvideMoreData = false
             self.jsonStreamHasFinished = true
         }
