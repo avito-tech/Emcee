@@ -15,9 +15,9 @@ class ScheduleStrategyTests: XCTestCase {
             numberOfDestinations: 1,
             testEntries: testEntries,
             testDestination: destination)
-            .map { Bucket(bucketId: "", testEntries: $0.testEntries, testDestination: $0.testDestination) }
+            .map { Bucket(testEntries: $0.testEntries, testDestination: $0.testDestination) }
         
-        let expectedBuckets = testEntries.map { Bucket(bucketId: "", testEntries: [$0], testDestination: destination) }
+        let expectedBuckets = testEntries.map { Bucket(testEntries: [$0], testDestination: destination) }
         XCTAssertEqual(buckets, expectedBuckets)
     }
     
@@ -51,14 +51,14 @@ class ScheduleStrategyTests: XCTestCase {
         ]
         
         let expectedBuckets = testEntries.splitToChunks(withSize: 2).map {
-            Bucket(bucketId: "", testEntries: $0, testDestination: destination)
+            Bucket(testEntries: $0, testDestination: destination)
         }
         
         let buckets = EquallyDividedScheduleStrategy().generateBuckets(
             numberOfDestinations: 2,
             testEntries: testEntries,
             testDestination: destination)
-            .map { Bucket(bucketId: "", testEntries: $0.testEntries, testDestination: $0.testDestination) }
+            .map { Bucket(testEntries: $0.testEntries, testDestination: $0.testDestination) }
         XCTAssertEqual(buckets, expectedBuckets)
     }
     
@@ -71,13 +71,13 @@ class ScheduleStrategyTests: XCTestCase {
             TestEntry(className: "class", methodName: "testMethod4", caseId: nil)
         ]
         
-        let expectedBuckets = testEntries.map { Bucket(bucketId: "", testEntries: [$0], testDestination: destination) }
+        let expectedBuckets = testEntries.map { Bucket(testEntries: [$0], testDestination: destination) }
         
         let buckets = EquallyDividedScheduleStrategy().generateBuckets(
             numberOfDestinations: 4,
             testEntries: testEntries,
             testDestination: destination)
-            .map { Bucket(bucketId: "", testEntries: $0.testEntries, testDestination: $0.testDestination) }
+            .map { Bucket(testEntries: $0.testEntries, testDestination: $0.testDestination) }
         XCTAssertEqual(buckets, expectedBuckets)
     }
     

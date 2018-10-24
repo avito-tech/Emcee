@@ -239,7 +239,14 @@ let package = Package(
         
         .target(
             name: "Models",
-            dependencies: []),
+            dependencies: [
+                "Extensions"
+            ]),
+        .testTarget(
+            name: "ModelsTests",
+            dependencies: [
+                "Models"
+            ]),
         
         .target(
             name: "Plugin",

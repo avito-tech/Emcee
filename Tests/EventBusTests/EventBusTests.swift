@@ -11,7 +11,7 @@ final class EventBusTest: XCTestCase {
         bus.add(stream: stream)
         let testingResult = TestingResult(
             bucket: Bucket(
-                bucketId: "bucketid", testEntries: [],
+                testEntries: [],
                 testDestination: try TestDestination(deviceType: "dvc", iOSVersion: "11.3")),
             successfulTests: [],
             failedTests: [],

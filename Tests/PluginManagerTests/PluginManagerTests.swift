@@ -65,7 +65,6 @@ final class PluginManagerTests: XCTestCase {
             toPath: executablePath.asString)
         let testingResult1 = TestingResult(
             bucket: Bucket(
-                bucketId: UUID().uuidString,
                 testEntries: [],
                 testDestination: try TestDestination(deviceType: "iPhone SE", iOSVersion: "10.3")),
             successfulTests: [],
@@ -73,7 +72,6 @@ final class PluginManagerTests: XCTestCase {
             unfilteredTestRuns: [])
         let testingResult2 = TestingResult(
             bucket: Bucket(
-                bucketId: UUID().uuidString,
                 testEntries: [],
                 testDestination: try TestDestination(deviceType: "iPhone 7", iOSVersion: "11.3")),
             successfulTests: [],

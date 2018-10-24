@@ -50,7 +50,6 @@ class QueueClientTests: XCTestCase {
     
     func testDequeueingBucket() throws {
         let bucket = Bucket(
-            bucketId: "bucketid",
             testEntries: [TestEntry(className: "class", methodName: "method", caseId: 123)],
             testDestination: try TestDestination(deviceType: "device", iOSVersion: "10.0"))
         try prepareServer(RESTMethod.getBucket.withPrependingSlash) { request -> HttpResponse in

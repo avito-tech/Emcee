@@ -1,18 +1,31 @@
+import Extensions
 import Foundation
 
-public struct Bucket: Codable, CustomStringConvertible, Hashable {
+public class Bucket: Codable, CustomStringConvertible, Hashable {
     public let bucketId: String
     public let testEntries: [TestEntry]
     public let testDestination: TestDestination
-    
+
     public init(
-        bucketId: String = UUID().uuidString,
         testEntries: [TestEntry],
         testDestination: TestDestination)
     {
-        self.bucketId = bucketId
         self.testEntries = testEntries
         self.testDestination = testDestination
+        self.bucketId = Bucket.generateBucketId(testEntries: testEntries, testDestination: testDestination)
+    }
+    
+    private static func generateBucketId(
+        testEntries: [TestEntry],
+        testDestination: TestDestination)
+        -> String
+    {
+        let tests = testEntries.map { $0.testName }.sorted().joined() + testDestination.destinationString
+        do {
+            return try tests.avito_sha256Hash(encoding: .utf8)
+        } catch {
+            preconditionFailure("Unable to generate bucket id as SHA256 from the following string: '\(tests)'")
+        }
     }
     
     public var description: String {
@@ -21,5 +34,9 @@ public struct Bucket: Codable, CustomStringConvertible, Hashable {
     
     public var hashValue: Int {
         return bucketId.hashValue
+    }
+    
+    public static func == (left: Bucket, right: Bucket) -> Bool {
+        return left.bucketId == right.bucketId
     }
 }
