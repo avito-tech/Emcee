@@ -14,7 +14,7 @@ final class ProcessControllerTests: XCTestCase {
     func testSilence() throws {
         let controller = try ProcessController(
             subprocess: Subprocess(
-                arguments: ["/bin/sleep", "1"],
+                arguments: ["/bin/sleep", "10"],
                 maximumAllowedSilenceDuration: 0.01))
         let delegate = FakeDelegate()
         controller.delegate = delegate
