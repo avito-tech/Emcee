@@ -45,7 +45,7 @@
         NSString *anyTestSelector = [testMethods firstObject];
         XCTestCase *testCaseInstance = [self testCaseInstance:testCaseClass selectorName:anyTestSelector];
         if (testCaseInstance != nil) {
-            return [[TestSuiteInfo alloc] initWithInstance:testCaseInstance testMethods:testMethods];
+            return [[TestSuiteInfo alloc] initWithInstance:testCaseInstance runtimeTestMethods:testMethods];
         }
     }
     
@@ -77,20 +77,40 @@
 }
 
 - (BOOL)isTestMethod:(Method)method selectorName:(NSString *)selectorName {
-    return [self methodHasVoidReturnType:method] && [selectorName hasPrefix:@"test"];
+    if (![selectorName hasPrefix:@"test"]) { return NO; }
+    
+    BOOL methodIsVoid = [self methodHasVoidReturnType:method];
+    BOOL methodIsBool = [self methodHasBOOLReturnType:method];
+    BOOL swiftTestMethodThrowsError = [selectorName hasSuffix:kSwiftThrowingTestMethodSuffix];
+    NSUInteger numberOfArguments = [self numberOfArgumentsInMethod:method] - 2;  // exclude self and cmd
+    
+    return (methodIsVoid && numberOfArguments == 0) || (methodIsBool && swiftTestMethodThrowsError && numberOfArguments == 1);
 }
 
 - (BOOL)methodHasVoidReturnType:(Method)method {
-    char expectedReturnType[] = "v";
+    return [self method:method hasReturnType:"v"];
+}
+
+- (BOOL)methodHasBOOLReturnType:(Method)method {
+    return [self method:method hasReturnType:"B"];
+}
+
+- (BOOL)method:(Method)method hasReturnType:(char [])expectedReturnType {
     char *actualReturnType = method_copyReturnType(method);
-    
-    return strcmp(expectedReturnType, actualReturnType) == 0;
+    BOOL result = strcmp(expectedReturnType, actualReturnType) == 0;
+    free(actualReturnType);
+    return result;
 }
 
 - (NSString *)selectorOfMethod:(Method)method {
     struct objc_method_description *desc = method_getDescription(method);
     SEL selector = desc->name;
     return NSStringFromSelector(selector);
+}
+
+- (NSUInteger)numberOfArgumentsInMethod:(Method)method {
+    struct objc_method_description *desc = method_getDescription(method);
+    return [NSMethodSignature signatureWithObjCTypes:desc->types].numberOfArguments;
 }
 
 - (XCTestCase *)testCaseInstance:(Class)testCaseClass selectorName:(NSString *)selectorName {

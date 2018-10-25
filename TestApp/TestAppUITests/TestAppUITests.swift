@@ -44,4 +44,8 @@ class TestAppUITests: XCTestCase {
             XCTFail("Failed to write file: \(error)")
         }
     }
+    
+    func testMethodThatThrowsSwiftError() throws {
+        throw NSError(domain: "the domain", code: 42, userInfo: nil)
+    }
 }

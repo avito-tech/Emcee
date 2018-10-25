@@ -34,13 +34,13 @@ class IntegrationTests(unittest.TestCase):
 
     def test_junit_contents(self):
         iphone_se_junit = get_test_cases_from_xml_file("auxiliary/tempfolder/test-results/iphone_se_ios_103.xml")
-        self.assertEqual(len(iphone_se_junit), 5)
+        self.assertEqual(len(iphone_se_junit), 6)
 
         successful_tests = set([item["name"] for item in iphone_se_junit if item.get("failure") is None])
         failed_tests = set([item["name"] for item in iphone_se_junit if item.get("failure") is not None])
 
         self.assertEqual(successful_tests, {"testSlowTest", "testAlwaysSuccess", "testQuickTest", "testWritingToTestWorkingDir"})
-        self.assertEqual(failed_tests, {"testAlwaysFails"})
+        self.assertEqual(failed_tests, {"testAlwaysFails", "testMethodThatThrowsSwiftError"})
 
     def test_plugin_output(self):
         output_path = open("auxiliary/tempfolder/test-results/test_plugin_output.json", 'r')
@@ -69,14 +69,15 @@ class IntegrationTests(unittest.TestCase):
     def check_test_result_events(self, events):
         all_test_entries = [test_entry for event in events for test_entry in event["testingResult"]["bucket"]["testEntries"]]
         actual_tests = sorted([entry["methodName"] for entry in all_test_entries])
-        expected_tests = sorted(["testAlwaysSuccess", "testWritingToTestWorkingDir", "testSlowTest", "testAlwaysFails", "testQuickTest"])
+        expected_tests = sorted(["testAlwaysSuccess", "testWritingToTestWorkingDir", "testSlowTest", "testAlwaysFails", "testQuickTest", "testMethodThatThrowsSwiftError"])
         self.assertEquals(actual_tests, expected_tests)
         
         all_test_runs = [unfiltered_test_runs for event in events for unfiltered_test_runs in event["testingResult"]["unfilteredTestRuns"]]
         green_tests = [test_run["testEntry"]["methodName"] for test_run in all_test_runs if test_run["succeeded"] == True]
         failed_tests = [test_run["testEntry"]["methodName"] for test_run in all_test_runs if test_run["succeeded"] == False]
         self.assertEquals(sorted(green_tests), sorted(["testAlwaysSuccess", "testWritingToTestWorkingDir", "testSlowTest", "testQuickTest"]))
-        self.assertEquals(sorted(failed_tests), sorted(["testAlwaysFails", "testAlwaysFails"]))
+        # also check that failed tests have been restarted and the attempts are listed in the events
+        self.assertEquals(sorted(failed_tests), sorted(["testAlwaysFails", "testAlwaysFails", "testMethodThatThrowsSwiftError", "testMethodThatThrowsSwiftError"]))
     
     def check_runner_events(self, events):
         all_runner_events = [event["runnerEvent"] for event in events]
@@ -96,7 +97,7 @@ class IntegrationTests(unittest.TestCase):
         "Check that willRun events and didRun events match the test method names"
         self.assertEquals(sorted(all_will_run_tests), sorted(all_did_run_tests))
         
-        all_test_expected_to_be_ran = ["fakeTest", "testAlwaysSuccess", "testWritingToTestWorkingDir", "testSlowTest", "testQuickTest", "testAlwaysFails"]
+        all_test_expected_to_be_ran = ["fakeTest", "testAlwaysSuccess", "testWritingToTestWorkingDir", "testSlowTest", "testQuickTest", "testAlwaysFails", "testMethodThatThrowsSwiftError"]
         "Check that all expected tests have been invoked, including the fakeTest which is used for runtime dump feature"
         self.assertEquals(set(all_will_run_tests), set(all_test_expected_to_be_ran))
         

@@ -1,16 +1,38 @@
 #import "TestSuiteInfo.h"
 #import <XCTest/XCTest.h>
 
-@implementation TestSuiteInfo
+NSString *const kSwiftThrowingTestMethodSuffix = @"AndReturnError:";
 
-- (instancetype)initWithInstance:(XCTestCase *)testCaseInstance testMethods:(NSArray<NSString *> *)testMethods
+@implementation TestSuiteInfo
+@synthesize testMethods = _testMethods;
+
+- (instancetype)initWithInstance:(XCTestCase *)testCaseInstance
+              runtimeTestMethods:(NSArray<NSString *> *)runtimeTestMethods
 {
   self = [super init];
   if (self) {
     _testCaseInstance = testCaseInstance;
-    _testMethods = [testMethods copy];
+    _runtimeTestMethods = [runtimeTestMethods copy];
   }
   return self;
+}
+
+- (NSArray<NSString *> *)testMethods {
+    if (_testMethods == nil) {
+        NSMutableArray *testMethods = [[NSMutableArray alloc] init];
+        for (NSString *runtimeMethod in self.runtimeTestMethods) {
+            [testMethods addObject:[self logicalTestMethodForRuntimeMethod:runtimeMethod]];
+        }
+        _testMethods = [testMethods copy];
+    }
+    return _testMethods;
+}
+
+- (NSString *)logicalTestMethodForRuntimeMethod:(NSString *)selectorName {
+    if ([selectorName hasSuffix:kSwiftThrowingTestMethodSuffix]) {
+        return [selectorName substringToIndex:selectorName.length - kSwiftThrowingTestMethodSuffix.length];
+    }
+    return selectorName;
 }
 
 @end
