@@ -122,9 +122,9 @@ public final class QueueServer {
         let requestData = Data(bytes: request.body)
         do {
             let decodedRequest = try decoder.decode(BucketResultRequest.self, from: requestData)
-            log("Decoded \(RESTMethod.bucketResult) from \(decodedRequest.workerId): \(decodedRequest.bucketResult)")
+            log("Decoded \(RESTMethod.bucketResult) from \(decodedRequest.workerId): \(decodedRequest.testingResult)")
             try acceptBucketResultRequest(decodedRequest)
-            return generateJsonResponse(.bucketResultAccepted(bucketId: decodedRequest.bucketResult.testingResult.bucket.bucketId))
+            return generateJsonResponse(.bucketResultAccepted(bucketId: decodedRequest.testingResult.bucket.bucketId))
         } catch {
             log("Failed to process \(request.path) data: \(error). Will return server error response.")
             return .internalServerError
@@ -147,7 +147,7 @@ public final class QueueServer {
         guard let dequeuedBucket = previouslyDequeuedBucket(requestId: request.requestId, workerId: request.workerId) else {
             throw BucketResultRequestError.noDequeuedBucket(requestId: request.requestId, workerId: request.workerId)
         }
-        let requestTestEntries = Set(request.bucketResult.testingResult.unfilteredTestRuns.map { $0.testEntry })
+        let requestTestEntries = Set(request.testingResult.unfilteredTestRuns.map { $0.testEntry })
         let expectedTestEntries = Set(dequeuedBucket.bucket.testEntries)
         guard requestTestEntries == expectedTestEntries else {
             block(workerId: request.workerId, reason: "Worker provided incorrect or ")
@@ -155,10 +155,10 @@ public final class QueueServer {
                 requestId: request.requestId,
                 workerId: request.workerId,
                 expectedTestEntries: dequeuedBucket.bucket.testEntries,
-                providedResults: request.bucketResult.testingResult.unfilteredTestRuns)
+                providedResults: request.testingResult.unfilteredTestRuns)
         }
         
-        didReceive(testingResult: request.bucketResult.testingResult, previouslyDequeuedBucket: dequeuedBucket)
+        didReceive(testingResult: request.testingResult, previouslyDequeuedBucket: dequeuedBucket)
     }
     
     private func didReceive(testingResult: TestingResult, previouslyDequeuedBucket: DequeuedBucket) {

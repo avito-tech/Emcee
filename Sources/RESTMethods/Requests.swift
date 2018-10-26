@@ -32,12 +32,12 @@ public final class BucketResultRequest: Codable {
     public let requestType = RequestType.bucketResult
     public let workerId: String
     public let requestId: String
-    public let bucketResult: BucketResult
+    public let testingResult: TestingResult
     
-    public init(workerId: String, requestId: String, bucketResult: BucketResult) {
+    public init(workerId: String, requestId: String, testingResult: TestingResult) {
         self.workerId = workerId
         self.requestId = requestId
-        self.bucketResult = bucketResult
+        self.testingResult = testingResult
     }
 }
 

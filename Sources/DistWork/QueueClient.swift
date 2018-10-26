@@ -53,8 +53,8 @@ public final class QueueClient {
             completionHandler: handleFetchBucketResponse)
     }
     
-    public func send(bucketResult: BucketResult, requestId: String) throws {
-        let resultRequest = BucketResultRequest(workerId: workerId, requestId: requestId, bucketResult: bucketResult)
+    public func send(testingResult: TestingResult, requestId: String) throws {
+        let resultRequest = BucketResultRequest(workerId: workerId, requestId: requestId, testingResult: testingResult)
         try sendRequest(.bucketResult, payload: resultRequest, completionHandler: handleSendBucketResultResponse)
     }
     

@@ -53,11 +53,11 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         }
     }
     
-    public func send(bucketResult: BucketResult, requestId: String) throws {
+    public func send(testingResult: TestingResult, requestId: String) throws {
         try synchronize {
-            try queueClient.send(bucketResult: bucketResult, requestId: requestId)
+            try queueClient.send(testingResult: testingResult, requestId: requestId)
             try SynchronousWaiter.waitWhile(timeout: 10, description: "Wait for bucket result send") {
-                acceptedBucketResultIds.contains(bucketResult.testingResult.bucket.bucketId)
+                acceptedBucketResultIds.contains(testingResult.bucket.bucketId)
             }
         } as Void
     }

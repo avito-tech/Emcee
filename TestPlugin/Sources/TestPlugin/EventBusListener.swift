@@ -25,6 +25,9 @@ final class EventBusListener: EventStream {
     
     private func dump() {
         do {
+            try FileManager.default.createDirectory(
+                atPath: (outputPath as NSString).deletingLastPathComponent,
+                withIntermediateDirectories: true)
             let encoder = JSONEncoder()
             let data = try encoder.encode(busEvents)
             try data.write(to: URL(fileURLWithPath: outputPath))

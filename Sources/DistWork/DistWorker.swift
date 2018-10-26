@@ -99,7 +99,6 @@ public final class DistWorker {
     }
     
     private func didReceiveTestResult(testingResult: TestingResult) {
-        let bucketResult = BucketResult(testingResult: testingResult)
         do {
             let requestId: String = try syncQueue.sync {
                 guard let requestId = requestIdForBucketId[testingResult.bucket.bucketId] else {
@@ -108,7 +107,7 @@ public final class DistWorker {
                 }
                 return requestId
             }
-            try queueClient.send(bucketResult: bucketResult, requestId: requestId)
+            try queueClient.send(testingResult: testingResult, requestId: requestId)
         } catch {
             log("Failed to send test run result for bucket \(testingResult.bucket.bucketId): \(error)")
             cleanUpAndStop()
