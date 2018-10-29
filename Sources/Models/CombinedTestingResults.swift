@@ -1,20 +1,20 @@
 import Foundation
 
-/** A combination of TestingResult of all Buckets */
+/// A combination of TestingResult of all Buckets
 public struct CombinedTestingResults {
     
-    /** All tests that succeded, after but excluding all possible attempts to restart the failed tests. */
-    public let successfulTests: [TestRunResult]
+    /// All tests that succeded
+    public let successfulTests: [TestEntryResult]
     
-    /** All tests that failed, excluding any attempts to restart them. */
-    public let failedTests: [TestRunResult]
+    /// All tests that failed
+    public let failedTests: [TestEntryResult]
     
-    /** All test results, including all restarts. A single test might be present multiple times. */
-    public let unfilteredTestRuns: [TestRunResult]
+    /// All test results
+    public let unfilteredResults: [TestEntryResult]
     
     public init(testingResults: [TestingResult]) {
         self.successfulTests = testingResults.flatMap { $0.successfulTests }
         self.failedTests = testingResults.flatMap { $0.failedTests }
-        self.unfilteredTestRuns = testingResults.flatMap { $0.unfilteredTestRuns }
+        self.unfilteredResults = testingResults.flatMap { $0.unfilteredResults }
     }
 }

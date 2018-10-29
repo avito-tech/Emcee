@@ -1,10 +1,7 @@
 import Foundation
 
-/**
- * A result of a run for a single TestEntry, including various stats and enviroment info.
- */
+/// A result of a single test run.
 public struct TestRunResult: Codable, CustomStringConvertible {
-    public let testEntry: TestEntry
     public let succeeded: Bool
     public let exceptions: [TestException]
     public let duration: TimeInterval
@@ -15,7 +12,6 @@ public struct TestRunResult: Codable, CustomStringConvertible {
     public let simulatorId: String
 
     public init(
-        testEntry: TestEntry,
         succeeded: Bool,
         exceptions: [TestException],
         duration: TimeInterval,
@@ -25,7 +21,6 @@ public struct TestRunResult: Codable, CustomStringConvertible {
         processId: Int32,
         simulatorId: String)
     {
-        self.testEntry = testEntry
         self.succeeded = succeeded
         self.exceptions = exceptions
         self.duration = duration
@@ -37,6 +32,6 @@ public struct TestRunResult: Codable, CustomStringConvertible {
     }
     
     public var description: String {
-        return "(\(type(of: self)) \(testEntry), result: \(succeeded ? "success" : "failure"))"
+        return "<\(type(of: self)) \(succeeded ? "success" : "failure")>"
     }
 }

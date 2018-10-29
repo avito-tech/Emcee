@@ -4,7 +4,7 @@ import RESTMethods
 
 public enum BucketResultRequestError: Error, CustomStringConvertible {
     case noDequeuedBucket(requestId: String, workerId: String)
-    case notAllResultsAvailable(requestId: String, workerId: String, expectedTestEntries: [TestEntry], providedResults: [TestRunResult])
+    case notAllResultsAvailable(requestId: String, workerId: String, expectedTestEntries: [TestEntry], providedResults: [TestEntryResult])
     
     public var description: String {
         switch self {

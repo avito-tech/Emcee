@@ -147,7 +147,7 @@ public final class QueueServer {
         guard let dequeuedBucket = previouslyDequeuedBucket(requestId: request.requestId, workerId: request.workerId) else {
             throw BucketResultRequestError.noDequeuedBucket(requestId: request.requestId, workerId: request.workerId)
         }
-        let requestTestEntries = Set(request.testingResult.unfilteredTestRuns.map { $0.testEntry })
+        let requestTestEntries = Set(request.testingResult.unfilteredResults.map { $0.testEntry })
         let expectedTestEntries = Set(dequeuedBucket.bucket.testEntries)
         guard requestTestEntries == expectedTestEntries else {
             block(workerId: request.workerId, reason: "Worker provided incorrect or ")
@@ -155,7 +155,7 @@ public final class QueueServer {
                 requestId: request.requestId,
                 workerId: request.workerId,
                 expectedTestEntries: dequeuedBucket.bucket.testEntries,
-                providedResults: request.testingResult.unfilteredTestRuns)
+                providedResults: request.testingResult.unfilteredResults)
         }
         
         didReceive(testingResult: request.testingResult, previouslyDequeuedBucket: dequeuedBucket)

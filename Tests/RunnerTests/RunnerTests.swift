@@ -18,6 +18,7 @@ public final class RunnerTests: XCTestCase {
     let testClassName = "ClassName"
     let testMethod = "testMethod"
     var tempFolder: TempFolder!
+    let testExceptionEvent = TestExceptionEvent(reason: "a reason", filePathInProject: "file", lineNumber: 12)
     
     public override func setUp() {
         XCTAssertNoThrow(try FakeFbxctestExecutableProducer.eraseFakeOutputEvents())
@@ -34,7 +35,7 @@ public final class RunnerTests: XCTestCase {
         let testResult = results[0]
         XCTAssertFalse(testResult.succeeded)
         XCTAssertEqual(testResult.testEntry, testEntry)
-        XCTAssertEqual(testResult.exceptions[0].reason, RunnerConstants.testDidNotRun.rawValue)
+        XCTAssertEqual(testResult.testRunResults[0].exceptions[0].reason, RunnerConstants.testDidNotRun.rawValue)
     }
 
     func testRunningSuccessfulTestGivesPositiveResults() throws {
@@ -60,7 +61,7 @@ public final class RunnerTests: XCTestCase {
         XCTAssertFalse(testResult.succeeded)
         XCTAssertEqual(testResult.testEntry, testEntry)
         XCTAssertEqual(
-            testResult.exceptions,
+            testResult.testRunResults[0].exceptions,
             [TestException(reason: "a reason", filePathInProject: "file", lineNumber: 12)])
     }
     
@@ -84,7 +85,7 @@ public final class RunnerTests: XCTestCase {
         XCTAssertEqual(testResult.testEntry, testEntry)
     }
     
-    private func runTestEntries(_ testEntries: [TestEntry]) throws -> [TestRunResult] {
+    private func runTestEntries(_ testEntries: [TestEntry]) throws -> [TestEntryResult] {
         let runner = Runner(eventBus: EventBus(), configuration: createRunnerConfig(), tempFolder: tempFolder)
         return try runner.run(entries: testEntries, onSimulator: shimulator)
     }
@@ -104,7 +105,7 @@ public final class RunnerTests: XCTestCase {
                     className: testClassName,
                     methodName: testMethod,
                     totalDuration: 0.5,
-                    exceptions: success ? [] : [TestExceptionEvent(reason: "a reason", filePathInProject: "file", lineNumber: 12)],
+                    exceptions: success ? [] : [testExceptionEvent],
                     succeeded: success,
                     output: "",
                     logs: [],
@@ -136,5 +137,13 @@ public final class RunnerTests: XCTestCase {
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 5),
             testDiagnosticOutput: TestDiagnosticOutput.nullOutput)
         return configuration
+    }
+}
+
+extension TestException: Equatable {
+    public static func == (l: TestException, r: TestException) -> Bool {
+        return l.reason == r.reason &&
+            l.filePathInProject == r.filePathInProject &&
+            l.lineNumber == r.lineNumber
     }
 }

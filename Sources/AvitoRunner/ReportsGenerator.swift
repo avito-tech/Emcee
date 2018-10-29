@@ -30,25 +30,25 @@ public final class ReportsGenerator {
     }
     
     private func prepareJunitReport(testingResult: CombinedTestingResults, path: String) throws {
-        let testCases = [testingResult.successfulTests, testingResult.failedTests]
-            .flatMap { $0 }
-            .map { (result: TestRunResult) -> JunitTestCase in
-                let failures = result.exceptions.map {
+        let testCases = testingResult.unfilteredResults
+            .map { (testEntryResult: TestEntryResult) -> JunitTestCase in
+                let testRunResult = testEntryResult.appropriateTestRunResult
+                let failures = testRunResult.exceptions.map {
                     JunitTestCaseFailure(
                         reason: $0.reason,
                         fileLine: "\($0.filePathInProject):\($0.lineNumber)")
                 }
                 let boundaries = JunitTestCaseBoundaries(
-                    processId: result.processId,
-                    simulatorId: result.simulatorId,
-                    startTime: result.startTime,
-                    finishTime: result.finishTime)
+                    processId: testRunResult.processId,
+                    simulatorId: testRunResult.simulatorId,
+                    startTime: testRunResult.startTime,
+                    finishTime: testRunResult.finishTime)
                 return JunitTestCase(
-                    caseId: result.testEntry.caseId,
-                    className: result.testEntry.className,
-                    name: result.testEntry.methodName,
-                    time: result.duration,
-                    isFailure: !result.succeeded,
+                    caseId: testEntryResult.testEntry.caseId,
+                    className: testEntryResult.testEntry.className,
+                    name: testEntryResult.testEntry.methodName,
+                    time: testRunResult.duration,
+                    isFailure: !testRunResult.succeeded,
                     failures: failures,
                     boundaries: boundaries)
         }
@@ -75,3 +75,22 @@ public final class ReportsGenerator {
     }
 }
 
+private extension TestEntryResult {
+    /// Returns a `TestRunResult` that can be used as a single result for this `TestEntry`.
+    /// E.g. if there is any successful result, it will be returned. Otherwise, a failed result will be returned.
+    var appropriateTestRunResult: TestRunResult {
+        let appropriateTestRunResult: TestRunResult?
+        
+        let sorted = testRunResults.sorted { (left, right) -> Bool in
+            return left.startTime > right.startTime
+        }
+        if succeeded {
+            appropriateTestRunResult = sorted.first(where: { (result: TestRunResult) -> Bool in result.succeeded == true })
+        } else {
+            appropriateTestRunResult = sorted.first
+        }
+        
+        return appropriateTestRunResult!
+    }
+
+}

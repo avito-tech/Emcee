@@ -26,10 +26,10 @@ public final class Runner {
     }
     
     /** Runs the given tests, attempting to restart the runner in case of crash. */
-    public func run(entries: [TestEntry], onSimulator simulator: Simulator) throws -> [TestRunResult] {
+    public func run(entries: [TestEntry], onSimulator simulator: Simulator) throws -> [TestEntryResult] {
         if entries.isEmpty { return [] }
         
-        var results = [TestRunResult]()
+        var results = [TestEntryResult]()
         
         // To not retry forever.
         // It is unlikely that multiple revives would provide any results, so we leave only a single retry.
@@ -67,7 +67,7 @@ public final class Runner {
     }
     
     /** Runs the given tests once without any attempts to restart the failed/crashed tests. */
-    public func runOnce(entriesToRun: [TestEntry], onSimulator simulator: Simulator) throws -> [TestRunResult] {
+    public func runOnce(entriesToRun: [TestEntry], onSimulator simulator: Simulator) throws -> [TestEntryResult] {
         if entriesToRun.isEmpty {
             log("Nothing to run!", color: .blue)
             return []
@@ -92,7 +92,7 @@ public final class Runner {
             requestedEntriesToRun: entriesToRun,
             testEventPairs: fbxctestOutputProcessor.testEventPairs)
         
-        eventBus.post(event: .runnerEvent(.didRun(testEntries: entriesToRun, testContext: testContext, results: result)))
+        eventBus.post(event: .runnerEvent(.didRun(results: result, testContext: testContext)))
         
         log("Attempted to run \(entriesToRun.count) tests on simulator \(simulator): \(entriesToRun)", color: .blue)
         log("Did get \(result.count) results: \(result)", color: .boldBlue)
@@ -160,7 +160,7 @@ public final class Runner {
     private func prepareResults(
         requestedEntriesToRun: [TestEntry],
         testEventPairs: [TestEventPair])
-        -> [TestRunResult]
+        -> [TestEntryResult]
     {
         return requestedEntriesToRun.compactMap { requestedEntryToRun in
             prepareResult(
@@ -172,23 +172,25 @@ public final class Runner {
     private func prepareResult(
         requestedEntryToRun: TestEntry,
         testEventPairs: [TestEventPair])
-        -> TestRunResult?
+        -> TestEntryResult?
     {
         let correspondingEventPair = testEventPairForEntry(
             requestedEntryToRun,
             testEventPairs: testEventPairs)
         
         if let correspondingEventPair = correspondingEventPair, let finishEvent = correspondingEventPair.finishEvent {
-            return TestRunResult(
+            return TestEntryResult(
                 testEntry: requestedEntryToRun,
-                succeeded: finishEvent.succeeded,
-                exceptions: finishEvent.exceptions.map { TestException(reason: $0.reason, filePathInProject: $0.filePathInProject, lineNumber: $0.lineNumber) },
-                duration: finishEvent.totalDuration,
-                startTime: correspondingEventPair.startEvent.timestamp,
-                finishTime: finishEvent.timestamp,
-                hostName: correspondingEventPair.startEvent.hostName ?? "host was not set to TestStartedEvent",
-                processId: correspondingEventPair.startEvent.processId ?? 0,
-                simulatorId: correspondingEventPair.startEvent.simulatorId ?? "unknown_simulator")
+                testRunResult:
+                TestRunResult(
+                    succeeded: finishEvent.succeeded,
+                    exceptions: finishEvent.exceptions.map { TestException(reason: $0.reason, filePathInProject: $0.filePathInProject, lineNumber: $0.lineNumber) },
+                    duration: finishEvent.totalDuration,
+                    startTime: correspondingEventPair.startEvent.timestamp,
+                    finishTime: finishEvent.timestamp,
+                    hostName: correspondingEventPair.startEvent.hostName ?? "host was not set to TestStartedEvent",
+                    processId: correspondingEventPair.startEvent.processId ?? 0,
+                    simulatorId: correspondingEventPair.startEvent.simulatorId ?? "unknown_simulator"))
         } else {
             return nil
         }
@@ -204,7 +206,7 @@ public final class Runner {
     
     private func missingEntriesForScheduledEntries(
         expectedEntriesToRun: [TestEntry],
-        collectedResults: [TestRunResult])
+        collectedResults: [TestEntryResult])
         -> [TestEntry]
     {
         let receivedTestNames = Set(collectedResults.map { $0.testEntry.testName })
@@ -213,8 +215,8 @@ public final class Runner {
     
     private func resultsForTestsThatDidNotRun(
         testEntries: [TestEntry],
-        resultsForFinishedTests: [TestRunResult])
-        -> [TestRunResult]
+        resultsForFinishedTests: [TestEntryResult])
+        -> [TestEntryResult]
     {
         let testNamesForFinishedTests = Set(resultsForFinishedTests.map { $0.testEntry.testName })
         
@@ -227,22 +229,23 @@ public final class Runner {
         }
     }
     
-    private func resultForSingleTestThatDidNotRun(testEntry: TestEntry) -> TestRunResult {
+    private func resultForSingleTestThatDidNotRun(testEntry: TestEntry) -> TestEntryResult {
         let timestamp = Date().timeIntervalSince1970
-        return TestRunResult(
+        return TestEntryResult(
             testEntry: testEntry,
-            succeeded: false,
-            exceptions: [
-                TestException(
-                    reason: RunnerConstants.testDidNotRun.rawValue,
-                    filePathInProject: #file,
-                    lineNumber: #line)
-            ],
-            duration: 0,
-            startTime: timestamp,
-            finishTime: timestamp,
-            hostName: HostDeterminer.currentHostAddress,
-            processId: 0,
-            simulatorId: "no_simulator")
+            testRunResult: TestRunResult(
+                succeeded: false,
+                exceptions: [
+                    TestException(
+                        reason: RunnerConstants.testDidNotRun.rawValue,
+                        filePathInProject: #file,
+                        lineNumber: #line)
+                ],
+                duration: 0,
+                startTime: timestamp,
+                finishTime: timestamp,
+                hostName: HostDeterminer.currentHostAddress,
+                processId: 0,
+                simulatorId: "no_simulator"))
     }
 }

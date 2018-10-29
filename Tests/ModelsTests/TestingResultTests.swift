@@ -1,0 +1,145 @@
+import Foundation
+import Models
+import XCTest
+
+final class TestingResultTests: XCTestCase {
+    func testFilteringResults() throws {
+        let result = TestingResult(
+            bucket: Bucket(
+                testEntries: [],
+                testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3")),
+            unfilteredResults: [
+                TestEntryResult(
+                    testEntry: TestEntry(className: "success", methodName: "", caseId: nil),
+                    testRunResult: testRunResult(succeeded: true, ts: 0)),
+                TestEntryResult(
+                    testEntry: TestEntry(className: "failure", methodName: "", caseId: nil),
+                    testRunResult: testRunResult(succeeded: false, ts: 0))
+            ])
+        
+        XCTAssertEqual(result.successfulTests.count, 1)
+        XCTAssertEqual(result.successfulTests[0].testEntry.className, "success")
+        
+        XCTAssertEqual(result.failedTests.count, 1)
+        XCTAssertEqual(result.failedTests[0].testEntry.className, "failure")
+        
+        XCTAssertEqual(result.unfilteredResults.count, 2)
+    }
+    
+    func testFilteringResultsWithMultipleRuns() throws {
+        let result = TestingResult(
+            bucket: Bucket(
+                testEntries: [],
+                testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3")),
+            unfilteredResults: [
+                TestEntryResult(
+                    testEntry: TestEntry(className: "success", methodName: "", caseId: nil),
+                    testRunResults: [
+                        testRunResult(succeeded: true, ts: 0),
+                        testRunResult(succeeded: false, ts: 2)
+                    ])
+            ])
+        
+        XCTAssertEqual(result.successfulTests.count, 1)
+        XCTAssertEqual(result.successfulTests[0].testEntry.className, "success")
+        
+        XCTAssertEqual(result.failedTests.count, 0)
+    }
+    
+    func testMerging() throws {
+        let bucket = Bucket(
+            testEntries: [],
+            testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3"))
+        let testEntry1 = TestEntry(className: "success", methodName: "", caseId: nil)
+        let testEntry2 = TestEntry(className: "failure", methodName: "", caseId: nil)
+        
+        let result1 = TestingResult(
+            bucket: bucket,
+            unfilteredResults: [
+                TestEntryResult(
+                    testEntry: testEntry1,
+                    testRunResults: [
+                        testRunResult(succeeded: true, ts: 10),
+                        testRunResult(succeeded: false, ts: 11)
+                    ])
+            ])
+        let result2 = TestingResult(
+            bucket: bucket,
+            unfilteredResults: [
+                TestEntryResult(
+                    testEntry: testEntry1,
+                    testRunResults: [
+                        testRunResult(succeeded: false, ts: 0),
+                        testRunResult(succeeded: false, ts: 1)
+                    ])
+            ])
+        let result3 = TestingResult(
+            bucket: bucket,
+            unfilteredResults: [
+                TestEntryResult(
+                    testEntry: testEntry2,
+                    testRunResults: [
+                        testRunResult(succeeded: false, ts: 42)
+                    ])
+            ])
+        
+        let merged = try TestingResult.byMerging(testingResults: [result1, result2, result3])
+        
+        XCTAssertEqual(merged.bucket, bucket)
+        XCTAssertEqual(merged.unfilteredResults.count, 2)
+        
+        XCTAssertEqual(merged.successfulTests.count, 1)
+        XCTAssertEqual(merged.successfulTests[0].testEntry, testEntry1)
+        XCTAssertEqual(merged.successfulTests[0].testRunResults.count, 4)
+        
+        XCTAssertEqual(merged.failedTests.count, 1)
+        XCTAssertEqual(merged.failedTests[0].testEntry, testEntry2)
+        XCTAssertEqual(merged.failedTests[0].testRunResults.count, 1)
+        XCTAssertEqual(merged.failedTests[0].testRunResults[0].startTime, 42, accuracy: 0.1)
+    }
+    
+    func testMergingMismatchingBucketsFails() throws {
+        let bucket1 = Bucket(
+            testEntries: [],
+            testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3"))
+        let bucket2 = Bucket(
+            testEntries: [],
+            testDestination: try TestDestination(deviceType: "device", iOSVersion: "10.0"))
+        let testEntry = TestEntry(className: "success", methodName: "", caseId: nil)
+        
+        let result1 = TestingResult(
+            bucket: bucket1,
+            unfilteredResults: [
+                TestEntryResult(
+                    testEntry: testEntry,
+                    testRunResults: [
+                        testRunResult(succeeded: true, ts: 10),
+                        testRunResult(succeeded: false, ts: 11)
+                    ])
+            ])
+        let result2 = TestingResult(
+            bucket: bucket2,
+            unfilteredResults: [
+                TestEntryResult(
+                    testEntry: testEntry,
+                    testRunResults: [
+                        testRunResult(succeeded: false, ts: 0),
+                        testRunResult(succeeded: false, ts: 1)
+                    ])
+            ])
+        XCTAssertThrowsError(_ = try TestingResult.byMerging(testingResults: [result1, result2]))
+    }
+    
+    private func testRunResult(succeeded: Bool, ts: TimeInterval) -> TestRunResult {
+        return TestRunResult(
+            succeeded: succeeded,
+            exceptions: [],
+            duration: 0,
+            startTime: ts,
+            finishTime: ts,
+            hostName: "",
+            processId: 0,
+            simulatorId: "")
+    }
+}
+

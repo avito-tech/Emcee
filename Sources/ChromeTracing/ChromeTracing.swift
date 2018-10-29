@@ -65,9 +65,9 @@ public final class ChromeTraceGenerator {
     
     private lazy var chromeTrace: ChromeTrace = {
         var previouslyFailedTests = Set<String>()
-        let resultForTest = { (testRunResult: TestRunResult) -> ChromeTraceEvent.Result in
-            let testName = testRunResult.testEntry.testName
-            if !testRunResult.succeeded {
+        let resultForTest = { (testEntryResult: TestEntryResult) -> ChromeTraceEvent.Result in
+            let testName = testEntryResult.testEntry.testName
+            if !testEntryResult.succeeded {
                 previouslyFailedTests.insert(testName)
                 return ChromeTraceEvent.Result.failure
             } else if previouslyFailedTests.contains(testName) {
@@ -77,29 +77,35 @@ public final class ChromeTraceGenerator {
             }
         }
         
-        let events = testingResult.unfilteredTestRuns.flatMap { (testRunResult: TestRunResult) in
-            createBeginAndEndEventsForTest(testRunResult: testRunResult, result: resultForTest(testRunResult))
+        let events = testingResult.unfilteredResults.flatMap { (result: TestEntryResult) in
+            createEventsForTest(testResult: result, result: resultForTest(result))
         }
         return ChromeTrace(traceEvents: events)
     }()
     
-    private func createBeginAndEndEventsForTest(testRunResult: TestRunResult, result: ChromeTraceEvent.Result) -> [ChromeTraceEvent] {
-        let testName = testRunResult.testEntry.testName
-        let startEvent = ChromeTraceEvent(
-            testName: testName,
-            result: result,
-            phase: ChromeTraceEvent.Phase.begin,
-            timestamp: testRunResult.startTime * 1000 * 1000,
-            host: testRunResult.hostName,
-            simulatorId: testRunResult.simulatorId)
-        let finishEvent = ChromeTraceEvent(
-            testName: testName,
-            result: result,
-            phase: ChromeTraceEvent.Phase.finish,
-            timestamp: testRunResult.finishTime * 1000 * 1000,
-            host: testRunResult.hostName,
-            simulatorId: testRunResult.simulatorId)
-        return [startEvent, finishEvent]
+    private func createEventsForTest(
+        testResult: TestEntryResult,
+        result: ChromeTraceEvent.Result)
+        -> [ChromeTraceEvent]
+    {
+        let testName = testResult.testEntry.testName
+        return testResult.testRunResults.flatMap { testRunResult -> [ChromeTraceEvent] in
+            let startEvent = ChromeTraceEvent(
+                testName: testName,
+                result: result,
+                phase: ChromeTraceEvent.Phase.begin,
+                timestamp: testRunResult.startTime * 1000 * 1000,
+                host: testRunResult.hostName,
+                simulatorId: testRunResult.simulatorId)
+            let finishEvent = ChromeTraceEvent(
+                testName: testName,
+                result: result,
+                phase: ChromeTraceEvent.Phase.finish,
+                timestamp: testRunResult.finishTime * 1000 * 1000,
+                host: testRunResult.hostName,
+                simulatorId: testRunResult.simulatorId)
+            return [startEvent, finishEvent]
+        }
     }
     
     public func writeReport(path: String) throws {

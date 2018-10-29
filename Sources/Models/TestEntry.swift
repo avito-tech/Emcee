@@ -34,7 +34,7 @@ public struct TestEntry: CustomStringConvertible, Codable, Hashable {
         
         let componentsJoined = components.joined(separator: ", ")
         
-        return "(\(TestEntry.self) \(componentsJoined))"
+        return "<\(TestEntry.self) \(componentsJoined)>"
     }
     
     public var hashValue: Int {

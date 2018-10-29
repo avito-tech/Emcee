@@ -67,16 +67,12 @@ final class PluginManagerTests: XCTestCase {
             bucket: Bucket(
                 testEntries: [],
                 testDestination: try TestDestination(deviceType: "iPhone SE", iOSVersion: "10.3")),
-            successfulTests: [],
-            failedTests: [],
-            unfilteredTestRuns: [])
+            unfilteredResults: [])
         let testingResult2 = TestingResult(
             bucket: Bucket(
                 testEntries: [],
                 testDestination: try TestDestination(deviceType: "iPhone 7", iOSVersion: "11.3")),
-            successfulTests: [],
-            failedTests: [],
-            unfilteredTestRuns: [])
+            unfilteredResults: [])
         
         let manager = PluginManager(
             pluginLocations: [

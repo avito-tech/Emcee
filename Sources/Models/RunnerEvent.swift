@@ -2,7 +2,7 @@ import Foundation
 
 public enum RunnerEvent {
     case willRun(testEntries: [TestEntry], testContext: TestContext)
-    case didRun(testEntries: [TestEntry], testContext: TestContext, results: [TestRunResult])
+    case didRun(results: [TestEntryResult], testContext: TestContext)
 }
 
 extension RunnerEvent: Codable {
@@ -28,10 +28,9 @@ extension RunnerEvent: Codable {
             let testContext = try container.decode(TestContext.self, forKey: .testContext)
             self = .willRun(testEntries: testEntries, testContext: testContext)
         case .didRun:
-            let testEntries = try container.decode([TestEntry].self, forKey: .testEntries)
+            let results = try container.decode([TestEntryResult].self, forKey: .results)
             let testContext = try container.decode(TestContext.self, forKey: .testContext)
-            let results = try container.decode([TestRunResult].self, forKey: .results)
-            self = .didRun(testEntries: testEntries, testContext: testContext, results: results)
+            self = .didRun(results: results, testContext: testContext)
         }
     }
     
@@ -43,11 +42,10 @@ extension RunnerEvent: Codable {
             try container.encode(EventType.willRun, forKey: .eventType)
             try container.encode(testEntries, forKey: .testEntries)
             try container.encode(testContext, forKey: .testContext)
-        case .didRun(let testEntries, let testContext, let results):
+        case .didRun(let results, let testContext):
             try container.encode(EventType.didRun, forKey: .eventType)
-            try container.encode(testEntries, forKey: .testEntries)
-            try container.encode(testContext, forKey: .testContext)
             try container.encode(results, forKey: .results)
+            try container.encode(testContext, forKey: .testContext)
         }
     }
 }

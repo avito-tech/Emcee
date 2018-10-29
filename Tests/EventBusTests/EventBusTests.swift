@@ -13,9 +13,7 @@ final class EventBusTest: XCTestCase {
             bucket: Bucket(
                 testEntries: [],
                 testDestination: try TestDestination(deviceType: "dvc", iOSVersion: "11.3")),
-            successfulTests: [],
-            failedTests: [],
-            unfilteredTestRuns: [])
+            unfilteredResults: [])
         
         bus.post(event: .didObtainTestingResult(testingResult))
         

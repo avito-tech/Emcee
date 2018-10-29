@@ -84,16 +84,16 @@ public final class Scheduler {
             let resourceRequirement = bucket.testDestination.resourceRequirement
             let acquireResources = try resourceSemaphore.acquire(.of(runningTests: resourceRequirement))
             let runTestsInBucketAfterAcquiringResources = BlockOperation {
-                self.fetchAndRunBucket()
-                let testingResult = self.runRetrying(bucket: bucket)
                 do {
+                    self.fetchAndRunBucket()
+                    let testingResult = try self.runRetrying(bucket: bucket)
                     try self.resourceSemaphore.release(.of(runningTests: resourceRequirement))
+                    self.didReceiveResults(testingResult: testingResult)
+                    self.eventBus.post(event: .didObtainTestingResult(testingResult))
+                    self.fetchAndRunBucket()
                 } catch {
-                    log("Failed to release resources: \(error)")
+                    log("Error running tests from fetched bucket: \(error)")
                 }
-                self.didReceiveResults(testingResult: testingResult)
-                self.eventBus.post(event: .didObtainTestingResult(testingResult))
-                self.fetchAndRunBucket()
             }
             acquireResources.addCascadeCancellableDependency(runTestsInBucketAfterAcquiringResources)
             queue.addOperation(runTestsInBucketAfterAcquiringResources)
@@ -113,34 +113,28 @@ public final class Scheduler {
     /**
      Runs tests in a given Bucket, retrying failed tests multiple times if necessary.
      */
-    private func runRetrying(bucket: Bucket) -> TestingResult {
-        do {
-            let firstRun = try runBucketOnce(bucket: bucket, testsToRun: bucket.testEntries)
-            
-            guard configuration.testExecutionBehavior.numberOfRetries > 0 else {
-                log("numberOfRetries == 0, will not retry failed tests.")
-                return firstRun
-            }
-            
-            var lastRunResults = firstRun
-            var results = [firstRun]
-            for retryNumber in 0 ..< configuration.testExecutionBehavior.numberOfRetries {
-                let failedTestEntriesAfterLastRun = lastRunResults.failedTests.map { $0.testEntry }
-                if failedTestEntriesAfterLastRun.isEmpty {
-                    log("No failed tests after last retry, so nothing to run.")
-                    break
-                }
-                log("After last run \(failedTestEntriesAfterLastRun.count) tests have failed: \(failedTestEntriesAfterLastRun).")
-                log("Retrying them, attempt #\(retryNumber + 1) of maximum \(configuration.testExecutionBehavior.numberOfRetries) attempts")
-                lastRunResults = try runBucketOnce(bucket: bucket, testsToRun: failedTestEntriesAfterLastRun)
-                results.append(lastRunResults)
-            }
-            return combine(runResults: results)
-        } catch {
-            log("Failed to run tests in bucket: \(bucket)", color: .red)
-            log("Error: \(error)", color: .red)
-            return TestingResult.emptyResult(bucket: bucket)
+    private func runRetrying(bucket: Bucket) throws -> TestingResult {
+        let firstRun = try runBucketOnce(bucket: bucket, testsToRun: bucket.testEntries)
+        
+        guard configuration.testExecutionBehavior.numberOfRetries > 0 else {
+            log("numberOfRetries == 0, will not retry failed tests.")
+            return firstRun
         }
+        
+        var lastRunResults = firstRun
+        var results = [firstRun]
+        for retryNumber in 0 ..< configuration.testExecutionBehavior.numberOfRetries {
+            let failedTestEntriesAfterLastRun = lastRunResults.failedTests.map { $0.testEntry }
+            if failedTestEntriesAfterLastRun.isEmpty {
+                log("No failed tests after last retry, so nothing to run.")
+                break
+            }
+            log("After last run \(failedTestEntriesAfterLastRun.count) tests have failed: \(failedTestEntriesAfterLastRun).")
+            log("Retrying them, attempt #\(retryNumber + 1) of maximum \(configuration.testExecutionBehavior.numberOfRetries) attempts")
+            lastRunResults = try runBucketOnce(bucket: bucket, testsToRun: failedTestEntriesAfterLastRun)
+            results.append(lastRunResults)
+        }
+        return try combine(runResults: results)
     }
     
     private func runBucketOnce(bucket: Bucket, testsToRun: [TestEntry]) throws -> TestingResult {
@@ -168,9 +162,7 @@ public final class Scheduler {
         let runnerResult = try runner.run(entries: testsToRun, onSimulator: simulator)
         return TestingResult(
             bucket: bucket,
-            successfulTests: runnerResult.filter { $0.succeeded == true },
-            failedTests: runnerResult.filter { $0.succeeded == false },
-            unfilteredTestRuns: runnerResult)
+            unfilteredResults: runnerResult)
     }
     
     // MARK: - Utility Methods
@@ -179,23 +171,12 @@ public final class Scheduler {
      Combines several TestingResult objects of the same Bucket, after running and retrying tests,
      so if some tests become green, the resulting combined object will have it in a green state.
      */
-    private func combine(runResults: [TestingResult]) -> TestingResult {
-        let buckets = Set(runResults.map { $0.bucket })
-        guard buckets.count == 1, let bucket = buckets.first else {
-            fatalLogAndError("Error: Failed to combine results as they have different buckets: \(runResults)")
-        }
-        
+    private func combine(runResults: [TestingResult]) throws -> TestingResult {
         // All successful tests should be merged into a single array.
         // Last run's `failedTests` contains all tests that failed after all attempts to rerun failed tests.
         log("Combining the following results from \(runResults.count) runs:")
         runResults.forEach { log("Result: \($0)") }
-        
-        let result = TestingResult(
-            bucket: bucket,
-            successfulTests: runResults.flatMap { $0.successfulTests },
-            failedTests: runResults.last?.failedTests ?? [],
-            unfilteredTestRuns: runResults.flatMap { $0.successfulTests + $0.failedTests })
-        
+        let result = try TestingResult.byMerging(testingResults: runResults)
         log("Combined result: \(result)")
         return result
     }
