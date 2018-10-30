@@ -29,7 +29,7 @@ public final class Runner {
     public func run(entries: [TestEntry], onSimulator simulator: Simulator) throws -> [TestEntryResult] {
         if entries.isEmpty { return [] }
         
-        var results = [TestEntryResult]()
+        let runResult = RunResult()
         
         // To not retry forever.
         // It is unlikely that multiple revives would provide any results, so we leave only a single retry.
@@ -42,14 +42,14 @@ public final class Runner {
         // is promblem in them, not in infrastructure.
         
         var reviveAttempt = 0
-        while results.count < entries.count, reviveAttempt <= numberOfAttemptsToRevive {
+        while runResult.nonLostTestEntryResults.count < entries.count, reviveAttempt <= numberOfAttemptsToRevive {
             let entriesToRun = missingEntriesForScheduledEntries(
                 expectedEntriesToRun: entries,
-                collectedResults: results)
+                collectedResults: runResult)
             let runResults = try runOnce(entriesToRun: entriesToRun, onSimulator: simulator)
-            results.append(contentsOf: runResults)
+            runResult.append(testEntryResults: runResults)
             
-            if runResults.isEmpty {
+            if runResults.filter({ !$0.isLost }).isEmpty {
                 // Here, if we do not receive events at all, we will get 0 results. We try to revive a limited number of times.
                 reviveAttempt += 1
                 log("Got no results. Attempting to revive #\(reviveAttempt) out of allowed \(numberOfAttemptsToRevive) attempts to revive")
@@ -59,11 +59,7 @@ public final class Runner {
             }
         }
         
-        let resultsForTestsThatDidNotRun = self.resultsForTestsThatDidNotRun(
-            testEntries: entries,
-            resultsForFinishedTests: results)
-        
-        return results + resultsForTestsThatDidNotRun
+        return testEntryResults(runResult: runResult)
     }
     
     /** Runs the given tests once without any attempts to restart the failed/crashed tests. */
@@ -162,7 +158,7 @@ public final class Runner {
         testEventPairs: [TestEventPair])
         -> [TestEntryResult]
     {
-        return requestedEntriesToRun.compactMap { requestedEntryToRun in
+        return requestedEntriesToRun.map { requestedEntryToRun in
             prepareResult(
                 requestedEntryToRun: requestedEntryToRun,
                 testEventPairs: testEventPairs)
@@ -172,28 +168,40 @@ public final class Runner {
     private func prepareResult(
         requestedEntryToRun: TestEntry,
         testEventPairs: [TestEventPair])
-        -> TestEntryResult?
+        -> TestEntryResult
     {
         let correspondingEventPair = testEventPairForEntry(
             requestedEntryToRun,
             testEventPairs: testEventPairs)
         
         if let correspondingEventPair = correspondingEventPair, let finishEvent = correspondingEventPair.finishEvent {
-            return TestEntryResult(
+            return testEntryResultForFinishedTest(
                 testEntry: requestedEntryToRun,
-                testRunResult:
-                TestRunResult(
-                    succeeded: finishEvent.succeeded,
-                    exceptions: finishEvent.exceptions.map { TestException(reason: $0.reason, filePathInProject: $0.filePathInProject, lineNumber: $0.lineNumber) },
-                    duration: finishEvent.totalDuration,
-                    startTime: correspondingEventPair.startEvent.timestamp,
-                    finishTime: finishEvent.timestamp,
-                    hostName: correspondingEventPair.startEvent.hostName ?? "host was not set to TestStartedEvent",
-                    processId: correspondingEventPair.startEvent.processId ?? 0,
-                    simulatorId: correspondingEventPair.startEvent.simulatorId ?? "unknown_simulator"))
+                startEvent: correspondingEventPair.startEvent,
+                finishEvent: finishEvent)
         } else {
-            return nil
+            return .lost(testEntry: requestedEntryToRun)
         }
+    }
+    
+    private func testEntryResultForFinishedTest(
+        testEntry: TestEntry,
+        startEvent: TestStartedEvent,
+        finishEvent: TestFinishedEvent)
+        -> TestEntryResult
+    {
+        return .withResult(
+            testEntry: testEntry,
+            testRunResult:
+            TestRunResult(
+                succeeded: finishEvent.succeeded,
+                exceptions: finishEvent.exceptions.map { TestException(reason: $0.reason, filePathInProject: $0.filePathInProject, lineNumber: $0.lineNumber) },
+                duration: finishEvent.totalDuration,
+                startTime: startEvent.timestamp,
+                finishTime: finishEvent.timestamp,
+                hostName: startEvent.hostName ?? "host was not set to TestStartedEvent",
+                processId: startEvent.processId ?? 0,
+                simulatorId: startEvent.simulatorId ?? "unknown_simulator"))
     }
     
     private func testEventPairForEntry(
@@ -206,32 +214,26 @@ public final class Runner {
     
     private func missingEntriesForScheduledEntries(
         expectedEntriesToRun: [TestEntry],
-        collectedResults: [TestEntryResult])
+        collectedResults: RunResult)
         -> [TestEntry]
     {
-        let receivedTestNames = Set(collectedResults.map { $0.testEntry.testName })
-        return expectedEntriesToRun.filter { !receivedTestNames.contains($0.testName) }
+        let receivedTestEntries = Set(collectedResults.nonLostTestEntryResults.map { $0.testEntry })
+        return expectedEntriesToRun.filter { !receivedTestEntries.contains($0) }
     }
     
-    private func resultsForTestsThatDidNotRun(
-        testEntries: [TestEntry],
-        resultsForFinishedTests: [TestEntryResult])
-        -> [TestEntryResult]
-    {
-        let testNamesForFinishedTests = Set(resultsForFinishedTests.map { $0.testEntry.testName })
-        
-        return testEntries.compactMap { testEntry in
-            if testNamesForFinishedTests.contains(testEntry.testName) {
-                return nil
+    private func testEntryResults(runResult: RunResult) -> [TestEntryResult] {
+        return runResult.testEntryResults.map {
+            if $0.isLost {
+                return resultForSingleTestThatDidNotRun(testEntry: $0.testEntry)
             } else {
-                return resultForSingleTestThatDidNotRun(testEntry: testEntry)
+                return $0
             }
         }
     }
     
     private func resultForSingleTestThatDidNotRun(testEntry: TestEntry) -> TestEntryResult {
         let timestamp = Date().timeIntervalSince1970
-        return TestEntryResult(
+        return .withResult(
             testEntry: testEntry,
             testRunResult: TestRunResult(
                 succeeded: false,

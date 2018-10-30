@@ -4,14 +4,27 @@ public struct TestEntryResult: Codable, CustomStringConvertible {
     public let testEntry: TestEntry
     public let testRunResults: [TestRunResult]
     
-    public init(testEntry: TestEntry, testRunResults: [TestRunResult]) {
-        precondition(testRunResults.count > 0, "TestEntryResult '\(testEntry)' must have at least a single result!")
+    private init(testEntry: TestEntry, testRunResults: [TestRunResult]) {
         self.testEntry = testEntry
         self.testRunResults = testRunResults
     }
     
-    public init(testEntry: TestEntry, testRunResult: TestRunResult) {
-        self.init(testEntry: testEntry, testRunResults: [testRunResult])
+    public static func withResults(testEntry: TestEntry, testRunResults: [TestRunResult]) -> TestEntryResult {
+        precondition(testRunResults.count > 0, "TestEntryResult '\(testEntry)' must have at least a single result!")
+        return TestEntryResult(testEntry: testEntry, testRunResults: testRunResults)
+    }
+    
+    public static func withResult(testEntry: TestEntry, testRunResult: TestRunResult) -> TestEntryResult {
+        return TestEntryResult(testEntry: testEntry, testRunResults: [testRunResult])
+    }
+    
+    public static func lost(testEntry: TestEntry) -> TestEntryResult {
+        return TestEntryResult(testEntry: testEntry, testRunResults: [])
+    }
+    
+    /// Indicates if runner was not able to start or finish the run of the test
+    public var isLost: Bool {
+        return testRunResults.isEmpty
     }
     
     public var succeeded: Bool {

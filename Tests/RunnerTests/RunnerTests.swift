@@ -22,7 +22,7 @@ public final class RunnerTests: XCTestCase {
     
     public override func setUp() {
         XCTAssertNoThrow(try FakeFbxctestExecutableProducer.eraseFakeOutputEvents())
-        XCTAssertNoThrow(tempFolder = try? TempFolder())
+        XCTAssertNoThrow(tempFolder = try TempFolder())
     }
     
     func testRunningTestWithoutAnyFeedbackEventsGivesFailureResults() throws {

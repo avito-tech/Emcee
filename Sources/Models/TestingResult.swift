@@ -60,7 +60,7 @@ public extension TestingResult {
             }
         }
         let mergedResults = testEntryResults.map { (testEntry: TestEntry, runResults: [TestRunResult]) -> TestEntryResult in
-            TestEntryResult(testEntry: testEntry, testRunResults: runResults)
+            .withResults(testEntry: testEntry, testRunResults: runResults)
         }
         return TestingResult(bucket: bucket, unfilteredResults: mergedResults)
     }

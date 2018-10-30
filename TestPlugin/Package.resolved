@@ -24,7 +24,7 @@
         "repositoryURL": "https://github.com/avito-tech/Emcee",
         "state": {
           "branch": "master",
-          "revision": "da391668793079f6de8b58d4a3ae05c35fa9ec05",
+          "revision": "d41bc787649d16dc0b037809100610ccca6b9798",
           "version": null
         }
       },
@@ -51,7 +51,7 @@
         "repositoryURL": "https://github.com/httpswift/swifter.git",
         "state": {
           "branch": "stable",
-          "revision": "6fccec52374d5799e303c3c7b808ce48ceaf5c94",
+          "revision": "f76bf391e127333a371e45c4e75f52f71cfd144f",
           "version": null
         }
       },

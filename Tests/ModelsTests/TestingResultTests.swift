@@ -9,10 +9,10 @@ final class TestingResultTests: XCTestCase {
                 testEntries: [],
                 testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3")),
             unfilteredResults: [
-                TestEntryResult(
+                .withResult(
                     testEntry: TestEntry(className: "success", methodName: "", caseId: nil),
                     testRunResult: testRunResult(succeeded: true, ts: 0)),
-                TestEntryResult(
+                .withResult(
                     testEntry: TestEntry(className: "failure", methodName: "", caseId: nil),
                     testRunResult: testRunResult(succeeded: false, ts: 0))
             ])
@@ -32,7 +32,7 @@ final class TestingResultTests: XCTestCase {
                 testEntries: [],
                 testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3")),
             unfilteredResults: [
-                TestEntryResult(
+                .withResults(
                     testEntry: TestEntry(className: "success", methodName: "", caseId: nil),
                     testRunResults: [
                         testRunResult(succeeded: true, ts: 0),
@@ -56,7 +56,7 @@ final class TestingResultTests: XCTestCase {
         let result1 = TestingResult(
             bucket: bucket,
             unfilteredResults: [
-                TestEntryResult(
+                .withResults(
                     testEntry: testEntry1,
                     testRunResults: [
                         testRunResult(succeeded: true, ts: 10),
@@ -66,7 +66,7 @@ final class TestingResultTests: XCTestCase {
         let result2 = TestingResult(
             bucket: bucket,
             unfilteredResults: [
-                TestEntryResult(
+                .withResults(
                     testEntry: testEntry1,
                     testRunResults: [
                         testRunResult(succeeded: false, ts: 0),
@@ -76,7 +76,7 @@ final class TestingResultTests: XCTestCase {
         let result3 = TestingResult(
             bucket: bucket,
             unfilteredResults: [
-                TestEntryResult(
+                .withResults(
                     testEntry: testEntry2,
                     testRunResults: [
                         testRunResult(succeeded: false, ts: 42)
@@ -110,7 +110,7 @@ final class TestingResultTests: XCTestCase {
         let result1 = TestingResult(
             bucket: bucket1,
             unfilteredResults: [
-                TestEntryResult(
+                .withResults(
                     testEntry: testEntry,
                     testRunResults: [
                         testRunResult(succeeded: true, ts: 10),
@@ -120,7 +120,7 @@ final class TestingResultTests: XCTestCase {
         let result2 = TestingResult(
             bucket: bucket2,
             unfilteredResults: [
-                TestEntryResult(
+                .withResults(
                     testEntry: testEntry,
                     testRunResults: [
                         testRunResult(succeeded: false, ts: 0),
@@ -128,6 +128,23 @@ final class TestingResultTests: XCTestCase {
                     ])
             ])
         XCTAssertThrowsError(_ = try TestingResult.byMerging(testingResults: [result1, result2]))
+    }
+    
+    func testTreatingLostResultAsFailure() throws {
+        let result = TestingResult(
+            bucket: Bucket(
+                testEntries: [],
+                testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3")),
+            unfilteredResults: [
+                .lost(testEntry: TestEntry(className: "lost", methodName: "", caseId: nil))
+            ])
+        
+        XCTAssertEqual(result.successfulTests.count, 0)
+        
+        XCTAssertEqual(result.failedTests.count, 1)
+        XCTAssertEqual(result.failedTests[0].testEntry.className, "lost")
+        
+        XCTAssertEqual(result.unfilteredResults.count, 1)
     }
     
     private func testRunResult(succeeded: Bool, ts: TimeInterval) -> TestRunResult {
