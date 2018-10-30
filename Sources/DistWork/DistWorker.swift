@@ -101,15 +101,15 @@ public final class DistWorker {
     private func didReceiveTestResult(testingResult: TestingResult) {
         do {
             let requestId: String = try syncQueue.sync {
-                guard let requestId = requestIdForBucketId[testingResult.bucket.bucketId] else {
-                    log("Error: no requestId for bucket: \(testingResult.bucket.bucketId)", color: .red)
-                    throw DistWorkerError.noRequestIdForBucketId(testingResult.bucket.bucketId)
+                guard let requestId = requestIdForBucketId[testingResult.bucketId] else {
+                    log("Error: no requestId for bucket: \(testingResult.bucketId)", color: .red)
+                    throw DistWorkerError.noRequestIdForBucketId(testingResult.bucketId)
                 }
                 return requestId
             }
             try queueClient.send(testingResult: testingResult, requestId: requestId)
         } catch {
-            log("Failed to send test run result for bucket \(testingResult.bucket.bucketId): \(error)")
+            log("Failed to send test run result for bucket \(testingResult.bucketId): \(error)")
             cleanUpAndStop()
         }
     }

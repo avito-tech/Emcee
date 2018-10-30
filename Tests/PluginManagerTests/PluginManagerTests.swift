@@ -64,14 +64,12 @@ final class PluginManagerTests: XCTestCase {
             atPath: testingPluginExecutablePath,
             toPath: executablePath.asString)
         let testingResult1 = TestingResult(
-            bucket: Bucket(
-                testEntries: [],
-                testDestination: try TestDestination(deviceType: "iPhone SE", iOSVersion: "10.3")),
+            bucketId: "id1",
+            testDestination: try TestDestination(deviceType: "iPhone SE", iOSVersion: "10.3"),
             unfilteredResults: [])
         let testingResult2 = TestingResult(
-            bucket: Bucket(
-                testEntries: [],
-                testDestination: try TestDestination(deviceType: "iPhone 7", iOSVersion: "11.3")),
+            bucketId: "id2",
+            testDestination: try TestDestination(deviceType: "iPhone 7", iOSVersion: "11.3"),
             unfilteredResults: [])
         
         let manager = PluginManager(
@@ -92,7 +90,7 @@ final class PluginManagerTests: XCTestCase {
         let actualTestingResults: [TestingResult] = try JSONDecoder().decode([TestingResult].self, from: data)
         
         XCTAssertEqual(actualTestingResults.count, 2)
-        XCTAssertEqual(actualTestingResults[0].bucket, testingResult1.bucket)
-        XCTAssertEqual(actualTestingResults[1].bucket, testingResult2.bucket)
+        XCTAssertEqual(actualTestingResults[0].bucketId, testingResult1.bucketId)
+        XCTAssertEqual(actualTestingResults[1].bucketId, testingResult2.bucketId)
     }
 }

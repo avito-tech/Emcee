@@ -57,7 +57,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         try synchronize {
             try queueClient.send(testingResult: testingResult, requestId: requestId)
             try SynchronousWaiter.waitWhile(timeout: 10, description: "Wait for bucket result send") {
-                acceptedBucketResultIds.contains(testingResult.bucket.bucketId)
+                acceptedBucketResultIds.contains(testingResult.bucketId)
             }
         } as Void
     }

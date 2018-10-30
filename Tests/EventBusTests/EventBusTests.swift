@@ -10,9 +10,8 @@ final class EventBusTest: XCTestCase {
         let stream = Listener()
         bus.add(stream: stream)
         let testingResult = TestingResult(
-            bucket: Bucket(
-                testEntries: [],
-                testDestination: try TestDestination(deviceType: "dvc", iOSVersion: "11.3")),
+            bucketId: "id",
+            testDestination: try TestDestination(deviceType: "dvc", iOSVersion: "11.3"),
             unfilteredResults: [])
         
         bus.post(event: .didObtainTestingResult(testingResult))
@@ -21,7 +20,7 @@ final class EventBusTest: XCTestCase {
             stream.testingResults.count == 0
         }
         
-        XCTAssertEqual(stream.testingResults[0].bucket, testingResult.bucket)
+        XCTAssertEqual(stream.testingResults[0].bucketId, testingResult.bucketId)
     }
     
     func testBroadcastingTearDown() throws {

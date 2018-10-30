@@ -124,7 +124,7 @@ public final class QueueServer {
             let decodedRequest = try decoder.decode(BucketResultRequest.self, from: requestData)
             log("Decoded \(RESTMethod.bucketResult) from \(decodedRequest.workerId): \(decodedRequest.testingResult)")
             try acceptBucketResultRequest(decodedRequest)
-            return generateJsonResponse(.bucketResultAccepted(bucketId: decodedRequest.testingResult.bucket.bucketId))
+            return generateJsonResponse(.bucketResultAccepted(bucketId: decodedRequest.testingResult.bucketId))
         } catch {
             log("Failed to process \(request.path) data: \(error). Will return server error response.")
             return .internalServerError
@@ -166,7 +166,7 @@ public final class QueueServer {
             testingResults.append(testingResult)
             eventBus.post(event: .didObtainTestingResult(testingResult))
             
-            log("Accepted result for bucket: \(testingResult.bucket.bucketId), dequeued buckets count: \(dequeuedBuckets.count): \(dequeuedBuckets)")
+            log("Accepted result for bucket: \(testingResult.bucketId), dequeued buckets count: \(dequeuedBuckets.count): \(dequeuedBuckets)")
             if dequeuedBuckets.remove(previouslyDequeuedBucket) != nil {
                 log("Removing dequeued bucket as we have result for it now: \(dequeuedBucket) from dequeued buckets: \(dequeuedBuckets)")
             } else {

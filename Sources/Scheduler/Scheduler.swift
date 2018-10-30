@@ -161,7 +161,8 @@ public final class Scheduler {
 
         let runnerResult = try runner.run(entries: testsToRun, onSimulator: simulator)
         return TestingResult(
-            bucket: bucket,
+            bucketId: bucket.bucketId,
+            testDestination: bucket.testDestination,
             unfilteredResults: runnerResult)
     }
     

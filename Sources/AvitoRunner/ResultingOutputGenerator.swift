@@ -29,7 +29,7 @@ public final class ResultingOutputGenerator {
     
     private func generateDestinationSpecificOutput(testDestinationConfiguration: TestDestinationConfiguration) throws {
         let testingResults = self.testingResults.filter {
-            $0.bucket.testDestination == testDestinationConfiguration.testDestination
+            $0.testDestination == testDestinationConfiguration.testDestination
         }
         let combinedTestingResults = CombinedTestingResults(testingResults: testingResults)
         try generateOutput(

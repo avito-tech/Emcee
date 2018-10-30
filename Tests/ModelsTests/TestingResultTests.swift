@@ -5,9 +5,8 @@ import XCTest
 final class TestingResultTests: XCTestCase {
     func testFilteringResults() throws {
         let result = TestingResult(
-            bucket: Bucket(
-                testEntries: [],
-                testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3")),
+            bucketId: "id",
+            testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3"),
             unfilteredResults: [
                 .withResult(
                     testEntry: TestEntry(className: "success", methodName: "", caseId: nil),
@@ -28,9 +27,8 @@ final class TestingResultTests: XCTestCase {
     
     func testFilteringResultsWithMultipleRuns() throws {
         let result = TestingResult(
-            bucket: Bucket(
-                testEntries: [],
-                testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3")),
+            bucketId: "id",
+            testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3"),
             unfilteredResults: [
                 .withResults(
                     testEntry: TestEntry(className: "success", methodName: "", caseId: nil),
@@ -47,14 +45,13 @@ final class TestingResultTests: XCTestCase {
     }
     
     func testMerging() throws {
-        let bucket = Bucket(
-            testEntries: [],
-            testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3"))
+        let testDestination = try TestDestination(deviceType: "device", iOSVersion: "11.3")
         let testEntry1 = TestEntry(className: "success", methodName: "", caseId: nil)
         let testEntry2 = TestEntry(className: "failure", methodName: "", caseId: nil)
         
         let result1 = TestingResult(
-            bucket: bucket,
+            bucketId: "id",
+            testDestination: testDestination,
             unfilteredResults: [
                 .withResults(
                     testEntry: testEntry1,
@@ -64,7 +61,8 @@ final class TestingResultTests: XCTestCase {
                     ])
             ])
         let result2 = TestingResult(
-            bucket: bucket,
+            bucketId: "id",
+            testDestination: testDestination,
             unfilteredResults: [
                 .withResults(
                     testEntry: testEntry1,
@@ -74,7 +72,8 @@ final class TestingResultTests: XCTestCase {
                     ])
             ])
         let result3 = TestingResult(
-            bucket: bucket,
+            bucketId: "id",
+            testDestination: testDestination,
             unfilteredResults: [
                 .withResults(
                     testEntry: testEntry2,
@@ -85,7 +84,7 @@ final class TestingResultTests: XCTestCase {
         
         let merged = try TestingResult.byMerging(testingResults: [result1, result2, result3])
         
-        XCTAssertEqual(merged.bucket, bucket)
+        XCTAssertEqual(merged.bucketId, "id")
         XCTAssertEqual(merged.unfilteredResults.count, 2)
         
         XCTAssertEqual(merged.successfulTests.count, 1)
@@ -99,16 +98,13 @@ final class TestingResultTests: XCTestCase {
     }
     
     func testMergingMismatchingBucketsFails() throws {
-        let bucket1 = Bucket(
-            testEntries: [],
-            testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3"))
-        let bucket2 = Bucket(
-            testEntries: [],
-            testDestination: try TestDestination(deviceType: "device", iOSVersion: "10.0"))
+        let testDestination1 = try TestDestination(deviceType: "device", iOSVersion: "11.3")
+        let testDestination2 = try TestDestination(deviceType: "device", iOSVersion: "10.0")
         let testEntry = TestEntry(className: "success", methodName: "", caseId: nil)
         
         let result1 = TestingResult(
-            bucket: bucket1,
+            bucketId: "id1",
+            testDestination: testDestination1,
             unfilteredResults: [
                 .withResults(
                     testEntry: testEntry,
@@ -118,7 +114,8 @@ final class TestingResultTests: XCTestCase {
                     ])
             ])
         let result2 = TestingResult(
-            bucket: bucket2,
+            bucketId: "id2",
+            testDestination: testDestination2,
             unfilteredResults: [
                 .withResults(
                     testEntry: testEntry,
@@ -132,9 +129,8 @@ final class TestingResultTests: XCTestCase {
     
     func testTreatingLostResultAsFailure() throws {
         let result = TestingResult(
-            bucket: Bucket(
-                testEntries: [],
-                testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3")),
+            bucketId: "id",
+            testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3"),
             unfilteredResults: [
                 .lost(testEntry: TestEntry(className: "lost", methodName: "", caseId: nil))
             ])
