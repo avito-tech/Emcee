@@ -13,22 +13,29 @@ public final class PluginManager: EventStream {
     public static let pluginExecutableName = "Plugin"
     private let encoder = JSONEncoder()
     private let environment: [String: String]
-    private let pluginLocations: [ResolvableResourceLocation]
+    private let pluginLocations: [ResourceLocation]
     private var processControllers = [ProcessController]()
+    private let resourceLocationResolver: ResourceLocationResolver
     
     public init(
-        pluginLocations: [ResolvableResourceLocation],
+        pluginLocations: [ResourceLocation],
+        resourceLocationResolver: ResourceLocationResolver,
         environment: [String: String] = ProcessInfo.processInfo.environment)
     {
         self.encoder.outputFormatting = [.sortedKeys, .prettyPrinted]
         self.environment = environment
         self.pluginLocations = pluginLocations
+        self.resourceLocationResolver = resourceLocationResolver
     }
     
-    private static func pathsToPluginBundles(pluginLocations: [ResolvableResourceLocation]) throws -> [AbsolutePath] {
+    private static func pathsToPluginBundles(
+        pluginLocations: [ResourceLocation],
+        resourceLocationResolver: ResourceLocationResolver)
+        throws -> [AbsolutePath]
+    {
         var paths = [AbsolutePath]()
         for location in pluginLocations {
-            let resolvedPath = try location.resolve()
+            let resolvedPath = try resourceLocationResolver.resolvePath(resourceLocation: location)
             
             let validatePathToPluginBundle: (String) throws -> () = { path in
                 guard path.lastPathComponent.pathExtension == PluginManager.pluginBundleExtension else {
@@ -65,7 +72,9 @@ public final class PluginManager: EventStream {
     }
     
     public func startPlugins() throws {
-        let pluginBundles = try PluginManager.pathsToPluginBundles(pluginLocations: pluginLocations)
+        let pluginBundles = try PluginManager.pathsToPluginBundles(
+            pluginLocations: pluginLocations,
+            resourceLocationResolver: resourceLocationResolver)
         for bundlePath in pluginBundles {
             log("Starting plugin at '\(bundlePath)'", color: .blue)
             let pluginExecutable = bundlePath.appending(component: PluginManager.pluginExecutableName)

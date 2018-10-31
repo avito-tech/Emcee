@@ -14,10 +14,18 @@ public final class DistWorker {
     private let queueClient: SynchronousQueueClient
     private let syncQueue = DispatchQueue(label: "ru.avito.DistWorker")
     private var requestIdForBucketId = [String: String]()  // bucketId -> requestId
-    private let bucketConfigurationFactory = BucketConfigurationFactory(resourceLocationResolver: ResourceLocationResolver())
+    private let bucketConfigurationFactory: BucketConfigurationFactory
+    private let resourceLocationResolver: ResourceLocationResolver
     
-    public init(queueServerAddress: String, queueServerPort: Int, workerId: String) {
-        queueClient = SynchronousQueueClient(
+    public init(
+        queueServerAddress: String,
+        queueServerPort: Int,
+        workerId: String,
+        resourceLocationResolver: ResourceLocationResolver)
+    {
+        self.resourceLocationResolver = resourceLocationResolver
+        self.bucketConfigurationFactory = BucketConfigurationFactory(resourceLocationResolver: resourceLocationResolver)
+        self.queueClient = SynchronousQueueClient(
             serverAddress: queueServerAddress,
             serverPort: queueServerPort,
             workerId: workerId)
@@ -53,6 +61,7 @@ public final class DistWorker {
             onDemandSimulatorPool: onDemandSimulatorPool)
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
             pluginLocations: bucketConfigurationFactory.pluginLocations,
+            resourceLocationResolver: resourceLocationResolver,
             environment: configuration.testExecutionBehavior.environment)
         let scheduler = Scheduler(eventBus: eventBus, configuration: configuration, tempFolder: tempFolder)
         let eventStreamProcessor = EventStreamProcessor { [weak self] testingResult in

@@ -75,7 +75,7 @@ public struct DistRunConfiguration {
     
     public func runtimeDumpConfiguration() -> RuntimeDumpConfiguration {
         return RuntimeDumpConfiguration(
-            fbxctest: auxiliaryResources.fbxctest,
+            fbxctest: auxiliaryResources.toolResources.fbxctest,
             xcTestBundle: buildArtifacts.xcTestBundle,
             simulatorSettings: simulatorSettings,
             testDestination: testDestinations[0],

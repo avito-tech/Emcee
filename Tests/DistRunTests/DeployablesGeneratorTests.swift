@@ -16,6 +16,7 @@ class DeployablesGeneratorTests: XCTestCase {
         xcTestBundle: String(#file),
         additionalApplicationBundles: [String(#file)])
     var tempFolder: TempFolder!
+    let resolver = ResourceLocationResolver()
     
     override func setUp() {
         super.setUp()
@@ -26,9 +27,10 @@ class DeployablesGeneratorTests: XCTestCase {
         let generator = DeployablesGenerator(
             targetAvitoRunnerPath: "AvitoRunner",
             auxiliaryResources: AuxiliaryResources(
-                fbxctest: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(#file), resolver: ResourceLocationResolver()),
-                fbsimctl: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(#file), resolver: ResourceLocationResolver()),
-                plugins: [ResolvableResourceLocationImpl(resourceLocation: .localFilePath(pluginPath), resolver: ResourceLocationResolver())]),
+                toolResources: ToolResources(
+                    fbsimctl: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(#file), resolver: resolver),
+                    fbxctest: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(#file), resolver: resolver)),
+                plugins: [.localFilePath(pluginPath)]),
             buildArtifacts: defaultBuildArtifacts,
             environmentFilePath: String(#file),
             targetEnvironmentPath: "env.json",
@@ -140,8 +142,9 @@ class DeployablesGeneratorTests: XCTestCase {
         let generator = DeployablesGenerator(
             targetAvitoRunnerPath: "AvitoRunner",
             auxiliaryResources: AuxiliaryResources(
-                fbxctest: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(#file), resolver: ResourceLocationResolver()),
-                fbsimctl: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(#file), resolver: ResourceLocationResolver()),
+                toolResources: ToolResources(
+                    fbsimctl: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(#file), resolver: resolver),
+                    fbxctest: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(#file), resolver: resolver)),
                 plugins: []),
             buildArtifacts: defaultBuildArtifacts,
             environmentFilePath: String(#file),

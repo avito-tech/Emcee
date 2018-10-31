@@ -8,6 +8,7 @@ import XCTest
 final class PluginManagerTests: XCTestCase {
     var testingPluginExecutablePath: String!
     var tempFolder: TemporaryDirectory!
+    let resolver = ResourceLocationResolver()
     
     override func setUp() {
         guard let executablePath = TestingPluginExecutable.testingPluginPath else {
@@ -35,8 +36,9 @@ final class PluginManagerTests: XCTestCase {
             toPath: executablePath.asString)
         let manager = PluginManager(
             pluginLocations: [
-                ResolvableResourceLocationImpl(resourceLocation: .localFilePath(pluginBundlePath.asString), resolver: ResourceLocationResolver())
-            ])
+                .localFilePath(pluginBundlePath.asString)
+            ],
+            resourceLocationResolver: resolver)
         XCTAssertThrowsError(try manager.startPlugins())
     }
     
@@ -47,8 +49,9 @@ final class PluginManagerTests: XCTestCase {
             toPath: executablePath)
         let manager = PluginManager(
             pluginLocations: [
-                ResolvableResourceLocationImpl(resourceLocation: .localFilePath(executablePath), resolver: ResourceLocationResolver())
-            ])
+                .localFilePath(executablePath)
+            ],
+            resourceLocationResolver: resolver)
         XCTAssertThrowsError(try manager.startPlugins())
     }
     
@@ -74,8 +77,9 @@ final class PluginManagerTests: XCTestCase {
         
         let manager = PluginManager(
             pluginLocations: [
-                ResolvableResourceLocationImpl(resourceLocation: .localFilePath(pluginBundlePath.asString), resolver: ResourceLocationResolver())
+                .localFilePath(pluginBundlePath.asString)
             ],
+            resourceLocationResolver: resolver,
             environment: ["AVITO_TEST_PLUGIN_OUTPUT": outputPath.path.asString])
         try manager.startPlugins()
         

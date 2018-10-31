@@ -2,22 +2,16 @@ import Foundation
 
 /// Represents locatios of the tools that are used by the runner.
 public struct AuxiliaryResources {
-    /** Location of fbxctest tool. */
-    public let fbxctest: ResolvableResourceLocation
+    public let toolResources: ToolResources
     
-    /** Location of fbsimctl tool. */
-    public let fbsimctl: ResolvableResourceLocation
-    
-    /** Locations of .emceeplugin bundles. */
-    public let plugins: [ResolvableResourceLocation]
+    /// Locations of .emceeplugin bundles.
+    public let plugins: [ResourceLocation]
     
     public init(
-        fbxctest: ResolvableResourceLocation,
-        fbsimctl: ResolvableResourceLocation,
-        plugins: [ResolvableResourceLocation])
+        toolResources: ToolResources,
+        plugins: [ResourceLocation])
     {
-        self.fbxctest = fbxctest
-        self.fbsimctl = fbsimctl
+        self.toolResources = toolResources
         self.plugins = plugins
     }
 }

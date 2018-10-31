@@ -89,8 +89,9 @@ final class BucketConfigurationFactory {
         let watchdogSettings = try fileInPackageIfExists(containerPath, .watchdogSettings)
         
         let configuration = SchedulerConfiguration(
-            fbsimctl: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(fbsimctl), resolver: resourceLocationResolver),
-            fbxctest: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(fbxctest), resolver: resourceLocationResolver),
+            toolResources: ToolResources(
+                fbsimctl: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(fbsimctl), resolver: resourceLocationResolver),
+                fbxctest: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(fbxctest), resolver: resourceLocationResolver)),
             testType: .uiTest,
             buildArtifacts: BuildArtifacts(
                 appBundle: app,
@@ -108,7 +109,7 @@ final class BucketConfigurationFactory {
         return configuration
     }
     
-    public var pluginLocations: [ResolvableResourceLocation] {
+    public var pluginLocations: [ResourceLocation] {
         let plugins = FileManager.default.findFiles(
             path: packagePath(containerPath, .plugin),
             defaultValue: [])
@@ -123,9 +124,7 @@ final class BucketConfigurationFactory {
                 log("Plugin candidate at \(path) exists: \(result), isDir: \(isDir)")
                 return result && isDir.boolValue == true
         }
-        return plugins.map {
-            ResolvableResourceLocationImpl(resourceLocation: .localFilePath($0), resolver: resourceLocationResolver)
-        }
+        return plugins.map { .localFilePath($0) }
     }
     
     private func packagePath(_ containerPath: String, _ package: PackageName) -> String {

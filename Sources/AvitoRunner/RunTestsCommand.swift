@@ -133,9 +133,10 @@ final class RunTestsCommand: Command {
                 environment: environmentValues,
                 scheduleStrategy: scheduleStrategy),
             auxiliaryResources: AuxiliaryResources(
-                fbxctest: ResolvableResourceLocationImpl(resourceLocation: fbxctest, resolver: resourceLocationResolver),
-                fbsimctl: ResolvableResourceLocationImpl(resourceLocation: fbsimctl, resolver: resourceLocationResolver),
-                plugins: plugins.map { ResolvableResourceLocationImpl(resourceLocation: $0, resolver: resourceLocationResolver) }),
+                toolResources: ToolResources(
+                    fbsimctl: ResolvableResourceLocationImpl(resourceLocation: fbsimctl, resolver: resourceLocationResolver),
+                    fbxctest: ResolvableResourceLocationImpl(resourceLocation: fbxctest, resolver: resourceLocationResolver)),
+                plugins: plugins),
             buildArtifacts: BuildArtifacts(
                 appBundle: app,
                 runner: runner,
@@ -162,10 +163,10 @@ final class RunTestsCommand: Command {
         
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
             pluginLocations: configuration.auxiliaryResources.plugins,
+            resourceLocationResolver: resourceLocationResolver,
             environment: configuration.testExecutionBehavior.environment)
         let schedulerConfiguration = SchedulerConfiguration(
-            fbsimctl: configuration.auxiliaryResources.fbsimctl,
-            fbxctest: configuration.auxiliaryResources.fbxctest,
+            toolResources: configuration.auxiliaryResources.toolResources,
             testType: .uiTest,
             buildArtifacts: configuration.buildArtifacts,
             testExecutionBehavior: configuration.testExecutionBehavior,

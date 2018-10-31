@@ -40,8 +40,8 @@ public final class DeployablesGenerator {
         deployables[.app] = try appDeployables()
         deployables[.avitoRunner] = [runnerTool()]
         deployables[.environment] = try environmentDeployables()
-        deployables[.fbsimctl] = try toolForBinary(location: auxiliaryResources.fbsimctl.resourceLocation, toolName: PackageName.fbsimctl.rawValue)
-        deployables[.fbxctest] = try toolForBinary(location: auxiliaryResources.fbxctest.resourceLocation, toolName: PackageName.fbxctest.rawValue)
+        deployables[.fbsimctl] = try toolForBinary(location: auxiliaryResources.toolResources.fbsimctl.resourceLocation, toolName: PackageName.fbsimctl.rawValue)
+        deployables[.fbxctest] = try toolForBinary(location: auxiliaryResources.toolResources.fbxctest.resourceLocation, toolName: PackageName.fbxctest.rawValue)
         deployables[.plugin] = try pluginDeployables()
         deployables[.simulatorLocalizationSettings] = try simulatorLocalizationSettingsDeployables()
         deployables[.testRunner] = try testRunnerDeployables()
@@ -141,7 +141,7 @@ public final class DeployablesGenerator {
     
     func pluginDeployables() throws -> [DeployableItem] {
         return try auxiliaryResources.plugins.flatMap { location -> [DeployableItem] in
-            switch location.resourceLocation {
+            switch location {
             case .localFilePath(let path):
                 let url = URL(fileURLWithPath: path)
                 let name = PackageName.plugin.rawValue.appending(

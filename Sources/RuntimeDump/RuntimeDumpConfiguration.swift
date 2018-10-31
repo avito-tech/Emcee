@@ -51,7 +51,7 @@ public struct RuntimeDumpConfiguration {
         -> RuntimeDumpConfiguration
     {
         return RuntimeDumpConfiguration(
-            fbxctest: configuration.auxiliaryResources.fbxctest,
+            fbxctest: configuration.auxiliaryResources.toolResources.fbxctest,
             xcTestBundle: configuration.buildArtifacts.xcTestBundle,
             simulatorSettings: configuration.simulatorSettings,
             testDestination: configuration.testDestinations[0],

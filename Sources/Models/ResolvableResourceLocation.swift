@@ -14,4 +14,3 @@ public protocol ResolvableResourceLocation {
     var resourceLocation: ResourceLocation { get }
     func resolve() throws -> ResolvingResult
 }
-

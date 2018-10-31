@@ -130,9 +130,10 @@ final class DistRunTestsCommand: Command {
                 environment: environmentValues,
                 scheduleStrategy: scheduleStrategy),
             auxiliaryResources: AuxiliaryResources(
-                fbxctest: ResolvableResourceLocationImpl(resourceLocation: fbxctest, resolver: resourceLocationResolver),
-                fbsimctl: ResolvableResourceLocationImpl(resourceLocation: fbsimctl, resolver: resourceLocationResolver),
-                plugins: plugins.map { ResolvableResourceLocationImpl(resourceLocation: $0, resolver: resourceLocationResolver) }),
+                toolResources: ToolResources(
+                    fbsimctl: ResolvableResourceLocationImpl(resourceLocation: fbsimctl, resolver: resourceLocationResolver),
+                    fbxctest: ResolvableResourceLocationImpl(resourceLocation: fbxctest, resolver: resourceLocationResolver)),
+                plugins: plugins),
             buildArtifacts: BuildArtifacts(
                 appBundle: app,
                 runner: runner,
@@ -150,6 +151,7 @@ final class DistRunTestsCommand: Command {
         log("Using dist run configuration: \(distRunConfiguration)", color: .blue)
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
             pluginLocations: distRunConfiguration.auxiliaryResources.plugins,
+            resourceLocationResolver: resourceLocationResolver,
             environment: distRunConfiguration.testExecutionBehavior.environment)
         let distRunner = try DistRunner(eventBus: eventBus, distRunConfiguration: distRunConfiguration)
         let testingResults = try distRunner.run()
