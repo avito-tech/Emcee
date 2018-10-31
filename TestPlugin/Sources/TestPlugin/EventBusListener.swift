@@ -29,6 +29,7 @@ final class EventBusListener: EventStream {
                 atPath: (outputPath as NSString).deletingLastPathComponent,
                 withIntermediateDirectories: true)
             let encoder = JSONEncoder()
+            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             let data = try encoder.encode(busEvents)
             try data.write(to: URL(fileURLWithPath: outputPath))
         } catch {

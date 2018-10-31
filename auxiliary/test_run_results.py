@@ -77,9 +77,9 @@ class IntegrationTests(unittest.TestCase):
         self.check_unknown_events(unknown_events)
 
     def check_test_result_events(self, events):
-        all_test_entries = [test_entry
+        all_test_entries = [test_entry_result["testEntry"]
                             for event in events
-                            for test_entry in event["testingResult"]["bucket"]["testEntries"]]
+                            for test_entry_result in event["testingResult"]["unfilteredResults"]]
         actual_tests = sorted([entry["methodName"] for entry in all_test_entries])
         expected_tests = sorted([
             "testAlwaysSuccess",
