@@ -90,8 +90,8 @@ final class BucketConfigurationFactory {
         
         let configuration = SchedulerConfiguration(
             toolResources: ToolResources(
-                fbsimctl: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(fbsimctl), resolver: resourceLocationResolver),
-                fbxctest: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(fbxctest), resolver: resourceLocationResolver)),
+                fbsimctl: resourceLocationResolver.resolvable(resourceLocation: .localFilePath(fbsimctl)),
+                fbxctest: resourceLocationResolver.resolvable(resourceLocation: .localFilePath(fbxctest))),
             testType: .uiTest,
             buildArtifacts: BuildArtifacts(
                 appBundle: app,

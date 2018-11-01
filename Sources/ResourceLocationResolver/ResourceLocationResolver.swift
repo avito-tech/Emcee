@@ -48,6 +48,10 @@ public final class ResourceLocationResolver {
         }
     }
     
+    public func resolvable(resourceLocation: ResourceLocation) -> ResolvableResourceLocation {
+        return ResolvableResourceLocationImpl(resourceLocation: resourceLocation, resolver: self)
+    }
+    
     private func cachedContentsOfUrl(_ url: URL) throws -> URL {
         let handler = BlockingURLResourceHandler()
         urlResource.fetchResource(url: url, handler: handler)

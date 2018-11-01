@@ -28,8 +28,8 @@ class DeployablesGeneratorTests: XCTestCase {
             targetAvitoRunnerPath: "AvitoRunner",
             auxiliaryResources: AuxiliaryResources(
                 toolResources: ToolResources(
-                    fbsimctl: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(#file), resolver: resolver),
-                    fbxctest: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(#file), resolver: resolver)),
+                    fbsimctl: resolver.resolvable(resourceLocation: .localFilePath(#file)),
+                    fbxctest: resolver.resolvable(resourceLocation: .localFilePath(#file))),
                 plugins: [.localFilePath(pluginPath)]),
             buildArtifacts: defaultBuildArtifacts,
             environmentFilePath: String(#file),
@@ -143,9 +143,8 @@ class DeployablesGeneratorTests: XCTestCase {
             targetAvitoRunnerPath: "AvitoRunner",
             auxiliaryResources: AuxiliaryResources(
                 toolResources: ToolResources(
-                    fbsimctl: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(#file), resolver: resolver),
-                    fbxctest: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(#file), resolver: resolver)),
-                plugins: []),
+                    fbsimctl: resolver.resolvable(resourceLocation: .localFilePath(#file)),
+                    fbxctest: resolver.resolvable(resourceLocation: .localFilePath(#file))),                plugins: []),
             buildArtifacts: defaultBuildArtifacts,
             environmentFilePath: String(#file),
             targetEnvironmentPath: "env.json",

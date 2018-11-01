@@ -134,8 +134,8 @@ final class RunTestsCommand: Command {
                 scheduleStrategy: scheduleStrategy),
             auxiliaryResources: AuxiliaryResources(
                 toolResources: ToolResources(
-                    fbsimctl: ResolvableResourceLocationImpl(resourceLocation: fbsimctl, resolver: resourceLocationResolver),
-                    fbxctest: ResolvableResourceLocationImpl(resourceLocation: fbxctest, resolver: resourceLocationResolver)),
+                    fbsimctl: resourceLocationResolver.resolvable(resourceLocation: fbsimctl),
+                    fbxctest: resourceLocationResolver.resolvable(resourceLocation: fbxctest)),
                 plugins: plugins),
             buildArtifacts: BuildArtifacts(
                 appBundle: app,

@@ -151,11 +151,11 @@ public final class ListeningSemaphoreTests: XCTestCase {
     
     private func checkConditionDidSignal(_ condition: NSCondition) {
         // when condition signals, it returns true. If it reaches timeout, it returns false.
-        XCTAssertTrue(condition.wait(until: Date().addingTimeInterval(1.0)))
+        XCTAssertTrue(condition.wait(until: Date().addingTimeInterval(5.0)))
     }
     
     private func checkConditionDidTimeout(_ condition: NSCondition) {
         // when condition signals, it returns true. If it reaches timeout, it returns false.
-        XCTAssertFalse(condition.wait(until: Date().addingTimeInterval(1.0)))
+        XCTAssertFalse(condition.wait(until: Date().addingTimeInterval(5.0)))
     }
 }

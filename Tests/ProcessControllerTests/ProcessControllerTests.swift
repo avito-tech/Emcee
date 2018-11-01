@@ -114,6 +114,7 @@ final class ProcessControllerTests: XCTestCase {
             subprocess: Subprocess(
                 arguments: ["/usr/bin/swift", streamingSwiftTempFile.path.asString],
                 maximumAllowedSilenceDuration: 10,
+                allowedTimeToConsumeStdin: 20,
                 stdoutContentsFile: stdoutFile.path.asString,
                 stderrContentsFile: stderrFile.path.asString,
                 stdinContentsFile: stdinFile.path.asString))

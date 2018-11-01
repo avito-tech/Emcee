@@ -19,6 +19,7 @@ public final class RunnerTests: XCTestCase {
     let testMethod = "testMethod"
     var tempFolder: TempFolder!
     let testExceptionEvent = TestExceptionEvent(reason: "a reason", filePathInProject: "file", lineNumber: 12)
+    let resolver = ResourceLocationResolver()
     
     public override func setUp() {
         XCTAssertNoThrow(try FakeFbxctestExecutableProducer.eraseFakeOutputEvents())
@@ -120,7 +121,7 @@ public final class RunnerTests: XCTestCase {
         }
         let configuration = RunnerConfiguration(
             testType: .logicTest,
-            fbxctest: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(fbxctest), resolver: ResourceLocationResolver()),
+            fbxctest: resolver.resolvable(resourceLocation: .localFilePath(fbxctest)),
             buildArtifacts: BuildArtifacts(
                 appBundle: "",
                 runner: "",

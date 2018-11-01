@@ -5,6 +5,19 @@ import SynchronousWaiter
 import TempFolder
 import XCTest
 
+private class NonResolvableResourceLocation: ResolvableResourceLocation {
+    var resourceLocation: ResourceLocation {
+        return .remoteUrl(URL(string: "invalid://url")!)
+    }
+    
+    enum `Error`: Swift.Error {
+        case thisIsNonResolvableResourceLocation
+    }
+    func resolve() throws -> ResolvingResult {
+        throw Error.thisIsNonResolvableResourceLocation
+    }
+}
+
 class SimulatorPoolTests: XCTestCase {
     
     var tempFolder: TempFolder!
@@ -17,7 +30,7 @@ class SimulatorPoolTests: XCTestCase {
         let pool = try SimulatorPool<DefaultSimulatorController>(
             numberOfSimulators: 1,
             testDestination: try TestDestination(deviceType: "", iOSVersion: "11.0"),
-            fbsimctl: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(""), resolver: ResourceLocationResolver()),
+            fbsimctl: NonResolvableResourceLocation(),
             tempFolder: tempFolder)
         _ = try pool.allocateSimulator()
         XCTAssertThrowsError(_ = try pool.allocateSimulator(), "Expected to throw") { error in
@@ -30,7 +43,7 @@ class SimulatorPoolTests: XCTestCase {
         let pool = try SimulatorPool<DefaultSimulatorController>(
             numberOfSimulators: UInt(numberOfThreads),
             testDestination: try TestDestination(deviceType: "", iOSVersion: "11.0"),
-            fbsimctl: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(""), resolver: ResourceLocationResolver()),
+            fbsimctl: NonResolvableResourceLocation(),
             tempFolder: tempFolder)
         let queue = OperationQueue()
         queue.maxConcurrentOperationCount = Int(numberOfThreads)
@@ -55,7 +68,7 @@ class SimulatorPoolTests: XCTestCase {
         let pool = try SimulatorPool<FakeSimulatorController>(
             numberOfSimulators: 1,
             testDestination: try TestDestination(deviceType: "Fake Device", iOSVersion: "11.3"),
-            fbsimctl: ResolvableResourceLocationImpl(resourceLocation: .localFilePath(""), resolver: ResourceLocationResolver()),
+            fbsimctl: NonResolvableResourceLocation(),
             tempFolder: tempFolder,
             automaticCleanupTiumeout: 1)
         let simulatorController = try pool.allocateSimulator()
