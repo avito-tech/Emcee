@@ -30,6 +30,11 @@ public final class EventBus {
         }
     }
     
+    public func tearDown() {
+        post(event: .tearDown)
+        waitForDeliveryOfAllPendingEvents()
+    }
+    
     private func forEachStream(work: @escaping (EventStream) -> ()) {
         workQueue.async {
             for stream in self.streams {

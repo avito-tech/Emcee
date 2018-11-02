@@ -153,12 +153,13 @@ final class DistRunTestsCommand: Command {
             pluginLocations: distRunConfiguration.auxiliaryResources.plugins,
             resourceLocationResolver: resourceLocationResolver,
             environment: distRunConfiguration.testExecutionBehavior.environment)
+        defer { eventBus.tearDown() }
+        
         let distRunner = try DistRunner(
             eventBus: eventBus,
             distRunConfiguration: distRunConfiguration,
             resourceLocationResolver: resourceLocationResolver)
         let testingResults = try distRunner.run()
-        eventBus.post(event: .tearDown)
         try ResultingOutputGenerator(
             testingResults: testingResults,
             commonReportOutput: distRunConfiguration.reportOutput,

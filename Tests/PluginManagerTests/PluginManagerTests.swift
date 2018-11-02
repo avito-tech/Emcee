@@ -87,8 +87,7 @@ final class PluginManagerTests: XCTestCase {
         eventBus.add(stream: manager)
         eventBus.post(event: .didObtainTestingResult(testingResult1))
         eventBus.post(event: .didObtainTestingResult(testingResult2))
-        eventBus.post(event: .tearDown)
-        eventBus.waitForDeliveryOfAllPendingEvents()
+        eventBus.tearDown()
         
         let data = try Data(contentsOf: URL(fileURLWithPath: outputPath.path.asString))
         let actualTestingResults: [TestingResult] = try JSONDecoder().decode([TestingResult].self, from: data)

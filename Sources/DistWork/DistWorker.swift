@@ -65,6 +65,8 @@ public final class DistWorker {
             pluginLocations: bucketConfigurationFactory.pluginLocations,
             resourceLocationResolver: resourceLocationResolver,
             environment: configuration.testExecutionBehavior.environment)
+        defer { eventBus.tearDown() }
+        
         let scheduler = Scheduler(
             eventBus: eventBus,
             configuration: configuration,

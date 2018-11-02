@@ -27,7 +27,7 @@ final class EventBusTest: XCTestCase {
         let bus = EventBus()
         let stream = Listener()
         bus.add(stream: stream)
-        bus.post(event: .tearDown)
+        bus.tearDown()
         
         try SynchronousWaiter.waitWhile(timeout: 5.0, description: "Waiting for event bus to deliver events") {
             stream.didTearDown == nil

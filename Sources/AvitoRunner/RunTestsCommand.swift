@@ -167,6 +167,8 @@ final class RunTestsCommand: Command {
             pluginLocations: configuration.auxiliaryResources.plugins,
             resourceLocationResolver: resourceLocationResolver,
             environment: configuration.testExecutionBehavior.environment)
+        defer { eventBus.tearDown() }
+        
         let schedulerConfiguration = SchedulerConfiguration(
             testType: .uiTest,
             buildArtifacts: configuration.buildArtifacts,
@@ -187,7 +189,6 @@ final class RunTestsCommand: Command {
             tempFolder: tempFolder,
             resourceLocationResolver: resourceLocationResolver)
         let testingResults = try scheduler.run()
-        eventBus.post(event: .tearDown)
         try ResultingOutputGenerator(
             testingResults: testingResults,
             commonReportOutput: configuration.reportOutput,
