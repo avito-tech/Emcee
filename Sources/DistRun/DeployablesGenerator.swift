@@ -40,8 +40,8 @@ public final class DeployablesGenerator {
         deployables[.app] = try appDeployables()
         deployables[.avitoRunner] = [runnerTool()]
         deployables[.environment] = try environmentDeployables()
-        deployables[.fbsimctl] = try toolForBinary(location: auxiliaryResources.toolResources.fbsimctl.resourceLocation, toolName: PackageName.fbsimctl.rawValue)
-        deployables[.fbxctest] = try toolForBinary(location: auxiliaryResources.toolResources.fbxctest.resourceLocation, toolName: PackageName.fbxctest.rawValue)
+        deployables[.fbsimctl] = try toolForBinary(location: auxiliaryResources.toolResources.fbsimctl, toolName: PackageName.fbsimctl.rawValue)
+        deployables[.fbxctest] = try toolForBinary(location: auxiliaryResources.toolResources.fbxctest, toolName: PackageName.fbxctest.rawValue)
         deployables[.plugin] = try pluginDeployables()
         deployables[.simulatorLocalizationSettings] = try simulatorLocalizationSettingsDeployables()
         deployables[.testRunner] = try testRunnerDeployables()

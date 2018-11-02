@@ -55,8 +55,6 @@ final class BucketConfigurationFactory {
         /*
          All paths below are resolved against containerPath.
          */
-        let fbxctest = try fileInPackage(containerPath, .fbxctest)
-        let fbsimctl = try fileInPackage(containerPath, .fbsimctl)
         let app = try FileManager.default.findFiles(
             path: packagePath(containerPath, .app),
             pathExtension: "app")
@@ -89,9 +87,6 @@ final class BucketConfigurationFactory {
         let watchdogSettings = try fileInPackageIfExists(containerPath, .watchdogSettings)
         
         let configuration = SchedulerConfiguration(
-            toolResources: ToolResources(
-                fbsimctl: resourceLocationResolver.resolvable(resourceLocation: .localFilePath(fbsimctl)),
-                fbxctest: resourceLocationResolver.resolvable(resourceLocation: .localFilePath(fbxctest))),
             testType: .uiTest,
             buildArtifacts: BuildArtifacts(
                 appBundle: app,
@@ -107,6 +102,24 @@ final class BucketConfigurationFactory {
             schedulerDataSource: schedulerDataSource,
             onDemandSimulatorPool: onDemandSimulatorPool)
         return configuration
+    }
+    
+    public var fbsimctl: ResourceLocation? {
+        guard let path = try? fileInPackage(containerPath, .fbsimctl) else { return nil }
+        if FileManager.default.fileExists(atPath: path) {
+            return ResourceLocation.localFilePath(path)
+        } else {
+            return nil
+        }
+    }
+    
+    public var fbxctest: ResourceLocation? {
+        guard let path = try? fileInPackage(containerPath, .fbxctest) else { return nil }
+        if FileManager.default.fileExists(atPath: path) {
+            return ResourceLocation.localFilePath(path)
+        } else {
+            return nil
+        }
     }
     
     public var pluginLocations: [ResourceLocation] {

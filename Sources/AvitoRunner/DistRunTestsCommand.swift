@@ -131,8 +131,8 @@ final class DistRunTestsCommand: Command {
                 scheduleStrategy: scheduleStrategy),
             auxiliaryResources: AuxiliaryResources(
                 toolResources: ToolResources(
-                    fbsimctl: resourceLocationResolver.resolvable(resourceLocation: fbsimctl),
-                    fbxctest: resourceLocationResolver.resolvable(resourceLocation: fbxctest)),
+                    fbsimctl: fbsimctl,
+                    fbxctest: fbxctest),
                 plugins: plugins),
             buildArtifacts: BuildArtifacts(
                 appBundle: app,
@@ -153,7 +153,10 @@ final class DistRunTestsCommand: Command {
             pluginLocations: distRunConfiguration.auxiliaryResources.plugins,
             resourceLocationResolver: resourceLocationResolver,
             environment: distRunConfiguration.testExecutionBehavior.environment)
-        let distRunner = try DistRunner(eventBus: eventBus, distRunConfiguration: distRunConfiguration)
+        let distRunner = try DistRunner(
+            eventBus: eventBus,
+            distRunConfiguration: distRunConfiguration,
+            resourceLocationResolver: resourceLocationResolver)
         let testingResults = try distRunner.run()
         eventBus.post(event: .tearDown)
         try ResultingOutputGenerator(

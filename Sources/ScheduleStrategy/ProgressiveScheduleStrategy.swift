@@ -10,7 +10,8 @@ public final class ProgressiveScheduleStrategy: ScheduleStrategy {
     public func generateBuckets(
         numberOfDestinations: UInt,
         testEntries: [TestEntry],
-        testDestination: TestDestination)
+        testDestination: TestDestination,
+        toolResources: ToolResources)
         -> [Bucket]
     {        
         /*
@@ -32,7 +33,8 @@ public final class ProgressiveScheduleStrategy: ScheduleStrategy {
             equallyDividedStrategy.generateBuckets(
                 numberOfDestinations: numberOfDestinations,
                 testEntries: $0,
-                testDestination: testDestination)
+                testDestination: testDestination,
+                toolResources: toolResources)
         }
     }
 }

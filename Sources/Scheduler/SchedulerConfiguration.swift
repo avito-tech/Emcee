@@ -5,7 +5,6 @@ import Runner
 import SimulatorPool
 
 public class SchedulerConfiguration {
-    public let toolResources: ToolResources
     public let testType: TestType
     public let buildArtifacts: BuildArtifacts
     public let testExecutionBehavior: TestExecutionBehavior
@@ -15,10 +14,10 @@ public class SchedulerConfiguration {
     public let schedulerDataSource: SchedulerDataSource
     public let onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>
     
-    public var runnerConfiguration: RunnerConfiguration {
+    public func runnerConfiguration(fbxctest: ResourceLocation) -> RunnerConfiguration {
         return RunnerConfiguration(
             testType: testType,
-            fbxctest: toolResources.fbxctest,
+            fbxctest: fbxctest,
             buildArtifacts: buildArtifacts,
             testExecutionBehavior: testExecutionBehavior,
             simulatorSettings: simulatorSettings,
@@ -27,7 +26,6 @@ public class SchedulerConfiguration {
     }
 
     public init(
-        toolResources: ToolResources,
         testType: TestType,
         buildArtifacts: BuildArtifacts,
         testExecutionBehavior: TestExecutionBehavior,
@@ -37,7 +35,6 @@ public class SchedulerConfiguration {
         schedulerDataSource: SchedulerDataSource,
         onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>)
     {
-        self.toolResources = toolResources
         self.testType = testType
         self.buildArtifacts = buildArtifacts
         self.testExecutionBehavior = testExecutionBehavior

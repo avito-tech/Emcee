@@ -4,13 +4,14 @@ import EventBus
 import Extensions
 import Foundation
 import HostDeterminer
-import RuntimeDump
 import LaunchdUtils
 import Logging
 import Models
+import ResourceLocationResolver
 import RESTMethods
-import ScheduleStrategy
+import RuntimeDump
 import SSHDeployer
+import ScheduleStrategy
 import TempFolder
 
 public final class DistRunner {
@@ -24,13 +25,19 @@ public final class DistRunner {
     private let eventBus: EventBus
     private let distRunConfiguration: DistRunConfiguration
     private let tempFolder: TempFolder
+    private let resourceLocationResolver: ResourceLocationResolver
     private let avitoRunnerTargetPath = "AvitoRunner"
     private let launchdPlistTargetPath = "launchd.plist"
     
-    public init(eventBus: EventBus, distRunConfiguration: DistRunConfiguration) throws {
+    public init(
+        eventBus: EventBus,
+        distRunConfiguration: DistRunConfiguration,
+        resourceLocationResolver: ResourceLocationResolver) throws
+    {
         self.eventBus = eventBus
         self.distRunConfiguration = distRunConfiguration
         self.tempFolder = try TempFolder()
+        self.resourceLocationResolver = resourceLocationResolver
     }
     
     public func run() throws -> [TestingResult] {
@@ -49,14 +56,16 @@ public final class DistRunner {
         let transformer = TestToRunIntoTestEntryTransformer(
             eventBus: eventBus,
             configuration: distRunConfiguration.runtimeDumpConfiguration(),
-            tempFolder: tempFolder)
+            tempFolder: tempFolder,
+            resourceLocationResolver: resourceLocationResolver)
         let testEntries = try transformer.transform().avito_shuffled()
         
         let buckets = BucketsGenerator.generateBuckets(
             strategy: distRunConfiguration.remoteScheduleStrategyType.scheduleStrategy(),
             numberOfDestinations: UInt(distRunConfiguration.destinations.count),
             testEntries: testEntries,
-            testDestinations: distRunConfiguration.testDestinations)
+            testDestinations: distRunConfiguration.testDestinations,
+            toolResources: distRunConfiguration.auxiliaryResources.toolResources)
         return buckets
     }
     
@@ -163,7 +172,11 @@ public final class DistRunner {
                     ],
                 ],                
                 destinations: [destination])
-            try deployer.deploy()
+            do {
+                try deployer.deploy()
+            } catch {
+                log("Failed to deploy launchd plist: \(error). This error will be ignored.", color: .yellow)
+            }
         }
     }
 }

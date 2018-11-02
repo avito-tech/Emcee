@@ -1,6 +1,6 @@
 import Foundation
 
-public struct DeploymentDestination: Decodable, CustomStringConvertible {
+public final class DeploymentDestination: Decodable, CustomStringConvertible, Hashable {
     /**
      * Identifier can be used to apply additional configuration for this destination, see DestinationConfiguration
      * If identifier is not specified explicitly, the host name will be used as an identifier.
@@ -21,7 +21,7 @@ public struct DeploymentDestination: Decodable, CustomStringConvertible {
         case remoteDeploymentPath
     }
     
-    public init(from decoder: Decoder) throws {
+    public convenience init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let identifier = try container.decodeIfPresent(String.self, forKey: .identifier)
         let host = try container.decode(String.self, forKey: .host)
@@ -61,5 +61,13 @@ public struct DeploymentDestination: Decodable, CustomStringConvertible {
     
     public var description: String {
         return "<\(type(of: self)) host: \(host)>"
+    }
+    
+    public var hashValue: Int {
+        return identifier.hashValue
+    }
+    
+    public static func == (left: DeploymentDestination, right: DeploymentDestination) -> Bool {
+        return left.identifier == right.identifier
     }
 }

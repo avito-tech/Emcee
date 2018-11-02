@@ -277,7 +277,8 @@ public final class QueueServer {
             let newBuckets = dequeuedBucketsToReEnqueue.flatMap {
                 strategy.generateIndividualBuckets(
                     testEntries: $0.bucket.testEntries,
-                    testDestination: $0.bucket.testDestination)
+                    testDestination: $0.bucket.testDestination,
+                    toolResources: $0.bucket.toolResources)
             }
             queue.append(contentsOf: newBuckets)
             log("Returned \(dequeuedBucketsToReEnqueue.count) buckets to the queue by crushing it to \(newBuckets.count) buckets: \(newBuckets)")

@@ -2,6 +2,7 @@ import EventBus
 import Foundation
 import Models
 import Logging
+import ResourceLocationResolver
 import Runner
 import SimulatorPool
 import TempFolder
@@ -26,10 +27,16 @@ public final class RuntimeTestQuerier {
     private let eventBus: EventBus
     private let configuration: RuntimeDumpConfiguration
     private let testQueryEntry = TestEntry(className: "NonExistingTest", methodName: "fakeTest", caseId: nil)
+    private let resourceLocationResolver: ResourceLocationResolver
     
-    public init(eventBus: EventBus, configuration: RuntimeDumpConfiguration) {
+    public init(
+        eventBus: EventBus,
+        configuration: RuntimeDumpConfiguration,
+        resourceLocationResolver: ResourceLocationResolver)
+    {
         self.eventBus = eventBus
         self.configuration = configuration
+        self.resourceLocationResolver = resourceLocationResolver
     }
     
     public func queryRuntime() throws -> RuntimeQueryResult {
@@ -57,7 +64,11 @@ public final class RuntimeTestQuerier {
                 videoOutputPath: nil,
                 oslogOutputPath: nil,
                 testLogOutputPath: nil))
-        _ = try Runner(eventBus: eventBus, configuration: runnerConfiguration, tempFolder: try TempFolder())
+        _ = try Runner(
+            eventBus: eventBus,
+            configuration: runnerConfiguration,
+            tempFolder: try TempFolder(),
+            resourceLocationResolver: resourceLocationResolver)
             .runOnce(
                 entriesToRun: [testQueryEntry],
                 onSimulator: Shimulator.shimulator(testDestination: configuration.testDestination))

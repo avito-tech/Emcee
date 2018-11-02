@@ -1,4 +1,4 @@
-// swift-tools-version:4.1
+// swift-tools-version:4.2
 
 import PackageDescription
 
@@ -15,7 +15,7 @@ let package = Package(
         .executable(name: "testing_plugin", targets: ["TestingPlugin"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-package-manager.git", .exactItem("0.2.1")),
+        .package(url: "https://github.com/apple/swift-package-manager.git", .exact("0.3.0")),
         .package(url: "https://github.com/beefon/Shout", .branch("master")),
         .package(url: "https://github.com/httpswift/swifter.git", .branch("stable")),
         .package(url: "https://github.com/weichsel/ZIPFoundation/", from: "0.9.6"),
@@ -394,6 +394,7 @@ let package = Package(
                 "Ansi",
                 "Extensions",
                 "Logging",
+                "Models",
                 "Utility",
                 "Deployer",
                 "Shout"

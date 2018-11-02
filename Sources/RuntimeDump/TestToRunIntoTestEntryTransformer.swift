@@ -1,6 +1,7 @@
 import EventBus
 import Foundation
 import Models
+import ResourceLocationResolver
 import TempFolder
 
 public final class TestToRunIntoTestEntryTransformer {
@@ -8,6 +9,7 @@ public final class TestToRunIntoTestEntryTransformer {
     private let configuration: RuntimeDumpConfiguration
     private let fetchAllTestsIfTestsToRunIsEmpty: Bool
     private let tempFolder: TempFolder
+    private let resourceLocationResolver: ResourceLocationResolver
     
     public enum ValidationError: Error, CustomStringConvertible {
         case someTestsAreMissingInRuntime([TestToRun])
@@ -30,16 +32,22 @@ public final class TestToRunIntoTestEntryTransformer {
         eventBus: EventBus,
         configuration: RuntimeDumpConfiguration,
         fetchAllTestsIfTestsToRunIsEmpty: Bool = true,
-        tempFolder: TempFolder)
+        tempFolder: TempFolder,
+        resourceLocationResolver: ResourceLocationResolver)
     {
         self.eventBus = eventBus
         self.configuration = configuration
         self.fetchAllTestsIfTestsToRunIsEmpty = fetchAllTestsIfTestsToRunIsEmpty
         self.tempFolder = tempFolder
+        self.resourceLocationResolver = resourceLocationResolver
     }
     
     public func transform() throws -> [TestEntry] {
-        let runtimeQueryResult = try RuntimeTestQuerier(eventBus: eventBus, configuration: configuration).queryRuntime()
+        let runtimeQueryResult = try RuntimeTestQuerier(
+            eventBus: eventBus,
+            configuration: configuration,
+            resourceLocationResolver: resourceLocationResolver)
+            .queryRuntime()
         guard runtimeQueryResult.unavailableTestsToRun.isEmpty else {
             throw ValidationError.someTestsAreMissingInRuntime(runtimeQueryResult.unavailableTestsToRun)
         }

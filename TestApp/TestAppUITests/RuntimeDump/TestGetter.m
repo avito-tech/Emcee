@@ -30,8 +30,18 @@
     return [allTests copy];
 }
 
++ (NSSet<NSString *> *)classNamesToRemoveFromRuntimeDump {
+    return [NSSet setWithObjects:
+            @"Test_XCTestObservation",
+            @"Test_XCTestObservationCenter",
+            nil];
+}
+
 - (TestSuiteInfo *)testInfoWithClass:(Class)testCaseClass {
     if (![testCaseClass isSubclassOfClass:[XCTestCase class]]) {
+        return nil;
+    }
+    if ([[self.class classNamesToRemoveFromRuntimeDump] containsObject:NSStringFromClass(testCaseClass)]) {
         return nil;
     }
     

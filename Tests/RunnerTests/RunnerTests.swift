@@ -87,7 +87,11 @@ public final class RunnerTests: XCTestCase {
     }
     
     private func runTestEntries(_ testEntries: [TestEntry]) throws -> [TestEntryResult] {
-        let runner = Runner(eventBus: EventBus(), configuration: createRunnerConfig(), tempFolder: tempFolder)
+        let runner = Runner(
+            eventBus: EventBus(),
+            configuration: createRunnerConfig(),
+            tempFolder: tempFolder,
+            resourceLocationResolver: resolver)
         return try runner.run(entries: testEntries, onSimulator: shimulator)
     }
     
@@ -121,7 +125,7 @@ public final class RunnerTests: XCTestCase {
         }
         let configuration = RunnerConfiguration(
             testType: .logicTest,
-            fbxctest: resolver.resolvable(resourceLocation: .localFilePath(fbxctest)),
+            fbxctest: .localFilePath(fbxctest),
             buildArtifacts: BuildArtifacts(
                 appBundle: "",
                 runner: "",

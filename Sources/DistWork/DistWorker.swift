@@ -36,7 +36,9 @@ public final class DistWorker {
         let workerConfiguration = try queueClient.registerWithServer()
         log("Registered with server. Worker configuration: \(workerConfiguration)")
         
-        let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>(tempFolder: tempFolder)
+        let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>(
+            resourceLocationResolver: resourceLocationResolver,
+            tempFolder: tempFolder)
         defer { onDemandSimulatorPool.deleteSimulators() }
         
         _ = try runTests(
@@ -63,7 +65,11 @@ public final class DistWorker {
             pluginLocations: bucketConfigurationFactory.pluginLocations,
             resourceLocationResolver: resourceLocationResolver,
             environment: configuration.testExecutionBehavior.environment)
-        let scheduler = Scheduler(eventBus: eventBus, configuration: configuration, tempFolder: tempFolder)
+        let scheduler = Scheduler(
+            eventBus: eventBus,
+            configuration: configuration,
+            tempFolder: tempFolder,
+            resourceLocationResolver: resourceLocationResolver)
         let eventStreamProcessor = EventStreamProcessor { [weak self] testingResult in
             self?.didReceiveTestResult(testingResult: testingResult)
         }
@@ -98,13 +104,22 @@ public final class DistWorker {
                         requestIdForBucketId[fetchedBucket.bucketId] = requestId
                     }
                     log("Received bucket \(fetchedBucket.bucketId), requestId: \(requestId)", color: .blue)
-                    return fetchedBucket
+                    return bucketByOverridingToolResourcesWithLocalIfNeeded(fetchedBucket)
                 }
             } catch {
                 log("Failed to fetch next bucket: \(error)")
                 return nil
             }
         }
+    }
+    
+    private func bucketByOverridingToolResourcesWithLocalIfNeeded(_ bucket: Bucket) -> Bucket {
+        let fbsimctl = bucketConfigurationFactory.fbsimctl ?? bucket.toolResources.fbsimctl
+        let fbxctest = bucketConfigurationFactory.fbxctest ?? bucket.toolResources.fbxctest
+        return Bucket(
+            testEntries: bucket.testEntries,
+            testDestination: bucket.testDestination,
+            toolResources: ToolResources(fbsimctl: fbsimctl, fbxctest: fbxctest))
     }
     
     private func didReceiveTestResult(testingResult: TestingResult) {

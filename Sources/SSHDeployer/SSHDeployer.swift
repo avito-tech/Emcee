@@ -32,8 +32,7 @@ public final class SSHDeployer: Deployer {
         operationQueue.maxConcurrentOperationCount = maximumSimultaneousDeployOperations
         
         var destinationsFailedToDeploy = [DeploymentDestination]()
-        DispatchQueue.concurrentPerform(iterations: destinations.count) { (destinationIndex: Int) in
-            let destination = self.destinations[destinationIndex]
+        for destination in destinations {
             operationQueue.addOperation {
                 do {
                     try self.deploy(destination: destination, urlToDeployable: urlToDeployable)
@@ -43,11 +42,18 @@ public final class SSHDeployer: Deployer {
                 }
             }
         }
-        
         operationQueue.waitUntilAllOperationsAreFinished()
         
-        if !destinationsFailedToDeploy.isEmpty {
+        let didFailToDeployToAllDestinations = Set(destinationsFailedToDeploy) == Set(destinations)
+        if didFailToDeployToAllDestinations {
             throw DeploymentError.failedToDeployToDestination(destinationsFailedToDeploy)
+        } else {
+            for destination in destinationsFailedToDeploy {
+                SSHDeployer.log(
+                    destination,
+                    "Failed to deploy to this destination. Will skip this error as some deployments were successful.",
+                    color: .yellow)
+            }
         }
     }
     

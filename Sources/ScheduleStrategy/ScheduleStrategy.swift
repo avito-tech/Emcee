@@ -5,7 +5,8 @@ public protocol ScheduleStrategy: CustomStringConvertible {
     func generateBuckets(
         numberOfDestinations: UInt,
         testEntries: [TestEntry],
-        testDestination: TestDestination)
+        testDestination: TestDestination,
+        toolResources: ToolResources)
         -> [Bucket] 
 }
 

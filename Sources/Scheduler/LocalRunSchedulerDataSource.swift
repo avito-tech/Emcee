@@ -3,6 +3,7 @@ import Dispatch
 import Foundation
 import Logging
 import Models
+import ResourceLocationResolver
 import RuntimeDump
 import ScheduleStrategy
 import TempFolder
@@ -21,14 +22,16 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
         eventBus: EventBus,
         configuration: LocalTestRunConfiguration,
         runAllTestsIfTestsToRunIsEmpty: Bool,
-        tempFolder: TempFolder) throws
+        tempFolder: TempFolder,
+        resourceLocationResolver: ResourceLocationResolver) throws
     {
         self.configuration = configuration
         self.buckets = try LocalRunSchedulerDataSource.prepareBuckets(
             eventBus: eventBus,
             configuration: configuration,
             runAllTestsIfTestsToRunIsEmpty: runAllTestsIfTestsToRunIsEmpty,
-            tempFolder: tempFolder)
+            tempFolder: tempFolder,
+            resourceLocationResolver: resourceLocationResolver)
     }
     
     public func nextBucket() -> Bucket? {
@@ -41,21 +44,24 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
         eventBus: EventBus,
         configuration: LocalTestRunConfiguration,
         runAllTestsIfTestsToRunIsEmpty: Bool,
-        tempFolder: TempFolder)
+        tempFolder: TempFolder,
+        resourceLocationResolver: ResourceLocationResolver)
         throws -> [Bucket]
     {
         let testEntries = try validatedTestEntries(
             eventBus: eventBus,
             configuration: configuration,
             runAllTestsIfTestsToRunIsEmpty: runAllTestsIfTestsToRunIsEmpty,
-            tempFolder: tempFolder)
+            tempFolder: tempFolder,
+            resourceLocationResolver: resourceLocationResolver)
         
         let strategy = configuration.testExecutionBehavior.scheduleStrategy.scheduleStrategy()
         let buckets = BucketsGenerator.generateBuckets(
             strategy: strategy,
             numberOfDestinations: configuration.testExecutionBehavior.numberOfSimulators,
             testEntries: testEntries,
-            testDestinations: configuration.testDestinations)
+            testDestinations: configuration.testDestinations,
+            toolResources: configuration.auxiliaryResources.toolResources)
 
         log("Using strategy: \(strategy.description)")
         log("Will execute \(testEntries.count) tests: \(testEntries)")
@@ -68,14 +74,16 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
         eventBus: EventBus,
         configuration: LocalTestRunConfiguration,
         runAllTestsIfTestsToRunIsEmpty: Bool,
-        tempFolder: TempFolder)
+        tempFolder: TempFolder,
+        resourceLocationResolver: ResourceLocationResolver)
         throws -> [TestEntry]
     {
         let transformer = TestToRunIntoTestEntryTransformer(
             eventBus: eventBus,
             configuration: RuntimeDumpConfiguration.fromLocalRunTestConfiguration(configuration),
             fetchAllTestsIfTestsToRunIsEmpty: runAllTestsIfTestsToRunIsEmpty,
-            tempFolder: tempFolder)
+            tempFolder: tempFolder,
+            resourceLocationResolver: resourceLocationResolver)
         let testEntries = try transformer.transform().avito_shuffled()
         if testEntries.isEmpty {
             log("No tests found.")

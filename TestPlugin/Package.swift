@@ -1,4 +1,4 @@
-// swift-tools-version:4.1
+// swift-tools-version:4.2
 
 import PackageDescription
 
@@ -8,7 +8,7 @@ let package = Package(
         .executable(name: "Plugin", targets: ["TestPlugin"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/avito-tech/Emcee", .branch("master"))
+        .package(path: "../")
     ],
     targets: [
         .target(

@@ -11,6 +11,9 @@ class QueueClientTests: XCTestCase {
     private var port: Int!
     private var delegate: FakeQueueClientDelegate!
     private var queueClient: QueueClient!
+    private let fakeToolResources = ToolResources(
+        fbsimctl: .remoteUrl(URL(string: "http://example.com")!),
+        fbxctest: .remoteUrl(URL(string: "http://example.com")!))
     
     override func tearDown() {
         server?.stop()
@@ -51,7 +54,8 @@ class QueueClientTests: XCTestCase {
     func testDequeueingBucket() throws {
         let bucket = Bucket(
             testEntries: [TestEntry(className: "class", methodName: "method", caseId: 123)],
-            testDestination: try TestDestination(deviceType: "device", iOSVersion: "10.0"))
+            testDestination: try TestDestination(deviceType: "device", iOSVersion: "10.0"),
+            toolResources: fakeToolResources)
         try prepareServer(RESTMethod.getBucket.withPrependingSlash) { request -> HttpResponse in
             let data: Data = (try? JSONEncoder().encode(RESTResponse.bucketDequeued(bucket: bucket))) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }

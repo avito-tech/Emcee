@@ -2,12 +2,13 @@ import Dispatch
 import EventBus
 import Extensions
 import Foundation
-import SimulatorPool
-import Models
-import ScheduleStrategy
 import ListeningSemaphore
 import Logging
+import Models
+import ResourceLocationResolver
 import Runner
+import ScheduleStrategy
+import SimulatorPool
 import TempFolder
 
 /**
@@ -37,14 +38,21 @@ public final class Scheduler {
     private let queue = OperationQueue()
     private let syncQueue = DispatchQueue(label: "ru.avito.Scheduler")
     private let tempFolder: TempFolder
+    private let resourceLocationResolver: ResourceLocationResolver
     
-    public init(eventBus: EventBus, configuration: SchedulerConfiguration, tempFolder: TempFolder) {
+    public init(
+        eventBus: EventBus,
+        configuration: SchedulerConfiguration,
+        tempFolder: TempFolder,
+        resourceLocationResolver: ResourceLocationResolver)
+    {
         self.eventBus = eventBus
         self.configuration = configuration
         self.resourceSemaphore = ListeningSemaphore(
             maximumValues: .of(
                 runningTests: Int(configuration.testExecutionBehavior.numberOfSimulators)))
         self.tempFolder = tempFolder
+        self.resourceLocationResolver = resourceLocationResolver
     }
     
     /**
@@ -142,14 +150,15 @@ public final class Scheduler {
             key: OnDemandSimulatorPool.Key(
                 numberOfSimulators: configuration.testExecutionBehavior.numberOfSimulators,
                 testDestination: bucket.testDestination,
-                fbsimctl: configuration.toolResources.fbsimctl))
+                fbsimctl: bucket.toolResources.fbsimctl))
         let simulatorController = try simulatorPool.allocateSimulator()
         defer { simulatorPool.freeSimulator(simulatorController) }
             
         let runner = Runner(
             eventBus: eventBus,
-            configuration: configuration.runnerConfiguration,
-            tempFolder: tempFolder)
+            configuration: configuration.runnerConfiguration(fbxctest: bucket.toolResources.fbxctest),
+            tempFolder: tempFolder,
+            resourceLocationResolver: resourceLocationResolver)
         let simulator: Simulator
         do {
             simulator = try simulatorController.bootedSimulator()

@@ -134,8 +134,8 @@ final class RunTestsCommand: Command {
                 scheduleStrategy: scheduleStrategy),
             auxiliaryResources: AuxiliaryResources(
                 toolResources: ToolResources(
-                    fbsimctl: resourceLocationResolver.resolvable(resourceLocation: fbsimctl),
-                    fbxctest: resourceLocationResolver.resolvable(resourceLocation: fbxctest)),
+                    fbsimctl: fbsimctl,
+                    fbxctest: fbxctest),
                 plugins: plugins),
             buildArtifacts: BuildArtifacts(
                 appBundle: app,
@@ -158,7 +158,9 @@ final class RunTestsCommand: Command {
     private func runTests(configuration: LocalTestRunConfiguration, tempFolder: TempFolder) throws {
         log("Configuration: \(configuration)", color: .blue)
         
-        let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>(tempFolder: tempFolder)
+        let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>(
+            resourceLocationResolver: resourceLocationResolver,
+            tempFolder: tempFolder)
         defer { onDemandSimulatorPool.deleteSimulators() }
         
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
@@ -166,7 +168,6 @@ final class RunTestsCommand: Command {
             resourceLocationResolver: resourceLocationResolver,
             environment: configuration.testExecutionBehavior.environment)
         let schedulerConfiguration = SchedulerConfiguration(
-            toolResources: configuration.auxiliaryResources.toolResources,
             testType: .uiTest,
             buildArtifacts: configuration.buildArtifacts,
             testExecutionBehavior: configuration.testExecutionBehavior,
@@ -177,9 +178,14 @@ final class RunTestsCommand: Command {
                 eventBus: eventBus,
                 configuration: configuration,
                 runAllTestsIfTestsToRunIsEmpty: true,
-                tempFolder: tempFolder),
+                tempFolder: tempFolder,
+                resourceLocationResolver: resourceLocationResolver),
             onDemandSimulatorPool: onDemandSimulatorPool)
-        let scheduler = Scheduler(eventBus: eventBus, configuration: schedulerConfiguration, tempFolder: tempFolder)
+        let scheduler = Scheduler(
+            eventBus: eventBus,
+            configuration: schedulerConfiguration,
+            tempFolder: tempFolder,
+            resourceLocationResolver: resourceLocationResolver)
         let testingResults = try scheduler.run()
         eventBus.post(event: .tearDown)
         try ResultingOutputGenerator(

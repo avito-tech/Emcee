@@ -14,15 +14,18 @@ public final class Runner {
     private let eventBus: EventBus
     private let configuration: RunnerConfiguration
     private let tempFolder: TempFolder
+    private let resourceLocationResolver: ResourceLocationResolver
     
     public init(
         eventBus: EventBus,
         configuration: RunnerConfiguration,
-        tempFolder: TempFolder)
+        tempFolder: TempFolder,
+        resourceLocationResolver: ResourceLocationResolver)
     {
         self.eventBus = eventBus
         self.configuration = configuration
         self.tempFolder = tempFolder
+        self.resourceLocationResolver = resourceLocationResolver
     }
     
     /** Runs the given tests, attempting to restart the runner in case of crash. */
@@ -97,8 +100,9 @@ public final class Runner {
     }
     
     private func fbxctestArguments(entriesToRun: [TestEntry], simulator: Simulator) -> [SubprocessArgument] {
+        let resolvableFbxctest = resourceLocationResolver.resolvable(resourceLocation: configuration.fbxctest)
         var arguments: [SubprocessArgument] =
-            [configuration.fbxctest.asArgumentWith(packageName: PackageName.fbxctest),
+            [resolvableFbxctest.asArgumentWith(packageName: PackageName.fbxctest),
              "-destination", simulator.testDestination.destinationString] +
                 ["-\(configuration.testType.rawValue)"]
         

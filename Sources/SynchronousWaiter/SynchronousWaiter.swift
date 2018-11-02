@@ -57,7 +57,7 @@ public final class SynchronousWaiter {
             if currentTime - startTime > timeout.value {
                 throw TimeoutError.waitTimeout(timeout)
             }
-            if !RunLoop.current.run(mode: .defaultRunLoopMode, before: Date().addingTimeInterval(pollPeriod)) {
+            if !RunLoop.current.run(mode: RunLoop.Mode.default, before: Date().addingTimeInterval(pollPeriod)) {
                 let passedPollPeriod = Date().timeIntervalSince1970 - currentTime
                 if passedPollPeriod < pollPeriod {
                     Thread.sleep(forTimeInterval: pollPeriod - passedPollPeriod)

@@ -11,7 +11,7 @@ public struct RuntimeDumpConfiguration {
     public let testExecutionBehavior: TestExecutionBehavior
     
     /** Path to logic test runner. */
-    public let fbxctest: ResolvableResourceLocation
+    public let fbxctest: ResourceLocation
     
     /** Path to xctest bundle which contents should be dumped in runtime */
     public let xcTestBundle: String
@@ -26,7 +26,7 @@ public struct RuntimeDumpConfiguration {
     public let testsToRun: [TestToRun]
 
     public init(
-        fbxctest: ResolvableResourceLocation,
+        fbxctest: ResourceLocation,
         xcTestBundle: String,
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,

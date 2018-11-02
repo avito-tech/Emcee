@@ -5,13 +5,16 @@ public class Bucket: Codable, CustomStringConvertible, Hashable {
     public let bucketId: String
     public let testEntries: [TestEntry]
     public let testDestination: TestDestination
+    public let toolResources: ToolResources
 
     public init(
         testEntries: [TestEntry],
-        testDestination: TestDestination)
+        testDestination: TestDestination,
+        toolResources: ToolResources)
     {
         self.testEntries = testEntries
         self.testDestination = testDestination
+        self.toolResources = toolResources
         self.bucketId = Bucket.generateBucketId(testEntries: testEntries, testDestination: testDestination)
     }
     

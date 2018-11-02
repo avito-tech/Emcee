@@ -10,11 +10,12 @@ public final class EquallyDividedScheduleStrategy: ScheduleStrategy {
     public func generateBuckets(
         numberOfDestinations: UInt,
         testEntries: [TestEntry],
-        testDestination: TestDestination)
+        testDestination: TestDestination,
+        toolResources: ToolResources)
         -> [Bucket]
     {
         let size = UInt(ceil(Double(testEntries.count) / Double(numberOfDestinations)))
         let chunks = testEntries.splitToChunks(withSize: size)
-        return chunks.map { Bucket(testEntries: $0, testDestination: testDestination) }
+        return chunks.map { Bucket(testEntries: $0, testDestination: testDestination, toolResources: toolResources) }
     }
 }

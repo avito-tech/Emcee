@@ -6,7 +6,7 @@ import ResourceLocationResolver
 /** LocalTestRunConfiguration object required by Runner in order to run tests. */
 public struct RunnerConfiguration {
     public let testType: TestType
-    public let fbxctest: ResolvableResourceLocation
+    public let fbxctest: ResourceLocation
     public let buildArtifacts: BuildArtifacts
     public let environment: [String: String]
     public let simulatorSettings: SimulatorSettings
@@ -16,7 +16,7 @@ public struct RunnerConfiguration {
     
     public init(
         testType: TestType,
-        fbxctest: ResolvableResourceLocation,
+        fbxctest: ResourceLocation,
         buildArtifacts: BuildArtifacts,
         testExecutionBehavior: TestExecutionBehavior,
         simulatorSettings: SimulatorSettings,

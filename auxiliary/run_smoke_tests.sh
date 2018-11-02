@@ -23,7 +23,7 @@ xcodebuild build-for-testing \
 -scheme "TestApp" \
 -derivedDataPath "$derivedDataPath" \
 -destination "platform=iOS Simulator,name=iPhone SE,OS=10.3.1" \
-&> "$xcodebuildLogPath"
+&> "$xcodebuildLogPath" || (echo "Failed! Logs: `cat $xcodebuildLogPath`" && exit 3)
 cd -
 
 # Work around a bug when xcodebuild puts Build and Indexes folders to a pwd instead of dd/

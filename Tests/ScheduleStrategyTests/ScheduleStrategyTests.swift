@@ -3,6 +3,10 @@ import Models
 import XCTest
 
 class ScheduleStrategyTests: XCTestCase {
+    let fakeToolResources = ToolResources(
+        fbsimctl: .remoteUrl(URL(string: "http://example.com")!),
+        fbxctest: .remoteUrl(URL(string: "http://example.com")!))
+    
     func test_individualStrategy_splitsTestsIntoBucketsOfOne() throws {
         let destination = try TestDestination(deviceType: "device", iOSVersion: "11.0")
         let testEntries = [
@@ -14,10 +18,15 @@ class ScheduleStrategyTests: XCTestCase {
         let buckets = IndividualScheduleStrategy().generateBuckets(
             numberOfDestinations: 1,
             testEntries: testEntries,
-            testDestination: destination)
-            .map { Bucket(testEntries: $0.testEntries, testDestination: $0.testDestination) }
+            testDestination: destination,
+            toolResources: fakeToolResources)
+            .map {
+                Bucket(testEntries: $0.testEntries, testDestination: $0.testDestination, toolResources: $0.toolResources)
+            }
         
-        let expectedBuckets = testEntries.map { Bucket(testEntries: [$0], testDestination: destination) }
+        let expectedBuckets = testEntries.map {
+            Bucket(testEntries: [$0], testDestination: destination, toolResources: fakeToolResources)
+        }
         XCTAssertEqual(buckets, expectedBuckets)
     }
     
@@ -34,11 +43,13 @@ class ScheduleStrategyTests: XCTestCase {
             IndividualScheduleStrategy().generateBuckets(
                 numberOfDestinations: 1,
                 testEntries: testEntries,
-                testDestination: destination).count,
+                testDestination: destination,
+                toolResources: fakeToolResources).count,
             IndividualScheduleStrategy().generateBuckets(
                 numberOfDestinations: 2,
                 testEntries: testEntries,
-                testDestination: destination).count)
+                testDestination: destination,
+                toolResources: fakeToolResources).count)
     }
     
     func test_equallyDividedStrategy_splitsToBucketsWithEqualSizes() throws {
@@ -51,14 +62,17 @@ class ScheduleStrategyTests: XCTestCase {
         ]
         
         let expectedBuckets = testEntries.splitToChunks(withSize: 2).map {
-            Bucket(testEntries: $0, testDestination: destination)
+            Bucket(testEntries: $0, testDestination: destination, toolResources: fakeToolResources)
         }
         
         let buckets = EquallyDividedScheduleStrategy().generateBuckets(
             numberOfDestinations: 2,
             testEntries: testEntries,
-            testDestination: destination)
-            .map { Bucket(testEntries: $0.testEntries, testDestination: $0.testDestination) }
+            testDestination: destination,
+            toolResources: fakeToolResources)
+            .map {
+                Bucket(testEntries: $0.testEntries, testDestination: $0.testDestination, toolResources: $0.toolResources)
+            }
         XCTAssertEqual(buckets, expectedBuckets)
     }
     
@@ -71,13 +85,18 @@ class ScheduleStrategyTests: XCTestCase {
             TestEntry(className: "class", methodName: "testMethod4", caseId: nil)
         ]
         
-        let expectedBuckets = testEntries.map { Bucket(testEntries: [$0], testDestination: destination) }
+        let expectedBuckets = testEntries.map {
+            Bucket(testEntries: [$0], testDestination: destination, toolResources: fakeToolResources)
+        }
         
         let buckets = EquallyDividedScheduleStrategy().generateBuckets(
             numberOfDestinations: 4,
             testEntries: testEntries,
-            testDestination: destination)
-            .map { Bucket(testEntries: $0.testEntries, testDestination: $0.testDestination) }
+            testDestination: destination,
+            toolResources: fakeToolResources)
+            .map {
+                Bucket(testEntries: $0.testEntries, testDestination: $0.testDestination, toolResources: $0.toolResources)
+            }
         XCTAssertEqual(buckets, expectedBuckets)
     }
     
@@ -99,7 +118,8 @@ class ScheduleStrategyTests: XCTestCase {
         let buckets = ProgressiveScheduleStrategy().generateBuckets(
             numberOfDestinations: 1,
             testEntries: testEntries,
-            testDestination: destination)
+            testDestination: destination,
+            toolResources: fakeToolResources)
         XCTAssertEqual(
             buckets[0].testEntries,
             [

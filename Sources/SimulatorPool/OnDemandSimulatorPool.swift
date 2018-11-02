@@ -3,15 +3,16 @@ import Foundation
 import Logging
 import Models
 import TempFolder
+import ResourceLocationResolver
 
 public final class OnDemandSimulatorPool<T> where T: SimulatorController {
     
     public struct Key: Hashable, CustomStringConvertible {
         public let numberOfSimulators: UInt
         public let testDestination: TestDestination
-        public let fbsimctl: ResolvableResourceLocation
+        public let fbsimctl: ResourceLocation
         
-        public init(numberOfSimulators: UInt, testDestination: TestDestination, fbsimctl: ResolvableResourceLocation) {
+        public init(numberOfSimulators: UInt, testDestination: TestDestination, fbsimctl: ResourceLocation) {
             self.numberOfSimulators = numberOfSimulators
             self.testDestination = testDestination
             self.fbsimctl = fbsimctl
@@ -22,12 +23,12 @@ public final class OnDemandSimulatorPool<T> where T: SimulatorController {
         }
         
         public var hashValue: Int {
-            return testDestination.hashValue ^ fbsimctl.resourceLocation.hashValue ^ numberOfSimulators.hashValue
+            return testDestination.hashValue ^ fbsimctl.hashValue ^ numberOfSimulators.hashValue
         }
         
         public static func == (left: OnDemandSimulatorPool<T>.Key, right: OnDemandSimulatorPool<T>.Key) -> Bool {
             return left.testDestination == right.testDestination
-                && left.fbsimctl.resourceLocation == right.fbsimctl.resourceLocation
+                && left.fbsimctl == right.fbsimctl
                 && left.numberOfSimulators == right.numberOfSimulators
         }
     }
@@ -35,8 +36,10 @@ public final class OnDemandSimulatorPool<T> where T: SimulatorController {
     private let tempFolder: TempFolder
     private var pools = [Key: SimulatorPool<T>]()
     private let syncQueue = DispatchQueue(label: "ru.avito.OnDemandSimulatorPool")
+    private let resourceLocationResolver: ResourceLocationResolver
     
-    public init(tempFolder: TempFolder) {
+    public init(resourceLocationResolver: ResourceLocationResolver, tempFolder: TempFolder) {
+        self.resourceLocationResolver = resourceLocationResolver
         self.tempFolder = tempFolder
     }
     
@@ -54,7 +57,7 @@ public final class OnDemandSimulatorPool<T> where T: SimulatorController {
                 pool = try SimulatorPool(
                     numberOfSimulators: key.numberOfSimulators,
                     testDestination: key.testDestination,
-                    fbsimctl: key.fbsimctl,
+                    fbsimctl: resourceLocationResolver.resolvable(resourceLocation: key.fbsimctl),
                     tempFolder: tempFolder)
                 pools[key] = pool
                 log("Created SimulatorPool for key \(key)")

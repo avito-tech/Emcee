@@ -11,19 +11,24 @@ public final class IndividualScheduleStrategy: ScheduleStrategy {
     public func generateBuckets(
         numberOfDestinations: UInt,
         testEntries: [TestEntry],
-        testDestination: TestDestination)
+        testDestination: TestDestination,
+        toolResources: ToolResources)
         -> [Bucket]
     {
-        return generateIndividualBuckets(testEntries: testEntries, testDestination: testDestination)
+        return generateIndividualBuckets(
+            testEntries: testEntries,
+            testDestination: testDestination,
+            toolResources: toolResources)
     }
     
     public func generateIndividualBuckets(
         testEntries: [TestEntry],
-        testDestination: TestDestination)
+        testDestination: TestDestination,
+        toolResources: ToolResources)
         -> [Bucket]
     {
         return testEntries.map {
-            Bucket(testEntries: [$0], testDestination: testDestination)
+            Bucket(testEntries: [$0], testDestination: testDestination, toolResources: toolResources)
         }
     }
 }

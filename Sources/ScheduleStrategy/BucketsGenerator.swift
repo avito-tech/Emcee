@@ -14,14 +14,16 @@ public final class BucketsGenerator {
         strategy: ScheduleStrategy,
         numberOfDestinations: UInt,
         testEntries: [TestEntry],
-        testDestinations: [TestDestination])
+        testDestinations: [TestDestination],
+        toolResources: ToolResources)
         -> [Bucket]
     {
         return testDestinations.flatMap { testDestination in
             strategy.generateBuckets(
                 numberOfDestinations: numberOfDestinations,
                 testEntries: testEntries,
-                testDestination: testDestination)
+                testDestination: testDestination,
+                toolResources: toolResources)
         }
     }
 }
