@@ -13,7 +13,7 @@ public class Subprocess: CustomStringConvertible {
         arguments: [SubprocessArgument],
         environment: [String: String] = ProcessInfo.processInfo.environment,
         maximumAllowedSilenceDuration: TimeInterval = 0,
-        allowedTimeToConsumeStdin: TimeInterval = 5,
+        allowedTimeToConsumeStdin: TimeInterval = 30,
         stdoutContentsFile: String? = nil,
         stderrContentsFile: String? = nil,
         stdinContentsFile: String? = nil)

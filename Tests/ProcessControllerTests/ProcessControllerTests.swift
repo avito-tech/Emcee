@@ -104,6 +104,74 @@ final class ProcessControllerTests: XCTestCase {
         let stdoutFile = try TemporaryFile()
         let stderrFile = try TemporaryFile()
         let stdinFile = try TemporaryFile()
+
+        let controller = try controllerForCommandLineTestExecutableTool(
+            stdoutFile: stdoutFile.path,
+            stderrFile: stderrFile.path,
+            stdinFile: stdinFile.path)
+        
+        try controller.writeToStdIn(data: "hello, this is first stdin data!".data(using: .utf8)!)
+        try controller.writeToStdIn(data: "hello, this is second stdin data!".data(using: .utf8)!)
+        try controller.writeToStdIn(data: "bye".data(using: .utf8)!)
+        controller.waitForProcessToDie()
+        
+        let stdoutString = try fileContents(path: stdoutFile.path)
+        let stdinString = try fileContents(path: stdinFile.path)
+        
+        XCTAssertEqual(
+            stdinString,
+            "hello, this is first stdin data!"
+                + "hello, this is second stdin data!"
+                + "bye")
+        XCTAssertEqual(
+            stdoutString,
+            "stdin-to-stdout-streamer started!"
+                + "hello, this is first stdin data!"
+                + "hello, this is second stdin data!"
+                + "bye")
+    }
+    
+    func testWritingHugeData() throws {
+        let stdoutFile = try TemporaryFile()
+        let stderrFile = try TemporaryFile()
+        let stdinFile = try TemporaryFile()
+        
+        let controller = try controllerForCommandLineTestExecutableTool(
+            stdoutFile: stdoutFile.path,
+            stderrFile: stderrFile.path,
+            stdinFile: stdinFile.path)
+        
+        let inputString = Array(repeating: "qwertyuiop", count: 1000000).joined()
+        
+        try controller.writeToStdIn(data: inputString.data(using: .utf8)!)
+        try controller.writeToStdIn(data: "bye".data(using: .utf8)!)
+        controller.waitForProcessToDie()
+        
+        let stdoutString = try fileContents(path: stdoutFile.path)
+        let stdinString = try fileContents(path: stdinFile.path)
+        
+        XCTAssertEqual(
+            stdinString,
+            inputString + "bye")
+        XCTAssertEqual(
+            stdoutString,
+            "stdin-to-stdout-streamer started!" + inputString + "bye")
+    }
+    
+    private func fileContents(path: AbsolutePath) throws -> String {
+        let dataata = try Data(contentsOf: URL(fileURLWithPath: path.asString))
+        guard let contents = String(data: dataata, encoding: .utf8) else {
+            fatalError("Unable to get contents of file: \(path)")
+        }
+        return contents
+    }
+    
+    private func controllerForCommandLineTestExecutableTool(
+        stdoutFile: AbsolutePath,
+        stderrFile: AbsolutePath,
+        stdinFile: AbsolutePath)
+        throws -> ProcessController
+    {
         let streamingSwiftTempFile = try TemporaryFile()
         let streamingSwiftFile = #file.deletingLastPathComponent.appending(pathComponent: "StdInToStdOutStreamer.swift")
         var swiftTestCode = try String(contentsOfFile: streamingSwiftFile)
@@ -112,39 +180,20 @@ final class ProcessControllerTests: XCTestCase {
         
         let controller = try ProcessController(
             subprocess: Subprocess(
-                arguments: ["/usr/bin/swift", streamingSwiftTempFile.path.asString],
+                arguments: ["/usr/bin/swift", streamingSwiftTempFile],
                 maximumAllowedSilenceDuration: 10,
-                allowedTimeToConsumeStdin: 20,
-                stdoutContentsFile: stdoutFile.path.asString,
-                stderrContentsFile: stderrFile.path.asString,
-                stdinContentsFile: stdinFile.path.asString))
+                stdoutContentsFile: stdoutFile.asString,
+                stderrContentsFile: stderrFile.asString,
+                stdinContentsFile: stdinFile.asString))
         let delegate = FakeDelegate()
         controller.delegate = delegate
         controller.start()
-        
-        try controller.writeToStdIn(data: "hello, this is first stdin data!".data(using: .utf8)!)
-        try controller.writeToStdIn(data: "hello, this is second stdin data!\n".data(using: .utf8)!)
-        try controller.writeToStdIn(data: "bye".data(using: .utf8)!)
-        controller.waitForProcessToDie()
-        
-        let stdoutData = try Data(contentsOf: URL(fileURLWithPath: stdoutFile.path.asString))
-        guard let stdoutString = String(data: stdoutData, encoding: .utf8) else {
-            XCTFail("Unable to get stdout string")
-            return
-        }
-        
-        let stdinData = try Data(contentsOf: URL(fileURLWithPath: stdinFile.path.asString))
-        guard let stdinString = String(data: stdinData, encoding: .utf8) else {
-            XCTFail("Unable to get stdin string")
-            return
-        }
-        
-        XCTAssertTrue(stdinString.contains("hello, this is first stdin data!"))
-        XCTAssertTrue(stdinString.contains("hello, this is second stdin data!"))
-        
-        XCTAssertTrue(stdoutString.contains("stdin-to-stdout-streamer started!"))
-        XCTAssertTrue(stdoutString.contains("stdin: "))
-        XCTAssertTrue(stdoutString.contains("hello, this is first stdin data!"))
-        XCTAssertTrue(stdoutString.contains("hello, this is second stdin data!"))
+        return controller
+    }
+}
+
+extension TemporaryFile: SubprocessArgument {
+    public func stringValue() throws -> String {
+        return path.asString
     }
 }

@@ -4,11 +4,12 @@ class StdInToStdOutStreamer {
     public init() {}
     
     public func run() {
-        print("stdin-to-stdout-streamer started!")
+        FileHandle.standardOutput.write("stdin-to-stdout-streamer started!".data(using: .utf8)!)
+        
         while true {
             let stdinData = FileHandle.standardInput.availableData
             guard let string = String(data: stdinData, encoding: .utf8) else { break }
-            guard let outputData = "stdin: \(string)\n".data(using: .utf8) else { break }
+            guard let outputData = string.data(using: .utf8) else { break }
             FileHandle.standardOutput.write(outputData)
             fsync(FileHandle.standardOutput.fileDescriptor)
             
