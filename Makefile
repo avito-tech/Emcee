@@ -12,7 +12,10 @@ run:
 	swift run -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.13" --static-swift-stdlib
 
 test:
-	swift test -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.13"
+	swift test -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.13" 
+
+test-parallel:
+	swift test -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.13" --parallel
 
 integration-test: build
 	cd TestPlugin && make build

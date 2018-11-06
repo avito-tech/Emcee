@@ -9,11 +9,18 @@ public final class FakeFbxctestExecutableProducer {
         path: #file,
         untilFileIsFound: "Package.swift")
     
-    public static let fakeFbxctestPath: String? = buildFakeFbxctest()
+    public enum BuildError: Error {
+        case noOutput
+        case swiftPackageNotFound
+    }
     
-    private static func buildFakeFbxctest() -> String? {
+    public static func fakeFbxctestPath(runId: String) throws -> String {
+        return try buildFakeFbxctest(runId: runId)
+    }
+    
+    private static func buildFakeFbxctest(runId: String) throws -> String {
         guard let swiftPackagePath = FakeFbxctestExecutableProducer.swiftPackagePath else {
-            return nil
+            throw BuildError.swiftPackageNotFound
         }
         
         let process = Process.launchedProcess(
@@ -26,21 +33,23 @@ public final class FakeFbxctestExecutableProducer {
             ])
         process.waitUntilExit()
         let location = swiftPackagePath.appending(pathComponents: [".build", "debug", "fake_fbxctest"])
-        if FileManager.default.fileExists(atPath: location) {
-            return location
-        } else {
-            return nil
+        guard FileManager.default.fileExists(atPath: location) else { throw BuildError.noOutput }
+        
+        let runIdLocation = "\(location)_\(runId)"
+        if !FileManager.default.fileExists(atPath: runIdLocation) {
+            try FileManager.default.copyItem(atPath: location, toPath: runIdLocation)
         }
+        return runIdLocation
     }
     
     public static let fakeOutputJsonFilename = "fake_output.json"
     
-    public static func setFakeOutputEvents(runIndex: Int = 0, _ events: [AnyEncodableWrapper]) throws {
-        guard let binaryPath = fakeFbxctestPath else { return }
+    public static func setFakeOutputEvents(runId: String, runIndex: Int = 0, _ events: [AnyEncodableWrapper]) throws {
+        let binaryPath = try fakeFbxctestPath(runId: runId)
         let jsonPath = binaryPath
             .deletingLastPathComponent
             .appending(pathComponent:
-                "\(FakeFbxctestExecutableProducer.fakeOutputJsonFilename.deletingPathExtension)_\(runIndex).\(FakeFbxctestExecutableProducer.fakeOutputJsonFilename.pathExtension)")
+                "\(runId)_\(FakeFbxctestExecutableProducer.fakeOutputJsonFilename.deletingPathExtension)_\(runIndex).\(FakeFbxctestExecutableProducer.fakeOutputJsonFilename.pathExtension)")
         
         let encoder = JSONEncoder()
         try Data().write(to: URL(fileURLWithPath: jsonPath))
@@ -52,18 +61,6 @@ public final class FakeFbxctestExecutableProducer {
                 handle.write(newLineCharacterData)
             }
             handle.closeFile()
-        }
-    }
-    
-    public static func eraseFakeOutputEvents() throws {
-        guard let binaryPath = FakeFbxctestExecutableProducer.fakeFbxctestPath else { return }
-        let binaryContainerPath = binaryPath.deletingLastPathComponent
-        let jsonOutputFiles = try? FileManager.default.findFiles(
-            path: binaryContainerPath,
-            prefix: FakeFbxctestExecutableProducer.fakeOutputJsonFilename.deletingPathExtension,
-            pathExtension: FakeFbxctestExecutableProducer.fakeOutputJsonFilename.pathExtension)
-        try jsonOutputFiles?.forEach {
-            try FileManager.default.removeItem(atPath: $0)
         }
     }
 }

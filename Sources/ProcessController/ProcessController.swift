@@ -3,7 +3,7 @@ import Foundation
 import Dispatch
 import Logging
 
-public final class ProcessController {
+public final class ProcessController: CustomStringConvertible {
     private let subprocess: Subprocess
     private let process: Process
     public let processName: String
@@ -45,6 +45,13 @@ public final class ProcessController {
     
     deinit {
         silenceTrackingTimer?.cancel()
+    }
+    
+    public var description: String {
+        let executable = process.launchPath ?? "unknown executable"
+        let args = process.arguments?.joined(separator: " ") ?? ""
+        let status = isProcessRunning ? "running" : (didStartProcess ? "finished with code \(terminationStatus() ?? -5)" : "not started")
+        return "<\(type(of: self)): \(executable) \(args) \(status)>"
     }
     
     // MARK: - Launch and Kill
@@ -96,8 +103,10 @@ public final class ProcessController {
         
         stdinWriteQueue.async {
             self.processStdinPipe.fileHandleForWriting.write(data)
-            fsync(self.processStdinPipe.fileHandleForWriting.fileDescriptor)
+            self.processStdinPipe.fileHandleForWriting.write("\n")
+            
             self.stdinHandle?.write(data)
+            self.stdinHandle?.write("\n")
             if self.subprocess.allowedTimeToConsumeStdin > 0 {
                 condition.signal()
             }
@@ -165,16 +174,14 @@ public final class ProcessController {
     // MARK: - Processing Output
     
     private func streamFromPipeIntoHandle(_ pipe: Pipe, _ storageHandle: FileHandle, onNewData: @escaping (Data) -> ()) {
-        stdReadQueue.async {
-            while true {
-                let data = pipe.fileHandleForReading.availableData
-                if data.isEmpty {
-                    storageHandle.closeFile()
-                    break
-                } else {
-                    storageHandle.write(data)
-                    onNewData(data)
-                }
+        pipe.fileHandleForReading.readabilityHandler = { handle in
+            let data = handle.availableData
+            if data.isEmpty {
+                storageHandle.closeFile()
+                pipe.fileHandleForReading.readabilityHandler = nil
+            } else {
+                storageHandle.write(data)
+                onNewData(data)
             }
         }
     }

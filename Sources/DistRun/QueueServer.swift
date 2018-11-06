@@ -168,9 +168,9 @@ public final class QueueServer {
             
             log("Accepted result for bucket: \(testingResult.bucketId), dequeued buckets count: \(dequeuedBuckets.count): \(dequeuedBuckets)")
             if dequeuedBuckets.remove(previouslyDequeuedBucket) != nil {
-                log("Removing dequeued bucket as we have result for it now: \(dequeuedBucket) from dequeued buckets: \(dequeuedBuckets)")
+                log("Removed dequeued bucket as we have result for it now: \(previouslyDequeuedBucket) from dequeued buckets: \(dequeuedBuckets)")
             } else {
-                log("ERROR: Failed to remove dequeued bucket: \(dequeuedBucket) from dequeued buckets: \(dequeuedBuckets)")
+                log("ERROR: Failed to remove dequeued bucket: \(previouslyDequeuedBucket) from dequeued buckets: \(dequeuedBuckets)")
             }
             logQueueSize()
         }

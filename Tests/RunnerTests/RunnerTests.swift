@@ -11,9 +11,7 @@ import ScheduleStrategy
 import SimulatorPool
 import XCTest
 
-
 public final class RunnerTests: XCTestCase {
-    
     let shimulator = Shimulator.shimulator(testDestination: try! TestDestination(deviceType: "iPhone SE", iOSVersion: "11.4"))
     let testClassName = "ClassName"
     let testMethod = "testMethod"
@@ -22,15 +20,15 @@ public final class RunnerTests: XCTestCase {
     let resolver = ResourceLocationResolver()
     
     public override func setUp() {
-        XCTAssertNoThrow(try FakeFbxctestExecutableProducer.eraseFakeOutputEvents())
         XCTAssertNoThrow(tempFolder = try TempFolder())
     }
     
     func testRunningTestWithoutAnyFeedbackEventsGivesFailureResults() throws {
+        let runId = UUID().uuidString
         // do not stub, simulating a crash/silent exit
         
         let testEntry = TestEntry(className: testClassName, methodName: testMethod, caseId: nil)
-        let results = try runTestEntries([testEntry])
+        let results = try runTestEntries([testEntry], runId: runId)
         
         XCTAssertEqual(results.count, 1)
         let testResult = results[0]
@@ -40,10 +38,11 @@ public final class RunnerTests: XCTestCase {
     }
 
     func testRunningSuccessfulTestGivesPositiveResults() throws {
-        try stubFbxctestEvent(success: true)
+        let runId = UUID().uuidString
+        try stubFbxctestEvent(runId: runId, success: true)
         
         let testEntry = TestEntry(className: testClassName, methodName: testMethod, caseId: nil)
-        let results = try runTestEntries([testEntry])
+        let results = try runTestEntries([testEntry], runId: runId)
         
         XCTAssertEqual(results.count, 1)
         let testResult = results[0]
@@ -52,10 +51,11 @@ public final class RunnerTests: XCTestCase {
     }
     
     func testRunningFailedTestGivesNegativeResults() throws {
-        try stubFbxctestEvent(success: false)
+        let runId = UUID().uuidString
+        try stubFbxctestEvent(runId: runId, success: false)
         
         let testEntry = TestEntry(className: testClassName, methodName: testMethod, caseId: nil)
-        let results = try runTestEntries([testEntry])
+        let results = try runTestEntries([testEntry], runId: runId)
         
         XCTAssertEqual(results.count, 1)
         let testResult = results[0]
@@ -67,7 +67,8 @@ public final class RunnerTests: XCTestCase {
     }
     
     func testRunningCrashedTestRevivesItAndIfTestSuccedsReturnsPositiveResults() throws {
-        try FakeFbxctestExecutableProducer.setFakeOutputEvents(runIndex: 0, [
+        let runId = UUID().uuidString
+        try FakeFbxctestExecutableProducer.setFakeOutputEvents(runId: runId, runIndex: 0, [
             AnyEncodableWrapper(
                 TestStartedEvent(
                     test: "\(testClassName)/\(testMethod)",
@@ -75,10 +76,10 @@ public final class RunnerTests: XCTestCase {
                     methodName: testMethod,
                     timestamp: Date().timeIntervalSince1970)),
             ])
-        try stubFbxctestEvent(success: true, runIndex: 1)
+        try stubFbxctestEvent(runId: runId, success: true, runIndex: 1)
         
         let testEntry = TestEntry(className: testClassName, methodName: testMethod, caseId: nil)
-        let results = try runTestEntries([testEntry])
+        let results = try runTestEntries([testEntry], runId: runId)
         
         XCTAssertEqual(results.count, 1)
         let testResult = results[0]
@@ -86,17 +87,17 @@ public final class RunnerTests: XCTestCase {
         XCTAssertEqual(testResult.testEntry, testEntry)
     }
     
-    private func runTestEntries(_ testEntries: [TestEntry]) throws -> [TestEntryResult] {
+    private func runTestEntries(_ testEntries: [TestEntry], runId: String) throws -> [TestEntryResult] {
         let runner = Runner(
             eventBus: EventBus(),
-            configuration: createRunnerConfig(),
+            configuration: try createRunnerConfig(runId: runId),
             tempFolder: tempFolder,
             resourceLocationResolver: resolver)
         return try runner.run(entries: testEntries, onSimulator: shimulator)
     }
     
-    private func stubFbxctestEvent(success: Bool, runIndex: Int = 0) throws {
-        try FakeFbxctestExecutableProducer.setFakeOutputEvents(runIndex: runIndex, [
+    private func stubFbxctestEvent(runId: String, success: Bool, runIndex: Int = 0) throws {
+        try FakeFbxctestExecutableProducer.setFakeOutputEvents(runId: runId, runIndex: runIndex, [
             AnyEncodableWrapper(
                 TestStartedEvent(
                     test: "\(testClassName)/\(testMethod)",
@@ -118,11 +119,12 @@ public final class RunnerTests: XCTestCase {
             ])
     }
     
-    private func createRunnerConfig() -> RunnerConfiguration {
-        guard let fbxctest = FakeFbxctestExecutableProducer.fakeFbxctestPath else {
-            XCTFail("Expected to have fbxctest binary")
-            fatalError()
+    private func createRunnerConfig(runId: String) throws -> RunnerConfiguration {
+        let fbxctest = try FakeFbxctestExecutableProducer.fakeFbxctestPath(runId: runId)
+        addTeardownBlock {
+            try? FileManager.default.removeItem(atPath: fbxctest)
         }
+        
         let configuration = RunnerConfiguration(
             testType: .logicTest,
             fbxctest: .localFilePath(fbxctest),
@@ -134,7 +136,7 @@ public final class RunnerTests: XCTestCase {
             testExecutionBehavior: TestExecutionBehavior(
                 numberOfRetries: 1,
                 numberOfSimulators: 1,
-                environment: [:],
+                environment: ["EMCEE_TESTS_RUN_ID": runId],
                 scheduleStrategy: .individual),
             simulatorSettings: SimulatorSettings(
                 simulatorLocalizationSettings: "",

@@ -24,7 +24,7 @@ class QueueClientTests: XCTestCase {
         do {
             server = HttpServer()
             server?[query] = response
-            try server?.start()
+            try server?.start(0)
             port = try server?.port() ?? 0
             delegate = FakeQueueClientDelegate()
             queueClient = QueueClient(serverAddress: "127.0.0.1", serverPort: port, workerId: "worker")

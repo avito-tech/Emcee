@@ -101,14 +101,18 @@ final class ProcessControllerTests: XCTestCase {
     }
     
     func testWritingToStdin() throws {
-        let stdoutFile = try TemporaryFile()
-        let stderrFile = try TemporaryFile()
-        let stdinFile = try TemporaryFile()
+        continueAfterFailure = true
+        
+        let stdoutFile = try TemporaryFile(deleteOnClose: false)
+        let stderrFile = try TemporaryFile(deleteOnClose: false)
+        let stdinFile = try TemporaryFile(deleteOnClose: false)
+        let delegate = FakeDelegate(stream: true)
 
         let controller = try controllerForCommandLineTestExecutableTool(
             stdoutFile: stdoutFile.path,
             stderrFile: stderrFile.path,
-            stdinFile: stdinFile.path)
+            stdinFile: stdinFile.path,
+            delegate: delegate)
         
         try controller.writeToStdIn(data: "hello, this is first stdin data!".data(using: .utf8)!)
         try controller.writeToStdIn(data: "hello, this is second stdin data!".data(using: .utf8)!)
@@ -116,30 +120,37 @@ final class ProcessControllerTests: XCTestCase {
         controller.waitForProcessToDie()
         
         let stdoutString = try fileContents(path: stdoutFile.path)
+        let stderrString = try fileContents(path: stderrFile.path)
         let stdinString = try fileContents(path: stdinFile.path)
+        
+        print("Stdout: \n" + stdoutString)
+        print("Stderr: \n" + stderrString)
+        print("Stdin: \n" + stdinString)
         
         XCTAssertEqual(
             stdinString,
-            "hello, this is first stdin data!"
-                + "hello, this is second stdin data!"
-                + "bye")
+            "hello, this is first stdin data!\n"
+                + "hello, this is second stdin data!\n"
+                + "bye\n")
         XCTAssertEqual(
             stdoutString,
             "stdin-to-stdout-streamer started!"
-                + "hello, this is first stdin data!"
-                + "hello, this is second stdin data!"
-                + "bye")
+                + "hello, this is first stdin data!\n"
+                + "hello, this is second stdin data!\n"
+                + "bye\n")
     }
     
     func testWritingHugeData() throws {
         let stdoutFile = try TemporaryFile()
         let stderrFile = try TemporaryFile()
         let stdinFile = try TemporaryFile()
+        let delegate = FakeDelegate(stream: false)
         
         let controller = try controllerForCommandLineTestExecutableTool(
             stdoutFile: stdoutFile.path,
             stderrFile: stderrFile.path,
-            stdinFile: stdinFile.path)
+            stdinFile: stdinFile.path,
+            delegate: delegate)
         
         let inputString = Array(repeating: "qwertyuiop", count: 1000000).joined()
         
@@ -152,10 +163,10 @@ final class ProcessControllerTests: XCTestCase {
         
         XCTAssertEqual(
             stdinString,
-            inputString + "bye")
+            inputString + "\n" + "bye\n")
         XCTAssertEqual(
             stdoutString,
-            "stdin-to-stdout-streamer started!" + inputString + "bye")
+            "stdin-to-stdout-streamer started!" + inputString + "\n" + "bye\n")
     }
     
     private func fileContents(path: AbsolutePath) throws -> String {
@@ -169,23 +180,36 @@ final class ProcessControllerTests: XCTestCase {
     private func controllerForCommandLineTestExecutableTool(
         stdoutFile: AbsolutePath,
         stderrFile: AbsolutePath,
-        stdinFile: AbsolutePath)
+        stdinFile: AbsolutePath,
+        delegate: ProcessControllerDelegate)
         throws -> ProcessController
     {
-        let streamingSwiftTempFile = try TemporaryFile()
+        let streamingSwiftTempFile = try TemporaryFile(suffix: ".swift")
         let streamingSwiftFile = #file.deletingLastPathComponent.appending(pathComponent: "StdInToStdOutStreamer.swift")
         var swiftTestCode = try String(contentsOfFile: streamingSwiftFile)
         swiftTestCode = swiftTestCode.replacingOccurrences(of: "//uncomment_from_tests", with: "")
         streamingSwiftTempFile.fileHandle.write(swiftTestCode)
         
+        let compiledExecutable = try TemporaryFile()
+        
+        // precompile
+        let compiler = try ProcessController(
+            subprocess: Subprocess(
+                arguments: [
+                    "/usr/bin/swiftc",
+                    "-emit-executable",
+                    streamingSwiftTempFile,
+                    "-o", compiledExecutable]))
+        compiler.startAndListenUntilProcessDies()
+        
+        // run the executable
         let controller = try ProcessController(
             subprocess: Subprocess(
-                arguments: ["/usr/bin/swift", streamingSwiftTempFile],
-                maximumAllowedSilenceDuration: 10,
+                arguments: [compiledExecutable],
+                allowedTimeToConsumeStdin: 600,
                 stdoutContentsFile: stdoutFile.asString,
                 stderrContentsFile: stderrFile.asString,
                 stdinContentsFile: stdinFile.asString))
-        let delegate = FakeDelegate()
         controller.delegate = delegate
         controller.start()
         return controller

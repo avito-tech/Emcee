@@ -39,6 +39,18 @@ public final class Scheduler {
     private let syncQueue = DispatchQueue(label: "ru.avito.Scheduler")
     private let tempFolder: TempFolder
     private let resourceLocationResolver: ResourceLocationResolver
+    private var gatheredErrors = [Error]()
+    
+    public enum SchedulerError: Error, CustomStringConvertible {
+        case someErrorsHappened([Error])
+        
+        public var description: String {
+            switch self {
+            case .someErrorsHappened(let errors):
+                return "During execution of tests the following errors happened: \(errors)"
+            }
+        }
+    }
     
     public init(
         eventBus: EventBus,
@@ -63,6 +75,9 @@ public final class Scheduler {
     public func run() throws -> [TestingResult] {
         startFetchingAndRunningTests()
         queue.waitUntilAllOperationsAreFinished()
+        if !gatheredErrors.isEmpty {
+            throw SchedulerError.someErrorsHappened(gatheredErrors)
+        }
         return testingResults
     }
     
@@ -75,7 +90,10 @@ public final class Scheduler {
     private func fetchAndRunBucket() {
         queue.addOperation {
             if self.resourceSemaphore.availableResources.runningTests == 0 {
-                log("No more available resources to run tests")
+                return
+            }
+            guard self.gatheredErrors.isEmpty else {
+                log("Error: Some errors occured, will not fetch and run more buckets. Errors: \(self.gatheredErrors)", color: .red)
                 return
             }
             guard let bucket = self.configuration.schedulerDataSource.nextBucket() else {
@@ -100,7 +118,7 @@ public final class Scheduler {
                     self.eventBus.post(event: .didObtainTestingResult(testingResult))
                     self.fetchAndRunBucket()
                 } catch {
-                    log("Error running tests from fetched bucket: \(error)")
+                    self.didFailRunningTests(bucket: bucket, error: error)
                 }
             }
             acquireResources.addCascadeCancellableDependency(runTestsInBucketAfterAcquiringResources)
@@ -113,6 +131,13 @@ public final class Scheduler {
     private func didReceiveResults(testingResult: TestingResult) {
         syncQueue.sync {
             testingResults.append(testingResult)
+        }
+    }
+    
+    private func didFailRunningTests(bucket: Bucket, error: Error) {
+        log("Error running tests from fetched bucket '\(bucket)' with error: \(error)")
+        syncQueue.sync {
+            gatheredErrors.append(error)
         }
     }
     

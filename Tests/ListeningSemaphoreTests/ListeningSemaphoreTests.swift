@@ -39,13 +39,15 @@ public final class ListeningSemaphoreTests: XCTestCase {
         let semaphore = ListeningSemaphore(maximumValues: values)
         let operation = try semaphore.acquire(.of(bootingSimulators: 1))
         
-        // we setup a condition that will signal once myOperation will be performed
-        let condition = NSCondition()
-        let myOperation = BlockOperation { condition.signal() }
+        // we setup an expectation that will be fulfilled once myOperation will be performed
+        let operationInvokedExpectation = expectation(description: "operation has been invoked")
+        
+        let myOperation = BlockOperation { operationInvokedExpectation.fulfill() }
         myOperation.addDependency(operation)
         // add operation asynchronously so we have some time to setup a condition check
         queue.addOperation { self.queue.addOperation(myOperation) }
-        checkConditionDidSignal(condition)
+        
+        wait(for: [operationInvokedExpectation], timeout: 5.0)
     }
     
     func testCappingToMaximumAmounts() throws {
@@ -77,12 +79,14 @@ public final class ListeningSemaphoreTests: XCTestCase {
         XCTAssertEqual(semaphore.availableResources, .of(runningTests: 4))
 
         // we setup a condition that will signal once f2 will be performed
-        let condition = NSCondition()
-        let operationWhenF2IsUnheld = BlockOperation { condition.signal() }
+        let operationInvokedExpectation = expectation(description: "operation has been invoked")
+        let operationWhenF2IsUnheld = BlockOperation { operationInvokedExpectation.fulfill() }
         operationWhenF2IsUnheld.addDependency(secondOperation)
         queue.addOperation(operationWhenF2IsUnheld)
         try semaphore.release(.of(runningTests: 3))
-        checkConditionDidSignal(condition)
+        
+        wait(for: [operationInvokedExpectation], timeout: 5.0)
+        
         XCTAssertEqual(semaphore.availableResources, .of(runningTests: 2))
 
         try semaphore.release(.of(runningTests: 5))
@@ -100,8 +104,10 @@ public final class ListeningSemaphoreTests: XCTestCase {
         let toBeCancelled = try semaphore.acquire(.of(runningTests: 5))
         
         // we subscribe to the resource aquisition
-        let condition = NSCondition()
-        let myOperation = BlockOperation { condition.signal() }
+        let operationInvokedExpectation = expectation(description: "operation has been invoked")
+        operationInvokedExpectation.isInverted = true
+        
+        let myOperation = BlockOperation { operationInvokedExpectation.fulfill() }
         toBeCancelled.addCascadeCancellableDependency(myOperation)
         queue.addOperation(myOperation)
         
@@ -113,8 +119,9 @@ public final class ListeningSemaphoreTests: XCTestCase {
         // we release resources acquired for first operation above, making toBeCancelled able to run if it weren't
         // cancelled
         try semaphore.release(.of(runningTests: 5))
-        // ensure myOperation actually never executed
-        checkConditionDidTimeout(condition)
+        // ensure myOperation has never executed
+        
+        wait(for: [operationInvokedExpectation], timeout: 5.0)
         
         // since second acquire operation has been cancelled, it shouldn't acquire the resources
         XCTAssertEqual(semaphore.availableResources, semaphore.maximumValues)
@@ -147,15 +154,5 @@ public final class ListeningSemaphoreTests: XCTestCase {
         try semaphore.release(.of(runningTests: 5))
         XCTAssertTrue(combined.isReady)
         XCTAssertEqual(semaphore.availableResources, .of(bootingSimulators: 3, runningTests: 3))
-    }
-    
-    private func checkConditionDidSignal(_ condition: NSCondition) {
-        // when condition signals, it returns true. If it reaches timeout, it returns false.
-        XCTAssertTrue(condition.wait(until: Date().addingTimeInterval(5.0)))
-    }
-    
-    private func checkConditionDidTimeout(_ condition: NSCondition) {
-        // when condition signals, it returns true. If it reaches timeout, it returns false.
-        XCTAssertFalse(condition.wait(until: Date().addingTimeInterval(5.0)))
     }
 }
