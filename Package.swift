@@ -17,6 +17,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-package-manager.git", .exact("0.3.0")),
         .package(url: "https://github.com/beefon/Shout", .branch("master")),
+        .package(url: "https://github.com/daltoniam/Starscream.git", .exact("3.0.6")),
         .package(url: "https://github.com/httpswift/swifter.git", .branch("stable")),
         .package(url: "https://github.com/weichsel/ZIPFoundation/", from: "0.9.6"),
     ],
@@ -255,6 +256,7 @@ let package = Package(
                 "JSONStream",
                 "Logging",
                 "Models",
+                "Starscream",
                 "SynchronousWaiter",
                 "Utility"
             ]),
@@ -264,10 +266,12 @@ let package = Package(
             dependencies: [
                 "EventBus",
                 "Logging",
+                "HostDeterminer",
                 "ResourceLocationResolver",
                 "Models",
                 "ProcessController",
                 "Scheduler",
+                "Swifter",
                 "SynchronousWaiter"
             ]),
         .testTarget(

@@ -6,4 +6,4 @@ guard let outputPath = ProcessInfo.processInfo.environment["TEST_PLUGIN_OUTPUT_P
     exit(1)
 }
 
-TestPlugin(outputPath: outputPath).run()
+try TestPlugin(outputPath: outputPath).run()

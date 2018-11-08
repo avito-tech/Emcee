@@ -10,42 +10,29 @@ import SynchronousWaiter
 /// Allows the plugin to track `PluginEvent`s from the main process using the provided `EventBus`.
 public final class Plugin {
     private let eventBus: EventBus
-    private let inputFileHandle: FileHandle
     private let jsonReaderQueue = DispatchQueue(label: "ru.avito.Plugin.jsonReaderQueue")
     private let stdinReadQueue = DispatchQueue(label: "ru.avito.Plugin.stdinReadQueue")
     private let jsonInputStream = BlockingArrayBasedJSONStream()
     private let jsonStreamToEventBusAdapter: JSONStreamToEventBusAdapter
     private var jsonStreamHasFinished = false
+    private let eventReceiver: EventReceiver
+    private let pluginIdentifier: String
     
     /// Creates a Plugin class that can be used to broadcast the PluginEvents from the main process
     /// into the provided EventBus.
     /// - Parameters:
     ///     - eventBus:             The event bus which will receive the events from the main process
-    ///     - inputFileHandle:      The file handle to read from
-    public init(
-        eventBus: EventBus,
-        inputFileHandle: FileHandle = FileHandle.standardInput)
-    {
+    public init(eventBus: EventBus) throws {
         self.eventBus = eventBus
-        self.inputFileHandle = inputFileHandle
         self.jsonStreamToEventBusAdapter = JSONStreamToEventBusAdapter(eventBus: eventBus)
+        self.eventReceiver = EventReceiver(address: try PluginSupport.pluginSocket())
+        self.pluginIdentifier = try PluginSupport.pluginIdentifier()
     }
     
     public func streamPluginEvents() {
         automaticallyInterruptOnTearDown()
-        
-        let jsonReader = JSONReader(inputStream: jsonInputStream, eventStream: jsonStreamToEventBusAdapter)
+        parseJsonStream()
         readDataInBackground()
-        jsonReaderQueue.async {
-            do {
-                log("Starting JSON stream parser")
-                try jsonReader.start()
-            } catch {
-                self.jsonStreamHasFinished = true
-                log("JSON stream error: \(error)", color: .red)
-            }
-            log("JSON stream parser finished")
-        }
     }
     
     public func join() {
@@ -61,25 +48,47 @@ public final class Plugin {
         eventBus.add(stream: tearDownHandler)
     }
     
+    private func parseJsonStream() {
+        let jsonReader = JSONReader(inputStream: jsonInputStream, eventStream: jsonStreamToEventBusAdapter)
+        jsonReaderQueue.async {
+            do {
+                log("Starting JSON stream parser")
+                try jsonReader.start()
+            } catch {
+                self.jsonStreamHasFinished = true
+                log("JSON stream error: \(error)", color: .red)
+            }
+            log("JSON stream parser finished")
+        }
+    }
+    
     private func interrupt() {
         eventBus.uponDeliveryOfAllEvents {
+            self.eventReceiver.stop()
             self.jsonInputStream.willProvideMoreData = false
             self.jsonStreamHasFinished = true
         }
     }
     
     private func readDataInBackground() {
-        stdinReadQueue.async {
-            while self.jsonStreamHasFinished == false {
-                let data = self.inputFileHandle.availableData
-                if data.isEmpty {
-                    self.onEndOfData()
-                    break
-                } else {
-                    self.onNewData(data: data)
-                }
-            }
+        eventReceiver.onConnect = {
+            self.eventReceiver.send(string: self.pluginIdentifier)
         }
+        
+        eventReceiver.onData = { data in
+            self.onNewData(data: data)
+        }
+        
+        eventReceiver.onError = { error in
+            log("Error: \(error)")
+            self.onEndOfData()
+        }
+        
+        eventReceiver.onDisconnect = {
+            self.onEndOfData()
+        }
+        
+        eventReceiver.start()
     }
     
     private func onNewData(data: Data) {

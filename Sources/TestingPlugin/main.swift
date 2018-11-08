@@ -14,6 +14,11 @@ class Listener: DefaultBusListener {
         super.init()
     }
     
+    override func process(event: BusEvent) {
+        log("Received bus event: \(event)")
+        super.process(event: event)
+    }
+    
     override func didObtain(testingResult: TestingResult) {
         allEvents.append(testingResult)
     }
@@ -34,7 +39,7 @@ class Listener: DefaultBusListener {
     }
 }
 
-func main() -> Int32 {
+func main() throws -> Int32 {
     guard let outputPath = ProcessInfo.processInfo.environment["AVITO_TEST_PLUGIN_OUTPUT"] else {
         log("TestingPlugin requires you to specify $AVITO_TEST_PLUGIN_OUTPUT")
         return 1
@@ -45,11 +50,11 @@ func main() -> Int32 {
     let listener = Listener(outputPath: outputPath)
     eventBus.add(stream: listener)
     
-    let plugin = Plugin(eventBus: eventBus)
+    let plugin = try Plugin(eventBus: eventBus)
     plugin.streamPluginEvents()
     plugin.join()
     
     return 0
 }
 
-exit(main())
+exit(try main())

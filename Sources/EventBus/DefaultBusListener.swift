@@ -5,7 +5,7 @@ open class DefaultBusListener: EventStream {
     
     public init() {}
     
-    public func process(event: BusEvent) {
+    open func process(event: BusEvent) {
         switch event {
         case .didObtainTestingResult(let testingResult):
             didObtain(testingResult: testingResult)

@@ -16,6 +16,7 @@ public final class PluginManager: EventStream {
     private let pluginLocations: [ResourceLocation]
     private var processControllers = [ProcessController]()
     private let resourceLocationResolver: ResourceLocationResolver
+    private let eventDistributor: EventDistributor
     
     public init(
         pluginLocations: [ResourceLocation],
@@ -26,6 +27,7 @@ public final class PluginManager: EventStream {
         self.environment = environment
         self.pluginLocations = pluginLocations
         self.resourceLocationResolver = resourceLocationResolver
+        self.eventDistributor = EventDistributor()
     }
     
     private static func pathsToPluginBundles(
@@ -72,19 +74,45 @@ public final class PluginManager: EventStream {
     }
     
     public func startPlugins() throws {
+        try eventDistributor.start()
+        let pluginSocket = try eventDistributor.webSocketAddress()
+        
         let pluginBundles = try PluginManager.pathsToPluginBundles(
             pluginLocations: pluginLocations,
             resourceLocationResolver: resourceLocationResolver)
+        
         for bundlePath in pluginBundles {
             log("Starting plugin at '\(bundlePath)'", color: .blue)
             let pluginExecutable = bundlePath.appending(component: PluginManager.pluginExecutableName)
+            let pluginIdentifier = try pluginExecutable.asString.avito_sha256Hash()
+            eventDistributor.add(pluginIdentifier: pluginIdentifier)
+            let pluginEnvironment = environmentForLaunchingPlugin(
+                environment,
+                pluginSocket: pluginSocket,
+                pluginIdentifier: pluginIdentifier)
             let controller = try ProcessController(
                 subprocess: Subprocess(
                     arguments: [pluginExecutable],
-                    environment: environment))
+                    environment: pluginEnvironment))
             controller.start()
             processControllers.append(controller)
         }
+        
+        let pluginsConnectionTimeout = 10.0
+        log("Waiting for all plugins to connect for \(pluginsConnectionTimeout) seconds")
+        try eventDistributor.waitForPluginsToConnect(timeout: pluginsConnectionTimeout)
+    }
+    
+    private func environmentForLaunchingPlugin(
+        _ environment: [String: String],
+        pluginSocket: String,
+        pluginIdentifier: String)
+        -> [String: String]
+    {
+        var env = environment
+        env[PluginSupport.pluginSocketEnv] = pluginSocket
+        env[PluginSupport.pluginIdentifierEnv] = pluginIdentifier
+        return env
     }
     
     private func killPlugins() {
@@ -130,6 +158,7 @@ public final class PluginManager: EventStream {
         } catch {
             killPlugins()
         }
+        eventDistributor.stop()
     }
     
     // MARK: - Re-distributing events to the plugins
@@ -138,26 +167,12 @@ public final class PluginManager: EventStream {
         do {
             let data = try encoder.encode(busEvent)
             sendData(data)
-            log("PluginManager: broadcasted event: \(busEvent)")
         } catch {
             log("Failed to get data for \(busEvent) event: \(error)")
         }
     }
     
     private func sendData(_ data: Data) {
-        do {
-            try forEachPluginProcess { processController in
-                try processController.writeToStdIn(data: data)
-            }
-        } catch {
-            log("Failed to send event to plugin: \(error)")
-            if let stdinError = error as? StdinError {
-                processControllers.avito_removeAll { (element: ProcessController) -> Bool in
-                    element.processId == stdinError.processController.processId
-                }
-                log("Will kill plugin", subprocessName: stdinError.processController.processName, subprocessId: stdinError.processController.processId, color: .yellow)
-                stdinError.processController.interruptAndForceKillIfNeeded()
-            }
-        }
+        eventDistributor.send(data: data)
     }
 }

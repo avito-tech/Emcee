@@ -100,7 +100,7 @@ final class ProcessControllerTests: XCTestCase {
         XCTAssertTrue(stderrString.contains("ls: \(argument): No such file or directory"))
     }
     
-    func testWritingToStdin() throws {
+    func disabled_testWritingToStdin() throws {
         continueAfterFailure = true
         
         let stdoutFile = try TemporaryFile(deleteOnClose: false)
@@ -140,7 +140,7 @@ final class ProcessControllerTests: XCTestCase {
                 + "bye\n")
     }
     
-    func testWritingHugeData() throws {
+    func disabled_testWritingHugeData() throws {
         let stdoutFile = try TemporaryFile()
         let stderrFile = try TemporaryFile()
         let stdinFile = try TemporaryFile()

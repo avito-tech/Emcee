@@ -11,8 +11,8 @@ final class TestPlugin {
                 outputPath: outputPath))
     }
     
-    public func run() {
-        let plugin = Plugin(eventBus: eventBus)
+    public func run() throws {
+        let plugin = try Plugin(eventBus: eventBus)
         plugin.streamPluginEvents()
         plugin.join()
     }
