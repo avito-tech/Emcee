@@ -1,6 +1,7 @@
 import Foundation
 import HostDeterminer
 import Logging
+import Models
 import Swifter
 import SynchronousWaiter
 
@@ -18,13 +19,15 @@ public final class EventDistributor {
     private let server = HttpServer()
     private var webSocketSessions = [WeakWebSocketSession]()
     private let queue = DispatchQueue(label: "ru.avito.emcee.EventDistributor.queue")
+    private let encoder = JSONEncoder()
+    private let decoder = JSONDecoder()
     
     public init() {}
     
     public func start() throws {
         try queue.sync {
             log("Starting web socket server")
-            server["/"] = websocket(onString, nil, nil)
+            server["/"] = websocket(nil, onBinary, nil)
             try server.start(0, forceIPv4: false, priority: .default)
         }
         log("Web socket server is available at: \(try webSocketAddress())")
@@ -65,16 +68,31 @@ public final class EventDistributor {
             webSocketSessions.removeAll { $0.webSocketSession == nil }
         }
     }
-    
-    private func onString(session: WebSocketSession, string: String) -> Void {
-        if pluginIdentifiers.contains(string) {
-            connectedPluginIdentifiers.insert(string)
-            log("New web socket connection from plugin \(string): \(session)")
-            webSocketSessions.append(WeakWebSocketSession(webSocketSession: session))
-        }
-    }
-    
+
     private func onBinary(session: WebSocketSession, incomingData: [UInt8]) -> Void {
+        let data = Data(incomingData)
         
+        let acknowledgement: PluginHandshakeAcknowledgement
+        do {
+            let handshakeRequest = try decoder.decode(PluginHandshakeRequest.self, from: data)
+            if pluginIdentifiers.contains(handshakeRequest.pluginIdentifier) {
+                connectedPluginIdentifiers.insert(handshakeRequest.pluginIdentifier)
+                webSocketSessions.append(WeakWebSocketSession(webSocketSession: session))
+                acknowledgement = .successful
+            } else {
+                acknowledgement = .error("Unknown plugin identifier: '\(handshakeRequest.pluginIdentifier)'")
+            }
+        } catch {
+            acknowledgement = .error("Internal error: '\(error)'")
+        }
+        
+        log("New connection from plugin with acknowledgement: '\(acknowledgement)'")
+        
+        do {
+            let data = try encoder.encode(acknowledgement)
+            session.writeBinary([UInt8](data))
+        } catch {
+            log("Error: failed to send acknowledgement: \(error)", color: .red)
+        }
     }
 }

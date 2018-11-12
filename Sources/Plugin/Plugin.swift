@@ -16,7 +16,6 @@ public final class Plugin {
     private let jsonStreamToEventBusAdapter: JSONStreamToEventBusAdapter
     private var jsonStreamHasFinished = false
     private let eventReceiver: EventReceiver
-    private let pluginIdentifier: String
     
     /// Creates a Plugin class that can be used to broadcast the PluginEvents from the main process
     /// into the provided EventBus.
@@ -25,8 +24,9 @@ public final class Plugin {
     public init(eventBus: EventBus) throws {
         self.eventBus = eventBus
         self.jsonStreamToEventBusAdapter = JSONStreamToEventBusAdapter(eventBus: eventBus)
-        self.eventReceiver = EventReceiver(address: try PluginSupport.pluginSocket())
-        self.pluginIdentifier = try PluginSupport.pluginIdentifier()
+        self.eventReceiver = EventReceiver(
+            address: try PluginSupport.pluginSocket(),
+            pluginIdentifier: try PluginSupport.pluginIdentifier())
     }
     
     public func streamPluginEvents() {
@@ -71,10 +71,6 @@ public final class Plugin {
     }
     
     private func readDataInBackground() {
-        eventReceiver.onConnect = {
-            self.eventReceiver.send(string: self.pluginIdentifier)
-        }
-        
         eventReceiver.onData = { data in
             self.onNewData(data: data)
         }
