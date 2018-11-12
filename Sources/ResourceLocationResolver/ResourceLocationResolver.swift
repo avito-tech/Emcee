@@ -48,8 +48,8 @@ public final class ResourceLocationResolver {
         }
     }
     
-    public func resolvable(resourceLocation: ResourceLocation) -> ResolvableResourceLocation {
-        return ResolvableResourceLocationImpl(resourceLocation: resourceLocation, resolver: self)
+    public func resolvable(withRepresentable representable: RepresentableByResourceLocation) -> ResolvableResourceLocation {
+        return ResolvableResourceLocationImpl(withRepresentable: representable, resolver: self)
     }
     
     private func cachedContentsOfUrl(_ url: URL) throws -> URL {

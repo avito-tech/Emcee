@@ -4,8 +4,8 @@ import XCTest
 
 final class ModelsTests: XCTestCase {
     let fakeToolResources = ToolResources(
-        fbsimctl: .remoteUrl(URL(string: "http://example.com")!),
-        fbxctest: .remoteUrl(URL(string: "http://example.com")!))
+        fbsimctl: FbsimctlLocation(.remoteUrl(URL(string: "http://example.com")!)),
+        fbxctest: FbxctestLocation(.remoteUrl(URL(string: "http://example.com")!)))
     
     func testBucketHasDetermenisticId() throws {
         let bucket1 = Bucket(

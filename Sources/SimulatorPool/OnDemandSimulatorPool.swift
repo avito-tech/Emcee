@@ -10,9 +10,9 @@ public final class OnDemandSimulatorPool<T> where T: SimulatorController {
     public struct Key: Hashable, CustomStringConvertible {
         public let numberOfSimulators: UInt
         public let testDestination: TestDestination
-        public let fbsimctl: ResourceLocation
+        public let fbsimctl: FbsimctlLocation
         
-        public init(numberOfSimulators: UInt, testDestination: TestDestination, fbsimctl: ResourceLocation) {
+        public init(numberOfSimulators: UInt, testDestination: TestDestination, fbsimctl: FbsimctlLocation) {
             self.numberOfSimulators = numberOfSimulators
             self.testDestination = testDestination
             self.fbsimctl = fbsimctl
@@ -57,7 +57,7 @@ public final class OnDemandSimulatorPool<T> where T: SimulatorController {
                 pool = try SimulatorPool(
                     numberOfSimulators: key.numberOfSimulators,
                     testDestination: key.testDestination,
-                    fbsimctl: resourceLocationResolver.resolvable(resourceLocation: key.fbsimctl),
+                    fbsimctl: resourceLocationResolver.resolvable(withRepresentable: key.fbsimctl),
                     tempFolder: tempFolder)
                 pools[key] = pool
                 log("Created SimulatorPool for key \(key)")

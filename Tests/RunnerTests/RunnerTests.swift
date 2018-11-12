@@ -127,7 +127,7 @@ public final class RunnerTests: XCTestCase {
         
         let configuration = RunnerConfiguration(
             testType: .logicTest,
-            fbxctest: .localFilePath(fbxctest),
+            fbxctest: FbxctestLocation(.localFilePath(fbxctest)),
             buildArtifacts: BuildArtifacts(
                 appBundle: "",
                 runner: "",

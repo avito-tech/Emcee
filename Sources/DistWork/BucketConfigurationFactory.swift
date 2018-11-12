@@ -104,25 +104,25 @@ final class BucketConfigurationFactory {
         return configuration
     }
     
-    public var fbsimctl: ResourceLocation? {
+    public var fbsimctl: FbsimctlLocation? {
         guard let path = try? fileInPackage(containerPath, .fbsimctl) else { return nil }
         if FileManager.default.fileExists(atPath: path) {
-            return ResourceLocation.localFilePath(path)
+            return FbsimctlLocation(.localFilePath(path))
         } else {
             return nil
         }
     }
     
-    public var fbxctest: ResourceLocation? {
+    public var fbxctest: FbxctestLocation? {
         guard let path = try? fileInPackage(containerPath, .fbxctest) else { return nil }
         if FileManager.default.fileExists(atPath: path) {
-            return ResourceLocation.localFilePath(path)
+            return FbxctestLocation(.localFilePath(path))
         } else {
             return nil
         }
     }
     
-    public var pluginLocations: [ResourceLocation] {
+    public var pluginLocations: [PluginLocation] {
         let plugins = FileManager.default.findFiles(
             path: packagePath(containerPath, .plugin),
             defaultValue: [])
@@ -137,7 +137,7 @@ final class BucketConfigurationFactory {
                 log("Plugin candidate at \(path) exists: \(result), isDir: \(isDir)")
                 return result && isDir.boolValue == true
         }
-        return plugins.map { .localFilePath($0) }
+        return plugins.map { PluginLocation(.localFilePath($0)) }
     }
     
     private func packagePath(_ containerPath: String, _ package: PackageName) -> String {

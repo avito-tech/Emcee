@@ -40,8 +40,8 @@ public final class DeployablesGenerator {
         deployables[.app] = try appDeployables()
         deployables[.avitoRunner] = [runnerTool()]
         deployables[.environment] = try environmentDeployables()
-        deployables[.fbsimctl] = try toolForBinary(location: auxiliaryResources.toolResources.fbsimctl, toolName: PackageName.fbsimctl.rawValue)
-        deployables[.fbxctest] = try toolForBinary(location: auxiliaryResources.toolResources.fbxctest, toolName: PackageName.fbxctest.rawValue)
+        deployables[.fbsimctl] = try toolForBinary(representable: auxiliaryResources.toolResources.fbsimctl, toolName: PackageName.fbsimctl.rawValue)
+        deployables[.fbxctest] = try toolForBinary(representable: auxiliaryResources.toolResources.fbxctest, toolName: PackageName.fbxctest.rawValue)
         deployables[.plugin] = try pluginDeployables()
         deployables[.simulatorLocalizationSettings] = try simulatorLocalizationSettingsDeployables()
         deployables[.testRunner] = try testRunnerDeployables()
@@ -93,8 +93,8 @@ public final class DeployablesGenerator {
             files: [DeployableFile(source: ProcessInfo.processInfo.executablePath, destination: targetAvitoRunnerPath)])
     }
     
-    func toolForBinary(location: ResourceLocation, toolName: String) throws -> [DeployableTool] {
-        switch location {
+    func toolForBinary(representable: RepresentableByResourceLocation, toolName: String) throws -> [DeployableTool] {
+        switch representable.resourceLocation {
         case .localFilePath(let binaryPath):
             let parentDirPath = binaryPath.deletingLastPathComponent
             let bundleName = parentDirPath.lastPathComponent
@@ -141,7 +141,7 @@ public final class DeployablesGenerator {
     
     func pluginDeployables() throws -> [DeployableItem] {
         return try auxiliaryResources.plugins.flatMap { location -> [DeployableItem] in
-            switch location {
+            switch location.resourceLocation {
             case .localFilePath(let path):
                 let url = URL(fileURLWithPath: path)
                 let name = PackageName.plugin.rawValue.appending(

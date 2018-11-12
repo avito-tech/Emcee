@@ -131,9 +131,9 @@ final class DistRunTestsCommand: Command {
                 scheduleStrategy: scheduleStrategy),
             auxiliaryResources: AuxiliaryResources(
                 toolResources: ToolResources(
-                    fbsimctl: fbsimctl,
-                    fbxctest: fbxctest),
-                plugins: plugins),
+                    fbsimctl: FbsimctlLocation(fbsimctl),
+                    fbxctest: FbxctestLocation(fbxctest)),
+                plugins: plugins.map { PluginLocation($0) }),
             buildArtifacts: BuildArtifacts(
                 appBundle: app,
                 runner: runner,

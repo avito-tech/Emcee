@@ -2,9 +2,9 @@ import Foundation
 import Models
 
 public enum ValidationError: Error, CustomStringConvertible {
-    case unexpectedExtension(ResourceLocation, actual: String, expected: String)
-    case noExecutableFound(ResourceLocation, expectedLocation: String)
-    case noPluginsFound(ResourceLocation)
+    case unexpectedExtension(PluginLocation, actual: String, expected: String)
+    case noExecutableFound(PluginLocation, expectedLocation: String)
+    case noPluginsFound(PluginLocation)
     
     public var description: String {
         switch self {

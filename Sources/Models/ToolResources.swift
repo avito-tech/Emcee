@@ -2,12 +2,12 @@ import Foundation
 
 public final class ToolResources: Codable, Hashable {
     /// Location of fbsimctl tool.
-    public let fbsimctl: ResourceLocation
+    public let fbsimctl: FbsimctlLocation
     
     /// Location of fbxctest tool.
-    public let fbxctest: ResourceLocation
+    public let fbxctest: FbxctestLocation
     
-    public init(fbsimctl: ResourceLocation, fbxctest: ResourceLocation) {
+    public init(fbsimctl: FbsimctlLocation, fbxctest: FbxctestLocation) {
         self.fbsimctl = fbsimctl
         self.fbxctest = fbxctest
     }

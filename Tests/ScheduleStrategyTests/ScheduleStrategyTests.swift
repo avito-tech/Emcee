@@ -4,8 +4,8 @@ import XCTest
 
 class ScheduleStrategyTests: XCTestCase {
     let fakeToolResources = ToolResources(
-        fbsimctl: .remoteUrl(URL(string: "http://example.com")!),
-        fbxctest: .remoteUrl(URL(string: "http://example.com")!))
+        fbsimctl: FbsimctlLocation(.remoteUrl(URL(string: "http://example.com")!)),
+        fbxctest: FbxctestLocation(.remoteUrl(URL(string: "http://example.com")!)))
     
     func test_individualStrategy_splitsTestsIntoBucketsOfOne() throws {
         let destination = try TestDestination(deviceType: "device", iOSVersion: "11.0")

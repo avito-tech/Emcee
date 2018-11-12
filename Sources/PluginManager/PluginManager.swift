@@ -13,13 +13,13 @@ public final class PluginManager: EventStream {
     public static let pluginExecutableName = "Plugin"
     private let encoder = JSONEncoder()
     private let environment: [String: String]
-    private let pluginLocations: [ResourceLocation]
+    private let pluginLocations: [PluginLocation]
     private var processControllers = [ProcessController]()
     private let resourceLocationResolver: ResourceLocationResolver
     private let eventDistributor: EventDistributor
     
     public init(
-        pluginLocations: [ResourceLocation],
+        pluginLocations: [PluginLocation],
         resourceLocationResolver: ResourceLocationResolver,
         environment: [String: String] = ProcessInfo.processInfo.environment)
     {
@@ -31,13 +31,13 @@ public final class PluginManager: EventStream {
     }
     
     private static func pathsToPluginBundles(
-        pluginLocations: [ResourceLocation],
+        pluginLocations: [PluginLocation],
         resourceLocationResolver: ResourceLocationResolver)
         throws -> [AbsolutePath]
     {
         var paths = [AbsolutePath]()
         for location in pluginLocations {
-            let resolvedPath = try resourceLocationResolver.resolvePath(resourceLocation: location)
+            let resolvableLocation = resourceLocationResolver.resolvable(withRepresentable: location)
             
             let validatePathToPluginBundle: (String) throws -> () = { path in
                 guard path.lastPathComponent.pathExtension == PluginManager.pluginBundleExtension else {
@@ -51,7 +51,7 @@ public final class PluginManager: EventStream {
                 paths.append(try AbsolutePath(validating: path))
             }
             
-            switch resolvedPath {
+            switch try resolvableLocation.resolve() {
             case .directlyAccessibleFile(let path):
                 try validatePathToPluginBundle(path)
             case .contentsOfArchive(let containerPath, let concretePluginName):

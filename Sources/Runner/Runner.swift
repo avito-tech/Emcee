@@ -100,7 +100,7 @@ public final class Runner {
     }
     
     private func fbxctestArguments(entriesToRun: [TestEntry], simulator: Simulator) -> [SubprocessArgument] {
-        let resolvableFbxctest = resourceLocationResolver.resolvable(resourceLocation: configuration.fbxctest)
+        let resolvableFbxctest = resourceLocationResolver.resolvable(withRepresentable: configuration.fbxctest)
         var arguments: [SubprocessArgument] =
             [resolvableFbxctest.asArgumentWith(packageName: PackageName.fbxctest),
              "-destination", simulator.testDestination.destinationString] +

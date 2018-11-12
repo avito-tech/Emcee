@@ -43,7 +43,7 @@ final class DumpRuntimeTestsCommand: Command {
         let xctestBundle = try ArgumentsReader.validateFileExists(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle)
                 
         let configuration = RuntimeDumpConfiguration(
-            fbxctest: fbxctest,
+            fbxctest: FbxctestLocation(fbxctest),
             xcTestBundle: xctestBundle,
             simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: "", watchdogSettings: ""),
             testDestination: testDestinations[0].testDestination,

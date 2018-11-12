@@ -5,11 +5,11 @@ public struct AuxiliaryResources {
     public let toolResources: ToolResources
     
     /// Locations of .emceeplugin bundles.
-    public let plugins: [ResourceLocation]
+    public let plugins: [PluginLocation]
     
     public init(
         toolResources: ToolResources,
-        plugins: [ResourceLocation])
+        plugins: [PluginLocation])
     {
         self.toolResources = toolResources
         self.plugins = plugins

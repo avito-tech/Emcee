@@ -12,8 +12,8 @@ class QueueClientTests: XCTestCase {
     private var delegate: FakeQueueClientDelegate!
     private var queueClient: QueueClient!
     private let fakeToolResources = ToolResources(
-        fbsimctl: .remoteUrl(URL(string: "http://example.com")!),
-        fbxctest: .remoteUrl(URL(string: "http://example.com")!))
+        fbsimctl: FbsimctlLocation(.remoteUrl(URL(string: "http://example.com")!)),
+        fbxctest: FbxctestLocation(.remoteUrl(URL(string: "http://example.com")!)))
     
     override func tearDown() {
         server?.stop()

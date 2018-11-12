@@ -36,7 +36,7 @@ final class PluginManagerTests: XCTestCase {
             toPath: executablePath.asString)
         let manager = PluginManager(
             pluginLocations: [
-                .localFilePath(pluginBundlePath.asString)
+                PluginLocation(.localFilePath(pluginBundlePath.asString))
             ],
             resourceLocationResolver: resolver)
         XCTAssertThrowsError(try manager.startPlugins())
@@ -49,7 +49,7 @@ final class PluginManagerTests: XCTestCase {
             toPath: executablePath)
         let manager = PluginManager(
             pluginLocations: [
-                .localFilePath(executablePath)
+                PluginLocation(.localFilePath(executablePath))
             ],
             resourceLocationResolver: resolver)
         XCTAssertThrowsError(try manager.startPlugins())
@@ -77,7 +77,7 @@ final class PluginManagerTests: XCTestCase {
         
         let manager = PluginManager(
             pluginLocations: [
-                .localFilePath(pluginBundlePath.asString)
+                PluginLocation(.localFilePath(pluginBundlePath.asString))
             ],
             resourceLocationResolver: resolver,
             environment: ["AVITO_TEST_PLUGIN_OUTPUT": outputPath.path.asString])

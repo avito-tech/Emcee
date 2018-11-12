@@ -14,7 +14,7 @@ public class SchedulerConfiguration {
     public let schedulerDataSource: SchedulerDataSource
     public let onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>
     
-    public func runnerConfiguration(fbxctest: ResourceLocation) -> RunnerConfiguration {
+    public func runnerConfiguration(fbxctest: FbxctestLocation) -> RunnerConfiguration {
         return RunnerConfiguration(
             testType: testType,
             fbxctest: fbxctest,
