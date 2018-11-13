@@ -11,7 +11,8 @@ public final class ProgressiveScheduleStrategy: ScheduleStrategy {
         numberOfDestinations: UInt,
         testEntries: [TestEntry],
         testDestination: TestDestination,
-        toolResources: ToolResources)
+        toolResources: ToolResources,
+        buildArtifacts: BuildArtifacts)
         -> [Bucket]
     {        
         /*
@@ -34,7 +35,8 @@ public final class ProgressiveScheduleStrategy: ScheduleStrategy {
                 numberOfDestinations: numberOfDestinations,
                 testEntries: $0,
                 testDestination: testDestination,
-                toolResources: toolResources)
+                toolResources: toolResources,
+                buildArtifacts: buildArtifacts)
         }
     }
 }

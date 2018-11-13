@@ -65,7 +65,8 @@ public final class DistRunner {
             numberOfDestinations: UInt(distRunConfiguration.destinations.count),
             testEntries: testEntries,
             testDestinations: distRunConfiguration.testDestinations,
-            toolResources: distRunConfiguration.auxiliaryResources.toolResources)
+            toolResources: distRunConfiguration.auxiliaryResources.toolResources,
+            buildArtifacts: distRunConfiguration.buildArtifacts)
         return buckets
     }
     

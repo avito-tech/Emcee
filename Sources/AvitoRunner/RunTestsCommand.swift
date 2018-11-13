@@ -87,8 +87,8 @@ final class RunTestsCommand: Command {
     }
     
     func run(with arguments: ArgumentParser.Result) throws {
-        let additionalApp = try ArgumentsReader.validateFilesExist(arguments.get(self.additionalApp) ?? [], key: KnownStringArguments.additionalApp)
-        let app = try ArgumentsReader.validateFileExists(arguments.get(self.app), key: KnownStringArguments.app)
+        let additionalApp = try ArgumentsReader.validateResourceLocations(arguments.get(self.additionalApp) ?? [], key: KnownStringArguments.additionalApp)
+        let app = try ArgumentsReader.validateResourceLocation(arguments.get(self.app), key: KnownStringArguments.app)
         let environmentValues = try ArgumentsReader.environment(arguments.get(self.environment), key: KnownStringArguments.environment)
         let fbsimctl = try ArgumentsReader.validateResourceLocation(arguments.get(self.fbsimctl), key: KnownStringArguments.fbsimctl)
         let fbxctest = try ArgumentsReader.validateResourceLocation(arguments.get(self.fbxctest), key: KnownStringArguments.fbxctest)
@@ -99,7 +99,7 @@ final class RunTestsCommand: Command {
         let onlyTest: [TestToRun] = (arguments.get(self.onlyTest) ?? []).map { TestToRun.testName($0) }
         let oslogPath = arguments.get(self.oslogPath)
         let plugins = try ArgumentsReader.validateResourceLocations(arguments.get(self.plugins) ?? [], key: KnownStringArguments.plugin)
-        let runner = try ArgumentsReader.validateNotNil(arguments.get(self.runner), key: KnownStringArguments.runner)
+        let runner = try ArgumentsReader.validateResourceLocation(arguments.get(self.runner), key: KnownStringArguments.runner)
         let scheduleStrategy = try ArgumentsReader.scheduleStrategy(arguments.get(self.scheduleStrategy), key: KnownStringArguments.scheduleStrategy)
         let simulatorLocalizationSettings = try ArgumentsReader.validateNilOrFileExists(arguments.get(self.simulatorLocalizationSettings), key: KnownStringArguments.simulatorLocalizationSettings)
         let singleTestTimeout = try ArgumentsReader.validateNotNil(arguments.get(self.singleTestTimeout), key: KnownUIntArguments.singleTestTimeout)
@@ -115,7 +115,7 @@ final class RunTestsCommand: Command {
         let trace = try ArgumentsReader.validateNotNil(arguments.get(self.trace), key: KnownStringArguments.trace)
         let videoPath = arguments.get(self.videoPath)
         let watchdogSettings = try ArgumentsReader.validateNilOrFileExists(arguments.get(self.watchdogSettings), key: KnownStringArguments.watchdogSettings)
-        let xctestBundle = try ArgumentsReader.validateFileExists(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle)
+        let xctestBundle = try ArgumentsReader.validateResourceLocation(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle)
 
         let configuration = try LocalTestRunConfiguration(
             reportOutput: ReportOutput(junit: junit, tracingReport: trace),
@@ -138,10 +138,10 @@ final class RunTestsCommand: Command {
                     fbxctest: FbxctestLocation(fbxctest)),
                 plugins: plugins.map { PluginLocation($0) }),
             buildArtifacts: BuildArtifacts(
-                appBundle: app,
-                runner: runner,
-                xcTestBundle: xctestBundle,
-                additionalApplicationBundles: additionalApp),
+                appBundle: AppBundleLocation(app),
+                runner: RunnerAppLocation(runner),
+                xcTestBundle: TestBundleLocation(xctestBundle),
+                additionalApplicationBundles: additionalApp.map { AdditionalAppBundleLocation($0) }),
             simulatorSettings: SimulatorSettings(
                 simulatorLocalizationSettings: simulatorLocalizationSettings,
                 watchdogSettings: watchdogSettings),
@@ -171,7 +171,6 @@ final class RunTestsCommand: Command {
         
         let schedulerConfiguration = SchedulerConfiguration(
             testType: .uiTest,
-            buildArtifacts: configuration.buildArtifacts,
             testExecutionBehavior: configuration.testExecutionBehavior,
             simulatorSettings: configuration.simulatorSettings,
             testTimeoutConfiguration: configuration.testTimeoutConfiguration,

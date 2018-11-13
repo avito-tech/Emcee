@@ -118,10 +118,24 @@ public final class DistWorker {
     private func bucketByOverridingToolResourcesWithLocalIfNeeded(_ bucket: Bucket) -> Bucket {
         let fbsimctl = bucketConfigurationFactory.fbsimctl ?? bucket.toolResources.fbsimctl
         let fbxctest = bucketConfigurationFactory.fbxctest ?? bucket.toolResources.fbxctest
+        
+        let additionalApps = bucketConfigurationFactory.locallyDeployedAdditionalApps + bucket.buildArtifacts.additionalApplicationBundles.compactMap {
+            switch $0.resourceLocation {
+            case .remoteUrl:
+                return $0
+            case .localFilePath(let path):
+                return FileManager.default.fileExists(atPath: path) ? $0 : nil
+            }
+        }
+        let appBundle = bucketConfigurationFactory.appBundle ?? bucket.buildArtifacts.appBundle
+        let runner = bucketConfigurationFactory.runner ?? bucket.buildArtifacts.runner
+        let xcTestBundle = bucketConfigurationFactory.xcTestBundle ?? bucket.buildArtifacts.xcTestBundle
+        
         return Bucket(
             testEntries: bucket.testEntries,
             testDestination: bucket.testDestination,
-            toolResources: ToolResources(fbsimctl: fbsimctl, fbxctest: fbxctest))
+            toolResources: ToolResources(fbsimctl: fbsimctl, fbxctest: fbxctest),
+            buildArtifacts: BuildArtifacts(appBundle: appBundle, runner: runner, xcTestBundle: xcTestBundle, additionalApplicationBundles: additionalApps))
     }
     
     private func didReceiveTestResult(testingResult: TestingResult) {

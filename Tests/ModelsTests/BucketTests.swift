@@ -1,11 +1,11 @@
 import Foundation
 import Models
+import ModelsTestHelpers
 import XCTest
 
-final class ModelsTests: XCTestCase {
-    let fakeToolResources = ToolResources(
-        fbsimctl: FbsimctlLocation(.remoteUrl(URL(string: "http://example.com")!)),
-        fbxctest: FbxctestLocation(.remoteUrl(URL(string: "http://example.com")!)))
+final class BucketTests: XCTestCase {
+    let fakeToolResources = ToolResourcesFixtures.fakeToolResources()
+    let fakeBuildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
     
     func testBucketHasDetermenisticId() throws {
         let bucket1 = Bucket(
@@ -14,7 +14,8 @@ final class ModelsTests: XCTestCase {
                 TestEntry(className: "class", methodName: "testAnotherMethod", caseId: nil)
             ],
             testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3"),
-            toolResources: fakeToolResources)
+            toolResources: fakeToolResources,
+            buildArtifacts: fakeBuildArtifacts)
         
         let bucket2 = Bucket(
             testEntries: [
@@ -22,7 +23,8 @@ final class ModelsTests: XCTestCase {
                 TestEntry(className: "class", methodName: "testMethod", caseId: nil)
             ],
             testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3"),
-            toolResources: fakeToolResources)
+            toolResources: fakeToolResources,
+            buildArtifacts: fakeBuildArtifacts)
         
         XCTAssertEqual(bucket1.bucketId, bucket2.bucketId)
     }
@@ -34,7 +36,8 @@ final class ModelsTests: XCTestCase {
                 TestEntry(className: "class", methodName: "testAnotherMethod", caseId: nil)
             ],
             testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3"),
-            toolResources: fakeToolResources)
+            toolResources: fakeToolResources,
+            buildArtifacts: fakeBuildArtifacts)
         
         let bucket2 = Bucket(
             testEntries: [
@@ -42,7 +45,8 @@ final class ModelsTests: XCTestCase {
                 TestEntry(className: "class", methodName: "testMethod", caseId: nil)
             ],
             testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3"),
-            toolResources: fakeToolResources)
+            toolResources: fakeToolResources,
+            buildArtifacts: fakeBuildArtifacts)
         
         XCTAssertNotEqual(bucket1.bucketId, bucket2.bucketId)
     }
@@ -54,7 +58,8 @@ final class ModelsTests: XCTestCase {
                 TestEntry(className: "class", methodName: "testAnotherMethod", caseId: nil)
             ],
             testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3"),
-            toolResources: fakeToolResources)
+            toolResources: fakeToolResources,
+            buildArtifacts: fakeBuildArtifacts)
         
         let bucket2 = Bucket(
             testEntries: [
@@ -62,7 +67,8 @@ final class ModelsTests: XCTestCase {
                 TestEntry(className: "class", methodName: "testAnotherMethod", caseId: nil)
             ],
             testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.4"),
-            toolResources: fakeToolResources)
+            toolResources: fakeToolResources,
+            buildArtifacts: fakeBuildArtifacts)
         
         XCTAssertNotEqual(bucket1.bucketId, bucket2.bucketId)
     }

@@ -1,5 +1,6 @@
 import DistWork
 import Models
+import ModelsTestHelpers
 import RESTMethods
 import Swifter
 import SynchronousWaiter
@@ -11,9 +12,6 @@ class QueueClientTests: XCTestCase {
     private var port: Int!
     private var delegate: FakeQueueClientDelegate!
     private var queueClient: QueueClient!
-    private let fakeToolResources = ToolResources(
-        fbsimctl: FbsimctlLocation(.remoteUrl(URL(string: "http://example.com")!)),
-        fbxctest: FbxctestLocation(.remoteUrl(URL(string: "http://example.com")!)))
     
     override func tearDown() {
         server?.stop()
@@ -55,7 +53,8 @@ class QueueClientTests: XCTestCase {
         let bucket = Bucket(
             testEntries: [TestEntry(className: "class", methodName: "method", caseId: 123)],
             testDestination: try TestDestination(deviceType: "device", iOSVersion: "10.0"),
-            toolResources: fakeToolResources)
+            toolResources: ToolResourcesFixtures.fakeToolResources(),
+            buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts())
         try prepareServer(RESTMethod.getBucket.withPrependingSlash) { request -> HttpResponse in
             let data: Data = (try? JSONEncoder().encode(RESTResponse.bucketDequeued(bucket: bucket))) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }

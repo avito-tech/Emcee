@@ -52,13 +52,23 @@ final class BucketConfigurationFactory {
         onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>)
         throws -> SchedulerConfiguration
     {
-        /*
-         All paths below are resolved against containerPath.
-         */
-        let app = try FileManager.default.findFiles(
-            path: packagePath(containerPath, .app),
-            pathExtension: "app")
-            .elementAtIndex(0, "First and single app bundle")
+        let simulatorLocalizationSettings = try fileInPackageIfExists(containerPath, .simulatorLocalizationSettings)
+        let watchdogSettings = try fileInPackageIfExists(containerPath, .watchdogSettings)
+        
+        let configuration = SchedulerConfiguration(
+            testType: .uiTest,
+            testExecutionBehavior: workerConfiguration.testExecutionBehavior,
+            simulatorSettings: SimulatorSettings(
+                simulatorLocalizationSettings: simulatorLocalizationSettings,
+                watchdogSettings: watchdogSettings),
+            testTimeoutConfiguration: workerConfiguration.testTimeoutConfiguration,
+            testDiagnosticOutput: TestDiagnosticOutput.nullOutput,
+            schedulerDataSource: schedulerDataSource,
+            onDemandSimulatorPool: onDemandSimulatorPool)
+        return configuration
+    }
+    
+    public var locallyDeployedAdditionalApps: [AdditionalAppBundleLocation] {
         let additionalApps = FileManager.default.findFiles(
             path: packagePath(containerPath, .additionalApp),
             defaultValue: [])
@@ -73,35 +83,32 @@ final class BucketConfigurationFactory {
                 log("Additional app candidate at \(path) exists: \(result), isDir: \(isDir)")
                 return result && isDir.boolValue == true
         }
-        
-        let runner = try FileManager.default.findFiles(
+        return additionalApps.map { AdditionalAppBundleLocation(.localFilePath($0)) }
+    }
+    
+    public var appBundle: AppBundleLocation? {
+        guard let path = FileManager.default.findFiles(
+            path: packagePath(containerPath, .app),
+            pathExtension: "app",
+            defaultValue: []).first else { return nil }
+        return AppBundleLocation(.localFilePath(path))
+    }
+    
+    public var runner: RunnerAppLocation? {
+        guard let path = FileManager.default.findFiles(
             path: packagePath(containerPath, .testRunner),
             suffix: "-Runner",
-            pathExtension: "app")
-            .elementAtIndex(0, "First and single XCTRunner.app")
-        let xcTestBundle = try FileManager.default.findFiles(
+            pathExtension: "app",
+            defaultValue: []).first else { return nil }
+        return RunnerAppLocation(.localFilePath(path))
+    }
+    
+    public var xcTestBundle: TestBundleLocation? {
+        guard let path = FileManager.default.findFiles(
             path: packagePath(containerPath, .xctestBundle),
-            pathExtension: "xctest")
-            .elementAtIndex(0, "First and single xctest bundle")
-        let simulatorLocalizationSettings = try fileInPackageIfExists(containerPath, .simulatorLocalizationSettings)
-        let watchdogSettings = try fileInPackageIfExists(containerPath, .watchdogSettings)
-        
-        let configuration = SchedulerConfiguration(
-            testType: .uiTest,
-            buildArtifacts: BuildArtifacts(
-                appBundle: app,
-                runner: runner,
-                xcTestBundle: xcTestBundle,
-                additionalApplicationBundles: additionalApps),
-            testExecutionBehavior: workerConfiguration.testExecutionBehavior,
-            simulatorSettings: SimulatorSettings(
-                simulatorLocalizationSettings: simulatorLocalizationSettings,
-                watchdogSettings: watchdogSettings),
-            testTimeoutConfiguration: workerConfiguration.testTimeoutConfiguration,
-            testDiagnosticOutput: TestDiagnosticOutput.nullOutput,
-            schedulerDataSource: schedulerDataSource,
-            onDemandSimulatorPool: onDemandSimulatorPool)
-        return configuration
+            pathExtension: "xctest",
+            defaultValue: []).first else { return nil }
+        return TestBundleLocation(.localFilePath(path))
     }
     
     public var fbsimctl: FbsimctlLocation? {

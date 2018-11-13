@@ -6,7 +6,8 @@ public protocol ScheduleStrategy: CustomStringConvertible {
         numberOfDestinations: UInt,
         testEntries: [TestEntry],
         testDestination: TestDestination,
-        toolResources: ToolResources)
+        toolResources: ToolResources,
+        buildArtifacts: BuildArtifacts)
         -> [Bucket] 
 }
 

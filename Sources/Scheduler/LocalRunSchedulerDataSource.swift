@@ -61,7 +61,8 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
             numberOfDestinations: configuration.testExecutionBehavior.numberOfSimulators,
             testEntries: testEntries,
             testDestinations: configuration.testDestinations,
-            toolResources: configuration.auxiliaryResources.toolResources)
+            toolResources: configuration.auxiliaryResources.toolResources,
+            buildArtifacts: configuration.buildArtifacts)
 
         log("Using strategy: \(strategy.description)")
         log("Will execute \(testEntries.count) tests: \(testEntries)")

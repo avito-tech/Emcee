@@ -1,26 +1,35 @@
 import Foundation
 
-public struct BuildArtifacts {
-    /** Absolute path to app bundle build artifact, e.g. /path/to/Avito.app */
-    public let appBundle: String
+public final class BuildArtifacts: Codable {
+    /// Location of app bundle
+    public let appBundle: AppBundleLocation
     
-    /** Absolute path to runner app build artifact (XCTRunner.app), e.g. /path/to/Tests-Runner.app */
-    public let runner: String
+    /// Location of runner app build artifact (XCTRunner.app)
+    public let runner: RunnerAppLocation
     
-    /** Absolute path to xctest bundle with tests to run. Usually it is a part of Runner.app/Plugins, e.g. /path/to/Runner.app/PlugIns/TestBundle.xctest */
-    public let xcTestBundle: String
+    /// Location of xctest bundle with tests to run. Usually it is a part of Runner.app/Plugins.
+    public let xcTestBundle: TestBundleLocation
     
-    /** Absolute paths to additional apps that can be launched diring tests e.g. /path/to/OtherApp.app */
-    public let additionalApplicationBundles: [String]
+    /// Location of additional apps that can be launched diring tests.
+    public let additionalApplicationBundles: [AdditionalAppBundleLocation]
 
-    public init(appBundle: String, runner: String, xcTestBundle: String, additionalApplicationBundles: [String]) {
+    public init(
+        appBundle: AppBundleLocation,
+        runner: RunnerAppLocation,
+        xcTestBundle: TestBundleLocation,
+        additionalApplicationBundles: [AdditionalAppBundleLocation])
+    {
         self.appBundle = appBundle
         self.runner = runner
         self.xcTestBundle = xcTestBundle
         self.additionalApplicationBundles = additionalApplicationBundles
     }
     
-    public static func onlyWithXctestBundle(xcTestBundle: String) -> BuildArtifacts {
-        return BuildArtifacts(appBundle: "", runner: "", xcTestBundle: xcTestBundle, additionalApplicationBundles: [])
+    public static func onlyWithXctestBundle(xcTestBundle: TestBundleLocation) -> BuildArtifacts {
+        return BuildArtifacts(
+            appBundle: AppBundleLocation(.localFilePath("")),
+            runner: RunnerAppLocation(.localFilePath("")),
+            xcTestBundle: xcTestBundle,
+            additionalApplicationBundles: [])
     }
 }

@@ -105,6 +105,8 @@ let package = Package(
             dependencies: [
                 "Deployer",
                 "DistRun",
+                "Models",
+                "ModelsTestHelpers",
                 "ResourceLocationResolver",
                 "TempFolder"
             ]),
@@ -129,6 +131,7 @@ let package = Package(
             dependencies: [
                 "DistWork",
                 "Models",
+                "ModelsTestHelpers",
                 "RESTMethods",
                 "Swifter",
                 "SynchronousWaiter"
@@ -243,10 +246,16 @@ let package = Package(
             dependencies: [
                 "Extensions"
             ]),
+        .target(
+            name: "ModelsTestHelpers",
+            dependencies: [
+                "Models"
+            ]),
         .testTarget(
             name: "ModelsTests",
             dependencies: [
-                "Models"
+                "Models",
+                "ModelsTestHelpers"
             ]),
         
         .target(
@@ -328,6 +337,7 @@ let package = Package(
             dependencies: [
                 "Extensions",
                 "Models",
+                "ModelsTestHelpers",
                 "ResourceLocationResolver",
                 "Runner",
                 "ScheduleStrategy",
@@ -369,7 +379,11 @@ let package = Package(
             ]),
         .testTarget(
             name: "ScheduleStrategyTests",
-            dependencies: ["ScheduleStrategy"]),
+            dependencies: [
+                "Models",
+                "ModelsTestHelpers",
+                "ScheduleStrategy"
+            ]),
         
         .target(
             name: "SimulatorPool",

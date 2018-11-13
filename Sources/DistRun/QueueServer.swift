@@ -278,7 +278,8 @@ public final class QueueServer {
                 strategy.generateIndividualBuckets(
                     testEntries: $0.bucket.testEntries,
                     testDestination: $0.bucket.testDestination,
-                    toolResources: $0.bucket.toolResources)
+                    toolResources: $0.bucket.toolResources,
+                    buildArtifacts: $0.bucket.buildArtifacts)
             }
             queue.append(contentsOf: newBuckets)
             log("Returned \(dequeuedBucketsToReEnqueue.count) buckets to the queue by crushing it to \(newBuckets.count) buckets: \(newBuckets)")

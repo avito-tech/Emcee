@@ -51,33 +51,44 @@ public final class DeployablesGenerator {
     }
     
     func appDeployables() throws -> [DeployableItem] {
-        return [
-            try DeployableBundle(
-                name: PackageName.app.rawValue,
-                bundleUrl: URL(fileURLWithPath: buildArtifacts.appBundle))]
+        switch buildArtifacts.appBundle.resourceLocation {
+        case .localFilePath(let path):
+            return [try DeployableBundle(name: PackageName.app.rawValue, bundleUrl: URL(fileURLWithPath: path))]
+        case .remoteUrl:
+            return []
+        }
     }
     
     func additionalAppDeployables() throws -> [DeployableItem] {
-        return try buildArtifacts.additionalApplicationBundles.map {
-            let url = URL(fileURLWithPath: $0)
-            let name = PackageName.additionalApp.rawValue.appending(
-                pathComponent: url.lastPathComponent.deletingPathExtension)
-            return try DeployableBundle(name: name, bundleUrl: url)
+        return try buildArtifacts.additionalApplicationBundles.compactMap {
+            switch $0.resourceLocation {
+            case .localFilePath(let path):
+                let url = URL(fileURLWithPath: path)
+                let name = PackageName.additionalApp.rawValue.appending(
+                    pathComponent: url.lastPathComponent.deletingPathExtension)
+                return try DeployableBundle(name: name, bundleUrl: url)
+            case .remoteUrl:
+                return nil
+            }
         }
     }
     
     func xctestDeployables() throws -> [DeployableItem] {
-        return [
-            try DeployableBundle(
-                name: PackageName.xctestBundle.rawValue,
-                bundleUrl: URL(fileURLWithPath: buildArtifacts.xcTestBundle))]
+        switch buildArtifacts.xcTestBundle.resourceLocation {
+        case .localFilePath(let path):
+            return [try DeployableBundle(name: PackageName.xctestBundle.rawValue, bundleUrl: URL(fileURLWithPath: path))]
+        case .remoteUrl:
+            return []
+        }
     }
     
     func testRunnerDeployables() throws -> [DeployableItem] {
-        return [
-            try DeployableBundle(
-                name: PackageName.testRunner.rawValue,
-                bundleUrl: URL(fileURLWithPath: buildArtifacts.runner))]
+        switch buildArtifacts.runner.resourceLocation {
+        case .localFilePath(let path):
+            return [try DeployableBundle(name: PackageName.testRunner.rawValue, bundleUrl: URL(fileURLWithPath: path))]
+        case .remoteUrl:
+            return []
+        }
     }
     
     func environmentDeployables() throws -> [DeployableItem] {

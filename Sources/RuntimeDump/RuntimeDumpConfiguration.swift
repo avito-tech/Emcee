@@ -14,7 +14,7 @@ public struct RuntimeDumpConfiguration {
     public let fbxctest: FbxctestLocation
     
     /** Path to xctest bundle which contents should be dumped in runtime */
-    public let xcTestBundle: String
+    public let xcTestBundle: TestBundleLocation
     
     /** Some settings that should be applied to the test environment prior running the tests. */
     public let simulatorSettings: SimulatorSettings
@@ -27,7 +27,7 @@ public struct RuntimeDumpConfiguration {
 
     public init(
         fbxctest: FbxctestLocation,
-        xcTestBundle: String,
+        xcTestBundle: TestBundleLocation,
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testsToRun: [TestToRun])

@@ -6,16 +6,21 @@ public class Bucket: Codable, CustomStringConvertible, Hashable {
     public let testEntries: [TestEntry]
     public let testDestination: TestDestination
     public let toolResources: ToolResources
+    public let buildArtifacts: BuildArtifacts
 
     public init(
         testEntries: [TestEntry],
         testDestination: TestDestination,
-        toolResources: ToolResources)
+        toolResources: ToolResources,
+        buildArtifacts: BuildArtifacts)
     {
         self.testEntries = testEntries
         self.testDestination = testDestination
         self.toolResources = toolResources
-        self.bucketId = Bucket.generateBucketId(testEntries: testEntries, testDestination: testDestination)
+        self.buildArtifacts = buildArtifacts
+        self.bucketId = Bucket.generateBucketId(
+            testEntries: testEntries,
+            testDestination: testDestination)
     }
     
     private static func generateBucketId(
@@ -23,7 +28,8 @@ public class Bucket: Codable, CustomStringConvertible, Hashable {
         testDestination: TestDestination)
         -> String
     {
-        let tests = testEntries.map { $0.testName }.sorted().joined() + testDestination.destinationString
+        let tests: String = testEntries.map { $0.testName }.sorted().joined()
+            + testDestination.destinationString
         do {
             return try tests.avito_sha256Hash(encoding: .utf8)
         } catch {

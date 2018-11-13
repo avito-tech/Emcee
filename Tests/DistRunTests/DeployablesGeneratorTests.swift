@@ -3,6 +3,7 @@ import Extensions
 import Deployer
 @testable import DistRun
 import Models
+import ModelsTestHelpers
 import ResourceLocationResolver
 import TempFolder
 import XCTest
@@ -10,7 +11,7 @@ import XCTest
 class DeployablesGeneratorTests: XCTestCase {
     
     var deployables = [PackageName: [DeployableItem]]()
-    let defaultBuildArtifacts = BuildArtifacts(
+    let defaultBuildArtifacts = BuildArtifactsFixtures.withLocalPaths(
         appBundle: String(#file),
         runner: String(#file),
         xcTestBundle: String(#file),

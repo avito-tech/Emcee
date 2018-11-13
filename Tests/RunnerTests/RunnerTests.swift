@@ -3,6 +3,7 @@ import Extensions
 import fbxctest
 import Foundation
 import Models
+import ModelsTestHelpers
 import TempFolder
 import TestingFakeFbxctest
 import ResourceLocationResolver
@@ -128,11 +129,7 @@ public final class RunnerTests: XCTestCase {
         let configuration = RunnerConfiguration(
             testType: .logicTest,
             fbxctest: FbxctestLocation(.localFilePath(fbxctest)),
-            buildArtifacts: BuildArtifacts(
-                appBundle: "",
-                runner: "",
-                xcTestBundle: "",
-                additionalApplicationBundles: []),
+            buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
             testExecutionBehavior: TestExecutionBehavior(
                 numberOfRetries: 1,
                 numberOfSimulators: 1,

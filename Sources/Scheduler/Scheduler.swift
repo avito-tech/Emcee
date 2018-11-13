@@ -181,7 +181,7 @@ public final class Scheduler {
             
         let runner = Runner(
             eventBus: eventBus,
-            configuration: configuration.runnerConfiguration(fbxctest: bucket.toolResources.fbxctest),
+            configuration: configuration.runnerConfiguration(fbxctest: bucket.toolResources.fbxctest, buildArtifacts: bucket.buildArtifacts),
             tempFolder: tempFolder,
             resourceLocationResolver: resourceLocationResolver)
         let simulator: Simulator

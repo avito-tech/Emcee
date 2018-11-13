@@ -103,20 +103,29 @@ public final class Runner {
         let resolvableFbxctest = resourceLocationResolver.resolvable(withRepresentable: configuration.fbxctest)
         var arguments: [SubprocessArgument] =
             [resolvableFbxctest.asArgumentWith(packageName: PackageName.fbxctest),
-             "-destination", simulator.testDestination.destinationString] +
-                ["-\(configuration.testType.rawValue)"]
+             "-destination", simulator.testDestination.destinationString,
+             configuration.testType.asArgument]
         
         let buildArtifacts = configuration.buildArtifacts
+        let resolvableAppBundle = resourceLocationResolver.resolvable(withRepresentable: buildArtifacts.appBundle)
+        let resolvableXcTestBundle = resourceLocationResolver.resolvable(withRepresentable: buildArtifacts.xcTestBundle)
+        
         switch configuration.testType {
         case .logicTest:
-            arguments += ["\(buildArtifacts.xcTestBundle)"]
+            arguments += [resolvableXcTestBundle.asArgument()]
         case .appTest:
-            arguments += ["\(buildArtifacts.xcTestBundle):\(buildArtifacts.appBundle)"]
+            arguments += [
+                JoinedSubprocessArgument(
+                    components: [resolvableXcTestBundle.asArgument(), resolvableAppBundle.asArgument()],
+                    separator: ":")]
         case .uiTest:
-            let components = [buildArtifacts.xcTestBundle, buildArtifacts.runner, buildArtifacts.appBundle]
-                + buildArtifacts.additionalApplicationBundles
+            let resolvableRunnerBundle = resourceLocationResolver.resolvable(withRepresentable: buildArtifacts.runner)
+            let resolvableAdditionalAppBundles = buildArtifacts.additionalApplicationBundles
+                .map { resourceLocationResolver.resolvable(withRepresentable: $0) }
+            let components = ([resolvableXcTestBundle, resolvableRunnerBundle, resolvableAppBundle] + resolvableAdditionalAppBundles)
+                .map { $0.asArgument() }
+            arguments += [JoinedSubprocessArgument(components: components, separator: ":")]
             
-            arguments += [components.joined(separator: ":")]
             if let simulatorLocatizationSettings = configuration.simulatorSettings.simulatorLocalizationSettings {
                 arguments += ["-simulator-localization-settings", simulatorLocatizationSettings]
             }
@@ -125,7 +134,9 @@ public final class Runner {
             }
         }
         
-        arguments += entriesToRun.flatMap { ["-only", "\(buildArtifacts.xcTestBundle):\($0.testName)"] }
+        arguments += entriesToRun.flatMap {
+            ["-only", JoinedSubprocessArgument(components: [resolvableXcTestBundle.asArgument(), $0.testName], separator: ":")]
+        }
         arguments += ["run-tests", "-sdk", "iphonesimulator"]
       
         if type(of: simulator) != Shimulator.self {
@@ -253,5 +264,11 @@ public final class Runner {
                 hostName: HostDeterminer.currentHostAddress,
                 processId: 0,
                 simulatorId: "no_simulator"))
+    }
+}
+
+private extension TestType {
+    var asArgument: SubprocessArgument {
+        return "-" + self.rawValue
     }
 }

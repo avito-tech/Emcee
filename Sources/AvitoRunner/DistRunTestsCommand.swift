@@ -80,8 +80,8 @@ final class DistRunTestsCommand: Command {
     }
     
     func run(with arguments: ArgumentParser.Result) throws {
-        let additionalApp = try ArgumentsReader.validateFilesExist(arguments.get(self.additionalApp) ?? [], key: KnownStringArguments.additionalApp)
-        let app = try ArgumentsReader.validateFileExists(arguments.get(self.app), key: KnownStringArguments.app)
+        let additionalApp = try ArgumentsReader.validateResourceLocations(arguments.get(self.additionalApp) ?? [], key: KnownStringArguments.additionalApp)
+        let app = try ArgumentsReader.validateResourceLocation(arguments.get(self.app), key: KnownStringArguments.app)
         let deploymentDestinations = try ArgumentsReader.deploymentDestinations(arguments.get(self.destinations), key: KnownStringArguments.destinations)
         let destinationConfigurations = try ArgumentsReader.destinationConfigurations(arguments.get(self.destinationConfigurations), key: KnownStringArguments.destinationConfigurations)
         let environmentValues = try ArgumentsReader.environment(arguments.get(self.environment), key: KnownStringArguments.environment)
@@ -95,7 +95,7 @@ final class DistRunTestsCommand: Command {
         let plugins = try ArgumentsReader.validateResourceLocations(arguments.get(self.plugins) ?? [], key: KnownStringArguments.plugin)
         let remoteScheduleStrategy = try ArgumentsReader.scheduleStrategy(arguments.get(self.remoteScheduleStrategy), key: KnownStringArguments.remoteScheduleStrategy)
         let runId = try ArgumentsReader.validateNotNil(arguments.get(self.runId), key: KnownStringArguments.runId)
-        let runner = try ArgumentsReader.validateNotNil(arguments.get(self.runner), key: KnownStringArguments.runner)
+        let runner = try ArgumentsReader.validateResourceLocation(arguments.get(self.runner), key: KnownStringArguments.runner)
         let scheduleStrategy = try ArgumentsReader.scheduleStrategy(arguments.get(self.scheduleStrategy), key: KnownStringArguments.scheduleStrategy)
         let simulatorLocalizationSettings = try ArgumentsReader.validateNilOrFileExists(arguments.get(self.simulatorLocalizationSettings), key: KnownStringArguments.simulatorLocalizationSettings)
         let singleTestTimeout = try ArgumentsReader.validateNotNil(arguments.get(self.singleTestTimeout), key: KnownUIntArguments.singleTestTimeout)
@@ -108,7 +108,7 @@ final class DistRunTestsCommand: Command {
         let testDestinations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
         let trace = try ArgumentsReader.validateNotNil(arguments.get(self.trace), key: KnownStringArguments.trace)
         let watchdogSettings = try ArgumentsReader.validateNilOrFileExists(arguments.get(self.watchdogSettings), key: KnownStringArguments.watchdogSettings)
-        let xctestBundle = try ArgumentsReader.validateFileExists(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle)
+        let xctestBundle = try ArgumentsReader.validateResourceLocation(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle)
         
         let distRunConfiguration = DistRunConfiguration(
             runId: runId,
@@ -135,10 +135,10 @@ final class DistRunTestsCommand: Command {
                     fbxctest: FbxctestLocation(fbxctest)),
                 plugins: plugins.map { PluginLocation($0) }),
             buildArtifacts: BuildArtifacts(
-                appBundle: app,
-                runner: runner,
-                xcTestBundle: xctestBundle,
-                additionalApplicationBundles: additionalApp),
+                appBundle: AppBundleLocation(app),
+                runner: RunnerAppLocation(runner),
+                xcTestBundle: TestBundleLocation(xctestBundle),
+                additionalApplicationBundles: additionalApp.map { AdditionalAppBundleLocation($0) }),
             simulatorSettings: SimulatorSettings(
                 simulatorLocalizationSettings: simulatorLocalizationSettings,
                 watchdogSettings: watchdogSettings),

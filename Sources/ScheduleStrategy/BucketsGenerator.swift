@@ -15,7 +15,8 @@ public final class BucketsGenerator {
         numberOfDestinations: UInt,
         testEntries: [TestEntry],
         testDestinations: [TestDestination],
-        toolResources: ToolResources)
+        toolResources: ToolResources,
+        buildArtifacts: BuildArtifacts)
         -> [Bucket]
     {
         return testDestinations.flatMap { testDestination in
@@ -23,7 +24,8 @@ public final class BucketsGenerator {
                 numberOfDestinations: numberOfDestinations,
                 testEntries: testEntries,
                 testDestination: testDestination,
-                toolResources: toolResources)
+                toolResources: toolResources,
+                buildArtifacts: buildArtifacts)
         }
     }
 }

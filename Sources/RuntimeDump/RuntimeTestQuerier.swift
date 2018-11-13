@@ -49,6 +49,7 @@ public final class RuntimeTestQuerier {
     
     private func availableTestsInRuntime() throws -> [RuntimeTestEntry] {
         let runtimeEntriesJSONPath = NSTemporaryDirectory().appending("runtime_tests.json")
+        try? FileManager.default.removeItem(atPath: runtimeEntriesJSONPath)
         log("Will dump runtime tests into file: \(runtimeEntriesJSONPath)", color: .boldBlue)
         
         let runnerConfiguration = RunnerConfiguration(
