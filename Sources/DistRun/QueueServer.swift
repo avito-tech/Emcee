@@ -18,9 +18,7 @@ public final class QueueServer {
     public private(set) var testingResults = [TestingResult]()
     private var workerIdToRunConfiguration: [String: WorkerConfiguration]
     
-    private let server = HttpServer()
-    private let encoder = JSONEncoder()
-    private let decoder = JSONDecoder()
+    private let restServer = QueueHTTPRESTServer()
     
     private let syncQueue = DispatchQueue(label: "ru.avito.QueueServer")
     private var stuckDequeuedBucketsTimer: DispatchSourceTimer?
@@ -31,7 +29,6 @@ public final class QueueServer {
         self.buckets = queue
         self.queue = queue
         self.workerIdToRunConfiguration = workerIdToRunConfiguration
-        self.encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
     }
     
     deinit {
@@ -39,17 +36,18 @@ public final class QueueServer {
     }
     
     public func port() throws -> Int {
-        return try server.port()
+        return try restServer.port()
     }
     
     public func start() throws {
-        server[RESTMethod.registerWorker.withPrependingSlash] = registerWorkerRequestHandler
-        server[RESTMethod.getBucket.withPrependingSlash] = getBucketRequestHandler
-        server[RESTMethod.bucketResult.withPrependingSlash] = bucketResultHandler
-        server[RESTMethod.reportAlive.withPrependingSlash] = reportWorkerIsAliveHandler
+        restServer.setEndpoints(
+            registerWorker: QueueHTTPRESTServer.Endpoint<RegisterWorkerRequest>(registerWorkerRequestHandler),
+            getBucket: QueueHTTPRESTServer.Endpoint<BucketFetchRequest>(getBucketRequestHandler),
+            bucketResult: QueueHTTPRESTServer.Endpoint<BucketResultRequest>(bucketResultHandler),
+            reportAlive: QueueHTTPRESTServer.Endpoint<ReportAliveRequest>(reportWorkerIsAliveHandler))
         
-        try server.start(0, forceIPv4: false, priority: .default)
-        let port = try server.port()
+        try restServer.start()
+        let port = try restServer.port()
         log("Started queue server on port \(port) with \(buckets.count) buckets:")
         buckets.forEach { bucket in
             log("Bucket: \(bucket), tests: \(bucket.testEntries)")
@@ -67,6 +65,8 @@ public final class QueueServer {
         log("Queue has finished waiting for results")
     }
     
+    // MARK: - Conditions
+    
     private func processedAllBuckets() -> Bool {
         return syncQueue.sync {
             return queue.isEmpty && dequeuedBuckets.isEmpty
@@ -79,78 +79,52 @@ public final class QueueServer {
     
     // MARK: - Request Handlers
     
-    private func registerWorkerRequestHandler(request: HttpRequest) -> HttpResponse {
-        let requestData = Data(bytes: request.body)
-        do {
-            let registerRequest = try decoder.decode(RegisterWorkerRequest.self, from: requestData)
-            log("New worker with id: \(registerRequest.workerId)")
-            workerDidReportAliveness(workerId: registerRequest.workerId)
-            guard let workerConfiguration = workerIdToRunConfiguration[registerRequest.workerId] else {
-                log("Can't locate configuration for worker \(registerRequest.workerId). Will return server error.")
-                return .internalServerError
-            }
-            return generateJsonResponse(.workerRegisterSuccess(workerConfiguration: workerConfiguration))
-        } catch {
-            log("Failed to decode \(request.path) data: \(error). Will return server error response.")
-            return .internalServerError
+    private func registerWorkerRequestHandler(registerRequest: RegisterWorkerRequest) throws -> RESTResponse {
+        log("New worker with id: \(registerRequest.workerId)")
+        workerDidReportAliveness(workerId: registerRequest.workerId)
+        guard let workerConfiguration = workerIdToRunConfiguration[registerRequest.workerId] else {
+            log("Can't locate configuration for worker \(registerRequest.workerId). Will return server error.")
+            throw QueueServerError.missingWorkerConfigurationForWorkerId(registerRequest.workerId)
+        }
+        return .workerRegisterSuccess(workerConfiguration: workerConfiguration)
+    }
+    
+    private func getBucketRequestHandler(fetchRequest: BucketFetchRequest) -> RESTResponse {
+        let dequeueResult = dequeuedBucket(requestId: fetchRequest.requestId, workerId: fetchRequest.workerId)
+        switch dequeueResult {
+        case .queueIsEmpty:
+            return .queueIsEmpty
+        case .queueIsEmptyButNotResultsAreAvailable:
+            let checkAfter: TimeInterval = queue.isEmpty ? 10 : 30
+            return .checkAgainLater(checkAfter: checkAfter)
+        case .dequeuedBucket(let dequeuedBucket):
+            return .bucketDequeued(bucket: dequeuedBucket.bucket)
+        case .workerBlocked:
+            return .workerBlocked
         }
     }
     
-    private func getBucketRequestHandler(request: HttpRequest) -> HttpResponse {
-        let requestData = Data(bytes: request.body)
-        do {
-            let fetchRequest = try decoder.decode(BucketFetchRequest.self, from: requestData)
-            let dequeueResult = dequeuedBucket(requestId: fetchRequest.requestId, workerId: fetchRequest.workerId)
-            switch dequeueResult {
-            case .queueIsEmpty:
-                return generateJsonResponse(.queueIsEmpty)
-            case .queueIsEmptyButNotResultsAreAvailable:
-                let checkAfter: TimeInterval = queue.isEmpty ? 10 : 30
-                return generateJsonResponse(.checkAgainLater(checkAfter: checkAfter))
-            case .dequeuedBucket(let dequeuedBucket):
-                return generateJsonResponse(.bucketDequeued(bucket: dequeuedBucket.bucket))
-            case .workerBlocked:
-                return generateJsonResponse(.workerBlocked)
-            }
-        } catch {
-            log("Failed to decode \(request.path) data: \(error). Will return server error response.")
-            return .internalServerError
-        }
+    private func bucketResultHandler(decodedRequest: BucketResultRequest) throws -> RESTResponse {
+        log("Decoded \(RESTMethod.bucketResult) from \(decodedRequest.workerId): \(decodedRequest.testingResult)")
+        try accept(bucketResultRequest: decodedRequest)
+        return .bucketResultAccepted(bucketId: decodedRequest.testingResult.bucketId)
     }
     
-    private func bucketResultHandler(request: HttpRequest) -> HttpResponse {
-        let requestData = Data(bytes: request.body)
-        do {
-            let decodedRequest = try decoder.decode(BucketResultRequest.self, from: requestData)
-            log("Decoded \(RESTMethod.bucketResult) from \(decodedRequest.workerId): \(decodedRequest.testingResult)")
-            try acceptBucketResultRequest(decodedRequest)
-            return generateJsonResponse(.bucketResultAccepted(bucketId: decodedRequest.testingResult.bucketId))
-        } catch {
-            log("Failed to process \(request.path) data: \(error). Will return server error response.")
-            return .internalServerError
-        }
+    private func reportWorkerIsAliveHandler(decodedRequest: ReportAliveRequest) -> RESTResponse {
+        workerDidReportAliveness(workerId: decodedRequest.workerId)
+        return .aliveReportAccepted
     }
     
-    private func reportWorkerIsAliveHandler(request: HttpRequest) -> HttpResponse {
-        let requestData = Data(bytes: request.body)
-        do {
-            let decodedRequest = try decoder.decode(ReportAliveRequest.self, from: requestData)
-            workerDidReportAliveness(workerId: decodedRequest.workerId)
-            return .accepted
-        } catch {
-            log("Failed to process \(request.path) data: \(error). Will return server error response.")
-            return .internalServerError
-        }
-    }
+    // MARK: - Helpers
     
-    private func acceptBucketResultRequest(_ request: BucketResultRequest) throws {
+    private func accept(bucketResultRequest request: BucketResultRequest) throws {
         guard let dequeuedBucket = previouslyDequeuedBucket(requestId: request.requestId, workerId: request.workerId) else {
             throw BucketResultRequestError.noDequeuedBucket(requestId: request.requestId, workerId: request.workerId)
         }
         let requestTestEntries = Set(request.testingResult.unfilteredResults.map { $0.testEntry })
         let expectedTestEntries = Set(dequeuedBucket.bucket.testEntries)
         guard requestTestEntries == expectedTestEntries else {
-            block(workerId: request.workerId, reason: "Worker provided incorrect or ")
+            blockWorker(workerId: request.workerId)
             throw BucketResultRequestError.notAllResultsAvailable(
                 requestId: request.requestId,
                 workerId: request.workerId,
@@ -186,7 +160,7 @@ public final class QueueServer {
         }
     }
     
-    private func block(workerId: String, reason: String) {
+    private func blockWorker(workerId: String) {
         syncQueue.sync {
             log("WARNING: Blocking worker id from executing buckets: \(workerId)", color: .yellow)
             workerIdToRunConfiguration.removeValue(forKey: workerId)
@@ -229,16 +203,6 @@ public final class QueueServer {
     private func previouslyDequeuedBucket(requestId: String, workerId: String) -> DequeuedBucket? {
         return syncQueue.sync {
             return dequeuedBuckets.first { $0.requestId == requestId && $0.workerId == workerId }
-        }
-    }
-    
-    private func generateJsonResponse(_ response: RESTResponse) -> HttpResponse {
-        do {
-            let data = try self.encoder.encode(response)
-            return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
-        } catch {
-            log("Failed to generate JSON response: \(error). Will return server error response.")
-            return .internalServerError
         }
     }
     

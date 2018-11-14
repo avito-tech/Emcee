@@ -8,6 +8,7 @@ public enum RESTResponse: Codable {
     case checkAgainLater(checkAfter: TimeInterval)
     case workerRegisterSuccess(workerConfiguration: WorkerConfiguration)
     case workerBlocked
+    case aliveReportAccepted
     
     enum CodingKeys: CodingKey {
         case responseType
@@ -17,6 +18,7 @@ public enum RESTResponse: Codable {
         case checkAgainLater
         case workerRegisterSuccess
         case workerBlocked
+        case aliveReportAccepted
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -40,6 +42,9 @@ public enum RESTResponse: Codable {
         case .workerBlocked:
             try container.encode(ResponseType.workerBlocked, forKey: .responseType)
             try container.encode(true, forKey: .workerBlocked)
+        case .aliveReportAccepted:
+            try container.encode(ResponseType.aliveReportAccepted, forKey: .responseType)
+            try container.encode(true, forKey: .aliveReportAccepted)
         }
     }
     
@@ -63,6 +68,8 @@ public enum RESTResponse: Codable {
             self = .workerRegisterSuccess(workerConfiguration: workerConfiguration)
         case .workerBlocked:
             self = .workerBlocked
+        case .aliveReportAccepted:
+            self = .aliveReportAccepted
         }
     }
     
@@ -73,5 +80,6 @@ public enum RESTResponse: Codable {
         case checkAgainLater
         case workerRegisterSuccess
         case workerBlocked
+        case aliveReportAccepted
     }
 }
