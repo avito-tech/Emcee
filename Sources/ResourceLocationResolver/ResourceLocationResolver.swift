@@ -7,6 +7,7 @@ import URLResource
 
 public final class ResourceLocationResolver {
     private let urlResource: URLResource
+    private let cacheAccessCount = AtomicValue<Int>(0)
     
     public enum ValidationError: String, Error, CustomStringConvertible {
         case unpackProcessError = "Unzip operation failed."
@@ -57,6 +58,8 @@ public final class ResourceLocationResolver {
     }
     
     private func cachedContentsOfUrl(_ url: URL) throws -> URL {
+        try evictOldCache()
+        
         let handler = BlockingURLResourceHandler()
         urlResource.fetchResource(url: url, handler: handler)
         let zipUrl = try handler.wait()
@@ -72,5 +75,24 @@ public final class ResourceLocationResolver {
             }
         }
         return contentsUrl
+    }
+    
+    private func evictOldCache() throws {
+        // let's evict old cached data from time to time, on each N-th cache access
+        let evictionRegularity = 10
+        let secondsInDay: TimeInterval = 86400
+        let days: TimeInterval = 2
+        
+        try cacheAccessCount.withExclusiveAccess { (counter: inout Int) in
+            let evictBarrierDate = Date().addingTimeInterval(-days * secondsInDay)
+            
+            if counter % evictionRegularity == 0 {
+                counter = 1
+                log("Evicting cached items older than: \(evictBarrierDate)")
+                try urlResource.evictResources(olderThan: evictBarrierDate)
+            } else {
+                counter = counter + 1
+            }
+        }
     }
 }

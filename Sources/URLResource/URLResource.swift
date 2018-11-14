@@ -47,4 +47,8 @@ public final class URLResource {
             task.resume()
         }
     }
+    
+    public func evictResources(olderThan date: Date) throws {
+        try fileCache.cleanUpItems(olderThan: date)
+    }
 }

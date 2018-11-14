@@ -21,4 +21,15 @@ public final class FileCacheTests: XCTestCase {
         XCTAssertNoThrow(try cache.remove(itemWithName: "item"))
         XCTAssertFalse(cache.contains(itemWithName: "item"))
     }
+    
+    func testEvicting() throws {
+        let tempFolder = try TemporaryDirectory(removeTreeOnDeinit: true)
+        let cache = FileCache(cachesUrl: URL(fileURLWithPath: tempFolder.path.asString))
+        
+        try cache.store(itemAtURL: URL(fileURLWithPath: #file), underName: "item")
+        XCTAssertTrue(cache.contains(itemWithName: "item"))
+        
+        try cache.cleanUpItems(olderThan: Date.distantFuture)
+        XCTAssertFalse(cache.contains(itemWithName: "item"))
+    }
 }
