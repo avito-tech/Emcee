@@ -4,13 +4,13 @@ import Scheduler
 
 public final class DistRunSchedulerDataSource: SchedulerDataSource {
     
-    private let onNextBucketRequest: () -> Bucket?
+    private let onNextBucketRequest: () -> SchedulerBucket?
 
-    public init(onNextBucketRequest: @escaping () -> Bucket?) {
+    public init(onNextBucketRequest: @escaping () -> SchedulerBucket?) {
         self.onNextBucketRequest = onNextBucketRequest
     }
     
-    public func nextBucket() -> Bucket? {
+    public func nextBucket() -> SchedulerBucket? {
         return onNextBucketRequest()
     }
 }

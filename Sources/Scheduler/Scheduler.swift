@@ -105,7 +105,7 @@ public final class Scheduler {
         }
     }
     
-    private func runTestsFromFetchedBucket(_ bucket: Bucket) {
+    private func runTestsFromFetchedBucket(_ bucket: SchedulerBucket) {
         do {
             let resourceRequirement = bucket.testDestination.resourceRequirement
             let acquireResources = try resourceSemaphore.acquire(.of(runningTests: resourceRequirement))
@@ -134,7 +134,7 @@ public final class Scheduler {
         }
     }
     
-    private func didFailRunningTests(bucket: Bucket, error: Error) {
+    private func didFailRunningTests(bucket: SchedulerBucket, error: Error) {
         log("Error running tests from fetched bucket '\(bucket)' with error: \(error)")
         syncQueue.sync {
             gatheredErrors.append(error)
@@ -146,7 +146,7 @@ public final class Scheduler {
     /**
      Runs tests in a given Bucket, retrying failed tests multiple times if necessary.
      */
-    private func runRetrying(bucket: Bucket) throws -> TestingResult {
+    private func runRetrying(bucket: SchedulerBucket) throws -> TestingResult {
         let firstRun = try runBucketOnce(bucket: bucket, testsToRun: bucket.testEntries)
         
         guard configuration.testExecutionBehavior.numberOfRetries > 0 else {
@@ -170,7 +170,7 @@ public final class Scheduler {
         return try combine(runResults: results)
     }
     
-    private func runBucketOnce(bucket: Bucket, testsToRun: [TestEntry]) throws -> TestingResult {
+    private func runBucketOnce(bucket: SchedulerBucket, testsToRun: [TestEntry]) throws -> TestingResult {
         let simulatorPool = try configuration.onDemandSimulatorPool.pool(
             key: OnDemandSimulatorPool.Key(
                 numberOfSimulators: configuration.testExecutionBehavior.numberOfSimulators,

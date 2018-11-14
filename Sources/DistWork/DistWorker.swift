@@ -85,7 +85,7 @@ public final class DistWorker {
     
     // MARK: - Callbacks
 
-    private func fetchNextBucket() -> Bucket? {
+    private func fetchNextBucket() -> SchedulerBucket? {
         while true {
             do {
                 log("Fetching next bucket from server")
@@ -106,7 +106,7 @@ public final class DistWorker {
                         requestIdForBucketId[fetchedBucket.bucketId] = requestId
                     }
                     log("Received bucket \(fetchedBucket.bucketId), requestId: \(requestId)", color: .blue)
-                    return bucketByOverridingToolResourcesWithLocalIfNeeded(fetchedBucket)
+                    return schedulerBucketByOverridingToolResourcesWithLocalIfNeeded(fetchedBucket)
                 }
             } catch {
                 log("Failed to fetch next bucket: \(error)")
@@ -115,7 +115,7 @@ public final class DistWorker {
         }
     }
     
-    private func bucketByOverridingToolResourcesWithLocalIfNeeded(_ bucket: Bucket) -> Bucket {
+    private func schedulerBucketByOverridingToolResourcesWithLocalIfNeeded(_ bucket: Bucket) -> SchedulerBucket {
         let fbsimctl = bucketConfigurationFactory.fbsimctl ?? bucket.toolResources.fbsimctl
         let fbxctest = bucketConfigurationFactory.fbxctest ?? bucket.toolResources.fbxctest
         
@@ -131,7 +131,8 @@ public final class DistWorker {
         let runner = bucketConfigurationFactory.runner ?? bucket.buildArtifacts.runner
         let xcTestBundle = bucketConfigurationFactory.xcTestBundle ?? bucket.buildArtifacts.xcTestBundle
         
-        return Bucket(
+        return SchedulerBucket(
+            bucketId: bucket.bucketId,
             testEntries: bucket.testEntries,
             testDestination: bucket.testDestination,
             toolResources: ToolResources(fbsimctl: fbsimctl, fbxctest: fbxctest),

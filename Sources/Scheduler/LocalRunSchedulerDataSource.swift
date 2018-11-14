@@ -34,9 +34,13 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
             resourceLocationResolver: resourceLocationResolver)
     }
     
-    public func nextBucket() -> Bucket? {
+    public func nextBucket() -> SchedulerBucket? {
         return syncQueue.sync {
-            return buckets.popLast()
+            if let bucket = buckets.popLast() {
+                return SchedulerBucket.from(bucket: bucket)
+            } else {
+                return nil
+            }
         }
     }
     
