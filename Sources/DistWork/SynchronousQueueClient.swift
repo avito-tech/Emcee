@@ -8,7 +8,7 @@ import Utility
 
 public final class SynchronousQueueClient: QueueClientDelegate {
     
-    public enum BucketFetchResult {
+    public enum BucketFetchResult: Equatable {
         case bucket(Bucket)
         case queueIsEmpty
         case checkLater(TimeInterval)
@@ -19,6 +19,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     private let queueClient: QueueClient
     private var registrationResult: Result<WorkerConfiguration, QueueClientError>?
     private var bucketFetchResult: Result<BucketFetchResult, QueueClientError>?
+    private var alivenessReportResult: Result<Bool, QueueClientError>?
     private let syncQueue = DispatchQueue(label: "ru.avito.SynchronousQueueClient")
     
     public init(serverAddress: String, serverPort: Int, workerId: String) {
@@ -57,7 +58,17 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         try synchronize {
             try queueClient.send(testingResult: testingResult, requestId: requestId)
             try SynchronousWaiter.waitWhile(timeout: 10, description: "Wait for bucket result send") {
-                acceptedBucketResultIds.contains(testingResult.bucketId)
+                !acceptedBucketResultIds.contains(testingResult.bucketId)
+            }
+        } as Void
+    }
+    
+    public func reportAliveness() throws {
+        try synchronize {
+            alivenessReportResult = nil
+            try queueClient.reportAlive()
+            try SynchronousWaiter.waitWhile(timeout: 10, description: "Wait for aliveness report") {
+                self.alivenessReportResult == nil
             }
         } as Void
     }
@@ -85,6 +96,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     public func queueClient(_ sender: QueueClient, didFailWithError error: QueueClientError) {
         registrationResult = Result.failure(error)
         bucketFetchResult = Result.failure(error)
+        alivenessReportResult = Result.failure(error)
     }
     
     public func queueClient(_ sender: QueueClient, didReceiveWorkerConfiguration workerConfiguration: WorkerConfiguration) {
@@ -109,5 +121,9 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     
     public func queueClient(_ sender: QueueClient, serverDidAcceptBucketResult bucketId: String) {
         acceptedBucketResultIds.append(bucketId)
+    }
+    
+    public func queueClientWorkerHasBeenIndicatedAsAlive(_ sender: QueueClient) {
+        alivenessReportResult = Result.success(true)
     }
 }

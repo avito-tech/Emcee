@@ -4,7 +4,11 @@ import Swifter
 import Logging
 
 public final class QueueServerRequestParser {
-    private let decoder = JSONDecoder()
+    private let decoder: JSONDecoder
+    
+    public init(decoder: JSONDecoder = JSONDecoder()) {
+        self.decoder = decoder
+    }
     
     public func parse<T>(
         request: HttpRequest,

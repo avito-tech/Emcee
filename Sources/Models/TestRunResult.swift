@@ -1,7 +1,7 @@
 import Foundation
 
 /// A result of a single test run.
-public struct TestRunResult: Codable, CustomStringConvertible {
+public struct TestRunResult: Codable, CustomStringConvertible, Equatable {
     public let succeeded: Bool
     public let exceptions: [TestException]
     public let duration: TimeInterval

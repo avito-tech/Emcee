@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents the result of running a single Bucket.
-public struct TestingResult: Codable {
+public struct TestingResult: Codable, Equatable {
     /// A test bucket id for this testing result.
     public let bucketId: String
     

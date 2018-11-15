@@ -143,11 +143,3 @@ public final class RunnerTests: XCTestCase {
         return configuration
     }
 }
-
-extension TestException: Equatable {
-    public static func == (l: TestException, r: TestException) -> Bool {
-        return l.reason == r.reason &&
-            l.filePathInProject == r.filePathInProject &&
-            l.lineNumber == r.lineNumber
-    }
-}

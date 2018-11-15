@@ -73,15 +73,23 @@ class DeployablesGeneratorTests: XCTestCase {
     func testFbxctestIsPresent() {
         let deployables = filterDeployables(.fbxctest)
         XCTAssertEqual(deployables.count, 1)
-        XCTAssertEqual(deployables[0].files.first?.source, String(#file))
-        XCTAssertEqual(deployables[0].files.first?.destination, String(#file).lastPathComponent)
+        
+        let corrspondingFile = deployables[0].files.first { file -> Bool in
+            file.source == String(#file)
+        }
+        XCTAssertNotNil(corrspondingFile)
+        XCTAssertEqual(corrspondingFile?.destination, String(#file).lastPathComponent)
     }
     
     func testFbsimctlIsPresent() {
         let deployables = filterDeployables(.fbsimctl)
         XCTAssertEqual(deployables.count, 1)
-        XCTAssertEqual(deployables[0].files.first?.source, String(#file))
-        XCTAssertEqual(deployables[0].files.first?.destination, String(#file).lastPathComponent)
+        
+        let corrspondingFile = deployables[0].files.first { file -> Bool in
+            file.source == String(#file)
+        }
+        XCTAssertNotNil(corrspondingFile)
+        XCTAssertEqual(corrspondingFile?.destination, String(#file).lastPathComponent)
     }
     
     func testAppIsPresent() {

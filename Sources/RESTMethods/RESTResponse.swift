@@ -1,7 +1,7 @@
 import Foundation
 import Models
 
-public enum RESTResponse: Codable {
+public enum RESTResponse: Codable, Equatable {
     case bucketDequeued(bucket: Bucket)
     case bucketResultAccepted(bucketId: String)
     case queueIsEmpty

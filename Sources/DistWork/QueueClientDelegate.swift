@@ -9,4 +9,5 @@ public protocol QueueClientDelegate: class {
     func queueClient(_ sender: QueueClient, didReceiveWorkerConfiguration workerConfiguration: WorkerConfiguration)
     func queueClient(_ sender: QueueClient, didFetchBucket bucket: Bucket)
     func queueClient(_ sender: QueueClient, serverDidAcceptBucketResult bucketId: String)
+    func queueClientWorkerHasBeenIndicatedAsAlive(_ sender: QueueClient)
 }

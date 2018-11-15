@@ -4,11 +4,11 @@ import Foundation
 import Logging
 import Models
 import PluginManager
+import ResourceLocationResolver
 import Scheduler
 import SimulatorPool
 import SynchronousWaiter
 import TempFolder
-import ResourceLocationResolver
 
 public final class DistWorker {
     private let queueClient: SynchronousQueueClient
@@ -16,6 +16,7 @@ public final class DistWorker {
     private var requestIdForBucketId = [String: String]()  // bucketId -> requestId
     private let bucketConfigurationFactory: BucketConfigurationFactory
     private let resourceLocationResolver: ResourceLocationResolver
+    private var reportingAliveTimer: Models.Timer?
     
     public init(
         queueServerAddress: String,
@@ -35,6 +36,7 @@ public final class DistWorker {
         let tempFolder = try bucketConfigurationFactory.createTempFolder()
         let workerConfiguration = try queueClient.registerWithServer()
         log("Registered with server. Worker configuration: \(workerConfiguration)")
+        startReportingWorkerIsAlive(interval: workerConfiguration.reportAliveInterval)
         
         let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>(
             resourceLocationResolver: resourceLocationResolver,
@@ -47,6 +49,20 @@ public final class DistWorker {
             tempFolder: tempFolder)
         log("Dist worker has finished")
         cleanUpAndStop()
+    }
+    
+    private func startReportingWorkerIsAlive(interval: TimeInterval) {
+        let timer = Models.Timer(repeating: .milliseconds(Int(interval * 1000.0)), leeway: .seconds(1))
+        timer.start { [weak queueClient] in
+            if let client = queueClient {
+                do {
+                    try client.reportAliveness()
+                } catch {
+                    log("Error: failed to report aliveness: \(error)")
+                }
+            }
+        }
+        reportingAliveTimer = timer
     }
     
     // MARK: - Private Stuff
@@ -81,6 +97,7 @@ public final class DistWorker {
     
     private func cleanUpAndStop() {
         queueClient.close()
+        reportingAliveTimer?.stop()
     }
     
     // MARK: - Callbacks

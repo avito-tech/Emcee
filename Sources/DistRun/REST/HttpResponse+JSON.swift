@@ -4,7 +4,6 @@ import RESTMethods
 import Swifter
 
 public extension HttpResponse {
-    
     private static let restResponseEncoder: JSONEncoder = {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]

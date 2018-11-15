@@ -1,9 +1,9 @@
 import Foundation
 import Models
 
-public enum DequeueResult {
+public enum DequeueResult: Equatable {
     case queueIsEmpty
-    case queueIsEmptyButNotResultsAreAvailable
+    case queueIsEmptyButNotAllResultsAreAvailable
     case dequeuedBucket(DequeuedBucket)
     case workerBlocked
 }

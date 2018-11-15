@@ -40,6 +40,9 @@ public struct DistRunConfiguration {
     
     /** Test destination configurations for the test run.  */
     public let testDestinationConfigurations: [TestDestinationConfiguration]
+    
+    /// Period of time when workers should report their aliveness
+    public let reportAliveInterval: TimeInterval = 30
 
     public init(
         runId: String,
@@ -85,7 +88,8 @@ public struct DistRunConfiguration {
     public func workerConfiguration(destination: DeploymentDestination) -> WorkerConfiguration {
         return WorkerConfiguration(
             testExecutionBehavior: testExecutionBehavior(destination: destination),
-            testTimeoutConfiguration: testTimeoutConfiguration)
+            testTimeoutConfiguration: testTimeoutConfiguration,
+            reportAliveInterval: reportAliveInterval)
     }
     
     private func testExecutionBehavior(destination: DeploymentDestination) -> TestExecutionBehavior {

@@ -1,29 +1,23 @@
 import Dispatch
 import Foundation
-import RESTMethods
-import Models
 import Logging
+import Models
+import RESTMethods
 
 public final class QueueClient {
     public weak var delegate: QueueClientDelegate?
     private let serverAddress: String
     private let serverPort: Int
     private let workerId: String
-    private let urlSession: URLSession
-    private let encoder: JSONEncoder
-    private let decoder: JSONDecoder
-    
-    private let reportingAliveQueue = DispatchQueue(label: "ru.avito.runner.QueueClient")
-    private var reportingAliveTimer: DispatchSourceTimer?
+    private let urlSession = URLSession(configuration: URLSessionConfiguration.default)
+    private let encoder = JSONEncoder()
+    private let decoder = JSONDecoder()
     
     public init(serverAddress: String, serverPort: Int, workerId: String) {
         self.serverAddress = serverAddress
         self.serverPort = serverPort
         self.workerId = workerId
-        urlSession = URLSession(configuration: URLSessionConfiguration.default)
-        encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys, .prettyPrinted]
-        decoder = JSONDecoder()
     }
     
     deinit {
@@ -39,7 +33,6 @@ public final class QueueClient {
     
     public func close() {
         urlSession.invalidateAndCancel()
-        reportingAliveTimer?.cancel()
     }
     
     /**
@@ -109,7 +102,6 @@ public final class QueueClient {
             switch response {
             case .workerRegisterSuccess(let workerConfiguration):
                 delegate?.queueClient(self, didReceiveWorkerConfiguration: workerConfiguration)
-                startReportingWorkerIsAlive(interval: workerConfiguration.reportAliveInterval)
             default:
                 delegate?.queueClient(self, didFailWithError: QueueClientError.unexpectedResponse(data))
             }
@@ -168,31 +160,29 @@ public final class QueueClient {
     
     // MARK: - Reporting Worker is Alive
     
-    private func reportAlive() throws {
-        try sendRequest(
-            .reportAlive,
-            payload: ReportAliveRequest(workerId: workerId)) {_, urlResponse,_ in
-                guard let httpResponse = urlResponse as? HTTPURLResponse, httpResponse.statusCode == 202 else {
-                    log("Failed to send report alive request: got invalid reponse: \(String(reflecting: urlResponse))")
-                    return
-                }
-                log("Sent report alive request")
-        }
+    public func reportAlive() throws {
+        let payload = ReportAliveRequest(workerId: workerId)
+        try sendRequest(.reportAlive, payload: payload, completionHandler: handleAlivenessResponse)
     }
     
-    private func startReportingWorkerIsAlive(interval: TimeInterval) {
-        let timer = DispatchSource.makeTimerSource(queue: reportingAliveQueue)
-        timer.schedule(deadline: .now(), repeating: .milliseconds(Int(interval * 1000.0)), leeway: .seconds(1))
-        timer.setEventHandler { [weak self] in
-            if let strongSelf = self {
-                do {
-                    try strongSelf.reportAlive()
-                } catch {
-                    log("Error: can't report alive: \(error)")
-                }
-            }
+    private func handleAlivenessResponse(data: Data?, response: URLResponse?, error: Error?) {
+        if let error = error {
+            delegate?.queueClient(self, didFailWithError: QueueClientError.communicationError(error)); return
         }
-        timer.resume()
-        reportingAliveTimer = timer
+        guard let data = data else {
+            delegate?.queueClient(self, didFailWithError: QueueClientError.noData); return
+        }
+        
+        do {
+            let response = try decoder.decode(RESTResponse.self, from: data)
+            switch response {
+            case .aliveReportAccepted:
+                delegate?.queueClientWorkerHasBeenIndicatedAsAlive(self)
+            default:
+                delegate?.queueClient(self, didFailWithError: QueueClientError.unexpectedResponse(data))
+            }
+        } catch {
+            delegate?.queueClient(self, didFailWithError: QueueClientError.parseError(error, data)); return
+        }
     }
 }

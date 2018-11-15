@@ -1,7 +1,7 @@
 import Foundation
 
 /** Defines the specifics of the behavior of the test run. */
-public struct TestExecutionBehavior: Codable {
+public struct TestExecutionBehavior: Codable, Equatable {
     
     /** A maximum number of attempts to re-run failed tests. */
     public let numberOfRetries: UInt

@@ -1,6 +1,6 @@
 import Foundation
 
-public struct WorkerConfiguration: Codable {
+public struct WorkerConfiguration: Codable, Equatable {
     public let testExecutionBehavior: TestExecutionBehavior
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     
@@ -10,7 +10,7 @@ public struct WorkerConfiguration: Codable {
     public init(
         testExecutionBehavior: TestExecutionBehavior,
         testTimeoutConfiguration: TestTimeoutConfiguration,
-        reportAliveInterval: TimeInterval = 30.0)
+        reportAliveInterval: TimeInterval)
     {
         self.testExecutionBehavior = testExecutionBehavior
         self.testTimeoutConfiguration = testTimeoutConfiguration

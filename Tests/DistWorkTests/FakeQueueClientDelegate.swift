@@ -12,6 +12,7 @@ class FakeQueueClientDelegate: QueueClientDelegate {
         case bucket(Bucket)
         case acceptedBucketResult(String)
         case workerHasBeenBlocked
+        case alivenessAccepted
     }
     
     var responses = [ServerResponse]()
@@ -42,5 +43,9 @@ class FakeQueueClientDelegate: QueueClientDelegate {
     
     func queueClient(_ sender: QueueClient, serverDidAcceptBucketResult bucketId: String) {
         responses.append(ServerResponse.acceptedBucketResult(bucketId))
+    }
+    
+    func queueClientWorkerHasBeenIndicatedAsAlive(_ sender: QueueClient) {
+        responses.append(ServerResponse.alivenessAccepted)
     }
 }

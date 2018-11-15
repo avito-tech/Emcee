@@ -1,6 +1,6 @@
 import Foundation
 
-public final class TestException: Codable, CustomStringConvertible {
+public struct TestException: Codable, CustomStringConvertible, Equatable {
     public let reason: String
     public let filePathInProject: String
     public let lineNumber: Int32

@@ -133,29 +133,16 @@ class QueueClientTests: XCTestCase {
     }
     
     func testAliveRequests() throws {
-        let stubbedConfig = WorkerConfiguration(
-            testExecutionBehavior: TestExecutionBehavior(
-                numberOfRetries: 1,
-                numberOfSimulators: 2,
-                environment: [:],
-                scheduleStrategy: .progressive),
-            testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 666.6),
-            reportAliveInterval: 0.5)
+        let expectation = self.expectation(description: "Aliveness report has been received")
         
-        try prepareServer(RESTMethod.registerWorker.withPrependingSlash) { request -> HttpResponse in
-            let data: Data = (try? JSONEncoder().encode(RESTResponse.workerRegisterSuccess(workerConfiguration: stubbedConfig))) ?? Data()
+        try prepareServer(RESTMethod.reportAlive.withPrependingSlash) { request -> HttpResponse in
+            expectation.fulfill()
+            let data: Data = (try? JSONEncoder().encode(RESTResponse.aliveReportAccepted)) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
         
-        var didReceiveAliveRequest = false
-        server?[RESTMethod.reportAlive.withPrependingSlash] = { _ in
-            didReceiveAliveRequest = true
-            return .accepted
-        }
+        try queueClient.reportAlive()
         
-        try queueClient.registerWithServer()
-        try SynchronousWaiter.waitWhile(timeout: 5.0) { !didReceiveAliveRequest }
-        
-        XCTAssertTrue(didReceiveAliveRequest)
+        wait(for: [expectation], timeout: 10)
     }
 }

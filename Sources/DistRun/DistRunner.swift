@@ -41,15 +41,14 @@ public final class DistRunner {
     }
     
     public func run() throws -> [TestingResult] {
-        let queue = try prepareQueue()
         let queueServer = QueueServer(
             eventBus: eventBus,
-            queue: queue,
-            workerIdToRunConfiguration: createWorkerConfigurations())
-        try queueServer.start()
-        try deployAndStartLaunchdJob(serverPort: try queueServer.port())
-        try queueServer.waitForAllResultsToCome()
-        return queueServer.testingResults
+            workerConfigurations: createWorkerConfigurations(),
+            reportAliveInterval: distRunConfiguration.reportAliveInterval)
+        queueServer.add(buckets: try prepareQueue())
+        let port = try queueServer.start()
+        try deployAndStartLaunchdJob(serverPort: port)
+        return try queueServer.waitForQueueToFinish()
     }
     
     private func prepareQueue() throws -> [Bucket] {
@@ -70,12 +69,14 @@ public final class DistRunner {
         return buckets
     }
     
-    private func createWorkerConfigurations() -> [String: WorkerConfiguration] {
-        var result = [String: WorkerConfiguration]()
+    private func createWorkerConfigurations() -> WorkerConfigurations {
+        let configurations = WorkerConfigurations()
         for destination in distRunConfiguration.destinations {
-            result[destination.identifier] = distRunConfiguration.workerConfiguration(destination: destination)
+            configurations.add(
+                workerId: destination.identifier,
+                configuration: distRunConfiguration.workerConfiguration(destination: destination))
         }
-        return result
+        return configurations
     }
     
     private func deployAndStartLaunchdJob(serverPort: Int) throws  {
