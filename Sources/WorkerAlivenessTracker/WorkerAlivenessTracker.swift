@@ -1,7 +1,5 @@
 import Dispatch
 import Foundation
-import Models
-import RESTMethods
 
 public final class WorkerAlivenessTracker {
     private let syncQueue = DispatchQueue(label: "ru.avito.emcee.WorkerAlivenessTracker.syncQueue")
@@ -13,7 +11,7 @@ public final class WorkerAlivenessTracker {
     public enum WorkerAliveness: Equatable {
         case alive
         case silent
-        case blockedOrNotRegistered
+        case unknown
     }
 
     public init(reportAliveInterval: TimeInterval, additionalTimeToPerformWorkerIsAliveReport: TimeInterval = 10.0) {
@@ -40,7 +38,7 @@ public final class WorkerAlivenessTracker {
     public func alivenessForWorker(workerId: String) -> WorkerAliveness {
         return syncQueue.sync {
             guard let latestAliveDate = workerAliveReportTimestamps[workerId] else {
-                return .blockedOrNotRegistered
+                return .unknown
             }
             let silenceDuration = Date().timeIntervalSince(latestAliveDate)
             if silenceDuration > maximumNotReportingDuration {

@@ -2,6 +2,7 @@ import Dispatch
 import Foundation
 import Models
 import RESTMethods
+import WorkerAlivenessTracker
 
 public final class WorkerAlivenessEndpoint: RESTEndpoint {
     public typealias T = ReportAliveRequest

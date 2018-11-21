@@ -3,6 +3,7 @@ import Foundation
 import Logging
 import Models
 import RESTMethods
+import WorkerAlivenessTracker
 
 public final class WorkerRegistrar: RESTEndpoint {
     public typealias T = RegisterWorkerRequest

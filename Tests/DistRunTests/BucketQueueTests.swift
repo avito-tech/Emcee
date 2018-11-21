@@ -3,6 +3,7 @@ import Foundation
 import Models
 import ModelsTestHelpers
 import RESTMethods
+import WorkerAlivenessTracker
 import XCTest
 
 final class BucketQueueTests: XCTestCase {

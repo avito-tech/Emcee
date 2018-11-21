@@ -1,4 +1,5 @@
 import Foundation
+import WorkerAlivenessTracker
 
 public final class BucketQueueFactory {
     public static func create(

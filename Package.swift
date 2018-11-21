@@ -99,7 +99,8 @@ let package = Package(
                 "SynchronousWaiter",
                 "TempFolder",
                 "Timer",
-                "Utility"
+                "Utility",
+                "WorkerAlivenessTracker"
             ]),
         .testTarget(
             name: "DistRunTests",
@@ -109,7 +110,8 @@ let package = Package(
                 "Models",
                 "ModelsTestHelpers",
                 "ResourceLocationResolver",
-                "TempFolder"
+                "TempFolder",
+                "WorkerAlivenessTracker"
             ]),
         
         .target(
@@ -479,6 +481,17 @@ let package = Package(
                 "Swifter",
                 "URLResource",
                 "Utility"
-            ])
+            ]),
+        
+        .target(
+            name: "WorkerAlivenessTracker",
+            dependencies: [
+            ]),
+        .testTarget(
+            name: "WorkerAlivenessTrackerTests",
+            dependencies: [
+                "WorkerAlivenessTracker"
+            ]),
+        
     ]
 )

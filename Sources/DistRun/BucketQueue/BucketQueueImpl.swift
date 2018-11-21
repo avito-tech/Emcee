@@ -2,6 +2,7 @@ import Dispatch
 import Foundation
 import Logging
 import Models
+import WorkerAlivenessTracker
 
 final class BucketQueueImpl: BucketQueue {
     private var enqueuedBuckets = [Bucket]()

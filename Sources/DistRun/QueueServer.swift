@@ -6,6 +6,7 @@ import Models
 import RESTMethods
 import Swifter
 import SynchronousWaiter
+import WorkerAlivenessTracker
 
 public final class QueueServer {
     private let bucketProvider: BucketProviderEndpoint
