@@ -18,7 +18,6 @@ public final class BucketProviderEndpoint: RESTEndpoint {
         let dequeueResult = bucketQueue.dequeueBucket(
             requestId: decodedRequest.requestId,
             workerId: decodedRequest.workerId)
-        BucketQueueStateLogger(state: bucketQueue.state).logQueueSize()
         
         switch dequeueResult {
         case .queueIsEmpty:
@@ -26,6 +25,7 @@ public final class BucketProviderEndpoint: RESTEndpoint {
         case .queueIsEmptyButNotAllResultsAreAvailable:
             return .checkAgainLater(checkAfter: 30.0)
         case .dequeuedBucket(let dequeuedBucket):
+            BucketQueueStateLogger(state: bucketQueue.state).logQueueSize()
             return .bucketDequeued(bucket: dequeuedBucket.bucket)
         case .workerBlocked:
             return .workerBlocked

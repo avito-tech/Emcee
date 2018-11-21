@@ -1,18 +1,13 @@
 import Dispatch
 import Foundation
 
-public final class WorkerAlivenessTracker {
+public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
     private let syncQueue = DispatchQueue(label: "ru.avito.emcee.WorkerAlivenessTracker.syncQueue")
     private var workerAliveReportTimestamps = [String: Date]()
+    private var blockedWorkers = Set<String>()
     private let reportAliveInterval: TimeInterval
     /// allow worker some additinal time to perform a "i'm alive" report, e.g. to compensate a network latency
     private let additionalTimeToPerformWorkerIsAliveReport: TimeInterval
-    
-    public enum WorkerAliveness: Equatable {
-        case alive
-        case silent
-        case unknown
-    }
 
     public init(reportAliveInterval: TimeInterval, additionalTimeToPerformWorkerIsAliveReport: TimeInterval = 10.0) {
         self.reportAliveInterval = reportAliveInterval
@@ -21,7 +16,9 @@ public final class WorkerAlivenessTracker {
 
     public func workerIsAlive(workerId: String) {
         syncQueue.sync {
-            workerAliveReportTimestamps[workerId] = Date()
+            if !blockedWorkers.contains(workerId) {
+                workerAliveReportTimestamps[workerId] = Date()
+            }
         }
     }
     
@@ -31,14 +28,17 @@ public final class WorkerAlivenessTracker {
     
     public func didBlockWorker(workerId: String) {
         syncQueue.sync {
-            _ = workerAliveReportTimestamps.removeValue(forKey: workerId)
+            _ = blockedWorkers.insert(workerId)
         }
     }
     
     public func alivenessForWorker(workerId: String) -> WorkerAliveness {
         return syncQueue.sync {
             guard let latestAliveDate = workerAliveReportTimestamps[workerId] else {
-                return .unknown
+                return .notRegistered
+            }
+            if blockedWorkers.contains(workerId) {
+                return .blocked
             }
             let silenceDuration = Date().timeIntervalSince(latestAliveDate)
             if silenceDuration > maximumNotReportingDuration {
@@ -47,6 +47,16 @@ public final class WorkerAlivenessTracker {
                 return .alive
             }
         }
+    }
+    
+    public var hasAnyAliveWorker: Bool {
+        let workers = syncQueue.sync { workerAliveReportTimestamps.keys }
+        for workerId in workers {
+            if alivenessForWorker(workerId: workerId) == .alive {
+                return true
+            }
+        }
+        return false
     }
     
     private var maximumNotReportingDuration: TimeInterval {

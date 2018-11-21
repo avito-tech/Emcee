@@ -8,12 +8,10 @@ final class BucketQueueImpl: BucketQueue {
     private var enqueuedBuckets = [Bucket]()
     private var dequeuedBuckets = Set<DequeuedBucket>()
     private let queue = DispatchQueue(label: "ru.avito.emcee.BucketQueue.queue")
-    private let workerAlivenessTracker: WorkerAlivenessTracker
-    private let workerRegistrar: WorkerRegistrar
+    private let workerAlivenessProvider: WorkerAlivenessProvider
     
-    public init(workerAlivenessTracker: WorkerAlivenessTracker, workerRegistrar: WorkerRegistrar) {
-        self.workerAlivenessTracker = workerAlivenessTracker
-        self.workerRegistrar = workerRegistrar
+    public init(workerAlivenessProvider: WorkerAlivenessProvider) {
+        self.workerAlivenessProvider = workerAlivenessProvider
     }
     
     public func enqueue(buckets: [Bucket]) {
@@ -29,7 +27,7 @@ final class BucketQueueImpl: BucketQueue {
     }
     
     public func dequeueBucket(requestId: String, workerId: String) -> DequeueResult {
-        if !workerRegistrar.isWorkerRegistered(workerId: workerId) {
+        if workerAlivenessProvider.alivenessForWorker(workerId: workerId) != .alive {
             return .workerBlocked
         }
         
@@ -59,7 +57,6 @@ final class BucketQueueImpl: BucketQueue {
         let expectedTestEntries = Set(dequeuedBucket.bucket.testEntries)
         guard requestTestEntries == expectedTestEntries else {
             log("Validation failed: unexpected result count for request \(requestId) worker \(workerId)")
-            blockWorker(workerId: workerId)
             throw BucketResultRequestError.notAllResultsAvailable(
                 requestId: requestId,
                 workerId: workerId,
@@ -78,20 +75,19 @@ final class BucketQueueImpl: BucketQueue {
         return queue.sync {
             let allDequeuedBuckets = dequeuedBuckets
             let stuckBuckets: [StuckBucket] = allDequeuedBuckets.compactMap { dequeuedBucket in
-                let workerIsBlocked = workerRegistrar.isWorkerBlocked(workerId: dequeuedBucket.workerId)
-                let workerIsSilent = workerAlivenessTracker.alivenessForWorker(workerId: dequeuedBucket.workerId) == .silent
-                let bucketIsStuck = workerIsBlocked || workerIsSilent
-                
-                if bucketIsStuck {
+                let aliveness = workerAlivenessProvider.alivenessForWorker(workerId: dequeuedBucket.workerId)
+                switch aliveness {
+                case .alive:
+                    return nil
+                case .notRegistered:
+                    fatalLogAndError("Logic error: worker '\(dequeuedBucket.workerId)' is not registered, but stuck bucket has worker id of this worker. This is not expected, as we shouldn't dequeue bucket using non-registered worker.")
+                case .blocked:
                     dequeuedBuckets.remove(dequeuedBucket)
-                    if workerIsBlocked {
-                        return StuckBucket(reason: .workerIsBlocked, bucket: dequeuedBucket.bucket, workerId: dequeuedBucket.workerId)
-                    }
-                    if workerIsSilent {
-                        return StuckBucket(reason: .workerIsSilent, bucket: dequeuedBucket.bucket, workerId: dequeuedBucket.workerId)
-                    }
+                    return StuckBucket(reason: .workerIsBlocked, bucket: dequeuedBucket.bucket, workerId: dequeuedBucket.workerId)
+                case .silent:
+                    dequeuedBuckets.remove(dequeuedBucket)
+                    return StuckBucket(reason: .workerIsSilent, bucket: dequeuedBucket.bucket, workerId: dequeuedBucket.workerId)
                 }
-                return nil
             }
             return stuckBuckets
         }
@@ -108,12 +104,6 @@ final class BucketQueueImpl: BucketQueue {
         return queue.sync {
             enqueuedBuckets.removeFirst()
         }
-    }
-    
-    private func blockWorker(workerId: String) {
-        log("WARNING: Blocking worker id from executing buckets: \(workerId)", color: .yellow)
-        workerRegistrar.blockWorker(workerId: workerId)
-        workerAlivenessTracker.didBlockWorker(workerId: workerId)
     }
     
     private func previouslyDequeuedBucket(requestId: String, workerId: String) -> DequeuedBucket? {

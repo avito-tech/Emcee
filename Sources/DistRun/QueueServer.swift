@@ -29,10 +29,10 @@ public final class QueueServer {
     {
         self.workerAlivenessTracker = WorkerAlivenessTracker(reportAliveInterval: reportAliveInterval)
         self.workerRegistrar = WorkerRegistrar(workerConfigurations: workerConfigurations, workerAlivenessTracker: workerAlivenessTracker)
-        self.bucketQueue = BucketQueueFactory.create(workerAlivenessTracker: workerAlivenessTracker, workerRegistrar: workerRegistrar)
+        self.bucketQueue = BucketQueueFactory.create(workerAlivenessProvider: workerAlivenessTracker)
         self.stuckBucketsEnqueuer = StuckBucketsEnqueuer(bucketQueue: bucketQueue)
         self.bucketProvider = BucketProviderEndpoint(bucketQueue: bucketQueue)
-        self.bucketResultRegistrar = BucketResultRegistrar(bucketQueue: bucketQueue, eventBus: eventBus, resultsCollector: resultsCollector)
+        self.bucketResultRegistrar = BucketResultRegistrar(bucketQueue: bucketQueue, eventBus: eventBus, resultsCollector: resultsCollector, workerAlivenessTracker: workerAlivenessTracker)
         self.newWorkerRegistrationTimeAllowance = newWorkerRegistrationTimeAllowance
         self.queueExhaustTimeAllowance = queueExhaustTimeAllowance
     }
@@ -63,12 +63,12 @@ public final class QueueServer {
     public func waitForQueueToFinish() throws -> [TestingResult] {
         log("Waiting for workers to appear")
         try SynchronousWaiter.waitWhile(pollPeriod: 1, timeout: newWorkerRegistrationTimeAllowance, description: "Waiting workers to appear") {
-            workerRegistrar.hasAnyRegisteredWorkers == false
+            workerAlivenessTracker.hasAnyAliveWorker == false
         }
         
         log("Waiting for bucket queue to exhaust")
         try SynchronousWaiter.waitWhile(pollPeriod: 5, timeout: queueExhaustTimeAllowance, description: "Waiting for queue to exhaust") {
-            guard workerRegistrar.hasAnyRegisteredWorkers else { throw QueueServerError.noWorkers }
+            guard workerAlivenessTracker.hasAnyAliveWorker else { throw QueueServerError.noWorkers }
             return !bucketQueue.state.isDepleted
         }
         log("Bucket queue has exhaust")
