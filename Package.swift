@@ -514,7 +514,8 @@ let package = Package(
         .testTarget(
             name: "WorkerAlivenessTrackerTests",
             dependencies: [
-                "WorkerAlivenessTracker"
+                "WorkerAlivenessTracker",
+                "WorkerAlivenessTrackerTestHelpers"
             ])
     ]
 )

@@ -4,10 +4,11 @@ import Models
 import ModelsTestHelpers
 import RESTMethods
 import WorkerAlivenessTracker
+import WorkerAlivenessTrackerTestHelpers
 import XCTest
 
 final class WorkerRegistrarTests: XCTestCase {
-    let alivenessTracker = WorkerAlivenessTracker(reportAliveInterval: .infinity)
+    let alivenessTracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
     let workerConfigurations = WorkerConfigurations()
     let workerId = "worker_id"
     
@@ -33,7 +34,7 @@ final class WorkerRegistrarTests: XCTestCase {
     func test_registration_for_blocked_worker() throws {
         let registrar = createRegistrar()
         alivenessTracker.didRegisterWorker(workerId: workerId)
-        alivenessTracker.didBlockWorker(workerId: workerId)
+        alivenessTracker.blockWorker(workerId: workerId)
         
         XCTAssertEqual(try registrar.handle(decodedRequest: RegisterWorkerRequest(workerId: workerId)), .workerBlocked)
     }

@@ -9,12 +9,12 @@ public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
     /// allow worker some additinal time to perform a "i'm alive" report, e.g. to compensate a network latency
     private let additionalTimeToPerformWorkerIsAliveReport: TimeInterval
 
-    public init(reportAliveInterval: TimeInterval, additionalTimeToPerformWorkerIsAliveReport: TimeInterval = 10.0) {
+    public init(reportAliveInterval: TimeInterval, additionalTimeToPerformWorkerIsAliveReport: TimeInterval) {
         self.reportAliveInterval = reportAliveInterval
         self.additionalTimeToPerformWorkerIsAliveReport = additionalTimeToPerformWorkerIsAliveReport
     }
 
-    public func workerIsAlive(workerId: String) {
+    public func markWorkerAsAlive(workerId: String) {
         syncQueue.sync {
             if !blockedWorkers.contains(workerId) {
                 workerAliveReportTimestamps[workerId] = Date()
@@ -23,10 +23,10 @@ public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
     }
     
     public func didRegisterWorker(workerId: String) {
-        workerIsAlive(workerId: workerId)
+        markWorkerAsAlive(workerId: workerId)
     }
     
-    public func didBlockWorker(workerId: String) {
+    public func blockWorker(workerId: String) {
         syncQueue.sync {
             _ = blockedWorkers.insert(workerId)
         }

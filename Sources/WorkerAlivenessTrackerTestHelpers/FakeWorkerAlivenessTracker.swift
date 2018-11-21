@@ -3,7 +3,7 @@ import WorkerAlivenessTracker
 
 public final class WorkerAlivenessTrackerFixtures {
     public static func alivenessTrackerWithAlwaysAliveResults() -> WorkerAlivenessTracker {
-        return WorkerAlivenessTracker(reportAliveInterval: .infinity)
+        return WorkerAlivenessTracker(reportAliveInterval: .infinity, additionalTimeToPerformWorkerIsAliveReport: .infinity)
     }
     
     public static func alivenessTrackerWithImmediateTimeout() -> WorkerAlivenessTracker {

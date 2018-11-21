@@ -84,7 +84,7 @@ final class BucketQueueTests: XCTestCase {
     }
     
     func test__reponse_workerBlocked__when_worker_is_blocked() {
-        alivenessTrackerWithAlwaysAliveResults.didBlockWorker(workerId: workerId)
+        alivenessTrackerWithAlwaysAliveResults.blockWorker(workerId: workerId)
         let bucketQueue = BucketQueueFactory.create(workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults)
         
         let bucket = BucketFixtures.createBucket(testEntries: [])
@@ -174,7 +174,7 @@ final class BucketQueueTests: XCTestCase {
         bucketQueue.enqueue(buckets: [bucket])
         _ = bucketQueue.dequeueBucket(requestId: requestId, workerId: workerId)
         
-        alivenessTrackerWithAlwaysAliveResults.didBlockWorker(workerId: workerId)
+        alivenessTrackerWithAlwaysAliveResults.blockWorker(workerId: workerId)
         let stuckBuckets = bucketQueue.removeStuckBuckets()
         XCTAssertEqual(stuckBuckets, [StuckBucket(reason: .workerIsBlocked, bucket: bucket, workerId: workerId)])
     }

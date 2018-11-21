@@ -38,7 +38,7 @@ public final class BucketResultRegistrar: RESTEndpoint {
             BucketQueueStateLogger(state: bucketQueue.state).logQueueSize()
             return .bucketResultAccepted(bucketId: decodedRequest.testingResult.bucketId)
         } catch {
-            workerAlivenessTracker.didBlockWorker(workerId: decodedRequest.workerId)
+            workerAlivenessTracker.blockWorker(workerId: decodedRequest.workerId)
             throw error
         }
     }

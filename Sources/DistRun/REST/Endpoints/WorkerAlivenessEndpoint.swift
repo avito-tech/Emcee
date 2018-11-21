@@ -14,7 +14,7 @@ public final class WorkerAlivenessEndpoint: RESTEndpoint {
     }
     
     public func handle(decodedRequest: ReportAliveRequest) throws -> RESTResponse {
-        alivenessTracker.workerIsAlive(workerId: decodedRequest.workerId)
+        alivenessTracker.markWorkerAsAlive(workerId: decodedRequest.workerId)
         return .aliveReportAccepted
     }
 }

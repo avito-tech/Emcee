@@ -28,7 +28,7 @@ public final class QueueServer {
         newWorkerRegistrationTimeAllowance: TimeInterval = 60.0,
         queueExhaustTimeAllowance: TimeInterval = .infinity)
     {
-        self.workerAlivenessTracker = WorkerAlivenessTracker(reportAliveInterval: reportAliveInterval)
+        self.workerAlivenessTracker = WorkerAlivenessTracker(reportAliveInterval: reportAliveInterval, additionalTimeToPerformWorkerIsAliveReport: 10.0)
         self.workerRegistrar = WorkerRegistrar(workerConfigurations: workerConfigurations, workerAlivenessTracker: workerAlivenessTracker)
         self.bucketQueue = BucketQueueFactory.create(workerAlivenessProvider: workerAlivenessTracker)
         self.stuckBucketsEnqueuer = StuckBucketsEnqueuer(bucketQueue: bucketQueue)
