@@ -57,4 +57,15 @@ public struct RuntimeDumpConfiguration {
             testDestination: configuration.testDestinations[0],
             testsToRun: configuration.testsToRun)
     }
+    
+    public static func fromDistRunConfiguration(_ configuration: DistRunConfiguration)
+        -> RuntimeDumpConfiguration
+    {
+        return RuntimeDumpConfiguration(
+            fbxctest: configuration.auxiliaryResources.toolResources.fbxctest,
+            xcTestBundle: configuration.buildArtifacts.xcTestBundle,
+            simulatorSettings: configuration.simulatorSettings,
+            testDestination: configuration.testDestinations[0],
+            testsToRun: configuration.testsToRun)
+    }
 }

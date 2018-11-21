@@ -54,7 +54,7 @@ public final class DistRunner {
     private func prepareQueue() throws -> [Bucket] {
         let transformer = TestToRunIntoTestEntryTransformer(
             eventBus: eventBus,
-            configuration: distRunConfiguration.runtimeDumpConfiguration(),
+            configuration: RuntimeDumpConfiguration.fromDistRunConfiguration(distRunConfiguration),
             tempFolder: tempFolder,
             resourceLocationResolver: resourceLocationResolver)
         let testEntries = try transformer.transform().avito_shuffled()

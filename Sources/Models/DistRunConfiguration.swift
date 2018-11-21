@@ -1,7 +1,4 @@
 import Foundation
-import Deployer
-import Models
-import RuntimeDump
 
 public struct DistRunConfiguration {
     
@@ -74,15 +71,6 @@ public struct DistRunConfiguration {
     
     public var testDestinations: [TestDestination] {
         return testDestinationConfigurations.map { $0.testDestination }
-    }
-    
-    public func runtimeDumpConfiguration() -> RuntimeDumpConfiguration {
-        return RuntimeDumpConfiguration(
-            fbxctest: auxiliaryResources.toolResources.fbxctest,
-            xcTestBundle: buildArtifacts.xcTestBundle,
-            simulatorSettings: simulatorSettings,
-            testDestination: testDestinations[0],
-            testsToRun: testsToRun)
     }
     
     public func workerConfiguration(destination: DeploymentDestination) -> WorkerConfiguration {
