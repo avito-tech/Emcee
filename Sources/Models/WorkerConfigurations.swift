@@ -1,6 +1,5 @@
 import Dispatch
 import Foundation
-import Models
 
 public final class WorkerConfigurations {
     private let queue = DispatchQueue(label: "ru.avito.emcee.WorkerConfigurations.queue")

@@ -4,6 +4,7 @@ import Foundation
 import Models
 import ModelsTestHelpers
 import RESTMethods
+import WorkerAlivenessTrackerTestHelpers
 import XCTest
 
 final class BucketResultRegistrarTests: XCTestCase {
@@ -20,7 +21,7 @@ final class BucketResultRegistrarTests: XCTestCase {
             bucketQueue: bucketQueue,
             eventBus: eventBus,
             resultsCollector: resultsCollector,
-            workerAlivenessTracker: FakeWorkerAlivenessTracker.alivenessTrackerWithAlwaysAliveResults())
+            workerAlivenessTracker: WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults())
         
         let request = BucketResultRequest(workerId: "worker", requestId: "request", testingResult: testingResult)
         XCTAssertNoThrow(try registrar.handle(decodedRequest: request))
@@ -29,7 +30,7 @@ final class BucketResultRegistrarTests: XCTestCase {
     }
     
     func test__results_collector_stays_unmodified_and_worker_is_blocked__if_bucket_queue_does_not_accept_results() {
-        let alivenessTracker = FakeWorkerAlivenessTracker.alivenessTrackerWithAlwaysAliveResults()
+        let alivenessTracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
         alivenessTracker.didRegisterWorker(workerId: "worker")
         let bucketQueue = FakeBucketQueue(throwsOnAccept: true)
         

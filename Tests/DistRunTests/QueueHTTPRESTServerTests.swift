@@ -1,3 +1,4 @@
+import BucketQueue
 import DistRun
 import DistWork
 import EventBus
@@ -5,6 +6,7 @@ import Foundation
 import Models
 import ModelsTestHelpers
 import WorkerAlivenessTracker
+import WorkerAlivenessTrackerTestHelpers
 import XCTest
 
 final class QueueHTTPRESTServerTests: XCTestCase {
@@ -21,7 +23,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     func test__RegisterWorkerHandler() throws {
         let workerRegistrar = WorkerRegistrar(
             workerConfigurations: workerConfigurations,
-            workerAlivenessTracker: FakeWorkerAlivenessTracker.alivenessTrackerWithAlwaysAliveResults())
+            workerAlivenessTracker: WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults())
         
         restServer.setHandler(
             registerWorkerHandler: RESTEndpointOf(actualHandler: workerRegistrar),
@@ -55,7 +57,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     }
     
     func test__ResultHandler() throws {
-        let alivenessTracker = FakeWorkerAlivenessTracker.alivenessTrackerWithAlwaysAliveResults()
+        let alivenessTracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
         let bucketQueue = FakeBucketQueue(throwsOnAccept: false)
         let testingResult = TestingResultFixtures.createTestingResult(unfilteredResults: [
             TestEntryResult.lost(testEntry: TestEntry(className: "class1", methodName: "m1", caseId: nil)),
@@ -83,7 +85,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     }
     
     func test__ReportAliveHandler() throws {
-        let alivenessTracker = FakeWorkerAlivenessTracker.alivenessTrackerWithAlwaysAliveResults()
+        let alivenessTracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
         
         restServer.setHandler(
             registerWorkerHandler: RESTEndpointOf(actualHandler: FakeRESTEndpoint<Int>()),

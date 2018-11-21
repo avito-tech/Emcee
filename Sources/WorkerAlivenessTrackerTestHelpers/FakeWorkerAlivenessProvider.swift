@@ -1,7 +1,9 @@
 import Foundation
 import WorkerAlivenessTracker
 
-public final class FakeWorkerAlivenessProvider: WorkerAlivenessProvider {
+public final class MutableWorkerAlivenessProvider: WorkerAlivenessProvider {
+    
+    public init() {}
     
     public var aliveness = [String: WorkerAliveness]()
     

@@ -1,8 +1,9 @@
-import DistRun
+import BucketQueue
 import Foundation
 import Models
 import ModelsTestHelpers
 import WorkerAlivenessTracker
+import WorkerAlivenessTrackerTestHelpers
 import XCTest
 
 final class BucketQueueTests: XCTestCase {
@@ -10,9 +11,9 @@ final class BucketQueueTests: XCTestCase {
     
     let workerId = "worker_id"
     let requestId = "request_id"
-    let alivenessTrackerWithImmediateTimeout = FakeWorkerAlivenessTracker.alivenessTrackerWithImmediateTimeout()
-    let alivenessTrackerWithAlwaysAliveResults = FakeWorkerAlivenessTracker.alivenessTrackerWithAlwaysAliveResults()
-    let mutableAlivenessProvider = FakeWorkerAlivenessProvider()
+    let alivenessTrackerWithImmediateTimeout = WorkerAlivenessTrackerFixtures.alivenessTrackerWithImmediateTimeout()
+    let alivenessTrackerWithAlwaysAliveResults = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
+    let mutableAlivenessProvider = MutableWorkerAlivenessProvider()
     
     override func setUp() {
         continueAfterFailure = false

@@ -1,8 +1,7 @@
 import Foundation
 import Models
-import RESTMethods
 
-public enum BucketResultRequestError: Error, CustomStringConvertible {
+public enum ResultAcceptanceError: Error, CustomStringConvertible {
     case noDequeuedBucket(requestId: String, workerId: String)
     case notAllResultsAvailable(requestId: String, workerId: String, expectedTestEntries: [TestEntry], providedResults: [TestEntryResult])
     

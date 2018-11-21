@@ -1,3 +1,4 @@
+import BucketQueue
 @testable import DistRun
 import Foundation
 import Models

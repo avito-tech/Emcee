@@ -1,3 +1,4 @@
+import BucketQueue
 import Foundation
 import Logging
 import Models

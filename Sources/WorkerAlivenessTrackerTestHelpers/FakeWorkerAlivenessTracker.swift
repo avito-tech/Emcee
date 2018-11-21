@@ -1,8 +1,7 @@
-import DistRun
 import Foundation
 import WorkerAlivenessTracker
 
-final class FakeWorkerAlivenessTracker {
+public final class WorkerAlivenessTrackerFixtures {
     public static func alivenessTrackerWithAlwaysAliveResults() -> WorkerAlivenessTracker {
         return WorkerAlivenessTracker(reportAliveInterval: .infinity)
     }

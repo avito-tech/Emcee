@@ -1,3 +1,4 @@
+import BucketQueue
 import DistRun
 import Foundation
 import Models

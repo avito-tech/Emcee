@@ -51,13 +51,13 @@ final class BucketQueueImpl: BucketQueue {
         
         guard let dequeuedBucket = previouslyDequeuedBucket(requestId: requestId, workerId: workerId) else {
             log("Validation failed: no dequeued bucket for request \(requestId) worker \(workerId)")
-            throw BucketResultRequestError.noDequeuedBucket(requestId: requestId, workerId: workerId)
+            throw ResultAcceptanceError.noDequeuedBucket(requestId: requestId, workerId: workerId)
         }
         let requestTestEntries = Set(testingResult.unfilteredResults.map { $0.testEntry })
         let expectedTestEntries = Set(dequeuedBucket.bucket.testEntries)
         guard requestTestEntries == expectedTestEntries else {
             log("Validation failed: unexpected result count for request \(requestId) worker \(workerId)")
-            throw BucketResultRequestError.notAllResultsAvailable(
+            throw ResultAcceptanceError.notAllResultsAvailable(
                 requestId: requestId,
                 workerId: workerId,
                 expectedTestEntries: dequeuedBucket.bucket.testEntries,

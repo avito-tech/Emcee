@@ -61,6 +61,21 @@ let package = Package(
             ]),
         
         .target(
+            name: "BucketQueue",
+            dependencies: [
+                "Logging",
+                "Models",
+                "WorkerAlivenessTracker"
+            ]),
+        .testTarget(
+            name: "BucketQueueTests",
+            dependencies: [
+                "BucketQueue",
+                "ModelsTestHelpers",
+                "WorkerAlivenessTrackerTestHelpers"
+            ]),
+        
+        .target(
             name: "ChromeTracing",
             dependencies: [
                 "Models"
@@ -83,6 +98,7 @@ let package = Package(
         .target(
             name: "DistRun",
             dependencies: [
+                "BucketQueue",
                 "Deployer",
                 "EventBus",
                 "Extensions",
@@ -105,13 +121,16 @@ let package = Package(
         .testTarget(
             name: "DistRunTests",
             dependencies: [
+                "BucketQueue",
                 "Deployer",
                 "DistRun",
+                "DistWork",
                 "Models",
                 "ModelsTestHelpers",
                 "ResourceLocationResolver",
                 "TempFolder",
-                "WorkerAlivenessTracker"
+                "WorkerAlivenessTracker",
+                "WorkerAlivenessTrackerTestHelpers"
             ]),
         
         .target(
@@ -487,11 +506,15 @@ let package = Package(
             name: "WorkerAlivenessTracker",
             dependencies: [
             ]),
+        .target(
+            name: "WorkerAlivenessTrackerTestHelpers",
+            dependencies: [
+                "WorkerAlivenessTracker"
+            ]),
         .testTarget(
             name: "WorkerAlivenessTrackerTests",
             dependencies: [
                 "WorkerAlivenessTracker"
-            ]),
-        
+            ])
     ]
 )
