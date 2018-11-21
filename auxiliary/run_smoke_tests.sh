@@ -6,6 +6,9 @@ echo "Assuming avito runner has been built already and available at: '$avitoRunn
 testPluginBundlePath="$(pwd)/TestPlugin/.build/debug/TestPlugin.emceeplugin"
 echo "Assuming test plugin has been built already and available at: '$testPluginBundlePath'"
 
+fbsimctlUrl=${FBSIMCTL_URL:-"https://github.com/beefon/FBSimulatorControl/releases/download/avito0.0.2/fbsimctl_20181120T145356.zip"}
+fbxctestUrl=${FBXCTEST_URL:-"https://github.com/beefon/FBSimulatorControl/releases/download/avito0.0.2/fbxctest_20181120T145305.zip"}
+
 echo "Installing pytest"
 pip3 install pytest
 
@@ -36,8 +39,8 @@ echo "Running integration tests"
 "$avitoRunnerBinaryPath" runTests \
 --app "$derivedDataPath/Build/Products/Debug-iphonesimulator/TestApp.app" \
 --environment "auxiliary/environment.json" \
---fbsimctl "https://github.com/beefon/FBSimulatorControl/releases/download/avito0.0.1/fbsimctl_20180831T142903.zip" \
---fbxctest "https://github.com/beefon/FBSimulatorControl/releases/download/avito0.0.1/fbxctest_20180831T142535.zip" \
+--fbsimctl "$fbsimctlUrl" \
+--fbxctest "$fbxctestUrl" \
 --junit "$tempfolder/test-results/junit.combined.xml" \
 --number-of-retries 1 \
 --number-of-simulators 2 \
