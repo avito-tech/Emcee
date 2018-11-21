@@ -1,7 +1,7 @@
 import Extensions
 import Foundation
 
-public class Bucket: Codable, CustomStringConvertible, Hashable {
+public final class Bucket: Codable, CustomStringConvertible, Hashable {
     public let bucketId: String
     public let testEntries: [TestEntry]
     public let testDestination: TestDestination
@@ -20,16 +20,22 @@ public class Bucket: Codable, CustomStringConvertible, Hashable {
         self.buildArtifacts = buildArtifacts
         self.bucketId = Bucket.generateBucketId(
             testEntries: testEntries,
-            testDestination: testDestination)
+            testDestination: testDestination,
+            toolResources: toolResources,
+            buildArtifacts: buildArtifacts)
     }
     
     private static func generateBucketId(
         testEntries: [TestEntry],
-        testDestination: TestDestination)
+        testDestination: TestDestination,
+        toolResources: ToolResources,
+        buildArtifacts: BuildArtifacts)
         -> String
     {
         let tests: String = testEntries.map { $0.testName }.sorted().joined()
             + testDestination.destinationString
+            + toolResources.fbsimctl.description + toolResources.fbxctest.description
+            + buildArtifacts.appBundle.description
         do {
             return try tests.avito_sha256Hash(encoding: .utf8)
         } catch {

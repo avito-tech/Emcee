@@ -2,6 +2,7 @@ import Extensions
 import Foundation
 import Dispatch
 import Logging
+import Timer
 
 public final class ProcessController: CustomStringConvertible {
     private let subprocess: Subprocess
@@ -12,8 +13,7 @@ public final class ProcessController: CustomStringConvertible {
     private let processTerminationQueue = DispatchQueue(label: "ru.avito.runner.ProcessListener.processTerminationQueue")
     private let stdReadQueue = DispatchQueue(label: "ru.avito.runner.ProcessListener.stdReadQueue", attributes: .concurrent)
     private let stdinWriteQueue = DispatchQueue(label: "ru.avito.runner.ProcessListener.stdinWriteQueue")
-    private let silenceTrackingTimerQueue = DispatchQueue(label: "ru.avito.runner.ProcessListener.silenceTrackingTimerQueue")
-    private var silenceTrackingTimer: DispatchSourceTimer?
+    private var silenceTrackingTimer: DispatchBasedTimer?
     private var stdinHandle: FileHandle?
     private let processStdinPipe = Pipe()
     private static let newLineCharacterData = Data(bytes: [UInt8(10)])
@@ -41,10 +41,6 @@ public final class ProcessController: CustomStringConvertible {
         process.standardInput = processStdinPipe
         try process.setStartsNewProcessGroup(false)
         return process
-    }
-    
-    deinit {
-        silenceTrackingTimer?.cancel()
     }
     
     public var description: String {
@@ -146,21 +142,16 @@ public final class ProcessController: CustomStringConvertible {
         
         log("Will track silences with timeout \(subprocess.maximumAllowedSilenceDuration)", subprocessName: self.processName, subprocessId: processId, color: .boldBlue)
         
-        let timer = DispatchSource.makeTimerSource(queue: silenceTrackingTimerQueue)
-        timer.schedule(deadline: .now(), repeating: .seconds(1), leeway: .seconds(1))
-        timer.setEventHandler { [weak self] in
-            if let strongSelf = self {
-                if Date().timeIntervalSince1970 - strongSelf.lastDataTimestamp > strongSelf.subprocess.maximumAllowedSilenceDuration {
-                    strongSelf.didDetectLongPeriodOfSilence()
-                }
+        silenceTrackingTimer = DispatchBasedTimer.startedTimer(repeating: .seconds(1), leeway: .seconds(1)) { [weak self] in
+            guard let strongSelf = self else { return }
+            if Date().timeIntervalSince1970 - strongSelf.lastDataTimestamp > strongSelf.subprocess.maximumAllowedSilenceDuration {
+                strongSelf.didDetectLongPeriodOfSilence()
             }
         }
-        timer.resume()
-        silenceTrackingTimer = timer
     }
     
     private func didDetectLongPeriodOfSilence() {
-        silenceTrackingTimer?.cancel()
+        silenceTrackingTimer?.stop()
         silenceTrackingTimer = nil
         log("Detected a long period of silence", subprocessName: self.processName, subprocessId: processId, color: .red)
         delegate?.processControllerDidNotReceiveAnyOutputWithinAllowedSilenceDuration(self)

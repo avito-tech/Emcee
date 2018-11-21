@@ -3,14 +3,14 @@ import Foundation
 import HostDeterminer
 import Logging
 import ProcessController
+import Timer
 
 public final class FbxctestOutputProcessor: ProcessControllerDelegate {
     private let processController: ProcessController
     private let simulatorId: String
     private let eventsListener: TestEventsListener
     private let singleTestMaximumDuration: TimeInterval
-    private let testHangTrackingTimerQueue = DispatchQueue(label: "ru.avito.runner.FbxctestOutputProcessor.testHangTrackingTimer")
-    private var testHangTrackingTimer: DispatchSourceTimer?
+    private var testHangTrackingTimer: DispatchBasedTimer?
     private let newLineByte = UInt8(10)
 
     public init(
@@ -24,10 +24,6 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
         self.singleTestMaximumDuration = singleTestMaximumDuration
         self.processController = try ProcessController(subprocess: subprocess)
         self.processController.delegate = self
-    }
-    
-    deinit {
-        testHangTrackingTimer?.cancel()
     }
     
     public func processOutputAndWaitForProcessTermination() {
@@ -58,18 +54,13 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
         
         log_fbxctest("Will track long running tests with timeout \(singleTestMaximumDuration)", processId, color: .boldBlue)
         
-        let timer = DispatchSource.makeTimerSource(queue: testHangTrackingTimerQueue)
-        timer.schedule(deadline: .now(), repeating: .seconds(1), leeway: .seconds(1))
-        timer.setEventHandler { [weak self] in
-            if let strongSelf = self {
-                guard let lastTestStartedEvent = strongSelf.eventsListener.lastStartedButNotFinishedTestEventPair?.startEvent else { return }
-                if Date().timeIntervalSince1970 - lastTestStartedEvent.timestamp > strongSelf.singleTestMaximumDuration {
-                    strongSelf.didDetectLongRunningTest()
-                }
+        testHangTrackingTimer = DispatchBasedTimer.startedTimer(repeating: .seconds(1), leeway: .seconds(1)) { [weak self] in
+            guard let strongSelf = self else { return }
+            guard let lastTestStartedEvent = strongSelf.eventsListener.lastStartedButNotFinishedTestEventPair?.startEvent else { return }
+            if Date().timeIntervalSince1970 - lastTestStartedEvent.timestamp > strongSelf.singleTestMaximumDuration {
+                strongSelf.didDetectLongRunningTest()
             }
         }
-        timer.resume()
-        testHangTrackingTimer = timer
     }
     
     private func didDetectLongRunningTest() {

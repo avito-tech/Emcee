@@ -2,10 +2,11 @@ import Foundation
 import Logging
 import Models
 import ScheduleStrategy
+import Timer
 
 public final class StuckBucketsEnqueuer {
     private let bucketQueue: BucketQueue
-    private let stuckBucketsTrigger = Timer(repeating: .seconds(1), leeway: .seconds(5))
+    private let stuckBucketsTrigger = DispatchBasedTimer(repeating: .seconds(1), leeway: .seconds(5))
     private let strategy = IndividualScheduleStrategy()
     
     public init(bucketQueue: BucketQueue) {

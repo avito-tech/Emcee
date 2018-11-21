@@ -98,6 +98,7 @@ let package = Package(
                 "Swifter",
                 "SynchronousWaiter",
                 "TempFolder",
+                "Timer",
                 "Utility"
             ]),
         .testTarget(
@@ -124,6 +125,7 @@ let package = Package(
                 "Scheduler",
                 "SimulatorPool",
                 "SynchronousWaiter",
+                "Timer",
                 "Utility"
             ]),
         .testTarget(
@@ -175,6 +177,7 @@ let package = Package(
                 "HostDeterminer",
                 "Logging",
                 "ProcessController",
+                "Timer",
                 "Utility"
             ]),
         
@@ -297,6 +300,7 @@ let package = Package(
                 "Extensions",
                 "Logging",
                 "ResourceLocationResolver",
+                "Timer",
                 "Utility"
             ]),
         .testTarget(
@@ -454,6 +458,11 @@ let package = Package(
                 "Models",
                 "Logging",
                 "Plugin"
+            ]),
+        
+        .target(
+            name: "Timer",
+            dependencies: [
             ]),
         
         .target(

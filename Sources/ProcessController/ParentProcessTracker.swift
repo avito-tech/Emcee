@@ -1,10 +1,10 @@
 import Dispatch
 import Foundation
 import Logging
+import Timer
 
 public final class ParentProcessTracker {
-    private let queue = DispatchQueue(label: "ru.avito.ParentProcessTracker.queue")
-    private var timer: DispatchSourceTimer?
+    private var timer: DispatchBasedTimer?
     private let whenParentDies: () -> ()
     private let parentPid: Int32
     
@@ -25,24 +25,16 @@ public final class ParentProcessTracker {
         startTracking()
     }
     
-    deinit {
-        timer?.cancel()
-    }
-    
     private var parentIsAlive: Bool {
         return kill(parentPid, 0) == 0
     }
     
     private func startTracking() {
         log("Will track parent process aliveness: \(parentPid)")
-        let timer = DispatchSource.makeTimerSource(queue: queue)
-        timer.schedule(deadline: .now(), repeating: .seconds(1), leeway: .seconds(1))
-        timer.setEventHandler {
+        self.timer = DispatchBasedTimer.startedTimer(repeating: .seconds(1), leeway: .seconds(1)) {
             if !self.parentIsAlive {
                 self.whenParentDies()
             }
         }
-        timer.resume()
-        self.timer = timer
     }
 }
