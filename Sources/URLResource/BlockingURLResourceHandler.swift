@@ -15,7 +15,7 @@ public final class BlockingURLResourceHandler: URLResourceHandler {
     
     public init() {}
     
-    public func wait(limit: TimeInterval = 20.0) throws -> URL {
+    public func wait(limit: TimeInterval = .infinity) throws -> URL {
         _ = semaphore.wait(timeout: .now() + limit)
         return try result.dematerialize()
     }

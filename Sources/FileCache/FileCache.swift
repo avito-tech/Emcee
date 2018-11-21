@@ -52,7 +52,8 @@ public final class FileCache {
         return container.appendingPathComponent(itemInfo.fileName, isDirectory: false)
     }
     
-    public func cleanUpItems(olderThan date: Date) throws {
+    @discardableResult
+    public func cleanUpItems(olderThan date: Date) throws -> [URL] {
         let allStoredCachedItemInfos = try self.allStoredCachedItemInfos()
         let evictables = allStoredCachedItemInfos.filter { (key: URL, value: FileCache.CachedItemInfo) -> Bool in
             value.timestamp < date.timeIntervalSince1970
@@ -60,6 +61,7 @@ public final class FileCache {
         try evictables.forEach { (key: URL, value: FileCache.CachedItemInfo) in
             try fileManager.removeItem(at: key)
         }
+        return [URL](evictables.keys)
     }
     
     private func allStoredCachedItemInfos() throws -> [URL: CachedItemInfo] {

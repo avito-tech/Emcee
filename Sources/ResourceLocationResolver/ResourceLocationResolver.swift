@@ -68,7 +68,7 @@ public final class ResourceLocationResolver {
             log("Will unzip '\(zipUrl)' into '\(contentsUrl)'")
             let process = Process.launchedProcess(
                 launchPath: "/usr/bin/unzip",
-                arguments: [zipUrl.path, "-d", contentsUrl.path])
+                arguments: ["-qq", zipUrl.path, "-d", contentsUrl.path])
             process.waitUntilExit()
             if process.terminationStatus != 0 {
                 throw ValidationError.unpackProcessError
@@ -89,7 +89,10 @@ public final class ResourceLocationResolver {
             if counter % evictionRegularity == 0 {
                 counter = 1
                 log("Evicting cached items older than: \(evictBarrierDate)")
-                try urlResource.evictResources(olderThan: evictBarrierDate)
+                let evictedEntryURLs = try urlResource.evictResources(olderThan: evictBarrierDate)
+                for url in evictedEntryURLs {
+                    log("-- evicted \(url)")
+                }
             } else {
                 counter = counter + 1
             }

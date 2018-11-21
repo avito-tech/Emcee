@@ -26,7 +26,8 @@ public final class URLResource {
             }
         } else {
             log("Will fetch resource for url '\(url)'")
-            let task = urlSession.downloadTask(with: url) { (localUrl: URL?, response: URLResponse?, error: Swift.Error?) in
+            let request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 20)
+            let task = urlSession.downloadTask(with: request) { (localUrl: URL?, response: URLResponse?, error: Swift.Error?) in
                 if let error = error {
                     handler.failedToGetContents(forUrl: url, error: error)
                 } else if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
@@ -48,7 +49,7 @@ public final class URLResource {
         }
     }
     
-    public func evictResources(olderThan date: Date) throws {
-        try fileCache.cleanUpItems(olderThan: date)
+    public func evictResources(olderThan date: Date) throws -> [URL] {
+        return try fileCache.cleanUpItems(olderThan: date)
     }
 }
