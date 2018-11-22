@@ -1,16 +1,21 @@
+# System
 .DS_Store
-*/__pycache__
+
+# Swift
 .build
 .cache
 /Packages
 /*.xcodeproj
 xcuserdata
 
-*.ignored*
+# Python
 *.pyc
-.idea/
-.cache/
-__pycache__/
+.idea
+.cache
+__pycache__
+.pytest_cache
+venv
 
-
-auxiliary/tempfolder
+# Utility
+*.ignored*
+tempfolder
