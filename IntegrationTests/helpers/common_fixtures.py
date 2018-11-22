@@ -10,19 +10,6 @@ from IntegrationTests.helpers.fixture_types.ExecutableFixture import ExecutableF
 
 
 @pytest.fixture(scope="session")
-def generated_package_fixture(request, repo_root):
-    def make():
-        bash(command='make generate', current_directory=repo_root.path)
-
-        yield None
-
-    yield from using_pycache(
-        request=request,
-        key="generated_package_fixture",
-        make=make
-    )
-
-@pytest.fixture(scope="session")
 def avito_runner(repo_root, request):
     def make():
         bash(command='make build', current_directory=repo_root.path)
