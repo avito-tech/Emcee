@@ -1,4 +1,5 @@
 import textwrap
+from typing import List
 
 from IntegrationTests.helpers.fixture_types.EmceePluginFixture import EmceePluginFixture
 from IntegrationTests.helpers.fixture_types.ExecutableFixture import ExecutableFixture
@@ -20,10 +21,12 @@ class AvitoRunnerArgs:
             current_directory: Directory,
             number_of_retries: int = 1,
             number_of_simulators: int = 1,
-            plugins: [EmceePluginFixture] = [],
+            plugins: [EmceePluginFixture] = None,
             schedule_strategy: str = "individual",
             single_test_timeout: int = 300
     ):
+        if plugins is None:
+            plugins = []
 
         self.avito_runner = avito_runner
         self.ios_app = ios_app
@@ -42,25 +45,27 @@ class AvitoRunnerArgs:
         self.current_directory = current_directory
 
     def command(self):
-        command = f'''{self.avito_runner.path} runTests
---app "{self.ios_app.app_path}"
---environment "{self.environment_json}"
---fbsimctl "{self.fbsimctl_url}"
---fbxctest "{self.fbxctest_url}"
---junit "{self.junit_path}"
---number-of-retries "{self.number_of_retries}"
---number-of-simulators "{self.number_of_simulators}"
---runner "{self.ios_app.ui_tests_runner_path}"
---schedule-strategy "{self.schedule_strategy}"
---single-test-timeout "{self.single_test_timeout}"
---temp-folder "{self.temp_folder}"
---trace "{self.trace_path}"
---xctest-bundle "{self.ios_app.xctest_bundle_path}"'''.replace("\n", " ")
+        args: List[str] = [
+            self.avito_runner.path, 'runTests',
+            '--app', self.ios_app.app_path,
+            '--environment', self.environment_json,
+            '--fbsimctl', self.fbsimctl_url,
+            '--fbxctest', self.fbxctest_url,
+            '--junit', self.junit_path,
+            '--number-of-retries', str(self.number_of_retries),
+            '--number-of-simulators', str(self.number_of_simulators),
+            '--runner', self.ios_app.ui_tests_runner_path,
+            '--schedule-strategy', self.schedule_strategy,
+            '--single-test-timeout', str(self.single_test_timeout),
+            '--temp-folder', self.temp_folder,
+            '--trace', self.trace_path,
+            '--xctest-bundle', self.ios_app.xctest_bundle_path
+        ]
 
-        if len(self.plugins) > 0:
-            command = " ".join([command] + [f'--plugin "{plugin.path}"' for plugin in self.plugins])
+        for plugin in self.plugins:
+            args.extend(['--plugin', plugin.path])
 
-        if len(self.test_destinations) > 0:
-            command = " ".join([command] + [f'--test-destinations "{destination}"' for destination in self.test_destinations])
+        for destination in self.test_destinations:
+            args.extend(['--test-destinations', destination])
 
-        return command
+        return args

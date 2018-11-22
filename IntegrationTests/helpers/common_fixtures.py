@@ -12,7 +12,8 @@ from IntegrationTests.helpers.fixture_types.ExecutableFixture import ExecutableF
 @pytest.fixture(scope="session")
 def generated_package_fixture(request, repo_root):
     def make():
-        bash(command=f'cd {repo_root.path} && swift package generate-xcodeproj --xcconfig-overrides Package.xcconfig')
+        bash(command='make generate', current_directory=repo_root.path)
+
         yield None
 
     yield from using_pycache(
@@ -24,7 +25,7 @@ def generated_package_fixture(request, repo_root):
 @pytest.fixture(scope="session")
 def avito_runner(repo_root, request):
     def make():
-        bash(command=f'cd {repo_root.path} && swift build -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.13" --static-swift-stdlib')
+        bash(command='make build', current_directory=repo_root.path)
 
         yield ExecutableFixture(
             path=f'{repo_root.path}/.build/x86_64-apple-macosx10.10/debug/AvitoRunner'

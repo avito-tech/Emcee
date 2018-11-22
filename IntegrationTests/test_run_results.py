@@ -217,7 +217,7 @@ def smoke_tests_result(
             single_test_timeout=100
         )
 
-        bash(command=f'cd "{current_directory.path}" && {args.command()}')
+        bash(command=args.command(), current_directory=current_directory.path)
 
         yield args
 
@@ -268,9 +268,9 @@ def smoke_tests_app(request, repo_root):
     )
 
 @pytest.fixture(scope="session")
-def smoke_tests_plugin(request, repo_root, generated_package_fixture):
+def smoke_tests_plugin(request, repo_root):
     def make():
-        bash(command=f'cd {repo_root.path}/TestPlugin && make build')
+        bash(command='make build', current_directory=f'{repo_root.path}/TestPlugin')
 
         yield EmceePluginFixture(
             path=f'{repo_root.path}/TestPlugin/.build/debug/TestPlugin.emceeplugin'

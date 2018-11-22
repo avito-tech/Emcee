@@ -1,11 +1,14 @@
 import subprocess
+import sys
+from typing import Union
+from typing import List
 
-
-def bash(command):
+def bash(command: Union[str, List[str]], current_directory: str = None) -> None:
     try:
         output = subprocess.check_output(
+            cwd=current_directory,
             args=command,
-            shell=True,
+            shell=type(command) is str,
             stderr=subprocess.PIPE
         )
         print(output)
