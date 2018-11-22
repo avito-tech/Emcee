@@ -9,11 +9,11 @@ public class Simulator: Hashable, CustomStringConvertible {
     public let workingDirectory: AbsolutePath
     
     public var identifier: String {
-        return "simulator_\(index)_\(testDestination.deviceType.removingWhitespaces())_\(testDestination.iOSVersion.removingWhitespaces())"
+        return "simulator_\(index)_\(testDestination.deviceType.removingWhitespaces())_\(testDestination.runtime.removingWhitespaces())"
     }
     
     public var description: String {
-        return "Simulator \(index): \(testDestination.deviceType) \(testDestination.iOSVersion) at: \(workingDirectory)"
+        return "Simulator \(index): \(testDestination.deviceType) \(testDestination.runtime) at: \(workingDirectory)"
     }
     
     var fbxctestContainerPath: AbsolutePath {

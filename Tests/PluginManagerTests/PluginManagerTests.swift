@@ -68,11 +68,11 @@ final class PluginManagerTests: XCTestCase {
             toPath: executablePath.asString)
         let testingResult1 = TestingResult(
             bucketId: "id1",
-            testDestination: try TestDestination(deviceType: "iPhone SE", iOSVersion: "10.3"),
+            testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "10.3"),
             unfilteredResults: [])
         let testingResult2 = TestingResult(
             bucketId: "id2",
-            testDestination: try TestDestination(deviceType: "iPhone 7", iOSVersion: "11.3"),
+            testDestination: try TestDestination(deviceType: "iPhone 7", runtime: "11.3"),
             unfilteredResults: [])
         
         let manager = PluginManager(

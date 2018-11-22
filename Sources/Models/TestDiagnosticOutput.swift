@@ -11,9 +11,9 @@ public struct TestDiagnosticOutput {
     /** Absolute path to a file where stdout/stderr test output test should be stored. */
     public let testLogOutputPath: String?
 
-    public init(iOSVersion: String, videoOutputPath: String?, oslogOutputPath: String?, testLogOutputPath: String?) throws {
+    public init(runtime: String, videoOutputPath: String?, oslogOutputPath: String?, testLogOutputPath: String?) throws {
         self.videoOutputPath = videoOutputPath
-        self.oslogOutputPath = try TestDiagnosticOutput.supportsOslogCapture(iOSVersion) ? oslogOutputPath : nil
+        self.oslogOutputPath = try TestDiagnosticOutput.supportsOslogCapture(runtime) ? oslogOutputPath : nil
         self.testLogOutputPath = testLogOutputPath
     }
     
@@ -29,7 +29,7 @@ public struct TestDiagnosticOutput {
         guard let majorVersionComponent = iOSVersion.components(separatedBy: ".").first,
             let majorVerson = Int(majorVersionComponent) else
         {
-            throw VersionError.invalidIosVersion(iOSVersion)
+            throw RuntimeVersionError.invalidRuntime(iOSVersion)
         }
         // iOS 9 does not have tail binary, so oslog tail is not supported
         return majorVerson > 9

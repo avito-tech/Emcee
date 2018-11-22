@@ -13,7 +13,7 @@ import SimulatorPool
 import XCTest
 
 public final class RunnerTests: XCTestCase {
-    let shimulator = Shimulator.shimulator(testDestination: try! TestDestination(deviceType: "iPhone SE", iOSVersion: "11.4"))
+    let shimulator = Shimulator.shimulator(testDestination: TestDestinationFixtures.testDestination)
     let testClassName = "ClassName"
     let testMethod = "testMethod"
     var tempFolder: TempFolder!

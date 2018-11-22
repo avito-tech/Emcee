@@ -22,7 +22,7 @@ public final class SimulatorPool<T>: CustomStringConvertible where T: SimulatorC
     private let cleanUpQueue = DispatchQueue(label: "ru.avito.SimulatorPool.cleanup")
     
     public var description: String {
-        return "<\(type(of: self)): \(numberOfSimulators)-sim '\(testDestination.deviceType)'+'\(testDestination.iOSVersion)'>"
+        return "<\(type(of: self)): \(numberOfSimulators)-sim '\(testDestination.deviceType)'+'\(testDestination.runtime)'>"
     }
     
     public init(
@@ -88,7 +88,7 @@ public final class SimulatorPool<T>: CustomStringConvertible where T: SimulatorC
     {
         var result = OrderedSet<T>()
         for index in 0 ..< count {
-            let folderName = "sim_\(testDestination.deviceType.removingWhitespaces())_\(testDestination.iOSVersion)_\(index)"
+            let folderName = "sim_\(testDestination.deviceType.removingWhitespaces())_\(testDestination.runtime)_\(index)"
             let workingDirectory = try tempFolder.pathByCreatingDirectories(components: [folderName])
             let simulator = Simulator(index: index, testDestination: testDestination, workingDirectory: workingDirectory)
             let controller = T(simulator: simulator, fbsimctl: fbsimctl)

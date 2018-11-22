@@ -1,4 +1,5 @@
 import Models
+import ModelsTestHelpers
 @testable import SimulatorPool
 import ResourceLocationResolver
 import SynchronousWaiter
@@ -29,7 +30,7 @@ class SimulatorPoolTests: XCTestCase {
     func testThrowingError() throws {
         let pool = try SimulatorPool<DefaultSimulatorController>(
             numberOfSimulators: 1,
-            testDestination: try TestDestination(deviceType: "", iOSVersion: "11.0"),
+            testDestination: TestDestinationFixtures.testDestination,
             fbsimctl: NonResolvableResourceLocation(),
             tempFolder: tempFolder)
         _ = try pool.allocateSimulator()
@@ -42,7 +43,7 @@ class SimulatorPoolTests: XCTestCase {
         let numberOfThreads = 4
         let pool = try SimulatorPool<DefaultSimulatorController>(
             numberOfSimulators: UInt(numberOfThreads),
-            testDestination: try TestDestination(deviceType: "", iOSVersion: "11.0"),
+            testDestination: TestDestinationFixtures.testDestination,
             fbsimctl: NonResolvableResourceLocation(),
             tempFolder: tempFolder)
         let queue = OperationQueue()
@@ -67,7 +68,7 @@ class SimulatorPoolTests: XCTestCase {
     func testAllocatingAndFreeing() throws {
         let pool = try SimulatorPool<FakeSimulatorController>(
             numberOfSimulators: 1,
-            testDestination: try TestDestination(deviceType: "Fake Device", iOSVersion: "11.3"),
+            testDestination: TestDestinationFixtures.testDestination,
             fbsimctl: NonResolvableResourceLocation(),
             tempFolder: tempFolder,
             automaticCleanupTiumeout: 1)

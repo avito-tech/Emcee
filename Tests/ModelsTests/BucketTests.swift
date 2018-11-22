@@ -13,7 +13,7 @@ final class BucketTests: XCTestCase {
                 TestEntry(className: "class", methodName: "testMethod", caseId: nil),
                 TestEntry(className: "class", methodName: "testAnotherMethod", caseId: nil)
             ],
-            testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3"),
+            testDestination: TestDestinationFixtures.testDestination,
             toolResources: fakeToolResources,
             buildArtifacts: fakeBuildArtifacts)
         
@@ -22,7 +22,7 @@ final class BucketTests: XCTestCase {
                 TestEntry(className: "class", methodName: "testAnotherMethod", caseId: nil),
                 TestEntry(className: "class", methodName: "testMethod", caseId: nil)
             ],
-            testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3"),
+            testDestination: TestDestinationFixtures.testDestination,
             toolResources: fakeToolResources,
             buildArtifacts: fakeBuildArtifacts)
         
@@ -35,7 +35,7 @@ final class BucketTests: XCTestCase {
                 TestEntry(className: "-----", methodName: "testMethod", caseId: nil),
                 TestEntry(className: "class", methodName: "testAnotherMethod", caseId: nil)
             ],
-            testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3"),
+            testDestination: TestDestinationFixtures.testDestination,
             toolResources: fakeToolResources,
             buildArtifacts: fakeBuildArtifacts)
         
@@ -44,7 +44,7 @@ final class BucketTests: XCTestCase {
                 TestEntry(className: "class", methodName: "testAnotherMethod", caseId: nil),
                 TestEntry(className: "class", methodName: "testMethod", caseId: nil)
             ],
-            testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3"),
+            testDestination: TestDestinationFixtures.testDestination,
             toolResources: fakeToolResources,
             buildArtifacts: fakeBuildArtifacts)
         
@@ -57,7 +57,7 @@ final class BucketTests: XCTestCase {
                 TestEntry(className: "class", methodName: "testMethod", caseId: nil),
                 TestEntry(className: "class", methodName: "testAnotherMethod", caseId: nil)
             ],
-            testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.3"),
+            testDestination: try TestDestination(deviceType: "device", runtime: "11.3"),
             toolResources: fakeToolResources,
             buildArtifacts: fakeBuildArtifacts)
         
@@ -66,7 +66,7 @@ final class BucketTests: XCTestCase {
                 TestEntry(className: "class", methodName: "testMethod", caseId: nil),
                 TestEntry(className: "class", methodName: "testAnotherMethod", caseId: nil)
             ],
-            testDestination: try TestDestination(deviceType: "device", iOSVersion: "11.4"),
+            testDestination: try TestDestination(deviceType: "device", runtime: "11.4"),
             toolResources: fakeToolResources,
             buildArtifacts: fakeBuildArtifacts)
         

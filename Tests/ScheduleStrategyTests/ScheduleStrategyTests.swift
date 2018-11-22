@@ -6,9 +6,9 @@ import XCTest
 class ScheduleStrategyTests: XCTestCase {
     let fakeToolResources = ToolResourcesFixtures.fakeToolResources()
     let fakeBuildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
+    let destination = TestDestinationFixtures.testDestination
     
-    func test_individualStrategy_splitsTestsIntoBucketsOfOne() throws {
-        let destination = try TestDestination(deviceType: "device", iOSVersion: "11.0")
+    func test_individualStrategy_splitsTestsIntoBucketsOfOne() {
         let testEntries = [
             TestEntry(className: "class", methodName: "testMethod1", caseId: nil),
             TestEntry(className: "class", methodName: "testMethod2", caseId: nil),
@@ -35,8 +35,7 @@ class ScheduleStrategyTests: XCTestCase {
         XCTAssertEqual(buckets, expectedBuckets)
     }
     
-    func test_individualStrategy_splitsTestsIntoBucketsOfOne_regardlessDestinationCount() throws {
-        let destination = try TestDestination(deviceType: "device", iOSVersion: "11.0")
+    func test_individualStrategy_splitsTestsIntoBucketsOfOne_regardlessDestinationCount() {
         let testEntries = [
             TestEntry(className: "class", methodName: "testMethod1", caseId: nil),
             TestEntry(className: "class", methodName: "testMethod2", caseId: nil),
@@ -59,8 +58,7 @@ class ScheduleStrategyTests: XCTestCase {
                 buildArtifacts: fakeBuildArtifacts).count)
     }
     
-    func test_equallyDividedStrategy_splitsToBucketsWithEqualSizes() throws {
-        let destination = try TestDestination(deviceType: "device", iOSVersion: "11.0")
+    func test_equallyDividedStrategy_splitsToBucketsWithEqualSizes() {
         let testEntries = [
             TestEntry(className: "class", methodName: "testMethod1", caseId: nil),
             TestEntry(className: "class", methodName: "testMethod2", caseId: nil),
@@ -88,8 +86,7 @@ class ScheduleStrategyTests: XCTestCase {
         XCTAssertEqual(buckets, expectedBuckets)
     }
     
-    func test_equallyDividedStrategy_respectsDestinationCount() throws {
-        let destination = try TestDestination(deviceType: "device", iOSVersion: "11.0")
+    func test_equallyDividedStrategy_respectsDestinationCount() {
         let testEntries = [
             TestEntry(className: "class", methodName: "testMethod1", caseId: nil),
             TestEntry(className: "class", methodName: "testMethod2", caseId: nil),
@@ -117,8 +114,7 @@ class ScheduleStrategyTests: XCTestCase {
         XCTAssertEqual(buckets, expectedBuckets)
     }
     
-    func test_progressiveStrategy() throws {
-        let destination = try TestDestination(deviceType: "device", iOSVersion: "11.0")
+    func test_progressiveStrategy() {
         let testEntries = [
             TestEntry(className: "class", methodName: "testMethod0", caseId: nil),
             TestEntry(className: "class", methodName: "testMethod1", caseId: nil),

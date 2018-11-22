@@ -425,6 +425,7 @@ let package = Package(
             name: "SimulatorPoolTests",
             dependencies: [
                 "Models",
+                "ModelsTestHelpers",
                 "ResourceLocationResolver",
                 "SimulatorPool",
                 "SynchronousWaiter",

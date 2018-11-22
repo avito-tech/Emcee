@@ -1,6 +1,7 @@
 import EventBus
 import Foundation
 import Models
+import ModelsTestHelpers
 import SynchronousWaiter
 import XCTest
 
@@ -11,7 +12,7 @@ final class EventBusTest: XCTestCase {
         bus.add(stream: stream)
         let testingResult = TestingResult(
             bucketId: "id",
-            testDestination: try TestDestination(deviceType: "dvc", iOSVersion: "11.3"),
+            testDestination: TestDestinationFixtures.testDestination,
             unfilteredResults: [])
         
         bus.post(event: .didObtainTestingResult(testingResult))

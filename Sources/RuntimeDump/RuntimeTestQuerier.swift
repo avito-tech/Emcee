@@ -61,7 +61,7 @@ public final class RuntimeTestQuerier {
             simulatorSettings: configuration.simulatorSettings,
             testTimeoutConfiguration: configuration.testTimeoutConfiguration,
             testDiagnosticOutput: try TestDiagnosticOutput(
-                iOSVersion: configuration.testDestination.iOSVersion,
+                runtime: configuration.testDestination.runtime,
                 videoOutputPath: nil,
                 oslogOutputPath: nil,
                 testLogOutputPath: nil))

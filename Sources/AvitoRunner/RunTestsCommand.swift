@@ -148,7 +148,7 @@ final class RunTestsCommand: Command {
             testDestinationConfigurations: testDestinations,
             testsToRun: onlyId + onlyTest,
             testDiagnosticOutput: TestDiagnosticOutput(
-                iOSVersion: testDestinations[0].testDestination.iOSVersion,
+                runtime: testDestinations[0].testDestination.runtime,
                 videoOutputPath: videoPath,
                 oslogOutputPath: oslogPath,
                 testLogOutputPath: testLogPath))

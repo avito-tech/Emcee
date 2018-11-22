@@ -84,7 +84,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
                 arguments: [
                     fbsimctl.asArgumentWith(packageName: PackageName.fbsimctl),
                     "--json", "--set", simulatorSetPath,
-                    "create", "iOS \(simulator.testDestination.iOSVersion)", simulator.testDestination.deviceType],
+                    "create", "iOS \(simulator.testDestination.runtime)", simulator.testDestination.deviceType],
                 maximumAllowedSilenceDuration: 30))
         controller.delegate = self
         controller.startAndListenUntilProcessDies()
