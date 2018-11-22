@@ -15,6 +15,7 @@ xcuserdata
 __pycache__
 .pytest_cache
 venv
+.python-version
 
 # Utility
 *.ignored*

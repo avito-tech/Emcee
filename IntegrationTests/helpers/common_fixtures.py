@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 import git
@@ -25,7 +27,7 @@ def avito_runner(repo_root, request):
     )
 
 @pytest.fixture(scope="session")
-def repo_root() -> 'Directory':
+def repo_root() -> Directory:
     any_path_inside = __file__
     git_repo = git.Repo(any_path_inside, search_parent_directories=True)
 

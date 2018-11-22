@@ -19,3 +19,6 @@ test-parallel:
 
 integration-test:
 	auxiliary/run_smoke_tests.sh
+
+rerun-integration-test:
+	PYCACHE_ENABLED=true auxiliary/run_smoke_tests.sh
