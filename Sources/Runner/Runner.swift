@@ -144,16 +144,6 @@ public final class Runner {
         }
         
         arguments += ["-keep-simulators-alive"]
-        
-        if let oslogPath = configuration.testDiagnosticOutput.oslogOutputPath {
-            arguments += ["-oslog", oslogPath]
-        }
-        if let videoPath = configuration.testDiagnosticOutput.videoOutputPath {
-            arguments += ["-video", videoPath]
-        }
-        if let testLogPath = configuration.testDiagnosticOutput.testLogOutputPath {
-            arguments += ["-testlog", testLogPath]
-        }
         return arguments
     }
     

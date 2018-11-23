@@ -36,7 +36,6 @@ final class RunTestsCommand: Command {
     private let numberOfSimulators: OptionArgument<UInt>
     private let onlyId: OptionArgument<[UInt]>
     private let onlyTest: OptionArgument<[String]>
-    private let oslogPath: OptionArgument<String>
     private let plugins: OptionArgument<[String]>
     private let runner: OptionArgument<String>
     private let scheduleStrategy: OptionArgument<String>
@@ -44,9 +43,7 @@ final class RunTestsCommand: Command {
     private let singleTestTimeout: OptionArgument<UInt>
     private let tempFolder: OptionArgument<String>
     private let testDestinations: OptionArgument<String>
-    private let testLogPath: OptionArgument<String>
     private let trace: OptionArgument<String>
-    private let videoPath: OptionArgument<String>
     private let watchdogSettings: OptionArgument<String>
     private let xctestBundle: OptionArgument<String>
     
@@ -71,7 +68,6 @@ final class RunTestsCommand: Command {
         numberOfSimulators = subparser.add(intArgument: KnownUIntArguments.numberOfSimulators)
         onlyId = subparser.add(multipleIntArgument: KnownUIntArguments.onlyId)
         onlyTest = subparser.add(multipleStringArgument: KnownStringArguments.onlyTest)
-        oslogPath = subparser.add(stringArgument: KnownStringArguments.oslogPath)
         plugins = subparser.add(multipleStringArgument: KnownStringArguments.plugin)
         runner = subparser.add(stringArgument: KnownStringArguments.runner)
         scheduleStrategy = subparser.add(stringArgument: KnownStringArguments.scheduleStrategy)
@@ -79,9 +75,7 @@ final class RunTestsCommand: Command {
         singleTestTimeout = subparser.add(intArgument: KnownUIntArguments.singleTestTimeout)
         tempFolder = subparser.add(stringArgument: KnownStringArguments.tempFolder)
         testDestinations = subparser.add(stringArgument: KnownStringArguments.testDestinations)
-        testLogPath = subparser.add(stringArgument: KnownStringArguments.testLogPath)
         trace = subparser.add(stringArgument: KnownStringArguments.trace)
-        videoPath = subparser.add(stringArgument: KnownStringArguments.videoPath)
         watchdogSettings = subparser.add(stringArgument: KnownStringArguments.watchdogSettings)
         xctestBundle = subparser.add(stringArgument: KnownStringArguments.xctestBundle)
     }
@@ -97,7 +91,6 @@ final class RunTestsCommand: Command {
         let numberOfSimulators = try ArgumentsReader.validateNotNil(arguments.get(self.numberOfSimulators), key: KnownUIntArguments.numberOfSimulators)
         let onlyId: [TestToRun] = (arguments.get(self.onlyId) ?? []).map { TestToRun.caseId($0) }
         let onlyTest: [TestToRun] = (arguments.get(self.onlyTest) ?? []).map { TestToRun.testName($0) }
-        let oslogPath = arguments.get(self.oslogPath)
         let plugins = try ArgumentsReader.validateResourceLocations(arguments.get(self.plugins) ?? [], key: KnownStringArguments.plugin)
         let runner = try ArgumentsReader.validateResourceLocation(arguments.get(self.runner), key: KnownStringArguments.runner)
         let scheduleStrategy = try ArgumentsReader.scheduleStrategy(arguments.get(self.scheduleStrategy), key: KnownStringArguments.scheduleStrategy)
@@ -111,9 +104,7 @@ final class RunTestsCommand: Command {
         let fbxtestCrashCheckTimeout = arguments.get(self.fbxtestCrashCheckTimeout) ?? singleTestTimeout
         let tempFolder = try TempFolder.with(stringPath: try ArgumentsReader.validateNotNil(arguments.get(self.tempFolder), key: KnownStringArguments.tempFolder))
         let testDestinations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
-        let testLogPath = arguments.get(self.testLogPath)
         let trace = try ArgumentsReader.validateNotNil(arguments.get(self.trace), key: KnownStringArguments.trace)
-        let videoPath = arguments.get(self.videoPath)
         let watchdogSettings = try ArgumentsReader.validateNilOrFileExists(arguments.get(self.watchdogSettings), key: KnownStringArguments.watchdogSettings)
         let xctestBundle = try ArgumentsReader.validateResourceLocation(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle)
 
@@ -146,12 +137,7 @@ final class RunTestsCommand: Command {
                 simulatorLocalizationSettings: simulatorLocalizationSettings,
                 watchdogSettings: watchdogSettings),
             testDestinationConfigurations: testDestinations,
-            testsToRun: onlyId + onlyTest,
-            testDiagnosticOutput: TestDiagnosticOutput(
-                runtime: testDestinations[0].testDestination.runtime,
-                videoOutputPath: videoPath,
-                oslogOutputPath: oslogPath,
-                testLogOutputPath: testLogPath))
+            testsToRun: onlyId + onlyTest)
         try runTests(configuration: configuration, tempFolder: tempFolder)
     }
     
@@ -174,7 +160,6 @@ final class RunTestsCommand: Command {
             testExecutionBehavior: configuration.testExecutionBehavior,
             simulatorSettings: configuration.simulatorSettings,
             testTimeoutConfiguration: configuration.testTimeoutConfiguration,
-            testDiagnosticOutput: configuration.testDiagnosticOutput,
             schedulerDataSource: try LocalRunSchedulerDataSource(
                 eventBus: eventBus,
                 configuration: configuration,

@@ -9,7 +9,6 @@ public class SchedulerConfiguration {
     public let testExecutionBehavior: TestExecutionBehavior
     public let simulatorSettings: SimulatorSettings
     public let testTimeoutConfiguration: TestTimeoutConfiguration
-    public let testDiagnosticOutput: TestDiagnosticOutput
     public let schedulerDataSource: SchedulerDataSource
     public let onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>
     
@@ -20,8 +19,7 @@ public class SchedulerConfiguration {
             buildArtifacts: buildArtifacts,
             testExecutionBehavior: testExecutionBehavior,
             simulatorSettings: simulatorSettings,
-            testTimeoutConfiguration: testTimeoutConfiguration,
-            testDiagnosticOutput: testDiagnosticOutput)
+            testTimeoutConfiguration: testTimeoutConfiguration)
     }
 
     public init(
@@ -29,7 +27,6 @@ public class SchedulerConfiguration {
         testExecutionBehavior: TestExecutionBehavior,
         simulatorSettings: SimulatorSettings,
         testTimeoutConfiguration: TestTimeoutConfiguration,
-        testDiagnosticOutput: TestDiagnosticOutput,
         schedulerDataSource: SchedulerDataSource,
         onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>)
     {
@@ -37,7 +34,6 @@ public class SchedulerConfiguration {
         self.testExecutionBehavior = testExecutionBehavior
         self.simulatorSettings = simulatorSettings
         self.testTimeoutConfiguration = testTimeoutConfiguration
-        self.testDiagnosticOutput = testDiagnosticOutput
         self.schedulerDataSource = schedulerDataSource
         self.onDemandSimulatorPool = onDemandSimulatorPool
     }

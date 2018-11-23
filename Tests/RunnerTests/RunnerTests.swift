@@ -138,8 +138,7 @@ public final class RunnerTests: XCTestCase {
             simulatorSettings: SimulatorSettings(
                 simulatorLocalizationSettings: "",
                 watchdogSettings: ""),
-            testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 5),
-            testDiagnosticOutput: TestDiagnosticOutput.nullOutput)
+            testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 5))
         return configuration
     }
 }

@@ -35,7 +35,8 @@ public final class Bucket: Codable, CustomStringConvertible, Hashable {
         let tests: String = testEntries.map { $0.testName }.sorted().joined()
             + testDestination.destinationString
             + toolResources.fbsimctl.description + toolResources.fbxctest.description
-            + buildArtifacts.appBundle.description
+            + buildArtifacts.appBundle.description + buildArtifacts.runner.description + buildArtifacts.xcTestBundle.description
+            + buildArtifacts.additionalApplicationBundles.map { $0.description }.sorted().joined()
         do {
             return try tests.avito_sha256Hash(encoding: .utf8)
         } catch {

@@ -59,12 +59,7 @@ public final class RuntimeTestQuerier {
             testExecutionBehavior: configuration.testExecutionBehavior.withEnvironmentOverrides(
                 ["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH": runtimeEntriesJSONPath]),
             simulatorSettings: configuration.simulatorSettings,
-            testTimeoutConfiguration: configuration.testTimeoutConfiguration,
-            testDiagnosticOutput: try TestDiagnosticOutput(
-                runtime: configuration.testDestination.runtime,
-                videoOutputPath: nil,
-                oslogOutputPath: nil,
-                testLogOutputPath: nil))
+            testTimeoutConfiguration: configuration.testTimeoutConfiguration)
         _ = try Runner(
             eventBus: eventBus,
             configuration: runnerConfiguration,

@@ -62,7 +62,6 @@ final class BucketConfigurationFactory {
                 simulatorLocalizationSettings: simulatorLocalizationSettings,
                 watchdogSettings: watchdogSettings),
             testTimeoutConfiguration: workerConfiguration.testTimeoutConfiguration,
-            testDiagnosticOutput: TestDiagnosticOutput.nullOutput,
             schedulerDataSource: schedulerDataSource,
             onDemandSimulatorPool: onDemandSimulatorPool)
         return configuration

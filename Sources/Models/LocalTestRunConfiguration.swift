@@ -25,9 +25,6 @@ public struct LocalTestRunConfiguration {
     
     /** All tests that need to be run */
     public let testsToRun: [TestToRun]
-    
-    /** The output for various diagnostic data of the test run. */
-    public let testDiagnosticOutput: TestDiagnosticOutput
   
     public init(
         reportOutput: ReportOutput,
@@ -37,8 +34,7 @@ public struct LocalTestRunConfiguration {
         buildArtifacts: BuildArtifacts,
         simulatorSettings: SimulatorSettings,
         testDestinationConfigurations: [TestDestinationConfiguration],
-        testsToRun: [TestToRun],
-        testDiagnosticOutput: TestDiagnosticOutput) throws
+        testsToRun: [TestToRun]) throws
     {
         self.reportOutput = reportOutput
         self.testTimeoutConfiguration = testTimeoutConfiguration
@@ -48,7 +44,6 @@ public struct LocalTestRunConfiguration {
         self.simulatorSettings = simulatorSettings
         self.testDestinationConfigurations = testDestinationConfigurations
         self.testsToRun = testsToRun
-        self.testDiagnosticOutput = testDiagnosticOutput
     }
     
     public var testDestinations: [TestDestination] {

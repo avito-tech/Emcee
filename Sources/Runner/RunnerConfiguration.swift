@@ -12,7 +12,6 @@ public struct RunnerConfiguration {
     public let simulatorSettings: SimulatorSettings
     public let maximumAllowedSilenceDuration: TimeInterval?
     public let singleTestMaximumDuration: TimeInterval
-    public let testDiagnosticOutput: TestDiagnosticOutput
     
     public init(
         testType: TestType,
@@ -20,8 +19,7 @@ public struct RunnerConfiguration {
         buildArtifacts: BuildArtifacts,
         testExecutionBehavior: TestExecutionBehavior,
         simulatorSettings: SimulatorSettings,
-        testTimeoutConfiguration: TestTimeoutConfiguration,
-        testDiagnosticOutput: TestDiagnosticOutput)
+        testTimeoutConfiguration: TestTimeoutConfiguration)
     {
         var resultingEnvironment = ProcessInfo.processInfo.environment
         resultingEnvironment["FBCONTROLCORE_FAST_TIMEOUT"] = testTimeoutConfiguration.fbxtestFastTimeout.flatMap { "\($0)" }
@@ -39,6 +37,5 @@ public struct RunnerConfiguration {
         self.simulatorSettings = simulatorSettings
         self.maximumAllowedSilenceDuration = testTimeoutConfiguration.fbxctestSilenceMaximumDuration
         self.singleTestMaximumDuration = testTimeoutConfiguration.singleTestMaximumDuration
-        self.testDiagnosticOutput = testDiagnosticOutput
     }
 }
