@@ -59,14 +59,14 @@ public final class DistRunner {
             resourceLocationResolver: resourceLocationResolver)
         let testEntries = try transformer.transform().avito_shuffled()
         
-        let buckets = BucketsGenerator.generateBuckets(
-            strategy: distRunConfiguration.remoteScheduleStrategyType.scheduleStrategy(),
-            numberOfDestinations: UInt(distRunConfiguration.destinations.count),
-            testEntries: testEntries,
-            testDestinations: distRunConfiguration.testDestinations,
-            toolResources: distRunConfiguration.auxiliaryResources.toolResources,
-            buildArtifacts: distRunConfiguration.buildArtifacts)
-        return buckets
+        let splitter = distRunConfiguration.remoteScheduleStrategyType.bucketSplitter()
+        return splitter.generate(
+            inputs: testEntries,
+            splitInfo: BucketSplitInfo(
+                numberOfDestinations: UInt(distRunConfiguration.destinations.count),
+                testDestinations: distRunConfiguration.testDestinations,
+                toolResources: distRunConfiguration.auxiliaryResources.toolResources,
+                buildArtifacts: distRunConfiguration.buildArtifacts))
     }
     
     private func createWorkerConfigurations() -> WorkerConfigurations {

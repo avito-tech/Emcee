@@ -169,6 +169,7 @@ let package = Package(
             name: "EventBusTests",
             dependencies: [
                 "EventBus",
+                "ModelsTestHelpers",
                 "SynchronousWaiter"
             ]),
         
@@ -273,7 +274,8 @@ let package = Package(
         .target(
             name: "ModelsTestHelpers",
             dependencies: [
-                "Models"
+                "Models",
+                "ScheduleStrategy"
             ]),
         .testTarget(
             name: "ModelsTests",

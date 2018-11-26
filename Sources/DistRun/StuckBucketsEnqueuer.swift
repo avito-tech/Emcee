@@ -8,7 +8,7 @@ import Timer
 public final class StuckBucketsEnqueuer {
     private let bucketQueue: BucketQueue
     private let stuckBucketsTrigger = DispatchBasedTimer(repeating: .seconds(1), leeway: .seconds(5))
-    private let strategy = IndividualScheduleStrategy()
+    private let individualSplitter = IndividualBucketSplitter()
     
     public init(bucketQueue: BucketQueue) {
         self.bucketQueue = bucketQueue
@@ -31,11 +31,13 @@ public final class StuckBucketsEnqueuer {
         }
 
         let buckets = stuckBuckets.flatMap {
-            strategy.generateIndividualBuckets(
-                testEntries: $0.bucket.testEntries,
-                testDestination: $0.bucket.testDestination,
-                toolResources: $0.bucket.toolResources,
-                buildArtifacts: $0.bucket.buildArtifacts)
+            individualSplitter.generate(
+                inputs: $0.bucket.testEntries,
+                splitInfo: BucketSplitInfo(
+                    numberOfDestinations: 1,
+                    testDestinations: [$0.bucket.testDestination],
+                    toolResources: $0.bucket.toolResources,
+                    buildArtifacts: $0.bucket.buildArtifacts))
         }
         bucketQueue.enqueue(buckets: buckets)
         log("Returned \(stuckBuckets.count) stuck buckets to the queue by crushing it to \(buckets.count) buckets:")

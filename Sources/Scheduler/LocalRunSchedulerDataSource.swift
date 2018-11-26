@@ -59,16 +59,17 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
             tempFolder: tempFolder,
             resourceLocationResolver: resourceLocationResolver)
         
-        let strategy = configuration.testExecutionBehavior.scheduleStrategy.scheduleStrategy()
-        let buckets = BucketsGenerator.generateBuckets(
-            strategy: strategy,
-            numberOfDestinations: configuration.testExecutionBehavior.numberOfSimulators,
-            testEntries: testEntries,
-            testDestinations: configuration.testDestinations,
-            toolResources: configuration.auxiliaryResources.toolResources,
-            buildArtifacts: configuration.buildArtifacts)
+        let splitter = configuration.testExecutionBehavior.scheduleStrategy.bucketSplitter()
+        log("Using strategy: \(splitter.description)")
+        
+        let buckets = splitter.generate(
+            inputs: testEntries,
+            splitInfo: BucketSplitInfo(
+                numberOfDestinations: configuration.testExecutionBehavior.numberOfSimulators,
+                testDestinations: configuration.testDestinations,
+                toolResources: configuration.auxiliaryResources.toolResources,
+                buildArtifacts: configuration.buildArtifacts))
 
-        log("Using strategy: \(strategy.description)")
         log("Will execute \(testEntries.count) tests: \(testEntries)")
         log("Will split tests into following buckets:")
         buckets.forEach { log("Bucket: \($0)") }

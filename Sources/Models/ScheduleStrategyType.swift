@@ -1,10 +1,9 @@
 import Foundation
 
-public enum ScheduleStrategyType: String, Codable, Equatable {
+public enum ScheduleStrategyType: String, Codable, Equatable, CaseIterable {
     case individual = "individual"
     case equallyDivided = "equally_divided"
     case progressive = "progressive"
     
-    public static let availableValues: [ScheduleStrategyType] = [.individual, .equallyDivided, .progressive]
-    public static let availableRawValues: [String] = availableValues.map { $0.rawValue }
+    public static let availableRawValues: [String] = allCases.map { $0.rawValue }
 }
