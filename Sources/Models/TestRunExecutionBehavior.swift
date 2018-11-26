@@ -1,7 +1,7 @@
 import Foundation
 
 /** Defines the specifics of the behavior of the test run. */
-public struct TestExecutionBehavior: Codable, Equatable {
+public struct TestRunExecutionBehavior: Codable, Equatable {
     
     /** A maximum number of attempts to re-run failed tests. */
     public let numberOfRetries: UInt
@@ -27,12 +27,12 @@ public struct TestExecutionBehavior: Codable, Equatable {
         self.scheduleStrategy = scheduleStrategy
     }
     
-    public func withEnvironmentOverrides(_ overrides: [String: String]) -> TestExecutionBehavior {
+    public func withEnvironmentOverrides(_ overrides: [String: String]) -> TestRunExecutionBehavior {
         var environment = self.environment
         overrides.forEach { (key, value) in
             environment.updateValue(value, forKey: key)
         }
-        return TestExecutionBehavior(
+        return TestRunExecutionBehavior(
             numberOfRetries: numberOfRetries,
             numberOfSimulators: numberOfSimulators,
             environment: environment,

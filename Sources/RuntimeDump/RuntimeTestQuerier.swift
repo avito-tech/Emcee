@@ -7,71 +7,58 @@ import Runner
 import SimulatorPool
 import TempFolder
 
-public struct RuntimeQueryResult {
-    public let unavailableTestsToRun: [TestToRun]
-    public let availableRuntimeTests: [RuntimeTestEntry]
-}
-
 public final class RuntimeTestQuerier {
-    public enum TestExplorationError: Error, CustomStringConvertible {
-        case fileNotFound(String)
-        
-        public var description: String {
-            switch self {
-            case .fileNotFound(let path):
-                return "Runtime dump did not create a JSON file at expected location: '\(path)'."
-            }
-        }
-    }
-    
     private let eventBus: EventBus
     private let configuration: RuntimeDumpConfiguration
     private let testQueryEntry = TestEntry(className: "NonExistingTest", methodName: "fakeTest", caseId: nil)
     private let resourceLocationResolver: ResourceLocationResolver
+    private let tempFolder: TempFolder
+    static let runtimeTestsJsonFilename = "runtime_tests.json"
     
     public init(
         eventBus: EventBus,
         configuration: RuntimeDumpConfiguration,
-        resourceLocationResolver: ResourceLocationResolver)
+        resourceLocationResolver: ResourceLocationResolver,
+        tempFolder: TempFolder)
     {
         self.eventBus = eventBus
         self.configuration = configuration
         self.resourceLocationResolver = resourceLocationResolver
+        self.tempFolder = tempFolder
     }
     
     public func queryRuntime() throws -> RuntimeQueryResult {
         let availableRuntimeTests = try availableTestsInRuntime()
-        let unavailableTestEntries = requestedTestEntriesNotAvailableInRuntime(availableRuntimeTests)
+        let unavailableTestEntries = requestedTestsNotAvailableInRuntime(availableRuntimeTests)
         return RuntimeQueryResult(
             unavailableTestsToRun: unavailableTestEntries,
             availableRuntimeTests: availableRuntimeTests)
     }
     
     private func availableTestsInRuntime() throws -> [RuntimeTestEntry] {
-        let runtimeEntriesJSONPath = NSTemporaryDirectory().appending("runtime_tests.json")
-        try? FileManager.default.removeItem(atPath: runtimeEntriesJSONPath)
+        let runtimeEntriesJSONPath = tempFolder.pathWith(components: [RuntimeTestQuerier.runtimeTestsJsonFilename])
         log("Will dump runtime tests into file: \(runtimeEntriesJSONPath)", color: .boldBlue)
         
         let runnerConfiguration = RunnerConfiguration(
             testType: .logicTest,
             fbxctest: configuration.fbxctest,
             buildArtifacts: BuildArtifacts.onlyWithXctestBundle(xcTestBundle: configuration.xcTestBundle),
-            testExecutionBehavior: configuration.testExecutionBehavior.withEnvironmentOverrides(
-                ["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH": runtimeEntriesJSONPath]),
+            testRunExecutionBehavior: configuration.testRunExecutionBehavior.withEnvironmentOverrides(
+                ["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH": runtimeEntriesJSONPath.asString]),
             simulatorSettings: configuration.simulatorSettings,
             testTimeoutConfiguration: configuration.testTimeoutConfiguration)
         _ = try Runner(
             eventBus: eventBus,
             configuration: runnerConfiguration,
-            tempFolder: try TempFolder(),
+            tempFolder: tempFolder,
             resourceLocationResolver: resourceLocationResolver)
             .runOnce(
                 entriesToRun: [testQueryEntry],
                 onSimulator: Shimulator.shimulator(testDestination: configuration.testDestination))
         
-        guard let data = try? Data(contentsOf: URL(fileURLWithPath: runtimeEntriesJSONPath)),
+        guard let data = try? Data(contentsOf: URL(fileURLWithPath: runtimeEntriesJSONPath.asString)),
             let foundTestEntries = try? JSONDecoder().decode([RuntimeTestEntry].self, from: data) else {
-                throw TestExplorationError.fileNotFound(runtimeEntriesJSONPath)
+                throw TestExplorationError.fileNotFound(runtimeEntriesJSONPath.asString)
         }
         
         let allTests = foundTestEntries.flatMap { $0.testMethods }
@@ -80,7 +67,7 @@ public final class RuntimeTestQuerier {
         return foundTestEntries
     }
     
-    private func requestedTestEntriesNotAvailableInRuntime(_ runtimeDetectedEntries: [RuntimeTestEntry]) -> [TestToRun] {
+    private func requestedTestsNotAvailableInRuntime(_ runtimeDetectedEntries: [RuntimeTestEntry]) -> [TestToRun] {
         if configuration.testsToRun.isEmpty { return [] }
         if runtimeDetectedEntries.isEmpty { return configuration.testsToRun }
         

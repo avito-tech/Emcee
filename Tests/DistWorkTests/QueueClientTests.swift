@@ -89,7 +89,7 @@ class QueueClientTests: XCTestCase {
     
     func testRegisteringWorker() throws {
         let stubbedConfig = WorkerConfiguration(
-            testExecutionBehavior: TestExecutionBehavior(
+            testRunExecutionBehavior: TestRunExecutionBehavior(
                 numberOfRetries: 1,
                 numberOfSimulators: 2,
                 environment: ["env": "val"],
@@ -107,14 +107,14 @@ class QueueClientTests: XCTestCase {
         switch delegate.responses[0] {
         case .workerConfiguration(let configuration):
             XCTAssertEqual(
-                stubbedConfig.testExecutionBehavior.numberOfRetries,
-                configuration.testExecutionBehavior.numberOfRetries)
+                stubbedConfig.testRunExecutionBehavior.numberOfRetries,
+                configuration.testRunExecutionBehavior.numberOfRetries)
             XCTAssertEqual(
-                stubbedConfig.testExecutionBehavior.numberOfSimulators,
-                configuration.testExecutionBehavior.numberOfSimulators)
+                stubbedConfig.testRunExecutionBehavior.numberOfSimulators,
+                configuration.testRunExecutionBehavior.numberOfSimulators)
             XCTAssertEqual(
-                stubbedConfig.testExecutionBehavior.environment,
-                configuration.testExecutionBehavior.environment)
+                stubbedConfig.testRunExecutionBehavior.environment,
+                configuration.testRunExecutionBehavior.environment)
             XCTAssertEqual(
                 stubbedConfig.testTimeoutConfiguration.singleTestMaximumDuration,
                 configuration.testTimeoutConfiguration.singleTestMaximumDuration,

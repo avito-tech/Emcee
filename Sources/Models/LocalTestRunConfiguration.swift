@@ -9,7 +9,7 @@ public struct LocalTestRunConfiguration {
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     
     /** Parameters that determinte how to execute the tests. */
-    public let testExecutionBehavior: TestExecutionBehavior
+    public let testRunExecutionBehavior: TestRunExecutionBehavior
 
     /** Paths that are required to make things work. */
     public let auxiliaryResources: AuxiliaryResources
@@ -24,26 +24,26 @@ public struct LocalTestRunConfiguration {
     public let testDestinationConfigurations: [TestDestinationConfiguration]
     
     /** All tests that need to be run */
-    public let testsToRun: [TestToRun]
+    public let testEntries: [TestEntry]
   
     public init(
         reportOutput: ReportOutput,
         testTimeoutConfiguration: TestTimeoutConfiguration,
-        testExecutionBehavior: TestExecutionBehavior,
+        testRunExecutionBehavior: TestRunExecutionBehavior,
         auxiliaryResources: AuxiliaryResources,
         buildArtifacts: BuildArtifacts,
         simulatorSettings: SimulatorSettings,
         testDestinationConfigurations: [TestDestinationConfiguration],
-        testsToRun: [TestToRun]) throws
+        testEntries: [TestEntry]) throws
     {
         self.reportOutput = reportOutput
         self.testTimeoutConfiguration = testTimeoutConfiguration
-        self.testExecutionBehavior = testExecutionBehavior
+        self.testRunExecutionBehavior = testRunExecutionBehavior
         self.auxiliaryResources = auxiliaryResources
         self.buildArtifacts = buildArtifacts
         self.simulatorSettings = simulatorSettings
         self.testDestinationConfigurations = testDestinationConfigurations
-        self.testsToRun = testsToRun
+        self.testEntries = testEntries
     }
     
     public var testDestinations: [TestDestination] {

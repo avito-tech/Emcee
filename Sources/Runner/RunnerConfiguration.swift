@@ -17,7 +17,7 @@ public struct RunnerConfiguration {
         testType: TestType,
         fbxctest: FbxctestLocation,
         buildArtifacts: BuildArtifacts,
-        testExecutionBehavior: TestExecutionBehavior,
+        testRunExecutionBehavior: TestRunExecutionBehavior,
         simulatorSettings: SimulatorSettings,
         testTimeoutConfiguration: TestTimeoutConfiguration)
     {
@@ -28,7 +28,7 @@ public struct RunnerConfiguration {
         resultingEnvironment["FB_BUNDLE_READY_TIMEOUT"] = testTimeoutConfiguration.fbxtestBundleReadyTimeout.flatMap { "\($0)" }
         resultingEnvironment["FB_CRASH_CHECK_WAIT_LIMIT"] = testTimeoutConfiguration.fbxtestCrashCheckTimeout.flatMap { "\($0)" }
         
-        testExecutionBehavior.environment.forEach { resultingEnvironment[$0] = $1 }
+        testRunExecutionBehavior.environment.forEach { resultingEnvironment[$0] = $1 }
         
         self.testType = testType
         self.fbxctest = fbxctest

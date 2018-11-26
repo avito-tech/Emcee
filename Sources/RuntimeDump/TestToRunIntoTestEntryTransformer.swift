@@ -1,66 +1,27 @@
-import EventBus
 import Foundation
 import Models
-import ResourceLocationResolver
-import TempFolder
 
 public final class TestToRunIntoTestEntryTransformer {
-    private let eventBus: EventBus
-    private let configuration: RuntimeDumpConfiguration
+    private let testsToRun: [TestToRun]
     private let fetchAllTestsIfTestsToRunIsEmpty: Bool
-    private let tempFolder: TempFolder
-    private let resourceLocationResolver: ResourceLocationResolver
-    
-    public enum ValidationError: Error, CustomStringConvertible {
-        case someTestsAreMissingInRuntime([TestToRun])
-        case noMatchFor(TestToRun)
-        case unableToExctractClassAndMethodNames(testName: String)
-        
-        public var description: String {
-            switch self {
-            case .someTestsAreMissingInRuntime(let testsToRun):
-                return "Error: some tests are missing in runtime: \(testsToRun)"
-            case .noMatchFor(let testToRun):
-                return "Unexpected error: Unable to find expected runtime test match for \(testToRun)"
-            case .unableToExctractClassAndMethodNames(let testName):
-                return "Error: \(testName) is a wrong test name. Unable to extract class or method."
-            }
-        }
-    }
     
     public init(
-        eventBus: EventBus,
-        configuration: RuntimeDumpConfiguration,
-        fetchAllTestsIfTestsToRunIsEmpty: Bool = true,
-        tempFolder: TempFolder,
-        resourceLocationResolver: ResourceLocationResolver)
+        testsToRun: [TestToRun],
+        fetchAllTestsIfTestsToRunIsEmpty: Bool)
     {
-        self.eventBus = eventBus
-        self.configuration = configuration
+        self.testsToRun = testsToRun
         self.fetchAllTestsIfTestsToRunIsEmpty = fetchAllTestsIfTestsToRunIsEmpty
-        self.tempFolder = tempFolder
-        self.resourceLocationResolver = resourceLocationResolver
     }
     
-    public func transform() throws -> [TestEntry] {
-        let runtimeQueryResult = try RuntimeTestQuerier(
-            eventBus: eventBus,
-            configuration: configuration,
-            resourceLocationResolver: resourceLocationResolver)
-            .queryRuntime()
+    public func transform(runtimeQueryResult: RuntimeQueryResult) throws -> [TestToRun: [TestEntry]] {
         guard runtimeQueryResult.unavailableTestsToRun.isEmpty else {
-            throw ValidationError.someTestsAreMissingInRuntime(runtimeQueryResult.unavailableTestsToRun)
+            throw TransformationError.someTestsAreMissingInRuntime(runtimeQueryResult.unavailableTestsToRun)
         }
         
-        if configuration.testsToRun.isEmpty && fetchAllTestsIfTestsToRunIsEmpty {
-            return runtimeQueryResult.availableRuntimeTests.flatMap { runtimeEntry -> [TestEntry] in
-                runtimeEntry.testMethods.map { TestEntry(className: runtimeEntry.className, methodName: $0, caseId: runtimeEntry.caseId) }
-            }
-        } else if configuration.testsToRun.isEmpty && !fetchAllTestsIfTestsToRunIsEmpty {
-            return []
-        }
+        let testsToTransform = testsForTransformation(runtimeQueryResult: runtimeQueryResult)
         
-        return try configuration.testsToRun.flatMap { testToRun -> [TestEntry] in
+        var result = [TestToRun: [TestEntry]]()
+        for testToRun in testsToTransform {
             let matchingRuntimeEntry = try runtimeQueryResult.availableRuntimeTests.first { runtimeEntry -> Bool in
                 switch testToRun {
                 case .testName(let testName):
@@ -72,9 +33,31 @@ public final class TestToRunIntoTestEntryTransformer {
                 }
             }
             if let matchingRuntimeEntry = matchingRuntimeEntry {
-                return try testEntriesFor(testToRun: testToRun, runtimeEntry: matchingRuntimeEntry)
+                let testEntries = try testEntriesFor(testToRun: testToRun, runtimeEntry: matchingRuntimeEntry)
+                result[testToRun] = testEntries
             } else {
-                throw ValidationError.noMatchFor(testToRun)
+                throw TransformationError.noMatchFor(testToRun)
+            }
+        }
+        return result
+    }
+    
+    private func testsForTransformation(runtimeQueryResult: RuntimeQueryResult) -> [TestToRun] {
+        if self.testsToRun.isEmpty {
+            if fetchAllTestsIfTestsToRunIsEmpty {
+                return allExistingTestsToRunFromRuntimeDump(runtimeQueryResult: runtimeQueryResult)
+            } else {
+                return []
+            }
+        } else {
+            return self.testsToRun
+        }
+    }
+    
+    private func allExistingTestsToRunFromRuntimeDump(runtimeQueryResult: RuntimeQueryResult) -> [TestToRun] {
+        return runtimeQueryResult.availableRuntimeTests.flatMap { runtimeEntry -> [TestToRun] in
+            runtimeEntry.testMethods.map { methodName -> TestToRun in
+                TestToRun.testName(runtimeEntry.className + "/" + methodName)
             }
         }
     }
@@ -102,7 +85,7 @@ public final class TestToRunIntoTestEntryTransformer {
     private func testSpecifierComponentsForTestName(testName: String) throws -> (className: String, methodName: String) {
         let components = testName.components(separatedBy: "/")
         guard components.count == 2, let className = components.first, let methodName = components.last else {
-            throw ValidationError.unableToExctractClassAndMethodNames(testName: testName)
+            throw TransformationError.unableToExctractClassAndMethodNames(testName: testName)
         }
         return (className: className, methodName: methodName)
     }

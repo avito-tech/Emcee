@@ -57,7 +57,7 @@ final class BucketConfigurationFactory {
         
         let configuration = SchedulerConfiguration(
             testType: .uiTest,
-            testExecutionBehavior: workerConfiguration.testExecutionBehavior,
+            testRunExecutionBehavior: workerConfiguration.testRunExecutionBehavior,
             simulatorSettings: SimulatorSettings(
                 simulatorLocalizationSettings: simulatorLocalizationSettings,
                 watchdogSettings: watchdogSettings),

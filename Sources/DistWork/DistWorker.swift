@@ -81,7 +81,7 @@ public final class DistWorker {
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
             pluginLocations: bucketConfigurationFactory.pluginLocations,
             resourceLocationResolver: resourceLocationResolver,
-            environment: configuration.testExecutionBehavior.environment)
+            environment: configuration.testRunExecutionBehavior.environment)
         defer { eventBus.tearDown() }
         
         let scheduler = Scheduler(

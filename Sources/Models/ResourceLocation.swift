@@ -31,9 +31,22 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
         }
         guard let url = components.url else { throw ValidationError.cannotCreateUrl(string) }
         if url.isFileURL {
-            return try withPathString(url.path)
+            return try withPathString(string)
         } else {
-            return try withUrl(url)
+            return withUrl(url)
+        }
+    }
+    
+    private static func withoutValueValidation(_ string: String) throws -> ResourceLocation {
+        guard var components = URLComponents(string: string) else { throw ValidationError.cannotCreateUrl(string) }
+        if components.scheme == nil {
+            components.scheme = "file"
+        }
+        guard let url = components.url else { throw ValidationError.cannotCreateUrl(string) }
+        if url.isFileURL {
+            return .localFilePath(string)
+        } else {
+            return .remoteUrl(url)
         }
     }
     
@@ -41,7 +54,7 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
         return try strings.map { try from($0) }
     }
     
-    private static func withUrl(_ url: URL) throws -> ResourceLocation {
+    private static func withUrl(_ url: URL) -> ResourceLocation {
         return ResourceLocation.remoteUrl(url)
     }
     
@@ -79,40 +92,18 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
         }
     }
     
-    private enum CodingKeys: String, CodingKey {
-        case caseId
-        case path
-        case url
-    }
-    
-    private enum CaseId: String, Codable {
-        case localFilePath
-        case remoteUrl
-    }
-    
     public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let caseId = try container.decode(CaseId.self, forKey: .caseId)
-        
-        switch caseId {
-        case .localFilePath:
-            let path = try container.decode(String.self, forKey: .path)
-            self = .localFilePath(path)
-        case .remoteUrl:
-            let url = try container.decode(URL.self, forKey: .url)
-            self = .remoteUrl(url)
-        }
+        let container = try decoder.singleValueContainer()
+        self = try ResourceLocation.withoutValueValidation(try container.decode(String.self))
     }
     
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
+        var container = encoder.singleValueContainer()
         switch self {
         case .localFilePath(let path):
-            try container.encode(CaseId.localFilePath, forKey: .caseId)
-            try container.encode(path, forKey: .path)
+            try container.encode(path)
         case .remoteUrl(let url):
-            try container.encode(CaseId.remoteUrl, forKey: .caseId)
-            try container.encode(url, forKey: .url)
+            try container.encode(url.absoluteString)
         }
     }
     

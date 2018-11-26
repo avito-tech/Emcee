@@ -1,12 +1,12 @@
 import Foundation
 
-/** An information about test that is requested and expected to be run. */
-public enum TestToRun: Decodable, CustomStringConvertible {
+/// An information about test that is requested and expected to be run.
+public enum TestToRun: Decodable, CustomStringConvertible, Hashable {
     
-    /** A test described by string in format: `ClassName/testMethod` */
+    /// A test described by string in format: `ClassName/testMethod`
     case testName(String)
     
-    /** A test described by test case id */
+    /// A test described by test case id
     case caseId(UInt)
     
     private enum CodingKeys: String, CodingKey {
@@ -24,16 +24,11 @@ public enum TestToRun: Decodable, CustomStringConvertible {
     }
     
     public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let container = try decoder.singleValueContainer()
         do {
-            let testName = try container.decode(String.self, forKey: .testName)
-            guard testName.components(separatedBy: "/").count == 2, !testName.hasSuffix("()") else {
-                throw TestToRunDecodingError.decoding(testName)
-            }
-            self = .testName(testName)
+            self = .testName(try container.decode(String.self))
         } catch {
-            let caseId = try container.decode(UInt.self, forKey: .caseId)
-            self = .caseId(caseId)
+            self = .caseId(try container.decode(UInt.self))
         }
     }
 }

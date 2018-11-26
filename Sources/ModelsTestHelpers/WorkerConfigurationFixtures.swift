@@ -3,7 +3,7 @@ import Models
 
 public final class WorkerConfigurationFixtures {
     public static let workerConfiguration = WorkerConfiguration(
-        testExecutionBehavior: TestExecutionBehavior(
+        testRunExecutionBehavior: TestRunExecutionBehavior(
             numberOfRetries: 1,
             numberOfSimulators: 2,
             environment: [:],

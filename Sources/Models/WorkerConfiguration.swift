@@ -1,18 +1,18 @@
 import Foundation
 
 public struct WorkerConfiguration: Codable, Equatable {
-    public let testExecutionBehavior: TestExecutionBehavior
+    public let testRunExecutionBehavior: TestRunExecutionBehavior
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     
     /** An interval the workers should use to report their aliveness to the queue server. */
     public let reportAliveInterval: TimeInterval
 
     public init(
-        testExecutionBehavior: TestExecutionBehavior,
+        testRunExecutionBehavior: TestRunExecutionBehavior,
         testTimeoutConfiguration: TestTimeoutConfiguration,
         reportAliveInterval: TimeInterval)
     {
-        self.testExecutionBehavior = testExecutionBehavior
+        self.testRunExecutionBehavior = testRunExecutionBehavior
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.reportAliveInterval = reportAliveInterval
     }

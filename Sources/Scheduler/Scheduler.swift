@@ -62,7 +62,7 @@ public final class Scheduler {
         self.configuration = configuration
         self.resourceSemaphore = ListeningSemaphore(
             maximumValues: .of(
-                runningTests: Int(configuration.testExecutionBehavior.numberOfSimulators)))
+                runningTests: Int(configuration.testRunExecutionBehavior.numberOfSimulators)))
         self.tempFolder = tempFolder
         self.resourceLocationResolver = resourceLocationResolver
     }
@@ -149,21 +149,21 @@ public final class Scheduler {
     private func runRetrying(bucket: SchedulerBucket) throws -> TestingResult {
         let firstRun = try runBucketOnce(bucket: bucket, testsToRun: bucket.testEntries)
         
-        guard configuration.testExecutionBehavior.numberOfRetries > 0 else {
+        guard configuration.testRunExecutionBehavior.numberOfRetries > 0 else {
             log("numberOfRetries == 0, will not retry failed tests.")
             return firstRun
         }
         
         var lastRunResults = firstRun
         var results = [firstRun]
-        for retryNumber in 0 ..< configuration.testExecutionBehavior.numberOfRetries {
+        for retryNumber in 0 ..< configuration.testRunExecutionBehavior.numberOfRetries {
             let failedTestEntriesAfterLastRun = lastRunResults.failedTests.map { $0.testEntry }
             if failedTestEntriesAfterLastRun.isEmpty {
                 log("No failed tests after last retry, so nothing to run.")
                 break
             }
             log("After last run \(failedTestEntriesAfterLastRun.count) tests have failed: \(failedTestEntriesAfterLastRun).")
-            log("Retrying them, attempt #\(retryNumber + 1) of maximum \(configuration.testExecutionBehavior.numberOfRetries) attempts")
+            log("Retrying them, attempt #\(retryNumber + 1) of maximum \(configuration.testRunExecutionBehavior.numberOfRetries) attempts")
             lastRunResults = try runBucketOnce(bucket: bucket, testsToRun: failedTestEntriesAfterLastRun)
             results.append(lastRunResults)
         }
@@ -173,7 +173,7 @@ public final class Scheduler {
     private func runBucketOnce(bucket: SchedulerBucket, testsToRun: [TestEntry]) throws -> TestingResult {
         let simulatorPool = try configuration.onDemandSimulatorPool.pool(
             key: OnDemandSimulatorPool.Key(
-                numberOfSimulators: configuration.testExecutionBehavior.numberOfSimulators,
+                numberOfSimulators: configuration.testRunExecutionBehavior.numberOfSimulators,
                 testDestination: bucket.testDestination,
                 fbsimctl: bucket.toolResources.fbsimctl))
         let simulatorController = try simulatorPool.allocateSimulator()

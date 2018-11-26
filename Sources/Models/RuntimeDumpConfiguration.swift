@@ -6,7 +6,7 @@ public struct RuntimeDumpConfiguration {
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     
     /** Parameters that determinte how to execute the tests. */
-    public let testExecutionBehavior: TestExecutionBehavior
+    public let testRunExecutionBehavior: TestRunExecutionBehavior
     
     /** Path to logic test runner. */
     public let fbxctest: FbxctestLocation
@@ -33,7 +33,7 @@ public struct RuntimeDumpConfiguration {
         self.testTimeoutConfiguration = TestTimeoutConfiguration(
             singleTestMaximumDuration: 20,
             fbxctestSilenceMaximumDuration: 20)
-        self.testExecutionBehavior = TestExecutionBehavior(
+        self.testRunExecutionBehavior = TestRunExecutionBehavior(
             numberOfRetries: 0,
             numberOfSimulators: 1,
             environment: [:],
@@ -43,27 +43,5 @@ public struct RuntimeDumpConfiguration {
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
         self.testsToRun = testsToRun
-    }
-    
-    public static func fromLocalRunTestConfiguration(_ configuration: LocalTestRunConfiguration)
-        -> RuntimeDumpConfiguration
-    {
-        return RuntimeDumpConfiguration(
-            fbxctest: configuration.auxiliaryResources.toolResources.fbxctest,
-            xcTestBundle: configuration.buildArtifacts.xcTestBundle,
-            simulatorSettings: configuration.simulatorSettings,
-            testDestination: configuration.testDestinations[0],
-            testsToRun: configuration.testsToRun)
-    }
-    
-    public static func fromDistRunConfiguration(_ configuration: DistRunConfiguration)
-        -> RuntimeDumpConfiguration
-    {
-        return RuntimeDumpConfiguration(
-            fbxctest: configuration.auxiliaryResources.toolResources.fbxctest,
-            xcTestBundle: configuration.buildArtifacts.xcTestBundle,
-            simulatorSettings: configuration.simulatorSettings,
-            testDestination: configuration.testDestinations[0],
-            testsToRun: configuration.testsToRun)
     }
 }

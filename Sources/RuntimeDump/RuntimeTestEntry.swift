@@ -1,11 +1,19 @@
 import Foundation
 
-public struct RuntimeTestEntry: Codable, CustomStringConvertible {
+public struct RuntimeTestEntry: Codable, CustomStringConvertible, Equatable {
     public let className: String
     public let path: String
     public let testMethods: [String]
     public let caseId: UInt?
     public let tags: [String]
+
+    public init(className: String, path: String, testMethods: [String], caseId: UInt?, tags: [String]) {
+        self.className = className
+        self.path = path
+        self.testMethods = testMethods
+        self.caseId = caseId
+        self.tags = tags
+    }
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

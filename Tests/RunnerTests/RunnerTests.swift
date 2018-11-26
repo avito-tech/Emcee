@@ -130,7 +130,7 @@ public final class RunnerTests: XCTestCase {
             testType: .logicTest,
             fbxctest: FbxctestLocation(.localFilePath(fbxctest)),
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
-            testExecutionBehavior: TestExecutionBehavior(
+            testRunExecutionBehavior: TestRunExecutionBehavior(
                 numberOfRetries: 1,
                 numberOfSimulators: 1,
                 environment: ["EMCEE_TESTS_RUN_ID": runId],

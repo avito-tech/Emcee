@@ -10,6 +10,7 @@ import ResourceLocationResolver
 import RuntimeDump
 import Scheduler
 import ScheduleStrategy
+import TempFolder
 import Utility
 
 final class DumpRuntimeTestsCommand: Command {
@@ -52,7 +53,8 @@ final class DumpRuntimeTestsCommand: Command {
         let runtimeTests = try RuntimeTestQuerier(
             eventBus: EventBus(),
             configuration: configuration,
-            resourceLocationResolver: resourceLocationResolver)
+            resourceLocationResolver: resourceLocationResolver,
+            tempFolder: try TempFolder())
             .queryRuntime()
         let encodedTests = try encoder.encode(runtimeTests.availableRuntimeTests)
         try encodedTests.write(to: URL(fileURLWithPath: output), options: [.atomic])

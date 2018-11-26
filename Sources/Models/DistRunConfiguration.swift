@@ -21,7 +21,7 @@ public struct DistRunConfiguration {
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     
     /** Deifnes the behavior of the test run. */
-    public let testExecutionBehavior: TestExecutionBehavior
+    public let testRunExecutionBehavior: TestRunExecutionBehavior
     
     /** Paths that are required to make things work. */
     public let auxiliaryResources: AuxiliaryResources
@@ -33,7 +33,7 @@ public struct DistRunConfiguration {
     public let simulatorSettings: SimulatorSettings
     
     /** All test that must be run by the test runner. */
-    public let testsToRun: [TestToRun]
+    public let testEntries: [TestEntry]
     
     /** Test destination configurations for the test run.  */
     public let testDestinationConfigurations: [TestDestinationConfiguration]
@@ -48,11 +48,11 @@ public struct DistRunConfiguration {
         destinationConfigurations: [DestinationConfiguration],
         remoteScheduleStrategyType: ScheduleStrategyType,
         testTimeoutConfiguration: TestTimeoutConfiguration,
-        testExecutionBehavior: TestExecutionBehavior,
+        testRunExecutionBehavior: TestRunExecutionBehavior,
         auxiliaryResources: AuxiliaryResources,
         buildArtifacts: BuildArtifacts,
         simulatorSettings: SimulatorSettings,
-        testsToRun: [TestToRun],
+        testEntries: [TestEntry],
         testDestinationConfigurations: [TestDestinationConfiguration])
     {
         self.runId = runId
@@ -61,11 +61,11 @@ public struct DistRunConfiguration {
         self.destinationConfigurations = destinationConfigurations
         self.remoteScheduleStrategyType = remoteScheduleStrategyType
         self.testTimeoutConfiguration = testTimeoutConfiguration
-        self.testExecutionBehavior = testExecutionBehavior
+        self.testRunExecutionBehavior = testRunExecutionBehavior
         self.auxiliaryResources = auxiliaryResources
         self.buildArtifacts = buildArtifacts
         self.simulatorSettings = simulatorSettings
-        self.testsToRun = testsToRun
+        self.testEntries = testEntries
         self.testDestinationConfigurations = testDestinationConfigurations
     }
     
@@ -75,17 +75,17 @@ public struct DistRunConfiguration {
     
     public func workerConfiguration(destination: DeploymentDestination) -> WorkerConfiguration {
         return WorkerConfiguration(
-            testExecutionBehavior: testExecutionBehavior(destination: destination),
+            testRunExecutionBehavior: testRunExecutionBehavior(destination: destination),
             testTimeoutConfiguration: testTimeoutConfiguration,
             reportAliveInterval: reportAliveInterval)
     }
     
-    private func testExecutionBehavior(destination: DeploymentDestination) -> TestExecutionBehavior {
+    private func testRunExecutionBehavior(destination: DeploymentDestination) -> TestRunExecutionBehavior {
         let overrides = destinationConfigurations.first { $0.destinationIdentifier == destination.identifier }
-        return TestExecutionBehavior(
-            numberOfRetries: testExecutionBehavior.numberOfRetries,
-            numberOfSimulators: overrides?.numberOfSimulators ?? testExecutionBehavior.numberOfSimulators,
-            environment: testExecutionBehavior.environment,
-            scheduleStrategy: testExecutionBehavior.scheduleStrategy)
+        return TestRunExecutionBehavior(
+            numberOfRetries: testRunExecutionBehavior.numberOfRetries,
+            numberOfSimulators: overrides?.numberOfSimulators ?? testRunExecutionBehavior.numberOfSimulators,
+            environment: testRunExecutionBehavior.environment,
+            scheduleStrategy: testRunExecutionBehavior.scheduleStrategy)
     }
 }

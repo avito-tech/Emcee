@@ -2,7 +2,6 @@ import Foundation
 import Deployer
 import Extensions
 import Models
-import PluginManager
 
 public final class DeployablesGenerator {
     let targetAvitoRunnerPath: String

@@ -106,7 +106,6 @@ let package = Package(
                 "LaunchdUtils",
                 "Logging",
                 "Models",
-                "PluginManager",
                 "RESTMethods",
                 "RuntimeDump",
                 "ScheduleStrategy",
@@ -115,7 +114,6 @@ let package = Package(
                 "SynchronousWaiter",
                 "TempFolder",
                 "Timer",
-                "Utility",
                 "WorkerAlivenessTracker"
             ]),
         .testTarget(
@@ -380,6 +378,16 @@ let package = Package(
                 "EventBus",
                 "Models",
                 "Runner",
+                "TempFolder"
+            ]),
+        .testTarget(
+            name: "RuntimeDumpTests",
+            dependencies: [
+                "Models",
+                "ModelsTestHelpers",
+                "ResourceLocationResolver",
+                "RuntimeDump",
+                "TestingFakeFbxctest",
                 "TempFolder"
             ]),
         
