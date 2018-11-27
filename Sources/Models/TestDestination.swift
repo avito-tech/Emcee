@@ -1,13 +1,18 @@
 import Foundation
 
 public struct TestDestination: Hashable, CustomStringConvertible, Codable {
-    /** Device type */
+    /// Device type
     public let deviceType: String
     
-    /** Runtime version */
+    /// Runtime version
     public let runtime: String
     
-    /** Defines how many resources is required for each test. */
+    /// Backwards compatibility
+    public var iOSVersion: String {
+        return runtime
+    }
+    
+    /// Defines how many resources is required for each test
     public let resourceRequirement: Int
     
     public static let defaultResourceRequirement = 1
