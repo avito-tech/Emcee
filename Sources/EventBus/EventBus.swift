@@ -1,5 +1,6 @@
 import Dispatch
 import Foundation
+import Logging
 import Models
 
 public final class EventBus {
@@ -15,12 +16,14 @@ public final class EventBus {
     }
     
     public func post(event: BusEvent) {
+        log("\(self): posting event: \(event)")
         forEachStream { stream in
             stream.process(event: event)
         }
     }
     
     public func waitForDeliveryOfAllPendingEvents() {
+        log("\(self): waiting for delivery of all pending events")
         workQueue.sync {}
     }
     

@@ -32,6 +32,7 @@ public final class QueueClient {
     }
     
     public func close() {
+        log("Invalidating queue client URL session")
         urlSession.invalidateAndCancel()
     }
     

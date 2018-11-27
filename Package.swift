@@ -161,8 +161,9 @@ let package = Package(
         .target(
             name: "EventBus",
             dependencies: [
+                "Logging",
                 "Models",
-                ]),
+            ]),
         .testTarget(
             name: "EventBusTests",
             dependencies: [

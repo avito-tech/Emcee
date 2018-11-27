@@ -90,6 +90,7 @@ public final class DistWorker {
             tempFolder: tempFolder,
             resourceLocationResolver: resourceLocationResolver)
         let eventStreamProcessor = EventStreamProcessor { [weak self] testingResult in
+            log("Obtained testingResult: \(testingResult)")
             self?.didReceiveTestResult(testingResult: testingResult)
         }
         eventBus.add(stream: eventStreamProcessor)
