@@ -1,8 +1,8 @@
 import Models
 
 public final class TestHistoryTrackerImpl: TestHistoryTracker {
-    private var testHistoryStorage: TestHistoryStorage
-    private var numberOfAttemptsToRunTests: UInt
+    private let testHistoryStorage: TestHistoryStorage
+    private let numberOfAttemptsToRunTests: UInt
     
     public init(
         numberOfRetries: UInt,
@@ -74,7 +74,7 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
             unfilteredResults: resultsOfSuccessfulTests + resultsOfFailedTests
         )
         
-        // Every failed test produce a single bucket with itself
+        // Every failed test produces a single bucket with itself
         let bucketsToReenqueue = resultsOfTestsToRetry.map { testEntryResult in
             Bucket(
                 testEntries: [testEntryResult.testEntry],
@@ -142,11 +142,8 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         -> Bool
     {
         let testEntryHistoryId = TestEntryHistoryId(testEntry: testEntry, bucket: bucket)
+        let testEntryHistory = testHistoryStorage.history(id: testEntryHistoryId)
         
-        if let testEntryHistory = testHistoryStorage.history(id: testEntryHistoryId) {
-            return whereItWasFailing(testEntryHistory)
-        } else {
-            return false
-        }
+        return whereItWasFailing(testEntryHistory)
     }
 }

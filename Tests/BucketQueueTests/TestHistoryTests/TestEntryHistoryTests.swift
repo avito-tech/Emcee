@@ -12,7 +12,7 @@ final class TestEntryHistoryTests: XCTestCase {
     func test___isFailingOnWorker___is_false___without_history() {
         let testEntryHistory = TestEntryHistory(
             id: fixtures.testEntryHistoryId(),
-            testRunHistory: []
+            testEntryHistoryItems: []
         )
         
         XCTAssertEqual(
@@ -24,9 +24,9 @@ final class TestEntryHistoryTests: XCTestCase {
     func test___isFailingOnWorker___is_true___with_history_of_fails() {
         let testEntryHistory = TestEntryHistory(
             id: fixtures.testEntryHistoryId(),
-            testRunHistory: [
-                fixtures.testRunHistoryItem(success: false, workerId: "fail"),
-                fixtures.testRunHistoryItem(success: true, workerId: "success")
+            testEntryHistoryItems: [
+                fixtures.testEntryHistoryItem(success: false, workerId: "fail"),
+                fixtures.testEntryHistoryItem(success: true, workerId: "success") // not really required for the test, but... why not
             ]
         )
         
@@ -39,9 +39,9 @@ final class TestEntryHistoryTests: XCTestCase {
     func test___isFailingOnWorker___is_true___without_history_of_fails() {
         let testEntryHistory = TestEntryHistory(
             id: fixtures.testEntryHistoryId(),
-            testRunHistory: [
-                fixtures.testRunHistoryItem(success: false, workerId: "fail"),
-                fixtures.testRunHistoryItem(success: true, workerId: "success")
+            testEntryHistoryItems: [
+                fixtures.testEntryHistoryItem(success: false, workerId: "fail"), // not really required for the test, but... why not
+                fixtures.testEntryHistoryItem(success: true, workerId: "success")
             ]
         )
         
@@ -58,10 +58,10 @@ final class TestEntryHistoryTests: XCTestCase {
     func test___isFailingOnWorker___is_false___with_successes_and_failures_mixed_in_history() {
         let testEntryHistory = TestEntryHistory(
             id: fixtures.testEntryHistoryId(),
-            testRunHistory: [
-                fixtures.testRunHistoryItem(success: false, workerId: "mixed"),
-                fixtures.testRunHistoryItem(success: true, workerId: "mixed"),
-                fixtures.testRunHistoryItem(success: false, workerId: "mixed")
+            testEntryHistoryItems: [
+                fixtures.testEntryHistoryItem(success: false, workerId: "mixed"),
+                fixtures.testEntryHistoryItem(success: true, workerId: "mixed"),
+                fixtures.testEntryHistoryItem(success: false, workerId: "mixed")
             ]
         )
         
@@ -74,7 +74,7 @@ final class TestEntryHistoryTests: XCTestCase {
     func test___numberOfAttempts___is_zero___initially() {
         let testEntryHistory = TestEntryHistory(
             id: fixtures.testEntryHistoryId(),
-            testRunHistory: []
+            testEntryHistoryItems: []
         )
         
         XCTAssertEqual(
@@ -86,10 +86,10 @@ final class TestEntryHistoryTests: XCTestCase {
     func test___numberOfAttempts___is_correct___with_history() {
         let testEntryHistory = TestEntryHistory(
             id: fixtures.testEntryHistoryId(),
-            testRunHistory: [
-                fixtures.testRunHistoryItem(success: false, workerId: "mixed"),
-                fixtures.testRunHistoryItem(success: true, workerId: "mixed"),
-                fixtures.testRunHistoryItem(success: false, workerId: "mixed")
+            testEntryHistoryItems: [
+                fixtures.testEntryHistoryItem(success: false, workerId: "mixed"),
+                fixtures.testEntryHistoryItem(success: true, workerId: "mixed"),
+                fixtures.testEntryHistoryItem(success: false, workerId: "mixed")
             ]
         )
         

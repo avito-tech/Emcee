@@ -9,24 +9,15 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
     private let failingWorkerId = "failingWorkerId"
     private let notFailingWorkerId = "notFailingWorkerId"
     
-    private var aliveWorkers: [String] {
-        return [failingWorkerId, notFailingWorkerId]
-    }
+    private lazy var aliveWorkers = [failingWorkerId, notFailingWorkerId]
     
     private let oneFailResultsFixtures = TestingResultFixtures()
         .addingResult(success: false)
     
-    private lazy var noRetriesTestHistoryTracker = TestHistoryTrackerImpl(
-        numberOfRetries: 0,
-        testHistoryStorage: TestHistoryStorageImpl()
-    )
+    private lazy var noRetriesTestHistoryTracker = TestHistoryTrackerFixtures.testHistoryTracker(numberOfRetries: 0)
+    private lazy var oneRetryTestHistoryTracker = TestHistoryTrackerFixtures.testHistoryTracker(numberOfRetries: 1)
     
-    private lazy var oneRetryTestHistoryTracker = TestHistoryTrackerImpl(
-        numberOfRetries: 1,
-        testHistoryStorage: TestHistoryStorageImpl()
-    )
-    
-    private lazy var mockedStorage = TestHistoryStorageMock()
+    private let mockedStorage = TestHistoryStorageMock()
     private lazy var mockedStorageTestHistoryTracker = TestHistoryTrackerImpl(
         numberOfRetries: 1,
         testHistoryStorage: mockedStorage

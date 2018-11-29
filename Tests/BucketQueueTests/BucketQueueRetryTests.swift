@@ -18,10 +18,12 @@ final class BucketQueueRetryTests: XCTestCase {
             try dequeueTestAndFail(bucketQueue: bucketQueue, workerId: failingWorker)
             
             // Then we give work to another worker
-            XCTAssertEqual(
-                bucketQueue.dequeueBucket(requestId: "1", workerId: failingWorker),
-                DequeueResult.nothingToDequeueAtTheMoment
-            )
+            let dequeueResultForFailingWorker = bucketQueue.dequeueBucket(requestId: "1", workerId: failingWorker)
+            if case .checkAgainLater = dequeueResultForFailingWorker {
+                // pass
+            } else {
+                XCTFail("Expected dequeueResult == .checkAgainLater, got: \(dequeueResultForFailingWorker)")
+            }
             
             XCTAssertEqual(
                 bucketQueue.dequeueBucket(requestId: "2", workerId: anotherWorker),

@@ -5,15 +5,15 @@ import ModelsTestHelpers
 final class TestHistoryStorageMock: TestHistoryStorage {
     var historyByTest = [TestEntryHistoryId: TestEntryHistory]()
     
-    func set(id: TestEntryHistoryId, testRunHistory: [TestRunHistoryItem]) {
+    func set(id: TestEntryHistoryId, testEntryHistoryItems: [TestEntryHistoryItem]) {
         historyByTest[id] = TestEntryHistory(
             id: id,
-            testRunHistory: testRunHistory
+            testEntryHistoryItems: testEntryHistoryItems
         )
     }
     
-    func history(id: TestEntryHistoryId) -> TestEntryHistory? {
-        return historyByTest[id]
+    func history(id: TestEntryHistoryId) -> TestEntryHistory {
+        return historyByTest[id] ?? TestEntryHistory(id: id, testEntryHistoryItems: [])
     }
     
     // Registers attempt, returns updated history of test entry
@@ -27,7 +27,7 @@ final class TestHistoryStorageMock: TestHistoryStorage {
         let fixtures = TestEntryHistoryFixtures(testEntry: TestEntryFixtures.testEntry())
         return TestEntryHistory(
             id: fixtures.testEntryHistoryId(),
-            testRunHistory: []
+            testEntryHistoryItems: []
         )
     }
 }

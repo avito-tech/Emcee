@@ -18,8 +18,8 @@ final class TestEntryHistoryFixtures {
         )
     }
     
-    func testRunHistoryItem(success: Bool = true, workerId: String = "doesn't matter") -> TestRunHistoryItem {
-        return TestRunHistoryItem(
+    func testEntryHistoryItem(success: Bool = true, workerId: String = "doesn't matter") -> TestEntryHistoryItem {
+        return TestEntryHistoryItem(
             result: TestEntryResult.withResults(
                 testEntry: testEntry,
                 testRunResults: [

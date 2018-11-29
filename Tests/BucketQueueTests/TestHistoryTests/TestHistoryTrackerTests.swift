@@ -5,14 +5,14 @@ import ModelsTestHelpers
 import XCTest
 
 final class TestHistoryTests: XCTestCase {
-    private lazy var storage = TestHistoryStorageMock()
+    private let storage = TestHistoryStorageMock()
     private lazy var tracker = TestHistoryTrackerImpl(
         numberOfRetries: 1,
         testHistoryStorage: storage
     )
     
-    private lazy var firstTest = TestEntryFixtures.testEntry(className: "first")
-    private lazy var secondTest = TestEntryFixtures.testEntry(className: "second")
+    private let firstTest = TestEntryFixtures.testEntry(className: "first")
+    private let secondTest = TestEntryFixtures.testEntry(className: "second")
     private lazy var twoTestsBucket: Bucket = BucketFixtures.createBucket(testEntries: [firstTest, secondTest])
     private lazy var firstTestFixtures = TestEntryHistoryFixtures(testEntry: firstTest, bucket: self.twoTestsBucket)
     private lazy var secondTestFixtures = TestEntryHistoryFixtures(testEntry: secondTest, bucket: self.twoTestsBucket)
@@ -21,11 +21,11 @@ final class TestHistoryTests: XCTestCase {
         // Given
         storage.set(
             id: firstTestFixtures.testEntryHistoryId(),
-            testRunHistory: [firstTestFixtures.testRunHistoryItem(success: true, workerId: "1")]
+            testEntryHistoryItems: [firstTestFixtures.testEntryHistoryItem(success: true, workerId: "1")]
         )
         storage.set(
             id: secondTestFixtures.testEntryHistoryId(),
-            testRunHistory: [secondTestFixtures.testRunHistoryItem(success: false, workerId: "1")]
+            testEntryHistoryItems: [secondTestFixtures.testEntryHistoryItem(success: false, workerId: "1")]
         )
         
         // When
@@ -43,7 +43,7 @@ final class TestHistoryTests: XCTestCase {
         // Given
         storage.set(
             id: firstTestFixtures.testEntryHistoryId(),
-            testRunHistory: [firstTestFixtures.testRunHistoryItem(success: false, workerId: "1")]
+            testEntryHistoryItems: [firstTestFixtures.testEntryHistoryItem(success: false, workerId: "1")]
         )
         
         // When

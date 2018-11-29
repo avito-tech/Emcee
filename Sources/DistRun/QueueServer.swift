@@ -17,7 +17,7 @@ public final class QueueServer {
     private let resultsCollector = ResultsCollector()
     private let workerAlivenessTracker: WorkerAlivenessTracker
     private let workerRegistrar: WorkerRegistrar
-    private let stuckBucketsEnqueuer: StuckBucketsPoller
+    private let stuckBucketsPoller: StuckBucketsPoller
     private let newWorkerRegistrationTimeAllowance: TimeInterval
     private let queueExhaustTimeAllowance: TimeInterval
     
@@ -38,7 +38,7 @@ public final class QueueServer {
                 testHistoryStorage: TestHistoryStorageImpl()
             )
         )
-        self.stuckBucketsEnqueuer = StuckBucketsPoller(bucketQueue: bucketQueue)
+        self.stuckBucketsPoller = StuckBucketsPoller(bucketQueue: bucketQueue)
         self.bucketProvider = BucketProviderEndpoint(bucketQueue: bucketQueue)
         self.bucketResultRegistrar = BucketResultRegistrar(bucketQueue: bucketQueue, eventBus: eventBus, resultsCollector: resultsCollector, workerAlivenessTracker: workerAlivenessTracker)
         self.newWorkerRegistrationTimeAllowance = newWorkerRegistrationTimeAllowance
@@ -52,7 +52,7 @@ public final class QueueServer {
             bucketResultHandler: RESTEndpointOf(actualHandler: bucketResultRegistrar),
             reportAliveHandler: RESTEndpointOf(actualHandler: WorkerAlivenessEndpoint(alivenessTracker: workerAlivenessTracker)))
         
-        stuckBucketsEnqueuer.startTrackingStuckBuckets()
+        stuckBucketsPoller.startTrackingStuckBuckets()
         
         let port = try restServer.start()
         log("Started queue server on port \(port)")

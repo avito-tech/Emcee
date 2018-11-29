@@ -18,13 +18,13 @@ final class BucketProviderTests: XCTestCase {
     }
     
     func test__reponse_is_check_again__if_queue_has_dequeued_buckets() throws {
-        let bucketQueue = FakeBucketQueue(fixedDequeueResult: .nothingToDequeueAtTheMoment)
+        let bucketQueue = FakeBucketQueue(fixedDequeueResult: .checkAgainLater(checkAfter: 42))
         let bucketProvider = BucketProviderEndpoint(bucketQueue: bucketQueue)
         
         let response = try bucketProvider.handle(decodedRequest: fetchRequest)
         switch response {
         case .checkAgainLater(let checkAfter):
-            XCTAssertTrue(checkAfter > 0)
+            XCTAssertEqual(checkAfter, 42)
         default: XCTFail("Unexpecred response: \(response)")
         }
     }

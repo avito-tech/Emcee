@@ -6,8 +6,9 @@ public final class TestHistoryStorageImpl: TestHistoryStorage {
     public init() {
     }
     
-    public func history(id: TestEntryHistoryId) -> TestEntryHistory? {
+    public func history(id: TestEntryHistoryId) -> TestEntryHistory {
         return historyByTest[id]
+            ?? TestEntryHistory(id: id, testEntryHistoryItems: [])
     }
     
     public func registerAttempt(
@@ -18,17 +19,17 @@ public final class TestHistoryStorageImpl: TestHistoryStorage {
     {
         let history = historyByTest[
             id,
-            default: TestEntryHistory(id: id, testRunHistory: [])
+            default: TestEntryHistory(id: id, testEntryHistoryItems: [])
         ]
         
-        let newItem = TestRunHistoryItem(
+        let newItem = TestEntryHistoryItem(
             result: testEntryResult,
             workerId: workerId
         )
         
         let newHistory = TestEntryHistory(
             id: id,
-            testRunHistory: history.testRunHistory + [newItem]
+            testEntryHistoryItems: history.testEntryHistoryItems + [newItem]
         )
         
         historyByTest[id] = newHistory

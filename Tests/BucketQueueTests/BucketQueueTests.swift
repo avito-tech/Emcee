@@ -72,7 +72,7 @@ final class BucketQueueTests: XCTestCase {
         XCTAssertEqual(dequeueResult, .queueIsEmpty)
     }
     
-    func test__reponse_nothingToDequeueAtTheMoment__when_queue_has_dequeued_buckets() {
+    func test__reponse_checkAgainLater__when_queue_has_dequeued_buckets() {
         let bucket = BucketFixtures.createBucket(testEntries: [])
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults)
@@ -80,7 +80,12 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(requestId: requestId, workerId: workerId)
         
         let dequeueResult = bucketQueue.dequeueBucket(requestId: "some other request", workerId: workerId)
-        XCTAssertEqual(dequeueResult, .nothingToDequeueAtTheMoment)
+        
+        if case .checkAgainLater = dequeueResult {
+            // pass
+        } else {
+            XCTFail("Expected dequeueResult == .checkAgainLater, got: \(dequeueResult)")
+        }
     }
     
     func test__reponse_workerBlocked__when_worker_is_blocked() {

@@ -22,6 +22,6 @@ public final class ToolResources: Codable, Hashable, CustomStringConvertible {
     }
     
     public var description: String {
-        return "<\((type(of: self))) fbsimctl: \(fbsimctl), fbxctest: \(fbxctest)>"
+        return "<\((type(of: self))), \(fbsimctl), \(fbxctest)>"
     }
 }
