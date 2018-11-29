@@ -30,7 +30,8 @@ public final class DistRunner {
         let queueServer = QueueServer(
             eventBus: eventBus,
             workerConfigurations: createWorkerConfigurations(),
-            reportAliveInterval: distRunConfiguration.reportAliveInterval)
+            reportAliveInterval: distRunConfiguration.reportAliveInterval,
+            numberOfRetries: distRunConfiguration.testRunExecutionBehavior.numberOfRetries)
         queueServer.add(buckets: try prepareQueue())
         let port = try queueServer.start()
         try distRunDeployer.deployAndStartLaunchdJob(serverPort: port)

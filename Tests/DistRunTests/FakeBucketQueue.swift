@@ -33,13 +33,15 @@ class FakeBucketQueue: BucketQueue {
         return fixedDequeueResult
     }
     
-    func accept(testingResult: TestingResult, requestId: String, workerId: String) throws {
+    func accept(testingResult: TestingResult, requestId: String, workerId: String) throws -> BucketQueueAcceptResult {
         if throwsOnAccept {
             throw AcceptanceError()
+        } else {
+            return BucketQueueAcceptResult(testingResultToCollect: testingResult)
         }
     }
     
-    func removeStuckBuckets() -> [StuckBucket] {
+    func reenqueueStuckBuckets() -> [StuckBucket] {
         return fixedStuckBuckets
     }
 }

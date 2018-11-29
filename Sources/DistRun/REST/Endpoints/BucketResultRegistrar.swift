@@ -29,13 +29,15 @@ public final class BucketResultRegistrar: RESTEndpoint {
 
     public func handle(decodedRequest: BucketResultRequest) throws -> RESTResponse {
         do {
-            try bucketQueue.accept(
+            let acceptResult = try bucketQueue.accept(
                 testingResult: decodedRequest.testingResult,
                 requestId: decodedRequest.requestId,
                 workerId: decodedRequest.workerId)
-            resultsCollector.append(testingResult: decodedRequest.testingResult)
-            eventBus.post(event: .didObtainTestingResult(decodedRequest.testingResult))
+            
+            resultsCollector.append(testingResult: acceptResult.testingResultToCollect)
+            eventBus.post(event: .didObtainTestingResult(acceptResult.testingResultToCollect))
             BucketQueueStateLogger(state: bucketQueue.state).logQueueSize()
+            
             return .bucketResultAccepted(bucketId: decodedRequest.testingResult.bucketId)
         } catch {
             workerAlivenessTracker.blockWorker(workerId: decodedRequest.workerId)

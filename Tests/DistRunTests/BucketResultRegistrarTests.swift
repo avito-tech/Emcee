@@ -10,9 +10,10 @@ import XCTest
 final class BucketResultRegistrarTests: XCTestCase {
     let eventBus = EventBus()
     let resultsCollector = ResultsCollector()
-    let testingResult = TestingResultFixtures.createTestingResult(
-        unfilteredResults: [
-            TestEntryResult.lost(testEntry: TestEntry(className: "class", methodName: "method", caseId: nil))])
+    let testingResult = TestingResultFixtures()
+        .with(testEntry: TestEntry(className: "class", methodName: "method", caseId: nil))
+        .addingLostResult()
+        .testingResult()
 
     func test__results_collector_receives_results__if_bucket_queue_accepts_results() {
         let bucketQueue = FakeBucketQueue(throwsOnAccept: false)

@@ -1,7 +1,7 @@
 import Extensions
 import Foundation
 
-public final class Bucket: Codable, CustomStringConvertible, Hashable {
+public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStringConvertible {
     public let bucketId: String
     public let testEntries: [TestEntry]
     public let testDestination: TestDestination
@@ -45,7 +45,11 @@ public final class Bucket: Codable, CustomStringConvertible, Hashable {
     }
     
     public var description: String {
-        return "<\((type(of: self))) \(bucketId) \(testDestination), \(testEntries.count) tests>"
+        return "<\((type(of: self))) \(bucketId), \(testEntries.count) tests>"
+    }
+    
+    public var debugDescription: String {
+        return "<\((type(of: self))) \(bucketId.debugDescription) \(testDestination), \(toolResources), \(buildArtifacts), \(testEntries.debugDescription)>"
     }
     
     public var hashValue: Int {

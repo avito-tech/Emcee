@@ -17,7 +17,7 @@ public final class QueueServer {
     private let resultsCollector = ResultsCollector()
     private let workerAlivenessTracker: WorkerAlivenessTracker
     private let workerRegistrar: WorkerRegistrar
-    private let stuckBucketsEnqueuer: StuckBucketsEnqueuer
+    private let stuckBucketsEnqueuer: StuckBucketsPoller
     private let newWorkerRegistrationTimeAllowance: TimeInterval
     private let queueExhaustTimeAllowance: TimeInterval
     
@@ -25,13 +25,20 @@ public final class QueueServer {
         eventBus: EventBus,
         workerConfigurations: WorkerConfigurations,
         reportAliveInterval: TimeInterval,
+        numberOfRetries: UInt,
         newWorkerRegistrationTimeAllowance: TimeInterval = 60.0,
         queueExhaustTimeAllowance: TimeInterval = .infinity)
     {
         self.workerAlivenessTracker = WorkerAlivenessTracker(reportAliveInterval: reportAliveInterval, additionalTimeToPerformWorkerIsAliveReport: 10.0)
         self.workerRegistrar = WorkerRegistrar(workerConfigurations: workerConfigurations, workerAlivenessTracker: workerAlivenessTracker)
-        self.bucketQueue = BucketQueueFactory.create(workerAlivenessProvider: workerAlivenessTracker)
-        self.stuckBucketsEnqueuer = StuckBucketsEnqueuer(bucketQueue: bucketQueue)
+        self.bucketQueue = BucketQueueFactory.create(
+            workerAlivenessProvider: workerAlivenessTracker,
+            testHistoryTracker: TestHistoryTrackerImpl(
+                numberOfRetries: numberOfRetries,
+                testHistoryStorage: TestHistoryStorageImpl()
+            )
+        )
+        self.stuckBucketsEnqueuer = StuckBucketsPoller(bucketQueue: bucketQueue)
         self.bucketProvider = BucketProviderEndpoint(bucketQueue: bucketQueue)
         self.bucketResultRegistrar = BucketResultRegistrar(bucketQueue: bucketQueue, eventBus: eventBus, resultsCollector: resultsCollector, workerAlivenessTracker: workerAlivenessTracker)
         self.newWorkerRegistrationTimeAllowance = newWorkerRegistrationTimeAllowance

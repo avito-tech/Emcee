@@ -1,6 +1,6 @@
 import Foundation
 
-public final class ToolResources: Codable, Hashable {
+public final class ToolResources: Codable, Hashable, CustomStringConvertible {
     /// Location of fbsimctl tool.
     public let fbsimctl: FbsimctlLocation
     
@@ -19,5 +19,9 @@ public final class ToolResources: Codable, Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(fbsimctl)
         hasher.combine(fbxctest)
+    }
+    
+    public var description: String {
+        return "<\((type(of: self))) fbsimctl: \(fbsimctl), fbxctest: \(fbxctest)>"
     }
 }

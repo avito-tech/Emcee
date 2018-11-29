@@ -59,9 +59,12 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     func test__ResultHandler() throws {
         let alivenessTracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
         let bucketQueue = FakeBucketQueue(throwsOnAccept: false)
-        let testingResult = TestingResultFixtures.createTestingResult(unfilteredResults: [
-            TestEntryResult.lost(testEntry: TestEntry(className: "class1", methodName: "m1", caseId: nil)),
-            TestEntryResult.lost(testEntry: TestEntry(className: "class2", methodName: "m2", caseId: nil))])
+        let testingResult = TestingResultFixtures()
+            .with(testEntry: TestEntry(className: "class1", methodName: "m1", caseId: nil))
+            .addingLostResult()
+            .with(testEntry: TestEntry(className: "class2", methodName: "m2", caseId: nil))
+            .addingLostResult()
+            .testingResult()
         
         let resultsCollector = ResultsCollector()
         

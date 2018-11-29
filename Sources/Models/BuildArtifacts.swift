@@ -1,6 +1,6 @@
 import Foundation
 
-public final class BuildArtifacts: Codable {
+public final class BuildArtifacts: Codable, Hashable, CustomStringConvertible {
     /// Location of app bundle
     public let appBundle: AppBundleLocation
     
@@ -31,5 +31,23 @@ public final class BuildArtifacts: Codable {
             runner: RunnerAppLocation(.localFilePath("")),
             xcTestBundle: xcTestBundle,
             additionalApplicationBundles: [])
+    }
+    
+    public static func ==(left: BuildArtifacts, right: BuildArtifacts) -> Bool {
+        return left.appBundle == right.appBundle
+            && left.runner == right.runner
+            && left.xcTestBundle == right.xcTestBundle
+            && left.additionalApplicationBundles == right.additionalApplicationBundles
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(appBundle)
+        hasher.combine(runner)
+        hasher.combine(xcTestBundle)
+        hasher.combine(additionalApplicationBundles)
+    }
+    
+    public var description: String {
+        return "<\((type(of: self))) appBundle: \(appBundle), runner: \(runner), xcTestBundle: \(xcTestBundle), additionalApplicationBundles: \(additionalApplicationBundles)>"
     }
 }

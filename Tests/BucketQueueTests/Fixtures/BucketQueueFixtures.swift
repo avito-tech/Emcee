@@ -1,13 +1,14 @@
 import Foundation
 import WorkerAlivenessTracker
+import BucketQueue
 
-public final class BucketQueueFactory {
-    public static func create(
+final class BucketQueueFixtures {
+    static func bucketQueue(
         workerAlivenessProvider: WorkerAlivenessProvider,
-        testHistoryTracker: TestHistoryTracker)
+        testHistoryTracker: TestHistoryTracker = TestHistoryTrackerFixtures.testHistoryTracker())
         -> BucketQueue
     {
-        return BucketQueueImpl(
+        return BucketQueueFactory.create(
             workerAlivenessProvider: workerAlivenessProvider,
             testHistoryTracker: testHistoryTracker
         )

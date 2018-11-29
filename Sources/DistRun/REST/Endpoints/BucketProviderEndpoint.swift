@@ -23,7 +23,7 @@ public final class BucketProviderEndpoint: RESTEndpoint {
         switch dequeueResult {
         case .queueIsEmpty:
             return .queueIsEmpty
-        case .queueIsEmptyButNotAllResultsAreAvailable:
+        case .nothingToDequeueAtTheMoment:
             return .checkAgainLater(checkAfter: 30.0)
         case .dequeuedBucket(let dequeuedBucket):
             BucketQueueStateLogger(state: bucketQueue.state).logQueueSize()

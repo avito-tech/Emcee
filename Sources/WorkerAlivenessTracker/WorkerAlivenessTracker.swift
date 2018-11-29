@@ -32,31 +32,32 @@ public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
         }
     }
     
-    public func alivenessForWorker(workerId: String) -> WorkerAliveness {
+    public var workerAliveness: [String: WorkerAliveness] {
         return syncQueue.sync {
-            guard let latestAliveDate = workerAliveReportTimestamps[workerId] else {
-                return .notRegistered
+            let uniqueWorkerIds = Set<String>(workerAliveReportTimestamps.keys).union(blockedWorkers)
+            
+            var workerAliveness = [String: WorkerAliveness]()
+            let currentDate = Date()
+            for id in uniqueWorkerIds {
+                workerAliveness[id] = alivenessForWorker(workerId: id, currentDate: currentDate)
             }
-            if blockedWorkers.contains(workerId) {
-                return .blocked
-            }
-            let silenceDuration = Date().timeIntervalSince(latestAliveDate)
-            if silenceDuration > maximumNotReportingDuration {
-                return .silent
-            } else {
-                return .alive
-            }
+            return workerAliveness
         }
     }
     
-    public var hasAnyAliveWorker: Bool {
-        let workers = syncQueue.sync { workerAliveReportTimestamps.keys }
-        for workerId in workers {
-            if alivenessForWorker(workerId: workerId) == .alive {
-                return true
-            }
+    private func alivenessForWorker(workerId: String, currentDate: Date) -> WorkerAliveness {
+        guard let latestAliveDate = workerAliveReportTimestamps[workerId] else {
+            return .notRegistered
         }
-        return false
+        if blockedWorkers.contains(workerId) {
+            return .blocked
+        }
+        let silenceDuration = Date().timeIntervalSince(latestAliveDate)
+        if silenceDuration > maximumNotReportingDuration {
+            return .silent
+        } else {
+            return .alive
+        }
     }
     
     private var maximumNotReportingDuration: TimeInterval {

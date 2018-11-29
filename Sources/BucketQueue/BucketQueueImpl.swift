@@ -7,75 +7,130 @@ import WorkerAlivenessTracker
 final class BucketQueueImpl: BucketQueue {
     private var enqueuedBuckets = [Bucket]()
     private var dequeuedBuckets = Set<DequeuedBucket>()
+    private let testHistoryTracker: TestHistoryTracker
     private let queue = DispatchQueue(label: "ru.avito.emcee.BucketQueue.queue")
     private let workerAlivenessProvider: WorkerAlivenessProvider
     
-    public init(workerAlivenessProvider: WorkerAlivenessProvider) {
+    public init(
+        workerAlivenessProvider: WorkerAlivenessProvider,
+        testHistoryTracker: TestHistoryTracker)
+    {
         self.workerAlivenessProvider = workerAlivenessProvider
+        self.testHistoryTracker = testHistoryTracker
     }
     
     public func enqueue(buckets: [Bucket]) {
         queue.sync {
-            self.enqueuedBuckets.append(contentsOf: buckets)
+            self.enqueueWhileOnSyncQueue(buckets: buckets)
         }
     }
     
     public var state: BucketQueueState {
         return queue.sync {
-            BucketQueueState(enqueuedBucketCount: enqueuedBuckets.count, dequeuedBucketCount: dequeuedBuckets.count)
+            return stateWhileOnSyncQueue
         }
+    }
+    
+    private var stateWhileOnSyncQueue: BucketQueueState {
+        return BucketQueueState(enqueuedBucketCount: enqueuedBuckets.count, dequeuedBucketCount: dequeuedBuckets.count)
     }
     
     public func dequeueBucket(requestId: String, workerId: String) -> DequeueResult {
-        if workerAlivenessProvider.alivenessForWorker(workerId: workerId) != .alive {
+        let workerAliveness = workerAlivenessProvider.workerAliveness
+        
+        if workerAliveness[workerId] != .alive {
             return .workerBlocked
         }
         
-        if let previouslyDequeuedBucket = previouslyDequeuedBucket(requestId: requestId, workerId: workerId) {
-            log("Provided previously dequeued bucket: \(previouslyDequeuedBucket)")
-            return .dequeuedBucket(previouslyDequeuedBucket)
+        return queue.sync {
+            // There might me problems with connection between workers and queue and connection may be lost.
+            // If same worker tries to perform same request again, return same result.
+            if let previouslyDequeuedBucket = previouslyDequeuedBucketWhileOnSyncQueue(requestId: requestId, workerId: workerId) {
+                log("Provided previously dequeued bucket: \(previouslyDequeuedBucket)")
+                return .dequeuedBucket(previouslyDequeuedBucket)
+            }
+            
+            if stateWhileOnSyncQueue.isDepleted {
+                return .queueIsEmpty
+            }
+            if stateWhileOnSyncQueue.enqueuedBucketCount == 0 {
+                return .nothingToDequeueAtTheMoment
+            }
+            
+            let bucketToDequeueOrNil = testHistoryTracker.bucketToDequeue(
+                workerId: workerId,
+                queue: enqueuedBuckets,
+                aliveWorkers: workerAliveness
+                    .filter { $0.value == .alive }
+                    .map { $0.key }
+            )
+            
+            if let bucket = bucketToDequeueOrNil {
+                return .dequeuedBucket(
+                    dequeueWhileOnSyncQueue(
+                        bucket: bucket,
+                        requestId: requestId,
+                        workerId: workerId
+                    )
+                )
+            } else {
+                return .nothingToDequeueAtTheMoment
+            }
         }
-        
-        let state = self.state
-        if state.isDepleted { return .queueIsEmpty }
-        if state.enqueuedBucketCount == 0 { return .queueIsEmptyButNotAllResultsAreAvailable }
-        
-        let bucket = pickBucket()
-        let dequeuedBucket = DequeuedBucket(bucket: bucket, workerId: workerId, requestId: requestId)
-        didDequeue(dequeuedBucket: dequeuedBucket)
-        return .dequeuedBucket(dequeuedBucket)
     }
     
-    public func accept(testingResult: TestingResult, requestId: String, workerId: String) throws {
-        log("Validating result from \(workerId): \(testingResult)")
-        
-        guard let dequeuedBucket = previouslyDequeuedBucket(requestId: requestId, workerId: workerId) else {
-            log("Validation failed: no dequeued bucket for request \(requestId) worker \(workerId)")
-            throw ResultAcceptanceError.noDequeuedBucket(requestId: requestId, workerId: workerId)
-        }
-        let requestTestEntries = Set(testingResult.unfilteredResults.map { $0.testEntry })
-        let expectedTestEntries = Set(dequeuedBucket.bucket.testEntries)
-        guard requestTestEntries == expectedTestEntries else {
-            log("Validation failed: unexpected result count for request \(requestId) worker \(workerId)")
-            throw ResultAcceptanceError.notAllResultsAvailable(
-                requestId: requestId,
-                workerId: workerId,
-                expectedTestEntries: dequeuedBucket.bucket.testEntries,
-                providedResults: testingResult.unfilteredResults)
-        }
-        
-        queue.sync {
+    public func accept(
+        testingResult: TestingResult,
+        requestId: String,
+        workerId: String)
+        throws
+        -> BucketQueueAcceptResult
+    {
+        return try queue.sync {
+            log("Validating result from \(workerId): \(testingResult)")
+            
+            guard let dequeuedBucket = previouslyDequeuedBucketWhileOnSyncQueue(requestId: requestId, workerId: workerId) else {
+                log("Validation failed: no dequeued bucket for request \(requestId) worker \(workerId)")
+                
+                throw ResultAcceptanceError.noDequeuedBucket(requestId: requestId, workerId: workerId)
+            }
+            
+            let requestTestEntries = Set(testingResult.unfilteredResults.map { $0.testEntry })
+            let expectedTestEntries = Set(dequeuedBucket.bucket.testEntries)
+            guard requestTestEntries == expectedTestEntries else {
+                log("Validation failed: unexpected result count for request \(requestId) worker \(workerId)")
+                throw ResultAcceptanceError.notAllResultsAvailable(
+                    requestId: requestId,
+                    workerId: workerId,
+                    expectedTestEntries: dequeuedBucket.bucket.testEntries,
+                    providedResults: testingResult.unfilteredResults)
+            }
+            
+            let acceptResult = testHistoryTracker.accept(
+                testingResult: testingResult,
+                bucket: dequeuedBucket.bucket,
+                workerId: workerId
+            )
+            
+            enqueueWhileOnSyncQueue(buckets: acceptResult.bucketsToReenqueue)
+            
             dequeuedBuckets.remove(dequeuedBucket)
             log("Accepted result for bucket '\(testingResult.bucketId)' from '\(workerId)', updated dequeued buckets: \(dequeuedBuckets.count): \(dequeuedBuckets)")
+            
+            return BucketQueueAcceptResult(
+                testingResultToCollect: acceptResult.testingResult
+            )
         }
     }
     
     /// Removes and returns any buckets that appear to be stuck, providing a reason why queue thinks bucket is stuck.
-    public func removeStuckBuckets() -> [StuckBucket] {
+    public func reenqueueStuckBuckets() -> [StuckBucket] {
+        let workerAliveness = workerAlivenessProvider.workerAliveness
+        
         return queue.sync {
             let allDequeuedBuckets = dequeuedBuckets
             let stuckBuckets: [StuckBucket] = allDequeuedBuckets.compactMap { dequeuedBucket in
-                let aliveness = workerAlivenessProvider.alivenessForWorker(workerId: dequeuedBucket.workerId)
+                let aliveness = workerAliveness[dequeuedBucket.workerId] ?? .notRegistered
                 switch aliveness {
                 case .alive:
                     return nil
@@ -89,26 +144,60 @@ final class BucketQueueImpl: BucketQueue {
                     return StuckBucket(reason: .workerIsSilent, bucket: dequeuedBucket.bucket, workerId: dequeuedBucket.workerId)
                 }
             }
+            
+            // Every failed test produce a single bucket with itself
+            let buckets = stuckBuckets.flatMap { stuckBucket in
+                stuckBucket.bucket.testEntries.map { testEntry in
+                    Bucket(
+                        testEntries: [testEntry],
+                        testDestination: stuckBucket.bucket.testDestination,
+                        toolResources: stuckBucket.bucket.toolResources,
+                        buildArtifacts: stuckBucket.bucket.buildArtifacts
+                    )
+                }
+            }
+            
+            enqueueWhileOnSyncQueue(buckets: buckets)
+            
             return stuckBuckets
         }
     }
     
-    private func didDequeue(dequeuedBucket: DequeuedBucket) {
-        queue.sync {
-            _ = dequeuedBuckets.insert(dequeuedBucket)
-            log("Dequeued new bucket: \(dequeuedBucket). Now there are \(dequeuedBuckets.count) dequeued buckets.")
-        }
+    private func enqueueWhileOnSyncQueue(buckets: [Bucket]) {
+        // For empty queue it just inserts buckets to the beginning,
+        //
+        // There is an optimization to insert additional (probably failed) buckets:
+        //
+        // If we insert new buckets to the end of the queue we will end up in a situation when
+        // there will be a tail of failing tests at the end of the queue.
+        //
+        // If we insert it in at the beginning there will be a little delay between retries,
+        // and, for example, some temporarily unavalable service in E2E won't stop failing yet.
+        //
+        // The ideal solution is to optimize the inserting position based on current queue,
+        // current number of retries etc. For example, spread retires evenly throughout whole run.
+        //
+        // This is not optimal:
+        //
+        let positionJustAfterNextBucket = 1
+        
+        let positionLimit = self.enqueuedBuckets.count
+        let positionToInsert = min(positionJustAfterNextBucket, positionLimit)
+        self.enqueuedBuckets.insert(contentsOf: buckets, at: positionToInsert)
     }
     
-    private func pickBucket() -> Bucket {
-        return queue.sync {
-            enqueuedBuckets.removeFirst()
-        }
+    private func dequeueWhileOnSyncQueue(bucket: Bucket, requestId: String, workerId: String) -> DequeuedBucket {
+        let dequeuedBucket = DequeuedBucket(bucket: bucket, workerId: workerId, requestId: requestId)
+        
+        enqueuedBuckets.removeAll(where: { $0 == bucket })
+        _ = dequeuedBuckets.insert(dequeuedBucket)
+        
+        log("Dequeued new bucket: \(dequeuedBucket). Now there are \(dequeuedBuckets.count) dequeued buckets.")
+        
+        return dequeuedBucket
     }
     
-    private func previouslyDequeuedBucket(requestId: String, workerId: String) -> DequeuedBucket? {
-        return queue.sync {
-            dequeuedBuckets.first { $0.requestId == requestId && $0.workerId == workerId }
-        }
+    private func previouslyDequeuedBucketWhileOnSyncQueue(requestId: String, workerId: String) -> DequeuedBucket? {
+        return dequeuedBuckets.first { $0.requestId == requestId && $0.workerId == workerId }
     }
 }

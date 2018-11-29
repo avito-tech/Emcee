@@ -18,6 +18,7 @@ final class QueueServerTests: XCTestCase {
             eventBus: EventBus(),
             workerConfigurations: workerConfigurations,
             reportAliveInterval: .infinity,
+            numberOfRetries: 0,
             newWorkerRegistrationTimeAllowance: 0.0)
         XCTAssertThrowsError(try server.waitForQueueToFinish())
     }
@@ -30,6 +31,7 @@ final class QueueServerTests: XCTestCase {
             eventBus: EventBus(),
             workerConfigurations: workerConfigurations,
             reportAliveInterval: .infinity,
+            numberOfRetries: 0,
             newWorkerRegistrationTimeAllowance: .infinity,
             queueExhaustTimeAllowance: 0.0)
         server.add(buckets: [bucket])
@@ -45,13 +47,17 @@ final class QueueServerTests: XCTestCase {
     func test__queue_resturns_results_after_depletion() throws {
         let testEntry = TestEntry(className: "class", methodName: "test", caseId: nil)
         let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
-        let testingResult = TestingResultFixtures.createTestingResult(
-            unfilteredResults: [TestEntryResult.lost(testEntry: testEntry)])
+        let testingResult = TestingResultFixtures()
+            .with(testEntry: testEntry)
+            .addingLostResult()
+            .testingResult()
+        
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
         let server = QueueServer(
             eventBus: EventBus(),
             workerConfigurations: workerConfigurations,
             reportAliveInterval: .infinity,
+            numberOfRetries: 0,
             newWorkerRegistrationTimeAllowance: .infinity,
             queueExhaustTimeAllowance: 10.0)
         server.add(buckets: [bucket])

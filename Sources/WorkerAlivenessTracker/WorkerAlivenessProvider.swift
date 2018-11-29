@@ -1,6 +1,17 @@
 import Foundation
 
 public protocol WorkerAlivenessProvider: class {
-    func alivenessForWorker(workerId: String) -> WorkerAliveness
-    var hasAnyAliveWorker: Bool { get }
+    var workerAliveness: [String: WorkerAliveness] { get }
+}
+
+public extension WorkerAlivenessProvider {
+    var hasAnyAliveWorker: Bool {
+        return workerAliveness.contains { _, value in
+            value == .alive
+        }
+    }
+    
+    func alivenessForWorker(workerId: String) -> WorkerAliveness {
+        return workerAliveness[workerId] ?? .notRegistered
+    }
 }

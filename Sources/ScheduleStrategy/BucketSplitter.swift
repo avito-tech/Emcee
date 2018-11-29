@@ -2,6 +2,7 @@ import Foundation
 import Models
 
 public struct BucketSplitInfo {
+    // TODO: Rename to numberOfWorkers
     public let numberOfDestinations: UInt
     public let testDestinations: [TestDestination]
     public let toolResources: ToolResources

@@ -3,7 +3,7 @@ import Models
 
 public enum DequeueResult: Equatable {
     case queueIsEmpty
-    case queueIsEmptyButNotAllResultsAreAvailable
+    case nothingToDequeueAtTheMoment
     case dequeuedBucket(DequeuedBucket)
     case workerBlocked
 }

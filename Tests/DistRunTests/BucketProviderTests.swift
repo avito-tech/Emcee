@@ -18,7 +18,7 @@ final class BucketProviderTests: XCTestCase {
     }
     
     func test__reponse_is_check_again__if_queue_has_dequeued_buckets() throws {
-        let bucketQueue = FakeBucketQueue(fixedDequeueResult: .queueIsEmptyButNotAllResultsAreAvailable)
+        let bucketQueue = FakeBucketQueue(fixedDequeueResult: .nothingToDequeueAtTheMoment)
         let bucketProvider = BucketProviderEndpoint(bucketQueue: bucketQueue)
         
         let response = try bucketProvider.handle(decodedRequest: fetchRequest)
