@@ -1,12 +1,16 @@
 import Foundation
 import Models
 
-public final class SchedulerBucket {
+public final class SchedulerBucket: CustomStringConvertible {
     public let bucketId: String
     public let testEntries: [TestEntry]
     public let testDestination: TestDestination
     public let toolResources: ToolResources
     public let buildArtifacts: BuildArtifacts
+    
+    public var description: String {
+        return "<\((type(of: self))) bucketId=\(bucketId)>"
+    }
 
     public init(bucketId: String, testEntries: [TestEntry], testDestination: TestDestination, toolResources: ToolResources, buildArtifacts: BuildArtifacts) {
         self.bucketId = bucketId

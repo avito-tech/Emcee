@@ -58,7 +58,7 @@ public final class ResourceLocationResolver {
     }
     
     private func cachedContentsOfUrl(_ url: URL) throws -> URL {
-        try evictOldCache()
+        evictOldCache()
         
         let handler = BlockingURLResourceHandler()
         urlResource.fetchResource(url: url, handler: handler)
@@ -77,19 +77,19 @@ public final class ResourceLocationResolver {
         return contentsUrl
     }
     
-    private func evictOldCache() throws {
+    private func evictOldCache() {
         // let's evict old cached data from time to time, on each N-th cache access
         let evictionRegularity = 10
         let secondsInDay: TimeInterval = 86400
-        let days: TimeInterval = 2
+        let days: TimeInterval = 1
         
-        try cacheAccessCount.withExclusiveAccess { (counter: inout Int) in
+        cacheAccessCount.withExclusiveAccess { (counter: inout Int) in
             let evictBarrierDate = Date().addingTimeInterval(-days * secondsInDay)
             
             if counter % evictionRegularity == 0 {
                 counter = 1
-                log("Evicting cached items older than: \(evictBarrierDate)")
-                let evictedEntryURLs = try urlResource.evictResources(olderThan: evictBarrierDate)
+                let evictedEntryURLs = (try? urlResource.evictResources(olderThan: evictBarrierDate)) ?? []
+                log("Evicted \(evictedEntryURLs.count) cached items older than: \(evictBarrierDate)")
                 for url in evictedEntryURLs {
                     log("-- evicted \(url)")
                 }
