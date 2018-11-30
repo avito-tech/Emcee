@@ -5,6 +5,7 @@ from typing import List
 
 def bash(command: Union[str, List[str]], current_directory: str = None) -> None:
     try:
+        print(f"Calling bash from {current_directory}: {command}")
         output = subprocess.check_output(
             cwd=current_directory,
             args=command,

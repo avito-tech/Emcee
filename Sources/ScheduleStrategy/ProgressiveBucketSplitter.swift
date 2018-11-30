@@ -10,7 +10,7 @@ public final class ProgressiveBucketSplitter: BucketSplitter {
     
     private let equallyDividedSplitter = EquallyDividedBucketSplitter()
     
-    public override func split(inputs: [TestEntry], bucketSplitInfo: BucketSplitInfo) -> [[TestEntry]] {
+    public override func split(inputs: [TestEntryConfiguration], bucketSplitInfo: BucketSplitInfo) -> [[TestEntryConfiguration]] {
         /*
          Here we split all tests to achieve a better loading of the remote machines:
          
@@ -27,10 +27,7 @@ public final class ProgressiveBucketSplitter: BucketSplitter {
         return groupedEntriesToRunEqually
     }
     
-    public override func generate(inputs: [TestEntry], splitInfo: BucketSplitInfo) -> [Bucket] {
-        let groupedEntriesToRunEqually = split(inputs: inputs, bucketSplitInfo: splitInfo)
-        return groupedEntriesToRunEqually.flatMap {
-            equallyDividedSplitter.generate(inputs: $0, splitInfo: splitInfo)
-        }
+    public override func map(chunk: [TestEntryConfiguration], bucketSplitInfo: BucketSplitInfo) -> [Bucket] {
+        return equallyDividedSplitter.generate(inputs: chunk, splitInfo: bucketSplitInfo)
     }
 }

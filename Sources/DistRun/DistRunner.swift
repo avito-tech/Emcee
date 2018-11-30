@@ -41,12 +41,12 @@ public final class DistRunner {
     private func prepareQueue() throws -> [Bucket] {        
         let splitter = distRunConfiguration.remoteScheduleStrategyType.bucketSplitter()
         return splitter.generate(
-            inputs: distRunConfiguration.testEntries,
+            inputs: distRunConfiguration.testEntryConfigurations,
             splitInfo: BucketSplitInfo(
                 numberOfDestinations: UInt(distRunConfiguration.destinations.count),
-                testDestinations: distRunConfiguration.testDestinations,
-                toolResources: distRunConfiguration.auxiliaryResources.toolResources,
-                buildArtifacts: distRunConfiguration.buildArtifacts))
+                toolResources: distRunConfiguration.auxiliaryResources.toolResources
+            )
+        )
     }
     
     private func createWorkerConfigurations() -> WorkerConfigurations {

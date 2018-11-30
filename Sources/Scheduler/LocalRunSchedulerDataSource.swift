@@ -35,14 +35,14 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
         log("Using strategy: \(splitter.description)")
         
         let buckets = splitter.generate(
-            inputs: configuration.testEntries,
+            inputs: configuration.testEntryConfigurations,
             splitInfo: BucketSplitInfo(
                 numberOfDestinations: configuration.testRunExecutionBehavior.numberOfSimulators,
-                testDestinations: configuration.testDestinations,
-                toolResources: configuration.auxiliaryResources.toolResources,
-                buildArtifacts: configuration.buildArtifacts))
+                toolResources: configuration.auxiliaryResources.toolResources
+            )
+        )
 
-        log("Will execute \(configuration.testEntries.count) tests: \(configuration.testEntries)")
+        log("Will execute \(configuration.testEntryConfigurations.count) tests: \(configuration.testEntryConfigurations)")
         log("Will split tests into following buckets:")
         buckets.forEach { log("Bucket: \($0)") }
         return buckets

@@ -11,7 +11,7 @@ final class TestToRunIntoTestEntryTransformerTests: XCTestCase {
             TestToRun.testName("class/test3")
         ]
         
-        let transformer = TestToRunIntoTestEntryTransformer(testsToRun: testsToRun, fetchAllTestsIfTestsToRunIsEmpty: false)
+        let transformer = TestToRunIntoTestEntryTransformer(testsToRun: testsToRun)
         let queryResult = RuntimeQueryResult(
             unavailableTestsToRun: [],
             availableRuntimeTests: [
@@ -29,34 +29,11 @@ final class TestToRunIntoTestEntryTransformerTests: XCTestCase {
         )
     }
     
-    func test__transforming_case_id() throws {
-        let testToRunWithCaseId = TestToRun.caseId(42)
-        
-        let transformer = TestToRunIntoTestEntryTransformer(testsToRun: [testToRunWithCaseId], fetchAllTestsIfTestsToRunIsEmpty: false)
-        let queryResult = RuntimeQueryResult(
-            unavailableTestsToRun: [],
-            availableRuntimeTests: [
-                RuntimeTestEntry(className: "class", path: "", testMethods: ["test1", "test2", "test3"], caseId: 42, tags: [])
-            ])
-        
-        let transformationResult = try transformer.transform(runtimeQueryResult: queryResult)
-        XCTAssertEqual(
-            transformationResult,
-            [
-                testToRunWithCaseId: [
-                    TestEntry(className: "class", methodName: "test1", caseId: 42),
-                    TestEntry(className: "class", methodName: "test2", caseId: 42),
-                    TestEntry(className: "class", methodName: "test3", caseId: 42)
-                ]
-            ]
-        )
-    }
-    
     func test__with_missing_tests() throws {
         let missingTest = TestToRun.caseId(404)
         let testToRunWithCaseId = TestToRun.caseId(42)
         
-        let transformer = TestToRunIntoTestEntryTransformer(testsToRun: [testToRunWithCaseId], fetchAllTestsIfTestsToRunIsEmpty: false)
+        let transformer = TestToRunIntoTestEntryTransformer(testsToRun: [testToRunWithCaseId])
         let queryResult = RuntimeQueryResult(
             unavailableTestsToRun: [
                 missingTest

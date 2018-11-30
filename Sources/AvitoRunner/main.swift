@@ -1,7 +1,5 @@
-import ArgumentsParser
-import Foundation
-import Logging
-import ProcessController
+import AvitoRunnerLib
+import Darwin
 
 func main() -> Int32 {
     return Main().main()

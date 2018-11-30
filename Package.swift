@@ -37,6 +37,12 @@ let package = Package(
         .target(
             name: "AvitoRunner",
             dependencies: [
+                "AvitoRunnerLib"
+            ]),
+        
+        .target(
+            name: "AvitoRunnerLib",
+            dependencies: [
                 "ArgumentsParser",
                 "ChromeTracing",
                 "Deployer",
@@ -54,10 +60,11 @@ let package = Package(
                 "Scheduler"
             ]),
         .testTarget(
-            name: "AvitoRunnerTests",
+            name: "AvitoRunnerLibTests",
             dependencies: [
-                "Extensions",
-                "SimulatorPool"
+                "AvitoRunnerLib",
+                "Models",
+                "ModelsTestHelpers"
             ]),
         
         .target(

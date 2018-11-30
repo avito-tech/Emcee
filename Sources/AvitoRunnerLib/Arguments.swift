@@ -110,6 +110,10 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
     KnownStringArguments.tempFolder: ArgumentDescriptionHolder(
         name: "--temp-folder",
         comment: "Where to store temporary stuff, including simulator data"),
+    KnownStringArguments.testArgFile: ArgumentDescriptionHolder(
+        name: "--test-arg-file",
+        comment: "A description of all tests that expected to be ran. More flexible alternative to combination of --only-test/--only-id + --test-destinations arguments.",
+        optional: true),
     KnownStringArguments.testDestinations: ArgumentDescriptionHolder(
         name: "--test-destinations",
         comment: "A JSON file with test destination configurations. For runtime dump first destination will be used."),
@@ -188,6 +192,7 @@ enum KnownStringArguments: ArgumentDescription {
     case scheduleStrategy
     case simulatorLocalizationSettings
     case tempFolder
+    case testArgFile
     case testDestinations
     case trace
     case watchdogSettings

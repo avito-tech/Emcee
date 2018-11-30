@@ -12,21 +12,22 @@ final class IndividualBucketSplitterTests: XCTestCase {
         TestEntry(className: "class", methodName: "testMethod3", caseId: nil),
         TestEntry(className: "class", methodName: "testMethod4", caseId: nil)
     ]
+    lazy var testEntryConfigurations = TestEntryConfigurationFixtures().add(testEntries: testEntries).testEntryConfigurations()
     
     func test__individual_splitter__splits_to_entries_with_single_test() {
-        let actualEntries = individualSplitter.split(
-            inputs: testEntries,
-            bucketSplitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture())
-        XCTAssertEqual(actualEntries, testEntries.map { [$0] })
+        let buckets = individualSplitter.generate(
+            inputs: testEntryConfigurations,
+            splitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture())
+        XCTAssertEqual(buckets.map { $0.testEntries }, testEntries.map { [$0] })
     }
     
     func test_individual_splitter_splits_tests_regardless_of_number_of_destinations() {
         XCTAssertEqual(
-            individualSplitter.split(
-                inputs: testEntries,
-                bucketSplitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture(numberOfDestinations: 1)),
-            individualSplitter.split(
-                inputs: testEntries,
-                bucketSplitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture(numberOfDestinations: 5)))
+            individualSplitter.generate(
+                inputs: testEntryConfigurations,
+                splitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture(numberOfDestinations: 1)),
+            individualSplitter.generate(
+                inputs: testEntryConfigurations,
+                splitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture(numberOfDestinations: 5)))
     }
 }

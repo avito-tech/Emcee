@@ -7,7 +7,7 @@ public final class EquallyDividedBucketSplitter: BucketSplitter {
         super.init(description: "Equally divided strategy")
     }
     
-    public override func split(inputs: [TestEntry], bucketSplitInfo: BucketSplitInfo) -> [[TestEntry]] {
+    public override func split(inputs: [TestEntryConfiguration], bucketSplitInfo: BucketSplitInfo) -> [[TestEntryConfiguration]] {
         let size = UInt(ceil(Double(inputs.count) / Double(bucketSplitInfo.numberOfDestinations)))
         return inputs.splitToChunks(withSize: size)
     }

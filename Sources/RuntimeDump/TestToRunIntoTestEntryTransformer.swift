@@ -3,14 +3,9 @@ import Models
 
 public final class TestToRunIntoTestEntryTransformer {
     private let testsToRun: [TestToRun]
-    private let fetchAllTestsIfTestsToRunIsEmpty: Bool
     
-    public init(
-        testsToRun: [TestToRun],
-        fetchAllTestsIfTestsToRunIsEmpty: Bool)
-    {
+    public init(testsToRun: [TestToRun]) {
         self.testsToRun = testsToRun
-        self.fetchAllTestsIfTestsToRunIsEmpty = fetchAllTestsIfTestsToRunIsEmpty
     }
     
     public func transform(runtimeQueryResult: RuntimeQueryResult) throws -> [TestToRun: [TestEntry]] {
@@ -18,7 +13,7 @@ public final class TestToRunIntoTestEntryTransformer {
             throw TransformationError.someTestsAreMissingInRuntime(runtimeQueryResult.unavailableTestsToRun)
         }
         
-        let testsToTransform = testsForTransformation(runtimeQueryResult: runtimeQueryResult)
+        let testsToTransform = allExistingTestsToRunFromRuntimeDump(runtimeQueryResult: runtimeQueryResult)
         
         var result = [TestToRun: [TestEntry]]()
         for testToRun in testsToTransform {
@@ -40,18 +35,6 @@ public final class TestToRunIntoTestEntryTransformer {
             }
         }
         return result
-    }
-    
-    private func testsForTransformation(runtimeQueryResult: RuntimeQueryResult) -> [TestToRun] {
-        if self.testsToRun.isEmpty {
-            if fetchAllTestsIfTestsToRunIsEmpty {
-                return allExistingTestsToRunFromRuntimeDump(runtimeQueryResult: runtimeQueryResult)
-            } else {
-                return []
-            }
-        } else {
-            return self.testsToRun
-        }
     }
     
     private func allExistingTestsToRunFromRuntimeDump(runtimeQueryResult: RuntimeQueryResult) -> [TestToRun] {

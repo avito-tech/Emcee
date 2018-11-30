@@ -4,8 +4,10 @@ import Foundation
 import Logging
 import ProcessController
 
-final class Main {
-    func main() -> Int32 {
+public final class Main {
+    public init() {}
+    
+    public func main() -> Int32 {
         if shouldRunInProcess {
             return runInProcess()
         } else {

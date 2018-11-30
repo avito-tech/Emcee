@@ -25,17 +25,13 @@ public struct DistRunConfiguration {
     
     /** Paths that are required to make things work. */
     public let auxiliaryResources: AuxiliaryResources
-    
-    /** A set of paths to the build artifacts. */
-    public let buildArtifacts: BuildArtifacts
 
     /** Some settings that should be applied to the test environment prior running the tests. */
     public let simulatorSettings: SimulatorSettings
     
     /** All test that must be run by the test runner. */
-    public let testEntries: [TestEntry]
+    public let testEntryConfigurations: [TestEntryConfiguration]
     
-    /** Test destination configurations for the test run.  */
     public let testDestinationConfigurations: [TestDestinationConfiguration]
     
     /// Period of time when workers should report their aliveness
@@ -50,9 +46,8 @@ public struct DistRunConfiguration {
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testRunExecutionBehavior: TestRunExecutionBehavior,
         auxiliaryResources: AuxiliaryResources,
-        buildArtifacts: BuildArtifacts,
         simulatorSettings: SimulatorSettings,
-        testEntries: [TestEntry],
+        testEntryConfigurations: [TestEntryConfiguration],
         testDestinationConfigurations: [TestDestinationConfiguration])
     {
         self.runId = runId
@@ -63,14 +58,9 @@ public struct DistRunConfiguration {
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testRunExecutionBehavior = testRunExecutionBehavior
         self.auxiliaryResources = auxiliaryResources
-        self.buildArtifacts = buildArtifacts
         self.simulatorSettings = simulatorSettings
-        self.testEntries = testEntries
+        self.testEntryConfigurations = testEntryConfigurations
         self.testDestinationConfigurations = testDestinationConfigurations
-    }
-    
-    public var testDestinations: [TestDestination] {
-        return testDestinationConfigurations.map { $0.testDestination }
     }
     
     public func workerConfiguration(destination: DeploymentDestination) -> WorkerConfiguration {

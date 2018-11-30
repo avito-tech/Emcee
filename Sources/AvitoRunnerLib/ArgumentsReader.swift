@@ -15,6 +15,10 @@ final class ArgumentsReader {
         return try decodeModelsFromFile(file, defaultValueIfFileIsMissing: [:], key: key, jsonDecoder: JSONDecoder())
     }
     
+    public static func testArgFile(_ file: String?, key: ArgumentDescription) throws -> TestArgFile {
+        return try decodeModelsFromFile(file, defaultValueIfFileIsMissing: TestArgFile(entries: []), key: key, jsonDecoder: decoderWithSnakeCaseSupport)
+    }
+    
     public static func testDestinations(_ file: String?, key: ArgumentDescription) throws -> [TestDestinationConfiguration] {
         return try decodeModelsFromFile(file, key: key, jsonDecoder: decoderWithSnakeCaseSupport)
     }

@@ -42,6 +42,7 @@ final class RunTestsCommand: Command {
     private let simulatorLocalizationSettings: OptionArgument<String>
     private let singleTestTimeout: OptionArgument<UInt>
     private let tempFolder: OptionArgument<String>
+    private let testArgFile: OptionArgument<String>
     private let testDestinations: OptionArgument<String>
     private let trace: OptionArgument<String>
     private let watchdogSettings: OptionArgument<String>
@@ -74,6 +75,7 @@ final class RunTestsCommand: Command {
         simulatorLocalizationSettings = subparser.add(stringArgument: KnownStringArguments.simulatorLocalizationSettings)
         singleTestTimeout = subparser.add(intArgument: KnownUIntArguments.singleTestTimeout)
         tempFolder = subparser.add(stringArgument: KnownStringArguments.tempFolder)
+        testArgFile = subparser.add(stringArgument: KnownStringArguments.testArgFile)
         testDestinations = subparser.add(stringArgument: KnownStringArguments.testDestinations)
         trace = subparser.add(stringArgument: KnownStringArguments.trace)
         watchdogSettings = subparser.add(stringArgument: KnownStringArguments.watchdogSettings)
@@ -81,79 +83,109 @@ final class RunTestsCommand: Command {
     }
     
     func run(with arguments: ArgumentParser.Result) throws {
-        let additionalApp = try ArgumentsReader.validateResourceLocations(arguments.get(self.additionalApp) ?? [], key: KnownStringArguments.additionalApp).map({ AdditionalAppBundleLocation($0) })
-        let app = AppBundleLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.app), key: KnownStringArguments.app))
-        let environmentValues = try ArgumentsReader.environment(arguments.get(self.environment), key: KnownStringArguments.environment)
-        let fbsimctl = FbsimctlLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.fbsimctl), key: KnownStringArguments.fbsimctl))
-        let fbxctest = FbxctestLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.fbxctest), key: KnownStringArguments.fbxctest))
-        let junit = try ArgumentsReader.validateNotNil(arguments.get(self.junit), key: KnownStringArguments.junit)
-        let numberOfRetries = try ArgumentsReader.validateNotNil(arguments.get(self.numberOfRetries), key: KnownUIntArguments.numberOfRetries)
-        let numberOfSimulators = try ArgumentsReader.validateNotNil(arguments.get(self.numberOfSimulators), key: KnownUIntArguments.numberOfSimulators)
-        let onlyId: [TestToRun] = (arguments.get(self.onlyId) ?? []).map { TestToRun.caseId($0) }
-        let onlyTest: [TestToRun] = (arguments.get(self.onlyTest) ?? []).map { TestToRun.testName($0) }
-        let plugins = try ArgumentsReader.validateResourceLocations(arguments.get(self.plugins) ?? [], key: KnownStringArguments.plugin).map({ PluginLocation($0) })
-        let runner = RunnerAppLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.runner), key: KnownStringArguments.runner))
-        let scheduleStrategy = try ArgumentsReader.scheduleStrategy(arguments.get(self.scheduleStrategy), key: KnownStringArguments.scheduleStrategy)
+        let auxiliaryResources = AuxiliaryResources(
+            toolResources: ToolResources(
+                fbsimctl: FbsimctlLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.fbsimctl), key: KnownStringArguments.fbsimctl)),
+                fbxctest: FbxctestLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.fbxctest), key: KnownStringArguments.fbxctest))
+            ),
+            plugins: try ArgumentsReader.validateResourceLocations(arguments.get(self.plugins) ?? [], key: KnownStringArguments.plugin).map({ PluginLocation($0) })
+        )
+        let buildArtifacts = BuildArtifacts(
+            appBundle: AppBundleLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.app), key: KnownStringArguments.app)),
+            runner: RunnerAppLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.runner), key: KnownStringArguments.runner)),
+            xcTestBundle: TestBundleLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle)),
+            additionalApplicationBundles: try ArgumentsReader.validateResourceLocations(arguments.get(self.additionalApp) ?? [], key: KnownStringArguments.additionalApp).map({ AdditionalAppBundleLocation($0) })
+        )
+        let reportOutput = ReportOutput(
+            junit: try ArgumentsReader.validateNotNil(arguments.get(self.junit), key: KnownStringArguments.junit),
+            tracingReport: try ArgumentsReader.validateNotNil(arguments.get(self.trace), key: KnownStringArguments.trace)
+        )
         let simulatorSettings = SimulatorSettings(
             simulatorLocalizationSettings: try ArgumentsReader.validateNilOrFileExists(arguments.get(self.simulatorLocalizationSettings), key: KnownStringArguments.simulatorLocalizationSettings),
-            watchdogSettings: try ArgumentsReader.validateNilOrFileExists(arguments.get(self.watchdogSettings), key: KnownStringArguments.watchdogSettings))
-        let singleTestTimeout = try ArgumentsReader.validateNotNil(arguments.get(self.singleTestTimeout), key: KnownUIntArguments.singleTestTimeout)
-        let fbxctestSilenceTimeout = arguments.get(self.fbxctestSilenceTimeout) ?? singleTestTimeout
-        let fbxtestFastTimeout = arguments.get(self.fbxtestFastTimeout) ?? singleTestTimeout
-        let fbxtestRegularTimeout = arguments.get(self.fbxtestRegularTimeout) ?? singleTestTimeout
-        let fbxtestSlowTimeout = arguments.get(self.fbxtestSlowTimeout) ?? singleTestTimeout
-        let fbxtestBundleReadyTimeout = arguments.get(self.fbxtestBundleReadyTimeout) ?? singleTestTimeout
-        let fbxtestCrashCheckTimeout = arguments.get(self.fbxtestCrashCheckTimeout) ?? singleTestTimeout
-        let tempFolder = try TempFolder.with(stringPath: try ArgumentsReader.validateNotNil(arguments.get(self.tempFolder), key: KnownStringArguments.tempFolder))
-        let testDestinations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
-        let trace = try ArgumentsReader.validateNotNil(arguments.get(self.trace), key: KnownStringArguments.trace)
-        let xctestBundle = TestBundleLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle))
-        
+            watchdogSettings: try ArgumentsReader.validateNilOrFileExists(arguments.get(self.watchdogSettings), key: KnownStringArguments.watchdogSettings)
+        )
+        let testTimeoutConfiguration = TestTimeoutConfiguration(
+            singleTestMaximumDuration: TimeInterval(try ArgumentsReader.validateNotNil(arguments.get(self.singleTestTimeout), key: KnownUIntArguments.singleTestTimeout)),
+            fbxctestSilenceMaximumDuration: arguments.get(self.fbxctestSilenceTimeout).map { TimeInterval($0) },
+            fbxtestFastTimeout: arguments.get(self.fbxtestFastTimeout).map { TimeInterval($0) },
+            fbxtestRegularTimeout: arguments.get(self.fbxtestRegularTimeout).map { TimeInterval($0) },
+            fbxtestSlowTimeout: arguments.get(self.fbxtestSlowTimeout).map { TimeInterval($0) },
+            fbxtestBundleReadyTimeout: arguments.get(self.fbxtestBundleReadyTimeout).map { TimeInterval($0) },
+            fbxtestCrashCheckTimeout: arguments.get(self.fbxtestCrashCheckTimeout).map { TimeInterval($0) }
+        )
+        let testRunExecutionBehavior = TestRunExecutionBehavior(
+            numberOfRetries: try ArgumentsReader.validateNotNil(arguments.get(self.numberOfRetries), key: KnownUIntArguments.numberOfRetries),
+            numberOfSimulators: try ArgumentsReader.validateNotNil(arguments.get(self.numberOfSimulators), key: KnownUIntArguments.numberOfSimulators),
+            environment: try ArgumentsReader.environment(arguments.get(self.environment), key: KnownStringArguments.environment),
+            scheduleStrategy: try ArgumentsReader.scheduleStrategy(arguments.get(self.scheduleStrategy), key: KnownStringArguments.scheduleStrategy)
+        )
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
-            pluginLocations: plugins,
+            pluginLocations: auxiliaryResources.plugins,
             resourceLocationResolver: resourceLocationResolver,
-            environment: environmentValues)
+            environment: testRunExecutionBehavior.environment
+        )
         defer { eventBus.tearDown() }
         
-        let testEnriesGenerator = TestEntriesGenerator(
+        let onlyId: [TestToRun] = (arguments.get(self.onlyId) ?? []).map { TestToRun.caseId($0) }
+        let onlyTest: [TestToRun] = (arguments.get(self.onlyTest) ?? []).map { TestToRun.testName($0) }
+        let tempFolder = try TempFolder.with(stringPath: try ArgumentsReader.validateNotNil(arguments.get(self.tempFolder), key: KnownStringArguments.tempFolder))
+        let testArgFile = try ArgumentsReader.testArgFile(arguments.get(self.testArgFile), key: KnownStringArguments.testArgFile)
+        let testDestinationConfigurations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
+        
+        let testEntriesValidator = TestEntriesValidator(
             eventBus: eventBus,
-            fetchAllTestsIfTestsToRunIsEmpty: true,
             runtimeDumpConfiguration: RuntimeDumpConfiguration(
-                fbxctest: fbxctest,
-                xcTestBundle: xctestBundle,
+                fbxctest: auxiliaryResources.toolResources.fbxctest,
+                xcTestBundle: buildArtifacts.xcTestBundle,
                 simulatorSettings: simulatorSettings,
-                testDestination: testDestinations.elementAtIndex(0, "First test destination").testDestination,
-                testsToRun: onlyId + onlyTest),
+                testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
+                testsToRun: onlyId + onlyTest + testArgFile.entries.map { $0.testToRun }
+            ),
             resourceLocationResolver: resourceLocationResolver,
-            tempFolder: tempFolder)
+            tempFolder: tempFolder
+        )
+        let validatedTestEntries = try testEntriesValidator.validatedTestEntries()
+        
+        let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
+            validatedEnteries: validatedTestEntries,
+            explicitTestsToRun: determineTestsToRun(
+                onlyTests: onlyId + onlyTest,
+                testArgFile: testArgFile,
+                validatedTestEntries: validatedTestEntries
+            ),
+            testArgEntries: testArgFile.entries,
+            commonTestExecutionBehavior: TestExecutionBehavior(
+                numberOfRetries: testRunExecutionBehavior.numberOfRetries
+            ),
+            commonTestDestinations: testDestinationConfigurations.map { $0.testDestination },
+            commonBuildArtifacts: buildArtifacts
+        )
 
         let configuration = try LocalTestRunConfiguration(
-            reportOutput: ReportOutput(junit: junit, tracingReport: trace),
-            testTimeoutConfiguration: TestTimeoutConfiguration(
-                singleTestMaximumDuration: TimeInterval(singleTestTimeout),
-                fbxctestSilenceMaximumDuration: TimeInterval(fbxctestSilenceTimeout),
-                fbxtestFastTimeout: TimeInterval(fbxtestFastTimeout),
-                fbxtestRegularTimeout: TimeInterval(fbxtestRegularTimeout),
-                fbxtestSlowTimeout: TimeInterval(fbxtestSlowTimeout),
-                fbxtestBundleReadyTimeout: TimeInterval(fbxtestBundleReadyTimeout),
-                fbxtestCrashCheckTimeout: TimeInterval(fbxtestCrashCheckTimeout)),
-            testRunExecutionBehavior: TestRunExecutionBehavior(
-                numberOfRetries: numberOfRetries,
-                numberOfSimulators: numberOfSimulators,
-                environment: environmentValues,
-                scheduleStrategy: scheduleStrategy),
-            auxiliaryResources: AuxiliaryResources(
-                toolResources: ToolResources(fbsimctl: fbsimctl, fbxctest: fbxctest),
-                plugins: plugins),
-            buildArtifacts: BuildArtifacts(
-                appBundle: app,
-                runner: runner,
-                xcTestBundle: xctestBundle,
-                additionalApplicationBundles: additionalApp),
+            reportOutput: reportOutput,
+            testTimeoutConfiguration: testTimeoutConfiguration,
+            testRunExecutionBehavior: testRunExecutionBehavior,
+            auxiliaryResources: auxiliaryResources,
             simulatorSettings: simulatorSettings,
-            testDestinationConfigurations: testDestinations,
-            testEntries: try testEnriesGenerator.validatedTestEntries())
+            testEntryConfigurations: testEntryConfigurationGenerator.createTestEntryConfigurations(),
+            testDestinationConfigurations: testDestinationConfigurations
+        )
         try runTests(configuration: configuration, eventBus: eventBus, tempFolder: tempFolder)
+    }
+    
+    private func determineTestsToRun(
+        onlyTests: [TestToRun],
+        testArgFile: TestArgFile,
+        validatedTestEntries: [TestToRun : [TestEntry]]
+        ) -> [TestToRun]
+    {
+        if onlyTests.isEmpty && testArgFile.entries.isEmpty {
+            // If we do not pass any tests to run explicitly either by --only-* flag or via --test-arg-file,
+            // we use runtime dump information to form array of tests to run
+            return Array(validatedTestEntries.keys)
+        } else {
+            return onlyTests
+        }
     }
     
     private func runTests(configuration: LocalTestRunConfiguration, eventBus: EventBus, tempFolder: TempFolder) throws {

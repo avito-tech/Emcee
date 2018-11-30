@@ -42,9 +42,9 @@ installCommandLineTools() {
 runTests() {
     if [[ "$PYCACHE_ENABLED" == "true" ]]
     then
-        pytest
+        pytest -s
     else
-        pytest --cache-clear
+        pytest -s --cache-clear
     fi
 }
 
@@ -57,6 +57,8 @@ setupPyenv() {
     which pyenv || brew install pyenv
     which pyenv-virtualenv || brew install pyenv-virtualenv
 
+    CFLAGS="-I$(brew --prefix openssl)/include -I$(xcrun --show-sdk-path)/usr/include" \
+    LDFLAGS="-L$(brew --prefix openssl)/lib" \
     pyenv install -s "$pythonVersion"
 
     pyenv virtualenv "$pythonVersion" "$envName" || true

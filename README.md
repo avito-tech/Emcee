@@ -53,7 +53,7 @@ Where `destination_iphone_se_ios103.json` might have the folllowing contents:
 }]
 ```
 
-## Running tests on a number of machines
+## Running tests on remote machines
 
 You can use `distRunTests` subcommand:
 
@@ -105,6 +105,62 @@ Currently, there is no need to prepare the remote machine. Emcee will:
 - deploy itself and build artifacts over SSH
 - start the daemon
 - start running UI tests automatically
+
+## Specifying tests to run
+
+You can specify tests you wish to run using arguments or by using JSON file.
+
+### ⚠️: If you don't specify any tests to run explicitly, Emcee will behave differently depending on command:
+
+- for `runTests` command, it will run all available in runtime tests.
+- for `distRunTests` command, it will not run anything. If you wish to run all tests, please use `dump` command and form the test plan based on its output.
+
+### Matrix: tests specified by `--only-test` by all test destinations  
+
+You can append multiple `--only-test`. This will form a matrix of tests, each test will be run a single time for each test destination:
+
+```shell
+AvitoRunner distRunTests \
+    --test-destinations "destination_iphone_se_ios103.json" \
+    --only-test "TestClass/testMethod" \
+    --only-test "AnotherTestClass/testSomethingImportant"
+```
+So if you have 2 test destinations, e.g. iOS 11 and iOS 12, and 2 tests, this will form the following test plan:
+
+```
+TestClass/testMethod @ iOS 11
+AnotherTestClass/testSomethingImportant @ iOS 11
+TestClass/testMethod @ iOS 12
+AnotherTestClass/testSomethingImportant @ iOS 12
+```
+
+### `--test-arg-file` JSON file
+
+This allows to specify a more precise test plan. The contents of this file should adopt the following schema:
+
+```json
+{
+    "entries": [
+        {
+            "testToRun": "TestClass/testMethod",
+            "testDestination": {"deviceType": "iPhone X", "runtime": "11.0"},
+            "numberOfRetries": 2
+        },
+        {
+            "testToRun": "AnotherTestClass/testSomethingImportant",
+            "testDestination": {"deviceType": "iPhone SE", "runtime": "12.0"},
+            "numberOfRetries": 0
+        }
+    ]
+}
+```
+
+This file will form the following test plan:
+
+```
+TestClass/testMethod @ iPhone X, iOS 11, up to 3 runs
+AnotherTestClass/testSomethingImportant @ iPhone SE, iOS 12, strictly 1 run
+```
 
 # What Can This Project Do
 
