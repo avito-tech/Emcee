@@ -157,12 +157,14 @@ final class BucketQueueImpl: BucketQueue {
                 }
             }
             
-            log("Got \(stuckBuckets.count) stuck buckets, reenqueueing them as \(buckets.count) buckets:")
-            for bucket in buckets {
-                log("-- \(bucket)")
+            if !buckets.isEmpty {
+                log("Got \(stuckBuckets.count) stuck buckets, reenqueueing them as \(buckets.count) buckets:")
+                for bucket in buckets {
+                    log("-- \(bucket)")
+                }
+                
+                enqueue_onSyncQueue(buckets: buckets)
             }
-            
-            enqueue_onSyncQueue(buckets: buckets)
             
             return stuckBuckets
         }
