@@ -135,9 +135,7 @@ public final class RunnerTests: XCTestCase {
                 numberOfSimulators: 1,
                 environment: ["EMCEE_TESTS_RUN_ID": runId],
                 scheduleStrategy: .individual),
-            simulatorSettings: SimulatorSettings(
-                simulatorLocalizationSettings: "",
-                watchdogSettings: ""),
+            simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 5))
         return configuration
     }

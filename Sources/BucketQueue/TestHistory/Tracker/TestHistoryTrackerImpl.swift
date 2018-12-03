@@ -80,7 +80,8 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
                 testEntries: [testEntryResult.testEntry],
                 testDestination: bucket.testDestination,
                 toolResources: bucket.toolResources,
-                buildArtifacts: bucket.buildArtifacts
+                buildArtifacts: bucket.buildArtifacts,
+                simulatorSettings: bucket.simulatorSettings
             )
         }
         

@@ -7,36 +7,44 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
     public let testDestination: TestDestination
     public let toolResources: ToolResources
     public let buildArtifacts: BuildArtifacts
+    public let simulatorSettings: SimulatorSettings
 
     public init(
         testEntries: [TestEntry],
         testDestination: TestDestination,
         toolResources: ToolResources,
-        buildArtifacts: BuildArtifacts)
+        buildArtifacts: BuildArtifacts,
+        simulatorSettings: SimulatorSettings
+        )
     {
         self.testEntries = testEntries
         self.testDestination = testDestination
         self.toolResources = toolResources
         self.buildArtifacts = buildArtifacts
+        self.simulatorSettings = simulatorSettings
         self.bucketId = Bucket.generateBucketId(
             testEntries: testEntries,
             testDestination: testDestination,
             toolResources: toolResources,
-            buildArtifacts: buildArtifacts)
+            buildArtifacts: buildArtifacts,
+            simulatorSettings: simulatorSettings
+        )
     }
     
     private static func generateBucketId(
         testEntries: [TestEntry],
         testDestination: TestDestination,
         toolResources: ToolResources,
-        buildArtifacts: BuildArtifacts)
-        -> String
+        buildArtifacts: BuildArtifacts,
+        simulatorSettings: SimulatorSettings
+        ) -> String
     {
         let tests: String = testEntries.map { $0.testName }.sorted().joined()
             + testDestination.destinationString
             + toolResources.fbsimctl.description + toolResources.fbxctest.description
             + buildArtifacts.appBundle.description + buildArtifacts.runner.description + buildArtifacts.xcTestBundle.description
             + buildArtifacts.additionalApplicationBundles.map { $0.description }.sorted().joined()
+            + simulatorSettings.description
         do {
             return try tests.avito_sha256Hash(encoding: .utf8)
         } catch {

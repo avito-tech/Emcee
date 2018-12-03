@@ -7,6 +7,8 @@ public final class BucketFixtures {
             testEntries: testEntries,
             testDestination: TestDestinationFixtures.testDestination,
             toolResources: ToolResourcesFixtures.fakeToolResources(),
-            buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts())
+            buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
+            simulatorSettings: SimulatorSettingsFixtures().simulatorSettings()
+        )
     }
 }

@@ -74,7 +74,7 @@ public final class DistWorker {
         tempFolder: TempFolder)
         throws -> [TestingResult]
     {
-        let configuration = try bucketConfigurationFactory.createConfiguration(
+        let configuration = bucketConfigurationFactory.createConfiguration(
             workerConfiguration: workerConfiguration,
             schedulerDataSource: DistRunSchedulerDataSource(onNextBucketRequest: fetchNextBucket),
             onDemandSimulatorPool: onDemandSimulatorPool)
@@ -137,6 +137,8 @@ public final class DistWorker {
     private func schedulerBucketByOverridingToolResourcesWithLocalIfNeeded(_ bucket: Bucket) -> SchedulerBucket {
         let fbsimctl = bucketConfigurationFactory.fbsimctl ?? bucket.toolResources.fbsimctl
         let fbxctest = bucketConfigurationFactory.fbxctest ?? bucket.toolResources.fbxctest
+        let simulatorLocalizationSettings = bucketConfigurationFactory.simulatorLocalizationSettings ?? bucket.simulatorSettings.simulatorLocalizationSettings
+        let watchdogSettings = bucketConfigurationFactory.watchdogSettings ?? bucket.simulatorSettings.watchdogSettings
         
         let additionalApps = bucketConfigurationFactory.locallyDeployedAdditionalApps + bucket.buildArtifacts.additionalApplicationBundles.compactMap {
             switch $0.resourceLocation {
@@ -155,7 +157,9 @@ public final class DistWorker {
             testEntries: bucket.testEntries,
             testDestination: bucket.testDestination,
             toolResources: ToolResources(fbsimctl: fbsimctl, fbxctest: fbxctest),
-            buildArtifacts: BuildArtifacts(appBundle: appBundle, runner: runner, xcTestBundle: xcTestBundle, additionalApplicationBundles: additionalApps))
+            buildArtifacts: BuildArtifacts(appBundle: appBundle, runner: runner, xcTestBundle: xcTestBundle, additionalApplicationBundles: additionalApps),
+            simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: simulatorLocalizationSettings, watchdogSettings: watchdogSettings)
+        )
     }
     
     private func didReceiveTestResult(testingResult: TestingResult) {

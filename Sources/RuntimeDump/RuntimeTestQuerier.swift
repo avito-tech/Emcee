@@ -44,8 +44,12 @@ public final class RuntimeTestQuerier {
             fbxctest: configuration.fbxctest,
             buildArtifacts: BuildArtifacts.onlyWithXctestBundle(xcTestBundle: configuration.xcTestBundle),
             testRunExecutionBehavior: configuration.testRunExecutionBehavior.withEnvironmentOverrides(
-                ["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH": runtimeEntriesJSONPath.asString]),
-            simulatorSettings: configuration.simulatorSettings,
+                ["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH": runtimeEntriesJSONPath.asString]
+            ),
+            simulatorSettings: SimulatorSettings(
+                simulatorLocalizationSettings: nil,
+                watchdogSettings: nil
+            ),
             testTimeoutConfiguration: configuration.testTimeoutConfiguration)
         _ = try Runner(
             eventBus: eventBus,

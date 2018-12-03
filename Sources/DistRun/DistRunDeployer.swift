@@ -27,11 +27,7 @@ public final class DistRunDeployer {
         case multipleBuildArtifactsAreNotSupported(Set<BuildArtifacts>)
     }
     
-    public func deployAndStartLaunchdJob(serverPort: Int) throws {
-        let encoder = JSONEncoder()
-        let encodedEnvironment = try encoder.encode(distRunConfiguration.testRunExecutionBehavior.environment)
-        let environmentFilePath = try tempFolder.createFile(filename: "envirtonment.json", contents: encodedEnvironment)
-        
+    public func deployAndStartLaunchdJob(serverPort: Int) throws {        
         let buildArtifacts = Set(distRunConfiguration.testEntryConfigurations.map { $0.buildArtifacts })
         guard buildArtifacts.count == 1, let buildArtifact = buildArtifacts.first else {
             throw DistRunnerError.multipleBuildArtifactsAreNotSupported(buildArtifacts)
@@ -41,8 +37,6 @@ public final class DistRunDeployer {
             targetAvitoRunnerPath: avitoRunnerTargetPath,
             auxiliaryResources: distRunConfiguration.auxiliaryResources,
             buildArtifacts: buildArtifact,
-            environmentFilePath: environmentFilePath.asString,
-            targetEnvironmentPath: try PackageName.targetFileName(.environment),
             simulatorSettings: distRunConfiguration.simulatorSettings,
             targetSimulatorLocalizationSettingsPath: try PackageName.targetFileName(.simulatorLocalizationSettings),
             targetWatchdogSettingsPath: try PackageName.targetFileName(.watchdogSettings))

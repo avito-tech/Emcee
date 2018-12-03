@@ -30,14 +30,15 @@ class DeployablesGeneratorTests: XCTestCase {
             auxiliaryResources: AuxiliaryResources(
                 toolResources: ToolResources(
                     fbsimctl: FbsimctlLocation(.localFilePath(#file)),
-                    fbxctest: FbxctestLocation(.localFilePath(#file))),
-                plugins: [PluginLocation(.localFilePath(pluginPath))]),
+                    fbxctest: FbxctestLocation(.localFilePath(#file))
+                ),
+                plugins: [PluginLocation(.localFilePath(pluginPath))]
+            ),
             buildArtifacts: defaultBuildArtifacts,
-            environmentFilePath: String(#file),
-            targetEnvironmentPath: "env.json",
             simulatorSettings: SimulatorSettings(
-                simulatorLocalizationSettings: String(#file),
-                watchdogSettings: String(#file)),
+                simulatorLocalizationSettings: SimulatorLocalizationLocation(.localFilePath(#file)),
+                watchdogSettings: WatchdogSettingsLocation(.localFilePath(#file))
+            ),
             targetSimulatorLocalizationSettingsPath: "sim.json",
             targetWatchdogSettingsPath: "wd.json")
         XCTAssertNoThrow(deployables = try generator.deployables())
@@ -114,13 +115,6 @@ class DeployablesGeneratorTests: XCTestCase {
         XCTAssertEqual(deployables[0].files.first?.destination, String(#file).lastPathComponent)
     }
     
-    func testEnvironmentIsPresent() {
-        let environmentDeployables = filterDeployables(.environment)
-        XCTAssertEqual(environmentDeployables.count, 1)
-        XCTAssertEqual(environmentDeployables[0].files.first?.source, String(#file))
-        XCTAssertEqual(environmentDeployables[0].files.first?.destination, "env.json")
-    }
-    
     func testSimulatorSettingsIsPresent() {
         let deployables = filterDeployables(.simulatorLocalizationSettings)
         XCTAssertEqual(deployables.count, 1)
@@ -156,9 +150,7 @@ class DeployablesGeneratorTests: XCTestCase {
                     fbxctest: FbxctestLocation(.localFilePath(#file))),
                 plugins: []),
             buildArtifacts: defaultBuildArtifacts,
-            environmentFilePath: String(#file),
-            targetEnvironmentPath: "env.json",
-            simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: nil, watchdogSettings: nil),
+            simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             targetSimulatorLocalizationSettingsPath: "sim.json",
             targetWatchdogSettingsPath: "wd.json")
         let deployables = try generator.deployables()

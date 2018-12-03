@@ -72,7 +72,6 @@ final class RuntimeTestQuerierTests: XCTestCase {
         return RuntimeDumpConfiguration(
             fbxctest: FbxctestLocation(ResourceLocation.localFilePath(fbxctest)),
             xcTestBundle: TestBundleLocation(ResourceLocation.localFilePath("")),
-            simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: nil, watchdogSettings: nil),
             testDestination: TestDestinationFixtures.testDestination,
             testsToRun: testsToRun)
     }

@@ -44,7 +44,8 @@ public final class DistRunner {
             inputs: distRunConfiguration.testEntryConfigurations,
             splitInfo: BucketSplitInfo(
                 numberOfDestinations: UInt(distRunConfiguration.destinations.count),
-                toolResources: distRunConfiguration.auxiliaryResources.toolResources
+                toolResources: distRunConfiguration.auxiliaryResources.toolResources,
+                simulatorSettings: distRunConfiguration.simulatorSettings
             )
         )
     }

@@ -31,6 +31,27 @@ final class ArgumentsReader {
         return try decodeModelsFromFile(file, defaultValueIfFileIsMissing: [], key: key, jsonDecoder: decoderWithSnakeCaseSupport)
     }
     
+    public static func simulatorSettings(
+        localizationFile: String?,
+        localizationKey: ArgumentDescription,
+        watchdogFile: String?,
+        watchdogKey: ArgumentDescription
+        ) throws -> SimulatorSettings
+    {
+        let localizationResource = try validateResourceLocationOrNil(localizationFile, key: localizationKey)
+        var localizationLocation: SimulatorLocalizationLocation?
+        if let localizationResource = localizationResource {
+            localizationLocation = SimulatorLocalizationLocation(localizationResource)
+        }
+        
+        let watchdogResource = try validateResourceLocationOrNil(watchdogFile, key: watchdogKey)
+        var watchdogLocation: WatchdogSettingsLocation?
+        if let watchdogResource = watchdogResource {
+            watchdogLocation = WatchdogSettingsLocation(watchdogResource)
+        }
+        return SimulatorSettings(simulatorLocalizationSettings: localizationLocation, watchdogSettings: watchdogLocation)
+    }
+    
     private static func decodeModelsFromFile<T>(
         _ file: String?,
         defaultValueIfFileIsMissing: T? = nil,
@@ -73,6 +94,11 @@ final class ArgumentsReader {
     
     public static func validateResourceLocation(_ value: String?, key: ArgumentDescription) throws -> ResourceLocation {
         let string = try validateNotNil(value, key: key)
+        return try ResourceLocation.from(string)
+    }
+    
+    public static func validateResourceLocationOrNil(_ value: String?, key: ArgumentDescription) throws -> ResourceLocation? {
+        guard let string = value else { return nil }
         return try ResourceLocation.from(string)
     }
     

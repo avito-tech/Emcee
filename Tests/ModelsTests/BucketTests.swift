@@ -6,6 +6,7 @@ import XCTest
 final class BucketTests: XCTestCase {
     let fakeToolResources = ToolResourcesFixtures.fakeToolResources()
     let fakeBuildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
+    let fakeSimulatorSettings = SimulatorSettingsFixtures().simulatorSettings()
     
     func testBucketHasDetermenisticId() throws {
         let bucket1 = Bucket(
@@ -15,7 +16,9 @@ final class BucketTests: XCTestCase {
             ],
             testDestination: TestDestinationFixtures.testDestination,
             toolResources: fakeToolResources,
-            buildArtifacts: fakeBuildArtifacts)
+            buildArtifacts: fakeBuildArtifacts,
+            simulatorSettings: fakeSimulatorSettings
+        )
         
         let bucket2 = Bucket(
             testEntries: [
@@ -24,7 +27,9 @@ final class BucketTests: XCTestCase {
             ],
             testDestination: TestDestinationFixtures.testDestination,
             toolResources: fakeToolResources,
-            buildArtifacts: fakeBuildArtifacts)
+            buildArtifacts: fakeBuildArtifacts,
+            simulatorSettings: fakeSimulatorSettings
+        )
         
         XCTAssertEqual(bucket1.bucketId, bucket2.bucketId)
     }
@@ -37,7 +42,9 @@ final class BucketTests: XCTestCase {
             ],
             testDestination: TestDestinationFixtures.testDestination,
             toolResources: fakeToolResources,
-            buildArtifacts: fakeBuildArtifacts)
+            buildArtifacts: fakeBuildArtifacts,
+            simulatorSettings: fakeSimulatorSettings
+        )
         
         let bucket2 = Bucket(
             testEntries: [
@@ -46,7 +53,9 @@ final class BucketTests: XCTestCase {
             ],
             testDestination: TestDestinationFixtures.testDestination,
             toolResources: fakeToolResources,
-            buildArtifacts: fakeBuildArtifacts)
+            buildArtifacts: fakeBuildArtifacts,
+            simulatorSettings: fakeSimulatorSettings
+        )
         
         XCTAssertNotEqual(bucket1.bucketId, bucket2.bucketId)
     }
@@ -59,7 +68,9 @@ final class BucketTests: XCTestCase {
             ],
             testDestination: try TestDestination(deviceType: "device", runtime: "11.3"),
             toolResources: fakeToolResources,
-            buildArtifacts: fakeBuildArtifacts)
+            buildArtifacts: fakeBuildArtifacts,
+            simulatorSettings: fakeSimulatorSettings
+        )
         
         let bucket2 = Bucket(
             testEntries: [
@@ -68,7 +79,8 @@ final class BucketTests: XCTestCase {
             ],
             testDestination: try TestDestination(deviceType: "device", runtime: "11.4"),
             toolResources: fakeToolResources,
-            buildArtifacts: fakeBuildArtifacts)
+            buildArtifacts: fakeBuildArtifacts,
+            simulatorSettings: fakeSimulatorSettings)
         
         XCTAssertNotEqual(bucket1.bucketId, bucket2.bucketId)
     }

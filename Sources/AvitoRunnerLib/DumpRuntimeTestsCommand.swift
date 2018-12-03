@@ -46,9 +46,9 @@ final class DumpRuntimeTestsCommand: Command {
         let configuration = RuntimeDumpConfiguration(
             fbxctest: FbxctestLocation(fbxctest),
             xcTestBundle: TestBundleLocation(xctestBundle),
-            simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: "", watchdogSettings: ""),
             testDestination: testDestinations[0].testDestination,
-            testsToRun: [])
+            testsToRun: []
+        )
         
         let runtimeTests = try RuntimeTestQuerier(
             eventBus: EventBus(),

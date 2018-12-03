@@ -7,8 +7,6 @@ public final class DeployablesGenerator {
     let targetAvitoRunnerPath: String
     let auxiliaryResources: AuxiliaryResources
     let buildArtifacts: BuildArtifacts
-    let environmentFilePath: String
-    let targetEnvironmentPath: String
     let simulatorSettings: SimulatorSettings
     let targetSimulatorLocalizationSettingsPath: String
     let targetWatchdogSettingsPath: String
@@ -17,8 +15,6 @@ public final class DeployablesGenerator {
         targetAvitoRunnerPath: String,
         auxiliaryResources: AuxiliaryResources,
         buildArtifacts: BuildArtifacts,
-        environmentFilePath: String,
-        targetEnvironmentPath: String,
         simulatorSettings: SimulatorSettings,
         targetSimulatorLocalizationSettingsPath: String,
         targetWatchdogSettingsPath: String)
@@ -26,8 +22,6 @@ public final class DeployablesGenerator {
         self.targetAvitoRunnerPath = targetAvitoRunnerPath
         self.auxiliaryResources = auxiliaryResources
         self.buildArtifacts = buildArtifacts
-        self.environmentFilePath = environmentFilePath
-        self.targetEnvironmentPath = targetEnvironmentPath
         self.simulatorSettings = simulatorSettings
         self.targetSimulatorLocalizationSettingsPath = targetSimulatorLocalizationSettingsPath
         self.targetWatchdogSettingsPath = targetWatchdogSettingsPath
@@ -38,7 +32,6 @@ public final class DeployablesGenerator {
         deployables[.additionalApp] = try additionalAppDeployables()
         deployables[.app] = try appDeployables()
         deployables[.avitoRunner] = [runnerTool()]
-        deployables[.environment] = try environmentDeployables()
         deployables[.fbsimctl] = try toolForBinary(representable: auxiliaryResources.toolResources.fbsimctl, toolName: PackageName.fbsimctl.rawValue)
         deployables[.fbxctest] = try toolForBinary(representable: auxiliaryResources.toolResources.fbxctest, toolName: PackageName.fbxctest.rawValue)
         deployables[.plugin] = try pluginDeployables()
@@ -89,14 +82,7 @@ public final class DeployablesGenerator {
             return []
         }
     }
-    
-    func environmentDeployables() throws -> [DeployableItem] {
-        return [
-            DeployableItem(
-                name: PackageName.environment.rawValue,
-                files: [DeployableFile(source: environmentFilePath, destination: targetEnvironmentPath)])]
-    }
-    
+
     func runnerTool() -> DeployableTool {
         return DeployableTool(
             name: PackageName.avitoRunner.rawValue,
@@ -129,24 +115,32 @@ public final class DeployablesGenerator {
     
     func simulatorLocalizationSettingsDeployables() throws -> [DeployableItem] {
         guard let simulatorLocalizationSettings = simulatorSettings.simulatorLocalizationSettings else { return [] }
-        return [
-            DeployableItem(
-                name: PackageName.simulatorLocalizationSettings.rawValue,
-                files: [
-                    DeployableFile(
-                        source: simulatorLocalizationSettings,
-                        destination: targetSimulatorLocalizationSettingsPath)])]
+        switch simulatorLocalizationSettings.resourceLocation {
+        case .localFilePath(let path):
+            return [
+                DeployableItem(
+                    name: PackageName.simulatorLocalizationSettings.rawValue,
+                    files: [DeployableFile(source: path, destination: targetSimulatorLocalizationSettingsPath)]
+                )
+            ]
+        case .remoteUrl:
+            return []
+        }
     }
     
     func watchdogSettingsDeployables() throws -> [DeployableItem] {
         guard let watchdogSettings = simulatorSettings.watchdogSettings else { return [] }
-        return [
-            DeployableItem(
-                name: PackageName.watchdogSettings.rawValue,
-                files: [
-                    DeployableFile(
-                        source: watchdogSettings,
-                        destination: targetWatchdogSettingsPath)])]
+        switch watchdogSettings.resourceLocation {
+        case .localFilePath(let path):
+            return [
+                DeployableItem(
+                    name: PackageName.watchdogSettings.rawValue,
+                    files: [DeployableFile(source: path, destination: targetWatchdogSettingsPath)]
+                )
+            ]
+        case .remoteUrl:
+            return []
+        }
     }
     
     func pluginDeployables() throws -> [DeployableItem] {

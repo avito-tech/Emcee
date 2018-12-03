@@ -14,9 +14,6 @@ public struct RuntimeDumpConfiguration {
     /** Path to xctest bundle which contents should be dumped in runtime */
     public let xcTestBundle: TestBundleLocation
     
-    /** Some settings that should be applied to the test environment prior running the tests. */
-    public let simulatorSettings: SimulatorSettings
-    
     /** Test destination */
     public let testDestination: TestDestination
     
@@ -26,7 +23,6 @@ public struct RuntimeDumpConfiguration {
     public init(
         fbxctest: FbxctestLocation,
         xcTestBundle: TestBundleLocation,
-        simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testsToRun: [TestToRun])
     {
@@ -40,7 +36,6 @@ public struct RuntimeDumpConfiguration {
             scheduleStrategy: .individual)
         self.fbxctest = fbxctest
         self.xcTestBundle = xcTestBundle
-        self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
         self.testsToRun = testsToRun
     }

@@ -4,7 +4,6 @@ public enum PackageName: String {
     case additionalApp
     case app
     case avitoRunner
-    case environment
     case fbsimctl
     case fbxctest
     case plugin
@@ -17,7 +16,6 @@ public enum PackageName: String {
     private static let targetFileName: [PackageName: String] = [
         .fbxctest: "fbxctest",
         .fbsimctl: "fbsimctl",
-        .environment: "environment.json",
         .simulatorLocalizationSettings: "simulator_settings.json",
         .watchdogSettings: "watchdog_settings.json"
     ]

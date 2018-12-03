@@ -54,7 +54,9 @@ class QueueClientTests: XCTestCase {
             testEntries: [TestEntry(className: "class", methodName: "method", caseId: 123)],
             testDestination: TestDestinationFixtures.testDestination,
             toolResources: ToolResourcesFixtures.fakeToolResources(),
-            buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts())
+            buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
+            simulatorSettings: SimulatorSettingsFixtures().simulatorSettings()
+        )
         try prepareServer(RESTMethod.getBucket.withPrependingSlash) { request -> HttpResponse in
             let data: Data = (try? JSONEncoder().encode(RESTResponse.bucketDequeued(bucket: bucket))) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }

@@ -5,14 +5,17 @@ public struct BucketSplitInfo {
     // TODO: Rename to numberOfWorkers
     public let numberOfDestinations: UInt
     public let toolResources: ToolResources
+    public let simulatorSettings: SimulatorSettings
     
     public init(
         numberOfDestinations: UInt,
-        toolResources: ToolResources
+        toolResources: ToolResources,
+        simulatorSettings: SimulatorSettings
         )
     {
         self.numberOfDestinations = numberOfDestinations
         self.toolResources = toolResources
+        self.simulatorSettings = simulatorSettings
     }
 }
 
@@ -49,7 +52,8 @@ public class BucketSplitter: Splitter, CustomStringConvertible {
                 testEntries: group.map { $0.testEntry },
                 testDestination: entry.testDestination,
                 toolResources: bucketSplitInfo.toolResources,
-                buildArtifacts: entry.buildArtifacts
+                buildArtifacts: entry.buildArtifacts,
+                simulatorSettings: bucketSplitInfo.simulatorSettings
             )
         }
     }

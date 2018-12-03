@@ -105,7 +105,7 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
         comment: "Defines how to run tests. Can be: \(ScheduleStrategyType.availableRawValues.joined(separator: ", "))"),
     KnownStringArguments.simulatorLocalizationSettings: ArgumentDescriptionHolder(
         name: "--simulator-localization-settings",
-        comment: "Path to JSON with localization settings",
+        comment: "Location of JSON file with localization settings",
         optional: true),
     KnownStringArguments.tempFolder: ArgumentDescriptionHolder(
         name: "--temp-folder",
@@ -122,7 +122,7 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
         comment: "Where the combined (the one for all test destinations) Chrome trace should be created"),
     KnownStringArguments.watchdogSettings: ArgumentDescriptionHolder(
         name: "--watchdog-settings",
-        comment: "Path to JSON with watchdog settings",
+        comment: "Location of JSON file with watchdog settings",
         optional: true),
     KnownStringArguments.workerId: ArgumentDescriptionHolder(
         name: "--worker-id",

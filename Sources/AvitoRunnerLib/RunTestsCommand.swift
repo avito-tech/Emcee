@@ -100,10 +100,13 @@ final class RunTestsCommand: Command {
             junit: try ArgumentsReader.validateNotNil(arguments.get(self.junit), key: KnownStringArguments.junit),
             tracingReport: try ArgumentsReader.validateNotNil(arguments.get(self.trace), key: KnownStringArguments.trace)
         )
-        let simulatorSettings = SimulatorSettings(
-            simulatorLocalizationSettings: try ArgumentsReader.validateNilOrFileExists(arguments.get(self.simulatorLocalizationSettings), key: KnownStringArguments.simulatorLocalizationSettings),
-            watchdogSettings: try ArgumentsReader.validateNilOrFileExists(arguments.get(self.watchdogSettings), key: KnownStringArguments.watchdogSettings)
+        let simulatorSettings = try ArgumentsReader.simulatorSettings(
+            localizationFile: arguments.get(self.simulatorLocalizationSettings),
+            localizationKey: KnownStringArguments.simulatorLocalizationSettings,
+            watchdogFile: arguments.get(self.watchdogSettings),
+            watchdogKey: KnownStringArguments.watchdogSettings
         )
+        
         let testTimeoutConfiguration = TestTimeoutConfiguration(
             singleTestMaximumDuration: TimeInterval(try ArgumentsReader.validateNotNil(arguments.get(self.singleTestTimeout), key: KnownUIntArguments.singleTestTimeout)),
             fbxctestSilenceMaximumDuration: arguments.get(self.fbxctestSilenceTimeout).map { TimeInterval($0) },
@@ -137,7 +140,6 @@ final class RunTestsCommand: Command {
             runtimeDumpConfiguration: RuntimeDumpConfiguration(
                 fbxctest: auxiliaryResources.toolResources.fbxctest,
                 xcTestBundle: buildArtifacts.xcTestBundle,
-                simulatorSettings: simulatorSettings,
                 testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
                 testsToRun: onlyId + onlyTest + testArgFile.entries.map { $0.testToRun }
             ),
@@ -199,7 +201,6 @@ final class RunTestsCommand: Command {
         let schedulerConfiguration = SchedulerConfiguration(
             testType: .uiTest,
             testRunExecutionBehavior: configuration.testRunExecutionBehavior,
-            simulatorSettings: configuration.simulatorSettings,
             testTimeoutConfiguration: configuration.testTimeoutConfiguration,
             schedulerDataSource: LocalRunSchedulerDataSource(configuration: configuration),
             onDemandSimulatorPool: onDemandSimulatorPool)

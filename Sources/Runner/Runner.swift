@@ -127,10 +127,16 @@ public final class Runner {
             arguments += [JoinedSubprocessArgument(components: components, separator: ":")]
             
             if let simulatorLocatizationSettings = configuration.simulatorSettings.simulatorLocalizationSettings {
-                arguments += ["-simulator-localization-settings", simulatorLocatizationSettings]
+                arguments += [
+                    "-simulator-localization-settings",
+                    resourceLocationResolver.resolvable(withRepresentable: simulatorLocatizationSettings).asArgument()
+                ]
             }
             if let watchdogSettings = configuration.simulatorSettings.watchdogSettings {
-                arguments += ["-watchdog-settings", watchdogSettings]
+                arguments += [
+                    "-watchdog-settings",
+                    resourceLocationResolver.resolvable(withRepresentable: watchdogSettings).asArgument()
+                ]
             }
         }
         

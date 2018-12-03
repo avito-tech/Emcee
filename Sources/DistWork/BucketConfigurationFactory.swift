@@ -49,22 +49,17 @@ final class BucketConfigurationFactory {
     func createConfiguration(
         workerConfiguration: WorkerConfiguration,
         schedulerDataSource: SchedulerDataSource,
-        onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>)
-        throws -> SchedulerConfiguration
+        onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>
+        )
+        -> SchedulerConfiguration
     {
-        let simulatorLocalizationSettings = try fileInPackageIfExists(containerPath, .simulatorLocalizationSettings)
-        let watchdogSettings = try fileInPackageIfExists(containerPath, .watchdogSettings)
-        
-        let configuration = SchedulerConfiguration(
+        return SchedulerConfiguration(
             testType: .uiTest,
             testRunExecutionBehavior: workerConfiguration.testRunExecutionBehavior,
-            simulatorSettings: SimulatorSettings(
-                simulatorLocalizationSettings: simulatorLocalizationSettings,
-                watchdogSettings: watchdogSettings),
             testTimeoutConfiguration: workerConfiguration.testTimeoutConfiguration,
             schedulerDataSource: schedulerDataSource,
-            onDemandSimulatorPool: onDemandSimulatorPool)
-        return configuration
+            onDemandSimulatorPool: onDemandSimulatorPool
+        )
     }
     
     public var locallyDeployedAdditionalApps: [AdditionalAppBundleLocation] {
@@ -144,6 +139,24 @@ final class BucketConfigurationFactory {
                 return result && isDir.boolValue == true
         }
         return plugins.map { PluginLocation(.localFilePath($0)) }
+    }
+    
+    public var simulatorLocalizationSettings: SimulatorLocalizationLocation? {
+        do {
+            guard let path = try fileInPackageIfExists(containerPath, .simulatorLocalizationSettings) else { return nil }
+            return SimulatorLocalizationLocation(.localFilePath(path))
+        } catch {
+            return nil
+        }
+    }
+    
+    public var watchdogSettings: WatchdogSettingsLocation? {
+        do {
+            guard let path = try fileInPackageIfExists(containerPath, .watchdogSettings) else { return nil }
+            return WatchdogSettingsLocation(.localFilePath(path))
+        } catch {
+            return nil
+        }
     }
     
     private func packagePath(_ containerPath: String, _ package: PackageName) -> String {

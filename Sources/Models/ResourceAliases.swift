@@ -10,7 +10,9 @@ public typealias FbsimctlLocation = TypedResourceLocation<FbsimctlResourceLocati
 public typealias FbxctestLocation = TypedResourceLocation<FbxctestResourceLocationType>
 public typealias PluginLocation = TypedResourceLocation<PluginResourceLocationType>
 public typealias RunnerAppLocation = TypedResourceLocation<RunnerAppResourceLocationType>
+public typealias SimulatorLocalizationLocation = TypedResourceLocation<SimulatorLocalizationResourceLocationType>
 public typealias TestBundleLocation = TypedResourceLocation<TestBundleResourceLocationType>
+public typealias WatchdogSettingsLocation = TypedResourceLocation<WatchdogResourceLocationType>
 
 public final class AdditionalAppBundleResourceLocationType: ResourceLocationType {
     public static let name = "additional app bundle"
@@ -36,6 +38,14 @@ public final class RunnerAppResourceLocationType: ResourceLocationType {
     public static let name = "xct runner app"
 }
 
+public final class SimulatorLocalizationResourceLocationType: ResourceLocationType {
+    public static let name = "simulator localization settings"
+}
+
 public final class TestBundleResourceLocationType: ResourceLocationType {
     public static let name = "xctest bundle"
+}
+
+public final class WatchdogResourceLocationType: ResourceLocationType {
+    public static let name = "watchdog settings"
 }
