@@ -27,7 +27,7 @@ public final class EventDistributor {
     public func start() throws {
         try queue.sync {
             log("Starting web socket server")
-            server["/"] = websocket(nil, onBinary, nil)
+            server["/"] = websocket(text: nil, binary: onBinary, pong: nil, connected: nil, disconnected: nil)
             try server.start(0, forceIPv4: false, priority: .default)
         }
         log("Web socket server is available at: \(try webSocketAddress())")

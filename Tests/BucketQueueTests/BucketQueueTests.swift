@@ -20,7 +20,7 @@ final class BucketQueueTests: XCTestCase {
         
         alivenessTrackerWithImmediateTimeout.didRegisterWorker(workerId: workerId)
         alivenessTrackerWithAlwaysAliveResults.didRegisterWorker(workerId: workerId)
-        mutableAlivenessProvider.workerAliveness[workerId] = .alive
+        mutableAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [])
     }
     
     func test__whenQueueIsCreated__it_is_depleted() {
@@ -166,7 +166,7 @@ final class BucketQueueTests: XCTestCase {
         bucketQueue.enqueue(buckets: [bucket])
         _ = bucketQueue.dequeueBucket(requestId: requestId, workerId: workerId)
         
-        mutableAlivenessProvider.workerAliveness[workerId] = .silent
+        mutableAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .silent, bucketIdsBeingProcessed: [])
         
         let stuckBuckets = bucketQueue.reenqueueStuckBuckets()
         XCTAssertEqual(stuckBuckets, [StuckBucket(reason: .workerIsSilent, bucket: bucket, workerId: workerId)])
@@ -182,6 +182,28 @@ final class BucketQueueTests: XCTestCase {
         alivenessTrackerWithAlwaysAliveResults.blockWorker(workerId: workerId)
         let stuckBuckets = bucketQueue.reenqueueStuckBuckets()
         XCTAssertEqual(stuckBuckets, [StuckBucket(reason: .workerIsBlocked, bucket: bucket, workerId: workerId)])
+    }
+    
+    func test___when_worker_loses_bucket___it_is_removed_as_stuck() {
+        let bucket = BucketFixtures.createBucket(testEntries: [])
+        
+        let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults)
+        alivenessTrackerWithAlwaysAliveResults.didRegisterWorker(workerId: workerId)
+        
+        bucketQueue.enqueue(buckets: [bucket])
+        _ = bucketQueue.dequeueBucket(requestId: requestId, workerId: workerId)
+        alivenessTrackerWithAlwaysAliveResults.didDequeueBucket(bucketId: bucket.bucketId, workerId: workerId)
+        
+        XCTAssertEqual(
+            bucketQueue.reenqueueStuckBuckets(),
+            []
+        )
+        
+        alivenessTrackerWithAlwaysAliveResults.set(bucketIdsBeingProcessed: [], workerId: workerId)
+        XCTAssertEqual(
+            bucketQueue.reenqueueStuckBuckets(),
+            [StuckBucket(reason: .bucketLost, bucket: bucket, workerId: workerId)]
+        )
     }
 }
 

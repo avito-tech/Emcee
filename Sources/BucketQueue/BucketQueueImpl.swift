@@ -39,7 +39,7 @@ final class BucketQueueImpl: BucketQueue {
     public func dequeueBucket(requestId: String, workerId: String) -> DequeueResult {
         let workerAliveness = workerAlivenessProvider.workerAliveness
         
-        if workerAliveness[workerId] != .alive {
+        if workerAliveness[workerId]?.status != .alive {
             return .workerBlocked
         }
         
@@ -62,7 +62,7 @@ final class BucketQueueImpl: BucketQueue {
                 workerId: workerId,
                 queue: enqueuedBuckets,
                 aliveWorkers: workerAliveness
-                    .filter { $0.value == .alive }
+                    .filter { $0.value.status == .alive }
                     .map { $0.key }
             )
             
@@ -130,12 +130,16 @@ final class BucketQueueImpl: BucketQueue {
         return queue.sync {
             let allDequeuedBuckets = dequeuedBuckets
             let stuckBuckets: [StuckBucket] = allDequeuedBuckets.compactMap { dequeuedBucket in
-                let aliveness = workerAliveness[dequeuedBucket.workerId] ?? .notRegistered
-                switch aliveness {
-                case .alive:
-                    return nil
+                let aliveness = workerAliveness[dequeuedBucket.workerId] ?? WorkerAliveness(status: .notRegistered, bucketIdsBeingProcessed: [])
+                switch aliveness.status {
                 case .notRegistered:
                     fatalLogAndError("Logic error: worker '\(dequeuedBucket.workerId)' is not registered, but stuck bucket has worker id of this worker. This is not expected, as we shouldn't dequeue bucket using non-registered worker.")
+                case .alive:
+                    if aliveness.bucketIdsBeingProcessed.contains(dequeuedBucket.bucket.bucketId) {
+                       return nil
+                    }
+                    dequeuedBuckets.remove(dequeuedBucket)
+                    return StuckBucket(reason: .bucketLost, bucket: dequeuedBucket.bucket, workerId: dequeuedBucket.workerId)
                 case .blocked:
                     dequeuedBuckets.remove(dequeuedBucket)
                     return StuckBucket(reason: .workerIsBlocked, bucket: dequeuedBucket.bucket, workerId: dequeuedBucket.workerId)

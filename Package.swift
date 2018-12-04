@@ -16,6 +16,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-package-manager.git", .exact("0.3.0")),
+        .package(url: "https://github.com/beefon/CountedSet", .branch("master")),
         .package(url: "https://github.com/beefon/Shout", .branch("master")),
         .package(url: "https://github.com/daltoniam/Starscream.git", .exact("3.0.6")),
         .package(url: "https://github.com/httpswift/swifter.git", .branch("stable")),
@@ -89,6 +90,17 @@ let package = Package(
             ]),
         
         .target(
+            name: "CurrentlyBeingProcessedBucketsTracker",
+            dependencies: [
+                "CountedSet"
+            ]),
+        .testTarget(
+            name: "CurrentlyBeingProcessedBucketsTrackerTests",
+            dependencies: [
+                "CurrentlyBeingProcessedBucketsTracker"
+            ]),
+        
+        .target(
             name: "Deployer",
             dependencies: [
                 "Extensions",
@@ -141,6 +153,7 @@ let package = Package(
         .target(
             name: "DistWork",
             dependencies: [
+                "CurrentlyBeingProcessedBucketsTracker",
                 "EventBus",
                 "Extensions",
                 "Logging",

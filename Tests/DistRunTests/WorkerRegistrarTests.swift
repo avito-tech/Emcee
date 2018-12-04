@@ -23,12 +23,12 @@ final class WorkerRegistrarTests: XCTestCase {
     
     func test_registration_for_known_worker() throws {
         let registrar = createRegistrar()
-        XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId), .notRegistered)
+        XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId).status, .notRegistered)
         
         XCTAssertEqual(
             try registrar.handle(decodedRequest: RegisterWorkerRequest(workerId: workerId)),
             .workerRegisterSuccess(workerConfiguration: WorkerConfigurationFixtures.workerConfiguration))
-        XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId), .alive)
+        XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId).status, .alive)
     }
     
     func test_registration_for_blocked_worker() throws {

@@ -42,7 +42,10 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             TestEntry(className: "class2", methodName: "m2", caseId: nil)])
         let dequeuedBucket = DequeuedBucket(bucket: bucket, workerId: workerId, requestId: requestId)
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: DequeueResult.dequeuedBucket(dequeuedBucket))
-        let bucketProvider = BucketProviderEndpoint(bucketQueue: bucketQueue)
+        let bucketProvider = BucketProviderEndpoint(
+            bucketQueue: bucketQueue,
+            alivenessTracker: WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
+        )
         
         restServer.setHandler(
             registerWorkerHandler: RESTEndpointOf(actualHandler: FakeRESTEndpoint<Int>()),
@@ -98,9 +101,9 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let port = try restServer.start()
         
         let client = SynchronousQueueClient(serverAddress: queueServerAddress, serverPort: port, workerId: workerId)
-        try client.reportAliveness()
+        try client.reportAliveness(bucketIdsBeingProcessed: [])
         
-        XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId), .alive)
+        XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId).status, .alive)
     }
 }
 

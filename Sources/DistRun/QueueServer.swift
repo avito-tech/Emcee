@@ -39,7 +39,7 @@ public final class QueueServer {
             )
         )
         self.stuckBucketsPoller = StuckBucketsPoller(bucketQueue: bucketQueue)
-        self.bucketProvider = BucketProviderEndpoint(bucketQueue: bucketQueue)
+        self.bucketProvider = BucketProviderEndpoint(bucketQueue: bucketQueue, alivenessTracker: workerAlivenessTracker)
         self.bucketResultRegistrar = BucketResultRegistrar(bucketQueue: bucketQueue, eventBus: eventBus, resultsCollector: resultsCollector, workerAlivenessTracker: workerAlivenessTracker)
         self.newWorkerRegistrationTimeAllowance = newWorkerRegistrationTimeAllowance
         self.queueExhaustTimeAllowance = queueExhaustTimeAllowance

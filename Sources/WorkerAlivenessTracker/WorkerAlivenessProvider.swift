@@ -7,11 +7,11 @@ public protocol WorkerAlivenessProvider: class {
 public extension WorkerAlivenessProvider {
     var hasAnyAliveWorker: Bool {
         return workerAliveness.contains { _, value in
-            value == .alive
+            value.status == .alive
         }
     }
     
     func alivenessForWorker(workerId: String) -> WorkerAliveness {
-        return workerAliveness[workerId] ?? .notRegistered
+        return workerAliveness[workerId] ?? WorkerAliveness(status: .notRegistered, bucketIdsBeingProcessed: [])
     }
 }

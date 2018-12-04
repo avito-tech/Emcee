@@ -15,6 +15,7 @@ public final class WorkerAlivenessEndpoint: RESTEndpoint {
     
     public func handle(decodedRequest: ReportAliveRequest) throws -> RESTResponse {
         alivenessTracker.markWorkerAsAlive(workerId: decodedRequest.workerId)
+        alivenessTracker.set(bucketIdsBeingProcessed: decodedRequest.bucketIdsBeingProcessed, workerId: decodedRequest.workerId)
         return .aliveReportAccepted
     }
 }

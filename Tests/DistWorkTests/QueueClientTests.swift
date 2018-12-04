@@ -143,7 +143,7 @@ class QueueClientTests: XCTestCase {
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
         
-        try queueClient.reportAlive()
+        try queueClient.reportAlive(bucketIdsBeingProcessed: [])
         
         wait(for: [expectation], timeout: 10)
     }

@@ -161,8 +161,8 @@ public final class QueueClient {
     
     // MARK: - Reporting Worker is Alive
     
-    public func reportAlive() throws {
-        let payload = ReportAliveRequest(workerId: workerId)
+    public func reportAlive(bucketIdsBeingProcessed: Set<String>) throws {
+        let payload = ReportAliveRequest(workerId: workerId, bucketIdsBeingProcessed: bucketIdsBeingProcessed)
         try sendRequest(.reportAlive, payload: payload, completionHandler: handleAlivenessResponse)
     }
     

@@ -63,10 +63,10 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         } as Void
     }
     
-    public func reportAliveness() throws {
+    public func reportAliveness(bucketIdsBeingProcessed: Set<String>) throws {
         try synchronize {
             alivenessReportResult = nil
-            try queueClient.reportAlive()
+            try queueClient.reportAlive(bucketIdsBeingProcessed: bucketIdsBeingProcessed)
             try SynchronousWaiter.waitWhile(timeout: 10, description: "Wait for aliveness report") {
                 self.alivenessReportResult == nil
             }

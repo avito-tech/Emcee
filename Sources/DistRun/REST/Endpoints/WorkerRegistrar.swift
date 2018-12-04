@@ -30,8 +30,8 @@ public final class WorkerRegistrar: RESTEndpoint {
             throw WorkerRegistrarError.missingWorkerConfiguration(workerId: decodedRequest.workerId)
         }
         
-        let workerStatus = workerAlivenessTracker.alivenessForWorker(workerId: decodedRequest.workerId)
-        switch workerStatus {
+        let workerAliveness = workerAlivenessTracker.alivenessForWorker(workerId: decodedRequest.workerId)
+        switch workerAliveness.status {
         case .notRegistered, .alive, .silent:
             log("Registration request from worker with id: \(decodedRequest.workerId)")
             workerAlivenessTracker.didRegisterWorker(workerId: decodedRequest.workerId)

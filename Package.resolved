@@ -11,6 +11,15 @@
         }
       },
       {
+        "package": "CountedSet",
+        "repositoryURL": "https://github.com/beefon/CountedSet",
+        "state": {
+          "branch": "master",
+          "revision": "8e6ef1f612d58524eee947dca12404424ff88a75",
+          "version": null
+        }
+      },
+      {
         "package": "CSSH",
         "repositoryURL": "https://github.com/jakeheis/CSSH",
         "state": {
@@ -51,7 +60,7 @@
         "repositoryURL": "https://github.com/httpswift/swifter.git",
         "state": {
           "branch": "stable",
-          "revision": "b366f5ed088d9d0d216a9ce18ec726f7912c30f3",
+          "revision": "9c25524169b725128d6b5db719875faf771a96b2",
           "version": null
         }
       },

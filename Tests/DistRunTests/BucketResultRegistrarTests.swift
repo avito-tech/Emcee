@@ -45,7 +45,7 @@ final class BucketResultRegistrarTests: XCTestCase {
         XCTAssertThrowsError(try registrar.handle(decodedRequest: request))
         
         XCTAssertEqual(resultsCollector.collectedResults, [])
-        XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: "worker"), .blocked)
+        XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: "worker").status, .blocked)
     }
 }
 

@@ -1,3 +1,4 @@
+import CurrentlyBeingProcessedBucketsTracker
 import Dispatch
 import EventBus
 import Foundation
@@ -18,6 +19,7 @@ public final class DistWorker {
     private let bucketConfigurationFactory: BucketConfigurationFactory
     private let resourceLocationResolver: ResourceLocationResolver
     private var reportingAliveTimer: DispatchBasedTimer?
+    private let currentlyBeingProcessedBucketsTracker = CurrentlyBeingProcessedBucketsTracker()
     
     public init(
         queueServerAddress: String,
@@ -55,15 +57,21 @@ public final class DistWorker {
     private func startReportingWorkerIsAlive(interval: TimeInterval) {
         reportingAliveTimer = DispatchBasedTimer.startedTimer(
             repeating: .milliseconds(Int(interval * 1000.0)),
-            leeway: .seconds(1)) { [weak queueClient] in
-                if let client = queueClient {
-                    do {
-                        try client.reportAliveness()
-                    } catch {
-                        log("Error: failed to report aliveness: \(error)")
-                    }
+            leeway: .seconds(1)) { [weak self] in
+                guard let strongSelf = self else { return }
+                do {
+                    try strongSelf.reportAliveness()
+                } catch {
+                    log("Error: failed to report aliveness: \(error)")
                 }
         }
+    }
+    
+    private func reportAliveness() throws {
+        let bucketIdsBeingProcessed = syncQueue.sync {
+            currentlyBeingProcessedBucketsTracker.bucketIdsBeingProcessed
+        }
+        try queueClient.reportAliveness(bucketIdsBeingProcessed: bucketIdsBeingProcessed)
     }
     
     // MARK: - Private Stuff
@@ -123,6 +131,7 @@ public final class DistWorker {
                 case .bucket(let fetchedBucket):
                     syncQueue.sync {
                         requestIdForBucketId[fetchedBucket.bucketId] = requestId
+                        currentlyBeingProcessedBucketsTracker.didFetch(bucketId: fetchedBucket.bucketId)
                     }
                     log("Received bucket \(fetchedBucket.bucketId), requestId: \(requestId)", color: .blue)
                     return schedulerBucketByOverridingToolResourcesWithLocalIfNeeded(fetchedBucket)
@@ -175,6 +184,10 @@ public final class DistWorker {
         } catch {
             log("Failed to send test run result for bucket \(testingResult.bucketId): \(error)")
             cleanUpAndStop()
+        }
+        
+        syncQueue.sync {
+            currentlyBeingProcessedBucketsTracker.didObtainResult(bucketId: testingResult.bucketId)
         }
     }
 }

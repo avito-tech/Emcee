@@ -4,20 +4,33 @@ import Foundation
 public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
     private let syncQueue = DispatchQueue(label: "ru.avito.emcee.WorkerAlivenessTracker.syncQueue")
     private var workerAliveReportTimestamps = [String: Date]()
+    private let workerBucketIdsBeingProcessed = WorkerCurrentlyProcessingBucketsTracker()
     private var blockedWorkers = Set<String>()
-    private let reportAliveInterval: TimeInterval
     /// allow worker some additinal time to perform a "i'm alive" report, e.g. to compensate a network latency
-    private let additionalTimeToPerformWorkerIsAliveReport: TimeInterval
+    private let maximumNotReportingDuration: TimeInterval
 
     public init(reportAliveInterval: TimeInterval, additionalTimeToPerformWorkerIsAliveReport: TimeInterval) {
-        self.reportAliveInterval = reportAliveInterval
-        self.additionalTimeToPerformWorkerIsAliveReport = additionalTimeToPerformWorkerIsAliveReport
+        self.maximumNotReportingDuration = reportAliveInterval + additionalTimeToPerformWorkerIsAliveReport
     }
-
+    
     public func markWorkerAsAlive(workerId: String) {
         syncQueue.sync {
             if !blockedWorkers.contains(workerId) {
                 workerAliveReportTimestamps[workerId] = Date()
+            }
+        }
+    }
+    
+    public func didDequeueBucket(bucketId: String, workerId: String) {
+        syncQueue.sync {
+            workerBucketIdsBeingProcessed.append(bucketId: bucketId, workerId: workerId)
+        }
+    }
+    
+    public func set(bucketIdsBeingProcessed: Set<String>, workerId: String) {
+        syncQueue.sync {
+            if !blockedWorkers.contains(workerId) {
+                workerBucketIdsBeingProcessed.set(bucketIdsBeingProcessed: bucketIdsBeingProcessed, byWorkerId: workerId)
             }
         }
     }
@@ -29,6 +42,7 @@ public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
     public func blockWorker(workerId: String) {
         syncQueue.sync {
             _ = blockedWorkers.insert(workerId)
+            workerBucketIdsBeingProcessed.resetBucketIdsBeingProcessedBy(workerId: workerId)
         }
     }
     
@@ -39,28 +53,26 @@ public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
             var workerAliveness = [String: WorkerAliveness]()
             let currentDate = Date()
             for id in uniqueWorkerIds {
-                workerAliveness[id] = alivenessForWorker(workerId: id, currentDate: currentDate)
+                workerAliveness[id] = onSyncQueue_alivenessForWorker(workerId: id, currentDate: currentDate)
             }
             return workerAliveness
         }
     }
     
-    private func alivenessForWorker(workerId: String, currentDate: Date) -> WorkerAliveness {
+    private func onSyncQueue_alivenessForWorker(workerId: String, currentDate: Date) -> WorkerAliveness {
         guard let latestAliveDate = workerAliveReportTimestamps[workerId] else {
-            return .notRegistered
+            return WorkerAliveness(status: .notRegistered, bucketIdsBeingProcessed: [])
         }
         if blockedWorkers.contains(workerId) {
-            return .blocked
+            return WorkerAliveness(status: .blocked, bucketIdsBeingProcessed: [])
         }
+        
+        let bucketIdsBeingProcessed = workerBucketIdsBeingProcessed.bucketIdsBeingProcessedBy(workerId: workerId)
         let silenceDuration = Date().timeIntervalSince(latestAliveDate)
         if silenceDuration > maximumNotReportingDuration {
-            return .silent
+            return WorkerAliveness(status: .silent, bucketIdsBeingProcessed: bucketIdsBeingProcessed)
         } else {
-            return .alive
+            return WorkerAliveness(status: .alive, bucketIdsBeingProcessed: bucketIdsBeingProcessed)
         }
-    }
-    
-    private var maximumNotReportingDuration: TimeInterval {
-        return reportAliveInterval + additionalTimeToPerformWorkerIsAliveReport
     }
 }
