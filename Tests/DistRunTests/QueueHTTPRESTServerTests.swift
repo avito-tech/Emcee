@@ -85,7 +85,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let port = try restServer.start()
         
         let client = SynchronousQueueClient(serverAddress: queueServerAddress, serverPort: port, workerId: workerId)
-        try client.send(testingResult: testingResult, requestId: requestId)
+        _ = try client.send(testingResult: testingResult, requestId: requestId)
         
         XCTAssertEqual(resultsCollector.collectedResults, [testingResult])
     }
@@ -101,7 +101,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let port = try restServer.start()
         
         let client = SynchronousQueueClient(serverAddress: queueServerAddress, serverPort: port, workerId: workerId)
-        try client.reportAliveness(bucketIdsBeingProcessed: [])
+        try client.reportAliveness { [] }
         
         XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId).status, .alive)
     }

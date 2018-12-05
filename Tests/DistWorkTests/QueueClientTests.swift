@@ -135,16 +135,48 @@ class QueueClientTests: XCTestCase {
     }
     
     func testAliveRequests() throws {
-        let expectation = self.expectation(description: "Aliveness report has been received")
+        let alivenessReportReceivedExpectation = self.expectation(description: "Aliveness report has been received")
+        let bucketIdsProviderCalledExpectation = self.expectation(description: "Bucket Ids provider used")
+        
+        let bucketId = UUID().uuidString
+        let provider: () -> Set<String> = {
+            bucketIdsProviderCalledExpectation.fulfill()
+            return Set([bucketId])
+        }
         
         try prepareServer(RESTMethod.reportAlive.withPrependingSlash) { request -> HttpResponse in
-            expectation.fulfill()
+            defer { alivenessReportReceivedExpectation.fulfill() }
+            
+            let requestData = Data(bytes: request.body)
+            let body = try? JSONDecoder().decode(ReportAliveRequest.self, from: requestData)
+            XCTAssertEqual(body?.bucketIdsBeingProcessed, [bucketId])
+            
             let data: Data = (try? JSONEncoder().encode(RESTResponse.aliveReportAccepted)) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
         
-        try queueClient.reportAlive(bucketIdsBeingProcessed: [])
+        try queueClient.reportAlive(bucketIdsBeingProcessedProvider: provider)
         
-        wait(for: [expectation], timeout: 10)
+        wait(for: [alivenessReportReceivedExpectation, bucketIdsProviderCalledExpectation], timeout: 10)
+    }
+    
+    func test___when_queue_is_closed___requests_throw_correct_error() throws {
+        try prepareServer(RESTMethod.getBucket.withPrependingSlash) { request -> HttpResponse in
+            XCTFail("Endpoint should not be called")
+            return .internalServerError
+        }
+        queueClient.close()
+        XCTAssertThrowsError(try queueClient.fetchBucket(requestId: "id"), "Closed queue client should throw") { throwedError in
+            guard let error = throwedError as? QueueClientError else {
+                XCTFail("Unexpected error: \(throwedError)")
+                return
+            }
+            switch error {
+            case .queueClientIsClosed(let method):
+                XCTAssertEqual(method, RESTMethod.getBucket)
+            default:
+                XCTFail("Unexpected error: \(throwedError)")
+            }
+        }
     }
 }

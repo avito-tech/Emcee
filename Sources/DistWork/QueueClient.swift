@@ -12,6 +12,7 @@ public final class QueueClient {
     private let urlSession = URLSession(configuration: URLSessionConfiguration.default)
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
+    private var isClosed = false
     
     public init(serverAddress: String, serverPort: Int, workerId: String) {
         self.serverAddress = serverAddress
@@ -33,7 +34,8 @@ public final class QueueClient {
     
     public func close() {
         log("Invalidating queue client URL session")
-        urlSession.invalidateAndCancel()
+        urlSession.finishTasksAndInvalidate()
+        isClosed = true
     }
     
     /**
@@ -60,6 +62,8 @@ public final class QueueClient {
         completionHandler: @escaping (Data?, URLResponse?, Error?) -> ())
         throws where T : Encodable
     {
+        guard !isClosed else { throw QueueClientError.queueClientIsClosed(restMethod) }
+        
         let jsonData = try encoder.encode(payload)
         if let stringJson = String(data: jsonData, encoding: .utf8) {
             log("Sending request to \(restMethod.withPrependingSlash): \(stringJson)")
@@ -161,8 +165,8 @@ public final class QueueClient {
     
     // MARK: - Reporting Worker is Alive
     
-    public func reportAlive(bucketIdsBeingProcessed: Set<String>) throws {
-        let payload = ReportAliveRequest(workerId: workerId, bucketIdsBeingProcessed: bucketIdsBeingProcessed)
+    public func reportAlive(bucketIdsBeingProcessedProvider: () -> (Set<String>)) throws {
+        let payload = ReportAliveRequest(workerId: workerId, bucketIdsBeingProcessed: bucketIdsBeingProcessedProvider())
         try sendRequest(.reportAlive, payload: payload, completionHandler: handleAlivenessResponse)
     }
     

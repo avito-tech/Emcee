@@ -169,7 +169,10 @@ final class BucketQueueTests: XCTestCase {
         mutableAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .silent, bucketIdsBeingProcessed: [])
         
         let stuckBuckets = bucketQueue.reenqueueStuckBuckets()
-        XCTAssertEqual(stuckBuckets, [StuckBucket(reason: .workerIsSilent, bucket: bucket, workerId: workerId)])
+        XCTAssertEqual(
+            stuckBuckets,
+            [StuckBucket(reason: .workerIsSilent, bucket: bucket, workerId: workerId, requestId: requestId)]
+        )
     }
     
     func test__when_worker_is_blocked__its_dequeued_buckets_removed() {
@@ -181,7 +184,10 @@ final class BucketQueueTests: XCTestCase {
         
         alivenessTrackerWithAlwaysAliveResults.blockWorker(workerId: workerId)
         let stuckBuckets = bucketQueue.reenqueueStuckBuckets()
-        XCTAssertEqual(stuckBuckets, [StuckBucket(reason: .workerIsBlocked, bucket: bucket, workerId: workerId)])
+        XCTAssertEqual(
+            stuckBuckets,
+            [StuckBucket(reason: .workerIsBlocked, bucket: bucket, workerId: workerId, requestId: requestId)]
+        )
     }
     
     func test___when_worker_loses_bucket___it_is_removed_as_stuck() {
@@ -202,7 +208,7 @@ final class BucketQueueTests: XCTestCase {
         alivenessTrackerWithAlwaysAliveResults.set(bucketIdsBeingProcessed: [], workerId: workerId)
         XCTAssertEqual(
             bucketQueue.reenqueueStuckBuckets(),
-            [StuckBucket(reason: .bucketLost, bucket: bucket, workerId: workerId)]
+            [StuckBucket(reason: .bucketLost, bucket: bucket, workerId: workerId, requestId: requestId)]
         )
     }
 }

@@ -68,10 +68,9 @@ public final class DistWorker {
     }
     
     private func reportAliveness() throws {
-        let bucketIdsBeingProcessed = syncQueue.sync {
-            currentlyBeingProcessedBucketsTracker.bucketIdsBeingProcessed
+        try queueClient.reportAliveness {
+            syncQueue.sync { currentlyBeingProcessedBucketsTracker.bucketIdsBeingProcessed }
         }
-        try queueClient.reportAliveness(bucketIdsBeingProcessed: bucketIdsBeingProcessed)
     }
     
     // MARK: - Private Stuff
@@ -180,13 +179,17 @@ public final class DistWorker {
                 }
                 return requestId
             }
-            try queueClient.send(testingResult: testingResult, requestId: requestId)
+            let acceptedBucketId = try queueClient.send(testingResult: testingResult, requestId: requestId)
+            if acceptedBucketId != testingResult.bucketId {
+                throw DistWorkerError.unexpectedAcceptedBucketId(actual: acceptedBucketId, expected: testingResult.bucketId)
+            }
         } catch {
             log("Failed to send test run result for bucket \(testingResult.bucketId): \(error)")
             cleanUpAndStop()
         }
         
         syncQueue.sync {
+            requestIdForBucketId.removeValue(forKey: testingResult.bucketId)
             currentlyBeingProcessedBucketsTracker.didObtainResult(bucketId: testingResult.bucketId)
         }
     }

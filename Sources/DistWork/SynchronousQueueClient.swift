@@ -15,15 +15,14 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         case workerHasBeenBlocked
     }
     
-    private var acceptedBucketResultIds: [String]
     private let queueClient: QueueClient
     private var registrationResult: Result<WorkerConfiguration, QueueClientError>?
     private var bucketFetchResult: Result<BucketFetchResult, QueueClientError>?
+    private var bucketResultSendResult: Result<String, QueueClientError>?
     private var alivenessReportResult: Result<Bool, QueueClientError>?
     private let syncQueue = DispatchQueue(label: "ru.avito.SynchronousQueueClient")
     
     public init(serverAddress: String, serverPort: Int, workerId: String) {
-        self.acceptedBucketResultIds = []
         self.queueClient = QueueClient(serverAddress: serverAddress, serverPort: serverPort, workerId: workerId)
         self.queueClient.delegate = self
     }
@@ -38,7 +37,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         return try synchronize {
             registrationResult = nil
             try queueClient.registerWithServer()
-            try SynchronousWaiter.waitWhile(timeout: 10) { self.registrationResult == nil }
+            try SynchronousWaiter.waitWhile(timeout: 10, description: "Wait for registration with server") { self.registrationResult == nil }
             return try registrationResult!.dematerialize()
         }
     }
@@ -54,19 +53,21 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         }
     }
     
-    public func send(testingResult: TestingResult, requestId: String) throws {
-        try synchronize {
-            try queueClient.send(testingResult: testingResult, requestId: requestId)
-            try SynchronousWaiter.waitWhile(timeout: 10, description: "Wait for bucket result send") {
-                !acceptedBucketResultIds.contains(testingResult.bucketId)
+    public func send(testingResult: TestingResult, requestId: String) throws -> String {
+        return try synchronize {
+            bucketResultSendResult = nil
+            return try runRetrying(times: 5) {
+                try queueClient.send(testingResult: testingResult, requestId: requestId)
+                try SynchronousWaiter.waitWhile(timeout: 10, description: "Wait for bucket result send") { self.bucketResultSendResult == nil }
+                return try bucketResultSendResult!.dematerialize()
             }
-        } as Void
+        }
     }
     
-    public func reportAliveness(bucketIdsBeingProcessed: Set<String>) throws {
+    public func reportAliveness(bucketIdsBeingProcessedProvider: () -> (Set<String>)) throws {
         try synchronize {
             alivenessReportResult = nil
-            try queueClient.reportAlive(bucketIdsBeingProcessed: bucketIdsBeingProcessed)
+            try queueClient.reportAlive(bucketIdsBeingProcessedProvider: bucketIdsBeingProcessedProvider)
             try SynchronousWaiter.waitWhile(timeout: 10, description: "Wait for aliveness report") {
                 self.alivenessReportResult == nil
             }
@@ -84,7 +85,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
             do {
                 return try work()
             } catch {
-                log("Attempted to run \(retryIndex) or \(times), got an error: \(error)")
+                log("Attempted to run \(retryIndex) of \(times), got an error: \(error)")
                 sleep(1)
             }
         }
@@ -97,6 +98,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         registrationResult = Result.failure(error)
         bucketFetchResult = Result.failure(error)
         alivenessReportResult = Result.failure(error)
+        bucketResultSendResult = Result.failure(error)
     }
     
     public func queueClient(_ sender: QueueClient, didReceiveWorkerConfiguration workerConfiguration: WorkerConfiguration) {
@@ -120,7 +122,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     }
     
     public func queueClient(_ sender: QueueClient, serverDidAcceptBucketResult bucketId: String) {
-        acceptedBucketResultIds.append(bucketId)
+        bucketResultSendResult = Result.success(bucketId)
     }
     
     public func queueClientWorkerHasBeenIndicatedAsAlive(_ sender: QueueClient) {

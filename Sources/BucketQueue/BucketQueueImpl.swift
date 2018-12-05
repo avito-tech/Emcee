@@ -88,7 +88,7 @@ final class BucketQueueImpl: BucketQueue {
         -> BucketQueueAcceptResult
     {
         return try queue.sync {
-            log("Validating result from \(workerId): \(testingResult)")
+            log("Validating result from \(workerId) \(requestId): \(testingResult)")
             
             guard let dequeuedBucket = previouslyDequeuedBucket_onSyncQueue(requestId: requestId, workerId: workerId) else {
                 log("Validation failed: no dequeued bucket for request \(requestId) worker \(workerId)")
@@ -131,6 +131,7 @@ final class BucketQueueImpl: BucketQueue {
             let allDequeuedBuckets = dequeuedBuckets
             let stuckBuckets: [StuckBucket] = allDequeuedBuckets.compactMap { dequeuedBucket in
                 let aliveness = workerAliveness[dequeuedBucket.workerId] ?? WorkerAliveness(status: .notRegistered, bucketIdsBeingProcessed: [])
+                let stuckReason: StuckBucket.Reason
                 switch aliveness.status {
                 case .notRegistered:
                     fatalLogAndError("Logic error: worker '\(dequeuedBucket.workerId)' is not registered, but stuck bucket has worker id of this worker. This is not expected, as we shouldn't dequeue bucket using non-registered worker.")
@@ -138,15 +139,19 @@ final class BucketQueueImpl: BucketQueue {
                     if aliveness.bucketIdsBeingProcessed.contains(dequeuedBucket.bucket.bucketId) {
                        return nil
                     }
-                    dequeuedBuckets.remove(dequeuedBucket)
-                    return StuckBucket(reason: .bucketLost, bucket: dequeuedBucket.bucket, workerId: dequeuedBucket.workerId)
+                    stuckReason = .bucketLost
                 case .blocked:
-                    dequeuedBuckets.remove(dequeuedBucket)
-                    return StuckBucket(reason: .workerIsBlocked, bucket: dequeuedBucket.bucket, workerId: dequeuedBucket.workerId)
+                    stuckReason = .workerIsBlocked
                 case .silent:
-                    dequeuedBuckets.remove(dequeuedBucket)
-                    return StuckBucket(reason: .workerIsSilent, bucket: dequeuedBucket.bucket, workerId: dequeuedBucket.workerId)
+                    stuckReason = .workerIsSilent
                 }
+                dequeuedBuckets.remove(dequeuedBucket)
+                return StuckBucket(
+                    reason: stuckReason,
+                    bucket: dequeuedBucket.bucket,
+                    workerId: dequeuedBucket.workerId,
+                    requestId: dequeuedBucket.requestId
+                )
             }
             
             // Every stucked test produces a single bucket with itself

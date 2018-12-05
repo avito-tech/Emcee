@@ -10,10 +10,12 @@ public struct StuckBucket: Equatable {
     public let reason: Reason
     public let bucket: Bucket
     public let workerId: String
+    public let requestId: String
     
-    public init(reason: Reason, bucket: Bucket, workerId: String) {
+    public init(reason: Reason, bucket: Bucket, workerId: String, requestId: String) {
         self.reason = reason
         self.bucket = bucket
         self.workerId = workerId
+        self.requestId = requestId
     }
 }
