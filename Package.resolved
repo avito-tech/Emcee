@@ -11,6 +11,15 @@
         }
       },
       {
+        "package": "CountedSet",
+        "repositoryURL": "https://github.com/beefon/CountedSet",
+        "state": {
+          "branch": "master",
+          "revision": "d9811bbc89aaa8558e4c64e0aa0bc01fc15901f6",
+          "version": null
+        }
+      },
+      {
         "package": "CSSH",
         "repositoryURL": "https://github.com/jakeheis/CSSH",
         "state": {

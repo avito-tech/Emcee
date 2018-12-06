@@ -95,23 +95,21 @@ final class BucketQueueImpl: BucketQueue {
                 throw ResultAcceptanceError.noDequeuedBucket(requestId: requestId, workerId: workerId)
             }
             
-            let requestTestEntries = Set(testingResult.unfilteredResults.map { $0.testEntry })
+            let actualTestEntries = Set(testingResult.unfilteredResults.map { $0.testEntry })
             let expectedTestEntries = Set(dequeuedBucket.bucket.testEntries)
-            guard requestTestEntries == expectedTestEntries else {
-                log("Validation failed: unexpected result count for request \(requestId) worker \(workerId)")
-                throw ResultAcceptanceError.notAllResultsAvailable(
-                    requestId: requestId,
-                    workerId: workerId,
-                    expectedTestEntries: dequeuedBucket.bucket.testEntries,
-                    providedResults: testingResult.unfilteredResults)
-            }
+            reenqueueLostResults_onSyncQueue(
+                expectedTestEntries: expectedTestEntries,
+                actualTestEntries: actualTestEntries,
+                bucket: dequeuedBucket.bucket,
+                workerId: workerId,
+                requestId: requestId
+            )
             
             let acceptResult = testHistoryTracker.accept(
                 testingResult: testingResult,
                 bucket: dequeuedBucket.bucket,
                 workerId: workerId
             )
-            
             enqueue_onSyncQueue(buckets: acceptResult.bucketsToReenqueue)
             
             dequeuedBuckets.remove(dequeuedBucket)
@@ -216,5 +214,27 @@ final class BucketQueueImpl: BucketQueue {
     
     private func previouslyDequeuedBucket_onSyncQueue(requestId: String, workerId: String) -> DequeuedBucket? {
         return dequeuedBuckets.first { $0.requestId == requestId && $0.workerId == workerId }
+    }
+    
+    private func reenqueueLostResults_onSyncQueue(
+        expectedTestEntries: Set<TestEntry>,
+        actualTestEntries: Set<TestEntry>,
+        bucket: Bucket,
+        workerId: String,
+        requestId: String)
+    {
+        let lostTestEntries = expectedTestEntries.subtracting(actualTestEntries)
+        if !lostTestEntries.isEmpty {
+            log("Test result from \(workerId) (request \(requestId)) contains lost test entries: \(lostTestEntries)")
+            let lostResult = testHistoryTracker.accept(
+                testingResult: TestingResult(
+                    bucketId: bucket.bucketId,
+                    testDestination: bucket.testDestination,
+                    unfilteredResults: lostTestEntries.map { TestEntryResult.lost(testEntry: $0) }),
+                bucket: bucket,
+                workerId: workerId
+            )
+            enqueue_onSyncQueue(buckets: lostResult.bucketsToReenqueue)
+        }
     }
 }
