@@ -1,3 +1,4 @@
+import Dispatch
 import Extensions
 import FileCache
 import Foundation
@@ -8,6 +9,7 @@ import URLResource
 public final class ResourceLocationResolver {
     private let urlResource: URLResource
     private let cacheAccessCount = AtomicValue<Int>(0)
+    private let unarchiveQueue = DispatchQueue(label: "ru.avito.emcee.ResourceLocationResolver.unarchiveQueue")
     
     public enum ValidationError: String, Error, CustomStringConvertible {
         case unpackProcessError = "Unzip operation failed."
@@ -63,15 +65,19 @@ public final class ResourceLocationResolver {
         let handler = BlockingURLResourceHandler()
         urlResource.fetchResource(url: url, handler: handler)
         let zipUrl = try handler.wait()
+        
         let contentsUrl = zipUrl.deletingLastPathComponent().appendingPathComponent("zip_contents", isDirectory: true)
-        if !FileManager.default.fileExists(atPath: contentsUrl.path) {
-            log("Will unzip '\(zipUrl)' into '\(contentsUrl)'")
-            let process = Process.launchedProcess(
-                launchPath: "/usr/bin/unzip",
-                arguments: ["-qq", zipUrl.path, "-d", contentsUrl.path])
-            process.waitUntilExit()
-            if process.terminationStatus != 0 {
-                throw ValidationError.unpackProcessError
+        try unarchiveQueue.sync {
+            if !FileManager.default.fileExists(atPath: contentsUrl.path) {
+                log("Will unzip '\(zipUrl)' into '\(contentsUrl)'")
+                let process = Process.launchedProcess(
+                    launchPath: "/usr/bin/unzip",
+                    arguments: ["-qq", zipUrl.path, "-d", contentsUrl.path]
+                )
+                process.waitUntilExit()
+                if process.terminationStatus != 0 {
+                    throw ValidationError.unpackProcessError
+                }
             }
         }
         return contentsUrl

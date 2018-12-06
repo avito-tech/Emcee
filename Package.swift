@@ -361,6 +361,15 @@ let package = Package(
                 "Models",
                 "URLResource"
             ]),
+        .testTarget(
+            name: "ResourceLocationResolverTests",
+            dependencies: [
+                "FileCache",
+                "ResourceLocationResolver",
+                "Swifter",
+                "TempFolder",
+                "URLResource"
+            ]),
         
         .target(
             name: "RESTMethods",
@@ -523,6 +532,7 @@ let package = Package(
             dependencies: [
                 "FileCache",
                 "Logging",
+                "Models",
                 "Utility"
             ]),
         .testTarget(
