@@ -21,7 +21,7 @@ public final class PluginManager: EventStream {
     public init(
         pluginLocations: [PluginLocation],
         resourceLocationResolver: ResourceLocationResolver,
-        environment: [String: String] = ProcessInfo.processInfo.environment)
+        environment: [String: String])
     {
         self.encoder.outputFormatting = [.sortedKeys, .prettyPrinted]
         self.environment = environment

@@ -38,7 +38,9 @@ final class PluginManagerTests: XCTestCase {
             pluginLocations: [
                 PluginLocation(.localFilePath(pluginBundlePath.asString))
             ],
-            resourceLocationResolver: resolver)
+            resourceLocationResolver: resolver,
+            environment: [:]
+        )
         XCTAssertThrowsError(try manager.startPlugins())
     }
     
@@ -51,7 +53,9 @@ final class PluginManagerTests: XCTestCase {
             pluginLocations: [
                 PluginLocation(.localFilePath(executablePath))
             ],
-            resourceLocationResolver: resolver)
+            resourceLocationResolver: resolver,
+            environment: [:]
+        )
         XCTAssertThrowsError(try manager.startPlugins())
     }
     

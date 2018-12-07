@@ -181,13 +181,17 @@ public final class Scheduler {
             
         let runner = Runner(
             eventBus: eventBus,
-            configuration: configuration.runnerConfiguration(
+            configuration: RunnerConfiguration(
+                testType: configuration.testType,
                 fbxctest: bucket.toolResources.fbxctest,
                 buildArtifacts: bucket.buildArtifacts,
-                simulatorSettings: bucket.simulatorSettings
+                environment: bucket.environment,
+                simulatorSettings: bucket.simulatorSettings,
+                testTimeoutConfiguration: configuration.testTimeoutConfiguration
             ),
             tempFolder: tempFolder,
-            resourceLocationResolver: resourceLocationResolver)
+            resourceLocationResolver: resourceLocationResolver
+        )
         let simulator: Simulator
         do {
             simulator = try simulatorController.bootedSimulator()
@@ -201,7 +205,8 @@ public final class Scheduler {
         return TestingResult(
             bucketId: bucket.bucketId,
             testDestination: bucket.testDestination,
-            unfilteredResults: runnerResult)
+            unfilteredResults: runnerResult
+        )
     }
     
     // MARK: - Utility Methods

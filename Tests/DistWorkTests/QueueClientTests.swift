@@ -52,10 +52,11 @@ class QueueClientTests: XCTestCase {
     func testDequeueingBucket() throws {
         let bucket = Bucket(
             testEntries: [TestEntry(className: "class", methodName: "method", caseId: 123)],
-            testDestination: TestDestinationFixtures.testDestination,
-            toolResources: ToolResourcesFixtures.fakeToolResources(),
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
-            simulatorSettings: SimulatorSettingsFixtures().simulatorSettings()
+            environment: [:],
+            simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
+            testDestination: TestDestinationFixtures.testDestination,
+            toolResources: ToolResourcesFixtures.fakeToolResources()
         )
         try prepareServer(RESTMethod.getBucket.withPrependingSlash) { request -> HttpResponse in
             let data: Data = (try? JSONEncoder().encode(RESTResponse.bucketDequeued(bucket: bucket))) ?? Data()

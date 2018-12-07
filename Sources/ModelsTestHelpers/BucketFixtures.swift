@@ -5,10 +5,11 @@ public final class BucketFixtures {
     public static func createBucket(testEntries: [TestEntry]) -> Bucket {
         return Bucket(
             testEntries: testEntries,
-            testDestination: TestDestinationFixtures.testDestination,
-            toolResources: ToolResourcesFixtures.fakeToolResources(),
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
-            simulatorSettings: SimulatorSettingsFixtures().simulatorSettings()
+            environment: [:],
+            simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
+            testDestination: TestDestinationFixtures.testDestination,
+            toolResources: ToolResourcesFixtures.fakeToolResources()
         )
     }
 }

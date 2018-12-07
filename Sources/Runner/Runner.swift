@@ -74,7 +74,7 @@ public final class Runner {
         
         log("Will run \(entriesToRun.count) tests on simulator \(simulator)", color: .blue)
         
-        let testContext = self.testContext(simulator: simulator)
+        let testContext = createTestContext(simulator: simulator)
         
         eventBus.post(event: .runnerEvent(.willRun(testEntries: entriesToRun, testContext: testContext)))
         
@@ -153,7 +153,7 @@ public final class Runner {
         return arguments
     }
     
-    private func testContext(simulator: Simulator) -> TestContext {
+    private func createTestContext(simulator: Simulator) -> TestContext {
         var environment = configuration.environment
         do {
             let testsWorkingDirectory = try tempFolder.pathByCreatingDirectories(components: ["testsWorkingDir", UUID().uuidString])

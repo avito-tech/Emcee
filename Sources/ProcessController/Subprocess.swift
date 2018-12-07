@@ -11,7 +11,7 @@ public class Subprocess: CustomStringConvertible {
 
     public init(
         arguments: [SubprocessArgument],
-        environment: [String: String] = ProcessInfo.processInfo.environment,
+        environment: [String: String] = [:],
         maximumAllowedSilenceDuration: TimeInterval = 0,
         allowedTimeToConsumeStdin: TimeInterval = 30,
         stdoutContentsFile: String? = nil,

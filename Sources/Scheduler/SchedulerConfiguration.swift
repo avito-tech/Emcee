@@ -10,22 +10,6 @@ public class SchedulerConfiguration {
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let schedulerDataSource: SchedulerDataSource
     public let onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>
-    
-    public func runnerConfiguration(
-        fbxctest: FbxctestLocation,
-        buildArtifacts: BuildArtifacts,
-        simulatorSettings: SimulatorSettings
-        ) -> RunnerConfiguration
-    {
-        return RunnerConfiguration(
-            testType: testType,
-            fbxctest: fbxctest,
-            buildArtifacts: buildArtifacts,
-            testRunExecutionBehavior: testRunExecutionBehavior,
-            simulatorSettings: simulatorSettings,
-            testTimeoutConfiguration: testTimeoutConfiguration
-        )
-    }
 
     public init(
         testType: TestType,

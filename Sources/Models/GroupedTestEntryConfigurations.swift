@@ -9,18 +9,18 @@ public final class GroupedTestEntryConfigurations {
     
     public func grouped() -> [[TestEntryConfiguration]] {
         struct Key: Hashable {
+            let buildArtifacts: BuildArtifacts
             let testDestination: TestDestination
             let testExecutionBehavior: TestExecutionBehavior
-            let buildArtifacts: BuildArtifacts
         }
         
         var groups = [Key: [TestEntryConfiguration]]()
         
         for testEntryConfiguration in testEntryConfigurations {
             let key = Key(
+                buildArtifacts: testEntryConfiguration.buildArtifacts,
                 testDestination: testEntryConfiguration.testDestination,
-                testExecutionBehavior: testEntryConfiguration.testExecutionBehavior,
-                buildArtifacts: testEntryConfiguration.buildArtifacts
+                testExecutionBehavior: testEntryConfiguration.testExecutionBehavior
             )
             
             if let group = groups[key] {

@@ -74,7 +74,7 @@ public final class DistRunDeployer {
                 "--queue-server", "\(HostDeterminer.currentHostAddress):\(serverPort)",
                 "--worker-id", destination.identifier
             ],
-            environmentVariables: distRunConfiguration.testRunExecutionBehavior.environment,
+            environmentVariables: [:],
             workingDirectory: avitoRunnerContainerPath,
             runAtLoad: true,
             disabled: true,

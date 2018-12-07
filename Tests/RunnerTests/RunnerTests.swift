@@ -126,17 +126,13 @@ public final class RunnerTests: XCTestCase {
             try? FileManager.default.removeItem(atPath: fbxctest)
         }
         
-        let configuration = RunnerConfiguration(
+        return RunnerConfiguration(
             testType: .logicTest,
             fbxctest: FbxctestLocation(.localFilePath(fbxctest)),
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
-            testRunExecutionBehavior: TestRunExecutionBehavior(
-                numberOfRetries: 1,
-                numberOfSimulators: 1,
-                environment: ["EMCEE_TESTS_RUN_ID": runId],
-                scheduleStrategy: .individual),
+            environment: ["EMCEE_TESTS_RUN_ID": runId],
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-            testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 5))
-        return configuration
+            testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 5)
+        )
     }
 }

@@ -4,16 +4,19 @@ import Models
 public struct BucketSplitInfo {
     // TODO: Rename to numberOfWorkers
     public let numberOfDestinations: UInt
+    public let environment: [String: String]
     public let toolResources: ToolResources
     public let simulatorSettings: SimulatorSettings
     
     public init(
         numberOfDestinations: UInt,
+        environment: [String: String],
         toolResources: ToolResources,
         simulatorSettings: SimulatorSettings
         )
     {
         self.numberOfDestinations = numberOfDestinations
+        self.environment = environment
         self.toolResources = toolResources
         self.simulatorSettings = simulatorSettings
     }
@@ -50,10 +53,11 @@ public class BucketSplitter: Splitter, CustomStringConvertible {
             guard let entry = group.first else { return nil }
             return Bucket(
                 testEntries: group.map { $0.testEntry },
-                testDestination: entry.testDestination,
-                toolResources: bucketSplitInfo.toolResources,
                 buildArtifacts: entry.buildArtifacts,
-                simulatorSettings: bucketSplitInfo.simulatorSettings
+                environment: bucketSplitInfo.environment,
+                simulatorSettings: bucketSplitInfo.simulatorSettings,
+                testDestination: entry.testDestination,
+                toolResources: bucketSplitInfo.toolResources
             )
         }
     }

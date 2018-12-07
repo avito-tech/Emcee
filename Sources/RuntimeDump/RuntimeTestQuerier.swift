@@ -43,9 +43,9 @@ public final class RuntimeTestQuerier {
             testType: .logicTest,
             fbxctest: configuration.fbxctest,
             buildArtifacts: BuildArtifacts.onlyWithXctestBundle(xcTestBundle: configuration.xcTestBundle),
-            testRunExecutionBehavior: configuration.testRunExecutionBehavior.withEnvironmentOverrides(
+            environment: configuration.testRunExecutionBehavior.withEnvironmentOverrides(
                 ["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH": runtimeEntriesJSONPath.asString]
-            ),
+            ).environment,
             simulatorSettings: SimulatorSettings(
                 simulatorLocalizationSettings: nil,
                 watchdogSettings: nil

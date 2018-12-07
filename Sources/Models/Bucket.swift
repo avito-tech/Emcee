@@ -4,46 +4,53 @@ import Foundation
 public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStringConvertible {
     public let bucketId: String
     public let testEntries: [TestEntry]
+    public let buildArtifacts: BuildArtifacts
+    public let environment: [String: String]
+    public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
     public let toolResources: ToolResources
-    public let buildArtifacts: BuildArtifacts
-    public let simulatorSettings: SimulatorSettings
 
     public init(
         testEntries: [TestEntry],
-        testDestination: TestDestination,
-        toolResources: ToolResources,
         buildArtifacts: BuildArtifacts,
-        simulatorSettings: SimulatorSettings
+        environment: [String: String],
+        simulatorSettings: SimulatorSettings,
+        testDestination: TestDestination,
+        toolResources: ToolResources
         )
     {
         self.testEntries = testEntries
+        self.buildArtifacts = buildArtifacts
+        self.environment = environment
+        self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
         self.toolResources = toolResources
-        self.buildArtifacts = buildArtifacts
-        self.simulatorSettings = simulatorSettings
         self.bucketId = Bucket.generateBucketId(
             testEntries: testEntries,
-            testDestination: testDestination,
-            toolResources: toolResources,
             buildArtifacts: buildArtifacts,
-            simulatorSettings: simulatorSettings
+            environment: environment,
+            simulatorSettings: simulatorSettings,
+            testDestination: testDestination,
+            toolResources: toolResources
         )
     }
     
     private static func generateBucketId(
         testEntries: [TestEntry],
-        testDestination: TestDestination,
-        toolResources: ToolResources,
         buildArtifacts: BuildArtifacts,
-        simulatorSettings: SimulatorSettings
+        environment: [String: String],
+        simulatorSettings: SimulatorSettings,
+        testDestination: TestDestination,
+        toolResources: ToolResources
         ) -> String
     {
+        
         let tests: String = testEntries.map { $0.testName }.sorted().joined()
             + testDestination.destinationString
-            + toolResources.fbsimctl.description + toolResources.fbxctest.description
             + buildArtifacts.appBundle.description + buildArtifacts.runner.description + buildArtifacts.xcTestBundle.description
             + buildArtifacts.additionalApplicationBundles.map { $0.description }.sorted().joined()
+            + environment.map { "\($0)=\($1)" }.sorted().joined()
+            + toolResources.fbsimctl.description + toolResources.fbxctest.description
             + simulatorSettings.description
         do {
             return try tests.avito_sha256Hash(encoding: .utf8)

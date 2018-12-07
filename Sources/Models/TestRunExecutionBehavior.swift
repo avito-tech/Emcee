@@ -9,7 +9,7 @@ public struct TestRunExecutionBehavior: Codable, Equatable {
     /** Maximum number of simulators to create and use in parallel. */
     public let numberOfSimulators: UInt
     
-    /** The enviroment variables under which tests should run. */
+    /** Common enviroment variables under which tests should run. */
     public let environment: [String: String]
     
     /** Tests execution strategy */

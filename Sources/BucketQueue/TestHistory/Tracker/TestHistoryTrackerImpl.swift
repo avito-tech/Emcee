@@ -78,10 +78,11 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         let bucketsToReenqueue = resultsOfTestsToRetry.map { testEntryResult in
             Bucket(
                 testEntries: [testEntryResult.testEntry],
-                testDestination: bucket.testDestination,
-                toolResources: bucket.toolResources,
                 buildArtifacts: bucket.buildArtifacts,
-                simulatorSettings: bucket.simulatorSettings
+                environment: bucket.environment,
+                simulatorSettings: bucket.simulatorSettings,
+                testDestination: bucket.testDestination,
+                toolResources: bucket.toolResources
             )
         }
         

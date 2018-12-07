@@ -163,10 +163,11 @@ public final class DistWorker {
         return SchedulerBucket(
             bucketId: bucket.bucketId,
             testEntries: bucket.testEntries,
-            testDestination: bucket.testDestination,
-            toolResources: ToolResources(fbsimctl: fbsimctl, fbxctest: fbxctest),
             buildArtifacts: BuildArtifacts(appBundle: appBundle, runner: runner, xcTestBundle: xcTestBundle, additionalApplicationBundles: additionalApps),
-            simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: simulatorLocalizationSettings, watchdogSettings: watchdogSettings)
+            environment: bucket.environment,
+            simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: simulatorLocalizationSettings, watchdogSettings: watchdogSettings),
+            testDestination: bucket.testDestination,
+            toolResources: ToolResources(fbsimctl: fbsimctl, fbxctest: fbxctest)
         )
     }
     

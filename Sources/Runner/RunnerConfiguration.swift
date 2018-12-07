@@ -17,23 +17,21 @@ public struct RunnerConfiguration {
         testType: TestType,
         fbxctest: FbxctestLocation,
         buildArtifacts: BuildArtifacts,
-        testRunExecutionBehavior: TestRunExecutionBehavior,
+        environment: [String: String],
         simulatorSettings: SimulatorSettings,
         testTimeoutConfiguration: TestTimeoutConfiguration)
     {
-        var resultingEnvironment = ProcessInfo.processInfo.environment
-        resultingEnvironment["FBCONTROLCORE_FAST_TIMEOUT"] = testTimeoutConfiguration.fbxtestFastTimeout.flatMap { "\($0)" }
-        resultingEnvironment["FBCONTROLCORE_REGULAR_TIMEOUT"] = testTimeoutConfiguration.fbxtestRegularTimeout.flatMap { "\($0)" }
-        resultingEnvironment["FBCONTROLCORE_SLOW_TIMEOUT"] = testTimeoutConfiguration.fbxtestSlowTimeout.flatMap { "\($0)" }
-        resultingEnvironment["FB_BUNDLE_READY_TIMEOUT"] = testTimeoutConfiguration.fbxtestBundleReadyTimeout.flatMap { "\($0)" }
-        resultingEnvironment["FB_CRASH_CHECK_WAIT_LIMIT"] = testTimeoutConfiguration.fbxtestCrashCheckTimeout.flatMap { "\($0)" }
-        
-        testRunExecutionBehavior.environment.forEach { resultingEnvironment[$0] = $1 }
+        var environment = environment
+        environment["FBCONTROLCORE_FAST_TIMEOUT"] = testTimeoutConfiguration.fbxtestFastTimeout.flatMap { "\($0)" }
+        environment["FBCONTROLCORE_REGULAR_TIMEOUT"] = testTimeoutConfiguration.fbxtestRegularTimeout.flatMap { "\($0)" }
+        environment["FBCONTROLCORE_SLOW_TIMEOUT"] = testTimeoutConfiguration.fbxtestSlowTimeout.flatMap { "\($0)" }
+        environment["FB_BUNDLE_READY_TIMEOUT"] = testTimeoutConfiguration.fbxtestBundleReadyTimeout.flatMap { "\($0)" }
+        environment["FB_CRASH_CHECK_WAIT_LIMIT"] = testTimeoutConfiguration.fbxtestCrashCheckTimeout.flatMap { "\($0)" }
         
         self.testType = testType
         self.fbxctest = fbxctest
         self.buildArtifacts = buildArtifacts
-        self.environment = resultingEnvironment
+        self.environment = environment
         self.simulatorSettings = simulatorSettings
         self.maximumAllowedSilenceDuration = testTimeoutConfiguration.fbxctestSilenceMaximumDuration
         self.singleTestMaximumDuration = testTimeoutConfiguration.singleTestMaximumDuration
