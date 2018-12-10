@@ -19,7 +19,9 @@ final class QueueServerTests: XCTestCase {
             workerConfigurations: workerConfigurations,
             reportAliveInterval: .infinity,
             numberOfRetries: 0,
-            newWorkerRegistrationTimeAllowance: 0.0)
+            newWorkerRegistrationTimeAllowance: 0.0,
+            checkAgainTimeInterval: .infinity
+        )
         XCTAssertThrowsError(try server.waitForQueueToFinish())
     }
     
@@ -33,7 +35,9 @@ final class QueueServerTests: XCTestCase {
             reportAliveInterval: .infinity,
             numberOfRetries: 0,
             newWorkerRegistrationTimeAllowance: .infinity,
-            queueExhaustTimeAllowance: 0.0)
+            queueExhaustTimeAllowance: 0.0,
+            checkAgainTimeInterval: .infinity
+        )
         server.add(buckets: [bucket])
         
         let port = try server.start()
@@ -59,7 +63,9 @@ final class QueueServerTests: XCTestCase {
             reportAliveInterval: .infinity,
             numberOfRetries: 0,
             newWorkerRegistrationTimeAllowance: .infinity,
-            queueExhaustTimeAllowance: 10.0)
+            queueExhaustTimeAllowance: 10.0,
+            checkAgainTimeInterval: .infinity
+        )
         server.add(buckets: [bucket])
         
         let port = try server.start()

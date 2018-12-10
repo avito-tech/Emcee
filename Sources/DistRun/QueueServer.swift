@@ -5,12 +5,14 @@ import Foundation
 import Logging
 import Models
 import RESTMethods
+import ResultsCollector
 import Swifter
 import SynchronousWaiter
 import WorkerAlivenessTracker
 
 public final class QueueServer {
     private let bucketProvider: BucketProviderEndpoint
+    private let bucketQueueFactory: BucketQueueFactory
     private let bucketQueue: BucketQueue
     private let bucketResultRegistrar: BucketResultRegistrar
     private let restServer = QueueHTTPRESTServer()
@@ -27,17 +29,20 @@ public final class QueueServer {
         reportAliveInterval: TimeInterval,
         numberOfRetries: UInt,
         newWorkerRegistrationTimeAllowance: TimeInterval = 60.0,
-        queueExhaustTimeAllowance: TimeInterval = .infinity)
+        queueExhaustTimeAllowance: TimeInterval = .infinity,
+        checkAgainTimeInterval: TimeInterval)
     {
         self.workerAlivenessTracker = WorkerAlivenessTracker(reportAliveInterval: reportAliveInterval, additionalTimeToPerformWorkerIsAliveReport: 10.0)
         self.workerRegistrar = WorkerRegistrar(workerConfigurations: workerConfigurations, workerAlivenessTracker: workerAlivenessTracker)
-        self.bucketQueue = BucketQueueFactory.create(
+        self.bucketQueueFactory = BucketQueueFactory(
             workerAlivenessProvider: workerAlivenessTracker,
             testHistoryTracker: TestHistoryTrackerImpl(
                 numberOfRetries: numberOfRetries,
                 testHistoryStorage: TestHistoryStorageImpl()
-            )
+            ),
+            checkAgainTimeInterval: checkAgainTimeInterval
         )
+        self.bucketQueue = bucketQueueFactory.createBucketQueue()
         self.stuckBucketsPoller = StuckBucketsPoller(bucketQueue: bucketQueue)
         self.bucketProvider = BucketProviderEndpoint(bucketQueue: bucketQueue, alivenessTracker: workerAlivenessTracker)
         self.bucketResultRegistrar = BucketResultRegistrar(bucketQueue: bucketQueue, eventBus: eventBus, resultsCollector: resultsCollector, workerAlivenessTracker: workerAlivenessTracker)

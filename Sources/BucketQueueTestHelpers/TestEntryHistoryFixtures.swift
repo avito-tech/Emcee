@@ -2,23 +2,23 @@ import Models
 @testable import BucketQueue
 import ModelsTestHelpers
 
-final class TestEntryHistoryFixtures {
-    let testEntry: TestEntry
-    let bucket: Bucket
+public final class TestEntryHistoryFixtures {
+    public let testEntry: TestEntry
+    public let bucket: Bucket
     
-    init(testEntry: TestEntry, bucket: Bucket? = nil) {
+    public init(testEntry: TestEntry, bucket: Bucket? = nil) {
         self.testEntry = testEntry
         self.bucket = bucket ?? BucketFixtures.createBucket(testEntries: [testEntry])
     }
     
-    func testEntryHistoryId() -> TestEntryHistoryId {
+    public func testEntryHistoryId() -> TestEntryHistoryId {
         return TestEntryHistoryId(
             testEntry: testEntry,
             bucket: bucket
         )
     }
     
-    func testEntryHistoryItem(success: Bool = true, workerId: String = "doesn't matter") -> TestEntryHistoryItem {
+    public func testEntryHistoryItem(success: Bool = true, workerId: String = "doesn't matter") -> TestEntryHistoryItem {
         return TestEntryHistoryItem(
             result: TestEntryResult.withResults(
                 testEntry: testEntry,
@@ -32,7 +32,7 @@ final class TestEntryHistoryFixtures {
         )
     }
     
-    func testEntryResult(success: Bool = true) -> TestEntryResult {
+    public func testEntryResult(success: Bool = true) -> TestEntryResult {
         return TestEntryResult.withResult(
             testEntry: testEntry,
             testRunResult: TestRunResultFixtures.testRunResult(succeeded: success)

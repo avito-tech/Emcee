@@ -2,14 +2,25 @@ import Foundation
 import WorkerAlivenessTracker
 
 public final class BucketQueueFactory {
-    public static func create(
+    private let workerAlivenessProvider: WorkerAlivenessProvider
+    private let testHistoryTracker: TestHistoryTracker
+    private let checkAgainTimeInterval: TimeInterval
+
+    public init(
         workerAlivenessProvider: WorkerAlivenessProvider,
-        testHistoryTracker: TestHistoryTracker)
-        -> BucketQueue
+        testHistoryTracker: TestHistoryTracker,
+        checkAgainTimeInterval: TimeInterval)
     {
+        self.workerAlivenessProvider = workerAlivenessProvider
+        self.testHistoryTracker = testHistoryTracker
+        self.checkAgainTimeInterval = checkAgainTimeInterval
+    }
+    
+    public func createBucketQueue() -> BucketQueue {
         return BucketQueueImpl(
             workerAlivenessProvider: workerAlivenessProvider,
-            testHistoryTracker: testHistoryTracker
+            testHistoryTracker: testHistoryTracker,
+            checkAgainTimeInterval: checkAgainTimeInterval
         )
     }
 }

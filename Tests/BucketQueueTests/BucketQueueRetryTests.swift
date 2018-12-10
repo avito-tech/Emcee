@@ -1,4 +1,5 @@
 import BucketQueue
+import BucketQueueTestHelpers
 import Foundation
 import Models
 import ModelsTestHelpers

@@ -69,16 +69,41 @@ let package = Package(
             ]),
         
         .target(
+            name: "BalancingBucketQueue",
+            dependencies: [
+                "BucketQueue",
+                "Models",
+                "ResultsCollector",
+                "Utility"
+            ]),
+        .testTarget(
+            name: "BalancingBucketQueueTests",
+            dependencies: [
+                "BalancingBucketQueue",
+                "BucketQueueTestHelpers",
+                "ResultsCollector"
+            ]),
+        
+        .target(
             name: "BucketQueue",
             dependencies: [
                 "Logging",
                 "Models",
                 "WorkerAlivenessTracker"
             ]),
+        .target(
+            name: "BucketQueueTestHelpers",
+            dependencies: [
+                "BucketQueue",
+                "Models",
+                "ModelsTestHelpers",
+                "WorkerAlivenessTracker"
+            ]),
         .testTarget(
             name: "BucketQueueTests",
             dependencies: [
                 "BucketQueue",
+                "BucketQueueTestHelpers",
                 "ModelsTestHelpers",
                 "WorkerAlivenessTrackerTestHelpers"
             ]),
@@ -126,6 +151,7 @@ let package = Package(
                 "Logging",
                 "Models",
                 "RESTMethods",
+                "ResultsCollector",
                 "RuntimeDump",
                 "ScheduleStrategy",
                 "SSHDeployer",
@@ -351,6 +377,18 @@ let package = Package(
                 "Extensions",
                 "ProcessController",
                 "Utility"
+            ]),
+        
+        .target(
+            name: "ResultsCollector",
+            dependencies: [
+                "Models"
+            ]),
+        .testTarget(
+            name: "ResultsCollectorTests",
+            dependencies: [
+                "ModelsTestHelpers",
+                "ResultsCollector"
             ]),
         
         .target(

@@ -36,6 +36,8 @@ public struct DistRunConfiguration {
     
     /// Period of time when workers should report their aliveness
     public let reportAliveInterval: TimeInterval = 30
+    
+    public let checkAgainTimeInterval: TimeInterval = 30
 
     public init(
         runId: String,

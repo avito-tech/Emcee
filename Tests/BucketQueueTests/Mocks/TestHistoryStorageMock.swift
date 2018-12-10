@@ -1,5 +1,6 @@
 import Models
 import BucketQueue
+import BucketQueueTestHelpers
 import ModelsTestHelpers
 
 final class TestHistoryStorageMock: TestHistoryStorage {

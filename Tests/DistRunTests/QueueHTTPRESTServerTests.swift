@@ -1,10 +1,12 @@
 import BucketQueue
+import BucketQueueTestHelpers
 import DistRun
 import DistWork
 import EventBus
 import Foundation
 import Models
 import ModelsTestHelpers
+import ResultsCollector
 import WorkerAlivenessTracker
 import WorkerAlivenessTrackerTestHelpers
 import XCTest

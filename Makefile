@@ -1,5 +1,5 @@
 generate:
-	swift package generate-xcodeproj --xcconfig-overrides Package.xcconfig
+	swift package generate-xcodeproj --xcconfig-overrides Package.xcconfig --enable-code-coverage
 .PHONY: generate
 
 open: generate

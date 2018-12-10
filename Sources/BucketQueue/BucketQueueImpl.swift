@@ -10,14 +10,16 @@ final class BucketQueueImpl: BucketQueue {
     private let testHistoryTracker: TestHistoryTracker
     private let queue = DispatchQueue(label: "ru.avito.emcee.BucketQueue.queue")
     private let workerAlivenessProvider: WorkerAlivenessProvider
-    private let checkAgainTimeInterval: TimeInterval = 30
+    private let checkAgainTimeInterval: TimeInterval
     
     public init(
         workerAlivenessProvider: WorkerAlivenessProvider,
-        testHistoryTracker: TestHistoryTracker)
+        testHistoryTracker: TestHistoryTracker,
+        checkAgainTimeInterval: TimeInterval)
     {
         self.workerAlivenessProvider = workerAlivenessProvider
         self.testHistoryTracker = testHistoryTracker
+        self.checkAgainTimeInterval = checkAgainTimeInterval
     }
     
     public func enqueue(buckets: [Bucket]) {
@@ -34,6 +36,12 @@ final class BucketQueueImpl: BucketQueue {
     
     private var state_onSyncQueue: BucketQueueState {
         return BucketQueueState(enqueuedBucketCount: enqueuedBuckets.count, dequeuedBucketCount: dequeuedBuckets.count)
+    }
+    
+    func previouslyDequeuedBucket(requestId: String, workerId: String) -> DequeuedBucket? {
+        return queue.sync {
+            previouslyDequeuedBucket_onSyncQueue(requestId: requestId, workerId: workerId)
+        }
     }
     
     public func dequeueBucket(requestId: String, workerId: String) -> DequeueResult {

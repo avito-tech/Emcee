@@ -5,6 +5,7 @@ import Foundation
 import Logging
 import Models
 import RESTMethods
+import ResultsCollector
 import WorkerAlivenessTracker
 
 public final class BucketResultRegistrar: RESTEndpoint {

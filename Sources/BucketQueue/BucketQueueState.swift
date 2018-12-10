@@ -1,7 +1,7 @@
 import Foundation
 import Logging
 
-public final class BucketQueueState {
+public final class BucketQueueState: Equatable {
     public let enqueuedBucketCount: Int
     public let dequeuedBucketCount: Int
     
@@ -12,6 +12,11 @@ public final class BucketQueueState {
     
     public var isDepleted: Bool {
         return enqueuedBucketCount == 0 && dequeuedBucketCount == 0
+    }
+    
+    public static func == (left: BucketQueueState, right: BucketQueueState) -> Bool {
+        return left.enqueuedBucketCount == right.enqueuedBucketCount &&
+            left.dequeuedBucketCount == right.dequeuedBucketCount
     }
 }
 
