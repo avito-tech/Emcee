@@ -31,12 +31,12 @@ final class WorkerRegistrarTests: XCTestCase {
         XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId).status, .alive)
     }
     
-    func test_registration_for_blocked_worker() throws {
+    func test___registration_for_blocked_worker__throws() throws {
         let registrar = createRegistrar()
         alivenessTracker.didRegisterWorker(workerId: workerId)
         alivenessTracker.blockWorker(workerId: workerId)
         
-        XCTAssertEqual(try registrar.handle(decodedRequest: RegisterWorkerRequest(workerId: workerId)), .workerBlocked)
+        XCTAssertThrowsError(try registrar.handle(decodedRequest: RegisterWorkerRequest(workerId: workerId)))
     }
     
     func test_successful_registration() throws {

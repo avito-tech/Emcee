@@ -29,7 +29,8 @@ public final class QueueClient {
         try sendRequest(
             .registerWorker,
             payload: RegisterWorkerRequest(workerId: workerId),
-            completionHandler: handleRegisterWorkerResponse)
+            completionHandler: handleRegisterWorkerResponse
+        )
     }
     
     public func close() {
@@ -38,29 +39,60 @@ public final class QueueClient {
         isClosed = true
     }
     
-    /**
-     * Request id is a unique request identifier that could be used to retry bucket fetch in case if
-     * request has failed. https://developer.apple.com/library/archive/qa/qa1941/_index.html
-     */
+    /// Request id is a unique request identifier that could be used to retry bucket fetch in case if
+    /// request has failed. Server is expected to return the same bucket if request id + worker id pair
+    /// match for sequential requests.
+    /// Apple's guide on handling Handling "The network connection was lost" errors:
+    /// https://developer.apple.com/library/archive/qa/qa1941/_index.html
     public func fetchBucket(requestId: String) throws {
         try sendRequest(
             .getBucket,
-            payload: BucketFetchRequest(workerId: workerId, requestId: requestId),
-            completionHandler: handleFetchBucketResponse)
+            payload: DequeueBucketRequest(
+                workerId: workerId,
+                requestId: requestId
+            ),
+            completionHandler: handleFetchBucketResponse
+        )
     }
     
     public func send(testingResult: TestingResult, requestId: String) throws {
-        let resultRequest = BucketResultRequest(workerId: workerId, requestId: requestId, testingResult: testingResult)
-        try sendRequest(.bucketResult, payload: resultRequest, completionHandler: handleSendBucketResultResponse)
+        try sendRequest(
+            .bucketResult,
+            payload: PushBucketResultRequest(
+                workerId: workerId,
+                requestId: requestId,
+                testingResult: testingResult
+            ),
+            completionHandler: handleSendBucketResultResponse
+        )
+    }
+    
+    public func reportAlive(bucketIdsBeingProcessedProvider: () -> (Set<String>)) throws {
+        try sendRequest(
+            .reportAlive,
+            payload: ReportAliveRequest(
+                workerId: workerId,
+                bucketIdsBeingProcessed: bucketIdsBeingProcessedProvider()
+            ),
+            completionHandler: handleAlivenessResponse
+        )
+    }
+    
+    public func fetchQueueServerVersion() throws {
+        try sendRequest(
+            .queueVersion,
+            payload: QueueVersionRequest(),
+            completionHandler: handleQueueServerVersion
+        )
     }
     
     // MARK: - Request Generation
     
-    private func sendRequest<T>(
+    private func sendRequest<Payload, Response>(
         _ restMethod: RESTMethod,
-        payload: T,
-        completionHandler: @escaping (Data?, URLResponse?, Error?) -> ())
-        throws where T : Encodable
+        payload: Payload,
+        completionHandler: @escaping (Response) throws -> ())
+        throws where Payload : Encodable, Response : Decodable
     {
         guard !isClosed else { throw QueueClientError.queueClientIsClosed(restMethod) }
         
@@ -74,7 +106,21 @@ public final class QueueClient {
         urlRequest.httpMethod = "POST"
         urlRequest.addValue("Content-Type", forHTTPHeaderField: "application/json")
         urlRequest.httpBody = jsonData
-        let dataTask = urlSession.dataTask(with: urlRequest, completionHandler: completionHandler)
+        let dataTask = urlSession.dataTask(with: urlRequest) { [weak self] (data: Data?, response: URLResponse?, error: Error?) in
+            guard let strongSelf = self else { return }
+            
+            if let error = error {
+                strongSelf.delegate?.queueClient(strongSelf, didFailWithError: QueueClientError.communicationError(error)); return
+            }
+            guard let data = data else {
+                strongSelf.delegate?.queueClient(strongSelf, didFailWithError: QueueClientError.noData); return
+            }
+            do {
+                try completionHandler(try strongSelf.decoder.decode(Response.self, from: data))
+            } catch {
+                strongSelf.delegate?.queueClient(strongSelf, didFailWithError: QueueClientError.parseError(error, data)); return
+            }
+        }
         dataTask.resume()
     }
     
@@ -95,99 +141,44 @@ public final class QueueClient {
     
     // MARK: - Response Handlers
     
-    private func handleRegisterWorkerResponse(data: Data?, response: URLResponse?, error: Error?) {
-        if let error = error {
-            delegate?.queueClient(self, didFailWithError: QueueClientError.communicationError(error)); return
-        }
-        guard let data = data else {
-            delegate?.queueClient(self, didFailWithError: QueueClientError.noData); return
-        }
-        do {
-            let response = try decoder.decode(RESTResponse.self, from: data)
-            switch response {
-            case .workerRegisterSuccess(let workerConfiguration):
-                delegate?.queueClient(self, didReceiveWorkerConfiguration: workerConfiguration)
-            default:
-                delegate?.queueClient(self, didFailWithError: QueueClientError.unexpectedResponse(data))
-            }
-        } catch {
-            delegate?.queueClient(self, didFailWithError: QueueClientError.parseError(error, data)); return
+    private func handleRegisterWorkerResponse(response: RegisterWorkerResponse) {
+        switch response {
+        case .workerRegisterSuccess(let workerConfiguration):
+            delegate?.queueClient(self, didReceiveWorkerConfiguration: workerConfiguration)
         }
     }
     
-    private func handleFetchBucketResponse(data: Data?, response: URLResponse?, error: Error?) {
-        if let error = error {
-            delegate?.queueClient(self, didFailWithError: QueueClientError.communicationError(error)); return
-        }
-        guard let data = data else {
-            delegate?.queueClient(self, didFailWithError: QueueClientError.noData); return
-        }
-
-        do {
-            let response = try decoder.decode(RESTResponse.self, from: data)
-            switch response {
-            case .bucketDequeued(let bucket):
-                delegate?.queueClient(self, didFetchBucket: bucket)
-            case .checkAgainLater(let checkAfter):
-                delegate?.queueClient(self, fetchBucketLaterAfter: checkAfter)
-            case .queueIsEmpty:
-                delegate?.queueClientQueueIsEmpty(self)
-            case .workerBlocked:
-                delegate?.queueClientWorkerHasBeenBlocked(self)
-            default:
-                delegate?.queueClient(self, didFailWithError: .unexpectedResponse(data))
-            }
-        } catch {
-            delegate?.queueClient(self, didFailWithError: .parseError(error, data))
+    private func handleFetchBucketResponse(response: DequeueBucketResponse) {
+        switch response {
+        case .bucketDequeued(let bucket):
+            delegate?.queueClient(self, didFetchBucket: bucket)
+        case .checkAgainLater(let checkAfter):
+            delegate?.queueClient(self, fetchBucketLaterAfter: checkAfter)
+        case .queueIsEmpty:
+            delegate?.queueClientQueueIsEmpty(self)
+        case .workerBlocked:
+            delegate?.queueClientWorkerHasBeenBlocked(self)
         }
     }
     
-    private func handleSendBucketResultResponse(data: Data?, response: URLResponse?, error: Error?) {
-        if let error = error {
-            delegate?.queueClient(self, didFailWithError: QueueClientError.communicationError(error)); return
-        }
-        guard let data = data else {
-            delegate?.queueClient(self, didFailWithError: QueueClientError.noData); return
-        }
-        
-        do {
-            let response = try decoder.decode(RESTResponse.self, from: data)
-            switch response {
-            case .bucketResultAccepted(let bucketId):
-                delegate?.queueClient(self, serverDidAcceptBucketResult: bucketId)
-            default:
-                delegate?.queueClient(self, didFailWithError: QueueClientError.unexpectedResponse(data))
-            }
-        } catch {
-            delegate?.queueClient(self, didFailWithError: QueueClientError.parseError(error, data)); return
+    private func handleSendBucketResultResponse(response: BucketResultAcceptResponse) {
+        switch response {
+        case .bucketResultAccepted(let bucketId):
+            delegate?.queueClient(self, serverDidAcceptBucketResult: bucketId)
         }
     }
     
-    // MARK: - Reporting Worker is Alive
-    
-    public func reportAlive(bucketIdsBeingProcessedProvider: () -> (Set<String>)) throws {
-        let payload = ReportAliveRequest(workerId: workerId, bucketIdsBeingProcessed: bucketIdsBeingProcessedProvider())
-        try sendRequest(.reportAlive, payload: payload, completionHandler: handleAlivenessResponse)
+    private func handleAlivenessResponse(response: ReportAliveResponse) {
+        switch response {
+        case .aliveReportAccepted:
+            delegate?.queueClientWorkerHasBeenIndicatedAsAlive(self)
+        }
     }
     
-    private func handleAlivenessResponse(data: Data?, response: URLResponse?, error: Error?) {
-        if let error = error {
-            delegate?.queueClient(self, didFailWithError: QueueClientError.communicationError(error)); return
-        }
-        guard let data = data else {
-            delegate?.queueClient(self, didFailWithError: QueueClientError.noData); return
-        }
-        
-        do {
-            let response = try decoder.decode(RESTResponse.self, from: data)
-            switch response {
-            case .aliveReportAccepted:
-                delegate?.queueClientWorkerHasBeenIndicatedAsAlive(self)
-            default:
-                delegate?.queueClient(self, didFailWithError: QueueClientError.unexpectedResponse(data))
-            }
-        } catch {
-            delegate?.queueClient(self, didFailWithError: QueueClientError.parseError(error, data)); return
+    private func handleQueueServerVersion(response: QueueVersionResponse) {
+        switch response {
+        case .queueVersion(let version):
+            delegate?.queueClient(self, didFetchQueueServerVersion: version)
         }
     }
 }

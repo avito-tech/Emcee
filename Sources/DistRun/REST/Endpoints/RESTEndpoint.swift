@@ -3,5 +3,7 @@ import RESTMethods
 
 public protocol RESTEndpoint {
     associatedtype DecodedObjectType: Decodable
-    func handle(decodedRequest: DecodedObjectType) throws -> RESTResponse
+    associatedtype ResponseType: Encodable
+    
+    func handle(decodedRequest: DecodedObjectType) throws -> ResponseType
 }

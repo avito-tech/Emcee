@@ -146,6 +146,7 @@ let package = Package(
                 "Deployer",
                 "EventBus",
                 "Extensions",
+                "FileHasher",
                 "HostDeterminer",
                 "LaunchdUtils",
                 "Logging",
@@ -165,6 +166,7 @@ let package = Package(
             name: "DistRunTests",
             dependencies: [
                 "BucketQueue",
+                "FileHasher",
                 "Deployer",
                 "DistRun",
                 "DistWork",
@@ -258,6 +260,19 @@ let package = Package(
             name: "FileCacheTests",
             dependencies: [
                 "FileCache"
+            ]),
+        
+        .target(
+            name: "FileHasher",
+            dependencies: [
+                "Extensions",
+                "Models"
+            ]),
+        .testTarget(
+            name: "FileHasherTests",
+            dependencies: [
+                "FileHasher",
+                "TempFolder"
             ]),
         
         .target(

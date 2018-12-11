@@ -2,16 +2,14 @@ import DistRun
 import Foundation
 import RESTMethods
 
-class FakeRESTEndpoint<V: Decodable>: RESTEndpoint {
-    public typealias T = V
-    
-    private let returnValue: RESTResponse
+class FakeRESTEndpoint<RequestType: Decodable, ReturnType: Encodable>: RESTEndpoint {
+    private let returnValue: ReturnType
 
-    public init(returnValue: RESTResponse = .workerBlocked) {
+    public init(_ returnValue: ReturnType) {
         self.returnValue = returnValue
     }
     
-    public func handle(decodedRequest: T) throws -> RESTResponse {
+    public func handle(decodedRequest: RequestType) throws -> ReturnType {
         return returnValue
     }
 }

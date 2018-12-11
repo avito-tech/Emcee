@@ -5,17 +5,18 @@ import RESTMethods
 import WorkerAlivenessTracker
 
 public final class WorkerAlivenessEndpoint: RESTEndpoint {
-    public typealias T = ReportAliveRequest
-    
     private let alivenessTracker: WorkerAlivenessTracker
     
     public init(alivenessTracker: WorkerAlivenessTracker) {
         self.alivenessTracker = alivenessTracker
     }
     
-    public func handle(decodedRequest: ReportAliveRequest) throws -> RESTResponse {
+    public func handle(decodedRequest: ReportAliveRequest) throws -> ReportAliveResponse {
         alivenessTracker.markWorkerAsAlive(workerId: decodedRequest.workerId)
-        alivenessTracker.set(bucketIdsBeingProcessed: decodedRequest.bucketIdsBeingProcessed, workerId: decodedRequest.workerId)
+        alivenessTracker.set(
+            bucketIdsBeingProcessed: decodedRequest.bucketIdsBeingProcessed,
+            workerId: decodedRequest.workerId
+        )
         return .aliveReportAccepted
     }
 }

@@ -14,7 +14,7 @@ final class QueueServerRequestParserTests: XCTestCase {
     
     func testParseErrorMappedIntoInternalErrors() {
         let parser = QueueServerRequestParser(decoder: decoder)
-        let httpResponse = parser.parse(request: HttpRequest()) { (decodedObject: Int) -> (RESTResponse) in
+        let httpResponse = parser.parse(request: HttpRequest()) { (decodedObject: Int) -> (Int) in
             throw Result.throwable
         }
         switch httpResponse {
@@ -31,7 +31,7 @@ final class QueueServerRequestParserTests: XCTestCase {
         
         var actuallyDecodedObject: [String: Int]?
         
-        _ = parser.parse(request: httpRequest) { (decodedObject: [String: Int]) -> (RESTResponse) in
+        _ = parser.parse(request: httpRequest) { (decodedObject: [String: Int]) -> (Int) in
             actuallyDecodedObject = decodedObject
             throw Result.throwable
         }
@@ -45,9 +45,9 @@ final class QueueServerRequestParserTests: XCTestCase {
         let httpRequest = HttpRequest()
         httpRequest.body = [UInt8]("{\"value\": 42}".data(using: .utf8)!)
         
-        let expectedResponse = RESTResponse.aliveReportAccepted
+        let expectedResponse = ReportAliveResponse.aliveReportAccepted
         
-        let httpResponse = parser.parse(request: httpRequest) { (decodedObject: [String: Int]) -> (RESTResponse) in
+        let httpResponse = parser.parse(request: httpRequest) { (decodedObject: [String: Int]) -> (ReportAliveResponse) in
             return expectedResponse
         }
         
@@ -60,11 +60,8 @@ final class QueueServerRequestParserTests: XCTestCase {
             let writable = HttpResponseWritable()
             XCTAssertNoThrow(try writer?(writable))
             do {
-                let writtenObject = try decoder.decode(RESTResponse.self, from: writable.data)
-                switch writtenObject {
-                case .aliveReportAccepted: break
-                default: XCTFail("Incorrect object: \(writtenObject). Expected: \(expectedResponse)")
-                }
+                let writtenObject = try decoder.decode(ReportAliveResponse.self, from: writable.data)
+                XCTAssertEqual(writtenObject, expectedResponse)
             } catch {
                 XCTFail("Unexpected error: \(error)")
             }

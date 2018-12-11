@@ -15,9 +15,11 @@ public final class QueueServer {
     private let bucketQueueFactory: BucketQueueFactory
     private let bucketQueue: BucketQueue
     private let bucketResultRegistrar: BucketResultRegistrar
+    private let queueServerVersionHandler = QueueServerVersionEndpoint()
     private let restServer = QueueHTTPRESTServer()
     private let resultsCollector = ResultsCollector()
     private let workerAlivenessTracker: WorkerAlivenessTracker
+    private let workerAlivenessEndpoint: WorkerAlivenessEndpoint
     private let workerRegistrar: WorkerRegistrar
     private let stuckBucketsPoller: StuckBucketsPoller
     private let newWorkerRegistrationTimeAllowance: TimeInterval
@@ -33,6 +35,7 @@ public final class QueueServer {
         checkAgainTimeInterval: TimeInterval)
     {
         self.workerAlivenessTracker = WorkerAlivenessTracker(reportAliveInterval: reportAliveInterval, additionalTimeToPerformWorkerIsAliveReport: 10.0)
+        self.workerAlivenessEndpoint = WorkerAlivenessEndpoint(alivenessTracker: workerAlivenessTracker)
         self.workerRegistrar = WorkerRegistrar(workerConfigurations: workerConfigurations, workerAlivenessTracker: workerAlivenessTracker)
         self.bucketQueueFactory = BucketQueueFactory(
             workerAlivenessProvider: workerAlivenessTracker,
@@ -53,9 +56,11 @@ public final class QueueServer {
     public func start() throws -> Int {
         restServer.setHandler(
             registerWorkerHandler: RESTEndpointOf(actualHandler: workerRegistrar),
-            bucketFetchRequestHandler: RESTEndpointOf(actualHandler: bucketProvider),
+            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: bucketProvider),
             bucketResultHandler: RESTEndpointOf(actualHandler: bucketResultRegistrar),
-            reportAliveHandler: RESTEndpointOf(actualHandler: WorkerAlivenessEndpoint(alivenessTracker: workerAlivenessTracker)))
+            reportAliveHandler: RESTEndpointOf(actualHandler: workerAlivenessEndpoint),
+            versionHandler: RESTEndpointOf(actualHandler: queueServerVersionHandler)
+        )
         
         stuckBucketsPoller.startTrackingStuckBuckets()
         

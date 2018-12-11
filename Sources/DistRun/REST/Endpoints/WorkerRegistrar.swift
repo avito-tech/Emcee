@@ -6,16 +6,18 @@ import RESTMethods
 import WorkerAlivenessTracker
 
 public final class WorkerRegistrar: RESTEndpoint {
-    public typealias T = RegisterWorkerRequest
     private let workerConfigurations: WorkerConfigurations
     private let workerAlivenessTracker: WorkerAlivenessTracker
     
     public enum WorkerRegistrarError: Swift.Error, CustomStringConvertible {
         case missingWorkerConfiguration(workerId: String)
+        case workerIsBlocked(workerId: String)
         public var description: String {
             switch self {
             case .missingWorkerConfiguration(let workerId):
                 return "Missing worker configuration for worker id: '\(workerId)'"
+            case .workerIsBlocked(let workerId):
+                return "Can't register worker '\(workerId)' because it has been blocked"
             }
         }
     }
@@ -25,7 +27,7 @@ public final class WorkerRegistrar: RESTEndpoint {
         self.workerAlivenessTracker = workerAlivenessTracker
     }
     
-    public func handle(decodedRequest: RegisterWorkerRequest) throws -> RESTResponse {
+    public func handle(decodedRequest: RegisterWorkerRequest) throws -> RegisterWorkerResponse {
         guard let workerConfiguration = workerConfigurations.workerConfiguration(workerId: decodedRequest.workerId) else {
             throw WorkerRegistrarError.missingWorkerConfiguration(workerId: decodedRequest.workerId)
         }
@@ -37,7 +39,7 @@ public final class WorkerRegistrar: RESTEndpoint {
             workerAlivenessTracker.didRegisterWorker(workerId: decodedRequest.workerId)
             return .workerRegisterSuccess(workerConfiguration: workerConfiguration)
         case .blocked:
-            return .workerBlocked
+            throw WorkerRegistrarError.workerIsBlocked(workerId: decodedRequest.workerId)
         }
     }
 }

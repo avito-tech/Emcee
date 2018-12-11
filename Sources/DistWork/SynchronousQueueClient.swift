@@ -20,6 +20,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     private var bucketFetchResult: Result<BucketFetchResult, QueueClientError>?
     private var bucketResultSendResult: Result<String, QueueClientError>?
     private var alivenessReportResult: Result<Bool, QueueClientError>?
+    private var queueServerVersionResult: Result<String, QueueClientError>?
     private let syncQueue = DispatchQueue(label: "ru.avito.SynchronousQueueClient")
     
     public init(serverAddress: String, serverPort: Int, workerId: String) {
@@ -74,6 +75,17 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         } as Void
     }
     
+    public func fetchQueueServerVersion() throws -> String {
+        return try synchronize {
+            queueServerVersionResult = nil
+            try queueClient.fetchQueueServerVersion()
+            try SynchronousWaiter.waitWhile(timeout: 10, description: "Wait for queue server version") {
+                self.queueServerVersionResult == nil
+            }
+            return try queueServerVersionResult!.dematerialize()
+        }
+    }
+    
     private func synchronize<T>(_ work: () throws -> T) rethrows -> T {
         return try syncQueue.sync {
             return try work()
@@ -99,6 +111,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         bucketFetchResult = Result.failure(error)
         alivenessReportResult = Result.failure(error)
         bucketResultSendResult = Result.failure(error)
+        queueServerVersionResult = Result.failure(error)
     }
     
     public func queueClient(_ sender: QueueClient, didReceiveWorkerConfiguration workerConfiguration: WorkerConfiguration) {
@@ -123,6 +136,10 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     
     public func queueClient(_ sender: QueueClient, serverDidAcceptBucketResult bucketId: String) {
         bucketResultSendResult = Result.success(bucketId)
+    }
+    
+    public func queueClient(_ sender: QueueClient, didFetchQueueServerVersion version: String) {
+        queueServerVersionResult = Result.success(version)
     }
     
     public func queueClientWorkerHasBeenIndicatedAsAlive(_ sender: QueueClient) {

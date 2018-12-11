@@ -13,6 +13,7 @@ class FakeQueueClientDelegate: QueueClientDelegate {
         case acceptedBucketResult(String)
         case workerHasBeenBlocked
         case alivenessAccepted
+        case queueServerVersion(String)
     }
     
     var responses = [ServerResponse]()
@@ -43,6 +44,10 @@ class FakeQueueClientDelegate: QueueClientDelegate {
     
     func queueClient(_ sender: QueueClient, serverDidAcceptBucketResult bucketId: String) {
         responses.append(ServerResponse.acceptedBucketResult(bucketId))
+    }
+    
+    func queueClient(_ sender: QueueClient, didFetchQueueServerVersion version: String) {
+        responses.append(ServerResponse.queueServerVersion(version))
     }
     
     func queueClientWorkerHasBeenIndicatedAsAlive(_ sender: QueueClient) {

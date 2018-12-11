@@ -26,7 +26,7 @@ final class BucketResultRegistrarTests: XCTestCase {
             resultsCollector: resultsCollector,
             workerAlivenessTracker: WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults())
         
-        let request = BucketResultRequest(workerId: "worker", requestId: "request", testingResult: testingResult)
+        let request = PushBucketResultRequest(workerId: "worker", requestId: "request", testingResult: testingResult)
         XCTAssertNoThrow(try registrar.handle(decodedRequest: request))
         
         XCTAssertEqual(resultsCollector.collectedResults, [testingResult])
@@ -43,7 +43,7 @@ final class BucketResultRegistrarTests: XCTestCase {
             resultsCollector: resultsCollector,
             workerAlivenessTracker: alivenessTracker)
         
-        let request = BucketResultRequest(workerId: "worker", requestId: "request", testingResult: testingResult)
+        let request = PushBucketResultRequest(workerId: "worker", requestId: "request", testingResult: testingResult)
         XCTAssertThrowsError(try registrar.handle(decodedRequest: request))
         
         XCTAssertEqual(resultsCollector.collectedResults, [])

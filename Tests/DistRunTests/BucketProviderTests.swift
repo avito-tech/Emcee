@@ -10,7 +10,7 @@ import WorkerAlivenessTrackerTestHelpers
 import XCTest
 
 final class BucketProviderTests: XCTestCase {
-    let fetchRequest = BucketFetchRequest(workerId: "worker", requestId: "request")
+    let fetchRequest = DequeueBucketRequest(workerId: "worker", requestId: "request")
     let alivenessTracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
     
     func test___reponse_is_empty_queue___if_queue_is_empty() throws {

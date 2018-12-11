@@ -6,6 +6,7 @@ import EventBus
 import Foundation
 import Models
 import ModelsTestHelpers
+import RESTMethods
 import ResultsCollector
 import WorkerAlivenessTracker
 import WorkerAlivenessTrackerTestHelpers
@@ -18,6 +19,8 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     let requestId = "requestId"
     let queueServerAddress = "localhost"
     
+    let stubbedEndpoint = FakeRESTEndpoint<Int, Int>(0)
+    
     override func setUp() {
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
     }
@@ -29,9 +32,11 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         
         restServer.setHandler(
             registerWorkerHandler: RESTEndpointOf(actualHandler: workerRegistrar),
-            bucketFetchRequestHandler: RESTEndpointOf(actualHandler: FakeRESTEndpoint<Int>()),
-            bucketResultHandler: RESTEndpointOf(actualHandler: FakeRESTEndpoint<Int>()),
-            reportAliveHandler: RESTEndpointOf(actualHandler: FakeRESTEndpoint<Int>()))
+            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            bucketResultHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            reportAliveHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            versionHandler: RESTEndpointOf(actualHandler: stubbedEndpoint)
+        )
         let port = try restServer.start()
         let client = SynchronousQueueClient(serverAddress: queueServerAddress, serverPort: port, workerId: workerId)
         
@@ -50,10 +55,12 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         )
         
         restServer.setHandler(
-            registerWorkerHandler: RESTEndpointOf(actualHandler: FakeRESTEndpoint<Int>()),
-            bucketFetchRequestHandler: RESTEndpointOf(actualHandler: bucketProvider),
-            bucketResultHandler: RESTEndpointOf(actualHandler: FakeRESTEndpoint<Int>()),
-            reportAliveHandler: RESTEndpointOf(actualHandler: FakeRESTEndpoint<Int>()))
+            registerWorkerHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: bucketProvider),
+            bucketResultHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            reportAliveHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            versionHandler: RESTEndpointOf(actualHandler: stubbedEndpoint)
+        )
         let port = try restServer.start()
         let client = SynchronousQueueClient(serverAddress: queueServerAddress, serverPort: port, workerId: workerId)
         
@@ -80,10 +87,12 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             workerAlivenessTracker: alivenessTracker)
         
         restServer.setHandler(
-            registerWorkerHandler: RESTEndpointOf(actualHandler: FakeRESTEndpoint<Int>()),
-            bucketFetchRequestHandler: RESTEndpointOf(actualHandler: FakeRESTEndpoint<Int>()),
+            registerWorkerHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
             bucketResultHandler: RESTEndpointOf(actualHandler: resultHandler),
-            reportAliveHandler: RESTEndpointOf(actualHandler: FakeRESTEndpoint<Int>()))
+            reportAliveHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            versionHandler: RESTEndpointOf(actualHandler: stubbedEndpoint)
+        )
         let port = try restServer.start()
         
         let client = SynchronousQueueClient(serverAddress: queueServerAddress, serverPort: port, workerId: workerId)
@@ -96,10 +105,12 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let alivenessTracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
         
         restServer.setHandler(
-            registerWorkerHandler: RESTEndpointOf(actualHandler: FakeRESTEndpoint<Int>()),
-            bucketFetchRequestHandler: RESTEndpointOf(actualHandler: FakeRESTEndpoint<Int>()),
-            bucketResultHandler: RESTEndpointOf(actualHandler: FakeRESTEndpoint<Int>()),
-            reportAliveHandler: RESTEndpointOf(actualHandler: WorkerAlivenessEndpoint(alivenessTracker: alivenessTracker)))
+            registerWorkerHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            bucketResultHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            reportAliveHandler: RESTEndpointOf(actualHandler: WorkerAlivenessEndpoint(alivenessTracker: alivenessTracker)),
+            versionHandler: RESTEndpointOf(actualHandler: stubbedEndpoint)
+        )
         let port = try restServer.start()
         
         let client = SynchronousQueueClient(serverAddress: queueServerAddress, serverPort: port, workerId: workerId)
@@ -107,5 +118,24 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         
         XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId).status, .alive)
     }
-}
+    
+    func test__QueueServerVersion() throws {
+        let versionHandler = FakeRESTEndpoint<QueueVersionRequest, QueueVersionResponse>(QueueVersionResponse.queueVersion("abc"))
+        
+        restServer.setHandler(
+            registerWorkerHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            bucketResultHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            reportAliveHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            versionHandler: RESTEndpointOf(actualHandler: versionHandler)
+        )
+        let port = try restServer.start()
+        
+        let client = SynchronousQueueClient(serverAddress: queueServerAddress, serverPort: port, workerId: workerId)
 
+        XCTAssertEqual(
+            try client.fetchQueueServerVersion(),
+            "abc"
+        )
+    }
+}

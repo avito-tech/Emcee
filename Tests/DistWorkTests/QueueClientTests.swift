@@ -35,7 +35,7 @@ class QueueClientTests: XCTestCase {
     
     func testReturningEmptyQueue() throws {
         try prepareServer(RESTMethod.getBucket.withPrependingSlash) { request -> HttpResponse in
-            let data: Data = (try? JSONEncoder().encode(RESTResponse.queueIsEmpty)) ?? Data()
+            let data: Data = (try? JSONEncoder().encode(DequeueBucketResponse.queueIsEmpty)) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
         try queueClient.fetchBucket(requestId: "id")
@@ -59,7 +59,7 @@ class QueueClientTests: XCTestCase {
             toolResources: ToolResourcesFixtures.fakeToolResources()
         )
         try prepareServer(RESTMethod.getBucket.withPrependingSlash) { request -> HttpResponse in
-            let data: Data = (try? JSONEncoder().encode(RESTResponse.bucketDequeued(bucket: bucket))) ?? Data()
+            let data: Data = (try? JSONEncoder().encode(DequeueBucketResponse.bucketDequeued(bucket: bucket))) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
         try queueClient.fetchBucket(requestId: "id")
@@ -76,7 +76,7 @@ class QueueClientTests: XCTestCase {
     
     func testCheckAgainLater() throws {
         try prepareServer(RESTMethod.getBucket.withPrependingSlash) { request -> HttpResponse in
-            let data: Data = (try? JSONEncoder().encode(RESTResponse.checkAgainLater(checkAfter: 10.0))) ?? Data()
+            let data: Data = (try? JSONEncoder().encode(DequeueBucketResponse.checkAgainLater(checkAfter: 10.0))) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
         try queueClient.fetchBucket(requestId: "id")
@@ -101,7 +101,7 @@ class QueueClientTests: XCTestCase {
             reportAliveInterval: 5)
         
         try prepareServer(RESTMethod.registerWorker.withPrependingSlash) { request -> HttpResponse in
-            let data: Data = (try? JSONEncoder().encode(RESTResponse.workerRegisterSuccess(workerConfiguration: stubbedConfig))) ?? Data()
+            let data: Data = (try? JSONEncoder().encode(RegisterWorkerResponse.workerRegisterSuccess(workerConfiguration: stubbedConfig))) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
         try queueClient.registerWithServer()
@@ -152,7 +152,7 @@ class QueueClientTests: XCTestCase {
             let body = try? JSONDecoder().decode(ReportAliveRequest.self, from: requestData)
             XCTAssertEqual(body?.bucketIdsBeingProcessed, [bucketId])
             
-            let data: Data = (try? JSONEncoder().encode(RESTResponse.aliveReportAccepted)) ?? Data()
+            let data: Data = (try? JSONEncoder().encode(ReportAliveResponse.aliveReportAccepted)) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
         

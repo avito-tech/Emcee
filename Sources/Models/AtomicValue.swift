@@ -9,9 +9,16 @@ public final class AtomicValue<T> {
         self.value = value
     }
     
-    public func withExclusiveAccess(work: (inout T) throws -> ()) rethrows {
+    public func withExclusiveAccess(work: (inout T) throws -> ()) rethrows -> T {
         lock.lock()
+        defer { lock.unlock() }
         try work(&value)
-        lock.unlock()
+        return value
+    }
+    
+    public func currentValue() -> T {
+        lock.lock()
+        defer { lock.unlock() }
+        return value
     }
 }

@@ -8,8 +8,6 @@ import RESTMethods
 import WorkerAlivenessTracker
 
 public final class BucketProviderEndpoint: RESTEndpoint {
-    public typealias T = BucketFetchRequest
-    
     private let bucketQueue: BucketQueue
     private let alivenessTracker: WorkerAlivenessTracker
 
@@ -18,7 +16,7 @@ public final class BucketProviderEndpoint: RESTEndpoint {
         self.alivenessTracker = alivenessTracker
     }
 
-    public func handle(decodedRequest: BucketFetchRequest) throws -> RESTResponse {
+    public func handle(decodedRequest: DequeueBucketRequest) throws -> DequeueBucketResponse {
         alivenessTracker.markWorkerAsAlive(workerId: decodedRequest.workerId)
         
         let dequeueResult = bucketQueue.dequeueBucket(

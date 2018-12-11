@@ -89,7 +89,7 @@ public final class ResourceLocationResolver {
         let secondsInDay: TimeInterval = 86400
         let days: TimeInterval = 1
         
-        cacheAccessCount.withExclusiveAccess { (counter: inout Int) in
+        _ = cacheAccessCount.withExclusiveAccess { (counter: inout Int) in
             let evictBarrierDate = Date().addingTimeInterval(-days * secondsInDay)
             
             if counter % evictionRegularity == 0 {

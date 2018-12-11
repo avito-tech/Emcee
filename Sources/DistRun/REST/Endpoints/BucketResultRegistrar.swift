@@ -9,8 +9,6 @@ import ResultsCollector
 import WorkerAlivenessTracker
 
 public final class BucketResultRegistrar: RESTEndpoint {
-    public typealias T = BucketResultRequest
-    
     private let bucketQueue: BucketQueue
     private let eventBus: EventBus
     private let resultsCollector: ResultsCollector
@@ -28,7 +26,7 @@ public final class BucketResultRegistrar: RESTEndpoint {
         self.workerAlivenessTracker = workerAlivenessTracker
     }
 
-    public func handle(decodedRequest: BucketResultRequest) throws -> RESTResponse {
+    public func handle(decodedRequest: PushBucketResultRequest) throws -> BucketResultAcceptResponse {
         do {
             let acceptResult = try bucketQueue.accept(
                 testingResult: decodedRequest.testingResult,
