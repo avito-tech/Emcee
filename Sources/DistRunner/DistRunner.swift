@@ -1,6 +1,7 @@
 import EventBus
 import Foundation
 import Models
+import PortDeterminer
 import QueueServer
 import ResourceLocationResolver
 import RuntimeDump
@@ -8,23 +9,27 @@ import ScheduleStrategy
 import TempFolder
 
 public final class DistRunner {    
-    private let eventBus: EventBus
     private let distRunConfiguration: DistRunConfiguration
-    private let tempFolder: TempFolder
-    private let resourceLocationResolver: ResourceLocationResolver
     private let distRunDeployer: DistRunDeployer
+    private let eventBus: EventBus
+    private let localPortDeterminer: LocalPortDeterminer
+    private let resourceLocationResolver: ResourceLocationResolver
+    private let tempFolder: TempFolder
     
     public init(
-        eventBus: EventBus,
         distRunConfiguration: DistRunConfiguration,
+        eventBus: EventBus,
+        localPortDeterminer: LocalPortDeterminer,
         resourceLocationResolver: ResourceLocationResolver,
-        tempFolder: TempFolder)
+        tempFolder: TempFolder
+        )
     {
-        self.eventBus = eventBus
         self.distRunConfiguration = distRunConfiguration
-        self.tempFolder = tempFolder
-        self.resourceLocationResolver = resourceLocationResolver
         self.distRunDeployer = DistRunDeployer(distRunConfiguration: distRunConfiguration, tempFolder: tempFolder)
+        self.eventBus = eventBus
+        self.localPortDeterminer = localPortDeterminer
+        self.resourceLocationResolver = resourceLocationResolver
+        self.tempFolder = tempFolder
     }
     
     public func run() throws -> [TestingResult] {
@@ -33,7 +38,8 @@ public final class DistRunner {
             workerConfigurations: createWorkerConfigurations(),
             reportAliveInterval: distRunConfiguration.reportAliveInterval,
             numberOfRetries: distRunConfiguration.testRunExecutionBehavior.numberOfRetries,
-            checkAgainTimeInterval: distRunConfiguration.checkAgainTimeInterval
+            checkAgainTimeInterval: distRunConfiguration.checkAgainTimeInterval,
+            localPortDeterminer: localPortDeterminer
         )
         queueServer.add(buckets: try prepareQueue())
         let port = try queueServer.start()

@@ -4,6 +4,7 @@ import Extensions
 import Foundation
 import Logging
 import Models
+import PortDeterminer
 import RESTMethods
 import ResultsCollector
 import Swifter
@@ -16,7 +17,7 @@ public final class QueueServer {
     private let bucketQueue: BucketQueue
     private let bucketResultRegistrar: BucketResultRegistrar
     private let queueServerVersionHandler = QueueServerVersionEndpoint()
-    private let restServer = QueueHTTPRESTServer()
+    private let restServer: QueueHTTPRESTServer
     private let resultsCollector = ResultsCollector()
     private let workerAlivenessTracker: WorkerAlivenessTracker
     private let workerAlivenessEndpoint: WorkerAlivenessEndpoint
@@ -32,8 +33,10 @@ public final class QueueServer {
         numberOfRetries: UInt,
         newWorkerRegistrationTimeAllowance: TimeInterval = 60.0,
         queueExhaustTimeAllowance: TimeInterval = .infinity,
-        checkAgainTimeInterval: TimeInterval)
+        checkAgainTimeInterval: TimeInterval,
+        localPortDeterminer: LocalPortDeterminer)
     {
+        self.restServer = QueueHTTPRESTServer(localPortDeterminer: localPortDeterminer)
         self.workerAlivenessTracker = WorkerAlivenessTracker(reportAliveInterval: reportAliveInterval, additionalTimeToPerformWorkerIsAliveReport: 10.0)
         self.workerAlivenessEndpoint = WorkerAlivenessEndpoint(alivenessTracker: workerAlivenessTracker)
         self.workerRegistrar = WorkerRegistrar(workerConfigurations: workerConfigurations, workerAlivenessTracker: workerAlivenessTracker)

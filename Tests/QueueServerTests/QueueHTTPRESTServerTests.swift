@@ -4,6 +4,7 @@ import EventBus
 import Foundation
 import Models
 import ModelsTestHelpers
+import PortDeterminer
 import QueueClient
 import QueueServer
 import RESTMethods
@@ -13,7 +14,7 @@ import WorkerAlivenessTrackerTestHelpers
 import XCTest
 
 final class QueueHTTPRESTServerTests: XCTestCase {
-    let restServer = QueueHTTPRESTServer()
+    let restServer = QueueHTTPRESTServer(localPortDeterminer: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange))
     let workerConfigurations = WorkerConfigurations()
     let workerId = "worker"
     let requestId = "requestId"

@@ -6,6 +6,7 @@ import Foundation
 import Logging
 import Models
 import PluginManager
+import PortDeterminer
 import ResourceLocationResolver
 import ScheduleStrategy
 import TempFolder
@@ -179,10 +180,12 @@ final class DistRunTestsCommand: Command {
         log("Using dist run configuration: \(distRunConfiguration)", color: .blue)
         
         let distRunner = DistRunner(
-            eventBus: eventBus,
             distRunConfiguration: distRunConfiguration,
+            eventBus: eventBus,
+            localPortDeterminer: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange),
             resourceLocationResolver: resourceLocationResolver,
-            tempFolder: tempFolder)
+            tempFolder: tempFolder
+        )
         let testingResults = try distRunner.run()
         try ResultingOutputGenerator(
             testingResults: testingResults,

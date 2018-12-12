@@ -2,6 +2,7 @@ import EventBus
 import Foundation
 import Models
 import ModelsTestHelpers
+import PortDeterminer
 import QueueClient
 import QueueServer
 import XCTest
@@ -10,6 +11,7 @@ final class QueueServerTests: XCTestCase {
     let eventBus = EventBus()
     let workerConfigurations = WorkerConfigurations()
     let workerId = "workerId"
+    let localPortDeterminer = LocalPortDeterminer(portRange: Ports.allPrivatePorts)
     
     func test__queue_waits_for_new_workers_and_fails_if_they_not_appear_in_time() {
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
@@ -20,7 +22,8 @@ final class QueueServerTests: XCTestCase {
             reportAliveInterval: .infinity,
             numberOfRetries: 0,
             newWorkerRegistrationTimeAllowance: 0.0,
-            checkAgainTimeInterval: .infinity
+            checkAgainTimeInterval: .infinity, 
+            localPortDeterminer: localPortDeterminer
         )
         XCTAssertThrowsError(try server.waitForQueueToFinish())
     }
@@ -36,7 +39,8 @@ final class QueueServerTests: XCTestCase {
             numberOfRetries: 0,
             newWorkerRegistrationTimeAllowance: .infinity,
             queueExhaustTimeAllowance: 0.0,
-            checkAgainTimeInterval: .infinity
+            checkAgainTimeInterval: .infinity,
+            localPortDeterminer: localPortDeterminer
         )
         server.add(buckets: [bucket])
         
@@ -64,7 +68,8 @@ final class QueueServerTests: XCTestCase {
             numberOfRetries: 0,
             newWorkerRegistrationTimeAllowance: .infinity,
             queueExhaustTimeAllowance: 10.0,
-            checkAgainTimeInterval: .infinity
+            checkAgainTimeInterval: .infinity,
+            localPortDeterminer: localPortDeterminer
         )
         server.add(buckets: [bucket])
         

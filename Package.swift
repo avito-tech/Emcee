@@ -54,6 +54,7 @@ let package = Package(
                 "LaunchdUtils",
                 "Models",
                 "PluginManager",
+                "PortDeterminer",
                 "ProcessController",
                 "ResourceLocationResolver",
                 "SSHDeployer",
@@ -150,6 +151,7 @@ let package = Package(
                 "LocalHostDeterminer",
                 "Logging",
                 "Models",
+                "PortDeterminer",
                 "QueueServer",
                 "RESTMethods",
                 "ResultsCollector",
@@ -372,6 +374,18 @@ let package = Package(
             ]),
         
         .target(
+            name: "PortDeterminer",
+            dependencies: [
+                "Logging"
+            ]),
+        .testTarget(
+            name: "PortDeterminerTests",
+            dependencies: [
+                "PortDeterminer",
+                "Swifter"
+            ]),
+        
+        .target(
             name: "ProcessController",
             dependencies: [
                 "Extensions",
@@ -417,6 +431,7 @@ let package = Package(
                 "FileHasher",
                 "Logging",
                 "Models",
+                "PortDeterminer",
                 "RESTMethods",
                 "ResultsCollector",
                 "ScheduleStrategy",
