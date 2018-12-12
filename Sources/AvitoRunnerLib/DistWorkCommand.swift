@@ -1,5 +1,5 @@
 import ArgumentsParser
-import DistWork
+import DistWorker
 import Foundation
 import Logging
 import ResourceLocationResolver

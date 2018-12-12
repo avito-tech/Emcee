@@ -48,7 +48,7 @@ let package = Package(
                 "ChromeTracing",
                 "Deployer",
                 "DistRunner",
-                "DistWork",
+                "DistWorker",
                 "EventBus",
                 "JunitReporting",
                 "LaunchdUtils",
@@ -176,7 +176,7 @@ let package = Package(
             ]),
         
         .target(
-            name: "DistWork",
+            name: "DistWorker",
             dependencies: [
                 "CurrentlyBeingProcessedBucketsTracker",
                 "EventBus",
@@ -192,6 +192,11 @@ let package = Package(
                 "SynchronousWaiter",
                 "Timer",
                 "Utility"
+            ]),
+        .testTarget(
+            name: "DistWorkerTests",
+            dependencies: [
+                "DistWorker"
             ]),
         
         .target(
@@ -405,7 +410,6 @@ let package = Package(
                 "BucketQueue",
                 "BucketQueueTestHelpers",
                 "Deployer",
-                "DistWork",
                 "EventBus",
                 "FileHasher",
                 "Models",
