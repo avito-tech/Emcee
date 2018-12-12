@@ -3,8 +3,8 @@ import Foundation
 import SimulatorPool
 import Models
 import fbxctest
+import LocalHostDeterminer
 import Logging
-import HostDeterminer
 import ProcessController
 import TempFolder
 import ResourceLocationResolver
@@ -257,7 +257,7 @@ public final class Runner {
                 duration: 0,
                 startTime: timestamp,
                 finishTime: timestamp,
-                hostName: HostDeterminer.currentHostAddress,
+                hostName: LocalHostDeterminer.currentHostAddress,
                 processId: 0,
                 simulatorId: "no_simulator"))
     }

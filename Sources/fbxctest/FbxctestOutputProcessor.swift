@@ -1,6 +1,6 @@
 import Ansi
 import Foundation
-import HostDeterminer
+import LocalHostDeterminer
 import Logging
 import ProcessController
 import Timer
@@ -111,7 +111,7 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
             }
         case .testStarted:
             if let result = try? decoder.decode(TestStartedEvent.self, from: data)
-                .witHostName(newHostName: HostDeterminer.currentHostAddress)
+                .witHostName(newHostName: LocalHostDeterminer.currentHostAddress)
                 .withProcessId(newProcessId: processId)
                 .withSimulatorId(newSimulatorId: simulatorId) {
                 eventsListener.testStarted(result)

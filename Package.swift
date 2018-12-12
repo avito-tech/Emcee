@@ -146,8 +146,8 @@ let package = Package(
                 "Deployer",
                 "EventBus",
                 "Extensions",
-                "HostDeterminer",
                 "LaunchdUtils",
+                "LocalHostDeterminer",
                 "Logging",
                 "Models",
                 "QueueServer",
@@ -237,7 +237,7 @@ let package = Package(
             dependencies: [
                 "Ansi",
                 "JSONStream",
-                "HostDeterminer",
+                "LocalHostDeterminer",
                 "Logging",
                 "ProcessController",
                 "Timer",
@@ -270,7 +270,7 @@ let package = Package(
             ]),
         
         .target(
-            name: "HostDeterminer",
+            name: "LocalHostDeterminer",
             dependencies: [
                 "Logging"
             ]),
@@ -354,8 +354,8 @@ let package = Package(
             name: "PluginManager",
             dependencies: [
                 "EventBus",
+                "LocalHostDeterminer",
                 "Logging",
-                "HostDeterminer",
                 "ResourceLocationResolver",
                 "Models",
                 "ProcessController",
@@ -484,7 +484,7 @@ let package = Package(
             name: "Runner",
             dependencies: [
                 "fbxctest",
-                "HostDeterminer",
+                "LocalHostDeterminer",
                 "Logging",
                 "Models",
                 "SimulatorPool",

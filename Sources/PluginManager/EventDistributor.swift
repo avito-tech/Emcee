@@ -1,5 +1,5 @@
 import Foundation
-import HostDeterminer
+import LocalHostDeterminer
 import Logging
 import Models
 import Swifter
@@ -52,7 +52,7 @@ public final class EventDistributor {
     
     public func webSocketAddress() throws -> String {
         return try queue.sync {
-            let host = HostDeterminer.currentHostAddress
+            let host = LocalHostDeterminer.currentHostAddress
             let port = try server.port()
             let address = "ws://\(host):\(port)/"
             return address

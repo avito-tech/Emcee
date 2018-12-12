@@ -8,7 +8,7 @@ import Logging
  *
  *  sudo scutil --set HostName machine.example.com
  */
-public final class HostDeterminer {
+public final class LocalHostDeterminer {
     public static let currentHostAddress: String = {
         if let hostname = hostnameFromGetHostname(), !hostname.isEmpty {
             log("Obtained host name using gethostname: '\(hostname)'")

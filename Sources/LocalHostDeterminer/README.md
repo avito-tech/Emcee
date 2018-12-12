@@ -1,6 +1,6 @@
 #  HostDeterminer
 
-This module allows you to determine the current host's name. It is important to set up the queue server, so clients would be able to connect.
+This module allows you to determine the local host's name. It is important to set up the queue server, so clients would be able to connect to it.
 You can set the host name of each machine using the following bach command:
 
 ```

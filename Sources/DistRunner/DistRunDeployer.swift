@@ -5,7 +5,7 @@ import ScheduleStrategy
 import SSHDeployer
 import TempFolder
 import LaunchdUtils
-import HostDeterminer
+import LocalHostDeterminer
 import Logging
 
 public final class DistRunDeployer {
@@ -71,7 +71,7 @@ public final class DistRunDeployer {
             label: jobLabel,
             programArguments: [
                 remoteAvitoRunnerPath, "distWork",
-                "--queue-server", "\(HostDeterminer.currentHostAddress):\(serverPort)",
+                "--queue-server", "\(LocalHostDeterminer.currentHostAddress):\(serverPort)",
                 "--worker-id", destination.identifier
             ],
             environmentVariables: [:],
