@@ -17,7 +17,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-package-manager.git", .exact("0.3.0")),
         .package(url: "https://github.com/beefon/CountedSet", .branch("master")),
-        .package(url: "https://github.com/beefon/Shout", .branch("master")),
+        .package(url: "https://github.com/beefon/Shout", .branch("UpdateSocket")),
         .package(url: "https://github.com/daltoniam/Starscream.git", .exact("3.0.6")),
         .package(url: "https://github.com/httpswift/swifter.git", .branch("stable")),
         .package(url: "https://github.com/weichsel/ZIPFoundation/", from: "0.9.6"),
@@ -196,7 +196,8 @@ let package = Package(
         .testTarget(
             name: "DistWorkerTests",
             dependencies: [
-                "DistWorker"
+                "DistWorker",
+                "Scheduler"
             ]),
         
         .target(

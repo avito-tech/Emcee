@@ -1,7 +1,7 @@
 import Foundation
 import Models
 
-public final class SchedulerBucket: CustomStringConvertible {
+public final class SchedulerBucket: CustomStringConvertible, Equatable {
     public let bucketId: String
     public let testEntries: [TestEntry]
     public let buildArtifacts: BuildArtifacts
@@ -43,5 +43,15 @@ public final class SchedulerBucket: CustomStringConvertible {
             testDestination: bucket.testDestination,
             toolResources: bucket.toolResources
         )
+    }
+    
+    public static func == (left: SchedulerBucket, right: SchedulerBucket) -> Bool {
+        return left.bucketId == right.bucketId
+            && left.testEntries == right.testEntries
+            && left.buildArtifacts == right.buildArtifacts
+            && left.environment == right.environment
+            && left.simulatorSettings == right.simulatorSettings
+            && left.testDestination == right.testDestination
+            && left.toolResources == right.toolResources
     }
 }

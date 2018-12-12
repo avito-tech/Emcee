@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/IBM-Swift/BlueSocket",
         "state": {
           "branch": null,
-          "revision": "26c8f4e4e3000421a0c97aaf0c7b5e9aa5475222",
-          "version": "0.12.94"
+          "revision": "a7ad71099dcfc5b1fd888f5e603347f2e0cdb24d",
+          "version": "1.0.30"
         }
       },
       {
@@ -32,8 +32,8 @@
         "package": "Shout",
         "repositoryURL": "https://github.com/beefon/Shout",
         "state": {
-          "branch": "master",
-          "revision": "b0111c62c1a0b67dd602d3ccf10508dd6ec53fa4",
+          "branch": "UpdateSocket",
+          "revision": "4846fc16bd60738cf6162d49cd063b0a41ced813",
           "version": null
         }
       },
