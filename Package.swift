@@ -388,6 +388,26 @@ let package = Package(
             ]),
         
         .target(
+            name: "QueueClient",
+            dependencies: [
+                "Logging",
+                "Models",
+                "RESTMethods",
+                "SynchronousWaiter",
+                "Utility"
+            ]),
+        .testTarget(
+            name: "QueueClientTests",
+            dependencies: [
+                "Models",
+                "ModelsTestHelpers",
+                "QueueClient",
+                "RESTMethods",
+                "Swifter",
+                "SynchronousWaiter"
+            ]),
+        
+        .target(
             name: "QueueServer",
             dependencies: [
                 "BucketQueue",
@@ -421,26 +441,6 @@ let package = Package(
                 "TempFolder",
                 "WorkerAlivenessTracker",
                 "WorkerAlivenessTrackerTestHelpers"
-            ]),
-        
-        .target(
-            name: "QueueClient",
-            dependencies: [
-                "Logging",
-                "Models",
-                "RESTMethods",
-                "SynchronousWaiter",
-                "Utility"
-            ]),
-        .testTarget(
-            name: "QueueClientTests",
-            dependencies: [
-                "Models",
-                "ModelsTestHelpers",
-                "QueueClient",
-                "RESTMethods",
-                "Swifter",
-                "SynchronousWaiter"
             ]),
         
         .target(
