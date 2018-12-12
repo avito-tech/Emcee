@@ -8,7 +8,7 @@ public final class EquallyDividedBucketSplitter: BucketSplitter {
     }
     
     public override func split(inputs: [TestEntryConfiguration], bucketSplitInfo: BucketSplitInfo) -> [[TestEntryConfiguration]] {
-        let size = UInt(ceil(Double(inputs.count) / Double(bucketSplitInfo.numberOfDestinations)))
+        let size = UInt(ceil(Double(inputs.count) / Double(bucketSplitInfo.numberOfWorkers)))
         return inputs.splitToChunks(withSize: size)
     }
 }

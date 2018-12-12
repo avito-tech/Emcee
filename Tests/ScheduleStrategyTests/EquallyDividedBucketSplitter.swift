@@ -20,7 +20,7 @@ final class EquallyDividedBucketSplitterTests: XCTestCase {
         
         let actual = equallyDividedSplitter.split(
             inputs: testEntryConfigurations,
-            bucketSplitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture(numberOfDestinations: 2))
+            bucketSplitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture(numberOfWorkers: 2))
         
         XCTAssertEqual(actual, expected)
     }
@@ -30,7 +30,7 @@ final class EquallyDividedBucketSplitterTests: XCTestCase {
         
         let actual = equallyDividedSplitter.split(
             inputs: testEntryConfigurations,
-            bucketSplitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture(numberOfDestinations: UInt(testEntries.count)))
+            bucketSplitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture(numberOfWorkers: UInt(testEntries.count)))
         
         XCTAssertEqual(actual, expected)
     }

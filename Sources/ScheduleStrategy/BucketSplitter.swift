@@ -2,20 +2,19 @@ import Foundation
 import Models
 
 public struct BucketSplitInfo {
-    // TODO: Rename to numberOfWorkers
-    public let numberOfDestinations: UInt
+    public let numberOfWorkers: UInt
     public let environment: [String: String]
     public let toolResources: ToolResources
     public let simulatorSettings: SimulatorSettings
     
     public init(
-        numberOfDestinations: UInt,
+        numberOfWorkers: UInt,
         environment: [String: String],
         toolResources: ToolResources,
         simulatorSettings: SimulatorSettings
         )
     {
-        self.numberOfDestinations = numberOfDestinations
+        self.numberOfWorkers = numberOfWorkers
         self.environment = environment
         self.toolResources = toolResources
         self.simulatorSettings = simulatorSettings

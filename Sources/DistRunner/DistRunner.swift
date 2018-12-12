@@ -46,7 +46,7 @@ public final class DistRunner {
         return splitter.generate(
             inputs: distRunConfiguration.testEntryConfigurations,
             splitInfo: BucketSplitInfo(
-                numberOfDestinations: UInt(distRunConfiguration.destinations.count),
+                numberOfWorkers: UInt(distRunConfiguration.destinations.count),
                 environment: distRunConfiguration.testRunExecutionBehavior.environment,
                 toolResources: distRunConfiguration.auxiliaryResources.toolResources,
                 simulatorSettings: distRunConfiguration.simulatorSettings

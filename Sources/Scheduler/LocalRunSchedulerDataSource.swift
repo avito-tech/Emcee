@@ -37,7 +37,7 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
         let buckets = splitter.generate(
             inputs: configuration.testEntryConfigurations,
             splitInfo: BucketSplitInfo(
-                numberOfDestinations: configuration.testRunExecutionBehavior.numberOfSimulators,
+                numberOfWorkers: configuration.testRunExecutionBehavior.numberOfSimulators,
                 environment: configuration.testRunExecutionBehavior.environment,
                 toolResources: configuration.auxiliaryResources.toolResources,
                 simulatorSettings: configuration.simulatorSettings

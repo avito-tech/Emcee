@@ -25,9 +25,9 @@ final class IndividualBucketSplitterTests: XCTestCase {
         XCTAssertEqual(
             individualSplitter.generate(
                 inputs: testEntryConfigurations,
-                splitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture(numberOfDestinations: 1)),
+                splitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture(numberOfWorkers: 1)),
             individualSplitter.generate(
                 inputs: testEntryConfigurations,
-                splitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture(numberOfDestinations: 5)))
+                splitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture(numberOfWorkers: 5)))
     }
 }
