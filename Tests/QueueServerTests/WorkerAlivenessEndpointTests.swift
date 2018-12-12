@@ -1,5 +1,5 @@
-import DistRun
 import Foundation
+import QueueServer
 import RESTMethods
 import WorkerAlivenessTracker
 import WorkerAlivenessTrackerTestHelpers

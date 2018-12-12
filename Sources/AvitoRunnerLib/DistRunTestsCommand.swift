@@ -1,6 +1,6 @@
 import ArgumentsParser
 import Deployer
-import DistRun
+import DistRunner
 import EventBus
 import Foundation
 import Logging

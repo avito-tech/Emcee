@@ -1,5 +1,5 @@
 import Foundation
-import DistRun
+import DistRunner
 import Models
 import ModelsTestHelpers
 import XCTest

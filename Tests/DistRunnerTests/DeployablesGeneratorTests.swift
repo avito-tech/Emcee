@@ -1,7 +1,7 @@
 import Basic
 import Extensions
 import Deployer
-@testable import DistRun
+@testable import DistRunner
 import Models
 import ModelsTestHelpers
 import ResourceLocationResolver

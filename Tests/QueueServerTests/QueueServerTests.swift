@@ -1,9 +1,9 @@
-import DistRun
-import DistWork
+import DistWork // todo
 import EventBus
 import Foundation
 import Models
 import ModelsTestHelpers
+import QueueServer
 import XCTest
 
 final class QueueServerTests: XCTestCase {

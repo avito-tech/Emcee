@@ -47,7 +47,7 @@ let package = Package(
                 "ArgumentsParser",
                 "ChromeTracing",
                 "Deployer",
-                "DistRun",
+                "DistRunner",
                 "DistWork",
                 "EventBus",
                 "JunitReporting",
@@ -140,17 +140,17 @@ let package = Package(
             ]),
         
         .target(
-            name: "DistRun",
+            name: "DistRunner",
             dependencies: [
                 "BucketQueue",
                 "Deployer",
                 "EventBus",
                 "Extensions",
-                "FileHasher",
                 "HostDeterminer",
                 "LaunchdUtils",
                 "Logging",
                 "Models",
+                "QueueServer",
                 "RESTMethods",
                 "ResultsCollector",
                 "RuntimeDump",
@@ -163,19 +163,16 @@ let package = Package(
                 "WorkerAlivenessTracker"
             ]),
         .testTarget(
-            name: "DistRunTests",
+            name: "DistRunnerTests",
             dependencies: [
-                "BucketQueue",
-                "FileHasher",
+                "Extensions",
                 "Deployer",
-                "DistRun",
-                "DistWork",
+                "DistRunner",
                 "Models",
                 "ModelsTestHelpers",
                 "ResourceLocationResolver",
-                "TempFolder",
-                "WorkerAlivenessTracker",
-                "WorkerAlivenessTrackerTestHelpers"
+                "SSHDeployer",
+                "TempFolder"
             ]),
         
         .target(
@@ -392,6 +389,43 @@ let package = Package(
                 "Extensions",
                 "ProcessController",
                 "Utility"
+            ]),
+        
+        .target(
+            name: "QueueServer",
+            dependencies: [
+                "BucketQueue",
+                "EventBus",
+                "Extensions",
+                "FileHasher",
+                "Logging",
+                "Models",
+                "RESTMethods",
+                "ResultsCollector",
+                "ScheduleStrategy",
+                "Swifter",
+                "SynchronousWaiter",
+                "Timer",
+                "WorkerAlivenessTracker"
+            ]),
+        .testTarget(
+            name: "QueueServerTests",
+            dependencies: [
+                "BucketQueue",
+                "BucketQueueTestHelpers",
+                "Deployer",
+                "DistWork",
+                "EventBus",
+                "FileHasher",
+                "Models",
+                "ModelsTestHelpers",
+                "QueueServer",
+                "ResourceLocationResolver",
+                "RESTMethods",
+                "ResultsCollector",
+                "TempFolder",
+                "WorkerAlivenessTracker",
+                "WorkerAlivenessTrackerTestHelpers"
             ]),
         
         .target(

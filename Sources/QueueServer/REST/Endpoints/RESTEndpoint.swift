@@ -1,5 +1,4 @@
 import Foundation
-import RESTMethods
 
 public protocol RESTEndpoint {
     associatedtype DecodedObjectType: Decodable

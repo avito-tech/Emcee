@@ -1,6 +1,5 @@
-import DistRun
 import Foundation
-import RESTMethods
+import QueueServer
 
 class FakeRESTEndpoint<RequestType: Decodable, ReturnType: Encodable>: RESTEndpoint {
     private let returnValue: ReturnType

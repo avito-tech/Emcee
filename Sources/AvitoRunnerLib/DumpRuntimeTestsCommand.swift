@@ -1,6 +1,6 @@
 import ArgumentsParser
 import ChromeTracing
-import DistRun
+import DistRunner
 import EventBus
 import Foundation
 import JunitReporting

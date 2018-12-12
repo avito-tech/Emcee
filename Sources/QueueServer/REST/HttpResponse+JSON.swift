@@ -1,6 +1,5 @@
 import Foundation
 import Logging
-import RESTMethods
 import Swifter
 
 public extension HttpResponse {

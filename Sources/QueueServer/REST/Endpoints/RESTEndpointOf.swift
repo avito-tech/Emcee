@@ -1,5 +1,4 @@
 import Foundation
-import RESTMethods
 
 public final class RESTEndpointOf<RequestType: Decodable, ReturnType: Encodable>: RESTEndpoint {
     public typealias DecodedObjectType = RequestType

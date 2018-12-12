@@ -1,5 +1,4 @@
 import Foundation
-import RESTMethods
 import Swifter
 import Logging
 

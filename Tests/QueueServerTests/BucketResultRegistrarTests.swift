@@ -1,9 +1,9 @@
 import BucketQueueTestHelpers
-import DistRun
 import EventBus
 import Foundation
 import Models
 import ModelsTestHelpers
+import QueueServer
 import RESTMethods
 import ResultsCollector
 import WorkerAlivenessTrackerTestHelpers
