@@ -5,6 +5,7 @@ import Foundation
 import Logging
 import Models
 import PluginManager
+import QueueClient
 import ResourceLocationResolver
 import Scheduler
 import SimulatorPool

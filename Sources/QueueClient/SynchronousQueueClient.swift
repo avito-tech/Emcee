@@ -4,7 +4,7 @@ import Foundation
 import Logging
 import Models
 import SynchronousWaiter
-import Utility
+import Utility // todo??
 
 public final class SynchronousQueueClient: QueueClientDelegate {
     

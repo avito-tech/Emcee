@@ -184,6 +184,7 @@ let package = Package(
                 "Logging",
                 "Models",
                 "PluginManager",
+                "QueueClient",
                 "ResourceLocationResolver",
                 "RESTMethods",
                 "Scheduler",
@@ -191,16 +192,6 @@ let package = Package(
                 "SynchronousWaiter",
                 "Timer",
                 "Utility"
-            ]),
-        .testTarget(
-            name: "DistWorkTests",
-            dependencies: [
-                "DistWork",
-                "Models",
-                "ModelsTestHelpers",
-                "RESTMethods",
-                "Swifter",
-                "SynchronousWaiter"
             ]),
         
         .target(
@@ -426,6 +417,26 @@ let package = Package(
                 "TempFolder",
                 "WorkerAlivenessTracker",
                 "WorkerAlivenessTrackerTestHelpers"
+            ]),
+        
+        .target(
+            name: "QueueClient",
+            dependencies: [
+                "Logging",
+                "Models",
+                "RESTMethods",
+                "SynchronousWaiter",
+                "Utility"
+            ]),
+        .testTarget(
+            name: "QueueClientTests",
+            dependencies: [
+                "Models",
+                "ModelsTestHelpers",
+                "QueueClient",
+                "RESTMethods",
+                "Swifter",
+                "SynchronousWaiter"
             ]),
         
         .target(

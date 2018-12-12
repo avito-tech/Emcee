@@ -1,8 +1,8 @@
-import DistWork // todo
 import EventBus
 import Foundation
 import Models
 import ModelsTestHelpers
+import QueueClient
 import QueueServer
 import XCTest
 

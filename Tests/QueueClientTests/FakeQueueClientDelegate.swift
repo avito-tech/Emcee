@@ -1,6 +1,6 @@
 import Foundation
-import DistWork
 import Models
+import QueueClient
 
 class FakeQueueClientDelegate: QueueClientDelegate {
     

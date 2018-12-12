@@ -1,6 +1,6 @@
-import DistWork
 import Models
 import ModelsTestHelpers
+import QueueClient
 import RESTMethods
 import Swifter
 import SynchronousWaiter
