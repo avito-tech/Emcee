@@ -69,7 +69,7 @@ final class ResourceLocationResolverTests: XCTestCase {
         let remoteUrl = URL(string: "http://localhost:\(server.port)/contents/example.zip")!
         let resolver = self.resolver
         
-        for _ in 0..<50 {
+        for _ in 0 ..< maximumConcurrentOperations {
             operationQueue.addOperation {
                 do {
                     let result = try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl))
@@ -98,7 +98,7 @@ final class ResourceLocationResolverTests: XCTestCase {
         let remoteUrl = URL(string: "http://localhost:\(server.port)/contents/example.zip")!
         let resolver = self.resolver
         
-        for _ in 0..<50 {
+        for _ in 0 ..< maximumConcurrentOperations {
             operationQueue.addOperation {
                 _ = try? resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl))
             }
@@ -119,6 +119,12 @@ final class ResourceLocationResolverTests: XCTestCase {
     lazy var largeFile = try! createFile(name: "example", size: 12000000)
     lazy var largeZipFile = self.zipFile(toPath: serverFolder.appending(component: "example.zip"), fromPath: largeFile)
     let operationQueue = OperationQueue()
+    let maximumConcurrentOperations = 10
+    
+    override func setUp() {
+        super.setUp()
+        operationQueue.maxConcurrentOperationCount = maximumConcurrentOperations
+    }
     
     private func zipFile(toPath: AbsolutePath, fromPath: AbsolutePath) -> AbsolutePath {
         let process = Foundation.Process()

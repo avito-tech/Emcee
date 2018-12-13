@@ -1,6 +1,7 @@
 import BucketQueue
 import EventBus
 import Extensions
+import FileHasher
 import Foundation
 import Logging
 import Models
@@ -16,7 +17,7 @@ public final class QueueServer {
     private let bucketQueueFactory: BucketQueueFactory
     private let bucketQueue: BucketQueue
     private let bucketResultRegistrar: BucketResultRegistrar
-    private let queueServerVersionHandler = QueueServerVersionEndpoint()
+    private let queueServerVersionHandler: QueueServerVersionEndpoint
     private let restServer: QueueHTTPRESTServer
     private let resultsCollector = ResultsCollector()
     private let workerAlivenessTracker: WorkerAlivenessTracker
@@ -25,6 +26,7 @@ public final class QueueServer {
     private let stuckBucketsPoller: StuckBucketsPoller
     private let newWorkerRegistrationTimeAllowance: TimeInterval
     private let queueExhaustTimeAllowance: TimeInterval
+    private let hasher = FileHasher(fileUrl: URL(fileURLWithPath: ProcessInfo.processInfo.executablePath))
     
     public init(
         eventBus: EventBus,
@@ -54,6 +56,7 @@ public final class QueueServer {
         self.bucketResultRegistrar = BucketResultRegistrar(bucketQueue: bucketQueue, eventBus: eventBus, resultsCollector: resultsCollector, workerAlivenessTracker: workerAlivenessTracker)
         self.newWorkerRegistrationTimeAllowance = newWorkerRegistrationTimeAllowance
         self.queueExhaustTimeAllowance = queueExhaustTimeAllowance
+        self.queueServerVersionHandler = QueueServerVersionEndpoint(versionProvider: hasher.hash)
     }
     
     public func start() throws -> Int {
@@ -94,5 +97,9 @@ public final class QueueServer {
         }
         log("Bucket queue has exhaust")
         return resultsCollector.collectedResults
+    }
+    
+    public func version() throws -> String {
+        return try hasher.hash()
     }
 }

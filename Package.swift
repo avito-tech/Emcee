@@ -416,6 +416,7 @@ let package = Package(
             dependencies: [
                 "Models",
                 "ModelsTestHelpers",
+                "PortDeterminer",
                 "QueueClient",
                 "RESTMethods",
                 "Swifter",
@@ -651,6 +652,7 @@ let package = Package(
                 "FileCache",
                 "Logging",
                 "Models",
+                "SynchronousWaiter",
                 "Utility"
             ]),
         .testTarget(

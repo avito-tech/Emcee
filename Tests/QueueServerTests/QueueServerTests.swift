@@ -17,7 +17,7 @@ final class QueueServerTests: XCTestCase {
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
         
         let server = QueueServer(
-            eventBus: EventBus(),
+            eventBus: eventBus,
             workerConfigurations: workerConfigurations,
             reportAliveInterval: .infinity,
             numberOfRetries: 0,

@@ -1,15 +1,16 @@
 import Extensions
-import FileHasher
 import Foundation
 import Models
 import RESTMethods
 
 public final class QueueServerVersionEndpoint: RESTEndpoint {
-    public init() {}
+    private let versionProvider: () throws -> String
     
-    private let hasher = FileHasher(fileUrl: URL(fileURLWithPath: ProcessInfo.processInfo.executablePath))
+    public init(versionProvider: @escaping () throws -> String) {
+        self.versionProvider = versionProvider
+    }
     
     public func handle(decodedRequest: QueueVersionRequest) throws -> QueueVersionResponse {
-        return .queueVersion(try hasher.hash())
+        return .queueVersion(try versionProvider())
     }
 }
