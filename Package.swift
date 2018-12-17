@@ -141,40 +141,46 @@ let package = Package(
             ]),
         
         .target(
+            name: "DistDeployer",
+            dependencies: [
+                "Deployer",
+                "LaunchdUtils",
+                "Logging",
+                "Models",
+                "SSHDeployer"
+            ]),
+        .testTarget(
+            name: "DistDeployerTests",
+            dependencies: [
+                "Extensions",
+                "Deployer",
+                "DistDeployer",
+                "Models",
+                "ModelsTestHelpers",
+                "ResourceLocationResolver",
+                "TempFolder",
+                "Utility"
+            ]),
+        
+        .target(
             name: "DistRunner",
             dependencies: [
                 "BucketQueue",
-                "Deployer",
+                "DistDeployer",
                 "EventBus",
                 "Extensions",
-                "LaunchdUtils",
                 "LocalHostDeterminer",
-                "Logging",
                 "Models",
                 "PortDeterminer",
                 "QueueServer",
-                "RESTMethods",
-                "ResultsCollector",
-                "RuntimeDump",
+                "ResourceLocationResolver",
                 "ScheduleStrategy",
-                "SSHDeployer",
-                "Swifter",
-                "SynchronousWaiter",
-                "TempFolder",
-                "Timer",
-                "WorkerAlivenessTracker"
+                "TempFolder"
             ]),
         .testTarget(
             name: "DistRunnerTests",
             dependencies: [
-                "Extensions",
-                "Deployer",
-                "DistRunner",
-                "Models",
-                "ModelsTestHelpers",
-                "ResourceLocationResolver",
-                "SSHDeployer",
-                "TempFolder"
+                "DistRunner"
             ]),
         
         .target(

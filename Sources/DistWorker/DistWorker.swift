@@ -134,42 +134,13 @@ public final class DistWorker {
                         currentlyBeingProcessedBucketsTracker.didFetch(bucketId: fetchedBucket.bucketId)
                     }
                     log("Received bucket \(fetchedBucket.bucketId), requestId: \(requestId)", color: .blue)
-                    return schedulerBucketByOverridingToolResourcesWithLocalIfNeeded(fetchedBucket)
+                    return SchedulerBucket.from(bucket: fetchedBucket)
                 }
             } catch {
                 log("Failed to fetch next bucket: \(error)")
                 return nil
             }
         }
-    }
-    
-    private func schedulerBucketByOverridingToolResourcesWithLocalIfNeeded(_ bucket: Bucket) -> SchedulerBucket {
-        let fbsimctl = bucketConfigurationFactory.fbsimctl ?? bucket.toolResources.fbsimctl
-        let fbxctest = bucketConfigurationFactory.fbxctest ?? bucket.toolResources.fbxctest
-        let simulatorLocalizationSettings = bucketConfigurationFactory.simulatorLocalizationSettings ?? bucket.simulatorSettings.simulatorLocalizationSettings
-        let watchdogSettings = bucketConfigurationFactory.watchdogSettings ?? bucket.simulatorSettings.watchdogSettings
-        
-        let additionalApps = bucketConfigurationFactory.locallyDeployedAdditionalApps + bucket.buildArtifacts.additionalApplicationBundles.compactMap {
-            switch $0.resourceLocation {
-            case .remoteUrl:
-                return $0
-            case .localFilePath(let path):
-                return FileManager.default.fileExists(atPath: path) ? $0 : nil
-            }
-        }
-        let appBundle = bucketConfigurationFactory.appBundle ?? bucket.buildArtifacts.appBundle
-        let runner = bucketConfigurationFactory.runner ?? bucket.buildArtifacts.runner
-        let xcTestBundle = bucketConfigurationFactory.xcTestBundle ?? bucket.buildArtifacts.xcTestBundle
-        
-        return SchedulerBucket(
-            bucketId: bucket.bucketId,
-            testEntries: bucket.testEntries,
-            buildArtifacts: BuildArtifacts(appBundle: appBundle, runner: runner, xcTestBundle: xcTestBundle, additionalApplicationBundles: additionalApps),
-            environment: bucket.environment,
-            simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: simulatorLocalizationSettings, watchdogSettings: watchdogSettings),
-            testDestination: bucket.testDestination,
-            toolResources: ToolResources(fbsimctl: fbsimctl, fbxctest: fbxctest)
-        )
     }
     
     private func didReceiveTestResult(testingResult: TestingResult) {

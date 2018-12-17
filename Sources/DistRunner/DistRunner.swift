@@ -1,16 +1,16 @@
+import DistDeployer
 import EventBus
 import Foundation
+import LocalHostDeterminer
 import Models
 import PortDeterminer
 import QueueServer
 import ResourceLocationResolver
-import RuntimeDump
 import ScheduleStrategy
 import TempFolder
 
 public final class DistRunner {    
     private let distRunConfiguration: DistRunConfiguration
-    private let distRunDeployer: DistRunDeployer
     private let eventBus: EventBus
     private let localPortDeterminer: LocalPortDeterminer
     private let resourceLocationResolver: ResourceLocationResolver
@@ -21,11 +21,9 @@ public final class DistRunner {
         eventBus: EventBus,
         localPortDeterminer: LocalPortDeterminer,
         resourceLocationResolver: ResourceLocationResolver,
-        tempFolder: TempFolder
-        )
+        tempFolder: TempFolder)
     {
         self.distRunConfiguration = distRunConfiguration
-        self.distRunDeployer = DistRunDeployer(distRunConfiguration: distRunConfiguration, tempFolder: tempFolder)
         self.eventBus = eventBus
         self.localPortDeterminer = localPortDeterminer
         self.resourceLocationResolver = resourceLocationResolver
@@ -42,8 +40,15 @@ public final class DistRunner {
             localPortDeterminer: localPortDeterminer
         )
         queueServer.add(buckets: try prepareQueue())
-        let port = try queueServer.start()
-        try distRunDeployer.deployAndStartLaunchdJob(serverPort: port)
+        let distRunDeployer = DistRunDeployer(
+            deployerConfiguration: DeployerConfiguration.from(
+                distRunConfiguration: distRunConfiguration,
+                queueServerHost: LocalHostDeterminer.currentHostAddress,
+                queueServerPort: try queueServer.start()
+            ),
+            tempFolder: tempFolder
+        )
+        try distRunDeployer.deployAndStartWorkersOnRemoteDestinations()
         return try queueServer.waitForQueueToFinish()
     }
     

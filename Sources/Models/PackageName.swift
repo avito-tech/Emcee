@@ -1,23 +1,15 @@
 import Foundation
 
 public enum PackageName: String {
-    case additionalApp
-    case app
     case avitoRunner
     case fbsimctl
     case fbxctest
     case plugin
-    case simulatorLocalizationSettings
-    case testRunner
-    case watchdogSettings
-    case xctestBundle
     
     /** Predefined names for some package files that are expected to be present at the remote host. */
     private static let targetFileName: [PackageName: String] = [
         .fbxctest: "fbxctest",
         .fbsimctl: "fbsimctl",
-        .simulatorLocalizationSettings: "simulator_settings.json",
-        .watchdogSettings: "watchdog_settings.json"
     ]
     
     public enum TargetFileNameError: Error, CustomStringConvertible {
