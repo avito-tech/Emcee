@@ -6,11 +6,11 @@ import ScheduleStrategy
 import Timer
 
 public final class StuckBucketsPoller {
-    private let bucketQueue: BucketQueue
+    private let statefulStuckBucketsReenqueuer: StuckBucketsReenqueuer & QueueStateProvider
     private let stuckBucketsTrigger = DispatchBasedTimer(repeating: .seconds(1), leeway: .seconds(5))
     
-    public init(bucketQueue: BucketQueue) {
-        self.bucketQueue = bucketQueue
+    public init(statefulStuckBucketsReenqueuer: StuckBucketsReenqueuer & QueueStateProvider) {
+        self.statefulStuckBucketsReenqueuer = statefulStuckBucketsReenqueuer
     }
     
     public func startTrackingStuckBuckets() {
@@ -21,7 +21,7 @@ public final class StuckBucketsPoller {
     
     /// internal for testing
     func processStuckBuckets() {
-        let stuckBuckets = bucketQueue.reenqueueStuckBuckets()
+        let stuckBuckets = statefulStuckBucketsReenqueuer.reenqueueStuckBuckets()
         
         guard !stuckBuckets.isEmpty else { return }
         
@@ -29,6 +29,6 @@ public final class StuckBucketsPoller {
         for stuckBucket in stuckBuckets {
             log("-- Bucket \(stuckBucket.bucket.bucketId) is stuck with worker '\(stuckBucket.workerId)': \(stuckBucket.reason)")
         }
-        BucketQueueStateLogger(state: bucketQueue.state).logQueueSize()
+        BucketQueueStateLogger(state: statefulStuckBucketsReenqueuer.state).logQueueSize()
     }
 }

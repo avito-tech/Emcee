@@ -51,8 +51,8 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let dequeuedBucket = DequeuedBucket(bucket: bucket, workerId: workerId, requestId: requestId)
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: DequeueResult.dequeuedBucket(dequeuedBucket))
         let bucketProvider = BucketProviderEndpoint(
-            bucketQueue: bucketQueue,
-            alivenessTracker: WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
+            statefulDequeueableBucketSource: bucketQueue,
+            workerAlivenessTracker: WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
         )
         
         restServer.setHandler(
@@ -82,10 +82,11 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let resultsCollector = ResultsCollector()
         
         let resultHandler = BucketResultRegistrar(
-            bucketQueue: bucketQueue,
             eventBus: EventBus(),
             resultsCollector: resultsCollector,
-            workerAlivenessTracker: alivenessTracker)
+            statefulBucketResultAccepter: bucketQueue,
+            workerAlivenessTracker: alivenessTracker
+        )
         
         restServer.setHandler(
             registerWorkerHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),

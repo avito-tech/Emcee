@@ -3,7 +3,7 @@ import Foundation
 public struct DistRunConfiguration {
     
     /** An identifier of distributed run of tests. UUID usually is a good choice. */
-    public let runId: String
+    public let runId: JobId
     
     /** The output locations. */
     public let reportOutput: ReportOutput
@@ -40,7 +40,7 @@ public struct DistRunConfiguration {
     public let checkAgainTimeInterval: TimeInterval = 30
 
     public init(
-        runId: String,
+        runId: JobId,
         reportOutput: ReportOutput,
         destinations: [DeploymentDestination],
         destinationConfigurations: [DestinationConfiguration],

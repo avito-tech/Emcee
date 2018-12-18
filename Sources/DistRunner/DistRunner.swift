@@ -1,3 +1,4 @@
+import BalancingBucketQueue
 import DistDeployer
 import EventBus
 import Foundation
@@ -37,9 +38,10 @@ public final class DistRunner {
             reportAliveInterval: distRunConfiguration.reportAliveInterval,
             numberOfRetries: distRunConfiguration.testRunExecutionBehavior.numberOfRetries,
             checkAgainTimeInterval: distRunConfiguration.checkAgainTimeInterval,
-            localPortDeterminer: localPortDeterminer
+            localPortDeterminer: localPortDeterminer,
+            nothingToDequeueBehavior: NothingToDequeueBehaviorWaitForAllQueuesToDeplete(checkAfter: distRunConfiguration.checkAgainTimeInterval)
         )
-        queueServer.add(buckets: try prepareQueue())
+        queueServer.add(buckets: try prepareQueue(), jobId: distRunConfiguration.runId)
         let distRunDeployer = DistRunDeployer(
             deployerConfiguration: DeployerConfiguration.from(
                 distRunConfiguration: distRunConfiguration,
@@ -49,7 +51,7 @@ public final class DistRunner {
             tempFolder: tempFolder
         )
         try distRunDeployer.deployAndStartWorkersOnRemoteDestinations()
-        return try queueServer.waitForQueueToFinish()
+        return try queueServer.waitForJobToFinish(jobId: distRunConfiguration.runId)
     }
     
     private func prepareQueue() throws -> [Bucket] {        

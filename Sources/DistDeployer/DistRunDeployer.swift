@@ -31,7 +31,7 @@ public final class DistRunDeployer {
         let deployables = try generator.deployables()
         let deployer = try SSHDeployer(
             sshClientType: DefaultSSHClient.self,
-            deploymentId: deployerConfiguration.runId,
+            deploymentId: deployerConfiguration.runId.value,
             deployables: deployables.values.flatMap { $0 },
             deployableCommands: [],
             destinations: deployerConfiguration.deploymentDestinations
@@ -53,7 +53,7 @@ public final class DistRunDeployer {
             
             let deployer = try SSHDeployer(
                 sshClientType: DefaultSSHClient.self,
-                deploymentId: deployerConfiguration.runId,
+                deploymentId: deployerConfiguration.runId.value,
                 deployables: [launchdDeployableItem],
                 deployableCommands: [
                     [
@@ -84,10 +84,10 @@ public final class DistRunDeployer {
         let avitoRunnerContainerPath = SSHDeployer.remoteContainerPath(
             forDeployable: generator.runnerTool,
             destination: deploymentDestination,
-            deploymentId: deployerConfiguration.runId
+            deploymentId: deployerConfiguration.runId.value
         )
         let remoteAvitoRunnerPath = avitoRunnerContainerPath.appending(pathComponent: DistRunDeployer.avitoRunnerTargetPath)
-        let jobLabel = "ru.avito.UITestsRunner.\(deployerConfiguration.runId.removingWhitespaces())"
+        let jobLabel = "ru.avito.UITestsRunner.\(deployerConfiguration.runId.value.removingWhitespaces())"
         let launchdPlist = LaunchdPlist(job:
             LaunchdJob(
                 label: jobLabel,

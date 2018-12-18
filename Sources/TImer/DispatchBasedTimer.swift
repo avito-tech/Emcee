@@ -4,21 +4,24 @@ import Foundation
 public final class DispatchBasedTimer {
     private var timer: DispatchSourceTimer?
     private let queue = DispatchQueue(label: "ru.avito.emcee.Timer.queue")
+    private let deadline: DispatchTime
     private let repeating: DispatchTimeInterval
     private let leeway: DispatchTimeInterval
 
-    public init(repeating: DispatchTimeInterval, leeway: DispatchTimeInterval) {
+    public init(deadline: DispatchTime = .now(), repeating: DispatchTimeInterval, leeway: DispatchTimeInterval) {
+        self.deadline = deadline
         self.repeating = repeating
         self.leeway = leeway
     }
     
     public static func startedTimer(
+        deadline: DispatchTime = .now(),
         repeating: DispatchTimeInterval,
         leeway: DispatchTimeInterval,
         handler: @escaping () -> ())
         -> DispatchBasedTimer
     {
-        let timer = DispatchBasedTimer(repeating: repeating, leeway: leeway)
+        let timer = DispatchBasedTimer(deadline: deadline, repeating: repeating, leeway: leeway)
         timer.start(handler: handler)
         return timer
     }
@@ -31,7 +34,7 @@ public final class DispatchBasedTimer {
         stop()
         
         let timer = DispatchSource.makeTimerSource(queue: queue)
-        timer.schedule(deadline: .now(), repeating: repeating, leeway: leeway)
+        timer.schedule(deadline: deadline, repeating: repeating, leeway: leeway)
         timer.setEventHandler(handler: handler)
         timer.resume()
         self.timer = timer

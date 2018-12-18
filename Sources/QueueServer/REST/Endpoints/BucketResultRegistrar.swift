@@ -9,33 +9,34 @@ import ResultsCollector
 import WorkerAlivenessTracker
 
 public final class BucketResultRegistrar: RESTEndpoint {
-    private let bucketQueue: BucketQueue
     private let eventBus: EventBus
     private let resultsCollector: ResultsCollector
+    private let statefulBucketResultAccepter: BucketResultAccepter & QueueStateProvider
     private let workerAlivenessTracker: WorkerAlivenessTracker
 
     public init(
-        bucketQueue: BucketQueue,
         eventBus: EventBus,
         resultsCollector: ResultsCollector,
+        statefulBucketResultAccepter: BucketResultAccepter & QueueStateProvider,
         workerAlivenessTracker: WorkerAlivenessTracker)
     {
-        self.bucketQueue = bucketQueue
         self.eventBus = eventBus
         self.resultsCollector = resultsCollector
+        self.statefulBucketResultAccepter = statefulBucketResultAccepter
         self.workerAlivenessTracker = workerAlivenessTracker
     }
 
     public func handle(decodedRequest: PushBucketResultRequest) throws -> BucketResultAcceptResponse {
         do {
-            let acceptResult = try bucketQueue.accept(
+            let acceptResult = try statefulBucketResultAccepter.accept(
                 testingResult: decodedRequest.testingResult,
                 requestId: decodedRequest.requestId,
-                workerId: decodedRequest.workerId)
+                workerId: decodedRequest.workerId
+            )
             
             resultsCollector.append(testingResult: acceptResult.testingResultToCollect)
             eventBus.post(event: .didObtainTestingResult(acceptResult.testingResultToCollect))
-            BucketQueueStateLogger(state: bucketQueue.state).logQueueSize()
+            BucketQueueStateLogger(state: statefulBucketResultAccepter.state).logQueueSize()
             
             return .bucketResultAccepted(bucketId: decodedRequest.testingResult.bucketId)
         } catch {

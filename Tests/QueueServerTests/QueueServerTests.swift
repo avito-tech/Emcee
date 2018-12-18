@@ -1,3 +1,4 @@
+import BalancingBucketQueue
 import EventBus
 import Foundation
 import Models
@@ -11,7 +12,9 @@ final class QueueServerTests: XCTestCase {
     let eventBus = EventBus()
     let workerConfigurations = WorkerConfigurations()
     let workerId = "workerId"
+    let jobId: JobId = "jobId"
     let localPortDeterminer = LocalPortDeterminer(portRange: Ports.allPrivatePorts)
+    let dequeueBehavior = NothingToDequeueBehaviorWaitForAllQueuesToDeplete(checkAfter: 42)
     
     func test__queue_waits_for_new_workers_and_fails_if_they_not_appear_in_time() {
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
@@ -23,9 +26,10 @@ final class QueueServerTests: XCTestCase {
             numberOfRetries: 0,
             newWorkerRegistrationTimeAllowance: 0.0,
             checkAgainTimeInterval: .infinity, 
-            localPortDeterminer: localPortDeterminer
+            localPortDeterminer: localPortDeterminer,
+            nothingToDequeueBehavior: dequeueBehavior
         )
-        XCTAssertThrowsError(try server.waitForQueueToFinish())
+        XCTAssertThrowsError(try server.waitForJobToFinish(jobId: jobId))
     }
     
     func test__queue_waits_for_depletion__when_worker_register_with_queue() throws {
@@ -40,16 +44,17 @@ final class QueueServerTests: XCTestCase {
             newWorkerRegistrationTimeAllowance: .infinity,
             queueExhaustTimeAllowance: 0.0,
             checkAgainTimeInterval: .infinity,
-            localPortDeterminer: localPortDeterminer
+            localPortDeterminer: localPortDeterminer,
+            nothingToDequeueBehavior: dequeueBehavior
         )
-        server.add(buckets: [bucket])
+        server.add(buckets: [bucket], jobId: jobId)
         
         let port = try server.start()
         
         let client = SynchronousQueueClient(serverAddress: "localhost", serverPort: port, workerId: workerId)
         XCTAssertNoThrow(_ = try client.registerWithServer())
         
-        XCTAssertThrowsError(try server.waitForQueueToFinish())
+        XCTAssertThrowsError(try server.waitForJobToFinish(jobId: jobId))
     }
     
     func test__queue_resturns_results_after_depletion() throws {
@@ -69,9 +74,10 @@ final class QueueServerTests: XCTestCase {
             newWorkerRegistrationTimeAllowance: .infinity,
             queueExhaustTimeAllowance: 10.0,
             checkAgainTimeInterval: .infinity,
-            localPortDeterminer: localPortDeterminer
+            localPortDeterminer: localPortDeterminer,
+            nothingToDequeueBehavior: dequeueBehavior
         )
-        server.add(buckets: [bucket])
+        server.add(buckets: [bucket], jobId: jobId)
         
         let port = try server.start()
         
@@ -80,7 +86,7 @@ final class QueueServerTests: XCTestCase {
         var actualResults = [TestingResult]()
         DispatchQueue.global().async {
             do {
-                actualResults.append(contentsOf: try server.waitForQueueToFinish())
+                actualResults.append(contentsOf: try server.waitForJobToFinish(jobId: self.jobId))
                 expectationForResults.fulfill()
             } catch {
                 XCTFail("Unexpected error: \(error)")

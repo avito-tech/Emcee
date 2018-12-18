@@ -6,14 +6,14 @@ public final class DeployerConfiguration {
     public let pluginLocations: [PluginLocation]
     public let queueServerHost: String
     public let queueServerPort: Int
-    public let runId: String
+    public let runId: JobId
 
     public init(
         deploymentDestinations: [DeploymentDestination],
         pluginLocations: [PluginLocation],
         queueServerHost: String,
         queueServerPort: Int,
-        runId: String)
+        runId: JobId)
     {
         self.deploymentDestinations = deploymentDestinations
         self.pluginLocations = pluginLocations

@@ -8,18 +8,21 @@ import RESTMethods
 import WorkerAlivenessTracker
 
 public final class BucketProviderEndpoint: RESTEndpoint {
-    private let bucketQueue: BucketQueue
-    private let alivenessTracker: WorkerAlivenessTracker
+    private let statefulDequeueableBucketSource: DequeueableBucketSource & QueueStateProvider
+    private let workerAlivenessTracker: WorkerAlivenessTracker
 
-    public init(bucketQueue: BucketQueue, alivenessTracker: WorkerAlivenessTracker) {
-        self.bucketQueue = bucketQueue
-        self.alivenessTracker = alivenessTracker
+    public init(
+        statefulDequeueableBucketSource: DequeueableBucketSource & QueueStateProvider,
+        workerAlivenessTracker: WorkerAlivenessTracker)
+    {
+        self.statefulDequeueableBucketSource = statefulDequeueableBucketSource
+        self.workerAlivenessTracker = workerAlivenessTracker
     }
 
     public func handle(decodedRequest: DequeueBucketRequest) throws -> DequeueBucketResponse {
-        alivenessTracker.markWorkerAsAlive(workerId: decodedRequest.workerId)
+        workerAlivenessTracker.markWorkerAsAlive(workerId: decodedRequest.workerId)
         
-        let dequeueResult = bucketQueue.dequeueBucket(
+        let dequeueResult = statefulDequeueableBucketSource.dequeueBucket(
             requestId: decodedRequest.requestId,
             workerId: decodedRequest.workerId
         )
@@ -30,11 +33,11 @@ public final class BucketProviderEndpoint: RESTEndpoint {
         case .checkAgainLater(let checkAfter):
             return .checkAgainLater(checkAfter: checkAfter)
         case .dequeuedBucket(let dequeuedBucket):
-            alivenessTracker.didDequeueBucket(
+            workerAlivenessTracker.didDequeueBucket(
                 bucketId: dequeuedBucket.bucket.bucketId,
                 workerId: decodedRequest.workerId
             )
-            BucketQueueStateLogger(state: bucketQueue.state).logQueueSize()
+            BucketQueueStateLogger(state: statefulDequeueableBucketSource.state).logQueueSize()
             return .bucketDequeued(bucket: dequeuedBucket.bucket)
         case .workerBlocked:
             return .workerBlocked

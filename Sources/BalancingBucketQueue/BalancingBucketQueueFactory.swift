@@ -3,20 +3,20 @@ import Foundation
 
 public final class BalancingBucketQueueFactory {
     private let bucketQueueFactory: BucketQueueFactory
-    private let checkAgainTimeInterval: TimeInterval
+    private let nothingToDequeueBehavior: NothingToDequeueBehavior
 
     public init(
         bucketQueueFactory: BucketQueueFactory,
-        checkAgainTimeInterval: TimeInterval)
+        nothingToDequeueBehavior: NothingToDequeueBehavior)
     {
         self.bucketQueueFactory = bucketQueueFactory
-        self.checkAgainTimeInterval = checkAgainTimeInterval
+        self.nothingToDequeueBehavior = nothingToDequeueBehavior
     }
     
     public func create() -> BalancingBucketQueue {
         return BalancingBucketQueueImpl(
             bucketQueueFactory: bucketQueueFactory,
-            checkAgainTimeInterval: checkAgainTimeInterval
+            nothingToDequeueBehavior: nothingToDequeueBehavior
         )
     }
 }

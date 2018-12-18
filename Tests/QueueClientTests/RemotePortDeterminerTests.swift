@@ -1,3 +1,4 @@
+import BalancingBucketQueue
 import EventBus
 import Foundation
 import Models
@@ -24,7 +25,8 @@ final class RemotePortDeterminerTests: XCTestCase {
             numberOfRetries: 0,
             newWorkerRegistrationTimeAllowance: 0.0,
             checkAgainTimeInterval: .infinity,
-            localPortDeterminer: localPortDeterminer
+            localPortDeterminer: localPortDeterminer,
+            nothingToDequeueBehavior: NothingToDequeueBehaviorWaitForAllQueuesToDeplete(checkAfter: 42)
         )
         let port = try server.start()
         

@@ -1,7 +1,7 @@
 import Foundation
 import Models
 
-public enum DequeueResult: Equatable {
+public enum DequeueResult: Hashable {
     case queueIsEmpty
     case checkAgainLater(checkAfter: TimeInterval)
     case dequeuedBucket(DequeuedBucket)

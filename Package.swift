@@ -165,6 +165,7 @@ let package = Package(
         .target(
             name: "DistRunner",
             dependencies: [
+                "BalancingBucketQueue",
                 "BucketQueue",
                 "DistDeployer",
                 "EventBus",
@@ -420,10 +421,12 @@ let package = Package(
         .testTarget(
             name: "QueueClientTests",
             dependencies: [
+                "BalancingBucketQueue",
                 "Models",
                 "ModelsTestHelpers",
                 "PortDeterminer",
                 "QueueClient",
+                "QueueServer",
                 "RESTMethods",
                 "Swifter",
                 "SynchronousWaiter"
@@ -432,6 +435,7 @@ let package = Package(
         .target(
             name: "QueueServer",
             dependencies: [
+                "BalancingBucketQueue",
                 "BucketQueue",
                 "EventBus",
                 "Extensions",
@@ -450,6 +454,7 @@ let package = Package(
         .testTarget(
             name: "QueueServerTests",
             dependencies: [
+                "BalancingBucketQueue",
                 "BucketQueue",
                 "BucketQueueTestHelpers",
                 "Deployer",

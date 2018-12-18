@@ -210,7 +210,7 @@ final class BalancingBucketQueueTests: XCTestCase {
     )
     lazy var balancingBucketQueueFactory = BalancingBucketQueueFactory(
         bucketQueueFactory: bucketQueueFactory,
-        checkAgainTimeInterval: checkAgainTimeInterval
+        nothingToDequeueBehavior: NothingToDequeueBehaviorCheckLater(checkAfter: checkAgainTimeInterval)
     )
     lazy var balancingQueue = balancingBucketQueueFactory.create()
     let jobId: JobId = "jobId"

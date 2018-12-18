@@ -9,15 +9,15 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
     private let syncQueue = DispatchQueue(label: "ru.avito.emcee.BalancingBucketQueueImpl.syncQueue")
     private var bucketQueues: SortedArray<JobQueue>
     private let bucketQueueFactory: BucketQueueFactory
-    private let checkAgainTimeInterval: TimeInterval
+    private let nothingToDequeueBehavior: NothingToDequeueBehavior
     
     public init(
         bucketQueueFactory: BucketQueueFactory,
-        checkAgainTimeInterval: TimeInterval)
+        nothingToDequeueBehavior: NothingToDequeueBehavior)
     {
         self.bucketQueues = BalancingBucketQueueImpl.createQueues(contents: [])
         self.bucketQueueFactory = bucketQueueFactory
-        self.checkAgainTimeInterval = checkAgainTimeInterval
+        self.nothingToDequeueBehavior = nothingToDequeueBehavior
     }
     
     private static func createQueues(contents: [JobQueue]) -> SortedArray<JobQueue> {
@@ -62,6 +62,16 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
         }
     }
     
+    func previouslyDequeuedBucket(requestId: String, workerId: String) -> DequeuedBucket? {
+        return syncQueue.sync {
+            let bucketQueues = bucketQueues_onSyncQueue()
+            
+            return bucketQueues
+                .compactMap({ $0.previouslyDequeuedBucket(requestId: requestId, workerId: workerId) })
+                .first
+        }
+    }
+    
     func dequeueBucket(requestId: String, workerId: String) -> DequeueResult {
         return syncQueue.sync {
             let bucketQueues = bucketQueues_onSyncQueue()
@@ -72,17 +82,18 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
                 return .dequeuedBucket(previouslyDequeuedBucket)
             }
             
+            var dequeueResults = [DequeueResult]()
             for queue in bucketQueues {
                 let dequeueResult = queue.dequeueBucket(requestId: requestId, workerId: workerId)
                 switch dequeueResult {
                 case .dequeuedBucket:
                     return dequeueResult
                 case .queueIsEmpty, .checkAgainLater, .workerBlocked:
-                    continue
+                    dequeueResults.append(dequeueResult)
                 }
             }
             
-            return .checkAgainLater(checkAfter: checkAgainTimeInterval)
+            return nothingToDequeueBehavior.dequeueResultWhenNoBucketsToDequeueAvaiable(dequeueResults: dequeueResults)
         }
     }
     
@@ -111,6 +122,16 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
     func reenqueueStuckBuckets() -> [StuckBucket] {
         return syncQueue.sync {
             bucketQueues_onSyncQueue().flatMap { $0.reenqueueStuckBuckets() }
+        }
+    }
+    
+    var state: BucketQueueState {
+        return syncQueue.sync {
+            let states = bucketQueues_onSyncQueue().map { $0.state }
+            return BucketQueueState(
+                enqueuedBucketCount: states.map { $0.enqueuedBucketCount }.reduce(0, +),
+                dequeuedBucketCount: states.map { $0.dequeuedBucketCount }.reduce(0, +)
+            )
         }
     }
     

@@ -39,7 +39,9 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         return try synchronize {
             registrationResult = nil
             try queueClient.registerWithServer()
-            try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for registration with server") { self.registrationResult == nil }
+            try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for registration with server") {
+                self.registrationResult == nil
+            }
             return try registrationResult!.dematerialize()
         }
     }
@@ -49,7 +51,9 @@ public final class SynchronousQueueClient: QueueClientDelegate {
             bucketFetchResult = nil
             return try runRetrying(times: 5) {
                 try queueClient.fetchBucket(requestId: requestId)
-                try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait bucket to return from server") { self.bucketFetchResult == nil }
+                try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait bucket to return from server") {
+                    self.bucketFetchResult == nil
+                }
                 return try bucketFetchResult!.dematerialize()
             }
         }
@@ -60,7 +64,9 @@ public final class SynchronousQueueClient: QueueClientDelegate {
             bucketResultSendResult = nil
             return try runRetrying(times: 5) {
                 try queueClient.send(testingResult: testingResult, requestId: requestId)
-                try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for bucket result send") { self.bucketResultSendResult == nil }
+                try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for bucket result send") {
+                    self.bucketResultSendResult == nil
+                }
                 return try bucketResultSendResult!.dematerialize()
             }
         }

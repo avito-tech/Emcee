@@ -1,3 +1,4 @@
+import BalancingBucketQueue
 import BucketQueue
 import EventBus
 import Extensions
@@ -13,9 +14,8 @@ import SynchronousWaiter
 import WorkerAlivenessTracker
 
 public final class QueueServer {
+    private let balancingBucketQueue: BalancingBucketQueue
     private let bucketProvider: BucketProviderEndpoint
-    private let bucketQueueFactory: BucketQueueFactory
-    private let bucketQueue: BucketQueue
     private let bucketResultRegistrar: BucketResultRegistrar
     private let queueServerVersionHandler: QueueServerVersionEndpoint
     private let restServer: QueueHTTPRESTServer
@@ -36,27 +36,54 @@ public final class QueueServer {
         newWorkerRegistrationTimeAllowance: TimeInterval = 60.0,
         queueExhaustTimeAllowance: TimeInterval = .infinity,
         checkAgainTimeInterval: TimeInterval,
-        localPortDeterminer: LocalPortDeterminer)
+        localPortDeterminer: LocalPortDeterminer,
+        nothingToDequeueBehavior: NothingToDequeueBehavior)
     {
-        self.restServer = QueueHTTPRESTServer(localPortDeterminer: localPortDeterminer)
-        self.workerAlivenessTracker = WorkerAlivenessTracker(reportAliveInterval: reportAliveInterval, additionalTimeToPerformWorkerIsAliveReport: 10.0)
-        self.workerAlivenessEndpoint = WorkerAlivenessEndpoint(alivenessTracker: workerAlivenessTracker)
-        self.workerRegistrar = WorkerRegistrar(workerConfigurations: workerConfigurations, workerAlivenessTracker: workerAlivenessTracker)
-        self.bucketQueueFactory = BucketQueueFactory(
-            workerAlivenessProvider: workerAlivenessTracker,
-            testHistoryTracker: TestHistoryTrackerImpl(
-                numberOfRetries: numberOfRetries,
-                testHistoryStorage: TestHistoryStorageImpl()
-            ),
-            checkAgainTimeInterval: checkAgainTimeInterval
+        self.workerAlivenessTracker = WorkerAlivenessTracker(
+            reportAliveInterval: reportAliveInterval,
+            additionalTimeToPerformWorkerIsAliveReport: 10.0
         )
-        self.bucketQueue = bucketQueueFactory.createBucketQueue()
-        self.stuckBucketsPoller = StuckBucketsPoller(bucketQueue: bucketQueue)
-        self.bucketProvider = BucketProviderEndpoint(bucketQueue: bucketQueue, alivenessTracker: workerAlivenessTracker)
-        self.bucketResultRegistrar = BucketResultRegistrar(bucketQueue: bucketQueue, eventBus: eventBus, resultsCollector: resultsCollector, workerAlivenessTracker: workerAlivenessTracker)
+        
+        let balancingBucketQueueFactory = BalancingBucketQueueFactory(
+            bucketQueueFactory: BucketQueueFactory(
+                workerAlivenessProvider: workerAlivenessTracker,
+                testHistoryTracker: TestHistoryTrackerImpl(
+                    numberOfRetries: numberOfRetries,
+                    testHistoryStorage: TestHistoryStorageImpl()
+                ),
+                checkAgainTimeInterval: checkAgainTimeInterval
+            ),
+            nothingToDequeueBehavior: nothingToDequeueBehavior
+        )
+        self.balancingBucketQueue = balancingBucketQueueFactory.create()
+        
+        self.restServer = QueueHTTPRESTServer(localPortDeterminer: localPortDeterminer)
+        
+        self.workerAlivenessEndpoint = WorkerAlivenessEndpoint(
+            alivenessTracker: workerAlivenessTracker
+        )
+        self.workerRegistrar = WorkerRegistrar(
+            workerConfigurations: workerConfigurations,
+            workerAlivenessTracker: workerAlivenessTracker
+        )
+        self.stuckBucketsPoller = StuckBucketsPoller(
+            statefulStuckBucketsReenqueuer: balancingBucketQueue
+        )
+        self.bucketProvider = BucketProviderEndpoint(
+            statefulDequeueableBucketSource: balancingBucketQueue,
+            workerAlivenessTracker: workerAlivenessTracker
+        )
+        self.bucketResultRegistrar = BucketResultRegistrar(
+            eventBus: eventBus,
+            resultsCollector: resultsCollector,
+            statefulBucketResultAccepter: balancingBucketQueue,
+            workerAlivenessTracker: workerAlivenessTracker
+        )
         self.newWorkerRegistrationTimeAllowance = newWorkerRegistrationTimeAllowance
         self.queueExhaustTimeAllowance = queueExhaustTimeAllowance
-        self.queueServerVersionHandler = QueueServerVersionEndpoint(versionProvider: hasher.hash)
+        self.queueServerVersionHandler = QueueServerVersionEndpoint(
+            versionProvider: hasher.hash
+        )
     }
     
     public func start() throws -> Int {
@@ -75,8 +102,8 @@ public final class QueueServer {
         return port
     }
     
-    public func add(buckets: [Bucket]) {
-        bucketQueue.enqueue(buckets: buckets)
+    public func add(buckets: [Bucket], jobId: JobId) {
+        balancingBucketQueue.enqueue(buckets: buckets, jobId: jobId)
         log("Enqueued \(buckets.count) buckets:")
         for bucket in buckets {
             log("-- \(bucket) with tests:")
@@ -84,7 +111,7 @@ public final class QueueServer {
         }
     }
     
-    public func waitForQueueToFinish() throws -> [TestingResult] {
+    public func waitForJobToFinish(jobId: JobId) throws -> [TestingResult] {
         log("Waiting for workers to appear")
         try SynchronousWaiter.waitWhile(pollPeriod: 1, timeout: newWorkerRegistrationTimeAllowance, description: "Waiting workers to appear") {
             workerAlivenessTracker.hasAnyAliveWorker == false
@@ -93,7 +120,7 @@ public final class QueueServer {
         log("Waiting for bucket queue to exhaust")
         try SynchronousWaiter.waitWhile(pollPeriod: 5, timeout: queueExhaustTimeAllowance, description: "Waiting for queue to exhaust") {
             guard workerAlivenessTracker.hasAnyAliveWorker else { throw QueueServerError.noWorkers }
-            return !bucketQueue.state.isDepleted
+            return !balancingBucketQueue.state.isDepleted
         }
         log("Bucket queue has exhaust")
         return resultsCollector.collectedResults
