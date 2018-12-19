@@ -96,7 +96,7 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
         comment: "Defines how to scatter tests to the destination machines. Can be: \(ScheduleStrategyType.availableRawValues.joined(separator: ", "))"),
     KnownStringArguments.runId: ArgumentDescriptionHolder(
         name: "--run-id",
-        comment: "A logical test run id, usually UUID."),
+        comment: "A logical test run id, usually a random string, e.g. UUID."),
     KnownStringArguments.runner: ArgumentDescriptionHolder(
         name: "--runner",
         comment: "Path to the XCTRunner.app created by Xcode"),
@@ -116,7 +116,7 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
         optional: true),
     KnownStringArguments.testDestinations: ArgumentDescriptionHolder(
         name: "--test-destinations",
-        comment: "A JSON file with test destination configurations. For runtime dump first destination will be used."),
+        comment: "A JSON file with test destination configurations. For runtime dump only first destination will be used."),
     KnownStringArguments.trace: ArgumentDescriptionHolder(
         name: "--trace",
         comment: "Where the combined (the one for all test destinations) Chrome trace should be created"),

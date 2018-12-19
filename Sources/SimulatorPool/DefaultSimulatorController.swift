@@ -155,11 +155,6 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         simulatorKeepAliveProcessController?.interruptAndForceKillIfNeeded()
         simulatorKeepAliveProcessController = nil
         
-        if stage == .idle {
-            log("No need to delete simulator as it hasn't been booted or created: \(simulator)")
-            return
-        }
-        
         stage = .deletingSimulator
         
         log("Deleting simulator: \(simulator)")
