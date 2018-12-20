@@ -131,6 +131,7 @@ let package = Package(
             dependencies: [
                 "Extensions",
                 "Logging",
+                "Models",
                 "Utility",
                 "ZIPFoundation",
             ]),

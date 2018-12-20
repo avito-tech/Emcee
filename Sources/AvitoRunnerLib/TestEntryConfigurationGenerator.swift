@@ -1,3 +1,4 @@
+import Extensions
 import Foundation
 import Logging
 import Models
@@ -32,18 +33,21 @@ public final class TestEntryConfigurationGenerator {
         log("Preparing test entry configurations for tests: \(explicitTestsToRun + testArgEntries.map { $0.testToRun })")
         let testEntryConfigurations = TestEntryConfiguration.createMatrix(
             testEntries: map(testsToRun: explicitTestsToRun),
+            buildArtifacts: commonBuildArtifacts,
             testDestinations: commonTestDestinations,
-            testExecutionBehavior: commonTestExecutionBehavior,
-            buildArtifacts: commonBuildArtifacts
+            testExecutionBehavior: commonTestExecutionBehavior
         )
         let testArgFileEntryConfigurations = testArgEntries.flatMap { testArgFileEntry -> [TestEntryConfiguration] in
             let testEntries = map(testsToRun: [testArgFileEntry.testToRun])
             return testEntries.map {
                 TestEntryConfiguration(
                     testEntry: $0,
+                    buildArtifacts: commonBuildArtifacts,
                     testDestination: testArgFileEntry.testDestination,
-                    testExecutionBehavior: TestExecutionBehavior(numberOfRetries: testArgFileEntry.numberOfRetries),
-                    buildArtifacts: commonBuildArtifacts
+                    testExecutionBehavior: TestExecutionBehavior(
+                        environment: commonTestExecutionBehavior.environment.byMergingWith(testArgFileEntry.environment),
+                        numberOfRetries: testArgFileEntry.numberOfRetries
+                    )
                 )
             }
         }

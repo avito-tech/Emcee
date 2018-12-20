@@ -9,6 +9,7 @@ import Models
 import PortDeterminer
 import RESTMethods
 import ResultsCollector
+import ScheduleStrategy
 import Swifter
 import SynchronousWaiter
 import WorkerAlivenessTracker
@@ -17,16 +18,18 @@ public final class QueueServer {
     private let balancingBucketQueue: BalancingBucketQueue
     private let bucketProvider: BucketProviderEndpoint
     private let bucketResultRegistrar: BucketResultRegistrar
+    private let hasher = FileHasher(fileUrl: URL(fileURLWithPath: ProcessInfo.processInfo.executablePath))
+    private let newWorkerRegistrationTimeAllowance: TimeInterval
+    private let queueExhaustTimeAllowance: TimeInterval
     private let queueServerVersionHandler: QueueServerVersionEndpoint
     private let restServer: QueueHTTPRESTServer
     private let resultsCollector = ResultsCollector()
-    private let workerAlivenessTracker: WorkerAlivenessTracker
-    private let workerAlivenessEndpoint: WorkerAlivenessEndpoint
-    private let workerRegistrar: WorkerRegistrar
+    private let scheduleTestsHandler: ScheduleTestsEndpoint
     private let stuckBucketsPoller: StuckBucketsPoller
-    private let newWorkerRegistrationTimeAllowance: TimeInterval
-    private let queueExhaustTimeAllowance: TimeInterval
-    private let hasher = FileHasher(fileUrl: URL(fileURLWithPath: ProcessInfo.processInfo.executablePath))
+    private let testsEnqueuer: TestsEnqueuer
+    private let workerAlivenessEndpoint: WorkerAlivenessEndpoint
+    private let workerAlivenessTracker: WorkerAlivenessTracker
+    private let workerRegistrar: WorkerRegistrar
     
     public init(
         eventBus: EventBus,
@@ -37,7 +40,9 @@ public final class QueueServer {
         queueExhaustTimeAllowance: TimeInterval = .infinity,
         checkAgainTimeInterval: TimeInterval,
         localPortDeterminer: LocalPortDeterminer,
-        nothingToDequeueBehavior: NothingToDequeueBehavior)
+        nothingToDequeueBehavior: NothingToDequeueBehavior,
+        bucketSplitter: BucketSplitter,
+        bucketSplitInfo: BucketSplitInfo)
     {
         self.workerAlivenessTracker = WorkerAlivenessTracker(
             reportAliveInterval: reportAliveInterval,
@@ -58,6 +63,13 @@ public final class QueueServer {
         self.balancingBucketQueue = balancingBucketQueueFactory.create()
         
         self.restServer = QueueHTTPRESTServer(localPortDeterminer: localPortDeterminer)
+        
+        self.testsEnqueuer = TestsEnqueuer(
+            bucketSplitter: bucketSplitter,
+            bucketSplitInfo: bucketSplitInfo,
+            enqueueableBucketReceptor: balancingBucketQueue
+        )
+        self.scheduleTestsHandler = ScheduleTestsEndpoint(testsEnqueuer: testsEnqueuer)
         
         self.workerAlivenessEndpoint = WorkerAlivenessEndpoint(
             alivenessTracker: workerAlivenessTracker
@@ -88,10 +100,11 @@ public final class QueueServer {
     
     public func start() throws -> Int {
         restServer.setHandler(
-            registerWorkerHandler: RESTEndpointOf(actualHandler: workerRegistrar),
-            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: bucketProvider),
             bucketResultHandler: RESTEndpointOf(actualHandler: bucketResultRegistrar),
+            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: bucketProvider),
+            registerWorkerHandler: RESTEndpointOf(actualHandler: workerRegistrar),
             reportAliveHandler: RESTEndpointOf(actualHandler: workerAlivenessEndpoint),
+            scheduleTestsHandler: RESTEndpointOf(actualHandler: scheduleTestsHandler),
             versionHandler: RESTEndpointOf(actualHandler: queueServerVersionHandler)
         )
         
@@ -102,13 +115,8 @@ public final class QueueServer {
         return port
     }
     
-    public func add(buckets: [Bucket], jobId: JobId) {
-        balancingBucketQueue.enqueue(buckets: buckets, jobId: jobId)
-        log("Enqueued \(buckets.count) buckets:")
-        for bucket in buckets {
-            log("-- \(bucket) with tests:")
-            for testEntries in bucket.testEntries { log("-- -- \(testEntries)") }
-        }
+    public func schedule(testEntryConfigurations: [TestEntryConfiguration], jobId: JobId) {
+        testsEnqueuer.enqueue(testEntryConfigurations: testEntryConfigurations, jobId: jobId)
     }
     
     public func waitForJobToFinish(jobId: JobId) throws -> [TestingResult] {

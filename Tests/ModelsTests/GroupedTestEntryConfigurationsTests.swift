@@ -78,7 +78,7 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
             .shuffled()
         let testEntryConfiguration2 = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntry(className: "class1", methodName: "test", caseId: nil))
-            .with(testExecutionBehavior: TestExecutionBehavior(numberOfRetries: 1))
+            .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 1))
             .testEntryConfigurations()
         let mixedTestEntryConfigurations = [
             testEntryConfiguration2[0],
@@ -102,7 +102,7 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
             .testEntryConfigurations()[0]
         let testEntryConfiguration2 = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntry(className: "class1", methodName: "test", caseId: nil))
-            .with(testExecutionBehavior: TestExecutionBehavior(numberOfRetries: 1))
+            .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 1))
             .testEntryConfigurations()[0]
         let testEntryConfiguration3 = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntry(className: "class1", methodName: "test", caseId: nil))

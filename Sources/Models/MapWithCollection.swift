@@ -20,8 +20,11 @@ public struct MapWithCollection<Key, ValueElement> where Key : Hashable {
     }
     
     public mutating func append(key: Key, element: ValueElement) {
-        let elements = self[key]
-        self[key] = elements + [element]
+        append(key: key, elements: [element])
+    }
+    
+    public mutating func append(key: Key, elements: [ValueElement]) {
+        self[key] = self[key] + elements
     }
     
     public mutating func removeValue(forKey key: Key) {

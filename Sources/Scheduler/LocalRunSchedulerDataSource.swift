@@ -38,7 +38,6 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
             inputs: configuration.testEntryConfigurations,
             splitInfo: BucketSplitInfo(
                 numberOfWorkers: configuration.testRunExecutionBehavior.numberOfSimulators,
-                environment: configuration.testRunExecutionBehavior.environment,
                 toolResources: configuration.auxiliaryResources.toolResources,
                 simulatorSettings: configuration.simulatorSettings
             )

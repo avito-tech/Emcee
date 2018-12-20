@@ -4,26 +4,28 @@ import RESTMethods
 import Swifter
 
 public final class QueueHTTPRESTServer {
-    private let server = HttpServer()
     private let localPortDeterminer: LocalPortDeterminer
     private let requestParser = QueueServerRequestParser()
+    private let server = HttpServer()
     
     public init(localPortDeterminer: LocalPortDeterminer) {
         self.localPortDeterminer = localPortDeterminer
     }
     
-    public func setHandler<A1, A2, B1, B2, C1, C2, D1, D2, E1, E2>(
-        registerWorkerHandler: RESTEndpointOf<A1, A2>,
-        dequeueBucketRequestHandler: RESTEndpointOf<B1, B2>,
+    public func setHandler<A1, A2, B1, B2, C1, C2, D1, D2, E1, E2, F1, F2>(
         bucketResultHandler: RESTEndpointOf<C1, C2>,
+        dequeueBucketRequestHandler: RESTEndpointOf<B1, B2>,
+        registerWorkerHandler: RESTEndpointOf<A1, A2>,
         reportAliveHandler: RESTEndpointOf<D1, D2>,
-        versionHandler: RESTEndpointOf<E1, E2>)
+        scheduleTestsHandler: RESTEndpointOf<E1, E2>,
+        versionHandler: RESTEndpointOf<F1, F2>)
     {
-        server[RESTMethod.registerWorker.withPrependingSlash] = processRequest(usingEndpoint: registerWorkerHandler)
-        server[RESTMethod.getBucket.withPrependingSlash] = processRequest(usingEndpoint: dequeueBucketRequestHandler)
         server[RESTMethod.bucketResult.withPrependingSlash] = processRequest(usingEndpoint: bucketResultHandler)
-        server[RESTMethod.reportAlive.withPrependingSlash] = processRequest(usingEndpoint: reportAliveHandler)
+        server[RESTMethod.getBucket.withPrependingSlash] = processRequest(usingEndpoint: dequeueBucketRequestHandler)
         server[RESTMethod.queueVersion.withPrependingSlash] = processRequest(usingEndpoint: versionHandler)
+        server[RESTMethod.registerWorker.withPrependingSlash] = processRequest(usingEndpoint: registerWorkerHandler)
+        server[RESTMethod.reportAlive.withPrependingSlash] = processRequest(usingEndpoint: reportAliveHandler)
+        server[RESTMethod.scheduleTests.withPrependingSlash] = processRequest(usingEndpoint: scheduleTestsHandler)
     }
 
     private func processRequest<T, R>(usingEndpoint endpoint: RESTEndpointOf<T, R>) -> ((HttpRequest) -> HttpResponse) {

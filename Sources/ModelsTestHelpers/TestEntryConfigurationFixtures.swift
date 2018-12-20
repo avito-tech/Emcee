@@ -4,7 +4,7 @@ import Models
 public final class TestEntryConfigurationFixtures {
     public var testEntries = [TestEntry]()
     public var testDestination = TestDestinationFixtures.testDestination
-    public var testExecutionBehavior = TestExecutionBehavior(numberOfRetries: 0)
+    public var testExecutionBehavior = TestExecutionBehavior(environment: [:], numberOfRetries: 0)
     public var buildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
     
     public init() {}
@@ -38,9 +38,10 @@ public final class TestEntryConfigurationFixtures {
         return testEntries.map {
             TestEntryConfiguration(
                 testEntry: $0,
+                buildArtifacts: buildArtifacts,
                 testDestination: testDestination,
-                testExecutionBehavior: testExecutionBehavior,
-                buildArtifacts: buildArtifacts)
+                testExecutionBehavior: testExecutionBehavior
+            )
         }
     }
 }

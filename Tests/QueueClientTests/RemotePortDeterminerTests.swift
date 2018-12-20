@@ -4,7 +4,8 @@ import Foundation
 import Models
 import PortDeterminer
 import QueueClient
-import QueueServer
+import RESTMethods
+import Swifter
 import XCTest
 
 final class RemotePortDeterminerTests: XCTestCase {
@@ -18,21 +19,20 @@ final class RemotePortDeterminerTests: XCTestCase {
     }
     
     func test___scanning_ports_with_queue___returns_port_to_version_result() throws {
-        let server = QueueServer(
-            eventBus: EventBus(),
-            workerConfigurations: WorkerConfigurations(),
-            reportAliveInterval: .infinity,
-            numberOfRetries: 0,
-            newWorkerRegistrationTimeAllowance: 0.0,
-            checkAgainTimeInterval: .infinity,
-            localPortDeterminer: localPortDeterminer,
-            nothingToDequeueBehavior: NothingToDequeueBehaviorWaitForAllQueuesToDeplete(checkAfter: 42)
-        )
-        let port = try server.start()
+        let expectedVersion = "version"
+        let server = HttpServer()
+        server[RESTMethod.queueVersion.withPrependingSlash] = { request in
+            let data = try! JSONEncoder().encode(QueueVersionResponse.queueVersion(expectedVersion))
+            return .raw(200, "OK", ["Content-Type": "application/json"]) {
+                try! $0.write(data)
+            }
+        }
+        try server.start(0, forceIPv4: false, priority: .default)
+        let port = try server.port()
         
         let scanner = RemotePortDeterminer(host: "localhost", portRange: port...port, workerId: workerId)
         let result = scanner.queryPortAndQueueServerVersion()
-        XCTAssertEqual(result, [port: try server.version()])
+        XCTAssertEqual(result, [port: expectedVersion])
     }
     
     

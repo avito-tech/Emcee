@@ -98,7 +98,7 @@ public final class PluginManager: EventStream {
             processControllers.append(controller)
         }
         
-        let pluginsConnectionTimeout = 10.0
+        let pluginsConnectionTimeout = 170.0
         log("Waiting for all plugins to connect for \(pluginsConnectionTimeout) seconds")
         try eventDistributor.waitForPluginsToConnect(timeout: pluginsConnectionTimeout)
     }

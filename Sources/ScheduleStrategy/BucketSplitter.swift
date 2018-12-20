@@ -3,19 +3,16 @@ import Models
 
 public struct BucketSplitInfo {
     public let numberOfWorkers: UInt
-    public let environment: [String: String]
     public let toolResources: ToolResources
     public let simulatorSettings: SimulatorSettings
     
     public init(
         numberOfWorkers: UInt,
-        environment: [String: String],
         toolResources: ToolResources,
         simulatorSettings: SimulatorSettings
         )
     {
         self.numberOfWorkers = numberOfWorkers
-        self.environment = environment
         self.toolResources = toolResources
         self.simulatorSettings = simulatorSettings
     }
@@ -53,7 +50,7 @@ public class BucketSplitter: Splitter, CustomStringConvertible {
             return Bucket(
                 testEntries: group.map { $0.testEntry },
                 buildArtifacts: entry.buildArtifacts,
-                environment: bucketSplitInfo.environment,
+                environment: entry.testExecutionBehavior.environment,
                 simulatorSettings: bucketSplitInfo.simulatorSettings,
                 testDestination: entry.testDestination,
                 toolResources: bucketSplitInfo.toolResources

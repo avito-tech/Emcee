@@ -39,9 +39,18 @@ public final class DistRunner {
             numberOfRetries: distRunConfiguration.testRunExecutionBehavior.numberOfRetries,
             checkAgainTimeInterval: distRunConfiguration.checkAgainTimeInterval,
             localPortDeterminer: localPortDeterminer,
-            nothingToDequeueBehavior: NothingToDequeueBehaviorWaitForAllQueuesToDeplete(checkAfter: distRunConfiguration.checkAgainTimeInterval)
+            nothingToDequeueBehavior: NothingToDequeueBehaviorWaitForAllQueuesToDeplete(checkAfter: distRunConfiguration.checkAgainTimeInterval),
+            bucketSplitter: distRunConfiguration.remoteScheduleStrategyType.bucketSplitter(),
+            bucketSplitInfo: BucketSplitInfo(
+                numberOfWorkers: UInt(distRunConfiguration.destinations.count),
+                toolResources: distRunConfiguration.auxiliaryResources.toolResources,
+                simulatorSettings: distRunConfiguration.simulatorSettings
+            )
         )
-        queueServer.add(buckets: try prepareQueue(), jobId: distRunConfiguration.runId)
+        queueServer.schedule(
+            testEntryConfigurations: distRunConfiguration.testEntryConfigurations,
+            jobId: distRunConfiguration.runId
+        )
         let distRunDeployer = DistRunDeployer(
             deployerConfiguration: DeployerConfiguration.from(
                 distRunConfiguration: distRunConfiguration,
@@ -52,19 +61,6 @@ public final class DistRunner {
         )
         try distRunDeployer.deployAndStartWorkersOnRemoteDestinations()
         return try queueServer.waitForJobToFinish(jobId: distRunConfiguration.runId)
-    }
-    
-    private func prepareQueue() throws -> [Bucket] {        
-        let splitter = distRunConfiguration.remoteScheduleStrategyType.bucketSplitter()
-        return splitter.generate(
-            inputs: distRunConfiguration.testEntryConfigurations,
-            splitInfo: BucketSplitInfo(
-                numberOfWorkers: UInt(distRunConfiguration.destinations.count),
-                environment: distRunConfiguration.testRunExecutionBehavior.environment,
-                toolResources: distRunConfiguration.auxiliaryResources.toolResources,
-                simulatorSettings: distRunConfiguration.simulatorSettings
-            )
-        )
     }
     
     private func createWorkerConfigurations() -> WorkerConfigurations {

@@ -155,7 +155,10 @@ final class DistRunTestsCommand: Command {
             validatedEnteries: try testEntriesValidator.validatedTestEntries(),
             explicitTestsToRun: onlyId + onlyTest,
             testArgEntries: testArgFile.entries,
-            commonTestExecutionBehavior: TestExecutionBehavior(numberOfRetries: testRunExecutionBehavior.numberOfRetries),
+            commonTestExecutionBehavior: TestExecutionBehavior(
+                environment: testRunExecutionBehavior.environment,
+                numberOfRetries: testRunExecutionBehavior.numberOfRetries
+            ),
             commonTestDestinations: testDestinationConfigurations.map { $0.testDestination },
             commonBuildArtifacts: buildArtifacts
         )

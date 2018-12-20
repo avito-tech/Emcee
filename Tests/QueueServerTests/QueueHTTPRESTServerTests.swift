@@ -32,10 +32,11 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             workerAlivenessTracker: WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults())
         
         restServer.setHandler(
-            registerWorkerHandler: RESTEndpointOf(actualHandler: workerRegistrar),
-            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
             bucketResultHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            registerWorkerHandler: RESTEndpointOf(actualHandler: workerRegistrar),
             reportAliveHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            scheduleTestsHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
             versionHandler: RESTEndpointOf(actualHandler: stubbedEndpoint)
         )
         let port = try restServer.start()
@@ -56,10 +57,11 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         )
         
         restServer.setHandler(
-            registerWorkerHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: bucketProvider),
             bucketResultHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: bucketProvider),
+            registerWorkerHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
             reportAliveHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            scheduleTestsHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
             versionHandler: RESTEndpointOf(actualHandler: stubbedEndpoint)
         )
         let port = try restServer.start()
@@ -89,10 +91,11 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         )
         
         restServer.setHandler(
-            registerWorkerHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
             bucketResultHandler: RESTEndpointOf(actualHandler: resultHandler),
+            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            registerWorkerHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
             reportAliveHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            scheduleTestsHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
             versionHandler: RESTEndpointOf(actualHandler: stubbedEndpoint)
         )
         let port = try restServer.start()
@@ -107,10 +110,11 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let alivenessTracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
         
         restServer.setHandler(
-            registerWorkerHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
             bucketResultHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            registerWorkerHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
             reportAliveHandler: RESTEndpointOf(actualHandler: WorkerAlivenessEndpoint(alivenessTracker: alivenessTracker)),
+            scheduleTestsHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
             versionHandler: RESTEndpointOf(actualHandler: stubbedEndpoint)
         )
         let port = try restServer.start()
@@ -125,10 +129,11 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let versionHandler = FakeRESTEndpoint<QueueVersionRequest, QueueVersionResponse>(QueueVersionResponse.queueVersion("abc"))
         
         restServer.setHandler(
-            registerWorkerHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
             bucketResultHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            registerWorkerHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
             reportAliveHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            scheduleTestsHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
             versionHandler: RESTEndpointOf(actualHandler: versionHandler)
         )
         let port = try restServer.start()
@@ -140,4 +145,6 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             "abc"
         )
     }
+    
+    // TODO
 }

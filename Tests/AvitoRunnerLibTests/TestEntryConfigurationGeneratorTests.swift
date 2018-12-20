@@ -16,7 +16,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
         xcTestBundle: "1",
         additionalApplicationBundles: ["1", "2"]
     )
-    let testExecutionBehavior = TestExecutionBehavior(numberOfRetries: 1)
+    let testExecutionBehavior = TestExecutionBehavior(environment: [:], numberOfRetries: 1)
     let testDestination = try! TestDestination(deviceType: UUID().uuidString, runtime: "10.0")
     let argFileDestination1 = try! TestDestination(deviceType: UUID().uuidString, runtime: "10.1")
     let argFileDestination2 = try! TestDestination(deviceType: UUID().uuidString, runtime: "10.2")
@@ -38,8 +38,8 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
             validatedEnteries: validatedEnteries,
             explicitTestsToRun: [testIdToRun, testNameToRun],
             testArgEntries: [
-                TestArgFile.Entry(testToRun: argFileTestToRun1, testDestination: argFileDestination1, numberOfRetries: 10),
-                TestArgFile.Entry(testToRun: argFileTestToRun2, testDestination: argFileDestination2, numberOfRetries: 20),
+                TestArgFile.Entry(testToRun: argFileTestToRun1, environment: [:], numberOfRetries: 10, testDestination: argFileDestination1),
+                TestArgFile.Entry(testToRun: argFileTestToRun2, environment: [:], numberOfRetries: 20, testDestination: argFileDestination2),
             ],
             commonTestExecutionBehavior: testExecutionBehavior,
             commonTestDestinations: [testDestination],
@@ -60,13 +60,13 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
             TestEntryConfigurationFixtures()
                 .add(testEntry: TestEntry(className: "classFromArgs", methodName: "test1", caseId: nil))
                 .with(buildArtifacts: buildArtifacts)
-                .with(testExecutionBehavior: TestExecutionBehavior(numberOfRetries: 10))
+                .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
                 .with(testDestination: argFileDestination1)
                 .testEntryConfigurations(),
             TestEntryConfigurationFixtures()
                 .add(testEntry: TestEntry(className: "classFromArgs", methodName: "test2", caseId: nil))
                 .with(buildArtifacts: buildArtifacts)
-                .with(testExecutionBehavior: TestExecutionBehavior(numberOfRetries: 20))
+                .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 20))
                 .with(testDestination: argFileDestination2)
                 .testEntryConfigurations()
             ].flatMap { $0 }

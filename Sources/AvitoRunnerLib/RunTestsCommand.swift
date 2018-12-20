@@ -157,6 +157,7 @@ final class RunTestsCommand: Command {
             ),
             testArgEntries: testArgFile.entries,
             commonTestExecutionBehavior: TestExecutionBehavior(
+                environment: testRunExecutionBehavior.environment,
                 numberOfRetries: testRunExecutionBehavior.numberOfRetries
             ),
             commonTestDestinations: testDestinationConfigurations.map { $0.testDestination },
