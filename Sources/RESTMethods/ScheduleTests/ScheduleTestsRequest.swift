@@ -17,3 +17,9 @@ public final class ScheduleTestsRequest: Codable {
     }
     
 }
+
+extension ScheduleTestsRequest: Equatable {
+    public static func ==(lhs: ScheduleTestsRequest, rhs: ScheduleTestsRequest) -> Bool {
+        return lhs.requestId == rhs.requestId && lhs.jobId == rhs.jobId && lhs.testEntryConfigurations == rhs.testEntryConfigurations
+    }
+}

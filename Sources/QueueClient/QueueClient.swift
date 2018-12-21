@@ -86,6 +86,23 @@ public final class QueueClient {
         )
     }
     
+    public func scheduleTests(
+        jobId: JobId,
+        testEntryConfigurations: [TestEntryConfiguration],
+        requestId: String)
+        throws
+    {
+        try sendRequest(
+            .scheduleTests,
+            payload: ScheduleTestsRequest(
+                requestId: requestId,
+                jobId: jobId,
+                testEntryConfigurations: testEntryConfigurations
+            ),
+            completionHandler: handleScheduleTestsResponse
+        )
+    }
+    
     // MARK: - Request Generation
     
     private func sendRequest<Payload, Response>(
@@ -179,6 +196,13 @@ public final class QueueClient {
         switch response {
         case .queueVersion(let version):
             delegate?.queueClient(self, didFetchQueueServerVersion: version)
+        }
+    }
+    
+    private func handleScheduleTestsResponse(response: ScheduleTestsResponse) {
+        switch response {
+        case .scheduledTests(let requestId):
+            delegate?.queueClientDidScheduleTests(self, requestId: requestId)
         }
     }
 }

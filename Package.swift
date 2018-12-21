@@ -467,6 +467,7 @@ let package = Package(
                 "ResourceLocationResolver",
                 "RESTMethods",
                 "ResultsCollector",
+                "ScheduleStrategy",
                 "TempFolder",
                 "WorkerAlivenessTracker",
                 "WorkerAlivenessTrackerTestHelpers"

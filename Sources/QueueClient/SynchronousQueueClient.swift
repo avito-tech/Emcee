@@ -20,6 +20,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     private var bucketResultSendResult: Result<String, QueueClientError>?
     private var alivenessReportResult: Result<Bool, QueueClientError>?
     private var queueServerVersionResult: Result<String, QueueClientError>?
+    private var scheduleTestsResult: Result<String, QueueClientError>?
     private let syncQueue = DispatchQueue(label: "ru.avito.SynchronousQueueClient")
     private let requestTimeout: TimeInterval
     
@@ -93,6 +94,28 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         }
     }
     
+    public func scheduleTests(
+        jobId: JobId,
+        testEntryConfigurations: [TestEntryConfiguration],
+        requestId: String)
+        throws -> String
+    {
+        return try synchronize {
+            scheduleTestsResult = nil
+            return try runRetrying(times: 5) {
+                try queueClient.scheduleTests(
+                    jobId: jobId,
+                    testEntryConfigurations: testEntryConfigurations,
+                    requestId: requestId
+                )
+                try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for tests to be scheduled") {
+                    self.scheduleTestsResult == nil
+                }
+                return try scheduleTestsResult!.dematerialize()
+            }
+        }
+    }
+    
     private func synchronize<T>(_ work: () throws -> T) rethrows -> T {
         return try syncQueue.sync {
             return try work()
@@ -119,6 +142,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         alivenessReportResult = Result.failure(error)
         bucketResultSendResult = Result.failure(error)
         queueServerVersionResult = Result.failure(error)
+        scheduleTestsResult = Result.failure(error)
     }
     
     public func queueClient(_ sender: QueueClient, didReceiveWorkerConfiguration workerConfiguration: WorkerConfiguration) {
@@ -151,5 +175,9 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     
     public func queueClientWorkerHasBeenIndicatedAsAlive(_ sender: QueueClient) {
         alivenessReportResult = Result.success(true)
+    }
+    
+    public func queueClientDidScheduleTests(_ sender: QueueClient, requestId: String) {
+        scheduleTestsResult = Result.success(requestId)
     }
 }

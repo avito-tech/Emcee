@@ -9,6 +9,7 @@ import QueueClient
 import QueueServer
 import RESTMethods
 import ResultsCollector
+import ScheduleStrategy
 import WorkerAlivenessTracker
 import WorkerAlivenessTrackerTestHelpers
 import XCTest
@@ -19,6 +20,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     let workerId = "worker"
     let requestId = "requestId"
     let queueServerAddress = "localhost"
+    let jobId: JobId = "JobId"
     
     let stubbedEndpoint = FakeRESTEndpoint<Int, Int>(0)
     
@@ -146,5 +148,42 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         )
     }
     
-    // TODO
+    func test__schedule_tests() throws {
+        let testEntryConfigurations = TestEntryConfigurationFixtures()
+            .add(testEntry: TestEntryFixtures.testEntry())
+            .testEntryConfigurations()
+        let enqueueableBucketReceptor = FakeEnqueueableBucketReceptor()
+        let testsEnqueuer = TestsEnqueuer(
+            bucketSplitter: IndividualBucketSplitter(),
+            bucketSplitInfo: BucketSplitInfo(
+                numberOfWorkers: 0,
+                toolResources: ToolResourcesFixtures.fakeToolResources(),
+                simulatorSettings: SimulatorSettingsFixtures().simulatorSettings()
+            ),
+            enqueueableBucketReceptor: enqueueableBucketReceptor
+        )
+        let scheduleTestsEndpoint = ScheduleTestsEndpoint(testsEnqueuer: testsEnqueuer)
+        
+        restServer.setHandler(
+            bucketResultHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            registerWorkerHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            reportAliveHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            scheduleTestsHandler: RESTEndpointOf(actualHandler: scheduleTestsEndpoint),
+            versionHandler: RESTEndpointOf(actualHandler: stubbedEndpoint)
+        )
+        let port = try restServer.start()
+        let client = SynchronousQueueClient(serverAddress: queueServerAddress, serverPort: port, workerId: workerId)
+        let acceptedRequestId = try client.scheduleTests(
+            jobId: jobId,
+            testEntryConfigurations: testEntryConfigurations,
+            requestId: requestId
+        )
+        
+        XCTAssertEqual(acceptedRequestId, requestId)
+        XCTAssertEqual(
+            enqueueableBucketReceptor.enqueuedJobs[jobId],
+            [BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])]
+        )
+    }
 }

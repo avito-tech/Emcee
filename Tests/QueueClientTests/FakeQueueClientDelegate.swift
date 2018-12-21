@@ -14,6 +14,7 @@ class FakeQueueClientDelegate: QueueClientDelegate {
         case workerHasBeenBlocked
         case alivenessAccepted
         case queueServerVersion(String)
+        case didScheduleTests(String)
     }
     
     var responses = [ServerResponse]()
@@ -52,5 +53,9 @@ class FakeQueueClientDelegate: QueueClientDelegate {
     
     func queueClientWorkerHasBeenIndicatedAsAlive(_ sender: QueueClient) {
         responses.append(ServerResponse.alivenessAccepted)
+    }
+    
+    func queueClientDidScheduleTests(_ sender: QueueClient, requestId: String) {
+        responses.append(ServerResponse.didScheduleTests(requestId))
     }
 }

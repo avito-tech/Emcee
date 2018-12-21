@@ -109,27 +109,7 @@ class QueueClientTests: XCTestCase {
         
         switch delegate.responses[0] {
         case .workerConfiguration(let configuration):
-            XCTAssertEqual(
-                stubbedConfig.testRunExecutionBehavior.numberOfRetries,
-                configuration.testRunExecutionBehavior.numberOfRetries)
-            XCTAssertEqual(
-                stubbedConfig.testRunExecutionBehavior.numberOfSimulators,
-                configuration.testRunExecutionBehavior.numberOfSimulators)
-            XCTAssertEqual(
-                stubbedConfig.testRunExecutionBehavior.environment,
-                configuration.testRunExecutionBehavior.environment)
-            XCTAssertEqual(
-                stubbedConfig.testTimeoutConfiguration.singleTestMaximumDuration,
-                configuration.testTimeoutConfiguration.singleTestMaximumDuration,
-                accuracy: 0.1)
-            XCTAssertEqual(
-                stubbedConfig.testTimeoutConfiguration.singleTestMaximumDuration,
-                configuration.testTimeoutConfiguration.singleTestMaximumDuration,
-                accuracy: 0.1)
-            XCTAssertEqual(
-                stubbedConfig.reportAliveInterval,
-                configuration.reportAliveInterval,
-                accuracy: 0.1)
+            XCTAssertEqual(stubbedConfig, configuration, "Response should have the provided worker configuration")
         default:
             XCTFail("Unexpected result")
         }
@@ -179,5 +159,45 @@ class QueueClientTests: XCTestCase {
                 XCTFail("Unexpected error: \(throwedError)")
             }
         }
+    }
+    
+    func test___scheduling_tests() throws {
+        let serverHasProvidedResponseExpectation = expectation(description: "Server provided response")
+        let jobId: JobId = "jobid"
+        let requestId = "requestId"
+        let testEntryConfigurations = TestEntryConfigurationFixtures()
+            .add(testEntry: TestEntryFixtures.testEntry())
+            .testEntryConfigurations()
+        
+        try prepareServer(RESTMethod.scheduleTests.withPrependingSlash) { request -> HttpResponse in
+            let requestData = Data(bytes: request.body)
+            guard let body = try? JSONDecoder().decode(ScheduleTestsRequest.self, from: requestData) else {
+                XCTFail("Queue client request has unexpected type")
+                serverHasProvidedResponseExpectation.isInverted = true
+                serverHasProvidedResponseExpectation.fulfill()
+                return .internalServerError
+            }
+            XCTAssertEqual(
+                body,
+                ScheduleTestsRequest(
+                    requestId: requestId,
+                    jobId: jobId,
+                    testEntryConfigurations: testEntryConfigurations
+                )
+            )
+            
+            let data: Data = (try? JSONEncoder().encode(ScheduleTestsResponse.scheduledTests(requestId: requestId))) ?? Data()
+            
+            defer { serverHasProvidedResponseExpectation.fulfill() }
+            return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
+        }
+        
+        try queueClient.scheduleTests(
+            jobId: jobId,
+            testEntryConfigurations: testEntryConfigurations,
+            requestId: requestId
+        )
+        
+        wait(for: [serverHasProvidedResponseExpectation], timeout: 10)
     }
 }
