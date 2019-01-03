@@ -22,9 +22,9 @@ public final class LocalPortDeterminer {
     
     public func availableLocalPort() throws -> Int {
         for port in portRange {
-            log("Checking availability of local port \(port)")
+            Logger.debug("Checking availability of local port \(port)")
             if isPortAvailable(port: UInt16(port)) {
-                log("Port \(port) appears to be available")
+                Logger.debug("Port \(port) appears to be available")
                 return port
             }
         }

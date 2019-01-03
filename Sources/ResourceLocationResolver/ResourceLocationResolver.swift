@@ -69,7 +69,7 @@ public final class ResourceLocationResolver {
         let contentsUrl = zipUrl.deletingLastPathComponent().appendingPathComponent("zip_contents", isDirectory: true)
         try unarchiveQueue.sync {
             if !FileManager.default.fileExists(atPath: contentsUrl.path) {
-                log("Will unzip '\(zipUrl)' into '\(contentsUrl)'")
+                Logger.debug("Will unzip '\(zipUrl)' into '\(contentsUrl)'")
                 let process = Process.launchedProcess(
                     launchPath: "/usr/bin/unzip",
                     arguments: ["-qq", zipUrl.path, "-d", contentsUrl.path]
@@ -95,9 +95,9 @@ public final class ResourceLocationResolver {
             if counter % evictionRegularity == 0 {
                 counter = 1
                 let evictedEntryURLs = (try? urlResource.evictResources(olderThan: evictBarrierDate)) ?? []
-                log("Evicted \(evictedEntryURLs.count) cached items older than: \(evictBarrierDate)")
+                Logger.debug("Evicted \(evictedEntryURLs.count) cached items older than: \(evictBarrierDate)")
                 for url in evictedEntryURLs {
-                    log("-- evicted \(url)")
+                    Logger.debug("-- evicted \(url)")
                 }
             } else {
                 counter = counter + 1

@@ -32,7 +32,7 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
     
     private static func prepareBuckets(configuration: LocalTestRunConfiguration) -> [Bucket] {
         let splitter = configuration.testRunExecutionBehavior.scheduleStrategy.bucketSplitter()
-        log("Using strategy: \(splitter.description)")
+        Logger.verboseDebug("Using strategy: \(splitter.description)")
         
         let buckets = splitter.generate(
             inputs: configuration.testEntryConfigurations,
@@ -43,9 +43,11 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
             )
         )
 
-        log("Will execute \(configuration.testEntryConfigurations.count) tests: \(configuration.testEntryConfigurations)")
-        log("Will split tests into following buckets:")
-        buckets.forEach { log("Bucket: \($0)") }
+        Logger.verboseDebug("Will execute \(configuration.testEntryConfigurations.count) tests: \(configuration.testEntryConfigurations)")
+        Logger.verboseDebug("Will split tests into following buckets:")
+        buckets.forEach {
+            Logger.verboseDebug("Bucket: \($0)")
+        }
         return buckets
     }
 }

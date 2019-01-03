@@ -16,9 +16,9 @@ public final class RemotePortDeterminer {
         return portRange.reduce([Int: String]()) { (result, port) -> [Int: String] in
             var result = result
             let client = SynchronousQueueClient(serverAddress: host, serverPort: port, workerId: workerId)
-            log("Checking availability of \(host):\(port)")
+            Logger.debug("Checking availability of \(host):\(port)")
             if let version = try? client.fetchQueueServerVersion() {
-                log("Found queue server with \(version) version on \(port) port")
+                Logger.debug("Found queue server with \(version) version at \(host):\(port)")
                 result[port] = version
             }
             return result

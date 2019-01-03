@@ -12,7 +12,7 @@ final class EventBusListener: EventStream {
     }
     
     func process(event: BusEvent) {
-        log("Received event: \(event)")
+        Logger.debug("Received event: \(event)")
         busEvents.append(event)
         if case BusEvent.tearDown = event {
             tearDown()
@@ -32,9 +32,9 @@ final class EventBusListener: EventStream {
             encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             let data = try encoder.encode(busEvents)
             try data.write(to: URL(fileURLWithPath: outputPath))
-            log("Dumped \(busEvents.count) events to file: '\(outputPath)'")
+            Logger.info("Dumped \(busEvents.count) events to file: '\(outputPath)'")
         } catch {
-            log("Error: \(error)", color: .red)
+            Logger.error("\(error)")
         }
     }
 }

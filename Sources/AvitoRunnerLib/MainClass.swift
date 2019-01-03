@@ -2,6 +2,7 @@ import ArgumentsParser
 import Extensions
 import Foundation
 import Logging
+import LoggingSetup
 import ProcessController
 
 public final class Main {
@@ -23,9 +24,14 @@ public final class Main {
     private var parentProcessTracker: ParentProcessTracker?
     
     private func runInProcess() -> Int32 {
-        log("Arguments: \(ProcessInfo.processInfo.arguments)", color: .blue)
+        try! LoggingSetup.setupLogging(stderrVerbosity: Verbosity.info)
         
-        var registry = CommandRegistry(usage: "<subcommand> <options>", overview: "Runs specific tasks related to iOS UI testing")
+        Logger.info("Arguments: \(ProcessInfo.processInfo.arguments)")
+        
+        var registry = CommandRegistry(
+            usage: "<subcommand> <options>",
+            overview: "Runs specific tasks related to iOS UI testing"
+        )
         
         registry.register(command: DumpRuntimeTestsCommand.self)
         registry.register(command: RunTestsCommand.self)
@@ -37,17 +43,17 @@ public final class Main {
             try startTrackingParentProcessAliveness()
             try registry.run()
             exitCode = 0
-        } catch let error {
-            log("Error: \(error)")
+        } catch {
+            Logger.error("\(error)")
             exitCode = 1
         }
-        log("Finished executing with exit code \(exitCode)")
+        Logger.info("Finished executing with exit code \(exitCode)")
         return exitCode
     }
     
     private func startTrackingParentProcessAliveness() throws {
         parentProcessTracker = try ParentProcessTracker {
-            log("Parent process has died")
+            Logger.warning("Parent process has died")
             OrphanProcessTracker().killAll()
             exit(3)
         }

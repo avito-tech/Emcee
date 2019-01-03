@@ -111,7 +111,7 @@ public final class QueueServer {
         stuckBucketsPoller.startTrackingStuckBuckets()
         
         let port = try restServer.start()
-        log("Started queue server on port \(port)")
+        Logger.info("Started queue server on port \(port)")
         return port
     }
     
@@ -120,17 +120,17 @@ public final class QueueServer {
     }
     
     public func waitForJobToFinish(jobId: JobId) throws -> [TestingResult] {
-        log("Waiting for workers to appear")
+        Logger.debug("Waiting for workers to appear")
         try SynchronousWaiter.waitWhile(pollPeriod: 1, timeout: newWorkerRegistrationTimeAllowance, description: "Waiting workers to appear") {
             workerAlivenessTracker.hasAnyAliveWorker == false
         }
         
-        log("Waiting for bucket queue to exhaust")
+        Logger.debug("Waiting for bucket queue to deplete")
         try SynchronousWaiter.waitWhile(pollPeriod: 5, timeout: queueExhaustTimeAllowance, description: "Waiting for queue to exhaust") {
             guard workerAlivenessTracker.hasAnyAliveWorker else { throw QueueServerError.noWorkers }
             return !balancingBucketQueue.state.isDepleted
         }
-        log("Bucket queue has exhaust")
+        Logger.debug("Bucket queue has depleted")
         return resultsCollector.collectedResults
     }
     

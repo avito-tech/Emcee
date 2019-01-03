@@ -20,7 +20,7 @@ public final class QueueServerRequestParser {
             let object: T = try decoder.decode(T.self, from: requestData)
             return .json(response: try responseProducer(object))
         } catch {
-            log("Failed to process \(request.path) data: \(error). Will return server error response.")
+            Logger.error("Failed to process \(request.path) data: \(error). Will return server error response.")
             return .internalServerError
         }
     }

@@ -180,7 +180,7 @@ final class DistRunTestsCommand: Command {
     }
     
     func run(distRunConfiguration: DistRunConfiguration, eventBus: EventBus, tempFolder: TempFolder) throws {
-        log("Using dist run configuration: \(distRunConfiguration)", color: .blue)
+        Logger.verboseDebug("Using dist run configuration: \(distRunConfiguration)")
         
         let distRunner = DistRunner(
             distRunConfiguration: distRunConfiguration,

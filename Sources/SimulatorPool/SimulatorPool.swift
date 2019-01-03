@@ -52,7 +52,7 @@ public final class SimulatorPool<T>: CustomStringConvertible where T: SimulatorC
                 throw BorrowError.noSimulatorsLeft
             }
             let simulator = controllers.removeLast()
-            log("Allocated simulator: \(simulator)", color: .blue)
+            Logger.verboseDebug("Allocated simulator: \(simulator)")
             cancelAutomaticCleanup()
             return simulator
         }
@@ -61,7 +61,7 @@ public final class SimulatorPool<T>: CustomStringConvertible where T: SimulatorC
     public func freeSimulator(_ simulator: T) {
         syncQueue.sync {
             controllers.append(simulator)
-            log("Freed simulator: \(simulator)", color: .blue)
+            Logger.verboseDebug("Freed simulator: \(simulator)")
             scheduleAutomaticCleanup()
         }
     }
@@ -69,12 +69,12 @@ public final class SimulatorPool<T>: CustomStringConvertible where T: SimulatorC
     public func deleteSimulators() {
         syncQueue.sync {
             cancelAutomaticCleanup()
-            log("\(self): deleting simulators")
+            Logger.verboseDebug("\(self): deleting simulators")
             controllers.forEach {
                 do {
                     try $0.deleteSimulator()
-                } catch let error {
-                    log("Failed to delete simulator \($0): \(error). Skipping this error.", color: .red)
+                } catch {
+                    Logger.error("Failed to delete simulator \($0): \(error). Skipping this error.")
                 }
             }
         }
@@ -109,7 +109,7 @@ public final class SimulatorPool<T>: CustomStringConvertible where T: SimulatorC
             guard let strongSelf = self else { return }
             strongSelf.automaticCleanupWorkItem = nil
             if strongSelf.controllers.count == strongSelf.numberOfSimulators {
-                log("\(strongSelf): simulator controllers were not in use for \(strongSelf.automaticCleanupTiumeout) seconds.")
+                Logger.debug("Simulator controllers were not in use for \(strongSelf.automaticCleanupTiumeout) seconds.")
                 strongSelf.deleteSimulators()
             }
         }

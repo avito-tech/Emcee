@@ -35,7 +35,7 @@ public final class WorkerRegistrar: RESTEndpoint {
         let workerAliveness = workerAlivenessTracker.alivenessForWorker(workerId: decodedRequest.workerId)
         switch workerAliveness.status {
         case .notRegistered, .alive, .silent:
-            log("Registration request from worker with id: \(decodedRequest.workerId)")
+            Logger.debug("Registration request from worker with id: \(decodedRequest.workerId)")
             workerAlivenessTracker.didRegisterWorker(workerId: decodedRequest.workerId)
             return .workerRegisterSuccess(workerConfiguration: workerConfiguration)
         case .blocked:

@@ -42,9 +42,9 @@ public final class ResultingOutputGenerator {
         try generateOutput(combinedTestingResults: combinedTestingResults, reportOutput: commonReportOutput)
         
         if !combinedTestingResults.failedTests.isEmpty {
-            log("Failed tests: \(combinedTestingResults.failedTests)", color: .red)
+            Logger.info("Failed tests: \(combinedTestingResults.failedTests)")
         } else {
-            log("All tests passed", color: .blue)
+            Logger.info("All tests passed")
         }
     }
     

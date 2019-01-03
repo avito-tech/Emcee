@@ -262,18 +262,14 @@ enum ArgumentsError: Error, CustomStringConvertible {
 extension ArgumentParser {
     func add(stringArgument: KnownStringArguments, file: StaticString = #file, line: Int = #line) -> OptionArgument<String> {
         guard stringArgument.multiple == false else {
-            let message = "Use add(multipleStringArgument:) for \(stringArgument.name) at \(file):\(line)"
-            log("Error: \(message)", color: .red)
-            fatalError(message)
+            Logger.fatal("Use add(multipleStringArgument:) for \(stringArgument.name) at \(file):\(line)")
         }
         return add(option: stringArgument.name, kind: String.self, usage: stringArgument.usage)
     }
     
     func add(multipleStringArgument: KnownStringArguments, file: StaticString = #file, line: Int = #line) -> OptionArgument<[String]> {
         guard multipleStringArgument.multiple == true else {
-            let message = "Use add(stringArgument:) for \(multipleStringArgument.name) at \(file):\(line)"
-            log("Error: \(message)", color: .red)
-            fatalError(message)
+            Logger.fatal("Use add(stringArgument:) for \(multipleStringArgument.name) at \(file):\(line)")
         }
         return add(
             option: multipleStringArgument.name,
@@ -284,18 +280,14 @@ extension ArgumentParser {
     
     func add(intArgument: KnownUIntArguments, file: StaticString = #file, line: Int = #line) -> OptionArgument<UInt> {
         guard intArgument.multiple == false else {
-            let message = "Use add(multipleIntArgument:) for \(intArgument.name) at \(file):\(line)"
-            log("Error: \(message)", color: .red)
-            fatalError(message)
+            Logger.fatal("Use add(multipleIntArgument:) for \(intArgument.name) at \(file):\(line)")
         }
         return add(option: intArgument.name, kind: UInt.self, usage: intArgument.usage)
     }
     
     func add(multipleIntArgument: KnownUIntArguments, file: StaticString = #file, line: Int = #line) -> OptionArgument<[UInt]> {
         guard multipleIntArgument.multiple == true else {
-            let message = "Use add(multipleIntArgument:) for \(multipleIntArgument.name) at \(file):\(line)"
-            log("Error: \(message)", color: .red)
-            fatalError(message)
+            Logger.fatal("Use add(multipleIntArgument:) for \(multipleIntArgument.name) at \(file):\(line)")
         }
         return add(
             option: multipleIntArgument.name,

@@ -39,7 +39,7 @@ public final class DistWorker {
     public func start() throws {
         let tempFolder = try bucketConfigurationFactory.createTempFolder()
         let workerConfiguration = try queueClient.registerWithServer()
-        log("Registered with server. Worker configuration: \(workerConfiguration)")
+        Logger.debug("Registered with server. Worker configuration: \(workerConfiguration)")
         startReportingWorkerIsAlive(interval: workerConfiguration.reportAliveInterval)
         
         let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>(
@@ -51,7 +51,7 @@ public final class DistWorker {
             workerConfiguration: workerConfiguration,
             onDemandSimulatorPool: onDemandSimulatorPool,
             tempFolder: tempFolder)
-        log("Dist worker has finished")
+        Logger.verboseDebug("Dist worker has finished")
         cleanUpAndStop()
     }
     
@@ -63,7 +63,7 @@ public final class DistWorker {
                 do {
                     try strongSelf.reportAliveness()
                 } catch {
-                    log("Error: failed to report aliveness: \(error)")
+                    Logger.error("Failed to report aliveness: \(error)")
                 }
         }
     }
@@ -98,7 +98,7 @@ public final class DistWorker {
             tempFolder: tempFolder,
             resourceLocationResolver: resourceLocationResolver)
         let eventStreamProcessor = EventStreamProcessor { [weak self] testingResult in
-            log("Obtained testingResult: \(testingResult)")
+            Logger.debug("Obtained testingResult: \(testingResult)")
             self?.didReceiveTestResult(testingResult: testingResult)
         }
         eventBus.add(stream: eventStreamProcessor)
@@ -115,29 +115,29 @@ public final class DistWorker {
     private func fetchNextBucket() -> SchedulerBucket? {
         while true {
             do {
-                log("Fetching next bucket from server")
+                Logger.debug("Fetching next bucket from server")
                 let requestId = UUID().uuidString
                 let result = try queueClient.fetchBucket(requestId: requestId)
                 switch result {
                 case .queueIsEmpty:
-                    log("Server returned that queue is empty")
+                    Logger.debug("Server returned that queue is empty")
                     return nil
                 case .workerHasBeenBlocked:
-                    log("Server has blocked this worker")
+                    Logger.debug("Server has blocked this worker")
                     return nil
                 case .checkLater(let after):
-                    log("Server asked to wait for \(after) seconds and fetch next bucket again")
+                    Logger.debug("Server asked to wait for \(after) seconds and fetch next bucket again")
                     SynchronousWaiter.wait(timeout: after)
                 case .bucket(let fetchedBucket):
                     syncQueue.sync {
                         requestIdForBucketId[fetchedBucket.bucketId] = requestId
                         currentlyBeingProcessedBucketsTracker.didFetch(bucketId: fetchedBucket.bucketId)
                     }
-                    log("Received bucket \(fetchedBucket.bucketId), requestId: \(requestId)", color: .blue)
+                    Logger.debug("Received bucket \(fetchedBucket.bucketId), requestId: \(requestId)")
                     return SchedulerBucket.from(bucket: fetchedBucket)
                 }
             } catch {
-                log("Failed to fetch next bucket: \(error)")
+                Logger.error("Failed to fetch next bucket: \(error)")
                 return nil
             }
         }
@@ -147,7 +147,7 @@ public final class DistWorker {
         do {
             let requestId: String = try syncQueue.sync {
                 guard let requestId = requestIdForBucketId[testingResult.bucketId] else {
-                    log("Error: no requestId for bucket: \(testingResult.bucketId)", color: .red)
+                    Logger.error("No requestId for bucket: \(testingResult.bucketId)")
                     throw DistWorkerError.noRequestIdForBucketId(testingResult.bucketId)
                 }
                 return requestId
@@ -157,7 +157,7 @@ public final class DistWorker {
                 throw DistWorkerError.unexpectedAcceptedBucketId(actual: acceptedBucketId, expected: testingResult.bucketId)
             }
         } catch {
-            log("Failed to send test run result for bucket \(testingResult.bucketId): \(error)")
+            Logger.error("Failed to send test run result for bucket \(testingResult.bucketId): \(error)")
             cleanUpAndStop()
         }
         

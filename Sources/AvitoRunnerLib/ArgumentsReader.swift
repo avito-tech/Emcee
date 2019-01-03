@@ -65,7 +65,7 @@ final class ArgumentsReader {
             let data = try Data(contentsOf: URL(fileURLWithPath: path))
             return try jsonDecoder.decode(T.self, from: data)
         } catch {
-            log("Unable to read or decode file \(path): \(error)", color: .red)
+            Logger.error("Unable to read or decode file '\(path)': \(error)")
             throw ArgumentsError.argumentValueCannotBeUsed(key, error)
         }
     }

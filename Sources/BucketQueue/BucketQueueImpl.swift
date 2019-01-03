@@ -55,7 +55,7 @@ final class BucketQueueImpl: BucketQueue {
             // There might me problems with connection between workers and queue and connection may be lost.
             // If same worker tries to perform same request again, return same result.
             if let previouslyDequeuedBucket = previouslyDequeuedBucket_onSyncQueue(requestId: requestId, workerId: workerId) {
-                log("Provided previously dequeued bucket: \(previouslyDequeuedBucket)")
+                Logger.debug("Provided previously dequeued bucket: \(previouslyDequeuedBucket)")
                 return .dequeuedBucket(previouslyDequeuedBucket)
             }
             
@@ -96,10 +96,10 @@ final class BucketQueueImpl: BucketQueue {
         -> BucketQueueAcceptResult
     {
         return try queue.sync {
-            log("Validating result from \(workerId) \(requestId): \(testingResult)")
+            Logger.debug("Validating result from \(workerId) \(requestId): \(testingResult)")
             
             guard let dequeuedBucket = previouslyDequeuedBucket_onSyncQueue(requestId: requestId, workerId: workerId) else {
-                log("Validation failed: no dequeued bucket for request \(requestId) worker \(workerId)")
+                Logger.error("Validation failed: no dequeued bucket for request \(requestId) worker \(workerId)")
                 throw ResultAcceptanceError.noDequeuedBucket(requestId: requestId, workerId: workerId)
             }
             
@@ -121,7 +121,7 @@ final class BucketQueueImpl: BucketQueue {
             enqueue_onSyncQueue(buckets: acceptResult.bucketsToReenqueue)
             
             dequeuedBuckets.remove(dequeuedBucket)
-            log("Accepted result for bucket '\(testingResult.bucketId)' from '\(workerId)', updated dequeued buckets: \(dequeuedBuckets.count): \(dequeuedBuckets)")
+            Logger.debug("Accepted result for bucket '\(testingResult.bucketId)' from '\(workerId)', updated dequeued buckets: \(dequeuedBuckets.count): \(dequeuedBuckets)")
             
             return BucketQueueAcceptResult(
                 testingResultToCollect: acceptResult.testingResult
@@ -140,7 +140,7 @@ final class BucketQueueImpl: BucketQueue {
                 let stuckReason: StuckBucket.Reason
                 switch aliveness.status {
                 case .notRegistered:
-                    fatalLogAndError("Logic error: worker '\(dequeuedBucket.workerId)' is not registered, but stuck bucket has worker id of this worker. This is not expected, as we shouldn't dequeue bucket using non-registered worker.")
+                    Logger.fatal("Worker '\(dequeuedBucket.workerId)' is not registered, but stuck bucket has worker id of this worker. This is not expected, as we shouldn't dequeue bucket to non-registered workers.")
                 case .alive:
                     if aliveness.bucketIdsBeingProcessed.contains(dequeuedBucket.bucket.bucketId) {
                        return nil
@@ -175,9 +175,9 @@ final class BucketQueueImpl: BucketQueue {
             }
             
             if !buckets.isEmpty {
-                log("Got \(stuckBuckets.count) stuck buckets, reenqueueing them as \(buckets.count) buckets:")
+                Logger.debug("Got \(stuckBuckets.count) stuck buckets, reenqueueing them as \(buckets.count) buckets:")
                 for bucket in buckets {
-                    log("-- \(bucket)")
+                    Logger.debug("-- \(bucket)")
                 }
                 
                 enqueue_onSyncQueue(buckets: buckets)
@@ -216,7 +216,7 @@ final class BucketQueueImpl: BucketQueue {
         enqueuedBuckets.removeAll(where: { $0 == bucket })
         _ = dequeuedBuckets.insert(dequeuedBucket)
         
-        log("Dequeued new bucket: \(dequeuedBucket). Now there are \(dequeuedBuckets.count) dequeued buckets.")
+        Logger.debug("Dequeued new bucket: \(dequeuedBucket). Now there are \(dequeuedBuckets.count) dequeued buckets.")
         
         return dequeuedBucket
     }
@@ -234,7 +234,7 @@ final class BucketQueueImpl: BucketQueue {
     {
         let lostTestEntries = expectedTestEntries.subtracting(actualTestEntries)
         if !lostTestEntries.isEmpty {
-            log("Test result from \(workerId) (request \(requestId)) contains lost test entries: \(lostTestEntries)")
+            Logger.debug("Test result from \(workerId) (request \(requestId)) contains lost test entries: \(lostTestEntries)")
             let lostResult = testHistoryTracker.accept(
                 testingResult: TestingResult(
                     bucketId: bucket.bucketId,

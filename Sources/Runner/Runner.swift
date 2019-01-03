@@ -55,7 +55,7 @@ public final class Runner {
             if runResults.filter({ !$0.isLost }).isEmpty {
                 // Here, if we do not receive events at all, we will get 0 results. We try to revive a limited number of times.
                 reviveAttempt += 1
-                log("Got no results. Attempting to revive #\(reviveAttempt) out of allowed \(numberOfAttemptsToRevive) attempts to revive")
+                Logger.warning("Got no results. Attempting to revive #\(reviveAttempt) out of allowed \(numberOfAttemptsToRevive) attempts to revive")
             } else {
                 // Here, we actually got events, so we could reset revive attempts.
                 reviveAttempt = 0
@@ -68,11 +68,11 @@ public final class Runner {
     /** Runs the given tests once without any attempts to restart the failed/crashed tests. */
     public func runOnce(entriesToRun: [TestEntry], onSimulator simulator: Simulator) throws -> [TestEntryResult] {
         if entriesToRun.isEmpty {
-            log("Nothing to run!", color: .blue)
+            Logger.info("Nothing to run!")
             return []
         }
         
-        log("Will run \(entriesToRun.count) tests on simulator \(simulator)", color: .blue)
+        Logger.info("Will run \(entriesToRun.count) tests on simulator \(simulator)")
         
         let testContext = createTestContext(simulator: simulator)
         
@@ -93,8 +93,8 @@ public final class Runner {
         
         eventBus.post(event: .runnerEvent(.didRun(results: result, testContext: testContext)))
         
-        log("Attempted to run \(entriesToRun.count) tests on simulator \(simulator): \(entriesToRun)", color: .blue)
-        log("Did get \(result.count) results: \(result)", color: .boldBlue)
+        Logger.info("Attempted to run \(entriesToRun.count) tests on simulator \(simulator): \(entriesToRun)")
+        Logger.info("Did get \(result.count) results: \(result)")
         
         return result
     }
@@ -159,7 +159,7 @@ public final class Runner {
             let testsWorkingDirectory = try tempFolder.pathByCreatingDirectories(components: ["testsWorkingDir", UUID().uuidString])
             environment[RunnerConstants.envTestsWorkingDirectory.rawValue] = testsWorkingDirectory.asString
         } catch {
-            log("Error: unable to create path tests working directory: \(error)", color: .red)
+            Logger.error("Unable to create path tests working directory: \(error)")
         }
         return TestContext(environment: environment, testDestination: simulator.testDestination)
     }

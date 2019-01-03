@@ -15,10 +15,10 @@ public final class Packager {
         let path = deployable.name.components(separatedBy: "/").reduce(packageFolder.path) { $0.appending(component: $1) }
         try FileManager.default.createDirectory(atPath: path.parentDirectory.asString, withIntermediateDirectories: true, attributes: nil)
         let archiveUrl = URL(fileURLWithPath: path.asString)
-        log("\(deployable.name): archive url is \(archiveUrl.path)")
+        Logger.debug("\(deployable.name): archive url is \(archiveUrl.path)")
 
         if FileManager.default.fileExists(atPath: archiveUrl.path) {
-            log("\(deployable.name): file already present, won't use it")
+            Logger.debug("\(deployable.name): file already present, won't use it")
             return archiveUrl
         }
         

@@ -25,7 +25,7 @@ public final class ProcessController: CustomStringConvertible {
     public init(subprocess: Subprocess) throws {
         self.subprocess = subprocess
         let arguments = try subprocess.arguments.map { try $0.stringValue() }
-        self.processName = arguments.elementAtIndex(0, "First element is path to executable").lastPathComponent
+        processName = arguments.elementAtIndex(0, "First element is path to executable").lastPathComponent
         self.process = try ProcessController.createProcess(
             arguments: arguments,
             environment: subprocess.environment,
@@ -58,7 +58,7 @@ public final class ProcessController: CustomStringConvertible {
         }
         
         didStartProcess = true
-        log("Starting subprocess: \(subprocess)", subprocessName: self.processName)
+        Logger.debug("Starting subprocess: \(subprocess)", subprocessInfo: SubprocessInfo(subprocessId: 0, subprocessName: processName))
         process.launch()
         process.terminationHandler = { _ in
             OrphanProcessTracker().removeProcessFromCleanup(pid: self.processId, name: self.processName)
@@ -66,7 +66,7 @@ public final class ProcessController: CustomStringConvertible {
         }
         processId = process.processIdentifier
         OrphanProcessTracker().storeProcessForCleanup(pid: processId, name: processName)
-        log("Started process \(processId)", subprocessName: self.processName, subprocessId: processId, color: .boldBlue)
+        Logger.debug("Started process \(processId)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
         startMonitoringForHangs()
     }
     
@@ -117,7 +117,7 @@ public final class ProcessController: CustomStringConvertible {
         processTerminationQueue.sync {
             guard self.didInitiateKillOfProcess == false else { return }
             self.didInitiateKillOfProcess = true
-            log("Interrupting the process", subprocessName: self.processName, subprocessId: processId, color: .red)
+            Logger.debug("Interrupting the process", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
             process.interrupt()
             processTerminationQueue.asyncAfter(deadline: .now() + 15.0) {
                 self.forceKillProcess()
@@ -127,7 +127,7 @@ public final class ProcessController: CustomStringConvertible {
     
     private func forceKillProcess() {
         if isProcessRunning {
-            log("Failed to interrupt the process in time, terminating", subprocessName: self.processName, subprocessId: processId, color: .boldRed)
+            Logger.warning("Failed to interrupt the process in time, terminating", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
             process.terminate()
         }
     }
@@ -136,11 +136,11 @@ public final class ProcessController: CustomStringConvertible {
     
     private func startMonitoringForHangs() {
         guard subprocess.maximumAllowedSilenceDuration > 0 else {
-            log("Will not track hangs as maximumAllowedSilenceDuration must be positive, but it is \(subprocess.maximumAllowedSilenceDuration)", subprocessName: self.processName, subprocessId: processId, color: .yellow)
+            Logger.debug("Will not track hangs as maximumAllowedSilenceDuration must be positive, but it is \(subprocess.maximumAllowedSilenceDuration)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
             return
         }
         
-        log("Will track silences with timeout \(subprocess.maximumAllowedSilenceDuration)", subprocessName: self.processName, subprocessId: processId, color: .boldBlue)
+        Logger.debug("Will track silences with timeout \(subprocess.maximumAllowedSilenceDuration)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
         
         silenceTrackingTimer = DispatchBasedTimer.startedTimer(repeating: .seconds(1), leeway: .seconds(1)) { [weak self] in
             guard let strongSelf = self else { return }
@@ -153,7 +153,7 @@ public final class ProcessController: CustomStringConvertible {
     private func didDetectLongPeriodOfSilence() {
         silenceTrackingTimer?.stop()
         silenceTrackingTimer = nil
-        log("Detected a long period of silence", subprocessName: self.processName, subprocessId: processId, color: .red)
+        Logger.error("Detected a long period of silence", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
         delegate?.processControllerDidNotReceiveAnyOutputWithinAllowedSilenceDuration(self)
     }
     
@@ -186,10 +186,10 @@ public final class ProcessController: CustomStringConvertible {
         storeStdForProcess(
             path: stdoutContentsFile,
             onError: { message in
-                log("WARNING: Will not store stdout output: \(message)", subprocessName: self.processName, subprocessId: self.processId, color: .yellow)
+                Logger.warning("Will not store stdout output: \(message)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
             },
             pipeAssigningClosure: { pipe in
-                log("Will store stdout output at: \(stdoutContentsFile)", subprocessName: self.processName, subprocessId: self.processId, color: .blue)
+                Logger.debug("Will store stdout output at: \(stdoutContentsFile)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
                 self.process.standardOutput = pipe
             },
             onNewData: { data in
@@ -200,10 +200,10 @@ public final class ProcessController: CustomStringConvertible {
         storeStdForProcess(
             path: stderrContentsFile,
             onError: { message in
-                log("WARNING: Will not store stderr output: \(message)", subprocessName: self.processName, subprocessId: self.processId, color: .yellow)
+                Logger.warning("Will not store stderr output: \(message)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
             },
             pipeAssigningClosure: { pipe in
-                log("Will store stderr output at: \(stderrContentsFile)", subprocessName: self.processName, subprocessId: self.processId, color: .blue)
+                Logger.debug("Will store stderr output at: \(stderrContentsFile)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
                 self.process.standardError = pipe
             },
             onNewData: { data in
@@ -214,10 +214,10 @@ public final class ProcessController: CustomStringConvertible {
         if FileManager.default.createFile(atPath: stdinContentsFile, contents: nil),
             let stdinHandle = FileHandle(forWritingAtPath: stdinContentsFile)
         {
-            log("Will store stdin input at: \(stdinContentsFile)", subprocessName: self.processName, subprocessId: processId, color: .blue)
+            Logger.debug("Will store stdin input at: \(stdinContentsFile)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
             self.stdinHandle = stdinHandle
         } else {
-            log("WARNING: Will not store stdin input at file, failed to open a file handle", color: .yellow)
+            Logger.warning("Will not store stdin input at file, failed to open a file handle", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
         }
     }
     

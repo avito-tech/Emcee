@@ -28,6 +28,6 @@ public final class BucketQueueStateLogger {
     }
     
     public func logQueueSize() {
-        log("Enqueued buckets: \(state.enqueuedBucketCount), dequeued buckets: \(state.dequeuedBucketCount)")
+        Logger.info("Enqueued buckets: \(state.enqueuedBucketCount), dequeued buckets: \(state.dequeuedBucketCount)")
     }
 }

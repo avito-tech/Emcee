@@ -26,16 +26,16 @@ public final class EventDistributor {
     
     public func start() throws {
         try queue.sync {
-            log("Starting web socket server")
+            Logger.verboseDebug("Starting web socket server")
             server["/"] = websocket(text: nil, binary: onBinary, pong: nil, connected: nil, disconnected: nil)
             try server.start(0, forceIPv4: false, priority: .default)
         }
-        log("Web socket server is available at: \(try webSocketAddress())")
+        Logger.debug("Web socket server is available at: \(try webSocketAddress())")
     }
     
     public func stop() {
         queue.sync {
-            log("Stopping web socket server")
+            Logger.verboseDebug("Stopping web socket server")
             server.stop()
         }
     }
@@ -86,13 +86,13 @@ public final class EventDistributor {
             acknowledgement = .error("Internal error: '\(error)'")
         }
         
-        log("New connection from plugin with acknowledgement: '\(acknowledgement)'")
+        Logger.verboseDebug("New connection from plugin with acknowledgement: '\(acknowledgement)'")
         
         do {
             let data = try encoder.encode(acknowledgement)
             session.writeBinary([UInt8](data))
         } catch {
-            log("Error: failed to send acknowledgement: \(error)", color: .red)
+            Logger.error("Failed to send acknowledgement: \(error)")
         }
     }
 }

@@ -80,6 +80,7 @@ let package = Package(
                 "EventBus",
                 "JunitReporting",
                 "LaunchdUtils",
+                "LoggingSetup",
                 "Models",
                 "PluginManager",
                 "PortDeterminer",
@@ -87,7 +88,8 @@ let package = Package(
                 "ResourceLocationResolver",
                 "SSHDeployer",
                 "ScheduleStrategy",
-                "Scheduler"
+                "Scheduler",
+                "Utility"
             ]
         ),
         .testTarget(
@@ -300,7 +302,6 @@ let package = Package(
             name: "FakeFbxctest",
             dependencies: [
                 "Extensions",
-                "Logging",
                 "TestingFakeFbxctest"
             ]
         ),
@@ -412,7 +413,25 @@ let package = Package(
             // MARK: Logging
             name: "Logging",
             dependencies: [
-                "Ansi"
+                "Ansi",
+                "Extensions"
+            ]
+        ),
+        .target(
+            // MARK: LoggingSetup
+            name: "LoggingSetup",
+            dependencies: [
+                "Ansi",
+                "Logging",
+                "Utility"
+            ]
+        ),
+        .testTarget(
+            // MARK: LoggingTests
+            name: "LoggingTests",
+            dependencies: [
+                "Logging",
+                "Utility"
             ]
         ),
         .target(
@@ -445,6 +464,7 @@ let package = Package(
                 "EventBus",
                 "JSONStream",
                 "Logging",
+                "LoggingSetup",
                 "Models",
                 "Starscream",
                 "SynchronousWaiter",
@@ -788,6 +808,7 @@ let package = Package(
             dependencies: [
                 "Models",
                 "Logging",
+                "LoggingSetup",
                 "Plugin"
             ]
         ),

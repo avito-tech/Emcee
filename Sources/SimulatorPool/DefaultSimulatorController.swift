@@ -34,7 +34,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         }
         
         guard stage == .idle else {
-            log("Simulator \(simulator) is already being booted", color: .red)
+            Logger.error("Simulator \(simulator) is already being booted")
             throw SimulatorBootError.bootingAlreadyStarted
         }
         
@@ -47,15 +47,15 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
             while true {
                 do {
                     try createAndBoot()
-                    log("Booted simulator \(simulator) using #\(bootAttempt + 1) attempts", color: .green)
+                    Logger.debug("Booted simulator \(simulator) using #\(bootAttempt + 1) attempts")
                     return simulator
                 } catch {
-                    log("Error: Attempt #\(bootAttempt) to boot simulator \(simulator) failed: \(error)", color: .red)
+                    Logger.error("Attempt #\(bootAttempt) to boot simulator \(simulator) failed: \(error)")
                     try deleteSimulator()
                     bootAttempt += 1
                     if bootAttempt < maximumBootAttempts {
                         let waitBetweenAttemptsToBoot = 5.0
-                        log("Waiting \(waitBetweenAttemptsToBoot) seconds before attempting to boot again", color: .yellow)
+                        Logger.warning("Waiting \(waitBetweenAttemptsToBoot) seconds before attempting to boot again")
                         Thread.sleep(forTimeInterval: waitBetweenAttemptsToBoot)
                     } else {
                         throw error
@@ -76,7 +76,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         }
         
         stage = .creatingSimulator
-        log("Creating simulator: \(simulator)")
+        Logger.verboseDebug("Creating simulator: \(simulator)")
         let simulatorSetPath = simulator.fbxctestContainerPath.asString
         try FileManager.default.createDirectory(atPath: simulatorSetPath, withIntermediateDirectories: true)
         let controller = try ProcessController(
@@ -93,7 +93,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
             throw SimulatorBootError.createOperationFailed
         }
         stage = .createdSimulator
-        log("Created simulator")
+        Logger.debug("Created simulator")
     }
 
     private func bootSimulator() throws {
@@ -108,7 +108,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         }
         
         stage = .bootingSimulator
-        log("Booting simulator: \(simulator)")
+        Logger.verboseDebug("Booting simulator: \(simulator)")
         
         // we keep this process alive throughout the run, as it owns the simulator process.
         simulatorKeepAliveProcessController = try ProcessController(
@@ -127,26 +127,26 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
             throw SimulatorBootError.bootOperationFailed
         }
         stage = .bootedSimulator
-        log("Booted simulator: \(simulator)")
+        Logger.debug("Booted simulator: \(simulator)")
     }
     
     private func waitForSimulatorBoot() throws {
         guard let simulatorKeepAliveProcessController = simulatorKeepAliveProcessController else {
-            log("Expected to have keep-alive process", color: .red)
+            Logger.error("Expected to have keep-alive process")
             throw SimulatorBootError.bootOperationFailed
         }
         let outputProcessor = FbsimctlOutputProcessor(processController: simulatorKeepAliveProcessController)
         do {
             try outputProcessor.waitForEvent(type: .ended, name: .boot, timeout: 90)
         } catch {
-            log("Simulator \(simulator) did not boot in time: \(error)")
+            Logger.error("Simulator \(simulator) did not boot in time: \(error)")
             throw error
         }
         
         do {
             try outputProcessor.waitForEvent(type: .started, name: .listen, timeout: 50)
         } catch {
-            log("Boot operation for simulator \(simulator) did not finish: \(error)")
+            Logger.error("Boot operation for simulator \(simulator) did not finish: \(error)")
             throw error
         }
     }
@@ -157,7 +157,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         
         stage = .deletingSimulator
         
-        log("Deleting simulator: \(simulator)")
+        Logger.verboseDebug("Deleting simulator: \(simulator)")
         let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: [
@@ -172,7 +172,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
             throw SimulatorBootError.deleteOperationFailed
         }
         stage = .idle
-        log("Deleted simulator: \(simulator)")
+        Logger.debug("Deleted simulator: \(simulator)")
     }
     
     // MARK: - Process Controller Events

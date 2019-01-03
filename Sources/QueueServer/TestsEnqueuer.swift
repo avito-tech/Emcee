@@ -26,11 +26,12 @@ public final class TestsEnqueuer {
         )
         enqueueableBucketReceptor.enqueue(buckets: buckets, jobId: jobId)
         
-        log("Enqueued \(buckets.count) buckets for job '\(jobId)':")
+        Logger.info("Enqueued \(buckets.count) buckets for job '\(jobId)'")
         for bucket in buckets {
-            log("-- \(bucket) with tests:")
-            for testEntries in bucket.testEntries { log("-- -- \(testEntries)") }
+            Logger.verboseDebug("-- \(bucket) with tests:")
+            for testEntries in bucket.testEntries {
+                Logger.verboseDebug("-- -- \(testEntries)")
+            }
         }
     }
 }
-

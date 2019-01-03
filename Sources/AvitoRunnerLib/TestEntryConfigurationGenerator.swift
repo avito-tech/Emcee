@@ -30,7 +30,7 @@ public final class TestEntryConfigurationGenerator {
     }
     
     public func createTestEntryConfigurations() -> [TestEntryConfiguration] {
-        log("Preparing test entry configurations for tests: \(explicitTestsToRun + testArgEntries.map { $0.testToRun })")
+        Logger.debug("Preparing test entry configurations for tests: \(explicitTestsToRun + testArgEntries.map { $0.testToRun })")
         let testEntryConfigurations = TestEntryConfiguration.createMatrix(
             testEntries: map(testsToRun: explicitTestsToRun),
             buildArtifacts: commonBuildArtifacts,

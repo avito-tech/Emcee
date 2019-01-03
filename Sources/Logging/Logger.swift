@@ -1,73 +1,99 @@
-import Foundation
 import Ansi
+import Foundation
 
-// MARK: - Print log stating it belongs to fbxctest process with given pid
-
-public func stdout_fbxctest(_ text: String, _ fbxctestProcessId: Int32, color: ConsoleColor = .none) {
-    stdout(text, subprocessName: "fbxctest", subprocessId: fbxctestProcessId, color: color)
+/// deprecated, for backwards compatibility
+public func log(_ message: String) {
+    Logger.info(message)
 }
 
-public func log_fbxctest(_ text: String, _ fbxctestProcessId: Int32, color: ConsoleColor = .none) {
-    log(text, subprocessName: "fbxctest", subprocessId: fbxctestProcessId, color: color)
-}
-
-// MARK: - Print to stdout/err by applying NSLog-like format and color, subprocess info
-
-public func stdout(_ text: String, subprocessName: String? = nil, subprocessId: Int32? = nil, color: ConsoleColor = .none) {
-    formatlessStdout(formatTextForOutput(text, subprocessName: subprocessName, subprocessId: subprocessId, color: color))
-}
-
-public func log(_ text: String, subprocessName: String? = nil, subprocessId: Int32? = nil, color: ConsoleColor = .none) {
-    formatlessStderr(formatTextForOutput(text, subprocessName: subprocessName, subprocessId: subprocessId, color: color))
-}
-
-public func fatalLogAndError(_ text: String, subprocessName: String? = nil, subprocessId: Int32? = nil, color: ConsoleColor = .red) -> Never {
-    formatlessStderr(formatTextForOutput(text, subprocessName: subprocessName, subprocessId: subprocessId, color: color))
-    fatalError(text)
-}
-
-// MARK: - Print to stdout/err without applying any format
-
-public func formatlessStdout(_ text: String) {
-    var stdout = FileHandle.standardOutput
-    // swiftlint:disable:next print
-    print(text, to: &stdout)
-}
-
-public func formatlessStderr(_ text: String) {
-    var stderr = FileHandle.standardError
-    // swiftlint:disable:next print
-    print(text, to: &stderr)
-}
-
-// MARK: - Formatting stuff, private to this file
-
-extension FileHandle: TextOutputStream {
-    public func write(_ string: String) {
-        guard let data = string.data(using: .utf8) else { return }
-        self.write(data)
-    }
-}
-
-// 2018-03-29 19:05:01.994+0300
-public let logDateFormatter: DateFormatter = {
-    let logFormatter = DateFormatter()
-    logFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSSZZZ"
-    logFormatter.timeZone = TimeZone.current
-    return logFormatter
-}()
-public let logDateStampLength = logDateFormatter.string(from: Date()).count
-
-fileprivate func formatTextForOutput(_ text: String, subprocessName: String? = nil, subprocessId: Int32? = nil, color: ConsoleColor) -> String {
-    let processInfo = ProcessInfo.processInfo
-    let text = text.trimmingCharacters(in: CharacterSet.newlines)
-    let timeStamp = logDateFormatter.string(from: Date())
+public final class Logger {
+    private init() {}
     
-    let result: String
-    if let processName = subprocessName, let processId = subprocessId {
-        result = "\(timeStamp) \(processInfo.processName)[\(processInfo.processIdentifier)] \(processName)[\(processId)]: \(text)"
-    } else {
-        result = "\(timeStamp) \(processInfo.processName)[\(processInfo.processIdentifier)] \(text)"
+    public static func verboseDebug(
+        _ message: String,
+        subprocessInfo: SubprocessInfo? = nil,
+        file: StaticString = #file,
+        line: UInt = #line)
+    {
+        log(.verboseDebug, message, subprocessInfo: subprocessInfo, file: file, line: line)
     }
-    return result.with(consoleColor: color)
+    
+    public static func debug(
+        _ message: String,
+        subprocessInfo: SubprocessInfo? = nil,
+        file: StaticString = #file,
+        line: UInt = #line)
+    {
+        log(.debug, message, subprocessInfo: subprocessInfo, file: file, line: line)
+    }
+    
+    public static func info(
+        _ message: String,
+        subprocessInfo: SubprocessInfo? = nil,
+        file: StaticString = #file,
+        line: UInt = #line)
+    {
+        log(.info, message, subprocessInfo: subprocessInfo, file: file, line: line)
+    }
+    
+    public static func warning(
+        _ message: String,
+        subprocessInfo: SubprocessInfo? = nil,
+        file: StaticString = #file,
+        line: UInt = #line)
+    {
+        log(.warning, message, subprocessInfo: subprocessInfo, file: file, line: line)
+    }
+    
+    public static func error(
+        _ message: String,
+        subprocessInfo: SubprocessInfo? = nil,
+        file: StaticString = #file,
+        line: UInt = #line)
+    {
+        log(.error, message, subprocessInfo: subprocessInfo, file: file, line: line)
+    }
+    
+    public static func fatal(
+        _ message: String,
+        subprocessInfo: SubprocessInfo? = nil,
+        file: StaticString = #file,
+        line: UInt = #line) -> Never
+    {
+        log(.fatal, message, subprocessInfo: subprocessInfo, file: file, line: line)
+        fatalError(message)
+    }
+    
+    public static func always(
+        _ message: String,
+        subprocessInfo: SubprocessInfo? = nil,
+        file: StaticString = #file,
+        line: UInt = #line) 
+    {
+        log(.always, message, subprocessInfo: subprocessInfo, file: file, line: line)
+    }
+    
+    public static func log(
+        _ verbosity: Verbosity,
+        _ message: String,
+        subprocessInfo: SubprocessInfo? = nil,
+        color: ConsoleColor? = nil,
+        file: StaticString = #file,
+        line: UInt = #line)
+    {
+        let logEntry = LogEntry(
+            file: file,
+            line: line,
+            message: message,
+            color: color,
+            subprocessInfo: subprocessInfo,
+            timestamp: Date(),
+            verbosity: verbosity
+        )
+        log(logEntry)
+    }
+    
+    public static func log(_ logEntry: LogEntry) {
+        GlobalLoggerConfig.loggerHandler.handle(logEntry: logEntry)
+    }
 }

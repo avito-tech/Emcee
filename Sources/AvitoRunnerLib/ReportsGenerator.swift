@@ -56,9 +56,9 @@ public final class ReportsGenerator {
         let generator = JunitGenerator(testCases: testCases)
         do {
             try generator.writeReport(path: path)
-            log("Stored Junit report at \(path)")
+            Logger.debug("Stored Junit report at \(path)")
         } catch let error {
-            log("Failed to write out junit report. Error: \(error)", color: .red)
+            Logger.error("Failed to write out junit report: \(error)")
             throw error
         }
     }
@@ -67,9 +67,9 @@ public final class ReportsGenerator {
         let generator = ChromeTraceGenerator(testingResult: testingResult)
         do {
             try generator.writeReport(path: path)
-            log("Stored trace report at \(path)")
+            Logger.debug("Stored trace report at \(path)")
         } catch let error {
-            log("Failed to write out trace report. Error: \(error)", color: .red)
+            Logger.error("Failed to write out trace report: \(error)")
             throw error
         }
     }

@@ -4,6 +4,7 @@ import EventBus
 import Foundation
 import JSONStream
 import Logging
+import LoggingSetup
 import Models
 import SynchronousWaiter
 
@@ -22,6 +23,8 @@ public final class Plugin {
     /// - Parameters:
     ///     - eventBus:             The event bus which will receive the events from the main process
     public init(eventBus: EventBus) throws {
+        try LoggingSetup.setupLogging(stderrVerbosity: Verbosity.info)
+        
         self.eventBus = eventBus
         self.jsonStreamToEventBusAdapter = JSONStreamToEventBusAdapter(eventBus: eventBus)
         self.eventReceiver = EventReceiver(
@@ -52,13 +55,13 @@ public final class Plugin {
         let jsonReader = JSONReader(inputStream: jsonInputStream, eventStream: jsonStreamToEventBusAdapter)
         jsonReaderQueue.async {
             do {
-                log("Starting JSON stream parser")
+                Logger.verboseDebug("Starting JSON stream parser")
                 try jsonReader.start()
             } catch {
                 self.jsonStreamHasFinished = true
-                log("JSON stream error: \(error)", color: .red)
+                Logger.error("JSON stream error: \(error)")
             }
-            log("JSON stream parser finished")
+            Logger.verboseDebug("JSON stream parser finished")
         }
     }
     
@@ -76,7 +79,7 @@ public final class Plugin {
         }
         
         eventReceiver.onError = { error in
-            log("Error: \(error)")
+            Logger.error("\(error)")
             self.onEndOfData()
         }
         

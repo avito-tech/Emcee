@@ -82,7 +82,7 @@ public final class PluginManager: EventStream {
             resourceLocationResolver: resourceLocationResolver)
         
         for bundlePath in pluginBundles {
-            log("Starting plugin at '\(bundlePath)'", color: .blue)
+            Logger.debug("Starting plugin at '\(bundlePath)'")
             let pluginExecutable = bundlePath.appending(component: PluginManager.pluginExecutableName)
             let pluginIdentifier = try pluginExecutable.asString.avito_sha256Hash()
             eventDistributor.add(pluginIdentifier: pluginIdentifier)
@@ -99,7 +99,7 @@ public final class PluginManager: EventStream {
         }
         
         let pluginsConnectionTimeout = 170.0
-        log("Waiting for all plugins to connect for \(pluginsConnectionTimeout) seconds")
+        Logger.debug("Waiting for all plugins to connect for \(pluginsConnectionTimeout) seconds")
         try eventDistributor.waitForPluginsToConnect(timeout: pluginsConnectionTimeout)
     }
     
@@ -116,7 +116,7 @@ public final class PluginManager: EventStream {
     }
     
     private func killPlugins() {
-        log("Killing plugins that are still alive", color: .red)
+        Logger.debug("Killing plugins that are still alive")
         for controller in processControllers {
             controller.interruptAndForceKillIfNeeded()
         }
@@ -150,11 +150,11 @@ public final class PluginManager: EventStream {
     private func tearDown() {
         do {
             let tearDownAllowance: TimeInterval = 10.0
-            log("Waiting \(tearDownAllowance) seconds for plugins to tear down", color: .blue)
+            Logger.debug("Waiting \(tearDownAllowance) seconds for plugins to tear down")
             try SynchronousWaiter.waitWhile(timeout: tearDownAllowance) {
                 processControllers.map { $0.isProcessRunning }.contains(true)
             }
-            log("All plugins torn down successfully without force killing.", color: .boldBlue)
+            Logger.debug("All plugins torn down successfully without force killing.")
         } catch {
             killPlugins()
         }
@@ -168,7 +168,7 @@ public final class PluginManager: EventStream {
             let data = try encoder.encode(busEvent)
             sendData(data)
         } catch {
-            log("Failed to get data for \(busEvent) event: \(error)")
+            Logger.error("Failed to get data for \(busEvent) event: \(error)")
         }
     }
     

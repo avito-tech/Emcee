@@ -65,13 +65,13 @@ final class BucketConfigurationFactory {
             defaultValue: [])
             .map { path -> String in
                 let path = path.appending(pathComponent: "\(path.lastPathComponent).emceeplugin")
-                log("Found plugin candidate: \(path)")
+                Logger.verboseDebug("Found plugin candidate: \(path)")
                 return path
             }
             .filter { path -> Bool in
                 var isDir: ObjCBool = false
                 let result = FileManager.default.fileExists(atPath: path, isDirectory: &isDir)
-                log("Plugin candidate at \(path) exists: \(result), isDir: \(isDir)")
+                Logger.verboseDebug("Plugin candidate at \(path) exists: \(result), isDir: \(isDir)")
                 return result && isDir.boolValue == true
         }
         return plugins.map { PluginLocation(.localFilePath($0)) }

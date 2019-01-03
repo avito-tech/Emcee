@@ -36,7 +36,7 @@ public final class URLResource {
     
     private func provideResourceImmediately_onSyncQueue(url: URL, handler: URLResourceHandler) {
         do {
-            log("Found already cached resource for url '\(url)'")
+            Logger.verboseDebug("Found already cached resource for url '\(url)'")
             let cacheUrl = try fileCache.urlForCachedContents(ofUrl: url)
             handlerQueue.async {
                 handler.resourceUrl(contentUrl: cacheUrl, forUrl: url)
@@ -50,7 +50,7 @@ public final class URLResource {
     
     private func startLoadingUrlResource(url: URL) {
         let request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 20)
-        log("Will fetch resource '\(url)'")
+        Logger.debug("Will fetch resource '\(url)'")
         let task = createDownloadTask(request: request, url: url)
         task.resume()
     }
@@ -73,7 +73,7 @@ public final class URLResource {
                 do {
                     try fileCache.store(contentsUrl: localUrl, ofUrl: url)
                     let cachedUrl = try fileCache.urlForCachedContents(ofUrl: url)
-                    log("Stored resource for '\(url)' in file cache")
+                    Logger.debug("Stored resource for '\(url)' in file cache")
                     handlersWrapper.resourceUrl(contentUrl: cachedUrl, forUrl: url)
                 } catch {
                     handlersWrapper.failedToGetContents(forUrl: url, error: error)

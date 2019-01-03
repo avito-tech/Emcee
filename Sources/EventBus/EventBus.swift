@@ -16,14 +16,14 @@ public final class EventBus {
     }
     
     public func post(event: BusEvent) {
-        log("\(self): posting event: \(event)")
+        Logger.verboseDebug("Posting event: \(event)")
         forEachStream { stream in
             stream.process(event: event)
         }
     }
     
     public func waitForDeliveryOfAllPendingEvents() {
-        log("\(self): waiting for delivery of all pending events")
+        Logger.verboseDebug("Waiting for delivery of all pending events")
         workQueue.sync {}
     }
     

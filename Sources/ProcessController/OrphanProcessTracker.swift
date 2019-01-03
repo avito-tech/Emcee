@@ -29,7 +29,7 @@ public final class OrphanProcessTracker {
             var contents = load()
             contents.insert(Coordinates(pid: pid, name: name))
             save(contents)
-            log("Added process \(name):\(pid) to orphan tracking list")
+            Logger.debug("Added process \(name):\(pid) to orphan tracking list")
         }
     }
     
@@ -38,9 +38,9 @@ public final class OrphanProcessTracker {
             var contents = load()
             if let existingProcessData = contents.remove(Coordinates(pid: pid, name: name)) {
                 save(contents)
-                log("Removed process \(existingProcessData.name):\(existingProcessData.pid) from orphan tracking list")
+                Logger.debug("Removed process \(existingProcessData.name):\(existingProcessData.pid) from orphan tracking list")
             } else {
-                log("Cannot remove process \(name):\(pid) from orphan tracking list, it is not in the list", color: .yellow)
+                Logger.debug("Cannot remove process \(name):\(pid) from orphan tracking list, it is not in the list")
             }
         }
     }
@@ -49,7 +49,7 @@ public final class OrphanProcessTracker {
         whileLocked {
             let coordinates = load()
             for coordinate in coordinates {
-                log("Killing: \(coordinate.name):\(coordinate.pid)")
+                Logger.debug("Killing: \(coordinate.name):\(coordinate.pid)")
                 // kills the whole process group
                 kill(-coordinate.pid, SIGKILL)
             }

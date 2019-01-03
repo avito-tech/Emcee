@@ -1,4 +1,5 @@
 import Foundation
+import Logging
 import Models
 
 public struct BucketSplitInfo {
@@ -39,7 +40,7 @@ public class BucketSplitter: Splitter, CustomStringConvertible {
     }
     
     open func split(inputs: [TestEntryConfiguration], bucketSplitInfo: BucketSplitInfo) -> [[TestEntryConfiguration]] {
-        fatalError("BucketSplitter cannot be used, you must use subclass")
+        Logger.fatal("BucketSplitter cannot be used, you must use subclass")
     }
     
     open func map(chunk: [TestEntryConfiguration], bucketSplitInfo: BucketSplitInfo) -> [Bucket] {

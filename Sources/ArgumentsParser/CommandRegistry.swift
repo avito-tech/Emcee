@@ -42,9 +42,7 @@ public struct CommandRegistry {
                 let stream = BufferedOutputByteStream()
                 parser.printUsage(on: stream)
                 guard let description = stream.bytes.asString else {
-                    let message = "Unable to generate description of usage"
-                    log("Error: \(message)", color: .red)
-                    fatalError(message)
+                    Logger.fatal("Unable to generate description of usage")
                 }
                 throw CommandExecutionError.incorrectUsage(usageDescription: description)
         }

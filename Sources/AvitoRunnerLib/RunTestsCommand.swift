@@ -192,7 +192,7 @@ final class RunTestsCommand: Command {
     }
     
     private func runTests(configuration: LocalTestRunConfiguration, eventBus: EventBus, tempFolder: TempFolder) throws {
-        log("Configuration: \(configuration)", color: .blue)
+        Logger.verboseDebug("Configuration: \(configuration)")
         
         let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>(
             resourceLocationResolver: resourceLocationResolver,

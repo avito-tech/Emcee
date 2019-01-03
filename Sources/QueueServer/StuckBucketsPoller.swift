@@ -25,9 +25,9 @@ public final class StuckBucketsPoller {
         
         guard !stuckBuckets.isEmpty else { return }
         
-        log("Detected stuck buckets:")
+        Logger.warning("Detected stuck buckets:")
         for stuckBucket in stuckBuckets {
-            log("-- Bucket \(stuckBucket.bucket.bucketId) is stuck with worker '\(stuckBucket.workerId)': \(stuckBucket.reason)")
+            Logger.warning("-- Bucket \(stuckBucket.bucket.bucketId) is stuck with worker '\(stuckBucket.workerId)': \(stuckBucket.reason)")
         }
         BucketQueueStateLogger(state: statefulStuckBucketsReenqueuer.state).logQueueSize()
     }

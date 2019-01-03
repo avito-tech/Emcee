@@ -51,7 +51,7 @@ public final class OnDemandSimulatorPool<T> where T: SimulatorController {
         var pool: SimulatorPool<T>?
         try syncQueue.sync {
             if let existingPool = pools[key] {
-                log("Got SimulatorPool for key \(key)")
+                Logger.verboseDebug("Got SimulatorPool for key \(key)")
                 pool = existingPool
             } else {
                 pool = try SimulatorPool(
@@ -60,7 +60,7 @@ public final class OnDemandSimulatorPool<T> where T: SimulatorController {
                     fbsimctl: resourceLocationResolver.resolvable(withRepresentable: key.fbsimctl),
                     tempFolder: tempFolder)
                 pools[key] = pool
-                log("Created SimulatorPool for key \(key)")
+                Logger.verboseDebug("Created SimulatorPool for key \(key)")
             }
         }
         return pool!

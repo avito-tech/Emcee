@@ -16,7 +16,7 @@ public extension HttpResponse {
                 try $0.write(data)
             }
         } catch {
-            log("Failed to generate JSON response: \(error). Will return server error response.")
+            Logger.error("Failed to generate JSON response: \(error). Will return server error response.")
             return .internalServerError
         }
     }

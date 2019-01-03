@@ -127,8 +127,8 @@ public final class SynchronousQueueClient: QueueClientDelegate {
             do {
                 return try work()
             } catch {
-                log("Attempted to run \(retryIndex) of \(times), got an error: \(error)")
-                sleep(1)
+                Logger.error("Attempted to run \(retryIndex) of \(times), got an error: \(error)")
+                SynchronousWaiter.wait(timeout: 1.0)
             }
         }
         return try work()

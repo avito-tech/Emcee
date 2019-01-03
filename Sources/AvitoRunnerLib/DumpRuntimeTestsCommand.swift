@@ -58,6 +58,6 @@ final class DumpRuntimeTestsCommand: Command {
             .queryRuntime()
         let encodedTests = try encoder.encode(runtimeTests.availableRuntimeTests)
         try encodedTests.write(to: URL(fileURLWithPath: output), options: [.atomic])
-        log("Wrote run time tests dump to file \(output)")
+        Logger.debug("Wrote run time tests dump to file \(output)")
     }
 }

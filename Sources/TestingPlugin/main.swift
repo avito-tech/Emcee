@@ -1,6 +1,7 @@
 import EventBus
 import Foundation
 import Logging
+import LoggingSetup
 import Models
 import Plugin
 
@@ -15,7 +16,7 @@ class Listener: DefaultBusListener {
     }
     
     override func process(event: BusEvent) {
-        log("Received bus event: \(event)")
+        Logger.verboseDebug("Received bus event: \(event)")
         super.process(event: event)
     }
     
@@ -29,22 +30,23 @@ class Listener: DefaultBusListener {
     
     private func write() {
         do {
-            log("Writing output to: \(outputPath)")
+            Logger.debug("Writing output to: \(outputPath)")
             let encoder = JSONEncoder()
             let data = try encoder.encode(allEvents)
             try data.write(to: URL(fileURLWithPath: outputPath), options: .atomicWrite)
         } catch {
-            log("Error: \(error)")
+            Logger.error("Error: \(error)")
         }
     }
 }
 
 func main() throws -> Int32 {
+    try LoggingSetup.setupLogging(stderrVerbosity: Verbosity.info)
+    
     guard let outputPath = ProcessInfo.processInfo.environment["AVITO_TEST_PLUGIN_OUTPUT"] else {
-        log("TestingPlugin requires you to specify $AVITO_TEST_PLUGIN_OUTPUT")
-        return 1
+        Logger.fatal("TestingPlugin requires you to specify $AVITO_TEST_PLUGIN_OUTPUT")
     }
-    log("Started plugin")
+    Logger.debug("Started plugin")
     
     let eventBus = EventBus()
     let listener = Listener(outputPath: outputPath)

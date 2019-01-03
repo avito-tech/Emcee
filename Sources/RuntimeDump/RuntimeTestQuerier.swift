@@ -37,7 +37,7 @@ public final class RuntimeTestQuerier {
     
     private func availableTestsInRuntime() throws -> [RuntimeTestEntry] {
         let runtimeEntriesJSONPath = tempFolder.pathWith(components: [RuntimeTestQuerier.runtimeTestsJsonFilename])
-        log("Will dump runtime tests into file: \(runtimeEntriesJSONPath)", color: .boldBlue)
+        Logger.debug("Will dump runtime tests into file: \(runtimeEntriesJSONPath)")
         
         let runnerConfiguration = RunnerConfiguration(
             testType: .logicTest,
@@ -66,7 +66,7 @@ public final class RuntimeTestQuerier {
         }
         
         let allTests = foundTestEntries.flatMap { $0.testMethods }
-        log("Runtime dump contains \(foundTestEntries.count) XCTestCases, \(allTests.count) tests")
+        Logger.info("Runtime dump contains \(foundTestEntries.count) XCTestCases, \(allTests.count) tests")
         
         return foundTestEntries
     }

@@ -21,13 +21,13 @@ public final class BlockingURLResourceHandler: URLResourceHandler {
     }
     
     public func resourceUrl(contentUrl: URL, forUrl url: URL) {
-        log("Obtained resource for '\(url)' at local url: '\(contentUrl)'")
+        Logger.verboseDebug("Obtained resource for '\(url)' at local url: '\(contentUrl)'")
         result = Result.success(contentUrl)
         semaphore.signal()
     }
     
     public func failedToGetContents(forUrl url: URL, error: Error) {
-        log("Failed to fetch resource for '\(url)': \(error)")
+        Logger.error("Failed to fetch resource for '\(url)': \(error)")
         result = Result.failure(HandlerError.failure(error))
         semaphore.signal()
     }

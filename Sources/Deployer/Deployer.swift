@@ -64,12 +64,12 @@ open class Deployer {
             group.enter()
             queue.async {
                 do {
-                    log("Preparing deployable '\(deployable.name)'...")
+                    Logger.debug("Preparing deployable '\(deployable.name)'...")
                     let url = try packager.preparePackage(deployable: deployable, packageFolder: self.temporaryDirectory)
-                    log("'\(deployable.name)' package path: \(url)")
+                    Logger.debug("'\(deployable.name)' package path: \(url)")
                     syncQueue.sync { urlToDeployable[url] = deployable }
                 } catch {
-                    log("Failed to prepare deployable \(deployable.name): \(error)")
+                    Logger.error("Failed to prepare deployable \(deployable.name): \(error)")
                     syncQueue.sync { deployablesFailedToPrepare.append(deployable) }
                 }
                 group.leave()
@@ -88,8 +88,6 @@ open class Deployer {
      * @param   urlToDeployable   A map from local URL of package (zip) to a deployable item it represents.
      */
     open func deployToDestinations(urlToDeployable: [URL: DeployableItem]) throws {
-        let errorMessage = "Deployer.deployToDestinations() must be overrided in subclass"
-        log(errorMessage, color: .red)
-        fatalError(errorMessage)
+        Logger.fatal("Deployer.deployToDestinations() must be overrided in subclass")
     }
 }

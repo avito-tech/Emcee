@@ -11,13 +11,13 @@ final class TestEventsListener {
     
     func testFinished(_ event: TestFinishedEvent) {
         guard let pair = pairsController.popLast() else {
-            log("Unable to find matching start event for \(event)", color: .red)
-            log("The result for test \(event.testName) (\(event.result) will be lost.")
+            Logger.warning("Unable to find matching start event for \(event)")
+            Logger.warning("The result for test \(event.testName) (\(event.result) will be lost.")
             return
         }
         guard pair.startEvent.test == event.test else {
-            log("Last TestStartedEvent \(pair.startEvent) does not match just received finished event \(event)", color: .red)
-            log("The result for test \(event.testName) (\(event.result) will be lost.")
+            Logger.warning("Last TestStartedEvent \(pair.startEvent) does not match just received finished event \(event)")
+            Logger.warning("The result for test \(event.testName) (\(event.result) will be lost.")
             return
         }
         pairsController.append(TestEventPair(startEvent: pair.startEvent, finishEvent: event))
@@ -25,7 +25,7 @@ final class TestEventsListener {
     
     func testPlanFinished(_ event: TestPlanFinishedEvent) {
         guard let pair = self.lastStartedButNotFinishedTestEventPair else {
-            log("Test plan finished, but there is no hang test found. All started tests have corresponding finished events.")
+            Logger.debug("Test plan finished, and there is no hang test found. All started tests have corresponding finished events.")
             return
         }
         reportTestPlanFinishedWithHangStartedTest(
@@ -36,7 +36,7 @@ final class TestEventsListener {
     
     func testPlanError(_ event: TestPlanErrorEvent) {
         guard let pair = self.lastStartedButNotFinishedTestEventPair else {
-            log("Test plan errored, but there is no hang test found. All started tests have corresponding finished events.")
+            Logger.warning("Test plan errored, but there is no hang test found. All started tests have corresponding finished events.")
             return
         }
         reportTestPlanFinishedWithHangStartedTest(
@@ -138,7 +138,7 @@ final class TestEventsListener {
             output: "",
             logs: [],
             timestamp: testPlanEventTimestamp)
-        log("Test plan finished, but hang test found: \(startEvent.description). Adding a finished event for it: \(finishEvent.description)")
+        Logger.warning("Test plan finished, but hang test found: \(startEvent.description). Adding a finished event for it: \(finishEvent.description)")
         testFinished(finishEvent)
     }
 }

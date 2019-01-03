@@ -75,7 +75,7 @@ public final class DistRunDeployer {
             do {
                 try deployer.deploy()
             } catch {
-                log("Failed to deploy launchd plist: \(error). This error will be ignored.", color: .yellow)
+                Logger.warning("Failed to deploy launchd plist: \(error). This error will be ignored.")
             }
         }
     }

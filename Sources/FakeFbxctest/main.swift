@@ -1,6 +1,5 @@
 import Extensions
 import Foundation
-import Logging
 import TestingFakeFbxctest
 
 func fakeFbxctestMain() -> Int32 {
@@ -14,9 +13,10 @@ func fakeFbxctestMain() -> Int32 {
     guard let jsonFile = jsonOutputFiles?.first else {
         return 0
     }
-    log("Using json: \(jsonFile)")
+    var stdout = FileHandle.standardOutput
     if let contents = try? String(contentsOf: URL(fileURLWithPath: jsonFile)) {
-        formatlessStdout(contents)
+        // swiftlint:disable:next print
+        print(contents, to: &stdout)
     }
     try? FileManager.default.removeItem(atPath: jsonFile)
     return 0

@@ -11,18 +11,16 @@ import Logging
 public final class LocalHostDeterminer {
     public static let currentHostAddress: String = {
         if let hostname = hostnameFromGetHostname(), !hostname.isEmpty {
-            log("Obtained host name using gethostname: '\(hostname)'")
+            Logger.debug("Obtained host name using gethostname: '\(hostname)'")
             return hostname
         }
         
         if let hostname = hostnameFromHostCurrent(), !hostname.isEmpty {
-            log("Obtained host name using Host APIs: '\(hostname)'")
+            Logger.warning("Obtained host name using Host APIs: '\(hostname)'")
             return hostname
         }
         
-        let error = "Unable to obtain address for current host"
-        log(error, color: .red)
-        fatalError(error)
+        Logger.fatal("Unable to obtain address for current host")
     }()
     
     private static func hostnameFromHostCurrent() -> String? {

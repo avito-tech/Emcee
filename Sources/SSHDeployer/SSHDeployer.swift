@@ -38,7 +38,7 @@ public final class SSHDeployer: Deployer {
                     try self.deploy(destination: destination, urlToDeployable: urlToDeployable)
                 } catch let error {
                     syncQueue.sync { destinationsFailedToDeploy.append(destination) }
-                    SSHDeployer.log(destination, "Failed to deploy to this destination with error: \(error)", color: .red)
+                    SSHDeployer.log(destination, "Failed to deploy to this destination with error: \(error)")
                 }
             }
         }
@@ -51,8 +51,8 @@ public final class SSHDeployer: Deployer {
             for destination in destinationsFailedToDeploy {
                 SSHDeployer.log(
                     destination,
-                    "Failed to deploy to this destination. Will skip this error as some deployments were successful.",
-                    color: .yellow)
+                    "Failed to deploy to this destination. Will skip this error as some deployments were successful."
+                )
             }
         }
     }
@@ -155,7 +155,7 @@ public final class SSHDeployer: Deployer {
     
     // MARK: - Private - Logging
 
-    private static func log(_ destination: DeploymentDestination, _ text: String, color: ConsoleColor = .none) {
-        Logging.log("\(destination.host): \(text)", color: color)
+    private static func log(_ destination: DeploymentDestination, _ text: String) {
+        Logger.debug("\(destination.host): \(text)")
     }
 }

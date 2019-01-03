@@ -30,7 +30,7 @@ public final class ParentProcessTracker {
     }
     
     private func startTracking() {
-        log("Will track parent process aliveness: \(parentPid)")
+        Logger.debug("Will track parent process aliveness: \(parentPid)")
         self.timer = DispatchBasedTimer.startedTimer(repeating: .seconds(1), leeway: .seconds(1)) {
             if !self.parentIsAlive {
                 self.whenParentDies()

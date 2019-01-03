@@ -34,7 +34,7 @@ public final class QueueClient {
     }
     
     public func close() {
-        log("Invalidating queue client URL session")
+        Logger.verboseDebug("Invalidating queue client URL session")
         urlSession.finishTasksAndInvalidate()
         isClosed = true
     }
@@ -115,9 +115,9 @@ public final class QueueClient {
         
         let jsonData = try encoder.encode(payload)
         if let stringJson = String(data: jsonData, encoding: .utf8) {
-            log("Sending request to \(restMethod.withPrependingSlash): \(stringJson)")
+            Logger.verboseDebug("Sending request to \(restMethod.withPrependingSlash): \(stringJson)")
         } else {
-            log("Sending request to \(restMethod.withPrependingSlash): unable to get string for json data \(jsonData.count) bytes")
+            Logger.verboseDebug("Sending request to \(restMethod.withPrependingSlash): unable to get string for json data \(jsonData.count) bytes")
         }
         var urlRequest = URLRequest(url: url(restMethod), cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: .infinity)
         urlRequest.httpMethod = "POST"
@@ -149,9 +149,7 @@ public final class QueueClient {
         components.path = RESTMethod.getBucket.withPrependingSlash
         components.path = method.withPrependingSlash
         guard let url = components.url else {
-            let error = "Unable to convert components to url: \(components)"
-            log(error, color: .red)
-            fatalError(error)
+            Logger.fatal("Unable to convert components to url: \(components)")
         }
         return url
     }

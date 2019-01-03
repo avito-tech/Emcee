@@ -93,14 +93,14 @@ public final class Scheduler {
                 return
             }
             guard self.gatheredErrors.isEmpty else {
-                log("Error: Some errors occured, will not fetch and run more buckets. Errors: \(self.gatheredErrors)", color: .red)
+                Logger.error("Some errors occured, will not fetch and run more buckets. Errors: \(self.gatheredErrors)")
                 return
             }
             guard let bucket = self.configuration.schedulerDataSource.nextBucket() else {
-                log("Data Source returned no bucket")
+                Logger.debug("Data Source returned no bucket")
                 return
             }
-            log("Data Source returned bucket: \(bucket)")
+            Logger.debug("Data Source returned bucket: \(bucket)")
             self.runTestsFromFetchedBucket(bucket)
         }
     }
@@ -124,7 +124,7 @@ public final class Scheduler {
             acquireResources.addCascadeCancellableDependency(runTestsInBucketAfterAcquiringResources)
             queue.addOperation(runTestsInBucketAfterAcquiringResources)
         } catch {
-            log("Failed to run tests from bucket \(bucket): \(error)")
+            Logger.error("Failed to run tests from bucket \(bucket): \(error)")
         }
     }
     
@@ -135,7 +135,7 @@ public final class Scheduler {
     }
     
     private func didFailRunningTests(bucket: SchedulerBucket, error: Error) {
-        log("Error running tests from fetched bucket '\(bucket)' with error: \(error)")
+        Logger.error("Error running tests from fetched bucket '\(bucket)' with error: \(error)")
         syncQueue.sync {
             gatheredErrors.append(error)
         }
@@ -150,7 +150,7 @@ public final class Scheduler {
         let firstRun = try runBucketOnce(bucket: bucket, testsToRun: bucket.testEntries)
         
         guard configuration.testRunExecutionBehavior.numberOfRetries > 0 else {
-            log("numberOfRetries == 0, will not retry failed tests.")
+            Logger.debug("numberOfRetries == 0, will not retry failed tests.")
             return firstRun
         }
         
@@ -159,11 +159,11 @@ public final class Scheduler {
         for retryNumber in 0 ..< configuration.testRunExecutionBehavior.numberOfRetries {
             let failedTestEntriesAfterLastRun = lastRunResults.failedTests.map { $0.testEntry }
             if failedTestEntriesAfterLastRun.isEmpty {
-                log("No failed tests after last retry, so nothing to run.")
+                Logger.debug("No failed tests after last retry, so nothing to run.")
                 break
             }
-            log("After last run \(failedTestEntriesAfterLastRun.count) tests have failed: \(failedTestEntriesAfterLastRun).")
-            log("Retrying them, attempt #\(retryNumber + 1) of maximum \(configuration.testRunExecutionBehavior.numberOfRetries) attempts")
+            Logger.debug("After last run \(failedTestEntriesAfterLastRun.count) tests have failed: \(failedTestEntriesAfterLastRun).")
+            Logger.debug("Retrying them, attempt #\(retryNumber + 1) of maximum \(configuration.testRunExecutionBehavior.numberOfRetries) attempts")
             lastRunResults = try runBucketOnce(bucket: bucket, testsToRun: failedTestEntriesAfterLastRun)
             results.append(lastRunResults)
         }
@@ -196,7 +196,7 @@ public final class Scheduler {
         do {
             simulator = try simulatorController.bootedSimulator()
         } catch {
-            log("Failed to get booted simulator: \(error)")
+            Logger.error("Failed to get booted simulator: \(error)")
             try simulatorController.deleteSimulator()
             throw error
         }
@@ -218,10 +218,12 @@ public final class Scheduler {
     private func combine(runResults: [TestingResult]) throws -> TestingResult {
         // All successful tests should be merged into a single array.
         // Last run's `failedTests` contains all tests that failed after all attempts to rerun failed tests.
-        log("Combining the following results from \(runResults.count) runs:")
-        runResults.forEach { log("Result: \($0)") }
+        Logger.verboseDebug("Combining the following results from \(runResults.count) runs:")
+        runResults.forEach {
+            Logger.verboseDebug("Result: \($0)")
+        }
         let result = try TestingResult.byMerging(testingResults: runResults)
-        log("Combined result: \(result)")
+        Logger.verboseDebug("Combined result: \(result)")
         return result
     }
 }

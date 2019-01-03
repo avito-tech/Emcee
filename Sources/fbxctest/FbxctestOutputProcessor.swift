@@ -12,6 +12,7 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
     private let singleTestMaximumDuration: TimeInterval
     private var testHangTrackingTimer: DispatchBasedTimer?
     private let newLineByte = UInt8(10)
+    private static let logDateStampLength = NSLogLikeLogEntryTextFormatter.logDateFormatter.string(from: Date()).count
 
     public init(
         subprocess: Subprocess,
@@ -48,11 +49,11 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
 
     private func startMonitoringForHangs() {
         guard singleTestMaximumDuration > 0 else {
-            log_fbxctest("Can't track hangs as singleTestMaximumDuration must be positive, but it is \(singleTestMaximumDuration)", processId, color: .red)
+            log_fbxctest("Can't track hangs as singleTestMaximumDuration must be positive, but it is \(singleTestMaximumDuration)", processId)
             return
         }
         
-        log_fbxctest("Will track long running tests with timeout \(singleTestMaximumDuration)", processId, color: .boldBlue)
+        log_fbxctest("Will track long running tests with timeout \(singleTestMaximumDuration)", processId)
         
         testHangTrackingTimer = DispatchBasedTimer.startedTimer(repeating: .seconds(1), leeway: .seconds(1)) { [weak self] in
             guard let strongSelf = self else { return }
@@ -65,7 +66,7 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
     
     private func didDetectLongRunningTest() {
         if let testStartedEvent = eventsListener.lastStartedButNotFinishedTestEventPair?.startEvent {
-            log_fbxctest("Detected a long running test: \(testStartedEvent.testName)", processId, color: .boldRed)
+            log_fbxctest("Detected a long running test: \(testStartedEvent.testName)", processId)
             eventsListener.longRunningTest()
         }
         processController.interruptAndForceKillIfNeeded()
@@ -115,13 +116,13 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
                 .withProcessId(newProcessId: processId)
                 .withSimulatorId(newSimulatorId: simulatorId) {
                 eventsListener.testStarted(result)
-                stdout_fbxctest(result.description, processId, color: .green)
+                log_fbxctest(result.description, processId)
                 return true
             }
         case .testFinished:
             if let result = try? decoder.decode(TestFinishedEvent.self, from: data) {
                 eventsListener.testFinished(result)
-                stdout_fbxctest(result.description, processId, color: .green)
+                log_fbxctest(result.description, processId)
                 return true
             }
         case .testSuiteFinished:
@@ -130,60 +131,60 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
             }
         case .testPlanStarted:
             if let result = try? decoder.decode(TestPlanStartedEvent.self, from: data) {
-                stdout_fbxctest(result.description, processId, color: .green)
+                log_fbxctest(result.description, processId)
                 return true
             }
         case .testPlanFinished:
             if let result = try? decoder.decode(TestPlanFinishedEvent.self, from: data) {
                 eventsListener.testPlanFinished(result)
-                stdout_fbxctest(result.description, processId, color: (result.succeeded ? .green : .red))
+                log_fbxctest(result.description, processId)
                 return true
             }
         case .testPlanError:
             if let result = try? decoder.decode(TestPlanErrorEvent.self, from: data) {
                 eventsListener.testPlanError(result)
-                stdout_fbxctest(result.description, processId, color: .red)
+                log_fbxctest(result.description, processId)
                 return true
             }
         case .testOutput:
             if let result = try? decoder.decode(TestOutputEvent.self, from: data) {
-                stdout_fbxctest(result.description, processId, color: .red)
+                log_fbxctest(result.description, processId)
                 return true
             }
         case .testIsWaitingForDebugger:
             if let result = try? decoder.decode(TestIsWaitingForDebuggerEvent.self, from: data) {
-                stdout_fbxctest(result.description, processId, color: .red)
+                log_fbxctest(result.description, processId)
                 return true
             }
         case .testDetectedDebugger:
             if let result = try? decoder.decode(TestDetectedDebuggerEvent.self, from: data) {
-                stdout_fbxctest(result.description, processId, color: .red)
+                log_fbxctest(result.description, processId)
                 return true
             }
         case .videoRecordingFinished:
             if let result = try? decoder.decode(VideoRecordingFinishedEvent.self, from: data) {
-                stdout_fbxctest(result.description, processId, color: .red)
+                log_fbxctest(result.description, processId)
                 return true
             }
         case .osLogSaved:
             if let result = try? decoder.decode(OSLogSavedEvent.self, from: data) {
-                stdout_fbxctest(result.description, processId, color: .red)
+                log_fbxctest(result.description, processId)
                 return true
             }
         case .runnerAppLogSaved:
             if let result = try? decoder.decode(RunnerAppLogSavedEvent.self, from: data) {
-                stdout_fbxctest(result.description, processId, color: .red)
+                log_fbxctest(result.description, processId)
                 return true
             }
         case .didCopyTestArtifact:
             if let result = try? decoder.decode(DidCopyTestArtifactEvent.self, from: data) {
-                stdout_fbxctest(result.description, processId, color: .red)
+                log_fbxctest(result.description, processId)
                 return true
             }
         }
         
         if let event = String(data: data, encoding: .utf8) {
-            stdout_fbxctest("WARNING: unprocessed event: " + event, processId, color: .boldYellow)
+            log_fbxctest("WARNING: unprocessed event: " + event, processId)
         }
         return true
     }
@@ -202,9 +203,9 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
         
         // extract the date stamp from log event
         let contents: String
-        let prefix = String(stringEvent.prefix(logDateStampLength))
-        if logDateFormatter.date(from: prefix) != nil {
-            contents = String(stringEvent.dropFirst(logDateStampLength))
+        let prefix = String(stringEvent.prefix(FbxctestOutputProcessor.logDateStampLength))
+        if NSLogLikeLogEntryTextFormatter.logDateFormatter.date(from: prefix) != nil {
+            contents = String(stringEvent.dropFirst(FbxctestOutputProcessor.logDateStampLength))
         } else {
             contents = stringEvent
         }
@@ -239,7 +240,17 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
             errorText.hasPrefix("A shim directory was expected at") {
             // skip
         } else {
-            log_fbxctest(contents, processId, color: .red)
+            log_fbxctest(contents, processId)
         }
     }
+}
+
+public func log_fbxctest(_ text: String, _ fbxctestProcessId: Int32) {
+    Logger.verboseDebug(
+        text,
+        subprocessInfo: SubprocessInfo(
+            subprocessId: fbxctestProcessId,
+            subprocessName: "fbxctest"
+        )
+    )
 }
