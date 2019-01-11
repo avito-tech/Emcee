@@ -2,7 +2,6 @@ import BalancingBucketQueue
 import BucketQueue
 import EventBus
 import Extensions
-import FileHasher
 import Foundation
 import Logging
 import Models
@@ -12,13 +11,13 @@ import ResultsCollector
 import ScheduleStrategy
 import Swifter
 import SynchronousWaiter
+import Version
 import WorkerAlivenessTracker
 
 public final class QueueServer {
     private let balancingBucketQueue: BalancingBucketQueue
     private let bucketProvider: BucketProviderEndpoint
     private let bucketResultRegistrar: BucketResultRegistrar
-    private let hasher = FileHasher(fileUrl: URL(fileURLWithPath: ProcessInfo.processInfo.executablePath))
     private let newWorkerRegistrationTimeAllowance: TimeInterval
     private let queueExhaustTimeAllowance: TimeInterval
     private let queueServerVersionHandler: QueueServerVersionEndpoint
@@ -42,7 +41,8 @@ public final class QueueServer {
         localPortDeterminer: LocalPortDeterminer,
         nothingToDequeueBehavior: NothingToDequeueBehavior,
         bucketSplitter: BucketSplitter,
-        bucketSplitInfo: BucketSplitInfo)
+        bucketSplitInfo: BucketSplitInfo,
+        queueVersionProvider: VersionProvider)
     {
         self.workerAlivenessTracker = WorkerAlivenessTracker(
             reportAliveInterval: reportAliveInterval,
@@ -93,9 +93,7 @@ public final class QueueServer {
         )
         self.newWorkerRegistrationTimeAllowance = newWorkerRegistrationTimeAllowance
         self.queueExhaustTimeAllowance = queueExhaustTimeAllowance
-        self.queueServerVersionHandler = QueueServerVersionEndpoint(
-            versionProvider: hasher.hash
-        )
+        self.queueServerVersionHandler = QueueServerVersionEndpoint(versionProvider: queueVersionProvider)
     }
     
     public func start() throws -> Int {
@@ -132,9 +130,5 @@ public final class QueueServer {
         }
         Logger.debug("Bucket queue has depleted")
         return resultsCollector.collectedResults
-    }
-    
-    public func version() throws -> String {
-        return try hasher.hash()
     }
 }

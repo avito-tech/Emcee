@@ -9,11 +9,13 @@ import QueueServer
 import ResourceLocationResolver
 import ScheduleStrategy
 import TempFolder
+import Version
 
 public final class DistRunner {    
     private let distRunConfiguration: DistRunConfiguration
     private let eventBus: EventBus
     private let localPortDeterminer: LocalPortDeterminer
+    private let localQueueVersionProvider: VersionProvider
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TempFolder
     
@@ -21,12 +23,14 @@ public final class DistRunner {
         distRunConfiguration: DistRunConfiguration,
         eventBus: EventBus,
         localPortDeterminer: LocalPortDeterminer,
+        localQueueVersionProvider: VersionProvider,
         resourceLocationResolver: ResourceLocationResolver,
         tempFolder: TempFolder)
     {
         self.distRunConfiguration = distRunConfiguration
         self.eventBus = eventBus
         self.localPortDeterminer = localPortDeterminer
+        self.localQueueVersionProvider = localQueueVersionProvider
         self.resourceLocationResolver = resourceLocationResolver
         self.tempFolder = tempFolder
     }
@@ -45,7 +49,8 @@ public final class DistRunner {
                 numberOfWorkers: UInt(distRunConfiguration.destinations.count),
                 toolResources: distRunConfiguration.auxiliaryResources.toolResources,
                 simulatorSettings: distRunConfiguration.simulatorSettings
-            )
+            ),
+            queueVersionProvider: localQueueVersionProvider
         )
         queueServer.schedule(
             testEntryConfigurations: distRunConfiguration.testEntryConfigurations,

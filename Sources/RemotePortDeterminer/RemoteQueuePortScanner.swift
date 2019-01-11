@@ -1,19 +1,21 @@
 import Foundation
 import Logging
+import QueueClient
+import Version
 
-public final class RemotePortDeterminer {
+public final class RemoteQueuePortScanner: RemotePortDeterminer {
     private let host: String
     private let portRange: ClosedRange<Int>
     private let workerId: String
-
+    
     public init(host: String, portRange: ClosedRange<Int>, workerId: String) {
         self.host = host
         self.portRange = portRange
         self.workerId = workerId
     }
     
-    public func queryPortAndQueueServerVersion() -> [Int: String] {
-        return portRange.reduce([Int: String]()) { (result, port) -> [Int: String] in
+    public func queryPortAndQueueServerVersion() -> [Int: Version] {
+        return portRange.reduce([Int: Version]()) { (result, port) -> [Int: Version] in
             var result = result
             let client = SynchronousQueueClient(serverAddress: host, serverPort: port, workerId: workerId)
             Logger.debug("Checking availability of \(host):\(port)")

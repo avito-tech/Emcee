@@ -85,10 +85,12 @@ let package = Package(
                 "PluginManager",
                 "PortDeterminer",
                 "ProcessController",
+                "RemoteQueue",
                 "ResourceLocationResolver",
                 "SSHDeployer",
                 "ScheduleStrategy",
                 "Scheduler",
+                "Version",
                 "Utility"
             ]
         ),
@@ -228,7 +230,8 @@ let package = Package(
                 "QueueServer",
                 "ResourceLocationResolver",
                 "ScheduleStrategy",
-                "TempFolder"
+                "TempFolder",
+                "Version"
             ]
         ),
         .testTarget(
@@ -538,6 +541,7 @@ let package = Package(
                 "Models",
                 "RESTMethods",
                 "SynchronousWaiter",
+                "Version",
                 "Utility"
             ]
         ),
@@ -574,6 +578,7 @@ let package = Package(
                 "Swifter",
                 "SynchronousWaiter",
                 "Timer",
+                "Version",
                 "WorkerAlivenessTracker"
             ]
         ),
@@ -595,8 +600,47 @@ let package = Package(
                 "ResultsCollector",
                 "ScheduleStrategy",
                 "TempFolder",
+                "VersionTestHelpers",
                 "WorkerAlivenessTracker",
                 "WorkerAlivenessTrackerTestHelpers"
+            ]
+        ),
+        .target(
+            // MARK: RemotePortDeterminer
+            name: "RemotePortDeterminer",
+            dependencies: [
+                "QueueClient",
+                "Version"
+            ]
+        ),
+        .target(
+            // MARK: RemotePortDeterminerTestHelpers
+            name: "RemotePortDeterminerTestHelpers",
+            dependencies: [
+                "RemotePortDeterminer"
+            ]
+        ),
+        .testTarget(
+            // MARK: RemotePortDeterminerTests
+            name: "RemotePortDeterminerTests",
+            dependencies: [
+                "RemotePortDeterminer"
+            ]
+        ),
+        .target(
+            // MARK: RemoteQueue
+            name: "RemoteQueue",
+            dependencies: [
+                "RemotePortDeterminer",
+                "Version"
+            ]
+        ),
+        .testTarget(
+            // MARK: RemoteQueueTests
+            name: "RemoteQueueTests",
+            dependencies: [
+                "RemotePortDeterminerTestHelpers",
+                "RemoteQueue"
             ]
         ),
         .target(
@@ -636,10 +680,11 @@ let package = Package(
             ]
         ),
         .target(
-            // MARK: RESTMethodsTests
+            // MARK: RESTMethods
             name: "RESTMethods",
             dependencies: [
-                "Models"
+                "Models",
+                "Version"
             ]
         ),
         .target(
@@ -836,6 +881,30 @@ let package = Package(
                 "FileCache",
                 "Swifter",
                 "URLResource",
+                "Utility"
+            ]
+        ),
+        .target(
+            // MARK: Version
+            name: "Version",
+            dependencies: [
+                "FileHasher"
+            ]
+        ),
+        .target(
+            // MARK: VersionTestHelpers
+            name: "VersionTestHelpers",
+            dependencies: [
+                "Version"
+            ]
+        ),
+        .testTarget(
+            // MARK: VersionTests
+            name: "VersionTests",
+            dependencies: [
+                "Extensions",
+                "FileHasher",
+                "Version",
                 "Utility"
             ]
         ),

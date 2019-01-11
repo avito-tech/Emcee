@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import Version
 
 public protocol QueueClientDelegate: class {
     func queueClient(_ sender: QueueClient, didFailWithError error: QueueClientError)
@@ -10,6 +11,6 @@ public protocol QueueClientDelegate: class {
     func queueClient(_ sender: QueueClient, didFetchBucket bucket: Bucket)
     func queueClient(_ sender: QueueClient, serverDidAcceptBucketResult bucketId: String)
     func queueClientWorkerHasBeenIndicatedAsAlive(_ sender: QueueClient)
-    func queueClient(_ sender: QueueClient, didFetchQueueServerVersion version: String)
+    func queueClient(_ sender: QueueClient, didFetchQueueServerVersion version: Version)
     func queueClientDidScheduleTests(_ sender: QueueClient, requestId: String)
 }

@@ -1,6 +1,7 @@
 import Foundation
 import Models
 import QueueClient
+import Version
 
 class FakeQueueClientDelegate: QueueClientDelegate {
     
@@ -13,7 +14,7 @@ class FakeQueueClientDelegate: QueueClientDelegate {
         case acceptedBucketResult(String)
         case workerHasBeenBlocked
         case alivenessAccepted
-        case queueServerVersion(String)
+        case queueServerVersion(Version)
         case didScheduleTests(String)
     }
     
@@ -47,7 +48,7 @@ class FakeQueueClientDelegate: QueueClientDelegate {
         responses.append(ServerResponse.acceptedBucketResult(bucketId))
     }
     
-    func queueClient(_ sender: QueueClient, didFetchQueueServerVersion version: String) {
+    func queueClient(_ sender: QueueClient, didFetchQueueServerVersion version: Version) {
         responses.append(ServerResponse.queueServerVersion(version))
     }
     

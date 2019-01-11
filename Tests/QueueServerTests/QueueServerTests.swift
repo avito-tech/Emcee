@@ -7,6 +7,7 @@ import PortDeterminer
 import QueueClient
 import QueueServer
 import ScheduleStrategy
+import VersionTestHelpers
 import XCTest
 
 final class QueueServerTests: XCTestCase {
@@ -18,6 +19,7 @@ final class QueueServerTests: XCTestCase {
     let dequeueBehavior = NothingToDequeueBehaviorWaitForAllQueuesToDeplete(checkAfter: 42)
     let bucketSplitter = ScheduleStrategyType.individual.bucketSplitter()
     let bucketSplitInfo = BucketSplitInfoFixtures.bucketSplitInfoFixture()
+    let queueVersionProvider = VersionProviderFixture().buildVersionProvider()
     
     func test__queue_waits_for_new_workers_and_fails_if_they_not_appear_in_time() {
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
@@ -32,7 +34,8 @@ final class QueueServerTests: XCTestCase {
             localPortDeterminer: localPortDeterminer,
             nothingToDequeueBehavior: dequeueBehavior,
             bucketSplitter: bucketSplitter,
-            bucketSplitInfo: bucketSplitInfo
+            bucketSplitInfo: bucketSplitInfo,
+            queueVersionProvider: queueVersionProvider
         )
         XCTAssertThrowsError(try server.waitForJobToFinish(jobId: jobId))
     }
@@ -54,7 +57,8 @@ final class QueueServerTests: XCTestCase {
             localPortDeterminer: localPortDeterminer,
             nothingToDequeueBehavior: dequeueBehavior,
             bucketSplitter: bucketSplitter,
-            bucketSplitInfo: bucketSplitInfo
+            bucketSplitInfo: bucketSplitInfo,
+            queueVersionProvider: queueVersionProvider
         )
         server.schedule(testEntryConfigurations: testEntryConfiguration, jobId: jobId)
         
@@ -89,7 +93,8 @@ final class QueueServerTests: XCTestCase {
             localPortDeterminer: localPortDeterminer,
             nothingToDequeueBehavior: dequeueBehavior,
             bucketSplitter: bucketSplitter,
-            bucketSplitInfo: bucketSplitInfo
+            bucketSplitInfo: bucketSplitInfo,
+            queueVersionProvider: queueVersionProvider
         )
         server.schedule(testEntryConfigurations: testEntryConfigurations, jobId: jobId)
         

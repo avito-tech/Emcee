@@ -1,8 +1,9 @@
 import Foundation
 import Models
+import Version
 
 public enum QueueVersionResponse: Codable, Equatable {
-    case queueVersion(String)
+    case queueVersion(Version)
     
     enum CodingKeys: CodingKey {
         case responseType
@@ -27,7 +28,7 @@ public enum QueueVersionResponse: Codable, Equatable {
         let responseType = try container.decode(CaseId.self, forKey: .responseType)
         switch responseType {
         case .queueVersion:
-            self = .queueVersion(try container.decode(String.self, forKey: .version))
+            self = .queueVersion(try container.decode(Version.self, forKey: .version))
         }
     }
 }

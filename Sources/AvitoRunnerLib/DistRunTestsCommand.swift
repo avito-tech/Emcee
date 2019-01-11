@@ -10,11 +10,12 @@ import PortDeterminer
 import ResourceLocationResolver
 import ScheduleStrategy
 import TempFolder
+import Version
 import Utility
 
 final class DistRunTestsCommand: Command {
     let command = "distRunTests"
-    let overview = "Performs distributed UI tests run and writes report"
+    let overview = "Starts a local queue, performs distributed UI tests run and writes report"
     
     private let additionalApp: OptionArgument<[String]>
     private let app: OptionArgument<String>
@@ -48,6 +49,7 @@ final class DistRunTestsCommand: Command {
     private let xctestBundle: OptionArgument<String>
     
     private let resourceLocationResolver = ResourceLocationResolver()
+    private let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
 
     required init(parser: ArgumentParser) {
         let subparser = parser.add(subparser: command, overview: overview)
@@ -186,6 +188,7 @@ final class DistRunTestsCommand: Command {
             distRunConfiguration: distRunConfiguration,
             eventBus: eventBus,
             localPortDeterminer: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange),
+            localQueueVersionProvider: localQueueVersionProvider,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder
         )

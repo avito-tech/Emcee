@@ -4,6 +4,7 @@ import Foundation
 import Logging
 import Models
 import SynchronousWaiter
+import Version
 
 public final class SynchronousQueueClient: QueueClientDelegate {
     
@@ -19,7 +20,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     private var bucketFetchResult: Result<BucketFetchResult, QueueClientError>?
     private var bucketResultSendResult: Result<String, QueueClientError>?
     private var alivenessReportResult: Result<Bool, QueueClientError>?
-    private var queueServerVersionResult: Result<String, QueueClientError>?
+    private var queueServerVersionResult: Result<Version, QueueClientError>?
     private var scheduleTestsResult: Result<String, QueueClientError>?
     private let syncQueue = DispatchQueue(label: "ru.avito.SynchronousQueueClient")
     private let requestTimeout: TimeInterval
@@ -83,7 +84,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         } as Void
     }
     
-    public func fetchQueueServerVersion() throws -> String {
+    public func fetchQueueServerVersion() throws -> Version {
         return try synchronize {
             queueServerVersionResult = nil
             try queueClient.fetchQueueServerVersion()
@@ -169,7 +170,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         bucketResultSendResult = Result.success(bucketId)
     }
     
-    public func queueClient(_ sender: QueueClient, didFetchQueueServerVersion version: String) {
+    public func queueClient(_ sender: QueueClient, didFetchQueueServerVersion version: Version) {
         queueServerVersionResult = Result.success(version)
     }
     
