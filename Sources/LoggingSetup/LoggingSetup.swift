@@ -8,7 +8,12 @@ public final class LoggingSetup {
     private init() {}
     
     public static func setupLogging(stderrVerbosity: Verbosity) throws {
-        let detailedLogPath = try TemporaryFile(deleteOnClose: false)
+        let detailedLogPath = try TemporaryFile(
+            dir: AbsolutePath(validating: try logsContainerFolderUrl().path),
+            prefix: ProcessInfo.processInfo.processName,
+            suffix: "_pid_\(ProcessInfo.processInfo.processIdentifier)",
+            deleteOnClose: false
+        )
         
         GlobalLoggerConfig.loggerHandler = AggregatedLoggerHandler(
             handlers: createLoggerHandlers(
@@ -47,5 +52,19 @@ public final class LoggingSetup {
             logEntryTextFormatter: NSLogLikeLogEntryTextFormatter(),
             supportsAnsiColors: false
         )
+    }
+    
+    private static func logsContainerFolderUrl() throws -> URL {
+        let libraryUrl = try FileManager.default.url(
+            for: .libraryDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: true
+        )
+        let container = libraryUrl
+            .appendingPathComponent("Logs", isDirectory: true)
+            .appendingPathComponent("ru.avito.emcee.logs", isDirectory: true)
+        try FileManager.default.createDirectory(at: container, withIntermediateDirectories: true)
+        return container
     }
 }
