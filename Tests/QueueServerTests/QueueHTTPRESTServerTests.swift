@@ -83,11 +83,8 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             .addingLostResult()
             .testingResult()
         
-        let resultsCollector = ResultsCollector()
-        
         let resultHandler = BucketResultRegistrar(
             eventBus: EventBus(),
-            resultsCollector: resultsCollector,
             statefulBucketResultAccepter: bucketQueue,
             workerAlivenessTracker: alivenessTracker
         )
@@ -105,7 +102,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let client = SynchronousQueueClient(serverAddress: queueServerAddress, serverPort: port, workerId: workerId)
         _ = try client.send(testingResult: testingResult, requestId: requestId)
         
-        XCTAssertEqual(resultsCollector.collectedResults, [testingResult])
+        XCTAssertEqual(bucketQueue.acceptedResults, [testingResult])
     }
     
     func test__ReportAliveHandler() throws {

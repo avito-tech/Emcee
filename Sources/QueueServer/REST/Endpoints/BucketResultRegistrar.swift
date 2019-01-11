@@ -10,18 +10,15 @@ import WorkerAlivenessTracker
 
 public final class BucketResultRegistrar: RESTEndpoint {
     private let eventBus: EventBus
-    private let resultsCollector: ResultsCollector
     private let statefulBucketResultAccepter: BucketResultAccepter & QueueStateProvider
     private let workerAlivenessTracker: WorkerAlivenessTracker
 
     public init(
         eventBus: EventBus,
-        resultsCollector: ResultsCollector,
         statefulBucketResultAccepter: BucketResultAccepter & QueueStateProvider,
         workerAlivenessTracker: WorkerAlivenessTracker)
     {
         self.eventBus = eventBus
-        self.resultsCollector = resultsCollector
         self.statefulBucketResultAccepter = statefulBucketResultAccepter
         self.workerAlivenessTracker = workerAlivenessTracker
     }
@@ -34,7 +31,6 @@ public final class BucketResultRegistrar: RESTEndpoint {
                 workerId: decodedRequest.workerId
             )
             
-            resultsCollector.append(testingResult: acceptResult.testingResultToCollect)
             eventBus.post(event: .didObtainTestingResult(acceptResult.testingResultToCollect))
             BucketQueueStateLogger(state: statefulBucketResultAccepter.state).logQueueSize()
             

@@ -8,6 +8,7 @@ public class FakeBucketQueue: BucketQueue {
     
     public var enqueuedBuckets = [Bucket]()
     public let throwsOnAccept: Bool
+    public var acceptedResults = [TestingResult]()
     public let fixedStuckBuckets: [StuckBucket]
     public let fixedDequeueResult: DequeueResult
     public var fixedPreviouslyDequeuedBucket: DequeuedBucket?
@@ -42,6 +43,7 @@ public class FakeBucketQueue: BucketQueue {
         if throwsOnAccept {
             throw AcceptanceError()
         } else {
+            acceptedResults.append(testingResult)
             return BucketQueueAcceptResult(testingResultToCollect: testingResult)
         }
     }

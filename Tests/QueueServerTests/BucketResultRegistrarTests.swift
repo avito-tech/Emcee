@@ -11,7 +11,6 @@ import XCTest
 
 final class BucketResultRegistrarTests: XCTestCase {
     let eventBus = EventBus()
-    let resultsCollector = ResultsCollector()
     let testingResult = TestingResultFixtures()
         .with(testEntry: TestEntry(className: "class", methodName: "method", caseId: nil))
         .addingLostResult()
@@ -22,7 +21,6 @@ final class BucketResultRegistrarTests: XCTestCase {
         
         let registrar = BucketResultRegistrar(
             eventBus: eventBus,
-            resultsCollector: resultsCollector,
             statefulBucketResultAccepter: bucketQueue,
             workerAlivenessTracker: WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
         )
@@ -30,7 +28,7 @@ final class BucketResultRegistrarTests: XCTestCase {
         let request = PushBucketResultRequest(workerId: "worker", requestId: "request", testingResult: testingResult)
         XCTAssertNoThrow(try registrar.handle(decodedRequest: request))
         
-        XCTAssertEqual(resultsCollector.collectedResults, [testingResult])
+        XCTAssertEqual(bucketQueue.acceptedResults, [testingResult])
     }
     
     func test__results_collector_stays_unmodified_and_worker_is_blocked__if_bucket_queue_does_not_accept_results() {
@@ -40,7 +38,6 @@ final class BucketResultRegistrarTests: XCTestCase {
         
         let registrar = BucketResultRegistrar(
             eventBus: eventBus,
-            resultsCollector: resultsCollector,
             statefulBucketResultAccepter: bucketQueue,
             workerAlivenessTracker: alivenessTracker
         )
@@ -48,7 +45,7 @@ final class BucketResultRegistrarTests: XCTestCase {
         let request = PushBucketResultRequest(workerId: "worker", requestId: "request", testingResult: testingResult)
         XCTAssertThrowsError(try registrar.handle(decodedRequest: request))
         
-        XCTAssertEqual(resultsCollector.collectedResults, [])
+        XCTAssertEqual(bucketQueue.acceptedResults, [])
         XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: "worker").status, .blocked)
     }
 }

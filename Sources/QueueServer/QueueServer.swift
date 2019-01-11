@@ -7,7 +7,6 @@ import Logging
 import Models
 import PortDeterminer
 import RESTMethods
-import ResultsCollector
 import ScheduleStrategy
 import Swifter
 import SynchronousWaiter
@@ -22,7 +21,6 @@ public final class QueueServer {
     private let queueExhaustTimeAllowance: TimeInterval
     private let queueServerVersionHandler: QueueServerVersionEndpoint
     private let restServer: QueueHTTPRESTServer
-    private let resultsCollector = ResultsCollector()
     private let scheduleTestsHandler: ScheduleTestsEndpoint
     private let stuckBucketsPoller: StuckBucketsPoller
     private let testsEnqueuer: TestsEnqueuer
@@ -87,7 +85,6 @@ public final class QueueServer {
         )
         self.bucketResultRegistrar = BucketResultRegistrar(
             eventBus: eventBus,
-            resultsCollector: resultsCollector,
             statefulBucketResultAccepter: balancingBucketQueue,
             workerAlivenessTracker: workerAlivenessTracker
         )
@@ -129,6 +126,6 @@ public final class QueueServer {
             return !balancingBucketQueue.state.isDepleted
         }
         Logger.debug("Bucket queue has depleted")
-        return resultsCollector.collectedResults
+        return try balancingBucketQueue.results(jobId: jobId)
     }
 }

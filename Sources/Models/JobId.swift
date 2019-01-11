@@ -1,6 +1,6 @@
 import Foundation
 
-public final class JobId: Codable, Hashable, ExpressibleByStringLiteral {
+public final class JobId: Codable, Hashable, ExpressibleByStringLiteral, CustomStringConvertible {
     
     public typealias StringLiteralType = String
     
@@ -12,6 +12,10 @@ public final class JobId: Codable, Hashable, ExpressibleByStringLiteral {
     
     public init(stringLiteral value: StringLiteralType) {
         self.value = value
+    }
+    
+    public var description: String {
+        return value
     }
     
     public init(from decoder: Decoder) throws {
