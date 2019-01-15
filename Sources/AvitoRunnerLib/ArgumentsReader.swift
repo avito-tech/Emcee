@@ -78,13 +78,9 @@ final class ArgumentsReader {
         return scheduleStrategy
     }
     
-    public static func queueServer(_ value: String?, key: ArgumentDescription) throws -> (host: String, port: Int) {
-        let queueServer = try validateNotNil(value, key: key)
-        let components = queueServer.components(separatedBy: ":")
-        guard components.count == 2, let serverAddress = components.first, let serverPort = Int(components[1]) else {
-            throw ArgumentsError.argumentValueCannotBeUsed(key, AdditionalArgumentValidationError.incorrectQueueServerFormat(queueServer))
-        }
-        return (host: serverAddress, port: serverPort)
+    public static func socketAddress(_ value: String?, key: ArgumentDescription) throws -> SocketAddress {
+        let stringValue = try validateNotNil(value, key: key)
+        return try SocketAddress.from(string: stringValue)
     }
     
     public static func validateNotNil<T>(_ value: T?, key: ArgumentDescription) throws -> T {

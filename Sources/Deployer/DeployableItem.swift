@@ -1,7 +1,7 @@
 import Foundation
 import Basic
 
-open class DeployableItem: CustomStringConvertible {
+open class DeployableItem: CustomStringConvertible, Hashable {
     public let name: String
     public let files: Set<DeployableFile>
     
@@ -12,5 +12,14 @@ open class DeployableItem: CustomStringConvertible {
     
     public var description: String {
         return "<\(type(of: self)): \(name), \(files.count) files>"
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+        hasher.combine(files)
+    }
+    
+    public static func == (left: DeployableItem, right: DeployableItem) -> Bool {
+        return left.name == right.name && left.files == right.files
     }
 }

@@ -6,17 +6,15 @@ import RESTMethods
 
 public final class QueueClient {
     public weak var delegate: QueueClientDelegate?
-    private let serverAddress: String
-    private let serverPort: Int
+    private let queueServerAddress: SocketAddress
     private let workerId: String
     private let urlSession = URLSession(configuration: URLSessionConfiguration.default)
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
     private var isClosed = false
     
-    public init(serverAddress: String, serverPort: Int, workerId: String) {
-        self.serverAddress = serverAddress
-        self.serverPort = serverPort
+    public init(queueServerAddress: SocketAddress, workerId: String) {
+        self.queueServerAddress = queueServerAddress
         self.workerId = workerId
         encoder.outputFormatting = [.sortedKeys, .prettyPrinted]
     }
@@ -144,8 +142,8 @@ public final class QueueClient {
     private func url(_ method: RESTMethod) -> URL {
         var components = URLComponents()
         components.scheme = "http"
-        components.host = serverAddress
-        components.port = serverPort
+        components.host = queueServerAddress.host
+        components.port = queueServerAddress.port
         components.path = RESTMethod.getBucket.withPrependingSlash
         components.path = method.withPrependingSlash
         guard let url = components.url else {

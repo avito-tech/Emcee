@@ -20,14 +20,14 @@ final class DistWorkCommand: Command {
     }
     
     func run(with arguments: ArgumentParser.Result) throws {
-        let queueServer = try ArgumentsReader.queueServer(arguments.get(self.queueServer), key: KnownStringArguments.queueServer)
+        let queueServerAddress = try ArgumentsReader.socketAddress(arguments.get(self.queueServer), key: KnownStringArguments.queueServer)
         let workerId = try ArgumentsReader.validateNotNil(arguments.get(self.workerId), key: KnownStringArguments.workerId)
         
         let distWorker = DistWorker(
-            queueServerAddress: queueServer.host,
-            queueServerPort: queueServer.port,
+            queueServerAddress: queueServerAddress,
             workerId: workerId,
-            resourceLocationResolver: resourceLocationResolver)
+            resourceLocationResolver: resourceLocationResolver
+        )
         try distWorker.start()
     }
 }

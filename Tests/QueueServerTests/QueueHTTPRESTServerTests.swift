@@ -19,7 +19,6 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     let workerConfigurations = WorkerConfigurations()
     let workerId = "worker"
     let requestId = "requestId"
-    let queueServerAddress = "localhost"
     let jobId: JobId = "JobId"
     
     let stubbedEndpoint = FakeRESTEndpoint<Int, Int>(0)
@@ -41,8 +40,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             scheduleTestsHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
             versionHandler: RESTEndpointOf(actualHandler: stubbedEndpoint)
         )
-        let port = try restServer.start()
-        let client = SynchronousQueueClient(serverAddress: queueServerAddress, serverPort: port, workerId: workerId)
+        let client = synchronousQueueClient(port: try restServer.start())
         
         XCTAssertEqual(try client.registerWithServer(), WorkerConfigurationFixtures.workerConfiguration)
     }
@@ -66,8 +64,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             scheduleTestsHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
             versionHandler: RESTEndpointOf(actualHandler: stubbedEndpoint)
         )
-        let port = try restServer.start()
-        let client = SynchronousQueueClient(serverAddress: queueServerAddress, serverPort: port, workerId: workerId)
+        let client = synchronousQueueClient(port: try restServer.start())
         
         let fetchResult = try client.fetchBucket(requestId: requestId)
         XCTAssertEqual(fetchResult, SynchronousQueueClient.BucketFetchResult.bucket(bucket))
@@ -97,9 +94,8 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             scheduleTestsHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
             versionHandler: RESTEndpointOf(actualHandler: stubbedEndpoint)
         )
-        let port = try restServer.start()
-        
-        let client = SynchronousQueueClient(serverAddress: queueServerAddress, serverPort: port, workerId: workerId)
+        let client = synchronousQueueClient(port: try restServer.start())
+
         _ = try client.send(testingResult: testingResult, requestId: requestId)
         
         XCTAssertEqual(bucketQueue.acceptedResults, [testingResult])
@@ -116,9 +112,8 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             scheduleTestsHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
             versionHandler: RESTEndpointOf(actualHandler: stubbedEndpoint)
         )
-        let port = try restServer.start()
+        let client = synchronousQueueClient(port: try restServer.start())
         
-        let client = SynchronousQueueClient(serverAddress: queueServerAddress, serverPort: port, workerId: workerId)
         try client.reportAliveness { [] }
         
         XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId).status, .alive)
@@ -135,9 +130,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             scheduleTestsHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
             versionHandler: RESTEndpointOf(actualHandler: versionHandler)
         )
-        let port = try restServer.start()
-        
-        let client = SynchronousQueueClient(serverAddress: queueServerAddress, serverPort: port, workerId: workerId)
+        let client = synchronousQueueClient(port: try restServer.start())
 
         XCTAssertEqual(
             try client.fetchQueueServerVersion(),
@@ -169,8 +162,8 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             scheduleTestsHandler: RESTEndpointOf(actualHandler: scheduleTestsEndpoint),
             versionHandler: RESTEndpointOf(actualHandler: stubbedEndpoint)
         )
-        let port = try restServer.start()
-        let client = SynchronousQueueClient(serverAddress: queueServerAddress, serverPort: port, workerId: workerId)
+        let client = synchronousQueueClient(port: try restServer.start())
+        
         let acceptedRequestId = try client.scheduleTests(
             jobId: jobId,
             testEntryConfigurations: testEntryConfigurations,
@@ -181,6 +174,13 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         XCTAssertEqual(
             enqueueableBucketReceptor.enqueuedJobs[jobId],
             [BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])]
+        )
+    }
+    
+    private func synchronousQueueClient(port: Int) -> SynchronousQueueClient {
+        return SynchronousQueueClient(
+            queueServerAddress: SocketAddress(host: "localhost", port: port),
+            workerId: workerId
         )
     }
 }

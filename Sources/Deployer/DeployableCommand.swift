@@ -23,7 +23,7 @@ public final class DeployableCommand: ExpressibleByArrayLiteral {
 /**
  * A marker that object can be used as a remote deployment command argument.
  */
-public enum DeployableCommandArg: ExpressibleByStringLiteral {
+public enum DeployableCommandArg: ExpressibleByStringLiteral, Hashable {
     public typealias StringLiteralType = String
     
     /** A regular string argument. */

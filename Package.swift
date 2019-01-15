@@ -198,7 +198,8 @@ let package = Package(
                 "LaunchdUtils",
                 "Logging",
                 "Models",
-                "SSHDeployer"
+                "SSHDeployer",
+                "TempFolder"
             ]
         ),
         .testTarget(
@@ -266,6 +267,7 @@ let package = Package(
             name: "DistWorkerTests",
             dependencies: [
                 "DistWorker",
+                "ModelsTestHelpers",
                 "Scheduler"
             ]
         ),
@@ -631,7 +633,10 @@ let package = Package(
             // MARK: RemoteQueue
             name: "RemoteQueue",
             dependencies: [
+                "DistDeployer",
+                "Models",
                 "RemotePortDeterminer",
+                "SSHDeployer",
                 "Version"
             ]
         ),
@@ -640,7 +645,8 @@ let package = Package(
             name: "RemoteQueueTests",
             dependencies: [
                 "RemotePortDeterminerTestHelpers",
-                "RemoteQueue"
+                "RemoteQueue",
+                "VersionTestHelpers"
             ]
         ),
         .target(

@@ -3,15 +3,15 @@ import Deployer
 import Extensions
 import Models
 
-public final class DeployablesGenerator {
-    private let targetAvitoRunnerPath: String
+final class DeployablesGenerator {
+    private let remoteAvitoRunnerPath: String
     private let pluginLocations: [PluginLocation]
 
     public init(
-        targetAvitoRunnerPath: String,
+        remoteAvitoRunnerPath: String,
         pluginLocations: [PluginLocation])
     {
-        self.targetAvitoRunnerPath = targetAvitoRunnerPath
+        self.remoteAvitoRunnerPath = remoteAvitoRunnerPath
         self.pluginLocations = pluginLocations
     }
     
@@ -26,7 +26,7 @@ public final class DeployablesGenerator {
         return DeployableTool(
             name: PackageName.avitoRunner.rawValue,
             files: [
-                DeployableFile(source: ProcessInfo.processInfo.executablePath, destination: targetAvitoRunnerPath)
+                DeployableFile(source: ProcessInfo.processInfo.executablePath, destination: remoteAvitoRunnerPath)
             ]
         )
     }

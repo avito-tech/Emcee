@@ -25,9 +25,9 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     private let syncQueue = DispatchQueue(label: "ru.avito.SynchronousQueueClient")
     private let requestTimeout: TimeInterval
     
-    public init(serverAddress: String, serverPort: Int, workerId: String, requestTimeout: TimeInterval = 10) {
+    public init(queueServerAddress: SocketAddress, workerId: String, requestTimeout: TimeInterval = 10) {
         self.requestTimeout = requestTimeout
-        self.queueClient = QueueClient(serverAddress: serverAddress, serverPort: serverPort, workerId: workerId)
+        self.queueClient = QueueClient(queueServerAddress: queueServerAddress, workerId: workerId)
         self.queueClient.delegate = self
     }
     

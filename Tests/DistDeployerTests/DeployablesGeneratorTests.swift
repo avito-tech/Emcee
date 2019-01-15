@@ -21,7 +21,7 @@ class DeployablesGeneratorTests: XCTestCase {
         var pluginPath: String!
         XCTAssertNoThrow(pluginPath = try self.pathToPlugin())
         let generator = DeployablesGenerator(
-            targetAvitoRunnerPath: "AvitoRunner",
+            remoteAvitoRunnerPath: "AvitoRunner",
             pluginLocations: [PluginLocation(.localFilePath(pluginPath))]
         )
         XCTAssertNoThrow(deployables = try generator.deployables())

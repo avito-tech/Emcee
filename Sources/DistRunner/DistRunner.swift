@@ -1,8 +1,10 @@
 import BalancingBucketQueue
+import Deployer
 import DistDeployer
 import EventBus
 import Foundation
 import LocalHostDeterminer
+import Logging
 import Models
 import PortDeterminer
 import QueueServer
@@ -56,15 +58,17 @@ public final class DistRunner {
             testEntryConfigurations: distRunConfiguration.testEntryConfigurations,
             jobId: distRunConfiguration.runId
         )
-        let distRunDeployer = DistRunDeployer(
-            deployerConfiguration: DeployerConfiguration.from(
-                distRunConfiguration: distRunConfiguration,
-                queueServerHost: LocalHostDeterminer.currentHostAddress,
-                queueServerPort: try queueServer.start()
-            ),
+        let queuePort = try queueServer.start()
+        
+        let workersStarter = RemoteWorkersStarter(
+            deploymentId: distRunConfiguration.runId.value,
+            deploymentDestinations: distRunConfiguration.destinations,
+            pluginLocations: distRunConfiguration.auxiliaryResources.plugins,
+            queueAddress: SocketAddress(host: LocalHostDeterminer.currentHostAddress, port: queuePort),
             tempFolder: tempFolder
         )
-        try distRunDeployer.deployAndStartWorkersOnRemoteDestinations()
+        try workersStarter.deployAndStartWorkers()
+        
         return try queueServer.waitForJobToFinish(jobId: distRunConfiguration.runId)
     }
     

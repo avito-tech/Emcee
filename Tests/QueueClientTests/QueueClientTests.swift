@@ -25,7 +25,7 @@ class QueueClientTests: XCTestCase {
             try server?.start(0)
             port = try server?.port() ?? 0
             delegate = FakeQueueClientDelegate()
-            queueClient = QueueClient(serverAddress: "127.0.0.1", serverPort: port, workerId: "worker")
+            queueClient = QueueClient(queueServerAddress: SocketAddress(host: "127.0.0.1", port: port), workerId: "worker")
             queueClient.delegate = delegate
         } catch {
             XCTFail("Failed to prepare server: \(error)")

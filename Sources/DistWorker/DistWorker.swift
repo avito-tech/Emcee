@@ -23,17 +23,18 @@ public final class DistWorker {
     private let currentlyBeingProcessedBucketsTracker = CurrentlyBeingProcessedBucketsTracker()
     
     public init(
-        queueServerAddress: String,
-        queueServerPort: Int,
+        queueServerAddress: SocketAddress,
         workerId: String,
         resourceLocationResolver: ResourceLocationResolver)
     {
         self.resourceLocationResolver = resourceLocationResolver
-        self.bucketConfigurationFactory = BucketConfigurationFactory(resourceLocationResolver: resourceLocationResolver)
+        self.bucketConfigurationFactory = BucketConfigurationFactory(
+            resourceLocationResolver: resourceLocationResolver
+        )
         self.queueClient = SynchronousQueueClient(
-            serverAddress: queueServerAddress,
-            serverPort: queueServerPort,
-            workerId: workerId)
+            queueServerAddress: queueServerAddress,
+            workerId: workerId
+        )
     }
     
     public func start() throws {
