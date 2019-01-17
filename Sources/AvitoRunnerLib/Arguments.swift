@@ -186,6 +186,7 @@ enum KnownStringArguments: ArgumentDescription {
     case output
     case plugin
     case queueServer
+    case queueServerTearDownPolicy
     case remoteScheduleStrategy
     case runId
     case runner

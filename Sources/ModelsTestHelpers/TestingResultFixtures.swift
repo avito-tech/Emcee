@@ -7,6 +7,7 @@ public final class TestingResultFixtures {
     
     private let manuallyTestDestination: TestDestination?
     private let manuallySetBucket: Bucket?
+    private let numberOfRetriesForBucket: UInt
     
     public var testDestination: TestDestination {
         if let manuallyTestDestination = manuallyTestDestination {
@@ -23,7 +24,10 @@ public final class TestingResultFixtures {
             return manuallySetBucket
         } else {
             let uniqueTestEntries = Array(Set(unfilteredResults.map { $0.testEntry }))
-            return BucketFixtures.createBucket(testEntries: uniqueTestEntries)
+            return BucketFixtures.createBucket(
+                testEntries: uniqueTestEntries,
+                numberOfRetries: numberOfRetriesForBucket
+            )
         }
     }
     
@@ -32,7 +36,8 @@ public final class TestingResultFixtures {
             manuallySetBucket: nil,
             testEntry: TestEntryFixtures.testEntry(),
             manuallyTestDestination: nil,
-            unfilteredResults: []
+            unfilteredResults: [],
+            numberOfRetriesForBucket: 0
         )
     }
     
@@ -40,12 +45,14 @@ public final class TestingResultFixtures {
         manuallySetBucket: Bucket?,
         testEntry: TestEntry,
         manuallyTestDestination: TestDestination?,
-        unfilteredResults: [TestEntryResult])
+        unfilteredResults: [TestEntryResult],
+        numberOfRetriesForBucket: UInt = 0)
     {
         self.manuallySetBucket = manuallySetBucket
         self.testEntry = testEntry
         self.manuallyTestDestination = manuallyTestDestination
         self.unfilteredResults = unfilteredResults
+        self.numberOfRetriesForBucket = numberOfRetriesForBucket
     }
     
     public func testingResult() -> TestingResult {
@@ -61,7 +68,8 @@ public final class TestingResultFixtures {
             manuallySetBucket: manuallySetBucket,
             testEntry: testEntry,
             manuallyTestDestination: manuallyTestDestination,
-            unfilteredResults: unfilteredResults
+            unfilteredResults: unfilteredResults,
+            numberOfRetriesForBucket: numberOfRetriesForBucket
         )
     }
     
@@ -70,7 +78,18 @@ public final class TestingResultFixtures {
             manuallySetBucket: bucket,
             testEntry: testEntry,
             manuallyTestDestination: manuallyTestDestination,
-            unfilteredResults: unfilteredResults
+            unfilteredResults: unfilteredResults,
+            numberOfRetriesForBucket: numberOfRetriesForBucket
+        )
+    }
+    
+    public func with(numberOfRetiresOfBucket count: UInt) -> TestingResultFixtures {
+        return TestingResultFixtures(
+            manuallySetBucket: manuallySetBucket,
+            testEntry: testEntry,
+            manuallyTestDestination: manuallyTestDestination,
+            unfilteredResults: unfilteredResults,
+            numberOfRetriesForBucket: count
         )
     }
     
@@ -79,7 +98,8 @@ public final class TestingResultFixtures {
             manuallySetBucket: manuallySetBucket,
             testEntry: testEntry,
             manuallyTestDestination: manuallyTestDestination,
-            unfilteredResults: unfilteredResults + [TestEntryResult.lost(testEntry: testEntry)]
+            unfilteredResults: unfilteredResults + [TestEntryResult.lost(testEntry: testEntry)],
+            numberOfRetriesForBucket: numberOfRetriesForBucket
         )
     }
     
@@ -93,7 +113,8 @@ public final class TestingResultFixtures {
             manuallySetBucket: manuallySetBucket,
             testEntry: testEntry,
             manuallyTestDestination: manuallyTestDestination,
-            unfilteredResults: unfilteredResults + [result]
+            unfilteredResults: unfilteredResults + [result],
+            numberOfRetriesForBucket: numberOfRetriesForBucket
         )
     }
 }

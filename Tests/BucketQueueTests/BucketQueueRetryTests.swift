@@ -11,9 +11,9 @@ final class BucketQueueRetryTests: XCTestCase {
     func test___bucket_queue___gives_job_to_another_worker___if_worker_fails() {
         assertNoThrow {
             // Given
-            let bucketQueue = self.bucketQueue(workerIds: [failingWorker, anotherWorker], numberOfRetries: 2)
+            let bucketQueue = self.bucketQueue(workerIds: [failingWorker, anotherWorker])
             
-            bucketQueue.enqueue(buckets: [testingResultFixtures.bucket])
+            bucketQueue.enqueue(buckets: [bucketWithTwoRetires])
             
             // When worker fails
             try dequeueTestAndFail(bucketQueue: bucketQueue, workerId: failingWorker)
@@ -30,7 +30,7 @@ final class BucketQueueRetryTests: XCTestCase {
                 bucketQueue.dequeueBucket(requestId: "2", workerId: anotherWorker),
                 DequeueResult.dequeuedBucket(
                     DequeuedBucket(
-                        bucket: testingResultFixtures.bucket,
+                        bucket: bucketWithTwoRetires,
                         workerId: anotherWorker,
                         requestId: "2"
                     )
@@ -43,9 +43,9 @@ final class BucketQueueRetryTests: XCTestCase {
         assertNoThrow {
             // Given
             let allWorkers = [firstWorker, secondWorker]
-            let bucketQueue = self.bucketQueue(workerIds: allWorkers, numberOfRetries: 2)
+            let bucketQueue = self.bucketQueue(workerIds: allWorkers)
             
-            bucketQueue.enqueue(buckets: [testingResultFixtures.bucket])
+            bucketQueue.enqueue(buckets: [bucketWithTwoRetires])
             
             // When all workers fail
             try allWorkers.forEach { workerId in
@@ -58,7 +58,7 @@ final class BucketQueueRetryTests: XCTestCase {
                 bucketQueue.dequeueBucket(requestId: "other", workerId: anyWorker),
                 DequeueResult.dequeuedBucket(
                     DequeuedBucket(
-                        bucket: testingResultFixtures.bucket,
+                        bucket: bucketWithTwoRetires,
                         workerId: anyWorker,
                         requestId: "other"
                     )
@@ -70,9 +70,9 @@ final class BucketQueueRetryTests: XCTestCase {
     func test___bucket_queue___become_depleted___after_retries() {
         assertNoThrow {
             // Given
-            let bucketQueue = self.bucketQueue(workerIds: [firstWorker, secondWorker], numberOfRetries: 2)
+            let bucketQueue = self.bucketQueue(workerIds: [firstWorker, secondWorker])
             
-            bucketQueue.enqueue(buckets: [testingResultFixtures.bucket])
+            bucketQueue.enqueue(buckets: [bucketWithTwoRetires])
             
             // When retry limit is reached
             try [firstWorker, secondWorker, firstWorker].forEach { workerId in
@@ -90,9 +90,8 @@ final class BucketQueueRetryTests: XCTestCase {
     
     func test___if_worker_provides_testing_result_with_missing_tests___queue_reenqueues_lost_tests() {
         assertNoThrow {
-            let bucketQueue = self.bucketQueue(workerIds: [failingWorker, anotherWorker], numberOfRetries: 0)
-            let testEntry = TestEntryFixtures.testEntry()
-            let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
+            let bucketQueue = self.bucketQueue(workerIds: [failingWorker, anotherWorker])
+            let bucket = bucketWithTwoRetires
             bucketQueue.enqueue(buckets: [bucket])
             
             let requestId = UUID().uuidString
@@ -138,15 +137,13 @@ final class BucketQueueRetryTests: XCTestCase {
     private let failingWorker = "failingWorker"
     private let anotherWorker = "anotherWorker"
     
-    private func bucketQueue(workerIds: [String], numberOfRetries: Int) -> BucketQueue {
+    private func bucketQueue(workerIds: [String]) -> BucketQueue {
         let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
         workerIds.forEach(tracker.didRegisterWorker)
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(
             workerAlivenessProvider: tracker,
-            testHistoryTracker: TestHistoryTrackerFixtures.testHistoryTracker(
-                numberOfRetries: 2
-            )
+            testHistoryTracker: TestHistoryTrackerFixtures.testHistoryTracker()
         )
         
         return bucketQueue
@@ -166,6 +163,12 @@ final class BucketQueueRetryTests: XCTestCase {
             workerId: workerId
         )
     }
+    
+    private let testEntry = TestEntryFixtures.testEntry()
+    private lazy var bucketWithTwoRetires = BucketFixtures.createBucket(
+        testEntries: [testEntry],
+        numberOfRetries: 2
+    )
     
     private let testingResultFixtures: TestingResultFixtures = TestingResultFixtures()
         .addingResult(success: false)

@@ -80,6 +80,7 @@ let package = Package(
                 "EventBus",
                 "JunitReporting",
                 "LaunchdUtils",
+                "LocalQueueServerRunner",
                 "LoggingSetup",
                 "Models",
                 "PluginManager",
@@ -412,6 +413,19 @@ let package = Package(
             name: "ListeningSemaphoreTests",
             dependencies: [
                 "ListeningSemaphore"
+            ]
+        ),
+        .target(
+            // MARK: LocalQueueServerRunner
+            name: "LocalQueueServerRunner",
+            dependencies: [
+                "BalancingBucketQueue",
+                "Models",
+                "PortDeterminer",
+                "Logging",
+                "QueueServer",
+                "ScheduleStrategy",
+                "Version",
             ]
         ),
         .target(

@@ -53,9 +53,9 @@ class QueueClientTests: XCTestCase {
         let bucket = Bucket(
             testEntries: [TestEntry(className: "class", methodName: "method", caseId: 123)],
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
-            environment: [:],
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: TestDestinationFixtures.testDestination,
+            testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
             toolResources: ToolResourcesFixtures.fakeToolResources()
         )
         try prepareServer(RESTMethod.getBucket.withPrependingSlash) { request -> HttpResponse in

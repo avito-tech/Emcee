@@ -8,7 +8,6 @@ import XCTest
 final class TestHistoryTests: XCTestCase {
     private let storage = TestHistoryStorageMock()
     private lazy var tracker = TestHistoryTrackerImpl(
-        numberOfRetries: 1,
         testHistoryStorage: storage
     )
     

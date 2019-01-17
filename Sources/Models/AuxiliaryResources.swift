@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents locatios of the tools that are used by the runner.
-public struct AuxiliaryResources {
+public struct AuxiliaryResources: Decodable {
     public let toolResources: ToolResources
     
     /// Locations of .emceeplugin bundles.

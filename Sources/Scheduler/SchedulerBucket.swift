@@ -5,9 +5,9 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
     public let bucketId: String
     public let testEntries: [TestEntry]
     public let buildArtifacts: BuildArtifacts
-    public let environment: [String: String]
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
+    public let testExecutionBehavior: TestExecutionBehavior
     public let toolResources: ToolResources
     
     public var description: String {
@@ -18,18 +18,18 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
         bucketId: String,
         testEntries: [TestEntry],
         buildArtifacts: BuildArtifacts,
-        environment: [String: String],
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
+        testExecutionBehavior: TestExecutionBehavior,
         toolResources: ToolResources
         )
     {
         self.bucketId = bucketId
         self.testEntries = testEntries
         self.buildArtifacts = buildArtifacts
-        self.environment = environment
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
+        self.testExecutionBehavior = testExecutionBehavior
         self.toolResources = toolResources
     }
     
@@ -38,9 +38,9 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
             bucketId: bucket.bucketId,
             testEntries: bucket.testEntries,
             buildArtifacts: bucket.buildArtifacts,
-            environment: bucket.environment,
             simulatorSettings: bucket.simulatorSettings,
             testDestination: bucket.testDestination,
+            testExecutionBehavior: bucket.testExecutionBehavior,
             toolResources: bucket.toolResources
         )
     }
@@ -49,9 +49,9 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
         return left.bucketId == right.bucketId
             && left.testEntries == right.testEntries
             && left.buildArtifacts == right.buildArtifacts
-            && left.environment == right.environment
             && left.simulatorSettings == right.simulatorSettings
             && left.testDestination == right.testDestination
+            && left.testExecutionBehavior == right.testExecutionBehavior
             && left.toolResources == right.toolResources
     }
 }

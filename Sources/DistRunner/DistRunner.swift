@@ -42,7 +42,6 @@ public final class DistRunner {
             eventBus: eventBus,
             workerConfigurations: createWorkerConfigurations(),
             reportAliveInterval: distRunConfiguration.reportAliveInterval,
-            numberOfRetries: distRunConfiguration.testRunExecutionBehavior.numberOfRetries,
             checkAgainTimeInterval: distRunConfiguration.checkAgainTimeInterval,
             localPortDeterminer: localPortDeterminer,
             nothingToDequeueBehavior: NothingToDequeueBehaviorWaitForAllQueuesToDeplete(checkAfter: distRunConfiguration.checkAgainTimeInterval),

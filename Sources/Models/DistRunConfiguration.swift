@@ -69,19 +69,21 @@ public struct DistRunConfiguration {
         return WorkerConfiguration(
             testRunExecutionBehavior: testRunExecutionBehavior(destination: destination),
             testTimeoutConfiguration: testTimeoutConfiguration,
-            reportAliveInterval: reportAliveInterval)
+            reportAliveInterval: reportAliveInterval
+        )
     }
     
     private func testRunExecutionBehavior(destination: DeploymentDestination) -> TestRunExecutionBehavior {
         let overrides = destinationConfigurations.first { $0.destinationIdentifier == destination.identifier }
         
-        // Queue server will retry by itself
+        // Queue server will retry by itself, workers should not attempt to retry failed tests
         let numberOfRetriesOnLocalMachine: UInt = 0
         
         return TestRunExecutionBehavior(
             numberOfRetries: numberOfRetriesOnLocalMachine,
             numberOfSimulators: overrides?.numberOfSimulators ?? testRunExecutionBehavior.numberOfSimulators,
             environment: testRunExecutionBehavior.environment,
-            scheduleStrategy: testRunExecutionBehavior.scheduleStrategy)
+            scheduleStrategy: testRunExecutionBehavior.scheduleStrategy
+        )
     }
 }

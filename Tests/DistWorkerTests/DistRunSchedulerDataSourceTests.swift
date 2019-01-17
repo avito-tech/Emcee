@@ -11,9 +11,9 @@ final class DistRunSchedulerDataSourceTests: XCTestCase {
                 bucketId: "id",
                 testEntries: [TestEntryFixtures.testEntry()],
                 buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
-                environment: ["a": "b"],
                 simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
                 testDestination: TestDestinationFixtures.testDestination,
+                testExecutionBehavior: TestExecutionBehaviorFixtures(environment: ["a": "b"]).build(),
                 toolResources: ToolResourcesFixtures.fakeToolResources()
             )
         }

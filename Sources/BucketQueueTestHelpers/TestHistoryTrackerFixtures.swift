@@ -1,9 +1,8 @@
 import BucketQueue
 
 public final class TestHistoryTrackerFixtures {
-    public static func testHistoryTracker(numberOfRetries: UInt = 0) -> TestHistoryTracker {
+    public static func testHistoryTracker() -> TestHistoryTracker {
         return TestHistoryTrackerImpl(
-            numberOfRetries: numberOfRetries,
             testHistoryStorage: TestHistoryStorageImpl()
         )
     }

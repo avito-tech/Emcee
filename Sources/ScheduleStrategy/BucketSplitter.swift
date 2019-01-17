@@ -51,9 +51,9 @@ public class BucketSplitter: Splitter, CustomStringConvertible {
             return Bucket(
                 testEntries: group.map { $0.testEntry },
                 buildArtifacts: entry.buildArtifacts,
-                environment: entry.testExecutionBehavior.environment,
                 simulatorSettings: bucketSplitInfo.simulatorSettings,
                 testDestination: entry.testDestination,
+                testExecutionBehavior: entry.testExecutionBehavior,
                 toolResources: bucketSplitInfo.toolResources
             )
         }

@@ -185,7 +185,7 @@ public final class Scheduler {
                 testType: configuration.testType,
                 fbxctest: bucket.toolResources.fbxctest,
                 buildArtifacts: bucket.buildArtifacts,
-                environment: bucket.environment,
+                environment: bucket.testExecutionBehavior.environment,
                 simulatorSettings: bucket.simulatorSettings,
                 testTimeoutConfiguration: configuration.testTimeoutConfiguration
             ),

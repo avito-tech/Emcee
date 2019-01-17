@@ -5,32 +5,31 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
     public let bucketId: String
     public let testEntries: [TestEntry]
     public let buildArtifacts: BuildArtifacts
-    public let environment: [String: String]
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
+    public let testExecutionBehavior: TestExecutionBehavior
     public let toolResources: ToolResources
 
     public init(
         testEntries: [TestEntry],
         buildArtifacts: BuildArtifacts,
-        environment: [String: String],
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
-        toolResources: ToolResources
-        )
+        testExecutionBehavior: TestExecutionBehavior,
+        toolResources: ToolResources)
     {
         self.testEntries = testEntries
         self.buildArtifacts = buildArtifacts
-        self.environment = environment
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
+        self.testExecutionBehavior = testExecutionBehavior
         self.toolResources = toolResources
         self.bucketId = Bucket.generateBucketId(
             testEntries: testEntries,
             buildArtifacts: buildArtifacts,
-            environment: environment,
             simulatorSettings: simulatorSettings,
             testDestination: testDestination,
+            testExecutionBehavior: testExecutionBehavior,
             toolResources: toolResources
         )
     }
@@ -38,9 +37,9 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
     private static func generateBucketId(
         testEntries: [TestEntry],
         buildArtifacts: BuildArtifacts,
-        environment: [String: String],
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
+        testExecutionBehavior: TestExecutionBehavior,
         toolResources: ToolResources
         ) -> String
     {
@@ -49,7 +48,7 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
             + testDestination.destinationString
             + buildArtifacts.appBundle.description + buildArtifacts.runner.description + buildArtifacts.xcTestBundle.description
             + buildArtifacts.additionalApplicationBundles.map { $0.description }.sorted().joined()
-            + environment.map { "\($0)=\($1)" }.sorted().joined()
+            + testExecutionBehavior.environment.map { "\($0)=\($1)" }.sorted().joined() + "\(testExecutionBehavior.numberOfRetries)"
             + toolResources.fbsimctl.description + toolResources.fbxctest.description
             + simulatorSettings.description
         do {

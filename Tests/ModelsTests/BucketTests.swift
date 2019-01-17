@@ -15,9 +15,9 @@ final class BucketTests: XCTestCase {
                 TestEntry(className: "class", methodName: "testAnotherMethod", caseId: nil)
             ],
             buildArtifacts: fakeBuildArtifacts,
-            environment: [:],
             simulatorSettings: fakeSimulatorSettings,
             testDestination: TestDestinationFixtures.testDestination,
+            testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
             toolResources: fakeToolResources
         )
         
@@ -27,9 +27,9 @@ final class BucketTests: XCTestCase {
                 TestEntry(className: "class", methodName: "testMethod", caseId: nil)
             ],
             buildArtifacts: fakeBuildArtifacts,
-            environment: [:],
             simulatorSettings: fakeSimulatorSettings,
             testDestination: TestDestinationFixtures.testDestination,
+            testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
             toolResources: fakeToolResources
         )
         
@@ -43,9 +43,9 @@ final class BucketTests: XCTestCase {
                 TestEntry(className: "class", methodName: "testAnotherMethod", caseId: nil)
             ],
             buildArtifacts: fakeBuildArtifacts,
-            environment: [:],
             simulatorSettings: fakeSimulatorSettings,
             testDestination: TestDestinationFixtures.testDestination,
+            testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
             toolResources: fakeToolResources
         )
         
@@ -55,9 +55,9 @@ final class BucketTests: XCTestCase {
                 TestEntry(className: "class", methodName: "testMethod", caseId: nil)
             ],
             buildArtifacts: fakeBuildArtifacts,
-            environment: [:],
             simulatorSettings: fakeSimulatorSettings,
             testDestination: TestDestinationFixtures.testDestination,
+            testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
             toolResources: fakeToolResources
         )
         
@@ -71,9 +71,9 @@ final class BucketTests: XCTestCase {
                 TestEntry(className: "class", methodName: "testAnotherMethod", caseId: nil)
             ],
             buildArtifacts: fakeBuildArtifacts,
-            environment: [:],
             simulatorSettings: fakeSimulatorSettings,
             testDestination: try TestDestination(deviceType: "device", runtime: "11.3"),
+            testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
             toolResources: fakeToolResources
         )
         
@@ -83,9 +83,9 @@ final class BucketTests: XCTestCase {
                 TestEntry(className: "class", methodName: "testAnotherMethod", caseId: nil)
             ],
             buildArtifacts: fakeBuildArtifacts,
-            environment: [:],
             simulatorSettings: fakeSimulatorSettings,
             testDestination: try TestDestination(deviceType: "device", runtime: "11.4"),
+            testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
             toolResources: fakeToolResources
         )
         
@@ -98,9 +98,9 @@ final class BucketTests: XCTestCase {
                 TestEntry(className: "class", methodName: "testMethod", caseId: nil)
             ],
             buildArtifacts: fakeBuildArtifacts,
-            environment: ["a":"1"],
             simulatorSettings: fakeSimulatorSettings,
             testDestination: TestDestinationFixtures.testDestination,
+            testExecutionBehavior: TestExecutionBehaviorFixtures(environment: ["a":"1"]).build(),
             toolResources: fakeToolResources
         )
         
@@ -109,9 +109,38 @@ final class BucketTests: XCTestCase {
                 TestEntry(className: "class", methodName: "testMethod", caseId: nil)
             ],
             buildArtifacts: fakeBuildArtifacts,
-            environment: ["a":"2"],
             simulatorSettings: fakeSimulatorSettings,
             testDestination: TestDestinationFixtures.testDestination,
+            testExecutionBehavior: TestExecutionBehaviorFixtures(environment: ["a":"2"]).build(),
+            toolResources: fakeToolResources
+        )
+        
+        XCTAssertNotEqual(
+            bucket1.bucketId,
+            bucket2.bucketId
+        )
+    }
+    
+    func testBucketsHaveDifferentIdsForDifferentNumberOfRetries() throws {
+        let bucket1 = Bucket(
+            testEntries: [
+                TestEntry(className: "class", methodName: "testMethod", caseId: nil)
+            ],
+            buildArtifacts: fakeBuildArtifacts,
+            simulatorSettings: fakeSimulatorSettings,
+            testDestination: TestDestinationFixtures.testDestination,
+            testExecutionBehavior: TestExecutionBehaviorFixtures(numberOfRetries: 0).build(),
+            toolResources: fakeToolResources
+        )
+        
+        let bucket2 = Bucket(
+            testEntries: [
+                TestEntry(className: "class", methodName: "testMethod", caseId: nil)
+            ],
+            buildArtifacts: fakeBuildArtifacts,
+            simulatorSettings: fakeSimulatorSettings,
+            testDestination: TestDestinationFixtures.testDestination,
+            testExecutionBehavior: TestExecutionBehaviorFixtures(numberOfRetries: 1).build(),
             toolResources: fakeToolResources
         )
         

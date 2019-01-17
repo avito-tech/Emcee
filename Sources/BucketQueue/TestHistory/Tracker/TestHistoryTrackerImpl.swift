@@ -2,13 +2,8 @@ import Models
 
 public final class TestHistoryTrackerImpl: TestHistoryTracker {
     private let testHistoryStorage: TestHistoryStorage
-    private let numberOfAttemptsToRunTests: UInt
     
-    public init(
-        numberOfRetries: UInt,
-        testHistoryStorage: TestHistoryStorage)
-    {
-        self.numberOfAttemptsToRunTests = 1 + numberOfRetries
+    public init(testHistoryStorage: TestHistoryStorage) {
         self.testHistoryStorage = testHistoryStorage
     }
     
@@ -60,7 +55,7 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
             if testEntryResult.succeeded {
                 resultsOfSuccessfulTests.append(testEntryResult)
             } else {
-                if testEntryHistory.numberOfAttempts < numberOfAttemptsToRunTests {
+                if testEntryHistory.numberOfAttempts < numberOfAttemptsToRunTests(bucket: bucket) {
                     resultsOfTestsToRetry.append(testEntryResult)
                 } else {
                     resultsOfFailedTests.append(testEntryResult)
@@ -79,9 +74,9 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
             Bucket(
                 testEntries: [testEntryResult.testEntry],
                 buildArtifacts: bucket.buildArtifacts,
-                environment: bucket.environment,
                 simulatorSettings: bucket.simulatorSettings,
                 testDestination: bucket.testDestination,
+                testExecutionBehavior: bucket.testExecutionBehavior,
                 toolResources: bucket.toolResources
             )
         }
@@ -147,5 +142,9 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         let testEntryHistory = testHistoryStorage.history(id: testEntryHistoryId)
         
         return whereItWasFailing(testEntryHistory)
+    }
+    
+    private func numberOfAttemptsToRunTests(bucket: Bucket) -> UInt {
+        return 1 + bucket.testExecutionBehavior.numberOfRetries
     }
 }

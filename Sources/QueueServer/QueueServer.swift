@@ -32,7 +32,6 @@ public final class QueueServer {
         eventBus: EventBus,
         workerConfigurations: WorkerConfigurations,
         reportAliveInterval: TimeInterval,
-        numberOfRetries: UInt,
         newWorkerRegistrationTimeAllowance: TimeInterval = 60.0,
         queueExhaustTimeAllowance: TimeInterval = .infinity,
         checkAgainTimeInterval: TimeInterval,
@@ -51,7 +50,6 @@ public final class QueueServer {
             bucketQueueFactory: BucketQueueFactory(
                 workerAlivenessProvider: workerAlivenessTracker,
                 testHistoryTracker: TestHistoryTrackerImpl(
-                    numberOfRetries: numberOfRetries,
                     testHistoryStorage: TestHistoryStorageImpl()
                 ),
                 checkAgainTimeInterval: checkAgainTimeInterval
