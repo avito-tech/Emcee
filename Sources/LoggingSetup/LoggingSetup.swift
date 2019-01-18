@@ -2,16 +2,18 @@ import Ansi
 import Basic
 import Dispatch
 import Foundation
+import LocalHostDeterminer
 import Logging
 
 public final class LoggingSetup {
     private init() {}
     
     public static func setupLogging(stderrVerbosity: Verbosity) throws {
+        let filename = "pid_\(ProcessInfo.processInfo.processIdentifier)"
         let detailedLogPath = try TemporaryFile(
             dir: AbsolutePath(validating: try logsContainerFolderUrl().path),
-            prefix: ProcessInfo.processInfo.processName,
-            suffix: "_pid_\(ProcessInfo.processInfo.processIdentifier)",
+            prefix: filename,
+            suffix: ".log",
             deleteOnClose: false
         )
         
@@ -22,7 +24,8 @@ public final class LoggingSetup {
             )
         )
         Logger.always("Logging verbosity level is set to \(stderrVerbosity.stringCode)")
-        Logger.always("Detailed verbose log is available at: \(detailedLogPath.path.asString)")
+        Logger.always("To fetch detailed verbose log:")
+        Logger.always("$ scp \(LocalHostDeterminer.currentHostAddress):\(detailedLogPath.path.asString) /tmp/\(filename).log")
     }
     
     private static func createLoggerHandlers(
@@ -64,6 +67,7 @@ public final class LoggingSetup {
         let container = libraryUrl
             .appendingPathComponent("Logs", isDirectory: true)
             .appendingPathComponent("ru.avito.emcee.logs", isDirectory: true)
+            .appendingPathComponent(ProcessInfo.processInfo.processName, isDirectory: true)
         try FileManager.default.createDirectory(at: container, withIntermediateDirectories: true)
         return container
     }

@@ -441,6 +441,7 @@ let package = Package(
             name: "LoggingSetup",
             dependencies: [
                 "Ansi",
+                "LocalHostDeterminer",
                 "Logging",
                 "Utility"
             ]
