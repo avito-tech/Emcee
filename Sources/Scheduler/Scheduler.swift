@@ -9,6 +9,7 @@ import ResourceLocationResolver
 import Runner
 import ScheduleStrategy
 import SimulatorPool
+import SynchronousWaiter
 import TempFolder
 
 /**
@@ -41,17 +42,6 @@ public final class Scheduler {
     private let resourceLocationResolver: ResourceLocationResolver
     private var gatheredErrors = [Error]()
     
-    public enum SchedulerError: Error, CustomStringConvertible {
-        case someErrorsHappened([Error])
-        
-        public var description: String {
-            switch self {
-            case .someErrorsHappened(let errors):
-                return "During execution of tests the following errors happened: \(errors)"
-            }
-        }
-    }
-    
     public init(
         eventBus: EventBus,
         configuration: SchedulerConfiguration,
@@ -74,9 +64,11 @@ public final class Scheduler {
      */
     public func run() throws -> [TestingResult] {
         startFetchingAndRunningTests()
-        queue.waitUntilAllOperationsAreFinished()
-        if !gatheredErrors.isEmpty {
-            throw SchedulerError.someErrorsHappened(gatheredErrors)
+        try SynchronousWaiter.waitWhile(pollPeriod: 1.0) {
+            queue.operationCount > 0 && allGatheredErrors().isEmpty
+        }
+        if !allGatheredErrors().isEmpty {
+            throw SchedulerError.someErrorsHappened(allGatheredErrors())
         }
         return testingResults
     }
@@ -92,8 +84,8 @@ public final class Scheduler {
             if self.resourceSemaphore.availableResources.runningTests == 0 {
                 return
             }
-            guard self.gatheredErrors.isEmpty else {
-                Logger.error("Some errors occured, will not fetch and run more buckets. Errors: \(self.gatheredErrors)")
+            guard self.allGatheredErrors().isEmpty else {
+                Logger.error("Some errors occured, will not fetch and run more buckets: \(self.allGatheredErrors())")
                 return
             }
             guard let bucket = self.configuration.schedulerDataSource.nextBucket() else {
@@ -136,9 +128,7 @@ public final class Scheduler {
     
     private func didFailRunningTests(bucket: SchedulerBucket, error: Error) {
         Logger.error("Error running tests from fetched bucket '\(bucket)' with error: \(error)")
-        syncQueue.sync {
-            gatheredErrors.append(error)
-        }
+        gather(error: error)
     }
     
     // MARK: - Running the Tests
@@ -225,5 +215,13 @@ public final class Scheduler {
         let result = try TestingResult.byMerging(testingResults: runResults)
         Logger.verboseDebug("Combined result: \(result)")
         return result
+    }
+    
+    private func allGatheredErrors() -> [Error] {
+        return syncQueue.sync { gatheredErrors }
+    }
+    
+    private func gather(error: Error) {
+        syncQueue.sync { gatheredErrors.append(error) }
     }
 }

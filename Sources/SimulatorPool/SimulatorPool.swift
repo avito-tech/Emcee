@@ -74,7 +74,7 @@ public final class SimulatorPool<T>: CustomStringConvertible where T: SimulatorC
                 do {
                     try $0.deleteSimulator()
                 } catch {
-                    Logger.error("Failed to delete simulator \($0): \(error). Skipping this error.")
+                    Logger.warning("Failed to delete simulator \($0): \(error). Skipping this error.")
                 }
             }
         }

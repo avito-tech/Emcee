@@ -769,6 +769,7 @@ let package = Package(
                 "RuntimeDump",
                 "ScheduleStrategy",
                 "SimulatorPool",
+                "SynchronousWaiter",
                 "TempFolder"
             ]
         ),
