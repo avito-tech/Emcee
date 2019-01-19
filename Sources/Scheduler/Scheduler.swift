@@ -34,7 +34,7 @@ import TempFolder
 public final class Scheduler {
     private let eventBus: EventBus
     private let configuration: SchedulerConfiguration
-    private let resourceSemaphore: ListeningSemaphore
+    private let resourceSemaphore: ListeningSemaphore<ResourceAmounts>
     private var testingResults = [TestingResult]()
     private let queue = OperationQueue()
     private let syncQueue = DispatchQueue(label: "ru.avito.Scheduler")

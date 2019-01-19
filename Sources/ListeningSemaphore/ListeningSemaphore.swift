@@ -3,29 +3,27 @@ import Foundation
 /**
  * A semaphore that uses Operation for acquisition of different resource types rather than blocking.
  */
-public final class ListeningSemaphore {
-    var usedValues = ResourceAmounts.zero
-    let maximumValues: ResourceAmounts
-    private var pending = [PendingItem]()
+public final class ListeningSemaphore<T: ListeningSemaphoreAmounts> {
+    var usedValues = T.zero
+    let maximumValues: T
+    private var pending = [PendingItem<T>]()
     private let lock = NSRecursiveLock()
     private let executionQueue = OperationQueue()
     
-    public init(maximumValues: ResourceAmounts) {
+    public init(maximumValues: T) {
         self.maximumValues = maximumValues
     }
     
-    /**
-     * Returns the operation which will be ready to be executed by the moment when required resources will be acquired.
-     * If resource amounts that need to be acquired are higher than maximum amounts, they will be capped to them.
-     * Operation may be returned already completed. You should subscribe add your dependency to the operation
-     * and perform your resource requiring job once the operation will be completed and not cancelled.
-     *
-     * You typically create your own operation and add the operation returned by this method as a dependency to
-     * your operation, and perform resource-critical code inside your operation.
-     *
-     * When you finish your job, you must release acquired resources by calling release() method below.
-     */
-    public func acquire(_ resources: ResourceAmounts) throws -> Operation & CascadeCancellable {
+    /// Returns the operation which will be ready to be executed by the moment when required resources will be acquired.
+    /// If resource amounts that need to be acquired are higher than maximum amounts, they will be capped to them.
+    /// Operation may be returned in already completed state. You should subscribe add your dependency to the operation
+    /// and perform your resource requiring job once the operation will be completed and not cancelled.
+    ///
+    /// You typically create your own operation and add the operation returned by this method as a dependency to
+    /// your operation, and perform resource-critical code inside your operation.
+    ///
+    /// When you finish your job, you must release acquired resources by calling release() method below.
+    public func acquire(_ resources: T) throws -> Operation & CascadeCancellable {
         return try synchronized {
             if resources == .zero {
                 return SettableOperation.finishedOperation()
@@ -45,20 +43,18 @@ public final class ListeningSemaphore {
         }
     }
     
-    /**
-     * Releases previously acquired resources. The amount of resources should match one you used during
-     * resource acquisition.
-     */
-    public func release(_ resources: ResourceAmounts) throws {
+    /// Releases previously acquired resources. The amount of resources should match one you used during
+    /// resource acquisition.
+    public func release(_ resources: T) throws {
         guard resources != .zero else { return }
         let cappedResources = resources.cappedTo(maximumValues)
         try decreaseUsedResources(cappedResources)
         try processPendingItems(try pendingItemsThatCanBeProcessed())
     }
     
-    private func pendingItemsThatCanBeProcessed() throws -> [PendingItem] {
+    private func pendingItemsThatCanBeProcessed() throws -> [PendingItem<T>] {
         return try synchronized {
-            var items = [PendingItem]()
+            var items = [PendingItem<T>]()
             
             try MutatingIterator.iterate(&pending) { item in
                 if availableResources == .zero {
@@ -77,45 +73,47 @@ public final class ListeningSemaphore {
         }
     }
     
-    public var availableResources: ResourceAmounts {
+    /// Returns all available resources at the moment of invocation.
+    public var availableResources: T {
         return synchronized {
             return maximumValues - usedValues
         }
     }
     
+    /// Returns a length of pending resource acquiring operations.
     var queueLength: Int {
         return synchronized {
             return pending.count
         }
     }
     
-    private func checkIfResourcesAvailable(_ resources: ResourceAmounts) throws -> Bool {
+    private func checkIfResourcesAvailable(_ resources: T) throws -> Bool {
         return try synchronized {
-            guard resources <= maximumValues else {
+            guard resources.containsAllValuesLessThanOrEqualTo(maximumValues) else {
                 throw Error.amountsAreNotCappedToMaximumAmounts(resources, maximum: maximumValues)
             }
-            return (usedValues + resources) <= maximumValues
+            return (usedValues + resources).containsAllValuesLessThanOrEqualTo(maximumValues)
         }
     }
     
-    private func increaseUsedResources(_ resources: ResourceAmounts) {
+    private func increaseUsedResources(_ resources: T) {
         return synchronized {
             usedValues = usedValues + resources
         }
     }
     
-    private func decreaseUsedResources(_ resources: ResourceAmounts) throws {
+    private func decreaseUsedResources(_ resources: T) throws {
         return try synchronized {
             let updatedAmounts = usedValues - resources
-            guard !updatedAmounts.containsValuesLessThan(.zero) else {
+            guard !updatedAmounts.containsAnyValueLessThan(.zero) else {
                 throw Error.unableToDecreaseAmounts(by: resources, current: usedValues, maximum: maximumValues)
             }
             usedValues = updatedAmounts
         }
     }
 
-    private func processPendingItems(_ items: [PendingItem]) throws {
-        var failedAmounts = ResourceAmounts.zero
+    private func processPendingItems(_ items: [PendingItem<T>]) throws {
+        var failedAmounts = T.zero
         
         for item in items {
             if item.operation.isCancelled {
@@ -137,8 +135,8 @@ public final class ListeningSemaphore {
     }
     
     public enum `Error`: Swift.Error, CustomStringConvertible {
-        case amountsAreNotCappedToMaximumAmounts(ResourceAmounts, maximum: ResourceAmounts)
-        case unableToDecreaseAmounts(by: ResourceAmounts, current: ResourceAmounts, maximum: ResourceAmounts)
+        case amountsAreNotCappedToMaximumAmounts(T, maximum: T)
+        case unableToDecreaseAmounts(by: T, current: T, maximum: T)
         
         public var description: String {
             switch self {
