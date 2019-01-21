@@ -200,4 +200,22 @@ class QueueClientTests: XCTestCase {
         
         wait(for: [serverHasProvidedResponseExpectation], timeout: 10)
     }
+    
+    func test___job_state() throws {
+        let jobId: JobId = "job_id"
+        let jobState = JobState(jobId: jobId, queueState: QueueState(enqueuedBucketCount: 24, dequeuedBucketCount: 42))
+        try prepareServer(RESTMethod.jobState.withPrependingSlash) { request -> HttpResponse in
+            let data: Data = (try? JSONEncoder().encode(JobStateResponse(jobState: jobState))) ?? Data()
+            return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
+        }
+        try queueClient.fetchJobState(jobId: jobId)
+        try SynchronousWaiter.waitWhile(timeout: 5.0) { delegate.responses.isEmpty }
+        
+        switch delegate.responses[0] {
+        case .fetchedJobState(let fetchedJobState):
+            XCTAssertEqual(fetchedJobState, jobState)
+        default:
+            XCTFail("Unexpected result")
+        }
+    }
 }

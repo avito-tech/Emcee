@@ -1,5 +1,6 @@
 import Foundation
+import Models
 
 public protocol QueueStateProvider {
-    var state: BucketQueueState { get }
+    var state: QueueState { get }
 }

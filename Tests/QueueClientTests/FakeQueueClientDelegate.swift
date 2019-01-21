@@ -4,7 +4,6 @@ import QueueClient
 import Version
 
 class FakeQueueClientDelegate: QueueClientDelegate {
-    
     enum ServerResponse {
         case error(QueueClientError)
         case queueIsEmpty
@@ -16,6 +15,8 @@ class FakeQueueClientDelegate: QueueClientDelegate {
         case alivenessAccepted
         case queueServerVersion(Version)
         case didScheduleTests(String)
+        case fetchedJobState(JobState)
+        case fecthedJobResults(JobResults)
     }
     
     var responses = [ServerResponse]()
@@ -58,5 +59,13 @@ class FakeQueueClientDelegate: QueueClientDelegate {
     
     func queueClientDidScheduleTests(_ sender: QueueClient, requestId: String) {
         responses.append(ServerResponse.didScheduleTests(requestId))
+    }
+    
+    func queueClient(_ sender: QueueClient, didFetchJobState jobState: JobState) {
+        responses.append(ServerResponse.fetchedJobState(jobState))
+    }
+    
+    func queueClient(_ sender: QueueClient, didFetchJobResults jobResults: JobResults) {
+        responses.append(ServerResponse.fecthedJobResults(jobResults))
     }
 }

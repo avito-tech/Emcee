@@ -101,6 +101,22 @@ public final class QueueClient {
         )
     }
     
+    public func fetchJobResults(jobId: JobId) throws {
+        try sendRequest(
+            .jobResults,
+            payload: JobResultsRequest(jobId: jobId),
+            completionHandler: handleJobResultsResponse
+        )
+    }
+    
+    public func fetchJobState(jobId: JobId) throws {
+        try sendRequest(
+            .jobState,
+            payload: JobStateRequest(jobId: jobId),
+            completionHandler: handleJobStateResponse
+        )
+    }
+
     // MARK: - Request Generation
     
     private func sendRequest<Payload, Response>(
@@ -200,5 +216,13 @@ public final class QueueClient {
         case .scheduledTests(let requestId):
             delegate?.queueClientDidScheduleTests(self, requestId: requestId)
         }
+    }
+    
+    private func handleJobStateResponse(response: JobStateResponse) {
+        delegate?.queueClient(self, didFetchJobState: response.jobState)
+    }
+    
+    private func handleJobResultsResponse(response: JobResultsResponse) {
+        delegate?.queueClient(self, didFetchJobResults: response.jobResults)
     }
 }

@@ -95,10 +95,10 @@ final class QueueServerTests: XCTestCase {
         
         let expectationForResults = expectation(description: "results became available")
         
-        var actualResults = [TestingResult]()
+        var actualResults = [JobResults]()
         DispatchQueue.global().async {
             do {
-                actualResults.append(contentsOf: try server.waitForJobToFinish(jobId: self.jobId))
+                actualResults.append(try server.waitForJobToFinish(jobId: self.jobId))
                 expectationForResults.fulfill()
             } catch {
                 XCTFail("Unexpected error: \(error)")
@@ -113,7 +113,10 @@ final class QueueServerTests: XCTestCase {
         
         wait(for: [expectationForResults], timeout: 10)
         
-        XCTAssertEqual([testingResult], actualResults)
+        XCTAssertEqual(
+            [JobResults(jobId: jobId, testingResults: [testingResult])],
+            actualResults
+        )
     }
     
     private func synchronousQueueClient(port: Int) -> SynchronousQueueClient {

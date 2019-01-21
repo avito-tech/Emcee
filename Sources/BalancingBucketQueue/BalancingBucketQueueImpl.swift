@@ -31,21 +31,21 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
         }
     }
     
-    func state(jobId: JobId) throws -> BucketQueueState {
+    func state(jobId: JobId) throws -> JobState {
         return try syncQueue.sync {
             guard let existingEntry = entry__onSyncQueue(jobId: jobId) else {
                 throw BalancingBucketQueueError.noQueue(jobId: jobId)
             }
-            return existingEntry.bucketQueue.state
+            return JobState(jobId: jobId, queueState: existingEntry.bucketQueue.state)
         }
     }
     
-    func results(jobId: JobId) throws -> [TestingResult] {
+    func results(jobId: JobId) throws -> JobResults {
         return try syncQueue.sync {
             guard let existingEntry = entry__onSyncQueue(jobId: jobId) else {
                 throw BalancingBucketQueueError.noQueue(jobId: jobId)
             }
-            return existingEntry.resultsCollector.collectedResults
+            return JobResults(jobId: jobId, testingResults: existingEntry.resultsCollector.collectedResults)
         }
     }
     
@@ -125,10 +125,10 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
         }
     }
     
-    var state: BucketQueueState {
+    var state: QueueState {
         return syncQueue.sync {
             let states = bucketQueues_onSyncQueue().map { $0.state }
-            return BucketQueueState(
+            return QueueState(
                 enqueuedBucketCount: states.map { $0.enqueuedBucketCount }.reduce(0, +),
                 dequeuedBucketCount: states.map { $0.dequeuedBucketCount }.reduce(0, +)
             )

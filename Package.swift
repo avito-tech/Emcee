@@ -519,7 +519,8 @@ let package = Package(
             // MARK: PortDeterminer
             name: "PortDeterminer",
             dependencies: [
-                "Logging"
+                "Logging",
+                "Swifter"
             ]
         ),
         .testTarget(

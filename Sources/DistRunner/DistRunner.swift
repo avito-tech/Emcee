@@ -68,7 +68,7 @@ public final class DistRunner {
         )
         try workersStarter.deployAndStartWorkers()
         
-        return try queueServer.waitForJobToFinish(jobId: distRunConfiguration.runId)
+        return try queueServer.waitForJobToFinish(jobId: distRunConfiguration.runId).testingResults
     }
     
     private func createWorkerConfigurations() -> WorkerConfigurations {

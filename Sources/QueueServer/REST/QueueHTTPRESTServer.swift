@@ -12,9 +12,11 @@ public final class QueueHTTPRESTServer {
         self.localPortDeterminer = localPortDeterminer
     }
     
-    public func setHandler<A1, A2, B1, B2, C1, C2, D1, D2, E1, E2, F1, F2>(
+    public func setHandler<A1, A2, B1, B2, C1, C2, D1, D2, E1, E2, F1, F2, G1, G2, H1, H2>(
         bucketResultHandler: RESTEndpointOf<C1, C2>,
         dequeueBucketRequestHandler: RESTEndpointOf<B1, B2>,
+        jobResultsHandler: RESTEndpointOf<H1, H2>,
+        jobStateHandler: RESTEndpointOf<G1, G2>,
         registerWorkerHandler: RESTEndpointOf<A1, A2>,
         reportAliveHandler: RESTEndpointOf<D1, D2>,
         scheduleTestsHandler: RESTEndpointOf<E1, E2>,
@@ -22,6 +24,8 @@ public final class QueueHTTPRESTServer {
     {
         server[RESTMethod.bucketResult.withPrependingSlash] = processRequest(usingEndpoint: bucketResultHandler)
         server[RESTMethod.getBucket.withPrependingSlash] = processRequest(usingEndpoint: dequeueBucketRequestHandler)
+        server[RESTMethod.jobResults.withPrependingSlash] = processRequest(usingEndpoint: jobResultsHandler)
+        server[RESTMethod.jobState.withPrependingSlash] = processRequest(usingEndpoint: jobStateHandler)
         server[RESTMethod.queueVersion.withPrependingSlash] = processRequest(usingEndpoint: versionHandler)
         server[RESTMethod.registerWorker.withPrependingSlash] = processRequest(usingEndpoint: registerWorkerHandler)
         server[RESTMethod.reportAlive.withPrependingSlash] = processRequest(usingEndpoint: reportAliveHandler)

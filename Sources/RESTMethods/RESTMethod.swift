@@ -7,6 +7,8 @@ public enum RESTMethod: String {
     case registerWorker
     case reportAlive
     case scheduleTests
+    case jobState
+    case jobResults
     
     public var withPrependingSlash: String {
         return "/\(self.rawValue)"

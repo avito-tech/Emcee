@@ -3,11 +3,11 @@ import Dispatch
 import Foundation
 import Logging
 import Models
+import RESTMethods
 import SynchronousWaiter
 import Version
 
 public final class SynchronousQueueClient: QueueClientDelegate {
-    
     public enum BucketFetchResult: Equatable {
         case bucket(Bucket)
         case queueIsEmpty
@@ -22,6 +22,8 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     private var alivenessReportResult: Result<Bool, QueueClientError>?
     private var queueServerVersionResult: Result<Version, QueueClientError>?
     private var scheduleTestsResult: Result<String, QueueClientError>?
+    private var jobResultsResult: Result<JobResults, QueueClientError>?
+    private var jobStateResult: Result<JobState, QueueClientError>?
     private let syncQueue = DispatchQueue(label: "ru.avito.SynchronousQueueClient")
     private let requestTimeout: TimeInterval
     
@@ -117,6 +119,30 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         }
     }
     
+    public func jobResults(jobId: JobId) throws -> JobResults {
+        return try synchronize {
+            jobResultsResult = nil
+            try queueClient.fetchJobResults(jobId: jobId)
+            try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for \(jobId) job results") {
+                self.jobResultsResult == nil
+            }
+            return try jobResultsResult!.dematerialize()
+        }
+    }
+    
+    public func jobState(jobId: JobId) throws -> JobState {
+        return try synchronize {
+            jobStateResult = nil
+            try queueClient.fetchJobState(jobId: jobId)
+            try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for \(jobId) job state") {
+                self.jobStateResult == nil
+            }
+            return try jobStateResult!.dematerialize()
+        }
+    }
+    
+    // MARK: - Private
+    
     private func synchronize<T>(_ work: () throws -> T) rethrows -> T {
         return try syncQueue.sync {
             return try work()
@@ -144,6 +170,8 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         bucketResultSendResult = Result.failure(error)
         queueServerVersionResult = Result.failure(error)
         scheduleTestsResult = Result.failure(error)
+        jobResultsResult = Result.failure(error)
+        jobStateResult = Result.failure(error)
     }
     
     public func queueClient(_ sender: QueueClient, didReceiveWorkerConfiguration workerConfiguration: WorkerConfiguration) {
@@ -180,5 +208,13 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     
     public func queueClientDidScheduleTests(_ sender: QueueClient, requestId: String) {
         scheduleTestsResult = Result.success(requestId)
+    }
+    
+    public func queueClient(_ sender: QueueClient, didFetchJobState jobState: JobState) {
+        jobStateResult = Result.success(jobState)
+    }
+    
+    public func queueClient(_ sender: QueueClient, didFetchJobResults jobResults: JobResults) {
+        jobResultsResult = Result.success(jobResults)
     }
 }

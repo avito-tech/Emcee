@@ -17,6 +17,8 @@ public final class QueueServer {
     private let balancingBucketQueue: BalancingBucketQueue
     private let bucketProvider: BucketProviderEndpoint
     private let bucketResultRegistrar: BucketResultRegistrar
+    private let jobResultsEndpoint: JobResultsEndpoint
+    private let jobStateEndpoint: JobStateEndpoint
     private let newWorkerRegistrationTimeAllowance: TimeInterval
     private let queueExhaustTimeAllowance: TimeInterval
     private let queueServerVersionHandler: QueueServerVersionEndpoint
@@ -89,12 +91,16 @@ public final class QueueServer {
         self.newWorkerRegistrationTimeAllowance = newWorkerRegistrationTimeAllowance
         self.queueExhaustTimeAllowance = queueExhaustTimeAllowance
         self.queueServerVersionHandler = QueueServerVersionEndpoint(versionProvider: queueVersionProvider)
+        self.jobResultsEndpoint = JobResultsEndpoint(jobResultsProvider: balancingBucketQueue)
+        self.jobStateEndpoint = JobStateEndpoint(stateProvider: balancingBucketQueue)
     }
     
     public func start() throws -> Int {
         restServer.setHandler(
             bucketResultHandler: RESTEndpointOf(actualHandler: bucketResultRegistrar),
             dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: bucketProvider),
+            jobResultsHandler: RESTEndpointOf(actualHandler: jobResultsEndpoint),
+            jobStateHandler: RESTEndpointOf(actualHandler: jobStateEndpoint),
             registerWorkerHandler: RESTEndpointOf(actualHandler: workerRegistrar),
             reportAliveHandler: RESTEndpointOf(actualHandler: workerAlivenessEndpoint),
             scheduleTestsHandler: RESTEndpointOf(actualHandler: scheduleTestsHandler),
@@ -112,7 +118,7 @@ public final class QueueServer {
         testsEnqueuer.enqueue(testEntryConfigurations: testEntryConfigurations, jobId: jobId)
     }
     
-    public func waitForJobToFinish(jobId: JobId) throws -> [TestingResult] {
+    public func waitForJobToFinish(jobId: JobId) throws -> JobResults {
         Logger.debug("Waiting for workers to appear")
         try SynchronousWaiter.waitWhile(pollPeriod: 1, timeout: newWorkerRegistrationTimeAllowance, description: "Waiting workers to appear") {
             workerAlivenessTracker.hasAnyAliveWorker == false

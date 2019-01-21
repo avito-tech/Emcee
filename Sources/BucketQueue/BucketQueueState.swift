@@ -1,29 +1,11 @@
 import Foundation
 import Logging
-
-public final class BucketQueueState: Equatable {
-    public let enqueuedBucketCount: Int
-    public let dequeuedBucketCount: Int
-    
-    public init(enqueuedBucketCount: Int, dequeuedBucketCount: Int) {
-        self.enqueuedBucketCount = enqueuedBucketCount
-        self.dequeuedBucketCount = dequeuedBucketCount
-    }
-    
-    public var isDepleted: Bool {
-        return enqueuedBucketCount == 0 && dequeuedBucketCount == 0
-    }
-    
-    public static func == (left: BucketQueueState, right: BucketQueueState) -> Bool {
-        return left.enqueuedBucketCount == right.enqueuedBucketCount &&
-            left.dequeuedBucketCount == right.dequeuedBucketCount
-    }
-}
+import Models
 
 public final class BucketQueueStateLogger {
-    private let state: BucketQueueState
+    private let state: QueueState
     
-    public init(state: BucketQueueState) {
+    public init(state: QueueState) {
         self.state = state
     }
     

@@ -24,7 +24,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         
         XCTAssertEqual(
             try? balancingQueue.state(jobId: jobId),
-            BucketQueueState(enqueuedBucketCount: 1, dequeuedBucketCount: 0)
+            JobState(jobId: jobId, queueState: QueueState(enqueuedBucketCount: 1, dequeuedBucketCount: 0))
         )
     }
     
@@ -35,7 +35,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         
         XCTAssertEqual(
             try? balancingQueue.state(jobId: jobId),
-            BucketQueueState(enqueuedBucketCount: 2, dequeuedBucketCount: 0)
+            JobState(jobId: jobId, queueState: QueueState(enqueuedBucketCount: 2, dequeuedBucketCount: 0))
         )
     }
     
@@ -82,7 +82,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
         XCTAssertEqual(
             try? balancingQueue.state(jobId: jobId),
-            BucketQueueState(enqueuedBucketCount: 0, dequeuedBucketCount: 1)
+            JobState(jobId: jobId, queueState: QueueState(enqueuedBucketCount: 0, dequeuedBucketCount: 1))
         )
         XCTAssertEqual(
             balancingQueue.dequeueBucket(requestId: anotherRequestId, workerId: workerId),
@@ -90,7 +90,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
         XCTAssertEqual(
             try? balancingQueue.state(jobId: anotherJobId),
-            BucketQueueState(enqueuedBucketCount: 0, dequeuedBucketCount: 1)
+            JobState(jobId: anotherJobId, queueState: QueueState(enqueuedBucketCount: 0, dequeuedBucketCount: 1))
         )
     }
     
@@ -136,7 +136,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         balancingQueue.enqueue(buckets: [bucket], jobId: jobId)
         
-        XCTAssertEqual(try balancingQueue.results(jobId: jobId), [])
+        XCTAssertEqual(try balancingQueue.results(jobId: jobId).testingResults, [])
     }
     
     func test___accepting_results___provides_back_results_for_job() throws {
@@ -158,6 +158,7 @@ final class BalancingBucketQueueTests: XCTestCase {
                 )
             ]
             ).testingResult()
+        let expectedJobResults = JobResults(jobId: jobId, testingResults: [expectedTestingResult])
         
         let acceptanceResult = try balancingQueue.accept(
             testingResult: expectedTestingResult,
@@ -166,7 +167,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
         
         XCTAssertEqual(acceptanceResult.testingResultToCollect, expectedTestingResult)
-        XCTAssertEqual(try balancingQueue.results(jobId: jobId), [expectedTestingResult])
+        XCTAssertEqual(try balancingQueue.results(jobId: jobId), expectedJobResults)
     }
     
     func test___accepting_results_for_wrong_request_id___throws() throws {

@@ -23,8 +23,8 @@ public class FakeBucketQueue: BucketQueue {
         self.fixedDequeueResult = fixedDequeueResult
     }
     
-    public var state: BucketQueueState {
-        return BucketQueueState(enqueuedBucketCount: 0, dequeuedBucketCount: 0)
+    public var state: QueueState {
+        return QueueState(enqueuedBucketCount: 0, dequeuedBucketCount: 0)
     }
     
     public func enqueue(buckets: [Bucket]) {

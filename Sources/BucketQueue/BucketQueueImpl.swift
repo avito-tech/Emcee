@@ -28,14 +28,17 @@ final class BucketQueueImpl: BucketQueue {
         }
     }
     
-    public var state: BucketQueueState {
+    public var state: QueueState {
         return queue.sync {
             return state_onSyncQueue
         }
     }
     
-    private var state_onSyncQueue: BucketQueueState {
-        return BucketQueueState(enqueuedBucketCount: enqueuedBuckets.count, dequeuedBucketCount: dequeuedBuckets.count)
+    private var state_onSyncQueue: QueueState {
+        return QueueState(
+            enqueuedBucketCount: enqueuedBuckets.count,
+            dequeuedBucketCount: dequeuedBuckets.count
+        )
     }
     
     func previouslyDequeuedBucket(requestId: String, workerId: String) -> DequeuedBucket? {

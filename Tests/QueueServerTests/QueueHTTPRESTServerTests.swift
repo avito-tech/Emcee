@@ -20,8 +20,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     let workerId = "worker"
     let requestId = "requestId"
     let jobId: JobId = "JobId"
-    
-    let stubbedEndpoint = FakeRESTEndpoint<Int, Int>(0)
+    let stubbedHandler = RESTEndpointOf(actualHandler: FakeRESTEndpoint<Int, Int>(0))
     
     override func setUp() {
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
@@ -33,12 +32,14 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             workerAlivenessTracker: WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults())
         
         restServer.setHandler(
-            bucketResultHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            bucketResultHandler: stubbedHandler,
+            dequeueBucketRequestHandler: stubbedHandler,
+            jobResultsHandler: stubbedHandler,
+            jobStateHandler: stubbedHandler,
             registerWorkerHandler: RESTEndpointOf(actualHandler: workerRegistrar),
-            reportAliveHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            scheduleTestsHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            versionHandler: RESTEndpointOf(actualHandler: stubbedEndpoint)
+            reportAliveHandler: stubbedHandler,
+            scheduleTestsHandler: stubbedHandler,
+            versionHandler: stubbedHandler
         )
         let client = synchronousQueueClient(port: try restServer.start())
         
@@ -57,12 +58,14 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         )
         
         restServer.setHandler(
-            bucketResultHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            bucketResultHandler: stubbedHandler,
             dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: bucketProvider),
-            registerWorkerHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            reportAliveHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            scheduleTestsHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            versionHandler: RESTEndpointOf(actualHandler: stubbedEndpoint)
+            jobResultsHandler: stubbedHandler,
+            jobStateHandler: stubbedHandler,
+            registerWorkerHandler: stubbedHandler,
+            reportAliveHandler: stubbedHandler,
+            scheduleTestsHandler: stubbedHandler,
+            versionHandler: stubbedHandler
         )
         let client = synchronousQueueClient(port: try restServer.start())
         
@@ -88,11 +91,13 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         
         restServer.setHandler(
             bucketResultHandler: RESTEndpointOf(actualHandler: resultHandler),
-            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            registerWorkerHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            reportAliveHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            scheduleTestsHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            versionHandler: RESTEndpointOf(actualHandler: stubbedEndpoint)
+            dequeueBucketRequestHandler: stubbedHandler,
+            jobResultsHandler: stubbedHandler,
+            jobStateHandler: stubbedHandler,
+            registerWorkerHandler: stubbedHandler,
+            reportAliveHandler: stubbedHandler,
+            scheduleTestsHandler: stubbedHandler,
+            versionHandler: stubbedHandler
         )
         let client = synchronousQueueClient(port: try restServer.start())
 
@@ -105,12 +110,14 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let alivenessTracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
         
         restServer.setHandler(
-            bucketResultHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            registerWorkerHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            bucketResultHandler: stubbedHandler,
+            dequeueBucketRequestHandler: stubbedHandler,
+            jobResultsHandler: stubbedHandler,
+            jobStateHandler: stubbedHandler,
+            registerWorkerHandler: stubbedHandler,
             reportAliveHandler: RESTEndpointOf(actualHandler: WorkerAlivenessEndpoint(alivenessTracker: alivenessTracker)),
-            scheduleTestsHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            versionHandler: RESTEndpointOf(actualHandler: stubbedEndpoint)
+            scheduleTestsHandler: stubbedHandler,
+            versionHandler: stubbedHandler
         )
         let client = synchronousQueueClient(port: try restServer.start())
         
@@ -123,11 +130,13 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let versionHandler = FakeRESTEndpoint<QueueVersionRequest, QueueVersionResponse>(QueueVersionResponse.queueVersion("abc"))
         
         restServer.setHandler(
-            bucketResultHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            registerWorkerHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            reportAliveHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            scheduleTestsHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            bucketResultHandler: stubbedHandler,
+            dequeueBucketRequestHandler: stubbedHandler,
+            jobResultsHandler: stubbedHandler,
+            jobStateHandler: stubbedHandler,
+            registerWorkerHandler: stubbedHandler,
+            reportAliveHandler: stubbedHandler,
+            scheduleTestsHandler: stubbedHandler,
             versionHandler: RESTEndpointOf(actualHandler: versionHandler)
         )
         let client = synchronousQueueClient(port: try restServer.start())
@@ -155,12 +164,14 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let scheduleTestsEndpoint = ScheduleTestsEndpoint(testsEnqueuer: testsEnqueuer)
         
         restServer.setHandler(
-            bucketResultHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            registerWorkerHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
-            reportAliveHandler: RESTEndpointOf(actualHandler: stubbedEndpoint),
+            bucketResultHandler: stubbedHandler,
+            dequeueBucketRequestHandler: stubbedHandler,
+            jobResultsHandler: stubbedHandler,
+            jobStateHandler: stubbedHandler,
+            registerWorkerHandler: stubbedHandler,
+            reportAliveHandler: stubbedHandler,
             scheduleTestsHandler: RESTEndpointOf(actualHandler: scheduleTestsEndpoint),
-            versionHandler: RESTEndpointOf(actualHandler: stubbedEndpoint)
+            versionHandler: stubbedHandler
         )
         let client = synchronousQueueClient(port: try restServer.start())
         
@@ -174,6 +185,57 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         XCTAssertEqual(
             enqueueableBucketReceptor.enqueuedJobs[jobId],
             [BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])]
+        )
+    }
+    
+    func test___job_state() throws {
+        let jobState = JobState(
+            jobId: jobId,
+            queueState: QueueState(
+                enqueuedBucketCount: 24,
+                dequeuedBucketCount: 42
+            )
+        )
+        let jobStateHandler = FakeRESTEndpoint<JobStateRequest, JobStateResponse>(JobStateResponse(jobState: jobState))
+        
+        restServer.setHandler(
+            bucketResultHandler: stubbedHandler,
+            dequeueBucketRequestHandler: stubbedHandler,
+            jobResultsHandler: stubbedHandler,
+            jobStateHandler: RESTEndpointOf(actualHandler: jobStateHandler),
+            registerWorkerHandler: stubbedHandler,
+            reportAliveHandler: stubbedHandler,
+            scheduleTestsHandler: stubbedHandler,
+            versionHandler: stubbedHandler
+        )
+        let client = synchronousQueueClient(port: try restServer.start())
+        
+        XCTAssertEqual(
+            try client.jobState(jobId: jobId),
+            jobState
+        )
+    }
+    
+    func test___job_results() throws {
+        let jobResults = JobResults(jobId: jobId, testingResults: [])
+        let jobResultsHandler = FakeRESTEndpoint<JobResultsRequest, JobResultsResponse>(
+            JobResultsResponse(jobResults: jobResults)
+        )
+        
+        restServer.setHandler(
+            bucketResultHandler: stubbedHandler,
+            dequeueBucketRequestHandler: stubbedHandler,
+            jobResultsHandler: RESTEndpointOf(actualHandler: jobResultsHandler),
+            jobStateHandler: stubbedHandler,
+            registerWorkerHandler: stubbedHandler,
+            reportAliveHandler: stubbedHandler,
+            scheduleTestsHandler: stubbedHandler,
+            versionHandler: stubbedHandler
+        )
+        let client = synchronousQueueClient(port: try restServer.start())
+        XCTAssertEqual(
+            try client.jobResults(jobId: jobId),
+            jobResults
         )
     }
     
