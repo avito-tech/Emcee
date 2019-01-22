@@ -81,6 +81,15 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
         }
     }
     
+    public var stringValue: String {
+        switch self {
+        case .localFilePath(let path):
+            return path
+        case .remoteUrl(let url):
+            return url.absoluteString
+        }
+    }
+    
     public static func == (left: ResourceLocation, right: ResourceLocation) -> Bool {
         switch (left, right) {
         case (.localFilePath(let leftPath), .localFilePath(let rightPath)):
@@ -99,12 +108,7 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
-        switch self {
-        case .localFilePath(let path):
-            try container.encode(path)
-        case .remoteUrl(let url):
-            try container.encode(url.absoluteString)
-        }
+        try container.encode(stringValue)
     }
     
 }

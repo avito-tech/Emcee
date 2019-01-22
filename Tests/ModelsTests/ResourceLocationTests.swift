@@ -36,5 +36,17 @@ final class ResourceLocationTests: XCTestCase {
         }
         XCTAssertEqual(decodedDict["value"] as? String, urlString)
     }
+    
+    func test___string_value() {
+        XCTAssertEqual(ResourceLocation.localFilePath("/path").stringValue, "/path")
+        XCTAssertEqual(
+            ResourceLocation.remoteUrl(URL(string: "http://example.com/file.zip")!).stringValue,
+            "http://example.com/file.zip"
+        )
+        XCTAssertEqual(
+            ResourceLocation.remoteUrl(URL(string: "http://example.com/file.zip#file")!).stringValue,
+            "http://example.com/file.zip#file"
+        )
+    }
 }
 

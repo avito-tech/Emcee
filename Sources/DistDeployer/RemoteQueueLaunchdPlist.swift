@@ -3,47 +3,52 @@ import Foundation
 import LaunchdUtils
 import Models
 import SSHDeployer
+import TempFolder
 
-public final class RemoteWorkerLaunchdPlist {
-    
+public final class RemoteQueueLaunchdPlist {
+    /// Unique deployment id
     private let deploymentId: String
+    /// Deployment destination where queue should start
     private let deploymentDestination: DeploymentDestination
-    private let executableDeployableItem: DeployableItem
-    private let queueAddress: SocketAddress
+    /// Queue server executable
+    private let queueServerBinaryDeployableItem: DeployableItem
+    /// A JSON file location that contains QueueServerRunConfiguration for queue server
+    private let queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation
 
     public init(
         deploymentId: String,
         deploymentDestination: DeploymentDestination,
-        executableDeployableItem: DeployableItem,
-        queueAddress: SocketAddress)
+        emceeDeployableItem: DeployableItem,
+        queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation)
     {
         self.deploymentId = deploymentId
         self.deploymentDestination = deploymentDestination
-        self.executableDeployableItem = executableDeployableItem
-        self.queueAddress = queueAddress
+        self.queueServerBinaryDeployableItem = emceeDeployableItem
+        self.queueServerRunConfigurationLocation = queueServerRunConfigurationLocation
     }
     
     public func plistData() throws -> Data {
         let containerPath = SSHDeployer.remoteContainerPath(
-            forDeployable: executableDeployableItem,
+            forDeployable: queueServerBinaryDeployableItem,
             destination: deploymentDestination,
             deploymentId: deploymentId
         )
-        let emceeDeployableBinaryFile = try DeployableItemSingleFileExtractor(deployableItem: executableDeployableItem).singleDeployableFile()
-        let workerBinaryRemotePath = SSHDeployer.remotePath(
-            deployable: executableDeployableItem,
-            file: emceeDeployableBinaryFile,
+        let remoteQueueServerBinaryPath = SSHDeployer.remotePath(
+            deployable: queueServerBinaryDeployableItem,
+            file: try DeployableItemSingleFileExtractor(
+                deployableItem: queueServerBinaryDeployableItem
+            ).singleDeployableFile(),
             destination: deploymentDestination,
             deploymentId: deploymentId
         )
-        let jobLabel = "ru.avito.emcee.worker.\(deploymentId.removingWhitespaces())"
+        
+        let jobLabel = "ru.avito.emcee.queueServer.\(deploymentId.removingWhitespaces())"
         let launchdPlist = LaunchdPlist(
             job: LaunchdJob(
                 label: jobLabel,
                 programArguments: [
-                    workerBinaryRemotePath, "distWork",
-                    "--queue-server", queueAddress.asString,
-                    "--worker-id", deploymentDestination.identifier
+                    remoteQueueServerBinaryPath, "startLocalQueueServer",
+                    "--queue-server-run-configuration-location", queueServerRunConfigurationLocation.resourceLocation.stringValue
                 ],
                 environmentVariables: [:],
                 workingDirectory: containerPath,
@@ -58,5 +63,4 @@ public final class RemoteWorkerLaunchdPlist {
         )
         return try launchdPlist.createPlistData()
     }
-    
 }

@@ -91,6 +91,9 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
     KnownStringArguments.queueServer: ArgumentDescriptionHolder(
         name: "--queue-server",
         comment: "An address to a server which runs distRun command, e.g. 127.0.0.1:1234"),
+    KnownStringArguments.queueServerRunConfigurationLocation: ArgumentDescriptionHolder(
+        name: "--queue-server-run-configuration-location",
+        comment: "JSON file location with QueueServerRunConfiguration. Either /path/to/file.json, or http://example.com/file.zip#path/to/config.json"),
     KnownStringArguments.remoteScheduleStrategy: ArgumentDescriptionHolder(
         name: "--remote-schedule-strategy",
         comment: "Defines how to scatter tests to the destination machines. Can be: \(ScheduleStrategyType.availableRawValues.joined(separator: ", "))"),
@@ -186,6 +189,7 @@ enum KnownStringArguments: ArgumentDescription {
     case output
     case plugin
     case queueServer
+    case queueServerRunConfigurationLocation
     case queueServerTearDownPolicy
     case remoteScheduleStrategy
     case runId

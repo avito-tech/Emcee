@@ -1,6 +1,7 @@
 import Foundation
 import Logging
 import Models
+import ResourceLocationResolver
 
 final class ArgumentsReader {
     private init() {}
@@ -50,6 +51,21 @@ final class ArgumentsReader {
             watchdogLocation = WatchdogSettingsLocation(watchdogResource)
         }
         return SimulatorSettings(simulatorLocalizationSettings: localizationLocation, watchdogSettings: watchdogLocation)
+    }
+    
+    public static func queueServerRunConfiguration(
+        _ value: String?,
+        key: ArgumentDescription,
+        resourceLocationResolver: ResourceLocationResolver)
+        throws -> QueueServerRunConfiguration
+    {
+        let location = try ArgumentsReader.validateResourceLocation(value, key: key)
+        let resolvingResult = try resourceLocationResolver.resolvePath(resourceLocation: location)
+        return try decodeModelsFromFile(
+            try resolvingResult.directlyAccessibleResourcePath(),
+            key: key,
+            jsonDecoder: decoderWithSnakeCaseSupport
+        )
     }
     
     private static func decodeModelsFromFile<T>(

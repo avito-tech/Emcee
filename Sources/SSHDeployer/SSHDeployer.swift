@@ -71,6 +71,21 @@ public final class SSHDeployer: Deployer {
         return remoteDeploymentPath
     }
     
+    public static func remotePath(
+        deployable: DeployableItem,
+        file: DeployableFile,
+        destination: DeploymentDestination,
+        deploymentId: String)
+        -> String
+    {
+        let container = remoteContainerPath(
+            forDeployable: deployable,
+            destination: destination,
+            deploymentId: deploymentId
+        )
+        return container.appending(pathComponent: file.destination)
+    }
+    
     // MARK: - Private - Deploy
     
     private func deploy(destination: DeploymentDestination, urlToDeployable: [URL: DeployableItem]) throws {
