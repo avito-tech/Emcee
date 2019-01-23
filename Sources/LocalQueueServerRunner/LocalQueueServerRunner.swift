@@ -1,10 +1,11 @@
-import BalancingBucketQueue
+import AutomaticTermination
 import EventBus
 import Logging
 import Models
 import PortDeterminer
 import QueueServer
 import ScheduleStrategy
+import SynchronousWaiter
 import Version
 
 public final class LocalQueueServerRunner {
@@ -26,25 +27,41 @@ public final class LocalQueueServerRunner {
     }
     
     public func start() throws {
+        let automaticTerminationController = AutomaticTerminationControllerFactory(
+            automaticTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy
+        ).createAutomaticTerminationController()
         let queueServer = QueueServer(
             eventBus: eventBus,
             workerConfigurations: createWorkerConfigurations(),
             reportAliveInterval: queueServerRunConfiguration.reportAliveInterval,
             checkAgainTimeInterval: queueServerRunConfiguration.checkAgainTimeInterval,
             localPortDeterminer: localPortDeterminer,
-            nothingToDequeueBehavior: NothingToDequeueBehaviorCheckLater(
-                checkAfter: queueServerRunConfiguration.checkAgainTimeInterval
-            ),
+            workerAlivenessPolicy: .workersStayAliveWhenQueueIsDepleted,
             bucketSplitter: queueServerRunConfiguration.remoteScheduleStrategyType.bucketSplitter(),
             bucketSplitInfo: BucketSplitInfo(
                 numberOfWorkers: UInt(queueServerRunConfiguration.deploymentDestinationConfigurations.count),
                 toolResources: queueServerRunConfiguration.auxiliaryResources.toolResources,
                 simulatorSettings: queueServerRunConfiguration.simulatorSettings
             ),
+            queueServerLock: AutomaticTerminationControllerAwareQueueServerLock(
+                automaticTerminationController: automaticTerminationController
+            ),
             queueVersionProvider: localQueueVersionProvider
         )
-        let port = try queueServer.start()
-        Logger.info("Started local queue server on port \(port)")
+        _ = try queueServer.start()
+        
+        try waitForAutomaticTerminationControllerToTriggerStartOfTermination(automaticTerminationController)
+        try allowQueueServerToFinishJobs(queueServer)
+    }
+    
+    private func waitForAutomaticTerminationControllerToTriggerStartOfTermination(_ automaticTerminationController: AutomaticTerminationController) throws {
+        try SynchronousWaiter.waitWhile(pollPeriod: 5.0, description: "Wait for automatic termination") {
+            !automaticTerminationController.isTerminationAllowed
+        }
+    }
+    
+    private func allowQueueServerToFinishJobs(_ queueServer: QueueServer) throws {
+        try queueServer.waitForBalancingQueueToDeplete()
     }
     
     private func createWorkerConfigurations() -> WorkerConfigurations {

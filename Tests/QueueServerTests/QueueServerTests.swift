@@ -1,4 +1,3 @@
-import BalancingBucketQueue
 import EventBus
 import Foundation
 import Models
@@ -16,7 +15,6 @@ final class QueueServerTests: XCTestCase {
     let workerId = "workerId"
     let jobId: JobId = "jobId"
     let localPortDeterminer = LocalPortDeterminer(portRange: Ports.allPrivatePorts)
-    let dequeueBehavior = NothingToDequeueBehaviorWaitForAllQueuesToDeplete(checkAfter: 42)
     let bucketSplitter = ScheduleStrategyType.individual.bucketSplitter()
     let bucketSplitInfo = BucketSplitInfoFixtures.bucketSplitInfoFixture()
     let queueVersionProvider = VersionProviderFixture().buildVersionProvider()
@@ -31,9 +29,10 @@ final class QueueServerTests: XCTestCase {
             newWorkerRegistrationTimeAllowance: 0.0,
             checkAgainTimeInterval: .infinity, 
             localPortDeterminer: localPortDeterminer,
-            nothingToDequeueBehavior: dequeueBehavior,
+            workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
             bucketSplitter: bucketSplitter,
             bucketSplitInfo: bucketSplitInfo,
+            queueServerLock: NeverLockableQueueServerLock(),
             queueVersionProvider: queueVersionProvider
         )
         XCTAssertThrowsError(try server.waitForJobToFinish(jobId: jobId))
@@ -53,9 +52,10 @@ final class QueueServerTests: XCTestCase {
             queueExhaustTimeAllowance: 0.0,
             checkAgainTimeInterval: .infinity,
             localPortDeterminer: localPortDeterminer,
-            nothingToDequeueBehavior: dequeueBehavior,
+            workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
             bucketSplitter: bucketSplitter,
             bucketSplitInfo: bucketSplitInfo,
+            queueServerLock: NeverLockableQueueServerLock(),
             queueVersionProvider: queueVersionProvider
         )
         server.schedule(testEntryConfigurations: testEntryConfiguration, jobId: jobId)
@@ -86,9 +86,10 @@ final class QueueServerTests: XCTestCase {
             queueExhaustTimeAllowance: 10.0,
             checkAgainTimeInterval: .infinity,
             localPortDeterminer: localPortDeterminer,
-            nothingToDequeueBehavior: dequeueBehavior,
+            workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
             bucketSplitter: bucketSplitter,
             bucketSplitInfo: bucketSplitInfo,
+            queueServerLock: NeverLockableQueueServerLock(),
             queueVersionProvider: queueVersionProvider
         )
         server.schedule(testEntryConfigurations: testEntryConfigurations, jobId: jobId)

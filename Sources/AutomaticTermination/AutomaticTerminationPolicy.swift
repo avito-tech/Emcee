@@ -10,23 +10,6 @@ public enum AutomaticTerminationPolicy: Codable {
     /// Will not trigger automatic termination.
     case stayAlive
     
-    public var automaticTerminationController: AutomaticTerminationController {
-        switch self {
-        case .after(let timeInterval):
-            return AfterFixedPeriodOfTimeTerminationController(
-                dateProvider: DefaultDateProvider(),
-                fireAt: Date().addingTimeInterval(timeInterval)
-            )
-        case .afterBeingIdle(let period):
-            return AfterPeriodOfInactivityTerminationController(
-                dateProvider: DefaultDateProvider(),
-                inactivityInterval: period
-            )
-        case .stayAlive:
-            return StayAliveTerminationController()
-        }
-    }
-    
     private enum CodingKeys: String, CodingKey {
         case caseId
         case period

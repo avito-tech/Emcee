@@ -236,7 +236,6 @@ let package = Package(
             // MARK: DistRunner
             name: "DistRunner",
             dependencies: [
-                "BalancingBucketQueue",
                 "BucketQueue",
                 "DistDeployer",
                 "EventBus",
@@ -435,13 +434,21 @@ let package = Package(
             name: "LocalQueueServerRunner",
             dependencies: [
                 "AutomaticTermination",
-                "BalancingBucketQueue",
                 "Models",
                 "PortDeterminer",
                 "Logging",
                 "QueueServer",
                 "ScheduleStrategy",
+                "SynchronousWaiter",
                 "Version",
+            ]
+        ),
+        .testTarget(
+        // MARK: LocalQueueServerRunnerTests
+            name: "LocalQueueServerRunnerTests",
+            dependencies: [
+                "AutomaticTermination",
+                "LocalQueueServerRunner"
             ]
         ),
         .target(
@@ -583,7 +590,6 @@ let package = Package(
             // MARK: QueueClientTests
             name: "QueueClientTests",
             dependencies: [
-                "BalancingBucketQueue",
                 "Models",
                 "ModelsTestHelpers",
                 "PortDeterminer",
@@ -620,6 +626,7 @@ let package = Package(
             // MARK: QueueServerTests
             name: "QueueServerTests",
             dependencies: [
+                "AutomaticTermination",
                 "BalancingBucketQueue",
                 "BucketQueue",
                 "BucketQueueTestHelpers",

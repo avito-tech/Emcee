@@ -1,4 +1,3 @@
-import BalancingBucketQueue
 import Deployer
 import DistDeployer
 import EventBus
@@ -44,13 +43,14 @@ public final class DistRunner {
             reportAliveInterval: distRunConfiguration.reportAliveInterval,
             checkAgainTimeInterval: distRunConfiguration.checkAgainTimeInterval,
             localPortDeterminer: localPortDeterminer,
-            nothingToDequeueBehavior: NothingToDequeueBehaviorWaitForAllQueuesToDeplete(checkAfter: distRunConfiguration.checkAgainTimeInterval),
+            workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
             bucketSplitter: distRunConfiguration.remoteScheduleStrategyType.bucketSplitter(),
             bucketSplitInfo: BucketSplitInfo(
                 numberOfWorkers: UInt(distRunConfiguration.destinations.count),
                 toolResources: distRunConfiguration.auxiliaryResources.toolResources,
                 simulatorSettings: distRunConfiguration.simulatorSettings
             ),
+            queueServerLock: NeverLockableQueueServerLock(),
             queueVersionProvider: localQueueVersionProvider
         )
         queueServer.schedule(
