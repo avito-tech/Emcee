@@ -18,7 +18,7 @@ public final class DispatchBasedTimer {
         deadline: DispatchTime = .now(),
         repeating: DispatchTimeInterval,
         leeway: DispatchTimeInterval,
-        handler: @escaping () -> ())
+        handler: @escaping (DispatchBasedTimer) -> ())
         -> DispatchBasedTimer
     {
         let timer = DispatchBasedTimer(deadline: deadline, repeating: repeating, leeway: leeway)
@@ -30,17 +30,18 @@ public final class DispatchBasedTimer {
         stop()
     }
     
-    public func start(handler: @escaping () -> ()) {
+    public func start(handler: @escaping (DispatchBasedTimer) -> ()) {
         stop()
         
         let timer = DispatchSource.makeTimerSource(queue: queue)
         timer.schedule(deadline: deadline, repeating: repeating, leeway: leeway)
-        timer.setEventHandler(handler: handler)
+        timer.setEventHandler(handler: { handler(self) })
         timer.resume()
         self.timer = timer
     }
     
     public func stop() {
         timer?.cancel()
+        timer?.setEventHandler(handler: nil)
     }
 }

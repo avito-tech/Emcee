@@ -55,7 +55,7 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
         
         log_fbxctest("Will track long running tests with timeout \(singleTestMaximumDuration)", processId)
         
-        testHangTrackingTimer = DispatchBasedTimer.startedTimer(repeating: .seconds(1), leeway: .seconds(1)) { [weak self] in
+        testHangTrackingTimer = DispatchBasedTimer.startedTimer(repeating: .seconds(1), leeway: .seconds(1)) { [weak self] _ in
             guard let strongSelf = self else { return }
             guard let lastTestStartedEvent = strongSelf.eventsListener.lastStartedButNotFinishedTestEventPair?.startEvent else { return }
             if Date().timeIntervalSince1970 - lastTestStartedEvent.timestamp > strongSelf.singleTestMaximumDuration {

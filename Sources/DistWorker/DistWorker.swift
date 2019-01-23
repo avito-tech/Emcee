@@ -59,7 +59,7 @@ public final class DistWorker {
     private func startReportingWorkerIsAlive(interval: TimeInterval) {
         reportingAliveTimer = DispatchBasedTimer.startedTimer(
             repeating: .milliseconds(Int(interval * 1000.0)),
-            leeway: .seconds(1)) { [weak self] in
+            leeway: .seconds(1)) { [weak self] _ in
                 guard let strongSelf = self else { return }
                 do {
                     try strongSelf.reportAliveness()

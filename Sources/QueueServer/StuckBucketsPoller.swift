@@ -14,7 +14,7 @@ public final class StuckBucketsPoller {
     }
     
     public func startTrackingStuckBuckets() {
-        stuckBucketsTrigger.start { [weak self] in
+        stuckBucketsTrigger.start { [weak self] _ in
             self?.processStuckBuckets()
         }
     }

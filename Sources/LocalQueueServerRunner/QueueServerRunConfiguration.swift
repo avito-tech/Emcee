@@ -1,4 +1,6 @@
+import AutomaticTermination
 import Foundation
+import Models
 
 public struct QueueServerRunConfiguration: Decodable {
     /// Paths that are required to make things work
@@ -11,7 +13,7 @@ public struct QueueServerRunConfiguration: Decodable {
     public let deploymentDestinationConfigurations: [DestinationConfiguration]
     
     /// Defines when queue server will terminate itself.
-    public let queueServerTearDownPolicy: QueueServerTearDownPolicy
+    public let queueServerTerminationPolicy: AutomaticTerminationPolicy
     
     /// How to scatter tests onto destinations.
     public let remoteScheduleStrategyType: ScheduleStrategyType
@@ -28,11 +30,11 @@ public struct QueueServerRunConfiguration: Decodable {
     /// Schedule strategy on worker
     public let workerScheduleStrategy: ScheduleStrategyType
 
-    public init(auxiliaryResources: AuxiliaryResources, checkAgainTimeInterval: TimeInterval, deploymentDestinationConfigurations: [DestinationConfiguration], queueServerTearDownPolicy: QueueServerTearDownPolicy, remoteScheduleStrategyType: ScheduleStrategyType, reportAliveInterval: TimeInterval, simulatorSettings: SimulatorSettings, testTimeoutConfiguration: TestTimeoutConfiguration, workerScheduleStrategy: ScheduleStrategyType) {
+    public init(auxiliaryResources: AuxiliaryResources, checkAgainTimeInterval: TimeInterval, deploymentDestinationConfigurations: [DestinationConfiguration], queueServerTerminationPolicy: AutomaticTerminationPolicy, remoteScheduleStrategyType: ScheduleStrategyType, reportAliveInterval: TimeInterval, simulatorSettings: SimulatorSettings, testTimeoutConfiguration: TestTimeoutConfiguration, workerScheduleStrategy: ScheduleStrategyType) {
         self.auxiliaryResources = auxiliaryResources
         self.checkAgainTimeInterval = checkAgainTimeInterval
         self.deploymentDestinationConfigurations = deploymentDestinationConfigurations
-        self.queueServerTearDownPolicy = queueServerTearDownPolicy
+        self.queueServerTerminationPolicy = queueServerTerminationPolicy
         self.remoteScheduleStrategyType = remoteScheduleStrategyType
         self.reportAliveInterval = reportAliveInterval
         self.simulatorSettings = simulatorSettings

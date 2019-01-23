@@ -142,10 +142,14 @@ public final class ProcessController: CustomStringConvertible {
         
         Logger.debug("Will track silences with timeout \(subprocess.maximumAllowedSilenceDuration)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
         
-        silenceTrackingTimer = DispatchBasedTimer.startedTimer(repeating: .seconds(1), leeway: .seconds(1)) { [weak self] in
-            guard let strongSelf = self else { return }
+        silenceTrackingTimer = DispatchBasedTimer.startedTimer(repeating: .seconds(1), leeway: .seconds(1)) { [weak self] timer in
+            guard let strongSelf = self else {
+                timer.stop()
+                return
+            }
             if Date().timeIntervalSince1970 - strongSelf.lastDataTimestamp > strongSelf.subprocess.maximumAllowedSilenceDuration {
                 strongSelf.didDetectLongPeriodOfSilence()
+                timer.stop()
             }
         }
     }

@@ -1,16 +1,31 @@
 import Foundation
 
-public enum QueueServerTearDownPolicy: Codable {
-    /// Queue server will automatically tear down after being idle for the given amout of time starting
-    /// from the last job schedule event.
+public enum AutomaticTerminationPolicy: Codable {
+    /// Will trigger termination after being idle for the given amout of time.
     case afterBeingIdle(period: TimeInterval)
     
-    /// Queue server will stop accepting new jobs after the given period of time since the startup.
-    /// All jobs that are still performing will be attempted to finish. New jobs won't be accepted.
-    case finishAllJobsAndTearDown(period: TimeInterval)
+    /// Will trigger termination after the given amount of time.
+    case after(timeInterval: TimeInterval)
     
-    /// Queue server will attempt to stay alive for as long as possible.
+    /// Will not trigger automatic termination.
     case stayAlive
+    
+    public var automaticTerminationController: AutomaticTerminationController {
+        switch self {
+        case .after(let timeInterval):
+            return AfterFixedPeriodOfTimeTerminationController(
+                dateProvider: DefaultDateProvider(),
+                fireAt: Date().addingTimeInterval(timeInterval)
+            )
+        case .afterBeingIdle(let period):
+            return AfterPeriodOfInactivityTerminationController(
+                dateProvider: DefaultDateProvider(),
+                inactivityInterval: period
+            )
+        case .stayAlive:
+            return StayAliveTerminationController()
+        }
+    }
     
     private enum CodingKeys: String, CodingKey {
         case caseId
@@ -19,7 +34,7 @@ public enum QueueServerTearDownPolicy: Codable {
     
     private enum CaseId: String, Codable {
         case afterBeingIdle
-        case finishAllJobsAndTearDown
+        case after
         case stayAlive
     }
     
@@ -30,8 +45,8 @@ public enum QueueServerTearDownPolicy: Codable {
         switch caseId {
         case .afterBeingIdle:
             self = .afterBeingIdle(period: try container.decode(TimeInterval.self, forKey: .period))
-        case .finishAllJobsAndTearDown:
-            self = .finishAllJobsAndTearDown(period: try container.decode(TimeInterval.self, forKey: .period))
+        case .after:
+            self = .after(timeInterval: try container.decode(TimeInterval.self, forKey: .period))
         case .stayAlive:
             self = .stayAlive
         }
@@ -43,8 +58,8 @@ public enum QueueServerTearDownPolicy: Codable {
         case .afterBeingIdle(let period):
             try container.encode(CaseId.afterBeingIdle, forKey: .caseId)
             try container.encode(period, forKey: .period)
-        case .finishAllJobsAndTearDown(let period):
-            try container.encode(CaseId.finishAllJobsAndTearDown, forKey: .caseId)
+        case .after(let period):
+            try container.encode(CaseId.after, forKey: .caseId)
             try container.encode(period, forKey: .period)
         case .stayAlive:
             try container.encode(CaseId.stayAlive, forKey: .caseId)

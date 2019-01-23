@@ -62,6 +62,21 @@ let package = Package(
             ]
         ),
         .target(
+        // MARK: AutomaticTermination
+            name: "AutomaticTermination",
+            dependencies: [
+                "Logging",
+                "Timer"
+            ]
+        ),
+        .testTarget(
+            // MARK: AutomaticTerminationTests
+            name: "AutomaticTerminationTests",
+            dependencies: [
+                "AutomaticTermination"
+            ]
+        ),
+        .target(
             // MARK: AvitoRunner
             name: "AvitoRunner",
             dependencies: [
@@ -419,6 +434,7 @@ let package = Package(
             // MARK: LocalQueueServerRunner
             name: "LocalQueueServerRunner",
             dependencies: [
+                "AutomaticTermination",
                 "BalancingBucketQueue",
                 "Models",
                 "PortDeterminer",
