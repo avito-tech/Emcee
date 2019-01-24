@@ -7,20 +7,17 @@ import TempFolder
 public final class RemoteQueueStarter {
     private let deploymentId: String
     private let deploymentDestination: DeploymentDestination
-    private let pluginLocations: [PluginLocation]
     private let queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation
     private let tempFolder: TempFolder
 
     public init(
         deploymentId: String,
         deploymentDestination: DeploymentDestination,
-        pluginLocations: [PluginLocation],
         queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation,
         tempFolder: TempFolder)
     {
         self.deploymentId = deploymentId
         self.deploymentDestination = deploymentDestination
-        self.pluginLocations = pluginLocations
         self.queueServerRunConfigurationLocation = queueServerRunConfigurationLocation
         self.tempFolder = tempFolder
     }
@@ -28,7 +25,7 @@ public final class RemoteQueueStarter {
     public func deployAndStart() throws {
         let deployablesGenerator = DeployablesGenerator(
             remoteAvitoRunnerPath: "EmceeQueueServer",
-            pluginLocations: pluginLocations
+            pluginLocations: []
         )
         try deploy(
             deployableItems: try deployablesGenerator.deployables().values.flatMap { $0 }
