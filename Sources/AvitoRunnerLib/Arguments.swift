@@ -49,12 +49,12 @@ private struct ArgumentDescriptionHolder: ArgumentDescription {
 private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHolder] = [
     KnownStringArguments.additionalApp: ArgumentDescriptionHolder(
         name: "--additional-app",
-        comment: "List of absolute paths to additional apps that can be launched diring test run.",
+        comment: "Locations of additional apps that can be launched diring test run.",
         multiple: true,
         optional: true),
     KnownStringArguments.app: ArgumentDescriptionHolder(
         name: "--app",
-        comment: "Path to your app that will be tested by the UI tests"),
+        comment: "Location of app that will be tested by the UI tests"),
     KnownStringArguments.destinationConfigurations: ArgumentDescriptionHolder(
         name: "--destinaton-configurations",
         comment: "A JSON file with additional configuration per destination",
@@ -68,10 +68,10 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
         optional: true),
     KnownStringArguments.fbsimctl: ArgumentDescriptionHolder(
         name: "--fbsimctl",
-        comment: "Local path to fbsimctl binary, or URL to ZIP archive"),
+        comment: "Location of fbsimctl tool, or URL to ZIP archive"),
     KnownStringArguments.fbxctest: ArgumentDescriptionHolder(
         name: "--fbxctest",
-        comment: "Local path to fbxctest binary, or URL to ZIP archive"),
+        comment: "Location of fbxctest tool, or URL to ZIP archive"),
     KnownStringArguments.junit: ArgumentDescriptionHolder(
         name: "--junit",
         comment: "Where the combined (the one for all test destinations) Junit report should be created"),
@@ -85,7 +85,7 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
         comment: "Path to where should output be stored as JSON file"),
     KnownStringArguments.plugin: ArgumentDescriptionHolder(
         name: "--plugin",
-        comment: ".emceeplugin bundle local path (or URL to ZIP). Plugin bundle should contain an executable: MyPlugin.emceeplugin/Plugin",
+        comment: ".emceeplugin bundle location (or URL to ZIP). Plugin bundle should contain an executable: MyPlugin.emceeplugin/Plugin",
         multiple: true,
         optional: true),
     KnownStringArguments.queueServer: ArgumentDescriptionHolder(
@@ -93,10 +93,10 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
         comment: "An address to a server which runs distRun command, e.g. 127.0.0.1:1234"),
     KnownStringArguments.queueServerDestination: ArgumentDescriptionHolder(
         name: "--queue-server-destination",
-        comment: "Deployment destination with host which is expected to run remote queue server"),
+        comment: "A JSON file with info about deployment destination which will be used to start remote queue server"),
     KnownStringArguments.queueServerRunConfigurationLocation: ArgumentDescriptionHolder(
         name: "--queue-server-run-configuration-location",
-        comment: "JSON file location with QueueServerRunConfiguration. Either /path/to/file.json, or http://example.com/file.zip#path/to/config.json"),
+        comment: "JSON file location which describes QueueServerRunConfiguration. Either /path/to/file.json, or http://example.com/file.zip#path/to/config.json"),
     KnownStringArguments.remoteScheduleStrategy: ArgumentDescriptionHolder(
         name: "--remote-schedule-strategy",
         comment: "Defines how to scatter tests to the destination machines. Can be: \(ScheduleStrategyType.availableRawValues.joined(separator: ", "))"),
@@ -105,7 +105,7 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
         comment: "A logical test run id, usually a random string, e.g. UUID."),
     KnownStringArguments.runner: ArgumentDescriptionHolder(
         name: "--runner",
-        comment: "Path to the XCTRunner.app created by Xcode"),
+        comment: "Location of XCTRunner.app created by Xcode"),
     KnownStringArguments.scheduleStrategy: ArgumentDescriptionHolder(
         name: "--schedule-strategy",
         comment: "Defines how to run tests. Can be: \(ScheduleStrategyType.availableRawValues.joined(separator: ", "))"),
@@ -118,7 +118,7 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
         comment: "Where to store temporary stuff, including simulator data"),
     KnownStringArguments.testArgFile: ArgumentDescriptionHolder(
         name: "--test-arg-file",
-        comment: "A description of all tests that expected to be ran. More flexible alternative to combination of --only-test/--only-id + --test-destinations arguments.",
+        comment: "JSON file with description of all tests that expected to be ran.",
         optional: true),
     KnownStringArguments.testDestinations: ArgumentDescriptionHolder(
         name: "--test-destinations",
@@ -135,7 +135,7 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
         comment: "An identifier used to distinguish between workers. Useful to match with deployment destination's identifier"),
     KnownStringArguments.xctestBundle: ArgumentDescriptionHolder(
         name: "--xctest-bundle",
-        comment: "Path to .xctest bundle with your tests"),
+        comment: "Location of .xctest bundle with your tests"),
 ]
 
 private let knownUIntArguments: [KnownUIntArguments: ArgumentDescriptionHolder] = [
@@ -322,8 +322,6 @@ extension UInt: ArgumentKind {
 enum AdditionalArgumentValidationError: Error, CustomStringConvertible {
     case unknownScheduleStrategy(String)
     case notFound(String)
-    case someAdditionalAppBundlesCannotBeFound
-    case incorrectQueueServerFormat(String)
     
     var description: String {
         switch self {
@@ -331,10 +329,6 @@ enum AdditionalArgumentValidationError: Error, CustomStringConvertible {
             return "Unsupported schedule strategy value: \(value). Supported values: \(ScheduleStrategyType.availableRawValues)"
         case .notFound(let path):
             return "File not found: '\(path)'"
-        case .someAdditionalAppBundlesCannotBeFound:
-            return "Additional app bundle path(s) cannot be found"
-        case .incorrectQueueServerFormat(let actual):
-            return "Queue server address has unexpected format. Expected to be: 'example.com:1234' or '127.0.0.1:1234', found: \(actual)"
         }
     }
 }
