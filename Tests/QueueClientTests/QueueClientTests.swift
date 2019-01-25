@@ -12,6 +12,7 @@ class QueueClientTests: XCTestCase {
     private var port: Int!
     private var delegate: FakeQueueClientDelegate!
     private var queueClient: QueueClient!
+    private let workerId = "workerId"
     
     override func tearDown() {
         server?.stop()
@@ -25,7 +26,7 @@ class QueueClientTests: XCTestCase {
             try server?.start(0)
             port = try server?.port() ?? 0
             delegate = FakeQueueClientDelegate()
-            queueClient = QueueClient(queueServerAddress: SocketAddress(host: "127.0.0.1", port: port), workerId: "worker")
+            queueClient = QueueClient(queueServerAddress: SocketAddress(host: "127.0.0.1", port: port))
             queueClient.delegate = delegate
         } catch {
             XCTFail("Failed to prepare server: \(error)")
@@ -38,7 +39,7 @@ class QueueClientTests: XCTestCase {
             let data: Data = (try? JSONEncoder().encode(DequeueBucketResponse.queueIsEmpty)) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
-        try queueClient.fetchBucket(requestId: "id")
+        try queueClient.fetchBucket(requestId: "id", workerId: workerId)
         try SynchronousWaiter.waitWhile(timeout: 5.0) { delegate.responses.isEmpty }
         
         switch delegate.responses[0] {
@@ -62,7 +63,7 @@ class QueueClientTests: XCTestCase {
             let data: Data = (try? JSONEncoder().encode(DequeueBucketResponse.bucketDequeued(bucket: bucket))) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
-        try queueClient.fetchBucket(requestId: "id")
+        try queueClient.fetchBucket(requestId: "id", workerId: workerId)
         try SynchronousWaiter.waitWhile(timeout: 5.0) { delegate.responses.isEmpty }
         
         switch delegate.responses[0] {
@@ -79,7 +80,7 @@ class QueueClientTests: XCTestCase {
             let data: Data = (try? JSONEncoder().encode(DequeueBucketResponse.checkAgainLater(checkAfter: 10.0))) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
-        try queueClient.fetchBucket(requestId: "id")
+        try queueClient.fetchBucket(requestId: "id", workerId: workerId)
         try SynchronousWaiter.waitWhile(timeout: 5.0) { delegate.responses.isEmpty }
         
         switch delegate.responses[0] {
@@ -104,7 +105,7 @@ class QueueClientTests: XCTestCase {
             let data: Data = (try? JSONEncoder().encode(RegisterWorkerResponse.workerRegisterSuccess(workerConfiguration: stubbedConfig))) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
-        try queueClient.registerWithServer()
+        try queueClient.registerWithServer(workerId: workerId)
         try SynchronousWaiter.waitWhile(timeout: 5.0) { delegate.responses.isEmpty }
         
         switch delegate.responses[0] {
@@ -136,7 +137,7 @@ class QueueClientTests: XCTestCase {
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
         
-        try queueClient.reportAlive(bucketIdsBeingProcessedProvider: provider)
+        try queueClient.reportAlive(bucketIdsBeingProcessedProvider: provider, workerId: workerId)
         
         wait(for: [alivenessReportReceivedExpectation, bucketIdsProviderCalledExpectation], timeout: 10)
     }
@@ -147,7 +148,10 @@ class QueueClientTests: XCTestCase {
             return .internalServerError
         }
         queueClient.close()
-        XCTAssertThrowsError(try queueClient.fetchBucket(requestId: "id"), "Closed queue client should throw") { throwedError in
+        XCTAssertThrowsError(
+            try queueClient.fetchBucket(requestId: "id", workerId: workerId),
+            "Closed queue client should throw"
+        ) { throwedError in
             guard let error = throwedError as? QueueClientError else {
                 XCTFail("Unexpected error: \(throwedError)")
                 return

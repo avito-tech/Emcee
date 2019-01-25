@@ -62,7 +62,7 @@ final class QueueServerTests: XCTestCase {
         
         let client = synchronousQueueClient(port: try server.start())
         
-        XCTAssertNoThrow(_ = try client.registerWithServer())
+        XCTAssertNoThrow(_ = try client.registerWithServer(workerId: workerId))
         XCTAssertThrowsError(try server.waitForJobToFinish(jobId: jobId))
     }
     
@@ -107,10 +107,10 @@ final class QueueServerTests: XCTestCase {
         }
         
         let client = synchronousQueueClient(port: try server.start())
-        XCTAssertNoThrow(_ = try client.registerWithServer())
-        let fetchResult = try client.fetchBucket(requestId: "request")
+        XCTAssertNoThrow(_ = try client.registerWithServer(workerId: workerId))
+        let fetchResult = try client.fetchBucket(requestId: "request", workerId: workerId)
         XCTAssertEqual(fetchResult, SynchronousQueueClient.BucketFetchResult.bucket(bucket))
-        XCTAssertNoThrow(try client.send(testingResult: testingResult, requestId: "request"))
+        XCTAssertNoThrow(try client.send(testingResult: testingResult, requestId: "request", workerId: workerId))
         
         wait(for: [expectationForResults], timeout: 10)
         
@@ -121,10 +121,7 @@ final class QueueServerTests: XCTestCase {
     }
     
     private func synchronousQueueClient(port: Int) -> SynchronousQueueClient {
-        return SynchronousQueueClient(
-            queueServerAddress: SocketAddress(host: "localhost", port: port),
-            workerId: workerId
-        )
+        return SynchronousQueueClient(queueServerAddress: SocketAddress(host: "localhost", port: port))
     }
 }
 

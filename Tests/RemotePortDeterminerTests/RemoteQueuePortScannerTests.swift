@@ -8,11 +8,10 @@ import Version
 import XCTest
 
 final class RemoteQueuePortScannerTests: XCTestCase {
-    let workerId = "workerId"
     let localPortDeterminer = LocalPortDeterminer(portRange: Ports.defaultQueuePortRange)
     
     func test___scanning_ports_without_queue___returns_empty_result() {
-        let scanner = RemoteQueuePortScanner(host: "localhost", portRange: 12000...12005, workerId: workerId)
+        let scanner = RemoteQueuePortScanner(host: "localhost", portRange: 12000...12005)
         let result = scanner.queryPortAndQueueServerVersion()
         XCTAssertEqual(result, [:])
     }
@@ -29,7 +28,7 @@ final class RemoteQueuePortScannerTests: XCTestCase {
         try server.start(0, forceIPv4: false, priority: .default)
         let port = try server.port()
         
-        let scanner = RemoteQueuePortScanner(host: "localhost", portRange: port...port, workerId: workerId)
+        let scanner = RemoteQueuePortScanner(host: "localhost", portRange: port...port)
         let result = scanner.queryPortAndQueueServerVersion()
         XCTAssertEqual(result, [port: expectedVersion])
     }

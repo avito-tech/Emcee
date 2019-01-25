@@ -33,7 +33,6 @@ final class RunTestsOnRemoteQueueCommand: Command {
     private let testArgFile: OptionArgument<String>
     private let testDestinations: OptionArgument<String>
     private let trace: OptionArgument<String>
-    private let workerId: OptionArgument<String>
     private let xctestBundle: OptionArgument<String>
     
     private let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
@@ -55,7 +54,6 @@ final class RunTestsOnRemoteQueueCommand: Command {
         testDestinations = subparser.add(stringArgument: KnownStringArguments.testDestinations)
         trace = subparser.add(stringArgument: KnownStringArguments.trace)
         workerDestinations = subparser.add(stringArgument: KnownStringArguments.destinations)
-        workerId = subparser.add(stringArgument: KnownStringArguments.workerId)
         xctestBundle = subparser.add(stringArgument: KnownStringArguments.xctestBundle)
     }
     
@@ -91,7 +89,6 @@ final class RunTestsOnRemoteQueueCommand: Command {
         let testArgFile = try ArgumentsReader.testArgFile(arguments.get(self.testArgFile), key: KnownStringArguments.testArgFile)
         let testDestinationConfigurations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
         let workerDestinations = try ArgumentsReader.deploymentDestinations(arguments.get(self.workerDestinations), key: KnownStringArguments.destinations)
-        let workerId = try ArgumentsReader.validateNotNil(arguments.get(self.workerId), key: KnownStringArguments.workerId)
         
         let runningQueueServerAddress = try detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
             pluginLocations: pluginLocations,
@@ -99,8 +96,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
             queueServerRunConfigurationLocation: queueServerRunConfigurationLocation,
             runId: runId,
             tempFolder: tempFolder,
-            workerDestinations: workerDestinations,
-            workerId: workerId
+            workerDestinations: workerDestinations
         )
         let jobResults = try runTestsOnRemotelyRunningQueue(
             buildArtifacts: buildArtifacts,
@@ -110,8 +106,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
             runId: runId,
             tempFolder: tempFolder,
             testArgFile: testArgFile,
-            testDestinationConfigurations: testDestinationConfigurations,
-            workerId: workerId
+            testDestinationConfigurations: testDestinationConfigurations
         )
         let resultOutputGenerator = ResultingOutputGenerator(
             testingResults: jobResults.testingResults,
@@ -127,8 +122,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation,
         runId: JobId,
         tempFolder: TempFolder,
-        workerDestinations: [DeploymentDestination],
-        workerId: String)
+        workerDestinations: [DeploymentDestination])
         throws -> SocketAddress
     {
         Logger.info("Searching for queue server on '\(queueServerDestination.host)'")
@@ -136,8 +130,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
             localQueueClientVersionProvider: localQueueVersionProvider,
             remotePortDeterminer: RemoteQueuePortScanner(
                 host: queueServerDestination.host,
-                portRange: Ports.defaultQueuePortRange,
-                workerId: workerId
+                portRange: Ports.defaultQueuePortRange
             )
         )
         var suitablePorts = try remoteQueueDetector.findSuitableRemoteRunningQueuePorts()
@@ -183,8 +176,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         runId: JobId,
         tempFolder: TempFolder,
         testArgFile: TestArgFile,
-        testDestinationConfigurations: [TestDestinationConfiguration],
-        workerId: String)
+        testDestinationConfigurations: [TestDestinationConfiguration])
         throws -> JobResults
     {
         let testEntriesValidator = TestEntriesValidator(
@@ -209,10 +201,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         let testEntryConfigurations = testEntryConfigurationGenerator.createTestEntryConfigurations()
         Logger.info("Will schedule \(testEntryConfigurations.count) tests to queue server at \(queueServerAddress)")
         
-        let queueClient = SynchronousQueueClient(
-            queueServerAddress: queueServerAddress,
-            workerId: workerId
-        )
+        let queueClient = SynchronousQueueClient(queueServerAddress: queueServerAddress)
         _ = try queueClient.scheduleTests(
             jobId: runId,
             testEntryConfigurations: testEntryConfigurations,

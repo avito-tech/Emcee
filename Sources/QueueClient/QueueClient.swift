@@ -7,15 +7,13 @@ import RESTMethods
 public final class QueueClient {
     public weak var delegate: QueueClientDelegate?
     private let queueServerAddress: SocketAddress
-    private let workerId: String
     private let urlSession = URLSession(configuration: URLSessionConfiguration.default)
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
     private var isClosed = false
     
-    public init(queueServerAddress: SocketAddress, workerId: String) {
+    public init(queueServerAddress: SocketAddress) {
         self.queueServerAddress = queueServerAddress
-        self.workerId = workerId
         encoder.outputFormatting = [.sortedKeys, .prettyPrinted]
     }
     
@@ -23,7 +21,7 @@ public final class QueueClient {
         close()
     }
     
-    public func registerWithServer() throws {
+    public func registerWithServer(workerId: String) throws {
         try sendRequest(
             .registerWorker,
             payload: RegisterWorkerRequest(workerId: workerId),
@@ -42,7 +40,7 @@ public final class QueueClient {
     /// match for sequential requests.
     /// Apple's guide on handling Handling "The network connection was lost" errors:
     /// https://developer.apple.com/library/archive/qa/qa1941/_index.html
-    public func fetchBucket(requestId: String) throws {
+    public func fetchBucket(requestId: String, workerId: String) throws {
         try sendRequest(
             .getBucket,
             payload: DequeueBucketRequest(
@@ -53,7 +51,7 @@ public final class QueueClient {
         )
     }
     
-    public func send(testingResult: TestingResult, requestId: String) throws {
+    public func send(testingResult: TestingResult, requestId: String, workerId: String) throws {
         try sendRequest(
             .bucketResult,
             payload: PushBucketResultRequest(
@@ -65,7 +63,7 @@ public final class QueueClient {
         )
     }
     
-    public func reportAlive(bucketIdsBeingProcessedProvider: () -> (Set<String>)) throws {
+    public func reportAlive(bucketIdsBeingProcessedProvider: () -> (Set<String>), workerId: String) throws {
         try sendRequest(
             .reportAlive,
             payload: ReportAliveRequest(

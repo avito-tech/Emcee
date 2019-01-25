@@ -43,7 +43,10 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         )
         let client = synchronousQueueClient(port: try restServer.start())
         
-        XCTAssertEqual(try client.registerWithServer(), WorkerConfigurationFixtures.workerConfiguration)
+        XCTAssertEqual(
+            try client.registerWithServer(workerId: workerId),
+            WorkerConfigurationFixtures.workerConfiguration
+        )
     }
     
     func test__BucketFetchHandler() throws {
@@ -69,8 +72,10 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         )
         let client = synchronousQueueClient(port: try restServer.start())
         
-        let fetchResult = try client.fetchBucket(requestId: requestId)
-        XCTAssertEqual(fetchResult, SynchronousQueueClient.BucketFetchResult.bucket(bucket))
+        XCTAssertEqual(
+            try client.fetchBucket(requestId: requestId, workerId: workerId),
+            SynchronousQueueClient.BucketFetchResult.bucket(bucket)
+        )
     }
     
     func test__ResultHandler() throws {
@@ -101,7 +106,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         )
         let client = synchronousQueueClient(port: try restServer.start())
 
-        _ = try client.send(testingResult: testingResult, requestId: requestId)
+        _ = try client.send(testingResult: testingResult, requestId: requestId, workerId: workerId)
         
         XCTAssertEqual(bucketQueue.acceptedResults, [testingResult])
     }
@@ -121,7 +126,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         )
         let client = synchronousQueueClient(port: try restServer.start())
         
-        try client.reportAliveness { [] }
+        try client.reportAliveness(bucketIdsBeingProcessedProvider: { [] }, workerId: workerId)
         
         XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId).status, .alive)
     }
@@ -240,9 +245,6 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     }
     
     private func synchronousQueueClient(port: Int) -> SynchronousQueueClient {
-        return SynchronousQueueClient(
-            queueServerAddress: SocketAddress(host: "localhost", port: port),
-            workerId: workerId
-        )
+        return SynchronousQueueClient(queueServerAddress: SocketAddress(host: "localhost", port: port))
     }
 }

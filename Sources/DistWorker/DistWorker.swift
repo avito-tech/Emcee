@@ -21,6 +21,7 @@ public final class DistWorker {
     private let resourceLocationResolver: ResourceLocationResolver
     private var reportingAliveTimer: DispatchBasedTimer?
     private let currentlyBeingProcessedBucketsTracker = CurrentlyBeingProcessedBucketsTracker()
+    private let workerId: String
     
     public init(
         queueServerAddress: SocketAddress,
@@ -31,15 +32,13 @@ public final class DistWorker {
         self.bucketConfigurationFactory = BucketConfigurationFactory(
             resourceLocationResolver: resourceLocationResolver
         )
-        self.queueClient = SynchronousQueueClient(
-            queueServerAddress: queueServerAddress,
-            workerId: workerId
-        )
+        self.queueClient = SynchronousQueueClient(queueServerAddress: queueServerAddress)
+        self.workerId = workerId
     }
     
     public func start() throws {
         let tempFolder = try bucketConfigurationFactory.createTempFolder()
-        let workerConfiguration = try queueClient.registerWithServer()
+        let workerConfiguration = try queueClient.registerWithServer(workerId: workerId)
         Logger.debug("Registered with server. Worker configuration: \(workerConfiguration)")
         startReportingWorkerIsAlive(interval: workerConfiguration.reportAliveInterval)
         
@@ -70,9 +69,12 @@ public final class DistWorker {
     }
     
     private func reportAliveness() throws {
-        try queueClient.reportAliveness {
-            syncQueue.sync { currentlyBeingProcessedBucketsTracker.bucketIdsBeingProcessed }
-        }
+        try queueClient.reportAliveness(
+            bucketIdsBeingProcessedProvider: {
+                syncQueue.sync { currentlyBeingProcessedBucketsTracker.bucketIdsBeingProcessed }
+            },
+            workerId: workerId
+        )
     }
     
     // MARK: - Private Stuff
@@ -118,7 +120,7 @@ public final class DistWorker {
             do {
                 Logger.debug("Fetching next bucket from server")
                 let requestId = UUID().uuidString
-                let result = try queueClient.fetchBucket(requestId: requestId)
+                let result = try queueClient.fetchBucket(requestId: requestId, workerId: workerId)
                 switch result {
                 case .queueIsEmpty:
                     Logger.debug("Server returned that queue is empty")
@@ -153,9 +155,16 @@ public final class DistWorker {
                 }
                 return requestId
             }
-            let acceptedBucketId = try queueClient.send(testingResult: testingResult, requestId: requestId)
+            let acceptedBucketId = try queueClient.send(
+                testingResult: testingResult,
+                requestId: requestId,
+                workerId: workerId
+            )
             if acceptedBucketId != testingResult.bucketId {
-                throw DistWorkerError.unexpectedAcceptedBucketId(actual: acceptedBucketId, expected: testingResult.bucketId)
+                throw DistWorkerError.unexpectedAcceptedBucketId(
+                    actual: acceptedBucketId,
+                    expected: testingResult.bucketId
+                )
             }
         } catch {
             Logger.error("Failed to send test run result for bucket \(testingResult.bucketId): \(error)")

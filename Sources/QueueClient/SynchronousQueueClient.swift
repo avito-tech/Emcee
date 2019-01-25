@@ -27,9 +27,9 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     private let syncQueue = DispatchQueue(label: "ru.avito.SynchronousQueueClient")
     private let requestTimeout: TimeInterval
     
-    public init(queueServerAddress: SocketAddress, workerId: String, requestTimeout: TimeInterval = 10) {
+    public init(queueServerAddress: SocketAddress, requestTimeout: TimeInterval = 10) {
         self.requestTimeout = requestTimeout
-        self.queueClient = QueueClient(queueServerAddress: queueServerAddress, workerId: workerId)
+        self.queueClient = QueueClient(queueServerAddress: queueServerAddress)
         self.queueClient.delegate = self
     }
     
@@ -39,10 +39,10 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     
     // MARK: Public API
     
-    public func registerWithServer() throws -> WorkerConfiguration {
+    public func registerWithServer(workerId: String) throws -> WorkerConfiguration {
         return try synchronize {
             registrationResult = nil
-            try queueClient.registerWithServer()
+            try queueClient.registerWithServer(workerId: workerId)
             try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for registration with server") {
                 self.registrationResult == nil
             }
@@ -50,11 +50,11 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         }
     }
     
-    public func fetchBucket(requestId: String) throws -> BucketFetchResult {
+    public func fetchBucket(requestId: String, workerId: String) throws -> BucketFetchResult {
         return try synchronize {
             bucketFetchResult = nil
             return try runRetrying(times: 5) {
-                try queueClient.fetchBucket(requestId: requestId)
+                try queueClient.fetchBucket(requestId: requestId, workerId: workerId)
                 try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait bucket to return from server") {
                     self.bucketFetchResult == nil
                 }
@@ -63,11 +63,15 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         }
     }
     
-    public func send(testingResult: TestingResult, requestId: String) throws -> String {
+    public func send(testingResult: TestingResult, requestId: String, workerId: String) throws -> String {
         return try synchronize {
             bucketResultSendResult = nil
             return try runRetrying(times: 5) {
-                try queueClient.send(testingResult: testingResult, requestId: requestId)
+                try queueClient.send(
+                    testingResult: testingResult,
+                    requestId: requestId,
+                    workerId: workerId
+                )
                 try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for bucket result send") {
                     self.bucketResultSendResult == nil
                 }
@@ -76,10 +80,13 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         }
     }
     
-    public func reportAliveness(bucketIdsBeingProcessedProvider: () -> (Set<String>)) throws {
+    public func reportAliveness(bucketIdsBeingProcessedProvider: () -> (Set<String>), workerId: String) throws {
         try synchronize {
             alivenessReportResult = nil
-            try queueClient.reportAlive(bucketIdsBeingProcessedProvider: bucketIdsBeingProcessedProvider)
+            try queueClient.reportAlive(
+                bucketIdsBeingProcessedProvider: bucketIdsBeingProcessedProvider,
+                workerId: workerId
+            )
             try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for aliveness report") {
                 self.alivenessReportResult == nil
             }
