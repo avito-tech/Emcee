@@ -1,4 +1,5 @@
 import EventBus
+import Extensions
 import Foundation
 import Logging
 import Models
@@ -8,7 +9,9 @@ final class EventBusListener: EventStream {
     private var busEvents = [BusEvent]()
     
     public init() {
-        outputPath = ProcessInfo.processInfo.arguments[0].deletingLastPathComponent.appending(pathComponent: "output.json")
+        outputPath = ProcessInfo.processInfo.executablePath
+            .deletingLastPathComponent
+            .appending(pathComponent: "output.json")
     }
     
     func process(event: BusEvent) {

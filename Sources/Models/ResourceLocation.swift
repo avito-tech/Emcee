@@ -24,6 +24,15 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
         }
     }
     
+    public var url: URL? {
+        switch self {
+        case .remoteUrl(let url):
+            return url
+        case .localFilePath:
+            return nil
+        }
+    }
+    
     public static func from(_ string: String) throws -> ResourceLocation {
         guard var components = URLComponents(string: string) else { throw ValidationError.cannotCreateUrl(string) }
         if components.scheme == nil {

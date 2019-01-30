@@ -897,6 +897,7 @@ let package = Package(
             // MARK: TestingPlugin
             name: "TestingPlugin",
             dependencies: [
+                "Extensions",
                 "Models",
                 "Logging",
                 "LoggingSetup",
