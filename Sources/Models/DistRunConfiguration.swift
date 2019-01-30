@@ -69,6 +69,14 @@ public struct DistRunConfiguration {
         return WorkerConfiguration(
             testRunExecutionBehavior: testRunExecutionBehavior(destination: destination),
             testTimeoutConfiguration: testTimeoutConfiguration,
+            pluginUrls: auxiliaryResources.plugins.compactMap {
+                switch $0.resourceLocation {
+                case .remoteUrl(let url):
+                    return url
+                case .localFilePath:
+                    return nil
+                }
+            },
             reportAliveInterval: reportAliveInterval
         )
     }

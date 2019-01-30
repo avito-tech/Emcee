@@ -46,8 +46,7 @@ final class BucketConfigurationFactory {
     func createConfiguration(
         workerConfiguration: WorkerConfiguration,
         schedulerDataSource: SchedulerDataSource,
-        onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>
-        )
+        onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>)
         -> SchedulerConfiguration
     {
         return SchedulerConfiguration(

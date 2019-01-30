@@ -7,8 +7,8 @@ final class EventBusListener: EventStream {
     private let outputPath: String
     private var busEvents = [BusEvent]()
     
-    public init(outputPath: String) {
-        self.outputPath = outputPath
+    public init() {
+        outputPath = ProcessInfo.processInfo.arguments[0].deletingLastPathComponent.appending(pathComponent: "output.json")
     }
     
     func process(event: BusEvent) {
@@ -27,7 +27,12 @@ final class EventBusListener: EventStream {
         do {
             try FileManager.default.createDirectory(
                 atPath: (outputPath as NSString).deletingLastPathComponent,
-                withIntermediateDirectories: true)
+                withIntermediateDirectories: true
+            )
+            if FileManager.default.fileExists(atPath: outputPath) {
+                try FileManager.default.removeItem(atPath: outputPath)
+            }
+            
             let encoder = JSONEncoder()
             encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             let data = try encoder.encode(busEvents)

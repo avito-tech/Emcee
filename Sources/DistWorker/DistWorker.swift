@@ -90,9 +90,11 @@ public final class DistWorker {
             schedulerDataSource: DistRunSchedulerDataSource(onNextBucketRequest: fetchNextBucket),
             onDemandSimulatorPool: onDemandSimulatorPool)
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
-            pluginLocations: bucketConfigurationFactory.pluginLocations,
-            resourceLocationResolver: resourceLocationResolver,
-            environment: configuration.testRunExecutionBehavior.environment)
+            pluginLocations: bucketConfigurationFactory.pluginLocations + workerConfiguration.pluginUrls.map {
+                PluginLocation(ResourceLocation.remoteUrl($0))
+            },
+            resourceLocationResolver: resourceLocationResolver
+        )
         defer { eventBus.tearDown() }
         
         let scheduler = Scheduler(

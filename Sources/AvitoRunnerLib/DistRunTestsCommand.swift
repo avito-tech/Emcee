@@ -127,8 +127,7 @@ final class DistRunTestsCommand: Command {
         )
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
             pluginLocations: auxiliaryResources.plugins,
-            resourceLocationResolver: resourceLocationResolver,
-            environment: testRunExecutionBehavior.environment
+            resourceLocationResolver: resourceLocationResolver
         )
         defer { eventBus.tearDown() }
 

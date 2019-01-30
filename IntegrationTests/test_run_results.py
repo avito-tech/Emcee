@@ -56,7 +56,7 @@ class TestSmokeTests:
         assert failed_tests == expected_failed_tests
 
     def test_plugin_output(self, repo_root: Directory, smoke_tests_result: AvitoRunnerArgs):
-        output_path = open(smoke_tests_result.current_directory.sub_path('auxiliary/tempfolder/test-results/test_plugin_output.json'), 'r')
+        output_path = open(os.path.join(smoke_tests_result.plugins[0].path, 'output.json'), 'r')
         json_contents = json.load(output_path)
 
         testing_result_events = []

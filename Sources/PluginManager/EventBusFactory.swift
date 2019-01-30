@@ -8,29 +8,28 @@ public final class EventBusFactory {
     
     public static func createEventBusWithAttachedPluginManager(
         pluginLocations: [PluginLocation],
-        resourceLocationResolver: ResourceLocationResolver,
-        environment: [String : String]
-        ) throws -> EventBus
+        resourceLocationResolver: ResourceLocationResolver)
+        throws -> EventBus
     {
         let eventBus = EventBus()
         try startPluginManager(
             eventBus: eventBus,
             pluginLocations: pluginLocations,
-            resourceLocationResolver: resourceLocationResolver,
-            environment: environment)
+            resourceLocationResolver: resourceLocationResolver
+        )
         return eventBus
     }
     
     private static func startPluginManager(
         eventBus: EventBus,
         pluginLocations: [PluginLocation],
-        resourceLocationResolver: ResourceLocationResolver,
-        environment: [String : String]) throws
+        resourceLocationResolver: ResourceLocationResolver)
+        throws
     {
         let pluginManager = PluginManager(
             pluginLocations: pluginLocations,
-            resourceLocationResolver: resourceLocationResolver,
-            environment: environment)
+            resourceLocationResolver: resourceLocationResolver
+        )
         try pluginManager.startPlugins()
         eventBus.add(stream: pluginManager)
     }

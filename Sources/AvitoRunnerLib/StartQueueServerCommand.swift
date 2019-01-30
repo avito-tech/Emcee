@@ -36,8 +36,7 @@ final class StartQueueServerCommand: Command {
     private func startQueueServer(queueServerRunConfiguration: QueueServerRunConfiguration) throws {
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
             pluginLocations: queueServerRunConfiguration.auxiliaryResources.plugins,
-            resourceLocationResolver: resourceLocationResolver,
-            environment: [:]
+            resourceLocationResolver: resourceLocationResolver
         )
         defer { eventBus.tearDown() }
         

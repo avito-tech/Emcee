@@ -1,8 +1,17 @@
 import Foundation
 
-public enum RunnerEvent {
+public enum RunnerEvent: Equatable {
     case willRun(testEntries: [TestEntry], testContext: TestContext)
     case didRun(results: [TestEntryResult], testContext: TestContext)
+    
+    public var testContext: TestContext {
+        switch self {
+        case .willRun(_, let testContext):
+            return testContext
+        case .didRun(_, let testContext):
+            return testContext
+        }
+    }
 }
 
 extension RunnerEvent: Codable {

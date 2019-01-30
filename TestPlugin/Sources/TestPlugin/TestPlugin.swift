@@ -5,10 +5,10 @@ import Plugin
 final class TestPlugin {
     private let eventBus: EventBus
     
-    public init(outputPath: String) {
+    public init() {
         self.eventBus = TestPlugin.createEventBus(
-            withAttachedListener: EventBusListener(
-                outputPath: outputPath))
+            withAttachedListener: EventBusListener()
+        )
     }
     
     public func run() throws {

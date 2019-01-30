@@ -8,7 +8,8 @@ public final class WorkerConfigurationFixtures {
             numberOfSimulators: 2,
             environment: [:],
             scheduleStrategy: .equallyDivided),
-        testTimeoutConfiguration: TestTimeoutConfiguration(
-            singleTestMaximumDuration: 400),
-        reportAliveInterval: 42)
+        testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 400),
+        pluginUrls: [],
+        reportAliveInterval: 42
+    )
 }

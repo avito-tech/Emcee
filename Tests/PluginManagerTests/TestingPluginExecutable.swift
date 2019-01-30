@@ -1,8 +1,5 @@
 import Foundation
 
-/**
- This class builds fake fbxctest binary and prepares its output.
- */
 final class TestingPluginExecutable {
     private static let swiftPackagePath = FileManager.default.walkUpTheHierarchy(
         path: #file,

@@ -1,6 +1,7 @@
 import Basic
 import EventBus
 import Models
+import ModelsTestHelpers
 import PluginManager
 import ResourceLocationResolver
 import XCTest
@@ -29,17 +30,18 @@ final class PluginManagerTests: XCTestCase {
         
         try FileManager.default.createDirectory(
             at: URL(fileURLWithPath: pluginBundlePath.asString),
-            withIntermediateDirectories: true)
-        
+            withIntermediateDirectories: true
+        )
         try FileManager.default.copyItem(
             atPath: testingPluginExecutablePath,
-            toPath: executablePath.asString)
+            toPath: executablePath.asString
+        )
+        
         let manager = PluginManager(
             pluginLocations: [
                 PluginLocation(.localFilePath(pluginBundlePath.asString))
             ],
-            resourceLocationResolver: resolver,
-            environment: [:]
+            resourceLocationResolver: resolver
         )
         XCTAssertThrowsError(try manager.startPlugins())
     }
@@ -48,13 +50,13 @@ final class PluginManagerTests: XCTestCase {
         let executablePath = tempFolder.path.appending(component: PluginManager.pluginExecutableName).asString
         try FileManager.default.copyItem(
             atPath: testingPluginExecutablePath,
-            toPath: executablePath)
+            toPath: executablePath
+        )
         let manager = PluginManager(
             pluginLocations: [
                 PluginLocation(.localFilePath(executablePath))
             ],
-            resourceLocationResolver: resolver,
-            environment: [:]
+            resourceLocationResolver: resolver
         )
         XCTAssertThrowsError(try manager.startPlugins())
     }
@@ -66,38 +68,37 @@ final class PluginManagerTests: XCTestCase {
         
         try FileManager.default.createDirectory(
             at: URL(fileURLWithPath: pluginBundlePath.asString),
-            withIntermediateDirectories: true)
+            withIntermediateDirectories: true
+        )
         try FileManager.default.copyItem(
             atPath: testingPluginExecutablePath,
-            toPath: executablePath.asString)
-        let testingResult1 = TestingResult(
-            bucketId: "id1",
-            testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "10.3"),
-            unfilteredResults: [])
-        let testingResult2 = TestingResult(
-            bucketId: "id2",
-            testDestination: try TestDestination(deviceType: "iPhone 7", runtime: "11.3"),
-            unfilteredResults: [])
-        
+            toPath: executablePath.asString
+        )
+    
         let manager = PluginManager(
             pluginLocations: [
                 PluginLocation(.localFilePath(pluginBundlePath.asString))
             ],
-            resourceLocationResolver: resolver,
-            environment: ["AVITO_TEST_PLUGIN_OUTPUT": outputPath.path.asString])
+            resourceLocationResolver: resolver
+        )
         try manager.startPlugins()
+        
+        let runnerEvent = RunnerEvent.willRun(
+            testEntries: [TestEntryFixtures.testEntry()],
+            testContext: TestContext(
+                environment: ["AVITO_TEST_PLUGIN_OUTPUT": outputPath.path.asString],
+                testDestination: TestDestinationFixtures.testDestination
+            )
+        )
         
         let eventBus = EventBus()
         eventBus.add(stream: manager)
-        eventBus.post(event: .didObtainTestingResult(testingResult1))
-        eventBus.post(event: .didObtainTestingResult(testingResult2))
+        eventBus.post(event: .runnerEvent(runnerEvent))
         eventBus.tearDown()
         
         let data = try Data(contentsOf: URL(fileURLWithPath: outputPath.path.asString))
-        let actualTestingResults: [TestingResult] = try JSONDecoder().decode([TestingResult].self, from: data)
+        let runnerEventCapturedByPlugin = try JSONDecoder().decode(RunnerEvent.self, from: data)
         
-        XCTAssertEqual(actualTestingResults.count, 2)
-        XCTAssertEqual(actualTestingResults[0].bucketId, testingResult1.bucketId)
-        XCTAssertEqual(actualTestingResults[1].bucketId, testingResult2.bucketId)
+        XCTAssertEqual(runnerEventCapturedByPlugin, runnerEvent)
     }
 }

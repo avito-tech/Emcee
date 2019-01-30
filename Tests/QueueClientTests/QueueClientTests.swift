@@ -99,7 +99,9 @@ class QueueClientTests: XCTestCase {
                 environment: ["env": "val"],
                 scheduleStrategy: .progressive),
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 666.6),
-            reportAliveInterval: 5)
+            pluginUrls: [],
+            reportAliveInterval: 5
+        )
         
         try prepareServer(RESTMethod.registerWorker.withPrependingSlash) { request -> HttpResponse in
             let data: Data = (try? JSONEncoder().encode(RegisterWorkerResponse.workerRegisterSuccess(workerConfiguration: stubbedConfig))) ?? Data()

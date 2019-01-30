@@ -12,7 +12,6 @@ public final class PluginManager: EventStream {
     public static let pluginBundleExtension = "emceeplugin"
     public static let pluginExecutableName = "Plugin"
     private let encoder = JSONEncoder()
-    private let environment: [String: String]
     private let pluginLocations: [PluginLocation]
     private var processControllers = [ProcessController]()
     private let resourceLocationResolver: ResourceLocationResolver
@@ -20,11 +19,9 @@ public final class PluginManager: EventStream {
     
     public init(
         pluginLocations: [PluginLocation],
-        resourceLocationResolver: ResourceLocationResolver,
-        environment: [String: String])
+        resourceLocationResolver: ResourceLocationResolver)
     {
         self.encoder.outputFormatting = [.sortedKeys, .prettyPrinted]
-        self.environment = environment
         self.pluginLocations = pluginLocations
         self.resourceLocationResolver = resourceLocationResolver
         self.eventDistributor = EventDistributor()
@@ -86,14 +83,15 @@ public final class PluginManager: EventStream {
             let pluginExecutable = bundlePath.appending(component: PluginManager.pluginExecutableName)
             let pluginIdentifier = try pluginExecutable.asString.avito_sha256Hash()
             eventDistributor.add(pluginIdentifier: pluginIdentifier)
-            let pluginEnvironment = environmentForLaunchingPlugin(
-                environment,
-                pluginSocket: pluginSocket,
-                pluginIdentifier: pluginIdentifier)
             let controller = try ProcessController(
                 subprocess: Subprocess(
                     arguments: [pluginExecutable],
-                    environment: pluginEnvironment))
+                    environment: environmentForLaunchingPlugin(
+                        pluginSocket: pluginSocket,
+                        pluginIdentifier: pluginIdentifier
+                    )
+                )
+            )
             controller.start()
             processControllers.append(controller)
         }
@@ -103,16 +101,11 @@ public final class PluginManager: EventStream {
         try eventDistributor.waitForPluginsToConnect(timeout: pluginsConnectionTimeout)
     }
     
-    private func environmentForLaunchingPlugin(
-        _ environment: [String: String],
-        pluginSocket: String,
-        pluginIdentifier: String)
-        -> [String: String]
-    {
-        var env = environment
-        env[PluginSupport.pluginSocketEnv] = pluginSocket
-        env[PluginSupport.pluginIdentifierEnv] = pluginIdentifier
-        return env
+    private func environmentForLaunchingPlugin(pluginSocket: String, pluginIdentifier: String) -> [String: String] {
+        return [
+            PluginSupport.pluginSocketEnv: pluginSocket,
+            PluginSupport.pluginIdentifierEnv: pluginIdentifier
+        ]
     }
     
     private func killPlugins() {
