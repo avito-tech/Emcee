@@ -149,7 +149,12 @@ final class RunTestsOnRemoteQueueCommand: Command {
             tempFolder: tempFolder
         )
         try remoteQueueStarter.deployAndStart()
-        suitablePorts = try remoteQueueDetector.findSuitableRemoteRunningQueuePorts()
+        
+        try SynchronousWaiter.waitWhile(pollPeriod: 1.0, timeout: 10.0, description: "Wait for remote queue to start") {
+            suitablePorts = try remoteQueueDetector.findSuitableRemoteRunningQueuePorts()
+            return suitablePorts.isEmpty
+        }
+        
         let queueServerAddress = SocketAddress(
             host: queueServerDestination.host,
             port: try selectPort(ports: suitablePorts)
