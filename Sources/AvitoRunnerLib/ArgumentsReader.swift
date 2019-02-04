@@ -12,13 +12,14 @@ final class ArgumentsReader {
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
     }()
+    private static let strictDecoder = JSONDecoder()
     
     public static func environment(_ file: String?, key: ArgumentDescription) throws -> [String: String] {
-        return try decodeModelsFromFile(file, defaultValueIfFileIsMissing: [:], key: key, jsonDecoder: JSONDecoder())
+        return try decodeModelsFromFile(file, defaultValueIfFileIsMissing: [:], key: key, jsonDecoder: strictDecoder)
     }
     
     public static func testArgFile(_ file: String?, key: ArgumentDescription) throws -> TestArgFile {
-        return try decodeModelsFromFile(file, defaultValueIfFileIsMissing: TestArgFile(entries: []), key: key, jsonDecoder: decoderWithSnakeCaseSupport)
+        return try decodeModelsFromFile(file, defaultValueIfFileIsMissing: TestArgFile(entries: []), key: key, jsonDecoder: strictDecoder)
     }
     
     public static func testDestinations(_ file: String?, key: ArgumentDescription) throws -> [TestDestinationConfiguration] {
