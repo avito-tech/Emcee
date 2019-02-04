@@ -114,6 +114,14 @@ public final class QueueClient {
             completionHandler: handleJobStateResponse
         )
     }
+    
+    public func deleteJob(jobId: JobId) throws {
+        try sendRequest(
+            .jobDelete,
+            payload: JobDeleteRequest(jobId: jobId),
+            completionHandler: handleJobDeleteResponse
+        )
+    }
 
     // MARK: - Request Generation
     
@@ -222,5 +230,9 @@ public final class QueueClient {
     
     private func handleJobResultsResponse(response: JobResultsResponse) {
         delegate?.queueClient(self, didFetchJobResults: response.jobResults)
+    }
+    
+    private func handleJobDeleteResponse(response: JobDeleteResponse) {
+        delegate?.queueClient(self, didDeleteJob: response.jobId)
     }
 }

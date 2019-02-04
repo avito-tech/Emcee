@@ -24,6 +24,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     private var scheduleTestsResult: Result<String, QueueClientError>?
     private var jobResultsResult: Result<JobResults, QueueClientError>?
     private var jobStateResult: Result<JobState, QueueClientError>?
+    private var jobDeleteResult: Result<JobId, QueueClientError>?
     private let syncQueue = DispatchQueue(label: "ru.avito.SynchronousQueueClient")
     private let requestTimeout: TimeInterval
     
@@ -148,6 +149,17 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         }
     }
     
+    public func delete(jobId: JobId) throws -> JobId {
+        return try synchronize {
+            jobDeleteResult = nil
+            try queueClient.deleteJob(jobId: jobId)
+            try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for job \(jobId) to be deleted") {
+                self.jobDeleteResult == nil
+            }
+            return try jobDeleteResult!.dematerialize()
+        }
+    }
+    
     // MARK: - Private
     
     private func synchronize<T>(_ work: () throws -> T) rethrows -> T {
@@ -179,6 +191,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         scheduleTestsResult = Result.failure(error)
         jobResultsResult = Result.failure(error)
         jobStateResult = Result.failure(error)
+        jobDeleteResult = Result.failure(error)
     }
     
     public func queueClient(_ sender: QueueClient, didReceiveWorkerConfiguration workerConfiguration: WorkerConfiguration) {
@@ -223,5 +236,9 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     
     public func queueClient(_ sender: QueueClient, didFetchJobResults jobResults: JobResults) {
         jobResultsResult = Result.success(jobResults)
+    }
+    
+    public func queueClient(_ sender: QueueClient, didDeleteJob jobId: JobId) {
+        jobDeleteResult = Result.success(jobId)
     }
 }

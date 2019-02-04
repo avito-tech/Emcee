@@ -5,6 +5,12 @@ final class PolicyTests: XCTestCase {
     
     let mutableDateProvider = MutableDateProvider()
     
+    func test___getting_time_period_from_policy() {
+        XCTAssertEqual(AutomaticTerminationPolicy.after(timeInterval: 333).period, 333.0, accuracy: 0.1)
+        XCTAssertEqual(AutomaticTerminationPolicy.afterBeingIdle(period: 555).period, 555.0, accuracy: 0.1)
+        XCTAssertEqual(AutomaticTerminationPolicy.stayAlive.period, .infinity)
+    }
+    
     func test___stay_alive_policy___always_disallows_termination() {
         let controller = StayAliveTerminationController()
         XCTAssertFalse(controller.isTerminationAllowed)

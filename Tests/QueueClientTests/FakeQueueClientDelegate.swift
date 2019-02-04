@@ -17,6 +17,7 @@ class FakeQueueClientDelegate: QueueClientDelegate {
         case didScheduleTests(String)
         case fetchedJobState(JobState)
         case fecthedJobResults(JobResults)
+        case deletedJob(JobId)
     }
     
     var responses = [ServerResponse]()
@@ -67,5 +68,9 @@ class FakeQueueClientDelegate: QueueClientDelegate {
     
     func queueClient(_ sender: QueueClient, didFetchJobResults jobResults: JobResults) {
         responses.append(ServerResponse.fecthedJobResults(jobResults))
+    }
+    
+    func queueClient(_ sender: QueueClient, didDeleteJob jobId: JobId) {
+        responses.append(ServerResponse.deletedJob(jobId))
     }
 }

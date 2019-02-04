@@ -24,11 +24,21 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
         return SortedArray(contents) { $0 < $1 }
     }
     
-    func delete(jobId: JobId) {
-        return syncQueue.sync {
+    func delete(jobId: JobId) throws {
+        return try syncQueue.sync {
             let newContents = bucketQueues.values.filter { $0.jobId != jobId }
+            guard newContents.count < bucketQueues.count else {
+                throw BalancingBucketQueueError.noQueue(jobId: jobId)
+            }
             bucketQueues = BalancingBucketQueueImpl.createQueues(contents: newContents)
         }
+    }
+    
+    var ongoingJobIds: Set<JobId> {
+        let jobIds = syncQueue.sync {
+            bucketQueues.map { $0.jobId }
+        }
+        return Set(jobIds)
     }
     
     func state(jobId: JobId) throws -> JobState {

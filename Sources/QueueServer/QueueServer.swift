@@ -19,6 +19,7 @@ public final class QueueServer {
     private let bucketResultRegistrar: BucketResultRegistrar
     private let jobResultsEndpoint: JobResultsEndpoint
     private let jobStateEndpoint: JobStateEndpoint
+    private let jobDeleteEndpoint: JobDeleteEndpoint
     private let newWorkerRegistrationTimeAllowance: TimeInterval
     private let queueExhaustTimeAllowance: TimeInterval
     private let queueServerVersionHandler: QueueServerVersionEndpoint
@@ -103,12 +104,16 @@ public final class QueueServer {
         self.jobStateEndpoint = JobStateEndpoint(
             stateProvider: balancingBucketQueue
         )
+        self.jobDeleteEndpoint = JobDeleteEndpoint(
+            jobManipulator: balancingBucketQueue
+        )
     }
     
     public func start() throws -> Int {
         restServer.setHandler(
             bucketResultHandler: RESTEndpointOf(actualHandler: bucketResultRegistrar),
             dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: bucketProvider),
+            jobDeleteHandler: RESTEndpointOf(actualHandler: jobDeleteEndpoint),
             jobResultsHandler: RESTEndpointOf(actualHandler: jobResultsEndpoint),
             jobStateHandler: RESTEndpointOf(actualHandler: jobStateEndpoint),
             registerWorkerHandler: RESTEndpointOf(actualHandler: workerRegistrar),
@@ -128,14 +133,16 @@ public final class QueueServer {
         testsEnqueuer.enqueue(testEntryConfigurations: testEntryConfigurations, jobId: jobId)
     }
     
-    public func waitForBalancingQueueToDeplete() throws {
+    public func waitForWorkersToAppear() throws {
         if !workerAlivenessTracker.hasAnyAliveWorker {
             Logger.debug("Waiting for workers to appear")
             try SynchronousWaiter.waitWhile(pollPeriod: 1, timeout: newWorkerRegistrationTimeAllowance, description: "Waiting workers to appear") {
                 workerAlivenessTracker.hasAnyAliveWorker == false
             }
         }
-        
+    }
+    
+    public func waitForBalancingQueueToDeplete() throws {
         if !balancingBucketQueue.state.isDepleted {
             Logger.debug("Waiting for bucket queue to deplete with timeout: \(queueExhaustTimeAllowance)")
             try SynchronousWaiter.waitWhile(pollPeriod: 5, timeout: queueExhaustTimeAllowance, description: "Waiting for queue to exhaust") {
@@ -145,7 +152,12 @@ public final class QueueServer {
         }
     }
     
+    public var ongoingJobIds: Set<JobId> {
+        return balancingBucketQueue.ongoingJobIds
+    }
+    
     public func waitForJobToFinish(jobId: JobId) throws -> JobResults {
+        try waitForWorkersToAppear()
         try waitForBalancingQueueToDeplete()
 
         Logger.debug("Bucket queue has depleted")

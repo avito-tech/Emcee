@@ -34,6 +34,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         restServer.setHandler(
             bucketResultHandler: stubbedHandler,
             dequeueBucketRequestHandler: stubbedHandler,
+            jobDeleteHandler: stubbedHandler,
             jobResultsHandler: stubbedHandler,
             jobStateHandler: stubbedHandler,
             registerWorkerHandler: RESTEndpointOf(actualHandler: workerRegistrar),
@@ -63,6 +64,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         restServer.setHandler(
             bucketResultHandler: stubbedHandler,
             dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: bucketProvider),
+            jobDeleteHandler: stubbedHandler,
             jobResultsHandler: stubbedHandler,
             jobStateHandler: stubbedHandler,
             registerWorkerHandler: stubbedHandler,
@@ -97,6 +99,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         restServer.setHandler(
             bucketResultHandler: RESTEndpointOf(actualHandler: resultHandler),
             dequeueBucketRequestHandler: stubbedHandler,
+            jobDeleteHandler: stubbedHandler,
             jobResultsHandler: stubbedHandler,
             jobStateHandler: stubbedHandler,
             registerWorkerHandler: stubbedHandler,
@@ -117,6 +120,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         restServer.setHandler(
             bucketResultHandler: stubbedHandler,
             dequeueBucketRequestHandler: stubbedHandler,
+            jobDeleteHandler: stubbedHandler,
             jobResultsHandler: stubbedHandler,
             jobStateHandler: stubbedHandler,
             registerWorkerHandler: stubbedHandler,
@@ -137,6 +141,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         restServer.setHandler(
             bucketResultHandler: stubbedHandler,
             dequeueBucketRequestHandler: stubbedHandler,
+            jobDeleteHandler: stubbedHandler,
             jobResultsHandler: stubbedHandler,
             jobStateHandler: stubbedHandler,
             registerWorkerHandler: stubbedHandler,
@@ -171,6 +176,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         restServer.setHandler(
             bucketResultHandler: stubbedHandler,
             dequeueBucketRequestHandler: stubbedHandler,
+            jobDeleteHandler: stubbedHandler,
             jobResultsHandler: stubbedHandler,
             jobStateHandler: stubbedHandler,
             registerWorkerHandler: stubbedHandler,
@@ -206,6 +212,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         restServer.setHandler(
             bucketResultHandler: stubbedHandler,
             dequeueBucketRequestHandler: stubbedHandler,
+            jobDeleteHandler: stubbedHandler,
             jobResultsHandler: stubbedHandler,
             jobStateHandler: RESTEndpointOf(actualHandler: jobStateHandler),
             registerWorkerHandler: stubbedHandler,
@@ -230,6 +237,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         restServer.setHandler(
             bucketResultHandler: stubbedHandler,
             dequeueBucketRequestHandler: stubbedHandler,
+            jobDeleteHandler: stubbedHandler,
             jobResultsHandler: RESTEndpointOf(actualHandler: jobResultsHandler),
             jobStateHandler: stubbedHandler,
             registerWorkerHandler: stubbedHandler,
@@ -241,6 +249,29 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         XCTAssertEqual(
             try client.jobResults(jobId: jobId),
             jobResults
+        )
+    }
+    
+    func test___deleting_job() throws {
+        let jobResultsHandler = FakeRESTEndpoint<JobDeleteRequest, JobDeleteResponse>(
+            JobDeleteResponse(jobId: jobId)
+        )
+        
+        restServer.setHandler(
+            bucketResultHandler: stubbedHandler,
+            dequeueBucketRequestHandler: stubbedHandler,
+            jobDeleteHandler: RESTEndpointOf(actualHandler: jobResultsHandler),
+            jobResultsHandler: stubbedHandler,
+            jobStateHandler: stubbedHandler,
+            registerWorkerHandler: stubbedHandler,
+            reportAliveHandler: stubbedHandler,
+            scheduleTestsHandler: stubbedHandler,
+            versionHandler: stubbedHandler
+        )
+        let client = synchronousQueueClient(port: try restServer.start())
+        XCTAssertEqual(
+            try client.delete(jobId: jobId),
+            jobId
         )
     }
     

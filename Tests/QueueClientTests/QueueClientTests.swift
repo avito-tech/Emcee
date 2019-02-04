@@ -8,24 +8,22 @@ import XCTest
 
 class QueueClientTests: XCTestCase {
     
-    private var server: HttpServer?
-    private var port: Int!
-    private var delegate: FakeQueueClientDelegate!
+    private var server = HttpServer()
+    private var port: Int = 0
+    private let delegate = FakeQueueClientDelegate()
     private var queueClient: QueueClient!
     private let workerId = "workerId"
     
     override func tearDown() {
-        server?.stop()
+        server.stop()
         queueClient.close()
     }
     
     func prepareServer(_ query: String, _ response: @escaping (HttpRequest) -> (HttpResponse)) throws {
         do {
-            server = HttpServer()
-            server?[query] = response
-            try server?.start(0)
-            port = try server?.port() ?? 0
-            delegate = FakeQueueClientDelegate()
+            server[query] = response
+            try server.start(0)
+            port = try server.port()
             queueClient = QueueClient(queueServerAddress: SocketAddress(host: "127.0.0.1", port: port))
             queueClient.delegate = delegate
         } catch {
@@ -220,6 +218,23 @@ class QueueClientTests: XCTestCase {
         switch delegate.responses[0] {
         case .fetchedJobState(let fetchedJobState):
             XCTAssertEqual(fetchedJobState, jobState)
+        default:
+            XCTFail("Unexpected result")
+        }
+    }
+    
+    func test___deleting_job() throws {
+        let jobId: JobId = "job_id"
+        try prepareServer(RESTMethod.jobDelete.withPrependingSlash) { request -> HttpResponse in
+            let data: Data = (try? JSONEncoder().encode(JobDeleteResponse(jobId: jobId))) ?? Data()
+            return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
+        }
+        try queueClient.deleteJob(jobId: jobId)
+        try SynchronousWaiter.waitWhile(timeout: 5.0) { delegate.responses.isEmpty }
+        
+        switch delegate.responses[0] {
+        case .deletedJob(let deletedJobId):
+            XCTAssertEqual(jobId, deletedJobId)
         default:
             XCTFail("Unexpected result")
         }

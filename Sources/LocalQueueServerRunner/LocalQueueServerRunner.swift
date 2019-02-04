@@ -1,5 +1,6 @@
 import AutomaticTermination
 import EventBus
+import Foundation
 import Logging
 import Models
 import PortDeterminer
@@ -50,8 +51,12 @@ public final class LocalQueueServerRunner {
         )
         _ = try queueServer.start()
         
+        try queueServer.waitForWorkersToAppear()
         try waitForAutomaticTerminationControllerToTriggerStartOfTermination(automaticTerminationController)
-        try allowQueueServerToFinishJobs(queueServer)
+        try waitForAllJobsToBeDeleted(
+            queueServer: queueServer,
+            timeout: queueServerRunConfiguration.queueServerTerminationPolicy.period
+        )
     }
     
     private func waitForAutomaticTerminationControllerToTriggerStartOfTermination(_ automaticTerminationController: AutomaticTerminationController) throws {
@@ -60,8 +65,10 @@ public final class LocalQueueServerRunner {
         }
     }
     
-    private func allowQueueServerToFinishJobs(_ queueServer: QueueServer) throws {
-        try queueServer.waitForBalancingQueueToDeplete()
+    private func waitForAllJobsToBeDeleted(queueServer: QueueServer, timeout: TimeInterval) throws {
+        try SynchronousWaiter.waitWhile(pollPeriod: 5.0, timeout: timeout, description: "Wait for all jobs to be deleted") {
+            !queueServer.ongoingJobIds.isEmpty
+        }
     }
     
     private func createWorkerConfigurations() -> WorkerConfigurations {

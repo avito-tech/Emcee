@@ -66,7 +66,7 @@ final class QueueServerTests: XCTestCase {
         XCTAssertThrowsError(try server.waitForJobToFinish(jobId: jobId))
     }
     
-    func test__queue_resturns_results_after_depletion() throws {
+    func test__queue_returns_results_after_depletion() throws {
         let testEntry = TestEntry(className: "class", methodName: "test", caseId: nil)
         let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
         let testEntryConfigurations = TestEntryConfigurationFixtures()

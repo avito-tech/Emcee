@@ -8,11 +8,9 @@ public protocol BalancingBucketQueue:
     BucketResultAccepter,
     DequeueableBucketSource,
     EnqueueableBucketReceptor,
+    JobManipulator,
     JobResultsProvider,
     JobStateProvider,
     QueueStateProvider,
     StuckBucketsReenqueuer
-{
-    /// Removes job.
-    func delete(jobId: JobId)
-}
+{}

@@ -10,6 +10,17 @@ public enum AutomaticTerminationPolicy: Codable {
     /// Will not trigger automatic termination.
     case stayAlive
     
+    public var period: TimeInterval {
+        switch self {
+        case .afterBeingIdle(let period):
+            return period
+        case .after(let timeInterval):
+            return timeInterval
+        case .stayAlive:
+            return .infinity
+        }
+    }
+    
     private enum CodingKeys: String, CodingKey {
         case caseId
         case period

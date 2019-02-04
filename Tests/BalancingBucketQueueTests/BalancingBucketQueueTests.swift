@@ -44,8 +44,12 @@ final class BalancingBucketQueueTests: XCTestCase {
         balancingQueue.enqueue(buckets: [bucket], jobId: jobId)
         
         XCTAssertNoThrow(_ = try balancingQueue.state(jobId: jobId))
-        balancingQueue.delete(jobId: jobId)
+        XCTAssertNoThrow(try balancingQueue.delete(jobId: jobId))
         XCTAssertThrowsError(_ = try balancingQueue.state(jobId: jobId))
+    }
+    
+    func test___deleting_non_existing_job___throws() throws {
+        XCTAssertThrowsError(try balancingQueue.delete(jobId: "non existing job id"))
     }
     
     func test___dequeueing_from_empty_qeueue___returns_check_after() {

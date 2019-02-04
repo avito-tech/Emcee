@@ -220,7 +220,12 @@ final class RunTestsOnRemoteQueueCommand: Command {
             return !state.queueState.isDepleted
         }
         Logger.info("Will now fetch job results")
-        return try queueClient.jobResults(jobId: runId)
+        let results = try queueClient.jobResults(jobId: runId)
+        
+        Logger.info("Will delete job \(runId)")
+        _ = try queueClient.delete(jobId: runId)
+        
+        return results
     }
     
     private func selectPort(ports: Set<Int>) throws -> Int {
