@@ -1,3 +1,4 @@
+import AutomaticTermination
 import BalancingBucketQueue
 import BucketQueue
 import EventBus
@@ -32,6 +33,7 @@ public final class QueueServer {
     private let workerRegistrar: WorkerRegistrar
     
     public init(
+        automaticTerminationController: AutomaticTerminationController,
         eventBus: EventBus,
         workerConfigurations: WorkerConfigurations,
         reportAliveInterval: TimeInterval,
@@ -63,6 +65,7 @@ public final class QueueServer {
         )
         self.balancingBucketQueue = balancingBucketQueueFactory.create()
         self.restServer = QueueHTTPRESTServer(
+            automaticTerminationController: automaticTerminationController,
             localPortDeterminer: localPortDeterminer
         )
         self.testsEnqueuer = TestsEnqueuer(

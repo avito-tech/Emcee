@@ -1,3 +1,4 @@
+import AutomaticTermination
 import Deployer
 import DistDeployer
 import EventBus
@@ -38,6 +39,9 @@ public final class DistRunner {
     
     public func run() throws -> [TestingResult] {
         let queueServer = QueueServer(
+            automaticTerminationController: AutomaticTerminationControllerFactory(
+                automaticTerminationPolicy: .stayAlive
+            ).createAutomaticTerminationController(),
             eventBus: eventBus,
             workerConfigurations: createWorkerConfigurations(),
             reportAliveInterval: distRunConfiguration.reportAliveInterval,

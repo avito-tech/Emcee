@@ -236,6 +236,7 @@ let package = Package(
             // MARK: DistRunner
             name: "DistRunner",
             dependencies: [
+                "AutomaticTermination",
                 "BucketQueue",
                 "DistDeployer",
                 "EventBus",
@@ -604,6 +605,7 @@ let package = Package(
             // MARK: QueueServer
             name: "QueueServer",
             dependencies: [
+                "AutomaticTermination",
                 "BalancingBucketQueue",
                 "BucketQueue",
                 "EventBus",

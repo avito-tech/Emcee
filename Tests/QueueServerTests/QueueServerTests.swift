@@ -1,3 +1,4 @@
+import AutomaticTermination
 import EventBus
 import Foundation
 import Models
@@ -14,6 +15,9 @@ final class QueueServerTests: XCTestCase {
     let workerConfigurations = WorkerConfigurations()
     let workerId = "workerId"
     let jobId: JobId = "jobId"
+    let automaticTerminationController = AutomaticTerminationControllerFactory(
+        automaticTerminationPolicy: .stayAlive
+    ).createAutomaticTerminationController()
     let localPortDeterminer = LocalPortDeterminer(portRange: Ports.allPrivatePorts)
     let bucketSplitter = ScheduleStrategyType.individual.bucketSplitter()
     let bucketSplitInfo = BucketSplitInfoFixtures.bucketSplitInfoFixture()
@@ -23,6 +27,7 @@ final class QueueServerTests: XCTestCase {
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
         
         let server = QueueServer(
+            automaticTerminationController: automaticTerminationController,
             eventBus: eventBus,
             workerConfigurations: workerConfigurations,
             reportAliveInterval: .infinity,
@@ -45,6 +50,7 @@ final class QueueServerTests: XCTestCase {
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
         
         let server = QueueServer(
+            automaticTerminationController: automaticTerminationController,
             eventBus: EventBus(),
             workerConfigurations: workerConfigurations,
             reportAliveInterval: .infinity,
@@ -79,6 +85,7 @@ final class QueueServerTests: XCTestCase {
         
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
         let server = QueueServer(
+            automaticTerminationController: automaticTerminationController,
             eventBus: EventBus(),
             workerConfigurations: workerConfigurations,
             reportAliveInterval: .infinity,

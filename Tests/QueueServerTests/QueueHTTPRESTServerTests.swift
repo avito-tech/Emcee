@@ -1,3 +1,4 @@
+import AutomaticTermination
 import BucketQueue
 import BucketQueueTestHelpers
 import EventBus
@@ -15,7 +16,12 @@ import WorkerAlivenessTrackerTestHelpers
 import XCTest
 
 final class QueueHTTPRESTServerTests: XCTestCase {
-    let restServer = QueueHTTPRESTServer(localPortDeterminer: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange))
+    let restServer = QueueHTTPRESTServer(
+        automaticTerminationController: AutomaticTerminationControllerFactory(
+            automaticTerminationPolicy: .stayAlive
+        ).createAutomaticTerminationController(),
+        localPortDeterminer: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange)
+    )
     let workerConfigurations = WorkerConfigurations()
     let workerId = "worker"
     let requestId = "requestId"

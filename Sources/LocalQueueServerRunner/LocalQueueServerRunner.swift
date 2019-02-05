@@ -32,6 +32,7 @@ public final class LocalQueueServerRunner {
             automaticTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy
         ).createAutomaticTerminationController()
         let queueServer = QueueServer(
+            automaticTerminationController: automaticTerminationController,
             eventBus: eventBus,
             workerConfigurations: createWorkerConfigurations(),
             reportAliveInterval: queueServerRunConfiguration.reportAliveInterval,
