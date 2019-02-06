@@ -27,9 +27,15 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     private var jobDeleteResult: Result<JobId, QueueClientError>?
     private let syncQueue = DispatchQueue(label: "ru.avito.SynchronousQueueClient")
     private let requestTimeout: TimeInterval
+    private let networkRequestRetryCount: Int
     
-    public init(queueServerAddress: SocketAddress, requestTimeout: TimeInterval = 10) {
+    public init(
+        queueServerAddress: SocketAddress,
+        requestTimeout: TimeInterval = 10,
+        networkRequestRetryCount: Int = 5)
+    {
         self.requestTimeout = requestTimeout
+        self.networkRequestRetryCount = networkRequestRetryCount
         self.queueClient = QueueClient(queueServerAddress: queueServerAddress)
         self.queueClient.delegate = self
     }
@@ -54,7 +60,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     public func fetchBucket(requestId: String, workerId: String) throws -> BucketFetchResult {
         return try synchronize {
             bucketFetchResult = nil
-            return try runRetrying(times: 5) {
+            return try runRetrying {
                 try queueClient.fetchBucket(requestId: requestId, workerId: workerId)
                 try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait bucket to return from server") {
                     self.bucketFetchResult == nil
@@ -67,7 +73,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     public func send(testingResult: TestingResult, requestId: String, workerId: String) throws -> String {
         return try synchronize {
             bucketResultSendResult = nil
-            return try runRetrying(times: 5) {
+            return try runRetrying {
                 try queueClient.send(
                     testingResult: testingResult,
                     requestId: requestId,
@@ -84,24 +90,28 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     public func reportAliveness(bucketIdsBeingProcessedProvider: () -> (Set<String>), workerId: String) throws {
         try synchronize {
             alivenessReportResult = nil
-            try queueClient.reportAlive(
-                bucketIdsBeingProcessedProvider: bucketIdsBeingProcessedProvider,
-                workerId: workerId
-            )
-            try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for aliveness report") {
-                self.alivenessReportResult == nil
-            }
+            try runRetrying {
+                try queueClient.reportAlive(
+                    bucketIdsBeingProcessedProvider: bucketIdsBeingProcessedProvider,
+                    workerId: workerId
+                )
+                try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for aliveness report") {
+                    self.alivenessReportResult == nil
+                }
+            } as Void
         } as Void
     }
     
     public func fetchQueueServerVersion() throws -> Version {
         return try synchronize {
             queueServerVersionResult = nil
-            try queueClient.fetchQueueServerVersion()
-            try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for queue server version") {
-                self.queueServerVersionResult == nil
+            return try runRetrying {
+                try queueClient.fetchQueueServerVersion()
+                try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for queue server version") {
+                    self.queueServerVersionResult == nil
+                }
+                return try queueServerVersionResult!.dematerialize()
             }
-            return try queueServerVersionResult!.dematerialize()
         }
     }
     
@@ -113,7 +123,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     {
         return try synchronize {
             scheduleTestsResult = nil
-            return try runRetrying(times: 5) {
+            return try runRetrying {
                 try queueClient.scheduleTests(
                     jobId: jobId,
                     testEntryConfigurations: testEntryConfigurations,
@@ -130,22 +140,26 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     public func jobResults(jobId: JobId) throws -> JobResults {
         return try synchronize {
             jobResultsResult = nil
-            try queueClient.fetchJobResults(jobId: jobId)
-            try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for \(jobId) job results") {
-                self.jobResultsResult == nil
+            return try runRetrying {
+                try queueClient.fetchJobResults(jobId: jobId)
+                try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for \(jobId) job results") {
+                    self.jobResultsResult == nil
+                }
+                return try jobResultsResult!.dematerialize()
             }
-            return try jobResultsResult!.dematerialize()
         }
     }
     
     public func jobState(jobId: JobId) throws -> JobState {
         return try synchronize {
             jobStateResult = nil
-            try queueClient.fetchJobState(jobId: jobId)
-            try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for \(jobId) job state") {
-                self.jobStateResult == nil
+            return try runRetrying {
+                try queueClient.fetchJobState(jobId: jobId)
+                try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for \(jobId) job state") {
+                    self.jobStateResult == nil
+                }
+                return try jobStateResult!.dematerialize()
             }
-            return try jobStateResult!.dematerialize()
         }
     }
     
@@ -168,12 +182,12 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         }
     }
     
-    private func runRetrying<T>(times: UInt, _ work: () throws -> T) rethrows -> T {
-        for retryIndex in 0 ..< times {
+    private func runRetrying<T>(_ work: () throws -> T) rethrows -> T {
+        for retryIndex in 0 ..< networkRequestRetryCount {
             do {
                 return try work()
             } catch {
-                Logger.error("Attempted to run \(retryIndex) of \(times), got an error: \(error)")
+                Logger.error("Attempted to run \(retryIndex) of \(networkRequestRetryCount), got an error: \(error)")
                 SynchronousWaiter.wait(timeout: 1.0)
             }
         }
