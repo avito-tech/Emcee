@@ -23,6 +23,19 @@ final class ResourceLocationResolverTests: XCTestCase {
             XCTFail("Unexpected result")
         }
     }
+    
+    func test___resolving_local_file_with_space_in_path() throws {
+        let expectedPath = try tempFolder.createFile(filename: "some local file")
+        
+        let result = try resolver.resolvePath(resourceLocation: ResourceLocation.from(expectedPath.asString))
+        
+        switch result {
+        case .directlyAccessibleFile(let actualPath):
+            XCTAssertEqual(expectedPath.asString, actualPath)
+        case .contentsOfArchive:
+            XCTFail("Unexpected result")
+        }
+    }
 
     func test___fetching_resource_with_fragment___resolves_into_archive_contents_with_filename_in_archive() throws {
         let server = try startServer(serverPath: "/contents/example.zip", localPath: smallZipFile.asString)

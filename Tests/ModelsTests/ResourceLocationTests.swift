@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import TempFolder
 import XCTest
 
 final class ResourceLocationTests: XCTestCase {
@@ -47,6 +48,18 @@ final class ResourceLocationTests: XCTestCase {
             ResourceLocation.remoteUrl(URL(string: "http://example.com/file.zip#file")!).stringValue,
             "http://example.com/file.zip#file"
         )
+    }
+    
+    func test___location_with_spaces_in_local_path() throws {
+        let tempFolder = try TempFolder(cleanUpAutomatically: true)
+        let path = try tempFolder.createFile(filename: "some file")
+        XCTAssertNoThrow(try ResourceLocation.from(path.asString))
+    }
+    
+    func test___location__from_json_with_spaces_in_local_path() throws {
+        let jsonData = "{\"value\": \"/path/to/file name.txt\"}".data(using: .utf8)!
+        let decoded = try JSONDecoder().decode([String: ResourceLocation].self, from: jsonData)
+        XCTAssertEqual(decoded["value"], ResourceLocation.localFilePath("/path/to/file name.txt"))
     }
 }
 

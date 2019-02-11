@@ -498,7 +498,8 @@ let package = Package(
             name: "ModelsTests",
             dependencies: [
                 "Models",
-                "ModelsTestHelpers"
+                "ModelsTestHelpers",
+                "TempFolder"
             ]
         ),
         .target(

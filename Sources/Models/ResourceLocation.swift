@@ -34,10 +34,7 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
     }
     
     public static func from(_ string: String) throws -> ResourceLocation {
-        guard var components = URLComponents(string: string) else { throw ValidationError.cannotCreateUrl(string) }
-        if components.scheme == nil {
-            components.scheme = "file"
-        }
+        let components = try urlComponents(string)
         guard let url = components.url else { throw ValidationError.cannotCreateUrl(string) }
         if url.isFileURL {
             return try withPathString(string)
@@ -46,11 +43,26 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
         }
     }
     
-    private static func withoutValueValidation(_ string: String) throws -> ResourceLocation {
+    private static let percentEncodedCharacters: CharacterSet = CharacterSet()
+        .union(.urlQueryAllowed)
+        .union(.urlHostAllowed)
+        .union(.urlPathAllowed)
+        .union(.urlUserAllowed)
+        .union(.urlFragmentAllowed)
+        .union(CharacterSet(charactersIn: "#"))
+        .union(.urlPasswordAllowed)
+    
+    private static func urlComponents(_ string: String) throws -> URLComponents {
+        let string = string.addingPercentEncoding(withAllowedCharacters: percentEncodedCharacters) ?? string
         guard var components = URLComponents(string: string) else { throw ValidationError.cannotCreateUrl(string) }
         if components.scheme == nil {
             components.scheme = "file"
         }
+        return components
+    }
+    
+    private static func withoutValueValidation(_ string: String) throws -> ResourceLocation {
+        let components = try urlComponents(string)
         guard let url = components.url else { throw ValidationError.cannotCreateUrl(string) }
         if url.isFileURL {
             return .localFilePath(string)
