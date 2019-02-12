@@ -4,17 +4,6 @@ import Basic
 import Logging
 
 public struct CommandRegistry {
-    public enum CommandExecutionError: Error, CustomStringConvertible {
-        case incorrectUsage(usageDescription: String)
-        
-        public var description: String {
-            switch self {
-            case .incorrectUsage(let usageDescription):
-                return "Incorrect arguments. Usage:\n\(usageDescription)"
-            }
-        }
-    }
-    
     private let parser: ArgumentParser
     private var commands: [Command] = []
     

@@ -36,6 +36,7 @@ let package = Package(
     dependencies: [
         // MARK: - Dependencies
         .package(url: "https://github.com/apple/swift-package-manager.git", .exact("0.3.0")),
+        .package(url: "https://github.com/IBM-Swift/BlueSignals.git", .exact("1.0.16")),
         .package(url: "https://github.com/beefon/CountedSet", .branch("master")),
         .package(url: "https://github.com/beefon/Shout", .branch("UpdateSocket")),
         .package(url: "https://github.com/daltoniam/Starscream.git", .exact("3.0.6")),
@@ -106,8 +107,9 @@ let package = Package(
                 "SSHDeployer",
                 "ScheduleStrategy",
                 "Scheduler",
-                "Version",
-                "Utility"
+                "SignalHandling",
+                "Utility",
+                "Version"
             ]
         ),
         .testTarget(
@@ -816,6 +818,22 @@ let package = Package(
                 "Models",
                 "ModelsTestHelpers",
                 "ScheduleStrategy"
+            ]
+        ),
+        .target(
+        // MARK: SignalHandling
+            name: "SignalHandling",
+            dependencies: [
+                "Models",
+                "Signals"
+            ]
+        ),
+        .testTarget(
+        // MARK: SignalHandlingTests
+        name: "SignalHandlingTests",
+        dependencies: [
+            "SignalHandling",
+            "Signals"
             ]
         ),
         .target(

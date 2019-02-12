@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "Signals",
+        "repositoryURL": "https://github.com/IBM-Swift/BlueSignals.git",
+        "state": {
+          "branch": null,
+          "revision": "23f62ec7a38a837e1c14acffc2e963b667a88b46",
+          "version": "1.0.16"
+        }
+      },
+      {
         "package": "Socket",
         "repositoryURL": "https://github.com/IBM-Swift/BlueSocket",
         "state": {

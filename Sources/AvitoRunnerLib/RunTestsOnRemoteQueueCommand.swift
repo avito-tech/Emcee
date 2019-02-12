@@ -11,6 +11,7 @@ import QueueClient
 import RemotePortDeterminer
 import RemoteQueue
 import ResourceLocationResolver
+import SignalHandling
 import SynchronousWaiter
 import TempFolder
 import Utility
@@ -213,8 +214,17 @@ final class RunTestsOnRemoteQueueCommand: Command {
             requestId: runId.value + "_" + UUID().uuidString
         )
         
+        var caughtSignal = false
+        SignalHandling.addSignalHandler(signals: [.int, .term]) { signal in
+            Logger.info("Caught \(signal) signal")
+            Logger.info("Will delete job \(runId)")
+            _ = try? queueClient.delete(jobId: runId)
+            caughtSignal = true
+        }
+        
         Logger.info("Will now wait for job queue to deplete")
         try SynchronousWaiter.waitWhile(pollPeriod: 30.0, description: "Wait for job queue to deplete") {
+            if caughtSignal { return false }
             let state = try queueClient.jobState(jobId: runId)
             BucketQueueStateLogger(state: state.queueState).logQueueSize()
             return !state.queueState.isDepleted
