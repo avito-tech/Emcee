@@ -167,7 +167,7 @@ class QueueClientTests: XCTestCase {
     
     func test___scheduling_tests() throws {
         let serverHasProvidedResponseExpectation = expectation(description: "Server provided response")
-        let jobId: JobId = "jobid"
+        let prioritizedJob = PrioritizedJob(jobId: "jobid", priority: .medium)
         let requestId = "requestId"
         let testEntryConfigurations = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry())
@@ -185,7 +185,7 @@ class QueueClientTests: XCTestCase {
                 body,
                 ScheduleTestsRequest(
                     requestId: requestId,
-                    jobId: jobId,
+                    prioritizedJob: prioritizedJob,
                     testEntryConfigurations: testEntryConfigurations
                 )
             )
@@ -197,7 +197,7 @@ class QueueClientTests: XCTestCase {
         }
         
         try queueClient.scheduleTests(
-            jobId: jobId,
+            prioritizedJob: prioritizedJob,
             testEntryConfigurations: testEntryConfigurations,
             requestId: requestId
         )

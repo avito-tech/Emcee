@@ -9,7 +9,7 @@ import XCTest
 
 final class TestsEnqueuerTests: XCTestCase {
     let enqueueableBucketReceptor = FakeEnqueueableBucketReceptor()
-    let jobId: JobId = "job_id"
+    let prioritizedJob = PrioritizedJob(jobId: "jobId", priority: .medium)
     
     func test() {
         
@@ -23,11 +23,11 @@ final class TestsEnqueuerTests: XCTestCase {
             testEntryConfigurations: TestEntryConfigurationFixtures()
                 .add(testEntry: TestEntryFixtures.testEntry())
                 .testEntryConfigurations(),
-            jobId: jobId
+            prioritizedJob: prioritizedJob
         )
         
         XCTAssertEqual(
-            enqueueableBucketReceptor.enqueuedJobs[jobId],
+            enqueueableBucketReceptor.enqueuedJobs[prioritizedJob],
             [BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])]
         )
     }

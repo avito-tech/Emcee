@@ -26,6 +26,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     let workerId = "worker"
     let requestId = "requestId"
     let jobId: JobId = "JobId"
+    lazy var prioritizedJob = PrioritizedJob(jobId: jobId, priority: .medium)
     let stubbedHandler = RESTEndpointOf(actualHandler: FakeRESTEndpoint<Int, Int>(0))
     
     override func setUp() {
@@ -193,14 +194,14 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let client = synchronousQueueClient(port: try restServer.start())
         
         let acceptedRequestId = try client.scheduleTests(
-            jobId: jobId,
+            prioritizedJob: prioritizedJob,
             testEntryConfigurations: testEntryConfigurations,
             requestId: requestId
         )
         
         XCTAssertEqual(acceptedRequestId, requestId)
         XCTAssertEqual(
-            enqueueableBucketReceptor.enqueuedJobs[jobId],
+            enqueueableBucketReceptor.enqueuedJobs[prioritizedJob],
             [BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])]
         )
     }

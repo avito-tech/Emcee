@@ -26,7 +26,7 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
     
     func delete(jobId: JobId) throws {
         return try syncQueue.sync {
-            let newContents = bucketQueues.values.filter { $0.jobId != jobId }
+            let newContents = bucketQueues.values.filter { $0.prioritizedJob.jobId != jobId }
             guard newContents.count < bucketQueues.count else {
                 throw BalancingBucketQueueError.noQueue(jobId: jobId)
             }
@@ -36,7 +36,7 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
     
     var ongoingJobIds: Set<JobId> {
         let jobIds = syncQueue.sync {
-            bucketQueues.map { $0.jobId }
+            bucketQueues.map { $0.prioritizedJob.jobId }
         }
         return Set(jobIds)
     }
@@ -59,14 +59,14 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
         }
     }
     
-    func enqueue(buckets: [Bucket], jobId: JobId) {
+    func enqueue(buckets: [Bucket], prioritizedJob: PrioritizedJob) {
         syncQueue.sync {
             let bucketQueue: BucketQueue
-            if let existingEntry = entry__onSyncQueue(jobId: jobId) {
+            if let existingEntry = entry__onSyncQueue(jobId: prioritizedJob.jobId) {
                 bucketQueue = existingEntry.bucketQueue
             } else {
                 bucketQueue = bucketQueueFactory.createBucketQueue()
-                add_onSyncQueue(bucketQueue: bucketQueue, jobId: jobId)
+                add_onSyncQueue(bucketQueue: bucketQueue, prioritizedJob: prioritizedJob)
             }
             bucketQueue.enqueue(buckets: buckets)
         }
@@ -146,13 +146,13 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
     }
     
     private func entry__onSyncQueue(jobId: JobId) -> JobQueue? {
-        return bucketQueues.first(where: { entry -> Bool in entry.jobId == jobId })
+        return bucketQueues.first(where: { entry -> Bool in entry.prioritizedJob.jobId == jobId })
     }
     
-    private func add_onSyncQueue(bucketQueue: BucketQueue, jobId: JobId) {
+    private func add_onSyncQueue(bucketQueue: BucketQueue, prioritizedJob: PrioritizedJob) {
         bucketQueues.insert(
             JobQueue(
-                jobId: jobId,
+                prioritizedJob: prioritizedJob,
                 creationTime: Date(),
                 bucketQueue: bucketQueue,
                 resultsCollector: ResultsCollector()

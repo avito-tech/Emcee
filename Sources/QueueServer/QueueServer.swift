@@ -132,8 +132,11 @@ public final class QueueServer {
         return port
     }
     
-    public func schedule(testEntryConfigurations: [TestEntryConfiguration], jobId: JobId) {
-        testsEnqueuer.enqueue(testEntryConfigurations: testEntryConfigurations, jobId: jobId)
+    public func schedule(testEntryConfigurations: [TestEntryConfiguration], prioritizedJob: PrioritizedJob) {
+        testsEnqueuer.enqueue(
+            testEntryConfigurations: testEntryConfigurations,
+            prioritizedJob: prioritizedJob
+        )
     }
     
     public func waitForWorkersToAppear() throws {

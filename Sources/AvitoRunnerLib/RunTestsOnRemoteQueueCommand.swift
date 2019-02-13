@@ -26,6 +26,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
     private let workerDestinations: OptionArgument<String>
     private let fbxctest: OptionArgument<String>
     private let junit: OptionArgument<String>
+    private let priority: OptionArgument<UInt>
     private let plugins: OptionArgument<[String]>
     private let queueServerDestination: OptionArgument<String>
     private let queueServerRunConfigurationLocation: OptionArgument<String>
@@ -46,6 +47,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         app = subparser.add(stringArgument: KnownStringArguments.app)
         fbxctest = subparser.add(stringArgument: KnownStringArguments.fbxctest)
         junit = subparser.add(stringArgument: KnownStringArguments.junit)
+        priority = subparser.add(intArgument: KnownUIntArguments.priority)
         plugins = subparser.add(multipleStringArgument: KnownStringArguments.plugin)
         queueServerDestination = subparser.add(stringArgument: KnownStringArguments.queueServerDestination)
         queueServerRunConfigurationLocation = subparser.add(stringArgument: KnownStringArguments.queueServerRunConfigurationLocation)
@@ -73,6 +75,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         defer { eventBus.tearDown() }
         
         let fbxctest = FbxctestLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.fbxctest), key: KnownStringArguments.fbxctest))
+        let priority = try Priority(intValue: try ArgumentsReader.validateNotNil(arguments.get(self.priority), key: KnownUIntArguments.priority))
         let pluginLocations = try ArgumentsReader.validateResourceLocations(arguments.get(self.plugins) ?? [], key: KnownStringArguments.plugin).map({ PluginLocation($0) })
         
         let queueServerDestination = try ArgumentsReader.deploymentDestinations(
@@ -103,6 +106,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
             buildArtifacts: buildArtifacts,
             eventBus: eventBus,
             fbxctest: fbxctest,
+            priority: priority,
             queueServerAddress: runningQueueServerAddress,
             runId: runId,
             tempFolder: tempFolder,
@@ -178,6 +182,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         buildArtifacts: BuildArtifacts,
         eventBus: EventBus,
         fbxctest: FbxctestLocation,
+        priority: Priority,
         queueServerAddress: SocketAddress,
         runId: JobId,
         tempFolder: TempFolder,
@@ -209,7 +214,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         
         let queueClient = SynchronousQueueClient(queueServerAddress: queueServerAddress)
         _ = try queueClient.scheduleTests(
-            jobId: runId,
+            prioritizedJob: PrioritizedJob(jobId: runId, priority: priority),
             testEntryConfigurations: testEntryConfigurations,
             requestId: runId.value + "_" + UUID().uuidString
         )

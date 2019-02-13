@@ -83,7 +83,7 @@ public final class QueueClient {
     }
     
     public func scheduleTests(
-        jobId: JobId,
+        prioritizedJob: PrioritizedJob,
         testEntryConfigurations: [TestEntryConfiguration],
         requestId: String)
         throws
@@ -92,7 +92,7 @@ public final class QueueClient {
             .scheduleTests,
             payload: ScheduleTestsRequest(
                 requestId: requestId,
-                jobId: jobId,
+                prioritizedJob: prioritizedJob,
                 testEntryConfigurations: testEntryConfigurations
             ),
             completionHandler: handleScheduleTestsResponse

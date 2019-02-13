@@ -3,23 +3,24 @@ import Models
 
 public final class ScheduleTestsRequest: Codable {
     public let requestId: String
-    public let jobId: JobId
+    public let prioritizedJob: PrioritizedJob
     public let testEntryConfigurations: [TestEntryConfiguration]
 
     public init(
         requestId: String,
-        jobId: JobId,
+        prioritizedJob: PrioritizedJob,
         testEntryConfigurations: [TestEntryConfiguration])
     {
         self.requestId = requestId
-        self.jobId = jobId
+        self.prioritizedJob = prioritizedJob
         self.testEntryConfigurations = testEntryConfigurations
     }
-    
 }
 
 extension ScheduleTestsRequest: Equatable {
-    public static func ==(lhs: ScheduleTestsRequest, rhs: ScheduleTestsRequest) -> Bool {
-        return lhs.requestId == rhs.requestId && lhs.jobId == rhs.jobId && lhs.testEntryConfigurations == rhs.testEntryConfigurations
+    public static func ==(left: ScheduleTestsRequest, right: ScheduleTestsRequest) -> Bool {
+        return left.requestId == right.requestId
+            && left.prioritizedJob == right.prioritizedJob
+            && left.testEntryConfigurations == right.testEntryConfigurations
     }
 }

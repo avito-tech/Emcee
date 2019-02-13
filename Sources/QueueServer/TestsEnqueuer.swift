@@ -19,14 +19,14 @@ public final class TestsEnqueuer {
         self.enqueueableBucketReceptor = enqueueableBucketReceptor
     }
     
-    public func enqueue(testEntryConfigurations: [TestEntryConfiguration], jobId: JobId) {
+    public func enqueue(testEntryConfigurations: [TestEntryConfiguration], prioritizedJob: PrioritizedJob) {
         let buckets = bucketSplitter.generate(
             inputs: testEntryConfigurations,
             splitInfo: bucketSplitInfo
         )
-        enqueueableBucketReceptor.enqueue(buckets: buckets, jobId: jobId)
+        enqueueableBucketReceptor.enqueue(buckets: buckets, prioritizedJob: prioritizedJob)
         
-        Logger.info("Enqueued \(buckets.count) buckets for job '\(jobId)'")
+        Logger.info("Enqueued \(buckets.count) buckets for job '\(prioritizedJob)'")
         for bucket in buckets {
             Logger.verboseDebug("-- \(bucket) with tests:")
             for testEntries in bucket.testEntries {

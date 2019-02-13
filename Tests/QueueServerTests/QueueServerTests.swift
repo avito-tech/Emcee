@@ -15,6 +15,7 @@ final class QueueServerTests: XCTestCase {
     let workerConfigurations = WorkerConfigurations()
     let workerId = "workerId"
     let jobId: JobId = "jobId"
+    lazy var prioritizedJob = PrioritizedJob(jobId: jobId, priority: .medium)
     let automaticTerminationController = AutomaticTerminationControllerFactory(
         automaticTerminationPolicy: .stayAlive
     ).createAutomaticTerminationController()
@@ -64,7 +65,7 @@ final class QueueServerTests: XCTestCase {
             queueServerLock: NeverLockableQueueServerLock(),
             queueVersionProvider: queueVersionProvider
         )
-        server.schedule(testEntryConfigurations: testEntryConfiguration, jobId: jobId)
+        server.schedule(testEntryConfigurations: testEntryConfiguration, prioritizedJob: prioritizedJob)
         
         let client = synchronousQueueClient(port: try server.start())
         
@@ -99,7 +100,7 @@ final class QueueServerTests: XCTestCase {
             queueServerLock: NeverLockableQueueServerLock(),
             queueVersionProvider: queueVersionProvider
         )
-        server.schedule(testEntryConfigurations: testEntryConfigurations, jobId: jobId)
+        server.schedule(testEntryConfigurations: testEntryConfigurations, prioritizedJob: prioritizedJob)
         
         let expectationForResults = expectation(description: "results became available")
         

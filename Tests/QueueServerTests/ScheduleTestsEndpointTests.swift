@@ -12,7 +12,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         let response = try endpoint.handle(
             decodedRequest: ScheduleTestsRequest(
                 requestId: requestId,
-                jobId: jobId,
+                prioritizedJob: prioritizedJob,
                 testEntryConfigurations: testEntryConfigurations
             )
         )
@@ -20,7 +20,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         XCTAssertEqual(response, ScheduleTestsResponse.scheduledTests(requestId: requestId))
         
         XCTAssertEqual(
-            enqueueableBucketReceptor.enqueuedJobs[jobId],
+            enqueueableBucketReceptor.enqueuedJobs[prioritizedJob],
             [BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])]
         )
     }
@@ -31,14 +31,14 @@ final class ScheduleTestsEndpointTests: XCTestCase {
             _ = try endpoint.handle(
                 decodedRequest: ScheduleTestsRequest(
                     requestId: requestId,
-                    jobId: jobId,
+                    prioritizedJob: prioritizedJob,
                     testEntryConfigurations: testEntryConfigurations
                 )
             )
         }
         
         XCTAssertEqual(
-            enqueueableBucketReceptor.enqueuedJobs[jobId],
+            enqueueableBucketReceptor.enqueuedJobs[prioritizedJob],
             [BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])]
         )
     }
@@ -50,6 +50,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         simulatorSettings: SimulatorSettingsFixtures().simulatorSettings()
     )
     let jobId = JobId(value: "jobId")
+    lazy var prioritizedJob = PrioritizedJob(jobId: jobId, priority: .medium)
     let requestId = "requestId"
     let testEntryConfigurations = TestEntryConfigurationFixtures()
         .add(testEntry: TestEntryFixtures.testEntry())

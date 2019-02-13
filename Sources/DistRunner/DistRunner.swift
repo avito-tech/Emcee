@@ -59,7 +59,7 @@ public final class DistRunner {
         )
         queueServer.schedule(
             testEntryConfigurations: distRunConfiguration.testEntryConfigurations,
-            jobId: distRunConfiguration.runId
+            prioritizedJob: PrioritizedJob(jobId: distRunConfiguration.runId, priority: Priority.medium)
         )
         let queuePort = try queueServer.start()
         

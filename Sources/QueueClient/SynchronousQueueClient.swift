@@ -116,7 +116,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     }
     
     public func scheduleTests(
-        jobId: JobId,
+        prioritizedJob: PrioritizedJob,
         testEntryConfigurations: [TestEntryConfiguration],
         requestId: String)
         throws -> String
@@ -125,7 +125,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
             scheduleTestsResult = nil
             return try runRetrying {
                 try queueClient.scheduleTests(
-                    jobId: jobId,
+                    prioritizedJob: prioritizedJob,
                     testEntryConfigurations: testEntryConfigurations,
                     requestId: requestId
                 )

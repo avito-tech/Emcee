@@ -21,7 +21,7 @@ public final class ScheduleTestsEndpoint: RESTEndpoint {
                 
                 testsEnqueuer.enqueue(
                     testEntryConfigurations: decodedRequest.testEntryConfigurations,
-                    jobId: decodedRequest.jobId
+                    prioritizedJob: decodedRequest.prioritizedJob
                 )
                 
                 scheduleRemoval(requestId: decodedRequest.requestId)

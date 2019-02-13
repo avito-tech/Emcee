@@ -174,6 +174,10 @@ private let knownUIntArguments: [KnownUIntArguments: ArgumentDescriptionHolder] 
         comment: "List of test case IDs to run.",
         multiple: true,
         optional: true),
+    KnownUIntArguments.priority: ArgumentDescriptionHolder(
+        name: "--priority",
+        comment: "Job priority. Possible values are in range: [0...999]",
+        optional: true),
     KnownUIntArguments.singleTestTimeout: ArgumentDescriptionHolder(
         name: "--single-test-timeout",
         comment: "How long each test may run"),
@@ -235,6 +239,7 @@ enum KnownUIntArguments: ArgumentDescription {
     case numberOfRetries
     case numberOfSimulators
     case onlyId
+    case priority
     case singleTestTimeout
     
     var name: String {
