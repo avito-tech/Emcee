@@ -28,12 +28,14 @@ public struct RuntimeDumpConfiguration {
     {
         self.testTimeoutConfiguration = TestTimeoutConfiguration(
             singleTestMaximumDuration: 20,
-            fbxctestSilenceMaximumDuration: 20)
+            fbxctestSilenceMaximumDuration: 20
+        )
         self.testRunExecutionBehavior = TestRunExecutionBehavior(
             numberOfRetries: 0,
             numberOfSimulators: 1,
             environment: [:],
-            scheduleStrategy: .individual)
+            scheduleStrategy: .individual
+        )
         self.fbxctest = fbxctest
         self.xcTestBundle = xcTestBundle
         self.testDestination = testDestination

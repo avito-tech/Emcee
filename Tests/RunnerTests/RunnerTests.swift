@@ -13,7 +13,10 @@ import SimulatorPool
 import XCTest
 
 public final class RunnerTests: XCTestCase {
-    let shimulator = Shimulator.shimulator(testDestination: TestDestinationFixtures.testDestination)
+    lazy var shimulator = Shimulator.shimulator(
+        testDestination: TestDestinationFixtures.testDestination,
+        workingDirectory: tempFolder.pathWith(components: [])
+    )
     let testClassName = "ClassName"
     let testMethod = "testMethod"
     var tempFolder: TempFolder!

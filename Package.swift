@@ -769,8 +769,10 @@ let package = Package(
             name: "RuntimeDump",
             dependencies: [
                 "EventBus",
+                "Extensions",
                 "Models",
                 "Runner",
+                "SynchronousWaiter",
                 "TempFolder"
             ]
         ),

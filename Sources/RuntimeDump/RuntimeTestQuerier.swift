@@ -1,10 +1,12 @@
 import EventBus
+import Extensions
 import Foundation
-import Models
 import Logging
+import Models
 import ResourceLocationResolver
 import Runner
 import SimulatorPool
+import SynchronousWaiter
 import TempFolder
 
 public final class RuntimeTestQuerier {
@@ -28,11 +30,24 @@ public final class RuntimeTestQuerier {
     }
     
     public func queryRuntime() throws -> RuntimeQueryResult {
-        let availableRuntimeTests = try availableTestsInRuntime()
+        let availableRuntimeTests = try runRetrying(times: 5) { try availableTestsInRuntime() }
         let unavailableTestEntries = requestedTestsNotAvailableInRuntime(availableRuntimeTests)
         return RuntimeQueryResult(
             unavailableTestsToRun: unavailableTestEntries,
-            availableRuntimeTests: availableRuntimeTests)
+            availableRuntimeTests: availableRuntimeTests
+        )
+    }
+    
+    private func runRetrying<T>(times: Int, _ work: () throws -> T) rethrows -> T {
+        for retryIndex in 0 ..< times {
+            do {
+                return try work()
+            } catch {
+                Logger.error("Attempt \(retryIndex + 1) of \(times), got an error: \(error)")
+                SynchronousWaiter.wait(timeout: TimeInterval(retryIndex) * 2.0)
+            }
+        }
+        return try work()
     }
     
     private func availableTestsInRuntime() throws -> [RuntimeTestEntry] {
@@ -43,22 +58,25 @@ public final class RuntimeTestQuerier {
             testType: .logicTest,
             fbxctest: configuration.fbxctest,
             buildArtifacts: BuildArtifacts.onlyWithXctestBundle(xcTestBundle: configuration.xcTestBundle),
-            environment: configuration.testRunExecutionBehavior.withEnvironmentOverrides(
+            environment: configuration.testRunExecutionBehavior.environment.byMergingWith(
                 ["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH": runtimeEntriesJSONPath.asString]
-            ).environment,
-            simulatorSettings: SimulatorSettings(
-                simulatorLocalizationSettings: nil,
-                watchdogSettings: nil
             ),
-            testTimeoutConfiguration: configuration.testTimeoutConfiguration)
-        _ = try Runner(
+            simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: nil, watchdogSettings: nil),
+            testTimeoutConfiguration: configuration.testTimeoutConfiguration
+        )
+        let runner = Runner(
             eventBus: eventBus,
             configuration: runnerConfiguration,
             tempFolder: tempFolder,
-            resourceLocationResolver: resourceLocationResolver)
-            .runOnce(
-                entriesToRun: [testQueryEntry],
-                onSimulator: Shimulator.shimulator(testDestination: configuration.testDestination))
+            resourceLocationResolver: resourceLocationResolver
+        )
+        _ = try runner.runOnce(
+            entriesToRun: [testQueryEntry],
+            onSimulator: Shimulator.shimulator(
+                testDestination: configuration.testDestination,
+                workingDirectory: try tempFolder.pathByCreatingDirectories(components: ["shimulator"])
+            )
+        )
         
         guard let data = try? Data(contentsOf: URL(fileURLWithPath: runtimeEntriesJSONPath.asString)),
             let foundTestEntries = try? JSONDecoder().decode([RuntimeTestEntry].self, from: data) else {
