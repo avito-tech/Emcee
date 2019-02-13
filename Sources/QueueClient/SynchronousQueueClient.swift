@@ -105,13 +105,11 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     public func fetchQueueServerVersion() throws -> Version {
         return try synchronize {
             queueServerVersionResult = nil
-            return try runRetrying {
-                try queueClient.fetchQueueServerVersion()
-                try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for queue server version") {
-                    self.queueServerVersionResult == nil
-                }
-                return try queueServerVersionResult!.dematerialize()
+            try queueClient.fetchQueueServerVersion()
+            try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for queue server version") {
+                self.queueServerVersionResult == nil
             }
+            return try queueServerVersionResult!.dematerialize()
         }
     }
     
