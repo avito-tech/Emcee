@@ -140,10 +140,12 @@ final class RunTestsOnRemoteQueueCommand: Command {
         )
         var suitablePorts = try remoteQueueDetector.findSuitableRemoteRunningQueuePorts()
         if !suitablePorts.isEmpty {
-            return SocketAddress(
+            let socketAddress = SocketAddress(
                 host: queueServerDestination.host,
                 port: try selectPort(ports: suitablePorts)
             )
+            Logger.info("Found queue server at '\(socketAddress)'")
+            return socketAddress
         }
         
         Logger.info("No running queue server has been found. Will deploy and start remote queue.")
@@ -164,6 +166,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
             host: queueServerDestination.host,
             port: try selectPort(ports: suitablePorts)
         )
+        Logger.info("Found queue server at '\(queueServerAddress)'")
         
         Logger.info("Deploying and starting workers")
         let remoteWorkersStarter = RemoteWorkersStarter(
