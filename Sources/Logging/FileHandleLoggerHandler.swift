@@ -30,4 +30,8 @@ public final class FileHandleLoggerHandler: LoggerHandler {
         var fileHandle = self.fileHandle
         print(text, to: &fileHandle)
     }
+    
+    public func tearDownLogging() {
+        fileHandle.closeFile()
+    }
 }

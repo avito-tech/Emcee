@@ -6,4 +6,5 @@ public final class FakeLoggerHandle: LoggerHandler {
     public func handle(logEntry: LogEntry) {
         logEntries.append(logEntry)
     }
+    public func tearDownLogging() {}
 }

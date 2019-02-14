@@ -12,4 +12,15 @@ public final class AggregatedLoggerHandler: LoggerHandler {
             handler.handle(logEntry: logEntry)
         }
     }
+    
+    public func byAdding(handler: LoggerHandler) -> AggregatedLoggerHandler {
+        let newHandlers = handlers + [handler]
+        return AggregatedLoggerHandler(handlers: newHandlers)
+    }
+    
+    public func tearDownLogging() {
+        for handler in handlers {
+            handler.tearDownLogging()
+        }
+    }
 }

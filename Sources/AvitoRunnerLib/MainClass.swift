@@ -25,6 +25,7 @@ public final class Main {
     
     private func runInProcess() -> Int32 {
         try! LoggingSetup.setupLogging(stderrVerbosity: Verbosity.info)
+        defer { LoggingSetup.tearDownLogging() }
         
         Logger.info("Arguments: \(ProcessInfo.processInfo.arguments)")
         

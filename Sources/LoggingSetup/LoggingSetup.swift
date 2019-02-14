@@ -4,6 +4,8 @@ import Dispatch
 import Foundation
 import LocalHostDeterminer
 import Logging
+import Sentry
+import Version
 
 public final class LoggingSetup {
     private init() {}
@@ -17,15 +19,28 @@ public final class LoggingSetup {
             deleteOnClose: false
         )
         
-        GlobalLoggerConfig.loggerHandler = AggregatedLoggerHandler(
+        let aggregatedHandler = AggregatedLoggerHandler(
             handlers: createLoggerHandlers(
                 stderrVerbosity: stderrVerbosity,
                 detaildLogFileHandle: detailedLogPath.fileHandle
             )
         )
+        GlobalLoggerConfig.loggerHandler = aggregatedHandler
         Logger.always("Logging verbosity level is set to \(stderrVerbosity.stringCode)")
         Logger.always("To fetch detailed verbose log:")
         Logger.always("$ scp \(LocalHostDeterminer.currentHostAddress):\(detailedLogPath.path.asString) /tmp/\(filename).log")
+        
+        do {
+            GlobalLoggerConfig.loggerHandler = aggregatedHandler.byAdding(
+                handler: try createSentryLoggerHandler(verbosity: .warning)
+            )
+        } catch {
+            Logger.warning("Error setting up sentry logger: \(error)")
+        }
+    }
+    
+    public static func tearDownLogging() {
+        GlobalLoggerConfig.loggerHandler.tearDownLogging()
     }
     
     private static func createLoggerHandlers(
@@ -54,6 +69,19 @@ public final class LoggingSetup {
             verbosity: Verbosity.verboseDebug,
             logEntryTextFormatter: NSLogLikeLogEntryTextFormatter(),
             supportsAnsiColors: false
+        )
+    }
+    
+    private static func createSentryLoggerHandler(verbosity: Verbosity) throws -> LoggerHandler {
+        let dsn = try DSN.create(dsnString: try EnvironmentDefinedDsnExtractor.dsnStringValue())
+        let binaryVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
+        return SentryLoggerHandler(
+            dsn: dsn,
+            hostname: LocalHostDeterminer.currentHostAddress,
+            release: try binaryVersionProvider.version().stringValue,
+            sentryEventDateFormatter: SentryDateFormatterFactory.createDateFormatter(),
+            urlSession: URLSession.shared,
+            verbosity: verbosity
         )
     }
     

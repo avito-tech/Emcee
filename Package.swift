@@ -469,7 +469,9 @@ let package = Package(
                 "Ansi",
                 "LocalHostDeterminer",
                 "Logging",
-                "Utility"
+                "Sentry",
+                "Utility",
+                "Version"
             ]
         ),
         .testTarget(
@@ -786,6 +788,18 @@ let package = Package(
                 "RuntimeDump",
                 "TestingFakeFbxctest",
                 "TempFolder"
+            ]
+        ),
+        .target(
+            // MARK: Sentry
+            name: "Sentry",
+            dependencies: []
+        ),
+        .testTarget(
+            // MARK: SentryTests
+            name: "SentryTests",
+            dependencies: [
+                "Sentry"
             ]
         ),
         .target(
