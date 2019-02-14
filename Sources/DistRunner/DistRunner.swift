@@ -45,6 +45,7 @@ public final class DistRunner {
             eventBus: eventBus,
             workerConfigurations: createWorkerConfigurations(),
             reportAliveInterval: distRunConfiguration.reportAliveInterval,
+            newWorkerRegistrationTimeAllowance: 360.0,
             checkAgainTimeInterval: distRunConfiguration.checkAgainTimeInterval,
             localPortDeterminer: localPortDeterminer,
             workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,

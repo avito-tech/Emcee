@@ -36,6 +36,7 @@ public final class LocalQueueServerRunner {
             eventBus: eventBus,
             workerConfigurations: createWorkerConfigurations(),
             reportAliveInterval: queueServerRunConfiguration.reportAliveInterval,
+            newWorkerRegistrationTimeAllowance: 360.0,
             checkAgainTimeInterval: queueServerRunConfiguration.checkAgainTimeInterval,
             localPortDeterminer: localPortDeterminer,
             workerAlivenessPolicy: .workersStayAliveWhenQueueIsDepleted,

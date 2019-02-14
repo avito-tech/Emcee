@@ -37,7 +37,7 @@ public final class QueueServer {
         eventBus: EventBus,
         workerConfigurations: WorkerConfigurations,
         reportAliveInterval: TimeInterval,
-        newWorkerRegistrationTimeAllowance: TimeInterval = 60.0,
+        newWorkerRegistrationTimeAllowance: TimeInterval,
         queueExhaustTimeAllowance: TimeInterval = .infinity,
         checkAgainTimeInterval: TimeInterval,
         localPortDeterminer: LocalPortDeterminer,
