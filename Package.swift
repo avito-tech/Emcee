@@ -373,6 +373,23 @@ let package = Package(
             ]
         ),
         .target(
+            // MARK: Graphite
+            name: "Graphite",
+            dependencies: [
+                "IO",
+                "Models"
+            ]
+        ),
+        .testTarget(
+            // MARK: GraphiteTests
+            name: "GraphiteTests",
+            dependencies: [
+                "Graphite",
+                "IO",
+                "Models"
+            ]
+        ),
+        .target(
             // MARK: LocalHostDeterminer
             name: "LocalHostDeterminer",
             dependencies: [
@@ -390,6 +407,20 @@ let package = Package(
             dependencies: [
                 "Utility",
                 "JSONStream"
+            ]
+        ),
+        .target(
+            // MARK: IO
+            name: "IO",
+            dependencies: [
+                "Models"
+            ]
+        ),
+        .testTarget(
+            // MARK: IOTests
+            name: "IOTests",
+            dependencies: [
+                "IO"
             ]
         ),
         .target(

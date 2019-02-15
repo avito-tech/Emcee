@@ -1,8 +1,8 @@
 import Dispatch
 import Foundation
 
-public final class AtomicValue<T> {
-    private var value: T
+public class AtomicValue<T> {
+    internal var value: T
     private let lock = NSLock()
 
     public init(_ value: T) {
@@ -13,6 +13,7 @@ public final class AtomicValue<T> {
         lock.lock()
         defer { lock.unlock() }
         try work(&value)
+        didUpdateValue()
         return value
     }
     
@@ -21,4 +22,13 @@ public final class AtomicValue<T> {
         defer { lock.unlock() }
         return value
     }
+    
+    public func set(_ newValue: T) {
+        lock.lock()
+        defer { lock.unlock() }
+        value = newValue
+        didUpdateValue()
+    }
+    
+    internal func didUpdateValue() {}
 }
