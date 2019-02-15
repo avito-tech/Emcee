@@ -23,8 +23,8 @@ To run UI tests locally, execute the following command:
 
 ```shell
 AvitoRunner runTests \
---fbsimctl "https://github.com/beefon/FBSimulatorControl/releases/download/avito0.0.1/fbsimctl_20180831T142903.zip" \
---fbxctest "https://github.com/beefon/FBSimulatorControl/releases/download/avito0.0.1/fbxctest_20180831T142535.zip" \
+--fbsimctl "https://github.com/beefon/FBSimulatorControl/releases/download/0.0.3/fbsimctl_20190208T125742.zip" \
+--fbxctest "https://github.com/beefon/FBSimulatorControl/releases/download/0.0.3/fbxctest_20190208T125921.zip" \
 --junit "$(pwd)/test-results/junit.alldestinations.xml" \
 --trace "$(pwd)/test-results/trace.alldestinations.json" \
 --number-of-retries 1 \
@@ -55,19 +55,33 @@ Where `destination_iphone_se_ios103.json` might have the folllowing contents:
 
 ## Running tests on remote machines
 
-You can use `distRunTests` subcommand:
+### Requirements
+
+Since running tests on multiple machines requires sharing of the build artifacts, you should upload them somewhere where they will be
+directly accessible via HTTP(S) URL before invoking Emcee. You may consider storing different build artifacts under different URLs,
+such that they won't overlap between concurrent builds.
+
+Emcee supports passing http(s) URLs as values to most arguments. The file addressed by URL should be a ZIP file. 
+You can refer internals of the archive via URL fragments.
+
+For example:
+
+- App bundle inside archive: `http://myserver.com/MyApp.zip#MyApp.app`
+- `xctest` bundle inside archive with `Runner.app`: `http://myserver.com/UITestsRunner.zip#UITestsRunner.app/PlugIns/UITests.xctest`
+
+### Using `distRunTests`
 
 ```shell
 AvitoRunner distRunTests \
---fbsimctl "https://github.com/beefon/FBSimulatorControl/releases/download/avito0.0.1/fbsimctl_20180831T142903.zip" \
---fbxctest "https://github.com/beefon/FBSimulatorControl/releases/download/avito0.0.1/fbxctest_20180831T142535.zip" \
+--fbsimctl "https://github.com/beefon/FBSimulatorControl/releases/download/0.0.3/fbsimctl_20190208T125742.zip" \
+--fbxctest "https://github.com/beefon/FBSimulatorControl/releases/download/0.0.3/fbxctest_20190208T125921.zip" \
 --junit "$(pwd)/test-results/junit.alldestinations.xml" \
 --trace "$(pwd)/test-results/trace.alldestinations.json" \
 --number-of-retries 1 \
 --number-of-simulators 2 \
---app "MyApp.app" \
---runner "MyAppUITests-Runner.app" \
---xctest-bundle "MyAppUITests-Runner.app/PlugIns/MyAppUITests.xctest" \
+--app "http://myserver.com/MyApp.zip#MyApp.app" \
+--runner "http://myserver.com/MyApp-UITestsRunner.zip#MyApp-UITestsRunner.app" \
+--xctest-bundle "http://myserver.com/MyApp-UITestsRunner.zip#MyApp-UITestsRunner.app/PlugIns/UITests.xctest" \
 --schedule-strategy "equally_divided" \
 --single-test-timeout 100 \
 --temp-folder "$(pwd)/tempfolder" \
@@ -86,25 +100,24 @@ Where `remote_destinations.json` could contain the following contents:
         "port": 22,
         "username": "remote_worker",
         "password": "awesomepassword",
-        "remote_deployment_path": "/Users/remote_worker/remote_ui_tests",
-        "number_of_simulators": 2
+        "remote_deployment_path": "/Users/remote_worker/remote_ui_tests"
     },
     {
         "host": "build-agent-imacpro-02",
         "port": 22,
         "username": "remote_worker",
         "password": "awesomepassword",
-        "remote_deployment_path": "/Users/remote_worker/remote_ui_tests",
-        "number_of_simulators": 4
+        "remote_deployment_path": "/Users/remote_worker/remote_ui_tests"
     }
 ]
 ```
 
-Currently, there is no need to prepare the remote machine. Emcee will:
+Currently, there is no need to prepare the remote machine except installing dependencies from the section below. Emcee will:
 
-- deploy itself and build artifacts over SSH
+- deploy itself
 - start the daemon
-- start running UI tests automatically
+- download artifacts by using the provided URLs
+- start running UI tests 
 
 ## Specifying tests to run
 
@@ -144,12 +157,16 @@ This allows to specify a more precise test plan. The contents of this file shoul
         {
             "testToRun": "TestClass/testMethod",
             "testDestination": {"deviceType": "iPhone X", "runtime": "11.0"},
-            "numberOfRetries": 2
+            "numberOfRetries": 2,
+            "environment": {
+                "TEST_SPECIFIC_ENVS": "if needed"
+            }
         },
         {
             "testToRun": "AnotherTestClass/testSomethingImportant",
             "testDestination": {"deviceType": "iPhone SE", "runtime": "12.0"},
-            "numberOfRetries": 0
+            "numberOfRetries": 0,
+            "environment": {}
         }
     ]
 }
@@ -170,10 +187,15 @@ The CLI is split into subcommands. Currently the following commands are availabl
 - `distRunTests` - brings up the queue with tests to run, deploys the required data to the remote machines over SSH and then starts 
 remote agents that run UI tests on remote machines. After running all tests, creates a report on local machine.
 - `distWork` - starts the runner as a client to the queue server that you start using the `distRunTests` command on the remote machines.
-This can be considered as a worker instance of the runner.
+This can be considered as a worker instance of the runner. You don't need to invoke this command manually, Emcee will use it internally.
 - `dump` - runs runtime dump. This is a feature that allows you to filter the tests before running them. Read more about runtime dump [here](Sources/RuntimeDump).
 
 `AvitoRunner [subcommand] --help` will print the argument list for each subcommand. 
+
+# Publications
+
+- [Emcee  —  Open Source Tool for iOS UI Testing Infrastructure @ Medium](https://link.medium.com/aHywQuI6jU)
+- [NSSpain 2018: UI Testing Infrastructure in Avito @ Vimeo](https://vimeo.com/292738016)
 
 # Getting Around the Code
 

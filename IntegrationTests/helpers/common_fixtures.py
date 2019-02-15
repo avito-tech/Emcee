@@ -37,9 +37,9 @@ def repo_root() -> Directory:
 
 @pytest.fixture(scope="session")
 def fbsimctl_url():
-    return os.environ.get('FBSIMCTL_URL', 'https://github.com/beefon/FBSimulatorControl/releases/download/avito0.0.2/fbsimctl_20181120T145356.zip')
+    return os.environ.get('FBSIMCTL_URL', 'https://github.com/beefon/FBSimulatorControl/releases/download/0.0.3/fbsimctl_20190208T125742.zip')
 
 
 @pytest.fixture(scope="session")
 def fbxctest_url():
-    return os.environ.get('FBXCTEST_URL', 'https://github.com/beefon/FBSimulatorControl/releases/download/avito0.0.2/fbxctest_20181120T145305.zip')
+    return os.environ.get('FBXCTEST_URL', 'https://github.com/beefon/FBSimulatorControl/releases/download/0.0.3/fbxctest_20190208T125921.zip')
