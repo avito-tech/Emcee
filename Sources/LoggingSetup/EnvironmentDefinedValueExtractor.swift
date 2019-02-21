@@ -1,24 +1,24 @@
 import Foundation
 
-public final class EnvironmentDefinedDsnExtractor: Error, CustomStringConvertible {
+public final class EnvironmentDefinedValueExtractor: Error, CustomStringConvertible {
     private let envName: String
     
     private init(envName: String) {
         self.envName = envName
     }
     
-    public static func dsnStringValue(
-        envName: String = "EMCEE_SENTRY_DSN",
+    public static func value(
+        envName: String,
         environment: [String: String] = ProcessInfo.processInfo.environment)
         throws -> String
     {
         guard let providedEnvValue = environment[envName] else {
-            throw EnvironmentDefinedDsnExtractor(envName: envName)
+            throw EnvironmentDefinedValueExtractor(envName: envName)
         }
         return providedEnvValue
     }
     
     public var description: String {
-        return "Will not log to Sentry. You can provide Sentry DSN via \(envName) environment variable."
+        return "\(envName) environment variable was not set."
     }
 }

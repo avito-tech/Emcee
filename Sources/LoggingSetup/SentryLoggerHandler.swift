@@ -72,8 +72,8 @@ public final class SentryLoggerHandler: LoggerHandler {
         group.enter()
     }
     
-    public func tearDownLogging() {
-        _ = group.wait(timeout: .now() + .seconds(10))
+    public func tearDownLogging(timeout: TimeInterval) {
+        _ = group.wait(timeout: .now() + timeout)
     }
     
     private func buildAuthHeader(dsn: DSN) -> XSentryAuthHeader {

@@ -4,6 +4,8 @@ import Dispatch
 import Foundation
 import LocalHostDeterminer
 import Logging
+import Metrics
+import Models
 import Sentry
 import Version
 
@@ -35,12 +37,20 @@ public final class LoggingSetup {
                 handler: try createSentryLoggerHandler(verbosity: .warning)
             )
         } catch {
-            Logger.warning("Error setting up sentry logger: \(error)")
+            Logger.warning("Error setting up Sentry logger: \(error). Set it to DSN to enable logging to Sentry.")
+        }
+        
+        do {
+            GlobalMetricConfig.metricHandler = try createGraphiteMetricHandler()
+        } catch {
+            Logger.warning("Error setting up Graphite support: \(error). Set it to host:port to enable Graphite metrics reporting.")
         }
     }
     
-    public static func tearDownLogging() {
-        GlobalLoggerConfig.loggerHandler.tearDownLogging()
+    public static func tearDown() {
+        let tearDownTimeout: TimeInterval = 10
+        GlobalLoggerConfig.loggerHandler.tearDownLogging(timeout: tearDownTimeout)
+        GlobalMetricConfig.metricHandler.tearDown(timeout: tearDownTimeout)
     }
     
     private static func createLoggerHandlers(
@@ -73,7 +83,7 @@ public final class LoggingSetup {
     }
     
     private static func createSentryLoggerHandler(verbosity: Verbosity) throws -> LoggerHandler {
-        let dsn = try DSN.create(dsnString: try EnvironmentDefinedDsnExtractor.dsnStringValue())
+        let dsn = try DSN.create(dsnString: try EnvironmentDefinedValueExtractor.value(envName: "EMCEE_SENTRY_DSN"))
         let binaryVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
         return SentryLoggerHandler(
             dsn: dsn,
@@ -82,6 +92,15 @@ public final class LoggingSetup {
             sentryEventDateFormatter: SentryDateFormatterFactory.createDateFormatter(),
             urlSession: URLSession.shared,
             verbosity: verbosity
+        )
+    }
+    
+    private static func createGraphiteMetricHandler() throws -> MetricHandler {
+        return try GraphiteMetricHandler(
+            graphiteDomain: try EnvironmentDefinedValueExtractor.value(envName: "EMCEE_GRAPHITE_PREFIX").components(separatedBy: "."),
+            graphiteSocketAddress: try SocketAddress.from(
+                string: try EnvironmentDefinedValueExtractor.value(envName: "EMCEE_GRAPHITE_SOCKET")
+            )
         )
     }
     

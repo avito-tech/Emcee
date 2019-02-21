@@ -31,7 +31,7 @@ public final class FileHandleLoggerHandler: LoggerHandler {
         print(text, to: &fileHandle)
     }
     
-    public func tearDownLogging() {
+    public func tearDownLogging(timeout: TimeInterval) {
         fileHandle.closeFile()
     }
 }

@@ -98,6 +98,7 @@ let package = Package(
                 "LaunchdUtils",
                 "LocalQueueServerRunner",
                 "LoggingSetup",
+                "Metrics",
                 "Models",
                 "PluginManager",
                 "PortDeterminer",
@@ -498,8 +499,11 @@ let package = Package(
             name: "LoggingSetup",
             dependencies: [
                 "Ansi",
+                "Graphite",
+                "IO",
                 "LocalHostDeterminer",
                 "Logging",
+                "Metrics",
                 "Sentry",
                 "Utility",
                 "Version"
@@ -511,6 +515,18 @@ let package = Package(
             dependencies: [
                 "Logging",
                 "Utility"
+            ]
+        ),
+        .target(
+            // MARK: Metrics
+            name: "Metrics",
+            dependencies: []
+        ),
+        .testTarget(
+            // MARK: MetricsTests
+            name: "MetricsTests",
+            dependencies: [
+                "Metrics"
             ]
         ),
         .target(
@@ -570,6 +586,9 @@ let package = Package(
             // MARK: PluginManagerTests
             name: "PluginManagerTests",
             dependencies: [
+                "EventBus",
+                "Models",
+                "ModelsTestHelpers",
                 "PluginManager",
                 "ResourceLocationResolver",
                 "Utility"

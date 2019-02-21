@@ -15,9 +15,9 @@ public struct CommandRegistry {
         commands.append(command.init(parser: parser))
     }
     
-    public func run() throws {
+    public func run(onDeterminedCommand: (Command) -> ()) throws {
         let parsedArguments = try parse()
-        try process(arguments: parsedArguments)
+        try process(arguments: parsedArguments, onDeterminedCommand: onDeterminedCommand)
     }
     
     private func parse() throws -> ArgumentParser.Result {
@@ -25,7 +25,7 @@ public struct CommandRegistry {
         return try parser.parse(arguments)
     }
     
-    private func process(arguments: ArgumentParser.Result) throws {
+    private func process(arguments: ArgumentParser.Result, onDeterminedCommand: (Command) -> ()) throws {
         guard let subparser = arguments.subparser(parser),
             let command = commands.first(where: { $0.command == subparser }) else {
                 let stream = BufferedOutputByteStream()
@@ -35,6 +35,7 @@ public struct CommandRegistry {
                 }
                 throw CommandExecutionError.incorrectUsage(usageDescription: description)
         }
+        onDeterminedCommand(command)
         try command.run(with: arguments)
     }
 }

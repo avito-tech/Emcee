@@ -1,8 +1,10 @@
 import ArgumentsParser
 import Extensions
 import Foundation
+import LocalHostDeterminer
 import Logging
 import LoggingSetup
+import Metrics
 import ProcessController
 
 public final class Main {
@@ -25,7 +27,7 @@ public final class Main {
     
     private func runInProcess() -> Int32 {
         try! LoggingSetup.setupLogging(stderrVerbosity: Verbosity.info)
-        defer { LoggingSetup.tearDownLogging() }
+        defer { LoggingSetup.tearDown() }
         
         Logger.info("Arguments: \(ProcessInfo.processInfo.arguments)")
         
@@ -41,16 +43,33 @@ public final class Main {
         registry.register(command: RunTestsOnRemoteQueueCommand.self)
         registry.register(command: StartQueueServerCommand.self)
         
+        var userSelectedCommand: Command? = nil
         let exitCode: Int32
         do {
             try startTrackingParentProcessAliveness()
-            try registry.run()
+            try registry.run { determinedCommand in
+                userSelectedCommand = determinedCommand
+                MetricRecorder.capture(
+                    LaunchMetric(
+                        command: determinedCommand.command,
+                        host: LocalHostDeterminer.currentHostAddress
+                    )
+                )
+            }
             exitCode = 0
         } catch {
             Logger.error("\(error)")
             exitCode = 1
         }
         Logger.info("Finished executing with exit code \(exitCode)")
+        
+        MetricRecorder.capture(
+            ExitCodeMetric(
+                command: userSelectedCommand?.command ?? "not_determined_command",
+                host: LocalHostDeterminer.currentHostAddress,
+                exitCode: exitCode
+            )
+        )
         return exitCode
     }
     

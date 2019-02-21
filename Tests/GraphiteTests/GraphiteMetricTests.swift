@@ -14,6 +14,10 @@ final class GraphiteMetricTests: XCTestCase {
         XCTAssertThrowsError(try GraphiteMetric(path: ["🥶"], value: 0, timestamp: Date()))
     }
     
+    func test___valid_path() {
+        XCTAssertNoThrow(try GraphiteMetric(path: ["path"], value: 0, timestamp: Date()))
+    }
+    
     func test___invalid_values() {
         XCTAssertThrowsError(try GraphiteMetric(path: ["component"], value: .nan, timestamp: Date()))
         XCTAssertThrowsError(try GraphiteMetric(path: ["component"], value: .signalingNaN, timestamp: Date()))
