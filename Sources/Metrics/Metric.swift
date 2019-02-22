@@ -20,7 +20,7 @@ open class Metric: CustomStringConvertible, Hashable {
         value: Double,
         timestamp: Date)
     {
-        self.components = fixedComponents + variableComponents
+        self.components = (fixedComponents + variableComponents).map { $0.suitableForMetric }
         self.value = value
         self.timestamp = timestamp
     }

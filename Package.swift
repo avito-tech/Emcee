@@ -337,6 +337,7 @@ let package = Package(
                 "JSONStream",
                 "LocalHostDeterminer",
                 "Logging",
+                "Metrics",
                 "ProcessController",
                 "Timer",
                 "Utility"

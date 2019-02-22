@@ -82,14 +82,17 @@ public final class Runner {
             subprocess: Subprocess(
                 arguments: fbxctestArguments(entriesToRun: entriesToRun, simulator: simulator),
                 environment: testContext.environment,
-                maximumAllowedSilenceDuration: configuration.maximumAllowedSilenceDuration ?? 0),
+                maximumAllowedSilenceDuration: configuration.maximumAllowedSilenceDuration ?? 0
+            ),
             simulatorId: simulator.identifier,
-            singleTestMaximumDuration: configuration.singleTestMaximumDuration)
+            singleTestMaximumDuration: configuration.singleTestMaximumDuration
+        )
         fbxctestOutputProcessor.processOutputAndWaitForProcessTermination()
         
         let result = prepareResults(
             requestedEntriesToRun: entriesToRun,
-            testEventPairs: fbxctestOutputProcessor.testEventPairs)
+            testEventPairs: fbxctestOutputProcessor.testEventPairs
+        )
         
         eventBus.post(event: .runnerEvent(.didRun(results: result, testContext: testContext)))
         

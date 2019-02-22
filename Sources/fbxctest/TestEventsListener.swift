@@ -1,12 +1,23 @@
 import Dispatch
 import Foundation
 import Logging
+import Metrics
 
 final class TestEventsListener {    
     private let pairsController = TestEventPairsController()
     
     func testStarted(_ event: TestStartedEvent) {
-        pairsController.append(TestEventPair(startEvent: event, finishEvent: nil))
+        pairsController.append(
+            TestEventPair(startEvent: event, finishEvent: nil)
+        )
+        
+        MetricRecorder.capture(
+            TestStartedMetric(
+                host: event.hostName ?? "unknown_host",
+                testClassName: event.className,
+                testMethodName: event.methodName
+            )
+        )
     }
     
     func testFinished(_ event: TestFinishedEvent) {
@@ -20,7 +31,28 @@ final class TestEventsListener {
             Logger.warning("The result for test \(event.testName) (\(event.result) will be lost.")
             return
         }
-        pairsController.append(TestEventPair(startEvent: pair.startEvent, finishEvent: event))
+        pairsController.append(
+            TestEventPair(startEvent: pair.startEvent, finishEvent: event)
+        )
+        
+        MetricRecorder.capture(
+            TestFinishedMetric(
+                result: event.result,
+                host: pair.startEvent.hostName ?? "unknown_host",
+                testClassName: pair.startEvent.className,
+                testMethodName: pair.startEvent.methodName
+            )
+        )
+        
+        MetricRecorder.capture(
+            TestDurationMetric(
+                result: event.result,
+                host: pair.startEvent.hostName ?? "unknown_host",
+                testClassName: pair.startEvent.className,
+                testMethodName: pair.startEvent.methodName,
+                duration: event.totalDuration
+            )
+        )
     }
     
     func testPlanFinished(_ event: TestPlanFinishedEvent) {
@@ -31,7 +63,8 @@ final class TestEventsListener {
         reportTestPlanFinishedWithHangStartedTest(
             startEvent: pair.startEvent,
             testPlanFailed: !event.succeeded,
-            testPlanEventTimestamp: event.timestamp)
+            testPlanEventTimestamp: event.timestamp
+        )
     }
     
     func testPlanError(_ event: TestPlanErrorEvent) {
@@ -42,7 +75,8 @@ final class TestEventsListener {
         reportTestPlanFinishedWithHangStartedTest(
             startEvent: pair.startEvent,
             testPlanFailed: true,
-            testPlanEventTimestamp: event.timestamp)
+            testPlanEventTimestamp: event.timestamp
+        )
     }
     
     // MARK: - Other methods that call basic methods above
