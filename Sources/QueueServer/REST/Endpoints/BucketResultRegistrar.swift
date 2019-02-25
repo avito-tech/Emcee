@@ -32,7 +32,9 @@ public final class BucketResultRegistrar: RESTEndpoint {
             )
             
             eventBus.post(event: .didObtainTestingResult(acceptResult.testingResultToCollect))
+            
             BucketQueueStateLogger(state: statefulBucketResultAccepter.state).logQueueSize()
+            QueueStateMetricRecorder(state: statefulBucketResultAccepter.state).capture()
             
             return .bucketResultAccepted(bucketId: decodedRequest.testingResult.bucketId)
         } catch {

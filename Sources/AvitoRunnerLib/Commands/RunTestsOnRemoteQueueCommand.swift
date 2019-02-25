@@ -8,6 +8,7 @@ import Logging
 import Models
 import PortDeterminer
 import QueueClient
+import QueueServer
 import RemotePortDeterminer
 import RemoteQueue
 import ResourceLocationResolver

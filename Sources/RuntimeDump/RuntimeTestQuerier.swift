@@ -2,6 +2,7 @@ import EventBus
 import Extensions
 import Foundation
 import Logging
+import Metrics
 import Models
 import ResourceLocationResolver
 import Runner
@@ -84,7 +85,7 @@ public final class RuntimeTestQuerier {
         }
         
         let allTests = foundTestEntries.flatMap { $0.testMethods }
-        Logger.info("Runtime dump contains \(foundTestEntries.count) XCTestCases, \(allTests.count) tests")
+        reportStats(testCaseCount: foundTestEntries.count, testCount: allTests.count)
         
         return foundTestEntries
     }
@@ -107,5 +108,16 @@ public final class RuntimeTestQuerier {
             }
         }
         return testsToRunMissingInRuntime
+    }
+    
+    private func reportStats(testCaseCount: Int, testCount: Int) {
+        let testBundleName = configuration.xcTestBundle.resourceLocation.stringValue.lastPathComponent
+        Logger.info("Runtime dump contains \(testCaseCount) XCTestCases, \(testCount) tests")
+        MetricRecorder.capture(
+            RuntimeDumpTestCountMetric(testBundleName: testBundleName, numberOfTests: testCount)
+        )
+        MetricRecorder.capture(
+            RuntimeDumpTestCaseCountMetric(testBundleName: testBundleName, numberOfTestCases: testCaseCount)
+        )
     }
 }

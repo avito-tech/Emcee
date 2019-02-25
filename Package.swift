@@ -668,6 +668,7 @@ let package = Package(
                 "Extensions",
                 "FileHasher",
                 "Logging",
+                "Metrics",
                 "Models",
                 "PortDeterminer",
                 "RESTMethods",
@@ -823,6 +824,7 @@ let package = Package(
             dependencies: [
                 "EventBus",
                 "Extensions",
+                "Metrics",
                 "Models",
                 "Runner",
                 "SynchronousWaiter",

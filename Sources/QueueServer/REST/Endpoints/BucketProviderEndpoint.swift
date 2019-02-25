@@ -4,6 +4,7 @@ import EventBus
 import Foundation
 import Logging
 import Models
+import Metrics
 import RESTMethods
 import WorkerAlivenessTracker
 
@@ -18,7 +19,7 @@ public final class BucketProviderEndpoint: RESTEndpoint {
         self.statefulDequeueableBucketSource = statefulDequeueableBucketSource
         self.workerAlivenessTracker = workerAlivenessTracker
     }
-
+    
     public func handle(decodedRequest: DequeueBucketRequest) throws -> DequeueBucketResponse {
         workerAlivenessTracker.markWorkerAsAlive(workerId: decodedRequest.workerId)
         
@@ -37,10 +38,26 @@ public final class BucketProviderEndpoint: RESTEndpoint {
                 bucketId: dequeuedBucket.bucket.bucketId,
                 workerId: decodedRequest.workerId
             )
-            BucketQueueStateLogger(state: statefulDequeueableBucketSource.state).logQueueSize()
+            let state = statefulDequeueableBucketSource.state
+            BucketQueueStateLogger(state: state).logQueueSize()
+            sendMetrics(
+                workerId: decodedRequest.workerId,
+                numberOfTests: dequeuedBucket.bucket.testEntries.count,
+                state: state
+            )
             return .bucketDequeued(bucket: dequeuedBucket.bucket)
         case .workerBlocked:
             return .workerBlocked
         }
+    }
+    
+    private func sendMetrics(workerId: String, numberOfTests: Int, state: QueueState) {
+        MetricRecorder.capture(
+            DequeueBucketsMetric(workerId: workerId, numberOfBuckets: 1)
+        )
+        MetricRecorder.capture(
+            DequeueTestsMetric(workerId: workerId, numberOfTests: numberOfTests)
+        )
+        QueueStateMetricRecorder(state: state).capture()
     }
 }
