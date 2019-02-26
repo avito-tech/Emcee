@@ -175,7 +175,8 @@ public final class Runner {
         return requestedEntriesToRun.map { requestedEntryToRun in
             prepareResult(
                 requestedEntryToRun: requestedEntryToRun,
-                testEventPairs: testEventPairs)
+                testEventPairs: testEventPairs
+            )
         }
     }
     
@@ -192,7 +193,8 @@ public final class Runner {
             return testEntryResultForFinishedTest(
                 testEntry: requestedEntryToRun,
                 startEvent: correspondingEventPair.startEvent,
-                finishEvent: finishEvent)
+                finishEvent: finishEvent
+            )
         } else {
             return .lost(testEntry: requestedEntryToRun)
         }
@@ -215,7 +217,9 @@ public final class Runner {
                 finishTime: finishEvent.timestamp,
                 hostName: startEvent.hostName ?? "host was not set to TestStartedEvent",
                 processId: startEvent.processId ?? 0,
-                simulatorId: startEvent.simulatorId ?? "unknown_simulator"))
+                simulatorId: startEvent.simulatorId ?? "unknown_simulator"
+            )
+        )
     }
     
     private func testEventPairForEntry(
@@ -255,7 +259,8 @@ public final class Runner {
                     TestException(
                         reason: RunnerConstants.testDidNotRun.rawValue,
                         filePathInProject: #file,
-                        lineNumber: #line)
+                        lineNumber: #line
+                    )
                 ],
                 duration: 0,
                 startTime: timestamp,

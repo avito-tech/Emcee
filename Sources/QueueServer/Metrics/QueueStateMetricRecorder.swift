@@ -13,9 +13,7 @@ public final class QueueStateMetricRecorder {
     public func capture() {
         let host = LocalHostDeterminer.currentHostAddress
         MetricRecorder.capture(
-            QueueStateEnqueuedBucketsMetric(host: host, numberOfEnqueuedBuckets: state.enqueuedBucketCount)
-        )
-        MetricRecorder.capture(
+            QueueStateEnqueuedBucketsMetric(host: host, numberOfEnqueuedBuckets: state.enqueuedBucketCount),
             QueueStateDequeuedBucketsMetric(host: host, numberOfDequeuedBuckets: state.dequeuedBucketCount)
         )
     }

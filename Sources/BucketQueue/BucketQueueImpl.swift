@@ -1,3 +1,4 @@
+import DateProvider
 import Dispatch
 import Foundation
 import Logging
@@ -5,7 +6,8 @@ import Models
 import WorkerAlivenessTracker
 
 final class BucketQueueImpl: BucketQueue {
-    private var enqueuedBuckets = [Bucket]()
+    private let dateProvider: DateProvider
+    private var enqueuedBuckets = [EnqueuedBucket]()
     private var dequeuedBuckets = Set<DequeuedBucket>()
     private let testHistoryTracker: TestHistoryTracker
     private let queue = DispatchQueue(label: "ru.avito.emcee.BucketQueue.queue")
@@ -13,13 +15,15 @@ final class BucketQueueImpl: BucketQueue {
     private let checkAgainTimeInterval: TimeInterval
     
     public init(
-        workerAlivenessProvider: WorkerAlivenessProvider,
+        checkAgainTimeInterval: TimeInterval,
+        dateProvider: DateProvider,
         testHistoryTracker: TestHistoryTracker,
-        checkAgainTimeInterval: TimeInterval)
+        workerAlivenessProvider: WorkerAlivenessProvider)
     {
-        self.workerAlivenessProvider = workerAlivenessProvider
-        self.testHistoryTracker = testHistoryTracker
         self.checkAgainTimeInterval = checkAgainTimeInterval
+        self.dateProvider = dateProvider
+        self.testHistoryTracker = testHistoryTracker
+        self.workerAlivenessProvider = workerAlivenessProvider
     }
     
     public func enqueue(buckets: [Bucket]) {
@@ -77,10 +81,10 @@ final class BucketQueueImpl: BucketQueue {
                     .map { $0.key }
             )
             
-            if let bucket = bucketToDequeueOrNil {
+            if let enqueuedBucket = bucketToDequeueOrNil {
                 return .dequeuedBucket(
                     dequeue_onSyncQueue(
-                        bucket: bucket,
+                        enqueuedBucket: enqueuedBucket,
                         requestId: requestId,
                         workerId: workerId
                     )
@@ -107,18 +111,18 @@ final class BucketQueueImpl: BucketQueue {
             }
             
             let actualTestEntries = Set(testingResult.unfilteredResults.map { $0.testEntry })
-            let expectedTestEntries = Set(dequeuedBucket.bucket.testEntries)
+            let expectedTestEntries = Set(dequeuedBucket.enqueuedBucket.bucket.testEntries)
             reenqueueLostResults_onSyncQueue(
                 expectedTestEntries: expectedTestEntries,
                 actualTestEntries: actualTestEntries,
-                bucket: dequeuedBucket.bucket,
+                bucket: dequeuedBucket.enqueuedBucket.bucket,
                 workerId: workerId,
                 requestId: requestId
             )
             
             let acceptResult = testHistoryTracker.accept(
                 testingResult: testingResult,
-                bucket: dequeuedBucket.bucket,
+                bucket: dequeuedBucket.enqueuedBucket.bucket,
                 workerId: workerId
             )
             enqueue_onSyncQueue(buckets: acceptResult.bucketsToReenqueue)
@@ -145,7 +149,7 @@ final class BucketQueueImpl: BucketQueue {
                 case .notRegistered:
                     Logger.fatal("Worker '\(dequeuedBucket.workerId)' is not registered, but stuck bucket has worker id of this worker. This is not expected, as we shouldn't dequeue bucket to non-registered workers.")
                 case .alive:
-                    if aliveness.bucketIdsBeingProcessed.contains(dequeuedBucket.bucket.bucketId) {
+                    if aliveness.bucketIdsBeingProcessed.contains(dequeuedBucket.enqueuedBucket.bucket.bucketId) {
                        return nil
                     }
                     stuckReason = .bucketLost
@@ -157,7 +161,7 @@ final class BucketQueueImpl: BucketQueue {
                 dequeuedBuckets.remove(dequeuedBucket)
                 return StuckBucket(
                     reason: stuckReason,
-                    bucket: dequeuedBucket.bucket,
+                    bucket: dequeuedBucket.enqueuedBucket.bucket,
                     workerId: dequeuedBucket.workerId,
                     requestId: dequeuedBucket.requestId
                 )
@@ -210,13 +214,16 @@ final class BucketQueueImpl: BucketQueue {
         
         let positionLimit = self.enqueuedBuckets.count
         let positionToInsert = min(positionJustAfterNextBucket, positionLimit)
-        self.enqueuedBuckets.insert(contentsOf: buckets, at: positionToInsert)
+        let enqueuedBuckets = buckets.map {
+            EnqueuedBucket(bucket: $0, enqueueTimestamp: dateProvider.currentDate())
+        }
+        self.enqueuedBuckets.insert(contentsOf: enqueuedBuckets, at: positionToInsert)
     }
     
-    private func dequeue_onSyncQueue(bucket: Bucket, requestId: String, workerId: String) -> DequeuedBucket {
-        let dequeuedBucket = DequeuedBucket(bucket: bucket, workerId: workerId, requestId: requestId)
+    private func dequeue_onSyncQueue(enqueuedBucket: EnqueuedBucket, requestId: String, workerId: String) -> DequeuedBucket {
+        let dequeuedBucket = DequeuedBucket(enqueuedBucket: enqueuedBucket, workerId: workerId, requestId: requestId)
         
-        enqueuedBuckets.removeAll(where: { $0 == bucket })
+        enqueuedBuckets.removeAll(where: { $0 == enqueuedBucket })
         _ = dequeuedBuckets.insert(dequeuedBucket)
         
         Logger.debug("Dequeued new bucket: \(dequeuedBucket). Now there are \(dequeuedBuckets.count) dequeued buckets.")

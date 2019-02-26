@@ -1,4 +1,5 @@
 @testable import AutomaticTermination
+import DateProvider
 import XCTest
 
 final class PolicyTests: XCTestCase {

@@ -1,6 +1,7 @@
 import AutomaticTermination
 import BalancingBucketQueue
 import BucketQueue
+import DateProvider
 import EventBus
 import Extensions
 import Foundation
@@ -34,6 +35,7 @@ public final class QueueServer {
     
     public init(
         automaticTerminationController: AutomaticTerminationController,
+        dateProvider: DateProvider,
         eventBus: EventBus,
         workerConfigurations: WorkerConfigurations,
         reportAliveInterval: TimeInterval,
@@ -53,11 +55,12 @@ public final class QueueServer {
         )
         let balancingBucketQueueFactory = BalancingBucketQueueFactory(
             bucketQueueFactory: BucketQueueFactory(
-                workerAlivenessProvider: workerAlivenessTracker,
+                checkAgainTimeInterval: checkAgainTimeInterval,
+                dateProvider: dateProvider,
                 testHistoryTracker: TestHistoryTrackerImpl(
                     testHistoryStorage: TestHistoryStorageImpl()
                 ),
-                checkAgainTimeInterval: checkAgainTimeInterval
+                workerAlivenessProvider: workerAlivenessTracker
             ),
             nothingToDequeueBehavior: workerAlivenessPolicy.nothingToDequeueBehavior(
                 checkLaterInterval: checkAgainTimeInterval

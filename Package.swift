@@ -66,6 +66,7 @@ let package = Package(
         // MARK: AutomaticTermination
             name: "AutomaticTermination",
             dependencies: [
+                "DateProvider",
                 "Logging",
                 "Timer"
             ]
@@ -74,7 +75,8 @@ let package = Package(
             // MARK: AutomaticTerminationTests
             name: "AutomaticTerminationTests",
             dependencies: [
-                "AutomaticTermination"
+                "AutomaticTermination",
+                "DateProvider"
             ]
         ),
         .target(
@@ -127,6 +129,7 @@ let package = Package(
             name: "BalancingBucketQueue",
             dependencies: [
                 "BucketQueue",
+                "DateProvider",
                 "Models",
                 "ResultsCollector",
                 "Utility"
@@ -145,6 +148,7 @@ let package = Package(
             // MARK: BucketQueue
             name: "BucketQueue",
             dependencies: [
+                "DateProvider",
                 "Logging",
                 "Models",
                 "WorkerAlivenessTracker"
@@ -155,6 +159,7 @@ let package = Package(
             name: "BucketQueueTestHelpers",
             dependencies: [
                 "BucketQueue",
+                "DateProviderTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
                 "WorkerAlivenessTracker"
@@ -166,6 +171,7 @@ let package = Package(
             dependencies: [
                 "BucketQueue",
                 "BucketQueueTestHelpers",
+                "DateProviderTestHelpers",
                 "ModelsTestHelpers",
                 "WorkerAlivenessTrackerTestHelpers"
             ]
@@ -189,6 +195,18 @@ let package = Package(
             name: "CurrentlyBeingProcessedBucketsTrackerTests",
             dependencies: [
                 "CurrentlyBeingProcessedBucketsTracker"
+            ]
+        ),
+        .target(
+            // MARK: DateProvider
+            name: "DateProvider",
+            dependencies: []
+        ),
+        .target(
+            // MARK: DateProviderTestHelpers
+            name: "DateProviderTestHelpers",
+            dependencies: [
+                "DateProvider"
             ]
         ),
         .target(
@@ -241,6 +259,7 @@ let package = Package(
             dependencies: [
                 "AutomaticTermination",
                 "BucketQueue",
+                "DateProvider",
                 "DistDeployer",
                 "EventBus",
                 "Extensions",
@@ -470,13 +489,14 @@ let package = Package(
             name: "LocalQueueServerRunner",
             dependencies: [
                 "AutomaticTermination",
+                "DateProvider",
+                "Logging",
                 "Models",
                 "PortDeterminer",
-                "Logging",
                 "QueueServer",
                 "ScheduleStrategy",
                 "SynchronousWaiter",
-                "Version",
+                "Version"
             ]
         ),
         .testTarget(
@@ -664,6 +684,7 @@ let package = Package(
                 "AutomaticTermination",
                 "BalancingBucketQueue",
                 "BucketQueue",
+                "DateProvider",
                 "EventBus",
                 "Extensions",
                 "FileHasher",
@@ -689,6 +710,7 @@ let package = Package(
                 "BalancingBucketQueue",
                 "BucketQueue",
                 "BucketQueueTestHelpers",
+                "DateProviderTestHelpers",
                 "Deployer",
                 "EventBus",
                 "FileHasher",

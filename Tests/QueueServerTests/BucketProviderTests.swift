@@ -39,22 +39,32 @@ final class BucketProviderTests: XCTestCase {
     
     func test___reponse_has_dequeued_bucket___if_queue_has_enqueued_buckets() throws {
         let dequeuedBucket = DequeuedBucket(
-            bucket: BucketFixtures.createBucket(
-                testEntries: [TestEntry(className: "class", methodName: "test", caseId: nil)]),
+            enqueuedBucket: EnqueuedBucket(
+                bucket: BucketFixtures.createBucket(
+                    testEntries: [TestEntry(className: "class", methodName: "test", caseId: nil)]),
+                enqueueTimestamp: Date()
+            ),
             workerId: "worker",
             requestId: "request")
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: .dequeuedBucket(dequeuedBucket))
         let bucketProvider = BucketProviderEndpoint(statefulDequeueableBucketSource: bucketQueue, workerAlivenessTracker: alivenessTracker)
         
         let response = try bucketProvider.handle(decodedRequest: fetchRequest)
-        XCTAssertEqual(response, .bucketDequeued(bucket: dequeuedBucket.bucket))
+        XCTAssertEqual(response, DequeueBucketResponse.bucketDequeued(bucket: dequeuedBucket.enqueuedBucket.bucket))
     }
     
     func test___when_bucket_is_dequeued___aliveness_tracker_appends_bucket_id() throws {
         let bucket = BucketFixtures.createBucket(
             testEntries: [TestEntry(className: "class", methodName: "test", caseId: nil)]
         )
-        let dequeuedBucket = DequeuedBucket(bucket: bucket, workerId: "worker", requestId: "request")
+        let dequeuedBucket = DequeuedBucket(
+            enqueuedBucket: EnqueuedBucket(
+                bucket: bucket,
+                enqueueTimestamp: Date()
+            ),
+            workerId: "worker",
+            requestId: "request"
+        )
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: .dequeuedBucket(dequeuedBucket))
         let bucketProvider = BucketProviderEndpoint(statefulDequeueableBucketSource: bucketQueue, workerAlivenessTracker: alivenessTracker)
         

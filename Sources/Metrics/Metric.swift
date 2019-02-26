@@ -10,8 +10,11 @@ open class Metric: CustomStringConvertible, Hashable {
     /// Timestamp when metric has been collected.
     public let timestamp: Date
 
-    /// - Parameter fixedComponents: components that are fixed for this metric, and they should not change in the future
-    /// - Parameter variableComponents: these components you can use as a variable parameters, and they can change.
+    /// - Parameter fixedComponents: Components that are fixed for this metric, and they must NOT change in the future.
+    ///                              Consider introducing a new metric if you need to change this array.
+    /// - Parameter variableComponents: Components to be used as variable parameters.
+    ///                                 Consider introducing a new metric if you need to change the count of elements in this array.
+    ///                                 **Count must NOT change!** Values may change.
     /// - Parameter value: The value for the parametrized metric.
     /// - Parameter timestamp: The timestamp when the metric has been captured.
     public init(

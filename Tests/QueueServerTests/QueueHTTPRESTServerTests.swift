@@ -61,7 +61,11 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let bucket = BucketFixtures.createBucket(testEntries: [
             TestEntry(className: "class1", methodName: "m1", caseId: nil),
             TestEntry(className: "class2", methodName: "m2", caseId: nil)])
-        let dequeuedBucket = DequeuedBucket(bucket: bucket, workerId: workerId, requestId: requestId)
+        let dequeuedBucket = DequeuedBucket(
+            enqueuedBucket: EnqueuedBucket(bucket: bucket, enqueueTimestamp: Date()),
+            workerId: workerId,
+            requestId: requestId
+        )
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: DequeueResult.dequeuedBucket(dequeuedBucket))
         let bucketProvider = BucketProviderEndpoint(
             statefulDequeueableBucketSource: bucketQueue,

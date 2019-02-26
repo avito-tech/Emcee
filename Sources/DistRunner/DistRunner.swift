@@ -1,4 +1,5 @@
 import AutomaticTermination
+import DateProvider
 import Deployer
 import DistDeployer
 import EventBus
@@ -42,6 +43,7 @@ public final class DistRunner {
             automaticTerminationController: AutomaticTerminationControllerFactory(
                 automaticTerminationPolicy: .stayAlive
             ).createAutomaticTerminationController(),
+            dateProvider: SystemDateProvider(),
             eventBus: eventBus,
             workerConfigurations: createWorkerConfigurations(),
             reportAliveInterval: distRunConfiguration.reportAliveInterval,

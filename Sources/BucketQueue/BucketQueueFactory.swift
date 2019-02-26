@@ -1,26 +1,31 @@
+import DateProvider
 import Foundation
 import WorkerAlivenessTracker
 
 public final class BucketQueueFactory {
-    private let workerAlivenessProvider: WorkerAlivenessProvider
-    private let testHistoryTracker: TestHistoryTracker
     private let checkAgainTimeInterval: TimeInterval
+    private let dateProvider: DateProvider
+    private let testHistoryTracker: TestHistoryTracker
+    private let workerAlivenessProvider: WorkerAlivenessProvider
 
     public init(
-        workerAlivenessProvider: WorkerAlivenessProvider,
+        checkAgainTimeInterval: TimeInterval,
+        dateProvider: DateProvider,
         testHistoryTracker: TestHistoryTracker,
-        checkAgainTimeInterval: TimeInterval)
+        workerAlivenessProvider: WorkerAlivenessProvider)
     {
-        self.workerAlivenessProvider = workerAlivenessProvider
-        self.testHistoryTracker = testHistoryTracker
         self.checkAgainTimeInterval = checkAgainTimeInterval
+        self.dateProvider = dateProvider
+        self.testHistoryTracker = testHistoryTracker
+        self.workerAlivenessProvider = workerAlivenessProvider
     }
     
     public func createBucketQueue() -> BucketQueue {
         return BucketQueueImpl(
-            workerAlivenessProvider: workerAlivenessProvider,
+            checkAgainTimeInterval: checkAgainTimeInterval,
+            dateProvider: dateProvider,
             testHistoryTracker: testHistoryTracker,
-            checkAgainTimeInterval: checkAgainTimeInterval
+            workerAlivenessProvider: workerAlivenessProvider
         )
     }
 }

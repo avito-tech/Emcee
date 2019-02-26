@@ -9,12 +9,12 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
     
     public func bucketToDequeue(
         workerId: String,
-        queue: [Bucket],
+        queue: [EnqueuedBucket],
         aliveWorkers: @autoclosure () -> [String])
-        -> Bucket?
+        -> EnqueuedBucket?
     {
-        let bucketThatWasNotFailingOnWorkerOrNil = queue.first { bucket in
-            !bucketWasFailingOnWorker(bucket: bucket, workerId: workerId)
+        let bucketThatWasNotFailingOnWorkerOrNil = queue.first { enqueuedBucket in
+            !bucketWasFailingOnWorker(bucket: enqueuedBucket.bucket, workerId: workerId)
         }
         
         if let bucketToDequeue = bucketThatWasNotFailingOnWorkerOrNil {
@@ -22,9 +22,9 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         } else {
             let computedAliveWorkers = aliveWorkers()
             
-            let bucketThatWasFailingOnEveryWorkerOrNil = queue.first { bucket in
+            let bucketThatWasFailingOnEveryWorkerOrNil = queue.first { enqueuedBucket in
                 bucketWasFailingOnEveryWorker(
-                    bucket: bucket,
+                    bucket: enqueuedBucket.bucket,
                     aliveWorkers: computedAliveWorkers
                 )
             }

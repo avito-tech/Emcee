@@ -1,6 +1,7 @@
 import BucketQueue
 import BucketQueueTestHelpers
 import BalancingBucketQueue
+import DateProviderTestHelpers
 import Foundation
 import Models
 import ModelsTestHelpers
@@ -68,7 +69,13 @@ final class BalancingBucketQueueTests: XCTestCase {
         
         XCTAssertEqual(
             balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId),
-            .dequeuedBucket(DequeuedBucket(bucket: bucket, workerId: workerId, requestId: requestId))
+            .dequeuedBucket(
+                DequeuedBucket(
+                    enqueuedBucket: EnqueuedBucket(bucket: bucket, enqueueTimestamp: dateProvider.currentDate()),
+                    workerId: workerId,
+                    requestId: requestId
+                )
+            )
         )
     }
     
@@ -82,7 +89,13 @@ final class BalancingBucketQueueTests: XCTestCase {
         
         XCTAssertEqual(
             balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId),
-            .dequeuedBucket(DequeuedBucket(bucket: bucket1, workerId: workerId, requestId: requestId))
+            .dequeuedBucket(
+                DequeuedBucket(
+                    enqueuedBucket: EnqueuedBucket(bucket: bucket1, enqueueTimestamp: dateProvider.currentDate()),
+                    workerId: workerId,
+                    requestId: requestId
+                )
+            )
         )
         XCTAssertEqual(
             try? balancingQueue.state(jobId: jobId),
@@ -90,7 +103,13 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
         XCTAssertEqual(
             balancingQueue.dequeueBucket(requestId: anotherRequestId, workerId: workerId),
-            .dequeuedBucket(DequeuedBucket(bucket: bucket2, workerId: workerId, requestId: anotherRequestId))
+            .dequeuedBucket(
+                DequeuedBucket(
+                    enqueuedBucket: EnqueuedBucket(bucket: bucket2, enqueueTimestamp: dateProvider.currentDate()),
+                    workerId: workerId,
+                    requestId: anotherRequestId
+                )
+            )
         )
         XCTAssertEqual(
             try? balancingQueue.state(jobId: anotherJobId),
@@ -103,7 +122,11 @@ final class BalancingBucketQueueTests: XCTestCase {
         
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
-        let dequeuedBucket = DequeuedBucket(bucket: bucket, workerId: workerId, requestId: requestId)
+        let dequeuedBucket = DequeuedBucket(
+            enqueuedBucket: EnqueuedBucket(bucket: bucket, enqueueTimestamp: dateProvider.currentDate()),
+            workerId: workerId,
+            requestId: requestId
+        )
         
         for _ in 0 ..< 10 {
             XCTAssertEqual(
@@ -206,12 +229,14 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
     }
     
+    let dateProvider = DateProviderFixture()
     let workerAlivenessProvider = MutableWorkerAlivenessProvider()
     let checkAgainTimeInterval: TimeInterval = 42
     lazy var bucketQueueFactory = BucketQueueFactory(
-        workerAlivenessProvider: workerAlivenessProvider,
+        checkAgainTimeInterval: checkAgainTimeInterval,
+        dateProvider: dateProvider,
         testHistoryTracker: TestHistoryTrackerFixtures.testHistoryTracker(),
-        checkAgainTimeInterval: checkAgainTimeInterval
+        workerAlivenessProvider: workerAlivenessProvider
     )
     lazy var balancingBucketQueueFactory = BalancingBucketQueueFactory(
         bucketQueueFactory: bucketQueueFactory,

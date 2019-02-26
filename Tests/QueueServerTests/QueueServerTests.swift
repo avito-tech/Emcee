@@ -1,4 +1,5 @@
 import AutomaticTermination
+import DateProviderTestHelpers
 import EventBus
 import Foundation
 import Models
@@ -29,6 +30,7 @@ final class QueueServerTests: XCTestCase {
         
         let server = QueueServer(
             automaticTerminationController: automaticTerminationController,
+            dateProvider: DateProviderFixture(),
             eventBus: eventBus,
             workerConfigurations: workerConfigurations,
             reportAliveInterval: .infinity,
@@ -52,6 +54,7 @@ final class QueueServerTests: XCTestCase {
         
         let server = QueueServer(
             automaticTerminationController: automaticTerminationController,
+            dateProvider: DateProviderFixture(),
             eventBus: EventBus(),
             workerConfigurations: workerConfigurations,
             reportAliveInterval: .infinity,
@@ -87,6 +90,7 @@ final class QueueServerTests: XCTestCase {
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
         let server = QueueServer(
             automaticTerminationController: automaticTerminationController,
+            dateProvider: DateProviderFixture(),
             eventBus: EventBus(),
             workerConfigurations: workerConfigurations,
             reportAliveInterval: .infinity,

@@ -9,17 +9,17 @@ public enum DequeueResult: Hashable {
 }
 
 public struct DequeuedBucket: CustomStringConvertible, Hashable {
-    public let bucket: Bucket
+    public let enqueuedBucket: EnqueuedBucket
     public let workerId: String
     public let requestId: String
 
-    public init(bucket: Bucket, workerId: String, requestId: String) {
-        self.bucket = bucket
+    public init(enqueuedBucket: EnqueuedBucket, workerId: String, requestId: String) {
+        self.enqueuedBucket = enqueuedBucket
         self.workerId = workerId
         self.requestId = requestId
     }
     
     public var description: String {
-        return "<\(type(of: self)) workerId: \(workerId), requestId: \(requestId), bucket: \(bucket)>"
+        return "<\(type(of: self)) workerId: \(workerId), requestId: \(requestId), enqueuedBucket: \(enqueuedBucket)>"
     }
 }

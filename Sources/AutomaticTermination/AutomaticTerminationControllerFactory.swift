@@ -1,3 +1,4 @@
+import DateProvider
 import Foundation
 
 public final class AutomaticTerminationControllerFactory {
@@ -11,12 +12,12 @@ public final class AutomaticTerminationControllerFactory {
         switch automaticTerminationPolicy {
         case .after(let timeInterval):
             return AfterFixedPeriodOfTimeTerminationController(
-                dateProvider: DefaultDateProvider(),
+                dateProvider: SystemDateProvider(),
                 fireAt: Date().addingTimeInterval(timeInterval)
             )
         case .afterBeingIdle(let period):
             return AfterPeriodOfInactivityTerminationController(
-                dateProvider: DefaultDateProvider(),
+                dateProvider: SystemDateProvider(),
                 inactivityInterval: period
             )
         case .stayAlive:

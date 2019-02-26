@@ -10,12 +10,15 @@ final class TestHistoryTests: XCTestCase {
     private lazy var tracker = TestHistoryTrackerImpl(
         testHistoryStorage: storage
     )
-    
+    private let fixedDate = Date()
     private let firstTest = TestEntryFixtures.testEntry(className: "first")
     private let secondTest = TestEntryFixtures.testEntry(className: "second")
-    private lazy var twoTestsBucket: Bucket = BucketFixtures.createBucket(testEntries: [firstTest, secondTest])
-    private lazy var firstTestFixtures = TestEntryHistoryFixtures(testEntry: firstTest, bucket: self.twoTestsBucket)
-    private lazy var secondTestFixtures = TestEntryHistoryFixtures(testEntry: secondTest, bucket: self.twoTestsBucket)
+    private lazy var twoTestsBucket: EnqueuedBucket = EnqueuedBucket(
+        bucket: BucketFixtures.createBucket(testEntries: [firstTest, secondTest]),
+        enqueueTimestamp: fixedDate
+    )
+    private lazy var firstTestFixtures = TestEntryHistoryFixtures(testEntry: firstTest, bucket: twoTestsBucket.bucket)
+    private lazy var secondTestFixtures = TestEntryHistoryFixtures(testEntry: secondTest, bucket: twoTestsBucket.bucket)
     
     func test___bucketToDequeue___returns_nil___if_some_of_tests_are_failed_in_bucket_for_worker_but_not_all() {
         // Given
@@ -47,7 +50,10 @@ final class TestHistoryTests: XCTestCase {
         )
         
         // When
-        let otherBucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "other")])
+        let otherBucket = EnqueuedBucket(
+            bucket: BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "other")]),
+            enqueueTimestamp: fixedDate
+        )
         let bucketToDequeue = tracker.bucketToDequeue(
             workerId: "1",
             queue: [twoTestsBucket, otherBucket],

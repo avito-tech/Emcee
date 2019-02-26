@@ -9,6 +9,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
     private let emptyResultsFixtures = TestingResultFixtures()
     private let failingWorkerId = "failingWorkerId"
     private let notFailingWorkerId = "notFailingWorkerId"
+    private let fixedDate = Date()
     
     private lazy var aliveWorkers = [failingWorkerId, notFailingWorkerId]
     
@@ -94,12 +95,14 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         // When
         let bucketToDequeue = testHistoryTracker.bucketToDequeue(
             workerId: failingWorkerId,
-            queue: [oneFailResultsFixtures.bucket],
+            queue: [
+                EnqueuedBucket(bucket: oneFailResultsFixtures.bucket, enqueueTimestamp: fixedDate)
+            ],
             aliveWorkers: aliveWorkers
         )
         
         // Then
-        XCTAssertEqual(bucketToDequeue, oneFailResultsFixtures.bucket)
+        XCTAssertEqual(bucketToDequeue?.bucket, oneFailResultsFixtures.bucket)
     }
     
     func test___bucketToDequeue___is_nil___for_failing_worker() {
@@ -112,7 +115,9 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         // When
         let bucketToDequeue = testHistoryTracker.bucketToDequeue(
             workerId: failingWorkerId,
-            queue: [oneFailResultsFixtures.bucket],
+            queue: [
+                EnqueuedBucket(bucket: oneFailResultsFixtures.bucket, enqueueTimestamp: fixedDate)
+            ],
             aliveWorkers: aliveWorkers
         )
         
@@ -133,12 +138,15 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         // When
         let bucketToDequeue = testHistoryTracker.bucketToDequeue(
             workerId: failingWorkerId,
-            queue: [oneFailResultsFixtures.bucket, notFailedBucket],
+            queue: [
+                EnqueuedBucket(bucket: oneFailResultsFixtures.bucket, enqueueTimestamp: fixedDate),
+                EnqueuedBucket(bucket: notFailedBucket, enqueueTimestamp: fixedDate)
+            ],
             aliveWorkers: aliveWorkers
         )
         
         // Then
-        XCTAssertEqual(bucketToDequeue, notFailedBucket)
+        XCTAssertEqual(bucketToDequeue?.bucket, notFailedBucket)
     }
     
     func test___bucketToDequeue___is_not_nil___for_not_failing_worker() {
@@ -151,18 +159,22 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         // When
         let bucketToDequeue = testHistoryTracker.bucketToDequeue(
             workerId: notFailingWorkerId,
-            queue: [oneFailResultsFixtures.bucket],
+            queue: [
+                EnqueuedBucket(bucket: oneFailResultsFixtures.bucket, enqueueTimestamp: fixedDate),
+            ],
             aliveWorkers: aliveWorkers
         )
         
         // Then
-        XCTAssertEqual(bucketToDequeue, oneFailResultsFixtures.bucket)
+        XCTAssertEqual(bucketToDequeue?.bucket, oneFailResultsFixtures.bucket)
     }
     
     private func failOnce(tracker: TestHistoryTracker, workerId: String) {
         _ = tracker.bucketToDequeue(
             workerId: failingWorkerId,
-            queue: [oneFailResultsFixtures.bucket],
+            queue: [
+                EnqueuedBucket(bucket: oneFailResultsFixtures.bucket, enqueueTimestamp: fixedDate),
+            ],
             aliveWorkers: aliveWorkers
         )
         _ = tracker.accept(

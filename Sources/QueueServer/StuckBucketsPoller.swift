@@ -1,6 +1,7 @@
 import BucketQueue
 import Foundation
 import Logging
+import Metrics
 import Models
 import ScheduleStrategy
 import Timer
@@ -24,6 +25,11 @@ public final class StuckBucketsPoller {
         let stuckBuckets = statefulStuckBucketsReenqueuer.reenqueueStuckBuckets()
         
         guard !stuckBuckets.isEmpty else { return }
+        
+        let stuckBucketMetrics = stuckBuckets.map {
+            StuckBucketsMetric(count: 1, host: $0.workerId, reason: $0.reason.rawValue)
+        }
+        MetricRecorder.capture(stuckBucketMetrics)
         
         Logger.warning("Detected stuck buckets:")
         for stuckBucket in stuckBuckets {

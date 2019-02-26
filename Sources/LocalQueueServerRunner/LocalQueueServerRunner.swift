@@ -1,4 +1,5 @@
 import AutomaticTermination
+import DateProvider
 import EventBus
 import Foundation
 import Logging
@@ -33,6 +34,7 @@ public final class LocalQueueServerRunner {
         ).createAutomaticTerminationController()
         let queueServer = QueueServer(
             automaticTerminationController: automaticTerminationController,
+            dateProvider: SystemDateProvider(),
             eventBus: eventBus,
             workerConfigurations: createWorkerConfigurations(),
             reportAliveInterval: queueServerRunConfiguration.reportAliveInterval,

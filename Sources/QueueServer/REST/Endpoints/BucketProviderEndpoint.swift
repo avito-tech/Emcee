@@ -35,29 +35,33 @@ public final class BucketProviderEndpoint: RESTEndpoint {
             return .checkAgainLater(checkAfter: checkAfter)
         case .dequeuedBucket(let dequeuedBucket):
             workerAlivenessTracker.didDequeueBucket(
-                bucketId: dequeuedBucket.bucket.bucketId,
+                bucketId: dequeuedBucket.enqueuedBucket.bucket.bucketId,
                 workerId: decodedRequest.workerId
             )
             let state = statefulDequeueableBucketSource.state
             BucketQueueStateLogger(state: state).logQueueSize()
             sendMetrics(
                 workerId: decodedRequest.workerId,
-                numberOfTests: dequeuedBucket.bucket.testEntries.count,
+                dequeuedBucket: dequeuedBucket,
                 state: state
             )
-            return .bucketDequeued(bucket: dequeuedBucket.bucket)
+            return .bucketDequeued(bucket: dequeuedBucket.enqueuedBucket.bucket)
         case .workerBlocked:
             return .workerBlocked
         }
     }
     
-    private func sendMetrics(workerId: String, numberOfTests: Int, state: QueueState) {
+    private func sendMetrics(
+        workerId: String,
+        dequeuedBucket: DequeuedBucket,
+        state: QueueState)
+    {
         MetricRecorder.capture(
-            DequeueBucketsMetric(workerId: workerId, numberOfBuckets: 1)
+            DequeueBucketsMetric(workerId: workerId, numberOfBuckets: 1),
+            DequeueTestsMetric(workerId: workerId, numberOfTests: dequeuedBucket.enqueuedBucket.bucket.testEntries.count),
+            TimeToDequeueBucket(timeInterval: Date().timeIntervalSince(dequeuedBucket.enqueuedBucket.enqueueTimestamp))
         )
-        MetricRecorder.capture(
-            DequeueTestsMetric(workerId: workerId, numberOfTests: numberOfTests)
-        )
+        
         QueueStateMetricRecorder(state: state).capture()
     }
 }

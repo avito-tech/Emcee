@@ -3,9 +3,13 @@ import Models
 public protocol TestHistoryTracker {
     func bucketToDequeue(
         workerId: String,
-        queue: [Bucket],
+        queue: [EnqueuedBucket],
         aliveWorkers: @autoclosure () -> [String])
-        -> Bucket?
+        -> EnqueuedBucket?
     
-    func accept(testingResult: TestingResult, bucket: Bucket, workerId: String) -> TestHistoryTrackerAcceptResult
+    func accept(
+        testingResult: TestingResult,
+        bucket: Bucket,
+        workerId: String)
+        -> TestHistoryTrackerAcceptResult
 }

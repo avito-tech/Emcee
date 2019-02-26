@@ -1,18 +1,22 @@
+import DateProvider
+import DateProviderTestHelpers
 import Foundation
 import WorkerAlivenessTracker
 import BucketQueue
 
 public final class BucketQueueFixtures {
     public static func bucketQueue(
-        workerAlivenessProvider: WorkerAlivenessProvider,
+        checkAgainTimeInterval: TimeInterval = 30,
+        dateProvider: DateProvider = DateProviderFixture(),
         testHistoryTracker: TestHistoryTracker = TestHistoryTrackerFixtures.testHistoryTracker(),
-        checkAgainTimeInterval: TimeInterval = 30)
+        workerAlivenessProvider: WorkerAlivenessProvider)
         -> BucketQueue
     {
         return BucketQueueFactory(
-            workerAlivenessProvider: workerAlivenessProvider,
+            checkAgainTimeInterval: checkAgainTimeInterval,
+            dateProvider: dateProvider,
             testHistoryTracker: testHistoryTracker,
-            checkAgainTimeInterval: checkAgainTimeInterval)
+            workerAlivenessProvider: workerAlivenessProvider)
             .createBucketQueue()
     }
 }

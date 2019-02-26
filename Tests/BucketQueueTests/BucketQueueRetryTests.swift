@@ -1,5 +1,6 @@
 import BucketQueue
 import BucketQueueTestHelpers
+import DateProviderTestHelpers
 import Foundation
 import Models
 import ModelsTestHelpers
@@ -30,7 +31,10 @@ final class BucketQueueRetryTests: XCTestCase {
                 bucketQueue.dequeueBucket(requestId: "2", workerId: anotherWorker),
                 DequeueResult.dequeuedBucket(
                     DequeuedBucket(
-                        bucket: bucketWithTwoRetires,
+                        enqueuedBucket: EnqueuedBucket(
+                            bucket: bucketWithTwoRetires,
+                            enqueueTimestamp: dateProvider.currentDate()
+                        ),
                         workerId: anotherWorker,
                         requestId: "2"
                     )
@@ -58,7 +62,10 @@ final class BucketQueueRetryTests: XCTestCase {
                 bucketQueue.dequeueBucket(requestId: "other", workerId: anyWorker),
                 DequeueResult.dequeuedBucket(
                     DequeuedBucket(
-                        bucket: bucketWithTwoRetires,
+                        enqueuedBucket: EnqueuedBucket(
+                            bucket: bucketWithTwoRetires,
+                            enqueueTimestamp: dateProvider.currentDate()
+                        ),
                         workerId: anyWorker,
                         requestId: "other"
                     )
@@ -126,7 +133,16 @@ final class BucketQueueRetryTests: XCTestCase {
             
             XCTAssertEqual(
                 bucketQueue.dequeueBucket(requestId: "request_2", workerId: anotherWorker),
-                DequeueResult.dequeuedBucket(DequeuedBucket(bucket: bucket, workerId: anotherWorker, requestId: "request_2")),
+                DequeueResult.dequeuedBucket(
+                    DequeuedBucket(
+                        enqueuedBucket: EnqueuedBucket(
+                            bucket: bucket,
+                            enqueueTimestamp: dateProvider.currentDate()
+                        ),
+                        workerId: anotherWorker,
+                        requestId: "request_2"
+                    )
+                ),
                 "Queue should provide re-enqueued bucket to a worker that haven't attempted to execute the test previously"
             )
         }
@@ -136,14 +152,16 @@ final class BucketQueueRetryTests: XCTestCase {
     private let secondWorker = "secondWorker"
     private let failingWorker = "failingWorker"
     private let anotherWorker = "anotherWorker"
+    private let dateProvider = DateProviderFixture()
     
     private func bucketQueue(workerIds: [String]) -> BucketQueue {
         let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
         workerIds.forEach(tracker.didRegisterWorker)
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(
-            workerAlivenessProvider: tracker,
-            testHistoryTracker: TestHistoryTrackerFixtures.testHistoryTracker()
+            dateProvider: dateProvider,
+            testHistoryTracker: TestHistoryTrackerFixtures.testHistoryTracker(),
+            workerAlivenessProvider: tracker
         )
         
         return bucketQueue
