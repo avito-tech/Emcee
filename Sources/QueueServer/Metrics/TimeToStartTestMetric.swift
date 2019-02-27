@@ -1,21 +1,27 @@
 import Foundation
 import Metrics
+import Models
 
-public final class RuntimeDumpTestCaseCountMetric: Metric {
-    public init(testBundleName: String, numberOfTestCases: Int) {
+public final class TimeToStartTestMetric: Metric {
+    public init(
+        testEntry: TestEntry,
+        timeToStartTest: TimeInterval
+        )
+    {
         super.init(
             fixedComponents: [
-                "runtime_dump",
-                "test_case_count"
+                "tests",
+                "time_to_start"
             ],
             variableComponents: [
-                testBundleName,
+                testEntry.className,
+                testEntry.methodName,
                 Metric.reservedField,
                 Metric.reservedField,
                 Metric.reservedField,
                 Metric.reservedField
             ],
-            value: Double(numberOfTestCases),
+            value: timeToStartTest,
             timestamp: Date()
         )
     }

@@ -20,8 +20,7 @@ final class BucketResultRegistrarTests: XCTestCase {
         let bucketQueue = FakeBucketQueue(throwsOnAccept: false)
         
         let registrar = BucketResultRegistrar(
-            eventBus: eventBus,
-            statefulBucketResultAccepter: bucketQueue,
+            bucketResultAccepter: bucketQueue,
             workerAlivenessTracker: WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
         )
         
@@ -37,8 +36,7 @@ final class BucketResultRegistrarTests: XCTestCase {
         let bucketQueue = FakeBucketQueue(throwsOnAccept: true)
         
         let registrar = BucketResultRegistrar(
-            eventBus: eventBus,
-            statefulBucketResultAccepter: bucketQueue,
+            bucketResultAccepter: bucketQueue,
             workerAlivenessTracker: alivenessTracker
         )
         

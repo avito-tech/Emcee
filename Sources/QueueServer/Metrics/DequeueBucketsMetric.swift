@@ -11,10 +11,10 @@ public final class DequeueBucketsMetric: Metric {
             ],
             variableComponents: [
                 workerId,
-                "reserved",
-                "reserved",
-                "reserved",
-                "reserved"
+                Metric.reservedField,
+                Metric.reservedField,
+                Metric.reservedField,
+                Metric.reservedField
             ],
             value: Double(numberOfBuckets),
             timestamp: Date()

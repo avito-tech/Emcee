@@ -8,7 +8,7 @@ import Timer
 public final class FbxctestOutputProcessor: ProcessControllerDelegate {
     private let processController: ProcessController
     private let simulatorId: String
-    private let eventsListener: TestEventsListener
+    private let eventsListener = TestEventsListener()
     private let singleTestMaximumDuration: TimeInterval
     private var testHangTrackingTimer: DispatchBasedTimer?
     private let newLineByte = UInt8(10)
@@ -21,7 +21,6 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
         throws
     {
         self.simulatorId = simulatorId
-        self.eventsListener = TestEventsListener()
         self.singleTestMaximumDuration = singleTestMaximumDuration
         self.processController = try ProcessController(subprocess: subprocess)
         self.processController.delegate = self

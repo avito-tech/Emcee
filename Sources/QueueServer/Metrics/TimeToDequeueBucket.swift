@@ -10,10 +10,10 @@ public final class TimeToDequeueBucket: Metric {
                 "time_to_dequeue"
             ],
             variableComponents: [
-                "reserved",
-                "reserved",
-                "reserved",
-                "reserved"
+                Metric.reservedField,
+                Metric.reservedField,
+                Metric.reservedField,
+                Metric.reservedField
             ],
             value: timeInterval,
             timestamp: Date()

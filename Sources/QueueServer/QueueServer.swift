@@ -90,12 +90,20 @@ public final class QueueServer {
             statefulStuckBucketsReenqueuer: balancingBucketQueue
         )
         self.bucketProvider = BucketProviderEndpoint(
-            statefulDequeueableBucketSource: balancingBucketQueue,
+            dequeueableBucketSource: DequeueableBucketSourceWithMetricSupport(
+                dequeueableBucketSource: balancingBucketQueue,
+                jobStateProvider: balancingBucketQueue,
+                queueStateProvider: balancingBucketQueue
+            ),
             workerAlivenessTracker: workerAlivenessTracker
         )
         self.bucketResultRegistrar = BucketResultRegistrar(
-            eventBus: eventBus,
-            statefulBucketResultAccepter: balancingBucketQueue,
+            bucketResultAccepter: BucketResultAccepterWithMetricSupport(
+                bucketResultAccepter: balancingBucketQueue,
+                eventBus: eventBus,
+                jobStateProvider: balancingBucketQueue,
+                queueStateProvider: balancingBucketQueue
+            ),
             workerAlivenessTracker: workerAlivenessTracker
         )
         self.newWorkerRegistrationTimeAllowance = newWorkerRegistrationTimeAllowance

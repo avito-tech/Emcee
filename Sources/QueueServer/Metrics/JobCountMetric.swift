@@ -1,21 +1,26 @@
 import Foundation
 import Metrics
 
-public final class RuntimeDumpTestCaseCountMetric: Metric {
-    public init(testBundleName: String, numberOfTestCases: Int) {
+public final class JobCountMetric: Metric {
+    public init(
+        queueHost: String, 
+        jobCount: Int
+        ) 
+    {
         super.init(
             fixedComponents: [
-                "runtime_dump",
-                "test_case_count"
+                "queue",
+                "jobs",
+                "count"
             ],
             variableComponents: [
-                testBundleName,
+                queueHost,
                 Metric.reservedField,
                 Metric.reservedField,
                 Metric.reservedField,
                 Metric.reservedField
             ],
-            value: Double(numberOfTestCases),
+            value: Double(jobCount),
             timestamp: Date()
         )
     }

@@ -9,6 +9,9 @@ open class Metric: CustomStringConvertible, Hashable {
     
     /// Timestamp when metric has been collected.
     public let timestamp: Date
+    
+    /// Common reserved field to be used in variable components.
+    public static let reservedField = "reserved"
 
     /// - Parameter fixedComponents: Components that are fixed for this metric, and they must NOT change in the future.
     ///                              Consider introducing a new metric if you need to change this array.

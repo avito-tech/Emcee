@@ -1,42 +1,30 @@
 import BucketQueue
-import Dispatch
-import EventBus
 import Foundation
-import Logging
 import Models
 import RESTMethods
-import ResultsCollector
 import WorkerAlivenessTracker
 
 public final class BucketResultRegistrar: RESTEndpoint {
-    private let eventBus: EventBus
-    private let statefulBucketResultAccepter: BucketResultAccepter & QueueStateProvider
+    private let bucketResultAccepter: BucketResultAccepter
     private let workerAlivenessTracker: WorkerAlivenessTracker
 
     public init(
-        eventBus: EventBus,
-        statefulBucketResultAccepter: BucketResultAccepter & QueueStateProvider,
-        workerAlivenessTracker: WorkerAlivenessTracker)
+        bucketResultAccepter: BucketResultAccepter,
+        workerAlivenessTracker: WorkerAlivenessTracker
+        )
     {
-        self.eventBus = eventBus
-        self.statefulBucketResultAccepter = statefulBucketResultAccepter
+        self.bucketResultAccepter = bucketResultAccepter
         self.workerAlivenessTracker = workerAlivenessTracker
     }
 
     public func handle(decodedRequest: PushBucketResultRequest) throws -> BucketResultAcceptResponse {
         do {
-            let acceptResult = try statefulBucketResultAccepter.accept(
+            let acceptResult = try bucketResultAccepter.accept(
                 testingResult: decodedRequest.testingResult,
                 requestId: decodedRequest.requestId,
                 workerId: decodedRequest.workerId
             )
-            
-            eventBus.post(event: .didObtainTestingResult(acceptResult.testingResultToCollect))
-            
-            BucketQueueStateLogger(state: statefulBucketResultAccepter.state).logQueueSize()
-            QueueStateMetricRecorder(state: statefulBucketResultAccepter.state).capture()
-            
-            return .bucketResultAccepted(bucketId: decodedRequest.testingResult.bucketId)
+            return .bucketResultAccepted(bucketId: acceptResult.dequeuedBucket.enqueuedBucket.bucket.bucketId)
         } catch {
             workerAlivenessTracker.blockWorker(workerId: decodedRequest.workerId)
             throw error

@@ -10,10 +10,10 @@ public final class EnqueueBucketsMetric: Metric {
                 "enqueue"
             ],
             variableComponents: [
-                "reserved",
-                "reserved",
-                "reserved",
-                "reserved"
+                Metric.reservedField,
+                Metric.reservedField,
+                Metric.reservedField,
+                Metric.reservedField
             ],
             value: Double(numberOfBuckets),
             timestamp: Date()

@@ -25,6 +25,10 @@ final class JobStateEndpointTests: XCTestCase, JobStateProvider {
         return jobState
     }
     
+    var allJobStates: [JobState] {
+        return [jobState]
+    }
+    
     func test___requesting_job_state_for_existing_job() throws {
         let endpoint = JobStateEndpoint(stateProvider: self)
         let response = try endpoint.handle(decodedRequest: JobStateRequest(jobId: jobId))

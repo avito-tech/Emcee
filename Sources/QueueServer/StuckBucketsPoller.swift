@@ -1,3 +1,4 @@
+import BalancingBucketQueue
 import BucketQueue
 import Foundation
 import Logging
@@ -7,10 +8,10 @@ import ScheduleStrategy
 import Timer
 
 public final class StuckBucketsPoller {
-    private let statefulStuckBucketsReenqueuer: StuckBucketsReenqueuer & QueueStateProvider
+    private let statefulStuckBucketsReenqueuer: StuckBucketsReenqueuer & JobStateProvider & QueueStateProvider
     private let stuckBucketsTrigger = DispatchBasedTimer(repeating: .seconds(1), leeway: .seconds(5))
     
-    public init(statefulStuckBucketsReenqueuer: StuckBucketsReenqueuer & QueueStateProvider) {
+    public init(statefulStuckBucketsReenqueuer: StuckBucketsReenqueuer & JobStateProvider & QueueStateProvider) {
         self.statefulStuckBucketsReenqueuer = statefulStuckBucketsReenqueuer
     }
     
@@ -37,6 +38,11 @@ public final class StuckBucketsPoller {
         }
         
         BucketQueueStateLogger(state: statefulStuckBucketsReenqueuer.state).logQueueSize()
-        QueueStateMetricRecorder(state: statefulStuckBucketsReenqueuer.state).capture()
+        MetricRecorder.capture(
+            QueueStateMetricGatherer.metrics(
+                jobStates: statefulStuckBucketsReenqueuer.allJobStates,
+                queueState: statefulStuckBucketsReenqueuer.state
+            )
+        )
     }
 }

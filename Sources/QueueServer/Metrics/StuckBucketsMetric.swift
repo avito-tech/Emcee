@@ -19,10 +19,10 @@ public final class StuckBucketsMetric: Metric {
             variableComponents: [
                 reason,
                 host,
-                "reserved",
-                "reserved",
-                "reserved",
-                "reserved"
+                Metric.reservedField,
+                Metric.reservedField,
+                Metric.reservedField,
+                Metric.reservedField
             ],
             value: Double(count),
             timestamp: Date()

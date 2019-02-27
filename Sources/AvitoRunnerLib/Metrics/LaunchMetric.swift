@@ -11,8 +11,8 @@ public final class LaunchMetric: Metric {
             variableComponents: [
                 command,
                 host,
-                "reserved",
-                "reserved"
+                Metric.reservedField,
+                Metric.reservedField
             ],
             value: 1,
             timestamp: Date()

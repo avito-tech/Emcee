@@ -40,11 +40,9 @@ final class TestEventsListener {
                 result: event.result,
                 host: pair.startEvent.hostName ?? "unknown_host",
                 testClassName: pair.startEvent.className,
-                testMethodName: pair.startEvent.methodName
-            )
-        )
-        
-        MetricRecorder.capture(
+                testMethodName: pair.startEvent.methodName,
+                testsFinishedCount: 1
+            ),
             TestDurationMetric(
                 result: event.result,
                 host: pair.startEvent.hostName ?? "unknown_host",

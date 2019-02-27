@@ -27,8 +27,10 @@ public final class TestsEnqueuer {
         )
         enqueueableBucketReceptor.enqueue(buckets: buckets, prioritizedJob: prioritizedJob)
         
-        MetricRecorder.capture(EnqueueTestsMetric(numberOfTests: testEntryConfigurations.count))
-        MetricRecorder.capture(EnqueueBucketsMetric(numberOfBuckets: buckets.count))
+        MetricRecorder.capture(
+            EnqueueTestsMetric(numberOfTests: testEntryConfigurations.count),
+            EnqueueBucketsMetric(numberOfBuckets: buckets.count)
+        )
         
         Logger.info("Enqueued \(buckets.count) buckets for job '\(prioritizedJob)'")
         for bucket in buckets {

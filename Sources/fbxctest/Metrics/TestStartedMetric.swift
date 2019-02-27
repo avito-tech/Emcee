@@ -13,9 +13,9 @@ public final class TestStartedMetric: Metric {
                 host,
                 testClassName,
                 testMethodName,
-                "reserved",
-                "reserved",
-                "reserved"
+                Metric.reservedField,
+                Metric.reservedField,
+                Metric.reservedField
             ],
             value: 1,
             timestamp: Date()

@@ -1,6 +1,7 @@
 import BucketQueue
 import Foundation
 import Models
+import ModelsTestHelpers
 
 public class FakeBucketQueue: BucketQueue {
     
@@ -44,7 +45,17 @@ public class FakeBucketQueue: BucketQueue {
             throw AcceptanceError()
         } else {
             acceptedResults.append(testingResult)
-            return BucketQueueAcceptResult(testingResultToCollect: testingResult)
+            return BucketQueueAcceptResult(
+                dequeuedBucket: DequeuedBucket(
+                    enqueuedBucket: EnqueuedBucket(
+                        bucket: BucketFixtures.createBucket(),
+                        enqueueTimestamp: Date()
+                    ),
+                    workerId: workerId,
+                    requestId: requestId
+                ),
+                testingResultToCollect: testingResult
+            )
         }
     }
     

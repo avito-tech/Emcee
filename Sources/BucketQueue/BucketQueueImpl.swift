@@ -131,6 +131,7 @@ final class BucketQueueImpl: BucketQueue {
             Logger.debug("Accepted result for bucket '\(testingResult.bucketId)' from '\(workerId)', updated dequeued buckets: \(dequeuedBuckets.count): \(dequeuedBuckets)")
             
             return BucketQueueAcceptResult(
+                dequeuedBucket: dequeuedBucket,
                 testingResultToCollect: acceptResult.testingResult
             )
         }

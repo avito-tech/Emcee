@@ -68,7 +68,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         )
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: DequeueResult.dequeuedBucket(dequeuedBucket))
         let bucketProvider = BucketProviderEndpoint(
-            statefulDequeueableBucketSource: bucketQueue,
+            dequeueableBucketSource: bucketQueue,
             workerAlivenessTracker: WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
         )
         
@@ -102,8 +102,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             .testingResult()
         
         let resultHandler = BucketResultRegistrar(
-            eventBus: EventBus(),
-            statefulBucketResultAccepter: bucketQueue,
+            bucketResultAccepter: bucketQueue,
             workerAlivenessTracker: alivenessTracker
         )
         

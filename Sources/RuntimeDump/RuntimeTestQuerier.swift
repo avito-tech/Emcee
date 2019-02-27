@@ -114,9 +114,7 @@ public final class RuntimeTestQuerier {
         let testBundleName = configuration.xcTestBundle.resourceLocation.stringValue.lastPathComponent
         Logger.info("Runtime dump contains \(testCaseCount) XCTestCases, \(testCount) tests")
         MetricRecorder.capture(
-            RuntimeDumpTestCountMetric(testBundleName: testBundleName, numberOfTests: testCount)
-        )
-        MetricRecorder.capture(
+            RuntimeDumpTestCountMetric(testBundleName: testBundleName, numberOfTests: testCount),
             RuntimeDumpTestCaseCountMetric(testBundleName: testBundleName, numberOfTestCases: testCaseCount)
         )
     }

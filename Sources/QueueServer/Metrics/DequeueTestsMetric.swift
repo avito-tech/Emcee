@@ -11,10 +11,10 @@ public final class DequeueTestsMetric: Metric {
             ],
             variableComponents: [
                 workerId,
-                "reserved",
-                "reserved",
-                "reserved",
-                "reserved"
+                Metric.reservedField,
+                Metric.reservedField,
+                Metric.reservedField,
+                Metric.reservedField
             ],
             value: Double(numberOfTests),
             timestamp: Date()

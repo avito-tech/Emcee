@@ -1,26 +1,29 @@
 import Foundation
 import Metrics
 
-public final class QueueStateDequeuedBucketsMetric: Metric {
+public final class JobStateEnqueuedBucketsMetric: Metric {
     public init(
         queueHost: String,
-        numberOfDequeuedBuckets: Int
+        jobId: String,
+        numberOfEnqueuedBuckets: Int
         )
     {
         super.init(
             fixedComponents: [
                 "queue",
+                "jobs",
                 "state",
-                "dequeued"
+                "enqueued"
             ],
             variableComponents: [
                 queueHost,
+                jobId,
                 Metric.reservedField,
                 Metric.reservedField,
                 Metric.reservedField,
                 Metric.reservedField
             ],
-            value: Double(numberOfDequeuedBuckets),
+            value: Double(numberOfEnqueuedBuckets),
             timestamp: Date()
         )
     }
