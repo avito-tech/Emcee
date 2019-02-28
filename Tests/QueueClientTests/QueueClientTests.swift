@@ -90,16 +90,7 @@ class QueueClientTests: XCTestCase {
     }
     
     func testRegisteringWorker() throws {
-        let stubbedConfig = WorkerConfiguration(
-            testRunExecutionBehavior: TestRunExecutionBehavior(
-                numberOfRetries: 1,
-                numberOfSimulators: 2,
-                environment: ["env": "val"],
-                scheduleStrategy: .progressive),
-            testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 666.6),
-            pluginUrls: [],
-            reportAliveInterval: 5
-        )
+        let stubbedConfig = WorkerConfigurationFixtures.workerConfiguration
         
         try prepareServer(RESTMethod.registerWorker.withPrependingSlash) { request -> HttpResponse in
             let data: Data = (try? JSONEncoder().encode(RegisterWorkerResponse.workerRegisterSuccess(workerConfiguration: stubbedConfig))) ?? Data()

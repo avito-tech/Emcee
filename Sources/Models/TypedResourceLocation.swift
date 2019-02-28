@@ -12,6 +12,14 @@ public final class TypedResourceLocation<T: ResourceLocationType>: Codable, Hash
         self.resourceLocation = resourceLocation
     }
     
+    public static func withOptional<T>(_ resourceLocation: ResourceLocation?) -> TypedResourceLocation<T>? {
+        if let resourceLocation = resourceLocation {
+            return TypedResourceLocation<T>(resourceLocation)
+        } else {
+            return nil
+        }
+    }
+    
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         resourceLocation = try container.decode(ResourceLocation.self)

@@ -71,6 +71,7 @@ public final class DistRunner {
             deploymentDestinations: distRunConfiguration.destinations,
             pluginLocations: distRunConfiguration.auxiliaryResources.plugins,
             queueAddress: SocketAddress(host: LocalHostDeterminer.currentHostAddress, port: queuePort),
+            analyticsConfigurationLocation: distRunConfiguration.analyticsConfigurationLocation,
             tempFolder: tempFolder
         )
         try workersStarter.deployAndStartWorkers()

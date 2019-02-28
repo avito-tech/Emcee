@@ -10,6 +10,7 @@ public final class RemoteWorkersStarter {
     private let deploymentDestinations: [DeploymentDestination]
     private let pluginLocations: [PluginLocation]
     private let queueAddress: SocketAddress
+    private let analyticsConfigurationLocation: AnalyticsConfigurationLocation?
     private let tempFolder: TempFolder
 
     public init(
@@ -17,12 +18,14 @@ public final class RemoteWorkersStarter {
         deploymentDestinations: [DeploymentDestination],
         pluginLocations: [PluginLocation],
         queueAddress: SocketAddress,
+        analyticsConfigurationLocation: AnalyticsConfigurationLocation?,
         tempFolder: TempFolder)
     {
         self.deploymentId = deploymentId
         self.deploymentDestinations = deploymentDestinations
         self.pluginLocations = pluginLocations
         self.queueAddress = queueAddress
+        self.analyticsConfigurationLocation = analyticsConfigurationLocation
         self.tempFolder = tempFolder
     }
     
@@ -63,7 +66,8 @@ public final class RemoteWorkersStarter {
                 deploymentId: deploymentId,
                 deploymentDestination: destination,
                 executableDeployableItem: emceeBinaryDeployableItem,
-                queueAddress: queueAddress
+                queueAddress: queueAddress,
+                analyticsConfigurationLocation: analyticsConfigurationLocation
             )
             let filePath = try tempFolder.createFile(
                 filename: launchdPlistTargetPath,

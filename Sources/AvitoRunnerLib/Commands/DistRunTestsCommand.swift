@@ -4,6 +4,7 @@ import DistRunner
 import EventBus
 import Foundation
 import Logging
+import LoggingSetup
 import Models
 import PluginManager
 import PortDeterminer
@@ -19,6 +20,7 @@ final class DistRunTestsCommand: Command {
     
     private let additionalApp: OptionArgument<[String]>
     private let app: OptionArgument<String>
+    private let analyticsConfigurationLocation: OptionArgument<String>
     private let destinationConfigurations: OptionArgument<String>
     private let destinations: OptionArgument<String>
     private let environment: OptionArgument<String>
@@ -56,6 +58,7 @@ final class DistRunTestsCommand: Command {
         
         additionalApp = subparser.add(multipleStringArgument: KnownStringArguments.additionalApp)
         app = subparser.add(stringArgument: KnownStringArguments.app)
+        analyticsConfigurationLocation = subparser.add(stringArgument: KnownStringArguments.analyticsConfiguration)
         destinationConfigurations = subparser.add(stringArgument: KnownStringArguments.destinationConfigurations)
         destinations = subparser.add(stringArgument: KnownStringArguments.destinations)
         environment = subparser.add(stringArgument: KnownStringArguments.environment)
@@ -87,6 +90,14 @@ final class DistRunTestsCommand: Command {
     }
     
     func run(with arguments: ArgumentParser.Result) throws {
+        let analyticsConfigurationLocation: AnalyticsConfigurationLocation? = AnalyticsConfigurationLocation.withOptional(
+            try ArgumentsReader.validateResourceLocationOrNil(arguments.get(self.analyticsConfigurationLocation), key: KnownStringArguments.analyticsConfiguration)
+        )
+        if let analyticsConfigurationLocation = analyticsConfigurationLocation {
+            try AnalyticsConfigurator(resourceLocationResolver: resourceLocationResolver)
+                .setup(analyticsConfigurationLocation: analyticsConfigurationLocation)
+        }
+        
         let auxiliaryResources = AuxiliaryResources(
             toolResources: ToolResources(
                 fbsimctl: FbsimctlLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.fbsimctl), key: KnownStringArguments.fbsimctl)),
@@ -165,6 +176,7 @@ final class DistRunTestsCommand: Command {
         )
         
         let distRunConfiguration = DistRunConfiguration(
+            analyticsConfigurationLocation: analyticsConfigurationLocation,
             runId: runId,
             reportOutput: reportOutput,
             destinations: deploymentDestinations,

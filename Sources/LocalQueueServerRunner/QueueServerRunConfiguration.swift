@@ -3,6 +3,8 @@ import Foundation
 import Models
 
 public struct QueueServerRunConfiguration: Decodable {
+    public let analyticsConfiguration: AnalyticsConfiguration
+    
     /// Paths that are required to make things work
     public let auxiliaryResources: AuxiliaryResources
 
@@ -30,7 +32,20 @@ public struct QueueServerRunConfiguration: Decodable {
     /// Schedule strategy on worker
     public let workerScheduleStrategy: ScheduleStrategyType
 
-    public init(auxiliaryResources: AuxiliaryResources, checkAgainTimeInterval: TimeInterval, deploymentDestinationConfigurations: [DestinationConfiguration], queueServerTerminationPolicy: AutomaticTerminationPolicy, remoteScheduleStrategyType: ScheduleStrategyType, reportAliveInterval: TimeInterval, simulatorSettings: SimulatorSettings, testTimeoutConfiguration: TestTimeoutConfiguration, workerScheduleStrategy: ScheduleStrategyType) {
+    public init(
+        analyticsConfiguration: AnalyticsConfiguration,
+        auxiliaryResources: AuxiliaryResources,
+        checkAgainTimeInterval: TimeInterval,
+        deploymentDestinationConfigurations: [DestinationConfiguration],
+        queueServerTerminationPolicy: AutomaticTerminationPolicy,
+        remoteScheduleStrategyType: ScheduleStrategyType,
+        reportAliveInterval: TimeInterval, 
+        simulatorSettings: SimulatorSettings,
+        testTimeoutConfiguration: TestTimeoutConfiguration,
+        workerScheduleStrategy: ScheduleStrategyType
+        )
+    {
+        self.analyticsConfiguration = analyticsConfiguration
         self.auxiliaryResources = auxiliaryResources
         self.checkAgainTimeInterval = checkAgainTimeInterval
         self.deploymentDestinationConfigurations = deploymentDestinationConfigurations

@@ -31,20 +31,34 @@ public final class LoggingSetup {
         Logger.always("Logging verbosity level is set to \(stderrVerbosity.stringCode)")
         Logger.always("To fetch detailed verbose log:")
         Logger.always("$ scp \(LocalHostDeterminer.currentHostAddress):\(detailedLogPath.path.asString) /tmp/\(filename).log")
-        
-        do {
-            GlobalLoggerConfig.loggerHandler = aggregatedHandler.byAdding(
-                handler: try createSentryLoggerHandler(verbosity: .warning)
-            )
-        } catch {
-            Logger.warning("Error setting up Sentry logger: \(error). Set it to DSN to enable logging to Sentry.")
+    }
+    
+    public static func setupAnalytics(analyticsConfiguration: AnalyticsConfiguration) throws {
+        if let sentryConfiguration = analyticsConfiguration.sentryConfiguration {
+            try setupSentry(sentryConfiguration: sentryConfiguration)
         }
-        
-        do {
-            GlobalMetricConfig.metricHandler = try createGraphiteMetricHandler()
-        } catch {
-            Logger.warning("Error setting up Graphite support: \(error). Set it to host:port to enable Graphite metrics reporting.")
+        if let graphiteConfiguration = analyticsConfiguration.graphiteConfiguration {
+            try setupGraphite(graphiteConfiguration: graphiteConfiguration)
         }
+    }
+    
+    private static func setupSentry(sentryConfiguration: SentryConfiguration) throws {
+        let loggerHandler = AggregatedLoggerHandler(
+            handlers: [
+                GlobalLoggerConfig.loggerHandler,
+                try createSentryLoggerHandler(
+                    sentryConfiguration: sentryConfiguration,
+                    verbosity: .warning
+                )
+            ]
+        )
+        GlobalLoggerConfig.loggerHandler = loggerHandler
+    }
+
+    private static func setupGraphite(graphiteConfiguration: GraphiteConfiguration) throws {
+        GlobalMetricConfig.metricHandler = try createGraphiteMetricHandler(
+            graphiteConfiguration: graphiteConfiguration
+        )
     }
     
     public static func tearDown() {
@@ -82,8 +96,12 @@ public final class LoggingSetup {
         )
     }
     
-    private static func createSentryLoggerHandler(verbosity: Verbosity) throws -> LoggerHandler {
-        let dsn = try DSN.create(dsnString: try EnvironmentDefinedValueExtractor.value(envName: "EMCEE_SENTRY_DSN"))
+    private static func createSentryLoggerHandler(
+        sentryConfiguration: SentryConfiguration,
+        verbosity: Verbosity
+        ) throws -> LoggerHandler
+    {
+        let dsn = try DSN.create(dsnUrl: sentryConfiguration.dsn)
         let binaryVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
         return SentryLoggerHandler(
             dsn: dsn,
@@ -95,12 +113,13 @@ public final class LoggingSetup {
         )
     }
     
-    private static func createGraphiteMetricHandler() throws -> MetricHandler {
+    private static func createGraphiteMetricHandler(
+        graphiteConfiguration: GraphiteConfiguration
+        ) throws -> MetricHandler
+    {
         return try GraphiteMetricHandler(
-            graphiteDomain: try EnvironmentDefinedValueExtractor.value(envName: "EMCEE_GRAPHITE_PREFIX").components(separatedBy: "."),
-            graphiteSocketAddress: try SocketAddress.from(
-                string: try EnvironmentDefinedValueExtractor.value(envName: "EMCEE_GRAPHITE_SOCKET")
-            )
+            graphiteDomain: graphiteConfiguration.metricPrefix.components(separatedBy: "."),
+            graphiteSocketAddress: graphiteConfiguration.socketAddress
         )
     }
     

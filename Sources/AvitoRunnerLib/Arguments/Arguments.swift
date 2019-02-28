@@ -55,6 +55,10 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
     KnownStringArguments.app: ArgumentDescriptionHolder(
         name: "--app",
         comment: "Location of app that will be tested by the UI tests"),
+    KnownStringArguments.analyticsConfiguration: ArgumentDescriptionHolder(
+        name: "--analytics-configuration",
+        comment: "Location of analytics configuration JSON file to support various analytic destinations",
+        optional: true),
     KnownStringArguments.destinationConfigurations: ArgumentDescriptionHolder(
         name: "--destinaton-configurations",
         comment: "A JSON file with additional configuration per destination",
@@ -186,6 +190,7 @@ private let knownUIntArguments: [KnownUIntArguments: ArgumentDescriptionHolder] 
 enum KnownStringArguments: ArgumentDescription {
     case additionalApp
     case app
+    case analyticsConfiguration
     case destinationConfigurations
     case destinations
     case environment

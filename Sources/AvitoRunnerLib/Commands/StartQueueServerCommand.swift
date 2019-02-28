@@ -3,6 +3,7 @@ import Extensions
 import Foundation
 import LocalQueueServerRunner
 import Logging
+import LoggingSetup
 import Models
 import PluginManager
 import PortDeterminer
@@ -30,6 +31,8 @@ final class StartQueueServerCommand: Command {
             key: KnownStringArguments.queueServerRunConfigurationLocation,
             resourceLocationResolver: resourceLocationResolver
         )
+        try LoggingSetup.setupAnalytics(analyticsConfiguration: queueServerRunConfiguration.analyticsConfiguration)
+        
         try startQueueServer(queueServerRunConfiguration: queueServerRunConfiguration)
     }
     

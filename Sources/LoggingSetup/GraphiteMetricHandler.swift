@@ -12,8 +12,8 @@ public final class GraphiteMetricHandler: MetricHandler {
     
     public init(
         graphiteDomain: [String],
-        graphiteSocketAddress: SocketAddress)
-        throws
+        graphiteSocketAddress: SocketAddress
+        ) throws
     {
         self.graphiteDomain = graphiteDomain
         outputStream = EasyOutputStream(

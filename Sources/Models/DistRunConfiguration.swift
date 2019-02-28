@@ -1,6 +1,7 @@
 import Foundation
 
 public struct DistRunConfiguration {
+    public let analyticsConfigurationLocation: AnalyticsConfigurationLocation?
     
     /** An identifier of distributed run of tests. UUID usually is a good choice. */
     public let runId: JobId
@@ -40,6 +41,7 @@ public struct DistRunConfiguration {
     public let checkAgainTimeInterval: TimeInterval = 30
 
     public init(
+        analyticsConfigurationLocation: AnalyticsConfigurationLocation?,
         runId: JobId,
         reportOutput: ReportOutput,
         destinations: [DeploymentDestination],
@@ -50,8 +52,10 @@ public struct DistRunConfiguration {
         auxiliaryResources: AuxiliaryResources,
         simulatorSettings: SimulatorSettings,
         testEntryConfigurations: [TestEntryConfiguration],
-        testDestinationConfigurations: [TestDestinationConfiguration])
+        testDestinationConfigurations: [TestDestinationConfiguration]
+        )
     {
+        self.analyticsConfigurationLocation = analyticsConfigurationLocation
         self.runId = runId
         self.reportOutput = reportOutput
         self.destinations = destinations

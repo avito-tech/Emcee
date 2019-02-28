@@ -5,6 +5,7 @@ import EventBus
 import Extensions
 import Foundation
 import Logging
+import LoggingSetup
 import Models
 import PortDeterminer
 import QueueClient
@@ -24,6 +25,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
     
     private let additionalApp: OptionArgument<[String]>
     private let app: OptionArgument<String>
+    private let analyticsConfigurationLocation: OptionArgument<String>
     private let workerDestinations: OptionArgument<String>
     private let fbxctest: OptionArgument<String>
     private let junit: OptionArgument<String>
@@ -46,6 +48,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         
         additionalApp = subparser.add(multipleStringArgument: KnownStringArguments.additionalApp)
         app = subparser.add(stringArgument: KnownStringArguments.app)
+        analyticsConfigurationLocation = subparser.add(stringArgument: KnownStringArguments.analyticsConfiguration)
         fbxctest = subparser.add(stringArgument: KnownStringArguments.fbxctest)
         junit = subparser.add(stringArgument: KnownStringArguments.junit)
         priority = subparser.add(intArgument: KnownUIntArguments.priority)
@@ -62,6 +65,14 @@ final class RunTestsOnRemoteQueueCommand: Command {
     }
     
     func run(with arguments: ArgumentParser.Result) throws {
+        let analyticsConfigurationLocation: AnalyticsConfigurationLocation? = AnalyticsConfigurationLocation.withOptional(
+            try ArgumentsReader.validateResourceLocationOrNil(arguments.get(self.analyticsConfigurationLocation), key: KnownStringArguments.analyticsConfiguration)
+        )
+        if let analyticsConfigurationLocation = analyticsConfigurationLocation {
+            try AnalyticsConfigurator(resourceLocationResolver: resourceLocationResolver)
+                .setup(analyticsConfigurationLocation: analyticsConfigurationLocation)
+        }
+        
         let buildArtifacts = BuildArtifacts(
             appBundle: AppBundleLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.app), key: KnownStringArguments.app)),
             runner: RunnerAppLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.runner), key: KnownStringArguments.runner)),
@@ -96,6 +107,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         let workerDestinations = try ArgumentsReader.deploymentDestinations(arguments.get(self.workerDestinations), key: KnownStringArguments.destinations)
         
         let runningQueueServerAddress = try detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
+            analyticsConfigurationLocation: analyticsConfigurationLocation,
             pluginLocations: pluginLocations,
             queueServerDestination: queueServerDestination,
             queueServerRunConfigurationLocation: queueServerRunConfigurationLocation,
@@ -123,6 +135,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
     }
     
     private func detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
+        analyticsConfigurationLocation: AnalyticsConfigurationLocation?,
         pluginLocations: [PluginLocation],
         queueServerDestination: DeploymentDestination,
         queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation,
@@ -175,6 +188,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
             deploymentDestinations: workerDestinations,
             pluginLocations: pluginLocations,
             queueAddress: queueServerAddress,
+            analyticsConfigurationLocation: analyticsConfigurationLocation,
             tempFolder: tempFolder
         )
         try remoteWorkersStarter.deployAndStartWorkers()

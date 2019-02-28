@@ -14,6 +14,8 @@ public typealias SimulatorLocalizationLocation = TypedResourceLocation<Simulator
 public typealias TestBundleLocation = TypedResourceLocation<TestBundleResourceLocationType>
 public typealias WatchdogSettingsLocation = TypedResourceLocation<WatchdogResourceLocationType>
 public typealias QueueServerRunConfigurationLocation = TypedResourceLocation<QueueServerRunConfigurationLocationType>
+public typealias AnalyticsConfigurationLocation = TypedResourceLocation<AnalyticsConfigurationLocationType>
+
 
 public final class AdditionalAppBundleResourceLocationType: ResourceLocationType {
     public static let name = "additional app bundle"
@@ -53,4 +55,8 @@ public final class WatchdogResourceLocationType: ResourceLocationType {
 
 public final class QueueServerRunConfigurationLocationType: ResourceLocationType {
     public static let name = "queue server run configuration"
+}
+
+public final class AnalyticsConfigurationLocationType: ResourceLocationType {
+    public static let name = "analytics configuration"
 }

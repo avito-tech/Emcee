@@ -26,30 +26,23 @@ public final class DSN: Equatable, CustomStringConvertible {
         return "<DSN: \(publicKey):\(secretKey) \(projectId)>"
     }
     
-    public static func takeFromEnv(envName: String) throws -> DSN {
-        guard let sentryDsnEnv = ProcessInfo.processInfo.environment[envName] else {
-            throw DSNError.envIsNotSet(envName)
+    public static func create(dsnUrl: URL) throws -> DSN {
+        guard let projectId = DSN.projectId(from: dsnUrl) else {
+            throw DSNError.incorrectValue(dsnUrl.absoluteString)
         }
-        return try create(dsnString: sentryDsnEnv)
-    }
-    
-    public static func create(dsnString: String) throws -> DSN {
-        guard let url = URL(string: dsnString), let projectId = DSN.projectId(from: url) else {
-            throw DSNError.incorrectValue(dsnString)
-        }
-        guard let publicKey = url.user else {
+        guard let publicKey = dsnUrl.user else {
             throw DSNError.missingPublicKey
         }
-        guard let privateKey = url.password else {
+        guard let privateKey = dsnUrl.password else {
             throw DSNError.missingPrivateKey
         }
         var components = URLComponents()
-        components.scheme = url.scheme
-        components.host = url.host
-        components.port = url.port
+        components.scheme = dsnUrl.scheme
+        components.host = dsnUrl.host
+        components.port = dsnUrl.port
         components.path = "/api/\(projectId)/store/"
         guard let storeUrl = components.url else {
-            throw DSNError.unableToConstructStoreUrl(dsnString)
+            throw DSNError.unableToConstructStoreUrl(dsnUrl.absoluteString)
         }
         
         return DSN(
@@ -58,6 +51,13 @@ public final class DSN: Equatable, CustomStringConvertible {
             secretKey: privateKey,
             projectId: projectId
         )
+    }
+    
+    public static func create(dsnString: String) throws -> DSN {
+        guard let url = URL(string: dsnString) else {
+            throw DSNError.incorrectValue(dsnString)
+        }
+        return try create(dsnUrl: url)
     }
     
     public static func == (left: DSN, right: DSN) -> Bool {
