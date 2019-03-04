@@ -77,7 +77,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         
         stage = .creatingSimulator
         Logger.verboseDebug("Creating simulator: \(simulator)")
-        let simulatorSetPath = simulator.fbxctestContainerPath.asString
+        let simulatorSetPath = simulator.simulatorSetContainerPath.asString
         try FileManager.default.createDirectory(atPath: simulatorSetPath, withIntermediateDirectories: true)
         let controller = try ProcessController(
             subprocess: Subprocess(
@@ -85,7 +85,9 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
                     fbsimctl.asArgumentWith(packageName: PackageName.fbsimctl),
                     "--json", "--set", simulatorSetPath,
                     "create", "iOS \(simulator.testDestination.runtime)", simulator.testDestination.deviceType],
-                maximumAllowedSilenceDuration: 30))
+                maximumAllowedSilenceDuration: 30
+            )
+        )
         controller.delegate = self
         controller.startAndListenUntilProcessDies()
         
@@ -93,8 +95,11 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         guard controller.terminationStatus() == 0 else {
             throw SimulatorBootError.createOperationFailed("fbsimctl exit code \(String(describing: controller.terminationStatus()))")
         }
+        guard let simulatorUuid = simulator.uuid else {
+            throw SimulatorBootError.createOperationFailed("Unable to locate simulator UUID")
+        }
         stage = .createdSimulator
-        Logger.debug("Created simulator")
+        Logger.debug("Created simulator with UUID: \(simulatorUuid.uuidString)")
     }
 
     private func bootSimulator() throws {
@@ -102,7 +107,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
             throw SimulatorBootError.bootingAlreadyStarted
         }
         
-        let containerContents = try FileManager.default.contentsOfDirectory(atPath: simulator.fbxctestContainerPath.asString)
+        let containerContents = try FileManager.default.contentsOfDirectory(atPath: simulator.simulatorSetContainerPath.asString)
         let simulatorUuids = containerContents.filter { UUID(uuidString: $0) != nil }
         guard simulatorUuids.count > 0, let simulatorUuid = simulatorUuids.first else {
             throw SimulatorBootError.unableToLocateSimulatorUuid
@@ -116,7 +121,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
             subprocess: Subprocess(
                 arguments: [
                     fbsimctl.asArgumentWith(packageName: PackageName.fbsimctl),
-                    "--json", "--set", simulator.fbxctestContainerPath.asString,
+                    "--json", "--set", simulator.simulatorSetContainerPath.asString,
                     simulatorUuid, "boot",
                     "--locale", "ru_US",
                     "--direct-launch", "--", "listen"]))
@@ -169,7 +174,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
             subprocess: Subprocess(
                 arguments: [
                     fbsimctl.asArgumentWith(packageName: PackageName.fbsimctl),
-                    "--json", "--set", simulator.fbxctestContainerPath.asString,
+                    "--json", "--set", simulator.simulatorSetContainerPath.asString,
                     "--simulators", "delete"],
                 maximumAllowedSilenceDuration: 90))
         controller.delegate = self

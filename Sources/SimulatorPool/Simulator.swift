@@ -3,6 +3,8 @@ import Foundation
 import Extensions
 import Models
 
+/// Represents a single simulator wrapped into a folder which contains a simulator set with it.
+/// Simulator set is a private to simctl structure that desribes a set of simulators.
 public class Simulator: Hashable, CustomStringConvertible {
     public let index: UInt
     public let testDestination: TestDestination
@@ -16,8 +18,16 @@ public class Simulator: Hashable, CustomStringConvertible {
         return "Simulator \(index): \(testDestination.deviceType) \(testDestination.runtime) at: \(workingDirectory)"
     }
     
-    var fbxctestContainerPath: AbsolutePath {
+    /// A path to simctl's simulator set structure. If created, simulator will be placed inside this folder.
+    public var simulatorSetContainerPath: AbsolutePath {
         return workingDirectory.appending(component: "sim")
+    }
+    
+    /// Simulator's UUID/UDID if it has been created. Will return nil if it hasn't been created yet.
+    /// Currently there is an assumption that simulator set contains only a single simulator.
+    public var uuid: UUID? {
+        let contents = (try? FileManager.default.contentsOfDirectory(atPath: simulatorSetContainerPath.asString)) ?? []
+        return contents.compactMap({ UUID(uuidString: $0) }).first
     }
  
     init(index: UInt, testDestination: TestDestination, workingDirectory: AbsolutePath) {
@@ -26,13 +36,15 @@ public class Simulator: Hashable, CustomStringConvertible {
         self.workingDirectory = workingDirectory
     }
     
-    public static func == (l: Simulator, r: Simulator) -> Bool {
-        return l.index == r.index &&
-            l.workingDirectory == r.workingDirectory &&
-            l.testDestination == r.testDestination
+    public static func == (left: Simulator, right: Simulator) -> Bool {
+        return left.index == right.index
+            && left.workingDirectory == right.workingDirectory
+            && left.testDestination == right.testDestination
     }
     
-    public var hashValue: Int {
-        return index.hashValue ^ testDestination.hashValue ^ workingDirectory.hashValue
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(index)
+        hasher.combine(testDestination)
+        hasher.combine(workingDirectory)
     }
 }
