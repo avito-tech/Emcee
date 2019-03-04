@@ -3,7 +3,6 @@ import Foundation
 import Models
 import ResourceLocationResolver
 
-/** LocalTestRunConfiguration object required by Runner in order to run tests. */
 public struct RunnerConfiguration {
     public let testType: TestType
     public let fbxctest: FbxctestLocation
@@ -19,7 +18,8 @@ public struct RunnerConfiguration {
         buildArtifacts: BuildArtifacts,
         environment: [String: String],
         simulatorSettings: SimulatorSettings,
-        testTimeoutConfiguration: TestTimeoutConfiguration)
+        testTimeoutConfiguration: TestTimeoutConfiguration
+        )
     {
         var environment = environment
         environment["FBCONTROLCORE_FAST_TIMEOUT"] = testTimeoutConfiguration.fbxtestFastTimeout.flatMap { "\($0)" }

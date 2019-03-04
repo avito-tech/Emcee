@@ -583,8 +583,10 @@ let package = Package(
                 "Logging",
                 "LoggingSetup",
                 "Models",
+                "SimulatorVideoRecorder",
                 "Starscream",
                 "SynchronousWaiter",
+                "TestsWorkingDirectorySupport",
                 "Utility"
             ]
         ),
@@ -822,7 +824,8 @@ let package = Package(
                 "Logging",
                 "Models",
                 "SimulatorPool",
-                "TempFolder"
+                "TempFolder",
+                "TestsWorkingDirectorySupport"
             ]
         ),
         .testTarget(
@@ -953,6 +956,14 @@ let package = Package(
             ]
         ),
         .target(
+            // MARK: SimulatorVideoRecorder
+            name: "SimulatorVideoRecorder",
+            dependencies: [
+                "Models",
+                "ProcessController"
+            ]
+        ),
+        .target(
             // MARK: SSHDeployer
             name: "SSHDeployer",
             dependencies: [
@@ -1014,6 +1025,13 @@ let package = Package(
                 "Logging",
                 "LoggingSetup",
                 "Plugin"
+            ]
+        ),
+        .target(
+            // MARK: TestsWorkingDirectorySupport
+            name: "TestsWorkingDirectorySupport",
+            dependencies: [
+                "Models"
             ]
         ),
         .target(

@@ -10,7 +10,8 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
         testEntry: TestEntry,
         buildArtifacts: BuildArtifacts,
         testDestination: TestDestination,
-        testExecutionBehavior: TestExecutionBehavior)
+        testExecutionBehavior: TestExecutionBehavior
+        )
     {
         self.testEntry = testEntry
         self.buildArtifacts = buildArtifacts
@@ -26,8 +27,8 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
         testEntries: [TestEntry],
         buildArtifacts: BuildArtifacts,
         testDestinations: [TestDestination],
-        testExecutionBehavior: TestExecutionBehavior)
-        -> [TestEntryConfiguration]
+        testExecutionBehavior: TestExecutionBehavior
+        ) -> [TestEntryConfiguration]
     {
         return testDestinations.flatMap { (testDestination: TestDestination) -> [TestEntryConfiguration] in
             testEntries.map { (testEntry: TestEntry) -> TestEntryConfiguration in

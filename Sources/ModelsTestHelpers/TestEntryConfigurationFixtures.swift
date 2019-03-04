@@ -9,27 +9,27 @@ public final class TestEntryConfigurationFixtures {
     
     public init() {}
     
-    public func add(testEntry: TestEntry) -> TestEntryConfigurationFixtures {
+    public func add(testEntry: TestEntry) -> Self {
         testEntries.append(testEntry)
         return self
     }
     
-    public func add(testEntries: [TestEntry]) -> TestEntryConfigurationFixtures {
+    public func add(testEntries: [TestEntry]) -> Self {
         self.testEntries.append(contentsOf: testEntries)
         return self
     }
     
-    public func with(testDestination: TestDestination) -> TestEntryConfigurationFixtures {
+    public func with(testDestination: TestDestination) -> Self {
         self.testDestination = testDestination
         return self
     }
     
-    public func with(testExecutionBehavior: TestExecutionBehavior) -> TestEntryConfigurationFixtures {
+    public func with(testExecutionBehavior: TestExecutionBehavior) -> Self {
         self.testExecutionBehavior = testExecutionBehavior
         return self
     }
     
-    public func with(buildArtifacts: BuildArtifacts) -> TestEntryConfigurationFixtures {
+    public func with(buildArtifacts: BuildArtifacts) -> Self {
         self.buildArtifacts = buildArtifacts
         return self
     }

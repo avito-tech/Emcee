@@ -191,7 +191,10 @@ public final class Scheduler {
             throw error
         }
 
-        let runnerResult = try runner.run(entries: testsToRun, onSimulator: simulator)
+        let runnerResult = try runner.run(
+            entries: testsToRun,
+            simulator: simulator
+        )
         return TestingResult(
             bucketId: bucket.bucketId,
             testDestination: bucket.testDestination,

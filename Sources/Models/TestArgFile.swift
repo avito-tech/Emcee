@@ -12,7 +12,8 @@ public struct TestArgFile: Decodable {
             testToRun: TestToRun,
             environment: [String: String],
             numberOfRetries: UInt,
-            testDestination: TestDestination)
+            testDestination: TestDestination
+            )
         {
             self.testToRun = testToRun
             self.environment = environment

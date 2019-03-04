@@ -18,6 +18,13 @@ public class Simulator: Hashable, CustomStringConvertible {
         return "Simulator \(index): \(testDestination.deviceType) \(testDestination.runtime) at: \(workingDirectory)"
     }
     
+    public var simulatorInfo: SimulatorInfo {
+        return SimulatorInfo(
+            simulatorUuid: uuid,
+            simulatorSetPath: simulatorSetContainerPath.asString
+        )
+    }
+    
     /// A path to simctl's simulator set structure. If created, simulator will be placed inside this folder.
     public var simulatorSetContainerPath: AbsolutePath {
         return workingDirectory.appending(component: "sim")

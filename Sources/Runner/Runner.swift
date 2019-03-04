@@ -1,13 +1,15 @@
 import EventBus
 import Foundation
-import SimulatorPool
-import Models
-import fbxctest
 import LocalHostDeterminer
 import Logging
+import Metrics
+import Models
 import ProcessController
-import TempFolder
 import ResourceLocationResolver
+import SimulatorPool
+import TempFolder
+import TestsWorkingDirectorySupport
+import fbxctest
 
 /// This class runs the given tests on a single simulator.
 public final class Runner {
@@ -29,7 +31,11 @@ public final class Runner {
     }
     
     /** Runs the given tests, attempting to restart the runner in case of crash. */
-    public func run(entries: [TestEntry], onSimulator simulator: Simulator) throws -> [TestEntryResult] {
+    public func run(
+        entries: [TestEntry],
+        simulator: Simulator
+        ) throws -> [TestEntryResult]
+    {
         if entries.isEmpty { return [] }
         
         let runResult = RunResult()
@@ -49,7 +55,10 @@ public final class Runner {
             let entriesToRun = missingEntriesForScheduledEntries(
                 expectedEntriesToRun: entries,
                 collectedResults: runResult)
-            let runResults = try runOnce(entriesToRun: entriesToRun, onSimulator: simulator)
+            let runResults = try runOnce(
+                entriesToRun: entriesToRun,
+                simulator: simulator
+            )
             runResult.append(testEntryResults: runResults)
             
             if runResults.filter({ !$0.isLost }).isEmpty {
@@ -66,7 +75,11 @@ public final class Runner {
     }
     
     /** Runs the given tests once without any attempts to restart the failed/crashed tests. */
-    public func runOnce(entriesToRun: [TestEntry], onSimulator simulator: Simulator) throws -> [TestEntryResult] {
+    public func runOnce(
+        entriesToRun: [TestEntry],
+        simulator: Simulator
+        ) throws -> [TestEntryResult]
+    {
         if entriesToRun.isEmpty {
             Logger.info("Nothing to run!")
             return []
@@ -85,7 +98,9 @@ public final class Runner {
                 maximumAllowedSilenceDuration: configuration.maximumAllowedSilenceDuration ?? 0
             ),
             simulatorId: simulator.identifier,
-            singleTestMaximumDuration: configuration.singleTestMaximumDuration
+            singleTestMaximumDuration: configuration.singleTestMaximumDuration,
+            onTestStarted: { [weak self] event in self?.testStarted(event: event, testContext: testContext) },
+            onTestStopped: { [weak self] pair in self?.testStopped(eventPair: pair, testContext: testContext) }
         )
         fbxctestOutputProcessor.processOutputAndWaitForProcessTermination()
         
@@ -160,11 +175,15 @@ public final class Runner {
         var environment = configuration.environment
         do {
             let testsWorkingDirectory = try tempFolder.pathByCreatingDirectories(components: ["testsWorkingDir", UUID().uuidString])
-            environment[RunnerConstants.envTestsWorkingDirectory.rawValue] = testsWorkingDirectory.asString
+            environment[TestsWorkingDirectorySupport.envTestsWorkingDirectory] = testsWorkingDirectory.asString
         } catch {
             Logger.error("Unable to create path tests working directory: \(error)")
         }
-        return TestContext(environment: environment, testDestination: simulator.testDestination)
+        return TestContext(
+            environment: environment,
+            simulatorInfo: simulator.simulatorInfo,
+            testDestination: simulator.testDestination
+        )
     }
     
     private func prepareResults(
@@ -203,13 +222,12 @@ public final class Runner {
     private func testEntryResultForFinishedTest(
         testEntry: TestEntry,
         startEvent: TestStartedEvent,
-        finishEvent: TestFinishedEvent)
-        -> TestEntryResult
+        finishEvent: TestFinishedEvent
+        ) -> TestEntryResult
     {
         return .withResult(
             testEntry: testEntry,
-            testRunResult:
-            TestRunResult(
+            testRunResult: TestRunResult(
                 succeeded: finishEvent.succeeded,
                 exceptions: finishEvent.exceptions.map { TestException(reason: $0.reason, filePathInProject: $0.filePathInProject, lineNumber: $0.lineNumber) },
                 duration: finishEvent.totalDuration,
@@ -267,8 +285,54 @@ public final class Runner {
                 finishTime: timestamp,
                 hostName: LocalHostDeterminer.currentHostAddress,
                 processId: 0,
-                simulatorId: "no_simulator"))
+                simulatorId: "no_simulator"
+            )
+        )
     }
+    
+    private func testStarted(event: (TestStartedEvent), testContext: TestContext) {
+        let testEntry = TestEntry(className: event.className, methodName: event.methodName, caseId: nil)
+        eventBus.post(
+            event: .runnerEvent(.testStarted(testEntry: testEntry, testContext: testContext))
+        )
+        
+        MetricRecorder.capture(
+            TestStartedMetric(
+                host: event.hostName ?? "unknown_host",
+                testClassName: event.className,
+                testMethodName: event.methodName
+            )
+        )
+    }
+    
+    private func testStopped(eventPair: TestEventPair, testContext: TestContext) {
+        let event = eventPair.startEvent
+        let succeeded = eventPair.finishEvent?.succeeded ?? false
+        let testEntry = TestEntry(className: event.className, methodName: event.methodName, caseId: nil)
+        eventBus.post(
+            event: .runnerEvent(.testFinished(testEntry: testEntry, succeeded: succeeded, testContext: testContext))
+        )
+        
+        let testResult = eventPair.finishEvent?.result ?? "unknown_result"
+        let testDuration = eventPair.finishEvent?.totalDuration ?? 0
+        MetricRecorder.capture(
+            TestFinishedMetric(
+                result: testResult,
+                host: eventPair.startEvent.hostName ?? "unknown_host",
+                testClassName: eventPair.startEvent.className,
+                testMethodName: eventPair.startEvent.methodName,
+                testsFinishedCount: 1
+            ),
+            TestDurationMetric(
+                result: testResult,
+                host: eventPair.startEvent.hostName ?? "unknown_host",
+                testClassName: eventPair.startEvent.className,
+                testMethodName: eventPair.startEvent.methodName,
+                duration: testDuration
+            )
+        )
+    }
+    
 }
 
 private extension TestType {

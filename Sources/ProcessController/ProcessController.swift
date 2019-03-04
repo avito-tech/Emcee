@@ -119,6 +119,7 @@ public final class ProcessController: CustomStringConvertible {
             self.didInitiateKillOfProcess = true
             Logger.debug("Interrupting the process", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
             process.interrupt()
+            process.terminate()
             processTerminationQueue.asyncAfter(deadline: .now() + 15.0) {
                 self.forceKillProcess()
             }
@@ -128,7 +129,7 @@ public final class ProcessController: CustomStringConvertible {
     private func forceKillProcess() {
         if isProcessRunning {
             Logger.warning("Failed to interrupt the process in time, terminating", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
-            process.terminate()
+            kill(-processId, SIGKILL)
         }
     }
     

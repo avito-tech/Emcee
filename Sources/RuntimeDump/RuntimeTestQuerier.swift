@@ -73,7 +73,7 @@ public final class RuntimeTestQuerier {
         )
         _ = try runner.runOnce(
             entriesToRun: [testQueryEntry],
-            onSimulator: Shimulator.shimulator(
+            simulator: Shimulator.shimulator(
                 testDestination: configuration.testDestination,
                 workingDirectory: try tempFolder.pathByCreatingDirectories(components: ["shimulator"])
             )

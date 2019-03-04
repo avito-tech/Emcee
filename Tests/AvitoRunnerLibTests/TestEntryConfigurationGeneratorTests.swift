@@ -38,8 +38,18 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
             validatedEnteries: validatedEnteries,
             explicitTestsToRun: [testIdToRun, testNameToRun],
             testArgEntries: [
-                TestArgFile.Entry(testToRun: argFileTestToRun1, environment: [:], numberOfRetries: 10, testDestination: argFileDestination1),
-                TestArgFile.Entry(testToRun: argFileTestToRun2, environment: [:], numberOfRetries: 20, testDestination: argFileDestination2),
+                TestArgFile.Entry(
+                    testToRun: argFileTestToRun1,
+                    environment: [:],
+                    numberOfRetries: 10,
+                    testDestination: argFileDestination1
+                ),
+                TestArgFile.Entry(
+                    testToRun: argFileTestToRun2,
+                    environment: [:],
+                    numberOfRetries: 20,
+                    testDestination: argFileDestination2
+                ),
             ],
             commonTestExecutionBehavior: testExecutionBehavior,
             commonTestDestinations: [testDestination],

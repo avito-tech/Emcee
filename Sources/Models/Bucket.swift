@@ -16,7 +16,8 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testExecutionBehavior: TestExecutionBehavior,
-        toolResources: ToolResources)
+        toolResources: ToolResources
+        )
     {
         self.testEntries = testEntries
         self.buildArtifacts = buildArtifacts

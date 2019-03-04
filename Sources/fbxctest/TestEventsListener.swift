@@ -1,23 +1,27 @@
 import Dispatch
 import Foundation
 import Logging
-import Metrics
 
 final class TestEventsListener {    
     private let pairsController = TestEventPairsController()
+    
+    private let onTestStarted: ((TestStartedEvent) -> ())
+    private let onTestStopped: ((TestEventPair) -> ())
+
+    public init(
+        onTestStarted: @escaping ((TestStartedEvent) -> ()),
+        onTestStopped: @escaping ((TestEventPair) -> ())
+        )
+    {
+        self.onTestStarted = onTestStarted
+        self.onTestStopped = onTestStopped
+    }
     
     func testStarted(_ event: TestStartedEvent) {
         pairsController.append(
             TestEventPair(startEvent: event, finishEvent: nil)
         )
-        
-        MetricRecorder.capture(
-            TestStartedMetric(
-                host: event.hostName ?? "unknown_host",
-                testClassName: event.className,
-                testMethodName: event.methodName
-            )
-        )
+        onTestStarted(event)
     }
     
     func testFinished(_ event: TestFinishedEvent) {
@@ -31,26 +35,9 @@ final class TestEventsListener {
             Logger.warning("The result for test \(event.testName) (\(event.result) will be lost.")
             return
         }
-        pairsController.append(
-            TestEventPair(startEvent: pair.startEvent, finishEvent: event)
-        )
-        
-        MetricRecorder.capture(
-            TestFinishedMetric(
-                result: event.result,
-                host: pair.startEvent.hostName ?? "unknown_host",
-                testClassName: pair.startEvent.className,
-                testMethodName: pair.startEvent.methodName,
-                testsFinishedCount: 1
-            ),
-            TestDurationMetric(
-                result: event.result,
-                host: pair.startEvent.hostName ?? "unknown_host",
-                testClassName: pair.startEvent.className,
-                testMethodName: pair.startEvent.methodName,
-                duration: event.totalDuration
-            )
-        )
+        let newPair = TestEventPair(startEvent: pair.startEvent, finishEvent: event)
+        pairsController.append(newPair)
+        onTestStopped(newPair)
     }
     
     func testPlanFinished(_ event: TestPlanFinishedEvent) {
