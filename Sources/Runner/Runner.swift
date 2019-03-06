@@ -290,17 +290,16 @@ public final class Runner {
         )
     }
     
-    private func testStarted(event: (TestStartedEvent), testContext: TestContext) {
-        let testEntry = TestEntry(className: event.className, methodName: event.methodName, caseId: nil)
+    private func testStarted(event: TestStartedEvent, testContext: TestContext) {
         eventBus.post(
-            event: .runnerEvent(.testStarted(testEntry: testEntry, testContext: testContext))
+            event: .runnerEvent(.testStarted(testEntry: event.testEntry, testContext: testContext))
         )
         
         MetricRecorder.capture(
             TestStartedMetric(
                 host: event.hostName ?? "unknown_host",
-                testClassName: event.className,
-                testMethodName: event.methodName
+                testClassName: event.testEntry.className,
+                testMethodName: event.testEntry.methodName
             )
         )
     }
@@ -308,9 +307,8 @@ public final class Runner {
     private func testStopped(eventPair: TestEventPair, testContext: TestContext) {
         let event = eventPair.startEvent
         let succeeded = eventPair.finishEvent?.succeeded ?? false
-        let testEntry = TestEntry(className: event.className, methodName: event.methodName, caseId: nil)
         eventBus.post(
-            event: .runnerEvent(.testFinished(testEntry: testEntry, succeeded: succeeded, testContext: testContext))
+            event: .runnerEvent(.testFinished(testEntry: event.testEntry, succeeded: succeeded, testContext: testContext))
         )
         
         let testResult = eventPair.finishEvent?.result ?? "unknown_result"
@@ -319,15 +317,15 @@ public final class Runner {
             TestFinishedMetric(
                 result: testResult,
                 host: eventPair.startEvent.hostName ?? "unknown_host",
-                testClassName: eventPair.startEvent.className,
-                testMethodName: eventPair.startEvent.methodName,
+                testClassName: event.testEntry.className,
+                testMethodName: event.testEntry.methodName,
                 testsFinishedCount: 1
             ),
             TestDurationMetric(
                 result: testResult,
                 host: eventPair.startEvent.hostName ?? "unknown_host",
-                testClassName: eventPair.startEvent.className,
-                testMethodName: eventPair.startEvent.methodName,
+                testClassName: event.testEntry.className,
+                testMethodName: event.testEntry.methodName,
                 duration: testDuration
             )
         )
