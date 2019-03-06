@@ -357,6 +357,7 @@ let package = Package(
                 "LocalHostDeterminer",
                 "Logging",
                 "Metrics",
+                "Models",
                 "ProcessController",
                 "Timer",
                 "Utility"

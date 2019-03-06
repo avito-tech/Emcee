@@ -1,9 +1,11 @@
-import Foundation
 import Ansi
+import Foundation
+import Models
 
 public protocol CommonTestFields {
     var className: String { get }
     var methodName: String { get }
+    var testEntry: TestEntry { get }
 }
 
 public protocol WithTestName {
@@ -18,11 +20,24 @@ fileprivate class FbXcTestEventClassNameParser {
         return testNameFromClassName(fields.className, fields.methodName)
     }
     
-    private static func testNameFromClassName(_ className: String, _ methodName: String) -> String {
-        let components = className.components(separatedBy: ".")
-        guard components.count == 2 else { return "\(className)/\(methodName)" }
+    static func testEntry(_ fields: CommonTestFields) -> TestEntry {
+        return TestEntry(
+            className: FbXcTestEventClassNameParser.modulelessClassName(moduledClassName: fields.className),
+            methodName: fields.methodName,
+            caseId: nil
+        )
+    }
+    
+    /// SomeModule.TestClass -> TestClass
+    static func modulelessClassName(moduledClassName: String) -> String {
+        let components = moduledClassName.components(separatedBy: ".")
+        guard components.count == 2 else { return moduledClassName }
         // first component contains a target name, second - class name
-        return "\(components[1])/\(methodName)"
+        return components[1]
+    }
+    
+    private static func testNameFromClassName(_ className: String, _ methodName: String) -> String {
+        return "\(modulelessClassName(moduledClassName: className))/\(methodName)"
     }
 }
 
@@ -123,7 +138,9 @@ public final class TestStartedEvent: CustomStringConvertible, CommonTestFields, 
         timestamp: TimeInterval,
         hostName: String? = nil,
         processId: Int32? = nil,
-        simulatorId: String? = nil) {
+        simulatorId: String? = nil
+        )
+    {
         self.test = test
         self.className = className
         self.methodName = methodName
@@ -167,7 +184,11 @@ public final class TestStartedEvent: CustomStringConvertible, CommonTestFields, 
     }
     
     public var testName: String {
-        return FbXcTestEventClassNameParser.testNameFromCommonTestFields(self)
+        return testEntry.testName
+    }
+    
+    public var testEntry: TestEntry {
+        return FbXcTestEventClassNameParser.testEntry(self)
     }
     
     public var description: String {
@@ -213,7 +234,11 @@ public final class TestFinishedEvent: CustomStringConvertible, CommonTestFields,
     }
     
     public var testName: String {
-        return FbXcTestEventClassNameParser.testNameFromCommonTestFields(self)
+        return testEntry.testName
+    }
+    
+    public var testEntry: TestEntry {
+        return FbXcTestEventClassNameParser.testEntry(self)
     }
     
     public var description: String {
