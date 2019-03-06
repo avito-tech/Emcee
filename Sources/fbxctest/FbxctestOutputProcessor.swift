@@ -8,7 +8,7 @@ import Timer
 public final class FbxctestOutputProcessor: ProcessControllerDelegate {
     private let processController: ProcessController
     private let simulatorId: String
-    private let eventsListener: TestEventsListener
+    private let eventsListener: FbXcTestEventsListener
     private let singleTestMaximumDuration: TimeInterval
     private var testHangTrackingTimer: DispatchBasedTimer?
     private let newLineByte = UInt8(10)
@@ -18,14 +18,14 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
         subprocess: Subprocess,
         simulatorId: String,
         singleTestMaximumDuration: TimeInterval,
-        onTestStarted: @escaping ((TestStartedEvent) -> ()),
-        onTestStopped: @escaping ((TestEventPair) -> ())
+        onTestStarted: @escaping ((FbXcTestStartedEvent) -> ()),
+        onTestStopped: @escaping ((FbXcTestEventPair) -> ())
         )
         throws
     {
         self.simulatorId = simulatorId
         self.singleTestMaximumDuration = singleTestMaximumDuration
-        self.eventsListener = TestEventsListener(onTestStarted: onTestStarted, onTestStopped: onTestStopped)
+        self.eventsListener = FbXcTestEventsListener(onTestStarted: onTestStarted, onTestStopped: onTestStopped)
         self.processController = try ProcessController(subprocess: subprocess)
         self.processController.delegate = self
     }
@@ -35,7 +35,7 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
         processController.startAndListenUntilProcessDies()
     }
     
-    public var testEventPairs: [TestEventPair] {
+    public var testEventPairs: [FbXcTestEventPair] {
         return eventsListener.allEventPairs
     }
     
@@ -109,81 +109,50 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
         }
         
         switch fbxctestEvent.event {
-        case .testSuiteStarted:
-            if (try? decoder.decode(TestSuiteStartedEvent.self, from: data)) != nil {
-                return true
-            }
         case .testStarted:
-            if let result = try? decoder.decode(TestStartedEvent.self, from: data)
+            if let result = try? decoder.decode(FbXcTestStartedEvent.self, from: data)
                 .witHostName(newHostName: LocalHostDeterminer.currentHostAddress)
                 .withProcessId(newProcessId: processId)
-                .withSimulatorId(newSimulatorId: simulatorId) {
+                .withSimulatorId(newSimulatorId: simulatorId)
+            {
                 eventsListener.testStarted(result)
-                log_fbxctest(result.description, processId)
                 return true
             }
         case .testFinished:
-            if let result = try? decoder.decode(TestFinishedEvent.self, from: data) {
+            if let result = try? decoder.decode(FbXcTestFinishedEvent.self, from: data) {
                 eventsListener.testFinished(result)
-                log_fbxctest(result.description, processId)
-                return true
-            }
-        case .testSuiteFinished:
-            if (try? decoder.decode(TestSuiteFinishedEvent.self, from: data)) != nil {
-                return true
-            }
-        case .testPlanStarted:
-            if let result = try? decoder.decode(TestPlanStartedEvent.self, from: data) {
-                log_fbxctest(result.description, processId)
                 return true
             }
         case .testPlanFinished:
-            if let result = try? decoder.decode(TestPlanFinishedEvent.self, from: data) {
+            if let result = try? decoder.decode(FbXcTestPlanFinishedEvent.self, from: data) {
                 eventsListener.testPlanFinished(result)
-                log_fbxctest(result.description, processId)
                 return true
             }
         case .testPlanError:
-            if let result = try? decoder.decode(TestPlanErrorEvent.self, from: data) {
+            if let result = try? decoder.decode(FbXcTestPlanErrorEvent.self, from: data) {
                 eventsListener.testPlanError(result)
-                log_fbxctest(result.description, processId)
-                return true
-            }
-        case .testOutput:
-            if let result = try? decoder.decode(TestOutputEvent.self, from: data) {
-                log_fbxctest(result.description, processId)
-                return true
-            }
-        case .testIsWaitingForDebugger:
-            if let result = try? decoder.decode(TestIsWaitingForDebuggerEvent.self, from: data) {
-                log_fbxctest(result.description, processId)
-                return true
-            }
-        case .testDetectedDebugger:
-            if let result = try? decoder.decode(TestDetectedDebuggerEvent.self, from: data) {
-                log_fbxctest(result.description, processId)
-                return true
-            }
-        case .videoRecordingFinished:
-            if let result = try? decoder.decode(VideoRecordingFinishedEvent.self, from: data) {
-                log_fbxctest(result.description, processId)
-                return true
-            }
-        case .osLogSaved:
-            if let result = try? decoder.decode(OSLogSavedEvent.self, from: data) {
-                log_fbxctest(result.description, processId)
-                return true
-            }
-        case .runnerAppLogSaved:
-            if let result = try? decoder.decode(RunnerAppLogSavedEvent.self, from: data) {
-                log_fbxctest(result.description, processId)
                 return true
             }
         case .didCopyTestArtifact:
-            if let result = try? decoder.decode(DidCopyTestArtifactEvent.self, from: data) {
-                log_fbxctest(result.description, processId)
-                return true
-            }
+            return true
+        case .osLogSaved:
+            return true
+        case .runnerAppLogSaved:
+            return true
+        case .testDetectedDebugger:
+            return true
+        case .testIsWaitingForDebugger:
+            return true
+        case .testOutput:
+            return true
+        case .testPlanStarted:
+            return true
+        case .testSuiteFinished:
+            return true
+        case .testSuiteStarted:
+            return true
+        case .videoRecordingFinished:
+            return true
         }
         
         if let event = String(data: data, encoding: .utf8) {
@@ -218,7 +187,7 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
     private func processStdErrEventContents(_ contents: String, processId: Int32) {
         let decoder = JSONDecoder()
         guard let possibleJSONData = contents.data(using: .utf8),
-            let genericError = try? decoder.decode(GenericErrorEvent.self, from: possibleJSONData) else {
+            let genericError = try? decoder.decode(FbXcGenericErrorEvent.self, from: possibleJSONData) else {
                 return
         }
         
@@ -248,7 +217,7 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
     }
 }
 
-public func log_fbxctest(_ text: String, _ fbxctestProcessId: Int32) {
+private func log_fbxctest(_ text: String, _ fbxctestProcessId: Int32) {
     Logger.verboseDebug(
         text,
         subprocessInfo: SubprocessInfo(

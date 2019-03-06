@@ -12,7 +12,7 @@ import XCTest
 final class BucketResultRegistrarTests: XCTestCase {
     let eventBus = EventBus()
     let testingResult = TestingResultFixtures()
-        .with(testEntry: TestEntry(className: "class", methodName: "method", caseId: nil))
+        .with(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "method"))
         .addingLostResult()
         .testingResult()
 

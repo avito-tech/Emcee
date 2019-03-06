@@ -8,10 +8,10 @@ import XCTest
 final class EquallyDividedBucketSplitterTests: XCTestCase {
     let equallyDividedSplitter = EquallyDividedBucketSplitter()
     let testEntries = [
-        TestEntry(className: "class", methodName: "testMethod1", caseId: nil),
-        TestEntry(className: "class", methodName: "testMethod2", caseId: nil),
-        TestEntry(className: "class", methodName: "testMethod3", caseId: nil),
-        TestEntry(className: "class", methodName: "testMethod4", caseId: nil)
+        TestEntryFixtures.testEntry(className: "class", methodName: "testMethod1"),
+        TestEntryFixtures.testEntry(className: "class", methodName: "testMethod2"),
+        TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3"),
+        TestEntryFixtures.testEntry(className: "class", methodName: "testMethod4")
     ]
     lazy var testEntryConfigurations = TestEntryConfigurationFixtures().add(testEntries: testEntries).testEntryConfigurations()
     

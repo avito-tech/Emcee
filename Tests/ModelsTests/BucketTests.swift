@@ -11,8 +11,8 @@ final class BucketTests: XCTestCase {
     func testBucketHasDetermenisticId() throws {
         let bucket1 = Bucket(
             testEntries: [
-                TestEntry(className: "class", methodName: "testMethod", caseId: nil),
-                TestEntry(className: "class", methodName: "testAnotherMethod", caseId: nil)
+                TestEntryFixtures.testEntry(className: "class", methodName: "testMethod"),
+                TestEntryFixtures.testEntry(className: "class", methodName: "testAnotherMethod")
             ],
             buildArtifacts: fakeBuildArtifacts,
             simulatorSettings: fakeSimulatorSettings,
@@ -23,8 +23,8 @@ final class BucketTests: XCTestCase {
         
         let bucket2 = Bucket(
             testEntries: [
-                TestEntry(className: "class", methodName: "testAnotherMethod", caseId: nil),
-                TestEntry(className: "class", methodName: "testMethod", caseId: nil)
+                TestEntryFixtures.testEntry(className: "class", methodName: "testAnotherMethod"),
+                TestEntryFixtures.testEntry(className: "class", methodName: "testMethod")
             ],
             buildArtifacts: fakeBuildArtifacts,
             simulatorSettings: fakeSimulatorSettings,
@@ -39,8 +39,8 @@ final class BucketTests: XCTestCase {
     func testBucketsHaveDifferentIdsForDifferentTestEntries() throws {
         let bucket1 = Bucket(
             testEntries: [
-                TestEntry(className: "-----", methodName: "testMethod", caseId: nil),
-                TestEntry(className: "class", methodName: "testAnotherMethod", caseId: nil)
+                TestEntryFixtures.testEntry(className: "-----", methodName: "testMethod"),
+                TestEntryFixtures.testEntry(className: "class", methodName: "testAnotherMethod")
             ],
             buildArtifacts: fakeBuildArtifacts,
             simulatorSettings: fakeSimulatorSettings,
@@ -51,8 +51,8 @@ final class BucketTests: XCTestCase {
         
         let bucket2 = Bucket(
             testEntries: [
-                TestEntry(className: "class", methodName: "testAnotherMethod", caseId: nil),
-                TestEntry(className: "class", methodName: "testMethod", caseId: nil)
+                TestEntryFixtures.testEntry(className: "class", methodName: "testAnotherMethod"),
+                TestEntryFixtures.testEntry(className: "class", methodName: "testMethod")
             ],
             buildArtifacts: fakeBuildArtifacts,
             simulatorSettings: fakeSimulatorSettings,
@@ -67,8 +67,8 @@ final class BucketTests: XCTestCase {
     func testBucketsHaveDifferentIdsForDifferentTestDestinations() throws {
         let bucket1 = Bucket(
             testEntries: [
-                TestEntry(className: "class", methodName: "testMethod", caseId: nil),
-                TestEntry(className: "class", methodName: "testAnotherMethod", caseId: nil)
+                TestEntryFixtures.testEntry(className: "class", methodName: "testMethod"),
+                TestEntryFixtures.testEntry(className: "class", methodName: "testAnotherMethod")
             ],
             buildArtifacts: fakeBuildArtifacts,
             simulatorSettings: fakeSimulatorSettings,
@@ -79,8 +79,8 @@ final class BucketTests: XCTestCase {
         
         let bucket2 = Bucket(
             testEntries: [
-                TestEntry(className: "class", methodName: "testMethod", caseId: nil),
-                TestEntry(className: "class", methodName: "testAnotherMethod", caseId: nil)
+                TestEntryFixtures.testEntry(className: "class", methodName: "testMethod"),
+                TestEntryFixtures.testEntry(className: "class", methodName: "testAnotherMethod")
             ],
             buildArtifacts: fakeBuildArtifacts,
             simulatorSettings: fakeSimulatorSettings,
@@ -95,7 +95,7 @@ final class BucketTests: XCTestCase {
     func testBucketsHaveDifferentIdsForDifferentEnvironments() throws {
         let bucket1 = Bucket(
             testEntries: [
-                TestEntry(className: "class", methodName: "testMethod", caseId: nil)
+                TestEntryFixtures.testEntry(className: "class", methodName: "testMethod")
             ],
             buildArtifacts: fakeBuildArtifacts,
             simulatorSettings: fakeSimulatorSettings,
@@ -106,7 +106,7 @@ final class BucketTests: XCTestCase {
         
         let bucket2 = Bucket(
             testEntries: [
-                TestEntry(className: "class", methodName: "testMethod", caseId: nil)
+                TestEntryFixtures.testEntry(className: "class", methodName: "testMethod")
             ],
             buildArtifacts: fakeBuildArtifacts,
             simulatorSettings: fakeSimulatorSettings,
@@ -124,7 +124,7 @@ final class BucketTests: XCTestCase {
     func testBucketsHaveDifferentIdsForDifferentNumberOfRetries() throws {
         let bucket1 = Bucket(
             testEntries: [
-                TestEntry(className: "class", methodName: "testMethod", caseId: nil)
+                TestEntryFixtures.testEntry(className: "class", methodName: "testMethod")
             ],
             buildArtifacts: fakeBuildArtifacts,
             simulatorSettings: fakeSimulatorSettings,
@@ -135,7 +135,7 @@ final class BucketTests: XCTestCase {
         
         let bucket2 = Bucket(
             testEntries: [
-                TestEntry(className: "class", methodName: "testMethod", caseId: nil)
+                TestEntryFixtures.testEntry(className: "class", methodName: "testMethod")
             ],
             buildArtifacts: fakeBuildArtifacts,
             simulatorSettings: fakeSimulatorSettings,

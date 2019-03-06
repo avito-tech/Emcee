@@ -35,7 +35,6 @@ final class DistRunTestsCommand: Command {
     private let junit: OptionArgument<String>
     private let numberOfRetries: OptionArgument<UInt>
     private let numberOfSimulators: OptionArgument<UInt>
-    private let onlyId: OptionArgument<[UInt]>
     private let onlyTest: OptionArgument<[String]>
     private let plugins: OptionArgument<[String]>
     private let remoteScheduleStrategy: OptionArgument<String>
@@ -73,7 +72,6 @@ final class DistRunTestsCommand: Command {
         junit = subparser.add(stringArgument: KnownStringArguments.junit)
         numberOfRetries = subparser.add(intArgument: KnownUIntArguments.numberOfRetries)
         numberOfSimulators = subparser.add(intArgument: KnownUIntArguments.numberOfSimulators)
-        onlyId = subparser.add(multipleIntArgument: KnownUIntArguments.onlyId)
         onlyTest = subparser.add(multipleStringArgument: KnownStringArguments.onlyTest)
         plugins = subparser.add(multipleStringArgument: KnownStringArguments.plugin)
         remoteScheduleStrategy = subparser.add(stringArgument: KnownStringArguments.remoteScheduleStrategy)
@@ -144,7 +142,6 @@ final class DistRunTestsCommand: Command {
 
         let deploymentDestinations = try ArgumentsReader.deploymentDestinations(arguments.get(self.destinations), key: KnownStringArguments.destinations)
         let destinationConfigurations = try ArgumentsReader.destinationConfigurations(arguments.get(self.destinationConfigurations), key: KnownStringArguments.destinationConfigurations)
-        let onlyId: [TestToRun] = (arguments.get(self.onlyId) ?? []).map { TestToRun.caseId($0) }
         let onlyTest: [TestToRun] = (arguments.get(self.onlyTest) ?? []).map { TestToRun.testName($0) }
         let remoteScheduleStrategy = try ArgumentsReader.scheduleStrategy(arguments.get(self.remoteScheduleStrategy), key: KnownStringArguments.remoteScheduleStrategy)
         let runId = JobId(value: try ArgumentsReader.validateNotNil(arguments.get(self.runId), key: KnownStringArguments.runId))
@@ -158,14 +155,14 @@ final class DistRunTestsCommand: Command {
                 fbxctest: auxiliaryResources.toolResources.fbxctest,
                 xcTestBundle: buildArtifacts.xcTestBundle,
                 testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
-                testsToRun: onlyId + onlyTest + testArgFile.entries.map { $0.testToRun }
+                testsToRun: onlyTest + testArgFile.entries.map { $0.testToRun }
             ),
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder
         )
         let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
             validatedEnteries: try testEntriesValidator.validatedTestEntries(),
-            explicitTestsToRun: onlyId + onlyTest,
+            explicitTestsToRun: onlyTest,
             testArgEntries: testArgFile.entries,
             commonTestExecutionBehavior: TestExecutionBehavior(
                 environment: testRunExecutionBehavior.environment,

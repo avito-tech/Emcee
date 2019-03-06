@@ -12,15 +12,15 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
     func test___grouping_by_TestDestination___preserves_order_and_sorts_by_test_count() {
         let testEntryConfigurations1 = TestEntryConfigurationFixtures()
             .with(testDestination: try! TestDestination(deviceType: "1", runtime: "11.0"))
-            .add(testEntry: TestEntry(className: "class1", methodName: "test", caseId: nil))
-            .add(testEntry: TestEntry(className: "class2", methodName: "test", caseId: nil))
-            .add(testEntry: TestEntry(className: "class3", methodName: "test", caseId: nil))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class2", methodName: "test"))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class3", methodName: "test"))
             .testEntryConfigurations()
             .shuffled()
         let testEntryConfigurations2 = TestEntryConfigurationFixtures()
             .with(testDestination: try! TestDestination(deviceType: "2", runtime: "11.0"))
-            .add(testEntry: TestEntry(className: "class1", methodName: "test", caseId: nil))
-            .add(testEntry: TestEntry(className: "class2", methodName: "test", caseId: nil))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class2", methodName: "test"))
             .testEntryConfigurations()
             .shuffled()
         let mixedTestEntryConfigurations = [
@@ -42,15 +42,15 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
     func test___grouping_by_BuildArtifacts___preserves_order_and_sorts_by_test_count() {
         let testEntryConfigurations1 = TestEntryConfigurationFixtures()
             .with(buildArtifacts: BuildArtifactsFixtures.withLocalPaths(appBundle: "1", runner: "1", xcTestBundle: "1", additionalApplicationBundles: ["1"]))
-            .add(testEntry: TestEntry(className: "class1", methodName: "test", caseId: nil))
-            .add(testEntry: TestEntry(className: "class2", methodName: "test", caseId: nil))
-            .add(testEntry: TestEntry(className: "class3", methodName: "test", caseId: nil))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class2", methodName: "test"))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class3", methodName: "test"))
             .testEntryConfigurations()
             .shuffled()
         let testEntryConfigurations2 = TestEntryConfigurationFixtures()
             .with(buildArtifacts: BuildArtifactsFixtures.withLocalPaths(appBundle: "2", runner: "2", xcTestBundle: "2", additionalApplicationBundles: ["2"]))
-            .add(testEntry: TestEntry(className: "class1", methodName: "test", caseId: nil))
-            .add(testEntry: TestEntry(className: "class2", methodName: "test", caseId: nil))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class2", methodName: "test"))
             .testEntryConfigurations()
             .shuffled()
         let mixedTestEntryConfigurations = [
@@ -71,13 +71,13 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
     
     func test___grouping_accounts_TestExecutionBehavior___preserves_order_and_sorts_by_test_count() {
         let testEntryConfigurations1 = TestEntryConfigurationFixtures()
-            .add(testEntry: TestEntry(className: "class1", methodName: "test", caseId: nil))
-            .add(testEntry: TestEntry(className: "class2", methodName: "test", caseId: nil))
-            .add(testEntry: TestEntry(className: "class3", methodName: "test", caseId: nil))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class2", methodName: "test"))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class3", methodName: "test"))
             .testEntryConfigurations()
             .shuffled()
         let testEntryConfiguration2 = TestEntryConfigurationFixtures()
-            .add(testEntry: TestEntry(className: "class1", methodName: "test", caseId: nil))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
             .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 1))
             .testEntryConfigurations()
         let mixedTestEntryConfigurations = [
@@ -97,15 +97,15 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
     
     func test___grouping_mixed_entries___accounts_all_field_values() {
         let testEntryConfiguration1 = TestEntryConfigurationFixtures()
-            .add(testEntry: TestEntry(className: "class1", methodName: "test", caseId: nil))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
             .with(buildArtifacts: BuildArtifactsFixtures.withLocalPaths(appBundle: "1", runner: "1", xcTestBundle: "1", additionalApplicationBundles: ["1"]))
             .testEntryConfigurations()[0]
         let testEntryConfiguration2 = TestEntryConfigurationFixtures()
-            .add(testEntry: TestEntry(className: "class1", methodName: "test", caseId: nil))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
             .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 1))
             .testEntryConfigurations()[0]
         let testEntryConfiguration3 = TestEntryConfigurationFixtures()
-            .add(testEntry: TestEntry(className: "class1", methodName: "test", caseId: nil))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
             .with(testDestination: try! TestDestination(deviceType: "1", runtime: "11.0"))
             .testEntryConfigurations()[0]
         

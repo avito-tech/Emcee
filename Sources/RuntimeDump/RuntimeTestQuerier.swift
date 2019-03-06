@@ -103,8 +103,6 @@ public final class RuntimeTestQuerier {
             switch requestedTestToRun {
             case .testName(let requestedTestName):
                 return availableTestEntries.first { $0.testName == requestedTestName } == nil
-            case .caseId(let requestedCaseId):
-                return availableTestEntries.first { $0.caseId == requestedCaseId } == nil
             }
         }
         return testsToRunMissingInRuntime

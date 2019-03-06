@@ -48,7 +48,7 @@ final class QueueServerTests: XCTestCase {
     
     func test__queue_waits_for_depletion__when_worker_register_with_queue() throws {
         let testEntryConfiguration = TestEntryConfigurationFixtures()
-            .add(testEntry: TestEntry(className: "class", methodName: "test", caseId: nil))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "test"))
             .testEntryConfigurations()
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
         
@@ -77,7 +77,7 @@ final class QueueServerTests: XCTestCase {
     }
     
     func test__queue_returns_results_after_depletion() throws {
-        let testEntry = TestEntry(className: "class", methodName: "test", caseId: nil)
+        let testEntry = TestEntryFixtures.testEntry(className: "class", methodName: "test")
         let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
         let testEntryConfigurations = TestEntryConfigurationFixtures()
             .add(testEntry: testEntry)

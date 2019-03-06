@@ -36,7 +36,6 @@ final class RunTestsCommand: Command {
     private let junit: OptionArgument<String>
     private let numberOfRetries: OptionArgument<UInt>
     private let numberOfSimulators: OptionArgument<UInt>
-    private let onlyId: OptionArgument<[UInt]>
     private let onlyTest: OptionArgument<[String]>
     private let plugins: OptionArgument<[String]>
     private let runner: OptionArgument<String>
@@ -70,7 +69,6 @@ final class RunTestsCommand: Command {
         junit = subparser.add(stringArgument: KnownStringArguments.junit)
         numberOfRetries = subparser.add(intArgument: KnownUIntArguments.numberOfRetries)
         numberOfSimulators = subparser.add(intArgument: KnownUIntArguments.numberOfSimulators)
-        onlyId = subparser.add(multipleIntArgument: KnownUIntArguments.onlyId)
         onlyTest = subparser.add(multipleStringArgument: KnownStringArguments.onlyTest)
         plugins = subparser.add(multipleStringArgument: KnownStringArguments.plugin)
         runner = subparser.add(stringArgument: KnownStringArguments.runner)
@@ -139,7 +137,6 @@ final class RunTestsCommand: Command {
         )
         defer { eventBus.tearDown() }
         
-        let onlyId: [TestToRun] = (arguments.get(self.onlyId) ?? []).map { TestToRun.caseId($0) }
         let onlyTest: [TestToRun] = (arguments.get(self.onlyTest) ?? []).map { TestToRun.testName($0) }
         let tempFolder = try TempFolder.with(stringPath: try ArgumentsReader.validateNotNil(arguments.get(self.tempFolder), key: KnownStringArguments.tempFolder))
         let testArgFile = try ArgumentsReader.testArgFile(arguments.get(self.testArgFile), key: KnownStringArguments.testArgFile)
@@ -151,7 +148,7 @@ final class RunTestsCommand: Command {
                 fbxctest: auxiliaryResources.toolResources.fbxctest,
                 xcTestBundle: buildArtifacts.xcTestBundle,
                 testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
-                testsToRun: onlyId + onlyTest + testArgFile.entries.map { $0.testToRun }
+                testsToRun: onlyTest + testArgFile.entries.map { $0.testToRun }
             ),
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder
@@ -161,7 +158,7 @@ final class RunTestsCommand: Command {
         let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
             validatedEnteries: validatedTestEntries,
             explicitTestsToRun: determineTestsToRun(
-                onlyTests: onlyId + onlyTest,
+                onlyTests: onlyTest,
                 testArgFile: testArgFile,
                 validatedTestEntries: validatedTestEntries
             ),

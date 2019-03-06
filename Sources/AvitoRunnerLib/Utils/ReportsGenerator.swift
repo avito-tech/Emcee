@@ -44,7 +44,6 @@ public final class ReportsGenerator {
                     startTime: testRunResult.startTime,
                     finishTime: testRunResult.finishTime)
                 return JunitTestCase(
-                    caseId: testEntryResult.testEntry.caseId,
                     className: testEntryResult.testEntry.className,
                     name: testEntryResult.testEntry.methodName,
                     time: testRunResult.duration,

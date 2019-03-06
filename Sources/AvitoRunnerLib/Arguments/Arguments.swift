@@ -173,11 +173,6 @@ private let knownUIntArguments: [KnownUIntArguments: ArgumentDescriptionHolder] 
     KnownUIntArguments.numberOfSimulators: ArgumentDescriptionHolder(
         name: "--number-of-simulators",
         comment: "How many simlutors can be used for running UI tests in parallel"),
-    KnownUIntArguments.onlyId: ArgumentDescriptionHolder(
-        name: "--only-id",
-        comment: "List of test case IDs to run.",
-        multiple: true,
-        optional: true),
     KnownUIntArguments.priority: ArgumentDescriptionHolder(
         name: "--priority",
         comment: "Job priority. Possible values are in range: [0...999]",
@@ -243,7 +238,6 @@ enum KnownUIntArguments: ArgumentDescription {
     case fbxtestSlowTimeout
     case numberOfRetries
     case numberOfSimulators
-    case onlyId
     case priority
     case singleTestTimeout
     

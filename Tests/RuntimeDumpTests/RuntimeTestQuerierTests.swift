@@ -34,14 +34,14 @@ final class RuntimeTestQuerierTests: XCTestCase {
         ]
         try prepareFakeRuntimeDumpOutputForTestQuerier(entries: runtimeTestEntries)
         
-        let querier = runtimeTestQuerier(testsToRun: [TestToRun.caseId(404)])
+        let querier = runtimeTestQuerier(testsToRun: [TestToRun.testName("nonexistingtest")])
         let queryResult = try querier.queryRuntime()
         XCTAssertEqual(queryResult.availableRuntimeTests, runtimeTestEntries)
-        XCTAssertEqual(queryResult.unavailableTestsToRun, [TestToRun.caseId(404)])
+        XCTAssertEqual(queryResult.unavailableTestsToRun, [TestToRun.testName("nonexistingtest")])
     }
     
     func test__when_JSON_file_is_missing_throws() throws {
-        let querier = runtimeTestQuerier(testsToRun: [TestToRun.caseId(404)])
+        let querier = runtimeTestQuerier(testsToRun: [TestToRun.testName("nonexistingtest")])
         XCTAssertThrowsError(_ = try querier.queryRuntime())
     }
     
@@ -49,7 +49,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
         try tempFolder.createFile(
             filename: RuntimeTestQuerier.runtimeTestsJsonFilename,
             contents: "oopps".data(using: .utf8)!)
-        let querier = runtimeTestQuerier(testsToRun: [TestToRun.caseId(404)])
+        let querier = runtimeTestQuerier(testsToRun: [TestToRun.testName("nonexistingtest")])
         XCTAssertThrowsError(_ = try querier.queryRuntime())
     }
     

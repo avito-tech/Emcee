@@ -10,10 +10,10 @@ final class TestingResultTests: XCTestCase {
             testDestination: TestDestinationFixtures.testDestination,
             unfilteredResults: [
                 .withResult(
-                    testEntry: TestEntry(className: "success", methodName: "", caseId: nil),
+                    testEntry: TestEntryFixtures.testEntry(className: "success", methodName: ""),
                     testRunResult: TestRunResultFixtures.testRunResult(succeeded: true, timestamp: 0)),
                 .withResult(
-                    testEntry: TestEntry(className: "failure", methodName: "", caseId: nil),
+                    testEntry: TestEntryFixtures.testEntry(className: "failure", methodName: ""),
                     testRunResult: TestRunResultFixtures.testRunResult(succeeded: false, timestamp: 0))
             ])
         
@@ -32,7 +32,7 @@ final class TestingResultTests: XCTestCase {
             testDestination: TestDestinationFixtures.testDestination,
             unfilteredResults: [
                 .withResults(
-                    testEntry: TestEntry(className: "success", methodName: "", caseId: nil),
+                    testEntry: TestEntryFixtures.testEntry(className: "success", methodName: ""),
                     testRunResults: [
                         TestRunResultFixtures.testRunResult(succeeded: true, timestamp: 0),
                         TestRunResultFixtures.testRunResult(succeeded: false, timestamp: 2)
@@ -47,8 +47,8 @@ final class TestingResultTests: XCTestCase {
     
     func testMerging() throws {
         let testDestination = TestDestinationFixtures.testDestination
-        let testEntry1 = TestEntry(className: "success", methodName: "", caseId: nil)
-        let testEntry2 = TestEntry(className: "failure", methodName: "", caseId: nil)
+        let testEntry1 = TestEntryFixtures.testEntry(className: "success", methodName: "")
+        let testEntry2 = TestEntryFixtures.testEntry(className: "failure", methodName: "")
         
         let result1 = TestingResult(
             bucketId: "id",
@@ -101,7 +101,7 @@ final class TestingResultTests: XCTestCase {
     func testMergingMismatchingBucketsFails() throws {
         let testDestination1 = try TestDestination(deviceType: "device", runtime: "11.3")
         let testDestination2 = try TestDestination(deviceType: "device", runtime: "10.0")
-        let testEntry = TestEntry(className: "success", methodName: "", caseId: nil)
+        let testEntry = TestEntryFixtures.testEntry(className: "success", methodName: "")
         
         let result1 = TestingResult(
             bucketId: "id1",
@@ -133,7 +133,7 @@ final class TestingResultTests: XCTestCase {
             bucketId: "id",
             testDestination: TestDestinationFixtures.testDestination,
             unfilteredResults: [
-                .lost(testEntry: TestEntry(className: "lost", methodName: "", caseId: nil))
+                .lost(testEntry: TestEntryFixtures.testEntry(className: "lost", methodName: ""))
             ])
         
         XCTAssertEqual(result.successfulTests.count, 0)

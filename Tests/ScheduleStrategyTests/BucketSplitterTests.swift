@@ -11,18 +11,18 @@ final class BucketSplitterTests: XCTestCase {
     func test_splits_into_matrix_of_test_destination_by_test_entry() {
         let testEntryConfigurations =
             TestEntryConfigurationFixtures()
-                .add(testEntry: TestEntry(className: "class", methodName: "testMethod1", caseId: nil))
-                .add(testEntry: TestEntry(className: "class", methodName: "testMethod2", caseId: nil))
-                .add(testEntry: TestEntry(className: "class", methodName: "testMethod3", caseId: nil))
-                .add(testEntry: TestEntry(className: "class", methodName: "testMethod4", caseId: nil))
+                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod1"))
+                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod2"))
+                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3"))
+                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod4"))
                 .with(testDestination: testDestination1)
                 .testEntryConfigurations()
                 +
                 TestEntryConfigurationFixtures()
-                    .add(testEntry: TestEntry(className: "class", methodName: "testMethod1", caseId: nil))
-                    .add(testEntry: TestEntry(className: "class", methodName: "testMethod2", caseId: nil))
-                    .add(testEntry: TestEntry(className: "class", methodName: "testMethod3", caseId: nil))
-                    .add(testEntry: TestEntry(className: "class", methodName: "testMethod4", caseId: nil))
+                    .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod1"))
+                    .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod2"))
+                    .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3"))
+                    .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod4"))
                     .with(testDestination: testDestination2)
                     .testEntryConfigurations()
         

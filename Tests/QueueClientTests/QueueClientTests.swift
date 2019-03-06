@@ -50,7 +50,7 @@ class QueueClientTests: XCTestCase {
     
     func testDequeueingBucket() throws {
         let bucket = Bucket(
-            testEntries: [TestEntry(className: "class", methodName: "method", caseId: 123)],
+            testEntries: [TestEntryFixtures.testEntry(className: "class", methodName: "method")],
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: TestDestinationFixtures.testDestination,

@@ -20,7 +20,7 @@ public final class RunnerTests: XCTestCase {
     let testClassName = "ClassName"
     let testMethod = "testMethod"
     var tempFolder: TempFolder!
-    let testExceptionEvent = TestExceptionEvent(reason: "a reason", filePathInProject: "file", lineNumber: 12)
+    let testExceptionEvent = FbXcTestExceptionEvent(reason: "a reason", filePathInProject: "file", lineNumber: 12)
     let resolver = ResourceLocationResolver()
     
     public override func setUp() {
@@ -31,7 +31,7 @@ public final class RunnerTests: XCTestCase {
         let runId = UUID().uuidString
         // do not stub, simulating a crash/silent exit
         
-        let testEntry = TestEntry(className: testClassName, methodName: testMethod, caseId: nil)
+        let testEntry = TestEntryFixtures.testEntry(className: testClassName, methodName: testMethod)
         let results = try runTestEntries([testEntry], runId: runId)
         
         XCTAssertEqual(results.count, 1)
@@ -45,7 +45,7 @@ public final class RunnerTests: XCTestCase {
         let runId = UUID().uuidString
         try stubFbxctestEvent(runId: runId, success: true)
         
-        let testEntry = TestEntry(className: testClassName, methodName: testMethod, caseId: nil)
+        let testEntry = TestEntryFixtures.testEntry(className: testClassName, methodName: testMethod)
         let results = try runTestEntries([testEntry], runId: runId)
         
         XCTAssertEqual(results.count, 1)
@@ -58,7 +58,7 @@ public final class RunnerTests: XCTestCase {
         let runId = UUID().uuidString
         try stubFbxctestEvent(runId: runId, success: false)
         
-        let testEntry = TestEntry(className: testClassName, methodName: testMethod, caseId: nil)
+        let testEntry = TestEntryFixtures.testEntry(className: testClassName, methodName: testMethod)
         let results = try runTestEntries([testEntry], runId: runId)
         
         XCTAssertEqual(results.count, 1)
@@ -74,7 +74,7 @@ public final class RunnerTests: XCTestCase {
         let runId = UUID().uuidString
         try FakeFbxctestExecutableProducer.setFakeOutputEvents(runId: runId, runIndex: 0, [
             AnyEncodableWrapper(
-                TestStartedEvent(
+                FbXcTestStartedEvent(
                     test: "\(testClassName)/\(testMethod)",
                     className: testClassName,
                     methodName: testMethod,
@@ -82,7 +82,7 @@ public final class RunnerTests: XCTestCase {
             ])
         try stubFbxctestEvent(runId: runId, success: true, runIndex: 1)
         
-        let testEntry = TestEntry(className: testClassName, methodName: testMethod, caseId: nil)
+        let testEntry = TestEntryFixtures.testEntry(className: testClassName, methodName: testMethod)
         let results = try runTestEntries([testEntry], runId: runId)
         
         XCTAssertEqual(results.count, 1)
@@ -103,13 +103,13 @@ public final class RunnerTests: XCTestCase {
     private func stubFbxctestEvent(runId: String, success: Bool, runIndex: Int = 0) throws {
         try FakeFbxctestExecutableProducer.setFakeOutputEvents(runId: runId, runIndex: runIndex, [
             AnyEncodableWrapper(
-                TestStartedEvent(
+                FbXcTestStartedEvent(
                     test: "\(testClassName)/\(testMethod)",
                     className: testClassName,
                     methodName: testMethod,
                     timestamp: Date().timeIntervalSince1970)),
             AnyEncodableWrapper(
-                TestFinishedEvent(
+                FbXcTestFinishedEvent(
                     test: "\(testClassName)/\(testMethod)",
                     result: success ? "success" : "failure",
                     className: testClassName,

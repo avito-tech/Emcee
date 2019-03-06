@@ -50,7 +50,7 @@ final class BucketProviderTests: XCTestCase {
         let dequeuedBucket = DequeuedBucket(
             enqueuedBucket: EnqueuedBucket(
                 bucket: BucketFixtures.createBucket(
-                    testEntries: [TestEntry(className: "class", methodName: "test", caseId: nil)]),
+                    testEntries: [TestEntryFixtures.testEntry(className: "class", methodName: "test")]),
                 enqueueTimestamp: Date()
             ),
             workerId: "worker",
@@ -67,7 +67,7 @@ final class BucketProviderTests: XCTestCase {
     
     func test___when_bucket_is_dequeued___aliveness_tracker_appends_bucket_id() throws {
         let bucket = BucketFixtures.createBucket(
-            testEntries: [TestEntry(className: "class", methodName: "test", caseId: nil)]
+            testEntries: [TestEntryFixtures.testEntry(className: "class", methodName: "test")]
         )
         let dequeuedBucket = DequeuedBucket(
             enqueuedBucket: EnqueuedBucket(

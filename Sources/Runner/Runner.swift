@@ -99,8 +99,8 @@ public final class Runner {
             ),
             simulatorId: simulator.identifier,
             singleTestMaximumDuration: configuration.singleTestMaximumDuration,
-            onTestStarted: { [weak self] event in self?.testStarted(event: event, testContext: testContext) },
-            onTestStopped: { [weak self] pair in self?.testStopped(eventPair: pair, testContext: testContext) }
+            onTestStarted: { [weak self] event in self?.testStarted(entriesToRun: entriesToRun, event: event, testContext: testContext) },
+            onTestStopped: { [weak self] pair in self?.testStopped(entriesToRun: entriesToRun, eventPair: pair, testContext: testContext) }
         )
         fbxctestOutputProcessor.processOutputAndWaitForProcessTermination()
         
@@ -188,8 +188,8 @@ public final class Runner {
     
     private func prepareResults(
         requestedEntriesToRun: [TestEntry],
-        testEventPairs: [TestEventPair])
-        -> [TestEntryResult]
+        testEventPairs: [FbXcTestEventPair]
+        ) -> [TestEntryResult]
     {
         return requestedEntriesToRun.map { requestedEntryToRun in
             prepareResult(
@@ -201,8 +201,8 @@ public final class Runner {
     
     private func prepareResult(
         requestedEntryToRun: TestEntry,
-        testEventPairs: [TestEventPair])
-        -> TestEntryResult
+        testEventPairs: [FbXcTestEventPair]
+        ) -> TestEntryResult
     {
         let correspondingEventPair = testEventPairForEntry(
             requestedEntryToRun,
@@ -221,8 +221,8 @@ public final class Runner {
     
     private func testEntryResultForFinishedTest(
         testEntry: TestEntry,
-        startEvent: TestStartedEvent,
-        finishEvent: TestFinishedEvent
+        startEvent: FbXcTestStartedEvent,
+        finishEvent: FbXcTestFinishedEvent
         ) -> TestEntryResult
     {
         return .withResult(
@@ -242,8 +242,8 @@ public final class Runner {
     
     private func testEventPairForEntry(
         _ entry: TestEntry,
-        testEventPairs: [TestEventPair])
-        -> TestEventPair?
+        testEventPairs: [FbXcTestEventPair])
+        -> FbXcTestEventPair?
     {
         return testEventPairs.first(where: { $0.startEvent.testName == entry.testName })
     }
@@ -290,25 +290,40 @@ public final class Runner {
         )
     }
     
-    private func testStarted(event: TestStartedEvent, testContext: TestContext) {
+    private func testEntryToRun(entriesToRun: [TestEntry], testName: String) -> TestEntry? {
+        return entriesToRun.first(where: { (testEntry: TestEntry) -> Bool in
+            testEntry.testName == testName
+        })
+    }
+    
+    private func testStarted(entriesToRun: [TestEntry], event: FbXcTestStartedEvent, testContext: TestContext) {
+        guard let testEntry = testEntryToRun(entriesToRun: entriesToRun, testName: event.testName) else {
+            Logger.error("Can't find test entry for test \(event.testName)")
+            return
+        }
+        
         eventBus.post(
-            event: .runnerEvent(.testStarted(testEntry: event.testEntry, testContext: testContext))
+            event: .runnerEvent(.testStarted(testEntry: testEntry, testContext: testContext))
         )
         
         MetricRecorder.capture(
             TestStartedMetric(
                 host: event.hostName ?? "unknown_host",
-                testClassName: event.testEntry.className,
-                testMethodName: event.testEntry.methodName
+                testClassName: testEntry.className,
+                testMethodName: testEntry.methodName
             )
         )
     }
     
-    private func testStopped(eventPair: TestEventPair, testContext: TestContext) {
-        let event = eventPair.startEvent
+    private func testStopped(entriesToRun: [TestEntry], eventPair: FbXcTestEventPair, testContext: TestContext) {
+        guard let testEntry = testEntryToRun(entriesToRun: entriesToRun, testName: eventPair.startEvent.testName) else {
+            Logger.error("Can't find test entry for test \(eventPair.startEvent.testName)")
+            return
+        }
+        
         let succeeded = eventPair.finishEvent?.succeeded ?? false
         eventBus.post(
-            event: .runnerEvent(.testFinished(testEntry: event.testEntry, succeeded: succeeded, testContext: testContext))
+            event: .runnerEvent(.testFinished(testEntry: testEntry, succeeded: succeeded, testContext: testContext))
         )
         
         let testResult = eventPair.finishEvent?.result ?? "unknown_result"
@@ -317,15 +332,15 @@ public final class Runner {
             TestFinishedMetric(
                 result: testResult,
                 host: eventPair.startEvent.hostName ?? "unknown_host",
-                testClassName: event.testEntry.className,
-                testMethodName: event.testEntry.methodName,
+                testClassName: testEntry.className,
+                testMethodName: testEntry.methodName,
                 testsFinishedCount: 1
             ),
             TestDurationMetric(
                 result: testResult,
                 host: eventPair.startEvent.hostName ?? "unknown_host",
-                testClassName: event.testEntry.className,
-                testMethodName: event.testEntry.methodName,
+                testClassName: testEntry.className,
+                testMethodName: testEntry.methodName,
                 duration: testDuration
             )
         )

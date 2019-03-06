@@ -25,7 +25,6 @@ public struct JunitTestCaseBoundaries {
 }
 
 public struct JunitTestCase {
-    public let caseId: UInt?
     public let className: String     /* FunctionalTests.AbuseTests_91953 */
     public let name: String          /* test, testDataSet0 */
     public let time: TimeInterval    /* 34.56 */
@@ -34,15 +33,14 @@ public struct JunitTestCase {
     public let boundaries: JunitTestCaseBoundaries
 
     public init(
-        caseId: UInt?,
         className: String,
         name: String,
         time: TimeInterval,
         isFailure: Bool,
         failures: [JunitTestCaseFailure],
-        boundaries: JunitTestCaseBoundaries)
+        boundaries: JunitTestCaseBoundaries
+        )
     {
-        self.caseId = caseId
         self.className = className
         self.name = name
         self.time = time
@@ -108,10 +106,6 @@ public final class JunitGenerator {
                     }
                 }
                 
-                if let caseId = testCase.caseId {
-                    try xmlTestCase.addAttribute(withName: "caseId", stringValue: String(caseId))
-                }
-                
                 try xmlTestCase.addAttribute(withName: "classname", stringValue: "\(className)")
                 try xmlTestCase.addAttribute(withName: "name", stringValue: "\(testCase.name)")
                 try xmlTestCase.addAttribute(withName: "time", stringValue: "\(testCase.time)")
@@ -129,7 +123,7 @@ public final class JunitGenerator {
         xml.setRootElement(xmlTestSuites)
         xml.version = "1.0"
         xml.characterEncoding = "UTF-8"
-        return xml.xmlString(options: [.nodePrettyPrint])
+        return xml.xmlString(options: [.nodePrettyPrint]) + "\n"
     }
 }
 

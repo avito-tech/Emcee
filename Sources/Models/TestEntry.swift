@@ -4,7 +4,7 @@ import Foundation
  * Represents a single existing test.
  * Think about TestEntry as a "resolved" TestToRun with all information filled and validated in runtime.
  */
-public struct TestEntry: CustomStringConvertible, Codable, Hashable {
+public final class TestEntry: CustomStringConvertible, Codable, Hashable {
     /** TestClassName/testMethodName */
     public let testName: String
     
@@ -37,7 +37,14 @@ public struct TestEntry: CustomStringConvertible, Codable, Hashable {
         return "<\(TestEntry.self) \(componentsJoined)>"
     }
     
-    public var hashValue: Int {
-        return testName.hashValue
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(className)
+        hasher.combine(methodName)
+        hasher.combine(caseId)
+    }
+    
+    public static func == (left: TestEntry, right: TestEntry) -> Bool {
+        return left.testName == right.testName
+            && left.caseId == right.caseId
     }
 }

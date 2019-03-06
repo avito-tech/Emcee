@@ -6,7 +6,6 @@ import XCTest
 class JunitTests: XCTestCase {
     func testGeneratingBasicReport() throws {
         let testCase = JunitTestCase(
-            caseId: 1,
             className: "SomeTests",
             name: "name",
             time: 10,
@@ -30,7 +29,6 @@ class JunitTests: XCTestCase {
         let stringWithControlCharacters = "reason with -\(controlCharacters)- chars"
         
         let testCase = JunitTestCase(
-            caseId: 1,
             className: "SomeTests",
             name: "name",
             time: 10,

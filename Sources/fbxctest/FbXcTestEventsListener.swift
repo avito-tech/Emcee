@@ -2,29 +2,29 @@ import Dispatch
 import Foundation
 import Logging
 
-final class TestEventsListener {    
+final class FbXcTestEventsListener {    
     private let pairsController = TestEventPairsController()
     
-    private let onTestStarted: ((TestStartedEvent) -> ())
-    private let onTestStopped: ((TestEventPair) -> ())
+    private let onTestStarted: ((FbXcTestStartedEvent) -> ())
+    private let onTestStopped: ((FbXcTestEventPair) -> ())
 
     public init(
-        onTestStarted: @escaping ((TestStartedEvent) -> ()),
-        onTestStopped: @escaping ((TestEventPair) -> ())
+        onTestStarted: @escaping ((FbXcTestStartedEvent) -> ()),
+        onTestStopped: @escaping ((FbXcTestEventPair) -> ())
         )
     {
         self.onTestStarted = onTestStarted
         self.onTestStopped = onTestStopped
     }
     
-    func testStarted(_ event: TestStartedEvent) {
+    func testStarted(_ event: FbXcTestStartedEvent) {
         pairsController.append(
-            TestEventPair(startEvent: event, finishEvent: nil)
+            FbXcTestEventPair(startEvent: event, finishEvent: nil)
         )
         onTestStarted(event)
     }
     
-    func testFinished(_ event: TestFinishedEvent) {
+    func testFinished(_ event: FbXcTestFinishedEvent) {
         guard let pair = pairsController.popLast() else {
             Logger.warning("Unable to find matching start event for \(event)")
             Logger.warning("The result for test \(event.testName) (\(event.result) will be lost.")
@@ -35,12 +35,12 @@ final class TestEventsListener {
             Logger.warning("The result for test \(event.testName) (\(event.result) will be lost.")
             return
         }
-        let newPair = TestEventPair(startEvent: pair.startEvent, finishEvent: event)
+        let newPair = FbXcTestEventPair(startEvent: pair.startEvent, finishEvent: event)
         pairsController.append(newPair)
         onTestStopped(newPair)
     }
     
-    func testPlanFinished(_ event: TestPlanFinishedEvent) {
+    func testPlanFinished(_ event: FbXcTestPlanFinishedEvent) {
         guard let pair = self.lastStartedButNotFinishedTestEventPair else {
             Logger.debug("Test plan finished, and there is no hang test found. All started tests have corresponding finished events.")
             return
@@ -52,7 +52,7 @@ final class TestEventsListener {
         )
     }
     
-    func testPlanError(_ event: TestPlanErrorEvent) {
+    func testPlanError(_ event: FbXcTestPlanErrorEvent) {
         guard let pair = self.lastStartedButNotFinishedTestEventPair else {
             Logger.warning("Test plan errored, but there is no hang test found. All started tests have corresponding finished events.")
             return
@@ -66,7 +66,7 @@ final class TestEventsListener {
     
     // MARK: - Other methods that call basic methods above
     
-    func errorDuringTest(_ event: GenericErrorEvent) {
+    func errorDuringTest(_ event: FbXcGenericErrorEvent) {
         if event.domain == "com.facebook.XCTestBootstrap" {
             processBootstrapError(event)
         }
@@ -75,13 +75,13 @@ final class TestEventsListener {
     func longRunningTest() {
         guard let startEvent = lastStartedButNotFinishedTestEventPair?.startEvent else { return }
         let timestamp = Date().timeIntervalSince1970
-        let failureEvent = TestFinishedEvent(
+        let failureEvent = FbXcTestFinishedEvent(
             test: startEvent.test,
             result: "long running test",
-            className: startEvent.className,
-            methodName: startEvent.methodName,
+            className: startEvent.testClassName,
+            methodName: startEvent.testMethodName,
             totalDuration: timestamp - startEvent.timestamp,
-            exceptions: [TestExceptionEvent(reason: "Test timeout. Test did not finish in time.", filePathInProject: #file, lineNumber: #line)],
+            exceptions: [FbXcTestExceptionEvent(reason: "Test timeout. Test did not finish in time.", filePathInProject: #file, lineNumber: #line)],
             succeeded: false,
             output: "",
             logs: [],
@@ -92,13 +92,13 @@ final class TestEventsListener {
     func timeoutDueToSilence() {
         guard let startEvent = lastStartedButNotFinishedTestEventPair?.startEvent else { return }
         let timestamp = Date().timeIntervalSince1970
-        let failureEvent = TestFinishedEvent(
+        let failureEvent = FbXcTestFinishedEvent(
             test: startEvent.test,
             result: "timeout due to silence",
-            className: startEvent.className,
-            methodName: startEvent.methodName,
+            className: startEvent.testClassName,
+            methodName: startEvent.testMethodName,
             totalDuration: timestamp - startEvent.timestamp,
-            exceptions: [TestExceptionEvent(reason: "Timeout due to silence", filePathInProject: #file, lineNumber: #line)],
+            exceptions: [FbXcTestExceptionEvent(reason: "Timeout due to silence", filePathInProject: #file, lineNumber: #line)],
             succeeded: false,
             output: "",
             logs: [],
@@ -106,11 +106,11 @@ final class TestEventsListener {
         testFinished(failureEvent)
     }
     
-    var allEventPairs: [TestEventPair] {
+    var allEventPairs: [FbXcTestEventPair] {
         return pairsController.allPairs
     }
     
-    var lastStartedButNotFinishedTestEventPair: TestEventPair? {
+    var lastStartedButNotFinishedTestEventPair: FbXcTestEventPair? {
         if let pair = pairsController.lastPair, pair.finishEvent == nil {
             return pair
         }
@@ -119,16 +119,16 @@ final class TestEventsListener {
     
     // MARK: - Private
     
-    private func processBootstrapError(_ event: GenericErrorEvent) {
+    private func processBootstrapError(_ event: FbXcGenericErrorEvent) {
         guard let startEvent = lastStartedButNotFinishedTestEventPair?.startEvent else { return }
         let timestamp = Date().timeIntervalSince1970
-        let bootstrapFailureEvent = TestFinishedEvent(
+        let bootstrapFailureEvent = FbXcTestFinishedEvent(
             test: startEvent.test,
             result: "bootstrap error",
-            className: startEvent.className,
-            methodName: startEvent.methodName,
+            className: startEvent.testClassName,
+            methodName: startEvent.testMethodName,
             totalDuration: timestamp - startEvent.timestamp,
-            exceptions: [TestExceptionEvent(reason: "Failed to bootstap event: \(event.text ?? "no details")", filePathInProject: #file, lineNumber: #line)],
+            exceptions: [FbXcTestExceptionEvent(reason: "Failed to bootstap event: \(event.text ?? "no details")", filePathInProject: #file, lineNumber: #line)],
             succeeded: false,
             output: "",
             logs: [],
@@ -137,18 +137,18 @@ final class TestEventsListener {
     }
     
     private func reportTestPlanFinishedWithHangStartedTest(
-        startEvent: TestStartedEvent,
+        startEvent: FbXcTestStartedEvent,
         testPlanFailed: Bool,
         testPlanEventTimestamp: TimeInterval)
     {
-        let finishEvent = TestFinishedEvent(
+        let finishEvent = FbXcTestFinishedEvent(
             test: startEvent.test,
             result: "test plan early finish",
-            className: startEvent.className,
-            methodName: startEvent.methodName,
+            className: startEvent.testClassName,
+            methodName: startEvent.testMethodName,
             totalDuration: testPlanEventTimestamp - startEvent.timestamp,
             exceptions: [
-                TestExceptionEvent(
+                FbXcTestExceptionEvent(
                     reason: "test plan finished (\(testPlanFailed ? "failed" : "with success")) but test did not receive finish event",
                     filePathInProject: #file,
                     lineNumber: #line)

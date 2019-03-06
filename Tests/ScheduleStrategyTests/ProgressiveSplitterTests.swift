@@ -7,16 +7,16 @@ final class ProgressiveSplitterTests: XCTestCase {
     let progressiveSplitter = ProgressiveBucketSplitter()
     
     let testEntries = [
-        TestEntry(className: "class", methodName: "testMethod0", caseId: nil),
-        TestEntry(className: "class", methodName: "testMethod1", caseId: nil),
-        TestEntry(className: "class", methodName: "testMethod2", caseId: nil),
-        TestEntry(className: "class", methodName: "testMethod3", caseId: nil),
-        TestEntry(className: "class", methodName: "testMethod4", caseId: nil),
-        TestEntry(className: "class", methodName: "testMethod5", caseId: nil),
-        TestEntry(className: "class", methodName: "testMethod6", caseId: nil),
-        TestEntry(className: "class", methodName: "testMethod7", caseId: nil),
-        TestEntry(className: "class", methodName: "testMethod8", caseId: nil),
-        TestEntry(className: "class", methodName: "testMethod9", caseId: nil)
+        TestEntryFixtures.testEntry(className: "class", methodName: "testMethod0"),
+        TestEntryFixtures.testEntry(className: "class", methodName: "testMethod1"),
+        TestEntryFixtures.testEntry(className: "class", methodName: "testMethod2"),
+        TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3"),
+        TestEntryFixtures.testEntry(className: "class", methodName: "testMethod4"),
+        TestEntryFixtures.testEntry(className: "class", methodName: "testMethod5"),
+        TestEntryFixtures.testEntry(className: "class", methodName: "testMethod6"),
+        TestEntryFixtures.testEntry(className: "class", methodName: "testMethod7"),
+        TestEntryFixtures.testEntry(className: "class", methodName: "testMethod8"),
+        TestEntryFixtures.testEntry(className: "class", methodName: "testMethod9")
     ]
     lazy var testEntryConfigurations: [TestEntryConfiguration] = TestEntryConfigurationFixtures().add(testEntries: testEntries).testEntryConfigurations()
     

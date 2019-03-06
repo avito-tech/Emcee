@@ -23,8 +23,6 @@ public final class TestToRunIntoTestEntryTransformer {
                     let specifierComponents = try testSpecifierComponentsForTestName(testName: testName)
                     return runtimeEntry.className == specifierComponents.className &&
                         runtimeEntry.testMethods.contains(specifierComponents.methodName)
-                case .caseId(let caseId):
-                    return runtimeEntry.caseId == caseId
                 }
             }
             if let matchingRuntimeEntry = matchingRuntimeEntry {
@@ -53,15 +51,9 @@ public final class TestToRunIntoTestEntryTransformer {
                 TestEntry(
                     className: runtimeEntry.className,
                     methodName: specifierComponents.methodName,
-                    caseId: runtimeEntry.caseId)
+                    caseId: runtimeEntry.caseId
+                )
             ]
-        case .caseId:
-            return runtimeEntry.testMethods.map {
-                TestEntry(
-                    className: runtimeEntry.className,
-                    methodName: $0,
-                    caseId: runtimeEntry.caseId)
-            }
         }
     }
     

@@ -147,7 +147,7 @@ final class BucketQueueTests: XCTestCase {
     func test__accepting_correct_results() {
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults)
         
-        let testEntry = TestEntry(className: "class", methodName: "test", caseId: nil)
+        let testEntry = TestEntryFixtures.testEntry(className: "class", methodName: "test")
         let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
         bucketQueue.enqueue(buckets: [bucket])
         
@@ -163,7 +163,7 @@ final class BucketQueueTests: XCTestCase {
     func test__accepting_result_for_nonexisting_request_id_throws() {
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults)
         
-        let testEntry = TestEntry(className: "class", methodName: "test", caseId: nil)
+        let testEntry = TestEntryFixtures.testEntry(className: "class", methodName: "test")
         let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
         bucketQueue.enqueue(buckets: [bucket])
         
@@ -179,7 +179,7 @@ final class BucketQueueTests: XCTestCase {
     func test__accepting_result_for_nonexisting_worker_id_throws() {
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithImmediateTimeout)
         
-        let testEntry = TestEntry(className: "class", methodName: "test", caseId: nil)
+        let testEntry = TestEntryFixtures.testEntry(className: "class", methodName: "test")
         let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
         bucketQueue.enqueue(buckets: [bucket])
         

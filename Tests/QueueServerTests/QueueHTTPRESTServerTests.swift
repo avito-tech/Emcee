@@ -58,9 +58,12 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     }
     
     func test__BucketFetchHandler() throws {
-        let bucket = BucketFixtures.createBucket(testEntries: [
-            TestEntry(className: "class1", methodName: "m1", caseId: nil),
-            TestEntry(className: "class2", methodName: "m2", caseId: nil)])
+        let bucket = BucketFixtures.createBucket(
+            testEntries: [
+                TestEntryFixtures.testEntry(className: "class1", methodName: "m1"),
+                TestEntryFixtures.testEntry(className: "class2", methodName: "m2")
+            ]
+        )
         let dequeuedBucket = DequeuedBucket(
             enqueuedBucket: EnqueuedBucket(bucket: bucket, enqueueTimestamp: Date()),
             workerId: workerId,
@@ -95,9 +98,9 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let alivenessTracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
         let bucketQueue = FakeBucketQueue(throwsOnAccept: false)
         let testingResult = TestingResultFixtures()
-            .with(testEntry: TestEntry(className: "class1", methodName: "m1", caseId: nil))
+            .with(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "m1"))
             .addingLostResult()
-            .with(testEntry: TestEntry(className: "class2", methodName: "m2", caseId: nil))
+            .with(testEntry: TestEntryFixtures.testEntry(className: "class2", methodName: "m2"))
             .addingLostResult()
             .testingResult()
         

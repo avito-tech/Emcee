@@ -6,7 +6,6 @@ import XCTest
 
 final class TestEntryConfigurationGeneratorTests: XCTestCase {
     let testNameToRun = TestToRun.testName("class/testName")
-    let testIdToRun = TestToRun.caseId(42)
     let argFileTestToRun1 = TestToRun.testName("classFromArgs/test1")
     let argFileTestToRun2 = TestToRun.testName("classFromArgs/test2")
     
@@ -23,20 +22,16 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
 
     lazy var validatedEnteries: [TestToRun : [TestEntry]] = {
         return [
-            testNameToRun: [TestEntry(className: "class", methodName: "testName", caseId: nil)],
-            testIdToRun: [
-                TestEntry(className: "class42", methodName: "testName42_1", caseId: 42),
-                TestEntry(className: "class42", methodName: "testName42_2", caseId: 42)
-            ],
-            argFileTestToRun1: [TestEntry(className: "classFromArgs", methodName: "test1", caseId: nil)],
-            argFileTestToRun2: [TestEntry(className: "classFromArgs", methodName: "test2", caseId: nil)]
+            testNameToRun: [TestEntryFixtures.testEntry(className: "class", methodName: "testName")],
+            argFileTestToRun1: [TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1")],
+            argFileTestToRun2: [TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test2")]
         ]
     }()
     
     func test() {
         let generator = TestEntryConfigurationGenerator(
             validatedEnteries: validatedEnteries,
-            explicitTestsToRun: [testIdToRun, testNameToRun],
+            explicitTestsToRun: [testNameToRun],
             testArgEntries: [
                 TestArgFile.Entry(
                     testToRun: argFileTestToRun1,
@@ -60,21 +55,19 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
         
         let expectedConfigurations = [
             TestEntryConfigurationFixtures()
-                .add(testEntry: TestEntry(className: "class42", methodName: "testName42_1", caseId: 42))
-                .add(testEntry: TestEntry(className: "class42", methodName: "testName42_2", caseId: 42))
-                .add(testEntry: TestEntry(className: "class", methodName: "testName", caseId: nil))
+                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testName"))
                 .with(buildArtifacts: buildArtifacts)
                 .with(testExecutionBehavior: testExecutionBehavior)
                 .with(testDestination: testDestination)
                 .testEntryConfigurations(),
             TestEntryConfigurationFixtures()
-                .add(testEntry: TestEntry(className: "classFromArgs", methodName: "test1", caseId: nil))
+                .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1"))
                 .with(buildArtifacts: buildArtifacts)
                 .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
                 .with(testDestination: argFileDestination1)
                 .testEntryConfigurations(),
             TestEntryConfigurationFixtures()
-                .add(testEntry: TestEntry(className: "classFromArgs", methodName: "test2", caseId: nil))
+                .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test2"))
                 .with(buildArtifacts: buildArtifacts)
                 .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 20))
                 .with(testDestination: argFileDestination2)

@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import ModelsTestHelpers
 @testable import RuntimeDump
 import XCTest
 
@@ -22,16 +23,16 @@ final class TestToRunIntoTestEntryTransformerTests: XCTestCase {
         XCTAssertEqual(
             transformationResult,
             [
-                TestToRun.testName("class/test1"): [TestEntry(className: "class", methodName: "test1", caseId: nil)],
-                TestToRun.testName("class/test2"): [TestEntry(className: "class", methodName: "test2", caseId: nil)],
-                TestToRun.testName("class/test3"): [TestEntry(className: "class", methodName: "test3", caseId: nil)]
+                TestToRun.testName("class/test1"): [TestEntryFixtures.testEntry(className: "class", methodName: "test1")],
+                TestToRun.testName("class/test2"): [TestEntryFixtures.testEntry(className: "class", methodName: "test2")],
+                TestToRun.testName("class/test3"): [TestEntryFixtures.testEntry(className: "class", methodName: "test3")]
             ]
         )
     }
     
     func test__with_missing_tests() throws {
-        let missingTest = TestToRun.caseId(404)
-        let testToRunWithCaseId = TestToRun.caseId(42)
+        let missingTest = TestToRun.testName("Class/test404")
+        let testToRunWithCaseId = TestToRun.testName("Class/testExisting")
         
         let transformer = TestToRunIntoTestEntryTransformer(testsToRun: [testToRunWithCaseId])
         let queryResult = RuntimeQueryResult(
@@ -39,7 +40,7 @@ final class TestToRunIntoTestEntryTransformerTests: XCTestCase {
                 missingTest
             ],
             availableRuntimeTests: [
-                RuntimeTestEntry(className: "class", path: "", testMethods: ["test"], caseId: 42, tags: [])
+                RuntimeTestEntry(className: "class", path: "", testMethods: ["test"], caseId: nil, tags: [])
             ])
         
         XCTAssertThrowsError(_ = try transformer.transform(runtimeQueryResult: queryResult))
