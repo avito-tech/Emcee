@@ -11,7 +11,7 @@ class CancellableRecordingImpl: CancellableRecording {
     }
     
     func stopRecording() -> String {
-        recordingProcess.interruptAndForceKillIfNeeded()
+        recordingProcess.terminateAndForceKillIfNeeded()
         recordingProcess.waitForProcessToDie()
         return outputPath
     }

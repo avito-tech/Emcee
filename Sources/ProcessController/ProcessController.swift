@@ -113,13 +113,25 @@ public final class ProcessController: CustomStringConvertible {
         }
     }
     
+    public func terminateAndForceKillIfNeeded() {
+        attemptToKillProcess { process in
+            Logger.debug("Terminating the process", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
+            process.terminate()
+        }
+    }
+    
     public func interruptAndForceKillIfNeeded() {
+        attemptToKillProcess { process in
+            Logger.debug("Interrupting the process", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
+            process.interrupt()
+        }
+    }
+    
+    private func attemptToKillProcess(killer: (Process) -> ()) {
         processTerminationQueue.sync {
             guard self.didInitiateKillOfProcess == false else { return }
             self.didInitiateKillOfProcess = true
-            Logger.debug("Interrupting the process", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
-            process.interrupt()
-            process.terminate()
+            killer(process)
             processTerminationQueue.asyncAfter(deadline: .now() + 15.0) {
                 self.forceKillProcess()
             }
