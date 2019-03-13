@@ -960,6 +960,7 @@ let package = Package(
             // MARK: SimulatorVideoRecorder
             name: "SimulatorVideoRecorder",
             dependencies: [
+                "Logging",
                 "Models",
                 "ProcessController"
             ]

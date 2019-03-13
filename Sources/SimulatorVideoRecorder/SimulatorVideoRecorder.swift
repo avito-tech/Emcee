@@ -3,6 +3,12 @@ import Models
 import ProcessController
 
 public final class SimulatorVideoRecorder {
+    public enum CodecType: String {
+        case mp4
+        case h264
+        case fmp4
+    }
+    
     private let simulatorUuid: UUID
     private let simulatorSetPath: String
 
@@ -11,7 +17,7 @@ public final class SimulatorVideoRecorder {
         self.simulatorSetPath = simulatorSetPath
     }
     
-    public func startRecording(outputPath: String) throws -> CancellableRecording {
+    public func startRecording(codecType: CodecType, outputPath: String) throws -> CancellableRecording {
         let processController = try ProcessController(
             subprocess: Subprocess(
                 arguments: [
@@ -22,7 +28,7 @@ public final class SimulatorVideoRecorder {
                     "io",
                     simulatorUuid.uuidString,
                     "recordVideo",
-                    "--type=mp4",
+                    "--type=\(codecType.rawValue)",
                     outputPath
                 ]
             )

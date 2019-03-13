@@ -1,4 +1,5 @@
 import Foundation
+import Logging
 import ProcessController
 
 class CancellableRecordingImpl: CancellableRecording {
@@ -11,8 +12,10 @@ class CancellableRecordingImpl: CancellableRecording {
     }
     
     func stopRecording() -> String {
+        Logger.verboseDebug("Stopping recording into \(outputPath)")
         recordingProcess.terminateAndForceKillIfNeeded()
         recordingProcess.waitForProcessToDie()
+        Logger.debug("Recoring process terminated")
         return outputPath
     }
 }
