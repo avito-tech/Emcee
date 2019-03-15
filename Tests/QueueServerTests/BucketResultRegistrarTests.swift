@@ -30,7 +30,7 @@ final class BucketResultRegistrarTests: XCTestCase {
         XCTAssertEqual(bucketQueue.acceptedResults, [testingResult])
     }
     
-    func test__results_collector_stays_unmodified_and_worker_is_blocked__if_bucket_queue_does_not_accept_results() {
+    func test___results_collector_stays_unmodified___if_bucket_queue_does_not_accept_results() {
         let alivenessTracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
         alivenessTracker.didRegisterWorker(workerId: "worker")
         let bucketQueue = FakeBucketQueue(throwsOnAccept: true)
@@ -44,7 +44,6 @@ final class BucketResultRegistrarTests: XCTestCase {
         XCTAssertThrowsError(try registrar.handle(decodedRequest: request))
         
         XCTAssertEqual(bucketQueue.acceptedResults, [])
-        XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: "worker").status, .blocked)
     }
 }
 

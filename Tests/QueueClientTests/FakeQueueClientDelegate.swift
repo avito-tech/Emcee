@@ -12,6 +12,7 @@ class FakeQueueClientDelegate: QueueClientDelegate {
         case bucket(Bucket)
         case acceptedBucketResult(String)
         case workerHasBeenBlocked
+        case workerConsideredNotAlive
         case alivenessAccepted
         case queueServerVersion(Version)
         case didScheduleTests(String)
@@ -28,6 +29,10 @@ class FakeQueueClientDelegate: QueueClientDelegate {
     
     func queueClientQueueIsEmpty(_ sender: QueueClient) {
         responses.append(ServerResponse.queueIsEmpty)
+    }
+    
+    func queueClientWorkerConsideredNotAlive(_ sender: QueueClient) {
+        responses.append(ServerResponse.workerConsideredNotAlive)
     }
     
     func queueClientWorkerHasBeenBlocked(_ sender: QueueClient) {

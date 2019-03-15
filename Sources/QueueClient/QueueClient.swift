@@ -191,7 +191,9 @@ public final class QueueClient {
             delegate?.queueClient(self, fetchBucketLaterAfter: checkAfter)
         case .queueIsEmpty:
             delegate?.queueClientQueueIsEmpty(self)
-        case .workerBlocked:
+        case .workerIsNotAlive:
+            delegate?.queueClientWorkerConsideredNotAlive(self)
+        case .workerIsBlocked:
             delegate?.queueClientWorkerHasBeenBlocked(self)
         }
     }

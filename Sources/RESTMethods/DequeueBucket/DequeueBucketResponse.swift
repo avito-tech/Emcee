@@ -4,7 +4,8 @@ import Models
 public enum DequeueBucketResponse: Codable, Equatable {
     case bucketDequeued(bucket: Bucket)
     case queueIsEmpty
-    case workerBlocked
+    case workerIsNotAlive
+    case workerIsBlocked
     case checkAgainLater(checkAfter: TimeInterval)
     
     private enum CodingKeys: CodingKey {
@@ -16,7 +17,8 @@ public enum DequeueBucketResponse: Codable, Equatable {
     private enum CaseId: String, Codable {
         case bucketDequeued
         case queueIsEmpty
-        case workerBlocked
+        case workerIsNotAlive
+        case workerIsBlocked
         case checkAgainLater
     }
     
@@ -28,10 +30,12 @@ public enum DequeueBucketResponse: Codable, Equatable {
             self = .bucketDequeued(bucket: try container.decode(Bucket.self, forKey: .bucket))
         case .queueIsEmpty:
             self = .queueIsEmpty
-        case .workerBlocked:
-            self = .workerBlocked
+        case .workerIsNotAlive:
+            self = .workerIsNotAlive
         case .checkAgainLater:
             self = .checkAgainLater(checkAfter: try container.decode(TimeInterval.self, forKey: .checkAfter))
+        case .workerIsBlocked:
+            self = .workerIsBlocked
         }
     }
     
@@ -46,8 +50,10 @@ public enum DequeueBucketResponse: Codable, Equatable {
             try container.encode(checkAfter, forKey: .checkAfter)
         case .queueIsEmpty:
             try container.encode(CaseId.queueIsEmpty, forKey: .caseId)
-        case .workerBlocked:
-            try container.encode(CaseId.workerBlocked, forKey: .caseId)
+        case .workerIsNotAlive:
+            try container.encode(CaseId.workerIsNotAlive, forKey: .caseId)
+        case .workerIsBlocked:
+            try container.encode(CaseId.workerIsBlocked, forKey: .caseId)
         }
     }
 }

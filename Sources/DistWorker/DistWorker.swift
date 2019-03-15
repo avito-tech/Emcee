@@ -128,7 +128,10 @@ public final class DistWorker {
                     Logger.debug("Server returned that queue is empty")
                     return nil
                 case .workerHasBeenBlocked:
-                    Logger.debug("Server has blocked this worker")
+                    Logger.error("Server has blocked this worker")
+                    return nil
+                case .workerConsideredNotAlive:
+                    Logger.error("Server thinks this worker is not alive")
                     return nil
                 case .checkLater(let after):
                     Logger.debug("Server asked to wait for \(after) seconds and fetch next bucket again")

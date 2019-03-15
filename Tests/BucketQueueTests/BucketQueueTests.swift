@@ -114,7 +114,13 @@ final class BucketQueueTests: XCTestCase {
         bucketQueue.enqueue(buckets: [bucket])
         
         let dequeueResult = bucketQueue.dequeueBucket(requestId: requestId, workerId: workerId)
-        XCTAssertEqual(dequeueResult, .workerBlocked)
+        XCTAssertEqual(dequeueResult, .workerIsBlocked)
+    }
+    
+    func test__reponse_workerIsNotAlive__when_worker_is_not_alive() {
+        let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults)
+        let dequeueResult = bucketQueue.dequeueBucket(requestId: requestId, workerId: UUID().uuidString)
+        XCTAssertEqual(dequeueResult, .workerIsNotAlive)
     }
     
     func test__dequeueing_previously_dequeued_buckets() {

@@ -52,12 +52,15 @@ final class BucketQueueImpl: BucketQueue {
     }
     
     public func dequeueBucket(requestId: String, workerId: String) -> DequeueResult {
-        let workerAliveness = workerAlivenessProvider.workerAliveness
-        
-        if workerAliveness[workerId]?.status != .alive {
-            return .workerBlocked
+        switch workerAlivenessProvider.alivenessForWorker(workerId: workerId).status {
+        case .blocked:
+            return .workerIsBlocked
+        case .silent, .notRegistered:
+            return .workerIsNotAlive
+        case .alive:
+            break
         }
-        
+
         return queue.sync {
             // There might me problems with connection between workers and queue and connection may be lost.
             // If same worker tries to perform same request again, return same result.
@@ -76,9 +79,7 @@ final class BucketQueueImpl: BucketQueue {
             let bucketToDequeueOrNil = testHistoryTracker.bucketToDequeue(
                 workerId: workerId,
                 queue: enqueuedBuckets,
-                aliveWorkers: workerAliveness
-                    .filter { $0.value.status == .alive }
-                    .map { $0.key }
+                aliveWorkers: workerAlivenessProvider.aliveWorkerIds
             )
             
             if let enqueuedBucket = bucketToDequeueOrNil {
@@ -98,9 +99,8 @@ final class BucketQueueImpl: BucketQueue {
     public func accept(
         testingResult: TestingResult,
         requestId: String,
-        workerId: String)
-        throws
-        -> BucketQueueAcceptResult
+        workerId: String
+        ) throws -> BucketQueueAcceptResult
     {
         return try queue.sync {
             Logger.debug("Validating result from \(workerId) \(requestId): \(testingResult)")

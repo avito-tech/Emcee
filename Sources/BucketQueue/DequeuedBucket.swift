@@ -5,7 +5,8 @@ public enum DequeueResult: Hashable {
     case queueIsEmpty
     case checkAgainLater(checkAfter: TimeInterval)
     case dequeuedBucket(DequeuedBucket)
-    case workerBlocked
+    case workerIsBlocked
+    case workerIsNotAlive
 }
 
 public struct DequeuedBucket: CustomStringConvertible, Hashable {

@@ -35,15 +35,15 @@ final class BucketProviderTests: XCTestCase {
         XCTAssertEqual(response, .checkAgainLater(checkAfter: 42))
     }
     
-    func test___reponse_is_worker_blocked___if_worker_is_blocked() throws {
-        let bucketQueue = FakeBucketQueue(fixedDequeueResult: .workerBlocked)
+    func test___reponse_is_worker_not_alive___if_worker_is_not_alive() throws {
+        let bucketQueue = FakeBucketQueue(fixedDequeueResult: .workerIsNotAlive)
         let bucketProvider = BucketProviderEndpoint(
             dequeueableBucketSource: bucketQueue,
             workerAlivenessTracker: alivenessTracker
         )
         
         let response = try bucketProvider.handle(decodedRequest: fetchRequest)
-        XCTAssertEqual(response, .workerBlocked)
+        XCTAssertEqual(response, .workerIsNotAlive)
     }
     
     func test___reponse_has_dequeued_bucket___if_queue_has_enqueued_buckets() throws {

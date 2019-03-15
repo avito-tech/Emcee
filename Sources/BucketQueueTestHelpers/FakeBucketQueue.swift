@@ -17,7 +17,8 @@ public class FakeBucketQueue: BucketQueue {
     public init(
         throwsOnAccept: Bool = false,
         fixedStuckBuckets: [StuckBucket] = [],
-        fixedDequeueResult: DequeueResult = .workerBlocked)
+        fixedDequeueResult: DequeueResult = .workerIsNotAlive
+        )
     {
         self.throwsOnAccept = throwsOnAccept
         self.fixedStuckBuckets = fixedStuckBuckets

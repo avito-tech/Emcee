@@ -41,8 +41,10 @@ public final class BucketProviderEndpoint: RESTEndpoint {
                 workerId: decodedRequest.workerId
             )
             return .bucketDequeued(bucket: dequeuedBucket.enqueuedBucket.bucket)
-        case .workerBlocked:
-            return .workerBlocked
+        case .workerIsNotAlive:
+            return .workerIsNotAlive
+        case .workerIsBlocked:
+            return .workerIsBlocked
         }
     }
 }

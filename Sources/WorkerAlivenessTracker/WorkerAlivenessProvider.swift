@@ -11,6 +11,10 @@ public extension WorkerAlivenessProvider {
         }
     }
     
+    var aliveWorkerIds: [String] {
+        return workerAliveness.filter { $0.value.status == .alive }.map { $0.key }
+    }
+    
     func alivenessForWorker(workerId: String) -> WorkerAliveness {
         return workerAliveness[workerId] ?? WorkerAliveness(status: .notRegistered, bucketIdsBeingProcessed: [])
     }

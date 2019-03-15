@@ -5,6 +5,7 @@ import Version
 public protocol QueueClientDelegate: class {
     func queueClient(_ sender: QueueClient, didFailWithError error: QueueClientError)
     func queueClientQueueIsEmpty(_ sender: QueueClient)
+    func queueClientWorkerConsideredNotAlive(_ sender: QueueClient)
     func queueClientWorkerHasBeenBlocked(_ sender: QueueClient)
     func queueClient(_ sender: QueueClient, fetchBucketLaterAfter after: TimeInterval)
     func queueClient(_ sender: QueueClient, didReceiveWorkerConfiguration workerConfiguration: WorkerConfiguration)
