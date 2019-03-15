@@ -13,9 +13,21 @@ class CancellableRecordingImpl: CancellableRecording {
     
     func stopRecording() -> String {
         Logger.verboseDebug("Stopping recording into \(outputPath)")
+        recordingProcess.interruptAndForceKillIfNeeded()
+        recordingProcess.waitForProcessToDie()
+        Logger.debug("Recoring process interrupted")
+        return outputPath
+    }
+    
+    func cancelRecording() {
+        Logger.verboseDebug("Cancelling recording into \(outputPath)")
         recordingProcess.terminateAndForceKillIfNeeded()
         recordingProcess.waitForProcessToDie()
-        Logger.debug("Recoring process terminated")
-        return outputPath
+        
+        if FileManager.default.fileExists(atPath: outputPath) {
+            try? FileManager.default.removeItem(atPath: outputPath)
+        }
+        
+        Logger.debug("Recoring process cancelled")
     }
 }
