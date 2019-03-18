@@ -33,17 +33,21 @@ public final class SentryLoggerHandler: LoggerHandler {
     public func handle(logEntry: LogEntry) {
         guard logEntry.verbosity <= verbosity else { return }
         
+        var extraData = [
+            "file": "\(logEntry.file.description):\(logEntry.line)",
+            "hostname": hostname,
+            "verbosity": logEntry.verbosity.stringCode
+        ]
+        if let subprocessInfo = logEntry.subprocessInfo {
+            extraData["subprocess_name"] = subprocessInfo.subprocessName
+        }
+        
         let sentryEvent = SentryEvent(
             message: logEntry.message,
             timestamp: logEntry.timestamp,
             level: logEntry.verbosity.toSentryLevel(),
             release: release,
-            extra: [
-                "file": logEntry.file.description,
-                "hostname": hostname,
-                "line": logEntry.line,
-                "verbosity": logEntry.verbosity.stringCode
-            ]
+            extra: extraData
         )
         
         let payload: Data

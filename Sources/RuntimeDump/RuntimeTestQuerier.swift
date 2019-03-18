@@ -44,7 +44,7 @@ public final class RuntimeTestQuerier {
             do {
                 return try work()
             } catch {
-                Logger.error("Attempt \(retryIndex + 1) of \(times), got an error: \(error)")
+                Logger.error("Failed to get runtime dump, error: \(error)")
                 SynchronousWaiter.wait(timeout: TimeInterval(retryIndex) * 2.0)
             }
         }

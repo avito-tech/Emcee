@@ -106,7 +106,8 @@ final class BucketQueueImpl: BucketQueue {
             Logger.debug("Validating result from \(workerId) \(requestId): \(testingResult)")
             
             guard let dequeuedBucket = previouslyDequeuedBucket_onSyncQueue(requestId: requestId, workerId: workerId) else {
-                Logger.error("Validation failed: no dequeued bucket for request \(requestId) worker \(workerId)")
+                Logger.error("No dequeued bucket for worker \(workerId)")
+                Logger.verboseDebug("Validation failed: no dequeued bucket for request \(requestId) worker \(workerId)")
                 throw ResultAcceptanceError.noDequeuedBucket(requestId: requestId, workerId: workerId)
             }
             

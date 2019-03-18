@@ -177,7 +177,7 @@ public final class Runner {
             let testsWorkingDirectory = try tempFolder.pathByCreatingDirectories(components: ["testsWorkingDir", UUID().uuidString])
             environment[TestsWorkingDirectorySupport.envTestsWorkingDirectory] = testsWorkingDirectory.asString
         } catch {
-            Logger.error("Unable to create path tests working directory: \(error)")
+            Logger.error("Unable to create tests working directory: \(error)")
         }
         return TestContext(
             environment: environment,

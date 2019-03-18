@@ -131,7 +131,7 @@ public final class DistWorker {
                     Logger.error("Server has blocked this worker")
                     return nil
                 case .workerConsideredNotAlive:
-                    Logger.error("Server thinks this worker is not alive")
+                    Logger.error("Server considers this worker as not alive")
                     return nil
                 case .checkLater(let after):
                     Logger.debug("Server asked to wait for \(after) seconds and fetch next bucket again")

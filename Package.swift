@@ -1091,6 +1091,7 @@ let package = Package(
             // MARK: WorkerAlivenessTracker
             name: "WorkerAlivenessTracker",
             dependencies: [
+                "Logging"
             ]
         ),
         .target(

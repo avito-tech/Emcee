@@ -1,5 +1,6 @@
 import Dispatch
 import Foundation
+import Logging
 
 public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
     private let syncQueue = DispatchQueue(label: "ru.avito.emcee.WorkerAlivenessTracker.syncQueue")
@@ -43,6 +44,7 @@ public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
         syncQueue.sync {
             _ = blockedWorkers.insert(workerId)
             workerBucketIdsBeingProcessed.resetBucketIdsBeingProcessedBy(workerId: workerId)
+            Logger.warning("Blocked worker: \(workerId)")
         }
     }
     

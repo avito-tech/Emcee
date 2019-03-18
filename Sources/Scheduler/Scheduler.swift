@@ -85,7 +85,10 @@ public final class Scheduler {
                 return
             }
             guard self.allGatheredErrors().isEmpty else {
-                Logger.error("Some errors occured, will not fetch and run more buckets: \(self.allGatheredErrors())")
+                Logger.error("Some errors occured, will not fetch and run more buckets")
+                for error in self.allGatheredErrors() {
+                    Logger.error("\(error)")
+                }
                 return
             }
             guard let bucket = self.configuration.schedulerDataSource.nextBucket() else {

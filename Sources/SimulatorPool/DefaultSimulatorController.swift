@@ -34,7 +34,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         }
         
         guard stage == .idle else {
-            Logger.error("Simulator \(simulator) is already being booted")
+            Logger.error("Simulator \(simulator.testDestination.destinationString) is already being booted")
             throw SimulatorBootError.bootingAlreadyStarted
         }
         
@@ -50,7 +50,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
                     Logger.debug("Booted simulator \(simulator) using #\(bootAttempt + 1) attempts")
                     return simulator
                 } catch {
-                    Logger.error("Attempt #\(bootAttempt) to boot simulator \(simulator) failed: \(error)")
+                    Logger.error("Attempt to boot simulator \(simulator.testDestination.destinationString) failed: \(error)")
                     try deleteSimulator()
                     bootAttempt += 1
                     if bootAttempt < maximumBootAttempts {
@@ -146,14 +146,14 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         do {
             try outputProcessor.waitForEvent(type: .ended, name: .boot, timeout: 90)
         } catch {
-            Logger.error("Simulator \(simulator) did not boot in time: \(error)")
+            Logger.error("Simulator \(simulator.testDestination.destinationString) did not boot in time: \(error)")
             throw error
         }
         
         do {
             try outputProcessor.waitForEvent(type: .started, name: .listen, timeout: 50)
         } catch {
-            Logger.error("Boot operation for simulator \(simulator) did not finish: \(error)")
+            Logger.error("Boot operation for simulator \(simulator.testDestination.destinationString) did not finish: \(error)")
             throw error
         }
     }

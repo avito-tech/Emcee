@@ -21,21 +21,13 @@ public final class GraphiteMetricHandler: MetricHandler {
                 host: graphiteSocketAddress.host,
                 port: graphiteSocketAddress.port
             ),
-            errorHandler: { _, error in
-                Logger.warning("Graphite stream error: \(error)")
+            errorHandler: { stream, error in
+                Logger.error("Graphite stream error: \(error)")
+                GraphiteMetricHandler.attemptToReopenStream(stream: stream)
             },
             streamEndHandler: { stream in
-                do {
-                    Logger.warning("Graphite stream has been closed")
-                    if GraphiteMetricHandler.shouldAttemtToReopenStream() {
-                        try stream.open()
-                    } else {
-                        Logger.warning("Exceeded number of attempts to reopen stream to graphite.")
-                        stream.close()
-                    }
-                } catch {
-                    Logger.warning("Error re-opening previously closed stream to Graphite: \(error)")
-                }
+                Logger.warning("Graphite stream has been closed")
+                GraphiteMetricHandler.attemptToReopenStream(stream: stream)
             }
         )
         try outputStream.open()
@@ -66,8 +58,22 @@ public final class GraphiteMetricHandler: MetricHandler {
     private static var numberOfAttemptsToReopenStream = 0
     private static let maximumAttemptsToReopenStream = 10
     
-    private static func shouldAttemtToReopenStream() -> Bool {
+    private static func shouldAttemptToReopenStream() -> Bool {
         numberOfAttemptsToReopenStream += 1
         return numberOfAttemptsToReopenStream < maximumAttemptsToReopenStream
+    }
+    
+    private static func attemptToReopenStream(stream: EasyOutputStream) {
+        do {
+            if GraphiteMetricHandler.shouldAttemptToReopenStream() {
+                stream.close()
+                try stream.open()
+            } else {
+                Logger.warning("Exceeded number of attempts to reopen stream to graphite.")
+                stream.close()
+            }
+        } catch {
+            Logger.warning("Error re-opening previously closed stream to Graphite: \(error)")
+        }
     }
 }

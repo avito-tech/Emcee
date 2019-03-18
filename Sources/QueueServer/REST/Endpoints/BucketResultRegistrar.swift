@@ -18,13 +18,16 @@ public final class BucketResultRegistrar: RESTEndpoint {
     }
 
     public func handle(decodedRequest: PushBucketResultRequest) throws -> BucketResultAcceptResponse {
-        let acceptResult = try bucketResultAccepter.accept(
-            testingResult: decodedRequest.testingResult,
-            requestId: decodedRequest.requestId,
-            workerId: decodedRequest.workerId
-        )
-        return .bucketResultAccepted(
-            bucketId: acceptResult.dequeuedBucket.enqueuedBucket.bucket.bucketId
-        )
+        do {
+            let acceptResult = try bucketResultAccepter.accept(
+                testingResult: decodedRequest.testingResult,
+                requestId: decodedRequest.requestId,
+                workerId: decodedRequest.workerId
+            )
+            return .bucketResultAccepted(bucketId: acceptResult.dequeuedBucket.enqueuedBucket.bucket.bucketId)
+        } catch {
+            workerAlivenessTracker.blockWorker(workerId: decodedRequest.workerId)
+            throw error
+        }
     }
 }

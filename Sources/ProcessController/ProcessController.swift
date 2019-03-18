@@ -170,7 +170,7 @@ public final class ProcessController: CustomStringConvertible {
     private func didDetectLongPeriodOfSilence() {
         silenceTrackingTimer?.stop()
         silenceTrackingTimer = nil
-        Logger.error("Detected a long period of silence", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
+        Logger.error("Detected a long period of silence of \(processName)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
         delegate?.processControllerDidNotReceiveAnyOutputWithinAllowedSilenceDuration(self)
     }
     
