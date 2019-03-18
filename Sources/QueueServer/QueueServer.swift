@@ -94,8 +94,7 @@ public final class QueueServer {
                 dequeueableBucketSource: balancingBucketQueue,
                 jobStateProvider: balancingBucketQueue,
                 queueStateProvider: balancingBucketQueue
-            ),
-            workerAlivenessTracker: workerAlivenessTracker
+            )
         )
         self.bucketResultRegistrar = BucketResultRegistrar(
             bucketResultAccepter: BucketResultAccepterWithMetricSupport(

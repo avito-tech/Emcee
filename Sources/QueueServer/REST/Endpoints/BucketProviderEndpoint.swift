@@ -7,24 +7,15 @@ import Logging
 import Models
 import Metrics
 import RESTMethods
-import WorkerAlivenessTracker
 
 public final class BucketProviderEndpoint: RESTEndpoint {
     private let dequeueableBucketSource: DequeueableBucketSource
-    private let workerAlivenessTracker: WorkerAlivenessTracker
 
-    public init(
-        dequeueableBucketSource: DequeueableBucketSource,
-        workerAlivenessTracker: WorkerAlivenessTracker
-        )
-    {
+    public init(dequeueableBucketSource: DequeueableBucketSource) {
         self.dequeueableBucketSource = dequeueableBucketSource
-        self.workerAlivenessTracker = workerAlivenessTracker
     }
     
     public func handle(decodedRequest: DequeueBucketRequest) throws -> DequeueBucketResponse {
-        workerAlivenessTracker.markWorkerAsAlive(workerId: decodedRequest.workerId)
-        
         let dequeueResult = dequeueableBucketSource.dequeueBucket(
             requestId: decodedRequest.requestId,
             workerId: decodedRequest.workerId
@@ -36,10 +27,6 @@ public final class BucketProviderEndpoint: RESTEndpoint {
         case .checkAgainLater(let checkAfter):
             return .checkAgainLater(checkAfter: checkAfter)
         case .dequeuedBucket(let dequeuedBucket):
-            workerAlivenessTracker.didDequeueBucket(
-                bucketId: dequeuedBucket.enqueuedBucket.bucket.bucketId,
-                workerId: decodedRequest.workerId
-            )
             return .bucketDequeued(bucket: dequeuedBucket.enqueuedBucket.bucket)
         case .workerIsNotAlive:
             return .workerIsNotAlive

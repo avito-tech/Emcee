@@ -2,6 +2,11 @@ import Foundation
 
 public protocol WorkerAlivenessProvider: class {
     var workerAliveness: [String: WorkerAliveness] { get }
+    
+    func markWorkerAsAlive(workerId: String)
+    
+    func set(bucketIdsBeingProcessed: Set<String>, workerId: String)
+    func didDequeueBucket(bucketId: String, workerId: String)
 }
 
 public extension WorkerAlivenessProvider {

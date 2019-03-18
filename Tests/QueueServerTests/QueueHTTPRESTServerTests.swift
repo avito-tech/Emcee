@@ -71,8 +71,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         )
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: DequeueResult.dequeuedBucket(dequeuedBucket))
         let bucketProvider = BucketProviderEndpoint(
-            dequeueableBucketSource: bucketQueue,
-            workerAlivenessTracker: WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
+            dequeueableBucketSource: bucketQueue
         )
         
         restServer.setHandler(

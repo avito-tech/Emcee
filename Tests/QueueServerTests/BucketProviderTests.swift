@@ -16,8 +16,7 @@ final class BucketProviderTests: XCTestCase {
     func test___reponse_is_empty_queue___if_queue_is_empty() throws {
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: .queueIsEmpty)
         let bucketProvider = BucketProviderEndpoint(
-            dequeueableBucketSource: bucketQueue,
-            workerAlivenessTracker: alivenessTracker
+            dequeueableBucketSource: bucketQueue
         )
         
         let response = try bucketProvider.handle(decodedRequest: fetchRequest)
@@ -27,8 +26,7 @@ final class BucketProviderTests: XCTestCase {
     func test___reponse_is_check_again___if_queue_has_dequeued_buckets() throws {
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: .checkAgainLater(checkAfter: 42))
         let bucketProvider = BucketProviderEndpoint(
-            dequeueableBucketSource: bucketQueue,
-            workerAlivenessTracker: alivenessTracker
+            dequeueableBucketSource: bucketQueue
         )
         
         let response = try bucketProvider.handle(decodedRequest: fetchRequest)
@@ -38,8 +36,7 @@ final class BucketProviderTests: XCTestCase {
     func test___reponse_is_worker_not_alive___if_worker_is_not_alive() throws {
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: .workerIsNotAlive)
         let bucketProvider = BucketProviderEndpoint(
-            dequeueableBucketSource: bucketQueue,
-            workerAlivenessTracker: alivenessTracker
+            dequeueableBucketSource: bucketQueue
         )
         
         let response = try bucketProvider.handle(decodedRequest: fetchRequest)
@@ -57,38 +54,10 @@ final class BucketProviderTests: XCTestCase {
             requestId: "request")
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: .dequeuedBucket(dequeuedBucket))
         let bucketProvider = BucketProviderEndpoint(
-            dequeueableBucketSource: bucketQueue,
-            workerAlivenessTracker: alivenessTracker
+            dequeueableBucketSource: bucketQueue
         )
         
         let response = try bucketProvider.handle(decodedRequest: fetchRequest)
         XCTAssertEqual(response, DequeueBucketResponse.bucketDequeued(bucket: dequeuedBucket.enqueuedBucket.bucket))
-    }
-    
-    func test___when_bucket_is_dequeued___aliveness_tracker_appends_bucket_id() throws {
-        let bucket = BucketFixtures.createBucket(
-            testEntries: [TestEntryFixtures.testEntry(className: "class", methodName: "test")]
-        )
-        let dequeuedBucket = DequeuedBucket(
-            enqueuedBucket: EnqueuedBucket(
-                bucket: bucket,
-                enqueueTimestamp: Date()
-            ),
-            workerId: "worker",
-            requestId: "request"
-        )
-        let bucketQueue = FakeBucketQueue(fixedDequeueResult: .dequeuedBucket(dequeuedBucket))
-        let bucketProvider = BucketProviderEndpoint(
-            dequeueableBucketSource: bucketQueue,
-            workerAlivenessTracker: alivenessTracker
-        )
-        
-        _ = try bucketProvider.handle(decodedRequest: fetchRequest)
-        
-        let aliveness = alivenessTracker.alivenessForWorker(workerId: "worker")
-        XCTAssertEqual(
-            aliveness,
-            WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [bucket.bucketId])
-        )
     }
 }

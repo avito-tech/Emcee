@@ -18,7 +18,8 @@ final class BucketQueueImpl: BucketQueue {
         checkAgainTimeInterval: TimeInterval,
         dateProvider: DateProvider,
         testHistoryTracker: TestHistoryTracker,
-        workerAlivenessProvider: WorkerAlivenessProvider)
+        workerAlivenessProvider: WorkerAlivenessProvider
+        )
     {
         self.checkAgainTimeInterval = checkAgainTimeInterval
         self.dateProvider = dateProvider
@@ -58,7 +59,7 @@ final class BucketQueueImpl: BucketQueue {
         case .silent, .notRegistered:
             return .workerIsNotAlive
         case .alive:
-            break
+            workerAlivenessProvider.markWorkerAsAlive(workerId: workerId)
         }
 
         return queue.sync {
@@ -229,6 +230,11 @@ final class BucketQueueImpl: BucketQueue {
         _ = dequeuedBuckets.insert(dequeuedBucket)
         
         Logger.debug("Dequeued new bucket: \(dequeuedBucket). Now there are \(dequeuedBuckets.count) dequeued buckets.")
+        
+        workerAlivenessProvider.didDequeueBucket(
+            bucketId: dequeuedBucket.enqueuedBucket.bucket.bucketId,
+            workerId: workerId
+        )
         
         return dequeuedBucket
     }

@@ -3,6 +3,7 @@ import BucketQueue
 import DateProvider
 import Dispatch
 import Foundation
+import Logging
 import Models
 import ResultsCollector
 
@@ -131,8 +132,12 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
     }
     
     func reenqueueStuckBuckets() -> [StuckBucket] {
-        return syncQueue.sync {
-            bucketQueues_onSyncQueue().flatMap { $0.reenqueueStuckBuckets() }
+        let bucketQueues = syncQueue.sync { self.bucketQueues }
+        return bucketQueues.flatMap { jobQueue -> [StuckBucket] in
+            Logger.verboseDebug("Will reenqueue stuck buckets for job: \(jobQueue.prioritizedJob)")
+            let stuckBuckets = jobQueue.bucketQueue.reenqueueStuckBuckets()
+            Logger.verboseDebug("Found \(stuckBuckets.count) stuck buckets for job: \(jobQueue.prioritizedJob)")
+            return stuckBuckets
         }
     }
     

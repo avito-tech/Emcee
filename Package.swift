@@ -130,6 +130,7 @@ let package = Package(
             dependencies: [
                 "BucketQueue",
                 "DateProvider",
+                "Logging",
                 "Models",
                 "ResultsCollector",
                 "Utility"
