@@ -159,7 +159,10 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
     }
     
     public func deleteSimulator() throws {
-        simulatorKeepAliveProcessController?.interruptAndForceKillIfNeeded()
+        if let simulatorKeepAliveProcessController = simulatorKeepAliveProcessController {
+            simulatorKeepAliveProcessController.interruptAndForceKillIfNeeded()
+            simulatorKeepAliveProcessController.waitForProcessToDie()
+        }
         simulatorKeepAliveProcessController = nil
         
         if stage == .idle {
@@ -170,22 +173,66 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         stage = .deletingSimulator
         
         Logger.verboseDebug("Deleting simulator: \(simulator)")
+        try deleteSimulatorUsingFbsimctl()
+        
+        if stage == .deleteHang {
+            try attemptToDeleteSimulatorFiles()
+        }
+        
+        stage = .idle
+        Logger.debug("Deleted simulator: \(simulator)")
+    }
+    
+    private func deleteSimulatorUsingFbsimctl() throws {
         let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: [
                     fbsimctl.asArgumentWith(packageName: PackageName.fbsimctl),
                     "--json", "--set", simulator.simulatorSetContainerPath.asString,
-                    "--simulators", "delete"],
-                maximumAllowedSilenceDuration: 90))
+                    "--simulators", "delete"
+                ],
+                maximumAllowedSilenceDuration: 30
+            )
+        )
         controller.delegate = self
         controller.startAndListenUntilProcessDies()
-        
-        guard stage == .deletingSimulator else { throw SimulatorBootError.deleteOperationFailed("Unexpected stage: \(stage)") }
-        guard controller.terminationStatus() == 0 else {
+        if controller.terminationStatus() != 0 {
             throw SimulatorBootError.deleteOperationFailed("Unexpected fbsimctl exit code: \(String(describing: controller.terminationStatus()))")
         }
-        stage = .idle
-        Logger.debug("Deleted simulator: \(simulator)")
+    }
+    
+    private func attemptToDeleteSimulatorFiles() throws {
+        if let simulatorUuid = simulator.simulatorInfo.simulatorUuid {
+            Logger.debug("Shutting down simulator \(simulatorUuid)")
+            let shutdownController = try ProcessController(
+                subprocess: Subprocess(
+                    arguments: [
+                        "/usr/bin/xcrun",
+                        "simctl", "--set", simulator.simulatorSetContainerPath.asString,
+                        "shutdown", simulatorUuid.uuidString
+                    ],
+                    maximumAllowedSilenceDuration: 20
+                )
+            )
+            shutdownController.startAndListenUntilProcessDies()
+            Logger.debug("Deleting simulator \(simulatorUuid)")
+            let deleteController = try ProcessController(
+                subprocess: Subprocess(
+                    arguments: [
+                        "/usr/bin/xcrun",
+                        "simctl", "--set", simulator.simulatorSetContainerPath.asString,
+                        "delete", simulatorUuid.uuidString
+                    ],
+                    maximumAllowedSilenceDuration: 15
+                )
+            )
+            deleteController.startAndListenUntilProcessDies()
+        }
+        
+        if FileManager.default.fileExists(atPath: simulator.simulatorSetContainerPath.asString) {
+            Logger.verboseDebug("Removing files left by simulator \(simulator)")
+            try FileManager.default.removeItem(atPath: simulator.simulatorSetContainerPath.asString)
+        }
     }
     
     // MARK: - Process Controller Events
