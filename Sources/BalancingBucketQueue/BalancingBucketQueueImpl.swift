@@ -136,10 +136,7 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
     func reenqueueStuckBuckets() -> [StuckBucket] {
         let bucketQueues = syncQueue.sync { self.bucketQueues }
         return bucketQueues.flatMap { jobQueue -> [StuckBucket] in
-            Logger.verboseDebug("Will reenqueue stuck buckets for job: \(jobQueue.prioritizedJob)")
-            let stuckBuckets = jobQueue.bucketQueue.reenqueueStuckBuckets()
-            Logger.verboseDebug("Found \(stuckBuckets.count) stuck buckets for job: \(jobQueue.prioritizedJob)")
-            return stuckBuckets
+            jobQueue.bucketQueue.reenqueueStuckBuckets()
         }
     }
     
