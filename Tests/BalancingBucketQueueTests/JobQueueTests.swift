@@ -7,55 +7,58 @@ import ResultsCollector
 import XCTest
 
 final class JobQueueTests: XCTestCase {
-    func test___equality() {
-        let jobQueue1 = JobQueue(
-            prioritizedJob: PrioritizedJob(jobId: "job1", priority: .medium),
+    func test___high_priority_queue_should_have_preeminence_over_lower_priority_queue() {
+        let highestPriorityJobQueue = JobQueue(
+            prioritizedJob: PrioritizedJob(jobId: "job1", priority: .highest),
             creationTime: Date(timeIntervalSince1970: 100),
             bucketQueue: FakeBucketQueue(),
             resultsCollector: ResultsCollector()
         )
-        let jobQueue2 = JobQueue(
-            prioritizedJob: PrioritizedJob(jobId: "job1", priority: .medium),
-            creationTime: Date(timeIntervalSince1970: 100),
-            bucketQueue: FakeBucketQueue(),
-            resultsCollector: ResultsCollector()
-        )
-        
-        XCTAssertEqual(jobQueue1, jobQueue2)
-    }
-    
-    func test___comparison() {
-        let jobQueue1 = JobQueue(
-            prioritizedJob: PrioritizedJob(jobId: "job1", priority: .medium),
-            creationTime: Date(timeIntervalSince1970: 9999),
-            bucketQueue: FakeBucketQueue(),
-            resultsCollector: ResultsCollector()
-        )
-        let jobQueue2 = JobQueue(
-            prioritizedJob: PrioritizedJob(jobId: "job1", priority: .medium),
-            creationTime: Date(timeIntervalSince1970: 100),
-            bucketQueue: FakeBucketQueue(),
-            resultsCollector: ResultsCollector()
-        )
-        
-        XCTAssertLessThan(jobQueue2, jobQueue1)
-    }
-    
-    func test___comparing_with_priority() {
-        let jobQueue1 = JobQueue(
-            prioritizedJob: PrioritizedJob(jobId: "job1", priority: .medium),
-            creationTime: Date(timeIntervalSince1970: 100),
-            bucketQueue: FakeBucketQueue(),
-            resultsCollector: ResultsCollector()
-        )
-        let jobQueue2 = JobQueue(
+        let lowestPriorityJobQueue = JobQueue(
             prioritizedJob: PrioritizedJob(jobId: "job2", priority: .lowest),
             creationTime: Date(timeIntervalSince1970: 100),
             bucketQueue: FakeBucketQueue(),
             resultsCollector: ResultsCollector()
         )
-        
-        XCTAssertLessThan(jobQueue2, jobQueue1)
+        XCTAssertTrue(
+            highestPriorityJobQueue.hasPreeminence(overJobQueue: lowestPriorityJobQueue)
+        )
+    }
+    
+    func test___earlier_created_queue_should_have_preeminence_over_later_created_queue() {
+        let earlierCreatedJobQueue = JobQueue(
+            prioritizedJob: PrioritizedJob(jobId: "job1", priority: .medium),
+            creationTime: Date(timeIntervalSince1970: 100),
+            bucketQueue: FakeBucketQueue(),
+            resultsCollector: ResultsCollector()
+        )
+        let laterCreatedJobQueue = JobQueue(
+            prioritizedJob: PrioritizedJob(jobId: "job2", priority: .medium),
+            creationTime: Date(timeIntervalSince1970: 200),
+            bucketQueue: FakeBucketQueue(),
+            resultsCollector: ResultsCollector()
+        )
+        XCTAssertTrue(
+            earlierCreatedJobQueue.hasPreeminence(overJobQueue: laterCreatedJobQueue)
+        )
+    }
+    
+    func test___later_created_queue_with_higher_priority_should_have_preeminence_over_earlier_created_queue_with_lower_priority() {
+        let highestPriorityLaterCreatedJobQueue = JobQueue(
+            prioritizedJob: PrioritizedJob(jobId: "job1", priority: .highest),
+            creationTime: Date(timeIntervalSince1970: 500),
+            bucketQueue: FakeBucketQueue(),
+            resultsCollector: ResultsCollector()
+        )
+        let lowestPriorityEarlierCreatedJobQueue = JobQueue(
+            prioritizedJob: PrioritizedJob(jobId: "job2", priority: .lowest),
+            creationTime: Date(timeIntervalSince1970: 100),
+            bucketQueue: FakeBucketQueue(),
+            resultsCollector: ResultsCollector()
+        )
+        XCTAssertTrue(
+            highestPriorityLaterCreatedJobQueue.hasPreeminence(overJobQueue: lowestPriorityEarlierCreatedJobQueue)
+        )
     }
 }
 

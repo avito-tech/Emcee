@@ -1,6 +1,6 @@
 import Foundation
 
-public final class PrioritizedJob: Comparable, Hashable, Codable, CustomStringConvertible {
+public final class PrioritizedJob: Hashable, Codable, CustomStringConvertible {
     public let jobId: JobId
     public let priority: Priority
 
@@ -15,11 +15,7 @@ public final class PrioritizedJob: Comparable, Hashable, Codable, CustomStringCo
     }
     
     public var description: String {
-        return "<\(type(of: self)) priority: \(priority)>"
-    }
-    
-    public static func < (left: PrioritizedJob, right: PrioritizedJob) -> Bool {
-        return left.priority < right.priority
+        return "<\(type(of: self)) jobId: \(jobId) priority: \(priority)>"
     }
     
     public static func == (left: PrioritizedJob, right: PrioritizedJob) -> Bool {

@@ -23,7 +23,9 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
     }
     
     private static func createQueues(contents: [JobQueue]) -> SortedArray<JobQueue> {
-        return SortedArray(contents) { $0 < $1 }
+        return SortedArray(contents) { leftQueue, rightQueue -> Bool in
+            leftQueue.hasPreeminence(overJobQueue: rightQueue)
+        }
     }
     
     func delete(jobId: JobId) throws {

@@ -3,7 +3,7 @@ import Foundation
 import Models
 import ResultsCollector
 
-final class JobQueue: Comparable {
+final class JobQueue {
     public let prioritizedJob: PrioritizedJob
     public let creationTime: Date
     public let bucketQueue: BucketQueue
@@ -21,15 +21,14 @@ final class JobQueue: Comparable {
         self.resultsCollector = resultsCollector
     }
     
-    static func < (left: JobQueue, right: JobQueue) -> Bool {
-        if left.prioritizedJob == right.prioritizedJob {
-            return left.creationTime < right.creationTime
+    /// When A > B it means A has preeminence over B in terms of priority of test invocation
+    /// So when A < B < C, C has preeminence over B and A, and B has preeminence over A.
+    /// To keep this semantic cleaner we don't use Comparable, we expose this method.
+    func hasPreeminence(overJobQueue otherJobQueue: JobQueue) -> Bool {
+        let otherJobQueue = otherJobQueue
+        if otherJobQueue.prioritizedJob.priority == self.prioritizedJob.priority {
+            return otherJobQueue.creationTime > self.creationTime
         }
-        return left.prioritizedJob < right.prioritizedJob
-    }
-    
-    static func == (left: JobQueue, right: JobQueue) -> Bool {
-        return left.prioritizedJob == right.prioritizedJob
-            && left.creationTime == right.creationTime
+        return otherJobQueue.prioritizedJob.priority < self.prioritizedJob.priority
     }
 }
