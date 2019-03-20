@@ -66,9 +66,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
     }
     
     private func createAndBoot() throws {
-        if simulator.uuid == nil {
-            try createSimulator()
-        }
+        try createSimulator()
         try bootSimulator()
     }
     
@@ -160,18 +158,12 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         }
     }
     
-    public func shutdownSimulator() throws {
+    public func deleteSimulator() throws {
         if let simulatorKeepAliveProcessController = simulatorKeepAliveProcessController {
-            Logger.debug("Shutting down simulator \(simulator)")
             simulatorKeepAliveProcessController.interruptAndForceKillIfNeeded()
             simulatorKeepAliveProcessController.waitForProcessToDie()
-            stage = .createdSimulator
         }
         simulatorKeepAliveProcessController = nil
-    }
-    
-    public func deleteSimulator() throws {
-        try shutdownSimulator()
         
         if stage == .idle {
             Logger.debug("Simulator \(simulator) hasn't booted yet, so it won't be deleted.")
@@ -184,10 +176,8 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         try deleteSimulatorUsingFbsimctl()
         
         if stage == .deleteHang {
-            try attemptToDeleteUsingSimctl()
+            try attemptToDeleteSimulatorFiles()
         }
-        
-        try cleanUpSimulatorFolder()
         
         stage = .idle
         Logger.debug("Deleted simulator: \(simulator)")
@@ -211,8 +201,20 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         }
     }
     
-    private func attemptToDeleteUsingSimctl() throws {
+    private func attemptToDeleteSimulatorFiles() throws {
         if let simulatorUuid = simulator.simulatorInfo.simulatorUuid {
+            Logger.debug("Shutting down simulator \(simulatorUuid)")
+            let shutdownController = try ProcessController(
+                subprocess: Subprocess(
+                    arguments: [
+                        "/usr/bin/xcrun",
+                        "simctl", "--set", simulator.simulatorSetContainerPath.asString,
+                        "shutdown", simulatorUuid.uuidString
+                    ],
+                    maximumAllowedSilenceDuration: 20
+                )
+            )
+            shutdownController.startAndListenUntilProcessDies()
             Logger.debug("Deleting simulator \(simulatorUuid)")
             let deleteController = try ProcessController(
                 subprocess: Subprocess(
@@ -226,12 +228,10 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
             )
             deleteController.startAndListenUntilProcessDies()
         }
-    }
-    
-    private func cleanUpSimulatorFolder() throws {
-        if FileManager.default.fileExists(atPath: simulator.workingDirectory.asString) {
+        
+        if FileManager.default.fileExists(atPath: simulator.simulatorSetContainerPath.asString) {
             Logger.verboseDebug("Removing files left by simulator \(simulator)")
-            try FileManager.default.removeItem(atPath: simulator.workingDirectory.asString)
+            try FileManager.default.removeItem(atPath: simulator.simulatorSetContainerPath.asString)
         }
     }
     
