@@ -57,6 +57,7 @@ public final class LocalQueueServerRunner {
         
         try queueServer.waitForWorkersToAppear()
         try waitForAutomaticTerminationControllerToTriggerStartOfTermination(automaticTerminationController)
+        try queueServer.waitForBalancingQueueToDeplete()
         try waitForAllJobsToBeDeleted(
             queueServer: queueServer,
             timeout: queueServerRunConfiguration.queueServerTerminationPolicy.period
