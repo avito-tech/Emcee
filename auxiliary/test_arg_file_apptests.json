@@ -1,0 +1,22 @@
+{
+    "entries": [
+        {
+            "testToRun": "TestAppTests/testApplicationTest___successful",
+            "numberOfRetries": 1,
+            "testDestination": {
+                "deviceType": "iPhone SE",
+                "runtime": "10.3"
+            },
+            "testType": "appTest"
+        },
+        {
+            "testToRun": "TestAppTests/testApplicationTest___failing",
+            "numberOfRetries": 1,
+            "testDestination": {
+                "deviceType": "iPhone SE",
+                "runtime": "10.3"
+            },
+            "testType": "appTest"
+        }
+    ]
+}

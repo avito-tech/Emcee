@@ -12,22 +12,20 @@ public final class GroupedTestEntryConfigurations {
             let buildArtifacts: BuildArtifacts
             let testDestination: TestDestination
             let testExecutionBehavior: TestExecutionBehavior
+            let testType: TestType
         }
         
-        var groups = [Key: [TestEntryConfiguration]]()
+        var groups = MapWithCollection<Key, TestEntryConfiguration>()
         
         for testEntryConfiguration in testEntryConfigurations {
             let key = Key(
                 buildArtifacts: testEntryConfiguration.buildArtifacts,
                 testDestination: testEntryConfiguration.testDestination,
-                testExecutionBehavior: testEntryConfiguration.testExecutionBehavior
+                testExecutionBehavior: testEntryConfiguration.testExecutionBehavior,
+                testType: testEntryConfiguration.testType
             )
             
-            if let group = groups[key] {
-                groups[key] = group + [testEntryConfiguration]
-            } else {
-                groups[key] = [testEntryConfiguration]
-            }
+            groups.append(key: key, element: testEntryConfiguration)
         }
         
         return groups.values.sorted { $0.count > $1.count }

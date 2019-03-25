@@ -32,13 +32,15 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                     testToRun: argFileTestToRun1,
                     environment: [:],
                     numberOfRetries: 10,
-                    testDestination: argFileDestination1
+                    testDestination: argFileDestination1,
+                    testType: .uiTest
                 ),
                 TestArgFile.Entry(
                     testToRun: argFileTestToRun2,
                     environment: [:],
                     numberOfRetries: 20,
-                    testDestination: argFileDestination2
+                    testDestination: argFileDestination2,
+                    testType: .appTest
                 ),
             ],
             buildArtifacts: buildArtifacts
@@ -52,12 +54,14 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 .with(buildArtifacts: buildArtifacts)
                 .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
                 .with(testDestination: argFileDestination1)
+                .with(testType: .uiTest)
                 .testEntryConfigurations(),
             TestEntryConfigurationFixtures()
                 .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test2"))
                 .with(buildArtifacts: buildArtifacts)
                 .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 20))
                 .with(testDestination: argFileDestination2)
+                .with(testType: .appTest)
                 .testEntryConfigurations()
             ].flatMap { $0 }
         

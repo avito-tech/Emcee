@@ -19,6 +19,10 @@ public struct MapWithCollection<Key, ValueElement> where Key : Hashable {
         }
     }
     
+    public var values: [[ValueElement]] {
+        return Array(dictionary.values)
+    }
+    
     public mutating func append(key: Key, element: ValueElement) {
         append(key: key, elements: [element])
     }

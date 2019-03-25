@@ -14,7 +14,8 @@ final class DistRunSchedulerDataSourceTests: XCTestCase {
                 simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
                 testDestination: TestDestinationFixtures.testDestination,
                 testExecutionBehavior: TestExecutionBehaviorFixtures(environment: ["a": "b"]).build(),
-                toolResources: ToolResourcesFixtures.fakeToolResources()
+                toolResources: ToolResourcesFixtures.fakeToolResources(),
+                testType: .uiTest
             )
         }
         let dataSource = DistRunSchedulerDataSource(onNextBucketRequest: handler)

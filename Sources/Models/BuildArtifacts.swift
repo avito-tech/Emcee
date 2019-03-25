@@ -2,10 +2,10 @@ import Foundation
 
 public final class BuildArtifacts: Codable, Hashable, CustomStringConvertible {
     /// Location of app bundle
-    public let appBundle: AppBundleLocation
+    public let appBundle: AppBundleLocation?
     
     /// Location of runner app build artifact (XCTRunner.app)
-    public let runner: RunnerAppLocation
+    public let runner: RunnerAppLocation?
     
     /// Location of xctest bundle with tests to run. Usually it is a part of Runner.app/Plugins.
     public let xcTestBundle: TestBundleLocation
@@ -14,8 +14,8 @@ public final class BuildArtifacts: Codable, Hashable, CustomStringConvertible {
     public let additionalApplicationBundles: [AdditionalAppBundleLocation]
 
     public init(
-        appBundle: AppBundleLocation,
-        runner: RunnerAppLocation,
+        appBundle: AppBundleLocation?,
+        runner: RunnerAppLocation?,
         xcTestBundle: TestBundleLocation,
         additionalApplicationBundles: [AdditionalAppBundleLocation])
     {
@@ -27,10 +27,11 @@ public final class BuildArtifacts: Codable, Hashable, CustomStringConvertible {
     
     public static func onlyWithXctestBundle(xcTestBundle: TestBundleLocation) -> BuildArtifacts {
         return BuildArtifacts(
-            appBundle: AppBundleLocation(.localFilePath("")),
-            runner: RunnerAppLocation(.localFilePath("")),
+            appBundle: nil,
+            runner: nil,
             xcTestBundle: xcTestBundle,
-            additionalApplicationBundles: [])
+            additionalApplicationBundles: []
+        )
     }
     
     public static func ==(left: BuildArtifacts, right: BuildArtifacts) -> Bool {
@@ -48,6 +49,6 @@ public final class BuildArtifacts: Codable, Hashable, CustomStringConvertible {
     }
     
     public var description: String {
-        return "<\((type(of: self))) appBundle: \(appBundle), runner: \(runner), xcTestBundle: \(xcTestBundle), additionalApplicationBundles: \(additionalApplicationBundles)>"
+        return "<\((type(of: self))) appBundle: \(String(describing: appBundle)), runner: \(String(describing: runner)), xcTestBundle: \(xcTestBundle), additionalApplicationBundles: \(additionalApplicationBundles)>"
     }
 }

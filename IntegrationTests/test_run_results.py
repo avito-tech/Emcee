@@ -7,6 +7,7 @@ from IntegrationTests.helpers.fixture_types.EmceePluginFixture import EmceePlugi
 from IntegrationTests.helpers.fixture_types.IosAppFixture import IosAppFixture
 from IntegrationTests.helpers.common_fixtures import *
 
+
 def check_file_exists(path):
     if not os.path.exists(path):
         raise AssertionError("Expected to have file at: {path}".format(path=path))
@@ -26,16 +27,42 @@ def get_test_cases_from_xml_file(path):
             cases.append(case_dict)
     return cases
 
-class TestSmokeTests:
-    def test_check_reports_exist(self, smoke_tests_result: AvitoRunnerArgs):
-        check_file_exists(smoke_tests_result.current_directory.sub_path('auxiliary/tempfolder/test-results/iphone_se_ios_103.json'))
-        check_file_exists(smoke_tests_result.current_directory.sub_path('auxiliary/tempfolder/test-results/iphone_se_ios_103.xml'))
-        check_file_exists(smoke_tests_result.trace_path)
-        check_file_exists(smoke_tests_result.junit_path)
 
-    def test_junit_contents(self, repo_root: Directory, smoke_tests_result: AvitoRunnerArgs):
+class TestApplicationSmokeTests:
+    def test_junit_contents(self, smoke_apptests_result: AvitoRunnerArgs):
         iphone_se_junit = get_test_cases_from_xml_file(
-            path=smoke_tests_result.current_directory.sub_path('auxiliary/tempfolder/test-results/iphone_se_ios_103.xml')
+            path=smoke_apptests_result.current_directory.sub_path(
+                'auxiliary/tempfolder/test-results/iphone_se_ios_103.xml')
+        )
+        assert len(iphone_se_junit) == 2
+
+        successful_tests = set([item["name"] for item in iphone_se_junit if item.get("failure") is None])
+        expected_successful_tests = {
+            "testApplicationTest___successful",
+        }
+        failed_tests = set([item["name"] for item in iphone_se_junit if item.get("failure") is not None])
+        expected_failed_tests = {
+            "testApplicationTest___failing",
+        }
+
+        assert successful_tests == expected_successful_tests
+        assert failed_tests == expected_failed_tests
+
+
+
+class TestSmokeTests:
+    def test_check_reports_exist(self, smoke_uitests_result: AvitoRunnerArgs):
+        check_file_exists(
+            smoke_uitests_result.current_directory.sub_path('auxiliary/tempfolder/test-results/iphone_se_ios_103.json'))
+        check_file_exists(
+            smoke_uitests_result.current_directory.sub_path('auxiliary/tempfolder/test-results/iphone_se_ios_103.xml'))
+        check_file_exists(smoke_uitests_result.trace_path)
+        check_file_exists(smoke_uitests_result.junit_path)
+
+    def test_junit_contents(self, smoke_uitests_result: AvitoRunnerArgs):
+        iphone_se_junit = get_test_cases_from_xml_file(
+            path=smoke_uitests_result.current_directory.sub_path(
+                'auxiliary/tempfolder/test-results/iphone_se_ios_103.xml')
         )
         assert len(iphone_se_junit) == 6
 
@@ -55,8 +82,8 @@ class TestSmokeTests:
         assert successful_tests == expected_successful_tests
         assert failed_tests == expected_failed_tests
 
-    def test_plugin_output(self, repo_root: Directory, smoke_tests_result: AvitoRunnerArgs):
-        output_path = open(os.path.join(smoke_tests_result.plugins[0].path, 'output.json'), 'r')
+    def test_plugin_output(self, smoke_uitests_result: AvitoRunnerArgs):
+        output_path = open(os.path.join(smoke_uitests_result.plugins[0].path, 'output.json'), 'r')
         json_contents = json.load(output_path)
 
         testing_result_events = []
@@ -183,14 +210,15 @@ class TestSmokeTests:
         assert len(events) == 0
 
 @pytest.fixture(scope="session")
-def smoke_tests_result(
+def smoke_uitests_result(
         request,
         repo_root: Directory,
         avito_runner: ExecutableFixture,
         smoke_tests_app: IosAppFixture,
         smoke_tests_plugin: EmceePluginFixture,
         fbsimctl_url: str,
-        fbxctest_url: str
+        fbxctest_url: str,
+        ui_tests_arg_file: str,
 ):
     def make():
         print("Running integration tests")
@@ -215,7 +243,8 @@ def smoke_tests_result(
             plugins=[smoke_tests_plugin],
             schedule_strategy='individual',
             single_test_timeout=100,
-            test_arg_file_path=repo_root.sub_path('auxiliary/test_arg_file.json'),
+            test_arg_file_path=ui_tests_arg_file,
+            running_ui_tests=True
         )
 
         bash(command=args.command(), current_directory=current_directory.path)
@@ -224,9 +253,58 @@ def smoke_tests_result(
 
     yield from using_pycache(
         request=request,
-        key="smoke_tests_result",
+        key="smoke_uitests_result",
         make=make
     )
+
+@pytest.fixture(scope="session")
+def smoke_apptests_result(
+        request,
+        repo_root: Directory,
+        avito_runner: ExecutableFixture,
+        smoke_tests_app: IosAppFixture,
+        smoke_tests_plugin: EmceePluginFixture,
+        fbsimctl_url: str,
+        fbxctest_url: str,
+        app_tests_arg_file: str,
+):
+    def make():
+        print("Running integration tests")
+
+        temporary_directory = Directory.make_temporary(remove_automatically=False)
+        test_results_directory = temporary_directory.make_sub_directory("test_results")
+        current_directory = temporary_directory.make_sub_directory("current_directory")
+
+        args = AvitoRunnerArgs(
+            avito_runner=avito_runner,
+            ios_app=smoke_tests_app,
+            environment_json=repo_root.sub_path('auxiliary/environment.json'),
+            fbsimctl_url=fbsimctl_url,
+            fbxctest_url=fbxctest_url,
+            junit_path=test_results_directory.sub_path('junit.combined.xml'),
+            trace_path=test_results_directory.sub_path('trace.combined.json'),
+            test_destinations=[repo_root.sub_path('auxiliary/destination_iphone_se_ios103.json')],
+            temp_folder=temporary_directory.make_sub_directory("temp_folder").path,
+            current_directory=current_directory,
+            number_of_retries=1,
+            number_of_simulators=1,
+            plugins=[smoke_tests_plugin],
+            schedule_strategy='individual',
+            single_test_timeout=20,
+            test_arg_file_path=app_tests_arg_file,
+            running_ui_tests=False
+        )
+
+        bash(command=args.command(), current_directory=current_directory.path)
+
+        yield args
+
+    yield from using_pycache(
+        request=request,
+        key="smoke_apptests_result",
+        make=make
+    )
+
 
 @pytest.fixture(scope="session")
 def smoke_tests_app(request, repo_root):
@@ -250,7 +328,8 @@ def smoke_tests_app(request, repo_root):
         def derived_data_workaround(top_level_folder: str):
             build_folder = '{repo_root.path}/TestApp/{top_level_folder}'
             if os.path.isdir(build_folder):
-                print(f'Unexpectidly found {top_level_folder} in PWD, moving {repo_root.path}/TestApp/{top_level_folder}/ to {derived_data.path}/')
+                print(
+                    f'Unexpectidly found {top_level_folder} in PWD, moving {repo_root.path}/TestApp/{top_level_folder}/ to {derived_data.path}/')
                 os.rename(build_folder, f'{derived_data.path}/{top_level_folder}')
 
         derived_data_workaround(top_level_folder='Build')
@@ -259,7 +338,8 @@ def smoke_tests_app(request, repo_root):
         yield IosAppFixture(
             app_path=f'{derived_data.path}/Build/Products/Debug-iphonesimulator/TestApp.app',
             ui_tests_runner_path=f'{derived_data.path}/Build/Products/Debug-iphonesimulator/TestAppUITests-Runner.app',
-            xctest_bundle_path=f'{derived_data.path}/Build/Products/Debug-iphonesimulator/TestAppUITests-Runner.app/PlugIns/TestAppUITests.xctest'
+            ui_xctest_bundle_path=f'{derived_data.path}/Build/Products/Debug-iphonesimulator/TestAppUITests-Runner.app/PlugIns/TestAppUITests.xctest',
+            app_xctest_bundle_path=f'{derived_data.path}/Build/Products/Debug-iphonesimulator/TestApp.app/PlugIns/TestAppTests.xctest'
         )
 
     yield from using_pycache(
@@ -267,6 +347,7 @@ def smoke_tests_app(request, repo_root):
         key="smoke_tests_app",
         make=make
     )
+
 
 @pytest.fixture(scope="session")
 def smoke_tests_plugin(request, repo_root):

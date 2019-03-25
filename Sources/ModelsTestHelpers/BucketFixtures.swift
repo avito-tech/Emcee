@@ -13,7 +13,8 @@ public final class BucketFixtures {
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: TestDestinationFixtures.testDestination,
             testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: numberOfRetries),
-            toolResources: ToolResourcesFixtures.fakeToolResources()
+            toolResources: ToolResourcesFixtures.fakeToolResources(),
+            testType: TestType.uiTest
         )
     }
 }

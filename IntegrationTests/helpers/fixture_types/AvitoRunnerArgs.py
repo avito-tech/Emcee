@@ -20,6 +20,7 @@ class AvitoRunnerArgs:
             temp_folder: str,
             current_directory: Directory,
             test_arg_file_path: str,
+            running_ui_tests: bool,
             number_of_retries: int = 1,
             number_of_simulators: int = 1,
             plugins: [EmceePluginFixture] = None,
@@ -39,6 +40,7 @@ class AvitoRunnerArgs:
         self.test_destinations = test_destinations
         self.temp_folder = temp_folder
         self.test_arg_file_path = test_arg_file_path
+        self.running_ui_tests = running_ui_tests
         self.number_of_retries = number_of_retries
         self.number_of_simulators = number_of_simulators
         self.plugins = plugins
@@ -62,7 +64,7 @@ class AvitoRunnerArgs:
             '--temp-folder', self.temp_folder,
             '--test-arg-file', self.test_arg_file_path,
             '--trace', self.trace_path,
-            '--xctest-bundle', self.ios_app.xctest_bundle_path
+            '--xctest-bundle', self.ios_app.ui_xctest_bundle_path if self.running_ui_tests else self.ios_app.app_xctest_bundle_path
         ]
 
         for plugin in self.plugins:

@@ -9,6 +9,7 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
     public let testDestination: TestDestination
     public let testExecutionBehavior: TestExecutionBehavior
     public let toolResources: ToolResources
+    public let testType: TestType
 
     public init(
         testEntries: [TestEntry],
@@ -16,7 +17,8 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testExecutionBehavior: TestExecutionBehavior,
-        toolResources: ToolResources
+        toolResources: ToolResources,
+        testType: TestType
         )
     {
         self.testEntries = testEntries
@@ -25,13 +27,15 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
         self.testDestination = testDestination
         self.testExecutionBehavior = testExecutionBehavior
         self.toolResources = toolResources
+        self.testType = testType
         self.bucketId = Bucket.generateBucketId(
             testEntries: testEntries,
             buildArtifacts: buildArtifacts,
             simulatorSettings: simulatorSettings,
             testDestination: testDestination,
             testExecutionBehavior: testExecutionBehavior,
-            toolResources: toolResources
+            toolResources: toolResources,
+            testType: testType
         )
     }
     
@@ -41,17 +45,20 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testExecutionBehavior: TestExecutionBehavior,
-        toolResources: ToolResources
+        toolResources: ToolResources,
+        testType: TestType
         ) -> String
     {
+        let buildArtifactsId = (buildArtifacts.appBundle?.description ?? "null") + (buildArtifacts.runner?.description ?? "null") + buildArtifacts.xcTestBundle.description
+            + buildArtifacts.additionalApplicationBundles.map { $0.description }.sorted().joined()
         
         let tests: String = testEntries.map { $0.testName }.sorted().joined()
             + testDestination.destinationString
-            + buildArtifacts.appBundle.description + buildArtifacts.runner.description + buildArtifacts.xcTestBundle.description
-            + buildArtifacts.additionalApplicationBundles.map { $0.description }.sorted().joined()
+            + buildArtifactsId
             + testExecutionBehavior.environment.map { "\($0)=\($1)" }.sorted().joined() + "\(testExecutionBehavior.numberOfRetries)"
             + toolResources.fbsimctl.description + toolResources.fbxctest.description
             + simulatorSettings.description
+            + testType.rawValue
         do {
             return try tests.avito_sha256Hash(encoding: .utf8)
         } catch {
@@ -64,7 +71,7 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
     }
     
     public var debugDescription: String {
-        return "<\((type(of: self))) \(bucketId.debugDescription) \(testDestination), \(toolResources), \(buildArtifacts), \(testEntries.debugDescription)>"
+        return "<\((type(of: self))) \(bucketId.debugDescription) \(testType) \(testDestination), \(toolResources), \(buildArtifacts), \(testEntries.debugDescription)>"
     }
     
     public var hashValue: Int {

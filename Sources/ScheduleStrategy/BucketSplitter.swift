@@ -54,7 +54,8 @@ public class BucketSplitter: Splitter, CustomStringConvertible {
                 simulatorSettings: bucketSplitInfo.simulatorSettings,
                 testDestination: entry.testDestination,
                 testExecutionBehavior: entry.testExecutionBehavior,
-                toolResources: bucketSplitInfo.toolResources
+                toolResources: bucketSplitInfo.toolResources,
+                testType: entry.testType
             )
         }
     }

@@ -50,7 +50,6 @@ final class BucketConfigurationFactory {
         -> SchedulerConfiguration
     {
         return SchedulerConfiguration(
-            testType: .uiTest,
             testRunExecutionBehavior: workerConfiguration.testRunExecutionBehavior,
             testTimeoutConfiguration: workerConfiguration.testTimeoutConfiguration,
             schedulerDataSource: schedulerDataSource,

@@ -37,7 +37,11 @@ public final class TestQuery {
     
     private func output(_ content: [TestInfo]) {
         let coder = JSONEncoder()
-        coder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        if #available(iOS 11.0, *) {
+            coder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        } else {
+            coder.outputFormatting = [.prettyPrinted]
+        }
         guard let data = try? coder.encode(content) else {
             let reason = "Unable to encode test info array"
             print(reason)

@@ -117,7 +117,7 @@ public final class Runner {
         return result
     }
     
-    private func fbxctestArguments(entriesToRun: [TestEntry], simulator: Simulator) -> [SubprocessArgument] {
+    private func fbxctestArguments(entriesToRun: [TestEntry], simulator: Simulator) throws -> [SubprocessArgument] {
         let resolvableFbxctest = resourceLocationResolver.resolvable(withRepresentable: configuration.fbxctest)
         var arguments: [SubprocessArgument] =
             [resolvableFbxctest.asArgumentWith(packageName: PackageName.fbxctest),
@@ -125,23 +125,36 @@ public final class Runner {
              configuration.testType.asArgument]
         
         let buildArtifacts = configuration.buildArtifacts
-        let resolvableAppBundle = resourceLocationResolver.resolvable(withRepresentable: buildArtifacts.appBundle)
         let resolvableXcTestBundle = resourceLocationResolver.resolvable(withRepresentable: buildArtifacts.xcTestBundle)
         
         switch configuration.testType {
         case .logicTest:
             arguments += [resolvableXcTestBundle.asArgument()]
         case .appTest:
+            guard let representableAppBundle = buildArtifacts.appBundle else {
+                throw RunnerError.noAppBundleDefinedForUiOrApplicationTesting
+            }
             arguments += [
                 JoinedSubprocessArgument(
-                    components: [resolvableXcTestBundle.asArgument(), resolvableAppBundle.asArgument()],
+                    components: [
+                        resolvableXcTestBundle.asArgument(),
+                        resourceLocationResolver.resolvable(withRepresentable: representableAppBundle).asArgument()
+                    ],
                     separator: ":")]
         case .uiTest:
-            let resolvableRunnerBundle = resourceLocationResolver.resolvable(withRepresentable: buildArtifacts.runner)
+            guard let representableAppBundle = buildArtifacts.appBundle else {
+                throw RunnerError.noAppBundleDefinedForUiOrApplicationTesting
+            }
+            guard let representableRunnerBundle = buildArtifacts.runner else {
+                throw RunnerError.noRunnerAppDefinedForUiTesting
+            }
             let resolvableAdditionalAppBundles = buildArtifacts.additionalApplicationBundles
                 .map { resourceLocationResolver.resolvable(withRepresentable: $0) }
-            let components = ([resolvableXcTestBundle, resolvableRunnerBundle, resolvableAppBundle] + resolvableAdditionalAppBundles)
-                .map { $0.asArgument() }
+            let components = ([
+                resolvableXcTestBundle,
+                resourceLocationResolver.resolvable(withRepresentable: representableRunnerBundle),
+                resourceLocationResolver.resolvable(withRepresentable: representableAppBundle)
+                ] + resolvableAdditionalAppBundles).map { $0.asArgument() }
             arguments += [JoinedSubprocessArgument(components: components, separator: ":")]
             
             if let simulatorLocatizationSettings = configuration.simulatorSettings.simulatorLocalizationSettings {

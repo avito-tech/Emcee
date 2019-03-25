@@ -31,7 +31,8 @@ public final class TestEntryConfigurationGenerator {
                     testExecutionBehavior: TestExecutionBehavior(
                         environment: testArgFileEntry.environment,
                         numberOfRetries: testArgFileEntry.numberOfRetries
-                    )
+                    ),
+                    testType: testArgFileEntry.testType
                 )
             }
         }

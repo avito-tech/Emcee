@@ -43,3 +43,11 @@ def fbsimctl_url():
 @pytest.fixture(scope="session")
 def fbxctest_url():
     return os.environ.get('FBXCTEST_URL', 'https://github.com/beefon/FBSimulatorControl/releases/download/0.0.3/fbxctest_20190208T125921.zip')
+
+@pytest.fixture(scope="session")
+def ui_tests_arg_file(repo_root):
+    return repo_root.sub_path('auxiliary/test_arg_file_uitests.json')
+
+@pytest.fixture(scope="session")
+def app_tests_arg_file(repo_root):
+    return repo_root.sub_path('auxiliary/test_arg_file_apptests.json')

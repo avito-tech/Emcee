@@ -74,8 +74,8 @@ final class RunTestsOnRemoteQueueCommand: Command {
         }
         
         let buildArtifacts = BuildArtifacts(
-            appBundle: AppBundleLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.app), key: KnownStringArguments.app)),
-            runner: RunnerAppLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.runner), key: KnownStringArguments.runner)),
+            appBundle: AppBundleLocation.withOptional(try ArgumentsReader.validateResourceLocationOrNil(arguments.get(self.app), key: KnownStringArguments.app)),
+            runner: RunnerAppLocation.withOptional(try ArgumentsReader.validateResourceLocationOrNil(arguments.get(self.runner), key: KnownStringArguments.runner)),
             xcTestBundle: TestBundleLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle)),
             additionalApplicationBundles: try ArgumentsReader.validateResourceLocations(arguments.get(self.additionalApp) ?? [], key: KnownStringArguments.additionalApp).map({ AdditionalAppBundleLocation($0) })
         )

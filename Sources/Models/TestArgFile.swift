@@ -7,18 +7,21 @@ public struct TestArgFile: Decodable {
         public let environment: [String: String]
         public let numberOfRetries: UInt
         public let testDestination: TestDestination
+        public let testType: TestType
         
         public init(
             testToRun: TestToRun,
             environment: [String: String],
             numberOfRetries: UInt,
-            testDestination: TestDestination
+            testDestination: TestDestination,
+            testType: TestType
             )
         {
             self.testToRun = testToRun
             self.environment = environment
             self.numberOfRetries = numberOfRetries
             self.testDestination = testDestination
+            self.testType = testType
         }
         
         private enum CodingKeys: String, CodingKey {
@@ -26,6 +29,7 @@ public struct TestArgFile: Decodable {
             case environment
             case numberOfRetries
             case testDestination
+            case testType
         }
         
         public init(from decoder: Decoder) throws {
@@ -34,6 +38,7 @@ public struct TestArgFile: Decodable {
             environment = try container.decodeIfPresent([String: String].self, forKey: .environment) ?? [:]
             numberOfRetries = try container.decode(UInt.self, forKey: .numberOfRetries)
             testDestination = try container.decode(TestDestination.self, forKey: .testDestination)
+            testType = try container.decodeIfPresent(TestType.self, forKey: .testType) ?? .uiTest
         }
     }
     

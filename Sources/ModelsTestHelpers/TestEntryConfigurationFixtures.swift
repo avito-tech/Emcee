@@ -6,6 +6,7 @@ public final class TestEntryConfigurationFixtures {
     public var testDestination = TestDestinationFixtures.testDestination
     public var testExecutionBehavior = TestExecutionBehavior(environment: [:], numberOfRetries: 0)
     public var buildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
+    public var testType = TestType.uiTest
     
     public init() {}
     
@@ -34,13 +35,19 @@ public final class TestEntryConfigurationFixtures {
         return self
     }
     
+    public func with(testType: TestType) -> Self {
+        self.testType = testType
+        return self
+    }
+    
     public func testEntryConfigurations() -> [TestEntryConfiguration] {
         return testEntries.map {
             TestEntryConfiguration(
                 testEntry: $0,
                 buildArtifacts: buildArtifacts,
                 testDestination: testDestination,
-                testExecutionBehavior: testExecutionBehavior
+                testExecutionBehavior: testExecutionBehavior,
+                testType: testType
             )
         }
     }

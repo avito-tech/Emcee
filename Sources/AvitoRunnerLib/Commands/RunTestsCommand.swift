@@ -98,8 +98,8 @@ final class RunTestsCommand: Command {
             plugins: try ArgumentsReader.validateResourceLocations(arguments.get(self.plugins) ?? [], key: KnownStringArguments.plugin).map({ PluginLocation($0) })
         )
         let buildArtifacts = BuildArtifacts(
-            appBundle: AppBundleLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.app), key: KnownStringArguments.app)),
-            runner: RunnerAppLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.runner), key: KnownStringArguments.runner)),
+            appBundle: AppBundleLocation.withOptional(try ArgumentsReader.validateResourceLocationOrNil(arguments.get(self.app), key: KnownStringArguments.app)),
+            runner: RunnerAppLocation.withOptional(try ArgumentsReader.validateResourceLocationOrNil(arguments.get(self.runner), key: KnownStringArguments.runner)),
             xcTestBundle: TestBundleLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle)),
             additionalApplicationBundles: try ArgumentsReader.validateResourceLocations(arguments.get(self.additionalApp) ?? [], key: KnownStringArguments.additionalApp).map({ AdditionalAppBundleLocation($0) })
         )
@@ -179,21 +179,22 @@ final class RunTestsCommand: Command {
         defer { onDemandSimulatorPool.deleteSimulators() }
         
         let schedulerConfiguration = SchedulerConfiguration(
-            testType: .uiTest,
             testRunExecutionBehavior: configuration.testRunExecutionBehavior,
             testTimeoutConfiguration: configuration.testTimeoutConfiguration,
             schedulerDataSource: LocalRunSchedulerDataSource(configuration: configuration),
-            onDemandSimulatorPool: onDemandSimulatorPool)
+            onDemandSimulatorPool: onDemandSimulatorPool
+        )
         let scheduler = Scheduler(
             eventBus: eventBus,
             configuration: schedulerConfiguration,
             tempFolder: tempFolder,
-            resourceLocationResolver: resourceLocationResolver)
+            resourceLocationResolver: resourceLocationResolver
+        )
         let testingResults = try scheduler.run()
         try ResultingOutputGenerator(
             testingResults: testingResults,
             commonReportOutput: configuration.reportOutput,
-            testDestinationConfigurations: configuration.testDestinationConfigurations)
-            .generateOutput()
+            testDestinationConfigurations: configuration.testDestinationConfigurations
+        ).generateOutput()
     }
 }
