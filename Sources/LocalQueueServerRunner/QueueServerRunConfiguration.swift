@@ -81,7 +81,6 @@ public struct QueueServerRunConfiguration: Decodable {
         return TestRunExecutionBehavior(
             numberOfRetries: numberOfRetriesOnLocalMachine,
             numberOfSimulators: deploymentDestinationConfiguration.numberOfSimulators,
-            environment: [:],
             scheduleStrategy: workerScheduleStrategy
         )
     }

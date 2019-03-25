@@ -24,7 +24,6 @@ final class RunTestsCommand: Command {
     private let additionalApp: OptionArgument<[String]>
     private let app: OptionArgument<String>
     private let analyticsConfigurationLocation: OptionArgument<String>
-    private let environment: OptionArgument<String>
     private let fbsimctl: OptionArgument<String>
     private let fbxctest: OptionArgument<String>
     private let fbxctestSilenceTimeout: OptionArgument<UInt>
@@ -56,7 +55,6 @@ final class RunTestsCommand: Command {
         additionalApp = subparser.add(multipleStringArgument: KnownStringArguments.additionalApp)
         app = subparser.add(stringArgument: KnownStringArguments.app)
         analyticsConfigurationLocation = subparser.add(stringArgument: KnownStringArguments.analyticsConfiguration)
-        environment = subparser.add(stringArgument: KnownStringArguments.environment)
         fbsimctl = subparser.add(stringArgument: KnownStringArguments.fbsimctl)
         fbxctest = subparser.add(stringArgument: KnownStringArguments.fbxctest)
         fbxctestSilenceTimeout = subparser.add(intArgument: KnownUIntArguments.fbxctestSilenceTimeout)
@@ -126,7 +124,6 @@ final class RunTestsCommand: Command {
         let testRunExecutionBehavior = TestRunExecutionBehavior(
             numberOfRetries: try ArgumentsReader.validateNotNil(arguments.get(self.numberOfRetries), key: KnownUIntArguments.numberOfRetries),
             numberOfSimulators: try ArgumentsReader.validateNotNil(arguments.get(self.numberOfSimulators), key: KnownUIntArguments.numberOfSimulators),
-            environment: try ArgumentsReader.environment(arguments.get(self.environment), key: KnownStringArguments.environment),
             scheduleStrategy: try ArgumentsReader.scheduleStrategy(arguments.get(self.scheduleStrategy), key: KnownStringArguments.scheduleStrategy)
         )
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(

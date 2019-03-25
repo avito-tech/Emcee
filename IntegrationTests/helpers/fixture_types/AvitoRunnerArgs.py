@@ -11,7 +11,6 @@ class AvitoRunnerArgs:
             self,
             avito_runner: ExecutableFixture,
             ios_app: IosAppFixture,
-            environment_json,
             fbsimctl_url: str,
             fbxctest_url: str,
             junit_path: str,
@@ -32,7 +31,6 @@ class AvitoRunnerArgs:
 
         self.avito_runner = avito_runner
         self.ios_app = ios_app
-        self.environment_json = environment_json
         self.fbsimctl_url = fbsimctl_url
         self.fbxctest_url = fbxctest_url
         self.junit_path = junit_path
@@ -52,7 +50,6 @@ class AvitoRunnerArgs:
         args: List[str] = [
             self.avito_runner.path, 'runTests',
             '--app', self.ios_app.app_path,
-            '--environment', self.environment_json,
             '--fbsimctl', self.fbsimctl_url,
             '--fbxctest', self.fbxctest_url,
             '--junit', self.junit_path,

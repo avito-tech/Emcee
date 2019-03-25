@@ -59,9 +59,7 @@ public final class RuntimeTestQuerier {
             testType: .logicTest,
             fbxctest: configuration.fbxctest,
             buildArtifacts: BuildArtifacts.onlyWithXctestBundle(xcTestBundle: configuration.xcTestBundle),
-            environment: configuration.testRunExecutionBehavior.environment.byMergingWith(
-                ["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH": runtimeEntriesJSONPath.asString]
-            ),
+            environment: ["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH": runtimeEntriesJSONPath.asString],
             simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: nil, watchdogSettings: nil),
             testTimeoutConfiguration: configuration.testTimeoutConfiguration
         )

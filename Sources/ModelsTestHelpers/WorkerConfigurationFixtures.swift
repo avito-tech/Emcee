@@ -6,8 +6,8 @@ public final class WorkerConfigurationFixtures {
         testRunExecutionBehavior: TestRunExecutionBehavior(
             numberOfRetries: 1,
             numberOfSimulators: 2,
-            environment: [:],
-            scheduleStrategy: .equallyDivided),
+            scheduleStrategy: .equallyDivided
+        ),
         testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 400),
         pluginUrls: [],
         reportAliveInterval: 42

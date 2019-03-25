@@ -230,7 +230,6 @@ def smoke_uitests_result(
         args = AvitoRunnerArgs(
             avito_runner=avito_runner,
             ios_app=smoke_tests_app,
-            environment_json=repo_root.sub_path('auxiliary/environment.json'),
             fbsimctl_url=fbsimctl_url,
             fbxctest_url=fbxctest_url,
             junit_path=test_results_directory.sub_path('junit.combined.xml'),
@@ -278,7 +277,6 @@ def smoke_apptests_result(
         args = AvitoRunnerArgs(
             avito_runner=avito_runner,
             ios_app=smoke_tests_app,
-            environment_json=repo_root.sub_path('auxiliary/environment.json'),
             fbsimctl_url=fbsimctl_url,
             fbxctest_url=fbxctest_url,
             junit_path=test_results_directory.sub_path('junit.combined.xml'),

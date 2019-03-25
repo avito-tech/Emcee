@@ -67,10 +67,6 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
     KnownStringArguments.destinations: ArgumentDescriptionHolder(
         name: "--destinations",
         comment: "A JSON file with info about the run destinations for distributed test run"),
-    KnownStringArguments.environment: ArgumentDescriptionHolder(
-        name: "--environment",
-        comment: "A JSON file with all environment variables that should be applied to the tests",
-        optional: true),
     KnownStringArguments.fbsimctl: ArgumentDescriptionHolder(
         name: "--fbsimctl",
         comment: "Location of fbsimctl tool, or URL to ZIP archive"),
@@ -187,7 +183,6 @@ enum KnownStringArguments: ArgumentDescription {
     case analyticsConfiguration
     case destinationConfigurations
     case destinations
-    case environment
     case fbsimctl
     case fbxctest
     case junit

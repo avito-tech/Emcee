@@ -33,7 +33,6 @@ public struct RuntimeDumpConfiguration {
         self.testRunExecutionBehavior = TestRunExecutionBehavior(
             numberOfRetries: 0,
             numberOfSimulators: 1,
-            environment: [:],
             scheduleStrategy: .individual
         )
         self.fbxctest = fbxctest

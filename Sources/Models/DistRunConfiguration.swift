@@ -87,7 +87,6 @@ public struct DistRunConfiguration {
         return TestRunExecutionBehavior(
             numberOfRetries: numberOfRetriesOnLocalMachine,
             numberOfSimulators: overrides?.numberOfSimulators ?? testRunExecutionBehavior.numberOfSimulators,
-            environment: testRunExecutionBehavior.environment,
             scheduleStrategy: testRunExecutionBehavior.scheduleStrategy
         )
     }
