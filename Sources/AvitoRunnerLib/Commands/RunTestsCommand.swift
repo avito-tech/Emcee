@@ -36,7 +36,6 @@ final class RunTestsCommand: Command {
     private let junit: OptionArgument<String>
     private let numberOfRetries: OptionArgument<UInt>
     private let numberOfSimulators: OptionArgument<UInt>
-    private let onlyTest: OptionArgument<[String]>
     private let plugins: OptionArgument<[String]>
     private let runner: OptionArgument<String>
     private let scheduleStrategy: OptionArgument<String>
@@ -69,7 +68,6 @@ final class RunTestsCommand: Command {
         junit = subparser.add(stringArgument: KnownStringArguments.junit)
         numberOfRetries = subparser.add(intArgument: KnownUIntArguments.numberOfRetries)
         numberOfSimulators = subparser.add(intArgument: KnownUIntArguments.numberOfSimulators)
-        onlyTest = subparser.add(multipleStringArgument: KnownStringArguments.onlyTest)
         plugins = subparser.add(multipleStringArgument: KnownStringArguments.plugin)
         runner = subparser.add(stringArgument: KnownStringArguments.runner)
         scheduleStrategy = subparser.add(stringArgument: KnownStringArguments.scheduleStrategy)
@@ -106,8 +104,8 @@ final class RunTestsCommand: Command {
             additionalApplicationBundles: try ArgumentsReader.validateResourceLocations(arguments.get(self.additionalApp) ?? [], key: KnownStringArguments.additionalApp).map({ AdditionalAppBundleLocation($0) })
         )
         let reportOutput = ReportOutput(
-            junit: try ArgumentsReader.validateNotNil(arguments.get(self.junit), key: KnownStringArguments.junit),
-            tracingReport: try ArgumentsReader.validateNotNil(arguments.get(self.trace), key: KnownStringArguments.trace)
+            junit: arguments.get(self.junit),
+            tracingReport: arguments.get(self.trace)
         )
         let simulatorSettings = try ArgumentsReader.simulatorSettings(
             localizationFile: arguments.get(self.simulatorLocalizationSettings),
@@ -137,7 +135,6 @@ final class RunTestsCommand: Command {
         )
         defer { eventBus.tearDown() }
         
-        let onlyTest: [TestToRun] = (arguments.get(self.onlyTest) ?? []).map { TestToRun.testName($0) }
         let tempFolder = try TempFolder.with(stringPath: try ArgumentsReader.validateNotNil(arguments.get(self.tempFolder), key: KnownStringArguments.tempFolder))
         let testArgFile = try ArgumentsReader.testArgFile(arguments.get(self.testArgFile), key: KnownStringArguments.testArgFile)
         let testDestinationConfigurations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
@@ -148,7 +145,7 @@ final class RunTestsCommand: Command {
                 fbxctest: auxiliaryResources.toolResources.fbxctest,
                 xcTestBundle: buildArtifacts.xcTestBundle,
                 testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
-                testsToRun: onlyTest + testArgFile.entries.map { $0.testToRun }
+                testsToRun: testArgFile.entries.map { $0.testToRun }
             ),
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder
@@ -157,18 +154,8 @@ final class RunTestsCommand: Command {
         
         let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
             validatedEnteries: validatedTestEntries,
-            explicitTestsToRun: determineTestsToRun(
-                onlyTests: onlyTest,
-                testArgFile: testArgFile,
-                validatedTestEntries: validatedTestEntries
-            ),
             testArgEntries: testArgFile.entries,
-            commonTestExecutionBehavior: TestExecutionBehavior(
-                environment: testRunExecutionBehavior.environment,
-                numberOfRetries: testRunExecutionBehavior.numberOfRetries
-            ),
-            commonTestDestinations: testDestinationConfigurations.map { $0.testDestination },
-            commonBuildArtifacts: buildArtifacts
+            buildArtifacts: buildArtifacts
         )
 
         let configuration = try LocalTestRunConfiguration(
@@ -181,21 +168,6 @@ final class RunTestsCommand: Command {
             testDestinationConfigurations: testDestinationConfigurations
         )
         try runTests(configuration: configuration, eventBus: eventBus, tempFolder: tempFolder)
-    }
-    
-    private func determineTestsToRun(
-        onlyTests: [TestToRun],
-        testArgFile: TestArgFile,
-        validatedTestEntries: [TestToRun : [TestEntry]]
-        ) -> [TestToRun]
-    {
-        if onlyTests.isEmpty && testArgFile.entries.isEmpty {
-            // If we do not pass any tests to run explicitly either by --only-* flag or via --test-arg-file,
-            // we use runtime dump information to form array of tests to run
-            return Array(validatedTestEntries.keys)
-        } else {
-            return onlyTests
-        }
     }
     
     private func runTests(configuration: LocalTestRunConfiguration, eventBus: EventBus, tempFolder: TempFolder) throws {

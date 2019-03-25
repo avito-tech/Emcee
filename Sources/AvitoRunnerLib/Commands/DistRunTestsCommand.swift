@@ -35,7 +35,6 @@ final class DistRunTestsCommand: Command {
     private let junit: OptionArgument<String>
     private let numberOfRetries: OptionArgument<UInt>
     private let numberOfSimulators: OptionArgument<UInt>
-    private let onlyTest: OptionArgument<[String]>
     private let plugins: OptionArgument<[String]>
     private let remoteScheduleStrategy: OptionArgument<String>
     private let runId: OptionArgument<String>
@@ -72,7 +71,6 @@ final class DistRunTestsCommand: Command {
         junit = subparser.add(stringArgument: KnownStringArguments.junit)
         numberOfRetries = subparser.add(intArgument: KnownUIntArguments.numberOfRetries)
         numberOfSimulators = subparser.add(intArgument: KnownUIntArguments.numberOfSimulators)
-        onlyTest = subparser.add(multipleStringArgument: KnownStringArguments.onlyTest)
         plugins = subparser.add(multipleStringArgument: KnownStringArguments.plugin)
         remoteScheduleStrategy = subparser.add(stringArgument: KnownStringArguments.remoteScheduleStrategy)
         runId = subparser.add(stringArgument: KnownStringArguments.runId)
@@ -110,8 +108,8 @@ final class DistRunTestsCommand: Command {
             additionalApplicationBundles: try ArgumentsReader.validateResourceLocations(arguments.get(self.additionalApp) ?? [], key: KnownStringArguments.additionalApp).map({ AdditionalAppBundleLocation($0) })
         )
         let reportOutput = ReportOutput(
-            junit: try ArgumentsReader.validateNotNil(arguments.get(self.junit), key: KnownStringArguments.junit),
-            tracingReport: try ArgumentsReader.validateNotNil(arguments.get(self.trace), key: KnownStringArguments.trace)
+            junit: arguments.get(self.junit),
+            tracingReport: arguments.get(self.trace)
         )
         let simulatorSettings = try ArgumentsReader.simulatorSettings(
             localizationFile: arguments.get(self.simulatorLocalizationSettings),
@@ -142,7 +140,6 @@ final class DistRunTestsCommand: Command {
 
         let deploymentDestinations = try ArgumentsReader.deploymentDestinations(arguments.get(self.destinations), key: KnownStringArguments.destinations)
         let destinationConfigurations = try ArgumentsReader.destinationConfigurations(arguments.get(self.destinationConfigurations), key: KnownStringArguments.destinationConfigurations)
-        let onlyTest: [TestToRun] = (arguments.get(self.onlyTest) ?? []).map { TestToRun.testName($0) }
         let remoteScheduleStrategy = try ArgumentsReader.scheduleStrategy(arguments.get(self.remoteScheduleStrategy), key: KnownStringArguments.remoteScheduleStrategy)
         let runId = JobId(value: try ArgumentsReader.validateNotNil(arguments.get(self.runId), key: KnownStringArguments.runId))
         let tempFolder = try TempFolder()
@@ -155,21 +152,15 @@ final class DistRunTestsCommand: Command {
                 fbxctest: auxiliaryResources.toolResources.fbxctest,
                 xcTestBundle: buildArtifacts.xcTestBundle,
                 testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
-                testsToRun: onlyTest + testArgFile.entries.map { $0.testToRun }
+                testsToRun: testArgFile.entries.map { $0.testToRun }
             ),
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder
         )
         let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
             validatedEnteries: try testEntriesValidator.validatedTestEntries(),
-            explicitTestsToRun: onlyTest,
             testArgEntries: testArgFile.entries,
-            commonTestExecutionBehavior: TestExecutionBehavior(
-                environment: testRunExecutionBehavior.environment,
-                numberOfRetries: testRunExecutionBehavior.numberOfRetries
-            ),
-            commonTestDestinations: testDestinationConfigurations.map { $0.testDestination },
-            commonBuildArtifacts: buildArtifacts
+            buildArtifacts: buildArtifacts
         )
         
         let distRunConfiguration = DistRunConfiguration(

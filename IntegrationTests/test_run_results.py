@@ -214,7 +214,8 @@ def smoke_tests_result(
             number_of_simulators=2,
             plugins=[smoke_tests_plugin],
             schedule_strategy='individual',
-            single_test_timeout=100
+            single_test_timeout=100,
+            test_arg_file_path=repo_root.sub_path('auxiliary/test_arg_file.json'),
         )
 
         bash(command=args.command(), current_directory=current_directory.path)

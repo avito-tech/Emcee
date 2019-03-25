@@ -13,23 +13,21 @@ public final class ReportsGenerator {
     }
     
     public func prepareReports() throws {
-        try createDirectories()
-        try prepareJunitReport(testingResult: testingResult, path: reportOutput.junit)
-        try prepareTraceReport(testingResult: testingResult, path: reportOutput.tracingReport)
-    }
-    
-    private func createDirectories() throws {
-        try FileManager.default.createDirectory(
-            atPath: reportOutput.junit.deletingLastPathComponent,
-            withIntermediateDirectories: true,
-            attributes: nil)
-        try FileManager.default.createDirectory(
-            atPath: reportOutput.tracingReport.deletingLastPathComponent,
-            withIntermediateDirectories: true,
-            attributes: nil)
+        if let junitPath = reportOutput.junit {
+            try prepareJunitReport(testingResult: testingResult, path: junitPath)
+        }
+        
+        if let tracePath = reportOutput.tracingReport {
+            try prepareTraceReport(testingResult: testingResult, path: tracePath)
+        }
     }
     
     private func prepareJunitReport(testingResult: CombinedTestingResults, path: String) throws {
+        try FileManager.default.createDirectory(
+            atPath: path.deletingLastPathComponent,
+            withIntermediateDirectories: true
+        )
+        
         let testCases = testingResult.unfilteredResults
             .map { (testEntryResult: TestEntryResult) -> JunitTestCase in
                 let testRunResult = testEntryResult.appropriateTestRunResult
@@ -63,6 +61,11 @@ public final class ReportsGenerator {
     }
     
     private func prepareTraceReport(testingResult: CombinedTestingResults, path: String) throws {
+        try FileManager.default.createDirectory(
+            atPath: path.deletingLastPathComponent,
+            withIntermediateDirectories: true
+        )
+        
         let generator = ChromeTraceGenerator(testingResult: testingResult)
         do {
             try generator.writeReport(path: path)

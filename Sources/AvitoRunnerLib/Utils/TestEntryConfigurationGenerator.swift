@@ -4,54 +4,38 @@ import Logging
 import Models
 
 public final class TestEntryConfigurationGenerator {
-    
     private let validatedEnteries: [TestToRun: [TestEntry]]
-    private let explicitTestsToRun: [TestToRun]
     private let testArgEntries: [TestArgFile.Entry]
-    private let commonTestExecutionBehavior: TestExecutionBehavior
-    private let commonTestDestinations: [TestDestination]
-    private let commonBuildArtifacts: BuildArtifacts
+    private let buildArtifacts: BuildArtifacts
 
     public init(
         validatedEnteries: [TestToRun: [TestEntry]],
-        explicitTestsToRun: [TestToRun],
         testArgEntries: [TestArgFile.Entry],
-        commonTestExecutionBehavior: TestExecutionBehavior,
-        commonTestDestinations: [TestDestination],
-        commonBuildArtifacts: BuildArtifacts
+        buildArtifacts: BuildArtifacts
         )
     {
         self.validatedEnteries = validatedEnteries
-        self.explicitTestsToRun = explicitTestsToRun
         self.testArgEntries = testArgEntries
-        self.commonTestExecutionBehavior = commonTestExecutionBehavior
-        self.commonTestDestinations = commonTestDestinations
-        self.commonBuildArtifacts = commonBuildArtifacts
+        self.buildArtifacts = buildArtifacts
     }
     
     public func createTestEntryConfigurations() -> [TestEntryConfiguration] {
-        Logger.debug("Preparing test entry configurations for tests: \(explicitTestsToRun + testArgEntries.map { $0.testToRun })")
-        let testEntryConfigurations = TestEntryConfiguration.createMatrix(
-            testEntries: map(testsToRun: explicitTestsToRun),
-            buildArtifacts: commonBuildArtifacts,
-            testDestinations: commonTestDestinations,
-            testExecutionBehavior: commonTestExecutionBehavior
-        )
+        Logger.debug("Preparing test entry configurations for tests: \(testArgEntries.map { $0.testToRun })")
         let testArgFileEntryConfigurations = testArgEntries.flatMap { testArgFileEntry -> [TestEntryConfiguration] in
             let testEntries = map(testsToRun: [testArgFileEntry.testToRun])
-            return testEntries.map {
+            return testEntries.map { testEntry in
                 TestEntryConfiguration(
-                    testEntry: $0,
-                    buildArtifacts: commonBuildArtifacts,
+                    testEntry: testEntry,
+                    buildArtifacts: buildArtifacts,
                     testDestination: testArgFileEntry.testDestination,
                     testExecutionBehavior: TestExecutionBehavior(
-                        environment: commonTestExecutionBehavior.environment.byMergingWith(testArgFileEntry.environment),
+                        environment: testArgFileEntry.environment,
                         numberOfRetries: testArgFileEntry.numberOfRetries
                     )
                 )
             }
         }
-        return testEntryConfigurations + testArgFileEntryConfigurations
+        return testArgFileEntryConfigurations
     }
     
     private func map(testsToRun: [TestToRun]) -> [TestEntry] {

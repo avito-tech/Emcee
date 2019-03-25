@@ -1,0 +1,52 @@
+{
+    "entries": [
+        {
+            "testToRun": "TestAppUITests/testAlwaysSuccess",
+            "numberOfRetries": 1,
+            "testDestination": {
+                "deviceType": "iPhone SE",
+                "runtime": "10.3"
+            }
+        },
+        {
+            "testToRun": "TestAppUITests/testWritingToTestWorkingDir",
+            "numberOfRetries": 1,
+            "testDestination": {
+                "deviceType": "iPhone SE",
+                "runtime": "10.3"
+            }
+        },
+        {
+            "testToRun": "TestAppUITests/testSlowTest",
+            "numberOfRetries": 1,
+            "testDestination": {
+                "deviceType": "iPhone SE",
+                "runtime": "10.3"
+            }
+        },
+        {
+            "testToRun": "TestAppUITests/testQuickTest",
+            "numberOfRetries": 1,
+            "testDestination": {
+                "deviceType": "iPhone SE",
+                "runtime": "10.3"
+            }
+        },
+        {
+            "testToRun": "TestAppUITests/testAlwaysFails",
+            "numberOfRetries": 1,
+            "testDestination": {
+                "deviceType": "iPhone SE",
+                "runtime": "10.3"
+            }
+        },
+        {
+            "testToRun": "TestAppUITests/testMethodThatThrowsSwiftError",
+            "numberOfRetries": 1,
+            "testDestination": {
+                "deviceType": "iPhone SE",
+                "runtime": "10.3"
+            }
+        }
+    ]
+}

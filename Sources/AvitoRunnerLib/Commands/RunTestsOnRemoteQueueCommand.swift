@@ -80,8 +80,8 @@ final class RunTestsOnRemoteQueueCommand: Command {
             additionalApplicationBundles: try ArgumentsReader.validateResourceLocations(arguments.get(self.additionalApp) ?? [], key: KnownStringArguments.additionalApp).map({ AdditionalAppBundleLocation($0) })
         )
         let commonReportOutput = ReportOutput(
-            junit: try ArgumentsReader.validateNotNil(arguments.get(self.junit), key: KnownStringArguments.junit),
-            tracingReport: try ArgumentsReader.validateNotNil(arguments.get(self.trace), key: KnownStringArguments.trace)
+            junit: arguments.get(self.junit),
+            tracingReport: arguments.get(self.trace)
         )
         let eventBus = EventBus()
         defer { eventBus.tearDown() }
@@ -221,11 +221,8 @@ final class RunTestsOnRemoteQueueCommand: Command {
         )
         let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
             validatedEnteries: try testEntriesValidator.validatedTestEntries(),
-            explicitTestsToRun: [],
             testArgEntries: testArgFile.entries,
-            commonTestExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 0),
-            commonTestDestinations: [],
-            commonBuildArtifacts: buildArtifacts
+            buildArtifacts: buildArtifacts
         )
         let testEntryConfigurations = testEntryConfigurationGenerator.createTestEntryConfigurations()
         Logger.info("Will schedule \(testEntryConfigurations.count) tests to queue server at \(queueServerAddress)")

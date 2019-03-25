@@ -25,8 +25,6 @@ To run UI tests locally, execute the following command:
 AvitoRunner runTests \
 --fbsimctl "https://github.com/beefon/FBSimulatorControl/releases/download/0.0.3/fbsimctl_20190208T125742.zip" \
 --fbxctest "https://github.com/beefon/FBSimulatorControl/releases/download/0.0.3/fbxctest_20190208T125921.zip" \
---junit "$(pwd)/test-results/junit.alldestinations.xml" \
---trace "$(pwd)/test-results/trace.alldestinations.json" \
 --number-of-retries 1 \
 --number-of-simulators 2 \
 --app "MyApp.app" \
@@ -57,9 +55,7 @@ Where `destination_iphone_se_ios103.json` might have the folllowing contents:
 
 ### Requirements
 
-Since running tests on multiple machines requires sharing of the build artifacts, you should upload them somewhere where they will be
-directly accessible via HTTP(S) URL before invoking Emcee. You may consider storing different build artifacts under different URLs,
-such that they won't overlap between concurrent builds.
+Since running tests on multiple machines requires sharing of the build artifacts, you should upload them somewhere where they will be directly accessible via HTTP(S) URL before invoking Emcee. You may consider storing different build artifacts under different URLs, such that they won't overlap between concurrent builds.
 
 Emcee supports passing http(s) URLs as values to most arguments. The file addressed by URL should be a ZIP file. 
 You can refer internals of the archive via URL fragments.
@@ -73,22 +69,10 @@ For example:
 
 ```shell
 AvitoRunner distRunTests \
---fbsimctl "https://github.com/beefon/FBSimulatorControl/releases/download/0.0.3/fbsimctl_20190208T125742.zip" \
---fbxctest "https://github.com/beefon/FBSimulatorControl/releases/download/0.0.3/fbxctest_20190208T125921.zip" \
---junit "$(pwd)/test-results/junit.alldestinations.xml" \
---trace "$(pwd)/test-results/trace.alldestinations.json" \
---number-of-retries 1 \
---number-of-simulators 2 \
---app "http://myserver.com/MyApp.zip#MyApp.app" \
---runner "http://myserver.com/MyApp-UITestsRunner.zip#MyApp-UITestsRunner.app" \
---xctest-bundle "http://myserver.com/MyApp-UITestsRunner.zip#MyApp-UITestsRunner.app/PlugIns/UITests.xctest" \
---schedule-strategy "equally_divided" \
---single-test-timeout 100 \
---temp-folder "$(pwd)/tempfolder" \
---test-destinations "destination_iphone_se_ios103.json" \
---destinations "remote_destinations.json" \
---run-id "$(uuidgen)" \
---remote-schedule-strategy progressive
+    --destinations "remote_destinations.json" \
+    --run-id "$(uuidgen)" \
+    --remote-schedule-strategy progressive \
+    # other arguments like --test-arg-file
 ```
 
 Where `remote_destinations.json` could contain the following contents:
@@ -115,41 +99,15 @@ Where `remote_destinations.json` could contain the following contents:
 Currently, there is no need to prepare the remote machine except installing dependencies from the section below. Emcee will:
 
 - deploy itself
-- start the daemon
+- start the worker daemon
 - download artifacts by using the provided URLs
 - start running UI tests 
 
 ## Specifying tests to run
 
-You can specify tests you wish to run using arguments or by using JSON file.
-
-### ⚠️: If you don't specify any tests to run explicitly, Emcee will behave differently depending on command:
-
-- for `runTests` command, it will run all available in runtime tests.
-- for `distRunTests` command, it will not run anything. If you wish to run all tests, please use `dump` command and form the test plan based on its output.
-
-### Matrix: tests specified by `--only-test` by all test destinations  
-
-You can append multiple `--only-test`. This will form a matrix of tests, each test will be run a single time for each test destination:
-
-```shell
-AvitoRunner distRunTests \
-    --test-destinations "destination_iphone_se_ios103.json" \
-    --only-test "TestClass/testMethod" \
-    --only-test "AnotherTestClass/testSomethingImportant"
-```
-So if you have 2 test destinations, e.g. iOS 11 and iOS 12, and 2 tests, this will form the following test plan:
-
-```
-TestClass/testMethod @ iOS 11
-AnotherTestClass/testSomethingImportant @ iOS 11
-TestClass/testMethod @ iOS 12
-AnotherTestClass/testSomethingImportant @ iOS 12
-```
-
 ### `--test-arg-file` JSON file
 
-This allows to specify a more precise test plan. The contents of this file should adopt the following schema:
+This is the only way to specify a precise test plan to execute. The contents of this file should adopt the following schema:
 
 ```json
 {
@@ -185,9 +143,11 @@ The CLI is split into subcommands. Currently the following commands are availabl
 
 - `runTests` - actually runs the UI tests on local machine and generates a report.
 - `distRunTests` - brings up the queue with tests to run, deploys the required data to the remote machines over SSH and then starts 
-remote agents that run UI tests on remote machines. After running all tests, creates a report on local machine.
+
+  remote agents that run UI tests on remote machines. After running all tests, creates a report on local machine.
 - `distWork` - starts the runner as a client to the queue server that you start using the `distRunTests` command on the remote machines.
-This can be considered as a worker instance of the runner. You don't need to invoke this command manually, Emcee will use it internally.
+
+  This can be considered as a worker instance of the runner. You don't need to invoke this command manually, Emcee will use it internally.
 - `dump` - runs runtime dump. This is a feature that allows you to filter the tests before running them. Read more about runtime dump [here](Sources/RuntimeDump).
 
 `AvitoRunner [subcommand] --help` will print the argument list for each subcommand. 
@@ -199,8 +159,7 @@ This can be considered as a worker instance of the runner. You don't need to inv
 
 # Getting Around the Code
 
-Emcee uses Swift Package Manager for building, testing and exposing the Swift packages. To learn more about each package navigate 
-to the corresponding directory under Sources folder. 
+Emcee uses Swift Package Manager for building, testing and exposing the Swift packages. To learn more about each package navigate to the corresponding directory under Sources folder. 
 
 # Contributing
 

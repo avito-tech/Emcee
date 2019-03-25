@@ -78,11 +78,7 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
         comment: "Location of fbxctest tool, or URL to ZIP archive"),
     KnownStringArguments.junit: ArgumentDescriptionHolder(
         name: "--junit",
-        comment: "Where the combined (the one for all test destinations) Junit report should be created"),
-    KnownStringArguments.onlyTest: ArgumentDescriptionHolder(
-        name: "--only-test",
-        comment: "List of TestName/testMethod to run.",
-        multiple: true,
+        comment: "Where the combined (the one for all test destinations) Junit report should be created",
         optional: true),
     KnownStringArguments.output: ArgumentDescriptionHolder(
         name: "--output",
@@ -129,7 +125,8 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
         comment: "A JSON file with test destination configurations. For runtime dump only first destination will be used."),
     KnownStringArguments.trace: ArgumentDescriptionHolder(
         name: "--trace",
-        comment: "Where the combined (the one for all test destinations) Chrome trace should be created"),
+        comment: "Where the combined (the one for all test destinations) Chrome trace should be created",
+        optional: true),
     KnownStringArguments.watchdogSettings: ArgumentDescriptionHolder(
         name: "--watchdog-settings",
         comment: "Location of JSON file with watchdog settings",
@@ -192,7 +189,6 @@ enum KnownStringArguments: ArgumentDescription {
     case fbsimctl
     case fbxctest
     case junit
-    case onlyTest
     case output
     case plugin
     case queueServer

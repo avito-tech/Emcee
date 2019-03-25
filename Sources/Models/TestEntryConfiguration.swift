@@ -22,23 +22,4 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
     public var description: String {
         return "<\(type(of: self)): \(testEntry) \(testDestination)>"
     }
-    
-    public static func createMatrix(
-        testEntries: [TestEntry],
-        buildArtifacts: BuildArtifacts,
-        testDestinations: [TestDestination],
-        testExecutionBehavior: TestExecutionBehavior
-        ) -> [TestEntryConfiguration]
-    {
-        return testDestinations.flatMap { (testDestination: TestDestination) -> [TestEntryConfiguration] in
-            testEntries.map { (testEntry: TestEntry) -> TestEntryConfiguration in
-                TestEntryConfiguration(
-                    testEntry: testEntry,
-                    buildArtifacts: buildArtifacts,
-                    testDestination: testDestination,
-                    testExecutionBehavior: testExecutionBehavior
-                )
-            }
-        }
-    }
 }
