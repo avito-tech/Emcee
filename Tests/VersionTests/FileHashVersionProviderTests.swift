@@ -16,7 +16,7 @@ final class FileHashVersionProviderTests: XCTestCase {
     }()
     
     func test() throws {
-        let versionProvider = FileHashVersionProvider(url: URL(fileURLWithPath: tempFile.path.asString))
+        let versionProvider = FileHashVersionProvider(url: URL(fileURLWithPath: tempFile.path.pathString))
         XCTAssertEqual(
             try versionProvider.version(),
             Version(stringValue: contentsToHash.avito_sha256Hash().avito_hashStringFromSha256HashData())

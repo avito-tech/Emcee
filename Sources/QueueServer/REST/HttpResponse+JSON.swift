@@ -9,7 +9,7 @@ public extension HttpResponse {
         return encoder
     }()
     
-    public static func json<R: Encodable>(response: R) -> HttpResponse {
+    static func json<R: Encodable>(response: R) -> HttpResponse {
         do {
             let data = try responseEncoder.encode(response)
             return .raw(200, "OK", ["Content-Type": "application/json"]) {

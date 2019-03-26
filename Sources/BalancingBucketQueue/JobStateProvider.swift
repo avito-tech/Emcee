@@ -8,7 +8,7 @@ public protocol JobStateProvider {
 }
 
 public extension JobStateProvider {
-    public var allJobStates: [JobState] {
+    var allJobStates: [JobState] {
         return ongoingJobIds.compactMap { jobId in
             try? state(jobId: jobId)
         }

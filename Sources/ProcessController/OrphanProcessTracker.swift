@@ -11,8 +11,9 @@ public final class OrphanProcessTracker {
             self.name = name
         }
         
-        public var hashValue: Int {
-            return Int(pid)
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(pid)
+            hasher.combine(name)
         }
         
         public static func == (left: OrphanProcessTracker.Coordinates, right: OrphanProcessTracker.Coordinates) -> Bool {

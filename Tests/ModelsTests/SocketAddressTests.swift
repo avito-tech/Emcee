@@ -14,4 +14,3 @@ final class SocketAddressTests: XCTestCase {
         XCTAssertEqual(parsedAddress["address"], SocketAddress(host: "localhost", port: 42))
     }
 }
-

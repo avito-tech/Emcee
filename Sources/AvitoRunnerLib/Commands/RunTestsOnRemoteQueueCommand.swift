@@ -16,7 +16,7 @@ import ResourceLocationResolver
 import SignalHandling
 import SynchronousWaiter
 import TempFolder
-import Utility
+import SPMUtility
 import Version
 
 final class RunTestsOnRemoteQueueCommand: Command {

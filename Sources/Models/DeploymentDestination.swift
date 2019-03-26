@@ -63,8 +63,8 @@ public final class DeploymentDestination: Decodable, CustomStringConvertible, Ha
         return "<\(type(of: self)) host: \(host)>"
     }
     
-    public var hashValue: Int {
-        return identifier.hashValue
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(identifier)
     }
     
     public static func == (left: DeploymentDestination, right: DeploymentDestination) -> Bool {

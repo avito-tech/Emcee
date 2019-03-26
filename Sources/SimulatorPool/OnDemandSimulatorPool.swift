@@ -22,8 +22,10 @@ public final class OnDemandSimulatorPool<T> where T: SimulatorController {
             return "<\(type(of: self)): \(numberOfSimulators) simulators, destination: \(testDestination)>"
         }
         
-        public var hashValue: Int {
-            return testDestination.hashValue ^ fbsimctl.hashValue ^ numberOfSimulators.hashValue
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(testDestination)
+            hasher.combine(fbsimctl)
+            hasher.combine(numberOfSimulators)
         }
         
         public static func == (left: OnDemandSimulatorPool<T>.Key, right: OnDemandSimulatorPool<T>.Key) -> Bool {

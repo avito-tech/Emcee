@@ -8,7 +8,7 @@ import Models
 import PluginManager
 import PortDeterminer
 import ResourceLocationResolver
-import Utility
+import SPMUtility
 import Version
 
 final class StartQueueServerCommand: Command {

@@ -48,7 +48,7 @@ public enum MergeError: Error, CustomStringConvertible {
 
 public extension TestingResult {
     
-    public static func byMerging(testingResults: [TestingResult]) throws -> TestingResult {
+    static func byMerging(testingResults: [TestingResult]) throws -> TestingResult {
         guard testingResults.count > 0 else { throw MergeError.nothingToMerge }
         let bucketIds = Set(testingResults.map { $0.bucketId })
         let testDestinations = Set(testingResults.map { $0.testDestination })

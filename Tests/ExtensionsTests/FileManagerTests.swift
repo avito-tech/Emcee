@@ -41,14 +41,14 @@ public class FileManagerTests: XCTestCase {
         let absolutePaths2 = try prepareFiles(names: ["some_file1.some", "some_file2.some"])
         
         let foundFiles1 = try FileManager.default.findFiles(
-            path: tempFolder.path.asString,
+            path: tempFolder.path.pathString,
             prefix: prefix,
             suffix: suffix,
             pathExtension: ext)
         XCTAssertEqual(foundFiles1.sorted(), absolutePaths1.sorted())
         
         let foundFiles2 = try FileManager.default.findFiles(
-            path: tempFolder.path.asString,
+            path: tempFolder.path.pathString,
             prefix: "some_file",
             pathExtension: "some")
         XCTAssertEqual(foundFiles2.sorted(), absolutePaths2.sorted())
@@ -66,38 +66,38 @@ public class FileManagerTests: XCTestCase {
         let marker = "marker.txt"
         
         let deepHierarchy = tempFolder.path.appending(components: "subfolder1", "subfolder2")
-        try touchFile(tempFolder.path.appending(component: marker).asString)
+        try touchFile(tempFolder.path.appending(component: marker).pathString)
         
         try FileManager.default.createDirectory(
-            atPath: deepHierarchy.asString,
+            atPath: deepHierarchy.pathString,
             withIntermediateDirectories: true,
             attributes: nil)
         let markerContainer = FileManager.default.walkUpTheHierarchy(
-            path: deepHierarchy.asString,
+            path: deepHierarchy.pathString,
             untilFileIsFound: marker)
-        XCTAssertEqual(markerContainer, tempFolder.path.asString)
+        XCTAssertEqual(markerContainer, tempFolder.path.pathString)
     }
     
     func testIteratingDirectories() throws {
         guard let tempFolder = self.tempFolder else { throw Error.noTempFolder }
         
-        try FileManager.default.createDirectory(atPath: tempFolder.path.appending(component: "folder1").asString, withIntermediateDirectories: true, attributes: nil)
-        try FileManager.default.createDirectory(atPath: tempFolder.path.appending(component: "folder2").asString, withIntermediateDirectories: true, attributes: nil)
-        try FileManager.default.createDirectory(atPath: tempFolder.path.appending(component: "folder3").asString, withIntermediateDirectories: true, attributes: nil)
+        try FileManager.default.createDirectory(atPath: tempFolder.path.appending(component: "folder1").pathString, withIntermediateDirectories: true, attributes: nil)
+        try FileManager.default.createDirectory(atPath: tempFolder.path.appending(component: "folder2").pathString, withIntermediateDirectories: true, attributes: nil)
+        try FileManager.default.createDirectory(atPath: tempFolder.path.appending(component: "folder3").pathString, withIntermediateDirectories: true, attributes: nil)
         
         let expectedContents = Set([
-            tempFolder.path.appending(component: "folder1").asString,
-            tempFolder.path.appending(component: "folder2").asString,
-            tempFolder.path.appending(component: "folder3").asString
+            tempFolder.path.appending(component: "folder1").pathString,
+            tempFolder.path.appending(component: "folder2").pathString,
+            tempFolder.path.appending(component: "folder3").pathString
             ])
-        let contents = try FileManager.default.findFiles(path: tempFolder.path.asString)
+        let contents = try FileManager.default.findFiles(path: tempFolder.path.pathString)
         XCTAssertEqual(Set(contents), expectedContents)
     }
     
     private func prepareFiles(names: [String]) throws -> [String] {
         guard let tempFolder = self.tempFolder else { throw Error.noTempFolder }
         
-        let absolutePaths = names.map { tempFolder.path.appending(component: $0).asString }
+        let absolutePaths = names.map { tempFolder.path.appending(component: $0).pathString }
         for path in absolutePaths {
             try touchFile(path)
         }

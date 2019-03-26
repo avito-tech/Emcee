@@ -24,7 +24,7 @@ public final class DefaultSSHClient: SSHClient {
     
     @discardableResult
     public func execute(_ command: [String]) throws -> Int32 {
-        let shellCommand = command.map { $0.shellEscaped() }.joined(separator: " ")
+        let shellCommand = command.map { $0.spm_shellEscaped() }.joined(separator: " ")
         return try ssh.execute(shellCommand) { _ in }
     }
     

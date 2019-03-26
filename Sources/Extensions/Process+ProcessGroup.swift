@@ -1,7 +1,7 @@
 import Foundation
 
 public extension Process {
-    public enum NewProcessGroupError: String, Error, CustomStringConvertible {
+    enum NewProcessGroupError: String, Error, CustomStringConvertible {
         case failedToChangeProcessGroupBehavour = "Not able to create subprocesses within same process group. This could lead to orphan processes."
         public var description: String {
             return rawValue

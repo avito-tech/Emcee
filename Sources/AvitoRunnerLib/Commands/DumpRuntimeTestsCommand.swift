@@ -11,7 +11,7 @@ import RuntimeDump
 import Scheduler
 import ScheduleStrategy
 import TempFolder
-import Utility
+import SPMUtility
 
 final class DumpRuntimeTestsCommand: Command {
     let command = "dump"

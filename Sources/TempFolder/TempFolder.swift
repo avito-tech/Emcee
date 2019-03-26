@@ -10,7 +10,7 @@ public final class TempFolder: Hashable {
     
     public init(path: AbsolutePath? = nil, cleanUpAutomatically: Bool = true) throws {
         if let path = path {
-            try FileManager.default.createDirectory(atPath: path.asString, withIntermediateDirectories: true)
+            try FileManager.default.createDirectory(atPath: path.pathString, withIntermediateDirectories: true)
         }
         temporaryDirectory = try TemporaryDirectory(dir: path, removeTreeOnDeinit: cleanUpAutomatically)
     }
@@ -23,7 +23,7 @@ public final class TempFolder: Hashable {
     
     public func pathByCreatingDirectories(components: [String]) throws -> AbsolutePath {
         let path = pathWith(components: components)
-        try FileManager.default.createDirectory(atPath: path.asString, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(atPath: path.pathString, withIntermediateDirectories: true)
         return path
     }
     
@@ -31,7 +31,7 @@ public final class TempFolder: Hashable {
     public func createFile(components: [String] = [], filename: String, contents: Data? = nil) throws -> AbsolutePath {
         let container = try pathByCreatingDirectories(components: components)
         let path = container.appending(component: filename)
-        FileManager.default.createFile(atPath: path.asString, contents: contents, attributes: [:])
+        FileManager.default.createFile(atPath: path.pathString, contents: contents, attributes: [:])
         return path
     }
     
@@ -39,7 +39,7 @@ public final class TempFolder: Hashable {
         return left.temporaryDirectory.path == right.temporaryDirectory.path
     }
     
-    public var hashValue: Int {
-        return temporaryDirectory.path.hashValue
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(temporaryDirectory.path)
     }
 }

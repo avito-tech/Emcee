@@ -39,8 +39,10 @@ public final class FbSimCtlEvent: FbSimCtlEventCommonFields, Decodable, Hashable
         case timestamp = "timestamp"
     }
     
-    public var hashValue: Int {
-        return type.hashValue ^ name.hashValue ^ timestamp.hashValue
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(type)
+        hasher.combine(name)
+        hasher.combine(timestamp)
     }
     
     public static func == (l: FbSimCtlEvent, r: FbSimCtlEvent) -> Bool {
@@ -74,8 +76,11 @@ public final class FbSimCtlEventWithStringSubject: FbSimCtlEventCommonFields, De
         case subject = "subject"
     }
     
-    public var hashValue: Int {
-        return type.hashValue ^ name.hashValue ^ timestamp.hashValue ^ subject.hashValue
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(type)
+        hasher.combine(name)
+        hasher.combine(timestamp)
+        hasher.combine(subject)
     }
     
     public static func == (l: FbSimCtlEventWithStringSubject, r: FbSimCtlEventWithStringSubject) -> Bool {

@@ -55,11 +55,11 @@ private class ResolvableResourceLocationArg: SubprocessArgument, CustomStringCon
 }
 
 public extension ResolvableResourceLocation {
-    public func asArgumentWith(packageName: PackageName) -> SubprocessArgument {
+    func asArgumentWith(packageName: PackageName) -> SubprocessArgument {
         return ResolvableResourceLocationArg(resolvableResourceLocation: self, packageName: packageName)
     }
     
-    public func asArgument() -> SubprocessArgument {
+    func asArgument() -> SubprocessArgument {
         return ResolvableResourceLocationArg(resolvableResourceLocation: self, packageName: nil)
     }
 }

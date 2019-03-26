@@ -1,19 +1,19 @@
 import Foundation
 
 public extension String {
-    public var bridged: NSString {
+    var bridged: NSString {
         return self as NSString
     }
     
-    public var pathComponents: [String] {
+    var pathComponents: [String] {
         return bridged.pathComponents
     }
     
-    public func appending(pathComponent: String) -> String {
+    func appending(pathComponent: String) -> String {
         return bridged.appendingPathComponent(pathComponent)
     }
     
-    public func appending(pathComponents: [String]) -> String {
+    func appending(pathComponents: [String]) -> String {
         var string = self
         for component in pathComponents {
             string = string.appending(pathComponent: component)
@@ -21,19 +21,19 @@ public extension String {
         return string 
     }
     
-    public var pathExtension: String {
+    var pathExtension: String {
         return bridged.pathExtension
     }
     
-    public var deletingPathExtension: String {
+    var deletingPathExtension: String {
         return bridged.deletingPathExtension
     }
     
-    public var lastPathComponent: String {
+    var lastPathComponent: String {
         return bridged.lastPathComponent
     }
     
-    public var deletingLastPathComponent: String {
+    var deletingLastPathComponent: String {
         return bridged.deletingLastPathComponent
     }
     
@@ -48,7 +48,7 @@ public extension String {
      * anchorPath: "~/Library/Developer/Xcode"
      * self relative to anchorPath: "../"
      */
-    public func stringWithPathRelativeTo(anchorPath: String, allowUpwardRelation: Bool = true) -> String? {
+    func stringWithPathRelativeTo(anchorPath: String, allowUpwardRelation: Bool = true) -> String? {
         let pathComponents = self.pathComponents
         let anchorComponents = anchorPath.pathComponents
         

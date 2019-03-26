@@ -14,7 +14,7 @@ extension String: SubprocessArgument {
 
 extension AbsolutePath: SubprocessArgument {
     public func stringValue() throws -> String {
-        return asString
+        return pathString
     }
 }
 

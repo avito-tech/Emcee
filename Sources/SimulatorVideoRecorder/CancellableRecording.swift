@@ -7,10 +7,3 @@ public protocol CancellableRecording {
     /// Cancels recording and does not write any data to the file. Thus, does not return any path.
     func cancelRecording()
 }
-
-public extension CancellableRecording {
-    /// TODO: remove, left for backwards compatibility
-    public func cancelAndDeleteRecordedFile() throws {
-        cancelRecording()
-    }
-}

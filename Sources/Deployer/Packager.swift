@@ -13,8 +13,8 @@ public final class Packager {
      */
     public func preparePackage(deployable: DeployableItem, packageFolder: TemporaryDirectory) throws -> URL {
         let path = deployable.name.components(separatedBy: "/").reduce(packageFolder.path) { $0.appending(component: $1) }
-        try FileManager.default.createDirectory(atPath: path.parentDirectory.asString, withIntermediateDirectories: true, attributes: nil)
-        let archiveUrl = URL(fileURLWithPath: path.asString)
+        try FileManager.default.createDirectory(atPath: path.parentDirectory.pathString, withIntermediateDirectories: true, attributes: nil)
+        let archiveUrl = URL(fileURLWithPath: path.pathString)
         Logger.debug("\(deployable.name): archive url is \(archiveUrl.path)")
 
         if FileManager.default.fileExists(atPath: archiveUrl.path) {

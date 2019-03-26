@@ -26,7 +26,7 @@ final class FakeSimulatorController: SimulatorController {
         return l.simulator == r.simulator
     }
     
-    public var hashValue: Int {
-        return simulator.hashValue
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(simulator)
     }
 }

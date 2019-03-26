@@ -84,12 +84,12 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
         return ResourceLocation.localFilePath(string)
     }
     
-    public var hashValue: Int {
+    public func hash(into hasher: inout Hasher) {
         switch self {
         case .localFilePath(let path):
-            return path.hashValue
+            hasher.combine(path)
         case .remoteUrl(let url):
-            return url.hashValue
+            hasher.combine(url)
         }
     }
     

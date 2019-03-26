@@ -5,7 +5,7 @@ import Logging
 import LoggingSetup
 import Models
 import ResourceLocationResolver
-import Utility
+import SPMUtility
 
 final class DistWorkCommand: Command {
     let command = "distWork"

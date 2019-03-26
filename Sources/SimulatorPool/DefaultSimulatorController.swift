@@ -77,7 +77,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
         
         stage = .creatingSimulator
         Logger.verboseDebug("Creating simulator: \(simulator)")
-        let simulatorSetPath = simulator.simulatorSetContainerPath.asString
+        let simulatorSetPath = simulator.simulatorSetContainerPath.pathString
         try FileManager.default.createDirectory(atPath: simulatorSetPath, withIntermediateDirectories: true)
         let controller = try ProcessController(
             subprocess: Subprocess(
@@ -107,7 +107,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
             throw SimulatorBootError.bootingAlreadyStarted
         }
         
-        let containerContents = try FileManager.default.contentsOfDirectory(atPath: simulator.simulatorSetContainerPath.asString)
+        let containerContents = try FileManager.default.contentsOfDirectory(atPath: simulator.simulatorSetContainerPath.pathString)
         let simulatorUuids = containerContents.filter { UUID(uuidString: $0) != nil }
         guard simulatorUuids.count > 0, let simulatorUuid = simulatorUuids.first else {
             throw SimulatorBootError.unableToLocateSimulatorUuid
@@ -121,7 +121,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
             subprocess: Subprocess(
                 arguments: [
                     fbsimctl.asArgumentWith(packageName: PackageName.fbsimctl),
-                    "--json", "--set", simulator.simulatorSetContainerPath.asString,
+                    "--json", "--set", simulator.simulatorSetContainerPath.pathString,
                     simulatorUuid, "boot",
                     "--locale", "ru_US",
                     "--direct-launch", "--", "listen"]))
@@ -188,7 +188,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
             subprocess: Subprocess(
                 arguments: [
                     fbsimctl.asArgumentWith(packageName: PackageName.fbsimctl),
-                    "--json", "--set", simulator.simulatorSetContainerPath.asString,
+                    "--json", "--set", simulator.simulatorSetContainerPath.pathString,
                     "--simulators", "delete"
                 ],
                 maximumAllowedSilenceDuration: 30
@@ -208,7 +208,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
                 subprocess: Subprocess(
                     arguments: [
                         "/usr/bin/xcrun",
-                        "simctl", "--set", simulator.simulatorSetContainerPath.asString,
+                        "simctl", "--set", simulator.simulatorSetContainerPath.pathString,
                         "shutdown", simulatorUuid.uuidString
                     ],
                     maximumAllowedSilenceDuration: 20
@@ -220,7 +220,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
                 subprocess: Subprocess(
                     arguments: [
                         "/usr/bin/xcrun",
-                        "simctl", "--set", simulator.simulatorSetContainerPath.asString,
+                        "simctl", "--set", simulator.simulatorSetContainerPath.pathString,
                         "delete", simulatorUuid.uuidString
                     ],
                     maximumAllowedSilenceDuration: 15
@@ -229,9 +229,9 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
             deleteController.startAndListenUntilProcessDies()
         }
         
-        if FileManager.default.fileExists(atPath: simulator.simulatorSetContainerPath.asString) {
+        if FileManager.default.fileExists(atPath: simulator.simulatorSetContainerPath.pathString) {
             Logger.verboseDebug("Removing files left by simulator \(simulator)")
-            try FileManager.default.removeItem(atPath: simulator.simulatorSetContainerPath.asString)
+            try FileManager.default.removeItem(atPath: simulator.simulatorSetContainerPath.pathString)
         }
     }
     
@@ -254,8 +254,8 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
     
     // MARK: - Protocols
     
-    public var hashValue: Int {
-        return simulator.hashValue
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(simulator)
     }
     
     public static func == (l: DefaultSimulatorController, r: DefaultSimulatorController) -> Bool {

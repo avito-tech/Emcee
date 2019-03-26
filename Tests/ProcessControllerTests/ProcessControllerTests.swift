@@ -41,10 +41,10 @@ final class ProcessControllerTests: XCTestCase {
         let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: ["/bin/ls", "/"],
-                stdoutContentsFile: tempFile.path.asString))
+                stdoutContentsFile: tempFile.path.pathString))
         controller.startAndListenUntilProcessDies()
         
-        let data = try Data(contentsOf: URL(fileURLWithPath: tempFile.path.asString))
+        let data = try Data(contentsOf: URL(fileURLWithPath: tempFile.path.pathString))
         guard let string = String(data: data, encoding: .utf8) else {
             XCTFail("Unable to get stdout string")
             return
@@ -59,10 +59,10 @@ final class ProcessControllerTests: XCTestCase {
         let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: ["/bin/ls", argument],
-                stderrContentsFile: tempFile.path.asString))
+                stderrContentsFile: tempFile.path.pathString))
         controller.startAndListenUntilProcessDies()
         
-        let data = try Data(contentsOf: URL(fileURLWithPath: tempFile.path.asString))
+        let data = try Data(contentsOf: URL(fileURLWithPath: tempFile.path.pathString))
         guard let string = String(data: data, encoding: .utf8) else {
             XCTFail("Unable to get stderr string")
             return
@@ -80,17 +80,17 @@ final class ProcessControllerTests: XCTestCase {
         let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: ["/bin/ls", "/", argument],
-                stdoutContentsFile: stdoutFile.path.asString,
-                stderrContentsFile: stderrFile.path.asString))
+                stdoutContentsFile: stdoutFile.path.pathString,
+                stderrContentsFile: stderrFile.path.pathString))
         controller.startAndListenUntilProcessDies()
         
-        let stdoutData = try Data(contentsOf: URL(fileURLWithPath: stdoutFile.path.asString))
+        let stdoutData = try Data(contentsOf: URL(fileURLWithPath: stdoutFile.path.pathString))
         guard let stdoutString = String(data: stdoutData, encoding: .utf8) else {
             XCTFail("Unable to get stdout string")
             return
         }
         
-        let stderrData = try Data(contentsOf: URL(fileURLWithPath: stderrFile.path.asString))
+        let stderrData = try Data(contentsOf: URL(fileURLWithPath: stderrFile.path.pathString))
         guard let stderrString = String(data: stderrData, encoding: .utf8) else {
             XCTFail("Unable to get stdin string")
             return
@@ -170,7 +170,7 @@ final class ProcessControllerTests: XCTestCase {
     }
     
     private func fileContents(path: AbsolutePath) throws -> String {
-        let dataata = try Data(contentsOf: URL(fileURLWithPath: path.asString))
+        let dataata = try Data(contentsOf: URL(fileURLWithPath: path.pathString))
         guard let contents = String(data: dataata, encoding: .utf8) else {
             fatalError("Unable to get contents of file: \(path)")
         }
@@ -207,9 +207,9 @@ final class ProcessControllerTests: XCTestCase {
             subprocess: Subprocess(
                 arguments: [compiledExecutable],
                 allowedTimeToConsumeStdin: 600,
-                stdoutContentsFile: stdoutFile.asString,
-                stderrContentsFile: stderrFile.asString,
-                stdinContentsFile: stdinFile.asString))
+                stdoutContentsFile: stdoutFile.pathString,
+                stderrContentsFile: stderrFile.pathString,
+                stdinContentsFile: stdinFile.pathString))
         controller.delegate = delegate
         controller.start()
         return controller
@@ -218,6 +218,6 @@ final class ProcessControllerTests: XCTestCase {
 
 extension TemporaryFile: SubprocessArgument {
     public func stringValue() throws -> String {
-        return path.asString
+        return path.pathString
     }
 }

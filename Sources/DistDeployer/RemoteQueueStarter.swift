@@ -61,7 +61,7 @@ public final class RemoteQueueStarter {
                     source: try tempFolder.createFile(
                         filename: launchdPlistTargetPath,
                         contents: try launchdPlist.plistData()
-                    ).asString,
+                    ).pathString,
                     destination: launchdPlistTargetPath
                 )
             ]

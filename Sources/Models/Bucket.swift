@@ -74,8 +74,8 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
         return "<\((type(of: self))) \(bucketId.debugDescription) \(testType) \(testDestination), \(toolResources), \(buildArtifacts), \(testEntries.debugDescription)>"
     }
     
-    public var hashValue: Int {
-        return bucketId.hashValue
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(bucketId)
     }
     
     public static func == (left: Bucket, right: Bucket) -> Bool {

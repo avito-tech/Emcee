@@ -59,7 +59,7 @@ public final class RuntimeTestQuerier {
             testType: .logicTest,
             fbxctest: configuration.fbxctest,
             buildArtifacts: BuildArtifacts.onlyWithXctestBundle(xcTestBundle: configuration.xcTestBundle),
-            environment: ["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH": runtimeEntriesJSONPath.asString],
+            environment: ["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH": runtimeEntriesJSONPath.pathString],
             simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: nil, watchdogSettings: nil),
             testTimeoutConfiguration: configuration.testTimeoutConfiguration
         )
@@ -77,9 +77,9 @@ public final class RuntimeTestQuerier {
             )
         )
         
-        guard let data = try? Data(contentsOf: URL(fileURLWithPath: runtimeEntriesJSONPath.asString)),
+        guard let data = try? Data(contentsOf: URL(fileURLWithPath: runtimeEntriesJSONPath.pathString)),
             let foundTestEntries = try? JSONDecoder().decode([RuntimeTestEntry].self, from: data) else {
-                throw TestExplorationError.fileNotFound(runtimeEntriesJSONPath.asString)
+                throw TestExplorationError.fileNotFound(runtimeEntriesJSONPath.pathString)
         }
         
         let allTests = foundTestEntries.flatMap { $0.testMethods }

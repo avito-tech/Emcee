@@ -35,9 +35,9 @@ let package = Package(
     ],
     dependencies: [
         // MARK: - Dependencies
-        .package(url: "https://github.com/apple/swift-package-manager.git", .exact("0.3.0")),
+        .package(url: "https://github.com/0x7fs/CountedSet", .branch("master")),
+        .package(url: "https://github.com/apple/swift-package-manager.git", .branch("swift-5.0-branch")),
         .package(url: "https://github.com/IBM-Swift/BlueSignals.git", .exact("1.0.16")),
-        .package(url: "https://github.com/beefon/CountedSet", .branch("master")),
         .package(url: "https://github.com/beefon/Shout", .branch("UpdateSocket")),
         .package(url: "https://github.com/daltoniam/Starscream.git", .exact("3.0.6")),
         .package(url: "https://github.com/httpswift/swifter.git", .branch("stable")),
@@ -59,7 +59,7 @@ let package = Package(
                 "Logging",
                 "Models",
                 "RuntimeDump",
-                "Utility"
+                "SPMUtility"
             ]
         ),
         .target(
@@ -111,7 +111,7 @@ let package = Package(
                 "ScheduleStrategy",
                 "Scheduler",
                 "SignalHandling",
-                "Utility",
+                "SPMUtility",
                 "Version"
             ]
         ),
@@ -133,7 +133,7 @@ let package = Package(
                 "Logging",
                 "Models",
                 "ResultsCollector",
-                "Utility"
+                "SPMUtility"
             ]
         ),
         .testTarget(
@@ -217,7 +217,7 @@ let package = Package(
                 "Extensions",
                 "Logging",
                 "Models",
-                "Utility",
+                "SPMUtility",
                 "ZIPFoundation"
             ]
         ),
@@ -251,7 +251,7 @@ let package = Package(
                 "ModelsTestHelpers",
                 "ResourceLocationResolver",
                 "TempFolder",
-                "Utility"
+                "SPMUtility"
             ]
         ),
         .target(
@@ -298,7 +298,7 @@ let package = Package(
                 "SimulatorPool",
                 "SynchronousWaiter",
                 "Timer",
-                "Utility"
+                "SPMUtility"
             ]
         ),
         .testTarget(
@@ -338,7 +338,7 @@ let package = Package(
             name: "ExtensionsTests",
             dependencies: [
                 "Extensions",
-                "Utility"
+                "SPMUtility"
             ]
         ),
         .target(
@@ -361,7 +361,7 @@ let package = Package(
                 "Models",
                 "ProcessController",
                 "Timer",
-                "Utility"
+                "SPMUtility"
             ]
         ),
         .target(
@@ -369,7 +369,7 @@ let package = Package(
             name: "FileCache",
             dependencies: [
                 "Extensions",
-                "Utility"
+                "SPMUtility"
             ]
         ),
         .testTarget(
@@ -428,7 +428,7 @@ let package = Package(
             // MARK: JSONStreamTests
             name: "JSONStreamTests",
             dependencies: [
-                "Utility",
+                "SPMUtility",
                 "JSONStream"
             ]
         ),
@@ -528,7 +528,7 @@ let package = Package(
                 "Logging",
                 "Metrics",
                 "Sentry",
-                "Utility",
+                "SPMUtility",
                 "Version"
             ]
         ),
@@ -537,7 +537,7 @@ let package = Package(
             name: "LoggingTests",
             dependencies: [
                 "Logging",
-                "Utility"
+                "SPMUtility"
             ]
         ),
         .target(
@@ -589,7 +589,7 @@ let package = Package(
                 "Starscream",
                 "SynchronousWaiter",
                 "TestsWorkingDirectorySupport",
-                "Utility"
+                "SPMUtility"
             ]
         ),
         .target(
@@ -616,7 +616,7 @@ let package = Package(
                 "ModelsTestHelpers",
                 "PluginManager",
                 "ResourceLocationResolver",
-                "Utility"
+                "SPMUtility"
             ]
         ),
         .target(
@@ -643,7 +643,7 @@ let package = Package(
                 "Logging",
                 "ResourceLocationResolver",
                 "Timer",
-                "Utility"
+                "SPMUtility"
             ]
         ),
         .testTarget(
@@ -652,7 +652,7 @@ let package = Package(
             dependencies: [
                 "Extensions",
                 "ProcessController",
-                "Utility"
+                "SPMUtility"
             ]
         ),
         .target(
@@ -664,7 +664,7 @@ let package = Package(
                 "RESTMethods",
                 "SynchronousWaiter",
                 "Version",
-                "Utility"
+                "SPMUtility"
             ]
         ),
         .testTarget(
@@ -821,6 +821,7 @@ let package = Package(
             // MARK: Runner
             name: "Runner",
             dependencies: [
+                "EventBus",
                 "fbxctest",
                 "LocalHostDeterminer",
                 "Logging",
@@ -942,7 +943,7 @@ let package = Package(
                 "Models",
                 "ProcessController",
                 "TempFolder",
-                "Utility"
+                "SPMUtility"
             ]
         ),
         .testTarget(
@@ -974,7 +975,7 @@ let package = Package(
                 "Extensions",
                 "Logging",
                 "Models",
-                "Utility",
+                "SPMUtility",
                 "Deployer",
                 "Shout"
             ]
@@ -1000,7 +1001,7 @@ let package = Package(
             // MARK: TempFolder
             name: "TempFolder",
             dependencies: [
-                "Utility"
+                "SPMUtility"
             ]
         ),
         .testTarget(
@@ -1051,7 +1052,7 @@ let package = Package(
                 "Logging",
                 "Models",
                 "SynchronousWaiter",
-                "Utility"
+                "SPMUtility"
             ]
         ),
         .testTarget(
@@ -1061,7 +1062,7 @@ let package = Package(
                 "FileCache",
                 "Swifter",
                 "URLResource",
-                "Utility"
+                "SPMUtility"
             ]
         ),
         .target(
@@ -1085,7 +1086,7 @@ let package = Package(
                 "Extensions",
                 "FileHasher",
                 "Version",
-                "Utility"
+                "SPMUtility"
             ]
         ),
         .target(

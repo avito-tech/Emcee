@@ -15,7 +15,7 @@ import ScheduleStrategy
 import Scheduler
 import SimulatorPool
 import TempFolder
-import Utility
+import SPMUtility
 
 final class RunTestsCommand: Command {
     let command = "runTests"

@@ -91,7 +91,7 @@ public struct TestDestination: Hashable, CustomStringConvertible, Codable {
 
 public extension TestDestination {
     
-    public enum HumanReadableStringParsingError: Error, CustomStringConvertible {
+    enum HumanReadableStringParsingError: Error, CustomStringConvertible {
         case wrongFormat(String)
         public var description: String {
             switch self {
@@ -101,7 +101,7 @@ public extension TestDestination {
         }
     }
     
-    public static func from(humanReadableTestDestination string: String) throws -> TestDestination {
+    static func from(humanReadableTestDestination string: String) throws -> TestDestination {
         let scanner = Scanner(string: string)
         var scannedDeviceType: NSString?
         guard scanner.scanUpTo(", iOS ", into: &scannedDeviceType),
@@ -115,7 +115,7 @@ public extension TestDestination {
         return try TestDestination(deviceType: deviceType, runtime: runtime)
     }
     
-    public var humanReadableTestDestination: String {
+    var humanReadableTestDestination: String {
         return "\(deviceType), iOS \(runtime)"
     }
 }

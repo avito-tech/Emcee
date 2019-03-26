@@ -21,10 +21,10 @@
       },
       {
         "package": "CountedSet",
-        "repositoryURL": "https://github.com/beefon/CountedSet",
+        "repositoryURL": "https://github.com/0x7fs/CountedSet",
         "state": {
           "branch": "master",
-          "revision": "d9811bbc89aaa8558e4c64e0aa0bc01fc15901f6",
+          "revision": "e4232c338dcfffc7ed0530f9f994a213ade4b7d4",
           "version": null
         }
       },
@@ -56,12 +56,21 @@
         }
       },
       {
+        "package": "llbuild",
+        "repositoryURL": "https://github.com/apple/swift-llbuild.git",
+        "state": {
+          "branch": "master",
+          "revision": "cf65783ea3c6d1f2afc5225fd629779d06fd3067",
+          "version": null
+        }
+      },
+      {
         "package": "SwiftPM",
         "repositoryURL": "https://github.com/apple/swift-package-manager.git",
         "state": {
-          "branch": null,
-          "revision": "235aacc514cb81a6881364b0fedcb3dd083228f3",
-          "version": "0.3.0"
+          "branch": "swift-5.0-branch",
+          "revision": "3a57975e10be0b1a8b87992ddf3a49701036f96c",
+          "version": null
         }
       },
       {

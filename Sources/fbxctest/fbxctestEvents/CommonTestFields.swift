@@ -7,7 +7,7 @@ public protocol CommonTestFields {
 }
 
 public extension CommonTestFields {
-    public var testName: String {
+    var testName: String {
         return testClassName + "/" + testMethodName
     }
 }

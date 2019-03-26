@@ -21,7 +21,7 @@ public class Simulator: Hashable, CustomStringConvertible {
     public var simulatorInfo: SimulatorInfo {
         return SimulatorInfo(
             simulatorUuid: uuid,
-            simulatorSetPath: simulatorSetContainerPath.asString
+            simulatorSetPath: simulatorSetContainerPath.pathString
         )
     }
     
@@ -33,7 +33,7 @@ public class Simulator: Hashable, CustomStringConvertible {
     /// Simulator's UUID/UDID if it has been created. Will return nil if it hasn't been created yet.
     /// Currently there is an assumption that simulator set contains only a single simulator.
     public var uuid: UUID? {
-        let contents = (try? FileManager.default.contentsOfDirectory(atPath: simulatorSetContainerPath.asString)) ?? []
+        let contents = (try? FileManager.default.contentsOfDirectory(atPath: simulatorSetContainerPath.pathString)) ?? []
         return contents.compactMap({ UUID(uuidString: $0) }).first
     }
  

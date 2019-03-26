@@ -12,7 +12,7 @@ import ResourceLocationResolver
 import ScheduleStrategy
 import TempFolder
 import Version
-import Utility
+import SPMUtility
 
 final class DistRunTestsCommand: Command {
     let command = "distRunTests"
