@@ -33,7 +33,7 @@ final class RunTestsCommand: Command {
     private let fbxtestRegularTimeout: OptionArgument<UInt>
     private let fbxtestSlowTimeout: OptionArgument<UInt>
     private let junit: OptionArgument<String>
-    private let numberOfRetries: OptionArgument<UInt>
+    private let numberOfRetries: OptionArgument<UInt>       // TODO: remove, left for backwards compatibility
     private let numberOfSimulators: OptionArgument<UInt>
     private let plugins: OptionArgument<[String]>
     private let runner: OptionArgument<String>
@@ -122,7 +122,6 @@ final class RunTestsCommand: Command {
             fbxtestCrashCheckTimeout: arguments.get(self.fbxtestCrashCheckTimeout).map { TimeInterval($0) }
         )
         let testRunExecutionBehavior = TestRunExecutionBehavior(
-            numberOfRetries: try ArgumentsReader.validateNotNil(arguments.get(self.numberOfRetries), key: KnownUIntArguments.numberOfRetries),
             numberOfSimulators: try ArgumentsReader.validateNotNil(arguments.get(self.numberOfSimulators), key: KnownUIntArguments.numberOfSimulators),
             scheduleStrategy: try ArgumentsReader.scheduleStrategy(arguments.get(self.scheduleStrategy), key: KnownStringArguments.scheduleStrategy)
         )

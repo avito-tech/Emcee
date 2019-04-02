@@ -20,7 +20,6 @@ class AvitoRunnerArgs:
             current_directory: Directory,
             test_arg_file_path: str,
             running_ui_tests: bool,
-            number_of_retries: int = 1,
             number_of_simulators: int = 1,
             plugins: [EmceePluginFixture] = None,
             schedule_strategy: str = "individual",
@@ -39,7 +38,6 @@ class AvitoRunnerArgs:
         self.temp_folder = temp_folder
         self.test_arg_file_path = test_arg_file_path
         self.running_ui_tests = running_ui_tests
-        self.number_of_retries = number_of_retries
         self.number_of_simulators = number_of_simulators
         self.plugins = plugins
         self.schedule_strategy = schedule_strategy
@@ -53,7 +51,6 @@ class AvitoRunnerArgs:
             '--fbsimctl', self.fbsimctl_url,
             '--fbxctest', self.fbxctest_url,
             '--junit', self.junit_path,
-            '--number-of-retries', str(self.number_of_retries),
             '--number-of-simulators', str(self.number_of_simulators),
             '--runner', self.ios_app.ui_tests_runner_path,
             '--schedule-strategy', self.schedule_strategy,

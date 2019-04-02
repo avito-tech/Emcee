@@ -14,9 +14,11 @@ final class NSLogLikeLogEntryTextFormatterTests: XCTestCase {
         )
         let text = NSLogLikeLogEntryTextFormatter().format(logEntry: entry)
         
+        let expectedTimestamp = NSLogLikeLogEntryTextFormatter.logDateFormatter.string(from: entry.timestamp)
+        
         XCTAssertEqual(
             text,
-            "[ALWAYS] 1970-01-01 03:00:42.000+0300 \(ProcessInfo.processInfo.processName)[\(ProcessInfo.processInfo.processIdentifier)] subproc[42]: message"
+            "[ALWAYS] \(expectedTimestamp) \(ProcessInfo.processInfo.processName)[\(ProcessInfo.processInfo.processIdentifier)] subproc[42]: message"
         )
     }
 }

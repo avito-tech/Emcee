@@ -31,7 +31,6 @@ public struct RuntimeDumpConfiguration {
             fbxctestSilenceMaximumDuration: 20
         )
         self.testRunExecutionBehavior = TestRunExecutionBehavior(
-            numberOfRetries: 0,
             numberOfSimulators: 1,
             scheduleStrategy: .individual
         )

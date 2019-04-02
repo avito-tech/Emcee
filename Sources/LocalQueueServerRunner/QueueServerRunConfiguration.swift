@@ -75,11 +75,8 @@ public struct QueueServerRunConfiguration: Decodable {
         deploymentDestinationConfiguration: DestinationConfiguration)
         -> TestRunExecutionBehavior
     {
-        // Queue server will retry by itself, workers should not attempt to retry failed tests
-        let numberOfRetriesOnLocalMachine: UInt = 0
         
         return TestRunExecutionBehavior(
-            numberOfRetries: numberOfRetriesOnLocalMachine,
             numberOfSimulators: deploymentDestinationConfiguration.numberOfSimulators,
             scheduleStrategy: workerScheduleStrategy
         )

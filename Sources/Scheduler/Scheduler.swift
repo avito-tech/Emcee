@@ -142,21 +142,21 @@ public final class Scheduler {
     private func runRetrying(bucket: SchedulerBucket) throws -> TestingResult {
         let firstRun = try runBucketOnce(bucket: bucket, testsToRun: bucket.testEntries)
         
-        guard configuration.testRunExecutionBehavior.numberOfRetries > 0 else {
+        guard bucket.testExecutionBehavior.numberOfRetries > 0 else {
             Logger.debug("numberOfRetries == 0, will not retry failed tests.")
             return firstRun
         }
         
         var lastRunResults = firstRun
         var results = [firstRun]
-        for retryNumber in 0 ..< configuration.testRunExecutionBehavior.numberOfRetries {
+        for retryNumber in 0 ..< bucket.testExecutionBehavior.numberOfRetries {
             let failedTestEntriesAfterLastRun = lastRunResults.failedTests.map { $0.testEntry }
             if failedTestEntriesAfterLastRun.isEmpty {
                 Logger.debug("No failed tests after last retry, so nothing to run.")
                 break
             }
             Logger.debug("After last run \(failedTestEntriesAfterLastRun.count) tests have failed: \(failedTestEntriesAfterLastRun).")
-            Logger.debug("Retrying them, attempt #\(retryNumber + 1) of maximum \(configuration.testRunExecutionBehavior.numberOfRetries) attempts")
+            Logger.debug("Retrying them, attempt #\(retryNumber + 1) of maximum \(bucket.testExecutionBehavior.numberOfRetries) attempts")
             lastRunResults = try runBucketOnce(bucket: bucket, testsToRun: failedTestEntriesAfterLastRun)
             results.append(lastRunResults)
         }

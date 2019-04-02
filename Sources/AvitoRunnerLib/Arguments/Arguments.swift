@@ -164,7 +164,7 @@ private let knownUIntArguments: [KnownUIntArguments: ArgumentDescriptionHolder] 
         optional: true),
     KnownUIntArguments.numberOfRetries: ArgumentDescriptionHolder(
         name: "--number-of-retries",
-        comment: "A maximum number of attempts to re-run failed tests"),
+        comment: "Deprecated and no-op, use --test-arg-file instead"),
     KnownUIntArguments.numberOfSimulators: ArgumentDescriptionHolder(
         name: "--number-of-simulators",
         comment: "How many simlutors can be used for running UI tests in parallel"),
@@ -229,7 +229,7 @@ enum KnownUIntArguments: ArgumentDescription {
     case fbxtestFastTimeout
     case fbxtestRegularTimeout
     case fbxtestSlowTimeout
-    case numberOfRetries
+    case numberOfRetries        // TODO: remove, left for backwards compatibility
     case numberOfSimulators
     case priority
     case singleTestTimeout
