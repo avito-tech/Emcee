@@ -6,6 +6,11 @@ open: generate
 	open *.xcodeproj
 .PHONY: open
 
+clean:
+	rm -rf .build/
+	rm -rf TestPlugin/.build/
+.PHONY: clean
+
 build:
 	swift build -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.13" --static-swift-stdlib
 

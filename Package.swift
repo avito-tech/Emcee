@@ -40,7 +40,7 @@ let package = Package(
         .package(url: "https://github.com/IBM-Swift/BlueSignals.git", .exact("1.0.16")),
         .package(url: "https://github.com/beefon/Shout", .branch("UpdateSocket")),
         .package(url: "https://github.com/daltoniam/Starscream.git", .exact("3.0.6")),
-        .package(url: "https://github.com/httpswift/swifter.git", .branch("stable")),
+        .package(url: "https://github.com/httpswift/swifter.git", .exact("1.4.6")),
         .package(url: "https://github.com/weichsel/ZIPFoundation/", from: "0.9.6")
     ],
     targets: [

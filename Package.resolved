@@ -77,9 +77,9 @@
         "package": "Swifter",
         "repositoryURL": "https://github.com/httpswift/swifter.git",
         "state": {
-          "branch": "stable",
-          "revision": "9c25524169b725128d6b5db719875faf771a96b2",
-          "version": null
+          "branch": null,
+          "revision": "57faa5da31c02e035e43e8189f7ae7e8fb7ddc68",
+          "version": "1.4.6"
         }
       },
       {
