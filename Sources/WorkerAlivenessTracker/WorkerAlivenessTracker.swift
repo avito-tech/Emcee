@@ -61,6 +61,12 @@ public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
         }
     }
     
+    public func alivenessForWorker(workerId: String) -> WorkerAliveness {
+        return syncQueue.sync {
+            onSyncQueue_alivenessForWorker(workerId: workerId, currentDate: Date())
+        }
+    }
+    
     private func onSyncQueue_alivenessForWorker(workerId: String, currentDate: Date) -> WorkerAliveness {
         guard let latestAliveDate = workerAliveReportTimestamps[workerId] else {
             return WorkerAliveness(status: .notRegistered, bucketIdsBeingProcessed: [])
@@ -70,7 +76,7 @@ public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
         }
         
         let bucketIdsBeingProcessed = workerBucketIdsBeingProcessed.bucketIdsBeingProcessedBy(workerId: workerId)
-        let silenceDuration = Date().timeIntervalSince(latestAliveDate)
+        let silenceDuration = currentDate.timeIntervalSince(latestAliveDate)
         if silenceDuration > maximumNotReportingDuration {
             return WorkerAliveness(status: .silent, bucketIdsBeingProcessed: bucketIdsBeingProcessed)
         } else {

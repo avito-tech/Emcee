@@ -141,12 +141,10 @@ final class BucketQueueImpl: BucketQueue {
     
     /// Removes and returns any buckets that appear to be stuck, providing a reason why queue thinks bucket is stuck.
     public func reenqueueStuckBuckets() -> [StuckBucket] {
-        let workerAliveness = workerAlivenessProvider.workerAliveness
-        
         return queue.sync {
             let allDequeuedBuckets = dequeuedBuckets
             let stuckBuckets: [StuckBucket] = allDequeuedBuckets.compactMap { dequeuedBucket in
-                let aliveness = workerAliveness[dequeuedBucket.workerId] ?? WorkerAliveness(status: .notRegistered, bucketIdsBeingProcessed: [])
+                let aliveness = workerAlivenessProvider.alivenessForWorker(workerId: dequeuedBucket.workerId)
                 let stuckReason: StuckBucket.Reason
                 switch aliveness.status {
                 case .notRegistered:

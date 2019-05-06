@@ -16,5 +16,9 @@ public final class MutableWorkerAlivenessProvider: WorkerAlivenessProvider {
     
     public var workerAliveness = [String: WorkerAliveness]()
     
+    public func alivenessForWorker(workerId: String) -> WorkerAliveness {
+        return workerAliveness[workerId] ?? WorkerAliveness(status: .notRegistered, bucketIdsBeingProcessed: [])
+    }
+    
     public init() {}
 }

@@ -1,4 +1,5 @@
 import Foundation
+import Logging
 
 public final class WorkerCurrentlyProcessingBucketsTracker {
     
@@ -11,7 +12,10 @@ public final class WorkerCurrentlyProcessingBucketsTracker {
     }
     
     public func set(bucketIdsBeingProcessed bucketIds: Set<String>, byWorkerId workerId: String) {
-        values[workerId] = bucketIds
+        if values[workerId] != bucketIds {
+            values[workerId] = bucketIds
+            Logger.verboseDebug("Worker \(workerId) is processing buckets: \(bucketIds)")
+        }
     }
     
     public func append(bucketId: String, workerId: String) {
@@ -22,6 +26,6 @@ public final class WorkerCurrentlyProcessingBucketsTracker {
     }
     
     public func resetBucketIdsBeingProcessedBy(workerId: String) {
-        values.removeValue(forKey: workerId)
+        set(bucketIdsBeingProcessed: [], byWorkerId: workerId)
     }
 }

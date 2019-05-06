@@ -1,7 +1,10 @@
 import Foundation
 
 public protocol WorkerAlivenessProvider: class {
+    /// Returns immediate snapshot of all worker aliveness statuses.
     var workerAliveness: [String: WorkerAliveness] { get }
+    
+    func alivenessForWorker(workerId: String) -> WorkerAliveness
     
     func markWorkerAsAlive(workerId: String)
     
@@ -18,9 +21,5 @@ public extension WorkerAlivenessProvider {
     
     var aliveWorkerIds: [String] {
         return workerAliveness.filter { $0.value.status == .alive }.map { $0.key }
-    }
-    
-    func alivenessForWorker(workerId: String) -> WorkerAliveness {
-        return workerAliveness[workerId] ?? WorkerAliveness(status: .notRegistered, bucketIdsBeingProcessed: [])
     }
 }
