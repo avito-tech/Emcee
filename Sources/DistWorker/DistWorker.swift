@@ -165,12 +165,13 @@ public final class DistWorker {
                 requestId: requestId,
                 workerId: workerId
             )
-            if acceptedBucketId != testingResult.bucketId {
+            guard acceptedBucketId == testingResult.bucketId else {
                 throw DistWorkerError.unexpectedAcceptedBucketId(
                     actual: acceptedBucketId,
                     expected: testingResult.bucketId
                 )
             }
+            Logger.debug("Successfully sent test run result for bucket \(testingResult.bucketId)")
         } catch {
             Logger.error("Failed to send test run result for bucket \(testingResult.bucketId): \(error)")
             cleanUpAndStop()

@@ -16,12 +16,7 @@ open class DefaultBusListener: EventStream {
         }
     }
     
-    /// Called when a `TestingResult` has been obtained for a corresponding `Bucket`.
     open func didObtain(testingResult: TestingResult) {}
-    
-    /// Called when Runner reports an event
     open func runnerEvent(_ event: RunnerEvent) {}
-    
-    /// Called when listener should tear down
     open func tearDown() {}
 }
