@@ -23,7 +23,7 @@ final class BucketConfigurationFactory {
     private var containerPath: String {
         /*
          The expected structure is:
-         /remote_path/some_run_id/avitoRunner/AvitoRunner   <-- executable path
+         /remote_path/some_run_id/emceeBinary/BinaryName   <-- executable path
          /remote_path/some_run_id/plugin/SomePluginName/SomePluginName.emceeplugin
          and so on.
 
@@ -36,9 +36,9 @@ final class BucketConfigurationFactory {
     func createTempFolder() throws -> TempFolder {
         /*
          Temp folder is next to the binary:
-         /remote_path/some_run_id/avitoRunner/tempFolder/someUUID
+         /remote_path/some_run_id/emceeBinary/tempFolder/someUUID
          */
-        let path = try AbsolutePath(validating: packagePath(containerPath, .avitoRunner))
+        let path = try AbsolutePath(validating: packagePath(containerPath, .emceeBinary))
             .appending(component: "tempFolder")
         return try TempFolder(path: path, cleanUpAutomatically: true)
     }

@@ -3,20 +3,24 @@ import Deployer
 import Foundation
 import Models
 import TempFolder
+import Version
 
 public final class RemoteQueueStarter {
     private let deploymentId: String
+    private let emceeVersionProvider: VersionProvider
     private let deploymentDestination: DeploymentDestination
     private let queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation
     private let tempFolder: TempFolder
 
     public init(
         deploymentId: String,
+        emceeVersionProvider: VersionProvider,
         deploymentDestination: DeploymentDestination,
         queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation,
         tempFolder: TempFolder)
     {
         self.deploymentId = deploymentId
+        self.emceeVersionProvider = emceeVersionProvider
         self.deploymentDestination = deploymentDestination
         self.queueServerRunConfigurationLocation = queueServerRunConfigurationLocation
         self.tempFolder = tempFolder
@@ -24,14 +28,15 @@ public final class RemoteQueueStarter {
     
     public func deployAndStart() throws {
         let deployablesGenerator = DeployablesGenerator(
-            remoteAvitoRunnerPath: "EmceeQueueServer",
-            pluginLocations: []
+            emceeVersionProvider: emceeVersionProvider,
+            pluginLocations: [],
+            remoteEmceeBinaryName: "EmceeQueueServer"
         )
         try deploy(
             deployableItems: try deployablesGenerator.deployables().values.flatMap { $0 }
         )
         try start(
-            emceeBinaryDeployableItem: deployablesGenerator.runnerTool
+            emceeBinaryDeployableItem: try deployablesGenerator.runnerTool()
         )
     }
     

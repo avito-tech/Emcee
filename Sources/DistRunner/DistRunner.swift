@@ -68,6 +68,7 @@ public final class DistRunner {
         
         let workersStarter = RemoteWorkersStarter(
             deploymentId: distRunConfiguration.runId.value,
+            emceeVersionProvider: localQueueVersionProvider,
             deploymentDestinations: distRunConfiguration.destinations,
             pluginLocations: distRunConfiguration.auxiliaryResources.plugins,
             queueAddress: SocketAddress(host: LocalHostDeterminer.currentHostAddress, port: queuePort),

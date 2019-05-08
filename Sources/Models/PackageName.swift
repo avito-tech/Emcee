@@ -1,7 +1,7 @@
 import Foundation
 
 public enum PackageName: String {
-    case avitoRunner
+    case emceeBinary
     case fbsimctl
     case fbxctest
     case plugin

@@ -6,6 +6,7 @@ import Models
 import ModelsTestHelpers
 import ResourceLocationResolver
 import TempFolder
+import Version
 import XCTest
 
 class DeployablesGeneratorTests: XCTestCase {
@@ -13,6 +14,8 @@ class DeployablesGeneratorTests: XCTestCase {
     var deployables = [PackageName: [DeployableItem]]()
     var tempFolder: TempFolder!
     let resolver = ResourceLocationResolver()
+    let versionStringValue = "SomeVersion"
+    lazy var versionProvider = FixedVersionProvider(value: versionStringValue)
     
     override func setUp() {
         super.setUp()
@@ -21,8 +24,9 @@ class DeployablesGeneratorTests: XCTestCase {
         var pluginPath: String!
         XCTAssertNoThrow(pluginPath = try self.pathToPlugin())
         let generator = DeployablesGenerator(
-            remoteAvitoRunnerPath: "AvitoRunner",
-            pluginLocations: [PluginLocation(.localFilePath(pluginPath))]
+            emceeVersionProvider: versionProvider,
+            pluginLocations: [PluginLocation(.localFilePath(pluginPath))],
+            remoteEmceeBinaryName: "Emcee"
         )
         XCTAssertNoThrow(deployables = try generator.deployables())
     }
@@ -41,10 +45,10 @@ class DeployablesGeneratorTests: XCTestCase {
     }
     
     func testAvitoRunnerIsPresent() {
-        let deployables = filterDeployables(.avitoRunner)
+        let deployables = filterDeployables(.emceeBinary)
         XCTAssertEqual(deployables.count, 1)
         XCTAssertEqual(deployables[0].files.first?.source, ProcessInfo.processInfo.executablePath)
-        XCTAssertEqual(deployables[0].files.first?.destination, "AvitoRunner")
+        XCTAssertEqual(deployables[0].files.first?.destination, "Emcee_" + versionStringValue)
     }
     
     func testPluginIsPresent() throws {
@@ -57,5 +61,17 @@ class DeployablesGeneratorTests: XCTestCase {
             DeployableFile(source: tempFolder.pathWith(components: ["TestPlugin.emceeplugin", "Plugin"]).pathString, destination: "TestPlugin.emceeplugin/Plugin")
             ])
         XCTAssertEqual(files, expectedFiles)
+    }
+}
+
+class FixedVersionProvider: VersionProvider {
+    let value: String
+
+    public init(value: String) {
+        self.value = value
+    }
+    
+    public func version() throws -> Version {
+        return Version(stringValue: value)
     }
 }

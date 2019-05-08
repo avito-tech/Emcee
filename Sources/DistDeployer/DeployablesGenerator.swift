@@ -2,31 +2,34 @@ import Foundation
 import Deployer
 import Extensions
 import Models
+import Version
 
 final class DeployablesGenerator {
-    private let remoteAvitoRunnerPath: String
+    private let emceeVersionProvider: VersionProvider
     private let pluginLocations: [PluginLocation]
+    private let remoteEmceeBinaryName: String
 
-    public init(
-        remoteAvitoRunnerPath: String,
-        pluginLocations: [PluginLocation])
-    {
-        self.remoteAvitoRunnerPath = remoteAvitoRunnerPath
+    public init(emceeVersionProvider: VersionProvider, pluginLocations: [PluginLocation], remoteEmceeBinaryName: String) {
+        self.emceeVersionProvider = emceeVersionProvider
         self.pluginLocations = pluginLocations
+        self.remoteEmceeBinaryName = remoteEmceeBinaryName
     }
     
     public func deployables() throws -> [PackageName: [DeployableItem]] {
         var deployables = [PackageName: [DeployableItem]]()
-        deployables[.avitoRunner] = [runnerTool]
+        deployables[.emceeBinary] = [try runnerTool()]
         deployables[.plugin] = try pluginDeployables()
         return deployables
     }
     
-    public var runnerTool: DeployableTool {
+    public func runnerTool() throws -> DeployableTool {
         return DeployableTool(
-            name: PackageName.avitoRunner.rawValue,
+            name: PackageName.emceeBinary.rawValue,
             files: [
-                DeployableFile(source: ProcessInfo.processInfo.executablePath, destination: remoteAvitoRunnerPath)
+                DeployableFile(
+                    source: ProcessInfo.processInfo.executablePath,
+                    destination: remoteEmceeBinaryName + "_" + (try emceeVersionProvider.version().stringValue)
+                )
             ]
         )
     }

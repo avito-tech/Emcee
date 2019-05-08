@@ -3,10 +3,12 @@ import Foundation
 import Logging
 import Models
 import TempFolder
+import Version
 
 /// Starts the remote workers on the given destinations that will poll jobs from the given queue
 public final class RemoteWorkersStarter {
     private let deploymentId: String
+    private let emceeVersionProvider: VersionProvider
     private let deploymentDestinations: [DeploymentDestination]
     private let pluginLocations: [PluginLocation]
     private let queueAddress: SocketAddress
@@ -15,13 +17,16 @@ public final class RemoteWorkersStarter {
 
     public init(
         deploymentId: String,
+        emceeVersionProvider: VersionProvider,
         deploymentDestinations: [DeploymentDestination],
         pluginLocations: [PluginLocation],
         queueAddress: SocketAddress,
         analyticsConfigurationLocation: AnalyticsConfigurationLocation?,
-        tempFolder: TempFolder)
+        tempFolder: TempFolder
+        )
     {
         self.deploymentId = deploymentId
+        self.emceeVersionProvider = emceeVersionProvider
         self.deploymentDestinations = deploymentDestinations
         self.pluginLocations = pluginLocations
         self.queueAddress = queueAddress
@@ -31,14 +36,15 @@ public final class RemoteWorkersStarter {
     
     public func deployAndStartWorkers() throws {
         let deployablesGenerator = DeployablesGenerator(
-            remoteAvitoRunnerPath: "EmceeWorker",
-            pluginLocations: pluginLocations
+            emceeVersionProvider: emceeVersionProvider,
+            pluginLocations: pluginLocations,
+            remoteEmceeBinaryName: "EmceeWorker"
         )
         try deployWorkers(
             deployableItems: try deployablesGenerator.deployables().values.flatMap { $0 }
         )
         try startDeployedWorkers(
-            emceeBinaryDeployableItem: deployablesGenerator.runnerTool,
+            emceeBinaryDeployableItem: try deployablesGenerator.runnerTool(),
             queueAddress: queueAddress
         )
     }

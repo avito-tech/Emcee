@@ -237,7 +237,8 @@ let package = Package(
                 "Logging",
                 "Models",
                 "SSHDeployer",
-                "TempFolder"
+                "TempFolder",
+                "Version"
             ]
         ),
         .testTarget(

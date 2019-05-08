@@ -165,6 +165,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         Logger.info("No running queue server has been found. Will deploy and start remote queue.")
         let remoteQueueStarter = RemoteQueueStarter(
             deploymentId: runId.value,
+            emceeVersionProvider: localQueueVersionProvider,
             deploymentDestination: queueServerDestination,
             queueServerRunConfigurationLocation: queueServerRunConfigurationLocation,
             tempFolder: tempFolder
@@ -185,6 +186,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         Logger.info("Deploying and starting workers")
         let remoteWorkersStarter = RemoteWorkersStarter(
             deploymentId: runId.value,
+            emceeVersionProvider: localQueueVersionProvider,
             deploymentDestinations: workerDestinations,
             pluginLocations: pluginLocations,
             queueAddress: queueServerAddress,
