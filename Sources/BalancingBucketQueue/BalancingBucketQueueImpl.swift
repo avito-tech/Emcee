@@ -47,27 +47,27 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
     
     func state(jobId: JobId) throws -> JobState {
         return try syncQueue.sync {
-            guard let existingEntry = entry__onSyncQueue(jobId: jobId) else {
+            guard let existingJobQueue = jobQueue__onSyncQueue(jobId: jobId) else {
                 throw BalancingBucketQueueError.noQueue(jobId: jobId)
             }
-            return JobState(jobId: jobId, queueState: existingEntry.bucketQueue.state)
+            return JobState(jobId: jobId, queueState: existingJobQueue.bucketQueue.state)
         }
     }
     
     func results(jobId: JobId) throws -> JobResults {
         return try syncQueue.sync {
-            guard let existingEntry = entry__onSyncQueue(jobId: jobId) else {
+            guard let existingJobQueue = jobQueue__onSyncQueue(jobId: jobId) else {
                 throw BalancingBucketQueueError.noQueue(jobId: jobId)
             }
-            return JobResults(jobId: jobId, testingResults: existingEntry.resultsCollector.collectedResults)
+            return JobResults(jobId: jobId, testingResults: existingJobQueue.resultsCollector.collectedResults)
         }
     }
     
     func enqueue(buckets: [Bucket], prioritizedJob: PrioritizedJob) {
         syncQueue.sync {
             let bucketQueue: BucketQueue
-            if let existingEntry = entry__onSyncQueue(jobId: prioritizedJob.jobId) {
-                bucketQueue = existingEntry.bucketQueue
+            if let existingJobQueue = jobQueue__onSyncQueue(jobId: prioritizedJob.jobId) {
+                bucketQueue = existingJobQueue.bucketQueue
             } else {
                 bucketQueue = bucketQueueFactory.createBucketQueue()
                 add_onSyncQueue(bucketQueue: bucketQueue, prioritizedJob: prioritizedJob)
@@ -113,15 +113,18 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
     
     func accept(testingResult: TestingResult, requestId: String, workerId: String) throws -> BucketQueueAcceptResult {
         return try syncQueue.sync {
-            if let appropriateEntry: JobQueue = bucketQueues
-                .filter({ $0.bucketQueue.previouslyDequeuedBucket(requestId: requestId, workerId: workerId) != nil })
-                .first {
-                let result = try appropriateEntry.bucketQueue.accept(
+            if let appropriateJobQueue: JobQueue = bucketQueues
+                .filter({ jobQueue in
+                    jobQueue.bucketQueue.previouslyDequeuedBucket(requestId: requestId, workerId: workerId) != nil
+                })
+                .first
+            {
+                let result = try appropriateJobQueue.bucketQueue.accept(
                     testingResult: testingResult,
                     requestId: requestId,
                     workerId: workerId
                 )
-                appropriateEntry.resultsCollector.append(testingResult: result.testingResultToCollect)
+                appropriateJobQueue.resultsCollector.append(testingResult: result.testingResultToCollect)
                 return result
             }
             
@@ -150,8 +153,8 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
         }
     }
     
-    private func entry__onSyncQueue(jobId: JobId) -> JobQueue? {
-        return bucketQueues.first(where: { entry -> Bool in entry.prioritizedJob.jobId == jobId })
+    private func jobQueue__onSyncQueue(jobId: JobId) -> JobQueue? {
+        return bucketQueues.first(where: { jobQueue -> Bool in jobQueue.prioritizedJob.jobId == jobId })
     }
     
     private func add_onSyncQueue(bucketQueue: BucketQueue, prioritizedJob: PrioritizedJob) {
