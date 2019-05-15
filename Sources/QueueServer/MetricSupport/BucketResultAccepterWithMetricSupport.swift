@@ -28,8 +28,7 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
         testingResult: TestingResult,
         requestId: String,
         workerId: String
-        )
-        throws -> BucketQueueAcceptResult
+        ) throws -> BucketQueueAcceptResult
     {
         let acceptResult = try bucketResultAccepter.accept(
             testingResult: testingResult,
@@ -37,7 +36,6 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
             workerId: workerId
         )
         
-        eventBus.post(event: .didObtainTestingResult(acceptResult.testingResultToCollect))
         sendMetrics(acceptResult: acceptResult)
         
         return acceptResult

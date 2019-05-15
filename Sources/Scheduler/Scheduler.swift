@@ -41,12 +41,15 @@ public final class Scheduler {
     private let tempFolder: TempFolder
     private let resourceLocationResolver: ResourceLocationResolver
     private var gatheredErrors = [Error]()
+    private weak var schedulerDelegate: SchedulerDelegate?
     
     public init(
         eventBus: EventBus,
         configuration: SchedulerConfiguration,
         tempFolder: TempFolder,
-        resourceLocationResolver: ResourceLocationResolver)
+        resourceLocationResolver: ResourceLocationResolver,
+        schedulerDelegate: SchedulerDelegate?
+        )
     {
         self.eventBus = eventBus
         self.configuration = configuration
@@ -55,6 +58,7 @@ public final class Scheduler {
                 runningTests: Int(configuration.testRunExecutionBehavior.numberOfSimulators)))
         self.tempFolder = tempFolder
         self.resourceLocationResolver = resourceLocationResolver
+        self.schedulerDelegate = schedulerDelegate
     }
     
     /**
@@ -110,7 +114,7 @@ public final class Scheduler {
                     let testingResult = try self.runRetrying(bucket: bucket)
                     try self.resourceSemaphore.release(.of(runningTests: resourceRequirement))
                     self.didReceiveResults(testingResult: testingResult)
-                    self.eventBus.post(event: .didObtainTestingResult(testingResult))
+                    self.schedulerDelegate?.scheduler(self, obtainedTestingResult: testingResult, forBucket: bucket)
                     self.fetchAndRunBucket()
                 } catch {
                     self.didFailRunningTests(bucket: bucket, error: error)

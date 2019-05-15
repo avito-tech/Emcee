@@ -13,7 +13,7 @@ import SynchronousWaiter
 import TempFolder
 import Timer
 
-public final class DistWorker {
+public final class DistWorker: SchedulerDelegate {
     private let queueClient: SynchronousQueueClient
     private let syncQueue = DispatchQueue(label: "ru.avito.DistWorker")
     private var requestIdForBucketId = [String: String]()  // bucketId -> requestId
@@ -50,7 +50,8 @@ public final class DistWorker {
         _ = try runTests(
             workerConfiguration: workerConfiguration,
             onDemandSimulatorPool: onDemandSimulatorPool,
-            tempFolder: tempFolder)
+            tempFolder: tempFolder
+        )
         Logger.verboseDebug("Dist worker has finished")
         cleanUpAndStop()
     }
@@ -71,7 +72,7 @@ public final class DistWorker {
     private func reportAliveness() throws {
         try queueClient.reportAliveness(
             bucketIdsBeingProcessedProvider: {
-                syncQueue.sync { currentlyBeingProcessedBucketsTracker.bucketIdsBeingProcessed }
+                currentlyBeingProcessedBucketsTracker.bucketIdsBeingProcessed
             },
             workerId: workerId
         )
@@ -101,12 +102,9 @@ public final class DistWorker {
             eventBus: eventBus,
             configuration: configuration,
             tempFolder: tempFolder,
-            resourceLocationResolver: resourceLocationResolver)
-        let eventStreamProcessor = EventStreamProcessor { [weak self] testingResult in
-            Logger.debug("Obtained testingResult: \(testingResult)")
-            self?.didReceiveTestResult(testingResult: testingResult)
-        }
-        eventBus.add(stream: eventStreamProcessor)
+            resourceLocationResolver: resourceLocationResolver,
+            schedulerDelegate: self
+        )
         return try scheduler.run()
     }
     
@@ -137,11 +135,11 @@ public final class DistWorker {
                     Logger.debug("Server asked to wait for \(after) seconds and fetch next bucket again")
                     SynchronousWaiter.wait(timeout: after)
                 case .bucket(let fetchedBucket):
+                    Logger.debug("Received bucket \(fetchedBucket.bucketId), requestId: \(requestId)")
+                    currentlyBeingProcessedBucketsTracker.didFetch(bucketId: fetchedBucket.bucketId)
                     syncQueue.sync {
                         requestIdForBucketId[fetchedBucket.bucketId] = requestId
-                        currentlyBeingProcessedBucketsTracker.didFetch(bucketId: fetchedBucket.bucketId)
                     }
-                    Logger.debug("Received bucket \(fetchedBucket.bucketId), requestId: \(requestId)")
                     return SchedulerBucket.from(bucket: fetchedBucket)
                 }
             } catch {
@@ -151,13 +149,28 @@ public final class DistWorker {
         }
     }
     
+    public func scheduler(
+        _ sender: Scheduler,
+        obtainedTestingResult testingResult: TestingResult,
+        forBucket bucket: SchedulerBucket
+        )
+    {
+        Logger.debug("Obtained testingResult: \(testingResult)")
+        didReceiveTestResult(testingResult: testingResult)
+    }
+    
     private func didReceiveTestResult(testingResult: TestingResult) {
+        defer {
+            currentlyBeingProcessedBucketsTracker.didObtainResult(bucketId: testingResult.bucketId)
+        }
+        
         do {
             let requestId: String = try syncQueue.sync {
-                guard let requestId = requestIdForBucketId[testingResult.bucketId] else {
+                guard let requestId = requestIdForBucketId.removeValue(forKey: testingResult.bucketId) else {
                     Logger.error("No requestId for bucket: \(testingResult.bucketId)")
                     throw DistWorkerError.noRequestIdForBucketId(testingResult.bucketId)
                 }
+                Logger.verboseDebug("Found requestId for bucket: \(testingResult.bucketId): \(requestId)")
                 return requestId
             }
             let acceptedBucketId = try queueClient.send(
@@ -175,11 +188,6 @@ public final class DistWorker {
         } catch {
             Logger.error("Failed to send test run result for bucket \(testingResult.bucketId): \(error)")
             cleanUpAndStop()
-        }
-        
-        syncQueue.sync {
-            requestIdForBucketId.removeValue(forKey: testingResult.bucketId)
-            currentlyBeingProcessedBucketsTracker.didObtainResult(bucketId: testingResult.bucketId)
         }
     }
 }

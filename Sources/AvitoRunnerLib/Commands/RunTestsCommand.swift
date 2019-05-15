@@ -184,7 +184,8 @@ final class RunTestsCommand: Command {
             eventBus: eventBus,
             configuration: schedulerConfiguration,
             tempFolder: tempFolder,
-            resourceLocationResolver: resourceLocationResolver
+            resourceLocationResolver: resourceLocationResolver,
+            schedulerDelegate: nil
         )
         let testingResults = try scheduler.run()
         try ResultingOutputGenerator(

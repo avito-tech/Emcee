@@ -86,69 +86,21 @@ class TestSmokeTests:
         output_path = open(os.path.join(smoke_uitests_result.plugins[0].path, 'output.json'), 'r')
         json_contents = json.load(output_path)
 
-        testing_result_events = []
         tear_down_events = []
         runner_events = []
         unknown_events = []
 
         for event in json_contents:
-            if event["eventType"] == "didObtainTestingResult":
-                testing_result_events.append(event)
-            elif event["eventType"] == "runnerEvent":
+            if event["eventType"] == "runnerEvent":
                 runner_events.append(event)
             elif event["eventType"] == "tearDown":
                 tear_down_events.append(event)
             else:
                 unknown_events.append(event)
 
-        self.check_test_result_events(testing_result_events)
         self.check_runner_events(runner_events)
         self.check_tear_down_events(tear_down_events)
         self.check_unknown_events(unknown_events)
-
-    def check_test_result_events(self, events):
-        all_test_entries = [test_entry_result["testEntry"]
-                            for event in events
-                            for test_entry_result in event["testingResult"]["unfilteredResults"]]
-        actual_tests = sorted([entry["methodName"] for entry in all_test_entries])
-        expected_tests = sorted([
-            "testAlwaysSuccess",
-            "testWritingToTestWorkingDir",
-            "testSlowTest",
-            "testAlwaysFails",
-            "testQuickTest",
-            "testMethodThatThrowsSwiftError"
-        ])
-        assert actual_tests == expected_tests
-
-        all_test_runs = [unfiltered_test_runs
-                         for event in events
-                         for unfiltered_test_runs in event["testingResult"]["unfilteredResults"]]
-        green_tests = [test_entry_result["testEntry"]["methodName"]
-                       for test_entry_result in all_test_runs
-                       for test_run in test_entry_result["testRunResults"]
-                       if test_run["succeeded"] is True]
-        failed_tests = [test_entry_result["testEntry"]["methodName"]
-                        for test_entry_result in all_test_runs
-                        for test_run in test_entry_result["testRunResults"]
-                        if test_run["succeeded"] is False]
-        expected_green_tests = [
-            "testAlwaysSuccess",
-            "testWritingToTestWorkingDir",
-            "testSlowTest",
-            "testQuickTest"
-        ]
-
-        assert sorted(green_tests) == sorted(expected_green_tests)
-
-        # also check that failed tests have been restarted and the attempts are listed in the events
-        expected_failed_tests = [
-            "testAlwaysFails",
-            "testAlwaysFails",
-            "testMethodThatThrowsSwiftError",
-            "testMethodThatThrowsSwiftError"
-        ]
-        assert sorted(failed_tests) == sorted(expected_failed_tests)
 
     def check_runner_events(self, events):
         all_runner_events = [event["runnerEvent"] for event in events]

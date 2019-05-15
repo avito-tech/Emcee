@@ -7,8 +7,6 @@ open class DefaultBusListener: EventStream {
     
     open func process(event: BusEvent) {
         switch event {
-        case .didObtainTestingResult(let testingResult):
-            didObtain(testingResult: testingResult)
         case .runnerEvent(let runnerEvent):
             self.runnerEvent(runnerEvent)
         case .tearDown:
@@ -16,7 +14,6 @@ open class DefaultBusListener: EventStream {
         }
     }
     
-    open func didObtain(testingResult: TestingResult) {}
     open func runnerEvent(_ event: RunnerEvent) {}
     open func tearDown() {}
 }
