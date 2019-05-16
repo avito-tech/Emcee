@@ -23,6 +23,11 @@ public final class DistWorker: SchedulerDelegate {
     private let currentlyBeingProcessedBucketsTracker = CurrentlyBeingProcessedBucketsTracker()
     private let workerId: String
     
+    private enum BucketFetchResult: Equatable {
+        case result(SchedulerBucket?)
+        case checkAgain(after: TimeInterval)
+    }
+    
     public init(
         queueServerAddress: SocketAddress,
         workerId: String,
@@ -114,33 +119,46 @@ public final class DistWorker: SchedulerDelegate {
     }
     
     // MARK: - Callbacks
-
+    
+    private func nextBucketFetchResult() throws -> BucketFetchResult {
+        reportingAliveTimer?.pause()
+        defer { reportingAliveTimer?.resume() }
+        
+        let requestId = UUID().uuidString
+        let result = try queueClient.fetchBucket(requestId: requestId, workerId: workerId)
+        switch result {
+        case .queueIsEmpty:
+            Logger.debug("Server returned that queue is empty")
+            return .result(nil)
+        case .workerHasBeenBlocked:
+            Logger.error("Server has blocked this worker")
+            return .result(nil)
+        case .workerConsideredNotAlive:
+            Logger.error("Server considers this worker as not alive")
+            return .result(nil)
+        case .checkLater(let after):
+            Logger.debug("Server asked to wait for \(after) seconds and fetch next bucket again")
+            return .checkAgain(after: after)
+        case .bucket(let fetchedBucket):
+            Logger.debug("Received bucket \(fetchedBucket.bucketId), requestId: \(requestId)")
+            currentlyBeingProcessedBucketsTracker.didFetch(bucketId: fetchedBucket.bucketId)
+            syncQueue.sync {
+                requestIdForBucketId[fetchedBucket.bucketId] = requestId
+            }
+            return .result(SchedulerBucket.from(bucket: fetchedBucket))
+        }
+    }
+    
     private func fetchNextBucket() -> SchedulerBucket? {
         while true {
             do {
                 Logger.debug("Fetching next bucket from server")
-                let requestId = UUID().uuidString
-                let result = try queueClient.fetchBucket(requestId: requestId, workerId: workerId)
-                switch result {
-                case .queueIsEmpty:
-                    Logger.debug("Server returned that queue is empty")
-                    return nil
-                case .workerHasBeenBlocked:
-                    Logger.error("Server has blocked this worker")
-                    return nil
-                case .workerConsideredNotAlive:
-                    Logger.error("Server considers this worker as not alive")
-                    return nil
-                case .checkLater(let after):
-                    Logger.debug("Server asked to wait for \(after) seconds and fetch next bucket again")
+                let fetchResult = try nextBucketFetchResult()
+                switch fetchResult {
+                case .result(let result):
+                    return result
+                case .checkAgain(let after):
                     SynchronousWaiter.wait(timeout: after)
-                case .bucket(let fetchedBucket):
-                    Logger.debug("Received bucket \(fetchedBucket.bucketId), requestId: \(requestId)")
-                    currentlyBeingProcessedBucketsTracker.didFetch(bucketId: fetchedBucket.bucketId)
-                    syncQueue.sync {
-                        requestIdForBucketId[fetchedBucket.bucketId] = requestId
-                    }
-                    return SchedulerBucket.from(bucket: fetchedBucket)
                 }
             } catch {
                 Logger.error("Failed to fetch next bucket: \(error)")

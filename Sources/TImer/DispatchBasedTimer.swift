@@ -44,4 +44,12 @@ public final class DispatchBasedTimer {
         timer?.cancel()
         timer?.setEventHandler(handler: nil)
     }
+    
+    public func pause() {
+        timer?.suspend()
+    }
+    
+    public func resume() {
+        timer?.resume()
+    }
 }
