@@ -8,6 +8,8 @@ public extension ScheduleStrategyType {
             return IndividualBucketSplitter()
         case .equallyDivided:
             return EquallyDividedBucketSplitter()
+        case .continuous:
+            return ContinuousBucketSplitter()
         case .progressive:
             return ProgressiveBucketSplitter()
         }

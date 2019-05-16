@@ -26,7 +26,7 @@ final class BucketSplitterTests: XCTestCase {
                     .with(testDestination: testDestination2)
                     .testEntryConfigurations()
         
-        let splitter = DirectSplitter()
+        let splitter = ContinuousBucketSplitter()
         
         let buckets = splitter.generate(
             inputs: testEntryConfigurations,
