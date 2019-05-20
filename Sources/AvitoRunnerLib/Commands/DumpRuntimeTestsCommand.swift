@@ -12,6 +12,7 @@ import Scheduler
 import ScheduleStrategy
 import TempFolder
 import SPMUtility
+import SimulatorPool
 
 final class DumpRuntimeTestsCommand: Command {
     let command = "dump"
@@ -21,6 +22,8 @@ final class DumpRuntimeTestsCommand: Command {
     private let output: OptionArgument<String>
     private let testDestinations: OptionArgument<String>
     private let xctestBundle: OptionArgument<String>
+    private let app: OptionArgument<String>
+    private let fbsimctl: OptionArgument<String>
     private let resourceLocationResolver = ResourceLocationResolver()
     
     private let encoder: JSONEncoder = {
@@ -35,6 +38,8 @@ final class DumpRuntimeTestsCommand: Command {
         output = subparser.add(stringArgument: KnownStringArguments.output)
         testDestinations = subparser.add(stringArgument: KnownStringArguments.testDestinations)
         xctestBundle = subparser.add(stringArgument: KnownStringArguments.xctestBundle)
+        app = subparser.add(stringArgument: KnownStringArguments.app)
+        fbsimctl = subparser.add(stringArgument: KnownStringArguments.fbsimctl)
     }
     
     func run(with arguments: ArgumentParser.Result) throws {
@@ -43,21 +48,54 @@ final class DumpRuntimeTestsCommand: Command {
         let testDestinations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
         let xctestBundle = try ArgumentsReader.validateResourceLocation(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle)
                 
+        let appTestDumpData = getAppTestDumpData(from: arguments)
+
         let configuration = RuntimeDumpConfiguration(
             fbxctest: FbxctestLocation(fbxctest),
             xcTestBundle: TestBundleLocation(xctestBundle),
+            appTestDumpData: appTestDumpData,
             testDestination: testDestinations[0].testDestination,
             testsToRun: []
         )
+
+        let tempFolder = try TempFolder()
+        let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>(
+            resourceLocationResolver: resourceLocationResolver,
+            tempFolder: tempFolder
+        )
+        defer { onDemandSimulatorPool.deleteSimulators() }
         
         let runtimeTests = try RuntimeTestQuerier(
             eventBus: EventBus(),
             configuration: configuration,
             resourceLocationResolver: resourceLocationResolver,
-            tempFolder: try TempFolder())
+            onDemandSimulatorPool: onDemandSimulatorPool,
+            tempFolder: tempFolder)
             .queryRuntime()
         let encodedTests = try encoder.encode(runtimeTests.availableRuntimeTests)
         try encodedTests.write(to: URL(fileURLWithPath: output), options: [.atomic])
         Logger.debug("Wrote run time tests dump to file \(output)")
+    }
+
+    private func getAppTestDumpData(from arguments: ArgumentParser.Result) -> AppTestDumpData? {
+        let fbsimctlPath = try? ArgumentsReader.validateResourceLocation(arguments.get(self.fbsimctl), key: KnownStringArguments.fbsimctl)
+        let appPath = try? ArgumentsReader.validateResourceLocation(arguments.get(self.app), key: KnownStringArguments.app)
+
+        guard let app = appPath else {
+            if fbsimctlPath != nil {
+                Logger.warning("--fbsimctl argument is unused")
+            }
+
+            return nil
+        }
+
+        guard let fbsimctl = fbsimctlPath else {
+            Logger.fatal("Pass --fbsimctl to run dump with --app argument")
+        }
+
+        let appBundleLocation: AppBundleLocation = AppBundleLocation(app)
+        let fbsimctlLocation :FbsimctlLocation = FbsimctlLocation(fbsimctl)
+
+        return AppTestDumpData(appBundle: appBundleLocation, fbsimctl: fbsimctlLocation)
     }
 }

@@ -4,6 +4,7 @@ import Models
 import ResourceLocationResolver
 import RuntimeDump
 import TempFolder
+import SimulatorPool
 
 public final class TestEntriesValidator {
     
@@ -25,10 +26,16 @@ public final class TestEntriesValidator {
     }
     
     public func validatedTestEntries() throws -> [TestToRun: [TestEntry]] {
+        let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>(
+            resourceLocationResolver: resourceLocationResolver,
+            tempFolder: tempFolder)
+        defer { onDemandSimulatorPool.deleteSimulators() }
+
         let runtimeQueryResult = try RuntimeTestQuerier(
             eventBus: eventBus,
             configuration: runtimeDumpConfiguration,
             resourceLocationResolver: resourceLocationResolver,
+            onDemandSimulatorPool: onDemandSimulatorPool,
             tempFolder: tempFolder)
             .queryRuntime()
         let transformer = TestToRunIntoTestEntryTransformer(testsToRun: runtimeDumpConfiguration.testsToRun)
