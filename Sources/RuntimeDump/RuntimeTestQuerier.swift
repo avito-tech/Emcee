@@ -14,7 +14,7 @@ import Basic
 public final class RuntimeTestQuerier {
     private let eventBus: EventBus
     private let configuration: RuntimeDumpConfiguration
-    private let testQueryEntry = TestEntry(className: "NonExistingTest", methodName: "fakeTest", caseId: nil)
+    private let testQueryEntry = TestEntry(className: "NonExistingTest", methodName: "fakeTest", tags: [], caseId: nil)
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TempFolder
     private let onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>
@@ -146,7 +146,12 @@ public final class RuntimeTestQuerier {
         
         let availableTestEntries = runtimeDetectedEntries.flatMap { runtimeDetectedTestEntry -> [TestEntry] in
             runtimeDetectedTestEntry.testMethods.map {
-                TestEntry(className: runtimeDetectedTestEntry.className, methodName: $0, caseId: runtimeDetectedTestEntry.caseId)
+                TestEntry(
+                    className: runtimeDetectedTestEntry.className,
+                    methodName: $0,
+                    tags: runtimeDetectedTestEntry.tags,
+                    caseId: runtimeDetectedTestEntry.caseId
+                )
             }
         }
         let testsToRunMissingInRuntime = configuration.testsToRun.filter { requestedTestToRun -> Bool in

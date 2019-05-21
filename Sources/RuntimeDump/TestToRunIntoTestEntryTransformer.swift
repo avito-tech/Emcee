@@ -51,6 +51,7 @@ public final class TestToRunIntoTestEntryTransformer {
                 TestEntry(
                     className: runtimeEntry.className,
                     methodName: specifierComponents.methodName,
+                    tags: runtimeEntry.tags,
                     caseId: runtimeEntry.caseId
                 )
             ]
