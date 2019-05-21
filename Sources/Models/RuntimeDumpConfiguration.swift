@@ -1,21 +1,5 @@
 import Foundation
 
-public final class AppTestDumpData {
-    /** Path to hosting application*/
-    public let appBundle: AppBundleLocation
-
-    /** Path to Fbsimctl to run simulator*/
-    public let fbsimctl: FbsimctlLocation
-
-    public init(
-        appBundle: AppBundleLocation,
-        fbsimctl: FbsimctlLocation
-    ) {
-        self.appBundle = appBundle
-        self.fbsimctl = fbsimctl
-    }
-}
-
 public struct RuntimeDumpConfiguration {
     
     /** Timeout values. */
@@ -31,7 +15,7 @@ public struct RuntimeDumpConfiguration {
     public let xcTestBundle: TestBundleLocation
 
     /** Optional path app test dump*/
-    public let appTestDumpData: AppTestDumpData?
+    public let appTestDumpData: RuntimeDumpApplicationTestSupport?
     
     /** Test destination */
     public let testDestination: TestDestination
@@ -42,7 +26,7 @@ public struct RuntimeDumpConfiguration {
     public init(
         fbxctest: FbxctestLocation,
         xcTestBundle: TestBundleLocation,
-        appTestDumpData: AppTestDumpData?,
+        appTestDumpData: RuntimeDumpApplicationTestSupport?,
         testDestination: TestDestination,
         testsToRun: [TestToRun])
     {

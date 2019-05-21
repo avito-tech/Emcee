@@ -22,7 +22,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
         ]
         try prepareFakeRuntimeDumpOutputForTestQuerier(entries: runtimeTestEntries)
         
-        let querier = runtimeTestQuerier(testsToRun: [], useAppTestDumpData: false)
+        let querier = runtimeTestQuerier(testsToRun: [], useRuntimeDumpApplicationTestSupport: false)
         let queryResult = try querier.queryRuntime()
         XCTAssertEqual(queryResult.availableRuntimeTests, runtimeTestEntries)
         XCTAssertEqual(queryResult.unavailableTestsToRun, [])
@@ -38,7 +38,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
         
         let querier = runtimeTestQuerier(
             testsToRun: [TestToRun.testName("nonexistingtest")],
-            useAppTestDumpData: false
+            useRuntimeDumpApplicationTestSupport: false
         )
         let queryResult = try querier.queryRuntime()
         XCTAssertEqual(queryResult.availableRuntimeTests, runtimeTestEntries)
@@ -49,7 +49,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
     func test__when_JSON_file_is_missing_throws__withoutAppTestData() throws {
         let querier = runtimeTestQuerier(
             testsToRun: [TestToRun.testName("nonexistingtest")],
-            useAppTestDumpData: false
+            useRuntimeDumpApplicationTestSupport: false
         )
         XCTAssertThrowsError(_ = try querier.queryRuntime())
         XCTAssertFalse(simulatorPool.poolMethodCalled)
@@ -61,7 +61,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
             contents: "oopps".data(using: .utf8)!)
         let querier = runtimeTestQuerier(
             testsToRun: [TestToRun.testName("nonexistingtest")],
-            useAppTestDumpData: false
+            useRuntimeDumpApplicationTestSupport: false
         )
         XCTAssertThrowsError(_ = try querier.queryRuntime())
         XCTAssertFalse(simulatorPool.poolMethodCalled)
@@ -74,7 +74,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
         ]
         try prepareFakeRuntimeDumpOutputForTestQuerier(entries: runtimeTestEntries)
 
-        let querier = runtimeTestQuerier(testsToRun: [], useAppTestDumpData: true)
+        let querier = runtimeTestQuerier(testsToRun: [], useRuntimeDumpApplicationTestSupport: true)
         let queryResult = try querier.queryRuntime()
         XCTAssertEqual(queryResult.availableRuntimeTests, runtimeTestEntries)
         XCTAssertEqual(queryResult.unavailableTestsToRun, [])
@@ -90,7 +90,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
 
         let querier = runtimeTestQuerier(
             testsToRun: [TestToRun.testName("nonexistingtest")],
-            useAppTestDumpData: true
+            useRuntimeDumpApplicationTestSupport: true
         )
         let queryResult = try querier.queryRuntime()
         XCTAssertEqual(queryResult.availableRuntimeTests, runtimeTestEntries)
@@ -101,7 +101,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
     func test__when_JSON_file_is_missing_throws__withAppTestData() throws {
         let querier = runtimeTestQuerier(
             testsToRun: [TestToRun.testName("nonexistingtest")],
-            useAppTestDumpData: true
+            useRuntimeDumpApplicationTestSupport: true
         )
         XCTAssertThrowsError(_ = try querier.queryRuntime())
         XCTAssertTrue(simulatorPool.poolMethodCalled)
@@ -113,7 +113,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
             contents: "oopps".data(using: .utf8)!)
         let querier = runtimeTestQuerier(
             testsToRun: [TestToRun.testName("nonexistingtest")],
-            useAppTestDumpData: true
+            useRuntimeDumpApplicationTestSupport: true
         )
         XCTAssertThrowsError(_ = try querier.queryRuntime())
         XCTAssertTrue(simulatorPool.poolMethodCalled)
@@ -126,18 +126,18 @@ final class RuntimeTestQuerierTests: XCTestCase {
             contents: data)
     }
     
-    private func runtimeTestQuerier(testsToRun: [TestToRun], useAppTestDumpData: Bool) -> RuntimeTestQuerier {
+    private func runtimeTestQuerier(testsToRun: [TestToRun], useRuntimeDumpApplicationTestSupport: Bool) -> RuntimeTestQuerier {
         return RuntimeTestQuerier(
             eventBus: eventBus,
-            configuration: runtimeDumpConfiguration(testsToRun: testsToRun, useAppTestDumpData: useAppTestDumpData),
+            configuration: runtimeDumpConfiguration(testsToRun: testsToRun, useRuntimeDumpApplicationTestSupport: useRuntimeDumpApplicationTestSupport),
             resourceLocationResolver: resourceLocationResolver,
             onDemandSimulatorPool: simulatorPool,
             tempFolder: tempFolder)
     }
     
-    private func runtimeDumpConfiguration(testsToRun: [TestToRun], useAppTestDumpData: Bool) -> RuntimeDumpConfiguration {
-        let appTestDumpData = useAppTestDumpData ?
-            AppTestDumpData(
+    private func runtimeDumpConfiguration(testsToRun: [TestToRun], useRuntimeDumpApplicationTestSupport: Bool) -> RuntimeDumpConfiguration {
+        let appTestDumpData = useRuntimeDumpApplicationTestSupport ?
+            RuntimeDumpApplicationTestSupport(
                 appBundle: AppBundleLocation(.localFilePath("")),
                 fbsimctl: FbsimctlLocation(.localFilePath(""))
             ) : nil

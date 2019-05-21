@@ -48,7 +48,7 @@ final class DumpRuntimeTestsCommand: Command {
         let testDestinations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
         let xctestBundle = try ArgumentsReader.validateResourceLocation(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle)
                 
-        let appTestDumpData = getAppTestDumpData(from: arguments)
+        let appTestDumpData = getRuntimeDumpApplicationTestSupport(from: arguments)
 
         let configuration = RuntimeDumpConfiguration(
             fbxctest: FbxctestLocation(fbxctest),
@@ -77,7 +77,7 @@ final class DumpRuntimeTestsCommand: Command {
         Logger.debug("Wrote run time tests dump to file \(output)")
     }
 
-    private func getAppTestDumpData(from arguments: ArgumentParser.Result) -> AppTestDumpData? {
+    private func getRuntimeDumpApplicationTestSupport(from arguments: ArgumentParser.Result) -> RuntimeDumpApplicationTestSupport? {
         let fbsimctlPath = try? ArgumentsReader.validateResourceLocation(arguments.get(self.fbsimctl), key: KnownStringArguments.fbsimctl)
         let appPath = try? ArgumentsReader.validateResourceLocation(arguments.get(self.app), key: KnownStringArguments.app)
 
@@ -96,6 +96,6 @@ final class DumpRuntimeTestsCommand: Command {
         let appBundleLocation: AppBundleLocation = AppBundleLocation(app)
         let fbsimctlLocation :FbsimctlLocation = FbsimctlLocation(fbsimctl)
 
-        return AppTestDumpData(appBundle: appBundleLocation, fbsimctl: fbsimctlLocation)
+        return RuntimeDumpApplicationTestSupport(appBundle: appBundleLocation, fbsimctl: fbsimctlLocation)
     }
 }
