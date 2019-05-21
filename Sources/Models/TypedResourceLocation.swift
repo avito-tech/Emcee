@@ -12,7 +12,7 @@ public final class TypedResourceLocation<T: ResourceLocationType>: Codable, Hash
         self.resourceLocation = resourceLocation
     }
     
-    public static func withOptional<T>(_ resourceLocation: ResourceLocation?) -> TypedResourceLocation<T>? {
+    public static func withOptional(_ resourceLocation: ResourceLocation?) -> TypedResourceLocation<T>? {
         if let resourceLocation = resourceLocation {
             return TypedResourceLocation<T>(resourceLocation)
         } else {

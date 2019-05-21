@@ -84,7 +84,7 @@ final class DistRunTestsCommand: Command {
     }
     
     func run(with arguments: ArgumentParser.Result) throws {
-        let analyticsConfigurationLocation: AnalyticsConfigurationLocation? = AnalyticsConfigurationLocation.withOptional(
+        let analyticsConfigurationLocation = AnalyticsConfigurationLocation.withOptional(
             try ArgumentsReader.validateResourceLocationOrNil(arguments.get(self.analyticsConfigurationLocation), key: KnownStringArguments.analyticsConfiguration)
         )
         if let analyticsConfigurationLocation = analyticsConfigurationLocation {
