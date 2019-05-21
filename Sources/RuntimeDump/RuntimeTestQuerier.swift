@@ -59,7 +59,7 @@ public final class RuntimeTestQuerier {
         let runtimeEntriesJSONPath = tempFolder.pathWith(components: [RuntimeTestQuerier.runtimeTestsJsonFilename])
         Logger.debug("Will dump runtime tests into file: \(runtimeEntriesJSONPath)")
 
-        let simulator = try buildSimulator(dumpConfiguration: configuration)
+        let simulator = try simulatorForRuntimeDump(dumpConfiguration: configuration)
         let runnerConfiguration = buildRunnerConfiguration(
             dumpConfiguration: configuration,
             runtimeEntriesJSONPath: runtimeEntriesJSONPath
@@ -116,7 +116,7 @@ public final class RuntimeTestQuerier {
         }
     }
 
-    private func buildSimulator(dumpConfiguration: RuntimeDumpConfiguration) throws -> Simulator {
+    private func simulatorForRuntimeDump(dumpConfiguration: RuntimeDumpConfiguration) throws -> Simulator {
         if let appTestDumpData = dumpConfiguration.appTestDumpData {
             let simulatorPool = try onDemandSimulatorPool.pool(
                 key: OnDemandSimulatorPool.Key(
@@ -129,16 +129,13 @@ public final class RuntimeTestQuerier {
             let simulatorController = try simulatorPool.allocateSimulator()
             defer { simulatorPool.freeSimulator(simulatorController) }
 
-            let simulator: Simulator
             do {
-                simulator = try simulatorController.bootedSimulator()
+                return try simulatorController.bootedSimulator()
             } catch {
                 Logger.error("Failed to get booted simulator: \(error)")
                 try simulatorController.deleteSimulator()
                 throw error
             }
-
-            return simulator
         } else {
             return Shimulator.shimulator(
                 testDestination: configuration.testDestination,
