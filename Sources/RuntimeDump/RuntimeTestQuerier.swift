@@ -126,8 +126,8 @@ public final class RuntimeTestQuerier {
                 )
             )
 
-            let simulatorController = try simulatorPool.allocateSimulator()
-            defer { simulatorPool.freeSimulator(simulatorController) }
+            let simulatorController = try simulatorPool.allocateSimulatorController()
+            defer { simulatorPool.freeSimulatorController(simulatorController) }
 
             do {
                 return try simulatorController.bootedSimulator()

@@ -24,7 +24,7 @@ final class SimulatorPoolWithDefaultSimulatorControllerMock: SimulatorPool<Defau
             tempFolder: tempFolder)
     }
 
-    override func allocateSimulator() throws -> DefaultSimulatorController {
+    override func allocateSimulatorController() throws -> DefaultSimulatorController {
         let simulator = Shimulator(index: 0, testDestination: testDestination, workingDirectory: AbsolutePath("/"))
         return DefaultSimulatorControllerMock(simulator: simulator, fbsimctl: fbsimctl)
     }

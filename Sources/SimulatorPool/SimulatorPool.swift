@@ -46,7 +46,7 @@ public class SimulatorPool<T>: CustomStringConvertible where T: SimulatorControl
         deleteSimulators()
     }
     
-    public func allocateSimulator() throws -> T {
+    public func allocateSimulatorController() throws -> T {
         return try syncQueue.sync {
             guard controllers.count > 0 else {
                 throw BorrowError.noSimulatorsLeft
@@ -58,7 +58,7 @@ public class SimulatorPool<T>: CustomStringConvertible where T: SimulatorControl
         }
     }
     
-    public func freeSimulator(_ simulator: T) {
+    public func freeSimulatorController(_ simulator: T) {
         syncQueue.sync {
             controllers.append(simulator)
             Logger.verboseDebug("Freed simulator: \(simulator)")

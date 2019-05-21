@@ -33,8 +33,8 @@ class SimulatorPoolTests: XCTestCase {
             testDestination: TestDestinationFixtures.testDestination,
             fbsimctl: NonResolvableResourceLocation(),
             tempFolder: tempFolder)
-        _ = try pool.allocateSimulator()
-        XCTAssertThrowsError(_ = try pool.allocateSimulator(), "Expected to throw") { error in
+        _ = try pool.allocateSimulatorController()
+        XCTAssertThrowsError(_ = try pool.allocateSimulatorController(), "Expected to throw") { error in
             XCTAssertEqual(error as? BorrowError, BorrowError.noSimulatorsLeft)
         }
     }
@@ -52,10 +52,10 @@ class SimulatorPoolTests: XCTestCase {
         for _ in 0...999 {
             queue.addOperation {
                 do {
-                    let simulator = try pool.allocateSimulator()
+                    let simulator = try pool.allocateSimulatorController()
                     let duration = TimeInterval(Float(arc4random()) / Float(UINT32_MAX) * 0.05)
                     Thread.sleep(forTimeInterval: duration)
-                    pool.freeSimulator(simulator)
+                    pool.freeSimulatorController(simulator)
                 } catch {
                     XCTFail("No exception should be thrown")
                 }
@@ -72,8 +72,8 @@ class SimulatorPoolTests: XCTestCase {
             fbsimctl: NonResolvableResourceLocation(),
             tempFolder: tempFolder,
             automaticCleanupTiumeout: 1)
-        let simulatorController = try pool.allocateSimulator()
-        pool.freeSimulator(simulatorController)
+        let simulatorController = try pool.allocateSimulatorController()
+        pool.freeSimulatorController(simulatorController)
         
         try SynchronousWaiter.waitWhile(
             pollPeriod: 0.01,

@@ -175,8 +175,8 @@ public final class Scheduler {
                 fbsimctl: bucket.toolResources.fbsimctl
             )
         )
-        let simulatorController = try simulatorPool.allocateSimulator()
-        defer { simulatorPool.freeSimulator(simulatorController) }
+        let simulatorController = try simulatorPool.allocateSimulatorController()
+        defer { simulatorPool.freeSimulatorController(simulatorController) }
             
         let runner = Runner(
             eventBus: eventBus,
