@@ -175,8 +175,9 @@ public final class Scheduler {
                 fbsimctl: bucket.toolResources.fbsimctl
             )
         )
-        let simulatorController = try simulatorPool.allocateSimulatorController()
-        defer { simulatorPool.freeSimulatorController(simulatorController) }
+
+        let (simulator, onSimulatorUsageFinished) = try simulatorPool.allocateSimulator()
+        defer { onSimulatorUsageFinished() }
             
         let runner = Runner(
             eventBus: eventBus,
@@ -191,14 +192,6 @@ public final class Scheduler {
             tempFolder: tempFolder,
             resourceLocationResolver: resourceLocationResolver
         )
-        let simulator: Simulator
-        do {
-            simulator = try simulatorController.bootedSimulator()
-        } catch {
-            Logger.error("Failed to get booted simulator: \(error)")
-            try simulatorController.deleteSimulator()
-            throw error
-        }
 
         let runnerResult = try runner.run(
             entries: testsToRun,

@@ -59,7 +59,9 @@ public final class RuntimeTestQuerier {
         let runtimeEntriesJSONPath = tempFolder.pathWith(components: [RuntimeTestQuerier.runtimeTestsJsonFilename])
         Logger.debug("Will dump runtime tests into file: \(runtimeEntriesJSONPath)")
 
-        let simulator = try simulatorForRuntimeDump(dumpConfiguration: configuration)
+        let (simulator, onSimulatorUsageFinished) = try simulatorForRuntimeDump(dumpConfiguration: configuration)
+        defer { onSimulatorUsageFinished() }
+
         let runnerConfiguration = buildRunnerConfiguration(
             dumpConfiguration: configuration,
             runtimeEntriesJSONPath: runtimeEntriesJSONPath
@@ -116,7 +118,7 @@ public final class RuntimeTestQuerier {
         }
     }
 
-    private func simulatorForRuntimeDump(dumpConfiguration: RuntimeDumpConfiguration) throws -> Simulator {
+    private func simulatorForRuntimeDump(dumpConfiguration: RuntimeDumpConfiguration) throws -> (Simulator, OnSimulatorUsageFinished) {
         if let applicationTestSupport = dumpConfiguration.applicationTestSupport {
             let simulatorPool = try onDemandSimulatorPool.pool(
                 key: OnDemandSimulatorPool.Key(
@@ -126,21 +128,12 @@ public final class RuntimeTestQuerier {
                 )
             )
 
-            let simulatorController = try simulatorPool.allocateSimulatorController()
-            defer { simulatorPool.freeSimulatorController(simulatorController) }
-
-            do {
-                return try simulatorController.bootedSimulator()
-            } catch {
-                Logger.error("Failed to get booted simulator: \(error)")
-                try simulatorController.deleteSimulator()
-                throw error
-            }
+            return try simulatorPool.allocateSimulator()
         } else {
-            return Shimulator.shimulator(
+            return (Shimulator.shimulator(
                 testDestination: configuration.testDestination,
                 workingDirectory: try tempFolder.pathByCreatingDirectories(components: ["shimulator"])
-            )
+            ), {})
         }
     }
     
