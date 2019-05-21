@@ -1111,6 +1111,19 @@ let package = Package(
                 "WorkerAlivenessTracker",
                 "WorkerAlivenessTrackerTestHelpers"
             ]
+        ),
+        .target(
+            // MARK: XcTestRun
+            name: "XcTestRun",
+            dependencies: [
+            ]
+        ),
+        .testTarget(
+            // MARK: XcTestRunTests
+            name: "XcTestRunTests",
+            dependencies: [
+                "XcTestRun"
+            ]
         )
     ]
 )
