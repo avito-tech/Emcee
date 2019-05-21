@@ -81,7 +81,7 @@ final class DumpRuntimeTestsCommand: Command {
         let fbsimctlPath = try? ArgumentsReader.validateResourceLocation(arguments.get(self.fbsimctl), key: KnownStringArguments.fbsimctl)
         let appPath = try? ArgumentsReader.validateResourceLocation(arguments.get(self.app), key: KnownStringArguments.app)
 
-        guard let app = appPath else {
+        guard appPath != nil else {
             if fbsimctlPath != nil {
                 Logger.warning("--fbsimctl argument is unused")
             }
@@ -89,13 +89,13 @@ final class DumpRuntimeTestsCommand: Command {
             return nil
         }
 
-        guard let fbsimctl = fbsimctlPath else {
-            Logger.fatal("Pass --fbsimctl to run dump with --app argument")
+        guard let app = appPath, let fbsimctl = fbsimctlPath else {
+            Logger.fatal("Both --fbsimctl and --app should be provided or be missing")
         }
 
-        let appBundleLocation: AppBundleLocation = AppBundleLocation(app)
-        let fbsimctlLocation :FbsimctlLocation = FbsimctlLocation(fbsimctl)
-
-        return RuntimeDumpApplicationTestSupport(appBundle: appBundleLocation, fbsimctl: fbsimctlLocation)
+        return RuntimeDumpApplicationTestSupport(
+            appBundle: AppBundleLocation(app),
+            fbsimctl: FbsimctlLocation(fbsimctl)
+        )
     }
 }
