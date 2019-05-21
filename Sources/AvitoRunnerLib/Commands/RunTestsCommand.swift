@@ -140,7 +140,7 @@ final class RunTestsCommand: Command {
             runtimeDumpConfiguration: RuntimeDumpConfiguration(
                 fbxctest: auxiliaryResources.toolResources.fbxctest,
                 xcTestBundle: buildArtifacts.xcTestBundle,
-                appTestDumpData: nil, // TODO
+                applicationTestSupport: nil, // TODO
                 testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
                 testsToRun: testArgFile.entries.map { $0.testToRun }
             ),

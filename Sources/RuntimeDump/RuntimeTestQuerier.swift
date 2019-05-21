@@ -90,12 +90,12 @@ public final class RuntimeTestQuerier {
         dumpConfiguration: RuntimeDumpConfiguration,
         runtimeEntriesJSONPath: AbsolutePath) -> RunnerConfiguration
     {
-        if let appTestDumpData = dumpConfiguration.appTestDumpData {
+        if let applicationTestSupport = dumpConfiguration.applicationTestSupport {
             return RunnerConfiguration(
                 testType: .appTest,
                 fbxctest: dumpConfiguration.fbxctest,
                 buildArtifacts: BuildArtifacts(
-                    appBundle: appTestDumpData.appBundle,
+                    appBundle: applicationTestSupport.appBundle,
                     runner: nil,
                     xcTestBundle: dumpConfiguration.xcTestBundle,
                     additionalApplicationBundles: []
@@ -117,12 +117,12 @@ public final class RuntimeTestQuerier {
     }
 
     private func simulatorForRuntimeDump(dumpConfiguration: RuntimeDumpConfiguration) throws -> Simulator {
-        if let appTestDumpData = dumpConfiguration.appTestDumpData {
+        if let applicationTestSupport = dumpConfiguration.applicationTestSupport {
             let simulatorPool = try onDemandSimulatorPool.pool(
                 key: OnDemandSimulatorPool.Key(
                     numberOfSimulators: 1,
                     testDestination: configuration.testDestination,
-                    fbsimctl: appTestDumpData.fbsimctl
+                    fbsimctl: applicationTestSupport.fbsimctl
                 )
             )
 

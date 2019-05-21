@@ -215,7 +215,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
             runtimeDumpConfiguration: RuntimeDumpConfiguration(
                 fbxctest: fbxctest,
                 xcTestBundle: buildArtifacts.xcTestBundle,
-                appTestDumpData: nil, // TODO
+                applicationTestSupport: nil, // TODO
                 testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
                 testsToRun: testArgFile.entries.map { $0.testToRun }
             ),

@@ -48,12 +48,12 @@ final class DumpRuntimeTestsCommand: Command {
         let testDestinations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
         let xctestBundle = try ArgumentsReader.validateResourceLocation(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle)
                 
-        let appTestDumpData = getRuntimeDumpApplicationTestSupport(from: arguments)
+        let applicationTestSupport = getRuntimeDumpApplicationTestSupport(from: arguments)
 
         let configuration = RuntimeDumpConfiguration(
             fbxctest: FbxctestLocation(fbxctest),
             xcTestBundle: TestBundleLocation(xctestBundle),
-            appTestDumpData: appTestDumpData,
+            applicationTestSupport: applicationTestSupport,
             testDestination: testDestinations[0].testDestination,
             testsToRun: []
         )

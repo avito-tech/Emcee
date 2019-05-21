@@ -22,7 +22,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
         ]
         try prepareFakeRuntimeDumpOutputForTestQuerier(entries: runtimeTestEntries)
         
-        let querier = runtimeTestQuerier(testsToRun: [], useRuntimeDumpApplicationTestSupport: false)
+        let querier = runtimeTestQuerier(testsToRun: [], applicationTestSupport: nil)
         let queryResult = try querier.queryRuntime()
         XCTAssertEqual(queryResult.availableRuntimeTests, runtimeTestEntries)
         XCTAssertEqual(queryResult.unavailableTestsToRun, [])
@@ -38,7 +38,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
         
         let querier = runtimeTestQuerier(
             testsToRun: [TestToRun.testName("nonexistingtest")],
-            useRuntimeDumpApplicationTestSupport: false
+            applicationTestSupport: nil
         )
         let queryResult = try querier.queryRuntime()
         XCTAssertEqual(queryResult.availableRuntimeTests, runtimeTestEntries)
@@ -49,7 +49,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
     func test__when_JSON_file_is_missing_throws__without_application_test_support() throws {
         let querier = runtimeTestQuerier(
             testsToRun: [TestToRun.testName("nonexistingtest")],
-            useRuntimeDumpApplicationTestSupport: false
+            applicationTestSupport: nil
         )
         XCTAssertThrowsError(_ = try querier.queryRuntime())
         XCTAssertFalse(simulatorPool.poolMethodCalled)
@@ -61,7 +61,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
             contents: "oopps".data(using: .utf8)!)
         let querier = runtimeTestQuerier(
             testsToRun: [TestToRun.testName("nonexistingtest")],
-            useRuntimeDumpApplicationTestSupport: false
+            applicationTestSupport: nil
         )
         XCTAssertThrowsError(_ = try querier.queryRuntime())
         XCTAssertFalse(simulatorPool.poolMethodCalled)
@@ -74,7 +74,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
         ]
         try prepareFakeRuntimeDumpOutputForTestQuerier(entries: runtimeTestEntries)
 
-        let querier = runtimeTestQuerier(testsToRun: [], useRuntimeDumpApplicationTestSupport: true)
+        let querier = runtimeTestQuerier(testsToRun: [], applicationTestSupport: buildApplicationTestSupport())
         let queryResult = try querier.queryRuntime()
         XCTAssertEqual(queryResult.availableRuntimeTests, runtimeTestEntries)
         XCTAssertEqual(queryResult.unavailableTestsToRun, [])
@@ -90,7 +90,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
 
         let querier = runtimeTestQuerier(
             testsToRun: [TestToRun.testName("nonexistingtest")],
-            useRuntimeDumpApplicationTestSupport: true
+            applicationTestSupport: buildApplicationTestSupport()
         )
         let queryResult = try querier.queryRuntime()
         XCTAssertEqual(queryResult.availableRuntimeTests, runtimeTestEntries)
@@ -101,7 +101,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
     func test__when_JSON_file_is_missing_throws__with_application_test_support() throws {
         let querier = runtimeTestQuerier(
             testsToRun: [TestToRun.testName("nonexistingtest")],
-            useRuntimeDumpApplicationTestSupport: true
+            applicationTestSupport: buildApplicationTestSupport()
         )
         XCTAssertThrowsError(_ = try querier.queryRuntime())
         XCTAssertTrue(simulatorPool.poolMethodCalled)
@@ -113,7 +113,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
             contents: "oopps".data(using: .utf8)!)
         let querier = runtimeTestQuerier(
             testsToRun: [TestToRun.testName("nonexistingtest")],
-            useRuntimeDumpApplicationTestSupport: true
+            applicationTestSupport: buildApplicationTestSupport()
         )
         XCTAssertThrowsError(_ = try querier.queryRuntime())
         XCTAssertTrue(simulatorPool.poolMethodCalled)
@@ -126,28 +126,32 @@ final class RuntimeTestQuerierTests: XCTestCase {
             contents: data)
     }
     
-    private func runtimeTestQuerier(testsToRun: [TestToRun], useRuntimeDumpApplicationTestSupport: Bool) -> RuntimeTestQuerier {
+    private func runtimeTestQuerier(testsToRun: [TestToRun], applicationTestSupport: RuntimeDumpApplicationTestSupport?) -> RuntimeTestQuerier {
         return RuntimeTestQuerier(
             eventBus: eventBus,
-            configuration: runtimeDumpConfiguration(testsToRun: testsToRun, useRuntimeDumpApplicationTestSupport: useRuntimeDumpApplicationTestSupport),
+            configuration: runtimeDumpConfiguration(
+                testsToRun: testsToRun,
+                applicationTestSupport: applicationTestSupport
+            ),
             resourceLocationResolver: resourceLocationResolver,
             onDemandSimulatorPool: simulatorPool,
             tempFolder: tempFolder)
     }
     
-    private func runtimeDumpConfiguration(testsToRun: [TestToRun], useRuntimeDumpApplicationTestSupport: Bool) -> RuntimeDumpConfiguration {
-        let appTestDumpData = useRuntimeDumpApplicationTestSupport ?
-            RuntimeDumpApplicationTestSupport(
-                appBundle: AppBundleLocation(.localFilePath("")),
-                fbsimctl: FbsimctlLocation(.localFilePath(""))
-            ) : nil
-
+    private func runtimeDumpConfiguration(testsToRun: [TestToRun], applicationTestSupport: RuntimeDumpApplicationTestSupport?) -> RuntimeDumpConfiguration {
         return RuntimeDumpConfiguration(
             fbxctest: FbxctestLocation(ResourceLocation.localFilePath(fbxctest)),
             xcTestBundle: TestBundleLocation(ResourceLocation.localFilePath("")),
-            appTestDumpData: appTestDumpData,
+            applicationTestSupport: applicationTestSupport,
             testDestination: TestDestinationFixtures.testDestination,
             testsToRun: testsToRun)
+    }
+
+    private func buildApplicationTestSupport() -> RuntimeDumpApplicationTestSupport {
+        return RuntimeDumpApplicationTestSupport(
+            appBundle: AppBundleLocation(.localFilePath("")),
+            fbsimctl: FbsimctlLocation(.localFilePath(""))
+        )
     }
 }
 

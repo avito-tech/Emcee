@@ -15,7 +15,7 @@ public struct RuntimeDumpConfiguration {
     public let xcTestBundle: TestBundleLocation
 
     /** Optional path app test dump*/
-    public let appTestDumpData: RuntimeDumpApplicationTestSupport?
+    public let applicationTestSupport: RuntimeDumpApplicationTestSupport?
     
     /** Test destination */
     public let testDestination: TestDestination
@@ -26,7 +26,7 @@ public struct RuntimeDumpConfiguration {
     public init(
         fbxctest: FbxctestLocation,
         xcTestBundle: TestBundleLocation,
-        appTestDumpData: RuntimeDumpApplicationTestSupport?,
+        applicationTestSupport: RuntimeDumpApplicationTestSupport?,
         testDestination: TestDestination,
         testsToRun: [TestToRun])
     {
@@ -40,7 +40,7 @@ public struct RuntimeDumpConfiguration {
         )
         self.fbxctest = fbxctest
         self.xcTestBundle = xcTestBundle
-        self.appTestDumpData = appTestDumpData
+        self.applicationTestSupport = applicationTestSupport
         self.testDestination = testDestination
         self.testsToRun = testsToRun
     }
