@@ -15,7 +15,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
     let tempFolder = try! TempFolder()
     let simulatorPool = try! OnDemandSimulatorPoolWithDefaultSimulatorControllerMock()
     
-    func test__getting_available_tests__withoutAppTestData() throws {
+    func test__getting_available_tests__without_application_test_support() throws {
         let runtimeTestEntries = [
             RuntimeTestEntry(className: "class1", path: "", testMethods: ["test"], caseId: nil, tags: []),
             RuntimeTestEntry(className: "class2", path: "", testMethods: ["test1", "test2"], caseId: nil, tags: [])
@@ -29,7 +29,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
         XCTAssertFalse(simulatorPool.poolMethodCalled)
     }
     
-    func test__getting_available_tests_while_some_tests_are_missing__withoutAppTestData() throws {
+    func test__getting_available_tests_while_some_tests_are_missing__without_application_test_support() throws {
         let runtimeTestEntries = [
             RuntimeTestEntry(className: "class1", path: "", testMethods: ["test"], caseId: nil, tags: []),
             RuntimeTestEntry(className: "class2", path: "", testMethods: ["test1", "test2"], caseId: nil, tags: [])
@@ -46,7 +46,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
         XCTAssertFalse(simulatorPool.poolMethodCalled)
     }
     
-    func test__when_JSON_file_is_missing_throws__withoutAppTestData() throws {
+    func test__when_JSON_file_is_missing_throws__without_application_test_support() throws {
         let querier = runtimeTestQuerier(
             testsToRun: [TestToRun.testName("nonexistingtest")],
             useRuntimeDumpApplicationTestSupport: false
@@ -55,7 +55,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
         XCTAssertFalse(simulatorPool.poolMethodCalled)
     }
     
-    func test__when_JSON_file_has_incorrect_format_throws__withoutAppTestData() throws {
+    func test__when_JSON_file_has_incorrect_format_throws__without_application_test_support() throws {
         try tempFolder.createFile(
             filename: RuntimeTestQuerier.runtimeTestsJsonFilename,
             contents: "oopps".data(using: .utf8)!)
@@ -67,7 +67,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
         XCTAssertFalse(simulatorPool.poolMethodCalled)
     }
 
-    func test__getting_available_tests__withAppTestData() throws {
+    func test__getting_available_tests__with_application_test_support() throws {
         let runtimeTestEntries = [
             RuntimeTestEntry(className: "class1", path: "", testMethods: ["test"], caseId: nil, tags: []),
             RuntimeTestEntry(className: "class2", path: "", testMethods: ["test1", "test2"], caseId: nil, tags: [])
@@ -81,7 +81,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
         XCTAssertTrue(simulatorPool.poolMethodCalled)
     }
 
-    func test__getting_available_tests_while_some_tests_are_missing__withAppTestData() throws {
+    func test__getting_available_tests_while_some_tests_are_missing__with_application_test_support() throws {
         let runtimeTestEntries = [
             RuntimeTestEntry(className: "class1", path: "", testMethods: ["test"], caseId: nil, tags: []),
             RuntimeTestEntry(className: "class2", path: "", testMethods: ["test1", "test2"], caseId: nil, tags: [])
@@ -98,7 +98,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
         XCTAssertTrue(simulatorPool.poolMethodCalled)
     }
 
-    func test__when_JSON_file_is_missing_throws__withAppTestData() throws {
+    func test__when_JSON_file_is_missing_throws__with_application_test_support() throws {
         let querier = runtimeTestQuerier(
             testsToRun: [TestToRun.testName("nonexistingtest")],
             useRuntimeDumpApplicationTestSupport: true
@@ -107,7 +107,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
         XCTAssertTrue(simulatorPool.poolMethodCalled)
     }
 
-    func test__when_JSON_file_has_incorrect_format_throws__withAppTestData() throws {
+    func test__when_JSON_file_has_incorrect_format_throws__with_application_test_support() throws {
         try tempFolder.createFile(
             filename: RuntimeTestQuerier.runtimeTestsJsonFilename,
             contents: "oopps".data(using: .utf8)!)
