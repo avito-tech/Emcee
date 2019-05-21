@@ -12,7 +12,7 @@ import ResourceLocationResolver
  * There is no blocking mechanisms, the assumption is that the callers will use up to numberOfSimulators of threads
  * to borrow and free the simulators.
  */
-public final class SimulatorPool<T>: CustomStringConvertible where T: SimulatorController {
+public class SimulatorPool<T>: CustomStringConvertible where T: SimulatorController {
     private let numberOfSimulators: UInt
     private let testDestination: TestDestination
     private var controllers: OrderedSet<T>

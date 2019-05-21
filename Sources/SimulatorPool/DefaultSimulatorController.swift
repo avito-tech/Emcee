@@ -10,7 +10,7 @@ import ResourceLocationResolver
  * Prepares and returns the simulator it owns. API is expected to be used from non multithreaded environment,
  * i.e. from serial queue.
  */
-public final class DefaultSimulatorController: SimulatorController, ProcessControllerDelegate, CustomStringConvertible {
+public class DefaultSimulatorController: SimulatorController, ProcessControllerDelegate, CustomStringConvertible {
     private let simulator: Simulator
     private let fbsimctl: ResolvableResourceLocation
     private let maximumBootAttempts = 2
@@ -18,7 +18,7 @@ public final class DefaultSimulatorController: SimulatorController, ProcessContr
     private var simulatorKeepAliveProcessController: ProcessController?
     private static let bootQueue = DispatchQueue(label: "SimulatorBootQueue")
     
-    public init(simulator: Simulator, fbsimctl: ResolvableResourceLocation) {
+    required public init(simulator: Simulator, fbsimctl: ResolvableResourceLocation) {
         self.simulator = simulator
         self.fbsimctl = fbsimctl
     }

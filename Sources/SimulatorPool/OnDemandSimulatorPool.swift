@@ -5,7 +5,7 @@ import Models
 import TempFolder
 import ResourceLocationResolver
 
-public final class OnDemandSimulatorPool<T> where T: SimulatorController {
+public class OnDemandSimulatorPool<T> where T: SimulatorController {
     
     public struct Key: Hashable, CustomStringConvertible {
         public let numberOfSimulators: UInt
