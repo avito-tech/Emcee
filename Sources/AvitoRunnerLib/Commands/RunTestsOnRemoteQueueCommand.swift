@@ -18,6 +18,8 @@ import SynchronousWaiter
 import TempFolder
 import SPMUtility
 import Version
+import SimulatorPool
+import RuntimeDump
 
 final class RunTestsOnRemoteQueueCommand: Command {
     let command = "runTestsOnRemoteQueue"
@@ -210,17 +212,28 @@ final class RunTestsOnRemoteQueueCommand: Command {
         testDestinationConfigurations: [TestDestinationConfiguration])
         throws -> JobResults
     {
-        let testEntriesValidator = TestEntriesValidator(
-            eventBus: eventBus,
-            runtimeDumpConfiguration: RuntimeDumpConfiguration(
-                fbxctest: fbxctest,
-                xcTestBundle: buildArtifacts.xcTestBundle,
-                applicationTestSupport: nil, // TODO
-                testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
-                testsToRun: testArgFile.entries.map { $0.testToRun }
-            ),
+        let validatorConfiguration = TestEntriesValidatorConfiguration(
+            fbxctest: fbxctest,
+            xcTestBundle: buildArtifacts.xcTestBundle,
+            applicationTestSupport: nil,
+            testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
+            testEntries: testArgFile.entries
+        )
+        let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>(
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder
+        )
+        defer { onDemandSimulatorPool.deleteSimulators() }
+        let runtimeTestQuerier = RuntimeTestQuerierImpl(
+            eventBus: eventBus,
+            resourceLocationResolver: resourceLocationResolver,
+            onDemandSimulatorPool: onDemandSimulatorPool,
+            tempFolder: tempFolder
+        )
+
+        let testEntriesValidator = TestEntriesValidator(
+            validatorConfiguration: validatorConfiguration,
+            runtimeTestQuerier: runtimeTestQuerier
         )
         let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
             validatedEnteries: try testEntriesValidator.validatedTestEntries(),

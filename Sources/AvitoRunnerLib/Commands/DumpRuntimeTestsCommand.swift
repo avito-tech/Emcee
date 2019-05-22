@@ -65,13 +65,12 @@ final class DumpRuntimeTestsCommand: Command {
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
         
-        let runtimeTests = try RuntimeTestQuerier(
+        let runtimeTests = try RuntimeTestQuerierImpl(
             eventBus: EventBus(),
-            configuration: configuration,
             resourceLocationResolver: resourceLocationResolver,
             onDemandSimulatorPool: onDemandSimulatorPool,
-            tempFolder: tempFolder)
-            .queryRuntime()
+            tempFolder: tempFolder
+        ).queryRuntime(configuration: configuration)
         let encodedTests = try encoder.encode(runtimeTests.availableRuntimeTests)
         try encodedTests.write(to: URL(fileURLWithPath: output), options: [.atomic])
         Logger.debug("Wrote run time tests dump to file \(output)")

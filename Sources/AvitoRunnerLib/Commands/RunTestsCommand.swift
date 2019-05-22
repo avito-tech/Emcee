@@ -134,18 +134,31 @@ final class RunTestsCommand: Command {
         let tempFolder = try TempFolder.with(stringPath: try ArgumentsReader.validateNotNil(arguments.get(self.tempFolder), key: KnownStringArguments.tempFolder))
         let testArgFile = try ArgumentsReader.testArgFile(arguments.get(self.testArgFile), key: KnownStringArguments.testArgFile)
         let testDestinationConfigurations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
-        
-        let testEntriesValidator = TestEntriesValidator(
-            eventBus: eventBus,
-            runtimeDumpConfiguration: RuntimeDumpConfiguration(
-                fbxctest: auxiliaryResources.toolResources.fbxctest,
-                xcTestBundle: buildArtifacts.xcTestBundle,
-                applicationTestSupport: nil, // TODO
-                testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
-                testsToRun: testArgFile.entries.map { $0.testToRun }
+
+        let validatorConfiguration = TestEntriesValidatorConfiguration(
+            fbxctest: auxiliaryResources.toolResources.fbxctest,
+            xcTestBundle: buildArtifacts.xcTestBundle,
+            applicationTestSupport: try RuntimeDumpApplicationTestSupport(
+                appBundle: buildArtifacts.appBundle,
+                fbsimctl: auxiliaryResources.toolResources.fbsimctl as FbsimctlLocation?
             ),
+            testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
+            testEntries: testArgFile.entries
+        )
+        let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>(
             resourceLocationResolver: resourceLocationResolver,
+            tempFolder: tempFolder)
+        defer { onDemandSimulatorPool.deleteSimulators() }
+        let runtimeTestQuerier = RuntimeTestQuerierImpl(
+            eventBus: eventBus,
+            resourceLocationResolver: resourceLocationResolver,
+            onDemandSimulatorPool: onDemandSimulatorPool,
             tempFolder: tempFolder
+        )
+
+        let testEntriesValidator = TestEntriesValidator(
+            validatorConfiguration: validatorConfiguration,
+            runtimeTestQuerier: runtimeTestQuerier
         )
         let validatedTestEntries = try testEntriesValidator.validatedTestEntries()
         
@@ -164,16 +177,21 @@ final class RunTestsCommand: Command {
             testEntryConfigurations: testEntryConfigurationGenerator.createTestEntryConfigurations(),
             testDestinationConfigurations: testDestinationConfigurations
         )
-        try runTests(configuration: configuration, eventBus: eventBus, tempFolder: tempFolder)
+        try runTests(
+            configuration: configuration,
+            eventBus: eventBus,
+            tempFolder: tempFolder,
+            onDemandSimulatorPool: onDemandSimulatorPool
+        )
     }
     
-    private func runTests(configuration: LocalTestRunConfiguration, eventBus: EventBus, tempFolder: TempFolder) throws {
+    private func runTests(
+        configuration: LocalTestRunConfiguration,
+        eventBus: EventBus,
+        tempFolder: TempFolder,
+        onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>
+    ) throws {
         Logger.verboseDebug("Configuration: \(configuration)")
-        
-        let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>(
-            resourceLocationResolver: resourceLocationResolver,
-            tempFolder: tempFolder)
-        defer { onDemandSimulatorPool.deleteSimulators() }
         
         let schedulerConfiguration = SchedulerConfiguration(
             testRunExecutionBehavior: configuration.testRunExecutionBehavior,

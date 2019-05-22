@@ -13,6 +13,8 @@ import ScheduleStrategy
 import TempFolder
 import Version
 import SPMUtility
+import SimulatorPool
+import RuntimeDump
 
 final class DistRunTestsCommand: Command {
     let command = "distRunTests"
@@ -141,18 +143,32 @@ final class DistRunTestsCommand: Command {
         let tempFolder = try TempFolder()
         let testArgFile = try ArgumentsReader.testArgFile(arguments.get(self.testArgFile), key: KnownStringArguments.testArgFile)
         let testDestinationConfigurations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
-        
-        let testEntriesValidator = TestEntriesValidator(
-            eventBus: eventBus,
-            runtimeDumpConfiguration: RuntimeDumpConfiguration(
-                fbxctest: auxiliaryResources.toolResources.fbxctest,
-                xcTestBundle: buildArtifacts.xcTestBundle,
-                applicationTestSupport: nil, // TODO
-                testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
-                testsToRun: testArgFile.entries.map { $0.testToRun }
+
+        let validatorConfiguration = TestEntriesValidatorConfiguration(
+            fbxctest: auxiliaryResources.toolResources.fbxctest,
+            xcTestBundle: buildArtifacts.xcTestBundle,
+            applicationTestSupport: try RuntimeDumpApplicationTestSupport(
+                appBundle: buildArtifacts.appBundle,
+                fbsimctl: auxiliaryResources.toolResources.fbsimctl
             ),
+            testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
+            testEntries: testArgFile.entries
+        )
+        let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>(
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder
+        )
+        defer { onDemandSimulatorPool.deleteSimulators() }
+        let runtimeTestQuerier = RuntimeTestQuerierImpl(
+            eventBus: eventBus,
+            resourceLocationResolver: resourceLocationResolver,
+            onDemandSimulatorPool: onDemandSimulatorPool,
+            tempFolder: tempFolder
+        )
+        
+        let testEntriesValidator = TestEntriesValidator(
+            validatorConfiguration: validatorConfiguration,
+            runtimeTestQuerier: runtimeTestQuerier
         )
         let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
             validatedEnteries: try testEntriesValidator.validatedTestEntries(),

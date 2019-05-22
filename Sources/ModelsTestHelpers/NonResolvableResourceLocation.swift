@@ -1,15 +1,17 @@
 import Models
 import Foundation
 
-class NonResolvableResourceLocation: ResolvableResourceLocation {
-    var resourceLocation: ResourceLocation {
+public class NonResolvableResourceLocation: ResolvableResourceLocation {
+    public init() { }
+
+    public var resourceLocation: ResourceLocation {
         return .remoteUrl(URL(string: "invalid://url")!)
     }
 
     enum `Error`: Swift.Error {
         case thisIsNonResolvableResourceLocation
     }
-    func resolve() throws -> ResolvingResult {
+    public func resolve() throws -> ResolvingResult {
         throw Error.thisIsNonResolvableResourceLocation
     }
 }
