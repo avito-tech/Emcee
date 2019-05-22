@@ -59,8 +59,8 @@ public final class RuntimeTestQuerier {
         let runtimeEntriesJSONPath = tempFolder.pathWith(components: [RuntimeTestQuerier.runtimeTestsJsonFilename])
         Logger.debug("Will dump runtime tests into file: \(runtimeEntriesJSONPath)")
 
-        let (simulator, onSimulatorUsageFinished) = try simulatorForRuntimeDump(dumpConfiguration: configuration)
-        defer { onSimulatorUsageFinished() }
+        let allocatedSimulator = try simulatorForRuntimeDump(dumpConfiguration: configuration)
+        defer { allocatedSimulator.releaseSimulator() }
 
         let runnerConfiguration = buildRunnerConfiguration(
             dumpConfiguration: configuration,
@@ -74,7 +74,7 @@ public final class RuntimeTestQuerier {
         )
         _ = try runner.runOnce(
             entriesToRun: [testQueryEntry],
-            simulator: simulator
+            simulator: allocatedSimulator.simulator
         )
         
         guard let data = try? Data(contentsOf: URL(fileURLWithPath: runtimeEntriesJSONPath.pathString)),
@@ -118,7 +118,7 @@ public final class RuntimeTestQuerier {
         }
     }
 
-    private func simulatorForRuntimeDump(dumpConfiguration: RuntimeDumpConfiguration) throws -> (Simulator, OnSimulatorUsageFinished) {
+    private func simulatorForRuntimeDump(dumpConfiguration: RuntimeDumpConfiguration) throws -> AllocatedSimulator {
         if let applicationTestSupport = dumpConfiguration.applicationTestSupport {
             let simulatorPool = try onDemandSimulatorPool.pool(
                 key: OnDemandSimulatorPool.Key(
@@ -130,10 +130,13 @@ public final class RuntimeTestQuerier {
 
             return try simulatorPool.allocateSimulator()
         } else {
-            return (Shimulator.shimulator(
-                testDestination: configuration.testDestination,
-                workingDirectory: try tempFolder.pathByCreatingDirectories(components: ["shimulator"])
-            ), {})
+            return AllocatedSimulator(
+                simulator: Shimulator.shimulator(
+                    testDestination: configuration.testDestination,
+                    workingDirectory: try tempFolder.pathByCreatingDirectories(components: ["shimulator"])
+                ),
+                releaseSimulator: {}
+            )
         }
     }
     

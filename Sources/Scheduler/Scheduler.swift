@@ -176,8 +176,8 @@ public final class Scheduler {
             )
         )
 
-        let (simulator, onSimulatorUsageFinished) = try simulatorPool.allocateSimulator()
-        defer { onSimulatorUsageFinished() }
+        let allocatedSimulator = try simulatorPool.allocateSimulator()
+        defer { allocatedSimulator.releaseSimulator() }
             
         let runner = Runner(
             eventBus: eventBus,
@@ -195,7 +195,7 @@ public final class Scheduler {
 
         let runnerResult = try runner.run(
             entries: testsToRun,
-            simulator: simulator
+            simulator: allocatedSimulator.simulator
         )
         return TestingResult(
             bucketId: bucket.bucketId,
