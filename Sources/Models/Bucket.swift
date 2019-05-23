@@ -52,7 +52,7 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
         let buildArtifactsId = (buildArtifacts.appBundle?.description ?? "null") + (buildArtifacts.runner?.description ?? "null") + buildArtifacts.xcTestBundle.description
             + buildArtifacts.additionalApplicationBundles.map { $0.description }.sorted().joined()
         
-        let tests: String = testEntries.map { $0.testName }.sorted().joined()
+        let tests: String = testEntries.map { $0.testName.stringValue }.sorted().joined()
             + testDestination.destinationString
             + buildArtifactsId
             + testExecutionBehavior.environment.map { "\($0)=\($1)" }.sorted().joined() + "\(testExecutionBehavior.numberOfRetries)"

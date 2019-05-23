@@ -121,7 +121,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         buildArtifacts: BuildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
     ) throws -> TestArgFile.Entry {
         return TestArgFile.Entry(
-            testToRun: .testName("myTest"),
+            testToRun: .testName(TestName(className: "MyTest", methodName: "test")),
             environment: [:],
             numberOfRetries: 1,
             testDestination: try TestDestination(deviceType: "iPhoneXL", runtime: "10.3"),

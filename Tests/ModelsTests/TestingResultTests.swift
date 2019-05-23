@@ -18,10 +18,10 @@ final class TestingResultTests: XCTestCase {
             ])
         
         XCTAssertEqual(result.successfulTests.count, 1)
-        XCTAssertEqual(result.successfulTests[0].testEntry.className, "success")
+        XCTAssertEqual(result.successfulTests[0].testEntry.testName.className, "success")
         
         XCTAssertEqual(result.failedTests.count, 1)
-        XCTAssertEqual(result.failedTests[0].testEntry.className, "failure")
+        XCTAssertEqual(result.failedTests[0].testEntry.testName.className, "failure")
         
         XCTAssertEqual(result.unfilteredResults.count, 2)
     }
@@ -40,7 +40,7 @@ final class TestingResultTests: XCTestCase {
             ])
         
         XCTAssertEqual(result.successfulTests.count, 1)
-        XCTAssertEqual(result.successfulTests[0].testEntry.className, "success")
+        XCTAssertEqual(result.successfulTests[0].testEntry.testName.className, "success")
         
         XCTAssertEqual(result.failedTests.count, 0)
     }
@@ -139,7 +139,7 @@ final class TestingResultTests: XCTestCase {
         XCTAssertEqual(result.successfulTests.count, 0)
         
         XCTAssertEqual(result.failedTests.count, 1)
-        XCTAssertEqual(result.failedTests[0].testEntry.className, "lost")
+        XCTAssertEqual(result.failedTests[0].testEntry.testName.className, "lost")
         
         XCTAssertEqual(result.unfilteredResults.count, 1)
     }

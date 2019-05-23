@@ -5,14 +5,8 @@ import Foundation
  * Think about TestEntry as a "resolved" TestToRun with all information filled and validated in runtime.
  */
 public final class TestEntry: CustomStringConvertible, Codable, Hashable {
-    /** TestClassName/testMethodName */
-    public let testName: String
-    
-    /** Test class name, e.g. MainPageTests */
-    public let className: String
-    
-    /** Test method name, e.g.: testMainPageHasLoginButton, test, testDataSource0 etc. */
-    public let methodName: String
+    /// TestClassName/testMethodName.
+    public let testName: TestName
 
     /// Tags assigned to this test entry.
     public let tags: [String]
@@ -20,10 +14,8 @@ public final class TestEntry: CustomStringConvertible, Codable, Hashable {
     /** Test case id in test reporting system. */
     public let caseId: UInt?
     
-    public init(className: String, methodName: String, tags: [String], caseId: UInt?) {
-        self.testName = className + "/" + methodName
-        self.className = className
-        self.methodName = methodName
+    public init(testName: TestName, tags: [String], caseId: UInt?) {
+        self.testName = testName
         self.tags = tags
         self.caseId = caseId
     }
@@ -44,8 +36,7 @@ public final class TestEntry: CustomStringConvertible, Codable, Hashable {
     }
     
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(className)
-        hasher.combine(methodName)
+        hasher.combine(testName)
         hasher.combine(tags)
         hasher.combine(caseId)
     }
@@ -54,5 +45,24 @@ public final class TestEntry: CustomStringConvertible, Codable, Hashable {
         return left.testName == right.testName
             && left.tags == right.tags
             && left.caseId == right.caseId
+    }
+}
+
+// TODO: delete, left for backwards, compatibility
+public extension TestEntry {
+    convenience init(className: String, methodName: String, tags: [String], caseId: UInt?) {
+        self.init(
+            testName: TestName(className: className, methodName: methodName),
+            tags: tags,
+            caseId: caseId
+        )
+    }
+    
+    var className: String {
+        return testName.className
+    }
+    
+    var methodName: String {
+        return testName.methodName
     }
 }

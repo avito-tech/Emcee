@@ -30,7 +30,7 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFile.Entry(
-                testToRun: TestToRun.testName("ClassName/testMethod"),
+                testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
                 environment: ["value": "key"],
                 numberOfRetries: 42,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
@@ -63,7 +63,7 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFile.Entry(
-                testToRun: TestToRun.testName("ClassName/testMethod"),
+                testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
                 environment: ["value": "key"],
                 numberOfRetries: 42,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
@@ -93,7 +93,7 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFile.Entry(
-                testToRun: TestToRun.testName("ClassName/testMethod"),
+                testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
                 environment: [:],
                 numberOfRetries: 42,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
@@ -126,7 +126,7 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFile.Entry(
-                testToRun: TestToRun.testName("ClassName/testMethod"),
+                testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
                 environment: [:],
                 numberOfRetries: 42,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
@@ -161,7 +161,7 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFile.Entry(
-                testToRun: TestToRun.testName("ClassName/testMethod"),
+                testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
                 environment: [:],
                 numberOfRetries: 42,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
@@ -196,7 +196,7 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFile.Entry(
-                testToRun: TestToRun.testName("ClassName/testMethod"),
+                testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
                 environment: ["value": "key"],
                 numberOfRetries: 42,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
@@ -228,7 +228,7 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFile.Entry(
-                testToRun: TestToRun.testName("ClassName/testMethod"),
+                testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
                 environment: ["value": "key"],
                 numberOfRetries: 42,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
@@ -262,7 +262,7 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFile.Entry(
-                testToRun: TestToRun.testName("ClassName/testMethod"),
+                testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
                 environment: [:],
                 numberOfRetries: 42,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),

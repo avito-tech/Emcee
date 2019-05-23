@@ -1,4 +1,5 @@
 import Foundation
+import Models
 
 public protocol CommonTestFields {
     var testModuleName: String { get }
@@ -7,7 +8,7 @@ public protocol CommonTestFields {
 }
 
 public extension CommonTestFields {
-    var testName: String {
-        return testClassName + "/" + testMethodName
+    var testName: TestName {
+        return TestName(className: testClassName, methodName: testMethodName)
     }
 }

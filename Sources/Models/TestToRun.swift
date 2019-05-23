@@ -4,7 +4,7 @@ import Foundation
 public enum TestToRun: Decodable, CustomStringConvertible, Hashable {
     
     /// A test described by string in format: `ClassName/testMethod`
-    case testName(String)
+    case testName(TestName)
     
     private enum CodingKeys: String, CodingKey {
         case testName
@@ -19,6 +19,6 @@ public enum TestToRun: Decodable, CustomStringConvertible, Hashable {
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        self = .testName(try container.decode(String.self))
+        self = .testName(try container.decode(TestName.self))
     }
 }

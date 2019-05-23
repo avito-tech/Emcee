@@ -14,8 +14,8 @@ public final class TimeToStartTestMetric: Metric {
                 "time_to_start"
             ],
             variableComponents: [
-                testEntry.className,
-                testEntry.methodName,
+                testEntry.testName.className,
+                testEntry.testName.methodName,
                 Metric.reservedField,
                 Metric.reservedField,
                 Metric.reservedField,

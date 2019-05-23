@@ -172,7 +172,12 @@ public final class Runner {
         }
         
         arguments += entriesToRun.flatMap {
-            ["-only", JoinedSubprocessArgument(components: [resolvableXcTestBundle.asArgument(), $0.testName], separator: ":")]
+            [
+                "-only",
+                JoinedSubprocessArgument(
+                    components: [resolvableXcTestBundle.asArgument(), $0.testName.stringValue],
+                    separator: ":")
+            ]
         }
         arguments += ["run-tests", "-sdk", "iphonesimulator"]
       
@@ -217,9 +222,10 @@ public final class Runner {
         testEventPairs: [FbXcTestEventPair]
         ) -> TestEntryResult
     {
-        let correspondingEventPair = testEventPairForEntry(
-            requestedEntryToRun,
-            testEventPairs: testEventPairs)
+        let correspondingEventPair = testEventPair(
+            testName: requestedEntryToRun.testName,
+            testEventPairs: testEventPairs
+        )
         
         if let correspondingEventPair = correspondingEventPair, let finishEvent = correspondingEventPair.finishEvent {
             return testEntryResultForFinishedTest(
@@ -253,12 +259,12 @@ public final class Runner {
         )
     }
     
-    private func testEventPairForEntry(
-        _ entry: TestEntry,
+    private func testEventPair(
+        testName: TestName,
         testEventPairs: [FbXcTestEventPair])
         -> FbXcTestEventPair?
     {
-        return testEventPairs.first(where: { $0.startEvent.testName == entry.testName })
+        return testEventPairs.first(where: { $0.startEvent.testName == testName })
     }
     
     private func missingEntriesForScheduledEntries(
@@ -303,7 +309,7 @@ public final class Runner {
         )
     }
     
-    private func testEntryToRun(entriesToRun: [TestEntry], testName: String) -> TestEntry? {
+    private func testEntryToRun(entriesToRun: [TestEntry], testName: TestName) -> TestEntry? {
         return entriesToRun.first(where: { (testEntry: TestEntry) -> Bool in
             testEntry.testName == testName
         })
@@ -322,8 +328,8 @@ public final class Runner {
         MetricRecorder.capture(
             TestStartedMetric(
                 host: event.hostName ?? "unknown_host",
-                testClassName: testEntry.className,
-                testMethodName: testEntry.methodName
+                testClassName: testEntry.testName.className,
+                testMethodName: testEntry.testName.methodName
             )
         )
     }
@@ -345,15 +351,15 @@ public final class Runner {
             TestFinishedMetric(
                 result: testResult,
                 host: eventPair.startEvent.hostName ?? "unknown_host",
-                testClassName: testEntry.className,
-                testMethodName: testEntry.methodName,
+                testClassName: testEntry.testName.className,
+                testMethodName: testEntry.testName.methodName,
                 testsFinishedCount: 1
             ),
             TestDurationMetric(
                 result: testResult,
                 host: eventPair.startEvent.hostName ?? "unknown_host",
-                testClassName: testEntry.className,
-                testMethodName: testEntry.methodName,
+                testClassName: testEntry.testName.className,
+                testMethodName: testEntry.testName.methodName,
                 duration: testDuration
             )
         )

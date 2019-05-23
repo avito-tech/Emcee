@@ -5,8 +5,8 @@ import ModelsTestHelpers
 import XCTest
 
 final class TestEntryConfigurationGeneratorTests: XCTestCase {
-    let argFileTestToRun1 = TestToRun.testName("classFromArgs/test1")
-    let argFileTestToRun2 = TestToRun.testName("classFromArgs/test2")
+    let argFileTestToRun1 = TestToRun.testName(TestName(className: "classFromArgs", methodName: "test1"))
+    let argFileTestToRun2 = TestToRun.testName(TestName(className: "classFromArgs", methodName: "test2"))
     
     let buildArtifacts = BuildArtifactsFixtures.withLocalPaths(
         appBundle: "1",

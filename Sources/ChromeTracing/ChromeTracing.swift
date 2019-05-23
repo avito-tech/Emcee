@@ -13,7 +13,7 @@ public struct ChromeTraceEvent: Encodable {
         case flaky = "yellow"
     }
     
-    public let testName: String
+    public let testName: TestName
     public let result: Result
     public let phase: Phase
     public let timestamp: TimeInterval
@@ -21,7 +21,7 @@ public struct ChromeTraceEvent: Encodable {
     public let simulatorId: String
 
     public init(
-        testName: String,
+        testName: TestName,
         result: Result,
         phase: Phase,
         timestamp: TimeInterval,
@@ -64,7 +64,7 @@ public final class ChromeTraceGenerator {
     }
     
     private lazy var chromeTrace: ChromeTrace = {
-        var previouslyFailedTests = Set<String>()
+        var previouslyFailedTests = Set<TestName>()
         let resultForTest = { (testEntryResult: TestEntryResult) -> ChromeTraceEvent.Result in
             let testName = testEntryResult.testEntry.testName
             if !testEntryResult.succeeded {

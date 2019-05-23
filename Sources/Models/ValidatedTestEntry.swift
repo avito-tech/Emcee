@@ -1,4 +1,4 @@
-public final class ValidatedTestEntry: Equatable {
+public final class ValidatedTestEntry: Hashable {
     public let testToRun: TestToRun
     public let testEntries : [TestEntry]
     public let buildArtifacts: BuildArtifacts
@@ -11,6 +11,12 @@ public final class ValidatedTestEntry: Equatable {
         self.testToRun = testToRun
         self.testEntries = testEntries
         self.buildArtifacts = buildArtifacts
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(testToRun)
+        hasher.combine(testEntries)
+        hasher.combine(buildArtifacts)
     }
 
     public static func == (lhs: ValidatedTestEntry, rhs: ValidatedTestEntry) -> Bool {

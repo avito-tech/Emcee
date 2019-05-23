@@ -117,10 +117,10 @@ class TestSmokeTests:
         "Check that number of willRun events equal to didRun events"
         assert len(all_will_run_events) == len(all_did_run_events)
 
-        all_will_run_tests = [test_entry["methodName"]
+        all_will_run_tests = [test_entry["testName"]["methodName"]
                               for event in all_will_run_events
                               for test_entry in event["testEntries"]]
-        all_did_run_tests = [test_entry_result["testEntry"]["methodName"]
+        all_did_run_tests = [test_entry_result["testEntry"]["testName"]["methodName"]
                              for event in all_did_run_events
                              for test_entry_result in event["results"]]
         "Check that willRun events and didRun events match the test method names"
@@ -146,7 +146,7 @@ class TestSmokeTests:
         event = [event
                  for event in did_run_events
                  for test_entry_result in event["results"]
-                 if test_entry_result["testEntry"]["methodName"] == "testWritingToTestWorkingDir"][0]
+                 if test_entry_result["testEntry"]["testName"]["methodName"] == "testWritingToTestWorkingDir"][0]
         expected_path = os.path.join(
             event["testContext"]["environment"]["EMCEE_TESTS_WORKING_DIRECTORY"],
             "test_artifact.txt")

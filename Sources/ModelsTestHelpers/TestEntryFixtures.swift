@@ -3,15 +3,33 @@ import Models
 
 public final class TestEntryFixtures {
     public static func testEntry(
-        className: String = "class",
-        methodName: String = "test",
+        testName: TestName = TestName(
+            className: "class",
+            methodName: "test"
+        ),
         tags: [String] = [],
         caseId: UInt? = nil)
         -> TestEntry
     {
         return TestEntry(
-            className: className,
-            methodName: methodName,
+            testName: testName,
+            tags: tags,
+            caseId: caseId
+        )
+    }
+
+    public static func testEntry(
+        className: String = "class",
+        methodName: String = "test",
+        tags: [String] = [],
+        caseId: UInt? = nil
+        ) -> TestEntry
+    {
+        return testEntry(
+            testName: TestName(
+                className: className,
+                methodName: methodName
+            ),
             tags: tags,
             caseId: caseId
         )
