@@ -29,6 +29,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
     private let app: OptionArgument<String>
     private let analyticsConfigurationLocation: OptionArgument<String>
     private let workerDestinations: OptionArgument<String>
+    private let fbsimctl: OptionArgument<String>
     private let fbxctest: OptionArgument<String>
     private let junit: OptionArgument<String>
     private let priority: OptionArgument<UInt>
@@ -51,6 +52,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         additionalApp = subparser.add(multipleStringArgument: KnownStringArguments.additionalApp)
         app = subparser.add(stringArgument: KnownStringArguments.app)
         analyticsConfigurationLocation = subparser.add(stringArgument: KnownStringArguments.analyticsConfiguration)
+        fbsimctl = subparser.add(stringArgument: KnownStringArguments.fbsimctl)
         fbxctest = subparser.add(stringArgument: KnownStringArguments.fbxctest)
         junit = subparser.add(stringArgument: KnownStringArguments.junit)
         priority = subparser.add(intArgument: KnownUIntArguments.priority)
@@ -89,6 +91,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         defer { eventBus.tearDown() }
         
         let fbxctest = FbxctestLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.fbxctest), key: KnownStringArguments.fbxctest))
+        let fbsimctl = (try? ArgumentsReader.validateResourceLocation(arguments.get(self.fbsimctl), key: KnownStringArguments.fbsimctl)).map { FbsimctlLocation($0) }
         let priority = try Priority(intValue: try ArgumentsReader.validateNotNil(arguments.get(self.priority), key: KnownUIntArguments.priority))
         let pluginLocations = try ArgumentsReader.validateResourceLocations(arguments.get(self.plugins) ?? [], key: KnownStringArguments.plugin).map({ PluginLocation($0) })
         
@@ -121,6 +124,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
             buildArtifacts: buildArtifacts,
             eventBus: eventBus,
             fbxctest: fbxctest,
+            fbsimctl: fbsimctl,
             priority: priority,
             queueServerAddress: runningQueueServerAddress,
             runId: runId,
@@ -204,6 +208,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         buildArtifacts: BuildArtifacts,
         eventBus: EventBus,
         fbxctest: FbxctestLocation,
+        fbsimctl: FbsimctlLocation?,
         priority: Priority,
         queueServerAddress: SocketAddress,
         runId: JobId,
@@ -215,7 +220,10 @@ final class RunTestsOnRemoteQueueCommand: Command {
         let validatorConfiguration = TestEntriesValidatorConfiguration(
             fbxctest: fbxctest,
             xcTestBundle: buildArtifacts.xcTestBundle,
-            applicationTestSupport: nil,
+            applicationTestSupport: try RuntimeDumpApplicationTestSupport(
+                appBundle: buildArtifacts.appBundle,
+                fbsimctl: fbsimctl
+            ),
             testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
             testEntries: testArgFile.entries
         )
