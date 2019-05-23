@@ -217,13 +217,15 @@ final class RunTestsOnRemoteQueueCommand: Command {
         testDestinationConfigurations: [TestDestinationConfiguration])
         throws -> JobResults
     {
+        let applicationTestSupport: RuntimeDumpApplicationTestSupport?? = try? RuntimeDumpApplicationTestSupport(
+            appBundle: buildArtifacts.appBundle,
+            fbsimctl: fbsimctl
+        )
+        
         let validatorConfiguration = TestEntriesValidatorConfiguration(
             fbxctest: fbxctest,
             xcTestBundle: buildArtifacts.xcTestBundle,
-            applicationTestSupport: try RuntimeDumpApplicationTestSupport(
-                appBundle: buildArtifacts.appBundle,
-                fbsimctl: fbsimctl
-            ),
+            applicationTestSupport: applicationTestSupport ?? nil,
             testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
             testEntries: testArgFile.entries
         )
