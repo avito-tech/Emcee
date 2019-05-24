@@ -145,7 +145,15 @@ public final class DistWorker: SchedulerDelegate {
             syncQueue.sync {
                 requestIdForBucketId[fetchedBucket.bucketId] = requestId
             }
-            return .result(SchedulerBucket.from(bucket: fetchedBucket))
+            return .result(
+                SchedulerBucket.from(
+                    bucket: fetchedBucket,
+                    testExecutionBehavior: TestExecutionBehavior(
+                        environment: fetchedBucket.testExecutionBehavior.environment,
+                        numberOfRetries: 0
+                    )
+                )
+            )
         }
     }
     

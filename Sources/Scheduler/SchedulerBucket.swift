@@ -36,14 +36,14 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
         self.testType = testType
     }
     
-    public static func from(bucket: Bucket) -> SchedulerBucket {
+    public static func from(bucket: Bucket, testExecutionBehavior: TestExecutionBehavior) -> SchedulerBucket {
         return SchedulerBucket(
             bucketId: bucket.bucketId,
             testEntries: bucket.testEntries,
             buildArtifacts: bucket.buildArtifacts,
             simulatorSettings: bucket.simulatorSettings,
             testDestination: bucket.testDestination,
-            testExecutionBehavior: bucket.testExecutionBehavior,
+            testExecutionBehavior: testExecutionBehavior,
             toolResources: bucket.toolResources,
             testType: bucket.testType
         )

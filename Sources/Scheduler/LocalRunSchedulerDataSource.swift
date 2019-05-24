@@ -23,7 +23,10 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
     public func nextBucket() -> SchedulerBucket? {
         return syncQueue.sync {
             if let bucket = buckets.popLast() {
-                return SchedulerBucket.from(bucket: bucket)
+                return SchedulerBucket.from(
+                    bucket: bucket,
+                    testExecutionBehavior: bucket.testExecutionBehavior
+                )
             } else {
                 return nil
             }
