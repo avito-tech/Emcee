@@ -1,11 +1,6 @@
 import Ansi
 import Foundation
 
-/// deprecated, for backwards compatibility
-public func log(_ message: String) {
-    Logger.info(message)
-}
-
 public final class Logger {
     private init() {}
     

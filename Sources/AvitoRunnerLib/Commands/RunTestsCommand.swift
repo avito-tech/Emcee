@@ -31,7 +31,6 @@ final class RunTestsCommand: Command {
     private let fbxtestRegularTimeout: OptionArgument<UInt>
     private let fbxtestSlowTimeout: OptionArgument<UInt>
     private let junit: OptionArgument<String>
-    private let numberOfRetries: OptionArgument<UInt>       // TODO: remove, left for backwards compatibility
     private let numberOfSimulators: OptionArgument<UInt>
     private let plugins: OptionArgument<[String]>
     private let scheduleStrategy: OptionArgument<String>
@@ -58,7 +57,6 @@ final class RunTestsCommand: Command {
         fbxtestRegularTimeout = subparser.add(intArgument: KnownUIntArguments.fbxtestRegularTimeout)
         fbxtestSlowTimeout = subparser.add(intArgument: KnownUIntArguments.fbxtestSlowTimeout)
         junit = subparser.add(stringArgument: KnownStringArguments.junit)
-        numberOfRetries = subparser.add(intArgument: KnownUIntArguments.numberOfRetries)
         numberOfSimulators = subparser.add(intArgument: KnownUIntArguments.numberOfSimulators)
         plugins = subparser.add(multipleStringArgument: KnownStringArguments.plugin)
         scheduleStrategy = subparser.add(stringArgument: KnownStringArguments.scheduleStrategy)

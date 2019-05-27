@@ -153,9 +153,6 @@ private let knownUIntArguments: [KnownUIntArguments: ArgumentDescriptionHolder] 
         name: "--fbxctest-crash-check-timeout",
         comment: "Overrides fbxtest's internal CrashCheck Timeout",
         optional: true),
-    KnownUIntArguments.numberOfRetries: ArgumentDescriptionHolder(
-        name: "--number-of-retries",
-        comment: "Deprecated and no-op, use --test-arg-file instead"),
     KnownUIntArguments.numberOfSimulators: ArgumentDescriptionHolder(
         name: "--number-of-simulators",
         comment: "How many simlutors can be used for running UI tests in parallel"),
@@ -220,7 +217,6 @@ enum KnownUIntArguments: ArgumentDescription {
     case fbxtestFastTimeout
     case fbxtestRegularTimeout
     case fbxtestSlowTimeout
-    case numberOfRetries        // TODO: remove, left for backwards compatibility
     case numberOfSimulators
     case priority
     case singleTestTimeout

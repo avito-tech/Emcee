@@ -27,11 +27,6 @@ public final class TestEntry: CustomStringConvertible, Codable, Hashable {
         self.tags = tags
         self.caseId = caseId
     }
-
-    // TODO MBS-4934: remove, left for backwards compatibility
-    public convenience init(className: String, methodName: String, caseId: UInt?) {
-        self.init(className: className, methodName: methodName, tags: [], caseId: caseId)
-    }
     
     public var description: String {
         var components = [String]()
