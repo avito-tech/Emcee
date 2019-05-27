@@ -19,9 +19,7 @@ import RuntimeDump
 final class DistRunTestsCommand: Command {
     let command = "distRunTests"
     let overview = "Starts a local queue, performs distributed UI tests run and writes report"
-    
-    private let additionalApp: OptionArgument<[String]>
-    private let app: OptionArgument<String>
+
     private let analyticsConfigurationLocation: OptionArgument<String>
     private let destinationConfigurations: OptionArgument<String>
     private let destinations: OptionArgument<String>
@@ -39,7 +37,6 @@ final class DistRunTestsCommand: Command {
     private let plugins: OptionArgument<[String]>
     private let remoteScheduleStrategy: OptionArgument<String>
     private let runId: OptionArgument<String>
-    private let runner: OptionArgument<String>
     private let scheduleStrategy: OptionArgument<String>
     private let simulatorLocalizationSettings: OptionArgument<String>
     private let singleTestTimeout: OptionArgument<UInt>
@@ -47,16 +44,13 @@ final class DistRunTestsCommand: Command {
     private let testDestinations: OptionArgument<String>
     private let trace: OptionArgument<String>
     private let watchdogSettings: OptionArgument<String>
-    private let xctestBundle: OptionArgument<String>
     
     private let resourceLocationResolver = ResourceLocationResolver()
     private let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
 
     required init(parser: ArgumentParser) {
         let subparser = parser.add(subparser: command, overview: overview)
-        
-        additionalApp = subparser.add(multipleStringArgument: KnownStringArguments.additionalApp)
-        app = subparser.add(stringArgument: KnownStringArguments.app)
+
         analyticsConfigurationLocation = subparser.add(stringArgument: KnownStringArguments.analyticsConfiguration)
         destinationConfigurations = subparser.add(stringArgument: KnownStringArguments.destinationConfigurations)
         destinations = subparser.add(stringArgument: KnownStringArguments.destinations)
@@ -74,7 +68,6 @@ final class DistRunTestsCommand: Command {
         plugins = subparser.add(multipleStringArgument: KnownStringArguments.plugin)
         remoteScheduleStrategy = subparser.add(stringArgument: KnownStringArguments.remoteScheduleStrategy)
         runId = subparser.add(stringArgument: KnownStringArguments.runId)
-        runner = subparser.add(stringArgument: KnownStringArguments.runner)
         scheduleStrategy = subparser.add(stringArgument: KnownStringArguments.scheduleStrategy)
         simulatorLocalizationSettings = subparser.add(stringArgument: KnownStringArguments.simulatorLocalizationSettings)
         singleTestTimeout = subparser.add(intArgument: KnownUIntArguments.singleTestTimeout)
@@ -82,11 +75,10 @@ final class DistRunTestsCommand: Command {
         testDestinations = subparser.add(stringArgument: KnownStringArguments.testDestinations)
         trace = subparser.add(stringArgument: KnownStringArguments.trace)
         watchdogSettings = subparser.add(stringArgument: KnownStringArguments.watchdogSettings)
-        xctestBundle = subparser.add(stringArgument: KnownStringArguments.xctestBundle)
     }
     
     func run(with arguments: ArgumentParser.Result) throws {
-        let analyticsConfigurationLocation = AnalyticsConfigurationLocation.withOptional(
+        let analyticsConfigurationLocation = AnalyticsConfigurationLocation(
             try ArgumentsReader.validateResourceLocationOrNil(arguments.get(self.analyticsConfigurationLocation), key: KnownStringArguments.analyticsConfiguration)
         )
         if let analyticsConfigurationLocation = analyticsConfigurationLocation {
@@ -100,12 +92,6 @@ final class DistRunTestsCommand: Command {
                 fbxctest: FbxctestLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.fbxctest), key: KnownStringArguments.fbxctest))
             ),
             plugins: try ArgumentsReader.validateResourceLocations(arguments.get(self.plugins) ?? [], key: KnownStringArguments.plugin).map({ PluginLocation($0) })
-        )
-        let buildArtifacts = BuildArtifacts(
-            appBundle: AppBundleLocation.withOptional(try ArgumentsReader.validateResourceLocationOrNil(arguments.get(self.app), key: KnownStringArguments.app)),
-            runner: RunnerAppLocation.withOptional(try ArgumentsReader.validateResourceLocationOrNil(arguments.get(self.runner), key: KnownStringArguments.runner)),
-            xcTestBundle: TestBundleLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle)),
-            additionalApplicationBundles: try ArgumentsReader.validateResourceLocations(arguments.get(self.additionalApp) ?? [], key: KnownStringArguments.additionalApp).map({ AdditionalAppBundleLocation($0) })
         )
         let reportOutput = ReportOutput(
             junit: arguments.get(self.junit),
@@ -146,11 +132,7 @@ final class DistRunTestsCommand: Command {
 
         let validatorConfiguration = TestEntriesValidatorConfiguration(
             fbxctest: auxiliaryResources.toolResources.fbxctest,
-            xcTestBundle: buildArtifacts.xcTestBundle,
-            applicationTestSupport: try RuntimeDumpApplicationTestSupport(
-                appBundle: buildArtifacts.appBundle,
-                fbsimctl: auxiliaryResources.toolResources.fbsimctl
-            ),
+            fbsimctl: auxiliaryResources.toolResources.fbsimctl,
             testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
             testEntries: testArgFile.entries
         )
@@ -172,8 +154,7 @@ final class DistRunTestsCommand: Command {
         )
         let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
             validatedEnteries: try testEntriesValidator.validatedTestEntries(),
-            testArgEntries: testArgFile.entries,
-            buildArtifacts: buildArtifacts
+            testArgEntries: testArgFile.entries
         )
         
         let distRunConfiguration = DistRunConfiguration(

@@ -2,8 +2,10 @@
 import Models
 
 final class RuntimeTestQuerierMock: RuntimeTestQuerier {
+    var numberOfCalls = 0
     var configuration: RuntimeDumpConfiguration?
     func queryRuntime(configuration: RuntimeDumpConfiguration) throws -> RuntimeQueryResult {
+        numberOfCalls += 1
         self.configuration = configuration
         
         return RuntimeQueryResult(

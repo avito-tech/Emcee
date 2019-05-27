@@ -47,11 +47,6 @@ private struct ArgumentDescriptionHolder: ArgumentDescription {
 }
 
 private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHolder] = [
-    KnownStringArguments.additionalApp: ArgumentDescriptionHolder(
-        name: "--additional-app",
-        comment: "Locations of additional apps that can be launched diring test run.",
-        multiple: true,
-        optional: true),
     KnownStringArguments.app: ArgumentDescriptionHolder(
         name: "--app",
         comment: "Location of app that will be tested by the UI tests. If value is missing, tests can be executed only as logic tests",
@@ -100,10 +95,6 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
     KnownStringArguments.runId: ArgumentDescriptionHolder(
         name: "--run-id",
         comment: "A logical test run id, usually a random string, e.g. UUID."),
-    KnownStringArguments.runner: ArgumentDescriptionHolder(
-        name: "--runner",
-        comment: "Location of XCTRunner.app created by Xcode. If value is missing, tests can be executed only as application tests",
-        optional: true),
     KnownStringArguments.scheduleStrategy: ArgumentDescriptionHolder(
         name: "--schedule-strategy",
         comment: "Defines how to run tests. Can be: \(ScheduleStrategyType.availableRawValues.joined(separator: ", "))"),

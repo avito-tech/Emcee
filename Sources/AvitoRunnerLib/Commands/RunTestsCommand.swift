@@ -20,9 +20,7 @@ import SPMUtility
 final class RunTestsCommand: Command {
     let command = "runTests"
     let overview = "Runs UI tests and writes report"
-    
-    private let additionalApp: OptionArgument<[String]>
-    private let app: OptionArgument<String>
+
     private let analyticsConfigurationLocation: OptionArgument<String>
     private let fbsimctl: OptionArgument<String>
     private let fbxctest: OptionArgument<String>
@@ -36,7 +34,6 @@ final class RunTestsCommand: Command {
     private let numberOfRetries: OptionArgument<UInt>       // TODO: remove, left for backwards compatibility
     private let numberOfSimulators: OptionArgument<UInt>
     private let plugins: OptionArgument<[String]>
-    private let runner: OptionArgument<String>
     private let scheduleStrategy: OptionArgument<String>
     private let simulatorLocalizationSettings: OptionArgument<String>
     private let singleTestTimeout: OptionArgument<UInt>
@@ -45,15 +42,12 @@ final class RunTestsCommand: Command {
     private let testDestinations: OptionArgument<String>
     private let trace: OptionArgument<String>
     private let watchdogSettings: OptionArgument<String>
-    private let xctestBundle: OptionArgument<String>
     
     private let resourceLocationResolver = ResourceLocationResolver()
     
     required init(parser: ArgumentParser) {
         let subparser = parser.add(subparser: command, overview: overview)
-        
-        additionalApp = subparser.add(multipleStringArgument: KnownStringArguments.additionalApp)
-        app = subparser.add(stringArgument: KnownStringArguments.app)
+
         analyticsConfigurationLocation = subparser.add(stringArgument: KnownStringArguments.analyticsConfiguration)
         fbsimctl = subparser.add(stringArgument: KnownStringArguments.fbsimctl)
         fbxctest = subparser.add(stringArgument: KnownStringArguments.fbxctest)
@@ -67,7 +61,6 @@ final class RunTestsCommand: Command {
         numberOfRetries = subparser.add(intArgument: KnownUIntArguments.numberOfRetries)
         numberOfSimulators = subparser.add(intArgument: KnownUIntArguments.numberOfSimulators)
         plugins = subparser.add(multipleStringArgument: KnownStringArguments.plugin)
-        runner = subparser.add(stringArgument: KnownStringArguments.runner)
         scheduleStrategy = subparser.add(stringArgument: KnownStringArguments.scheduleStrategy)
         simulatorLocalizationSettings = subparser.add(stringArgument: KnownStringArguments.simulatorLocalizationSettings)
         singleTestTimeout = subparser.add(intArgument: KnownUIntArguments.singleTestTimeout)
@@ -76,11 +69,10 @@ final class RunTestsCommand: Command {
         testDestinations = subparser.add(stringArgument: KnownStringArguments.testDestinations)
         trace = subparser.add(stringArgument: KnownStringArguments.trace)
         watchdogSettings = subparser.add(stringArgument: KnownStringArguments.watchdogSettings)
-        xctestBundle = subparser.add(stringArgument: KnownStringArguments.xctestBundle)
     }
     
     func run(with arguments: ArgumentParser.Result) throws {
-        let analyticsConfigurationLocation = AnalyticsConfigurationLocation.withOptional(
+        let analyticsConfigurationLocation = AnalyticsConfigurationLocation(
             try ArgumentsReader.validateResourceLocationOrNil(arguments.get(self.analyticsConfigurationLocation), key: KnownStringArguments.analyticsConfiguration)
         )
         if let analyticsConfigurationLocation = analyticsConfigurationLocation {
@@ -94,12 +86,6 @@ final class RunTestsCommand: Command {
                 fbxctest: FbxctestLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.fbxctest), key: KnownStringArguments.fbxctest))
             ),
             plugins: try ArgumentsReader.validateResourceLocations(arguments.get(self.plugins) ?? [], key: KnownStringArguments.plugin).map({ PluginLocation($0) })
-        )
-        let buildArtifacts = BuildArtifacts(
-            appBundle: AppBundleLocation.withOptional(try ArgumentsReader.validateResourceLocationOrNil(arguments.get(self.app), key: KnownStringArguments.app)),
-            runner: RunnerAppLocation.withOptional(try ArgumentsReader.validateResourceLocationOrNil(arguments.get(self.runner), key: KnownStringArguments.runner)),
-            xcTestBundle: TestBundleLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle)),
-            additionalApplicationBundles: try ArgumentsReader.validateResourceLocations(arguments.get(self.additionalApp) ?? [], key: KnownStringArguments.additionalApp).map({ AdditionalAppBundleLocation($0) })
         )
         let reportOutput = ReportOutput(
             junit: arguments.get(self.junit),
@@ -137,11 +123,7 @@ final class RunTestsCommand: Command {
 
         let validatorConfiguration = TestEntriesValidatorConfiguration(
             fbxctest: auxiliaryResources.toolResources.fbxctest,
-            xcTestBundle: buildArtifacts.xcTestBundle,
-            applicationTestSupport: try RuntimeDumpApplicationTestSupport(
-                appBundle: buildArtifacts.appBundle,
-                fbsimctl: auxiliaryResources.toolResources.fbsimctl as FbsimctlLocation?
-            ),
+            fbsimctl: auxiliaryResources.toolResources.fbsimctl,
             testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
             testEntries: testArgFile.entries
         )
@@ -164,8 +146,7 @@ final class RunTestsCommand: Command {
         
         let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
             validatedEnteries: validatedTestEntries,
-            testArgEntries: testArgFile.entries,
-            buildArtifacts: buildArtifacts
+            testArgEntries: testArgFile.entries
         )
 
         let configuration = try LocalTestRunConfiguration(

@@ -4,29 +4,25 @@ import Logging
 import Models
 
 public final class TestEntryConfigurationGenerator {
-    private let validatedEnteries: [TestToRun: [TestEntry]]
+    private let validatedEnteries: [ValidatedTestEntry]
     private let testArgEntries: [TestArgFile.Entry]
-    private let buildArtifacts: BuildArtifacts
 
     public init(
-        validatedEnteries: [TestToRun: [TestEntry]],
-        testArgEntries: [TestArgFile.Entry],
-        buildArtifacts: BuildArtifacts
-        )
-    {
+        validatedEnteries: [ValidatedTestEntry],
+        testArgEntries: [TestArgFile.Entry]
+    ) {
         self.validatedEnteries = validatedEnteries
         self.testArgEntries = testArgEntries
-        self.buildArtifacts = buildArtifacts
     }
     
     public func createTestEntryConfigurations() -> [TestEntryConfiguration] {
         Logger.debug("Preparing test entry configurations for tests: \(testArgEntries.map { $0.testToRun })")
         let testArgFileEntryConfigurations = testArgEntries.flatMap { testArgFileEntry -> [TestEntryConfiguration] in
-            let testEntries = map(testsToRun: [testArgFileEntry.testToRun])
+            let testEntries = validatedEntriesForArgFileEntry(argFileEntry: testArgFileEntry)
             return testEntries.map { testEntry in
                 TestEntryConfiguration(
                     testEntry: testEntry,
-                    buildArtifacts: buildArtifacts,
+                    buildArtifacts: testArgFileEntry.buildArtifacts,
                     testDestination: testArgFileEntry.testDestination,
                     testExecutionBehavior: TestExecutionBehavior(
                         environment: testArgFileEntry.environment,
@@ -38,11 +34,11 @@ public final class TestEntryConfigurationGenerator {
         }
         return testArgFileEntryConfigurations
     }
-    
-    private func map(testsToRun: [TestToRun]) -> [TestEntry] {
+
+    private func validatedEntriesForArgFileEntry(argFileEntry: TestArgFile.Entry) -> [TestEntry] {
         return validatedEnteries
-            .filter { testsToRun.contains($0.key) }
-            .flatMap { $0.value }
+            .filter { argFileEntry.testToRun == $0.testToRun && argFileEntry.buildArtifacts == $0.buildArtifacts }
+            .flatMap { $0.testEntries }
     }
 }
 

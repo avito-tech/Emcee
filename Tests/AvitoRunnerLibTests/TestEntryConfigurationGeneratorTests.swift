@@ -17,10 +17,18 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
     let argFileDestination1 = try! TestDestination(deviceType: UUID().uuidString, runtime: "10.1")
     let argFileDestination2 = try! TestDestination(deviceType: UUID().uuidString, runtime: "10.2")
 
-    lazy var validatedEnteries: [TestToRun : [TestEntry]] = {
+    lazy var validatedEnteries: [ValidatedTestEntry] = {
         return [
-            argFileTestToRun1: [TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1")],
-            argFileTestToRun2: [TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test2")]
+            ValidatedTestEntry(
+                testToRun: argFileTestToRun1,
+                testEntries: [TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1")],
+                buildArtifacts: buildArtifacts
+            ),
+            ValidatedTestEntry(
+                testToRun: argFileTestToRun2,
+                testEntries: [TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test2")],
+                buildArtifacts: buildArtifacts
+            )
         ]
     }()
     
@@ -33,17 +41,18 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                     environment: [:],
                     numberOfRetries: 10,
                     testDestination: argFileDestination1,
-                    testType: .uiTest
+                    testType: .uiTest,
+                    buildArtifacts: buildArtifacts
                 ),
                 TestArgFile.Entry(
                     testToRun: argFileTestToRun2,
                     environment: [:],
                     numberOfRetries: 20,
                     testDestination: argFileDestination2,
-                    testType: .appTest
-                ),
-            ],
-            buildArtifacts: buildArtifacts
+                    testType: .appTest,
+                    buildArtifacts: buildArtifacts
+                )
+            ]
         )
         
         let configurations = generator.createTestEntryConfigurations()

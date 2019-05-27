@@ -11,13 +11,13 @@ public final class TypedResourceLocation<T: ResourceLocationType>: Codable, Hash
     public init(_ resourceLocation: ResourceLocation) {
         self.resourceLocation = resourceLocation
     }
-    
-    public static func withOptional(_ resourceLocation: ResourceLocation?) -> TypedResourceLocation<T>? {
-        if let resourceLocation = resourceLocation {
-            return TypedResourceLocation<T>(resourceLocation)
-        } else {
+
+    public init?(_ resourceLocation: ResourceLocation?) {
+        guard let resourceLocation = resourceLocation else {
             return nil
         }
+
+        self.resourceLocation = resourceLocation
     }
     
     public init(from decoder: Decoder) throws {

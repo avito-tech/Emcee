@@ -24,9 +24,7 @@ import RuntimeDump
 final class RunTestsOnRemoteQueueCommand: Command {
     let command = "runTestsOnRemoteQueue"
     let overview = "Starts queue server on remote machine if needed and runs tests on the remote queue. Waits for resuls to come back."
-    
-    private let additionalApp: OptionArgument<[String]>
-    private let app: OptionArgument<String>
+
     private let analyticsConfigurationLocation: OptionArgument<String>
     private let workerDestinations: OptionArgument<String>
     private let fbsimctl: OptionArgument<String>
@@ -37,20 +35,16 @@ final class RunTestsOnRemoteQueueCommand: Command {
     private let queueServerDestination: OptionArgument<String>
     private let queueServerRunConfigurationLocation: OptionArgument<String>
     private let runId: OptionArgument<String>
-    private let runner: OptionArgument<String>
     private let testArgFile: OptionArgument<String>
     private let testDestinations: OptionArgument<String>
     private let trace: OptionArgument<String>
-    private let xctestBundle: OptionArgument<String>
     
     private let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
     private let resourceLocationResolver = ResourceLocationResolver()
     
     required init(parser: ArgumentParser) {
         let subparser = parser.add(subparser: command, overview: overview)
-        
-        additionalApp = subparser.add(multipleStringArgument: KnownStringArguments.additionalApp)
-        app = subparser.add(stringArgument: KnownStringArguments.app)
+
         analyticsConfigurationLocation = subparser.add(stringArgument: KnownStringArguments.analyticsConfiguration)
         fbsimctl = subparser.add(stringArgument: KnownStringArguments.fbsimctl)
         fbxctest = subparser.add(stringArgument: KnownStringArguments.fbxctest)
@@ -60,29 +54,20 @@ final class RunTestsOnRemoteQueueCommand: Command {
         queueServerDestination = subparser.add(stringArgument: KnownStringArguments.queueServerDestination)
         queueServerRunConfigurationLocation = subparser.add(stringArgument: KnownStringArguments.queueServerRunConfigurationLocation)
         runId = subparser.add(stringArgument: KnownStringArguments.runId)
-        runner = subparser.add(stringArgument: KnownStringArguments.runner)
         testArgFile = subparser.add(stringArgument: KnownStringArguments.testArgFile)
         testDestinations = subparser.add(stringArgument: KnownStringArguments.testDestinations)
         trace = subparser.add(stringArgument: KnownStringArguments.trace)
         workerDestinations = subparser.add(stringArgument: KnownStringArguments.destinations)
-        xctestBundle = subparser.add(stringArgument: KnownStringArguments.xctestBundle)
     }
     
     func run(with arguments: ArgumentParser.Result) throws {
-        let analyticsConfigurationLocation = AnalyticsConfigurationLocation.withOptional(
+        let analyticsConfigurationLocation = AnalyticsConfigurationLocation(
             try ArgumentsReader.validateResourceLocationOrNil(arguments.get(self.analyticsConfigurationLocation), key: KnownStringArguments.analyticsConfiguration)
         )
         if let analyticsConfigurationLocation = analyticsConfigurationLocation {
             try AnalyticsConfigurator(resourceLocationResolver: resourceLocationResolver)
                 .setup(analyticsConfigurationLocation: analyticsConfigurationLocation)
         }
-        
-        let buildArtifacts = BuildArtifacts(
-            appBundle: AppBundleLocation.withOptional(try ArgumentsReader.validateResourceLocationOrNil(arguments.get(self.app), key: KnownStringArguments.app)),
-            runner: RunnerAppLocation.withOptional(try ArgumentsReader.validateResourceLocationOrNil(arguments.get(self.runner), key: KnownStringArguments.runner)),
-            xcTestBundle: TestBundleLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle)),
-            additionalApplicationBundles: try ArgumentsReader.validateResourceLocations(arguments.get(self.additionalApp) ?? [], key: KnownStringArguments.additionalApp).map({ AdditionalAppBundleLocation($0) })
-        )
         let commonReportOutput = ReportOutput(
             junit: arguments.get(self.junit),
             tracingReport: arguments.get(self.trace)
@@ -121,7 +106,6 @@ final class RunTestsOnRemoteQueueCommand: Command {
             workerDestinations: workerDestinations
         )
         let jobResults = try runTestsOnRemotelyRunningQueue(
-            buildArtifacts: buildArtifacts,
             eventBus: eventBus,
             fbxctest: fbxctest,
             fbsimctl: fbsimctl,
@@ -205,7 +189,6 @@ final class RunTestsOnRemoteQueueCommand: Command {
     }
     
     private func runTestsOnRemotelyRunningQueue(
-        buildArtifacts: BuildArtifacts,
         eventBus: EventBus,
         fbxctest: FbxctestLocation,
         fbsimctl: FbsimctlLocation?,
@@ -216,16 +199,10 @@ final class RunTestsOnRemoteQueueCommand: Command {
         testArgFile: TestArgFile,
         testDestinationConfigurations: [TestDestinationConfiguration])
         throws -> JobResults
-    {
-        let applicationTestSupport: RuntimeDumpApplicationTestSupport?? = try? RuntimeDumpApplicationTestSupport(
-            appBundle: buildArtifacts.appBundle,
-            fbsimctl: fbsimctl
-        )
-        
+    {        
         let validatorConfiguration = TestEntriesValidatorConfiguration(
             fbxctest: fbxctest,
-            xcTestBundle: buildArtifacts.xcTestBundle,
-            applicationTestSupport: applicationTestSupport ?? nil,
+            fbsimctl: fbsimctl,
             testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
             testEntries: testArgFile.entries
         )
@@ -247,8 +224,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         )
         let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
             validatedEnteries: try testEntriesValidator.validatedTestEntries(),
-            testArgEntries: testArgFile.entries,
-            buildArtifacts: buildArtifacts
+            testArgEntries: testArgFile.entries
         )
         let testEntryConfigurations = testEntryConfigurationGenerator.createTestEntryConfigurations()
         Logger.info("Will schedule \(testEntryConfigurations.count) tests to queue server at \(queueServerAddress)")

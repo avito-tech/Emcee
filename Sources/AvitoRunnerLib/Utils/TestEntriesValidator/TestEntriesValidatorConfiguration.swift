@@ -3,24 +3,18 @@ import Models
 
 public struct TestEntriesValidatorConfiguration {
     public let fbxctest: FbxctestLocation
-    public let xcTestBundle: TestBundleLocation
-    public let applicationTestSupport: RuntimeDumpApplicationTestSupport?
+    public let fbsimctl: FbsimctlLocation?
     public let testDestination: TestDestination
     public let testEntries: [TestArgFile.Entry]
-    public var supportsApplicationTests: Bool {
-        return applicationTestSupport != nil
-    }
 
     public init(
         fbxctest: FbxctestLocation,
-        xcTestBundle: TestBundleLocation,
-        applicationTestSupport: RuntimeDumpApplicationTestSupport?,
+        fbsimctl: FbsimctlLocation?,
         testDestination: TestDestination,
         testEntries: [TestArgFile.Entry]
     ) {
         self.fbxctest = fbxctest
-        self.xcTestBundle = xcTestBundle
-        self.applicationTestSupport = applicationTestSupport
+        self.fbsimctl = fbsimctl
         self.testDestination = testDestination
         self.testEntries = testEntries
     }

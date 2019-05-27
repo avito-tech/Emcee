@@ -10,7 +10,6 @@ class AvitoRunnerArgs:
     def __init__(
             self,
             avito_runner: ExecutableFixture,
-            ios_app: IosAppFixture,
             fbsimctl_url: str,
             fbxctest_url: str,
             junit_path: str,
@@ -19,7 +18,6 @@ class AvitoRunnerArgs:
             temp_folder: str,
             current_directory: Directory,
             test_arg_file_path: str,
-            running_ui_tests: bool,
             number_of_simulators: int = 1,
             plugins: [EmceePluginFixture] = None,
             schedule_strategy: str = "individual",
@@ -29,7 +27,6 @@ class AvitoRunnerArgs:
             plugins = []
 
         self.avito_runner = avito_runner
-        self.ios_app = ios_app
         self.fbsimctl_url = fbsimctl_url
         self.fbxctest_url = fbxctest_url
         self.junit_path = junit_path
@@ -37,7 +34,6 @@ class AvitoRunnerArgs:
         self.test_destinations = test_destinations
         self.temp_folder = temp_folder
         self.test_arg_file_path = test_arg_file_path
-        self.running_ui_tests = running_ui_tests
         self.number_of_simulators = number_of_simulators
         self.plugins = plugins
         self.schedule_strategy = schedule_strategy
@@ -47,18 +43,15 @@ class AvitoRunnerArgs:
     def command(self):
         args: List[str] = [
             self.avito_runner.path, 'runTests',
-            '--app', self.ios_app.app_path,
             '--fbsimctl', self.fbsimctl_url,
             '--fbxctest', self.fbxctest_url,
             '--junit', self.junit_path,
             '--number-of-simulators', str(self.number_of_simulators),
-            '--runner', self.ios_app.ui_tests_runner_path,
             '--schedule-strategy', self.schedule_strategy,
             '--single-test-timeout', str(self.single_test_timeout),
             '--temp-folder', self.temp_folder,
             '--test-arg-file', self.test_arg_file_path,
-            '--trace', self.trace_path,
-            '--xctest-bundle', self.ios_app.ui_xctest_bundle_path if self.running_ui_tests else self.ios_app.app_xctest_bundle_path
+            '--trace', self.trace_path
         ]
 
         for plugin in self.plugins:

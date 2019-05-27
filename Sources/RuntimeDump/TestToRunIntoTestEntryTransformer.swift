@@ -8,14 +8,17 @@ public final class TestToRunIntoTestEntryTransformer {
         self.testsToRun = testsToRun
     }
     
-    public func transform(runtimeQueryResult: RuntimeQueryResult) throws -> [TestToRun: [TestEntry]] {
+    public func transform(
+        runtimeQueryResult: RuntimeQueryResult,
+        buildArtifacts: BuildArtifacts
+    ) throws -> [ValidatedTestEntry] {
         guard runtimeQueryResult.unavailableTestsToRun.isEmpty else {
             throw TransformationError.someTestsAreMissingInRuntime(runtimeQueryResult.unavailableTestsToRun)
         }
         
         let testsToTransform = allExistingTestsToRunFromRuntimeDump(runtimeQueryResult: runtimeQueryResult)
         
-        var result = [TestToRun: [TestEntry]]()
+        var result = [ValidatedTestEntry]()
         for testToRun in testsToTransform {
             let matchingRuntimeEntry = try runtimeQueryResult.availableRuntimeTests.first { runtimeEntry -> Bool in
                 switch testToRun {
@@ -27,7 +30,13 @@ public final class TestToRunIntoTestEntryTransformer {
             }
             if let matchingRuntimeEntry = matchingRuntimeEntry {
                 let testEntries = try testEntriesFor(testToRun: testToRun, runtimeEntry: matchingRuntimeEntry)
-                result[testToRun] = testEntries
+                result.append(
+                    ValidatedTestEntry(
+                        testToRun: testToRun,
+                        testEntries: testEntries,
+                        buildArtifacts: buildArtifacts
+                    )
+                )
             } else {
                 throw TransformationError.noMatchFor(testToRun)
             }

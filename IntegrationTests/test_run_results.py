@@ -161,6 +161,7 @@ class TestSmokeTests:
     def check_unknown_events(self, events):
         assert len(events) == 0
 
+
 @pytest.fixture(scope="session")
 def smoke_uitests_result(
         request,
@@ -176,12 +177,13 @@ def smoke_uitests_result(
         print("Running integration tests")
 
         temporary_directory = Directory.make_temporary(remove_automatically=False)
+
         test_results_directory = temporary_directory.make_sub_directory("test_results")
         current_directory = temporary_directory.make_sub_directory("current_directory")
+        modified_arg_file_path = modify_arg_file(ui_tests_arg_file, temporary_directory, smoke_tests_app, True)
 
         args = AvitoRunnerArgs(
             avito_runner=avito_runner,
-            ios_app=smoke_tests_app,
             fbsimctl_url=fbsimctl_url,
             fbxctest_url=fbxctest_url,
             junit_path=test_results_directory.sub_path('junit.combined.xml'),
@@ -193,8 +195,7 @@ def smoke_uitests_result(
             plugins=[smoke_tests_plugin],
             schedule_strategy='individual',
             single_test_timeout=100,
-            test_arg_file_path=ui_tests_arg_file,
-            running_ui_tests=True
+            test_arg_file_path=modified_arg_file_path
         )
 
         bash(command=args.command(), current_directory=current_directory.path)
@@ -206,6 +207,7 @@ def smoke_uitests_result(
         key="smoke_uitests_result",
         make=make
     )
+
 
 @pytest.fixture(scope="session")
 def smoke_apptests_result(
@@ -222,12 +224,13 @@ def smoke_apptests_result(
         print("Running integration tests")
 
         temporary_directory = Directory.make_temporary(remove_automatically=False)
+
         test_results_directory = temporary_directory.make_sub_directory("test_results")
         current_directory = temporary_directory.make_sub_directory("current_directory")
+        modified_arg_file_path = modify_arg_file(app_tests_arg_file, temporary_directory, smoke_tests_app, False)
 
         args = AvitoRunnerArgs(
             avito_runner=avito_runner,
-            ios_app=smoke_tests_app,
             fbsimctl_url=fbsimctl_url,
             fbxctest_url=fbxctest_url,
             junit_path=test_results_directory.sub_path('junit.combined.xml'),
@@ -239,8 +242,7 @@ def smoke_apptests_result(
             plugins=[smoke_tests_plugin],
             schedule_strategy='individual',
             single_test_timeout=20,
-            test_arg_file_path=app_tests_arg_file,
-            running_ui_tests=False
+            test_arg_file_path=modified_arg_file_path
         )
 
         bash(command=args.command(), current_directory=current_directory.path)
@@ -252,6 +254,33 @@ def smoke_apptests_result(
         key="smoke_apptests_result",
         make=make
     )
+
+
+def modify_arg_file(
+        app_tests_arg_file_path: str,
+        temporary_directory: Directory,
+        ios_app_fixture: IosAppFixture,
+        running_ui_tests: bool
+) -> str:
+    arg_file_json = open(app_tests_arg_file_path, 'r')
+    arg_file = json.load(arg_file_json)
+    test_bundle = ios_app_fixture.ui_xctest_bundle_path if running_ui_tests else ios_app_fixture.app_xctest_bundle_path
+
+    build_artifacts_json = {
+        "appBundle": f"{ios_app_fixture.app_path}",
+        "runner": f"{ios_app_fixture.ui_tests_runner_path}",
+        "xcTestBundle": f"{test_bundle}",
+        "additionalApplicationBundles": []
+    }
+
+    for index, entry in enumerate(arg_file["entries"]):
+        arg_file["entries"][index]["buildArtifacts"] = build_artifacts_json
+
+    modified_arg_file_path_suffix = "ui_tests" if running_ui_tests else "app_tests"
+    modified_arg_file_path = temporary_directory.sub_path(f'modified_arg_file_path_{modified_arg_file_path_suffix}.json')
+    modified_arg_file = open(modified_arg_file_path, "w+")
+    json.dump(arg_file, modified_arg_file)
+    return modified_arg_file_path
 
 
 @pytest.fixture(scope="session")
