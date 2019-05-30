@@ -130,7 +130,10 @@ final class BucketQueueImpl: BucketQueue {
             enqueue_onSyncQueue(buckets: acceptResult.bucketsToReenqueue)
             
             dequeuedBuckets.remove(dequeuedBucket)
-            Logger.debug("Accepted result for bucket '\(testingResult.bucketId)' from '\(workerId)', updated dequeued buckets: \(dequeuedBuckets.count): \(dequeuedBuckets)")
+            Logger.debug("Accepted result for bucket '\(testingResult.bucketId)' from '\(workerId)', updated dequeued buckets count: \(dequeuedBuckets.count)")
+            for dequeuedBucket in dequeuedBuckets {
+                Logger.verboseDebug(" -- \(dequeuedBucket)")
+            }
             
             return BucketQueueAcceptResult(
                 dequeuedBucket: dequeuedBucket,

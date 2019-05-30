@@ -62,12 +62,12 @@ public final class FbsimctlOutputProcessor: ProcessControllerDelegate, JSONReade
     
     private func processSingleLiveEvent(eventData: Data, dataStringRepresentation: String) {
         if let event = try? decoder.decode(FbSimCtlEventWithStringSubject.self, from: eventData) {
-            Logger.debug(String(describing: event), subprocessInfo: SubprocessInfo(subprocessId: processController.processId, subprocessName: processController.processName))
+            Logger.verboseDebug(String(describing: event), subprocessInfo: SubprocessInfo(subprocessId: processController.processId, subprocessName: processController.processName))
             receivedEvents.append(event)
         } else {
             do {
                 let event = try decoder.decode(FbSimCtlEvent.self, from: eventData)
-                Logger.debug(String(describing: event), subprocessInfo: SubprocessInfo(subprocessId: processController.processId, subprocessName: processController.processName))
+                Logger.verboseDebug(String(describing: event), subprocessInfo: SubprocessInfo(subprocessId: processController.processId, subprocessName: processController.processName))
                 receivedEvents.append(event)
             } catch {
                 Logger.warning("Failed to parse event: '\(dataStringRepresentation)': \(error)", subprocessInfo: SubprocessInfo(subprocessId: processController.processId, subprocessName: processController.processName))

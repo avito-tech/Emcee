@@ -61,7 +61,6 @@ public final class Main {
             Logger.error("\(error)")
             exitCode = 1
         }
-        Logger.info("Finished executing with exit code \(exitCode)")
         
         MetricRecorder.capture(
             ExitCodeMetric(

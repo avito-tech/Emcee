@@ -94,7 +94,8 @@ public final class DistWorker: SchedulerDelegate {
         let configuration = bucketConfigurationFactory.createConfiguration(
             workerConfiguration: workerConfiguration,
             schedulerDataSource: DistRunSchedulerDataSource(onNextBucketRequest: fetchNextBucket),
-            onDemandSimulatorPool: onDemandSimulatorPool)
+            onDemandSimulatorPool: onDemandSimulatorPool
+        )
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
             pluginLocations: bucketConfigurationFactory.pluginLocations + workerConfiguration.pluginUrls.map {
                 PluginLocation(ResourceLocation.remoteUrl($0))

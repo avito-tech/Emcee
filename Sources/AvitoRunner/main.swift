@@ -6,4 +6,5 @@ func main() -> Int32 {
 }
 
 let exitCode = main()
+print("Finished executing with exit code \(exitCode)")
 exit(exitCode)

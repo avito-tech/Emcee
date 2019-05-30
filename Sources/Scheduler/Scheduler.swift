@@ -12,25 +12,6 @@ import SimulatorPool
 import SynchronousWaiter
 import TempFolder
 
-/**
- * This class manages Runner instances, and provides back a TestingResult object with all results for all tests.
- * It fetches the Bucket it will process using the SchedulerDataSource object.
- * It will request Bucket for each Simulator as soon as it becomes available.
- * You can listen to the events via EventStream. In this case you will receive information about the run
- * quicker than if you'd wait until run() method finishes.
- *
- * Scheduler uses `ListeningSemaphore` to allocate resources and limit maximum number of running tests.
- *
- * The flow can be described like that:
- * 1. Enter the Queue and fetch Bucket, add Operation to the Queue if Bucket has been fetched.
- * 1.1 - If there's no Bucket inside Data Source, do not add Operation to the queue. This is an exit point.
- * 2. Run tests in the fetched Bucket inside Queue.
- * 3. Repeat.
- * 4. Wait for Queue to become empty.
- *
- * Eventually the Queue will finish all operations.
- * At this point we will merge the results and provide back an array of TestingResult objects for each Bucket.
- */
 public final class Scheduler {
     private let eventBus: EventBus
     private let configuration: SchedulerConfiguration
@@ -61,11 +42,6 @@ public final class Scheduler {
         self.schedulerDelegate = schedulerDelegate
     }
     
-    /**
-     * Runs the tests. This method blocks until all Buckets from the Data Source will be executed.
-     * It returns a single TestingResult object that contains all test resutls for all tests in all Buckets.
-     * You can listen to the live events for each Bucket via EventStream.
-     */
     public func run() throws -> [TestingResult] {
         startFetchingAndRunningTests()
         try SynchronousWaiter.waitWhile(pollPeriod: 1.0) {
