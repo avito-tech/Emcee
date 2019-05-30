@@ -49,10 +49,14 @@ final class DumpRuntimeTestsCommand: Command {
         let xctestBundle = try ArgumentsReader.validateResourceLocation(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle)
                 
         let applicationTestSupport = getRuntimeDumpApplicationTestSupport(from: arguments)
+        let runtimeDumpKind: RuntimeDumpKind = applicationTestSupport != nil ? .appTest : .logicTest
 
         let configuration = RuntimeDumpConfiguration(
             fbxctest: FbxctestLocation(fbxctest),
-            xcTestBundle: TestBundleLocation(xctestBundle),
+            xcTestBundle: XcTestBundle(
+                location: TestBundleLocation(xctestBundle),
+                runtimeDumpKind: runtimeDumpKind
+            ),
             applicationTestSupport: applicationTestSupport,
             testDestination: testDestinations[0].testDestination,
             testsToRun: []

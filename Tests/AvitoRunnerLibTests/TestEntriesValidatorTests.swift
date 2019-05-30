@@ -44,8 +44,9 @@ final class TestEntriesValidatorTests: XCTestCase {
         XCTAssertNil(querierConfiguration?.applicationTestSupport)
     }
 
-    func test__pass_app_test_data__if_app_tests_are_in_configuration() throws {
-        let appTestEntry = try createTestEntry(testType: .appTest)
+    func test__pass_app_test_data__if_flag_is_true() throws {
+        let buildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts(runtimeDumpKind: .appTest)
+        let appTestEntry = try createTestEntry(testType: .appTest, buildArtifacts: buildArtifacts)
         let validatorConfiguration = try createValidatorConfiguration(testEntries: [appTestEntry])
         let validator = try createValidator(configuration: validatorConfiguration)
         let fakeBuildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
@@ -61,7 +62,10 @@ final class TestEntriesValidatorTests: XCTestCase {
     func test__throws_error__if_app_is_not_provided_for_app_tests() throws {
         let appTestEntry = try createTestEntry(
             testType: .appTest,
-            buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(appBundleLocation: nil)
+            buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(
+                appBundleLocation: nil,
+                runtimeDumpKind: .appTest
+            )
         )
         let validatorConfiguration = try createValidatorConfiguration(testEntries: [appTestEntry])
         let validator = try createValidator(configuration: validatorConfiguration)
@@ -70,7 +74,12 @@ final class TestEntriesValidatorTests: XCTestCase {
     }
 
     func test__throws_error__if_fbsimctl_is_not_provided_for_app_tests() throws {
-        let appTestEntry = try createTestEntry(testType: .appTest)
+        let appTestEntry = try createTestEntry(
+            testType: .appTest,
+            buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(
+                runtimeDumpKind: .appTest
+            )
+        )
         let validatorConfiguration = try createValidatorConfiguration(testEntries: [appTestEntry], fbsimctl: nil)
         let validator = try createValidator(configuration: validatorConfiguration)
 

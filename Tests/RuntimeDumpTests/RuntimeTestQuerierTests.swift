@@ -151,7 +151,10 @@ final class RuntimeTestQuerierTests: XCTestCase {
     private func runtimeDumpConfiguration(testsToRun: [TestToRun], applicationTestSupport: RuntimeDumpApplicationTestSupport?) -> RuntimeDumpConfiguration {
         return RuntimeDumpConfiguration(
             fbxctest: FbxctestLocation(ResourceLocation.localFilePath(fbxctest)),
-            xcTestBundle: TestBundleLocation(ResourceLocation.localFilePath("")),
+            xcTestBundle: XcTestBundle(
+                location: TestBundleLocation(ResourceLocation.localFilePath("")),
+                runtimeDumpKind: .logicTest
+            ),
             applicationTestSupport: applicationTestSupport,
             testDestination: TestDestinationFixtures.testDestination,
             testsToRun: testsToRun)

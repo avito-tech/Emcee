@@ -11,8 +11,8 @@ public struct RuntimeDumpConfiguration {
     /** Path to logic test runner. */
     public let fbxctest: FbxctestLocation
     
-    /** Path to xctest bundle which contents should be dumped in runtime */
-    public let xcTestBundle: TestBundleLocation
+    /** Xctest bundle which contents should be dumped in runtime */
+    public let xcTestBundle: XcTestBundle
 
     /** Optional path app test dump*/
     public let applicationTestSupport: RuntimeDumpApplicationTestSupport?
@@ -25,7 +25,7 @@ public struct RuntimeDumpConfiguration {
 
     public init(
         fbxctest: FbxctestLocation,
-        xcTestBundle: TestBundleLocation,
+        xcTestBundle: XcTestBundle,
         applicationTestSupport: RuntimeDumpApplicationTestSupport?,
         testDestination: TestDestination,
         testsToRun: [TestToRun])

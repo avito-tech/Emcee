@@ -75,7 +75,7 @@ public final class TestEntriesValidator {
 
     private func needToDumpApplicationTests(testEntries: [TestArgFile.Entry]) -> Bool {
         for testEntry in testEntries {
-            if testEntry.testType == .appTest {
+            if testEntry.buildArtifacts.xcTestBundle.runtimeDumpKind == .appTest {
                 return true
             }
         }

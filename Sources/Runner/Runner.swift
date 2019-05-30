@@ -125,7 +125,7 @@ public final class Runner {
              configuration.testType.asArgument]
         
         let buildArtifacts = configuration.buildArtifacts
-        let resolvableXcTestBundle = resourceLocationResolver.resolvable(withRepresentable: buildArtifacts.xcTestBundle)
+        let resolvableXcTestBundle = resourceLocationResolver.resolvable(withRepresentable: buildArtifacts.xcTestBundle.location)
         
         switch configuration.testType {
         case .logicTest:
