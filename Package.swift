@@ -37,6 +37,7 @@ let package = Package(
         // MARK: - Dependencies
         .package(url: "https://github.com/0x7fs/CountedSet", .branch("master")),
         .package(url: "https://github.com/apple/swift-package-manager.git", .branch("swift-5.0-branch")),
+        .package(url: "https://github.com/avito-tech/GraphiteClient.git", .exact("0.1.0")),
         .package(url: "https://github.com/IBM-Swift/BlueSignals.git", .exact("1.0.16")),
         .package(url: "https://github.com/beefon/Shout", .branch("UpdateSocket")),
         .package(url: "https://github.com/daltoniam/Starscream.git", .exact("3.0.6")),
@@ -384,6 +385,7 @@ let package = Package(
             // MARK: FileHasher
             name: "FileHasher",
             dependencies: [
+                "AtomicModels",
                 "Extensions",
                 "Models"
             ]
@@ -394,23 +396,6 @@ let package = Package(
             dependencies: [
                 "FileHasher",
                 "TempFolder"
-            ]
-        ),
-        .target(
-            // MARK: Graphite
-            name: "Graphite",
-            dependencies: [
-                "IO",
-                "Models"
-            ]
-        ),
-        .testTarget(
-            // MARK: GraphiteTests
-            name: "GraphiteTests",
-            dependencies: [
-                "Graphite",
-                "IO",
-                "Models"
             ]
         ),
         .target(
@@ -431,20 +416,6 @@ let package = Package(
             dependencies: [
                 "SPMUtility",
                 "JSONStream"
-            ]
-        ),
-        .target(
-            // MARK: IO
-            name: "IO",
-            dependencies: [
-                "Models"
-            ]
-        ),
-        .testTarget(
-            // MARK: IOTests
-            name: "IOTests",
-            dependencies: [
-                "IO"
             ]
         ),
         .target(
@@ -523,7 +494,7 @@ let package = Package(
             name: "LoggingSetup",
             dependencies: [
                 "Ansi",
-                "Graphite",
+                "GraphiteClient",
                 "IO",
                 "LocalHostDeterminer",
                 "Logging",
@@ -793,6 +764,7 @@ let package = Package(
             // MARK: ResourceLocationResolver
             name: "ResourceLocationResolver",
             dependencies: [
+                "AtomicModels",
                 "Extensions",
                 "FileCache",
                 "Models",

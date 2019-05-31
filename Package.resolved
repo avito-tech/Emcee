@@ -38,6 +38,15 @@
         }
       },
       {
+        "package": "GraphiteClient",
+        "repositoryURL": "https://github.com/avito-tech/GraphiteClient.git",
+        "state": {
+          "branch": null,
+          "revision": "5d767afc87fde26bbbb9bd01f0492431bca6f434",
+          "version": "0.1.0"
+        }
+      },
+      {
         "package": "Shout",
         "repositoryURL": "https://github.com/beefon/Shout",
         "state": {

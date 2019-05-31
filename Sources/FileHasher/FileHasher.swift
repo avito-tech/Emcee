@@ -1,6 +1,6 @@
+import AtomicModels
 import Extensions
 import Foundation
-import Models
 
 public final class FileHasher {
     private let fileUrl: URL

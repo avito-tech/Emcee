@@ -1,5 +1,5 @@
 import Foundation
-import Graphite
+import GraphiteClient
 import Logging
 import Metrics
 import Models
