@@ -16,6 +16,7 @@ import WorkerAlivenessTrackerTestHelpers
 import XCTest
 
 final class QueueHTTPRESTServerTests: XCTestCase {
+    let expectedRequestSignature = RequestSignature(value: "expectedRequestSignature")
     let restServer = QueueHTTPRESTServer(
         automaticTerminationController: AutomaticTerminationControllerFactory(
             automaticTerminationPolicy: .stayAlive
@@ -71,7 +72,8 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         )
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: DequeueResult.dequeuedBucket(dequeuedBucket))
         let bucketProvider = BucketProviderEndpoint(
-            dequeueableBucketSource: bucketQueue
+            dequeueableBucketSource: bucketQueue,
+            expectedRequestSignature: expectedRequestSignature
         )
         
         restServer.setHandler(
@@ -88,7 +90,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let client = synchronousQueueClient(port: try restServer.start())
         
         XCTAssertEqual(
-            try client.fetchBucket(requestId: requestId, workerId: workerId),
+            try client.fetchBucket(requestId: requestId, workerId: workerId, requestSignature: expectedRequestSignature),
             SynchronousQueueClient.BucketFetchResult.bucket(bucket)
         )
     }
@@ -105,6 +107,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         
         let resultHandler = BucketResultRegistrar(
             bucketResultAccepter: bucketQueue,
+            expectedRequestSignature: expectedRequestSignature,
             workerAlivenessTracker: alivenessTracker
         )
         
@@ -121,7 +124,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         )
         let client = synchronousQueueClient(port: try restServer.start())
 
-        _ = try client.send(testingResult: testingResult, requestId: requestId, workerId: workerId)
+        _ = try client.send(testingResult: testingResult, requestId: requestId, workerId: workerId, requestSignature: expectedRequestSignature)
         
         XCTAssertEqual(bucketQueue.acceptedResults, [testingResult])
     }
@@ -136,13 +139,18 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             jobResultsHandler: stubbedHandler,
             jobStateHandler: stubbedHandler,
             registerWorkerHandler: stubbedHandler,
-            reportAliveHandler: RESTEndpointOf(actualHandler: WorkerAlivenessEndpoint(alivenessTracker: alivenessTracker)),
+            reportAliveHandler: RESTEndpointOf(
+                actualHandler: WorkerAlivenessEndpoint(
+                    alivenessTracker: alivenessTracker,
+                    expectedRequestSignature: expectedRequestSignature
+                )
+            ),
             scheduleTestsHandler: stubbedHandler,
             versionHandler: stubbedHandler
         )
         let client = synchronousQueueClient(port: try restServer.start())
         
-        try client.reportAliveness(bucketIdsBeingProcessedProvider: { [] }, workerId: workerId)
+        try client.reportAliveness(bucketIdsBeingProcessedProvider: [], workerId: workerId, requestSignature: expectedRequestSignature)
         
         XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId).status, .alive)
     }

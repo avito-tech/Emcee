@@ -20,8 +20,8 @@ public final class LocalQueueServerRunner {
         eventBus: EventBus,
         localPortDeterminer: LocalPortDeterminer,
         localQueueVersionProvider: VersionProvider,
-        queueServerRunConfiguration: QueueServerRunConfiguration)
-    {
+        queueServerRunConfiguration: QueueServerRunConfiguration
+    ) {
         self.eventBus = eventBus
         self.localPortDeterminer = localPortDeterminer
         self.localQueueVersionProvider = localQueueVersionProvider
@@ -51,7 +51,8 @@ public final class LocalQueueServerRunner {
             queueServerLock: AutomaticTerminationControllerAwareQueueServerLock(
                 automaticTerminationController: automaticTerminationController
             ),
-            queueVersionProvider: localQueueVersionProvider
+            queueVersionProvider: localQueueVersionProvider,
+            requestSignature: queueServerRunConfiguration.requestSignature
         )
         _ = try queueServer.start()
         

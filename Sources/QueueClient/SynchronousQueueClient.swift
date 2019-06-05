@@ -58,11 +58,11 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         }
     }
     
-    public func fetchBucket(requestId: String, workerId: String) throws -> BucketFetchResult {
+    public func fetchBucket(requestId: String, workerId: String, requestSignature: RequestSignature) throws -> BucketFetchResult {
         return try synchronize {
             bucketFetchResult = nil
             return try runRetrying {
-                try queueClient.fetchBucket(requestId: requestId, workerId: workerId)
+                try queueClient.fetchBucket(requestId: requestId, workerId: workerId, requestSignature: requestSignature)
                 try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait bucket to return from server") {
                     self.bucketFetchResult == nil
                 }
@@ -71,14 +71,15 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         }
     }
     
-    public func send(testingResult: TestingResult, requestId: String, workerId: String) throws -> String {
+    public func send(testingResult: TestingResult, requestId: String, workerId: String, requestSignature: RequestSignature) throws -> String {
         return try synchronize {
             bucketResultSendResult = nil
             return try runRetrying {
                 try queueClient.send(
                     testingResult: testingResult,
                     requestId: requestId,
-                    workerId: workerId
+                    workerId: workerId,
+                    requestSignature: requestSignature
                 )
                 try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for bucket result send") {
                     self.bucketResultSendResult == nil
@@ -88,13 +89,14 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         }
     }
     
-    public func reportAliveness(bucketIdsBeingProcessedProvider: () -> (Set<String>), workerId: String) throws {
+    public func reportAliveness(bucketIdsBeingProcessedProvider: @autoclosure () -> (Set<String>), workerId: String, requestSignature: RequestSignature) throws {
         try synchronize {
             alivenessReportResult = nil
             try runRetrying {
                 try queueClient.reportAlive(
-                    bucketIdsBeingProcessedProvider: bucketIdsBeingProcessedProvider,
-                    workerId: workerId
+                    bucketIdsBeingProcessedProvider: bucketIdsBeingProcessedProvider(),
+                    workerId: workerId,
+                    requestSignature: requestSignature
                 )
                 try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for aliveness report") {
                     self.alivenessReportResult == nil

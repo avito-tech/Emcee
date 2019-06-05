@@ -4,18 +4,26 @@ import Models
 import RESTMethods
 import WorkerAlivenessTracker
 
-public final class WorkerAlivenessEndpoint: RESTEndpoint {
+public final class WorkerAlivenessEndpoint: RequestSignatureVerifyingRESTEndpoint {
+    public typealias DecodedObjectType = ReportAliveRequest
+    public typealias ResponseType = ReportAliveResponse
+
     private let alivenessTracker: WorkerAlivenessTracker
+    public let expectedRequestSignature: RequestSignature
     
-    public init(alivenessTracker: WorkerAlivenessTracker) {
+    public init(
+        alivenessTracker: WorkerAlivenessTracker,
+        expectedRequestSignature: RequestSignature
+    ) {
         self.alivenessTracker = alivenessTracker
+        self.expectedRequestSignature = expectedRequestSignature
     }
     
-    public func handle(decodedRequest: ReportAliveRequest) throws -> ReportAliveResponse {
-        alivenessTracker.markWorkerAsAlive(workerId: decodedRequest.workerId)
+    public func handle(verifiedRequest: ReportAliveRequest) throws -> ReportAliveResponse {
+        alivenessTracker.markWorkerAsAlive(workerId: verifiedRequest.workerId)
         alivenessTracker.set(
-            bucketIdsBeingProcessed: decodedRequest.bucketIdsBeingProcessed,
-            workerId: decodedRequest.workerId
+            bucketIdsBeingProcessed: verifiedRequest.bucketIdsBeingProcessed,
+            workerId: verifiedRequest.workerId
         )
         return .aliveReportAccepted
     }

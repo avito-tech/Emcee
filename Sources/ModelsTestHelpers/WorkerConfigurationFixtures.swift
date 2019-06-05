@@ -9,6 +9,7 @@ public final class WorkerConfigurationFixtures {
         ),
         testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 400),
         pluginUrls: [],
-        reportAliveInterval: 42
+        reportAliveInterval: 42,
+        requestSignature: RequestSignature(value: "requestSignature")
     )
 }

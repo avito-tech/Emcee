@@ -24,6 +24,7 @@ final class QueueServerTests: XCTestCase {
     let bucketSplitter = ScheduleStrategyType.individual.bucketSplitter()
     let bucketSplitInfo = BucketSplitInfoFixtures.bucketSplitInfoFixture()
     let queueVersionProvider = VersionProviderFixture().buildVersionProvider()
+    let requestSignature = RequestSignature(value: "expectedRequestSignature")
     
     func test__queue_waits_for_new_workers_and_fails_if_they_not_appear_in_time() {
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
@@ -41,7 +42,8 @@ final class QueueServerTests: XCTestCase {
             bucketSplitter: bucketSplitter,
             bucketSplitInfo: bucketSplitInfo,
             queueServerLock: NeverLockableQueueServerLock(),
-            queueVersionProvider: queueVersionProvider
+            queueVersionProvider: queueVersionProvider,
+            requestSignature: requestSignature
         )
         XCTAssertThrowsError(try server.waitForJobToFinish(jobId: jobId))
     }
@@ -66,7 +68,8 @@ final class QueueServerTests: XCTestCase {
             bucketSplitter: bucketSplitter,
             bucketSplitInfo: bucketSplitInfo,
             queueServerLock: NeverLockableQueueServerLock(),
-            queueVersionProvider: queueVersionProvider
+            queueVersionProvider: queueVersionProvider,
+            requestSignature: requestSignature
         )
         server.schedule(testEntryConfigurations: testEntryConfiguration, prioritizedJob: prioritizedJob)
         
@@ -102,7 +105,8 @@ final class QueueServerTests: XCTestCase {
             bucketSplitter: bucketSplitter,
             bucketSplitInfo: bucketSplitInfo,
             queueServerLock: NeverLockableQueueServerLock(),
-            queueVersionProvider: queueVersionProvider
+            queueVersionProvider: queueVersionProvider,
+            requestSignature: requestSignature
         )
         server.schedule(testEntryConfigurations: testEntryConfigurations, prioritizedJob: prioritizedJob)
         
@@ -120,9 +124,9 @@ final class QueueServerTests: XCTestCase {
         
         let client = synchronousQueueClient(port: try server.start())
         XCTAssertNoThrow(_ = try client.registerWithServer(workerId: workerId))
-        let fetchResult = try client.fetchBucket(requestId: "request", workerId: workerId)
+        let fetchResult = try client.fetchBucket(requestId: "request", workerId: workerId, requestSignature: requestSignature)
         XCTAssertEqual(fetchResult, SynchronousQueueClient.BucketFetchResult.bucket(bucket))
-        XCTAssertNoThrow(try client.send(testingResult: testingResult, requestId: "request", workerId: workerId))
+        XCTAssertNoThrow(try client.send(testingResult: testingResult, requestId: "request", workerId: workerId, requestSignature: requestSignature))
         
         wait(for: [expectationForResults], timeout: 10)
         

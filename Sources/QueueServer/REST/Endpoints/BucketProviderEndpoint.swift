@@ -8,17 +8,25 @@ import Models
 import Metrics
 import RESTMethods
 
-public final class BucketProviderEndpoint: RESTEndpoint {
-    private let dequeueableBucketSource: DequeueableBucketSource
+public final class BucketProviderEndpoint: RequestSignatureVerifyingRESTEndpoint {
+    public typealias DecodedObjectType = DequeueBucketRequest
+    public typealias ResponseType = DequeueBucketResponse
 
-    public init(dequeueableBucketSource: DequeueableBucketSource) {
+    private let dequeueableBucketSource: DequeueableBucketSource
+    public let expectedRequestSignature: RequestSignature
+
+    public init(
+        dequeueableBucketSource: DequeueableBucketSource,
+        expectedRequestSignature: RequestSignature
+    ) {
         self.dequeueableBucketSource = dequeueableBucketSource
+        self.expectedRequestSignature = expectedRequestSignature
     }
     
-    public func handle(decodedRequest: DequeueBucketRequest) throws -> DequeueBucketResponse {
+    public func handle(verifiedRequest: DequeueBucketRequest) throws -> DequeueBucketResponse {
         let dequeueResult = dequeueableBucketSource.dequeueBucket(
-            requestId: decodedRequest.requestId,
-            workerId: decodedRequest.workerId
+            requestId: verifiedRequest.requestId,
+            workerId: verifiedRequest.workerId
         )
         
         switch dequeueResult {

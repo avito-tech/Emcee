@@ -22,6 +22,7 @@ public final class DistWorker: SchedulerDelegate {
     private var reportingAliveTimer: DispatchBasedTimer?
     private let currentlyBeingProcessedBucketsTracker = CurrentlyBeingProcessedBucketsTracker()
     private let workerId: String
+    private var requestSignature = Either<RequestSignature, DistWorkerError>.error(DistWorkerError.missingRequestSignature)
     
     private enum BucketFetchResult: Equatable {
         case result(SchedulerBucket?)
@@ -44,6 +45,8 @@ public final class DistWorker: SchedulerDelegate {
     public func start() throws {
         let tempFolder = try bucketConfigurationFactory.createTempFolder()
         let workerConfiguration = try queueClient.registerWithServer(workerId: workerId)
+        requestSignature = .success(workerConfiguration.requestSignature)
+
         Logger.debug("Registered with server. Worker configuration: \(workerConfiguration)")
         startReportingWorkerIsAlive(interval: workerConfiguration.reportAliveInterval)
         
@@ -76,10 +79,9 @@ public final class DistWorker: SchedulerDelegate {
     
     private func reportAliveness() throws {
         try queueClient.reportAliveness(
-            bucketIdsBeingProcessedProvider: {
-                currentlyBeingProcessedBucketsTracker.bucketIdsBeingProcessed
-            },
-            workerId: workerId
+            bucketIdsBeingProcessedProvider: currentlyBeingProcessedBucketsTracker.bucketIdsBeingProcessed,
+            workerId: workerId,
+            requestSignature: try requestSignature.dematerialize()
         )
     }
     
@@ -126,7 +128,11 @@ public final class DistWorker: SchedulerDelegate {
         defer { reportingAliveTimer?.resume() }
         
         let requestId = UUID().uuidString
-        let result = try queueClient.fetchBucket(requestId: requestId, workerId: workerId)
+        let result = try queueClient.fetchBucket(
+            requestId: requestId,
+            workerId: workerId,
+            requestSignature: try requestSignature.dematerialize()
+        )
         switch result {
         case .queueIsEmpty:
             Logger.debug("Server returned that queue is empty")
@@ -203,7 +209,8 @@ public final class DistWorker: SchedulerDelegate {
             let acceptedBucketId = try queueClient.send(
                 testingResult: testingResult,
                 requestId: requestId,
-                workerId: workerId
+                workerId: workerId,
+                requestSignature: try requestSignature.dematerialize()
             )
             guard acceptedBucketId == testingResult.bucketId else {
                 throw DistWorkerError.unexpectedAcceptedBucketId(

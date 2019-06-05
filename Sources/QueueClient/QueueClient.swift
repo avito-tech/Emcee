@@ -40,35 +40,51 @@ public final class QueueClient {
     /// match for sequential requests.
     /// Apple's guide on handling Handling "The network connection was lost" errors:
     /// https://developer.apple.com/library/archive/qa/qa1941/_index.html
-    public func fetchBucket(requestId: String, workerId: String) throws {
+    public func fetchBucket(
+        requestId: String,
+        workerId: String,
+        requestSignature: RequestSignature
+    ) throws {
         try sendRequest(
             .getBucket,
             payload: DequeueBucketRequest(
                 workerId: workerId,
-                requestId: requestId
+                requestId: requestId,
+                requestSignature: requestSignature
             ),
             completionHandler: handleFetchBucketResponse
         )
     }
     
-    public func send(testingResult: TestingResult, requestId: String, workerId: String) throws {
+    public func send(
+        testingResult: TestingResult,
+        requestId: String,
+        workerId: String,
+        requestSignature: RequestSignature
+    ) throws {
         try sendRequest(
             .bucketResult,
             payload: PushBucketResultRequest(
                 workerId: workerId,
                 requestId: requestId,
-                testingResult: testingResult
+                testingResult: testingResult,
+                requestSignature: requestSignature
             ),
             completionHandler: handleSendBucketResultResponse
         )
     }
     
-    public func reportAlive(bucketIdsBeingProcessedProvider: () -> (Set<String>), workerId: String) throws {
+    public func reportAlive(
+        bucketIdsBeingProcessedProvider: @autoclosure () -> (Set<String>),
+        workerId: String,
+        requestSignature: RequestSignature
+    ) throws {
         try sendRequest(
             .reportAlive,
             payload: ReportAliveRequest(
                 workerId: workerId,
-                bucketIdsBeingProcessed: bucketIdsBeingProcessedProvider()
+                bucketIdsBeingProcessed: bucketIdsBeingProcessedProvider(),
+                requestSignature: requestSignature
             ),
             completionHandler: handleAlivenessResponse
         )

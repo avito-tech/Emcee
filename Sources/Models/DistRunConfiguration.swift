@@ -69,12 +69,16 @@ public struct DistRunConfiguration {
         self.testDestinationConfigurations = testDestinationConfigurations
     }
     
-    public func workerConfiguration(destination: DeploymentDestination) -> WorkerConfiguration {
+    public func workerConfiguration(
+        destination: DeploymentDestination,
+        requestSignature: RequestSignature
+    ) -> WorkerConfiguration {
         return WorkerConfiguration(
             testRunExecutionBehavior: testRunExecutionBehavior(destination: destination),
             testTimeoutConfiguration: testTimeoutConfiguration,
             pluginUrls: auxiliaryResources.plugins.compactMap { $0.resourceLocation.url },
-            reportAliveInterval: reportAliveInterval
+            reportAliveInterval: reportAliveInterval,
+            requestSignature: requestSignature
         )
     }
     

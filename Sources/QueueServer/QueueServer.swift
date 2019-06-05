@@ -47,8 +47,9 @@ public final class QueueServer {
         bucketSplitter: BucketSplitter,
         bucketSplitInfo: BucketSplitInfo,
         queueServerLock: QueueServerLock,
-        queueVersionProvider: VersionProvider)
-    {
+        queueVersionProvider: VersionProvider,
+        requestSignature: RequestSignature
+    ) {
         self.workerAlivenessTracker = WorkerAlivenessTracker(
             reportAliveInterval: reportAliveInterval,
             additionalTimeToPerformWorkerIsAliveReport: 10.0
@@ -80,7 +81,8 @@ public final class QueueServer {
             testsEnqueuer: testsEnqueuer
         )
         self.workerAlivenessEndpoint = WorkerAlivenessEndpoint(
-            alivenessTracker: workerAlivenessTracker
+            alivenessTracker: workerAlivenessTracker,
+            expectedRequestSignature: requestSignature
         )
         self.workerRegistrar = WorkerRegistrar(
             workerConfigurations: workerConfigurations,
@@ -94,7 +96,8 @@ public final class QueueServer {
                 dequeueableBucketSource: balancingBucketQueue,
                 jobStateProvider: balancingBucketQueue,
                 queueStateProvider: balancingBucketQueue
-            )
+            ),
+            expectedRequestSignature: requestSignature
         )
         self.bucketResultRegistrar = BucketResultRegistrar(
             bucketResultAccepter: BucketResultAccepterWithMetricSupport(
@@ -103,6 +106,7 @@ public final class QueueServer {
                 jobStateProvider: balancingBucketQueue,
                 queueStateProvider: balancingBucketQueue
             ),
+            expectedRequestSignature: requestSignature,
             workerAlivenessTracker: workerAlivenessTracker
         )
         self.newWorkerRegistrationTimeAllowance = newWorkerRegistrationTimeAllowance

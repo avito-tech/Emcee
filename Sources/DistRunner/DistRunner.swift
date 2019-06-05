@@ -21,6 +21,7 @@ public final class DistRunner {
     private let localQueueVersionProvider: VersionProvider
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TempFolder
+    private let requestSignature = RequestSignature(value: UUID().uuidString)
     
     public init(
         distRunConfiguration: DistRunConfiguration,
@@ -28,8 +29,8 @@ public final class DistRunner {
         localPortDeterminer: LocalPortDeterminer,
         localQueueVersionProvider: VersionProvider,
         resourceLocationResolver: ResourceLocationResolver,
-        tempFolder: TempFolder)
-    {
+        tempFolder: TempFolder
+    ) {
         self.distRunConfiguration = distRunConfiguration
         self.eventBus = eventBus
         self.localPortDeterminer = localPortDeterminer
@@ -58,7 +59,8 @@ public final class DistRunner {
                 simulatorSettings: distRunConfiguration.simulatorSettings
             ),
             queueServerLock: NeverLockableQueueServerLock(),
-            queueVersionProvider: localQueueVersionProvider
+            queueVersionProvider: localQueueVersionProvider,
+            requestSignature: requestSignature
         )
         queueServer.schedule(
             testEntryConfigurations: distRunConfiguration.testEntryConfigurations,
@@ -85,7 +87,11 @@ public final class DistRunner {
         for destination in distRunConfiguration.destinations {
             configurations.add(
                 workerId: destination.identifier,
-                configuration: distRunConfiguration.workerConfiguration(destination: destination))
+                configuration: distRunConfiguration.workerConfiguration(
+                    destination: destination,
+                    requestSignature: requestSignature
+                )
+            )
         }
         return configurations
     }

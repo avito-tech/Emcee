@@ -10,13 +10,19 @@ import WorkerAlivenessTrackerTestHelpers
 import XCTest
 
 final class BucketProviderTests: XCTestCase {
-    let fetchRequest = DequeueBucketRequest(workerId: "worker", requestId: "request")
+    let expectedRequestSignature = RequestSignature(value: "expectedRequestSignature")
+    lazy var fetchRequest = DequeueBucketRequest(
+        workerId: "worker",
+        requestId: "request",
+        requestSignature: expectedRequestSignature
+    )
     let alivenessTracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
     
     func test___reponse_is_empty_queue___if_queue_is_empty() throws {
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: .queueIsEmpty)
         let bucketProvider = BucketProviderEndpoint(
-            dequeueableBucketSource: bucketQueue
+            dequeueableBucketSource: bucketQueue,
+            expectedRequestSignature: expectedRequestSignature
         )
         
         let response = try bucketProvider.handle(decodedRequest: fetchRequest)
@@ -26,7 +32,8 @@ final class BucketProviderTests: XCTestCase {
     func test___reponse_is_check_again___if_queue_has_dequeued_buckets() throws {
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: .checkAgainLater(checkAfter: 42))
         let bucketProvider = BucketProviderEndpoint(
-            dequeueableBucketSource: bucketQueue
+            dequeueableBucketSource: bucketQueue,
+            expectedRequestSignature: expectedRequestSignature
         )
         
         let response = try bucketProvider.handle(decodedRequest: fetchRequest)
@@ -36,7 +43,8 @@ final class BucketProviderTests: XCTestCase {
     func test___reponse_is_worker_not_alive___if_worker_is_not_alive() throws {
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: .workerIsNotAlive)
         let bucketProvider = BucketProviderEndpoint(
-            dequeueableBucketSource: bucketQueue
+            dequeueableBucketSource: bucketQueue,
+            expectedRequestSignature: expectedRequestSignature
         )
         
         let response = try bucketProvider.handle(decodedRequest: fetchRequest)
@@ -54,10 +62,28 @@ final class BucketProviderTests: XCTestCase {
             requestId: "request")
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: .dequeuedBucket(dequeuedBucket))
         let bucketProvider = BucketProviderEndpoint(
-            dequeueableBucketSource: bucketQueue
+            dequeueableBucketSource: bucketQueue,
+            expectedRequestSignature: expectedRequestSignature
         )
         
         let response = try bucketProvider.handle(decodedRequest: fetchRequest)
         XCTAssertEqual(response, DequeueBucketResponse.bucketDequeued(bucket: dequeuedBucket.enqueuedBucket.bucket))
+    }
+
+    func test___throws_when_request_signature_mismatches() {
+        let bucketProvider = BucketProviderEndpoint(
+            dequeueableBucketSource: FakeBucketQueue(fixedDequeueResult: .queueIsEmpty),
+            expectedRequestSignature: expectedRequestSignature
+        )
+        XCTAssertThrowsError(
+            try bucketProvider.handle(
+                decodedRequest: DequeueBucketRequest(
+                    workerId: "worker",
+                    requestId: "request",
+                    requestSignature: RequestSignature(value: UUID().uuidString)
+                )
+            ),
+            "When request signature mismatches, bucket provider endpoind should throw"
+        )
     }
 }
