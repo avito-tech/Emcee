@@ -22,9 +22,6 @@ public struct QueueServerRunConfiguration: Decodable {
     
     /// Period of time when workers should report their aliveness
     public let reportAliveInterval: TimeInterval
-
-    /// A signature that workers are expected to use to send their requests to the queue.
-    public let requestSignature: RequestSignature
     
     /// Some settings that should be applied to the test environment prior running the tests
     public let simulatorSettings: SimulatorSettings
@@ -43,7 +40,6 @@ public struct QueueServerRunConfiguration: Decodable {
         queueServerTerminationPolicy: AutomaticTerminationPolicy,
         remoteScheduleStrategyType: ScheduleStrategyType,
         reportAliveInterval: TimeInterval,
-        requestSignature: RequestSignature,
         simulatorSettings: SimulatorSettings,
         testTimeoutConfiguration: TestTimeoutConfiguration,
         workerScheduleStrategy: ScheduleStrategyType
@@ -56,14 +52,14 @@ public struct QueueServerRunConfiguration: Decodable {
         self.queueServerTerminationPolicy = queueServerTerminationPolicy
         self.remoteScheduleStrategyType = remoteScheduleStrategyType
         self.reportAliveInterval = reportAliveInterval
-        self.requestSignature = requestSignature
         self.simulatorSettings = simulatorSettings
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.workerScheduleStrategy = workerScheduleStrategy
     }
     
     public func workerConfiguration(
-        deploymentDestinationConfiguration: DestinationConfiguration
+        deploymentDestinationConfiguration: DestinationConfiguration,
+        requestSignature: RequestSignature
     ) -> WorkerConfiguration {
         return WorkerConfiguration(
             testRunExecutionBehavior: testRunExecutionBehavior(

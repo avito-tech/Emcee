@@ -15,17 +15,20 @@ public final class LocalQueueServerRunner {
     private let localPortDeterminer: LocalPortDeterminer
     private let localQueueVersionProvider: VersionProvider
     private let queueServerRunConfiguration: QueueServerRunConfiguration
+    private let requestSignature: RequestSignature
 
     public init(
         eventBus: EventBus,
         localPortDeterminer: LocalPortDeterminer,
         localQueueVersionProvider: VersionProvider,
-        queueServerRunConfiguration: QueueServerRunConfiguration
+        queueServerRunConfiguration: QueueServerRunConfiguration,
+        requestSignature: RequestSignature
     ) {
         self.eventBus = eventBus
         self.localPortDeterminer = localPortDeterminer
         self.localQueueVersionProvider = localQueueVersionProvider
         self.queueServerRunConfiguration = queueServerRunConfiguration
+        self.requestSignature = requestSignature
     }
     
     public func start() throws {
@@ -52,7 +55,7 @@ public final class LocalQueueServerRunner {
                 automaticTerminationController: automaticTerminationController
             ),
             queueVersionProvider: localQueueVersionProvider,
-            requestSignature: queueServerRunConfiguration.requestSignature
+            requestSignature: requestSignature
         )
         _ = try queueServer.start()
         
@@ -83,7 +86,8 @@ public final class LocalQueueServerRunner {
             configurations.add(
                 workerId: deploymentDestinationConfiguration.destinationIdentifier,
                 configuration: queueServerRunConfiguration.workerConfiguration(
-                    deploymentDestinationConfiguration: deploymentDestinationConfiguration
+                    deploymentDestinationConfiguration: deploymentDestinationConfiguration,
+                    requestSignature: requestSignature
                 )
             )
         }

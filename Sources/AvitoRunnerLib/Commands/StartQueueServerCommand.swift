@@ -19,6 +19,7 @@ final class StartQueueServerCommand: Command {
     
     private let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
     private let resourceLocationResolver = ResourceLocationResolver()
+    private let requestSignature = RequestSignature(value: UUID().uuidString)
     
     required init(parser: ArgumentParser) {
         let subparser = parser.add(subparser: command, overview: overview)
@@ -37,6 +38,8 @@ final class StartQueueServerCommand: Command {
     }
     
     private func startQueueServer(queueServerRunConfiguration: QueueServerRunConfiguration) throws {
+        Logger.info("Generated request signature: \(requestSignature)")
+        
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
             pluginLocations: queueServerRunConfiguration.auxiliaryResources.plugins,
             resourceLocationResolver: resourceLocationResolver
@@ -47,7 +50,8 @@ final class StartQueueServerCommand: Command {
             eventBus: eventBus,
             localPortDeterminer: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange),
             localQueueVersionProvider: localQueueVersionProvider,
-            queueServerRunConfiguration: queueServerRunConfiguration
+            queueServerRunConfiguration: queueServerRunConfiguration,
+            requestSignature: requestSignature
         )
         try localQueueServerRunner.start()
     }

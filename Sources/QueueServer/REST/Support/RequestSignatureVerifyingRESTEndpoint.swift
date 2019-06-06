@@ -17,7 +17,7 @@ public struct RequestSignatureMismatch: Error, CustomStringConvertible {
 }
 
 public extension RequestSignatureVerifyingRESTEndpoint {
-    public func handle(decodedRequest: DecodedObjectType) throws -> ResponseType {
+    func handle(decodedRequest: DecodedObjectType) throws -> ResponseType {
         guard expectedRequestSignature == decodedRequest.requestSignature else {
             throw RequestSignatureMismatch(
                 expectedRequestSignature: expectedRequestSignature,
