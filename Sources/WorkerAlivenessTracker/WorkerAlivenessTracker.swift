@@ -45,19 +45,15 @@ public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
             _ = blockedWorkers.insert(workerId)
             workerBucketIdsBeingProcessed.resetBucketIdsBeingProcessedBy(workerId: workerId)
             Logger.warning("Blocked worker: \(workerId)")
+            
+            let workerAliveness = onSyncQueue_workerAliveness()
+            Logger.debug("Alive workers: \(workerAliveness.filter { $0.value.status == .alive }), blocked workers: \(workerAliveness.filter { $0.value.status == .blocked })")
         }
     }
     
     public var workerAliveness: [String: WorkerAliveness] {
         return syncQueue.sync {
-            let uniqueWorkerIds = Set<String>(workerAliveReportTimestamps.keys).union(blockedWorkers)
-            
-            var workerAliveness = [String: WorkerAliveness]()
-            let currentDate = Date()
-            for id in uniqueWorkerIds {
-                workerAliveness[id] = onSyncQueue_alivenessForWorker(workerId: id, currentDate: currentDate)
-            }
-            return workerAliveness
+            onSyncQueue_workerAliveness()
         }
     }
     
@@ -65,6 +61,17 @@ public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
         return syncQueue.sync {
             onSyncQueue_alivenessForWorker(workerId: workerId, currentDate: Date())
         }
+    }
+    
+    private func onSyncQueue_workerAliveness() -> [String: WorkerAliveness] {
+        let uniqueWorkerIds = Set<String>(workerAliveReportTimestamps.keys).union(blockedWorkers)
+        
+        var workerAliveness = [String: WorkerAliveness]()
+        let currentDate = Date()
+        for id in uniqueWorkerIds {
+            workerAliveness[id] = onSyncQueue_alivenessForWorker(workerId: id, currentDate: currentDate)
+        }
+        return workerAliveness
     }
     
     private func onSyncQueue_alivenessForWorker(workerId: String, currentDate: Date) -> WorkerAliveness {
