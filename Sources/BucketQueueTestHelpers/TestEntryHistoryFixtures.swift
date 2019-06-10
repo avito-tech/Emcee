@@ -1,5 +1,5 @@
 import Models
-@testable import BucketQueue
+import BucketQueue
 import ModelsTestHelpers
 
 public final class TestEntryHistoryFixtures {

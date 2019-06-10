@@ -6,7 +6,6 @@ public final class FbXcTestStartedEvent: CustomStringConvertible, CommonTestFiel
     private let className: String     // e.g. FunctionalTests.MainPageTest
     private let methodName: String    // test_dataSet0
     public let timestamp: TimeInterval
-    public let hostName: String?
     public let processId: Int32?
     public let simulatorId: String?
     
@@ -24,7 +23,6 @@ public final class FbXcTestStartedEvent: CustomStringConvertible, CommonTestFiel
         self.className = className
         self.methodName = methodName
         self.timestamp = timestamp
-        self.hostName = hostName
         self.processId = processId
         self.simulatorId = simulatorId
     }
@@ -35,9 +33,9 @@ public final class FbXcTestStartedEvent: CustomStringConvertible, CommonTestFiel
             className: className,
             methodName: methodName,
             timestamp: timestamp,
-            hostName: hostName,
             processId: newProcessId,
-            simulatorId: simulatorId)
+            simulatorId: simulatorId
+        )
     }
     
     public func withSimulatorId(newSimulatorId: String) -> FbXcTestStartedEvent {
@@ -46,20 +44,9 @@ public final class FbXcTestStartedEvent: CustomStringConvertible, CommonTestFiel
             className: className,
             methodName: methodName,
             timestamp: timestamp,
-            hostName: hostName,
             processId: processId,
-            simulatorId: newSimulatorId)
-    }
-    
-    public func witHostName(newHostName: String) -> FbXcTestStartedEvent {
-        return FbXcTestStartedEvent(
-            test: test,
-            className: className,
-            methodName: methodName,
-            timestamp: timestamp,
-            hostName: newHostName,
-            processId: processId,
-            simulatorId: simulatorId)
+            simulatorId: newSimulatorId
+        )
     }
     
     public var testClassName: String {

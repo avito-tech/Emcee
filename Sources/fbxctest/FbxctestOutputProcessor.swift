@@ -111,7 +111,6 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
         switch fbxctestEvent.event {
         case .testStarted:
             if let result = try? decoder.decode(FbXcTestStartedEvent.self, from: data)
-                .witHostName(newHostName: LocalHostDeterminer.currentHostAddress)
                 .withProcessId(newProcessId: processId)
                 .withSimulatorId(newSimulatorId: simulatorId)
             {

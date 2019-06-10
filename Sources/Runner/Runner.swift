@@ -252,7 +252,7 @@ public final class Runner {
                 duration: finishEvent.totalDuration,
                 startTime: startEvent.timestamp,
                 finishTime: finishEvent.timestamp,
-                hostName: startEvent.hostName ?? "host was not set to TestStartedEvent",
+                hostName: LocalHostDeterminer.currentHostAddress,
                 processId: startEvent.processId ?? 0,
                 simulatorId: startEvent.simulatorId ?? "unknown_simulator"
             )
@@ -327,7 +327,7 @@ public final class Runner {
         
         MetricRecorder.capture(
             TestStartedMetric(
-                host: event.hostName ?? "unknown_host",
+                host: LocalHostDeterminer.currentHostAddress,
                 testClassName: testEntry.testName.className,
                 testMethodName: testEntry.testName.methodName
             )
@@ -350,14 +350,14 @@ public final class Runner {
         MetricRecorder.capture(
             TestFinishedMetric(
                 result: testResult,
-                host: eventPair.startEvent.hostName ?? "unknown_host",
+                host: LocalHostDeterminer.currentHostAddress,
                 testClassName: testEntry.testName.className,
                 testMethodName: testEntry.testName.methodName,
                 testsFinishedCount: 1
             ),
             TestDurationMetric(
                 result: testResult,
-                host: eventPair.startEvent.hostName ?? "unknown_host",
+                host: LocalHostDeterminer.currentHostAddress,
                 testClassName: testEntry.testName.className,
                 testMethodName: testEntry.testName.methodName,
                 duration: testDuration
