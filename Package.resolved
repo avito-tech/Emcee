@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/IBM-Swift/BlueSocket",
         "state": {
           "branch": null,
-          "revision": "a7ad71099dcfc5b1fd888f5e603347f2e0cdb24d",
-          "version": "1.0.30"
+          "revision": "ccc671b022bc60e5fffcb2aa15f499c6331bfd18",
+          "version": "1.0.46"
         }
       },
       {
@@ -51,7 +51,7 @@
         "repositoryURL": "https://github.com/beefon/Shout",
         "state": {
           "branch": "UpdateSocket",
-          "revision": "4846fc16bd60738cf6162d49cd063b0a41ced813",
+          "revision": "652b5333133e7c6a26e7874a2732798decbf8f39",
           "version": null
         }
       },
@@ -96,8 +96,8 @@
         "repositoryURL": "https://github.com/weichsel/ZIPFoundation/",
         "state": {
           "branch": null,
-          "revision": "b5c53bef2deb7b20659b03b1223f0942599e5c41",
-          "version": "0.9.6"
+          "revision": "edbeaa39b426e54702194b0a601342322f01e400",
+          "version": "0.9.9"
         }
       }
     ]

@@ -29,6 +29,6 @@ public final class DefaultSSHClient: SSHClient {
     }
     
     public func upload(localUrl: URL, remotePath: String) throws {
-        try ssh.openSftp().upload(localUrl: localUrl, remotePath: remotePath)
+        try ssh.openSftp().upload(localURL: localUrl, remotePath: remotePath)
     }
 }
