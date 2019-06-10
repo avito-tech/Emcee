@@ -99,6 +99,9 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         dumpConfiguration: RuntimeDumpConfiguration,
         runtimeEntriesJSONPath: AbsolutePath) -> RunnerConfiguration
     {
+        let simulatorSettings = SimulatorSettings(simulatorLocalizationSettings: nil, watchdogSettings: nil)
+        let environment = self.environment(runtimeEntriesJSONPath: runtimeEntriesJSONPath)
+        
         if let applicationTestSupport = dumpConfiguration.applicationTestSupport {
             return RunnerConfiguration(
                 testType: .appTest,
@@ -109,8 +112,8 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
                     xcTestBundle: dumpConfiguration.xcTestBundle,
                     additionalApplicationBundles: []
                 ),
-                environment: ["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH": runtimeEntriesJSONPath.pathString],
-                simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: nil, watchdogSettings: nil),
+                environment: environment,
+                simulatorSettings: simulatorSettings,
                 testTimeoutConfiguration: dumpConfiguration.testTimeoutConfiguration
             )
         } else {
@@ -118,8 +121,8 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
                 testType: .logicTest,
                 fbxctest: dumpConfiguration.fbxctest,
                 buildArtifacts: BuildArtifacts.onlyWithXctestBundle(xcTestBundle: dumpConfiguration.xcTestBundle),
-                environment: ["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH": runtimeEntriesJSONPath.pathString],
-                simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: nil, watchdogSettings: nil),
+                environment: environment,
+                simulatorSettings: simulatorSettings,
                 testTimeoutConfiguration: dumpConfiguration.testTimeoutConfiguration
             )
         }
@@ -182,5 +185,11 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
             RuntimeDumpTestCountMetric(testBundleName: testBundleName, numberOfTests: testCount),
             RuntimeDumpTestCaseCountMetric(testBundleName: testBundleName, numberOfTestCases: testCaseCount)
         )
+    }
+    
+    private func environment(runtimeEntriesJSONPath: AbsolutePath) -> [String: String] {
+        var environment = ProcessInfo.processInfo.environment
+        environment["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH"] = runtimeEntriesJSONPath.pathString
+        return environment
     }
 }
