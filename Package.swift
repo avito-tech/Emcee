@@ -64,7 +64,7 @@ let package = Package(
             ]
         ),
         .target(
-        // MARK: AutomaticTermination
+            // MARK: AutomaticTermination
             name: "AutomaticTermination",
             dependencies: [
                 "DateProvider",
