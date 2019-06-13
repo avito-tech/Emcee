@@ -8,6 +8,7 @@ final class FakeSimulatorController: SimulatorController {
     let fbsimctl: ResolvableResourceLocation
     
     var didCallDelete = false
+    var didCallShutdown = false
     
     init(simulator: Simulator, fbsimctl: ResolvableResourceLocation) {
         self.simulator = simulator
@@ -20,6 +21,10 @@ final class FakeSimulatorController: SimulatorController {
     
     func deleteSimulator() throws {
         didCallDelete = true
+    }
+    
+    func shutdownSimulator() throws {
+        didCallShutdown = true
     }
     
     static func == (l: FakeSimulatorController, r: FakeSimulatorController) -> Bool {

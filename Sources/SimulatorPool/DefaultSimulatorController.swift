@@ -14,44 +14,95 @@ public class DefaultSimulatorController: SimulatorController, CustomStringConver
     private let simulator: Simulator
     private let fbsimctl: ResolvableResourceLocation
     private let maximumBootAttempts = 2
-    private var stage: Stage = .idle
     private var simulatorKeepAliveProcessController: ProcessController?
     private static let bootQueue = DispatchQueue(label: "SimulatorBootQueue")
-    
+    private let simulatorStateMachine = SimulatorStateMachine()
+    private var currentSimulatorState = SimulatorStateMachine.State.absent
+
     required public init(simulator: Simulator, fbsimctl: ResolvableResourceLocation) {
         self.simulator = simulator
         self.fbsimctl = fbsimctl
     }
-    
-    /**
-     * This method prepares the simulator and returns it. It must be called from the serial queue.
-     * Two parallel calls in case if the simulator is being created and booted will throw an error.
-     * If creation or booting fails, this method will also throw an error.
-     */
+
     public func bootedSimulator() throws -> Simulator {
-        if stage == .bootedSimulator {
-            return simulator
-        }
-        
-        guard stage == .idle else {
-            Logger.error("Simulator \(simulator.testDestination.destinationString) is already being booted")
-            throw SimulatorBootError.bootingAlreadyStarted
-        }
-        
-        return try bootRetryingOnFailure()
+        try attemptToSwitchState(targetStates: [.booted])
+        return simulator
     }
-    
-    private func bootRetryingOnFailure() throws -> Simulator {
+
+    public func deleteSimulator() throws {
+        try attemptToSwitchState(targetStates: [.absent])
+    }
+
+    public func shutdownSimulator() throws {
+        try attemptToSwitchState(targetStates: [.created, .absent])
+    }
+
+    // MARK: - States
+
+    private func attemptToSwitchState(targetStates: [SimulatorStateMachine.State]) throws {
+        let actions = simulatorStateMachine.actionsToSwitchStates(
+            sourceState: currentSimulatorState,
+            closestStateFrom: targetStates
+        )
+        try perform(actions: actions)
+    }
+
+    private func perform(actions: [SimulatorStateMachine.Action]) throws {
+        for action in actions {
+            Logger.debug("Performing action: \(action)")
+            switch action {
+            case .create:
+                try performCreateSimulatorAction()
+            case .boot:
+                try performBootSimulatorAction()
+            case .shutdown:
+                try performShutdownSimulatorAction()
+            case .delete:
+                try performDeleteSimulatorAction()
+            }
+            currentSimulatorState = action.resultingState
+        }
+    }
+
+    private func performCreateSimulatorAction() throws {
+        Logger.verboseDebug("Creating simulator: \(simulator)")
+        let simulatorSetPath = simulator.simulatorSetContainerPath.pathString
+        try FileManager.default.createDirectory(atPath: simulatorSetPath, withIntermediateDirectories: true)
+        let controller = try ProcessController(
+            subprocess: Subprocess(
+                arguments: [
+                    fbsimctl.asArgumentWith(packageName: PackageName.fbsimctl),
+                    "--json", "--set", simulatorSetPath,
+                    "create",
+                    "iOS \(simulator.testDestination.runtime)", simulator.testDestination.deviceType
+                ],
+                silenceBehavior: SilenceBehavior(
+                    automaticAction: .interruptAndForceKill,
+                    allowedSilenceDuration: 30
+                )
+            )
+        )
+        controller.startAndListenUntilProcessDies()
+
+        guard controller.processStatus() == .terminated(exitCode: 0) else {
+            throw SimulatorBootError.createOperationFailed("fbsimctl exit code \(controller.processStatus())")
+        }
+        guard let simulatorUuid = simulator.uuid else {
+            throw SimulatorBootError.unableToLocateSimulatorUuid
+        }
+        Logger.debug("Created simulator with UUID: \(simulatorUuid.uuidString)")
+    }
+
+    private func performBootSimulatorAction() throws {
         return try DefaultSimulatorController.bootQueue.sync {
             var bootAttempt = 0
             while true {
                 do {
-                    try createAndBoot()
+                    try bootSimulatorUsingFbsimctl()
                     Logger.debug("Booted simulator \(simulator) using #\(bootAttempt + 1) attempts")
-                    return simulator
+                    break
                 } catch {
                     Logger.error("Attempt to boot simulator \(simulator.testDestination.destinationString) failed: \(error)")
-                    try deleteSimulator()
                     bootAttempt += 1
                     if bootAttempt < maximumBootAttempts {
                         let waitBetweenAttemptsToBoot = 5.0
@@ -64,65 +115,61 @@ public class DefaultSimulatorController: SimulatorController, CustomStringConver
             }
         }
     }
-    
-    private func createAndBoot() throws {
-        try createSimulator()
-        try bootSimulator()
-    }
-    
-    private func createSimulator() throws {
-        guard stage == .idle else {
-            throw SimulatorBootError.bootingAlreadyStarted
+
+    private func performShutdownSimulatorAction() throws {
+        guard let simulatorUuid = simulator.simulatorInfo.simulatorUuid else {
+            Logger.debug("Cannot shutdown simulator, no UUID: \(simulator)")
+            return
         }
-        
-        stage = .creatingSimulator
-        Logger.verboseDebug("Creating simulator: \(simulator)")
-        let simulatorSetPath = simulator.simulatorSetContainerPath.pathString
-        try FileManager.default.createDirectory(atPath: simulatorSetPath, withIntermediateDirectories: true)
-        let controller = try ProcessController(
+        Logger.debug("Shutting down simulator \(simulatorUuid)")
+
+        if let simulatorKeepAliveProcessController = simulatorKeepAliveProcessController {
+            simulatorKeepAliveProcessController.interruptAndForceKillIfNeeded()
+            simulatorKeepAliveProcessController.waitForProcessToDie()
+        }
+        simulatorKeepAliveProcessController = nil
+
+        let shutdownController = try ProcessController(
             subprocess: Subprocess(
                 arguments: [
-                    fbsimctl.asArgumentWith(packageName: PackageName.fbsimctl),
-                    "--json", "--set", simulatorSetPath,
-                    "create", "iOS \(simulator.testDestination.runtime)", simulator.testDestination.deviceType
+                    "/usr/bin/xcrun",
+                    "simctl", "--set", simulator.simulatorSetContainerPath.pathString,
+                    "shutdown", simulatorUuid.uuidString
                 ],
                 silenceBehavior: SilenceBehavior(
-                    automaticAction: .handler({ [weak self] (sender) in
-                        sender.interruptAndForceKillIfNeeded()
-                        guard let strongSelf = self else { return }
-                        strongSelf.stage = .creationHang
-                    }),
-                    allowedSilenceDuration: 30
+                    automaticAction: .interruptAndForceKill,
+                    allowedSilenceDuration: 20
                 )
             )
         )
-        controller.startAndListenUntilProcessDies()
-        
-        guard stage == .creatingSimulator else { throw SimulatorBootError.createOperationFailed("Unexpected stage \(stage)") }
-        guard controller.processStatus() == .terminated(exitCode: 0) else {
-            throw SimulatorBootError.createOperationFailed("fbsimctl exit code \(String(describing: controller.processStatus()))")
-        }
-        guard let simulatorUuid = simulator.uuid else {
-            throw SimulatorBootError.createOperationFailed("Unable to locate simulator UUID")
-        }
-        stage = .createdSimulator
-        Logger.debug("Created simulator with UUID: \(simulatorUuid.uuidString)")
+        shutdownController.startAndListenUntilProcessDies()
     }
 
-    private func bootSimulator() throws {
-        guard stage == .createdSimulator else {
-            throw SimulatorBootError.bootingAlreadyStarted
+    private func performDeleteSimulatorAction() throws {
+        if let simulatorKeepAliveProcessController = simulatorKeepAliveProcessController {
+            simulatorKeepAliveProcessController.interruptAndForceKillIfNeeded()
+            simulatorKeepAliveProcessController.waitForProcessToDie()
         }
-        
+        simulatorKeepAliveProcessController = nil
+
+        Logger.verboseDebug("Deleting simulator: \(simulator)")
+        try deleteSimulatorUsingFbsimctl()
+        try attemptToDeleteSimulatorFiles()
+
+        Logger.debug("Deleted simulator: \(simulator)")
+    }
+
+    // MARK: - Utility Methods
+
+    private func bootSimulatorUsingFbsimctl() throws {
         let containerContents = try FileManager.default.contentsOfDirectory(atPath: simulator.simulatorSetContainerPath.pathString)
         let simulatorUuids = containerContents.filter { UUID(uuidString: $0) != nil }
         guard simulatorUuids.count > 0, let simulatorUuid = simulatorUuids.first else {
             throw SimulatorBootError.unableToLocateSimulatorUuid
         }
-        
-        stage = .bootingSimulator
+
         Logger.verboseDebug("Booting simulator: \(simulator)")
-        
+
         // we keep this process alive throughout the run, as it owns the simulator process.
         simulatorKeepAliveProcessController = try ProcessController(
             subprocess: Subprocess(
@@ -135,19 +182,16 @@ public class DefaultSimulatorController: SimulatorController, CustomStringConver
                 ]
             )
         )
-        
-        try waitForSimulatorBoot()
-        
+        try waitForFbsimctlToBootSimulator()
+
         // process should be alive at this point and the boot should have finished
-        guard stage == .bootingSimulator else { throw SimulatorBootError.bootOperationFailed("Unexpected stage \(stage)") }
         guard simulatorKeepAliveProcessController?.isProcessRunning == true else {
             throw SimulatorBootError.bootOperationFailed("Simulator keep-alive process died unexpectedly")
         }
-        stage = .bootedSimulator
         Logger.debug("Booted simulator: \(simulator)")
     }
-    
-    private func waitForSimulatorBoot() throws {
+
+    private func waitForFbsimctlToBootSimulator() throws {
         guard let simulatorKeepAliveProcessController = simulatorKeepAliveProcessController else {
             Logger.error("Expected to have keep-alive process")
             throw SimulatorBootError.bootOperationFailed("No keep-alive process found")
@@ -159,7 +203,7 @@ public class DefaultSimulatorController: SimulatorController, CustomStringConver
             Logger.error("Simulator \(simulator.testDestination.destinationString) did not boot in time: \(error)")
             throw error
         }
-        
+
         do {
             try outputProcessor.waitForEvent(type: .started, name: .listen, timeout: 50)
         } catch {
@@ -167,32 +211,7 @@ public class DefaultSimulatorController: SimulatorController, CustomStringConver
             throw error
         }
     }
-    
-    public func deleteSimulator() throws {
-        if let simulatorKeepAliveProcessController = simulatorKeepAliveProcessController {
-            simulatorKeepAliveProcessController.interruptAndForceKillIfNeeded()
-            simulatorKeepAliveProcessController.waitForProcessToDie()
-        }
-        simulatorKeepAliveProcessController = nil
-        
-        if stage == .idle {
-            Logger.debug("Simulator \(simulator) hasn't booted yet, so it won't be deleted.")
-            return
-        }
-        
-        stage = .deletingSimulator
-        
-        Logger.verboseDebug("Deleting simulator: \(simulator)")
-        try deleteSimulatorUsingFbsimctl()
-        
-        if stage == .deleteHang {
-            try attemptToDeleteSimulatorFiles()
-        }
-        
-        stage = .idle
-        Logger.debug("Deleted simulator: \(simulator)")
-    }
-    
+
     private func deleteSimulatorUsingFbsimctl() throws {
         let controller = try ProcessController(
             subprocess: Subprocess(
@@ -202,38 +221,16 @@ public class DefaultSimulatorController: SimulatorController, CustomStringConver
                     "--simulators", "delete"
                 ],
                 silenceBehavior: SilenceBehavior(
-                    automaticAction: .handler({ [weak self] (sender) in
-                        sender.interruptAndForceKillIfNeeded()
-                        guard let strongSelf = self else { return }
-                        strongSelf.stage = .deleteHang
-                    }),
+                    automaticAction: .interruptAndForceKill,
                     allowedSilenceDuration: 30
                 )
             )
         )
         controller.startAndListenUntilProcessDies()
-        if controller.processStatus() != .terminated(exitCode: 0) {
-            throw SimulatorBootError.deleteOperationFailed("Unexpected fbsimctl exit code: \(String(describing: controller.processStatus()))")
-        }
     }
-    
+
     private func attemptToDeleteSimulatorFiles() throws {
         if let simulatorUuid = simulator.simulatorInfo.simulatorUuid {
-            Logger.debug("Shutting down simulator \(simulatorUuid)")
-            let shutdownController = try ProcessController(
-                subprocess: Subprocess(
-                    arguments: [
-                        "/usr/bin/xcrun",
-                        "simctl", "--set", simulator.simulatorSetContainerPath.pathString,
-                        "shutdown", simulatorUuid.uuidString
-                    ],
-                    silenceBehavior: SilenceBehavior(
-                        automaticAction: .interruptAndForceKill,
-                        allowedSilenceDuration: 20
-                    )
-                )
-            )
-            shutdownController.startAndListenUntilProcessDies()
             Logger.debug("Deleting simulator \(simulatorUuid)")
             let deleteController = try ProcessController(
                 subprocess: Subprocess(
@@ -250,61 +247,42 @@ public class DefaultSimulatorController: SimulatorController, CustomStringConver
             )
             deleteController.startAndListenUntilProcessDies()
         }
-        
+
         if FileManager.default.fileExists(atPath: simulator.simulatorSetContainerPath.pathString) {
             Logger.verboseDebug("Removing files left by simulator \(simulator)")
             try FileManager.default.removeItem(atPath: simulator.simulatorSetContainerPath.pathString)
         }
     }
-    
+
     // MARK: - Protocols
-    
+
     public func hash(into hasher: inout Hasher) {
         hasher.combine(simulator)
     }
-    
+
     public static func == (l: DefaultSimulatorController, r: DefaultSimulatorController) -> Bool {
         return l.simulator == r.simulator
     }
-    
+
     public var description: String {
         return "Controller for simulator \(simulator)"
     }
-    
-    // MARK: - States and State Errors
-    
-    private enum Stage: String, CustomStringConvertible {
-        case idle
-        case creatingSimulator
-        case creationHang
-        case createdSimulator
-        case bootingSimulator
-        case bootedSimulator
-        case deletingSimulator
-        case deleteHang
-        
-        var description: String { return self.rawValue }
-    }
-    
+
+    // MARK: - Errors
+
     private enum SimulatorBootError: Error, CustomStringConvertible {
-        case bootingAlreadyStarted
         case createOperationFailed(String)
         case unableToLocateSimulatorUuid
         case bootOperationFailed(String)
-        case deleteOperationFailed(String)
-        
+
         var description: String {
             switch self {
-            case .bootingAlreadyStarted:
-                return "Failed to boot simulator, flow violation: boot has already started"
             case .createOperationFailed(let message):
                 return "Failed to create simulator: \(message)"
             case .unableToLocateSimulatorUuid:
                 return "Failed to boot simulator: failed to locate simulator's UUID"
             case .bootOperationFailed(let message):
                 return "Failed to boot simulator: \(message)"
-            case .deleteOperationFailed(let message):
-                return "Failed to delete simulator: \(message)"
             }
         }
     }

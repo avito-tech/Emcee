@@ -80,6 +80,20 @@ public class SimulatorPool<T>: CustomStringConvertible where T: SimulatorControl
         }
     }
     
+    public func shutdownSimulators() {
+        syncQueue.sync {
+            cancelAutomaticCleanup()
+            Logger.verboseDebug("\(self): deleting simulators")
+            controllers.forEach {
+                do {
+                    try $0.shutdownSimulator()
+                } catch {
+                    Logger.warning("Failed to shutdown simulator \($0): \(error). Skipping this error.")
+                }
+            }
+        }
+    }
+    
     private static func createControllers(
         count: UInt,
         testDestination: TestDestination,
@@ -110,7 +124,7 @@ public class SimulatorPool<T>: CustomStringConvertible where T: SimulatorControl
             strongSelf.automaticCleanupWorkItem = nil
             if strongSelf.controllers.count == strongSelf.numberOfSimulators {
                 Logger.debug("Simulator controllers were not in use for \(strongSelf.automaticCleanupTiumeout) seconds.")
-                strongSelf.deleteSimulators()
+                strongSelf.shutdownSimulators()
             }
         }
         cleanUpQueue.asyncAfter(deadline: .now() + automaticCleanupTiumeout, execute: cancellationWorkItem)
