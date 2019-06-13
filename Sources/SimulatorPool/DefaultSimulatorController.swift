@@ -10,7 +10,7 @@ import ResourceLocationResolver
  * Prepares and returns the simulator it owns. API is expected to be used from non multithreaded environment,
  * i.e. from serial queue.
  */
-public class DefaultSimulatorController: SimulatorController, ProcessControllerDelegate, CustomStringConvertible {
+public class DefaultSimulatorController: SimulatorController, CustomStringConvertible {
     private let simulator: Simulator
     private let fbsimctl: ResolvableResourceLocation
     private let maximumBootAttempts = 2
@@ -84,16 +84,23 @@ public class DefaultSimulatorController: SimulatorController, ProcessControllerD
                 arguments: [
                     fbsimctl.asArgumentWith(packageName: PackageName.fbsimctl),
                     "--json", "--set", simulatorSetPath,
-                    "create", "iOS \(simulator.testDestination.runtime)", simulator.testDestination.deviceType],
-                maximumAllowedSilenceDuration: 30
+                    "create", "iOS \(simulator.testDestination.runtime)", simulator.testDestination.deviceType
+                ],
+                silenceBehavior: SilenceBehavior(
+                    automaticAction: .handler({ [weak self] (sender) in
+                        sender.interruptAndForceKillIfNeeded()
+                        guard let strongSelf = self else { return }
+                        strongSelf.stage = .creationHang
+                    }),
+                    allowedSilenceDuration: 30
+                )
             )
         )
-        controller.delegate = self
         controller.startAndListenUntilProcessDies()
         
         guard stage == .creatingSimulator else { throw SimulatorBootError.createOperationFailed("Unexpected stage \(stage)") }
-        guard controller.terminationStatus() == 0 else {
-            throw SimulatorBootError.createOperationFailed("fbsimctl exit code \(String(describing: controller.terminationStatus()))")
+        guard controller.processStatus() == .terminated(exitCode: 0) else {
+            throw SimulatorBootError.createOperationFailed("fbsimctl exit code \(String(describing: controller.processStatus()))")
         }
         guard let simulatorUuid = simulator.uuid else {
             throw SimulatorBootError.createOperationFailed("Unable to locate simulator UUID")
@@ -124,7 +131,10 @@ public class DefaultSimulatorController: SimulatorController, ProcessControllerD
                     "--json", "--set", simulator.simulatorSetContainerPath.pathString,
                     simulatorUuid, "boot",
                     "--locale", "ru_US",
-                    "--direct-launch", "--", "listen"]))
+                    "--direct-launch", "--", "listen"
+                ]
+            )
+        )
         
         try waitForSimulatorBoot()
         
@@ -191,13 +201,19 @@ public class DefaultSimulatorController: SimulatorController, ProcessControllerD
                     "--json", "--set", simulator.simulatorSetContainerPath.pathString,
                     "--simulators", "delete"
                 ],
-                maximumAllowedSilenceDuration: 30
+                silenceBehavior: SilenceBehavior(
+                    automaticAction: .handler({ [weak self] (sender) in
+                        sender.interruptAndForceKillIfNeeded()
+                        guard let strongSelf = self else { return }
+                        strongSelf.stage = .deleteHang
+                    }),
+                    allowedSilenceDuration: 30
+                )
             )
         )
-        controller.delegate = self
         controller.startAndListenUntilProcessDies()
-        if controller.terminationStatus() != 0 {
-            throw SimulatorBootError.deleteOperationFailed("Unexpected fbsimctl exit code: \(String(describing: controller.terminationStatus()))")
+        if controller.processStatus() != .terminated(exitCode: 0) {
+            throw SimulatorBootError.deleteOperationFailed("Unexpected fbsimctl exit code: \(String(describing: controller.processStatus()))")
         }
     }
     
@@ -211,7 +227,10 @@ public class DefaultSimulatorController: SimulatorController, ProcessControllerD
                         "simctl", "--set", simulator.simulatorSetContainerPath.pathString,
                         "shutdown", simulatorUuid.uuidString
                     ],
-                    maximumAllowedSilenceDuration: 20
+                    silenceBehavior: SilenceBehavior(
+                        automaticAction: .interruptAndForceKill,
+                        allowedSilenceDuration: 20
+                    )
                 )
             )
             shutdownController.startAndListenUntilProcessDies()
@@ -223,7 +242,10 @@ public class DefaultSimulatorController: SimulatorController, ProcessControllerD
                         "simctl", "--set", simulator.simulatorSetContainerPath.pathString,
                         "delete", simulatorUuid.uuidString
                     ],
-                    maximumAllowedSilenceDuration: 15
+                    silenceBehavior: SilenceBehavior(
+                        automaticAction: .interruptAndForceKill,
+                        allowedSilenceDuration: 15
+                    )
                 )
             )
             deleteController.startAndListenUntilProcessDies()
@@ -233,23 +255,6 @@ public class DefaultSimulatorController: SimulatorController, ProcessControllerD
             Logger.verboseDebug("Removing files left by simulator \(simulator)")
             try FileManager.default.removeItem(atPath: simulator.simulatorSetContainerPath.pathString)
         }
-    }
-    
-    // MARK: - Process Controller Events
-    
-    public func processController(_ sender: ProcessController, newStdoutData data: Data) {}
-    
-    public func processController(_ sender: ProcessController, newStderrData data: Data) {}
-    
-    public func processControllerDidNotReceiveAnyOutputWithinAllowedSilenceDuration(_ sender: ProcessController) {
-        if stage == .creatingSimulator {
-            stage = .creationHang
-        } else if stage == .bootingSimulator {
-            stage = .bootHang
-        } else if stage == .deletingSimulator {
-            stage = .deleteHang
-        }
-        sender.interruptAndForceKillIfNeeded()
     }
     
     // MARK: - Protocols
@@ -274,7 +279,6 @@ public class DefaultSimulatorController: SimulatorController, ProcessControllerD
         case creationHang
         case createdSimulator
         case bootingSimulator
-        case bootHang
         case bootedSimulator
         case deletingSimulator
         case deleteHang

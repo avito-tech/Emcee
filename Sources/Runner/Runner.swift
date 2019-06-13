@@ -95,7 +95,10 @@ public final class Runner {
             subprocess: Subprocess(
                 arguments: fbxctestArguments(entriesToRun: entriesToRun, simulator: simulator),
                 environment: testContext.environment,
-                maximumAllowedSilenceDuration: configuration.maximumAllowedSilenceDuration ?? 0
+                silenceBehavior: SilenceBehavior(
+                    automaticAction: .noAutomaticAction,
+                    allowedSilenceDuration: configuration.maximumAllowedSilenceDuration ?? 0
+                )
             ),
             simulatorId: simulator.identifier,
             singleTestMaximumDuration: configuration.singleTestMaximumDuration,

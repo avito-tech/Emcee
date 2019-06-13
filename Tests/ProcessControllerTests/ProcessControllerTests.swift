@@ -8,14 +8,19 @@ final class ProcessControllerTests: XCTestCase {
     func testStartingSimpleSubprocess() throws {
         let controller = try ProcessController(subprocess: Subprocess(arguments: ["/usr/bin/env"]))
         controller.startAndListenUntilProcessDies()
-        XCTAssertEqual(controller.terminationStatus(), 0)
+        XCTAssertEqual(controller.processStatus(), .terminated(exitCode: 0))
     }
     
     func testSilence() throws {
         let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: ["/bin/sleep", "10"],
-                maximumAllowedSilenceDuration: 0.01))
+                silenceBehavior: SilenceBehavior(
+                    automaticAction: .noAutomaticAction,
+                    allowedSilenceDuration: 0.01
+                )
+            )
+        )
         let delegate = FakeDelegate()
         controller.delegate = delegate
         controller.startAndListenUntilProcessDies()
@@ -23,11 +28,97 @@ final class ProcessControllerTests: XCTestCase {
         XCTAssertEqual(delegate.noActivityDetected, true)
     }
     
+    func test___termination_status_is_running___when_process_is_running() throws {
+        let controller = try ProcessController(
+            subprocess: Subprocess(
+                arguments: ["/bin/sleep", "10"]
+            )
+        )
+        controller.start()
+        XCTAssertEqual(controller.processStatus(), .stillRunning)
+    }
+    
+    func test___termination_status_is_not_started___when_process_has_not_yet_started() throws {
+        let controller = try ProcessController(
+            subprocess: Subprocess(
+                arguments: ["/bin/env"]
+            )
+        )
+        XCTAssertEqual(controller.processStatus(), .notStarted)
+    }
+    
+    func test___no_automatic_action() throws {
+        let controller = try ProcessController(
+            subprocess: Subprocess(
+                arguments: ["/bin/sleep", "0.01"],
+                silenceBehavior: SilenceBehavior(
+                    automaticAction: .noAutomaticAction,
+                    allowedSilenceDuration: 0.00001
+                )
+            )
+        )
+        controller.startAndListenUntilProcessDies()
+        XCTAssertEqual(controller.processStatus(), .terminated(exitCode: 0))
+    }
+    
+    func test___silence_handler_action() throws {
+        let handlerCalledExpectation = expectation(description: "silence handler has been called")
+        
+        let controller = try ProcessController(
+            subprocess: Subprocess(
+                arguments: ["/bin/sleep", "999"],
+                silenceBehavior: SilenceBehavior(
+                    automaticAction: .handler({ sender in
+                        kill(sender.processId, SIGKILL)
+                        handlerCalledExpectation.fulfill()
+                    }),
+                    allowedSilenceDuration: 0.00001
+                )
+            )
+        )
+        controller.startAndListenUntilProcessDies()
+        
+        wait(for: [handlerCalledExpectation], timeout: 5.0)
+    }
+    
+    func test___automatic_interrupt_silence_handler() throws {
+        let controller = try ProcessController(
+            subprocess: Subprocess(
+                arguments: ["/bin/sleep", "999"],
+                silenceBehavior: SilenceBehavior(
+                    automaticAction: .interruptAndForceKill,
+                    allowedSilenceDuration: 0.00001
+                )
+            )
+        )
+        controller.startAndListenUntilProcessDies()
+        XCTAssertEqual(controller.processStatus(), .terminated(exitCode: SIGINT))
+    }
+    
+    func test___automatic_terminate_silence_handler() throws {
+        let controller = try ProcessController(
+            subprocess: Subprocess(
+                arguments: ["/bin/sleep", "999"],
+                silenceBehavior: SilenceBehavior(
+                    automaticAction: .terminateAndForceKill,
+                    allowedSilenceDuration: 0.00001
+                )
+            )
+        )
+        controller.startAndListenUntilProcessDies()
+        XCTAssertEqual(controller.processStatus(), .terminated(exitCode: SIGTERM))
+    }
+    
     func testWhenSubprocessFinishesSilenceIsNotReported() throws {
         let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: ["/bin/sleep"],
-                maximumAllowedSilenceDuration: 1.0))
+                silenceBehavior: SilenceBehavior(
+                    automaticAction: .noAutomaticAction,
+                    allowedSilenceDuration: 1.0
+                )
+            )
+        )
         let delegate = FakeDelegate()
         controller.delegate = delegate
         controller.startAndListenUntilProcessDies()
@@ -206,7 +297,11 @@ final class ProcessControllerTests: XCTestCase {
         let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: [compiledExecutable],
-                allowedTimeToConsumeStdin: 600,
+                silenceBehavior: SilenceBehavior(
+                    automaticAction: .noAutomaticAction,
+                    allowedSilenceDuration: 0.0,
+                    allowedTimeToConsumeStdin: 600
+                ),
                 stdoutContentsFile: stdoutFile.pathString,
                 stderrContentsFile: stderrFile.pathString,
                 stdinContentsFile: stdinFile.pathString))

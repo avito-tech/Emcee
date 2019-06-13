@@ -46,8 +46,7 @@ public final class ProcessController: CustomStringConvertible {
     public var description: String {
         let executable = process.launchPath ?? "unknown executable"
         let args = process.arguments?.joined(separator: " ") ?? ""
-        let status = isProcessRunning ? "running" : (didStartProcess ? "finished with code \(terminationStatus() ?? -5)" : "not started")
-        return "<\(type(of: self)): \(executable) \(args) \(status)>"
+        return "<\(type(of: self)): \(executable) \(args) \(processStatus())>"
     }
     
     // MARK: - Launch and Kill
@@ -86,11 +85,24 @@ public final class ProcessController: CustomStringConvertible {
         return process.isRunning
     }
     
+    public func processStatus() -> ProcessStatus {
+        if !didStartProcess {
+            return .notStarted
+        }
+        if process.isRunning {
+            return .stillRunning
+        }
+        return .terminated(exitCode: process.terminationStatus)
+    }
+    
+    /// TODO: remove, left for backwards compatibility
     public func terminationStatus() -> Int32? {
-        if !didStartProcess || process.isRunning {
+        switch processStatus() {
+        case .terminated(let exitCode):
+            return exitCode
+        case .notStarted, .stillRunning:
             return nil
         }
-        return process.terminationStatus
     }
     
     public func writeToStdIn(data: Data) throws {
@@ -103,12 +115,12 @@ public final class ProcessController: CustomStringConvertible {
             
             self.stdinHandle?.write(data)
             self.stdinHandle?.write("\n")
-            if self.subprocess.allowedTimeToConsumeStdin > 0 {
+            if self.subprocess.silenceBehavior.allowedTimeToConsumeStdin > 0 {
                 condition.signal()
             }
         }
         
-        if !condition.wait(until: Date().addingTimeInterval(subprocess.allowedTimeToConsumeStdin)) {
+        if !condition.wait(until: Date().addingTimeInterval(subprocess.silenceBehavior.allowedTimeToConsumeStdin)) {
             throw StdinError.didNotConsumeStdinInTime(self)
         }
     }
@@ -148,19 +160,19 @@ public final class ProcessController: CustomStringConvertible {
     // MARK: - Hang Monitoring
     
     private func startMonitoringForHangs() {
-        guard subprocess.maximumAllowedSilenceDuration > 0 else {
-            Logger.debug("Will not track hangs as maximumAllowedSilenceDuration must be positive, but it is \(subprocess.maximumAllowedSilenceDuration)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
+        guard subprocess.silenceBehavior.allowedSilenceDuration > 0 else {
+            Logger.debug("Will not track hangs as allowedSilenceDuration must be positive", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
             return
         }
         
-        Logger.debug("Will track silences with timeout \(subprocess.maximumAllowedSilenceDuration)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
+        Logger.debug("Will track silences with timeout \(subprocess.silenceBehavior.allowedSilenceDuration)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
         
         silenceTrackingTimer = DispatchBasedTimer.startedTimer(repeating: .seconds(1), leeway: .seconds(1)) { [weak self] timer in
             guard let strongSelf = self else {
                 timer.stop()
                 return
             }
-            if Date().timeIntervalSince1970 - strongSelf.lastDataTimestamp > strongSelf.subprocess.maximumAllowedSilenceDuration {
+            if Date().timeIntervalSince1970 - strongSelf.lastDataTimestamp > strongSelf.subprocess.silenceBehavior.allowedSilenceDuration {
                 strongSelf.didDetectLongPeriodOfSilence()
                 timer.stop()
             }
@@ -172,6 +184,17 @@ public final class ProcessController: CustomStringConvertible {
         silenceTrackingTimer = nil
         Logger.error("Detected a long period of silence of \(processName)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
         delegate?.processControllerDidNotReceiveAnyOutputWithinAllowedSilenceDuration(self)
+        
+        switch subprocess.silenceBehavior.automaticAction {
+        case .noAutomaticAction:
+            break
+        case .terminateAndForceKill:
+            terminateAndForceKillIfNeeded()
+        case .interruptAndForceKill:
+            interruptAndForceKillIfNeeded()
+        case .handler(let handler):
+            handler(self)
+        }
     }
     
     private func closeFileHandles() {
