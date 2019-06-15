@@ -48,10 +48,10 @@
       },
       {
         "package": "Shout",
-        "repositoryURL": "https://github.com/beefon/Shout",
+        "repositoryURL": "https://github.com/jakeheis/Shout.git",
         "state": {
-          "branch": "UpdateSocket",
-          "revision": "652b5333133e7c6a26e7874a2732798decbf8f39",
+          "branch": "master",
+          "revision": "40aafa4c4baaf0569349fc9bdae8217b4a67fcfc",
           "version": null
         }
       },
