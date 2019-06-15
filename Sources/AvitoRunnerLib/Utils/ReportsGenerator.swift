@@ -37,10 +37,9 @@ public final class ReportsGenerator {
                         fileLine: "\($0.filePathInProject):\($0.lineNumber)")
                 }
                 let boundaries = JunitTestCaseBoundaries(
-                    processId: testRunResult.processId,
-                    simulatorId: testRunResult.simulatorId,
                     startTime: testRunResult.startTime,
-                    finishTime: testRunResult.finishTime)
+                    finishTime: testRunResult.finishTime
+                )
                 return JunitTestCase(
                     className: testEntryResult.testEntry.testName.className,
                     name: testEntryResult.testEntry.testName.methodName,

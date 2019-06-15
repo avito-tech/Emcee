@@ -10,7 +10,6 @@ public final class TestRunResultFixtures {
             startTime: timestamp,
             finishTime: timestamp,
             hostName: "",
-            processId: 0,
             simulatorId: ""
         )
     }

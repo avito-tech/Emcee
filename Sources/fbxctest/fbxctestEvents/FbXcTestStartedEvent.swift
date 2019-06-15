@@ -6,7 +6,6 @@ public final class FbXcTestStartedEvent: CustomStringConvertible, CommonTestFiel
     private let className: String     // e.g. FunctionalTests.MainPageTest
     private let methodName: String    // test_dataSet0
     public let timestamp: TimeInterval
-    public let processId: Int32?
     public let simulatorId: String?
     
     public init(
@@ -15,7 +14,6 @@ public final class FbXcTestStartedEvent: CustomStringConvertible, CommonTestFiel
         methodName: String,
         timestamp: TimeInterval,
         hostName: String? = nil,
-        processId: Int32? = nil,
         simulatorId: String? = nil
         )
     {
@@ -23,28 +21,15 @@ public final class FbXcTestStartedEvent: CustomStringConvertible, CommonTestFiel
         self.className = className
         self.methodName = methodName
         self.timestamp = timestamp
-        self.processId = processId
         self.simulatorId = simulatorId
     }
-    
-    public func withProcessId(newProcessId: Int32) -> FbXcTestStartedEvent {
-        return FbXcTestStartedEvent(
-            test: test,
-            className: className,
-            methodName: methodName,
-            timestamp: timestamp,
-            processId: newProcessId,
-            simulatorId: simulatorId
-        )
-    }
-    
+
     public func withSimulatorId(newSimulatorId: String) -> FbXcTestStartedEvent {
         return FbXcTestStartedEvent(
             test: test,
             className: className,
             methodName: methodName,
             timestamp: timestamp,
-            processId: processId,
             simulatorId: newSimulatorId
         )
     }

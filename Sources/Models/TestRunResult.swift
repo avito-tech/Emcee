@@ -8,7 +8,6 @@ public final class TestRunResult: Codable, CustomStringConvertible, Equatable {
     public let startTime: TimeInterval
     public let finishTime: TimeInterval
     public let hostName: String
-    public let processId: Int32
     public let simulatorId: String
 
     public init(
@@ -18,7 +17,6 @@ public final class TestRunResult: Codable, CustomStringConvertible, Equatable {
         startTime: TimeInterval,
         finishTime: TimeInterval,
         hostName: String,
-        processId: Int32,
         simulatorId: String
         )
     {
@@ -28,7 +26,6 @@ public final class TestRunResult: Codable, CustomStringConvertible, Equatable {
         self.startTime = startTime
         self.finishTime = finishTime
         self.hostName = hostName
-        self.processId = processId
         self.simulatorId = simulatorId
     }
     
@@ -43,7 +40,6 @@ public final class TestRunResult: Codable, CustomStringConvertible, Equatable {
             && left.startTime == right.startTime
             && left.finishTime == right.finishTime
             && left.hostName == right.hostName
-            && left.processId == right.processId
             && left.simulatorId == right.simulatorId
     }
 }

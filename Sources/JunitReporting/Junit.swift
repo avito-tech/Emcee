@@ -11,14 +11,10 @@ public struct JunitTestCaseFailure {
 }
 
 public struct JunitTestCaseBoundaries {
-    public let processId: Int32
-    public let simulatorId: String
     public let startTime: TimeInterval
     public let finishTime: TimeInterval
 
-    public init(processId: Int32, simulatorId: String, startTime: TimeInterval, finishTime: TimeInterval) {
-        self.processId = processId
-        self.simulatorId = simulatorId
+    public init(startTime: TimeInterval, finishTime: TimeInterval) {
         self.startTime = startTime
         self.finishTime = finishTime
     }
@@ -109,8 +105,6 @@ public final class JunitGenerator {
                 try xmlTestCase.addAttribute(withName: "classname", stringValue: "\(className)")
                 try xmlTestCase.addAttribute(withName: "name", stringValue: "\(testCase.name)")
                 try xmlTestCase.addAttribute(withName: "time", stringValue: "\(testCase.time)")
-                try xmlTestCase.addAttribute(withName: "processId", stringValue: "\(testCase.boundaries.processId)")
-                try xmlTestCase.addAttribute(withName: "simulatorId", stringValue: "\(testCase.boundaries.simulatorId)")
                 xmlTestSuite.addChild(xmlTestCase)
             }
             

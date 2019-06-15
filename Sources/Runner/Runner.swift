@@ -256,7 +256,6 @@ public final class Runner {
                 startTime: startEvent.timestamp,
                 finishTime: finishEvent.timestamp,
                 hostName: LocalHostDeterminer.currentHostAddress,
-                processId: startEvent.processId ?? 0,
                 simulatorId: startEvent.simulatorId ?? "unknown_simulator"
             )
         )
@@ -306,7 +305,6 @@ public final class Runner {
                 startTime: timestamp,
                 finishTime: timestamp,
                 hostName: LocalHostDeterminer.currentHostAddress,
-                processId: 0,
                 simulatorId: "no_simulator"
             )
         )

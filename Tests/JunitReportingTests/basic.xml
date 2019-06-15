@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites name="xctest" tests="1" failures="1">
     <testsuite name="SomeTests" tests="1" failures="1">
-        <testcase classname="SomeTests" name="name" time="10.0" processId="12" simulatorId="sim">
+        <testcase classname="SomeTests" name="name" time="10.0">
             <failure message="a reason">file:12</failure>
         </testcase>
     </testsuite>
