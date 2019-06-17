@@ -95,16 +95,6 @@ public final class ProcessController: CustomStringConvertible {
         return .terminated(exitCode: process.terminationStatus)
     }
     
-    /// TODO: remove, left for backwards compatibility
-    public func terminationStatus() -> Int32? {
-        switch processStatus() {
-        case .terminated(let exitCode):
-            return exitCode
-        case .notStarted, .stillRunning:
-            return nil
-        }
-    }
-    
     public func writeToStdIn(data: Data) throws {
         guard isProcessRunning else { throw StdinError.processIsNotRunning(self) }
         let condition = NSCondition()

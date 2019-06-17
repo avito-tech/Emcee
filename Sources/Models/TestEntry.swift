@@ -47,22 +47,3 @@ public final class TestEntry: CustomStringConvertible, Codable, Hashable {
             && left.caseId == right.caseId
     }
 }
-
-// TODO: delete, left for backwards, compatibility
-public extension TestEntry {
-    convenience init(className: String, methodName: String, tags: [String], caseId: UInt?) {
-        self.init(
-            testName: TestName(className: className, methodName: methodName),
-            tags: tags,
-            caseId: caseId
-        )
-    }
-    
-    var className: String {
-        return testName.className
-    }
-    
-    var methodName: String {
-        return testName.methodName
-    }
-}
