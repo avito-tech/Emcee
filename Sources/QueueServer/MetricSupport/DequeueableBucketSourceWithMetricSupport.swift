@@ -6,12 +6,12 @@ import Metrics
 public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSource {
     private let dequeueableBucketSource: DequeueableBucketSource
     private let jobStateProvider: JobStateProvider
-    private let queueStateProvider: QueueStateProvider
+    private let queueStateProvider: RunningQueueStateProvider
 
     public init(
         dequeueableBucketSource: DequeueableBucketSource,
         jobStateProvider: JobStateProvider,
-        queueStateProvider: QueueStateProvider
+        queueStateProvider: RunningQueueStateProvider
         )
     {
         self.dequeueableBucketSource = dequeueableBucketSource
@@ -39,15 +39,14 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
     private func sendMetrics(
         dequeuedBucket: DequeuedBucket,
         workerId: String
-        )
-    {
+    ) {
         let jobStates = jobStateProvider.allJobStates
-        let queueState = queueStateProvider.state
-        BucketQueueStateLogger(state: queueState).logQueueSize()
+        let runningQueueState = queueStateProvider.runningQueueState
+        BucketQueueStateLogger(runningQueueState: runningQueueState).logQueueSize()
         
         let queueStateMetrics = QueueStateMetricGatherer.metrics(
             jobStates: jobStates,
-            queueState: queueState
+            runningQueueState: runningQueueState
         )
         let bucketAndTestMetrics = [
             DequeueBucketsMetric(workerId: workerId, numberOfBuckets: 1),

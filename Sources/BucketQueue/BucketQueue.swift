@@ -1,6 +1,6 @@
 import Foundation
 import Models
 
-public protocol BucketQueue: BucketResultAccepter, DequeueableBucketSource, QueueStateProvider, StuckBucketsReenqueuer {
+public protocol BucketQueue: BucketResultAccepter, DequeueableBucketSource, EmptyableBucketQueue, RunningQueueStateProvider, StuckBucketsReenqueuer {
     func enqueue(buckets: [Bucket])
 }

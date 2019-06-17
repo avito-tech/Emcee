@@ -247,9 +247,14 @@ final class RunTestsOnRemoteQueueCommand: Command {
         Logger.info("Will now wait for job queue to deplete")
         try SynchronousWaiter.waitWhile(pollPeriod: 30.0, description: "Wait for job queue to deplete") {
             if caughtSignal { return false }
-            let state = try queueClient.jobState(jobId: runId)
-            BucketQueueStateLogger(state: state.queueState).logQueueSize()
-            return !state.queueState.isDepleted
+            let jobState = try queueClient.jobState(jobId: runId)
+            switch jobState.queueState {
+            case .deleted:
+                return false
+            case .running(let runningQueueState):
+                BucketQueueStateLogger(runningQueueState: runningQueueState).logQueueSize()
+                return !runningQueueState.isDepleted
+            }
         }
         Logger.info("Will now fetch job results")
         let results = try queueClient.jobResults(jobId: runId)

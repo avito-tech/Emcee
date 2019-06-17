@@ -163,11 +163,11 @@ public final class QueueServer {
     }
     
     public func waitForBalancingQueueToDeplete() throws {
-        if !balancingBucketQueue.state.isDepleted {
+        if !balancingBucketQueue.runningQueueState.isDepleted {
             Logger.debug("Waiting for bucket queue to deplete with timeout: \(queueExhaustTimeAllowance)")
             try SynchronousWaiter.waitWhile(pollPeriod: 5, timeout: queueExhaustTimeAllowance, description: "Waiting for queue to exhaust") {
                 guard workerAlivenessTracker.hasAnyAliveWorker else { throw QueueServerError.noWorkers }
-                return !balancingBucketQueue.state.isDepleted
+                return !balancingBucketQueue.runningQueueState.isDepleted
             }
         }
     }

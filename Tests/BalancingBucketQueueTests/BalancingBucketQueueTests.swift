@@ -25,7 +25,15 @@ final class BalancingBucketQueueTests: XCTestCase {
         
         XCTAssertEqual(
             try? balancingQueue.state(jobId: jobId),
-            JobState(jobId: jobId, queueState: QueueState(enqueuedBucketCount: 1, dequeuedBucketCount: 0))
+            JobState(
+                jobId: jobId,
+                queueState: QueueState.running(
+                    RunningQueueState(
+                        enqueuedBucketCount: 1,
+                        dequeuedBucketCount: 0
+                    )
+                )
+            )
         )
     }
     
@@ -36,17 +44,46 @@ final class BalancingBucketQueueTests: XCTestCase {
         
         XCTAssertEqual(
             try? balancingQueue.state(jobId: jobId),
-            JobState(jobId: jobId, queueState: QueueState(enqueuedBucketCount: 2, dequeuedBucketCount: 0))
+            JobState(
+                jobId: jobId,
+                queueState: QueueState.running(
+                    RunningQueueState(
+                        enqueuedBucketCount: 2,
+                        dequeuedBucketCount: 0
+                    )
+                )
+            )
         )
     }
     
     func test___deleting_job() {
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
-        
-        XCTAssertNoThrow(_ = try balancingQueue.state(jobId: jobId))
         XCTAssertNoThrow(try balancingQueue.delete(jobId: jobId))
-        XCTAssertThrowsError(_ = try balancingQueue.state(jobId: jobId))
+    }
+    
+    func test___job_state_of_deleted_job() throws {
+        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
+        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        try balancingQueue.delete(jobId: jobId)
+        XCTAssertEqual(
+            try balancingQueue.state(jobId: jobId).queueState,
+            .deleted
+        )
+    }
+    
+    func test___repeated_deletion_of_job_throws() {
+        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
+        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        XCTAssertNoThrow(try balancingQueue.delete(jobId: jobId))
+        XCTAssertThrowsError(try balancingQueue.delete(jobId: jobId))
+    }
+    
+    func test___results_for_deleted_job_available() throws {
+        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
+        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        try balancingQueue.delete(jobId: jobId)
+        XCTAssertNoThrow(_ = try balancingQueue.results(jobId: jobId))
     }
     
     func test___deleting_non_existing_job___throws() throws {
@@ -99,7 +136,15 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
         XCTAssertEqual(
             try? balancingQueue.state(jobId: jobId),
-            JobState(jobId: jobId, queueState: QueueState(enqueuedBucketCount: 0, dequeuedBucketCount: 1))
+            JobState(
+                jobId: jobId,
+                queueState: QueueState.running(
+                    RunningQueueState(
+                        enqueuedBucketCount: 0,
+                        dequeuedBucketCount: 1
+                    )
+                )
+            )
         )
         XCTAssertEqual(
             balancingQueue.dequeueBucket(requestId: anotherRequestId, workerId: workerId),
@@ -113,7 +158,15 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
         XCTAssertEqual(
             try? balancingQueue.state(jobId: anotherJobId),
-            JobState(jobId: anotherJobId, queueState: QueueState(enqueuedBucketCount: 0, dequeuedBucketCount: 1))
+            JobState(
+                jobId: anotherJobId,
+                queueState: QueueState.running(
+                    RunningQueueState(
+                        enqueuedBucketCount: 0, 
+                        dequeuedBucketCount: 1
+                    )
+                )
+            )
         )
     }
     
@@ -215,6 +268,37 @@ final class BalancingBucketQueueTests: XCTestCase {
         
         XCTAssertEqual(acceptanceResult.testingResultToCollect, expectedTestingResult)
         XCTAssertEqual(try balancingQueue.results(jobId: jobId), expectedJobResults)
+    }
+    
+    func test___accepting_results_for_deleted_job___does_not_throw() throws {
+        workerAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [])
+        
+        let testEntry = TestEntryFixtures.testEntry(className: "class1")
+        let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
+        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        _ = balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId)
+        
+        let expectedTestingResult = TestingResultFixtures(
+            manuallySetBucket: bucket,
+            testEntry: testEntry,
+            manuallyTestDestination: bucket.testDestination,
+            unfilteredResults: [
+                TestEntryResult.withResult(
+                    testEntry: testEntry,
+                    testRunResult: TestRunResultFixtures.testRunResult()
+                )
+            ]
+            ).testingResult()
+        
+        try balancingQueue.delete(jobId: jobId)
+        
+        XCTAssertNoThrow(
+            _ = try balancingQueue.accept(
+                testingResult: expectedTestingResult,
+                requestId: requestId,
+                workerId: workerId
+            )
+        )
     }
     
     func test___accepting_results_for_wrong_request_id___throws() throws {

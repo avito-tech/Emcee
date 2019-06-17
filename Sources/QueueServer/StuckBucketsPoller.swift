@@ -8,10 +8,10 @@ import ScheduleStrategy
 import Timer
 
 public final class StuckBucketsPoller {
-    private let statefulStuckBucketsReenqueuer: StuckBucketsReenqueuer & JobStateProvider & QueueStateProvider
+    private let statefulStuckBucketsReenqueuer: StuckBucketsReenqueuer & JobStateProvider & RunningQueueStateProvider
     private let stuckBucketsTrigger = DispatchBasedTimer(repeating: .seconds(1), leeway: .seconds(5))
     
-    public init(statefulStuckBucketsReenqueuer: StuckBucketsReenqueuer & JobStateProvider & QueueStateProvider) {
+    public init(statefulStuckBucketsReenqueuer: StuckBucketsReenqueuer & JobStateProvider & RunningQueueStateProvider) {
         self.statefulStuckBucketsReenqueuer = statefulStuckBucketsReenqueuer
     }
     
@@ -37,11 +37,11 @@ public final class StuckBucketsPoller {
             Logger.warning("-- Bucket \(stuckBucket.bucket.bucketId) is stuck with worker '\(stuckBucket.workerId)': \(stuckBucket.reason)")
         }
         
-        BucketQueueStateLogger(state: statefulStuckBucketsReenqueuer.state).logQueueSize()
+        BucketQueueStateLogger(runningQueueState: statefulStuckBucketsReenqueuer.runningQueueState).logQueueSize()
         MetricRecorder.capture(
             QueueStateMetricGatherer.metrics(
                 jobStates: statefulStuckBucketsReenqueuer.allJobStates,
-                queueState: statefulStuckBucketsReenqueuer.state
+                runningQueueState: statefulStuckBucketsReenqueuer.runningQueueState
             )
         )
     }

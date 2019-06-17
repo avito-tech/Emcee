@@ -33,14 +33,24 @@ final class BucketQueueImpl: BucketQueue {
         }
     }
     
-    public var state: QueueState {
+    public var queueState: QueueState {
         return queue.sync {
             return state_onSyncQueue
         }
     }
+
+    public var runningQueueState: RunningQueueState {
+        return queue.sync {
+            runningQueueState_onSyncQueue
+        }
+    }
     
     private var state_onSyncQueue: QueueState {
-        return QueueState(
+        return QueueState.running(runningQueueState_onSyncQueue)
+    }
+
+    private var runningQueueState_onSyncQueue: RunningQueueState {
+        return RunningQueueState(
             enqueuedBucketCount: enqueuedBuckets.count,
             dequeuedBucketCount: dequeuedBuckets.count
         )
@@ -70,10 +80,10 @@ final class BucketQueueImpl: BucketQueue {
                 return .dequeuedBucket(previouslyDequeuedBucket)
             }
             
-            if state_onSyncQueue.isDepleted {
+            if runningQueueState_onSyncQueue.isDepleted {
                 return .queueIsEmpty
             }
-            if state_onSyncQueue.enqueuedBucketCount == 0 {
+            if runningQueueState_onSyncQueue.enqueuedBucketCount == 0 {
                 return .checkAgainLater(checkAfter: checkAgainTimeInterval)
             }
             
@@ -94,6 +104,13 @@ final class BucketQueueImpl: BucketQueue {
             } else {
                 return .checkAgainLater(checkAfter: checkAgainTimeInterval)
             }
+        }
+    }
+    
+    func removeAllEnqueuedBuckets() {
+        queue.sync {
+            Logger.debug("Removing all enqueued buckets (\(enqueuedBuckets.count) items)")
+            enqueuedBuckets.removeAll()
         }
     }
     

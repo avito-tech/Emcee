@@ -1,4 +1,3 @@
-import Basic
 import BucketQueue
 import DateProvider
 import Dispatch
@@ -9,68 +8,85 @@ import ResultsCollector
 
 final class BalancingBucketQueueImpl: BalancingBucketQueue {
     private let syncQueue = DispatchQueue(label: "ru.avito.emcee.BalancingBucketQueueImpl.syncQueue")
-    private var bucketQueues: SortedArray<JobQueue>
     private let bucketQueueFactory: BucketQueueFactory
     private let nothingToDequeueBehavior: NothingToDequeueBehavior
     
+    private var runningJobQueues_onSyncQueue = [JobQueue]()
+    private var deletedJobQueues_onSyncQueue = [JobQueue]()
+    
     public init(
         bucketQueueFactory: BucketQueueFactory,
-        nothingToDequeueBehavior: NothingToDequeueBehavior)
-    {
-        self.bucketQueues = BalancingBucketQueueImpl.createQueues(contents: [])
+        nothingToDequeueBehavior: NothingToDequeueBehavior
+    ) {
         self.bucketQueueFactory = bucketQueueFactory
         self.nothingToDequeueBehavior = nothingToDequeueBehavior
     }
     
-    private static func createQueues(contents: [JobQueue]) -> SortedArray<JobQueue> {
-        return SortedArray(contents) { leftQueue, rightQueue -> Bool in
-            leftQueue.hasPreeminence(overJobQueue: rightQueue)
-        }
-    }
-    
     func delete(jobId: JobId) throws {
         return try syncQueue.sync {
-            let newContents = bucketQueues.values.filter { $0.prioritizedJob.jobId != jobId }
-            guard newContents.count < bucketQueues.count else {
+            let jobQueuesToDelete = runningJobQueues_onSyncQueue.filter { $0.prioritizedJob.jobId == jobId }
+            guard !jobQueuesToDelete.isEmpty else {
                 throw BalancingBucketQueueError.noQueue(jobId: jobId)
             }
-            bucketQueues = BalancingBucketQueueImpl.createQueues(contents: newContents)
+            for jobQueue in jobQueuesToDelete {
+                jobQueue.bucketQueue.removeAllEnqueuedBuckets()
+            }
+            deletedJobQueues_onSyncQueue.append(contentsOf: jobQueuesToDelete)
+            runningJobQueues_onSyncQueue.removeAll(where: { $0.prioritizedJob.jobId == jobId })
         }
     }
     
     var ongoingJobIds: Set<JobId> {
         let jobIds = syncQueue.sync {
-            bucketQueues.map { $0.prioritizedJob.jobId }
+            runningJobQueues_onSyncQueue.map { $0.prioritizedJob.jobId }
         }
         return Set(jobIds)
     }
     
     func state(jobId: JobId) throws -> JobState {
         return try syncQueue.sync {
-            guard let existingJobQueue = jobQueue__onSyncQueue(jobId: jobId) else {
-                throw BalancingBucketQueueError.noQueue(jobId: jobId)
+            if let existingJobQueue = runningJobQueue_onSyncQueue(jobId: jobId) {
+                return JobState(
+                    jobId: existingJobQueue.prioritizedJob.jobId,
+                    queueState: QueueState.running(existingJobQueue.bucketQueue.runningQueueState)
+                )
             }
-            return JobState(jobId: jobId, queueState: existingJobQueue.bucketQueue.state)
+            
+            if let deletedJobQueue = deletedJobQueue_onSyncQueue(jobId: jobId) {
+                return JobState(
+                    jobId: deletedJobQueue.prioritizedJob.jobId,
+                    queueState: QueueState.deleted
+                )
+            }
+            
+            throw BalancingBucketQueueError.noQueue(jobId: jobId)
         }
     }
     
     func results(jobId: JobId) throws -> JobResults {
         return try syncQueue.sync {
-            guard let existingJobQueue = jobQueue__onSyncQueue(jobId: jobId) else {
-                throw BalancingBucketQueueError.noQueue(jobId: jobId)
+            if let existingJobQueue = runningJobQueue_onSyncQueue(jobId: jobId) {
+                return JobResults(jobId: jobId, testingResults: existingJobQueue.resultsCollector.collectedResults)
             }
-            return JobResults(jobId: jobId, testingResults: existingJobQueue.resultsCollector.collectedResults)
+            if let deletedJobQueue = deletedJobQueue_onSyncQueue(jobId: jobId) {
+                return JobResults(jobId: jobId, testingResults: deletedJobQueue.resultsCollector.collectedResults)
+            }
+            throw BalancingBucketQueueError.noQueue(jobId: jobId)
         }
     }
     
     func enqueue(buckets: [Bucket], prioritizedJob: PrioritizedJob) {
         syncQueue.sync {
             let bucketQueue: BucketQueue
-            if let existingJobQueue = jobQueue__onSyncQueue(jobId: prioritizedJob.jobId) {
+            if let existingJobQueue = runningJobQueue_onSyncQueue(jobId: prioritizedJob.jobId) {
                 bucketQueue = existingJobQueue.bucketQueue
+            } else if let previouslyDeletedJobQueue = deletedJobQueue_onSyncQueue(jobId: prioritizedJob.jobId) {
+                bucketQueue = previouslyDeletedJobQueue.bucketQueue
+                bucketQueue.removeAllEnqueuedBuckets()
+                addJobQueue_onSyncQueue(jobQueue: previouslyDeletedJobQueue)
             } else {
                 bucketQueue = bucketQueueFactory.createBucketQueue()
-                add_onSyncQueue(bucketQueue: bucketQueue, prioritizedJob: prioritizedJob)
+                addNewBucketQueue_onSyncQueue(bucketQueue: bucketQueue, prioritizedJob: prioritizedJob)
             }
             bucketQueue.enqueue(buckets: buckets)
         }
@@ -78,9 +94,8 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
     
     func previouslyDequeuedBucket(requestId: String, workerId: String) -> DequeuedBucket? {
         return syncQueue.sync {
-            let bucketQueues = bucketQueues_onSyncQueue()
-            
-            return bucketQueues
+            return runningJobQueues_onSyncQueue
+                .map { $0.bucketQueue }
                 .compactMap({ $0.previouslyDequeuedBucket(requestId: requestId, workerId: workerId) })
                 .first
         }
@@ -88,7 +103,7 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
     
     func dequeueBucket(requestId: String, workerId: String) -> DequeueResult {
         return syncQueue.sync {
-            let bucketQueues = bucketQueues_onSyncQueue()
+            let bucketQueues = runningJobQueues_onSyncQueue.map { $0.bucketQueue }
             
             if let previouslyDequeuedBucket = bucketQueues
                 .compactMap({ $0.previouslyDequeuedBucket(requestId: requestId, workerId: workerId) })
@@ -113,7 +128,7 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
     
     func accept(testingResult: TestingResult, requestId: String, workerId: String) throws -> BucketQueueAcceptResult {
         return try syncQueue.sync {
-            if let appropriateJobQueue: JobQueue = bucketQueues
+            if let appropriateJobQueue: JobQueue = allJobQueues_onSyncQueue
                 .filter({ jobQueue in
                     jobQueue.bucketQueue.previouslyDequeuedBucket(requestId: requestId, workerId: workerId) != nil
                 })
@@ -137,29 +152,41 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
     }
     
     func reenqueueStuckBuckets() -> [StuckBucket] {
-        let bucketQueues = syncQueue.sync { self.bucketQueues }
+        let bucketQueues = syncQueue.sync { runningJobQueues_onSyncQueue }
         return bucketQueues.flatMap { jobQueue -> [StuckBucket] in
             jobQueue.bucketQueue.reenqueueStuckBuckets()
         }
     }
-    
-    var state: QueueState {
+
+    var runningQueueState: RunningQueueState {
         return syncQueue.sync {
-            let states = bucketQueues_onSyncQueue().map { $0.state }
-            return QueueState(
+            let states = runningJobQueues_onSyncQueue.map { $0.bucketQueue.runningQueueState }
+            return RunningQueueState(
                 enqueuedBucketCount: states.map { $0.enqueuedBucketCount }.reduce(0, +),
                 dequeuedBucketCount: states.map { $0.dequeuedBucketCount }.reduce(0, +)
             )
         }
     }
     
-    private func jobQueue__onSyncQueue(jobId: JobId) -> JobQueue? {
-        return bucketQueues.first(where: { jobQueue -> Bool in jobQueue.prioritizedJob.jobId == jobId })
+    // MARK: - Internals
+    
+    private var allJobQueues_onSyncQueue: [JobQueue] {
+        return runningJobQueues_onSyncQueue + deletedJobQueues_onSyncQueue
+    }
+
+    private func runningJobQueue_onSyncQueue(jobId: JobId) -> JobQueue? {
+        return runningJobQueues_onSyncQueue.first(where: { jobQueue -> Bool in jobQueue.prioritizedJob.jobId == jobId })
     }
     
-    private func add_onSyncQueue(bucketQueue: BucketQueue, prioritizedJob: PrioritizedJob) {
-        bucketQueues.insert(
-            JobQueue(
+    private func deletedJobQueue_onSyncQueue(jobId: JobId) -> JobQueue? {
+        return deletedJobQueues_onSyncQueue.first(where: { jobQueue -> Bool in jobQueue.prioritizedJob.jobId == jobId })
+    }
+    
+    // MARK: Adding new jobs
+    
+    private func addNewBucketQueue_onSyncQueue(bucketQueue: BucketQueue, prioritizedJob: PrioritizedJob) {
+        addJobQueue_onSyncQueue(
+            jobQueue: JobQueue(
                 prioritizedJob: prioritizedJob,
                 creationTime: Date(),
                 bucketQueue: bucketQueue,
@@ -167,8 +194,10 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
             )
         )
     }
-    
-    private func bucketQueues_onSyncQueue() -> [BucketQueue] {
-        return bucketQueues.map { $0.bucketQueue }
+
+    private func addJobQueue_onSyncQueue(jobQueue: JobQueue) {
+        runningJobQueues_onSyncQueue.append(jobQueue)
+        runningJobQueues_onSyncQueue.sort { $0.hasPreeminence(overJobQueue: $1) }
+        deletedJobQueues_onSyncQueue.removeAll(where: { $0.prioritizedJob == jobQueue.prioritizedJob })
     }
 }

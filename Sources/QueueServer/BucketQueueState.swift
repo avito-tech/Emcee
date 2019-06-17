@@ -3,13 +3,13 @@ import Logging
 import Models
 
 public final class BucketQueueStateLogger {
-    private let state: QueueState
+    private let runningQueueState: RunningQueueState
     
-    public init(state: QueueState) {
-        self.state = state
+    public init(runningQueueState: RunningQueueState) {
+        self.runningQueueState = runningQueueState
     }
     
     public func logQueueSize() {
-        Logger.info("Enqueued buckets: \(state.enqueuedBucketCount), dequeued buckets: \(state.dequeuedBucketCount)")
+        Logger.info("Enqueued buckets: \(runningQueueState.enqueuedBucketCount), dequeued buckets: \(runningQueueState.dequeuedBucketCount)")
     }
 }

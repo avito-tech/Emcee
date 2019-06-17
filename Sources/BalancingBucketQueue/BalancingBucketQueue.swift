@@ -11,6 +11,6 @@ public protocol BalancingBucketQueue:
     JobManipulator,
     JobResultsProvider,
     JobStateProvider,
-    QueueStateProvider,
+    RunningQueueStateProvider,
     StuckBucketsReenqueuer
 {}

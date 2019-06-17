@@ -13,6 +13,7 @@ public class FakeBucketQueue: BucketQueue {
     public let fixedStuckBuckets: [StuckBucket]
     public let fixedDequeueResult: DequeueResult
     public var fixedPreviouslyDequeuedBucket: DequeuedBucket?
+    public var removedAllEnqueuedBuckets = false
     
     public init(
         throwsOnAccept: Bool = false,
@@ -25,8 +26,11 @@ public class FakeBucketQueue: BucketQueue {
         self.fixedDequeueResult = fixedDequeueResult
     }
     
-    public var state: QueueState {
-        return QueueState(enqueuedBucketCount: 0, dequeuedBucketCount: 0)
+    public var runningQueueState: RunningQueueState {
+        return RunningQueueState(
+            enqueuedBucketCount: 0,
+            dequeuedBucketCount: 0
+        )
     }
     
     public func enqueue(buckets: [Bucket]) {
@@ -39,6 +43,10 @@ public class FakeBucketQueue: BucketQueue {
     
     public func dequeueBucket(requestId: String, workerId: String) -> DequeueResult {
         return fixedDequeueResult
+    }
+    
+    public func removeAllEnqueuedBuckets() {
+        removedAllEnqueuedBuckets = true
     }
     
     public func accept(testingResult: TestingResult, requestId: String, workerId: String) throws -> BucketQueueAcceptResult {

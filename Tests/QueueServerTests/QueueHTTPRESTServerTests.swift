@@ -222,9 +222,8 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     func test___job_state() throws {
         let jobState = JobState(
             jobId: jobId,
-            queueState: QueueState(
-                enqueuedBucketCount: 24,
-                dequeuedBucketCount: 42
+            queueState: QueueState.running(
+                RunningQueueStateFixtures.runningQueueState()
             )
         )
         let jobStateHandler = FakeRESTEndpoint<JobStateRequest, JobStateResponse>(JobStateResponse(jobState: jobState))

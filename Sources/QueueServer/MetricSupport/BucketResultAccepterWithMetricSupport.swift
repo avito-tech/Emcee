@@ -9,13 +9,13 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
     private let bucketResultAccepter: BucketResultAccepter
     private let eventBus: EventBus
     private let jobStateProvider: JobStateProvider
-    private let queueStateProvider: QueueStateProvider
+    private let queueStateProvider: RunningQueueStateProvider
 
     public init(
         bucketResultAccepter: BucketResultAccepter,
         eventBus: EventBus,
         jobStateProvider: JobStateProvider,
-        queueStateProvider: QueueStateProvider
+        queueStateProvider: RunningQueueStateProvider
         )
     {
         self.bucketResultAccepter = bucketResultAccepter
@@ -43,13 +43,13 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
     
     private func sendMetrics(acceptResult: BucketQueueAcceptResult) {
         let jobStates = jobStateProvider.allJobStates
-        let queueState = queueStateProvider.state
+        let runningQueueState = queueStateProvider.runningQueueState
         
-        BucketQueueStateLogger(state: queueState).logQueueSize()
+        BucketQueueStateLogger(runningQueueState: runningQueueState).logQueueSize()
         
         let queueStateMetrics = QueueStateMetricGatherer.metrics(
             jobStates: jobStates,
-            queueState: queueState
+            runningQueueState: runningQueueState
         )
         
         let testTimeToStartMetrics: [TimeToStartTestMetric] = acceptResult.testingResultToCollect.unfilteredResults.flatMap { testEntryResult -> [TimeToStartTestMetric] in

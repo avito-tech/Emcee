@@ -133,8 +133,7 @@ let package = Package(
                 "DateProvider",
                 "Logging",
                 "Models",
-                "ResultsCollector",
-                "SPMUtility"
+                "ResultsCollector"
             ]
         ),
         .testTarget(

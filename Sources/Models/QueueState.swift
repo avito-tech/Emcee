@@ -1,24 +1,50 @@
 import Foundation
 
-public final class QueueState: Equatable, CustomStringConvertible, Codable {
-    public let enqueuedBucketCount: Int
-    public let dequeuedBucketCount: Int
+public enum QueueState: Equatable, CustomStringConvertible, Codable {
+    /// Queue is executing its buckets normally
+    case running(RunningQueueState)
     
-    public init(enqueuedBucketCount: Int, dequeuedBucketCount: Int) {
-        self.enqueuedBucketCount = enqueuedBucketCount
-        self.dequeuedBucketCount = dequeuedBucketCount
-    }
-    
-    public var isDepleted: Bool {
-        return enqueuedBucketCount == 0 && dequeuedBucketCount == 0
-    }
-    
-    public static func ==(left: QueueState, right: QueueState) -> Bool {
-        return left.enqueuedBucketCount == right.enqueuedBucketCount &&
-            left.dequeuedBucketCount == right.dequeuedBucketCount
-    }
-    
+    /// Queue has been deleted. Its buckets won't be dequeued, but workers may still execute previously dequeued buckets.
+    case deleted
+
     public var description: String {
-        return "<\(type(of: self)): enqueued: \(enqueuedBucketCount), dequeued: \(dequeuedBucketCount)>"
+        switch self {
+        case .running(let runningQueueState):
+            return "<\(type(of: self)) running: \(runningQueueState)>"
+        case .deleted:
+            return "<\(type(of: self)) deleted>"
+        }
+    }
+
+    private enum CaseId: String, Codable {
+        case running
+        case deleted
+    }
+
+    private enum CodingKeys: CodingKey {
+        case caseId
+        case runningQueueState
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let caseId = try container.decode(CaseId.self, forKey: .caseId)
+        switch caseId {
+        case .running:
+            self = .running(try container.decode(RunningQueueState.self, forKey: .runningQueueState))
+        case .deleted:
+            self = .deleted
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .running(let runningQueueState):
+            try container.encode(CaseId.running, forKey: .caseId)
+            try container.encode(runningQueueState, forKey: .runningQueueState)
+        case .deleted:
+            try container.encode(CaseId.deleted, forKey: .caseId)
+        }
     }
 }

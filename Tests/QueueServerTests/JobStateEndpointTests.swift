@@ -1,6 +1,7 @@
 import BalancingBucketQueue
 import Foundation
 import Models
+import ModelsTestHelpers
 import QueueServer
 import RESTMethods
 import XCTest
@@ -10,9 +11,8 @@ final class JobStateEndpointTests: XCTestCase, JobStateProvider {
     private let jobId: JobId = "jobid"
     private lazy var jobState = JobState(
         jobId: jobId,
-        queueState: QueueState(
-            enqueuedBucketCount: 24,
-            dequeuedBucketCount: 42
+        queueState: QueueState.running(
+            RunningQueueStateFixtures.runningQueueState()
         )
     )
     
