@@ -159,10 +159,7 @@ final class ResourceLocationResolverTests: XCTestCase {
     }
     
     private func createFile(name: String, size: Int) throws -> AbsolutePath {
-        var keyData = Data(count: size)
-        _ = keyData.withUnsafeMutableBytes { (mutableBytes: UnsafeMutablePointer<UInt8>) -> Int32 in
-            SecRandomCopyBytes(kSecRandomDefault, size, mutableBytes)
-        }
+        let keyData = Data(repeating: 0, count: size)
         let path = tempFolder.pathWith(components: [name])
         try keyData.write(to: URL(fileURLWithPath: path.pathString), options: .atomicWrite)
         return path

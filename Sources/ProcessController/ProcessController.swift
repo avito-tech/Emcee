@@ -16,7 +16,7 @@ public final class ProcessController: CustomStringConvertible {
     private var silenceTrackingTimer: DispatchBasedTimer?
     private var stdinHandle: FileHandle?
     private let processStdinPipe = Pipe()
-    private static let newLineCharacterData = Data(bytes: [UInt8(10)])
+    private static let newLineCharacterData = Data([UInt8(10)])
     
     private var didStartProcess = false
     public var processId: Int32 = 0

@@ -122,7 +122,7 @@ class QueueClientTests: XCTestCase {
         try prepareServer(RESTMethod.reportAlive.withPrependingSlash) { request -> HttpResponse in
             defer { alivenessReportReceivedExpectation.fulfill() }
             
-            let requestData = Data(bytes: request.body)
+            let requestData = Data(request.body)
             let body = try? JSONDecoder().decode(ReportAliveRequest.self, from: requestData)
             XCTAssertEqual(body?.bucketIdsBeingProcessed, [bucketId])
             
@@ -167,7 +167,7 @@ class QueueClientTests: XCTestCase {
             .testEntryConfigurations()
         
         try prepareServer(RESTMethod.scheduleTests.withPrependingSlash) { request -> HttpResponse in
-            let requestData = Data(bytes: request.body)
+            let requestData = Data(request.body)
             guard let body = try? JSONDecoder().decode(ScheduleTestsRequest.self, from: requestData) else {
                 XCTFail("Queue client request has unexpected type")
                 serverHasProvidedResponseExpectation.isInverted = true

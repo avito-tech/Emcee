@@ -54,7 +54,7 @@ public final class FakeFbxctestExecutableProducer {
         let encoder = JSONEncoder()
         try Data().write(to: URL(fileURLWithPath: jsonPath))
         if let handle = FileHandle(forWritingAtPath: jsonPath) {
-            let newLineCharacterData = Data(bytes: [UInt8(10)])
+            let newLineCharacterData = Data([UInt8(10)])
             for event in events {
                 let data = try encoder.encode(event)
                 handle.write(data)

@@ -15,7 +15,7 @@ public final class QueueServerRequestParser {
         -> HttpResponse
         where T: Decodable, R: Encodable
     {
-        let requestData = Data(bytes: request.body)
+        let requestData = Data(request.body)
         do {
             let object: T = try decoder.decode(T.self, from: requestData)
             return .json(response: try responseProducer(object))
