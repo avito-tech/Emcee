@@ -173,10 +173,16 @@ public final class Scheduler {
             entries: testsToRun,
             simulator: allocatedSimulator.simulator
         )
+        
+        if !runnerResult.testEntryResults.filter({ $0.isLost }).isEmpty {
+            Logger.warning("Some test results are lost")
+            runnerResult.dumpStandardStreams()
+        }
+        
         return TestingResult(
             bucketId: bucket.bucketId,
             testDestination: bucket.testDestination,
-            unfilteredResults: runnerResult
+            unfilteredResults: runnerResult.testEntryResults
         )
     }
     

@@ -75,13 +75,15 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
             tempFolder: tempFolder,
             resourceLocationResolver: resourceLocationResolver
         )
-        _ = try runner.runOnce(
+        let runnerRunResult = try runner.runOnce(
             entriesToRun: [testQueryEntry],
             simulator: allocatedSimulator.simulator
         )
         
         guard let data = try? Data(contentsOf: URL(fileURLWithPath: runtimeEntriesJSONPath.pathString)),
-            let foundTestEntries = try? JSONDecoder().decode([RuntimeTestEntry].self, from: data) else {
+            let foundTestEntries = try? JSONDecoder().decode([RuntimeTestEntry].self, from: data)
+            else {
+                runnerRunResult.dumpStandardStreams()
                 throw TestExplorationError.fileNotFound(runtimeEntriesJSONPath.pathString)
         }
         

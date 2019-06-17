@@ -32,10 +32,10 @@ public final class RunnerTests: XCTestCase {
         // do not stub, simulating a crash/silent exit
         
         let testEntry = TestEntryFixtures.testEntry(className: testClassName, methodName: testMethod)
-        let results = try runTestEntries([testEntry], runId: runId)
+        let runnerRunResults = try runTestEntries([testEntry], runId: runId)
         
-        XCTAssertEqual(results.count, 1)
-        let testResult = results[0]
+        XCTAssertEqual(runnerRunResults.testEntryResults.count, 1)
+        let testResult = runnerRunResults.testEntryResults[0]
         XCTAssertFalse(testResult.succeeded)
         XCTAssertEqual(testResult.testEntry, testEntry)
         XCTAssertEqual(testResult.testRunResults[0].exceptions[0].reason, RunnerConstants.testDidNotRun.rawValue)
@@ -46,10 +46,10 @@ public final class RunnerTests: XCTestCase {
         try stubFbxctestEvent(runId: runId, success: true)
         
         let testEntry = TestEntryFixtures.testEntry(className: testClassName, methodName: testMethod)
-        let results = try runTestEntries([testEntry], runId: runId)
+        let runnerRunResults = try runTestEntries([testEntry], runId: runId)
         
-        XCTAssertEqual(results.count, 1)
-        let testResult = results[0]
+        XCTAssertEqual(runnerRunResults.testEntryResults.count, 1)
+        let testResult = runnerRunResults.testEntryResults[0]
         XCTAssertTrue(testResult.succeeded)
         XCTAssertEqual(testResult.testEntry, testEntry)
     }
@@ -59,10 +59,10 @@ public final class RunnerTests: XCTestCase {
         try stubFbxctestEvent(runId: runId, success: false)
         
         let testEntry = TestEntryFixtures.testEntry(className: testClassName, methodName: testMethod)
-        let results = try runTestEntries([testEntry], runId: runId)
+        let runnerRunResults = try runTestEntries([testEntry], runId: runId)
         
-        XCTAssertEqual(results.count, 1)
-        let testResult = results[0]
+        XCTAssertEqual(runnerRunResults.testEntryResults.count, 1)
+        let testResult = runnerRunResults.testEntryResults[0]
         XCTAssertFalse(testResult.succeeded)
         XCTAssertEqual(testResult.testEntry, testEntry)
         XCTAssertEqual(
@@ -83,15 +83,15 @@ public final class RunnerTests: XCTestCase {
         try stubFbxctestEvent(runId: runId, success: true, runIndex: 1)
         
         let testEntry = TestEntryFixtures.testEntry(className: testClassName, methodName: testMethod)
-        let results = try runTestEntries([testEntry], runId: runId)
+        let runnerRunResults = try runTestEntries([testEntry], runId: runId)
         
-        XCTAssertEqual(results.count, 1)
-        let testResult = results[0]
+        XCTAssertEqual(runnerRunResults.testEntryResults.count, 1)
+        let testResult = runnerRunResults.testEntryResults[0]
         XCTAssertTrue(testResult.succeeded)
         XCTAssertEqual(testResult.testEntry, testEntry)
     }
     
-    private func runTestEntries(_ testEntries: [TestEntry], runId: String) throws -> [TestEntryResult] {
+    private func runTestEntries(_ testEntries: [TestEntry], runId: String) throws -> RunnerRunResult {
         let runner = Runner(
             eventBus: EventBus(),
             configuration: try createRunnerConfig(runId: runId),

@@ -20,9 +20,7 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
         singleTestMaximumDuration: TimeInterval,
         onTestStarted: @escaping ((FbXcTestStartedEvent) -> ()),
         onTestStopped: @escaping ((FbXcTestEventPair) -> ())
-        )
-        throws
-    {
+    ) throws {
         self.simulatorId = simulatorId
         self.singleTestMaximumDuration = singleTestMaximumDuration
         self.eventsListener = FbXcTestEventsListener(onTestStarted: onTestStarted, onTestStopped: onTestStopped)
@@ -39,8 +37,8 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
         return eventsListener.allEventPairs
     }
     
-    public var processId: Int32 {
-        return processController.processId
+    public var subprocess: Subprocess {
+        return processController.subprocess
     }
     
     // MARK: - Hang detection
@@ -52,11 +50,11 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
 
     private func startMonitoringForHangs() {
         guard singleTestMaximumDuration > 0 else {
-            log_fbxctest("Can't track hangs as singleTestMaximumDuration must be positive, but it is \(singleTestMaximumDuration)", processId)
+            log_fbxctest("Can't track hangs as singleTestMaximumDuration must be positive, but it is \(singleTestMaximumDuration)")
             return
         }
         
-        log_fbxctest("Will track long running tests with timeout \(singleTestMaximumDuration)", processId)
+        log_fbxctest("Will track long running tests with timeout \(singleTestMaximumDuration)")
         
         testHangTrackingTimer = DispatchBasedTimer.startedTimer(repeating: .seconds(1), leeway: .seconds(1)) { [weak self] _ in
             guard let strongSelf = self else { return }
@@ -69,7 +67,7 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
     
     private func didDetectLongRunningTest() {
         if let testStartedEvent = eventsListener.lastStartedButNotFinishedTestEventPair?.startEvent {
-            log_fbxctest("Detected a long running test: \(testStartedEvent.testName)", processId)
+            log_fbxctest("Detected a long running test: \(testStartedEvent.testName)")
             eventsListener.longRunningTest()
         }
         processController.interruptAndForceKillIfNeeded()
@@ -81,23 +79,23 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
     
     public func processController(_ sender: ProcessController, newStdoutData data: Data) {
         let joinedData: Data
-        if let processData = notParsedEventDataPerProcess[processId] {
+        if let processData = notParsedEventDataPerProcess[processController.processId] {
             joinedData = processData + data
         } else {
             joinedData = data
         }
-        notParsedEventDataPerProcess.removeValue(forKey: processId)
+        notParsedEventDataPerProcess.removeValue(forKey: processController.processId)
         
         let possibleEvents = joinedData.split(separator: newLineByte)
         
         var notProcessedData = Data()
         possibleEvents.forEach { eventData in
-            if !self.processSingleLiveEvent(data: eventData, processId: processId) {
+            if !self.processSingleLiveEvent(data: eventData, processId: processController.processId) {
                 notProcessedData.append(eventData)
             }
         }
         if !notProcessedData.isEmpty {
-            notParsedEventDataPerProcess[processId] = notProcessedData
+            notParsedEventDataPerProcess[processController.processId] = notProcessedData
         }
     }
     
@@ -154,7 +152,7 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
         }
         
         if let event = String(data: data, encoding: .utf8) {
-            log_fbxctest("WARNING: unprocessed event: " + event, processId)
+            log_fbxctest("WARNING: unprocessed event: " + event)
         }
         return true
     }
@@ -164,7 +162,7 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
     public func processController(_ sender: ProcessController, newStderrData data: Data) {
         let possibleEvents = data.split(separator: newLineByte)
         possibleEvents.forEach { eventData in
-            self.processSingleStdErrLiveEvent(data: eventData, processId: processId)
+            self.processSingleStdErrLiveEvent(data: eventData, processId: processController.processId)
         }
     }
     
@@ -210,17 +208,17 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
             errorText.hasPrefix("A shim directory was expected at") {
             // skip
         } else {
-            log_fbxctest(contents, processId)
+            log_fbxctest(contents)
         }
     }
-}
-
-private func log_fbxctest(_ text: String, _ fbxctestProcessId: Int32) {
-    Logger.verboseDebug(
-        text,
-        subprocessInfo: SubprocessInfo(
-            subprocessId: fbxctestProcessId,
-            subprocessName: "fbxctest"
+    
+    private func log_fbxctest(_ text: String) {
+        Logger.verboseDebug(
+            text,
+            subprocessInfo: SubprocessInfo(
+                subprocessId: processController.processId,
+                subprocessName: "fbxctest"
+            )
         )
-    )
+    }
 }

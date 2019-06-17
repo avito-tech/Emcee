@@ -34,9 +34,14 @@ public final class Runner {
     public func run(
         entries: [TestEntry],
         simulator: Simulator
-        ) throws -> [TestEntryResult]
-    {
-        if entries.isEmpty { return [] }
+    ) throws -> RunnerRunResult {
+        if entries.isEmpty {
+            return RunnerRunResult(
+                entriesToRun: entries,
+                testEntryResults: [],
+                subprocessStandardStreamsCaptureConfig: nil
+            )
+        }
         
         let runResult = RunResult()
         
@@ -51,17 +56,21 @@ public final class Runner {
         // is promblem in them, not in infrastructure.
         
         var reviveAttempt = 0
+        var lastSubprocessStandardStreamsCaptureConfig: StandardStreamsCaptureConfig? = nil
         while runResult.nonLostTestEntryResults.count < entries.count, reviveAttempt <= numberOfAttemptsToRevive {
             let entriesToRun = missingEntriesForScheduledEntries(
                 expectedEntriesToRun: entries,
-                collectedResults: runResult)
+                collectedResults: runResult
+            )
             let runResults = try runOnce(
                 entriesToRun: entriesToRun,
                 simulator: simulator
             )
-            runResult.append(testEntryResults: runResults)
+            lastSubprocessStandardStreamsCaptureConfig = runResults.subprocessStandardStreamsCaptureConfig
             
-            if runResults.filter({ !$0.isLost }).isEmpty {
+            runResult.append(testEntryResults: runResults.testEntryResults)
+            
+            if runResults.testEntryResults.filter({ !$0.isLost }).isEmpty {
                 // Here, if we do not receive events at all, we will get 0 results. We try to revive a limited number of times.
                 reviveAttempt += 1
                 Logger.warning("Got no results. Attempting to revive #\(reviveAttempt) out of allowed \(numberOfAttemptsToRevive) attempts to revive")
@@ -71,18 +80,25 @@ public final class Runner {
             }
         }
         
-        return testEntryResults(runResult: runResult)
+        return RunnerRunResult(
+            entriesToRun: entries,
+            testEntryResults: testEntryResults(runResult: runResult),
+            subprocessStandardStreamsCaptureConfig: lastSubprocessStandardStreamsCaptureConfig
+        )
     }
     
-    /** Runs the given tests once without any attempts to restart the failed/crashed tests. */
+    /// Runs the given tests once without any attempts to restart the failed or crashed tests.
     public func runOnce(
         entriesToRun: [TestEntry],
         simulator: Simulator
-        ) throws -> [TestEntryResult]
-    {
+    ) throws -> RunnerRunResult {
         if entriesToRun.isEmpty {
             Logger.info("Nothing to run!")
-            return []
+            return RunnerRunResult(
+                entriesToRun: entriesToRun,
+                testEntryResults: [],
+                subprocessStandardStreamsCaptureConfig: nil
+            )
         }
         
         Logger.info("Will run \(entriesToRun.count) tests on simulator \(simulator)")
@@ -117,7 +133,11 @@ public final class Runner {
         Logger.info("Attempted to run \(entriesToRun.count) tests on simulator \(simulator): \(entriesToRun)")
         Logger.info("Did get \(result.count) results: \(result)")
         
-        return result
+        return RunnerRunResult(
+            entriesToRun: entriesToRun,
+            testEntryResults: result,
+            subprocessStandardStreamsCaptureConfig: fbxctestOutputProcessor.subprocess.standardStreamsCaptureConfig
+        )
     }
     
     private func fbxctestArguments(entriesToRun: [TestEntry], simulator: Simulator) throws -> [SubprocessArgument] {
@@ -365,7 +385,6 @@ public final class Runner {
             )
         )
     }
-    
 }
 
 private extension TestType {

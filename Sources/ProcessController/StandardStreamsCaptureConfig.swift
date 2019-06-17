@@ -13,6 +13,6 @@ public final class StandardStreamsCaptureConfig {
         let uuid = UUID().uuidString
         self.stdoutContentsFile = stdoutContentsFile ?? NSTemporaryDirectory().appending("\(uuid)_stdout.log")
         self.stderrContentsFile = stderrContentsFile ?? NSTemporaryDirectory().appending("\(uuid)_stderr.log")
-        self.stdinContentsFile = stdinContentsFile ?? NSTemporaryDirectory().appending("\(uuid)_stderr.log")
+        self.stdinContentsFile = stdinContentsFile ?? NSTemporaryDirectory().appending("\(uuid)_stdin.log")
     }
 }
