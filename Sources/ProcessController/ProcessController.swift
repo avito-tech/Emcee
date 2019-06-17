@@ -5,7 +5,7 @@ import Logging
 import Timer
 
 public final class ProcessController: CustomStringConvertible {
-    private let subprocess: Subprocess
+    public let subprocess: Subprocess
     private let process: Process
     public let processName: String
     private var didInitiateKillOfProcess = false
@@ -208,18 +208,13 @@ public final class ProcessController: CustomStringConvertible {
     }
     
     private func setUpProcessListening() {
-        let uuid = UUID().uuidString
-        let stdoutContentsFile = subprocess.stdoutContentsFile ?? NSTemporaryDirectory().appending("\(uuid)_\(processName)_stdout.txt")
-        let stderrContentsFile = subprocess.stderrContentsFile ?? NSTemporaryDirectory().appending("\(uuid)_\(processName)_stderr.txt")
-        let stdinContentsFile = subprocess.stdinContentsFile ?? NSTemporaryDirectory().appending("\(uuid)_\(processName)_stdin.txt")
-        
         storeStdForProcess(
-            path: stdoutContentsFile,
+            path: subprocess.standardStreamsCaptureConfig.stdoutContentsFile,
             onError: { message in
                 Logger.warning("Will not store stdout output: \(message)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
             },
             pipeAssigningClosure: { pipe in
-                Logger.debug("Will store stdout output at: \(stdoutContentsFile)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
+                Logger.debug("Will store stdout output at: \(subprocess.standardStreamsCaptureConfig.stdoutContentsFile)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
                 self.process.standardOutput = pipe
             },
             onNewData: { data in
@@ -228,12 +223,12 @@ public final class ProcessController: CustomStringConvertible {
         )
         
         storeStdForProcess(
-            path: stderrContentsFile,
+            path: subprocess.standardStreamsCaptureConfig.stderrContentsFile,
             onError: { message in
                 Logger.warning("Will not store stderr output: \(message)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
             },
             pipeAssigningClosure: { pipe in
-                Logger.debug("Will store stderr output at: \(stderrContentsFile)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
+                Logger.debug("Will store stderr output at: \(subprocess.standardStreamsCaptureConfig.stderrContentsFile)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
                 self.process.standardError = pipe
             },
             onNewData: { data in
@@ -241,10 +236,10 @@ public final class ProcessController: CustomStringConvertible {
             }
         )
         
-        if FileManager.default.createFile(atPath: stdinContentsFile, contents: nil),
-            let stdinHandle = FileHandle(forWritingAtPath: stdinContentsFile)
+        if FileManager.default.createFile(atPath: subprocess.standardStreamsCaptureConfig.stdinContentsFile, contents: nil),
+            let stdinHandle = FileHandle(forWritingAtPath: subprocess.standardStreamsCaptureConfig.stdinContentsFile)
         {
-            Logger.debug("Will store stdin input at: \(stdinContentsFile)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
+            Logger.debug("Will store stdin input at: \(subprocess.standardStreamsCaptureConfig.stdinContentsFile)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
             self.stdinHandle = stdinHandle
         } else {
             Logger.warning("Will not store stdin input at file, failed to open a file handle", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))

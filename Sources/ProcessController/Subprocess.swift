@@ -4,10 +4,8 @@ public class Subprocess: CustomStringConvertible {
     public let arguments: [SubprocessArgument]
     public let environment: [String: String]
     public let silenceBehavior: SilenceBehavior
-    public let stdoutContentsFile: String?
-    public let stderrContentsFile: String?
-    public let stdinContentsFile: String?
-
+    public let standardStreamsCaptureConfig: StandardStreamsCaptureConfig
+    
     public init(
         arguments: [SubprocessArgument],
         environment: [String: String] = [:],
@@ -16,16 +14,12 @@ public class Subprocess: CustomStringConvertible {
             allowedSilenceDuration: 0.0,
             allowedTimeToConsumeStdin: 30
         ),
-        stdoutContentsFile: String? = nil,
-        stderrContentsFile: String? = nil,
-        stdinContentsFile: String? = nil)
-    {
+        standardStreamsCaptureConfig: StandardStreamsCaptureConfig = StandardStreamsCaptureConfig()
+    ) {
         self.arguments = arguments
         self.environment = environment
         self.silenceBehavior = silenceBehavior
-        self.stdoutContentsFile = stdoutContentsFile
-        self.stderrContentsFile = stderrContentsFile
-        self.stdinContentsFile = stdinContentsFile
+        self.standardStreamsCaptureConfig = standardStreamsCaptureConfig
     }
     
     public var description: String {

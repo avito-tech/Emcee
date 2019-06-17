@@ -132,7 +132,11 @@ final class ProcessControllerTests: XCTestCase {
         let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: ["/bin/ls", "/"],
-                stdoutContentsFile: tempFile.path.pathString))
+                standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
+                    stdoutContentsFile: tempFile.path.pathString
+                )
+            )
+        )
         controller.startAndListenUntilProcessDies()
         
         let data = try Data(contentsOf: URL(fileURLWithPath: tempFile.path.pathString))
@@ -150,7 +154,11 @@ final class ProcessControllerTests: XCTestCase {
         let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: ["/bin/ls", argument],
-                stderrContentsFile: tempFile.path.pathString))
+                standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
+                    stderrContentsFile: tempFile.path.pathString
+                )
+            )
+        )
         controller.startAndListenUntilProcessDies()
         
         let data = try Data(contentsOf: URL(fileURLWithPath: tempFile.path.pathString))
@@ -159,8 +167,9 @@ final class ProcessControllerTests: XCTestCase {
             return
         }
         XCTAssertEqual(
-            string.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines),
-            "ls: \(argument): No such file or directory")
+            string,
+            "ls: \(argument): No such file or directory\n"
+        )
     }
     
     func testGettingStdoutAndStderr() throws {
@@ -171,8 +180,12 @@ final class ProcessControllerTests: XCTestCase {
         let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: ["/bin/ls", "/", argument],
-                stdoutContentsFile: stdoutFile.path.pathString,
-                stderrContentsFile: stderrFile.path.pathString))
+                standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
+                    stdoutContentsFile: stdoutFile.path.pathString,
+                    stderrContentsFile: stderrFile.path.pathString
+                )
+            )
+        )
         controller.startAndListenUntilProcessDies()
         
         let stdoutData = try Data(contentsOf: URL(fileURLWithPath: stdoutFile.path.pathString))
@@ -302,9 +315,13 @@ final class ProcessControllerTests: XCTestCase {
                     allowedSilenceDuration: 0.0,
                     allowedTimeToConsumeStdin: 600
                 ),
-                stdoutContentsFile: stdoutFile.pathString,
-                stderrContentsFile: stderrFile.pathString,
-                stdinContentsFile: stdinFile.pathString))
+                standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
+                    stdoutContentsFile: stdoutFile.pathString,
+                    stderrContentsFile: stderrFile.pathString,
+                    stdinContentsFile: stdinFile.pathString
+                )
+            )
+        )
         controller.delegate = delegate
         controller.start()
         return controller
