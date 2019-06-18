@@ -11,67 +11,46 @@ public struct TestDestination: Hashable, CustomStringConvertible, Codable {
     public var iOSVersion: String {
         return runtime
     }
-    
-    /// Defines how many resources is required for each test
-    public let resourceRequirement: Int
-    
-    public static let defaultResourceRequirement = 1
 
     public init(
         deviceType: String,
-        runtime: String,
-        resourceRequirement: Int = TestDestination.defaultResourceRequirement) throws
-    {
+        runtime: String
+    ) throws {
         self.deviceType = deviceType
         self.runtime = try TestDestination.validateRuntime(runtime)
-        guard resourceRequirement >= 1 else { throw ResourceRequirementError.invalidRequirement(resourceRequirement) }
-        self.resourceRequirement = resourceRequirement
     }
     
     enum CodingKeys: CodingKey {
         case deviceType
         case runtime
         case iOSVersion
-        case resourceRequirement
     }
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let deviceType = try container.decode(String.self, forKey: .deviceType)
         let runtime = try (try container.decodeIfPresent(String.self, forKey: .runtime)) ?? (try container.decode(String.self, forKey: .iOSVersion))
-        let resourceRequirement = try container.decodeIfPresent(Int.self, forKey: .resourceRequirement)
-        
+
         try self.init(
             deviceType: deviceType,
-            runtime: runtime,
-            resourceRequirement: resourceRequirement ?? TestDestination.defaultResourceRequirement)
+            runtime: runtime
+        )
     }
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(deviceType, forKey: .deviceType)
         try container.encode(runtime, forKey: .runtime)
-        try container.encode(resourceRequirement, forKey: .resourceRequirement)
     }
     
     public var description: String {
-        return "<\(type(of: self)) '\(deviceType), \(runtime), resource requirement: \(resourceRequirement)'>"
+        return "<\(type(of: self)) \(deviceType), \(runtime)>"
     }
     
     public var destinationString: String {
         return "name=\(deviceType),OS=iOS \(runtime)"
     }
-    
-    private enum ResourceRequirementError: Error, CustomStringConvertible {
-        case invalidRequirement(Int)
-        var description: String {
-            switch self {
-            case .invalidRequirement(let amount):
-                return "Invalid resource requirement: '\(amount)'. Minimum allowed value is '1'."
-            }
-        }
-    }
-    
+
     private static func validateRuntime(_ runtime: String) throws -> String {
         // Apple APIs return "patchless" Simulator version. E.g. for 10.3.1 it returns iOS 10.3.
         // Thus, when we ask runtime to be 10.3.1, fbxctest can't locate 10.3.1 runtime inside predicate.

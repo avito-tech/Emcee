@@ -56,7 +56,9 @@ public final class Scheduler {
     // MARK: - Running on Queue
     
     private func startFetchingAndRunningTests() {
-        fetchAndRunBucket()
+        for _ in 0 ..< configuration.testRunExecutionBehavior.numberOfSimulators {
+            fetchAndRunBucket()
+        }
     }
     
     private func fetchAndRunBucket() {
@@ -82,13 +84,11 @@ public final class Scheduler {
     
     private func runTestsFromFetchedBucket(_ bucket: SchedulerBucket) {
         do {
-            let resourceRequirement = bucket.testDestination.resourceRequirement
-            let acquireResources = try resourceSemaphore.acquire(.of(runningTests: resourceRequirement))
+            let acquireResources = try resourceSemaphore.acquire(.of(runningTests: 1))
             let runTestsInBucketAfterAcquiringResources = BlockOperation {
                 do {
-                    self.fetchAndRunBucket()
                     let testingResult = try self.runRetrying(bucket: bucket)
-                    try self.resourceSemaphore.release(.of(runningTests: resourceRequirement))
+                    try self.resourceSemaphore.release(.of(runningTests: 1))
                     self.didReceiveResults(testingResult: testingResult)
                     self.schedulerDelegate?.scheduler(self, obtainedTestingResult: testingResult, forBucket: bucket)
                     self.fetchAndRunBucket()
