@@ -83,7 +83,8 @@ public final class LoggingSetup {
             fileHandle: FileHandle.standardError,
             verbosity: verbosity,
             logEntryTextFormatter: NSLogLikeLogEntryTextFormatter(),
-            supportsAnsiColors: true
+            supportsAnsiColors: true,
+            fileHandleShouldBeClosed: false
         )
     }
     
@@ -92,7 +93,8 @@ public final class LoggingSetup {
             fileHandle: fileHandle,
             verbosity: Verbosity.verboseDebug,
             logEntryTextFormatter: NSLogLikeLogEntryTextFormatter(),
-            supportsAnsiColors: false
+            supportsAnsiColors: false,
+            fileHandleShouldBeClosed: true
         )
     }
     

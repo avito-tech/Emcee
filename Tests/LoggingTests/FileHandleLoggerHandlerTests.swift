@@ -10,7 +10,8 @@ final class FileHandleLoggerHandlerTests: XCTestCase {
         fileHandle: tempFile.fileHandle,
         verbosity: .info,
         logEntryTextFormatter: SimpleLogEntryTextFormatter(),
-        supportsAnsiColors: false
+        supportsAnsiColors: false,
+        fileHandleShouldBeClosed: true
     )
     
     func test___handling_higher_verbosity_entries___writes_to_file_handler() throws {
@@ -50,6 +51,49 @@ final class FileHandleLoggerHandlerTests: XCTestCase {
             try tempFileContents(),
             ""
         )
+    }
+    
+    func test___non_closable_file___is_not_closed() throws {
+        let fileHandler = FakeFileHandle()
+        let loggerHandler = FileHandleLoggerHandler(
+            fileHandle: fileHandler,
+            verbosity: .always,
+            logEntryTextFormatter: SimpleLogEntryTextFormatter(),
+            supportsAnsiColors: false,
+            fileHandleShouldBeClosed: false
+        )
+        loggerHandler.tearDownLogging(timeout: 10)
+        
+        XCTAssertFalse(fileHandler.isClosed)
+    }
+    
+    func test___closable_file___is_closed() throws {
+        let fileHandler = FakeFileHandle()
+        let loggerHandler = FileHandleLoggerHandler(
+            fileHandle: fileHandler,
+            verbosity: .always,
+            logEntryTextFormatter: SimpleLogEntryTextFormatter(),
+            supportsAnsiColors: false,
+            fileHandleShouldBeClosed: true
+        )
+        loggerHandler.tearDownLogging(timeout: 10)
+        
+        XCTAssertTrue(fileHandler.isClosed)
+    }
+    
+    func test___closable_file___is_closed_only_once() throws {
+        let fileHandler = FakeFileHandle()
+        let loggerHandler = FileHandleLoggerHandler(
+            fileHandle: fileHandler,
+            verbosity: .always,
+            logEntryTextFormatter: SimpleLogEntryTextFormatter(),
+            supportsAnsiColors: false,
+            fileHandleShouldBeClosed: true
+        )
+        loggerHandler.tearDownLogging(timeout: 10)
+        loggerHandler.tearDownLogging(timeout: 10)
+        
+        XCTAssertEqual(fileHandler.closeCounter, 1)
     }
     
     private func tempFileContents() throws -> String {

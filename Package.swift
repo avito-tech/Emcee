@@ -492,6 +492,7 @@ let package = Package(
             name: "Logging",
             dependencies: [
                 "Ansi",
+                "AtomicModels",
                 "Extensions"
             ]
         ),
