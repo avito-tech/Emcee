@@ -56,7 +56,8 @@ final class BucketProviderTests: XCTestCase {
             enqueuedBucket: EnqueuedBucket(
                 bucket: BucketFixtures.createBucket(
                     testEntries: [TestEntryFixtures.testEntry(className: "class", methodName: "test")]),
-                enqueueTimestamp: Date()
+                enqueueTimestamp: Date(),
+                uniqueIdentifier: "identifier"
             ),
             workerId: "worker",
             requestId: "request")

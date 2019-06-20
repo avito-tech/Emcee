@@ -10,6 +10,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
     private let failingWorkerId = "failingWorkerId"
     private let notFailingWorkerId = "notFailingWorkerId"
     private let fixedDate = Date()
+    private let fixedIdentifier = "identifier"
     
     private lazy var aliveWorkers = [failingWorkerId, notFailingWorkerId]
     
@@ -97,7 +98,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         let bucketToDequeue = testHistoryTracker.bucketToDequeue(
             workerId: failingWorkerId,
             queue: [
-                EnqueuedBucket(bucket: oneFailResultsFixtures.bucket, enqueueTimestamp: fixedDate)
+                EnqueuedBucket(bucket: oneFailResultsFixtures.bucket, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier)
             ],
             aliveWorkers: aliveWorkers
         )
@@ -117,7 +118,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         let bucketToDequeue = testHistoryTracker.bucketToDequeue(
             workerId: failingWorkerId,
             queue: [
-                EnqueuedBucket(bucket: oneFailResultsFixtures.bucket, enqueueTimestamp: fixedDate)
+                EnqueuedBucket(bucket: oneFailResultsFixtures.bucket, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier)
             ],
             aliveWorkers: aliveWorkers
         )
@@ -140,8 +141,8 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         let bucketToDequeue = testHistoryTracker.bucketToDequeue(
             workerId: failingWorkerId,
             queue: [
-                EnqueuedBucket(bucket: oneFailResultsFixtures.bucket, enqueueTimestamp: fixedDate),
-                EnqueuedBucket(bucket: notFailedBucket, enqueueTimestamp: fixedDate)
+                EnqueuedBucket(bucket: oneFailResultsFixtures.bucket, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier),
+                EnqueuedBucket(bucket: notFailedBucket, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier)
             ],
             aliveWorkers: aliveWorkers
         )
@@ -162,7 +163,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         let bucketToDequeue = testHistoryTracker.bucketToDequeue(
             workerId: notFailingWorkerId,
             queue: [
-                EnqueuedBucket(bucket: oneFailResultsFixtures.bucket, enqueueTimestamp: fixedDate),
+                EnqueuedBucket(bucket: oneFailResultsFixtures.bucket, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier),
             ],
             aliveWorkers: aliveWorkers
         )
@@ -175,7 +176,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         _ = tracker.bucketToDequeue(
             workerId: failingWorkerId,
             queue: [
-                EnqueuedBucket(bucket: oneFailResultsFixtures.bucket, enqueueTimestamp: fixedDate),
+                EnqueuedBucket(bucket: oneFailResultsFixtures.bucket, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier),
             ],
             aliveWorkers: aliveWorkers
         )

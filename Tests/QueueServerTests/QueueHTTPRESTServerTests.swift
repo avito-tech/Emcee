@@ -66,7 +66,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             ]
         )
         let dequeuedBucket = DequeuedBucket(
-            enqueuedBucket: EnqueuedBucket(bucket: bucket, enqueueTimestamp: Date()),
+            enqueuedBucket: EnqueuedBucket(bucket: bucket, enqueueTimestamp: Date(), uniqueIdentifier: UUID().uuidString),
             workerId: workerId,
             requestId: requestId
         )

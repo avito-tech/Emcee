@@ -22,13 +22,13 @@ public final class RunnerTests: XCTestCase {
     var tempFolder: TempFolder!
     let testExceptionEvent = FbXcTestExceptionEvent(reason: "a reason", filePathInProject: "file", lineNumber: 12)
     let resolver = ResourceLocationResolver()
+    let runId = UUID().uuidString
     
     public override func setUp() {
         XCTAssertNoThrow(tempFolder = try TempFolder())
     }
     
     func testRunningTestWithoutAnyFeedbackEventsGivesFailureResults() throws {
-        let runId = UUID().uuidString
         // do not stub, simulating a crash/silent exit
         
         let testEntry = TestEntryFixtures.testEntry(className: testClassName, methodName: testMethod)
@@ -42,7 +42,6 @@ public final class RunnerTests: XCTestCase {
     }
 
     func testRunningSuccessfulTestGivesPositiveResults() throws {
-        let runId = UUID().uuidString
         try stubFbxctestEvent(runId: runId, success: true)
         
         let testEntry = TestEntryFixtures.testEntry(className: testClassName, methodName: testMethod)
@@ -55,7 +54,6 @@ public final class RunnerTests: XCTestCase {
     }
     
     func testRunningFailedTestGivesNegativeResults() throws {
-        let runId = UUID().uuidString
         try stubFbxctestEvent(runId: runId, success: false)
         
         let testEntry = TestEntryFixtures.testEntry(className: testClassName, methodName: testMethod)
@@ -71,7 +69,6 @@ public final class RunnerTests: XCTestCase {
     }
     
     func testRunningCrashedTestRevivesItAndIfTestSuccedsReturnsPositiveResults() throws {
-        let runId = UUID().uuidString
         try FakeFbxctestExecutableProducer.setFakeOutputEvents(runId: runId, runIndex: 0, [
             AnyEncodableWrapper(
                 FbXcTestStartedEvent(

@@ -3,6 +3,7 @@ import Dispatch
 import Foundation
 import Logging
 import Models
+import UniqueIdentifierGenerator
 import WorkerAlivenessTracker
 
 final class BucketQueueImpl: BucketQueue {
@@ -13,17 +14,20 @@ final class BucketQueueImpl: BucketQueue {
     private let queue = DispatchQueue(label: "ru.avito.emcee.BucketQueue.queue")
     private let workerAlivenessProvider: WorkerAlivenessProvider
     private let checkAgainTimeInterval: TimeInterval
+    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     
     public init(
         checkAgainTimeInterval: TimeInterval,
         dateProvider: DateProvider,
         testHistoryTracker: TestHistoryTracker,
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         workerAlivenessProvider: WorkerAlivenessProvider
         )
     {
         self.checkAgainTimeInterval = checkAgainTimeInterval
         self.dateProvider = dateProvider
         self.testHistoryTracker = testHistoryTracker
+        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.workerAlivenessProvider = workerAlivenessProvider
     }
     
@@ -237,7 +241,11 @@ final class BucketQueueImpl: BucketQueue {
         let positionLimit = self.enqueuedBuckets.count
         let positionToInsert = min(positionJustAfterNextBucket, positionLimit)
         let enqueuedBuckets = buckets.map {
-            EnqueuedBucket(bucket: $0, enqueueTimestamp: dateProvider.currentDate())
+            EnqueuedBucket(
+                bucket: $0,
+                enqueueTimestamp: dateProvider.currentDate(),
+                uniqueIdentifier: uniqueIdentifierGenerator.generate()
+            )
         }
         self.enqueuedBuckets.insert(contentsOf: enqueuedBuckets, at: positionToInsert)
     }

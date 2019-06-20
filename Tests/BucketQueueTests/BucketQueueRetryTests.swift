@@ -4,6 +4,8 @@ import DateProviderTestHelpers
 import Foundation
 import Models
 import ModelsTestHelpers
+import UniqueIdentifierGenerator
+import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessTracker
 import WorkerAlivenessTrackerTestHelpers
 import XCTest
@@ -33,7 +35,8 @@ final class BucketQueueRetryTests: XCTestCase {
                     DequeuedBucket(
                         enqueuedBucket: EnqueuedBucket(
                             bucket: bucketWithTwoRetires,
-                            enqueueTimestamp: dateProvider.currentDate()
+                            enqueueTimestamp: dateProvider.currentDate(),
+                            uniqueIdentifier: uniqueIdentifierGenerator.generate()
                         ),
                         workerId: anotherWorker,
                         requestId: "2"
@@ -64,7 +67,8 @@ final class BucketQueueRetryTests: XCTestCase {
                     DequeuedBucket(
                         enqueuedBucket: EnqueuedBucket(
                             bucket: bucketWithTwoRetires,
-                            enqueueTimestamp: dateProvider.currentDate()
+                            enqueueTimestamp: dateProvider.currentDate(),
+                            uniqueIdentifier: uniqueIdentifierGenerator.generate()
                         ),
                         workerId: anyWorker,
                         requestId: "other"
@@ -137,7 +141,8 @@ final class BucketQueueRetryTests: XCTestCase {
                     DequeuedBucket(
                         enqueuedBucket: EnqueuedBucket(
                             bucket: bucket,
-                            enqueueTimestamp: dateProvider.currentDate()
+                            enqueueTimestamp: dateProvider.currentDate(),
+                            uniqueIdentifier: uniqueIdentifierGenerator.generate()
                         ),
                         workerId: anotherWorker,
                         requestId: "request_2"
@@ -153,6 +158,7 @@ final class BucketQueueRetryTests: XCTestCase {
     private let failingWorker = "failingWorker"
     private let anotherWorker = "anotherWorker"
     private let dateProvider = DateProviderFixture()
+    private let uniqueIdentifierGenerator = FixedUniqueIdentifierGenerator()
     
     private func bucketQueue(workerIds: [String]) -> BucketQueue {
         let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
@@ -161,6 +167,7 @@ final class BucketQueueRetryTests: XCTestCase {
         let bucketQueue = BucketQueueFixtures.bucketQueue(
             dateProvider: dateProvider,
             testHistoryTracker: TestHistoryTrackerFixtures.testHistoryTracker(),
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessProvider: tracker
         )
         

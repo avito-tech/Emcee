@@ -5,6 +5,8 @@ import DateProviderTestHelpers
 import Foundation
 import Models
 import ModelsTestHelpers
+import UniqueIdentifierGenerator
+import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessTracker
 import WorkerAlivenessTrackerTestHelpers
 import XCTest
@@ -105,10 +107,17 @@ final class BalancingBucketQueueTests: XCTestCase {
         balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         
         XCTAssertEqual(
-            balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId),
+            balancingQueue.dequeueBucket(
+                requestId: requestId,
+                workerId: workerId
+            ),
             .dequeuedBucket(
                 DequeuedBucket(
-                    enqueuedBucket: EnqueuedBucket(bucket: bucket, enqueueTimestamp: dateProvider.currentDate()),
+                    enqueuedBucket: EnqueuedBucket(
+                        bucket: bucket,
+                        enqueueTimestamp: dateProvider.currentDate(),
+                        uniqueIdentifier: uniqueIdentifierGenerator.generate()
+                    ),
                     workerId: workerId,
                     requestId: requestId
                 )
@@ -125,10 +134,17 @@ final class BalancingBucketQueueTests: XCTestCase {
         balancingQueue.enqueue(buckets: [bucket2], prioritizedJob: anotherPrioritizedJob)
         
         XCTAssertEqual(
-            balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId),
+            balancingQueue.dequeueBucket(
+                requestId: requestId,
+                workerId: workerId
+            ),
             .dequeuedBucket(
                 DequeuedBucket(
-                    enqueuedBucket: EnqueuedBucket(bucket: bucket1, enqueueTimestamp: dateProvider.currentDate()),
+                    enqueuedBucket: EnqueuedBucket(
+                        bucket: bucket1,
+                        enqueueTimestamp: dateProvider.currentDate(),
+                        uniqueIdentifier: uniqueIdentifierGenerator.generate()
+                    ),
                     workerId: workerId,
                     requestId: requestId
                 )
@@ -147,10 +163,17 @@ final class BalancingBucketQueueTests: XCTestCase {
             )
         )
         XCTAssertEqual(
-            balancingQueue.dequeueBucket(requestId: anotherRequestId, workerId: workerId),
+            balancingQueue.dequeueBucket(
+                requestId: anotherRequestId,
+                workerId: workerId
+            ),
             .dequeuedBucket(
                 DequeuedBucket(
-                    enqueuedBucket: EnqueuedBucket(bucket: bucket2, enqueueTimestamp: dateProvider.currentDate()),
+                    enqueuedBucket: EnqueuedBucket(
+                        bucket: bucket2,
+                        enqueueTimestamp: dateProvider.currentDate(),
+                        uniqueIdentifier: uniqueIdentifierGenerator.generate()
+                    ),
                     workerId: workerId,
                     requestId: anotherRequestId
                 )
@@ -179,10 +202,17 @@ final class BalancingBucketQueueTests: XCTestCase {
         balancingQueue.enqueue(buckets: [bucket2], prioritizedJob: highlyPrioritizedJob)
         
         XCTAssertEqual(
-            balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId),
+            balancingQueue.dequeueBucket(
+                requestId: requestId,
+                workerId: workerId
+            ),
             .dequeuedBucket(
                 DequeuedBucket(
-                    enqueuedBucket: EnqueuedBucket(bucket: bucket2, enqueueTimestamp: dateProvider.currentDate()),
+                    enqueuedBucket: EnqueuedBucket(
+                        bucket: bucket2,
+                        enqueueTimestamp: dateProvider.currentDate(),
+                        uniqueIdentifier: uniqueIdentifierGenerator.generate()
+                    ),
                     workerId: workerId,
                     requestId: requestId
                 )
@@ -195,16 +225,24 @@ final class BalancingBucketQueueTests: XCTestCase {
         
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
-        let dequeuedBucket = DequeuedBucket(
-            enqueuedBucket: EnqueuedBucket(bucket: bucket, enqueueTimestamp: dateProvider.currentDate()),
-            workerId: workerId,
-            requestId: requestId
-        )
         
         for _ in 0 ..< 10 {
             XCTAssertEqual(
-                balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId),
-                .dequeuedBucket(dequeuedBucket),
+                balancingQueue.dequeueBucket(
+                    requestId: requestId,
+                    workerId: workerId
+                ),
+                .dequeuedBucket(
+                    DequeuedBucket(
+                        enqueuedBucket: EnqueuedBucket(
+                            bucket: bucket,
+                            enqueueTimestamp: dateProvider.currentDate(),
+                            uniqueIdentifier: uniqueIdentifierGenerator.generate()
+                        ),
+                        workerId: workerId,
+                        requestId: requestId
+                    )
+                ),
                 "Queue should return the same results again and again for the same workerId/requestId pair."
             )
         }
@@ -334,12 +372,14 @@ final class BalancingBucketQueueTests: XCTestCase {
     }
     
     let dateProvider = DateProviderFixture()
+    let uniqueIdentifierGenerator = FixedUniqueIdentifierGenerator()
     let workerAlivenessProvider = MutableWorkerAlivenessProvider()
     let checkAgainTimeInterval: TimeInterval = 42
     lazy var bucketQueueFactory = BucketQueueFactory(
         checkAgainTimeInterval: checkAgainTimeInterval,
         dateProvider: dateProvider,
         testHistoryTracker: TestHistoryTrackerFixtures.testHistoryTracker(),
+        uniqueIdentifierGenerator: uniqueIdentifierGenerator,
         workerAlivenessProvider: workerAlivenessProvider
     )
     lazy var balancingBucketQueueFactory = BalancingBucketQueueFactory(

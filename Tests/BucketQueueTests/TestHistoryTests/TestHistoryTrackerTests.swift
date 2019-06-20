@@ -11,11 +11,13 @@ final class TestHistoryTests: XCTestCase {
         testHistoryStorage: storage
     )
     private let fixedDate = Date()
+    private let fixedIdentifier = "identifier"
     private let firstTest = TestEntryFixtures.testEntry(className: "first")
     private let secondTest = TestEntryFixtures.testEntry(className: "second")
     private lazy var twoTestsBucket: EnqueuedBucket = EnqueuedBucket(
         bucket: BucketFixtures.createBucket(testEntries: [firstTest, secondTest]),
-        enqueueTimestamp: fixedDate
+        enqueueTimestamp: fixedDate,
+        uniqueIdentifier: fixedIdentifier
     )
     private lazy var firstTestFixtures = TestEntryHistoryFixtures(testEntry: firstTest, bucket: twoTestsBucket.bucket)
     private lazy var secondTestFixtures = TestEntryHistoryFixtures(testEntry: secondTest, bucket: twoTestsBucket.bucket)
@@ -52,7 +54,8 @@ final class TestHistoryTests: XCTestCase {
         // When
         let otherBucket = EnqueuedBucket(
             bucket: BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "other")]),
-            enqueueTimestamp: fixedDate
+            enqueueTimestamp: fixedDate,
+            uniqueIdentifier: fixedIdentifier
         )
         let bucketToDequeue = tracker.bucketToDequeue(
             workerId: "1",

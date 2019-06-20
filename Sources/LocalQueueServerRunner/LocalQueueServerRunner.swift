@@ -8,6 +8,7 @@ import PortDeterminer
 import QueueServer
 import ScheduleStrategy
 import SynchronousWaiter
+import UniqueIdentifierGenerator
 import Version
 
 public final class LocalQueueServerRunner {
@@ -55,7 +56,8 @@ public final class LocalQueueServerRunner {
                 automaticTerminationController: automaticTerminationController
             ),
             queueVersionProvider: localQueueVersionProvider,
-            requestSignature: requestSignature
+            requestSignature: requestSignature,
+            uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator()
         )
         _ = try queueServer.start()
         

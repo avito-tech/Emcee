@@ -12,6 +12,7 @@ import RESTMethods
 import ScheduleStrategy
 import Swifter
 import SynchronousWaiter
+import UniqueIdentifierGenerator
 import Version
 import WorkerAlivenessTracker
 
@@ -48,7 +49,8 @@ public final class QueueServer {
         bucketSplitInfo: BucketSplitInfo,
         queueServerLock: QueueServerLock,
         queueVersionProvider: VersionProvider,
-        requestSignature: RequestSignature
+        requestSignature: RequestSignature,
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
         self.workerAlivenessTracker = WorkerAlivenessTracker(
             reportAliveInterval: reportAliveInterval,
@@ -61,6 +63,7 @@ public final class QueueServer {
                 testHistoryTracker: TestHistoryTrackerImpl(
                     testHistoryStorage: TestHistoryStorageImpl()
                 ),
+                uniqueIdentifierGenerator: uniqueIdentifierGenerator,
                 workerAlivenessProvider: workerAlivenessTracker
             ),
             nothingToDequeueBehavior: workerAlivenessPolicy.nothingToDequeueBehavior(

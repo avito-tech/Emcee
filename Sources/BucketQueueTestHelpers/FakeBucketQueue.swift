@@ -58,7 +58,8 @@ public class FakeBucketQueue: BucketQueue {
                 dequeuedBucket: DequeuedBucket(
                     enqueuedBucket: EnqueuedBucket(
                         bucket: BucketFixtures.createBucket(),
-                        enqueueTimestamp: Date()
+                        enqueueTimestamp: Date(),
+                        uniqueIdentifier: UUID().uuidString
                     ),
                     workerId: workerId,
                     requestId: requestId

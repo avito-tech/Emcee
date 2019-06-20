@@ -12,6 +12,7 @@ import QueueServer
 import ResourceLocationResolver
 import ScheduleStrategy
 import TempFolder
+import UniqueIdentifierGenerator
 import Version
 
 public final class DistRunner {    
@@ -60,7 +61,8 @@ public final class DistRunner {
             ),
             queueServerLock: NeverLockableQueueServerLock(),
             queueVersionProvider: localQueueVersionProvider,
-            requestSignature: requestSignature
+            requestSignature: requestSignature,
+            uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator()
         )
         queueServer.schedule(
             testEntryConfigurations: distRunConfiguration.testEntryConfigurations,

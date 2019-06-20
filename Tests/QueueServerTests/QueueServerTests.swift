@@ -8,6 +8,7 @@ import PortDeterminer
 import QueueClient
 import QueueServer
 import ScheduleStrategy
+import UniqueIdentifierGeneratorTestHelpers
 import VersionTestHelpers
 import XCTest
 
@@ -25,6 +26,7 @@ final class QueueServerTests: XCTestCase {
     let bucketSplitInfo = BucketSplitInfoFixtures.bucketSplitInfoFixture()
     let queueVersionProvider = VersionProviderFixture().buildVersionProvider()
     let requestSignature = RequestSignature(value: "expectedRequestSignature")
+    let uniqueIdentifierGenerator = FixedUniqueIdentifierGenerator()
     
     func test__queue_waits_for_new_workers_and_fails_if_they_not_appear_in_time() {
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
@@ -43,7 +45,8 @@ final class QueueServerTests: XCTestCase {
             bucketSplitInfo: bucketSplitInfo,
             queueServerLock: NeverLockableQueueServerLock(),
             queueVersionProvider: queueVersionProvider,
-            requestSignature: requestSignature
+            requestSignature: requestSignature,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         XCTAssertThrowsError(try server.waitForJobToFinish(jobId: jobId))
     }
@@ -69,7 +72,8 @@ final class QueueServerTests: XCTestCase {
             bucketSplitInfo: bucketSplitInfo,
             queueServerLock: NeverLockableQueueServerLock(),
             queueVersionProvider: queueVersionProvider,
-            requestSignature: requestSignature
+            requestSignature: requestSignature,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         server.schedule(testEntryConfigurations: testEntryConfiguration, prioritizedJob: prioritizedJob)
         
@@ -106,7 +110,8 @@ final class QueueServerTests: XCTestCase {
             bucketSplitInfo: bucketSplitInfo,
             queueServerLock: NeverLockableQueueServerLock(),
             queueVersionProvider: queueVersionProvider,
-            requestSignature: requestSignature
+            requestSignature: requestSignature,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         server.schedule(testEntryConfigurations: testEntryConfigurations, prioritizedJob: prioritizedJob)
         

@@ -142,7 +142,8 @@ let package = Package(
             dependencies: [
                 "BalancingBucketQueue",
                 "BucketQueueTestHelpers",
-                "ResultsCollector"
+                "ResultsCollector",
+                "UniqueIdentifierGenerator"
             ]
         ),
         .target(
@@ -152,6 +153,7 @@ let package = Package(
                 "DateProvider",
                 "Logging",
                 "Models",
+                "UniqueIdentifierGenerator",
                 "WorkerAlivenessTracker"
             ]
         ),
@@ -163,6 +165,7 @@ let package = Package(
                 "DateProviderTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
+                "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessTracker"
             ]
         ),
@@ -174,6 +177,8 @@ let package = Package(
                 "BucketQueueTestHelpers",
                 "DateProviderTestHelpers",
                 "ModelsTestHelpers",
+                "UniqueIdentifierGenerator",
+                "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessTrackerTestHelpers"
             ]
         ),
@@ -272,6 +277,7 @@ let package = Package(
                 "ResourceLocationResolver",
                 "ScheduleStrategy",
                 "TempFolder",
+                "UniqueIdentifierGenerator",
                 "Version"
             ]
         ),
@@ -469,6 +475,7 @@ let package = Package(
                 "QueueServer",
                 "ScheduleStrategy",
                 "SynchronousWaiter",
+                "UniqueIdentifierGenerator",
                 "Version"
             ]
         ),
@@ -673,6 +680,7 @@ let package = Package(
                 "Swifter",
                 "SynchronousWaiter",
                 "Timer",
+                "UniqueIdentifierGenerator",
                 "Version",
                 "WorkerAlivenessTracker"
             ]
@@ -1014,6 +1022,19 @@ let package = Package(
             // MARK: Timer
             name: "Timer",
             dependencies: [
+            ]
+        ),
+        .target(
+            // MARK: UniqueIdentifierGenerator
+            name: "UniqueIdentifierGenerator",
+            dependencies: [
+            ]
+        ),
+        .target(
+            // MARK: "UniqueIdentifierGeneratorTestHelpers"
+            name: "UniqueIdentifierGeneratorTestHelpers",
+            dependencies: [
+                "UniqueIdentifierGenerator"
             ]
         ),
         .target(

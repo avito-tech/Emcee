@@ -4,6 +4,8 @@ import DateProviderTestHelpers
 import Foundation
 import Models
 import ModelsTestHelpers
+import UniqueIdentifierGenerator
+import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessTracker
 import WorkerAlivenessTrackerTestHelpers
 import XCTest
@@ -17,6 +19,7 @@ final class BucketQueueTests: XCTestCase {
     let alivenessTrackerWithAlwaysAliveResults = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
     let mutableAlivenessProvider = MutableWorkerAlivenessProvider()
     let dateProvider = DateProviderFixture()
+    let uniqueIdentifierGenerator = FixedUniqueIdentifierGenerator()
     
     override func setUp() {
         continueAfterFailure = false
@@ -65,6 +68,7 @@ final class BucketQueueTests: XCTestCase {
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(
             dateProvider: dateProvider,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults
         )
         bucketQueue.enqueue(buckets: [bucket])
@@ -75,7 +79,8 @@ final class BucketQueueTests: XCTestCase {
                 DequeuedBucket(
                     enqueuedBucket: EnqueuedBucket(
                         bucket: bucket,
-                        enqueueTimestamp: dateProvider.currentDate()
+                        enqueueTimestamp: dateProvider.currentDate(),
+                        uniqueIdentifier: uniqueIdentifierGenerator.generate()
                     ),
                     workerId: workerId,
                     requestId: requestId
@@ -128,6 +133,7 @@ final class BucketQueueTests: XCTestCase {
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(
             dateProvider: dateProvider,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults
         )
         bucketQueue.enqueue(buckets: [bucket])
@@ -141,7 +147,8 @@ final class BucketQueueTests: XCTestCase {
                 DequeuedBucket(
                     enqueuedBucket: EnqueuedBucket(
                         bucket: bucket,
-                        enqueueTimestamp: dateProvider.currentDate()
+                        enqueueTimestamp: dateProvider.currentDate(),
+                        uniqueIdentifier: uniqueIdentifierGenerator.generate()
                     ),
                     workerId: workerId,
                     requestId: requestId
@@ -233,7 +240,6 @@ final class BucketQueueTests: XCTestCase {
         let bucket = BucketFixtures.createBucket(testEntries: [])
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults)
-        alivenessTrackerWithAlwaysAliveResults.didRegisterWorker(workerId: workerId)
         
         bucketQueue.enqueue(buckets: [bucket])
         _ = bucketQueue.dequeueBucket(requestId: requestId, workerId: workerId)
@@ -254,7 +260,6 @@ final class BucketQueueTests: XCTestCase {
         let bucket = BucketFixtures.createBucket(testEntries: [])
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults)
-        alivenessTrackerWithAlwaysAliveResults.didRegisterWorker(workerId: workerId)
         
         bucketQueue.enqueue(buckets: [bucket])
         _ = bucketQueue.dequeueBucket(requestId: requestId, workerId: workerId)
@@ -269,7 +274,6 @@ final class BucketQueueTests: XCTestCase {
         let bucket = BucketFixtures.createBucket(testEntries: [])
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults)
-        alivenessTrackerWithAlwaysAliveResults.didRegisterWorker(workerId: workerId)
         
         bucketQueue.enqueue(buckets: [bucket])
         _ = bucketQueue.dequeueBucket(requestId: requestId, workerId: workerId)
@@ -281,7 +285,6 @@ final class BucketQueueTests: XCTestCase {
     }
     
     func test___removing_enqueued_buckets___affects_state() {
-        alivenessTrackerWithAlwaysAliveResults.didRegisterWorker(workerId: workerId)
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults)
         
         bucketQueue.enqueue(buckets: [BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(methodName: "test1")])])
@@ -294,6 +297,46 @@ final class BucketQueueTests: XCTestCase {
             bucketQueue.runningQueueState,
             RunningQueueState(enqueuedBucketCount: 0, dequeuedBucketCount: 1),
             "After cleaning enqueued buckets, state should indicate there is 0 enqueued buckets left"
+        )
+    }
+    
+    func test___enqueuing_same_bucket___reflects_queue_state() {
+        let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults)
+
+        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
+        
+        bucketQueue.enqueue(buckets: [bucket, bucket])
+        
+        XCTAssertEqual(
+            bucketQueue.runningQueueState.enqueuedBucketCount,
+            2,
+            "Enqueuing the same bucket multiple times should be reflected in the queue state"
+        )
+    }
+    
+    func test___dequeuing_previously_enqueued_same_buckets___one_by_one() {
+        let bucketQueue = BucketQueueFixtures.bucketQueue(
+            uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator(),
+            workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults
+        )
+        
+        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
+        
+        bucketQueue.enqueue(buckets: [bucket, bucket])
+        let dequeueResult = bucketQueue.dequeueBucket(requestId: requestId, workerId: workerId)
+        guard case DequeueResult.dequeuedBucket(let dequeuedBucket) = dequeueResult else {
+            return XCTFail("Unexpected dequeue result: \(dequeueResult)")
+        }
+        
+        XCTAssertEqual(
+            dequeuedBucket.enqueuedBucket.bucket,
+            bucket,
+            "Dequeued bucket must match enqueued bucket"
+        )
+        XCTAssertEqual(
+            bucketQueue.runningQueueState.enqueuedBucketCount,
+            1,
+            "Dequeueing one of the similar buckets should correctly update queue state"
         )
     }
 }
