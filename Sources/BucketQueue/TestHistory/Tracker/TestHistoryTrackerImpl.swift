@@ -37,8 +37,16 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         testingResult: TestingResult,
         bucket: Bucket,
         workerId: String)
+        throws
         -> TestHistoryTrackerAcceptResult
     {
+        guard testingResult.bucketId == bucket.bucketId else {
+            throw TestHistoryTrackerError.mismatchedBuckedIds(
+                testingResultBucketId: testingResult.bucketId,
+                bucketId: bucket.bucketId
+            )
+        }
+
         var resultsOfSuccessfulTests = [TestEntryResult]()
         var resultsOfFailedTests = [TestEntryResult]()
         var resultsOfTestsToRetry = [TestEntryResult]()

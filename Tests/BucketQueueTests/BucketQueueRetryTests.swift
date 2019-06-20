@@ -74,7 +74,7 @@ final class BucketQueueRetryTests: XCTestCase {
         }
     }
     
-    func test___bucket_queue___become_depleted___after_retries() {
+    func test___bucket_queue___become_depleted___after_retries() throws {
         assertNoThrow {
             // Given
             let bucketQueue = self.bucketQueue(workerIds: [firstWorker, secondWorker])
@@ -170,13 +170,19 @@ final class BucketQueueRetryTests: XCTestCase {
     private func dequeueTestAndFail(bucketQueue: BucketQueue, workerId: String) throws {
         let requestId = UUID().uuidString
         
-        _ = bucketQueue.dequeueBucket(
+        let dequeueResult = bucketQueue.dequeueBucket(
             requestId: requestId,
             workerId: workerId
         )
+
+        guard case DequeueResult.dequeuedBucket(let dequeuedBucket) = dequeueResult else {
+            return XCTFail("DequeueResult does not contain a bucket")
+        }
+
+        let result = testingResultFixtures.with(bucket: dequeuedBucket.enqueuedBucket.bucket)
         
         _ = try bucketQueue.accept(
-            testingResult: testingResultFixtures.testingResult(),
+            testingResult: result.testingResult(),
             requestId: requestId,
             workerId: workerId
         )

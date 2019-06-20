@@ -131,7 +131,7 @@ final class BucketQueueImpl: BucketQueue {
             
             let actualTestEntries = Set(testingResult.unfilteredResults.map { $0.testEntry })
             let expectedTestEntries = Set(dequeuedBucket.enqueuedBucket.bucket.testEntries)
-            reenqueueLostResults_onSyncQueue(
+            try reenqueueLostResults_onSyncQueue(
                 expectedTestEntries: expectedTestEntries,
                 actualTestEntries: actualTestEntries,
                 bucket: dequeuedBucket.enqueuedBucket.bucket,
@@ -139,7 +139,7 @@ final class BucketQueueImpl: BucketQueue {
                 requestId: requestId
             )
             
-            let acceptResult = testHistoryTracker.accept(
+            let acceptResult = try testHistoryTracker.accept(
                 testingResult: testingResult,
                 bucket: dequeuedBucket.enqueuedBucket.bucket,
                 workerId: workerId
@@ -267,12 +267,12 @@ final class BucketQueueImpl: BucketQueue {
         actualTestEntries: Set<TestEntry>,
         bucket: Bucket,
         workerId: String,
-        requestId: String)
+        requestId: String) throws
     {
         let lostTestEntries = expectedTestEntries.subtracting(actualTestEntries)
         if !lostTestEntries.isEmpty {
             Logger.debug("Test result from \(workerId) (request \(requestId)) contains lost test entries: \(lostTestEntries)")
-            let lostResult = testHistoryTracker.accept(
+            let lostResult = try testHistoryTracker.accept(
                 testingResult: TestingResult(
                     bucketId: bucket.bucketId,
                     testDestination: bucket.testDestination,

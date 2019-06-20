@@ -10,6 +10,6 @@ public protocol TestHistoryTracker {
     func accept(
         testingResult: TestingResult,
         bucket: Bucket,
-        workerId: String)
+        workerId: String) throws
         -> TestHistoryTrackerAcceptResult
 }

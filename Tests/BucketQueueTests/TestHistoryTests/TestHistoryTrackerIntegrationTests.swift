@@ -18,9 +18,9 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
     
     private let testHistoryTracker = TestHistoryTrackerFixtures.testHistoryTracker()
     
-    func test___accept___tells_to_accept_failures___when_retrying_is_disabled() {
+    func test___accept___tells_to_accept_failures___when_retrying_is_disabled() throws {
         // When
-        let acceptResult = testHistoryTracker.accept(
+        let acceptResult = try testHistoryTracker.accept(
             testingResult: oneFailResultsFixtures.testingResult(),
             bucket: oneFailResultsFixtures.bucket,
             workerId: failingWorkerId
@@ -38,11 +38,12 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
             "When there is no retries then testingResult is unchanged"
         )
     }
-    
-    func test___accept___tells_to_retry___when_retrying_is_possible() {
+
+    func test___accept___tells_to_retry___when_retrying_is_possible() throws {
         let testingResultFixture = oneFailResultsFixtures.with(numberOfRetiresOfBucket: 1)
+
         // When
-        let acceptResult = testHistoryTracker.accept(
+        let acceptResult = try testHistoryTracker.accept(
             testingResult: testingResultFixture.testingResult(),
             bucket: testingResultFixture.bucket,
             workerId: failingWorkerId
@@ -64,16 +65,16 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         )
     }
     
-    func test___accept___tells_to_accept_failures___when_maximum_numbers_of_attempts_reached() {
+    func test___accept___tells_to_accept_failures___when_maximum_numbers_of_attempts_reached() throws {
         // Given
-        _ = testHistoryTracker.accept(
+        _ = try testHistoryTracker.accept(
             testingResult: oneFailResultsFixtures.testingResult(),
             bucket: oneFailResultsFixtures.bucket,
             workerId: failingWorkerId
         )
         
         // When
-        let acceptResult = testHistoryTracker.accept(
+        let acceptResult = try testHistoryTracker.accept(
             testingResult: oneFailResultsFixtures.testingResult(),
             bucket: oneFailResultsFixtures.bucket,
             workerId: failingWorkerId
@@ -105,9 +106,9 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual(bucketToDequeue?.bucket, oneFailResultsFixtures.bucket)
     }
     
-    func test___bucketToDequeue___is_nil___for_failing_worker() {
+    func test___bucketToDequeue___is_nil___for_failing_worker() throws {
         // Given
-        failOnce(
+        try failOnce(
             tracker: testHistoryTracker,
             workerId: failingWorkerId
         )
@@ -125,9 +126,9 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual(bucketToDequeue, nil)
     }
     
-    func test___bucketToDequeue___is_not_nil___if_there_are_not_yet_failed_buckets_in_queue() {
+    func test___bucketToDequeue___is_not_nil___if_there_are_not_yet_failed_buckets_in_queue() throws {
         // Given
-        failOnce(
+        try failOnce(
             tracker: testHistoryTracker,
             workerId: failingWorkerId
         )
@@ -149,9 +150,10 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual(bucketToDequeue?.bucket, notFailedBucket)
     }
     
-    func test___bucketToDequeue___is_not_nil___for_not_failing_worker() {
+    func test___bucketToDequeue___is_not_nil___for_not_failing_worker() throws {
+
         // Given
-        failOnce(
+        try failOnce(
             tracker: testHistoryTracker,
             workerId: failingWorkerId
         )
@@ -169,7 +171,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual(bucketToDequeue?.bucket, oneFailResultsFixtures.bucket)
     }
     
-    private func failOnce(tracker: TestHistoryTracker, workerId: String) {
+    private func failOnce(tracker: TestHistoryTracker, workerId: String) throws {
         _ = tracker.bucketToDequeue(
             workerId: failingWorkerId,
             queue: [
@@ -177,7 +179,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
             ],
             aliveWorkers: aliveWorkers
         )
-        _ = tracker.accept(
+        _ = try tracker.accept(
             testingResult: oneFailResultsFixtures.testingResult(),
             bucket: oneFailResultsFixtures.bucket,
             workerId: workerId
