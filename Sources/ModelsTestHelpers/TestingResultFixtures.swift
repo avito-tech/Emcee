@@ -6,58 +6,40 @@ public final class TestingResultFixtures {
     public let testEntry: TestEntry
     
     private let manuallyTestDestination: TestDestination?
-    private let manuallySetBucket: Bucket?
-    private let numberOfRetriesForBucket: UInt
+    private let bucketId: BucketId
     
     public var testDestination: TestDestination {
         if let manuallyTestDestination = manuallyTestDestination {
             return manuallyTestDestination
-        } else if let manuallySetBucket = manuallySetBucket {
-            return manuallySetBucket.testDestination
         } else {
             return TestDestinationFixtures.testDestination
         }
     }
     
-    public var bucket: Bucket {
-        if let manuallySetBucket = manuallySetBucket {
-            return manuallySetBucket
-        } else {
-            let uniqueTestEntries = Array(Set(unfilteredResults.map { $0.testEntry }))
-            return BucketFixtures.createBucket(
-                testEntries: uniqueTestEntries,
-                numberOfRetries: numberOfRetriesForBucket
-            )
-        }
-    }
-    
     public convenience init() {
         self.init(
-            manuallySetBucket: nil,
+            bucketId: UUID().uuidString,
             testEntry: TestEntryFixtures.testEntry(),
             manuallyTestDestination: nil,
-            unfilteredResults: [],
-            numberOfRetriesForBucket: 0
+            unfilteredResults: []
         )
     }
     
     public init(
-        manuallySetBucket: Bucket?,
+        bucketId: BucketId,
         testEntry: TestEntry,
         manuallyTestDestination: TestDestination?,
-        unfilteredResults: [TestEntryResult],
-        numberOfRetriesForBucket: UInt = 0)
+        unfilteredResults: [TestEntryResult])
     {
-        self.manuallySetBucket = manuallySetBucket
+        self.bucketId = bucketId
         self.testEntry = testEntry
         self.manuallyTestDestination = manuallyTestDestination
         self.unfilteredResults = unfilteredResults
-        self.numberOfRetriesForBucket = numberOfRetriesForBucket
     }
     
     public func testingResult() -> TestingResult {
         return TestingResult(
-            bucketId: bucket.bucketId,
+            bucketId: bucketId,
             testDestination: testDestination,
             unfilteredResults: unfilteredResults
         )
@@ -65,41 +47,28 @@ public final class TestingResultFixtures {
     
     public func with(testEntry: TestEntry) -> TestingResultFixtures {
         return TestingResultFixtures(
-            manuallySetBucket: manuallySetBucket,
+            bucketId: bucketId,
             testEntry: testEntry,
             manuallyTestDestination: manuallyTestDestination,
-            unfilteredResults: unfilteredResults,
-            numberOfRetriesForBucket: numberOfRetriesForBucket
+            unfilteredResults: unfilteredResults
         )
     }
     
-    public func with(bucket: Bucket) -> TestingResultFixtures {
+    public func with(bucketId: BucketId) -> TestingResultFixtures {
         return TestingResultFixtures(
-            manuallySetBucket: bucket,
+            bucketId: bucketId,
             testEntry: testEntry,
             manuallyTestDestination: manuallyTestDestination,
-            unfilteredResults: unfilteredResults,
-            numberOfRetriesForBucket: numberOfRetriesForBucket
-        )
-    }
-    
-    public func with(numberOfRetiresOfBucket count: UInt) -> TestingResultFixtures {
-        return TestingResultFixtures(
-            manuallySetBucket: manuallySetBucket,
-            testEntry: testEntry,
-            manuallyTestDestination: manuallyTestDestination,
-            unfilteredResults: unfilteredResults,
-            numberOfRetriesForBucket: count
+            unfilteredResults: unfilteredResults
         )
     }
     
     public func addingLostResult() -> TestingResultFixtures {
         return TestingResultFixtures(
-            manuallySetBucket: manuallySetBucket,
+            bucketId: bucketId,
             testEntry: testEntry,
             manuallyTestDestination: manuallyTestDestination,
-            unfilteredResults: unfilteredResults + [TestEntryResult.lost(testEntry: testEntry)],
-            numberOfRetriesForBucket: numberOfRetriesForBucket
+            unfilteredResults: unfilteredResults + [TestEntryResult.lost(testEntry: testEntry)]
         )
     }
     
@@ -110,11 +79,10 @@ public final class TestingResultFixtures {
         )
         
         return TestingResultFixtures(
-            manuallySetBucket: manuallySetBucket,
+            bucketId: bucketId,
             testEntry: testEntry,
             manuallyTestDestination: manuallyTestDestination,
-            unfilteredResults: unfilteredResults + [result],
-            numberOfRetriesForBucket: numberOfRetriesForBucket
+            unfilteredResults: unfilteredResults + [result]
         )
     }
 }

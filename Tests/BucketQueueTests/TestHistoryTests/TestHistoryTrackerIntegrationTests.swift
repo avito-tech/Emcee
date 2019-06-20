@@ -14,16 +14,23 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
     
     private lazy var aliveWorkers = [failingWorkerId, notFailingWorkerId]
     
-    private let oneFailResultsFixtures = TestingResultFixtures()
-        .addingResult(success: false)
-    
     private let testHistoryTracker = TestHistoryTrackerFixtures.testHistoryTracker()
-    
+
+    private var oneFailResultsFixtures: TestingResultFixtures!
+    private var bucketFixture: Bucket!
+
+    override func setUp() {
+        bucketFixture = BucketFixtures.createBucket()
+        oneFailResultsFixtures = TestingResultFixtures()
+        .with(bucketId: bucketFixture.bucketId)
+        .addingResult(success: false)
+    }
+
     func test___accept___tells_to_accept_failures___when_retrying_is_disabled() throws {
         // When
         let acceptResult = try testHistoryTracker.accept(
             testingResult: oneFailResultsFixtures.testingResult(),
-            bucket: oneFailResultsFixtures.bucket,
+            bucket: bucketFixture,
             workerId: failingWorkerId
         )
         
@@ -41,26 +48,27 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
     }
 
     func test___accept___tells_to_retry___when_retrying_is_possible() throws {
-        let testingResultFixture = oneFailResultsFixtures.with(numberOfRetiresOfBucket: 1)
+        let testBucket = BucketFixtures.createBucket(numberOfRetries: 1)
+        let testingResultFixture = oneFailResultsFixtures.with(bucketId: testBucket.bucketId)
 
         // When
         let acceptResult = try testHistoryTracker.accept(
             testingResult: testingResultFixture.testingResult(),
-            bucket: testingResultFixture.bucket,
+            bucket: testBucket,
             workerId: failingWorkerId
         )
         
         // Then
         XCTAssertEqual(
             acceptResult.bucketsToReenqueue,
-            [testingResultFixture.bucket],
+            [testBucket],
             "If test failed once and numberOfRetries > 0 then bucket will be rescheduled"
         )
         
         XCTAssertEqual(
             acceptResult.testingResult,
             emptyResultsFixtures
-                .with(bucket: testingResultFixture.bucket)
+                .with(bucketId: testBucket.bucketId)
                 .testingResult(),
             "If test failed once and numberOfRetries > 0 then accepted testingResult will not contain results"
         )
@@ -70,14 +78,14 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         // Given
         _ = try testHistoryTracker.accept(
             testingResult: oneFailResultsFixtures.testingResult(),
-            bucket: oneFailResultsFixtures.bucket,
+            bucket: bucketFixture,
             workerId: failingWorkerId
         )
         
         // When
         let acceptResult = try testHistoryTracker.accept(
             testingResult: oneFailResultsFixtures.testingResult(),
-            bucket: oneFailResultsFixtures.bucket,
+            bucket: bucketFixture,
             workerId: failingWorkerId
         )
         
@@ -98,13 +106,13 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         let bucketToDequeue = testHistoryTracker.bucketToDequeue(
             workerId: failingWorkerId,
             queue: [
-                EnqueuedBucket(bucket: oneFailResultsFixtures.bucket, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier)
+                EnqueuedBucket(bucket: bucketFixture, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier)
             ],
             aliveWorkers: aliveWorkers
         )
         
         // Then
-        XCTAssertEqual(bucketToDequeue?.bucket, oneFailResultsFixtures.bucket)
+        XCTAssertEqual(bucketToDequeue?.bucket, bucketFixture)
     }
     
     func test___bucketToDequeue___is_nil___for_failing_worker() throws {
@@ -118,7 +126,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         let bucketToDequeue = testHistoryTracker.bucketToDequeue(
             workerId: failingWorkerId,
             queue: [
-                EnqueuedBucket(bucket: oneFailResultsFixtures.bucket, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier)
+                EnqueuedBucket(bucket: bucketFixture, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier)
             ],
             aliveWorkers: aliveWorkers
         )
@@ -141,7 +149,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         let bucketToDequeue = testHistoryTracker.bucketToDequeue(
             workerId: failingWorkerId,
             queue: [
-                EnqueuedBucket(bucket: oneFailResultsFixtures.bucket, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier),
+                EnqueuedBucket(bucket: bucketFixture, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier),
                 EnqueuedBucket(bucket: notFailedBucket, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier)
             ],
             aliveWorkers: aliveWorkers
@@ -163,26 +171,26 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         let bucketToDequeue = testHistoryTracker.bucketToDequeue(
             workerId: notFailingWorkerId,
             queue: [
-                EnqueuedBucket(bucket: oneFailResultsFixtures.bucket, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier),
+                EnqueuedBucket(bucket: bucketFixture, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier),
             ],
             aliveWorkers: aliveWorkers
         )
         
         // Then
-        XCTAssertEqual(bucketToDequeue?.bucket, oneFailResultsFixtures.bucket)
+        XCTAssertEqual(bucketToDequeue?.bucket, bucketFixture)
     }
     
     private func failOnce(tracker: TestHistoryTracker, workerId: String) throws {
         _ = tracker.bucketToDequeue(
             workerId: failingWorkerId,
             queue: [
-                EnqueuedBucket(bucket: oneFailResultsFixtures.bucket, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier),
+                EnqueuedBucket(bucket: bucketFixture, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier),
             ],
             aliveWorkers: aliveWorkers
         )
         _ = try tracker.accept(
             testingResult: oneFailResultsFixtures.testingResult(),
-            bucket: oneFailResultsFixtures.bucket,
+            bucket: bucketFixture,
             workerId: workerId
         )
     }

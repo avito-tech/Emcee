@@ -1,8 +1,10 @@
 import Extensions
 import Foundation
 
+public typealias BucketId = String
+
 public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStringConvertible {
-    public let bucketId: String
+    public let bucketId: BucketId
     public let testEntries: [TestEntry]
     public let buildArtifacts: BuildArtifacts
     public let simulatorSettings: SimulatorSettings
@@ -47,7 +49,7 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
         testExecutionBehavior: TestExecutionBehavior,
         toolResources: ToolResources,
         testType: TestType
-        ) -> String
+        ) -> BucketId
     {
         let buildArtifactsId = (buildArtifacts.appBundle?.description ?? "null") + (buildArtifacts.runner?.description ?? "null") + buildArtifacts.xcTestBundle.description
             + buildArtifacts.additionalApplicationBundles.map { $0.description }.sorted().joined()

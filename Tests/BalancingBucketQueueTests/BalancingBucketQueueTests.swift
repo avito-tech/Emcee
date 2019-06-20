@@ -286,7 +286,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         _ = balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId)
         
         let expectedTestingResult = TestingResultFixtures(
-            manuallySetBucket: bucket,
+            bucketId: bucket.bucketId,
             testEntry: testEntry,
             manuallyTestDestination: bucket.testDestination,
             unfilteredResults: [
@@ -317,7 +317,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         _ = balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId)
         
         let expectedTestingResult = TestingResultFixtures(
-            manuallySetBucket: bucket,
+            bucketId: bucket.bucketId,
             testEntry: testEntry,
             manuallyTestDestination: bucket.testDestination,
             unfilteredResults: [

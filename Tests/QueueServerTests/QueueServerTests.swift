@@ -91,6 +91,7 @@ final class QueueServerTests: XCTestCase {
             .testEntryConfigurations()
         let testingResult = TestingResultFixtures()
             .with(testEntry: testEntry)
+            .with(bucketId: bucket.bucketId)
             .addingLostResult()
             .testingResult()
         

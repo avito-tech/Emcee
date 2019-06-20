@@ -113,7 +113,7 @@ final class BucketQueueRetryTests: XCTestCase {
             
             let result = try bucketQueue.accept(
                 testingResult: TestingResultFixtures(
-                    manuallySetBucket: bucket,
+                    bucketId: bucket.bucketId,
                     testEntry: testEntry,
                     manuallyTestDestination: nil,
                     unfilteredResults: [
@@ -186,7 +186,9 @@ final class BucketQueueRetryTests: XCTestCase {
             return XCTFail("DequeueResult does not contain a bucket")
         }
 
-        let result = testingResultFixtures.with(bucket: dequeuedBucket.enqueuedBucket.bucket)
+        let result = testingResultFixtures.with(
+            bucketId: dequeuedBucket.enqueuedBucket.bucket.bucketId
+        )
         
         _ = try bucketQueue.accept(
             testingResult: result.testingResult(),
