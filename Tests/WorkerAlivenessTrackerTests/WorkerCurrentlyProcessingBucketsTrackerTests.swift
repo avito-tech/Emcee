@@ -1,9 +1,10 @@
 import Foundation
 import WorkerAlivenessTracker
 import XCTest
+import Models
 
 final class WorkerCurrentlyProcessingBucketsTrackerTests: XCTestCase {
-    let workerId = "workerId"
+    let workerId = WorkerId(value: "workerId")
     
     func test___initializing() {
         let tracker = WorkerCurrentlyProcessingBucketsTracker()

@@ -21,7 +21,7 @@ final class TestHistoryStorageMock: TestHistoryStorage {
     func registerAttempt(
         id: TestEntryHistoryId,
         testEntryResult: TestEntryResult,
-        workerId: String)
+        workerId: WorkerId)
         -> TestEntryHistory
     {
         // do nothing in mock

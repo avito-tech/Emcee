@@ -13,7 +13,7 @@ public protocol QueueClientDelegate: class {
     func queueClient(_ sender: QueueClient, serverDidAcceptBucketResult bucketId: BucketId)
     func queueClientWorkerHasBeenIndicatedAsAlive(_ sender: QueueClient)
     func queueClient(_ sender: QueueClient, didFetchQueueServerVersion version: Version)
-    func queueClientDidScheduleTests(_ sender: QueueClient, requestId: String)
+    func queueClientDidScheduleTests(_ sender: QueueClient, requestId: RequestId)
     func queueClient(_ sender: QueueClient, didFetchJobState jobState: JobState)
     func queueClient(_ sender: QueueClient, didFetchJobResults jobResults: JobResults)
     func queueClient(_ sender: QueueClient, didDeleteJob jobId: JobId)

@@ -11,10 +11,10 @@ public enum DequeueResult: Hashable {
 
 public struct DequeuedBucket: CustomStringConvertible, Hashable {
     public let enqueuedBucket: EnqueuedBucket
-    public let workerId: String
-    public let requestId: String
+    public let workerId: WorkerId
+    public let requestId: RequestId
 
-    public init(enqueuedBucket: EnqueuedBucket, workerId: String, requestId: String) {
+    public init(enqueuedBucket: EnqueuedBucket, workerId: WorkerId, requestId: RequestId) {
         self.enqueuedBucket = enqueuedBucket
         self.workerId = workerId
         self.requestId = requestId

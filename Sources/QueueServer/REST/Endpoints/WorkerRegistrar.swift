@@ -10,8 +10,8 @@ public final class WorkerRegistrar: RESTEndpoint {
     private let workerAlivenessTracker: WorkerAlivenessTracker
     
     public enum WorkerRegistrarError: Swift.Error, CustomStringConvertible {
-        case missingWorkerConfiguration(workerId: String)
-        case workerIsBlocked(workerId: String)
+        case missingWorkerConfiguration(workerId: WorkerId)
+        case workerIsBlocked(workerId: WorkerId)
         public var description: String {
             switch self {
             case .missingWorkerConfiguration(let workerId):

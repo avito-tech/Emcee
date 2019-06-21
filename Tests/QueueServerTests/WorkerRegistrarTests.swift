@@ -10,7 +10,7 @@ import XCTest
 final class WorkerRegistrarTests: XCTestCase {
     let alivenessTracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
     let workerConfigurations = WorkerConfigurations()
-    let workerId = "worker_id"
+    let workerId: WorkerId = "worker_id"
     
     override func setUp() {
         super.setUp()

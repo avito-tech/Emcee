@@ -60,13 +60,13 @@ final class BucketQueueImpl: BucketQueue {
         )
     }
     
-    func previouslyDequeuedBucket(requestId: String, workerId: String) -> DequeuedBucket? {
+    func previouslyDequeuedBucket(requestId: RequestId, workerId: WorkerId) -> DequeuedBucket? {
         return queue.sync {
             previouslyDequeuedBucket_onSyncQueue(requestId: requestId, workerId: workerId)
         }
     }
     
-    public func dequeueBucket(requestId: String, workerId: String) -> DequeueResult {
+    public func dequeueBucket(requestId: RequestId, workerId: WorkerId) -> DequeueResult {
         switch workerAlivenessProvider.alivenessForWorker(workerId: workerId).status {
         case .blocked:
             return .workerIsBlocked
@@ -120,8 +120,8 @@ final class BucketQueueImpl: BucketQueue {
     
     public func accept(
         testingResult: TestingResult,
-        requestId: String,
-        workerId: String
+        requestId: RequestId,
+        workerId: WorkerId
         ) throws -> BucketQueueAcceptResult
     {
         return try queue.sync {
@@ -196,7 +196,7 @@ final class BucketQueueImpl: BucketQueue {
             let buckets = stuckBuckets.flatMap { stuckBucket in
                 stuckBucket.bucket.testEntries.map { testEntry in
                     Bucket(
-                        bucketId: BucketId(stringValue: uniqueIdentifierGenerator.generate()),
+                        bucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
                         testEntries: [testEntry],
                         buildArtifacts: stuckBucket.bucket.buildArtifacts,
                         simulatorSettings: stuckBucket.bucket.simulatorSettings,
@@ -251,7 +251,7 @@ final class BucketQueueImpl: BucketQueue {
         self.enqueuedBuckets.insert(contentsOf: enqueuedBuckets, at: positionToInsert)
     }
     
-    private func dequeue_onSyncQueue(enqueuedBucket: EnqueuedBucket, requestId: String, workerId: String) -> DequeuedBucket {
+    private func dequeue_onSyncQueue(enqueuedBucket: EnqueuedBucket, requestId: RequestId, workerId: WorkerId) -> DequeuedBucket {
         let dequeuedBucket = DequeuedBucket(enqueuedBucket: enqueuedBucket, workerId: workerId, requestId: requestId)
         
         enqueuedBuckets.removeAll(where: { $0 == enqueuedBucket })
@@ -267,7 +267,7 @@ final class BucketQueueImpl: BucketQueue {
         return dequeuedBucket
     }
     
-    private func previouslyDequeuedBucket_onSyncQueue(requestId: String, workerId: String) -> DequeuedBucket? {
+    private func previouslyDequeuedBucket_onSyncQueue(requestId: RequestId, workerId: WorkerId) -> DequeuedBucket? {
         return dequeuedBuckets.first { $0.requestId == requestId && $0.workerId == workerId }
     }
     
@@ -275,8 +275,8 @@ final class BucketQueueImpl: BucketQueue {
         expectedTestEntries: Set<TestEntry>,
         actualTestEntries: Set<TestEntry>,
         bucket: Bucket,
-        workerId: String,
-        requestId: String) throws
+        workerId: WorkerId,
+        requestId: RequestId) throws
     {
         let lostTestEntries = expectedTestEntries.subtracting(actualTestEntries)
         if !lostTestEntries.isEmpty {

@@ -21,7 +21,7 @@ public final class QueueClient {
         close()
     }
     
-    public func registerWithServer(workerId: String) throws {
+    public func registerWithServer(workerId: WorkerId) throws {
         try sendRequest(
             .registerWorker,
             payload: RegisterWorkerRequest(workerId: workerId),
@@ -41,8 +41,8 @@ public final class QueueClient {
     /// Apple's guide on handling Handling "The network connection was lost" errors:
     /// https://developer.apple.com/library/archive/qa/qa1941/_index.html
     public func fetchBucket(
-        requestId: String,
-        workerId: String,
+        requestId: RequestId,
+        workerId: WorkerId,
         requestSignature: RequestSignature
     ) throws {
         try sendRequest(
@@ -58,8 +58,8 @@ public final class QueueClient {
     
     public func send(
         testingResult: TestingResult,
-        requestId: String,
-        workerId: String,
+        requestId: RequestId,
+        workerId: WorkerId,
         requestSignature: RequestSignature
     ) throws {
         try sendRequest(
@@ -76,7 +76,7 @@ public final class QueueClient {
     
     public func reportAlive(
         bucketIdsBeingProcessedProvider: @autoclosure () -> (Set<BucketId>),
-        workerId: String,
+        workerId: WorkerId,
         requestSignature: RequestSignature
     ) throws {
         try sendRequest(
@@ -101,7 +101,7 @@ public final class QueueClient {
     public func scheduleTests(
         prioritizedJob: PrioritizedJob,
         testEntryConfigurations: [TestEntryConfiguration],
-        requestId: String)
+        requestId: RequestId)
         throws
     {
         try sendRequest(

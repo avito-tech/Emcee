@@ -15,7 +15,7 @@ import XCTest
 final class QueueServerTests: XCTestCase {
     let eventBus = EventBus()
     let workerConfigurations = WorkerConfigurations()
-    let workerId = "workerId"
+    let workerId: WorkerId = "workerId"
     let jobId: JobId = "jobId"
     lazy var prioritizedJob = PrioritizedJob(jobId: jobId, priority: .medium)
     let automaticTerminationController = AutomaticTerminationControllerFactory(
@@ -30,7 +30,7 @@ final class QueueServerTests: XCTestCase {
     let fixedBucketId: BucketId = "fixedBucketId"
     lazy var bucketSplitter = ScheduleStrategyType.individual.bucketSplitter(
         uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(
-            value: fixedBucketId.stringValue
+            value: fixedBucketId.value
         )
     )
 

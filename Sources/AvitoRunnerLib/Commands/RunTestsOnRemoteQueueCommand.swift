@@ -233,7 +233,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         _ = try queueClient.scheduleTests(
             prioritizedJob: PrioritizedJob(jobId: runId, priority: priority),
             testEntryConfigurations: testEntryConfigurations,
-            requestId: runId.value + "_" + UUID().uuidString
+            requestId: RequestId(value: runId.value + "_" + UUID().uuidString)
         )
         
         var caughtSignal = false

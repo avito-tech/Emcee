@@ -17,7 +17,7 @@ final class RemoteQueuePortScannerTests: XCTestCase {
     }
     
     func test___scanning_ports_with_queue___returns_port_to_version_result() throws {
-        let expectedVersion = Version(stringValue: "version")
+        let expectedVersion = Version(value: "version")
         let server = HttpServer()
         server[RESTMethod.queueVersion.withPrependingSlash] = { request in
             let data = try! JSONEncoder().encode(QueueVersionResponse.queueVersion(expectedVersion))

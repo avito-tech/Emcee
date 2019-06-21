@@ -19,7 +19,7 @@ final class FileHashVersionProviderTests: XCTestCase {
         let versionProvider = FileHashVersionProvider(url: URL(fileURLWithPath: tempFile.path.pathString))
         XCTAssertEqual(
             try versionProvider.version(),
-            Version(stringValue: contentsToHash.avito_sha256Hash().avito_hashStringFromSha256HashData())
+            Version(value: contentsToHash.avito_sha256Hash().avito_hashStringFromSha256HashData())
         )
     }
 }

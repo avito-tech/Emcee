@@ -2,6 +2,7 @@ import BalancingBucketQueue
 import BucketQueue
 import Foundation
 import Metrics
+import Models
 
 public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSource {
     private let dequeueableBucketSource: DequeueableBucketSource
@@ -19,11 +20,11 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
         self.queueStateProvider = queueStateProvider
     }
     
-    public func previouslyDequeuedBucket(requestId: String, workerId: String) -> DequeuedBucket? {
+    public func previouslyDequeuedBucket(requestId: RequestId, workerId: WorkerId) -> DequeuedBucket? {
         return dequeueableBucketSource.previouslyDequeuedBucket(requestId: requestId, workerId: workerId)
     }
     
-    public func dequeueBucket(requestId: String, workerId: String) -> DequeueResult {
+    public func dequeueBucket(requestId: RequestId, workerId: WorkerId) -> DequeueResult {
         let dequeueResult = dequeueableBucketSource.dequeueBucket(requestId: requestId, workerId: workerId)
         
         if case DequeueResult.dequeuedBucket(let dequeuedBucket) = dequeueResult {
@@ -38,7 +39,7 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
     
     private func sendMetrics(
         dequeuedBucket: DequeuedBucket,
-        workerId: String
+        workerId: WorkerId
     ) {
         let jobStates = jobStateProvider.allJobStates
         let runningQueueState = queueStateProvider.runningQueueState

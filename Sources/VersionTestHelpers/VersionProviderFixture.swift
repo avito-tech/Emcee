@@ -25,6 +25,6 @@ public final class VersionProviderFixture: VersionProvider {
     
     public func version() throws -> Version {
         guard !shouldThrow else { throw ExpectedError() }
-        return Version(stringValue: predefinedVersion)
+        return Version(value: predefinedVersion)
     }
 }

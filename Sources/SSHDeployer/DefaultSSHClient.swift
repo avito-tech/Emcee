@@ -2,6 +2,7 @@ import Foundation
 import Shout
 import Basic
 import CSSH
+import Models
 
 public final class DefaultSSHClient: SSHClient {
     private let ssh: SSH

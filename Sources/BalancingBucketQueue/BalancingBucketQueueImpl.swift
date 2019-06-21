@@ -92,7 +92,7 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
         }
     }
     
-    func previouslyDequeuedBucket(requestId: String, workerId: String) -> DequeuedBucket? {
+    func previouslyDequeuedBucket(requestId: RequestId, workerId: WorkerId) -> DequeuedBucket? {
         return syncQueue.sync {
             return runningJobQueues_onSyncQueue
                 .map { $0.bucketQueue }
@@ -101,7 +101,7 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
         }
     }
     
-    func dequeueBucket(requestId: String, workerId: String) -> DequeueResult {
+    func dequeueBucket(requestId: RequestId, workerId: WorkerId) -> DequeueResult {
         return syncQueue.sync {
             let bucketQueues = runningJobQueues_onSyncQueue.map { $0.bucketQueue }
             
@@ -126,7 +126,7 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
         }
     }
     
-    func accept(testingResult: TestingResult, requestId: String, workerId: String) throws -> BucketQueueAcceptResult {
+    func accept(testingResult: TestingResult, requestId: RequestId, workerId: WorkerId) throws -> BucketQueueAcceptResult {
         return try syncQueue.sync {
             if let appropriateJobQueue: JobQueue = allJobQueues_onSyncQueue
                 .filter({ jobQueue in

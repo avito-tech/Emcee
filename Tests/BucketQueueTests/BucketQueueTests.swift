@@ -13,8 +13,8 @@ import XCTest
 final class BucketQueueTests: XCTestCase {
     let workerConfigurations = WorkerConfigurations()
     
-    let workerId = "worker_id"
-    let requestId = "request_id"
+    let workerId: WorkerId = "worker_id"
+    let requestId: RequestId = "request_id"
     let alivenessTrackerWithImmediateTimeout = WorkerAlivenessTrackerFixtures.alivenessTrackerWithImmediateTimeout()
     let alivenessTrackerWithAlwaysAliveResults = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
     let mutableAlivenessProvider = MutableWorkerAlivenessProvider()
@@ -124,7 +124,10 @@ final class BucketQueueTests: XCTestCase {
     
     func test__reponse_workerIsNotAlive__when_worker_is_not_alive() {
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults)
-        let dequeueResult = bucketQueue.dequeueBucket(requestId: requestId, workerId: UUID().uuidString)
+        let dequeueResult = bucketQueue.dequeueBucket(
+            requestId: requestId,
+            workerId: WorkerId(value: UUID().uuidString)
+        )
         XCTAssertEqual(dequeueResult, .workerIsNotAlive)
     }
     

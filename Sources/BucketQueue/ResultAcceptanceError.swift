@@ -2,7 +2,7 @@ import Foundation
 import Models
 
 public enum ResultAcceptanceError: Error, CustomStringConvertible {
-    case noDequeuedBucket(requestId: String, workerId: String)
+    case noDequeuedBucket(requestId: RequestId, workerId: WorkerId)
     
     public var description: String {
         switch self {

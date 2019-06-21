@@ -8,7 +8,7 @@ final class VersionTests: XCTestCase {
         let result = try JSONDecoder().decode([String: Version].self, from: string.data(using: .utf8)!)
         XCTAssertEqual(
             result,
-            ["version": Version(stringValue: "version_value")]
+            ["version": Version(value: "version_value")]
             )
     }
 }

@@ -26,8 +26,8 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
     
     public func accept(
         testingResult: TestingResult,
-        requestId: String,
-        workerId: String
+        requestId: RequestId,
+        workerId: WorkerId
         ) throws -> BucketQueueAcceptResult
     {
         let acceptResult = try bucketResultAccepter.accept(

@@ -11,7 +11,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
     private let fixedBucketId: BucketId = "fixedBucketId"
     private lazy var individualBucketSplitter = IndividualBucketSplitter(
         uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(
-            value: fixedBucketId.stringValue
+            value: fixedBucketId.value
         )
     )
 
@@ -68,7 +68,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
     )
     let jobId = JobId(value: "jobId")
     lazy var prioritizedJob = PrioritizedJob(jobId: jobId, priority: .medium)
-    let requestId = "requestId"
+    let requestId: RequestId = "requestId"
     let testEntryConfigurations = TestEntryConfigurationFixtures()
         .add(testEntry: TestEntryFixtures.testEntry())
         .testEntryConfigurations()

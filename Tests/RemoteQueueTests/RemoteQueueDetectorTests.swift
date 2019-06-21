@@ -25,7 +25,7 @@ final class RemoteQueueDetectorTests: XCTestCase {
     }
     
     func test___when_no_matching_queue_running___returns_empty_result() {
-        let remotePortDeterminer = RemotePortDeterminerFixture(result: [42: Version(stringValue: "remote_version")])
+        let remotePortDeterminer = RemotePortDeterminerFixture(result: [42: Version(value: "remote_version")])
             .build()
         
         let detector = RemoteQueueDetector(
@@ -41,9 +41,9 @@ final class RemoteQueueDetectorTests: XCTestCase {
     
     func test___when_matching_queue_is_running___returns_correct_result() {
         let remotePortDeterminer = RemotePortDeterminerFixture()
-            .set(port: 42, version: Version(stringValue: "local_version"))
-            .set(port: 43, version: Version(stringValue: "_version"))
-            .set(port: 44, version: Version(stringValue: "local_version"))
+            .set(port: 42, version: Version(value: "local_version"))
+            .set(port: 43, version: Version(value: "_version"))
+            .set(port: 44, version: Version(value: "local_version"))
             .build()
         
         let detector = RemoteQueueDetector(

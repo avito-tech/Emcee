@@ -78,7 +78,10 @@ public final class DistRunner {
             emceeVersionProvider: localQueueVersionProvider,
             deploymentDestinations: distRunConfiguration.destinations,
             pluginLocations: distRunConfiguration.auxiliaryResources.plugins,
-            queueAddress: SocketAddress(host: LocalHostDeterminer.currentHostAddress, port: queuePort),
+            queueAddress: SocketAddress(
+                host: LocalHostDeterminer.currentHostAddress,
+                port: queuePort
+            ),
             analyticsConfigurationLocation: distRunConfiguration.analyticsConfigurationLocation,
             tempFolder: tempFolder
         )
@@ -91,7 +94,7 @@ public final class DistRunner {
         let configurations = WorkerConfigurations()
         for destination in distRunConfiguration.destinations {
             configurations.add(
-                workerId: destination.identifier,
+                workerId: WorkerId(value: destination.identifier),
                 configuration: distRunConfiguration.workerConfiguration(
                     destination: destination,
                     requestSignature: requestSignature

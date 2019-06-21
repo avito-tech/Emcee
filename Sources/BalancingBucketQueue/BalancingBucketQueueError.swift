@@ -2,7 +2,7 @@ import Foundation
 import Models
 
 public enum BalancingBucketQueueError: Error, CustomStringConvertible {
-    case noMatchingQueueFound(testingResult: TestingResult, requestId: String, workerId: String)
+    case noMatchingQueueFound(testingResult: TestingResult, requestId: RequestId, workerId: WorkerId)
     case noQueue(jobId: JobId)
     
     public var description: String {

@@ -13,7 +13,7 @@ public final class TestEntryHistory: Equatable {
     }
     
     // Returns true if test was executed on worker and every attempt failed
-    public func isFailingOnWorker(workerId: String) -> Bool {
+    public func isFailingOnWorker(workerId: WorkerId) -> Bool {
         let allAttemptsOnWorker = testEntryHistoryItems.filter { testEntryHistoryItem in
             testEntryHistoryItem.workerId == workerId
         }

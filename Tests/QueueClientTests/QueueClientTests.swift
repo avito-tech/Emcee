@@ -12,7 +12,7 @@ class QueueClientTests: XCTestCase {
     private var port: Int = 0
     private let delegate = FakeQueueClientDelegate()
     private var queueClient: QueueClient!
-    private let workerId = "workerId"
+    private let workerId = WorkerId(value: "workerId")
     private let requestSignature = RequestSignature(value: "expectedRequestSignature")
     
     override func tearDown() {
@@ -51,7 +51,7 @@ class QueueClientTests: XCTestCase {
     
     func testDequeueingBucket() throws {
         let bucket = Bucket(
-            bucketId: BucketId(stringValue: UUID().uuidString),
+            bucketId: BucketId(value: UUID().uuidString),
             testEntries: [TestEntryFixtures.testEntry(className: "class", methodName: "method")],
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
@@ -162,7 +162,7 @@ class QueueClientTests: XCTestCase {
     func test___scheduling_tests() throws {
         let serverHasProvidedResponseExpectation = expectation(description: "Server provided response")
         let prioritizedJob = PrioritizedJob(jobId: "jobid", priority: .medium)
-        let requestId = "requestId"
+        let requestId: RequestId = "requestId"
         let testEntryConfigurations = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry())
             .testEntryConfigurations()

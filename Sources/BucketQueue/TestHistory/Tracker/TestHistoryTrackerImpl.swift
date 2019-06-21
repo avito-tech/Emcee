@@ -14,9 +14,9 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
     }
     
     public func bucketToDequeue(
-        workerId: String,
+        workerId: WorkerId,
         queue: [EnqueuedBucket],
-        aliveWorkers: @autoclosure () -> [String])
+        aliveWorkers: @autoclosure () -> [WorkerId])
         -> EnqueuedBucket?
     {
         let bucketThatWasNotFailingOnWorkerOrNil = queue.first { enqueuedBucket in
@@ -42,7 +42,7 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
     public func accept(
         testingResult: TestingResult,
         bucket: Bucket,
-        workerId: String)
+        workerId: WorkerId)
         throws
         -> TestHistoryTrackerAcceptResult
     {
@@ -86,7 +86,7 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         // Every failed test produces a single bucket with itself
         let bucketsToReenqueue = resultsOfTestsToRetry.map { testEntryResult in
             Bucket(
-                bucketId: BucketId(stringValue: uniqueIdentifierGenerator.generate()),
+                bucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
                 testEntries: [testEntryResult.testEntry],
                 buildArtifacts: bucket.buildArtifacts,
                 simulatorSettings: bucket.simulatorSettings,
@@ -105,7 +105,7 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
     
     private func bucketWasFailingOnWorker(
         bucket: Bucket,
-        workerId: String)
+        workerId: WorkerId)
         -> Bool
     {
         let onWorker: (TestEntryHistory) -> Bool = { testEntryHistory in
@@ -119,7 +119,7 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
     
     private func bucketWasFailingOnEveryWorker(
         bucket: Bucket,
-        aliveWorkers: [String])
+        aliveWorkers: [WorkerId])
         -> Bool
     {
         let onEveryWorker: (TestEntryHistory) -> Bool = { testEntryHistory in

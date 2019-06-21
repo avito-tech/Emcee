@@ -5,9 +5,9 @@ import Models
 
 public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
     private let syncQueue = DispatchQueue(label: "ru.avito.emcee.WorkerAlivenessTracker.syncQueue")
-    private var workerAliveReportTimestamps = [String: Date]()
+    private var workerAliveReportTimestamps = [WorkerId: Date]()
     private let workerBucketIdsBeingProcessed = WorkerCurrentlyProcessingBucketsTracker()
-    private var blockedWorkers = Set<String>()
+    private var blockedWorkers = Set<WorkerId>()
     /// allow worker some additinal time to perform a "i'm alive" report, e.g. to compensate a network latency
     private let maximumNotReportingDuration: TimeInterval
 
@@ -15,7 +15,7 @@ public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
         self.maximumNotReportingDuration = reportAliveInterval + additionalTimeToPerformWorkerIsAliveReport
     }
     
-    public func markWorkerAsAlive(workerId: String) {
+    public func markWorkerAsAlive(workerId: WorkerId) {
         syncQueue.sync {
             if !blockedWorkers.contains(workerId) {
                 workerAliveReportTimestamps[workerId] = Date()
@@ -23,13 +23,13 @@ public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
         }
     }
     
-    public func didDequeueBucket(bucketId: BucketId, workerId: String) {
+    public func didDequeueBucket(bucketId: BucketId, workerId: WorkerId) {
         syncQueue.sync {
             workerBucketIdsBeingProcessed.append(bucketId: bucketId, workerId: workerId)
         }
     }
     
-    public func set(bucketIdsBeingProcessed: Set<BucketId>, workerId: String) {
+    public func set(bucketIdsBeingProcessed: Set<BucketId>, workerId: WorkerId) {
         syncQueue.sync {
             if !blockedWorkers.contains(workerId) {
                 workerBucketIdsBeingProcessed.set(bucketIdsBeingProcessed: bucketIdsBeingProcessed, byWorkerId: workerId)
@@ -37,11 +37,11 @@ public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
         }
     }
     
-    public func didRegisterWorker(workerId: String) {
+    public func didRegisterWorker(workerId: WorkerId) {
         markWorkerAsAlive(workerId: workerId)
     }
     
-    public func blockWorker(workerId: String) {
+    public func blockWorker(workerId: WorkerId) {
         syncQueue.sync {
             _ = blockedWorkers.insert(workerId)
             workerBucketIdsBeingProcessed.resetBucketIdsBeingProcessedBy(workerId: workerId)
@@ -52,22 +52,22 @@ public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
         }
     }
     
-    public var workerAliveness: [String: WorkerAliveness] {
+    public var workerAliveness: [WorkerId: WorkerAliveness] {
         return syncQueue.sync {
             onSyncQueue_workerAliveness()
         }
     }
     
-    public func alivenessForWorker(workerId: String) -> WorkerAliveness {
+    public func alivenessForWorker(workerId: WorkerId) -> WorkerAliveness {
         return syncQueue.sync {
             onSyncQueue_alivenessForWorker(workerId: workerId, currentDate: Date())
         }
     }
     
-    private func onSyncQueue_workerAliveness() -> [String: WorkerAliveness] {
-        let uniqueWorkerIds = Set<String>(workerAliveReportTimestamps.keys).union(blockedWorkers)
+    private func onSyncQueue_workerAliveness() -> [WorkerId: WorkerAliveness] {
+        let uniqueWorkerIds = Set<WorkerId>(workerAliveReportTimestamps.keys).union(blockedWorkers)
         
-        var workerAliveness = [String: WorkerAliveness]()
+        var workerAliveness = [WorkerId: WorkerAliveness]()
         let currentDate = Date()
         for id in uniqueWorkerIds {
             workerAliveness[id] = onSyncQueue_alivenessForWorker(workerId: id, currentDate: currentDate)
@@ -75,7 +75,7 @@ public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
         return workerAliveness
     }
     
-    private func onSyncQueue_alivenessForWorker(workerId: String, currentDate: Date) -> WorkerAliveness {
+    private func onSyncQueue_alivenessForWorker(workerId: WorkerId, currentDate: Date) -> WorkerAliveness {
         guard let latestAliveDate = workerAliveReportTimestamps[workerId] else {
             return WorkerAliveness(status: .notRegistered, bucketIdsBeingProcessed: [])
         }

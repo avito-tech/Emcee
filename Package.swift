@@ -195,7 +195,8 @@ let package = Package(
             // MARK: CurrentlyBeingProcessedBucketsTracker
             name: "CurrentlyBeingProcessedBucketsTracker",
             dependencies: [
-                "CountedSet"
+                "CountedSet",
+                "Models"
             ]
         ),
         .testTarget(
@@ -1094,7 +1095,8 @@ let package = Package(
             // MARK: WorkerAlivenessTracker
             name: "WorkerAlivenessTracker",
             dependencies: [
-                "Logging"
+                "Logging",
+                "Models"
             ]
         ),
         .target(

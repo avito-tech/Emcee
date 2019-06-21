@@ -25,7 +25,10 @@ public final class SocketAddress: Codable, CustomStringConvertible, Hashable {
         guard components.count == 2, let port = Int(components[1]) else {
             throw ParseError.unsupportedFormat(string)
         }
-        return SocketAddress(host: String(components[0]), port: port)
+        return SocketAddress(
+            host: String(components[0]),
+            port: port
+        )
     }
     
     public init(from decoder: Decoder) throws {

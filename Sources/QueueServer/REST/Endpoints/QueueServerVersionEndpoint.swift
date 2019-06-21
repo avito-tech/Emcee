@@ -16,7 +16,7 @@ public final class QueueServerVersionEndpoint: RESTEndpoint {
     public func handle(decodedRequest: QueueVersionRequest) throws -> QueueVersionResponse {
         let version = try versionProvider.version()
         guard queueServerLock.isDiscoverable else {
-            return .queueVersion(Version(stringValue: "not_discoverable_" + version.stringValue))
+            return .queueVersion(Version(value: "not_discoverable_" + version.value))
         }
         return .queueVersion(version)
     }

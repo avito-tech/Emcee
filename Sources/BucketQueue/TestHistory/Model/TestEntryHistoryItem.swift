@@ -2,11 +2,11 @@ import Models
 
 public final class TestEntryHistoryItem: Equatable {
     public let result: TestEntryResult
-    public let workerId: String
+    public let workerId: WorkerId
     
     public init(
         result: TestEntryResult,
-        workerId: String)
+        workerId: WorkerId)
     {
         self.result = result
         self.workerId = workerId

@@ -7,6 +7,6 @@ public protocol TestHistoryStorage {
     func registerAttempt(
         id: TestEntryHistoryId,
         testEntryResult: TestEntryResult,
-        workerId: String)
+        workerId: WorkerId)
         -> TestEntryHistory
 }

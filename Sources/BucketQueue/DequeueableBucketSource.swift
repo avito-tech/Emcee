@@ -1,6 +1,7 @@
 import Foundation
+import Models
 
 public protocol DequeueableBucketSource {
-    func previouslyDequeuedBucket(requestId: String, workerId: String) -> DequeuedBucket?
-    func dequeueBucket(requestId: String, workerId: String) -> DequeueResult
+    func previouslyDequeuedBucket(requestId: RequestId, workerId: WorkerId) -> DequeuedBucket?
+    func dequeueBucket(requestId: RequestId, workerId: WorkerId) -> DequeueResult
 }

@@ -1,4 +1,5 @@
 import Foundation
+import Models
 
 public protocol SSHClient {
     init(host: String, port: Int32, username: String, password: String) throws

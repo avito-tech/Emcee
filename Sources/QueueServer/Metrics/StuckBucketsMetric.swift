@@ -1,5 +1,6 @@
 import Foundation
 import Metrics
+import Models
 
 public final class StuckBucketsMetric: Metric {
     /// - Parameter count: number of stuck buckets
@@ -7,7 +8,7 @@ public final class StuckBucketsMetric: Metric {
     /// - Parameter reason: why runner decided buckets have stuck.
     public init(
         count: Int,
-        host: String,
+        host: WorkerId,
         reason: String)
     {
         super.init(
@@ -18,7 +19,7 @@ public final class StuckBucketsMetric: Metric {
             ],
             variableComponents: [
                 reason,
-                host,
+                host.value,
                 Metric.reservedField,
                 Metric.reservedField,
                 Metric.reservedField,

@@ -3,14 +3,14 @@ import Models
 
 public protocol WorkerAlivenessProvider: class {
     /// Returns immediate snapshot of all worker aliveness statuses.
-    var workerAliveness: [String: WorkerAliveness] { get }
+    var workerAliveness: [WorkerId: WorkerAliveness] { get }
     
-    func alivenessForWorker(workerId: String) -> WorkerAliveness
+    func alivenessForWorker(workerId: WorkerId) -> WorkerAliveness
     
-    func markWorkerAsAlive(workerId: String)
+    func markWorkerAsAlive(workerId: WorkerId)
     
-    func set(bucketIdsBeingProcessed: Set<BucketId>, workerId: String)
-    func didDequeueBucket(bucketId: BucketId, workerId: String)
+    func set(bucketIdsBeingProcessed: Set<BucketId>, workerId: WorkerId)
+    func didDequeueBucket(bucketId: BucketId, workerId: WorkerId)
 }
 
 public extension WorkerAlivenessProvider {
@@ -20,7 +20,7 @@ public extension WorkerAlivenessProvider {
         }
     }
     
-    var aliveWorkerIds: [String] {
+    var aliveWorkerIds: [WorkerId] {
         return workerAliveness.filter { $0.value.status == .alive }.map { $0.key }
     }
 }

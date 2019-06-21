@@ -72,6 +72,6 @@ class FixedVersionProvider: VersionProvider {
     }
     
     public func version() throws -> Version {
-        return Version(stringValue: value)
+        return Version(value: value)
     }
 }

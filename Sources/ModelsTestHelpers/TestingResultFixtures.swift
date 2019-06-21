@@ -18,7 +18,7 @@ public final class TestingResultFixtures {
     
     public convenience init() {
         self.init(
-            bucketId: BucketId(stringValue: UUID().uuidString),
+            bucketId: BucketId(value: UUID().uuidString),
             testEntry: TestEntryFixtures.testEntry(),
             manuallyTestDestination: nil,
             unfilteredResults: []

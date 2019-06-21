@@ -25,8 +25,8 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         localPortDeterminer: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange)
     )
     let workerConfigurations = WorkerConfigurations()
-    let workerId = "worker"
-    let requestId = "requestId"
+    let workerId: WorkerId = "worker"
+    let requestId: RequestId = "requestId"
     let jobId: JobId = "JobId"
     lazy var prioritizedJob = PrioritizedJob(jobId: jobId, priority: .medium)
     let stubbedHandler = RESTEndpointOf(actualHandler: FakeRESTEndpoint<Int, Int>(0))
@@ -179,7 +179,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     }
     
     func test__schedule_tests() throws {
-        let bucketId = BucketId(stringValue: UUID().uuidString)
+        let bucketId = BucketId(value: UUID().uuidString)
         let testEntryConfigurations = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry())
             .testEntryConfigurations()
@@ -187,7 +187,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let testsEnqueuer = TestsEnqueuer(
             bucketSplitter: IndividualBucketSplitter(
                 uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(
-                    value: bucketId.stringValue
+                    value: bucketId.value
                 )
             ),
             bucketSplitInfo: BucketSplitInfo(

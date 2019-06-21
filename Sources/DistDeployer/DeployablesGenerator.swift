@@ -28,7 +28,7 @@ final class DeployablesGenerator {
             files: [
                 DeployableFile(
                     source: ProcessInfo.processInfo.executablePath,
-                    destination: remoteEmceeBinaryName + "_" + (try emceeVersionProvider.version().stringValue)
+                    destination: remoteEmceeBinaryName + "_" + (try emceeVersionProvider.version().value)
                 )
             ]
         )

@@ -22,7 +22,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     private var bucketResultSendResult: Result<BucketId, QueueClientError>?
     private var alivenessReportResult: Result<Bool, QueueClientError>?
     private var queueServerVersionResult: Result<Version, QueueClientError>?
-    private var scheduleTestsResult: Result<String, QueueClientError>?
+    private var scheduleTestsResult: Result<RequestId, QueueClientError>?
     private var jobResultsResult: Result<JobResults, QueueClientError>?
     private var jobStateResult: Result<JobState, QueueClientError>?
     private var jobDeleteResult: Result<JobId, QueueClientError>?
@@ -47,7 +47,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     
     // MARK: Public API
     
-    public func registerWithServer(workerId: String) throws -> WorkerConfiguration {
+    public func registerWithServer(workerId: WorkerId) throws -> WorkerConfiguration {
         return try synchronize {
             registrationResult = nil
             try queueClient.registerWithServer(workerId: workerId)
@@ -58,7 +58,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         }
     }
     
-    public func fetchBucket(requestId: String, workerId: String, requestSignature: RequestSignature) throws -> BucketFetchResult {
+    public func fetchBucket(requestId: RequestId, workerId: WorkerId, requestSignature: RequestSignature) throws -> BucketFetchResult {
         return try synchronize {
             bucketFetchResult = nil
             return try runRetrying {
@@ -71,7 +71,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         }
     }
     
-    public func send(testingResult: TestingResult, requestId: String, workerId: String, requestSignature: RequestSignature) throws -> BucketId {
+    public func send(testingResult: TestingResult, requestId: RequestId, workerId: WorkerId, requestSignature: RequestSignature) throws -> BucketId {
         return try synchronize {
             bucketResultSendResult = nil
             return try runRetrying {
@@ -89,7 +89,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         }
     }
     
-    public func reportAliveness(bucketIdsBeingProcessedProvider: @autoclosure () -> (Set<BucketId>), workerId: String, requestSignature: RequestSignature) throws {
+    public func reportAliveness(bucketIdsBeingProcessedProvider: @autoclosure () -> (Set<BucketId>), workerId: WorkerId, requestSignature: RequestSignature) throws {
         try synchronize {
             alivenessReportResult = nil
             try runRetrying {
@@ -119,8 +119,8 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     public func scheduleTests(
         prioritizedJob: PrioritizedJob,
         testEntryConfigurations: [TestEntryConfiguration],
-        requestId: String)
-        throws -> String
+        requestId: RequestId)
+        throws -> RequestId
     {
         return try synchronize {
             scheduleTestsResult = nil
@@ -246,7 +246,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         alivenessReportResult = Result.success(true)
     }
     
-    public func queueClientDidScheduleTests(_ sender: QueueClient, requestId: String) {
+    public func queueClientDidScheduleTests(_ sender: QueueClient, requestId: RequestId) {
         scheduleTestsResult = Result.success(requestId)
     }
     

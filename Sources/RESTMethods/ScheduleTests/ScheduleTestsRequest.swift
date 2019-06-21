@@ -2,12 +2,12 @@ import Foundation
 import Models
 
 public final class ScheduleTestsRequest: Codable {
-    public let requestId: String
+    public let requestId: RequestId
     public let prioritizedJob: PrioritizedJob
     public let testEntryConfigurations: [TestEntryConfiguration]
 
     public init(
-        requestId: String,
+        requestId: RequestId,
         prioritizedJob: PrioritizedJob,
         testEntryConfigurations: [TestEntryConfiguration])
     {

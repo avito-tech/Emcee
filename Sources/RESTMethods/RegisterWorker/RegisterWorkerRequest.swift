@@ -1,9 +1,10 @@
 import Foundation
+import Models
 
 public final class RegisterWorkerRequest: Codable {
-    public let workerId: String
+    public let workerId: WorkerId
     
-    public init(workerId: String) {
+    public init(workerId: WorkerId) {
         self.workerId = workerId
     }
 }

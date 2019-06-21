@@ -7,8 +7,8 @@ import XCTest
 
 final class TestHistoryTrackerIntegrationTests: XCTestCase {
     private let emptyResultsFixtures = TestingResultFixtures()
-    private let failingWorkerId = "failingWorkerId"
-    private let notFailingWorkerId = "notFailingWorkerId"
+    private let failingWorkerId: WorkerId = "failingWorkerId"
+    private let notFailingWorkerId: WorkerId = "notFailingWorkerId"
     private let fixedDate = Date()
     private let fixedIdentifier = "identifier"
     
@@ -22,7 +22,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         .with(bucketId: bucketFixture.bucketId)
         .addingResult(success: false)
     private lazy var bucketFixture = BucketFixtures.createBucket(
-        bucketId: BucketId(stringValue: fixedIdentifier)
+        bucketId: BucketId(value: fixedIdentifier)
     )
 
     func test___accept___tells_to_accept_failures___when_retrying_is_disabled() throws {
@@ -48,7 +48,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
 
     func test___accept___tells_to_retry___when_retrying_is_possible() throws {
         let testBucket = BucketFixtures.createBucket(
-            bucketId: BucketId(stringValue: fixedIdentifier),
+            bucketId: BucketId(value: fixedIdentifier),
             numberOfRetries: 1
         )
         let testingResultFixture = oneFailResultsFixtures.with(bucketId: testBucket.bucketId)
@@ -182,7 +182,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual(bucketToDequeue?.bucket, bucketFixture)
     }
     
-    private func failOnce(tracker: TestHistoryTracker, workerId: String) throws {
+    private func failOnce(tracker: TestHistoryTracker, workerId: WorkerId) throws {
         _ = tracker.bucketToDequeue(
             workerId: failingWorkerId,
             queue: [

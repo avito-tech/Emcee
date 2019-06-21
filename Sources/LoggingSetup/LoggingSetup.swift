@@ -108,7 +108,7 @@ public final class LoggingSetup {
         return SentryLoggerHandler(
             dsn: dsn,
             hostname: LocalHostDeterminer.currentHostAddress,
-            release: try binaryVersionProvider.version().stringValue,
+            release: try binaryVersionProvider.version().value,
             sentryEventDateFormatter: SentryDateFormatterFactory.createDateFormatter(),
             urlSession: URLSession.shared,
             verbosity: verbosity

@@ -14,7 +14,7 @@ public final class TestHistoryStorageImpl: TestHistoryStorage {
     public func registerAttempt(
         id: TestEntryHistoryId,
         testEntryResult: TestEntryResult,
-        workerId: String)
+        workerId: WorkerId)
         -> TestEntryHistory
     {
         let history = historyByTest[

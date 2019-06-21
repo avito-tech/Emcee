@@ -33,7 +33,11 @@ final class DistWorkCommand: Command {
         }
         
         let queueServerAddress = try ArgumentsReader.socketAddress(arguments.get(self.queueServer), key: KnownStringArguments.queueServer)
-        let workerId = try ArgumentsReader.validateNotNil(arguments.get(self.workerId), key: KnownStringArguments.workerId)
+        let workerId = WorkerId(
+            value: try ArgumentsReader.validateNotNil(
+                arguments.get(self.workerId), key: KnownStringArguments.workerId
+            )
+        )
         
         let distWorker = DistWorker(
             queueServerAddress: queueServerAddress,

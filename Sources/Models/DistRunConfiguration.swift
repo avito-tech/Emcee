@@ -83,7 +83,7 @@ public struct DistRunConfiguration {
     }
     
     private func testRunExecutionBehavior(destination: DeploymentDestination) -> TestRunExecutionBehavior {
-        let overrides = destinationConfigurations.first { $0.destinationIdentifier == destination.identifier }
+        let overrides = destinationConfigurations.first { $0.destinationIdentifier.value == destination.identifier }
         
         return TestRunExecutionBehavior(
             numberOfSimulators: overrides?.numberOfSimulators ?? testRunExecutionBehavior.numberOfSimulators,

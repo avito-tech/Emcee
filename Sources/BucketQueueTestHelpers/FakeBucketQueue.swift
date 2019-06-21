@@ -37,11 +37,11 @@ public class FakeBucketQueue: BucketQueue {
         enqueuedBuckets.append(contentsOf: buckets)
     }
     
-    public func previouslyDequeuedBucket(requestId: String, workerId: String) -> DequeuedBucket? {
+    public func previouslyDequeuedBucket(requestId: RequestId, workerId: WorkerId) -> DequeuedBucket? {
         return fixedPreviouslyDequeuedBucket
     }
     
-    public func dequeueBucket(requestId: String, workerId: String) -> DequeueResult {
+    public func dequeueBucket(requestId: RequestId, workerId: WorkerId) -> DequeueResult {
         return fixedDequeueResult
     }
     
@@ -49,7 +49,7 @@ public class FakeBucketQueue: BucketQueue {
         removedAllEnqueuedBuckets = true
     }
     
-    public func accept(testingResult: TestingResult, requestId: String, workerId: String) throws -> BucketQueueAcceptResult {
+    public func accept(testingResult: TestingResult, requestId: RequestId, workerId: WorkerId) throws -> BucketQueueAcceptResult {
         if throwsOnAccept {
             throw AcceptanceError()
         } else {

@@ -1,8 +1,9 @@
 import Foundation
 import Metrics
+import Models
 
 public final class DequeueBucketsMetric: Metric {
-    public init(workerId: String, numberOfBuckets: Int) {
+    public init(workerId: WorkerId, numberOfBuckets: Int) {
         super.init(
             fixedComponents: [
                 "queue",
@@ -10,7 +11,7 @@ public final class DequeueBucketsMetric: Metric {
                 "dequeue"
             ],
             variableComponents: [
-                workerId,
+                workerId.value,
                 Metric.reservedField,
                 Metric.reservedField,
                 Metric.reservedField,

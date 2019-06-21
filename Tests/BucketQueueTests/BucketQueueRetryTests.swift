@@ -12,7 +12,7 @@ import XCTest
 
 final class BucketQueueRetryTests: XCTestCase {
     private let fixedBucketId: BucketId = "fixedBucketId"
-    private lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: fixedBucketId.stringValue)
+    private lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: fixedBucketId.value)
 
     func test___bucket_queue___gives_job_to_another_worker___if_worker_fails() {
         assertNoThrow {
@@ -108,7 +108,7 @@ final class BucketQueueRetryTests: XCTestCase {
             let bucket = bucketWithTwoRetires
             bucketQueue.enqueue(buckets: [bucket])
             
-            let requestId = UUID().uuidString
+            let requestId = RequestId(value: UUID().uuidString)
             _ = bucketQueue.dequeueBucket(
                 requestId: requestId,
                 workerId: failingWorker
@@ -156,20 +156,20 @@ final class BucketQueueRetryTests: XCTestCase {
         }
     }
     
-    private let firstWorker = "firstWorker"
-    private let secondWorker = "secondWorker"
-    private let failingWorker = "failingWorker"
-    private let anotherWorker = "anotherWorker"
+    private let firstWorker: WorkerId = "firstWorker"
+    private let secondWorker: WorkerId = "secondWorker"
+    private let failingWorker: WorkerId = "failingWorker"
+    private let anotherWorker: WorkerId = "anotherWorker"
     private let dateProvider = DateProviderFixture()
     
-    private func bucketQueue(workerIds: [String]) -> BucketQueue {
+    private func bucketQueue(workerIds: [WorkerId]) -> BucketQueue {
         let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
         workerIds.forEach(tracker.didRegisterWorker)
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(
             dateProvider: dateProvider,
             testHistoryTracker: TestHistoryTrackerFixtures.testHistoryTracker(
-                generatorValue: fixedBucketId.stringValue
+                generatorValue: fixedBucketId.value
             ),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessProvider: tracker
@@ -178,8 +178,8 @@ final class BucketQueueRetryTests: XCTestCase {
         return bucketQueue
     }
     
-    private func dequeueTestAndFail(bucketQueue: BucketQueue, workerId: String) throws {
-        let requestId = UUID().uuidString
+    private func dequeueTestAndFail(bucketQueue: BucketQueue, workerId: WorkerId) throws {
+        let requestId = RequestId(value: UUID().uuidString)
         
         let dequeueResult = bucketQueue.dequeueBucket(
             requestId: requestId,

@@ -3,21 +3,21 @@ import WorkerAlivenessTracker
 import Models
 
 public final class MutableWorkerAlivenessProvider: WorkerAlivenessProvider {
-    public func markWorkerAsAlive(workerId: String) {
+    public func markWorkerAsAlive(workerId: WorkerId) {
         
     }
     
-    public func set(bucketIdsBeingProcessed: Set<BucketId>, workerId: String) {
+    public func set(bucketIdsBeingProcessed: Set<BucketId>, workerId: WorkerId) {
         
     }
     
-    public func didDequeueBucket(bucketId: BucketId, workerId: String) {
+    public func didDequeueBucket(bucketId: BucketId, workerId: WorkerId) {
         
     }
     
-    public var workerAliveness = [String: WorkerAliveness]()
+    public var workerAliveness = [WorkerId: WorkerAliveness]()
     
-    public func alivenessForWorker(workerId: String) -> WorkerAliveness {
+    public func alivenessForWorker(workerId: WorkerId) -> WorkerAliveness {
         return workerAliveness[workerId] ?? WorkerAliveness(status: .notRegistered, bucketIdsBeingProcessed: [])
     }
     

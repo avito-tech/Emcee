@@ -16,12 +16,12 @@ import Timer
 public final class DistWorker: SchedulerDelegate {
     private let queueClient: SynchronousQueueClient
     private let syncQueue = DispatchQueue(label: "ru.avito.DistWorker")
-    private var requestIdForBucketId = [BucketId: String]()  // bucketId -> requestId
+    private var requestIdForBucketId = [BucketId: RequestId]()
     private let bucketConfigurationFactory: BucketConfigurationFactory
     private let resourceLocationResolver: ResourceLocationResolver
     private var reportingAliveTimer: DispatchBasedTimer?
     private let currentlyBeingProcessedBucketsTracker = CurrentlyBeingProcessedBucketsTracker()
-    private let workerId: String
+    private let workerId: WorkerId
     private var requestSignature = Either<RequestSignature, DistWorkerError>.error(DistWorkerError.missingRequestSignature)
     
     private enum BucketFetchResult: Equatable {
@@ -31,7 +31,7 @@ public final class DistWorker: SchedulerDelegate {
     
     public init(
         queueServerAddress: SocketAddress,
-        workerId: String,
+        workerId: WorkerId,
         resourceLocationResolver: ResourceLocationResolver)
     {
         self.resourceLocationResolver = resourceLocationResolver
@@ -127,7 +127,7 @@ public final class DistWorker: SchedulerDelegate {
         reportingAliveTimer?.pause()
         defer { reportingAliveTimer?.resume() }
         
-        let requestId = UUID().uuidString
+        let requestId = RequestId(value: UUID().uuidString)
         let result = try queueClient.fetchBucket(
             requestId: requestId,
             workerId: workerId,
@@ -198,7 +198,7 @@ public final class DistWorker: SchedulerDelegate {
         }
         
         do {
-            let requestId: String = try syncQueue.sync {
+            let requestId: RequestId = try syncQueue.sync {
                 guard let requestId = requestIdForBucketId.removeValue(forKey: testingResult.bucketId) else {
                     Logger.error("No requestId for bucket: \(testingResult.bucketId)")
                     throw DistWorkerError.noRequestIdForBucketId(testingResult.bucketId)

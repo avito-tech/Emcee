@@ -393,7 +393,7 @@ final class BalancingBucketQueueTests: XCTestCase {
     lazy var anotherPrioritizedJob = PrioritizedJob(jobId: anotherJobId, priority: .medium)
     let highlyPrioritizedJobId: JobId = "highPriorityJobId"
     lazy var highlyPrioritizedJob = PrioritizedJob(jobId: highlyPrioritizedJobId, priority: .highest)
-    let requestId = "requestId"
-    let workerId = "workerId"
-    let anotherRequestId = "anotherRequestId"
+    let requestId: RequestId = "requestId"
+    let workerId: WorkerId = "workerId"
+    let anotherRequestId: RequestId = "anotherRequestId"
 }

@@ -2,6 +2,7 @@ import Foundation
 import Models
 import QueueClient
 import Version
+import Models
 
 class FakeQueueClientDelegate: QueueClientDelegate {
     enum ServerResponse {
@@ -15,7 +16,7 @@ class FakeQueueClientDelegate: QueueClientDelegate {
         case workerConsideredNotAlive
         case alivenessAccepted
         case queueServerVersion(Version)
-        case didScheduleTests(String)
+        case didScheduleTests(RequestId)
         case fetchedJobState(JobState)
         case fecthedJobResults(JobResults)
         case deletedJob(JobId)
@@ -63,7 +64,7 @@ class FakeQueueClientDelegate: QueueClientDelegate {
         responses.append(ServerResponse.alivenessAccepted)
     }
     
-    func queueClientDidScheduleTests(_ sender: QueueClient, requestId: String) {
+    func queueClientDidScheduleTests(_ sender: QueueClient, requestId: RequestId) {
         responses.append(ServerResponse.didScheduleTests(requestId))
     }
     

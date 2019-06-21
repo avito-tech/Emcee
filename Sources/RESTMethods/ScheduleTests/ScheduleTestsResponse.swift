@@ -2,7 +2,7 @@ import Foundation
 import Models
 
 public enum ScheduleTestsResponse: Codable, Equatable {
-    case scheduledTests(requestId: String)
+    case scheduledTests(requestId: RequestId)
     
     enum CodingKeys: CodingKey {
         case responseType
@@ -27,7 +27,7 @@ public enum ScheduleTestsResponse: Codable, Equatable {
         let responseType = try container.decode(CaseId.self, forKey: .responseType)
         switch responseType {
         case .scheduledTests:
-            self = .scheduledTests(requestId: try container.decode(String.self, forKey: .requestId))
+            self = .scheduledTests(requestId: try container.decode(RequestId.self, forKey: .requestId))
         }
     }
 }

@@ -9,6 +9,6 @@ public final class FileHashVersionProvider: VersionProvider {
     }
     
     public func version() throws -> Version {
-        return Version(stringValue: try hasher.hash())
+        return Version(value: try hasher.hash())
     }
 }

@@ -2,12 +2,12 @@ import Foundation
 import Models
 
 public final class ReportAliveRequest: Codable, SignedRequest {
-    public let workerId: String
+    public let workerId: WorkerId
     public let bucketIdsBeingProcessed: Set<BucketId>
     public let requestSignature: RequestSignature
     
     public init(
-        workerId: String,
+        workerId: WorkerId,
         bucketIdsBeingProcessed: Set<BucketId>,
         requestSignature: RequestSignature
     ) {
