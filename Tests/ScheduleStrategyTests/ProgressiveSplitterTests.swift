@@ -1,10 +1,14 @@
+@testable import ScheduleStrategy
 import Models
 import ModelsTestHelpers
-@testable import ScheduleStrategy
+import UniqueIdentifierGenerator
+import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class ProgressiveSplitterTests: XCTestCase {
-    let progressiveSplitter = ProgressiveBucketSplitter()
+    let progressiveSplitter = ProgressiveBucketSplitter(
+        uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator()
+    )
     
     let testEntries = [
         TestEntryFixtures.testEntry(className: "class", methodName: "testMethod0"),

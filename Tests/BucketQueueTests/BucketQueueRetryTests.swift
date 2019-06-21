@@ -11,6 +11,9 @@ import WorkerAlivenessTrackerTestHelpers
 import XCTest
 
 final class BucketQueueRetryTests: XCTestCase {
+    private let fixedBucketId = "fixedBucketId"
+    private lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: fixedBucketId)
+
     func test___bucket_queue___gives_job_to_another_worker___if_worker_fails() {
         assertNoThrow {
             // Given
@@ -158,7 +161,6 @@ final class BucketQueueRetryTests: XCTestCase {
     private let failingWorker = "failingWorker"
     private let anotherWorker = "anotherWorker"
     private let dateProvider = DateProviderFixture()
-    private let uniqueIdentifierGenerator = FixedUniqueIdentifierGenerator()
     
     private func bucketQueue(workerIds: [String]) -> BucketQueue {
         let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
@@ -166,7 +168,9 @@ final class BucketQueueRetryTests: XCTestCase {
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(
             dateProvider: dateProvider,
-            testHistoryTracker: TestHistoryTrackerFixtures.testHistoryTracker(),
+            testHistoryTracker: TestHistoryTrackerFixtures.testHistoryTracker(
+                generatorValue: fixedBucketId
+            ),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessProvider: tracker
         )
@@ -199,6 +203,7 @@ final class BucketQueueRetryTests: XCTestCase {
     
     private let testEntry = TestEntryFixtures.testEntry()
     private lazy var bucketWithTwoRetires = BucketFixtures.createBucket(
+        bucketId: fixedBucketId,
         testEntries: [testEntry],
         numberOfRetries: 2
     )

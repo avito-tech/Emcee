@@ -61,7 +61,8 @@ public final class QueueServer {
                 checkAgainTimeInterval: checkAgainTimeInterval,
                 dateProvider: dateProvider,
                 testHistoryTracker: TestHistoryTrackerImpl(
-                    testHistoryStorage: TestHistoryStorageImpl()
+                    testHistoryStorage: TestHistoryStorageImpl(),
+                    uniqueIdentifierGenerator: uniqueIdentifierGenerator
                 ),
                 uniqueIdentifierGenerator: uniqueIdentifierGenerator,
                 workerAlivenessProvider: workerAlivenessTracker

@@ -1,7 +1,7 @@
 import Foundation
 import UniqueIdentifierGenerator
 
-public final class FixedUniqueIdentifierGenerator: UniqueIdentifierGenerator {
+public final class FixedValueUniqueIdentifierGenerator: UniqueIdentifierGenerator {
     public let value: String
     
     public init(value: String = UUID().uuidString) {

@@ -2,6 +2,8 @@ import Foundation
 import Models
 import ModelsTestHelpers
 import ScheduleStrategy
+import UniqueIdentifierGenerator
+import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class BucketSplitterTests: XCTestCase {
@@ -26,7 +28,9 @@ final class BucketSplitterTests: XCTestCase {
                     .with(testDestination: testDestination2)
                     .testEntryConfigurations()
         
-        let splitter = ContinuousBucketSplitter()
+        let splitter = ContinuousBucketSplitter(
+            uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator()
+        )
         
         let buckets = splitter.generate(
             inputs: testEntryConfigurations,

@@ -3,12 +3,14 @@ import BucketQueueTestHelpers
 import Foundation
 import Models
 import ModelsTestHelpers
+import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class TestHistoryTests: XCTestCase {
     private let storage = TestHistoryStorageMock()
     private lazy var tracker = TestHistoryTrackerImpl(
-        testHistoryStorage: storage
+        testHistoryStorage: storage,
+        uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator()
     )
     private let fixedDate = Date()
     private let fixedIdentifier = "identifier"

@@ -2,10 +2,14 @@ import Foundation
 import Models
 import ModelsTestHelpers
 import ScheduleStrategy
+import UniqueIdentifierGenerator
+import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class IndividualBucketSplitterTests: XCTestCase {
-    let individualSplitter = IndividualBucketSplitter()
+    let individualSplitter = IndividualBucketSplitter(
+        uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator()
+    )
     let testEntries = [
         TestEntryFixtures.testEntry(className: "class", methodName: "testMethod1"),
         TestEntryFixtures.testEntry(className: "class", methodName: "testMethod2"),

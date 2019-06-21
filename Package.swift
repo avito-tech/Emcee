@@ -108,12 +108,13 @@ let package = Package(
                 "ProcessController",
                 "RemoteQueue",
                 "ResourceLocationResolver",
+                "SPMUtility",
                 "SSHDeployer",
                 "ScheduleStrategy",
                 "Scheduler",
                 "SignalHandling",
-                "SPMUtility",
-                "Version"
+                "Version",
+                "UniqueIdentifierGenerator"
             ]
         ),
         .testTarget(
@@ -165,6 +166,7 @@ let package = Package(
                 "DateProviderTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
+                "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessTracker"
             ]
@@ -701,11 +703,12 @@ let package = Package(
                 "Models",
                 "ModelsTestHelpers",
                 "QueueServer",
-                "ResourceLocationResolver",
                 "RESTMethods",
+                "ResourceLocationResolver",
                 "ResultsCollector",
                 "ScheduleStrategy",
                 "TempFolder",
+                "UniqueIdentifierGeneratorTestHelpers",
                 "VersionTestHelpers",
                 "WorkerAlivenessTracker",
                 "WorkerAlivenessTrackerTestHelpers"
@@ -877,7 +880,8 @@ let package = Package(
                 "ScheduleStrategy",
                 "SimulatorPool",
                 "SynchronousWaiter",
-                "TempFolder"
+                "TempFolder",
+                "UniqueIdentifierGenerator"
             ]
         ),
         .target(
@@ -886,7 +890,8 @@ let package = Package(
             dependencies: [
                 "Extensions",
                 "Logging",
-                "Models"
+                "Models",
+                "UniqueIdentifierGenerator"
             ]
         ),
         .testTarget(
@@ -895,7 +900,9 @@ let package = Package(
             dependencies: [
                 "Models",
                 "ModelsTestHelpers",
-                "ScheduleStrategy"
+                "ScheduleStrategy",
+                "UniqueIdentifierGenerator",
+                "UniqueIdentifierGeneratorTestHelpers",
             ]
         ),
         .target(

@@ -19,7 +19,7 @@ final class BucketQueueTests: XCTestCase {
     let alivenessTrackerWithAlwaysAliveResults = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
     let mutableAlivenessProvider = MutableWorkerAlivenessProvider()
     let dateProvider = DateProviderFixture()
-    let uniqueIdentifierGenerator = FixedUniqueIdentifierGenerator()
+    let uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator()
     
     override func setUp() {
         continueAfterFailure = false

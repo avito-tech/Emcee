@@ -4,6 +4,7 @@ import Logging
 import Models
 import RuntimeDump
 import ScheduleStrategy
+import UniqueIdentifierGenerator
 
 /**
  * A data set for a Scheduler that splits the TestToRun into Buckets and provides them back to the Scheduler.
@@ -15,9 +16,15 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
     private var buckets: [Bucket]
     private let syncQueue = DispatchQueue(label: "ru.avito.LocalRunSchedulerDataSource")
 
-    public init(configuration: LocalTestRunConfiguration) {
+    public init(
+        configuration: LocalTestRunConfiguration,
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator
+    ) {
         self.configuration = configuration
-        self.buckets = LocalRunSchedulerDataSource.prepareBuckets(configuration: configuration)
+        self.buckets = LocalRunSchedulerDataSource.prepareBuckets(
+            configuration: configuration,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+        )
     }
     
     public func nextBucket() -> SchedulerBucket? {
@@ -33,8 +40,13 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
         }
     }
     
-    private static func prepareBuckets(configuration: LocalTestRunConfiguration) -> [Bucket] {
-        let splitter = configuration.testRunExecutionBehavior.scheduleStrategy.bucketSplitter()
+    private static func prepareBuckets(
+        configuration: LocalTestRunConfiguration,
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator
+    ) -> [Bucket] {
+        let splitter = configuration.testRunExecutionBehavior.scheduleStrategy.bucketSplitter(
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+        )
         Logger.verboseDebug("Using strategy: \(splitter.description)")
         
         let buckets = splitter.generate(

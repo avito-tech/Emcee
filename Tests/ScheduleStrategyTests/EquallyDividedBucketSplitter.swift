@@ -3,10 +3,14 @@ import Foundation
 import Models
 import ModelsTestHelpers
 import ScheduleStrategy
+import UniqueIdentifierGenerator
+import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class EquallyDividedBucketSplitterTests: XCTestCase {
-    let equallyDividedSplitter = EquallyDividedBucketSplitter()
+    let equallyDividedSplitter = EquallyDividedBucketSplitter(
+        uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator()
+    )
     let testEntries = [
         TestEntryFixtures.testEntry(className: "class", methodName: "testMethod1"),
         TestEntryFixtures.testEntry(className: "class", methodName: "testMethod2"),

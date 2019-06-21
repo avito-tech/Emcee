@@ -372,7 +372,7 @@ final class BalancingBucketQueueTests: XCTestCase {
     }
     
     let dateProvider = DateProviderFixture()
-    let uniqueIdentifierGenerator = FixedUniqueIdentifierGenerator()
+    let uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator()
     let workerAlivenessProvider = MutableWorkerAlivenessProvider()
     let checkAgainTimeInterval: TimeInterval = 42
     lazy var bucketQueueFactory = BucketQueueFactory(

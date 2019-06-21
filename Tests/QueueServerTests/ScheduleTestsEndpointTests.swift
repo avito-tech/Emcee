@@ -4,9 +4,15 @@ import ModelsTestHelpers
 import QueueServer
 import RESTMethods
 import ScheduleStrategy
+import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class ScheduleTestsEndpointTests: XCTestCase {
+    private let fixedBucketId = "fixedBucketId"
+    private lazy var individualBucketSplitter = IndividualBucketSplitter(
+        uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(value: fixedBucketId)
+    )
+
     func test___scheduling_tests() throws {
         let endpoint = ScheduleTestsEndpoint(testsEnqueuer: testsEnqueuer)
         let response = try endpoint.handle(
@@ -21,7 +27,12 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         
         XCTAssertEqual(
             enqueueableBucketReceptor.enqueuedJobs[prioritizedJob],
-            [BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])]
+            [
+                BucketFixtures.createBucket(
+                    bucketId: fixedBucketId,
+                    testEntries: [TestEntryFixtures.testEntry()]
+                )
+            ]
         )
     }
     
@@ -39,11 +50,15 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         
         XCTAssertEqual(
             enqueueableBucketReceptor.enqueuedJobs[prioritizedJob],
-            [BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])]
+            [
+                BucketFixtures.createBucket(
+                    bucketId: fixedBucketId,
+                    testEntries: [TestEntryFixtures.testEntry()]
+                )
+            ]
         )
     }
-    
-    let individualBucketSplitter = IndividualBucketSplitter()
+
     let bucketSplitInfo = BucketSplitInfo(
         numberOfWorkers: 0,
         toolResources: ToolResourcesFixtures.fakeToolResources(),

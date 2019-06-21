@@ -1,6 +1,7 @@
 import Foundation
 import Logging
 import Models
+import UniqueIdentifierGenerator
 
 public struct BucketSplitInfo {
     public let numberOfWorkers: UInt
@@ -25,9 +26,11 @@ public class BucketSplitter: Splitter, CustomStringConvertible {
     public typealias Output = Bucket
     
     public let description: String
+    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     
-    public init(description: String) {
+    public init(description: String, uniqueIdentifierGenerator: UniqueIdentifierGenerator) {
         self.description = description
+        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
     public final func generate(inputs: [TestEntryConfiguration], splitInfo: BucketSplitInfo) -> [Bucket] {
@@ -49,6 +52,7 @@ public class BucketSplitter: Splitter, CustomStringConvertible {
         return groups.compactMap { (group: [TestEntryConfiguration]) -> Bucket? in
             guard let entry = group.first else { return nil }
             return Bucket(
+                bucketId: uniqueIdentifierGenerator.generate(),
                 testEntries: group.map { $0.testEntry },
                 buildArtifacts: entry.buildArtifacts,
                 simulatorSettings: bucketSplitInfo.simulatorSettings,

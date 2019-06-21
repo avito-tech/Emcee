@@ -11,6 +11,7 @@ import QueueServer
 import RESTMethods
 import ResultsCollector
 import ScheduleStrategy
+import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessTracker
 import WorkerAlivenessTrackerTestHelpers
 import XCTest
@@ -178,12 +179,15 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     }
     
     func test__schedule_tests() throws {
+        let bucketId = UUID().uuidString
         let testEntryConfigurations = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry())
             .testEntryConfigurations()
         let enqueueableBucketReceptor = FakeEnqueueableBucketReceptor()
         let testsEnqueuer = TestsEnqueuer(
-            bucketSplitter: IndividualBucketSplitter(),
+            bucketSplitter: IndividualBucketSplitter(
+                uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(value: bucketId)
+            ),
             bucketSplitInfo: BucketSplitInfo(
                 numberOfWorkers: 0,
                 toolResources: ToolResourcesFixtures.fakeToolResources(),
@@ -215,7 +219,12 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         XCTAssertEqual(acceptedRequestId, requestId)
         XCTAssertEqual(
             enqueueableBucketReceptor.enqueuedJobs[prioritizedJob],
-            [BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])]
+            [
+                BucketFixtures.createBucket(
+                    bucketId: bucketId,
+                    testEntries: [TestEntryFixtures.testEntry()]
+                )
+            ]
         )
     }
     

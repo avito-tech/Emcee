@@ -2,13 +2,21 @@ import Extensions
 import Foundation
 import Logging
 import Models
+import UniqueIdentifierGenerator
 
 public final class ProgressiveBucketSplitter: BucketSplitter {
-    public init() {
-        super.init(description: "Progressive schedule strategy")
+    public init(uniqueIdentifierGenerator: UniqueIdentifierGenerator) {
+        equallyDividedSplitter = EquallyDividedBucketSplitter(
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+        )
+
+        super.init(
+            description: "Progressive schedule strategy",
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+        )
     }
     
-    private let equallyDividedSplitter = EquallyDividedBucketSplitter()
+    private let equallyDividedSplitter: EquallyDividedBucketSplitter
     
     public override func split(inputs: [TestEntryConfiguration], bucketSplitInfo: BucketSplitInfo) -> [[TestEntryConfiguration]] {
         /*

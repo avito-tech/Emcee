@@ -23,6 +23,7 @@ public final class DistRunner {
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TempFolder
     private let requestSignature = RequestSignature(value: UUID().uuidString)
+    private let uniqueIdentifierGenerator = UuidBasedUniqueIdentifierGenerator()
     
     public init(
         distRunConfiguration: DistRunConfiguration,
@@ -53,7 +54,9 @@ public final class DistRunner {
             checkAgainTimeInterval: distRunConfiguration.checkAgainTimeInterval,
             localPortDeterminer: localPortDeterminer,
             workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
-            bucketSplitter: distRunConfiguration.remoteScheduleStrategyType.bucketSplitter(),
+            bucketSplitter: distRunConfiguration.remoteScheduleStrategyType.bucketSplitter(
+                uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            ),
             bucketSplitInfo: BucketSplitInfo(
                 numberOfWorkers: UInt(distRunConfiguration.destinations.count),
                 toolResources: distRunConfiguration.auxiliaryResources.toolResources,
@@ -62,7 +65,7 @@ public final class DistRunner {
             queueServerLock: NeverLockableQueueServerLock(),
             queueVersionProvider: localQueueVersionProvider,
             requestSignature: requestSignature,
-            uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator()
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         queueServer.schedule(
             testEntryConfigurations: distRunConfiguration.testEntryConfigurations,

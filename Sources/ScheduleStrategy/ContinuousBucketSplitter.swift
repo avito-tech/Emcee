@@ -1,9 +1,13 @@
 import Foundation
 import Models
+import UniqueIdentifierGenerator
 
 public final class ContinuousBucketSplitter: BucketSplitter {
-    public init() {
-        super.init(description: "Continuos schedule strategy")
+    public init(uniqueIdentifierGenerator: UniqueIdentifierGenerator) {
+        super.init(
+            description: "Continuos schedule strategy",
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+        )
     }
     
     public override func split(

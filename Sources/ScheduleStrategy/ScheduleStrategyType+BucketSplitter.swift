@@ -1,17 +1,18 @@
 import Foundation
 import Models
+import UniqueIdentifierGenerator
 
 public extension ScheduleStrategyType {
-    func bucketSplitter() -> BucketSplitter {
+    func bucketSplitter(uniqueIdentifierGenerator: UniqueIdentifierGenerator) -> BucketSplitter {
         switch self {
         case .individual:
-            return IndividualBucketSplitter()
+            return IndividualBucketSplitter(uniqueIdentifierGenerator: uniqueIdentifierGenerator)
         case .equallyDivided:
-            return EquallyDividedBucketSplitter()
+            return EquallyDividedBucketSplitter(uniqueIdentifierGenerator: uniqueIdentifierGenerator)
         case .continuous:
-            return ContinuousBucketSplitter()
+            return ContinuousBucketSplitter(uniqueIdentifierGenerator: uniqueIdentifierGenerator)
         case .progressive:
-            return ProgressiveBucketSplitter()
+            return ProgressiveBucketSplitter(uniqueIdentifierGenerator: uniqueIdentifierGenerator)
         }
     }
 }

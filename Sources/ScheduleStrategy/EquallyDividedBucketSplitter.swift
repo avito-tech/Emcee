@@ -1,10 +1,14 @@
 import Foundation
 import Models
 import Extensions
+import UniqueIdentifierGenerator
 
 public final class EquallyDividedBucketSplitter: BucketSplitter {
-    public init() {
-        super.init(description: "Equally divided strategy")
+    public init(uniqueIdentifierGenerator: UniqueIdentifierGenerator) {
+        super.init(
+            description: "Equally divided strategy",
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+        )
     }
     
     public override func split(inputs: [TestEntryConfiguration], bucketSplitInfo: BucketSplitInfo) -> [[TestEntryConfiguration]] {

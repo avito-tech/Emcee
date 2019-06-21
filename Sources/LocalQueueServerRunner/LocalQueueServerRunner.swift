@@ -36,6 +36,7 @@ public final class LocalQueueServerRunner {
         let automaticTerminationController = AutomaticTerminationControllerFactory(
             automaticTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy
         ).createAutomaticTerminationController()
+        let uniqueIdentifierGenerator = UuidBasedUniqueIdentifierGenerator()
         let queueServer = QueueServer(
             automaticTerminationController: automaticTerminationController,
             dateProvider: SystemDateProvider(),
@@ -46,7 +47,9 @@ public final class LocalQueueServerRunner {
             checkAgainTimeInterval: queueServerRunConfiguration.checkAgainTimeInterval,
             localPortDeterminer: localPortDeterminer,
             workerAlivenessPolicy: .workersStayAliveWhenQueueIsDepleted,
-            bucketSplitter: queueServerRunConfiguration.remoteScheduleStrategyType.bucketSplitter(),
+            bucketSplitter: queueServerRunConfiguration.remoteScheduleStrategyType.bucketSplitter(
+                uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            ),
             bucketSplitInfo: BucketSplitInfo(
                 numberOfWorkers: UInt(queueServerRunConfiguration.deploymentDestinationConfigurations.count),
                 toolResources: queueServerRunConfiguration.auxiliaryResources.toolResources,
@@ -57,7 +60,7 @@ public final class LocalQueueServerRunner {
             ),
             queueVersionProvider: localQueueVersionProvider,
             requestSignature: requestSignature,
-            uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator()
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         _ = try queueServer.start()
         

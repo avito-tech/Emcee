@@ -14,15 +14,16 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
     public let testType: TestType
 
     public init(
+        bucketId: String,
         testEntries: [TestEntry],
         buildArtifacts: BuildArtifacts,
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testExecutionBehavior: TestExecutionBehavior,
         toolResources: ToolResources,
-        testType: TestType
-        )
+        testType: TestType)
     {
+        self.bucketId = bucketId
         self.testEntries = testEntries
         self.buildArtifacts = buildArtifacts
         self.simulatorSettings = simulatorSettings
@@ -30,42 +31,6 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
         self.testExecutionBehavior = testExecutionBehavior
         self.toolResources = toolResources
         self.testType = testType
-        self.bucketId = Bucket.generateBucketId(
-            testEntries: testEntries,
-            buildArtifacts: buildArtifacts,
-            simulatorSettings: simulatorSettings,
-            testDestination: testDestination,
-            testExecutionBehavior: testExecutionBehavior,
-            toolResources: toolResources,
-            testType: testType
-        )
-    }
-    
-    private static func generateBucketId(
-        testEntries: [TestEntry],
-        buildArtifacts: BuildArtifacts,
-        simulatorSettings: SimulatorSettings,
-        testDestination: TestDestination,
-        testExecutionBehavior: TestExecutionBehavior,
-        toolResources: ToolResources,
-        testType: TestType
-        ) -> BucketId
-    {
-        let buildArtifactsId = (buildArtifacts.appBundle?.description ?? "null") + (buildArtifacts.runner?.description ?? "null") + buildArtifacts.xcTestBundle.description
-            + buildArtifacts.additionalApplicationBundles.map { $0.description }.sorted().joined()
-        
-        let tests: String = testEntries.map { $0.testName.stringValue }.sorted().joined()
-            + testDestination.destinationString
-            + buildArtifactsId
-            + testExecutionBehavior.environment.map { "\($0)=\($1)" }.sorted().joined() + "\(testExecutionBehavior.numberOfRetries)"
-            + toolResources.fbsimctl.description + toolResources.fbxctest.description
-            + simulatorSettings.description
-            + testType.rawValue
-        do {
-            return try tests.avito_sha256Hash(encoding: .utf8)
-        } catch {
-            preconditionFailure("Unable to generate bucket id as SHA256 from the following string: '\(tests)'")
-        }
     }
     
     public var description: String {
@@ -78,9 +43,23 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
     
     public func hash(into hasher: inout Hasher) {
         hasher.combine(bucketId)
+        hasher.combine(testEntries)
+        hasher.combine(buildArtifacts)
+        hasher.combine(simulatorSettings)
+        hasher.combine(testDestination)
+        hasher.combine(testExecutionBehavior)
+        hasher.combine(toolResources)
+        hasher.combine(testType)
     }
     
     public static func == (left: Bucket, right: Bucket) -> Bool {
         return left.bucketId == right.bucketId
+        && left.testEntries == right.testEntries
+        && left.buildArtifacts == right.buildArtifacts
+        && left.simulatorSettings == right.simulatorSettings
+        && left.testDestination == right.testDestination
+        && left.testExecutionBehavior == right.testExecutionBehavior
+        && left.toolResources == right.toolResources
+        && left.testType == right.testType
     }
 }

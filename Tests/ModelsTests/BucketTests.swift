@@ -9,8 +9,10 @@ final class BucketTests: XCTestCase {
     let fakeSimulatorSettings = SimulatorSettingsFixtures().simulatorSettings()
     let testType = TestType.uiTest
     
-    func testBucketHasDetermenisticId() throws {
+    func testBucketEquality() throws {
+        let bucketId = UUID().uuidString
         let bucket1 = Bucket(
+            bucketId: bucketId,
             testEntries: [
                 TestEntryFixtures.testEntry(className: "class", methodName: "testMethod"),
                 TestEntryFixtures.testEntry(className: "class", methodName: "testAnotherMethod")
@@ -24,6 +26,7 @@ final class BucketTests: XCTestCase {
         )
         
         let bucket2 = Bucket(
+            bucketId: bucketId,
             testEntries: [
                 TestEntryFixtures.testEntry(className: "class", methodName: "testAnotherMethod"),
                 TestEntryFixtures.testEntry(className: "class", methodName: "testMethod")
@@ -41,6 +44,7 @@ final class BucketTests: XCTestCase {
     
     func testBucketsHaveDifferentIdsForDifferentTestEntries() throws {
         let bucket1 = Bucket(
+            bucketId: UUID().uuidString,
             testEntries: [
                 TestEntryFixtures.testEntry(className: "-----", methodName: "testMethod"),
                 TestEntryFixtures.testEntry(className: "class", methodName: "testAnotherMethod")
@@ -54,6 +58,7 @@ final class BucketTests: XCTestCase {
         )
         
         let bucket2 = Bucket(
+            bucketId: UUID().uuidString,
             testEntries: [
                 TestEntryFixtures.testEntry(className: "class", methodName: "testAnotherMethod"),
                 TestEntryFixtures.testEntry(className: "class", methodName: "testMethod")
@@ -71,6 +76,7 @@ final class BucketTests: XCTestCase {
     
     func testBucketsHaveDifferentIdsForDifferentTestDestinations() throws {
         let bucket1 = Bucket(
+            bucketId: UUID().uuidString,
             testEntries: [
                 TestEntryFixtures.testEntry(className: "class", methodName: "testMethod"),
                 TestEntryFixtures.testEntry(className: "class", methodName: "testAnotherMethod")
@@ -84,6 +90,7 @@ final class BucketTests: XCTestCase {
         )
         
         let bucket2 = Bucket(
+            bucketId: UUID().uuidString,
             testEntries: [
                 TestEntryFixtures.testEntry(className: "class", methodName: "testMethod"),
                 TestEntryFixtures.testEntry(className: "class", methodName: "testAnotherMethod")
@@ -101,6 +108,7 @@ final class BucketTests: XCTestCase {
     
     func testBucketsHaveDifferentIdsForDifferentEnvironments() throws {
         let bucket1 = Bucket(
+            bucketId: UUID().uuidString,
             testEntries: [
                 TestEntryFixtures.testEntry(className: "class", methodName: "testMethod")
             ],
@@ -113,6 +121,7 @@ final class BucketTests: XCTestCase {
         )
         
         let bucket2 = Bucket(
+            bucketId: UUID().uuidString,
             testEntries: [
                 TestEntryFixtures.testEntry(className: "class", methodName: "testMethod")
             ],
@@ -132,6 +141,7 @@ final class BucketTests: XCTestCase {
     
     func testBucketsHaveDifferentIdsForDifferentNumberOfRetries() throws {
         let bucket1 = Bucket(
+            bucketId: UUID().uuidString,
             testEntries: [
                 TestEntryFixtures.testEntry(className: "class", methodName: "testMethod")
             ],
@@ -144,6 +154,7 @@ final class BucketTests: XCTestCase {
         )
         
         let bucket2 = Bucket(
+            bucketId: UUID().uuidString,
             testEntries: [
                 TestEntryFixtures.testEntry(className: "class", methodName: "testMethod")
             ],

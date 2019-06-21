@@ -11,11 +11,12 @@ import PluginManager
 import ResourceLocationResolver
 import Runner
 import RuntimeDump
+import SPMUtility
 import ScheduleStrategy
 import Scheduler
 import SimulatorPool
 import TempFolder
-import SPMUtility
+import UniqueIdentifierGenerator
 
 final class RunTestsCommand: Command {
     let command = "runTests"
@@ -175,7 +176,10 @@ final class RunTestsCommand: Command {
         let schedulerConfiguration = SchedulerConfiguration(
             testRunExecutionBehavior: configuration.testRunExecutionBehavior,
             testTimeoutConfiguration: configuration.testTimeoutConfiguration,
-            schedulerDataSource: LocalRunSchedulerDataSource(configuration: configuration),
+            schedulerDataSource: LocalRunSchedulerDataSource(
+                configuration: configuration,
+                uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator()
+            ),
             onDemandSimulatorPool: onDemandSimulatorPool
         )
         let scheduler = Scheduler(
