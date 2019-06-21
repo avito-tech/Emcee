@@ -124,5 +124,68 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
             Set<TestEntryConfiguration>(mixedTestEntryConfigurations)
         )
     }
+
+    func test___grouping_same_test_entries_into_different_groups___with_one_class() {
+        let testEntry = TestEntryFixtures.testEntry(className: "class", methodName: "test")
+        let testEntryConfigurations = TestEntryConfigurationFixtures()
+            .with(testDestination: try! TestDestination(deviceType: "1", runtime: "11.0"))
+            .add(testEntry: testEntry)
+            .add(testEntry: testEntry)
+            .add(testEntry: testEntry)
+            .testEntryConfigurations()
+            .shuffled()
+
+        let groups = GroupedTestEntryConfigurations(
+            testEntryConfigurations: testEntryConfigurations
+        ).grouped()
+
+        XCTAssertEqual(groups.count, 3)
+        XCTAssertEqual(groups[0].count, 1)
+        XCTAssertEqual(groups[1].count, 1)
+        XCTAssertEqual(groups[2].count, 1)
+        XCTAssertEqual(groups[0][0].testEntry, testEntry)
+        XCTAssertEqual(groups[1][0].testEntry, testEntry)
+        XCTAssertEqual(groups[2][0].testEntry, testEntry)
+    }
+
+    func test___grouping_same_test_entries_into_different_groups___with_many_classes() {
+        let testEntry1 = TestEntryFixtures.testEntry(className: "class1", methodName: "test")
+        let testEntry2 = TestEntryFixtures.testEntry(className: "class2", methodName: "test")
+        let testEntry3 = TestEntryFixtures.testEntry(className: "class3", methodName: "test")
+        let testEntryConfigurations = TestEntryConfigurationFixtures()
+            .with(testDestination: try! TestDestination(deviceType: "1", runtime: "11.0"))
+            .add(testEntry: testEntry1)
+            .add(testEntry: testEntry1)
+            .add(testEntry: testEntry1)
+            .add(testEntry: testEntry2)
+            .add(testEntry: testEntry2)
+            .add(testEntry: testEntry2)
+            .add(testEntry: testEntry3)
+            .add(testEntry: testEntry3)
+            .add(testEntry: testEntry3)
+            .testEntryConfigurations()
+            .shuffled()
+        let expectedConfigurations = Set(
+            TestEntryConfigurationFixtures()
+            .with(testDestination: try! TestDestination(deviceType: "1", runtime: "11.0"))
+            .add(testEntry: testEntry1)
+            .add(testEntry: testEntry2)
+            .add(testEntry: testEntry3)
+            .testEntryConfigurations()
+            .shuffled()
+        )
+
+        let groups = GroupedTestEntryConfigurations(
+            testEntryConfigurations: testEntryConfigurations
+            ).grouped()
+
+        XCTAssertEqual(groups.count, 3)
+        XCTAssertEqual(groups[0].count, 3)
+        XCTAssertEqual(groups[1].count, 3)
+        XCTAssertEqual(groups[2].count, 3)
+        XCTAssertEqual(Set(groups[0]), expectedConfigurations)
+        XCTAssertEqual(Set(groups[1]), expectedConfigurations)
+        XCTAssertEqual(Set(groups[2]), expectedConfigurations)
+    }
 }
 

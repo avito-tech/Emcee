@@ -27,7 +27,44 @@ public final class GroupedTestEntryConfigurations {
             
             groups.append(key: key, element: testEntryConfiguration)
         }
+
+        let groupedConfigurations = groups.values
+        let groupedConfigurationsWithUniqueTestEntries = splitGroupsToContainUniqueTestEntries(
+            groupedConfigurations: groupedConfigurations
+        )
         
-        return groups.values.sorted { $0.count > $1.count }
+        return groupedConfigurationsWithUniqueTestEntries.sorted { $0.count > $1.count }
+    }
+
+    private func splitGroupsToContainUniqueTestEntries(
+        groupedConfigurations: [[TestEntryConfiguration]]
+    ) -> [[TestEntryConfiguration]] {
+        return groupedConfigurations.map { splitConfigurations($0) }.flatMap { $0 }
+    }
+
+    private func splitConfigurations(_ configurations: [TestEntryConfiguration]) -> [[TestEntryConfiguration]] {
+        var splitedConfigurations = [[TestEntryConfiguration]()]
+        for configuration in configurations {
+            var splitCount = 0
+            while true {
+                if splitCount == splitedConfigurations.count {
+                    splitedConfigurations.append([configuration])
+                    break
+                }
+
+                let containsConfiguration = splitedConfigurations[splitCount].contains {
+                    $0.testEntry == configuration.testEntry
+                }
+                if containsConfiguration == false {
+                    splitedConfigurations[splitCount].append(configuration)
+                    break
+                }
+
+                splitCount += 1
+            }
+
+        }
+
+        return splitedConfigurations
     }
 }
