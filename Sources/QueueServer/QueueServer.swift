@@ -53,6 +53,7 @@ public final class QueueServer {
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
         self.workerAlivenessTracker = WorkerAlivenessTracker(
+            dateProvider: dateProvider,
             reportAliveInterval: reportAliveInterval,
             additionalTimeToPerformWorkerIsAliveReport: 10.0
         )
@@ -85,7 +86,7 @@ public final class QueueServer {
             testsEnqueuer: testsEnqueuer
         )
         self.workerAlivenessEndpoint = WorkerAlivenessEndpoint(
-            alivenessTracker: workerAlivenessTracker,
+            workerAlivenessProvider: workerAlivenessTracker,
             expectedRequestSignature: requestSignature
         )
         self.workerRegistrar = WorkerRegistrar(

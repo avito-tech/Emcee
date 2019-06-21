@@ -7,8 +7,6 @@ public protocol WorkerAlivenessProvider: class {
     
     func alivenessForWorker(workerId: WorkerId) -> WorkerAliveness
     
-    func markWorkerAsAlive(workerId: WorkerId)
-    
     func set(bucketIdsBeingProcessed: Set<BucketId>, workerId: WorkerId)
     func didDequeueBucket(bucketId: BucketId, workerId: WorkerId)
 }

@@ -73,7 +73,7 @@ final class BucketQueueImpl: BucketQueue {
         case .silent, .notRegistered:
             return .workerIsNotAlive
         case .alive:
-            workerAlivenessProvider.markWorkerAsAlive(workerId: workerId)
+            break
         }
 
         return queue.sync {

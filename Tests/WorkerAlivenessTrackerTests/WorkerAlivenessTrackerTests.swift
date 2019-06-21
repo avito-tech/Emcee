@@ -12,14 +12,8 @@ final class WorkerAlivenessTrackerTests: XCTestCase {
     
     func test__when_worker_registers__it_has_no_buckets_being_processed() {
         let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
-        tracker.didRegisterWorker(workerId: "worker")
-        XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").bucketIdsBeingProcessed, [])
-    }
-    
-    func test__marking_worker_as_alive() {
-        let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
         XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").status, .notRegistered)
-        tracker.markWorkerAsAlive(workerId: "worker")
+        tracker.didRegisterWorker(workerId: "worker")
         XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").status, .alive)
         XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").bucketIdsBeingProcessed, [])
     }
@@ -34,7 +28,7 @@ final class WorkerAlivenessTrackerTests: XCTestCase {
     func test__when_worker_is_silent__tracker_returns_silent() {
         let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithImmediateTimeout()
         XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").status, .notRegistered)
-        tracker.markWorkerAsAlive(workerId: "worker")
+        tracker.didRegisterWorker(workerId: "worker")
         XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").status, .silent)
         XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").bucketIdsBeingProcessed, [])
     }

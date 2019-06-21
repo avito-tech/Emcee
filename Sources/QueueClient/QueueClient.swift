@@ -148,14 +148,14 @@ public final class QueueClient {
         throws where Payload : Encodable, Response : Decodable
     {
         guard !isClosed else { throw QueueClientError.queueClientIsClosed(restMethod) }
-        
+        let url = createUrl(restMethod: restMethod)
         let jsonData = try encoder.encode(payload)
         if let stringJson = String(data: jsonData, encoding: .utf8) {
-            Logger.verboseDebug("Sending request to \(restMethod.withPrependingSlash): \(stringJson)")
+            Logger.verboseDebug("Sending request to \(url): \(stringJson)")
         } else {
-            Logger.verboseDebug("Sending request to \(restMethod.withPrependingSlash): unable to get string for json data \(jsonData.count) bytes")
+            Logger.verboseDebug("Sending request to \(url): unable to get string for json data \(jsonData.count) bytes")
         }
-        var urlRequest = URLRequest(url: url(restMethod), cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: .infinity)
+        var urlRequest = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: .infinity)
         urlRequest.httpMethod = "POST"
         urlRequest.addValue("Content-Type", forHTTPHeaderField: "application/json")
         urlRequest.httpBody = jsonData
@@ -177,13 +177,12 @@ public final class QueueClient {
         dataTask.resume()
     }
     
-    private func url(_ method: RESTMethod) -> URL {
+    private func createUrl(restMethod: RESTMethod) -> URL {
         var components = URLComponents()
         components.scheme = "http"
         components.host = queueServerAddress.host
         components.port = queueServerAddress.port
-        components.path = RESTMethod.getBucket.withPrependingSlash
-        components.path = method.withPrependingSlash
+        components.path = restMethod.withPrependingSlash
         guard let url = components.url else {
             Logger.fatal("Unable to convert components to url: \(components)")
         }

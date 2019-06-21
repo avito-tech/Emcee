@@ -1095,6 +1095,7 @@ let package = Package(
             // MARK: WorkerAlivenessTracker
             name: "WorkerAlivenessTracker",
             dependencies: [
+                "DateProvider",
                 "Logging",
                 "Models"
             ]
@@ -1103,6 +1104,8 @@ let package = Package(
             // MARK: WorkerAlivenessTrackerTestHelpersTests
             name: "WorkerAlivenessTrackerTestHelpers",
             dependencies: [
+                "DateProvider",
+                "DateProviderTestHelpers",
                 "WorkerAlivenessTracker"
             ]
         ),

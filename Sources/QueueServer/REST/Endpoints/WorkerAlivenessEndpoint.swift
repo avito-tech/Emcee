@@ -8,20 +8,19 @@ public final class WorkerAlivenessEndpoint: RequestSignatureVerifyingRESTEndpoin
     public typealias DecodedObjectType = ReportAliveRequest
     public typealias ResponseType = ReportAliveResponse
 
-    private let alivenessTracker: WorkerAlivenessTracker
+    private let workerAlivenessProvider: WorkerAlivenessProvider
     public let expectedRequestSignature: RequestSignature
     
     public init(
-        alivenessTracker: WorkerAlivenessTracker,
+        workerAlivenessProvider: WorkerAlivenessProvider,
         expectedRequestSignature: RequestSignature
     ) {
-        self.alivenessTracker = alivenessTracker
+        self.workerAlivenessProvider = workerAlivenessProvider
         self.expectedRequestSignature = expectedRequestSignature
     }
     
     public func handle(verifiedRequest: ReportAliveRequest) throws -> ReportAliveResponse {
-        alivenessTracker.markWorkerAsAlive(workerId: verifiedRequest.workerId)
-        alivenessTracker.set(
+        workerAlivenessProvider.set(
             bucketIdsBeingProcessed: verifiedRequest.bucketIdsBeingProcessed,
             workerId: verifiedRequest.workerId
         )

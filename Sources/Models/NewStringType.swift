@@ -1,6 +1,6 @@
 import Foundation
 
-open class NewStringType: ExpressibleByStringLiteral, Codable, Hashable, CustomStringConvertible {
+open class NewStringType: ExpressibleByStringLiteral, Codable, Hashable, CustomStringConvertible, Comparable {
     public typealias StringLiteralType = String
 
     public let value: String
@@ -33,5 +33,9 @@ open class NewStringType: ExpressibleByStringLiteral, Codable, Hashable, CustomS
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(value)
+    }
+    
+    public static func < (left: NewStringType, right: NewStringType) -> Bool {
+        return left.value < right.value
     }
 }

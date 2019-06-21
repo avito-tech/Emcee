@@ -12,7 +12,7 @@ final class WorkerAlivenessEndpointTests: XCTestCase {
     func test___handling_requests() {
         let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
         let endpoint = WorkerAlivenessEndpoint(
-            alivenessTracker: tracker,
+            workerAlivenessProvider: tracker,
             expectedRequestSignature: expectedRequestSignature
         )
         XCTAssertNoThrow(
@@ -30,7 +30,7 @@ final class WorkerAlivenessEndpointTests: XCTestCase {
     func test___worker_is_silent_when_it_does_not_report_within_allowed_timeframe() {
         let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithImmediateTimeout()
         let endpoint = WorkerAlivenessEndpoint(
-            alivenessTracker: tracker,
+            workerAlivenessProvider: tracker,
             expectedRequestSignature: expectedRequestSignature
         )
         XCTAssertNoThrow(
@@ -49,7 +49,7 @@ final class WorkerAlivenessEndpointTests: XCTestCase {
     func test___handling_requests___sets_buckets_being_processed() {
         let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
         let endpoint = WorkerAlivenessEndpoint(
-            alivenessTracker: tracker,
+            workerAlivenessProvider: tracker,
             expectedRequestSignature: expectedRequestSignature
         )
         XCTAssertNoThrow(
@@ -70,7 +70,7 @@ final class WorkerAlivenessEndpointTests: XCTestCase {
     func test___throws___when_request_signature_mismatches() {
         let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
         let endpoint = WorkerAlivenessEndpoint(
-            alivenessTracker: tracker,
+            workerAlivenessProvider: tracker,
             expectedRequestSignature: expectedRequestSignature
         )
         XCTAssertThrowsError(

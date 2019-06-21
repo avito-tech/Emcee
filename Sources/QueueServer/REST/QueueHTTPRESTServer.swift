@@ -1,5 +1,6 @@
 import AutomaticTermination
 import Foundation
+import Logging
 import PortDeterminer
 import RESTMethods
 import Swifter
@@ -47,7 +48,11 @@ public final class QueueHTTPRESTServer {
 
     private func processRequest<T, R>(usingEndpoint endpoint: RESTEndpointOf<T, R>) -> ((HttpRequest) -> HttpResponse) {
         return { [weak self] (httpRequest: HttpRequest) -> HttpResponse in
-            guard let strongSelf = self else { return .internalServerError }
+            guard let strongSelf = self else {
+                Logger.error("\(type(of: self)) has been deallocated")
+                return .internalServerError
+            }
+            Logger.verboseDebug("Processing request to \(httpRequest.path)")
             return strongSelf.requestParser.parse(request: httpRequest) { decodedObject in
                 try endpoint.handle(decodedRequest: decodedObject)
             }

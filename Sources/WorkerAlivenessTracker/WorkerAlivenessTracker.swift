@@ -1,3 +1,4 @@
+import DateProvider
 import Dispatch
 import Foundation
 import Logging
@@ -5,26 +6,25 @@ import Models
 
 public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
     private let syncQueue = DispatchQueue(label: "ru.avito.emcee.WorkerAlivenessTracker.syncQueue")
+    private let dateProvider: DateProvider
     private var workerAliveReportTimestamps = [WorkerId: Date]()
     private let workerBucketIdsBeingProcessed = WorkerCurrentlyProcessingBucketsTracker()
     private var blockedWorkers = Set<WorkerId>()
     /// allow worker some additinal time to perform a "i'm alive" report, e.g. to compensate a network latency
     private let maximumNotReportingDuration: TimeInterval
 
-    public init(reportAliveInterval: TimeInterval, additionalTimeToPerformWorkerIsAliveReport: TimeInterval) {
+    public init(
+        dateProvider: DateProvider,
+        reportAliveInterval: TimeInterval,
+        additionalTimeToPerformWorkerIsAliveReport: TimeInterval
+    ) {
+        self.dateProvider = dateProvider
         self.maximumNotReportingDuration = reportAliveInterval + additionalTimeToPerformWorkerIsAliveReport
-    }
-    
-    public func markWorkerAsAlive(workerId: WorkerId) {
-        syncQueue.sync {
-            if !blockedWorkers.contains(workerId) {
-                workerAliveReportTimestamps[workerId] = Date()
-            }
-        }
     }
     
     public func didDequeueBucket(bucketId: BucketId, workerId: WorkerId) {
         syncQueue.sync {
+            onSyncQueue_markWorkerAsAlive(workerId: workerId)
             workerBucketIdsBeingProcessed.append(bucketId: bucketId, workerId: workerId)
         }
     }
@@ -32,13 +32,16 @@ public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
     public func set(bucketIdsBeingProcessed: Set<BucketId>, workerId: WorkerId) {
         syncQueue.sync {
             if !blockedWorkers.contains(workerId) {
+                onSyncQueue_markWorkerAsAlive(workerId: workerId)
                 workerBucketIdsBeingProcessed.set(bucketIdsBeingProcessed: bucketIdsBeingProcessed, byWorkerId: workerId)
             }
         }
     }
     
     public func didRegisterWorker(workerId: WorkerId) {
-        markWorkerAsAlive(workerId: workerId)
+        syncQueue.sync {
+           onSyncQueue_markWorkerAsAlive(workerId: workerId)
+        }
     }
     
     public func blockWorker(workerId: WorkerId) {
@@ -90,5 +93,9 @@ public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
         } else {
             return WorkerAliveness(status: .alive, bucketIdsBeingProcessed: bucketIdsBeingProcessed)
         }
+    }
+    
+    private func onSyncQueue_markWorkerAsAlive(workerId: WorkerId) {
+        workerAliveReportTimestamps[workerId] = dateProvider.currentDate()
     }
 }

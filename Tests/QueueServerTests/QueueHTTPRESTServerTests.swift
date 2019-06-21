@@ -142,7 +142,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             registerWorkerHandler: stubbedHandler,
             reportAliveHandler: RESTEndpointOf(
                 actualHandler: WorkerAlivenessEndpoint(
-                    alivenessTracker: alivenessTracker,
+                    workerAlivenessProvider: alivenessTracker,
                     expectedRequestSignature: expectedRequestSignature
                 )
             ),
