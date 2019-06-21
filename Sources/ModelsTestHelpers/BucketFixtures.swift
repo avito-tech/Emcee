@@ -3,7 +3,7 @@ import Models
 
 public final class BucketFixtures {
     public static func createBucket(
-        bucketId: String = "BucketFixturesFixedBucketId",
+        bucketId: BucketId = BucketId(stringValue: "BucketFixturesFixedBucketId"),
         testEntries: [TestEntry] = [TestEntryFixtures.testEntry()],
         numberOfRetries: UInt = 0)
         -> Bucket

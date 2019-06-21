@@ -1,7 +1,8 @@
 import Foundation
+import Models
 
 public enum BucketResultAcceptResponse: Codable, Equatable {
-    case bucketResultAccepted(bucketId: String)
+    case bucketResultAccepted(bucketId: BucketId)
     
     private enum CodingKeys: CodingKey {
         case caseId
@@ -17,7 +18,7 @@ public enum BucketResultAcceptResponse: Codable, Equatable {
         let caseId = try container.decode(CaseId.self, forKey: .caseId)
         switch caseId {
         case .bucketResultAccepted:
-            self = .bucketResultAccepted(bucketId: try container.decode(String.self, forKey: .bucketId))
+            self = .bucketResultAccepted(bucketId: try container.decode(BucketId.self, forKey: .bucketId))
         }
     }
     

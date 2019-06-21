@@ -11,8 +11,8 @@ import WorkerAlivenessTrackerTestHelpers
 import XCTest
 
 final class BucketQueueRetryTests: XCTestCase {
-    private let fixedBucketId = "fixedBucketId"
-    private lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: fixedBucketId)
+    private let fixedBucketId: BucketId = "fixedBucketId"
+    private lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: fixedBucketId.stringValue)
 
     func test___bucket_queue___gives_job_to_another_worker___if_worker_fails() {
         assertNoThrow {
@@ -169,7 +169,7 @@ final class BucketQueueRetryTests: XCTestCase {
         let bucketQueue = BucketQueueFixtures.bucketQueue(
             dateProvider: dateProvider,
             testHistoryTracker: TestHistoryTrackerFixtures.testHistoryTracker(
-                generatorValue: fixedBucketId
+                generatorValue: fixedBucketId.stringValue
             ),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessProvider: tracker

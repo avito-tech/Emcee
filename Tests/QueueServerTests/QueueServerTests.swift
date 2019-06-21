@@ -27,9 +27,11 @@ final class QueueServerTests: XCTestCase {
     let queueVersionProvider = VersionProviderFixture().buildVersionProvider()
     let requestSignature = RequestSignature(value: "expectedRequestSignature")
 
-    let fixedBucketId = "fixedBucketId"
+    let fixedBucketId: BucketId = "fixedBucketId"
     lazy var bucketSplitter = ScheduleStrategyType.individual.bucketSplitter(
-        uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(value: fixedBucketId)
+        uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(
+            value: fixedBucketId.stringValue
+        )
     )
 
     func test__queue_waits_for_new_workers_and_fails_if_they_not_appear_in_time() {
@@ -89,7 +91,10 @@ final class QueueServerTests: XCTestCase {
     
     func test__queue_returns_results_after_depletion() throws {
         let testEntry = TestEntryFixtures.testEntry(className: "class", methodName: "test")
-        let bucket = BucketFixtures.createBucket(bucketId: fixedBucketId, testEntries: [testEntry])
+        let bucket = BucketFixtures.createBucket(
+            bucketId: fixedBucketId,
+            testEntries: [testEntry]
+        )
         let testEntryConfigurations = TestEntryConfigurationFixtures()
             .add(testEntry: testEntry)
             .testEntryConfigurations()

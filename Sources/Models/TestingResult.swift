@@ -3,7 +3,7 @@ import Foundation
 /// Represents the result of running a single Bucket.
 public struct TestingResult: Codable, Equatable {
     /// A test bucket id for this testing result.
-    public let bucketId: String
+    public let bucketId: BucketId
     
     /// A test destination used to run the tests.
     public let testDestination: TestDestination
@@ -22,7 +22,7 @@ public struct TestingResult: Codable, Equatable {
     }
 
     public init(
-        bucketId: String,
+        bucketId: BucketId,
         testDestination: TestDestination,
         unfilteredResults: [TestEntryResult])
     {
@@ -34,7 +34,7 @@ public struct TestingResult: Codable, Equatable {
 
 public enum MergeError: Error, CustomStringConvertible {
     case nothingToMerge
-    case multipleBucketsFound([TestingResult], [String])
+    case multipleBucketsFound([TestingResult], [BucketId])
     
     public var description: String {
         switch self {

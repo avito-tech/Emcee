@@ -1,8 +1,6 @@
 import Extensions
 import Foundation
 
-public typealias BucketId = String
-
 public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStringConvertible {
     public let bucketId: BucketId
     public let testEntries: [TestEntry]
@@ -14,7 +12,7 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
     public let testType: TestType
 
     public init(
-        bucketId: String,
+        bucketId: BucketId,
         testEntries: [TestEntry],
         buildArtifacts: BuildArtifacts,
         simulatorSettings: SimulatorSettings,
@@ -38,7 +36,7 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
     }
     
     public var debugDescription: String {
-        return "<\((type(of: self))) \(bucketId.debugDescription) \(testType) \(testDestination), \(toolResources), \(buildArtifacts), \(testEntries.debugDescription)>"
+        return "<\((type(of: self))) \(bucketId) \(testType) \(testDestination), \(toolResources), \(buildArtifacts), \(testEntries.debugDescription)>"
     }
     
     public func hash(into hasher: inout Hasher) {

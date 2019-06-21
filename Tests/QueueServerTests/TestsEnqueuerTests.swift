@@ -13,10 +13,12 @@ final class TestsEnqueuerTests: XCTestCase {
     let prioritizedJob = PrioritizedJob(jobId: "jobId", priority: .medium)
     
     func test() {
-        let bucketId = UUID().uuidString
+        let bucketId = BucketId(stringValue: UUID().uuidString)
         let testsEnqueuer = TestsEnqueuer(
             bucketSplitter: IndividualBucketSplitter(
-                uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(value: bucketId)
+                uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(
+                    value: bucketId.stringValue
+                )
             ),
             bucketSplitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture(),
             enqueueableBucketReceptor: enqueueableBucketReceptor

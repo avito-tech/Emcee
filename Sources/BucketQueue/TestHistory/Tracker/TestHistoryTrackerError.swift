@@ -1,5 +1,7 @@
+import Models
+
 enum TestHistoryTrackerError: Error, CustomStringConvertible {
-    case mismatchedBuckedIds(testingResultBucketId: String, bucketId: String)
+    case mismatchedBuckedIds(testingResultBucketId: BucketId, bucketId: BucketId)
 
     public var description: String {
         switch self {

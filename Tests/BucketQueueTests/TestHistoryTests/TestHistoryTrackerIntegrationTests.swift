@@ -14,12 +14,16 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
     
     private lazy var aliveWorkers = [failingWorkerId, notFailingWorkerId]
     
-    private lazy var testHistoryTracker = TestHistoryTrackerFixtures.testHistoryTracker(generatorValue: fixedIdentifier)
+    private lazy var testHistoryTracker = TestHistoryTrackerFixtures.testHistoryTracker(
+        generatorValue: fixedIdentifier
+    )
 
     private lazy var oneFailResultsFixtures = TestingResultFixtures()
-        .with(bucketId: fixedIdentifier)
+        .with(bucketId: bucketFixture.bucketId)
         .addingResult(success: false)
-    private lazy var bucketFixture = BucketFixtures.createBucket(bucketId: fixedIdentifier)
+    private lazy var bucketFixture = BucketFixtures.createBucket(
+        bucketId: BucketId(stringValue: fixedIdentifier)
+    )
 
     func test___accept___tells_to_accept_failures___when_retrying_is_disabled() throws {
         // When
@@ -43,7 +47,10 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
     }
 
     func test___accept___tells_to_retry___when_retrying_is_possible() throws {
-        let testBucket = BucketFixtures.createBucket(bucketId: fixedIdentifier, numberOfRetries: 1)
+        let testBucket = BucketFixtures.createBucket(
+            bucketId: BucketId(stringValue: fixedIdentifier),
+            numberOfRetries: 1
+        )
         let testingResultFixture = oneFailResultsFixtures.with(bucketId: testBucket.bucketId)
 
         // When

@@ -1,8 +1,9 @@
 import Foundation
+import Models
 
 public enum DistWorkerError: Error, CustomStringConvertible {
-    case noRequestIdForBucketId(String)
-    case unexpectedAcceptedBucketId(actual: String, expected: String)
+    case noRequestIdForBucketId(BucketId)
+    case unexpectedAcceptedBucketId(actual: BucketId, expected: BucketId)
     case missingRequestSignature
     
     public var description: String {

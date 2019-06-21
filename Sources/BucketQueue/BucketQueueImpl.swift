@@ -196,7 +196,7 @@ final class BucketQueueImpl: BucketQueue {
             let buckets = stuckBuckets.flatMap { stuckBucket in
                 stuckBucket.bucket.testEntries.map { testEntry in
                     Bucket(
-                        bucketId: uniqueIdentifierGenerator.generate(),
+                        bucketId: BucketId(stringValue: uniqueIdentifierGenerator.generate()),
                         testEntries: [testEntry],
                         buildArtifacts: stuckBucket.bucket.buildArtifacts,
                         simulatorSettings: stuckBucket.bucket.simulatorSettings,

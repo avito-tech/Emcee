@@ -1,6 +1,7 @@
 import Dispatch
 import Foundation
 import Logging
+import Models
 
 public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
     private let syncQueue = DispatchQueue(label: "ru.avito.emcee.WorkerAlivenessTracker.syncQueue")
@@ -22,13 +23,13 @@ public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
         }
     }
     
-    public func didDequeueBucket(bucketId: String, workerId: String) {
+    public func didDequeueBucket(bucketId: BucketId, workerId: String) {
         syncQueue.sync {
             workerBucketIdsBeingProcessed.append(bucketId: bucketId, workerId: workerId)
         }
     }
     
-    public func set(bucketIdsBeingProcessed: Set<String>, workerId: String) {
+    public func set(bucketIdsBeingProcessed: Set<BucketId>, workerId: String) {
         syncQueue.sync {
             if !blockedWorkers.contains(workerId) {
                 workerBucketIdsBeingProcessed.set(bucketIdsBeingProcessed: bucketIdsBeingProcessed, byWorkerId: workerId)

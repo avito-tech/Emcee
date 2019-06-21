@@ -86,7 +86,7 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         // Every failed test produces a single bucket with itself
         let bucketsToReenqueue = resultsOfTestsToRetry.map { testEntryResult in
             Bucket(
-                bucketId: uniqueIdentifierGenerator.generate(),
+                bucketId: BucketId(stringValue: uniqueIdentifierGenerator.generate()),
                 testEntries: [testEntryResult.testEntry],
                 buildArtifacts: bucket.buildArtifacts,
                 simulatorSettings: bucket.simulatorSettings,

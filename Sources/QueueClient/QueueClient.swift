@@ -75,7 +75,7 @@ public final class QueueClient {
     }
     
     public func reportAlive(
-        bucketIdsBeingProcessedProvider: @autoclosure () -> (Set<String>),
+        bucketIdsBeingProcessedProvider: @autoclosure () -> (Set<BucketId>),
         workerId: String,
         requestSignature: RequestSignature
     ) throws {

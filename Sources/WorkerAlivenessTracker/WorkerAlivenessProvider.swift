@@ -1,4 +1,5 @@
 import Foundation
+import Models
 
 public protocol WorkerAlivenessProvider: class {
     /// Returns immediate snapshot of all worker aliveness statuses.
@@ -8,8 +9,8 @@ public protocol WorkerAlivenessProvider: class {
     
     func markWorkerAsAlive(workerId: String)
     
-    func set(bucketIdsBeingProcessed: Set<String>, workerId: String)
-    func didDequeueBucket(bucketId: String, workerId: String)
+    func set(bucketIdsBeingProcessed: Set<BucketId>, workerId: String)
+    func didDequeueBucket(bucketId: BucketId, workerId: String)
 }
 
 public extension WorkerAlivenessProvider {

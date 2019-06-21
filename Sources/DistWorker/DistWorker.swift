@@ -16,7 +16,7 @@ import Timer
 public final class DistWorker: SchedulerDelegate {
     private let queueClient: SynchronousQueueClient
     private let syncQueue = DispatchQueue(label: "ru.avito.DistWorker")
-    private var requestIdForBucketId = [String: String]()  // bucketId -> requestId
+    private var requestIdForBucketId = [BucketId: String]()  // bucketId -> requestId
     private let bucketConfigurationFactory: BucketConfigurationFactory
     private let resourceLocationResolver: ResourceLocationResolver
     private var reportingAliveTimer: DispatchBasedTimer?

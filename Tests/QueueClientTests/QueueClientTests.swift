@@ -51,7 +51,7 @@ class QueueClientTests: XCTestCase {
     
     func testDequeueingBucket() throws {
         let bucket = Bucket(
-            bucketId: UUID().uuidString,
+            bucketId: BucketId(stringValue: UUID().uuidString),
             testEntries: [TestEntryFixtures.testEntry(className: "class", methodName: "method")],
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
@@ -114,8 +114,8 @@ class QueueClientTests: XCTestCase {
         let alivenessReportReceivedExpectation = self.expectation(description: "Aliveness report has been received")
         let bucketIdsProviderCalledExpectation = self.expectation(description: "Bucket Ids provider used")
         
-        let bucketId = UUID().uuidString
-        let provider: () -> Set<String> = {
+        let bucketId = BucketId(stringLiteral: UUID().uuidString)
+        let provider: () -> Set<BucketId> = {
             bucketIdsProviderCalledExpectation.fulfill()
             return Set([bucketId])
         }

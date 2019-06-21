@@ -2,7 +2,7 @@ import Foundation
 import Models
 
 public final class SchedulerBucket: CustomStringConvertible, Equatable {
-    public let bucketId: String
+    public let bucketId: BucketId
     public let testEntries: [TestEntry]
     public let buildArtifacts: BuildArtifacts
     public let simulatorSettings: SimulatorSettings
@@ -16,7 +16,7 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
     }
 
     public init(
-        bucketId: String,
+        bucketId: BucketId,
         testEntries: [TestEntry],
         buildArtifacts: BuildArtifacts,
         simulatorSettings: SimulatorSettings,

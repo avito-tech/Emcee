@@ -179,14 +179,16 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     }
     
     func test__schedule_tests() throws {
-        let bucketId = UUID().uuidString
+        let bucketId = BucketId(stringValue: UUID().uuidString)
         let testEntryConfigurations = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry())
             .testEntryConfigurations()
         let enqueueableBucketReceptor = FakeEnqueueableBucketReceptor()
         let testsEnqueuer = TestsEnqueuer(
             bucketSplitter: IndividualBucketSplitter(
-                uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(value: bucketId)
+                uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(
+                    value: bucketId.stringValue
+                )
             ),
             bucketSplitInfo: BucketSplitInfo(
                 numberOfWorkers: 0,

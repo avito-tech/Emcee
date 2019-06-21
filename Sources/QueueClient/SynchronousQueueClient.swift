@@ -19,7 +19,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     private let queueClient: QueueClient
     private var registrationResult: Result<WorkerConfiguration, QueueClientError>?
     private var bucketFetchResult: Result<BucketFetchResult, QueueClientError>?
-    private var bucketResultSendResult: Result<String, QueueClientError>?
+    private var bucketResultSendResult: Result<BucketId, QueueClientError>?
     private var alivenessReportResult: Result<Bool, QueueClientError>?
     private var queueServerVersionResult: Result<Version, QueueClientError>?
     private var scheduleTestsResult: Result<String, QueueClientError>?
@@ -71,7 +71,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         }
     }
     
-    public func send(testingResult: TestingResult, requestId: String, workerId: String, requestSignature: RequestSignature) throws -> String {
+    public func send(testingResult: TestingResult, requestId: String, workerId: String, requestSignature: RequestSignature) throws -> BucketId {
         return try synchronize {
             bucketResultSendResult = nil
             return try runRetrying {
@@ -89,7 +89,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         }
     }
     
-    public func reportAliveness(bucketIdsBeingProcessedProvider: @autoclosure () -> (Set<String>), workerId: String, requestSignature: RequestSignature) throws {
+    public func reportAliveness(bucketIdsBeingProcessedProvider: @autoclosure () -> (Set<BucketId>), workerId: String, requestSignature: RequestSignature) throws {
         try synchronize {
             alivenessReportResult = nil
             try runRetrying {
@@ -234,7 +234,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         bucketFetchResult = Result.success(.bucket(bucket))
     }
     
-    public func queueClient(_ sender: QueueClient, serverDidAcceptBucketResult bucketId: String) {
+    public func queueClient(_ sender: QueueClient, serverDidAcceptBucketResult bucketId: BucketId) {
         bucketResultSendResult = Result.success(bucketId)
     }
     

@@ -8,9 +8,11 @@ import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class ScheduleTestsEndpointTests: XCTestCase {
-    private let fixedBucketId = "fixedBucketId"
+    private let fixedBucketId: BucketId = "fixedBucketId"
     private lazy var individualBucketSplitter = IndividualBucketSplitter(
-        uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(value: fixedBucketId)
+        uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(
+            value: fixedBucketId.stringValue
+        )
     )
 
     func test___scheduling_tests() throws {
