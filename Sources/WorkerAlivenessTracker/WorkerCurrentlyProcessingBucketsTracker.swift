@@ -16,6 +16,8 @@ public final class WorkerCurrentlyProcessingBucketsTracker {
         if values[workerId] != bucketIds {
             values[workerId] = bucketIds
             Logger.verboseDebug("Worker \(workerId) is processing \(bucketIds.count) buckets: \(bucketIds)")
+        } else {
+            Logger.verboseDebug("Worker \(workerId) is processing same \(bucketIds.count) buckets")
         }
     }
     
