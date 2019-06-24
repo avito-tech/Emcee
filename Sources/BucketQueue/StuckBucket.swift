@@ -2,15 +2,15 @@ import Foundation
 import Models
 
 public struct StuckBucket: Equatable {
-    public enum Reason: String, Equatable, CustomStringConvertible {
+    public enum Reason: Equatable, CustomStringConvertible {
         case workerIsBlocked
-        case workerIsSilent
+        case workerIsSilent(since: Date)
         case bucketLost
         
         public var description: String {
             switch self {
-            case .workerIsSilent:
-                return "worker is silent"
+            case .workerIsSilent(let since):
+                return "worker is silent since \(since)"
             case .workerIsBlocked:
                 return "worker is blocked"
             case .bucketLost:

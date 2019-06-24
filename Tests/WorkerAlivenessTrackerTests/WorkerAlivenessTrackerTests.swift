@@ -1,3 +1,4 @@
+import DateProviderTestHelpers
 import Foundation
 import WorkerAlivenessTracker
 import WorkerAlivenessTrackerTestHelpers
@@ -26,18 +27,18 @@ final class WorkerAlivenessTrackerTests: XCTestCase {
     }
     
     func test__when_worker_is_silent__tracker_returns_silent() {
-        let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithImmediateTimeout()
+        let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithImmediateTimeout(dateProvider: DateProviderFixture(fixedDate))
         XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").status, .notRegistered)
         tracker.didRegisterWorker(workerId: "worker")
-        XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").status, .silent)
+        XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").status, .silent(lastAlivenessResponseTimestamp: fixedDate))
         XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").bucketIdsBeingProcessed, [])
     }
     
     func test___when_worker_is_silent___tracker_includes_buckets_being_processed() {
-        let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithImmediateTimeout()
+        let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithImmediateTimeout(dateProvider: DateProviderFixture(fixedDate))
         tracker.didRegisterWorker(workerId: "worker")
         tracker.set(bucketIdsBeingProcessed: ["bucketid"], workerId: "worker")
-        XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").status, .silent)
+        XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").status, .silent(lastAlivenessResponseTimestamp: fixedDate))
         XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").bucketIdsBeingProcessed, ["bucketid"])
     }
     
@@ -68,4 +69,6 @@ final class WorkerAlivenessTrackerTests: XCTestCase {
         tracker.blockWorker(workerId: "worker")
         XCTAssertFalse(tracker.hasAnyAliveWorker)
     }
+    
+    let fixedDate = Date()
 }

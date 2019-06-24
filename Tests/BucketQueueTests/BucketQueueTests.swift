@@ -210,17 +210,21 @@ final class BucketQueueTests: XCTestCase {
     
     func test__when_worker_is_silent__its_dequeued_buckets_removed() {
         let bucket = BucketFixtures.createBucket(testEntries: [])
+        let silentSince = Date()
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: mutableAlivenessProvider)
         bucketQueue.enqueue(buckets: [bucket])
         _ = bucketQueue.dequeueBucket(requestId: requestId, workerId: workerId)
         
-        mutableAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .silent, bucketIdsBeingProcessed: [])
+        mutableAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(
+            status: .silent(lastAlivenessResponseTimestamp: silentSince),
+            bucketIdsBeingProcessed: []
+        )
         
         let stuckBuckets = bucketQueue.reenqueueStuckBuckets()
         XCTAssertEqual(
             stuckBuckets,
-            [StuckBucket(reason: .workerIsSilent, bucket: bucket, workerId: workerId, requestId: requestId)]
+            [StuckBucket(reason: .workerIsSilent(since: silentSince), bucket: bucket, workerId: workerId, requestId: requestId)]
         )
     }
     

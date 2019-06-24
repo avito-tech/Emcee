@@ -27,8 +27,8 @@ public final class StuckBucketsPoller {
         
         guard !stuckBuckets.isEmpty else { return }
         
-        let stuckBucketMetrics = stuckBuckets.map {
-            StuckBucketsMetric(count: 1, host: $0.workerId, reason: $0.reason.rawValue)
+        let stuckBucketMetrics: [StuckBucketsMetric] = stuckBuckets.map {
+            return StuckBucketsMetric(count: 1, host: $0.workerId, reason: $0.reason.metricParameterName)
         }
         MetricRecorder.capture(stuckBucketMetrics)
         
@@ -44,5 +44,15 @@ public final class StuckBucketsPoller {
                 runningQueueState: statefulStuckBucketsReenqueuer.runningQueueState
             )
         )
+    }
+}
+
+private extension StuckBucket.Reason {
+    var metricParameterName: String {
+        switch self {
+        case .workerIsSilent: return "workerIsSilent"
+        case .workerIsBlocked: return "workerIsBlocked"
+        case .bucketLost: return "bucketLost"
+        }
     }
 }

@@ -180,8 +180,8 @@ final class BucketQueueImpl: BucketQueue {
                     stuckReason = .bucketLost
                 case .blocked:
                     stuckReason = .workerIsBlocked
-                case .silent:
-                    stuckReason = .workerIsSilent
+                case .silent(let lastAlivenessResponseTimestamp):
+                    stuckReason = .workerIsSilent(since: lastAlivenessResponseTimestamp)
                 }
                 dequeuedBuckets.remove(dequeuedBucket)
                 return StuckBucket(

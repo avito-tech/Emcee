@@ -89,7 +89,7 @@ public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
         let bucketIdsBeingProcessed = workerBucketIdsBeingProcessed.bucketIdsBeingProcessedBy(workerId: workerId)
         let silenceDuration = currentDate.timeIntervalSince(latestAliveDate)
         if silenceDuration > maximumNotReportingDuration {
-            return WorkerAliveness(status: .silent, bucketIdsBeingProcessed: bucketIdsBeingProcessed)
+            return WorkerAliveness(status: .silent(lastAlivenessResponseTimestamp: latestAliveDate), bucketIdsBeingProcessed: bucketIdsBeingProcessed)
         } else {
             return WorkerAliveness(status: .alive, bucketIdsBeingProcessed: bucketIdsBeingProcessed)
         }
