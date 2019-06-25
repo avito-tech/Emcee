@@ -133,13 +133,13 @@ final class ProcessControllerTests: XCTestCase {
             subprocess: Subprocess(
                 arguments: ["/bin/ls", "/"],
                 standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
-                    stdoutContentsFile: tempFile.path.pathString
+                    stdoutContentsFile: tempFile.path.asString
                 )
             )
         )
         controller.startAndListenUntilProcessDies()
         
-        let data = try Data(contentsOf: URL(fileURLWithPath: tempFile.path.pathString))
+        let data = try Data(contentsOf: URL(fileURLWithPath: tempFile.path.asString))
         guard let string = String(data: data, encoding: .utf8) else {
             XCTFail("Unable to get stdout string")
             return
@@ -155,13 +155,13 @@ final class ProcessControllerTests: XCTestCase {
             subprocess: Subprocess(
                 arguments: ["/bin/ls", argument],
                 standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
-                    stderrContentsFile: tempFile.path.pathString
+                    stderrContentsFile: tempFile.path.asString
                 )
             )
         )
         controller.startAndListenUntilProcessDies()
         
-        let data = try Data(contentsOf: URL(fileURLWithPath: tempFile.path.pathString))
+        let data = try Data(contentsOf: URL(fileURLWithPath: tempFile.path.asString))
         guard let string = String(data: data, encoding: .utf8) else {
             XCTFail("Unable to get stderr string")
             return
@@ -181,20 +181,20 @@ final class ProcessControllerTests: XCTestCase {
             subprocess: Subprocess(
                 arguments: ["/bin/ls", "/", argument],
                 standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
-                    stdoutContentsFile: stdoutFile.path.pathString,
-                    stderrContentsFile: stderrFile.path.pathString
+                    stdoutContentsFile: stdoutFile.path.asString,
+                    stderrContentsFile: stderrFile.path.asString
                 )
             )
         )
         controller.startAndListenUntilProcessDies()
         
-        let stdoutData = try Data(contentsOf: URL(fileURLWithPath: stdoutFile.path.pathString))
+        let stdoutData = try Data(contentsOf: URL(fileURLWithPath: stdoutFile.path.asString))
         guard let stdoutString = String(data: stdoutData, encoding: .utf8) else {
             XCTFail("Unable to get stdout string")
             return
         }
         
-        let stderrData = try Data(contentsOf: URL(fileURLWithPath: stderrFile.path.pathString))
+        let stderrData = try Data(contentsOf: URL(fileURLWithPath: stderrFile.path.asString))
         guard let stderrString = String(data: stderrData, encoding: .utf8) else {
             XCTFail("Unable to get stdin string")
             return
@@ -274,7 +274,7 @@ final class ProcessControllerTests: XCTestCase {
     }
     
     private func fileContents(path: AbsolutePath) throws -> String {
-        let dataata = try Data(contentsOf: URL(fileURLWithPath: path.pathString))
+        let dataata = try Data(contentsOf: URL(fileURLWithPath: path.asString))
         guard let contents = String(data: dataata, encoding: .utf8) else {
             fatalError("Unable to get contents of file: \(path)")
         }
@@ -316,9 +316,9 @@ final class ProcessControllerTests: XCTestCase {
                     allowedTimeToConsumeStdin: 600
                 ),
                 standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
-                    stdoutContentsFile: stdoutFile.pathString,
-                    stderrContentsFile: stderrFile.pathString,
-                    stdinContentsFile: stdinFile.pathString
+                    stdoutContentsFile: stdoutFile.asString,
+                    stderrContentsFile: stderrFile.asString,
+                    stdinContentsFile: stdinFile.asString
                 )
             )
         )
@@ -330,6 +330,6 @@ final class ProcessControllerTests: XCTestCase {
 
 extension TemporaryFile: SubprocessArgument {
     public func stringValue() throws -> String {
-        return path.pathString
+        return path.asString
     }
 }

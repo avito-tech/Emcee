@@ -80,11 +80,11 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
             simulator: allocatedSimulator.simulator
         )
         
-        guard let data = try? Data(contentsOf: URL(fileURLWithPath: runtimeEntriesJSONPath.pathString)),
+        guard let data = try? Data(contentsOf: URL(fileURLWithPath: runtimeEntriesJSONPath.asString)),
             let foundTestEntries = try? JSONDecoder().decode([RuntimeTestEntry].self, from: data)
             else {
                 runnerRunResult.dumpStandardStreams()
-                throw TestExplorationError.fileNotFound(runtimeEntriesJSONPath.pathString)
+                throw TestExplorationError.fileNotFound(runtimeEntriesJSONPath.asString)
         }
         
         let allTests = foundTestEntries.flatMap { $0.testMethods }
@@ -191,7 +191,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
     
     private func environment(runtimeEntriesJSONPath: AbsolutePath) -> [String: String] {
         var environment = ProcessInfo.processInfo.environment
-        environment["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH"] = runtimeEntriesJSONPath.pathString
+        environment["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH"] = runtimeEntriesJSONPath.asString
         return environment
     }
 }

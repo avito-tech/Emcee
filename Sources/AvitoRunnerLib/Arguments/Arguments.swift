@@ -1,7 +1,7 @@
 import Foundation
 import Logging
 import Models
-import SPMUtility
+import Utility
 
 protocol ArgumentDescription {
     var name: String { get }

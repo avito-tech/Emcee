@@ -29,17 +29,17 @@ final class PluginManagerTests: XCTestCase {
         let executablePath = pluginBundlePath.appending(component: "WrongExecutableName")
         
         try FileManager.default.createDirectory(
-            at: URL(fileURLWithPath: pluginBundlePath.pathString),
+            at: URL(fileURLWithPath: pluginBundlePath.asString),
             withIntermediateDirectories: true
         )
         try FileManager.default.copyItem(
             atPath: testingPluginExecutablePath,
-            toPath: executablePath.pathString
+            toPath: executablePath.asString
         )
         
         let manager = PluginManager(
             pluginLocations: [
-                PluginLocation(.localFilePath(pluginBundlePath.pathString))
+                PluginLocation(.localFilePath(pluginBundlePath.asString))
             ],
             resourceLocationResolver: resolver
         )
@@ -47,7 +47,7 @@ final class PluginManagerTests: XCTestCase {
     }
     
     func testStartingPluginWithoutBundleFails() throws {
-        let executablePath = tempFolder.path.appending(component: PluginManager.pluginExecutableName).pathString
+        let executablePath = tempFolder.path.appending(component: PluginManager.pluginExecutableName).asString
         try FileManager.default.copyItem(
             atPath: testingPluginExecutablePath,
             toPath: executablePath
@@ -67,17 +67,17 @@ final class PluginManagerTests: XCTestCase {
         let outputPath = try TemporaryFile()
         
         try FileManager.default.createDirectory(
-            at: URL(fileURLWithPath: pluginBundlePath.pathString),
+            at: URL(fileURLWithPath: pluginBundlePath.asString),
             withIntermediateDirectories: true
         )
         try FileManager.default.copyItem(
             atPath: testingPluginExecutablePath,
-            toPath: executablePath.pathString
+            toPath: executablePath.asString
         )
     
         let manager = PluginManager(
             pluginLocations: [
-                PluginLocation(.localFilePath(pluginBundlePath.pathString))
+                PluginLocation(.localFilePath(pluginBundlePath.asString))
             ],
             resourceLocationResolver: resolver
         )
@@ -86,8 +86,8 @@ final class PluginManagerTests: XCTestCase {
         let runnerEvent = RunnerEvent.willRun(
             testEntries: [TestEntryFixtures.testEntry()],
             testContext: TestContext(
-                environment: ["AVITO_TEST_PLUGIN_OUTPUT": outputPath.path.pathString],
-                simulatorInfo: SimulatorInfo(simulatorUuid: nil, simulatorSetPath: outputPath.path.pathString),
+                environment: ["AVITO_TEST_PLUGIN_OUTPUT": outputPath.path.asString],
+                simulatorInfo: SimulatorInfo(simulatorUuid: nil, simulatorSetPath: outputPath.path.asString),
                 testDestination: TestDestinationFixtures.testDestination
             )
         )
@@ -97,7 +97,7 @@ final class PluginManagerTests: XCTestCase {
         eventBus.post(event: .runnerEvent(runnerEvent))
         eventBus.tearDown()
         
-        let data = try Data(contentsOf: URL(fileURLWithPath: outputPath.path.pathString))
+        let data = try Data(contentsOf: URL(fileURLWithPath: outputPath.path.asString))
         let runnerEventCapturedByPlugin = try JSONDecoder().decode(RunnerEvent.self, from: data)
         
         XCTAssertEqual(runnerEventCapturedByPlugin, runnerEvent)

@@ -66,7 +66,7 @@ public class DefaultSimulatorController: SimulatorController, CustomStringConver
 
     private func performCreateSimulatorAction() throws {
         Logger.verboseDebug("Creating simulator: \(simulator)")
-        let simulatorSetPath = simulator.simulatorSetContainerPath.pathString
+        let simulatorSetPath = simulator.simulatorSetContainerPath.asString
         try FileManager.default.createDirectory(atPath: simulatorSetPath, withIntermediateDirectories: true)
         let controller = try ProcessController(
             subprocess: Subprocess(
@@ -133,7 +133,7 @@ public class DefaultSimulatorController: SimulatorController, CustomStringConver
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun",
-                    "simctl", "--set", simulator.simulatorSetContainerPath.pathString,
+                    "simctl", "--set", simulator.simulatorSetContainerPath.asString,
                     "shutdown", simulatorUuid.uuidString
                 ],
                 silenceBehavior: SilenceBehavior(
@@ -162,7 +162,7 @@ public class DefaultSimulatorController: SimulatorController, CustomStringConver
     // MARK: - Utility Methods
 
     private func bootSimulatorUsingFbsimctl() throws {
-        let containerContents = try FileManager.default.contentsOfDirectory(atPath: simulator.simulatorSetContainerPath.pathString)
+        let containerContents = try FileManager.default.contentsOfDirectory(atPath: simulator.simulatorSetContainerPath.asString)
         let simulatorUuids = containerContents.filter { UUID(uuidString: $0) != nil }
         guard simulatorUuids.count > 0, let simulatorUuid = simulatorUuids.first else {
             throw SimulatorBootError.unableToLocateSimulatorUuid
@@ -175,7 +175,7 @@ public class DefaultSimulatorController: SimulatorController, CustomStringConver
             subprocess: Subprocess(
                 arguments: [
                     fbsimctl.asArgumentWith(packageName: PackageName.fbsimctl),
-                    "--json", "--set", simulator.simulatorSetContainerPath.pathString,
+                    "--json", "--set", simulator.simulatorSetContainerPath.asString,
                     simulatorUuid, "boot",
                     "--locale", "ru_US",
                     "--direct-launch", "--", "listen"
@@ -217,7 +217,7 @@ public class DefaultSimulatorController: SimulatorController, CustomStringConver
             subprocess: Subprocess(
                 arguments: [
                     fbsimctl.asArgumentWith(packageName: PackageName.fbsimctl),
-                    "--json", "--set", simulator.simulatorSetContainerPath.pathString,
+                    "--json", "--set", simulator.simulatorSetContainerPath.asString,
                     "--simulators", "delete"
                 ],
                 silenceBehavior: SilenceBehavior(
@@ -236,7 +236,7 @@ public class DefaultSimulatorController: SimulatorController, CustomStringConver
                 subprocess: Subprocess(
                     arguments: [
                         "/usr/bin/xcrun",
-                        "simctl", "--set", simulator.simulatorSetContainerPath.pathString,
+                        "simctl", "--set", simulator.simulatorSetContainerPath.asString,
                         "delete", simulatorUuid.uuidString
                     ],
                     silenceBehavior: SilenceBehavior(
@@ -248,9 +248,9 @@ public class DefaultSimulatorController: SimulatorController, CustomStringConver
             deleteController.startAndListenUntilProcessDies()
         }
 
-        if FileManager.default.fileExists(atPath: simulator.simulatorSetContainerPath.pathString) {
+        if FileManager.default.fileExists(atPath: simulator.simulatorSetContainerPath.asString) {
             Logger.verboseDebug("Removing files left by simulator \(simulator)")
-            try FileManager.default.removeItem(atPath: simulator.simulatorSetContainerPath.pathString)
+            try FileManager.default.removeItem(atPath: simulator.simulatorSetContainerPath.asString)
         }
     }
 

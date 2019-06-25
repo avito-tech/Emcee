@@ -1,5 +1,5 @@
 import Foundation
-import SPMUtility
+import Utility
 
 public protocol Command {
     var command: String { get }

@@ -13,7 +13,7 @@ final class URLResourceTests: XCTestCase {
     override func setUp() {
         do {
             temporaryDirectory = try TemporaryDirectory(removeTreeOnDeinit: true)
-            fileCache = FileCache(cachesUrl: URL(fileURLWithPath: temporaryDirectory.path.pathString))
+            fileCache = FileCache(cachesUrl: URL(fileURLWithPath: temporaryDirectory.path.asString))
             server = HttpServer()
             try server?.start(0)
             serverPort = try server?.port() ?? 0

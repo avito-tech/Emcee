@@ -97,7 +97,7 @@ final class FileHandleLoggerHandlerTests: XCTestCase {
     }
     
     private func tempFileContents() throws -> String {
-        return try String(contentsOfFile: tempFile.path.pathString)
+        return try String(contentsOfFile: tempFile.path.asString)
     }
 }
 

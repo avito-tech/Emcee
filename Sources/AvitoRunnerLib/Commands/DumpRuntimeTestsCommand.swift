@@ -11,7 +11,7 @@ import RuntimeDump
 import Scheduler
 import ScheduleStrategy
 import TempFolder
-import SPMUtility
+import Utility
 import SimulatorPool
 
 final class DumpRuntimeTestsCommand: Command {

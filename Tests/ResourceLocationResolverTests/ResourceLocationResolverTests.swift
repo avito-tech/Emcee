@@ -14,11 +14,11 @@ final class ResourceLocationResolverTests: XCTestCase {
     func test___resolving_local_file() throws {
         let expectedPath = try tempFolder.createFile(filename: "some_local_file")
         
-        let result = try resolver.resolvePath(resourceLocation: .localFilePath(expectedPath.pathString))
+        let result = try resolver.resolvePath(resourceLocation: .localFilePath(expectedPath.asString))
         
         switch result {
         case .directlyAccessibleFile(let actualPath):
-            XCTAssertEqual(expectedPath.pathString, actualPath)
+            XCTAssertEqual(expectedPath.asString, actualPath)
         case .contentsOfArchive:
             XCTFail("Unexpected result")
         }
@@ -27,18 +27,18 @@ final class ResourceLocationResolverTests: XCTestCase {
     func test___resolving_local_file_with_space_in_path() throws {
         let expectedPath = try tempFolder.createFile(filename: "some local file")
         
-        let result = try resolver.resolvePath(resourceLocation: ResourceLocation.from(expectedPath.pathString))
+        let result = try resolver.resolvePath(resourceLocation: ResourceLocation.from(expectedPath.asString))
         
         switch result {
         case .directlyAccessibleFile(let actualPath):
-            XCTAssertEqual(expectedPath.pathString, actualPath)
+            XCTAssertEqual(expectedPath.asString, actualPath)
         case .contentsOfArchive:
             XCTFail("Unexpected result")
         }
     }
 
     func test___fetching_resource_with_fragment___resolves_into_archive_contents_with_filename_in_archive() throws {
-        let server = try startServer(serverPath: "/contents/example.zip", localPath: smallZipFile.pathString)
+        let server = try startServer(serverPath: "/contents/example.zip", localPath: smallZipFile.asString)
         let remoteUrl = URL(string: "http://localhost:\(server.port)/contents/example.zip#example")!
         
         let result = try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl))
@@ -58,7 +58,7 @@ final class ResourceLocationResolverTests: XCTestCase {
     }
     
     func test___fetching_resource_without_fragment___resolves_into_archive_contents_without_filename_in_archive() throws {
-        let server = try startServer(serverPath: "/contents/example.zip", localPath: smallZipFile.pathString)
+        let server = try startServer(serverPath: "/contents/example.zip", localPath: smallZipFile.asString)
         let remoteUrl = URL(string: "http://localhost:\(server.port)/contents/example.zip")!
         
         let result = try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl))
@@ -78,7 +78,7 @@ final class ResourceLocationResolverTests: XCTestCase {
     }
     
     func test___fetching_resource_from_multiple_threads() throws {
-        let server = try startServer(serverPath: "/contents/example.zip", localPath: largeZipFile.pathString)
+        let server = try startServer(serverPath: "/contents/example.zip", localPath: largeZipFile.asString)
         let remoteUrl = URL(string: "http://localhost:\(server.port)/contents/example.zip")!
         let resolver = self.resolver
         
@@ -107,7 +107,7 @@ final class ResourceLocationResolverTests: XCTestCase {
     
     func test___fetching_resource_from_multiple_threads_starts_only_single_download_task() throws {
         urlSession = fakeSession
-        let server = try startServer(serverPath: "/contents/example.zip", localPath: largeZipFile.pathString)
+        let server = try startServer(serverPath: "/contents/example.zip", localPath: largeZipFile.asString)
         let remoteUrl = URL(string: "http://localhost:\(server.port)/contents/example.zip")!
         let resolver = self.resolver
         
@@ -125,7 +125,7 @@ final class ResourceLocationResolverTests: XCTestCase {
     lazy var resolver = ResourceLocationResolver(urlResource: urlResource)
     lazy var serverFolder = try! tempFolder.pathByCreatingDirectories(components: ["server"])
     let tempFolder = try! TempFolder()
-    lazy var fileCache = FileCache(cachesUrl: URL(fileURLWithPath: tempFolder.pathWith(components: []).pathString))
+    lazy var fileCache = FileCache(cachesUrl: URL(fileURLWithPath: tempFolder.pathWith(components: []).asString))
     lazy var urlResource = URLResource(fileCache: fileCache, urlSession: urlSession)
     lazy var smallFile = try! createFile(name: "example", size: 4096)
     lazy var smallZipFile = self.zipFile(toPath: serverFolder.appending(component: "example.zip"), fromPath: smallFile)
@@ -142,8 +142,8 @@ final class ResourceLocationResolverTests: XCTestCase {
     private func zipFile(toPath: AbsolutePath, fromPath: AbsolutePath) -> AbsolutePath {
         let process = Foundation.Process()
         process.launchPath = "/usr/bin/zip"
-        process.currentDirectoryPath = fromPath.parentDirectory.pathString
-        process.arguments = ["-j", toPath.pathString, fromPath.pathString]
+        process.currentDirectoryPath = fromPath.parentDirectory.asString
+        process.arguments = ["-j", toPath.asString, fromPath.asString]
         process.launch()
         process.waitUntilExit()
         return toPath
@@ -152,7 +152,7 @@ final class ResourceLocationResolverTests: XCTestCase {
     private func compareFiles(path1: AbsolutePath, path2: AbsolutePath) -> Bool {
         let process = Foundation.Process.launchedProcess(
             launchPath: "/usr/bin/cmp",
-            arguments: [path1.pathString, path2.pathString]
+            arguments: [path1.asString, path2.asString]
         )
         process.waitUntilExit()
         return process.terminationStatus == 0
@@ -161,7 +161,7 @@ final class ResourceLocationResolverTests: XCTestCase {
     private func createFile(name: String, size: Int) throws -> AbsolutePath {
         let keyData = Data(repeating: 0, count: size)
         let path = tempFolder.pathWith(components: [name])
-        try keyData.write(to: URL(fileURLWithPath: path.pathString), options: .atomicWrite)
+        try keyData.write(to: URL(fileURLWithPath: path.asString), options: .atomicWrite)
         return path
     }
     

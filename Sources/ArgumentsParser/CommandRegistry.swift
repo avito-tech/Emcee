@@ -1,5 +1,5 @@
 import Foundation
-import SPMUtility
+import Utility
 import Basic
 import Logging
 
@@ -30,7 +30,7 @@ public struct CommandRegistry {
             let command = commands.first(where: { $0.command == subparser }) else {
                 let stream = BufferedOutputByteStream()
                 parser.printUsage(on: stream)
-                guard let description = stream.bytes.validDescription else {
+                guard let description = stream.bytes.asString else {
                     Logger.fatal("Unable to generate description of usage")
                 }
                 throw CommandExecutionError.incorrectUsage(usageDescription: description)

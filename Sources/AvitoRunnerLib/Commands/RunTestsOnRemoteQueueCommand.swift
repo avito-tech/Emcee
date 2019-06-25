@@ -16,7 +16,7 @@ import ResourceLocationResolver
 import SignalHandling
 import SynchronousWaiter
 import TempFolder
-import SPMUtility
+import Utility
 import Version
 import SimulatorPool
 import RuntimeDump

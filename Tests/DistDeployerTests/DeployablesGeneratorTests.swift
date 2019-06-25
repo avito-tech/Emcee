@@ -33,7 +33,7 @@ class DeployablesGeneratorTests: XCTestCase {
     
     private func pathToPlugin() throws -> String {
         let binaryPath = try tempFolder.createFile(components: ["TestPlugin.emceeplugin"], filename: "Plugin", contents: nil)
-        return binaryPath.parentDirectory.pathString
+        return binaryPath.parentDirectory.asString
     }
     
     private func filterDeployables(_ packageName: PackageName) -> [DeployableItem] {
@@ -57,8 +57,8 @@ class DeployablesGeneratorTests: XCTestCase {
         
         let files = deployables[0].files
         let expectedFiles = Set([
-            DeployableFile(source: tempFolder.pathWith(components: ["TestPlugin.emceeplugin"]).pathString, destination: "TestPlugin.emceeplugin"),
-            DeployableFile(source: tempFolder.pathWith(components: ["TestPlugin.emceeplugin", "Plugin"]).pathString, destination: "TestPlugin.emceeplugin/Plugin")
+            DeployableFile(source: tempFolder.pathWith(components: ["TestPlugin.emceeplugin"]).asString, destination: "TestPlugin.emceeplugin"),
+            DeployableFile(source: tempFolder.pathWith(components: ["TestPlugin.emceeplugin", "Plugin"]).asString, destination: "TestPlugin.emceeplugin/Plugin")
             ])
         XCTAssertEqual(files, expectedFiles)
     }

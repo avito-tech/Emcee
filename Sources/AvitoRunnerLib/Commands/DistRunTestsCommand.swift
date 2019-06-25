@@ -12,7 +12,7 @@ import ResourceLocationResolver
 import ScheduleStrategy
 import TempFolder
 import Version
-import SPMUtility
+import Utility
 import SimulatorPool
 import RuntimeDump
 

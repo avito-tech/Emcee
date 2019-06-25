@@ -36,7 +36,7 @@ let package = Package(
     dependencies: [
         // MARK: - Dependencies
         .package(url: "https://github.com/0x7fs/CountedSet", .branch("master")),
-        .package(url: "https://github.com/apple/swift-package-manager.git", .branch("swift-5.0-branch")),
+        .package(url: "https://github.com/beefon/swift-package-manager.git", .branch("swift-5.0-branch")),
         .package(url: "https://github.com/avito-tech/GraphiteClient.git", .exact("0.1.0")),
         .package(url: "https://github.com/IBM-Swift/BlueSignals.git", .exact("1.0.16")),
         .package(url: "https://github.com/jakeheis/Shout.git", .branch("master")),
@@ -60,7 +60,7 @@ let package = Package(
                 "Logging",
                 "Models",
                 "RuntimeDump",
-                "SPMUtility"
+                "Utility"
             ]
         ),
         .target(
@@ -108,7 +108,7 @@ let package = Package(
                 "ProcessController",
                 "RemoteQueue",
                 "ResourceLocationResolver",
-                "SPMUtility",
+                "Utility",
                 "SSHDeployer",
                 "ScheduleStrategy",
                 "Scheduler",
@@ -225,7 +225,7 @@ let package = Package(
                 "Extensions",
                 "Logging",
                 "Models",
-                "SPMUtility",
+                "Utility",
                 "ZIPFoundation"
             ]
         ),
@@ -260,7 +260,7 @@ let package = Package(
                 "ModelsTestHelpers",
                 "ResourceLocationResolver",
                 "TempFolder",
-                "SPMUtility"
+                "Utility"
             ]
         ),
         .target(
@@ -308,7 +308,7 @@ let package = Package(
                 "SimulatorPool",
                 "SynchronousWaiter",
                 "Timer",
-                "SPMUtility"
+                "Utility"
             ]
         ),
         .testTarget(
@@ -348,7 +348,7 @@ let package = Package(
             name: "ExtensionsTests",
             dependencies: [
                 "Extensions",
-                "SPMUtility"
+                "Utility"
             ]
         ),
         .target(
@@ -371,7 +371,7 @@ let package = Package(
                 "Models",
                 "ProcessController",
                 "Timer",
-                "SPMUtility"
+                "Utility"
             ]
         ),
         .target(
@@ -379,7 +379,7 @@ let package = Package(
             name: "FileCache",
             dependencies: [
                 "Extensions",
-                "SPMUtility"
+                "Utility"
             ]
         ),
         .testTarget(
@@ -422,7 +422,7 @@ let package = Package(
             // MARK: JSONStreamTests
             name: "JSONStreamTests",
             dependencies: [
-                "SPMUtility",
+                "Utility",
                 "JSONStream"
             ]
         ),
@@ -510,7 +510,7 @@ let package = Package(
                 "Logging",
                 "Metrics",
                 "Sentry",
-                "SPMUtility",
+                "Utility",
                 "Version"
             ]
         ),
@@ -519,7 +519,7 @@ let package = Package(
             name: "LoggingTests",
             dependencies: [
                 "Logging",
-                "SPMUtility"
+                "Utility"
             ]
         ),
         .target(
@@ -571,7 +571,7 @@ let package = Package(
                 "Starscream",
                 "SynchronousWaiter",
                 "TestsWorkingDirectorySupport",
-                "SPMUtility"
+                "Utility"
             ]
         ),
         .target(
@@ -598,7 +598,7 @@ let package = Package(
                 "ModelsTestHelpers",
                 "PluginManager",
                 "ResourceLocationResolver",
-                "SPMUtility"
+                "Utility"
             ]
         ),
         .target(
@@ -625,7 +625,7 @@ let package = Package(
                 "Logging",
                 "ResourceLocationResolver",
                 "Timer",
-                "SPMUtility"
+                "Utility"
             ]
         ),
         .testTarget(
@@ -634,7 +634,7 @@ let package = Package(
             dependencies: [
                 "Extensions",
                 "ProcessController",
-                "SPMUtility"
+                "Utility"
             ]
         ),
         .target(
@@ -646,7 +646,7 @@ let package = Package(
                 "RESTMethods",
                 "SynchronousWaiter",
                 "Version",
-                "SPMUtility"
+                "Utility"
             ]
         ),
         .testTarget(
@@ -932,7 +932,7 @@ let package = Package(
                 "Models",
                 "ProcessController",
                 "TempFolder",
-                "SPMUtility"
+                "Utility"
             ]
         ),
         .testTarget(
@@ -964,7 +964,7 @@ let package = Package(
                 "Extensions",
                 "Logging",
                 "Models",
-                "SPMUtility",
+                "Utility",
                 "Deployer",
                 "Shout"
             ]
@@ -990,7 +990,7 @@ let package = Package(
             // MARK: TempFolder
             name: "TempFolder",
             dependencies: [
-                "SPMUtility"
+                "Utility"
             ]
         ),
         .testTarget(
@@ -1054,7 +1054,7 @@ let package = Package(
                 "Logging",
                 "Models",
                 "SynchronousWaiter",
-                "SPMUtility"
+                "Utility"
             ]
         ),
         .testTarget(
@@ -1064,7 +1064,7 @@ let package = Package(
                 "FileCache",
                 "Swifter",
                 "URLResource",
-                "SPMUtility"
+                "Utility"
             ]
         ),
         .target(
@@ -1088,7 +1088,7 @@ let package = Package(
                 "Extensions",
                 "FileHasher",
                 "Version",
-                "SPMUtility"
+                "Utility"
             ]
         ),
         .target(

@@ -205,7 +205,7 @@ public final class Runner {
         arguments += ["run-tests", "-sdk", "iphonesimulator"]
       
         if type(of: simulator) != Shimulator.self {
-            arguments += ["-workingDirectory", simulator.workingDirectory.pathString]
+            arguments += ["-workingDirectory", simulator.workingDirectory.asString]
         }
         
         arguments += ["-keep-simulators-alive"]
@@ -216,7 +216,7 @@ public final class Runner {
         var environment = configuration.environment
         do {
             let testsWorkingDirectory = try tempFolder.pathByCreatingDirectories(components: ["testsWorkingDir", UUID().uuidString])
-            environment[TestsWorkingDirectorySupport.envTestsWorkingDirectory] = testsWorkingDirectory.pathString
+            environment[TestsWorkingDirectorySupport.envTestsWorkingDirectory] = testsWorkingDirectory.asString
         } catch {
             Logger.error("Unable to create tests working directory: \(error)")
         }

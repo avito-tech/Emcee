@@ -11,7 +11,7 @@ import PluginManager
 import ResourceLocationResolver
 import Runner
 import RuntimeDump
-import SPMUtility
+import Utility
 import ScheduleStrategy
 import Scheduler
 import SimulatorPool

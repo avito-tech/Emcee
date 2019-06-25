@@ -84,7 +84,7 @@ public final class RemoteWorkersStarter {
                 name: "launchd_plist",
                 files: [
                     DeployableFile(
-                        source: filePath.pathString,
+                        source: filePath.asString,
                         destination: launchdPlistTargetPath
                     )
                 ]
