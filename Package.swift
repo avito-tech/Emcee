@@ -559,6 +559,19 @@ let package = Package(
             ]
         ),
         .target(
+            // MARK: PathLib
+            name: "PathLib",
+            dependencies: [
+            ]
+        ),
+        .testTarget(
+            // MARK: PathLibTests
+            name: "PathLibTests",
+            dependencies: [
+                "PathLib"
+            ]
+        ),
+        .target(
             // MARK: Plugin
             name: "Plugin",
             dependencies: [
