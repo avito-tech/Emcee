@@ -54,6 +54,21 @@ let package = Package(
             ]
         ),
         .target(
+            // MARK: ArgLib
+            name: "ArgLib",
+            dependencies: [
+                "OrderedSet"
+            ]
+        ),
+        .testTarget(
+            // MARK: ArgLibTests
+            name: "ArgLibTests",
+            dependencies: [
+                "ArgLib",
+                "OrderedSet"
+            ]
+        ),
+        .target(
             // MARK: ArgumentsParser
             name: "ArgumentsParser",
             dependencies: [
