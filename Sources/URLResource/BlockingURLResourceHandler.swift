@@ -1,12 +1,12 @@
-import Basic
 import Dispatch
 import Foundation
 import Logging
+import Models
 
 public final class BlockingURLResourceHandler: URLResourceHandler {
     
     private let semaphore = DispatchSemaphore(value: 0)
-    private var result: Result<URL, HandlerError> = Result.failure(HandlerError.timeout)
+    private var result: Either<URL, HandlerError> = Either.error(HandlerError.timeout)
     
     public enum HandlerError: Error {
         case timeout
@@ -22,13 +22,13 @@ public final class BlockingURLResourceHandler: URLResourceHandler {
     
     public func resourceUrl(contentUrl: URL, forUrl url: URL) {
         Logger.verboseDebug("Obtained resource for '\(url)' at local url: '\(contentUrl)'")
-        result = Result.success(contentUrl)
+        result = Either.success(contentUrl)
         semaphore.signal()
     }
     
     public func failedToGetContents(forUrl url: URL, error: Error) {
         Logger.error("Failed to fetch resource for '\(url)': \(error)")
-        result = Result.failure(HandlerError.failure(error))
+        result = Either.error(HandlerError.failure(error))
         semaphore.signal()
     }
 }

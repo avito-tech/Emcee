@@ -1,10 +1,11 @@
-import Foundation
 @testable import Deployer
+import Foundation
+import PathLib
 
 class FakeDeployer: Deployer {
-    var urlsAskedToBeDeployed: [URL: DeployableItem] = [:]
+    var pathsAskedToBeDeployed: [AbsolutePath: DeployableItem] = [:]
     
-    override func deployToDestinations(urlToDeployable: [URL: DeployableItem]) throws {
-        urlsAskedToBeDeployed = urlToDeployable
+    override func deployToDestinations(pathToDeployable: [AbsolutePath: DeployableItem]) throws {
+        pathsAskedToBeDeployed = pathToDeployable
     }
 }

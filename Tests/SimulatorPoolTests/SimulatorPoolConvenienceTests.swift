@@ -1,7 +1,7 @@
 import XCTest
 import SimulatorPool
 import ModelsTestHelpers
-import TempFolder
+import TemporaryStuff
 import SynchronousWaiter
 
 final class SimulatorPoolConvenienceTests: XCTestCase {

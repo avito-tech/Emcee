@@ -15,7 +15,7 @@ import RemoteQueue
 import ResourceLocationResolver
 import SignalHandling
 import SynchronousWaiter
-import TempFolder
+import TemporaryStuff
 import Utility
 import Version
 import SimulatorPool
@@ -91,7 +91,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
             )
         )
         let runId = JobId(value: try ArgumentsReader.validateNotNil(arguments.get(self.runId), key: KnownStringArguments.runId))
-        let tempFolder = try TempFolder()
+        let tempFolder = try TemporaryFolder()
         let testArgFile = try ArgumentsReader.testArgFile(arguments.get(self.testArgFile), key: KnownStringArguments.testArgFile)
         let testDestinationConfigurations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
         let workerDestinations = try ArgumentsReader.deploymentDestinations(arguments.get(self.workerDestinations), key: KnownStringArguments.destinations)
@@ -130,7 +130,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         queueServerDestination: DeploymentDestination,
         queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation,
         runId: JobId,
-        tempFolder: TempFolder,
+        tempFolder: TemporaryFolder,
         workerDestinations: [DeploymentDestination])
         throws -> SocketAddress
     {
@@ -195,7 +195,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         priority: Priority,
         queueServerAddress: SocketAddress,
         runId: JobId,
-        tempFolder: TempFolder,
+        tempFolder: TemporaryFolder,
         testArgFile: TestArgFile,
         testDestinationConfigurations: [TestDestinationConfiguration])
         throws -> JobResults

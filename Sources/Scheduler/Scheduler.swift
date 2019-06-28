@@ -10,7 +10,7 @@ import Runner
 import ScheduleStrategy
 import SimulatorPool
 import SynchronousWaiter
-import TempFolder
+import TemporaryStuff
 
 public final class Scheduler {
     private let eventBus: EventBus
@@ -19,7 +19,7 @@ public final class Scheduler {
     private var testingResults = [TestingResult]()
     private let queue = OperationQueue()
     private let syncQueue = DispatchQueue(label: "ru.avito.Scheduler")
-    private let tempFolder: TempFolder
+    private let tempFolder: TemporaryFolder
     private let resourceLocationResolver: ResourceLocationResolver
     private var gatheredErrors = [Error]()
     private weak var schedulerDelegate: SchedulerDelegate?
@@ -27,7 +27,7 @@ public final class Scheduler {
     public init(
         eventBus: EventBus,
         configuration: SchedulerConfiguration,
-        tempFolder: TempFolder,
+        tempFolder: TemporaryFolder,
         resourceLocationResolver: ResourceLocationResolver,
         schedulerDelegate: SchedulerDelegate?
         )

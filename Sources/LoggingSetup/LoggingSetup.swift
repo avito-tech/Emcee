@@ -1,12 +1,13 @@
 import Ansi
-import Basic
 import Dispatch
 import Foundation
 import LocalHostDeterminer
 import Logging
 import Metrics
 import Models
+import PathLib
 import Sentry
+import TemporaryStuff
 import Version
 
 public final class LoggingSetup {
@@ -15,22 +16,22 @@ public final class LoggingSetup {
     public static func setupLogging(stderrVerbosity: Verbosity) throws {
         let filename = "pid_\(ProcessInfo.processInfo.processIdentifier)"
         let detailedLogPath = try TemporaryFile(
-            dir: AbsolutePath(validating: try logsContainerFolderUrl().path),
+            containerPath: try logsContainerFolder(),
             prefix: filename,
             suffix: ".log",
-            deleteOnClose: false
+            deleteOnDealloc: false
         )
         
         let aggregatedHandler = AggregatedLoggerHandler(
             handlers: createLoggerHandlers(
                 stderrVerbosity: stderrVerbosity,
-                detaildLogFileHandle: detailedLogPath.fileHandle
+                detaildLogFileHandle: detailedLogPath.fileHandleForWriting
             )
         )
         GlobalLoggerConfig.loggerHandler = aggregatedHandler
         Logger.always("Logging verbosity level is set to \(stderrVerbosity.stringCode)")
         Logger.always("To fetch detailed verbose log:")
-        Logger.always("$ scp \(LocalHostDeterminer.currentHostAddress):\(detailedLogPath.path.asString) /tmp/\(filename).log")
+        Logger.always("$ scp \(LocalHostDeterminer.currentHostAddress):\(detailedLogPath.absolutePath) /tmp/\(filename).log")
     }
     
     public static func setupAnalytics(analyticsConfiguration: AnalyticsConfiguration) throws {
@@ -125,18 +126,16 @@ public final class LoggingSetup {
         )
     }
     
-    private static func logsContainerFolderUrl() throws -> URL {
+    private static func logsContainerFolder() throws -> AbsolutePath {
         let libraryUrl = try FileManager.default.url(
             for: .libraryDirectory,
             in: .userDomainMask,
             appropriateFor: nil,
             create: true
         )
-        let container = libraryUrl
-            .appendingPathComponent("Logs", isDirectory: true)
-            .appendingPathComponent("ru.avito.emcee.logs", isDirectory: true)
-            .appendingPathComponent(ProcessInfo.processInfo.processName, isDirectory: true)
-        try FileManager.default.createDirectory(at: container, withIntermediateDirectories: true)
+        let container = AbsolutePath(libraryUrl.path)
+            .appending(components: ["Logs", "ru.avito.emcee.logs", ProcessInfo.processInfo.processName])
+        try FileManager.default.createDirectory(atPath: container)
         return container
     }
 }

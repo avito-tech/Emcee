@@ -1,12 +1,13 @@
-import Basic
 import FileCache
 import Foundation
+import TemporaryStuff
 import XCTest
 
 public final class FileCacheTests: XCTestCase {
+    let tempFolder = try! TemporaryFolder(deleteOnDealloc: true)
+    
     func testStorage() throws {
-        let tempFolder = try TemporaryDirectory(removeTreeOnDeinit: true)
-        let cache = FileCache(cachesUrl: URL(fileURLWithPath: tempFolder.path.asString))
+        let cache = FileCache(cachesUrl: tempFolder.absolutePath.fileUrl)
         XCTAssertFalse(cache.contains(itemWithName: "item"))
         
         XCTAssertNoThrow(try cache.store(itemAtURL: URL(fileURLWithPath: #file), underName: "item"))
@@ -23,8 +24,7 @@ public final class FileCacheTests: XCTestCase {
     }
     
     func testEvicting() throws {
-        let tempFolder = try TemporaryDirectory(removeTreeOnDeinit: true)
-        let cache = FileCache(cachesUrl: URL(fileURLWithPath: tempFolder.path.asString))
+        let cache = FileCache(cachesUrl: tempFolder.absolutePath.fileUrl)
         
         try cache.store(itemAtURL: URL(fileURLWithPath: #file), underName: "item")
         XCTAssertTrue(cache.contains(itemWithName: "item"))

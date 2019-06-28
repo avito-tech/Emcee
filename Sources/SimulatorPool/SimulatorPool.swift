@@ -1,11 +1,11 @@
-import Basic
 import Dispatch
-import Foundation
 import Extensions
+import Foundation
 import Logging
 import Models
-import TempFolder
+import OrderedSet
 import ResourceLocationResolver
+import TemporaryStuff
 
 /**
  * Every 'borrow' must have a corresponding 'free' call, otherwise the next borrow will throw an error.
@@ -29,7 +29,7 @@ public class SimulatorPool<T>: CustomStringConvertible where T: SimulatorControl
         numberOfSimulators: UInt,
         testDestination: TestDestination,
         fbsimctl: ResolvableResourceLocation,
-        tempFolder: TempFolder,
+        tempFolder: TemporaryFolder,
         automaticCleanupTiumeout: TimeInterval = 10) throws
     {
         self.numberOfSimulators = numberOfSimulators
@@ -48,10 +48,9 @@ public class SimulatorPool<T>: CustomStringConvertible where T: SimulatorControl
     
     public func allocateSimulatorController() throws -> T {
         return try syncQueue.sync {
-            guard controllers.count > 0 else {
+            guard let simulator = controllers.removeLast() else {
                 throw BorrowError.noSimulatorsLeft
             }
-            let simulator = controllers.removeLast()
             Logger.verboseDebug("Allocated simulator: \(simulator)")
             cancelAutomaticCleanup()
             return simulator
@@ -98,8 +97,8 @@ public class SimulatorPool<T>: CustomStringConvertible where T: SimulatorControl
         count: UInt,
         testDestination: TestDestination,
         fbsimctl: ResolvableResourceLocation,
-        tempFolder: TempFolder) throws -> OrderedSet<T>
-    {
+        tempFolder: TemporaryFolder
+    ) throws -> OrderedSet<T> {
         var result = OrderedSet<T>()
         for index in 0 ..< count {
             let folderName = "sim_\(testDestination.deviceType.removingWhitespaces())_\(testDestination.runtime)_\(index)"
@@ -129,5 +128,15 @@ public class SimulatorPool<T>: CustomStringConvertible where T: SimulatorControl
         }
         cleanUpQueue.asyncAfter(deadline: .now() + automaticCleanupTiumeout, execute: cancellationWorkItem)
         self.automaticCleanupWorkItem = cancellationWorkItem
+    }
+}
+
+private extension OrderedSet {
+    mutating func removeLast() -> T? {
+        guard let objectToRemove = last else {
+            return nil
+        }
+        remove(objectToRemove)
+        return objectToRemove
     }
 }

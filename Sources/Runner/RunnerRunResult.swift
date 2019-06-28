@@ -2,6 +2,7 @@ import Extensions
 import Foundation
 import Logging
 import Models
+import PathLib
 import ProcessController
 
 public final class RunnerRunResult {
@@ -27,8 +28,8 @@ public final class RunnerRunResult {
         printTail(filePath: subprocessStandardStreamsCaptureConfig.stderrContentsFile)
     }
     
-    private func printTail(filePath: String) {
-        if let fileHandle = FileHandle(forReadingAtPath: filePath) {
+    private func printTail(filePath: AbsolutePath) {
+        if let fileHandle = FileHandle(forReadingAtPath: filePath.pathString) {
             Logger.info("Below is the tail of \(filePath)")
             fileHandle.seekToOffsetFromEnd(offset: 10*1024)
             fileHandle.stream(toFileHandle: FileHandle.standardError)

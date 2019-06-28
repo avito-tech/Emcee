@@ -2,7 +2,8 @@ import Deployer
 import Foundation
 import Logging
 import Models
-import TempFolder
+import PathLib
+import TemporaryStuff
 import Version
 
 /// Starts the remote workers on the given destinations that will poll jobs from the given queue
@@ -13,7 +14,7 @@ public final class RemoteWorkersStarter {
     private let pluginLocations: [PluginLocation]
     private let queueAddress: SocketAddress
     private let analyticsConfigurationLocation: AnalyticsConfigurationLocation?
-    private let tempFolder: TempFolder
+    private let tempFolder: TemporaryFolder
 
     public init(
         deploymentId: String,
@@ -22,7 +23,7 @@ public final class RemoteWorkersStarter {
         pluginLocations: [PluginLocation],
         queueAddress: SocketAddress,
         analyticsConfigurationLocation: AnalyticsConfigurationLocation?,
-        tempFolder: TempFolder
+        tempFolder: TemporaryFolder
         )
     {
         self.deploymentId = deploymentId
@@ -84,8 +85,8 @@ public final class RemoteWorkersStarter {
                 name: "launchd_plist",
                 files: [
                     DeployableFile(
-                        source: filePath.asString,
-                        destination: launchdPlistTargetPath
+                        source: filePath,
+                        destination: RelativePath(launchdPlistTargetPath)
                     )
                 ]
             )

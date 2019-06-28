@@ -1,5 +1,4 @@
 import Foundation
-import Basic
 
 open class DeployableItem: CustomStringConvertible, Hashable {
     public let name: String

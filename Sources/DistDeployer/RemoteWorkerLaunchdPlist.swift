@@ -45,16 +45,16 @@ public final class RemoteWorkerLaunchdPlist {
             job: LaunchdJob(
                 label: jobLabel,
                 programArguments: [
-                    workerBinaryRemotePath, "distWork",
+                    workerBinaryRemotePath.pathString, "distWork",
                     "--queue-server", queueAddress.asString,
                     "--worker-id", deploymentDestination.identifier,
                 ] + analyticsConfigurationArgs(),
                 environmentVariables: [:],
-                workingDirectory: containerPath,
+                workingDirectory: containerPath.pathString,
                 runAtLoad: true,
                 disabled: true,
-                standardOutPath: containerPath.appending(pathComponent: "stdout.log"),
-                standardErrorPath: containerPath.appending(pathComponent: "stderr.log"),
+                standardOutPath: containerPath.appending(component: "stdout.log").pathString,
+                standardErrorPath: containerPath.appending(component: "stderr.log").pathString,
                 sockets: [:],
                 inetdCompatibility: .disabled,
                 sessionType: .background

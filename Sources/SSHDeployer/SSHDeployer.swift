@@ -4,6 +4,7 @@ import Extensions
 import Foundation
 import Logging
 import Models
+import PathLib
 
 public final class SSHDeployer: Deployer {
     
@@ -26,7 +27,7 @@ public final class SSHDeployer: Deployer {
             destinations: destinations)
     }
     
-    override public func deployToDestinations(urlToDeployable: [URL: DeployableItem]) throws {
+    override public func deployToDestinations(pathToDeployable: [AbsolutePath: DeployableItem]) throws {
         let syncQueue = DispatchQueue(label: "ru.avito.SSHDeployer.syncQueue")
         let operationQueue = OperationQueue()
         operationQueue.maxConcurrentOperationCount = maximumSimultaneousDeployOperations
@@ -35,7 +36,7 @@ public final class SSHDeployer: Deployer {
         for destination in destinations {
             operationQueue.addOperation {
                 do {
-                    try self.deploy(destination: destination, urlToDeployable: urlToDeployable)
+                    try self.deploy(destination: destination, pathToDeployable: pathToDeployable)
                 } catch let error {
                     syncQueue.sync { destinationsFailedToDeploy.append(destination) }
                     SSHDeployer.log(destination, "Failed to deploy to this destination with error: \(error)")
@@ -63,32 +64,29 @@ public final class SSHDeployer: Deployer {
     public static func remoteContainerPath(
         forDeployable deployable: DeployableItem,
         destination: DeploymentDestination,
-        deploymentId: String) -> String
-    {
-        let remoteDeploymentPath = destination.remoteDeploymentPath
-            .appending(pathComponent: deploymentId)
-            .appending(pathComponent: deployable.name)
-        return remoteDeploymentPath
+        deploymentId: String
+    ) -> AbsolutePath {
+        return AbsolutePath(destination.remoteDeploymentPath)
+            .appending(components: [deploymentId, deployable.name])
     }
     
     public static func remotePath(
         deployable: DeployableItem,
         file: DeployableFile,
         destination: DeploymentDestination,
-        deploymentId: String)
-        -> String
-    {
+        deploymentId: String
+    ) -> AbsolutePath {
         let container = remoteContainerPath(
             forDeployable: deployable,
             destination: destination,
             deploymentId: deploymentId
         )
-        return container.appending(pathComponent: file.destination)
+        return container.appending(relativePath: file.destination)
     }
     
     // MARK: - Private - Deploy
     
-    private func deploy(destination: DeploymentDestination, urlToDeployable: [URL: DeployableItem]) throws {
+    private func deploy(destination: DeploymentDestination, pathToDeployable: [AbsolutePath: DeployableItem]) throws {
         SSHDeployer.log(destination, "Connecting")
         let sshClient = try self.sshClientType.init(
             host: destination.host,
@@ -98,27 +96,30 @@ public final class SSHDeployer: Deployer {
         try sshClient.connectAndAuthenticate()
         SSHDeployer.log(destination, "Connected and authenticated")
         
-        try urlToDeployable.forEach { (localUrl: URL, deployable: DeployableItem) in
+        try pathToDeployable.forEach { (absolutePath: AbsolutePath, deployable: DeployableItem) in
             let remoteDeploymentPath = SSHDeployer.remoteContainerPath(
                 forDeployable: deployable,
                 destination: destination,
-                deploymentId: deploymentId)
-            try sshClient.execute(["rm", "-rf", remoteDeploymentPath])
-            try sshClient.execute(["mkdir", "-p", remoteDeploymentPath])
-            let remotePackagePath = remoteDeploymentPath.appending(pathComponent: "_package.zip")
+                deploymentId: deploymentId
+            )
+            try sshClient.execute(["rm", "-rf", remoteDeploymentPath.pathString])
+            try sshClient.execute(["mkdir", "-p", remoteDeploymentPath.pathString])
+            let remotePackagePath = remoteDeploymentPath.appending(component: "_package.zip")
             
             try uploadFile(
                 sshClient: sshClient,
                 destination: destination,
-                localUrl: localUrl,
-                remotePath: remotePackagePath)
+                localAbsolutePath: absolutePath,
+                remoteAbsolutePath: remotePackagePath
+            )
             
             try deployPackageRemotely(
                 sshClient: sshClient,
                 destination: destination,
                 deployable: deployable,
                 remotePackagePath: remotePackagePath,
-                remoteDeploymentPath: remoteDeploymentPath)
+                remoteDeploymentPath: remoteDeploymentPath
+            )
             
             try invokeCommands(sshClient: sshClient, destination: destination)
         }
@@ -127,22 +128,22 @@ public final class SSHDeployer: Deployer {
     private func uploadFile(
         sshClient: SSHClient,
         destination: DeploymentDestination,
-        localUrl: URL,
-        remotePath: String) throws
-    {
-        SSHDeployer.log(destination, "Uploading \(localUrl.path) -> \(remotePath)")
-        try sshClient.upload(localUrl: localUrl, remotePath: remotePath)
+        localAbsolutePath: AbsolutePath,
+        remoteAbsolutePath: AbsolutePath
+    ) throws {
+        SSHDeployer.log(destination, "Uploading \(localAbsolutePath) -> \(remoteAbsolutePath)")
+        try sshClient.upload(localUrl: localAbsolutePath.fileUrl, remotePath: remoteAbsolutePath.pathString)
     }
     
     private func deployPackageRemotely(
         sshClient: SSHClient,
         destination: DeploymentDestination,
         deployable: DeployableItem,
-        remotePackagePath: String,
-        remoteDeploymentPath: String) throws
-    {
+        remotePackagePath: AbsolutePath,
+        remoteDeploymentPath: AbsolutePath
+    ) throws {
         SSHDeployer.log(destination, "Deploying '\(deployable.name)'")
-        try sshClient.execute(["unzip", remotePackagePath, "-d", remoteDeploymentPath])
+        try sshClient.execute(["unzip", remotePackagePath.pathString, "-d", remoteDeploymentPath.pathString])
     }
     
     // MARK: - Private - Command Invocatoin
@@ -159,9 +160,9 @@ public final class SSHDeployer: Deployer {
                         destination: destination,
                         deploymentId: deploymentId)
                     if let additionalPath = relativePath {
-                        remotePath = remotePath.appending(pathComponent: additionalPath)
+                        remotePath = remotePath.appending(component: additionalPath)
                     }
-                    return remotePath
+                    return remotePath.pathString
                 }
             }
             try sshClient.execute(commandArgs)

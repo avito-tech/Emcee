@@ -7,7 +7,7 @@ import Models
 import ProcessController
 import ResourceLocationResolver
 import SimulatorPool
-import TempFolder
+import TemporaryStuff
 import TestsWorkingDirectorySupport
 import fbxctest
 
@@ -15,13 +15,13 @@ import fbxctest
 public final class Runner {
     private let eventBus: EventBus
     private let configuration: RunnerConfiguration
-    private let tempFolder: TempFolder
+    private let tempFolder: TemporaryFolder
     private let resourceLocationResolver: ResourceLocationResolver
     
     public init(
         eventBus: EventBus,
         configuration: RunnerConfiguration,
-        tempFolder: TempFolder,
+        tempFolder: TemporaryFolder,
         resourceLocationResolver: ResourceLocationResolver)
     {
         self.eventBus = eventBus
@@ -205,7 +205,7 @@ public final class Runner {
         arguments += ["run-tests", "-sdk", "iphonesimulator"]
       
         if type(of: simulator) != Shimulator.self {
-            arguments += ["-workingDirectory", simulator.workingDirectory.asString]
+            arguments += ["-workingDirectory", simulator.workingDirectory]
         }
         
         arguments += ["-keep-simulators-alive"]
@@ -216,7 +216,7 @@ public final class Runner {
         var environment = configuration.environment
         do {
             let testsWorkingDirectory = try tempFolder.pathByCreatingDirectories(components: ["testsWorkingDir", UUID().uuidString])
-            environment[TestsWorkingDirectorySupport.envTestsWorkingDirectory] = testsWorkingDirectory.asString
+            environment[TestsWorkingDirectorySupport.envTestsWorkingDirectory] = testsWorkingDirectory.pathString
         } catch {
             Logger.error("Unable to create tests working directory: \(error)")
         }

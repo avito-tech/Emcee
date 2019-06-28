@@ -1,13 +1,13 @@
-import Basic
 import Foundation
 import Logging
+import TemporaryStuff
 import XCTest
 
 final class FileHandleLoggerHandlerTests: XCTestCase {
-    let tempFile = try! TemporaryFile(deleteOnClose: true)
+    let tempFile = try! TemporaryFile(deleteOnDealloc: true)
     
     lazy var loggerHandler = FileHandleLoggerHandler(
-        fileHandle: tempFile.fileHandle,
+        fileHandle: tempFile.fileHandleForWriting,
         verbosity: .info,
         logEntryTextFormatter: SimpleLogEntryTextFormatter(),
         supportsAnsiColors: false,
@@ -97,7 +97,7 @@ final class FileHandleLoggerHandlerTests: XCTestCase {
     }
     
     private func tempFileContents() throws -> String {
-        return try String(contentsOfFile: tempFile.path.asString)
+        return try String(contentsOf: tempFile.absolutePath.fileUrl)
     }
 }
 

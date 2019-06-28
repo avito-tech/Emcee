@@ -1,34 +1,28 @@
-import Basic
 import FileCache
 import Swifter
+import TemporaryStuff
 import URLResource
 import XCTest
 
 final class URLResourceTests: XCTestCase {
-    var temporaryDirectory: TemporaryDirectory!
-    var server: HttpServer?
+    let tempFolder = try! TemporaryFolder(deleteOnDealloc: true)
+    var server = HttpServer()
     var serverPort = 0
-    var fileCache: FileCache!
+    lazy var fileCache = FileCache(cachesUrl: URL(fileURLWithPath: tempFolder.absolutePath.pathString))
     
-    override func setUp() {
-        do {
-            temporaryDirectory = try TemporaryDirectory(removeTreeOnDeinit: true)
-            fileCache = FileCache(cachesUrl: URL(fileURLWithPath: temporaryDirectory.path.asString))
-            server = HttpServer()
-            try server?.start(0)
-            serverPort = try server?.port() ?? 0
-        } catch {
-            XCTFail("Failed: \(error)")
-        }
+    private func setServerHandler(handler: @escaping () -> (HttpResponse)) throws {
+        try server.start(0)
+        serverPort = try server.port()
+        server["/get"] = { _ in handler() }
     }
     
     override func tearDown() {
-        server?.stop()
+        server.stop()
     }
     
     func testWithAvailableResource() throws {
         let expectedContents = "some fetched contents"
-        server?["/get"] = { _ in HttpResponse.ok(.text(expectedContents)) }
+        try setServerHandler { HttpResponse.ok(.text(expectedContents)) }
         
         let resource = URLResource(fileCache: fileCache, urlSession: URLSession.shared)
         let handler = BlockingURLResourceHandler()
@@ -41,7 +35,7 @@ final class URLResourceTests: XCTestCase {
     }
     
     func testWithUnavailableResource() throws {
-        server?["/get"] = { _ in HttpResponse.internalServerError }
+        try setServerHandler { HttpResponse.internalServerError }
         
         let resource = URLResource(fileCache: fileCache, urlSession: URLSession.shared)
         let handler = BlockingURLResourceHandler()

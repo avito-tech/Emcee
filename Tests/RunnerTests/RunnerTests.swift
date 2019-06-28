@@ -4,7 +4,7 @@ import fbxctest
 import Foundation
 import Models
 import ModelsTestHelpers
-import TempFolder
+import TemporaryStuff
 import TestingFakeFbxctest
 import ResourceLocationResolver
 import Runner
@@ -19,13 +19,13 @@ public final class RunnerTests: XCTestCase {
     )
     let testClassName = "ClassName"
     let testMethod = "testMethod"
-    var tempFolder: TempFolder!
+    var tempFolder: TemporaryFolder!
     let testExceptionEvent = FbXcTestExceptionEvent(reason: "a reason", filePathInProject: "file", lineNumber: 12)
     let resolver = ResourceLocationResolver()
     let runId = UUID().uuidString
     
     public override func setUp() {
-        XCTAssertNoThrow(tempFolder = try TempFolder())
+        XCTAssertNoThrow(tempFolder = try TemporaryFolder())
     }
     
     func testRunningTestWithoutAnyFeedbackEventsGivesFailureResults() throws {

@@ -1,7 +1,8 @@
-import Foundation
 import Deployer
 import Extensions
+import Foundation
 import Models
+import PathLib
 import Version
 
 final class DeployablesGenerator {
@@ -27,8 +28,8 @@ final class DeployablesGenerator {
             name: PackageName.emceeBinary.rawValue,
             files: [
                 DeployableFile(
-                    source: ProcessInfo.processInfo.executablePath,
-                    destination: remoteEmceeBinaryName + "_" + (try emceeVersionProvider.version().value)
+                    source: AbsolutePath(ProcessInfo.processInfo.executablePath),
+                    destination: RelativePath(remoteEmceeBinaryName + "_" + (try emceeVersionProvider.version().value))
                 )
             ]
         )
@@ -38,10 +39,10 @@ final class DeployablesGenerator {
         return try pluginLocations.flatMap { location -> [DeployableItem] in
             switch location.resourceLocation {
             case .localFilePath(let path):
-                let url = URL(fileURLWithPath: path)
+                let bundlePath = AbsolutePath(path)
                 let name = PackageName.plugin.rawValue.appending(
-                    pathComponent: url.lastPathComponent.deletingPathExtension)
-                return [try DeployableBundle(name: name, bundleUrl: url)]
+                    pathComponent: path.lastPathComponent.deletingPathExtension)
+                return [try DeployableBundle(name: name, bundlePath: bundlePath)]
             case .remoteUrl:
                 // in this case we rely that queue server should provide these URLs via REST API
                 return []

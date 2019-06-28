@@ -10,7 +10,7 @@ import PluginManager
 import PortDeterminer
 import ResourceLocationResolver
 import ScheduleStrategy
-import TempFolder
+import TemporaryStuff
 import Version
 import Utility
 import SimulatorPool
@@ -124,7 +124,7 @@ final class DistRunTestsCommand: Command {
         let destinationConfigurations = try ArgumentsReader.destinationConfigurations(arguments.get(self.destinationConfigurations), key: KnownStringArguments.destinationConfigurations)
         let remoteScheduleStrategy = try ArgumentsReader.scheduleStrategy(arguments.get(self.remoteScheduleStrategy), key: KnownStringArguments.remoteScheduleStrategy)
         let runId = JobId(value: try ArgumentsReader.validateNotNil(arguments.get(self.runId), key: KnownStringArguments.runId))
-        let tempFolder = try TempFolder()
+        let tempFolder = try TemporaryFolder()
         let testArgFile = try ArgumentsReader.testArgFile(arguments.get(self.testArgFile), key: KnownStringArguments.testArgFile)
         let testDestinationConfigurations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
 
@@ -172,7 +172,7 @@ final class DistRunTestsCommand: Command {
         try run(distRunConfiguration: distRunConfiguration, eventBus: eventBus, tempFolder: tempFolder)
     }
     
-    func run(distRunConfiguration: DistRunConfiguration, eventBus: EventBus, tempFolder: TempFolder) throws {
+    func run(distRunConfiguration: DistRunConfiguration, eventBus: EventBus, tempFolder: TemporaryFolder) throws {
         Logger.verboseDebug("Using dist run configuration: \(distRunConfiguration)")
         
         let distRunner = DistRunner(

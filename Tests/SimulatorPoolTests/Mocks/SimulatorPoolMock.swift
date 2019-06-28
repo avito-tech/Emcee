@@ -1,8 +1,8 @@
 @testable import SimulatorPool
 import Models
-import Basic
 import ModelsTestHelpers
-import TempFolder
+import PathLib
+import TemporaryStuff
 
 class SimulatorPoolMock: SimulatorPool<FakeSimulatorController> {
     init() throws {
@@ -10,7 +10,7 @@ class SimulatorPoolMock: SimulatorPool<FakeSimulatorController> {
             simulator: Shimulator(
                 index: 0,
                 testDestination: try TestDestination(deviceType: "iPhone XL", runtime: "10.3"),
-                workingDirectory: AbsolutePath("/")
+                workingDirectory: AbsolutePath.root
             ),
             fbsimctl: NonResolvableResourceLocation()
         )
@@ -19,7 +19,7 @@ class SimulatorPoolMock: SimulatorPool<FakeSimulatorController> {
             numberOfSimulators: 1,
             testDestination: TestDestinationFixtures.testDestination,
             fbsimctl: NonResolvableResourceLocation(),
-            tempFolder: try TempFolder()
+            tempFolder: try TemporaryFolder()
         )
     }
 

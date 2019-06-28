@@ -1,8 +1,8 @@
-@testable import SimulatorPool
 @testable import ResourceLocationResolver
+@testable import SimulatorPool
 import Models
-import TempFolder
-import Basic
+import PathLib
+import TemporaryStuff
 
 final class SimulatorPoolWithDefaultSimulatorControllerMock: SimulatorPool<DefaultSimulatorController> {
     private let testDestination: TestDestination
@@ -14,7 +14,7 @@ final class SimulatorPoolWithDefaultSimulatorControllerMock: SimulatorPool<Defau
             resourceLocation: .localFilePath(""),
             resolver: ResourceLocationResolver()
         )
-        let tempFolder = try TempFolder()
+        let tempFolder = try TemporaryFolder()
 
 
         try super.init(
@@ -25,7 +25,11 @@ final class SimulatorPoolWithDefaultSimulatorControllerMock: SimulatorPool<Defau
     }
 
     override func allocateSimulatorController() throws -> DefaultSimulatorController {
-        let simulator = Shimulator(index: 0, testDestination: testDestination, workingDirectory: AbsolutePath("/"))
+        let simulator = Shimulator(
+            index: 0,
+            testDestination: testDestination,
+            workingDirectory: AbsolutePath.root
+        )
         return DefaultSimulatorControllerMock(simulator: simulator, fbsimctl: fbsimctl)
     }
 }

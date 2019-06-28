@@ -1,4 +1,3 @@
-import Basic
 import Dispatch
 import Foundation
 import Logging
@@ -17,15 +16,15 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     }
     
     private let queueClient: QueueClient
-    private var registrationResult: Result<WorkerConfiguration, QueueClientError>?
-    private var bucketFetchResult: Result<BucketFetchResult, QueueClientError>?
-    private var bucketResultSendResult: Result<BucketId, QueueClientError>?
-    private var alivenessReportResult: Result<Bool, QueueClientError>?
-    private var queueServerVersionResult: Result<Version, QueueClientError>?
-    private var scheduleTestsResult: Result<RequestId, QueueClientError>?
-    private var jobResultsResult: Result<JobResults, QueueClientError>?
-    private var jobStateResult: Result<JobState, QueueClientError>?
-    private var jobDeleteResult: Result<JobId, QueueClientError>?
+    private var registrationResult: Either<WorkerConfiguration, QueueClientError>?
+    private var bucketFetchResult: Either<BucketFetchResult, QueueClientError>?
+    private var bucketResultSendResult: Either<BucketId, QueueClientError>?
+    private var alivenessReportResult: Either<Bool, QueueClientError>?
+    private var queueServerVersionResult: Either<Version, QueueClientError>?
+    private var scheduleTestsResult: Either<RequestId, QueueClientError>?
+    private var jobResultsResult: Either<JobResults, QueueClientError>?
+    private var jobStateResult: Either<JobState, QueueClientError>?
+    private var jobDeleteResult: Either<JobId, QueueClientError>?
     private let syncQueue = DispatchQueue(label: "ru.avito.SynchronousQueueClient")
     private let requestTimeout: TimeInterval
     private let networkRequestRetryCount: Int
@@ -199,66 +198,66 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     // MARK: - Queue Delegate
     
     public func queueClient(_ sender: QueueClient, didFailWithError error: QueueClientError) {
-        registrationResult = Result.failure(error)
-        bucketFetchResult = Result.failure(error)
-        alivenessReportResult = Result.failure(error)
-        bucketResultSendResult = Result.failure(error)
-        queueServerVersionResult = Result.failure(error)
-        scheduleTestsResult = Result.failure(error)
-        jobResultsResult = Result.failure(error)
-        jobStateResult = Result.failure(error)
-        jobDeleteResult = Result.failure(error)
+        registrationResult = Either.error(error)
+        bucketFetchResult = Either.error(error)
+        alivenessReportResult = Either.error(error)
+        bucketResultSendResult = Either.error(error)
+        queueServerVersionResult = Either.error(error)
+        scheduleTestsResult = Either.error(error)
+        jobResultsResult = Either.error(error)
+        jobStateResult = Either.error(error)
+        jobDeleteResult = Either.error(error)
     }
     
     public func queueClient(_ sender: QueueClient, didReceiveWorkerConfiguration workerConfiguration: WorkerConfiguration) {
-        registrationResult = Result.success(workerConfiguration)
+        registrationResult = Either.success(workerConfiguration)
     }
     
     public func queueClientQueueIsEmpty(_ sender: QueueClient) {
-        bucketFetchResult = Result.success(.queueIsEmpty)
+        bucketFetchResult = Either.success(.queueIsEmpty)
     }
     
     public func queueClientWorkerConsideredNotAlive(_ sender: QueueClient) {
-        bucketFetchResult = Result.success(.workerConsideredNotAlive)
+        bucketFetchResult = Either.success(.workerConsideredNotAlive)
     }
     
     public func queueClientWorkerHasBeenBlocked(_ sender: QueueClient) {
-        bucketFetchResult = Result.success(.workerHasBeenBlocked)
+        bucketFetchResult = Either.success(.workerHasBeenBlocked)
     }
     
     public func queueClient(_ sender: QueueClient, fetchBucketLaterAfter after: TimeInterval) {
-        bucketFetchResult = Result.success(.checkLater(after))
+        bucketFetchResult = Either.success(.checkLater(after))
     }
     
     public func queueClient(_ sender: QueueClient, didFetchBucket bucket: Bucket) {
-        bucketFetchResult = Result.success(.bucket(bucket))
+        bucketFetchResult = Either.success(.bucket(bucket))
     }
     
     public func queueClient(_ sender: QueueClient, serverDidAcceptBucketResult bucketId: BucketId) {
-        bucketResultSendResult = Result.success(bucketId)
+        bucketResultSendResult = Either.success(bucketId)
     }
     
     public func queueClient(_ sender: QueueClient, didFetchQueueServerVersion version: Version) {
-        queueServerVersionResult = Result.success(version)
+        queueServerVersionResult = Either.success(version)
     }
     
     public func queueClientWorkerHasBeenIndicatedAsAlive(_ sender: QueueClient) {
-        alivenessReportResult = Result.success(true)
+        alivenessReportResult = Either.success(true)
     }
     
     public func queueClientDidScheduleTests(_ sender: QueueClient, requestId: RequestId) {
-        scheduleTestsResult = Result.success(requestId)
+        scheduleTestsResult = Either.success(requestId)
     }
     
     public func queueClient(_ sender: QueueClient, didFetchJobState jobState: JobState) {
-        jobStateResult = Result.success(jobState)
+        jobStateResult = Either.success(jobState)
     }
     
     public func queueClient(_ sender: QueueClient, didFetchJobResults jobResults: JobResults) {
-        jobResultsResult = Result.success(jobResults)
+        jobResultsResult = Either.success(jobResults)
     }
     
     public func queueClient(_ sender: QueueClient, didDeleteJob jobId: JobId) {
-        jobDeleteResult = Result.success(jobId)
+        jobDeleteResult = Either.success(jobId)
     }
 }

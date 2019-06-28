@@ -11,7 +11,7 @@ import PortDeterminer
 import QueueServer
 import ResourceLocationResolver
 import ScheduleStrategy
-import TempFolder
+import TemporaryStuff
 import UniqueIdentifierGenerator
 import Version
 
@@ -21,7 +21,7 @@ public final class DistRunner {
     private let localPortDeterminer: LocalPortDeterminer
     private let localQueueVersionProvider: VersionProvider
     private let resourceLocationResolver: ResourceLocationResolver
-    private let tempFolder: TempFolder
+    private let tempFolder: TemporaryFolder
     private let requestSignature = RequestSignature(value: UUID().uuidString)
     private let uniqueIdentifierGenerator = UuidBasedUniqueIdentifierGenerator()
     
@@ -31,7 +31,7 @@ public final class DistRunner {
         localPortDeterminer: LocalPortDeterminer,
         localQueueVersionProvider: VersionProvider,
         resourceLocationResolver: ResourceLocationResolver,
-        tempFolder: TempFolder
+        tempFolder: TemporaryFolder
     ) {
         self.distRunConfiguration = distRunConfiguration
         self.eventBus = eventBus

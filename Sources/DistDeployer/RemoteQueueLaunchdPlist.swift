@@ -3,7 +3,7 @@ import Foundation
 import LaunchdUtils
 import Models
 import SSHDeployer
-import TempFolder
+import TemporaryStuff
 
 public final class RemoteQueueLaunchdPlist {
     /// Unique deployment id
@@ -47,15 +47,15 @@ public final class RemoteQueueLaunchdPlist {
             job: LaunchdJob(
                 label: jobLabel,
                 programArguments: [
-                    remoteQueueServerBinaryPath, "startLocalQueueServer",
+                    remoteQueueServerBinaryPath.pathString, "startLocalQueueServer",
                     "--queue-server-run-configuration-location", queueServerRunConfigurationLocation.resourceLocation.stringValue
                 ],
                 environmentVariables: [:],
-                workingDirectory: containerPath,
+                workingDirectory: containerPath.pathString,
                 runAtLoad: true,
                 disabled: true,
-                standardOutPath: containerPath.appending(pathComponent: "stdout.log"),
-                standardErrorPath: containerPath.appending(pathComponent: "stderr.log"),
+                standardOutPath: containerPath.appending(component: "stdout.log").pathString,
+                standardErrorPath: containerPath.appending(component: "stderr.log").pathString,
                 sockets: [:],
                 inetdCompatibility: .disabled,
                 sessionType: .background

@@ -1,11 +1,12 @@
 import Foundation
 import Models
+import PathLib
 
 public enum DeploymentError: Error, CustomStringConvertible {
     case unableToObtainInfoAboutFile(DeployableFile)
-    case unableToCreateArchive(URL)
-    case failedToEnumerateContentsOfDirectory(URL)
-    case failedToRelativizePath(String, anchorPath: String)
+    case unableToCreateArchive(AbsolutePath)
+    case failedToEnumerateContentsOfDirectory(AbsolutePath)
+    case failedToRelativizePath(AbsolutePath, anchorPath: AbsolutePath)
     case failedToPrepareDeployable([DeployableItem])
     case failedToDeployToDestination([DeploymentDestination])
     
@@ -13,10 +14,10 @@ public enum DeploymentError: Error, CustomStringConvertible {
         switch self {
         case .unableToObtainInfoAboutFile(let deployableFile):
             return "Unable to obtain info about deployable file: '\(deployableFile)'"
-        case .unableToCreateArchive(let url):
-            return "Unable to create archive at: '\(url)'"
-        case .failedToEnumerateContentsOfDirectory(let url):
-            return "Failed to enumerate contents of directory: '\(url)'"
+        case .unableToCreateArchive(let path):
+            return "Unable to create archive at: '\(path)'"
+        case .failedToEnumerateContentsOfDirectory(let path):
+            return "Failed to enumerate contents of directory: '\(path)'"
         case .failedToRelativizePath(let path, let anchorPath):
             return "Failed to build a relative path for '\(path)', anchor: '\(anchorPath)'"
         case .failedToPrepareDeployable(let deployableItems):

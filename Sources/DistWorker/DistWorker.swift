@@ -10,7 +10,7 @@ import ResourceLocationResolver
 import Scheduler
 import SimulatorPool
 import SynchronousWaiter
-import TempFolder
+import TemporaryStuff
 import Timer
 
 public final class DistWorker: SchedulerDelegate {
@@ -43,7 +43,7 @@ public final class DistWorker: SchedulerDelegate {
     }
     
     public func start() throws {
-        let tempFolder = try bucketConfigurationFactory.createTempFolder()
+        let tempFolder = try bucketConfigurationFactory.createTemporaryStuff()
         let workerConfiguration = try queueClient.registerWithServer(workerId: workerId)
         requestSignature = .success(workerConfiguration.requestSignature)
 
@@ -90,7 +90,7 @@ public final class DistWorker: SchedulerDelegate {
     private func runTests(
         workerConfiguration: WorkerConfiguration,
         onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>,
-        tempFolder: TempFolder)
+        tempFolder: TemporaryFolder)
         throws -> [TestingResult]
     {
         let configuration = bucketConfigurationFactory.createConfiguration(

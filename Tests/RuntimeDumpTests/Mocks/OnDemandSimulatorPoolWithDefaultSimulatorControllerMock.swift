@@ -1,12 +1,12 @@
 @testable import SimulatorPool
 import ResourceLocationResolver
-import TempFolder
+import TemporaryStuff
 
 final class OnDemandSimulatorPoolWithDefaultSimulatorControllerMock: OnDemandSimulatorPool<DefaultSimulatorController> {
 
     convenience init() throws {
         let resourceLocationResolver = ResourceLocationResolver()
-        let tempFolder = try TempFolder()
+        let tempFolder = try TemporaryFolder()
 
         self.init(
             resourceLocationResolver: resourceLocationResolver,

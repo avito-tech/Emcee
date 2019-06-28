@@ -1,8 +1,8 @@
-import Basic
 import Deployer
 import Foundation
 import Models
-import TempFolder
+import PathLib
+import TemporaryStuff
 import Version
 
 public final class RemoteQueueStarter {
@@ -10,14 +10,14 @@ public final class RemoteQueueStarter {
     private let emceeVersionProvider: VersionProvider
     private let deploymentDestination: DeploymentDestination
     private let queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation
-    private let tempFolder: TempFolder
+    private let tempFolder: TemporaryFolder
 
     public init(
         deploymentId: String,
         emceeVersionProvider: VersionProvider,
         deploymentDestination: DeploymentDestination,
         queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation,
-        tempFolder: TempFolder)
+        tempFolder: TemporaryFolder)
     {
         self.deploymentId = deploymentId
         self.emceeVersionProvider = emceeVersionProvider
@@ -66,8 +66,8 @@ public final class RemoteQueueStarter {
                     source: try tempFolder.createFile(
                         filename: launchdPlistTargetPath,
                         contents: try launchdPlist.plistData()
-                    ).asString,
-                    destination: launchdPlistTargetPath
+                    ),
+                    destination: RelativePath(launchdPlistTargetPath)
                 )
             ]
         )

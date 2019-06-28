@@ -3,6 +3,7 @@ import DistDeployer
 import Foundation
 import Models
 import ModelsTestHelpers
+import PathLib
 import XCTest
 
 final class RemoteWorkerLaunchdPlistTests: XCTestCase {
@@ -11,7 +12,7 @@ final class RemoteWorkerLaunchdPlistTests: XCTestCase {
         deploymentDestination: DeploymentDestinationFixtures().buildDeploymentDestination(),
         executableDeployableItem: DeployableItem(
             name: "emcee",
-            files: [DeployableFile(source: "local_file", destination: "remote_filename")]
+            files: [DeployableFile(source: AbsolutePath("local_file"), destination: RelativePath("remote_filename"))]
         ),
         queueAddress: SocketAddress(host: "queue.host", port: 24),
         analyticsConfigurationLocation: nil

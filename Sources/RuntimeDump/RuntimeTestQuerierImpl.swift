@@ -4,18 +4,18 @@ import Foundation
 import Logging
 import Metrics
 import Models
+import PathLib
 import ResourceLocationResolver
 import Runner
 import SimulatorPool
 import SynchronousWaiter
-import TempFolder
-import Basic
+import TemporaryStuff
 
 public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
     private let eventBus: EventBus
     private let testQueryEntry = TestEntry(testName: TestName(className: "NonExistingTest", methodName: "fakeTest"), tags: [], caseId: nil)
     private let resourceLocationResolver: ResourceLocationResolver
-    private let tempFolder: TempFolder
+    private let tempFolder: TemporaryFolder
     private let onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>
     static let runtimeTestsJsonFilename = "runtime_tests.json"
     
@@ -23,7 +23,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         eventBus: EventBus,
         resourceLocationResolver: ResourceLocationResolver,
         onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>,
-        tempFolder: TempFolder)
+        tempFolder: TemporaryFolder)
     {
         self.eventBus = eventBus
         self.resourceLocationResolver = resourceLocationResolver
@@ -80,11 +80,11 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
             simulator: allocatedSimulator.simulator
         )
         
-        guard let data = try? Data(contentsOf: URL(fileURLWithPath: runtimeEntriesJSONPath.asString)),
+        guard let data = try? Data(contentsOf: runtimeEntriesJSONPath.fileUrl),
             let foundTestEntries = try? JSONDecoder().decode([RuntimeTestEntry].self, from: data)
             else {
                 runnerRunResult.dumpStandardStreams()
-                throw TestExplorationError.fileNotFound(runtimeEntriesJSONPath.asString)
+                throw TestExplorationError.fileNotFound(runtimeEntriesJSONPath)
         }
         
         let allTests = foundTestEntries.flatMap { $0.testMethods }
@@ -99,8 +99,8 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
 
     private func buildRunnerConfiguration(
         dumpConfiguration: RuntimeDumpConfiguration,
-        runtimeEntriesJSONPath: AbsolutePath) -> RunnerConfiguration
-    {
+        runtimeEntriesJSONPath: AbsolutePath
+    ) -> RunnerConfiguration {
         let simulatorSettings = SimulatorSettings(simulatorLocalizationSettings: nil, watchdogSettings: nil)
         let environment = self.environment(runtimeEntriesJSONPath: runtimeEntriesJSONPath)
         
@@ -191,7 +191,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
     
     private func environment(runtimeEntriesJSONPath: AbsolutePath) -> [String: String] {
         var environment = ProcessInfo.processInfo.environment
-        environment["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH"] = runtimeEntriesJSONPath.asString
+        environment["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH"] = runtimeEntriesJSONPath.pathString
         return environment
     }
 }

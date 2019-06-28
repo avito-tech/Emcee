@@ -1,13 +1,13 @@
-import Basic
 import EventBus
 import Extensions
 import Foundation
 import Logging
 import Models
+import PathLib
 import Runner
 import Scheduler
 import SimulatorPool
-import TempFolder
+import TemporaryStuff
 import ResourceLocationResolver
 
 /**
@@ -20,7 +20,7 @@ final class BucketConfigurationFactory {
         self.resourceLocationResolver = resourceLocationResolver
     }
     
-    private var containerPath: String {
+    private var containerPath: AbsolutePath {
         /*
          The expected structure is:
          /remote_path/some_run_id/emceeBinary/BinaryName   <-- executable path
@@ -30,17 +30,18 @@ final class BucketConfigurationFactory {
          The containerPath is resolved into:
          /remote_path/some_run_id/
          */
-        return ProcessInfo.processInfo.executablePath.deletingLastPathComponent.deletingLastPathComponent
+        return AbsolutePath(ProcessInfo.processInfo.executablePath)
+            .removingLastComponent
+            .removingLastComponent
     }
     
-    func createTempFolder() throws -> TempFolder {
+    func createTemporaryStuff() throws -> TemporaryFolder {
         /*
          Temp folder is next to the binary:
          /remote_path/some_run_id/emceeBinary/tempFolder/someUUID
          */
-        let path = try AbsolutePath(validating: packagePath(containerPath, .emceeBinary))
-            .appending(component: "tempFolder")
-        return try TempFolder(path: path, cleanUpAutomatically: true)
+        let path = packagePath(containerPath, .emceeBinary).appending(component: "tempFolder")
+        return try TemporaryFolder(containerPath: path, deleteOnDealloc: true)
     }
     
     func createConfiguration(
@@ -59,7 +60,7 @@ final class BucketConfigurationFactory {
     
     public var pluginLocations: [PluginLocation] {
         let plugins = FileManager.default.findFiles(
-            path: packagePath(containerPath, .plugin),
+            path: packagePath(containerPath, .plugin).pathString,
             defaultValue: [])
             .map { path -> String in
                 let path = path.appending(pathComponent: "\(path.lastPathComponent).emceeplugin")
@@ -75,17 +76,17 @@ final class BucketConfigurationFactory {
         return plugins.map { PluginLocation(.localFilePath($0)) }
     }
     
-    private func packagePath(_ containerPath: String, _ package: PackageName) -> String {
-        return containerPath.appending(pathComponent: package.rawValue)
+    private func packagePath(_ containerPath: AbsolutePath, _ package: PackageName) -> AbsolutePath {
+        return containerPath.appending(component: package.rawValue)
     }
     
-    private func fileInPackage(_ containerPath: String, _ package: PackageName) throws -> String {
+    private func fileInPackage(_ containerPath: AbsolutePath, _ package: PackageName) throws -> AbsolutePath {
         let result = packagePath(containerPath, package)
-        return result.appending(pathComponent: try PackageName.targetFileName(package))
+        return result.appending(component: try PackageName.targetFileName(package))
     }
     
-    private func fileInPackageIfExists(_ containerPath: String, _ package: PackageName) throws -> String? {
+    private func fileInPackageIfExists(_ containerPath: AbsolutePath, _ package: PackageName) throws -> AbsolutePath? {
         let path = try fileInPackage(containerPath, package)
-        return FileManager.default.fileExists(atPath: path) ? path : nil
+        return FileManager.default.fileExists(atPath: path.pathString) ? path : nil
     }
 }

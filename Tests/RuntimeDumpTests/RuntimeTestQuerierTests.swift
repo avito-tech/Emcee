@@ -4,7 +4,7 @@ import Foundation
 import Models
 import ModelsTestHelpers
 import ResourceLocationResolver
-import TempFolder
+import TemporaryStuff
 import TestingFakeFbxctest
 import XCTest
 
@@ -12,7 +12,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
     let eventBus = EventBus()
     let fbxctest = try! FakeFbxctestExecutableProducer.fakeFbxctestPath(runId: UUID().uuidString)
     let resourceLocationResolver = ResourceLocationResolver()
-    let tempFolder = try! TempFolder()
+    let tempFolder = try! TemporaryFolder()
     let simulatorPool = try! OnDemandSimulatorPoolWithDefaultSimulatorControllerMock()
     
     func test__getting_available_tests__without_application_test_support() throws {

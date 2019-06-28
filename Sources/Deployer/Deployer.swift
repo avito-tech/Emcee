@@ -1,7 +1,8 @@
-import Basic
 import Foundation
 import Logging
 import Models
+import PathLib
+import TemporaryStuff
 
 /** Basic class that defines a logic for deploying a number of DeployableItems. */
 open class Deployer {
@@ -18,39 +19,38 @@ open class Deployer {
     /** All destinations. */
     public let destinations: [DeploymentDestination]
     /** Used for storing temporary files. */
-    private let temporaryDirectory: TemporaryDirectory
+    private let temporaryDirectory: TemporaryFolder
 
     public init(
         deploymentId: String,
         deployables: [DeployableItem],
         deployableCommands: [DeployableCommand],
         destinations: [DeploymentDestination],
-        cleanUpAutomatically: Bool = true) throws
-    {
+        cleanUpAutomatically: Bool = true
+    ) throws {
         self.deploymentId = deploymentId
         self.deployables = deployables
         self.deployableCommands = deployableCommands
         self.destinations = destinations
-        temporaryDirectory = try TemporaryDirectory(
-            dir: nil,
+        temporaryDirectory = try TemporaryFolder(
             prefix: "ru.avito.Deployer",
-            removeTreeOnDeinit: cleanUpAutomatically)
+            deleteOnDealloc: cleanUpAutomatically
+        )
     }
     
     /** Deploys all the deployable items and invokes deployment commands. */
     public func deploy() throws {
-        let urlToDeployable = try prepareDeployables()
-        try deployToDestinations(urlToDeployable: urlToDeployable)
+        try deployToDestinations(pathToDeployable: try prepareDeployables())
     }
     
     /**
      * Packs all the Deployables and returns a map
      * from a URL with a package of the DeployableItem to a corresponding DeployableItem
      */
-    private func prepareDeployables() throws -> [URL: DeployableItem] {
+    private func prepareDeployables() throws -> [AbsolutePath: DeployableItem] {
         let syncQueue = DispatchQueue(label: "ru.avito.Deployer.syncQueue")
         var deployablesFailedToPrepare = [DeployableItem]()
-        var urlToDeployable = [URL: DeployableItem]()
+        var pathToDeployable = [AbsolutePath: DeployableItem]()
         let packager = Packager()
         
         let queue = DispatchQueue(
@@ -65,9 +65,9 @@ open class Deployer {
             queue.async {
                 do {
                     Logger.debug("Preparing deployable '\(deployable.name)'...")
-                    let url = try packager.preparePackage(deployable: deployable, packageFolder: self.temporaryDirectory)
-                    Logger.debug("'\(deployable.name)' package path: \(url)")
-                    syncQueue.sync { urlToDeployable[url] = deployable }
+                    let path = try packager.preparePackage(deployable: deployable, packageFolder: self.temporaryDirectory)
+                    Logger.debug("'\(deployable.name)' package path: \(path)")
+                    syncQueue.sync { pathToDeployable[path] = deployable }
                 } catch {
                     Logger.error("Failed to prepare deployable \(deployable.name): \(error)")
                     syncQueue.sync { deployablesFailedToPrepare.append(deployable) }
@@ -80,14 +80,14 @@ open class Deployer {
         if !deployablesFailedToPrepare.isEmpty {
             throw DeploymentError.failedToPrepareDeployable(deployablesFailedToPrepare)
         }
-        return urlToDeployable
+        return pathToDeployable
     }
     
     /**
      * Subclasses should override this to perform their delivery logic.
      * @param   urlToDeployable   A map from local URL of package (zip) to a deployable item it represents.
      */
-    open func deployToDestinations(urlToDeployable: [URL: DeployableItem]) throws {
+    open func deployToDestinations(pathToDeployable: [AbsolutePath: DeployableItem]) throws {
         Logger.fatal("Deployer.deployToDestinations() must be overrided in subclass")
     }
 }

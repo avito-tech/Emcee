@@ -47,6 +47,15 @@
         }
       },
       {
+        "package": "OrderedSet",
+        "repositoryURL": "https://github.com/Weebly/OrderedSet",
+        "state": {
+          "branch": null,
+          "revision": "07d99831674bca6bf69967b70ced6cc19ca346ec",
+          "version": "5.0.0"
+        }
+      },
+      {
         "package": "Shout",
         "repositoryURL": "https://github.com/jakeheis/Shout.git",
         "state": {

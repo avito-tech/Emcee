@@ -1,18 +1,18 @@
-import Basic
-import Extensions
-import Deployer
 @testable import DistDeployer
+import Deployer
+import Extensions
 import Models
 import ModelsTestHelpers
+import PathLib
 import ResourceLocationResolver
-import TempFolder
+import TemporaryStuff
 import Version
 import XCTest
 
 class DeployablesGeneratorTests: XCTestCase {
     
     var deployables = [PackageName: [DeployableItem]]()
-    var tempFolder: TempFolder!
+    var tempFolder: TemporaryFolder!
     let resolver = ResourceLocationResolver()
     let versionStringValue = "SomeVersion"
     lazy var versionProvider = FixedVersionProvider(value: versionStringValue)
@@ -20,7 +20,7 @@ class DeployablesGeneratorTests: XCTestCase {
     override func setUp() {
         super.setUp()
         self.continueAfterFailure = false
-        XCTAssertNoThrow(tempFolder = try TempFolder())
+        XCTAssertNoThrow(tempFolder = try TemporaryFolder())
         var pluginPath: String!
         XCTAssertNoThrow(pluginPath = try self.pathToPlugin())
         let generator = DeployablesGenerator(
@@ -33,7 +33,7 @@ class DeployablesGeneratorTests: XCTestCase {
     
     private func pathToPlugin() throws -> String {
         let binaryPath = try tempFolder.createFile(components: ["TestPlugin.emceeplugin"], filename: "Plugin", contents: nil)
-        return binaryPath.parentDirectory.asString
+        return binaryPath.removingLastComponent.pathString
     }
     
     private func filterDeployables(_ packageName: PackageName) -> [DeployableItem] {
@@ -47,8 +47,8 @@ class DeployablesGeneratorTests: XCTestCase {
     func testAvitoRunnerIsPresent() {
         let deployables = filterDeployables(.emceeBinary)
         XCTAssertEqual(deployables.count, 1)
-        XCTAssertEqual(deployables[0].files.first?.source, ProcessInfo.processInfo.executablePath)
-        XCTAssertEqual(deployables[0].files.first?.destination, "Emcee_" + versionStringValue)
+        XCTAssertEqual(deployables[0].files.first?.source, AbsolutePath(ProcessInfo.processInfo.executablePath))
+        XCTAssertEqual(deployables[0].files.first?.destination, RelativePath("Emcee_" + versionStringValue))
     }
     
     func testPluginIsPresent() throws {
@@ -56,10 +56,18 @@ class DeployablesGeneratorTests: XCTestCase {
         XCTAssertEqual(deployables.count, 1)
         
         let files = deployables[0].files
-        let expectedFiles = Set([
-            DeployableFile(source: tempFolder.pathWith(components: ["TestPlugin.emceeplugin"]).asString, destination: "TestPlugin.emceeplugin"),
-            DeployableFile(source: tempFolder.pathWith(components: ["TestPlugin.emceeplugin", "Plugin"]).asString, destination: "TestPlugin.emceeplugin/Plugin")
-            ])
+        let expectedFiles = Set(
+            [
+                DeployableFile(
+                    source: tempFolder.pathWith(components: ["TestPlugin.emceeplugin"]),
+                    destination: RelativePath("TestPlugin.emceeplugin")
+                ),
+                DeployableFile(
+                    source: tempFolder.pathWith(components: ["TestPlugin.emceeplugin", "Plugin"]),
+                    destination: RelativePath("TestPlugin.emceeplugin/Plugin")
+                )
+            ]
+        )
         XCTAssertEqual(files, expectedFiles)
     }
 }

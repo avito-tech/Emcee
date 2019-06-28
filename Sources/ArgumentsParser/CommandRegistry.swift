@@ -1,6 +1,6 @@
+import Basic
 import Foundation
 import Utility
-import Basic
 import Logging
 
 public struct CommandRegistry {

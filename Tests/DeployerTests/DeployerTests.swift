@@ -1,16 +1,21 @@
+@testable import Deployer
 import Foundation
 import Models
+import PathLib
 import XCTest
-@testable import Deployer
 
 class DeployerTests: XCTestCase {
+    
+    let deployableFile = DeployableFile(
+        source: AbsolutePath(#file),
+        destination: RelativePath("remote/file.swift")
+    )
     
     func testDeployer() throws {
         let deployableWithSingleFile = DeployableItem(
             name: "simple_file",
-            files: [
-                DeployableFile(source: String(#file), destination: "remote/file.swift")
-            ])
+            files: [deployableFile]
+        )
         
         let deployer = try FakeDeployer(
             deploymentId: "ID",
@@ -26,23 +31,25 @@ class DeployerTests: XCTestCase {
                     remoteDeploymentPath: "/remote/path")
             ])
         try deployer.deploy()
-        XCTAssertEqual(deployer.urlsAskedToBeDeployed.count, 1)
+        XCTAssertEqual(deployer.pathsAskedToBeDeployed.count, 1)
         
-        deployer.urlsAskedToBeDeployed.forEach { url, deployable in
-            XCTAssertTrue(FileManager.default.fileExists(atPath: url.path))
+        deployer.pathsAskedToBeDeployed.forEach { path, deployable in
+            XCTAssertTrue(FileManager.default.fileExists(atPath: path.pathString))
             XCTAssertEqual(deployable.name, "simple_file")
             XCTAssertEqual(
                 deployable.files,
-                Set([DeployableFile(source: String(#file), destination: "remote/file.swift")]))
+                Set([deployableFile])
+            )
         }
     }
     
-    func testDeployerDeletesItsTempFolder() throws {
+    func testDeployerDeletesItsTemporaryStuff() throws {
         let deployableWithSingleFile = DeployableItem(
             name: "simple_file",
-            files: [DeployableFile(source: String(#file), destination: "remote/file.swift")])
+            files: [deployableFile]
+        )
         
-        var urls = [URL]()
+        var paths = [AbsolutePath]()
         
         let deployerWork = {
             let deployer = try FakeDeployer(
@@ -60,13 +67,13 @@ class DeployerTests: XCTestCase {
                 ],
                 cleanUpAutomatically: true)
             try deployer.deploy()
-            urls = Array(deployer.urlsAskedToBeDeployed.keys)
+            paths = Array(deployer.pathsAskedToBeDeployed.keys)
         }
         try deployerWork()
         
-        XCTAssertEqual(urls.count, 1)
-        urls.forEach { url in
-            XCTAssertFalse(FileManager.default.fileExists(atPath: url.path))
+        XCTAssertEqual(paths.count, 1)
+        paths.forEach { path in
+            XCTAssertFalse(FileManager.default.fileExists(atPath: path.pathString))
         }
     }
 }

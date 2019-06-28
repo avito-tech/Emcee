@@ -7,16 +7,17 @@ import JunitReporting
 import Logging
 import LoggingSetup
 import Models
+import PathLib
 import PluginManager
 import ResourceLocationResolver
 import Runner
 import RuntimeDump
-import Utility
 import ScheduleStrategy
 import Scheduler
 import SimulatorPool
-import TempFolder
+import TemporaryStuff
 import UniqueIdentifierGenerator
+import Utility
 
 final class RunTestsCommand: Command {
     let command = "runTests"
@@ -116,7 +117,7 @@ final class RunTestsCommand: Command {
         )
         defer { eventBus.tearDown() }
         
-        let tempFolder = try TempFolder.with(stringPath: try ArgumentsReader.validateNotNil(arguments.get(self.tempFolder), key: KnownStringArguments.tempFolder))
+        let tempFolder = try TemporaryFolder(containerPath: AbsolutePath(try ArgumentsReader.validateNotNil(arguments.get(self.tempFolder), key: KnownStringArguments.tempFolder)))
         let testArgFile = try ArgumentsReader.testArgFile(arguments.get(self.testArgFile), key: KnownStringArguments.testArgFile)
         let testDestinationConfigurations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
 
@@ -168,7 +169,7 @@ final class RunTestsCommand: Command {
     private func runTests(
         configuration: LocalTestRunConfiguration,
         eventBus: EventBus,
-        tempFolder: TempFolder,
+        tempFolder: TemporaryFolder,
         onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>
     ) throws {
         Logger.verboseDebug("Configuration: \(configuration)")

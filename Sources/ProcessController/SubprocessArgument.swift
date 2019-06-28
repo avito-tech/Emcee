@@ -1,6 +1,6 @@
-import Basic
 import Foundation
 import Models
+import PathLib
 
 public protocol SubprocessArgument {
     func stringValue() throws -> String
@@ -14,7 +14,7 @@ extension String: SubprocessArgument {
 
 extension AbsolutePath: SubprocessArgument {
     public func stringValue() throws -> String {
-        return asString
+        return pathString
     }
 }
 

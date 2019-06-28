@@ -4,7 +4,7 @@ import RuntimeDump
 import SimulatorPool
 import Logging
 import ResourceLocationResolver
-import TempFolder
+import TemporaryStuff
 
 public final class TestEntriesValidator {
 

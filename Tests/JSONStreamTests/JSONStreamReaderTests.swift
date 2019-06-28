@@ -1,4 +1,3 @@
-import Basic
 import Foundation
 import JSONStream
 import XCTest

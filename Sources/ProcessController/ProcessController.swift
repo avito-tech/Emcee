@@ -1,7 +1,8 @@
+import Dispatch
 import Extensions
 import Foundation
-import Dispatch
 import Logging
+import PathLib
 import Timer
 
 public final class ProcessController: CustomStringConvertible {
@@ -236,8 +237,8 @@ public final class ProcessController: CustomStringConvertible {
             }
         )
         
-        if FileManager.default.createFile(atPath: subprocess.standardStreamsCaptureConfig.stdinContentsFile, contents: nil),
-            let stdinHandle = FileHandle(forWritingAtPath: subprocess.standardStreamsCaptureConfig.stdinContentsFile)
+        if FileManager.default.createFile(atPath: subprocess.standardStreamsCaptureConfig.stdinContentsFile.pathString, contents: nil),
+            let stdinHandle = FileHandle(forWritingAtPath: subprocess.standardStreamsCaptureConfig.stdinContentsFile.pathString)
         {
             Logger.debug("Will store stdin input at: \(subprocess.standardStreamsCaptureConfig.stdinContentsFile)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
             self.stdinHandle = stdinHandle
@@ -247,16 +248,16 @@ public final class ProcessController: CustomStringConvertible {
     }
     
     private func storeStdForProcess(
-        path: String,
+        path: AbsolutePath,
         onError: (String) -> (),
         pipeAssigningClosure: (Pipe) -> (),
-        onNewData: @escaping (Data) -> ())
-    {
-        guard FileManager.default.createFile(atPath: path, contents: nil) else {
+        onNewData: @escaping (Data) -> ()
+    ) {
+        guard FileManager.default.createFile(atPath: path.pathString, contents: nil) else {
             onError("Failed to create a file at path: '\(path)'")
             return
         }
-        guard let storageHandle = FileHandle(forWritingAtPath: path) else {
+        guard let storageHandle = FileHandle(forWritingAtPath: path.pathString) else {
             onError("Failed to open file handle")
             return
         }

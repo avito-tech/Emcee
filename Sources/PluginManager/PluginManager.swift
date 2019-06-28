@@ -1,9 +1,9 @@
-import Basic
 import EventBus
 import Extensions
 import Foundation
 import Logging
 import Models
+import PathLib
 import ProcessController
 import ResourceLocationResolver
 import SynchronousWaiter
@@ -29,9 +29,8 @@ public final class PluginManager: EventStream {
     
     private static func pathsToPluginBundles(
         pluginLocations: [PluginLocation],
-        resourceLocationResolver: ResourceLocationResolver)
-        throws -> [AbsolutePath]
-    {
+        resourceLocationResolver: ResourceLocationResolver
+    ) throws -> [AbsolutePath] {
         var paths = [AbsolutePath]()
         for location in pluginLocations {
             let resolvableLocation = resourceLocationResolver.resolvable(withRepresentable: location)
@@ -45,7 +44,7 @@ public final class PluginManager: EventStream {
                 guard FileManager.default.fileExists(atPath: executablePath, isDirectory: &isDir), isDir.boolValue == false else {
                     throw ValidationError.noExecutableFound(location, expectedLocation: executablePath)
                 }
-                paths.append(try AbsolutePath(validating: path))
+                paths.append(AbsolutePath(path))
             }
             
             switch try resolvableLocation.resolve() {
@@ -81,7 +80,7 @@ public final class PluginManager: EventStream {
         for bundlePath in pluginBundles {
             Logger.debug("Starting plugin at '\(bundlePath)'")
             let pluginExecutable = bundlePath.appending(component: PluginManager.pluginExecutableName)
-            let pluginIdentifier = try pluginExecutable.asString.avito_sha256Hash()
+            let pluginIdentifier = try pluginExecutable.pathString.avito_sha256Hash()
             eventDistributor.add(pluginIdentifier: pluginIdentifier)
             let controller = try ProcessController(
                 subprocess: Subprocess(

@@ -1,7 +1,8 @@
 import Foundation
+import PathLib
 
 public enum TestExplorationError: Error, CustomStringConvertible {
-    case fileNotFound(String)
+    case fileNotFound(AbsolutePath)
     
     public var description: String {
         switch self {

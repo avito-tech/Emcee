@@ -1,8 +1,9 @@
+@testable import Deployer
+@testable import SSHDeployer
 import Foundation
 import Models
+import PathLib
 import XCTest
-@testable import SSHDeployer
-@testable import Deployer
 
 class SSHDeployerTests: XCTestCase {
     func testForInputCorrectness() throws {
@@ -10,7 +11,7 @@ class SSHDeployerTests: XCTestCase {
         let deployableWithSingleFile = DeployableItem(
             name: "deployable_name",
             files: [
-                DeployableFile(source: String(#file), destination: "remote/file.swift")
+                DeployableFile(source: AbsolutePath(#file), destination: RelativePath(components: ["remote", "file.swift"]))
             ])
         let destination = DeploymentDestination(
             identifier: "id",

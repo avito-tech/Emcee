@@ -1,6 +1,6 @@
 import Foundation
 import Models
-import TempFolder
+import TemporaryStuff
 import XCTest
 
 final class ResourceLocationTests: XCTestCase {
@@ -51,9 +51,9 @@ final class ResourceLocationTests: XCTestCase {
     }
     
     func test___location_with_spaces_in_local_path() throws {
-        let tempFolder = try TempFolder(cleanUpAutomatically: true)
+        let tempFolder = try TemporaryFolder(deleteOnDealloc: true)
         let path = try tempFolder.createFile(filename: "some file")
-        XCTAssertNoThrow(try ResourceLocation.from(path.asString))
+        XCTAssertNoThrow(try ResourceLocation.from(path.pathString))
     }
     
     func test___location__from_json_with_spaces_in_local_path() throws {
