@@ -1,12 +1,27 @@
 import Foundation
 import OrderedSet
 
-public enum CommandParserError: Error {
-    case noValue
+public enum CommandParserError: Error, CustomStringConvertible {
+    case expectedValueAfterDashedArgument(ArgumentDescription)
     case missingValue(ArgumentDescription)
-    case unexpectedArguments([String])
+    case unexpectedValues([String])
     case noCommandProvided
     case unknownCommand(name: String)
+
+    public var description: String {
+        switch self {
+        case .expectedValueAfterDashedArgument(let description):
+            return "Missing argument: \(description.dashedName)"
+        case .missingValue(let description):
+            return "Expected to have a value next to '\(description.dashedName)'"
+        case .unexpectedValues(let values):
+            return "Unexpected or unmatched values: \(values)"
+        case .noCommandProvided:
+            return "No command provided."
+        case .unknownCommand(let name):
+            return "Unrecognized command: \(name)"
+        }
+    }
 }
 
 public final class CommandParser {
@@ -32,7 +47,7 @@ public final class CommandParser {
         
         let result = try commandArguments.map { argument -> ArgumentValueHolder in
             guard let index = stringValues.firstIndex(of: argument.dashedName) else {
-                throw CommandParserError.noValue
+                throw CommandParserError.expectedValueAfterDashedArgument(argument)
             }
             
             guard index + 1 < stringValues.count else {
@@ -49,7 +64,7 @@ public final class CommandParser {
         }
         
         if !stringValues.isEmpty {
-            throw CommandParserError.unexpectedArguments(stringValues)
+            throw CommandParserError.unexpectedValues(stringValues)
         }
         
         return Set(result)

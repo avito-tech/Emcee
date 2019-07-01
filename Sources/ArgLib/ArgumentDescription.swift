@@ -1,6 +1,6 @@
 import Foundation
 
-public class ArgumentDescription: Hashable {
+public final class ArgumentDescription: Hashable {
     public let name: String
     public let overview: String
     

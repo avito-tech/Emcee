@@ -6,8 +6,8 @@ final class Set_ArgumentValueHolderTests: XCTestCase {
     func test___extracting_argument_values() throws {
         let valueHolders = Set(
             [
-                ArgumentValueHolder(argumentDescription: StringArgumentDescription(name: "string", overview: ""), stringValue: "hello"),
-                ArgumentValueHolder(argumentDescription: IntArgumentDescription(name: "int", overview: ""), stringValue: "42")
+                ArgumentValueHolder(argumentDescription: ArgumentDescription(name: "string", overview: ""), stringValue: "hello"),
+                ArgumentValueHolder(argumentDescription: ArgumentDescription(name: "int", overview: ""), stringValue: "42")
             ]
         )
         

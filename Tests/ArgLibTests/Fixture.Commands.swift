@@ -14,8 +14,8 @@ final class CommandB: Command {
     let description: String = ""
     let arguments = Arguments(
         [
-            StringArgumentDescription(name: "string", overview: "string"),
-            IntArgumentDescription(name: "int", overview: "int")
+            ArgumentDescription(name: "string", overview: "string"),
+            ArgumentDescription(name: "int", overview: "int")
         ]
     )
     

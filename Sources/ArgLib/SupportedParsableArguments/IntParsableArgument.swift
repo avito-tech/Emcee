@@ -1,9 +1,5 @@
 import Foundation
 
-public class IntArgumentDescription: ArgumentDescription {
-    public typealias ValueType = Int
-}
-
 public struct IntParseError: Error, CustomStringConvertible {
     public let argumentValue: String
     
