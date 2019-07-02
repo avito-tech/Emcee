@@ -131,7 +131,19 @@ class QueueClientTests: XCTestCase {
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
         
-        try queueClient.reportAlive(bucketIdsBeingProcessedProvider: provider(), workerId: workerId, requestSignature: requestSignature)
+        try queueClient.reportAlive(
+            bucketIdsBeingProcessedProvider: provider(),
+            workerId: workerId,
+            requestSignature: requestSignature,
+            completion: { result in
+                XCTAssertNoThrow(
+                    try! {
+                        let response = try result.dematerialize()
+                        XCTAssertEqual(response, ReportAliveResponse.aliveReportAccepted)
+                    }()
+                )
+            }
+        )
         
         wait(for: [alivenessReportReceivedExpectation, bucketIdsProviderCalledExpectation], timeout: 10)
     }

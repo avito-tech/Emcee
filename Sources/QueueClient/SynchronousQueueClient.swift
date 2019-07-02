@@ -88,20 +88,23 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         }
     }
     
-    public func reportAliveness(bucketIdsBeingProcessedProvider: @autoclosure () -> (Set<BucketId>), workerId: WorkerId, requestSignature: RequestSignature) throws {
-        try synchronize {
-            alivenessReportResult = nil
-            try runRetrying {
-                try queueClient.reportAlive(
-                    bucketIdsBeingProcessedProvider: bucketIdsBeingProcessedProvider(),
-                    workerId: workerId,
-                    requestSignature: requestSignature
-                )
-                try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for aliveness report") {
-                    self.alivenessReportResult == nil
-                }
-            } as Void
-        } as Void
+    @discardableResult
+    public func reportAliveness(
+        bucketIdsBeingProcessedProvider: @autoclosure () -> (Set<BucketId>),
+        workerId: WorkerId,
+        requestSignature: RequestSignature
+    ) throws -> ReportAliveResponse {
+        
+        var result: Either<ReportAliveResponse, QueueClientError>? = nil
+        try queueClient.reportAlive(
+            bucketIdsBeingProcessedProvider: bucketIdsBeingProcessedProvider(),
+            workerId: workerId,
+            requestSignature: requestSignature,
+            completion: { result = $0 }
+        )
+        
+        try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for aliveness report response") { result == nil }
+        return try result!.dematerialize()
     }
     
     public func fetchQueueServerVersion() throws -> Version {

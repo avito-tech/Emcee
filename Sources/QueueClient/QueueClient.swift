@@ -9,7 +9,6 @@ public final class QueueClient {
     private let queueServerAddress: SocketAddress
     private let urlSession = URLSession(configuration: URLSessionConfiguration.default)
     private let encoder = JSONEncoder()
-    private let decoder = JSONDecoder()
     private var isClosed = false
     
     public init(queueServerAddress: SocketAddress) {
@@ -77,16 +76,17 @@ public final class QueueClient {
     public func reportAlive(
         bucketIdsBeingProcessedProvider: @autoclosure () -> (Set<BucketId>),
         workerId: WorkerId,
-        requestSignature: RequestSignature
+        requestSignature: RequestSignature,
+        completion: @escaping (Either<ReportAliveResponse, QueueClientError>) -> ()
     ) throws {
-        try sendRequest(
+        try sendRequestWithCallback(
             .reportAlive,
             payload: ReportAliveRequest(
                 workerId: workerId,
                 bucketIdsBeingProcessed: bucketIdsBeingProcessedProvider(),
                 requestSignature: requestSignature
             ),
-            completionHandler: handleAlivenessResponse
+            callback: completion
         )
     }
     
@@ -169,9 +169,50 @@ public final class QueueClient {
                 strongSelf.delegate?.queueClient(strongSelf, didFailWithError: QueueClientError.noData); return
             }
             do {
-                try completionHandler(try strongSelf.decoder.decode(Response.self, from: data))
+                try completionHandler(try JSONDecoder().decode(Response.self, from: data))
             } catch {
                 strongSelf.delegate?.queueClient(strongSelf, didFailWithError: QueueClientError.parseError(error, data)); return
+            }
+        }
+        dataTask.resume()
+    }
+    
+    private func sendRequestWithCallback<Payload, Response>(
+        _ restMethod: RESTMethod,
+        payload: Payload,
+        callback: @escaping (Either<Response, QueueClientError>) -> ()
+    ) throws where Payload : Encodable, Response : Decodable {
+        guard !isClosed else { throw QueueClientError.queueClientIsClosed(restMethod) }
+        let url = createUrl(restMethod: restMethod)
+        let jsonData = try encoder.encode(payload)
+        if let stringJson = String(data: jsonData, encoding: .utf8) {
+            Logger.verboseDebug("Sending request to \(url): \(stringJson)")
+        } else {
+            Logger.verboseDebug("Sending request to \(url): unable to get string for json data \(jsonData.count) bytes")
+        }
+        var urlRequest = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: .infinity)
+        urlRequest.httpMethod = "POST"
+        urlRequest.addValue("Content-Type", forHTTPHeaderField: "application/json")
+        urlRequest.httpBody = jsonData
+        let dataTask = urlSession.dataTask(with: urlRequest) { (data: Data?, response: URLResponse?, error: Error?) in
+            if let error = error {
+                callback(
+                    .error(QueueClientError.communicationError(error))
+                )
+            } else if let data = data {
+                do {
+                    callback(
+                        .success(try JSONDecoder().decode(Response.self, from: data))
+                    )
+                } catch {
+                    callback(
+                        .error(QueueClientError.parseError(error, data))
+                    )
+                }
+            } else {
+                callback(
+                    .error(QueueClientError.noData)
+                )
             }
         }
         dataTask.resume()
