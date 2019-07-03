@@ -4,19 +4,7 @@ import Models
 import ModelsTestHelpers
 
 final class TestEntriesValidatorTests: XCTestCase {
-    var runtimeTestQuerier: RuntimeTestQuerierMock!
-
-    override func setUp() {
-        super.setUp()
-
-        runtimeTestQuerier = RuntimeTestQuerierMock()
-    }
-
-    override func tearDown() {
-        runtimeTestQuerier = nil
-
-        super.tearDown()
-    }
+    let runtimeTestQuerier = RuntimeTestQuerierMock()
 
     func test__pass_arguments_to_querier() throws {
         let validatorConfiguration = try createValidatorConfiguration(testEntries: [createTestEntry(testType: .uiTest)])
@@ -122,11 +110,12 @@ final class TestEntriesValidatorTests: XCTestCase {
     ) throws -> TestArgFile.Entry {
         return TestArgFile.Entry(
             testToRun: .testName(TestName(className: "MyTest", methodName: "test")),
+            buildArtifacts: buildArtifacts,
             environment: [:],
             numberOfRetries: 1,
             testDestination: try TestDestination(deviceType: "iPhoneXL", runtime: "10.3"),
             testType: testType,
-            buildArtifacts: buildArtifacts
+            toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
         )
     }
 }

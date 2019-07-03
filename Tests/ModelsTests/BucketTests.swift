@@ -21,8 +21,9 @@ final class BucketTests: XCTestCase {
             simulatorSettings: fakeSimulatorSettings,
             testDestination: TestDestinationFixtures.testDestination,
             testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
+            testType: testType,
             toolResources: fakeToolResources,
-            testType: testType
+            toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
         )
         
         let bucket2 = Bucket(
@@ -35,8 +36,9 @@ final class BucketTests: XCTestCase {
             simulatorSettings: fakeSimulatorSettings,
             testDestination: TestDestinationFixtures.testDestination,
             testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
+            testType: testType,
             toolResources: fakeToolResources,
-            testType: testType
+            toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
         )
         
         XCTAssertEqual(bucket1.bucketId, bucket2.bucketId)
@@ -53,8 +55,9 @@ final class BucketTests: XCTestCase {
             simulatorSettings: fakeSimulatorSettings,
             testDestination: TestDestinationFixtures.testDestination,
             testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
+            testType: testType,
             toolResources: fakeToolResources,
-            testType: testType
+            toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
         )
         
         let bucket2 = Bucket(
@@ -67,8 +70,9 @@ final class BucketTests: XCTestCase {
             simulatorSettings: fakeSimulatorSettings,
             testDestination: TestDestinationFixtures.testDestination,
             testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
+            testType: testType,
             toolResources: fakeToolResources,
-            testType: testType
+            toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
         )
         
         XCTAssertNotEqual(bucket1.bucketId, bucket2.bucketId)
@@ -85,8 +89,9 @@ final class BucketTests: XCTestCase {
             simulatorSettings: fakeSimulatorSettings,
             testDestination: try TestDestination(deviceType: "device", runtime: "11.3"),
             testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
+            testType: testType,
             toolResources: fakeToolResources,
-            testType: testType
+            toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
         )
         
         let bucket2 = Bucket(
@@ -99,8 +104,9 @@ final class BucketTests: XCTestCase {
             simulatorSettings: fakeSimulatorSettings,
             testDestination: try TestDestination(deviceType: "device", runtime: "11.4"),
             testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
+            testType: testType,
             toolResources: fakeToolResources,
-            testType: testType
+            toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
         )
         
         XCTAssertNotEqual(bucket1.bucketId, bucket2.bucketId)
@@ -116,8 +122,9 @@ final class BucketTests: XCTestCase {
             simulatorSettings: fakeSimulatorSettings,
             testDestination: TestDestinationFixtures.testDestination,
             testExecutionBehavior: TestExecutionBehaviorFixtures(environment: ["a":"1"]).build(),
+            testType: testType,
             toolResources: fakeToolResources,
-            testType: testType
+            toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
         )
         
         let bucket2 = Bucket(
@@ -129,8 +136,9 @@ final class BucketTests: XCTestCase {
             simulatorSettings: fakeSimulatorSettings,
             testDestination: TestDestinationFixtures.testDestination,
             testExecutionBehavior: TestExecutionBehaviorFixtures(environment: ["a":"2"]).build(),
+            testType: testType,
             toolResources: fakeToolResources,
-            testType: testType
+            toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
         )
         
         XCTAssertNotEqual(
@@ -149,8 +157,9 @@ final class BucketTests: XCTestCase {
             simulatorSettings: fakeSimulatorSettings,
             testDestination: TestDestinationFixtures.testDestination,
             testExecutionBehavior: TestExecutionBehaviorFixtures(numberOfRetries: 0).build(),
+            testType: testType,
             toolResources: fakeToolResources,
-            testType: testType
+            toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
         )
         
         let bucket2 = Bucket(
@@ -162,12 +171,11 @@ final class BucketTests: XCTestCase {
             simulatorSettings: fakeSimulatorSettings,
             testDestination: TestDestinationFixtures.testDestination,
             testExecutionBehavior: TestExecutionBehaviorFixtures(numberOfRetries: 1).build(),
+            testType: testType,
             toolResources: fakeToolResources,
-            testType: testType
+            toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
         )
         
         XCTAssertNotEqual(bucket1.bucketId, bucket2.bucketId)
     }
-    
-    // todo add test
 }

@@ -5,9 +5,8 @@ public final class BucketFixtures {
     public static func createBucket(
         bucketId: BucketId = BucketId(value: "BucketFixturesFixedBucketId"),
         testEntries: [TestEntry] = [TestEntryFixtures.testEntry()],
-        numberOfRetries: UInt = 0)
-        -> Bucket
-    {
+        numberOfRetries: UInt = 0
+    ) -> Bucket {
         return Bucket(
             bucketId: bucketId,
             testEntries: testEntries,
@@ -15,8 +14,9 @@ public final class BucketFixtures {
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: TestDestinationFixtures.testDestination,
             testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: numberOfRetries),
+            testType: TestType.uiTest,
             toolResources: ToolResourcesFixtures.fakeToolResources(),
-            testType: TestType.uiTest
+            toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
         )
     }
 }

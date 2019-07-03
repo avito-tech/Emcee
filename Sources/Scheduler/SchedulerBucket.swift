@@ -8,8 +8,9 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
     public let testExecutionBehavior: TestExecutionBehavior
-    public let toolResources: ToolResources
     public let testType: TestType
+    public let toolResources: ToolResources
+    public let toolchainConfiguration: ToolchainConfiguration
     
     public var description: String {
         return "<\((type(of: self))) bucketId=\(bucketId)>"
@@ -22,18 +23,19 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testExecutionBehavior: TestExecutionBehavior,
+        testType: TestType,
         toolResources: ToolResources,
-        testType: TestType
-        )
-    {
+        toolchainConfiguration: ToolchainConfiguration
+    ) {
         self.bucketId = bucketId
         self.testEntries = testEntries
         self.buildArtifacts = buildArtifacts
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
         self.testExecutionBehavior = testExecutionBehavior
-        self.toolResources = toolResources
         self.testType = testType
+        self.toolResources = toolResources
+        self.toolchainConfiguration = toolchainConfiguration
     }
     
     public static func from(bucket: Bucket, testExecutionBehavior: TestExecutionBehavior) -> SchedulerBucket {
@@ -44,8 +46,9 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
             simulatorSettings: bucket.simulatorSettings,
             testDestination: bucket.testDestination,
             testExecutionBehavior: testExecutionBehavior,
+            testType: bucket.testType,
             toolResources: bucket.toolResources,
-            testType: bucket.testType
+            toolchainConfiguration: bucket.toolchainConfiguration
         )
     }
     
@@ -56,7 +59,8 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
             && left.simulatorSettings == right.simulatorSettings
             && left.testDestination == right.testDestination
             && left.testExecutionBehavior == right.testExecutionBehavior
-            && left.toolResources == right.toolResources
             && left.testType == right.testType
+            && left.toolResources == right.toolResources
+            && left.toolchainConfiguration == right.toolchainConfiguration
     }
 }

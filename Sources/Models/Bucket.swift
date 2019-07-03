@@ -10,6 +10,7 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
     public let testExecutionBehavior: TestExecutionBehavior
     public let toolResources: ToolResources
     public let testType: TestType
+    public let toolchainConfiguration: ToolchainConfiguration
 
     public init(
         bucketId: BucketId,
@@ -18,17 +19,19 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testExecutionBehavior: TestExecutionBehavior,
+        testType: TestType,
         toolResources: ToolResources,
-        testType: TestType)
-    {
+        toolchainConfiguration: ToolchainConfiguration
+    ) {
         self.bucketId = bucketId
         self.testEntries = testEntries
         self.buildArtifacts = buildArtifacts
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
         self.testExecutionBehavior = testExecutionBehavior
-        self.toolResources = toolResources
         self.testType = testType
+        self.toolResources = toolResources
+        self.toolchainConfiguration = toolchainConfiguration
     }
     
     public var description: String {
@@ -48,6 +51,7 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
         hasher.combine(testExecutionBehavior)
         hasher.combine(toolResources)
         hasher.combine(testType)
+        hasher.combine(toolchainConfiguration)
     }
     
     public static func == (left: Bucket, right: Bucket) -> Bool {
@@ -59,5 +63,6 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
         && left.testExecutionBehavior == right.testExecutionBehavior
         && left.toolResources == right.toolResources
         && left.testType == right.testType
+        && left.toolchainConfiguration == right.toolchainConfiguration
     }
 }

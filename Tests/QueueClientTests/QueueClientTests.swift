@@ -57,8 +57,9 @@ class QueueClientTests: XCTestCase {
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: TestDestinationFixtures.testDestination,
             testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
+            testType: .uiTest,
             toolResources: ToolResourcesFixtures.fakeToolResources(),
-            testType: .uiTest
+            toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
         )
         try prepareServer(RESTMethod.getBucket.withPrependingSlash) { request -> HttpResponse in
             let data: Data = (try? JSONEncoder().encode(DequeueBucketResponse.bucketDequeued(bucket: bucket))) ?? Data()

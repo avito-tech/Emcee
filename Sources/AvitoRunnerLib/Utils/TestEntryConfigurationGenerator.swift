@@ -28,7 +28,8 @@ public final class TestEntryConfigurationGenerator {
                         environment: testArgFileEntry.environment,
                         numberOfRetries: testArgFileEntry.numberOfRetries
                     ),
-                    testType: testArgFileEntry.testType
+                    testType: testArgFileEntry.testType,
+                    toolchainConfiguration: testArgFileEntry.toolchainConfiguration
                 )
             }
         }

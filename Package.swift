@@ -856,6 +856,7 @@ let package = Package(
                 "Extensions",
                 "Models",
                 "ModelsTestHelpers",
+                "ProcessController",
                 "ResourceLocationResolver",
                 "Runner",
                 "ScheduleStrategy",

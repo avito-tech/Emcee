@@ -3,6 +3,7 @@ import Foundation
 import TestingFakeFbxctest
 
 func fakeFbxctestMain() -> Int32 {
+    guard ProcessInfo.processInfo.environment["DEVELOPER_DIR"] != nil else { return 5 }
     guard let runId = ProcessInfo.processInfo.environment["EMCEE_TESTS_RUN_ID"] else { return 5 }
     let binaryContainerPath = ProcessInfo.processInfo.executablePath.deletingLastPathComponent
     let filePrefix = "\(runId)_\(FakeFbxctestExecutableProducer.fakeOutputJsonFilename.deletingPathExtension)"

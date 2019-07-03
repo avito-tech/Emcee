@@ -13,6 +13,7 @@ public final class GroupedTestEntryConfigurations {
             let testDestination: TestDestination
             let testExecutionBehavior: TestExecutionBehavior
             let testType: TestType
+            let toolchainConfiguration: ToolchainConfiguration
         }
         
         var groups = MapWithCollection<Key, TestEntryConfiguration>()
@@ -22,7 +23,8 @@ public final class GroupedTestEntryConfigurations {
                 buildArtifacts: testEntryConfiguration.buildArtifacts,
                 testDestination: testEntryConfiguration.testDestination,
                 testExecutionBehavior: testEntryConfiguration.testExecutionBehavior,
-                testType: testEntryConfiguration.testType
+                testType: testEntryConfiguration.testType,
+                toolchainConfiguration: testEntryConfiguration.toolchainConfiguration
             )
             
             groups.append(key: key, element: testEntryConfiguration)

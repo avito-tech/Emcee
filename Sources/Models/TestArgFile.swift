@@ -4,26 +4,29 @@ import Foundation
 public struct TestArgFile: Decodable {
     public struct Entry: Decodable, Equatable {
         public let testToRun: TestToRun
+        public let buildArtifacts: BuildArtifacts
         public let environment: [String: String]
         public let numberOfRetries: UInt
         public let testDestination: TestDestination
         public let testType: TestType
-        public let buildArtifacts: BuildArtifacts
+        public let toolchainConfiguration: ToolchainConfiguration
         
         public init(
             testToRun: TestToRun,
+            buildArtifacts: BuildArtifacts,
             environment: [String: String],
             numberOfRetries: UInt,
             testDestination: TestDestination,
             testType: TestType,
-            buildArtifacts: BuildArtifacts
+            toolchainConfiguration: ToolchainConfiguration
         ) {
             self.testToRun = testToRun
+            self.buildArtifacts = buildArtifacts
             self.environment = environment
             self.numberOfRetries = numberOfRetries
             self.testDestination = testDestination
             self.testType = testType
-            self.buildArtifacts = buildArtifacts
+            self.toolchainConfiguration = toolchainConfiguration
         }
         
         private enum CodingKeys: String, CodingKey {
@@ -33,16 +36,18 @@ public struct TestArgFile: Decodable {
             case testDestination
             case testType
             case buildArtifacts
+            case toolchainConfiguration
         }
         
         public init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             testToRun = try container.decode(TestToRun.self, forKey: .testToRun)
+            buildArtifacts = try container.decode(BuildArtifacts.self, forKey: .buildArtifacts)
             environment = try container.decodeIfPresent([String: String].self, forKey: .environment) ?? [:]
             numberOfRetries = try container.decode(UInt.self, forKey: .numberOfRetries)
             testDestination = try container.decode(TestDestination.self, forKey: .testDestination)
             testType = try container.decodeIfPresent(TestType.self, forKey: .testType) ?? .uiTest
-            buildArtifacts = try container.decode(BuildArtifacts.self, forKey: .buildArtifacts)
+            toolchainConfiguration = try container.decodeIfPresent(ToolchainConfiguration.self, forKey: .toolchainConfiguration) ?? ToolchainConfiguration(developerDir: .current)
         }
     }
     

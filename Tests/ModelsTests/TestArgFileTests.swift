@@ -31,11 +31,12 @@ final class TestArgFileTests: XCTestCase {
             entry,
             TestArgFile.Entry(
                 testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
+                buildArtifacts: buildArtifacts(),
                 environment: ["value": "key"],
                 numberOfRetries: 42,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testType: .logicTest,
-                buildArtifacts: buildArtifacts()
+                toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
             )
         )
     }
@@ -64,11 +65,12 @@ final class TestArgFileTests: XCTestCase {
             entry,
             TestArgFile.Entry(
                 testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
+                buildArtifacts: buildArtifacts(runtimeDumpKind: .logicTest),
                 environment: ["value": "key"],
                 numberOfRetries: 42,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testType: .logicTest,
-                buildArtifacts: buildArtifacts(runtimeDumpKind: .logicTest)
+                toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
             )
         )
     }
@@ -94,11 +96,12 @@ final class TestArgFileTests: XCTestCase {
             entry,
             TestArgFile.Entry(
                 testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
+                buildArtifacts: buildArtifacts(runtimeDumpKind: .logicTest),
                 environment: [:],
                 numberOfRetries: 42,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testType: .uiTest,
-                buildArtifacts: buildArtifacts(runtimeDumpKind: .logicTest)
+                toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
             )
         )
     }
@@ -127,11 +130,12 @@ final class TestArgFileTests: XCTestCase {
             entry,
             TestArgFile.Entry(
                 testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
+                buildArtifacts: buildArtifacts(),
                 environment: [:],
                 numberOfRetries: 42,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testType: .uiTest,
-                buildArtifacts: buildArtifacts()
+                toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
             )
         )
     }
@@ -162,11 +166,12 @@ final class TestArgFileTests: XCTestCase {
             entry,
             TestArgFile.Entry(
                 testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
+                buildArtifacts: buildArtifacts(),
                 environment: [:],
                 numberOfRetries: 42,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testType: .logicTest,
-                buildArtifacts: buildArtifacts()
+                toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
             )
         )
     }
@@ -197,11 +202,92 @@ final class TestArgFileTests: XCTestCase {
             entry,
             TestArgFile.Entry(
                 testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
+                buildArtifacts: buildArtifacts(),
                 environment: ["value": "key"],
                 numberOfRetries: 42,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testType: .uiTest,
-                buildArtifacts: buildArtifacts()
+                toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
+            )
+        )
+    }
+    
+    func test___decoding_with_toolchain_configuration_current() throws {
+        let json = """
+            {
+                "testToRun": "ClassName/testMethod",
+                "numberOfRetries": 42,
+                "testDestination": {"deviceType": "iPhone SE", "runtime": "11.3"},
+                "testType": "logicTest",
+                "buildArtifacts": {
+                    "appBundle": "/appBundle",
+                    "runner": "/runner",
+                    "xcTestBundle": {
+                        "location": "/xcTestBundle",
+                        "runtimeDumpKind": "appTest"
+                    },
+                    "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"],
+                    "needHostAppToDumpTests": true
+                },
+                "toolchainConfiguration": {
+                    "developerDir": {"kind": "current"}
+                }
+            }
+        """.data(using: .utf8)!
+        
+        let entry = try JSONDecoder().decode(TestArgFile.Entry.self, from: json)
+        
+        XCTAssertEqual(
+            entry,
+            TestArgFile.Entry(
+                testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
+                buildArtifacts: buildArtifacts(),
+                environment: [:],
+                numberOfRetries: 42,
+                testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
+                testType: .logicTest,
+                toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
+            )
+        )
+    }
+    
+    func test___decoding_with_toolchain_configuration_use_xcode() throws {
+        let json = """
+            {
+                "testToRun": "ClassName/testMethod",
+                "numberOfRetries": 42,
+                "testDestination": {"deviceType": "iPhone SE", "runtime": "11.3"},
+                "testType": "logicTest",
+                "buildArtifacts": {
+                    "appBundle": "/appBundle",
+                    "runner": "/runner",
+                    "xcTestBundle": {
+                        "location": "/xcTestBundle",
+                        "runtimeDumpKind": "appTest"
+                    },
+                    "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"],
+                    "needHostAppToDumpTests": true
+                },
+                "toolchainConfiguration": {
+                    "developerDir": {"kind": "useXcode", "CFBundleShortVersionString": "10.1"}
+                }
+            }
+        """.data(using: .utf8)!
+        
+        let entry = try JSONDecoder().decode(TestArgFile.Entry.self, from: json)
+        
+        XCTAssertEqual(
+            entry,
+            TestArgFile.Entry(
+                testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
+                buildArtifacts: buildArtifacts(),
+                environment: [:],
+                numberOfRetries: 42,
+                testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
+                testType: .logicTest,
+                toolchainConfiguration: ToolchainConfiguration(
+                    developerDir: .useXcode(CFBundleShortVersionString: "10.1")
+                )
             )
         )
     }
@@ -229,11 +315,12 @@ final class TestArgFileTests: XCTestCase {
             entry,
             TestArgFile.Entry(
                 testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
+                buildArtifacts: buildArtifacts(appBundle: nil, runner: nil, additionalApplicationBundles: []),
                 environment: ["value": "key"],
                 numberOfRetries: 42,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testType: .uiTest,
-                buildArtifacts: buildArtifacts(appBundle: nil, runner: nil, additionalApplicationBundles: [])
+                toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
             )
         )
     }
@@ -263,11 +350,12 @@ final class TestArgFileTests: XCTestCase {
             entry,
             TestArgFile.Entry(
                 testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
+                buildArtifacts: buildArtifacts(additionalApplicationBundles: []),
                 environment: [:],
                 numberOfRetries: 42,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testType: .uiTest,
-                buildArtifacts: buildArtifacts(additionalApplicationBundles: [])
+                toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
             )
         )
     }

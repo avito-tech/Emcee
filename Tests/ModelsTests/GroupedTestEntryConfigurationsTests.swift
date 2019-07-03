@@ -95,6 +95,26 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
         XCTAssertEqual(groups[1], testEntryConfiguration2)
     }
     
+    func test___grouping_accounts_ToolchainConfiguration___preserves_order_and_sorts_by_test_count() {
+        let testEntryConfigurations1 = TestEntryConfigurationFixtures()
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class2", methodName: "test"))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class3", methodName: "test"))
+            .testEntryConfigurations()
+            .shuffled()
+        let testEntryConfiguration2 = TestEntryConfigurationFixtures()
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
+            .with(toolchainConfiguration: ToolchainConfiguration(developerDir: .useXcode(CFBundleShortVersionString: "10.2.1")))
+            .testEntryConfigurations()
+        
+        let grouper = GroupedTestEntryConfigurations(testEntryConfigurations: testEntryConfiguration2 + testEntryConfigurations1)
+        let groups = grouper.grouped()
+        
+        XCTAssertEqual(groups.count, 2)
+        XCTAssertEqual(groups[0], testEntryConfigurations1)
+        XCTAssertEqual(groups[1], testEntryConfiguration2)
+    }
+    
     func test___grouping_mixed_entries___accounts_all_field_values() {
         let testEntryConfiguration1 = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))

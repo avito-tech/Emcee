@@ -171,6 +171,7 @@ public final class Scheduler {
 
         let runnerResult = try runner.run(
             entries: testsToRun,
+            developerDir: bucket.toolchainConfiguration.developerDir,
             simulator: allocatedSimulator.simulator
         )
         

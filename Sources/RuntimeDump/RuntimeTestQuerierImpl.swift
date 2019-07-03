@@ -77,6 +77,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         )
         let runnerRunResult = try runner.runOnce(
             entriesToRun: [testQueryEntry],
+            developerDir: DeveloperDir.current, // TODO - replace
             simulator: allocatedSimulator.simulator
         )
         

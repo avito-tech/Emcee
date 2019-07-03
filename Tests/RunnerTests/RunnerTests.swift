@@ -93,8 +93,13 @@ public final class RunnerTests: XCTestCase {
             eventBus: EventBus(),
             configuration: try createRunnerConfig(runId: runId),
             tempFolder: tempFolder,
-            resourceLocationResolver: resolver)
-        return try runner.run(entries: testEntries, simulator: shimulator)
+            resourceLocationResolver: resolver
+        )
+        return try runner.run(
+            entries: testEntries,
+            developerDir: .current,
+            simulator: shimulator
+        )
     }
     
     private func stubFbxctestEvent(runId: String, success: Bool, runIndex: Int = 0) throws {

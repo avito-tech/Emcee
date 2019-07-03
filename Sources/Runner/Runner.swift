@@ -17,6 +17,7 @@ public final class Runner {
     private let configuration: RunnerConfiguration
     private let tempFolder: TemporaryFolder
     private let resourceLocationResolver: ResourceLocationResolver
+    private let developerDirLocator = DeveloperDirLocator()
     
     public init(
         eventBus: EventBus,
@@ -33,6 +34,7 @@ public final class Runner {
     /** Runs the given tests, attempting to restart the runner in case of crash. */
     public func run(
         entries: [TestEntry],
+        developerDir: DeveloperDir,
         simulator: Simulator
     ) throws -> RunnerRunResult {
         if entries.isEmpty {
@@ -64,6 +66,7 @@ public final class Runner {
             )
             let runResults = try runOnce(
                 entriesToRun: entriesToRun,
+                developerDir: developerDir,
                 simulator: simulator
             )
             lastSubprocessStandardStreamsCaptureConfig = runResults.subprocessStandardStreamsCaptureConfig
@@ -90,6 +93,7 @@ public final class Runner {
     /// Runs the given tests once without any attempts to restart the failed or crashed tests.
     public func runOnce(
         entriesToRun: [TestEntry],
+        developerDir: DeveloperDir,
         simulator: Simulator
     ) throws -> RunnerRunResult {
         if entriesToRun.isEmpty {
@@ -101,10 +105,12 @@ public final class Runner {
             )
         }
         
+        let testContext = try createTestContext(
+            developerDir: developerDir,
+            simulator: simulator
+        )
+        
         Logger.info("Will run \(entriesToRun.count) tests on simulator \(simulator)")
-        
-        let testContext = createTestContext(simulator: simulator)
-        
         eventBus.post(event: .runnerEvent(.willRun(testEntries: entriesToRun, testContext: testContext)))
         
         let fbxctestOutputProcessor = try FbxctestOutputProcessor(
@@ -212,13 +218,17 @@ public final class Runner {
         return arguments
     }
     
-    private func createTestContext(simulator: Simulator) -> TestContext {
+    private func createTestContext(
+        developerDir: DeveloperDir,
+        simulator: Simulator
+    ) throws -> TestContext {
         var environment = configuration.environment
         do {
             let testsWorkingDirectory = try tempFolder.pathByCreatingDirectories(components: ["testsWorkingDir", UUID().uuidString])
             environment[TestsWorkingDirectorySupport.envTestsWorkingDirectory] = testsWorkingDirectory.pathString
+            environment["DEVELOPER_DIR"] = try developerDirLocator.path(developerDir: developerDir).pathString
         } catch {
-            Logger.error("Unable to create tests working directory: \(error)")
+            Logger.error("Unable to create test context: \(error)")
         }
         return TestContext(
             environment: environment,
