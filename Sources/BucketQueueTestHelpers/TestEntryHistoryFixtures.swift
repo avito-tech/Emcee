@@ -7,15 +7,14 @@ public final class TestEntryHistoryFixtures {
     public let bucket: Bucket
     
     public init(testEntry: TestEntry, bucket: Bucket? = nil) {
+        let bucket = bucket ?? BucketFixtures.createBucket(testEntries: [testEntry])
+        
         self.testEntry = testEntry
-        self.bucket = bucket ?? BucketFixtures.createBucket(testEntries: [testEntry])
+        self.bucket = bucket
     }
     
     public func testEntryHistoryId() -> TestEntryHistoryId {
-        return TestEntryHistoryId(
-            testEntry: testEntry,
-            bucket: bucket
-        )
+        return TestEntryHistoryId(testEntry: testEntry, bucket: bucket)
     }
     
     public func testEntryHistoryItem(success: Bool = true, workerId: WorkerId = "doesn't matter") -> TestEntryHistoryItem {

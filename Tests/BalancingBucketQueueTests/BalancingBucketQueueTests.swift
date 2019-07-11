@@ -378,7 +378,9 @@ final class BalancingBucketQueueTests: XCTestCase {
     lazy var bucketQueueFactory = BucketQueueFactory(
         checkAgainTimeInterval: checkAgainTimeInterval,
         dateProvider: dateProvider,
-        testHistoryTracker: TestHistoryTrackerFixtures.testHistoryTracker(),
+        testHistoryTracker: TestHistoryTrackerFixtures.testHistoryTracker(
+            uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator()
+        ),
         uniqueIdentifierGenerator: uniqueIdentifierGenerator,
         workerAlivenessProvider: workerAlivenessProvider
     )

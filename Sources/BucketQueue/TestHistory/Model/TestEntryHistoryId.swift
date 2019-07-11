@@ -6,17 +6,20 @@ public final class TestEntryHistoryId: Hashable {
     public let testDestination: TestDestination
     public let toolResources: ToolResources
     public let buildArtifacts: BuildArtifacts
+    public let bucketId: BucketId
     
     public init(
         testEntry: TestEntry,
         testDestination: TestDestination,
         toolResources: ToolResources,
-        buildArtifacts: BuildArtifacts)
-    {
+        buildArtifacts: BuildArtifacts,
+        bucketId: BucketId
+    ) {
         self.testEntry = testEntry
         self.testDestination = testDestination
         self.toolResources = toolResources
         self.buildArtifacts = buildArtifacts
+        self.bucketId = bucketId
     }
     
     public convenience init(testEntry: TestEntry, bucket: Bucket) {
@@ -24,7 +27,8 @@ public final class TestEntryHistoryId: Hashable {
             testEntry: testEntry,
             testDestination: bucket.testDestination,
             toolResources: bucket.toolResources,
-            buildArtifacts: bucket.buildArtifacts
+            buildArtifacts: bucket.buildArtifacts,
+            bucketId: bucket.bucketId
         )
     }
     
@@ -33,6 +37,7 @@ public final class TestEntryHistoryId: Hashable {
             && left.testDestination == right.testDestination
             && left.toolResources == right.toolResources
             && left.buildArtifacts == right.buildArtifacts
+            && left.bucketId == right.bucketId
     }
     
     public func hash(into hasher: inout Hasher) {
@@ -40,5 +45,6 @@ public final class TestEntryHistoryId: Hashable {
         hasher.combine(testDestination)
         hasher.combine(toolResources)
         hasher.combine(buildArtifacts)
+        hasher.combine(bucketId)
     }
 }

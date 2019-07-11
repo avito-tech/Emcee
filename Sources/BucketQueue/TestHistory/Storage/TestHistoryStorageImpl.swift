@@ -36,4 +36,31 @@ public final class TestHistoryStorageImpl: TestHistoryStorage {
         
         return newHistory
     }
+    
+    public func registerReenqueuedBucketId(
+        testEntryHistoryId: TestEntryHistoryId,
+        enqueuedBucketId: BucketId
+    ) {
+        
+        let newTestEntryHistoryId = TestEntryHistoryId(
+            testEntry: testEntryHistoryId.testEntry,
+            testDestination: testEntryHistoryId.testDestination,
+            toolResources: testEntryHistoryId.toolResources,
+            buildArtifacts: testEntryHistoryId.buildArtifacts,
+            bucketId: enqueuedBucketId
+        )
+        
+        let oldHistory = historyByTest[
+            testEntryHistoryId,
+            default: TestEntryHistory(id: newTestEntryHistoryId, testEntryHistoryItems: [])
+        ]
+        
+        let newHistory = TestEntryHistory(
+            id: newTestEntryHistoryId,
+            testEntryHistoryItems: oldHistory.testEntryHistoryItems
+        )
+        
+        historyByTest[testEntryHistoryId] = nil
+        historyByTest[newTestEntryHistoryId] = newHistory
+    }
 }

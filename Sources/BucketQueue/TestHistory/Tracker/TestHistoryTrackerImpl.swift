@@ -98,6 +98,17 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
             )
         }
         
+        bucketsToReenqueue.forEach { reenqueuingBucket in
+            reenqueuingBucket.testEntries.forEach { entry in
+                let id = TestEntryHistoryId(testEntry: entry, bucket: bucket)
+
+                testHistoryStorage.registerReenqueuedBucketId(
+                    testEntryHistoryId: id,
+                    enqueuedBucketId: reenqueuingBucket.bucketId
+                )
+            }
+        }
+        
         return TestHistoryTrackerAcceptResult(
             bucketsToReenqueue: bucketsToReenqueue,
             testingResult: testingResult

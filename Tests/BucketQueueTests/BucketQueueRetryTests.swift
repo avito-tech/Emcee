@@ -169,7 +169,7 @@ final class BucketQueueRetryTests: XCTestCase {
         let bucketQueue = BucketQueueFixtures.bucketQueue(
             dateProvider: dateProvider,
             testHistoryTracker: TestHistoryTrackerFixtures.testHistoryTracker(
-                generatorValue: fixedBucketId.value
+                uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(value: fixedBucketId.value)
             ),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessProvider: tracker

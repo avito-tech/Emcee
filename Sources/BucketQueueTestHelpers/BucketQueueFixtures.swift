@@ -14,7 +14,7 @@ public final class BucketQueueFixtures {
         checkAgainTimeInterval: TimeInterval = 30,
         dateProvider: DateProvider = DateProviderFixture(),
         testHistoryTracker: TestHistoryTracker = TestHistoryTrackerFixtures.testHistoryTracker(
-            generatorValue: fixedGeneratorValue
+            uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(value: fixedGeneratorValue)
         ),
         uniqueIdentifierGenerator: UniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(
             value: fixedGeneratorValue

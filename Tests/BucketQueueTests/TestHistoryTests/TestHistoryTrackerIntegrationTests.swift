@@ -3,6 +3,7 @@ import BucketQueueTestHelpers
 import Foundation
 import Models
 import ModelsTestHelpers
+import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class TestHistoryTrackerIntegrationTests: XCTestCase {
@@ -13,14 +14,18 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
     private let fixedIdentifier = "identifier"
     
     private lazy var aliveWorkers = [failingWorkerId, notFailingWorkerId]
+    private lazy var bucketIdGenerator = FixedValueUniqueIdentifierGenerator(value: fixedIdentifier)
     
     private lazy var testHistoryTracker = TestHistoryTrackerFixtures.testHistoryTracker(
-        generatorValue: fixedIdentifier
+        uniqueIdentifierGenerator: bucketIdGenerator
     )
 
     private lazy var oneFailResultsFixtures = TestingResultFixtures()
         .with(bucketId: bucketFixture.bucketId)
         .addingResult(success: false)
+    private lazy var oneSuccessResultsFixtures = TestingResultFixtures()
+        .with(bucketId: bucketFixture.bucketId)
+        .addingResult(success: true)
     private lazy var bucketFixture = BucketFixtures.createBucket(
         bucketId: BucketId(value: fixedIdentifier)
     )
@@ -80,14 +85,20 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         // Given
         _ = try testHistoryTracker.accept(
             testingResult: oneFailResultsFixtures.testingResult(),
-            bucket: bucketFixture,
+            bucket: BucketFixtures.createBucket(
+                bucketId: BucketId(value: fixedIdentifier),
+                numberOfRetries: 1
+            ),
             workerId: failingWorkerId
         )
         
         // When
         let acceptResult = try testHistoryTracker.accept(
             testingResult: oneFailResultsFixtures.testingResult(),
-            bucket: bucketFixture,
+            bucket: BucketFixtures.createBucket(
+                bucketId: BucketId(value: fixedIdentifier),
+                numberOfRetries: 1
+            ),
             workerId: failingWorkerId
         )
         
@@ -100,6 +111,53 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         XCTAssertEqual(
             acceptResult.testingResult,
             oneFailResultsFixtures.testingResult()
+        )
+    }
+    
+    func test___accept___tells_to_retry___when_runing_same_test_from_other_bucket() throws {
+        // Given
+        _ = try testHistoryTracker.accept(
+            testingResult: oneFailResultsFixtures.testingResult(),
+            bucket: BucketFixtures.createBucket(
+                bucketId: BucketId(value: fixedIdentifier),
+                numberOfRetries: 1
+            ),
+            workerId: failingWorkerId
+        )
+        
+        let secondBucket = BucketFixtures.createBucket(
+            bucketId: BucketId(value: "secondIdentifier"),
+            numberOfRetries: 1
+        )
+        
+        let reenqueuedBucketId = BucketId(value: "reenqueuedIdentifier")
+        
+        bucketIdGenerator.value = reenqueuedBucketId.value
+        
+        // When
+        let acceptResult = try testHistoryTracker.accept(
+            testingResult: oneFailResultsFixtures.with(bucketId: secondBucket.bucketId).testingResult(),
+            bucket: BucketFixtures.createBucket(
+                bucketId: secondBucket.bucketId,
+                numberOfRetries: 1
+            ),
+            workerId: failingWorkerId
+        )
+        
+        // Then
+        XCTAssertEqual(
+            acceptResult.bucketsToReenqueue,
+            [
+                BucketFixtures.createBucket(
+                    bucketId: reenqueuedBucketId,
+                    numberOfRetries: 1
+                )
+            ]
+        )
+        
+        XCTAssertEqual(
+            acceptResult.testingResult,
+            TestingResultFixtures().with(bucketId: secondBucket.bucketId).testingResult()
         )
     }
     
@@ -197,3 +255,4 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         )
     }
 }
+

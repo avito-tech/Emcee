@@ -9,4 +9,9 @@ public protocol TestHistoryStorage {
         testEntryResult: TestEntryResult,
         workerId: WorkerId)
         -> TestEntryHistory
+    
+    func registerReenqueuedBucketId(
+        testEntryHistoryId: TestEntryHistoryId,
+        enqueuedBucketId: BucketId
+    )
 }

@@ -1,13 +1,13 @@
 import BucketQueue
+import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import Foundation
 
-public final class
-TestHistoryTrackerFixtures {
-    public static func testHistoryTracker(generatorValue: String = UUID().uuidString) -> TestHistoryTracker {
+public final class TestHistoryTrackerFixtures {
+    public static func testHistoryTracker(uniqueIdentifierGenerator: UniqueIdentifierGenerator) -> TestHistoryTracker {
         return TestHistoryTrackerImpl(
             testHistoryStorage: TestHistoryStorageImpl(),
-            uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(value: generatorValue)
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
     }
 }

@@ -31,4 +31,8 @@ final class TestHistoryStorageMock: TestHistoryStorage {
             testEntryHistoryItems: []
         )
     }
+    
+    func registerReenqueuedBucketId(testEntryHistoryId: TestEntryHistoryId, enqueuedBucketId: BucketId) {
+        // do nothing in mock
+    }
 }
