@@ -21,7 +21,9 @@ final class SimulatorPoolWithDefaultSimulatorControllerMock: SimulatorPool<Defau
             numberOfSimulators: 0,
             testDestination: testDestination,
             fbsimctl: fbsimctl,
-            tempFolder: tempFolder)
+            developerDir: DeveloperDir.current,
+            tempFolder: tempFolder
+        )
     }
 
     override func allocateSimulatorController() throws -> DefaultSimulatorController {
@@ -30,6 +32,6 @@ final class SimulatorPoolWithDefaultSimulatorControllerMock: SimulatorPool<Defau
             testDestination: testDestination,
             workingDirectory: AbsolutePath.root
         )
-        return DefaultSimulatorControllerMock(simulator: simulator, fbsimctl: fbsimctl)
+        return DefaultSimulatorControllerMock(simulator: simulator, fbsimctl: fbsimctl, developerDir: DeveloperDir.current)
     }
 }

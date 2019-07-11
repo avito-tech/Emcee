@@ -136,6 +136,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
             let simulatorPool = try onDemandSimulatorPool.pool(
                 key: OnDemandSimulatorPool.Key(
                     numberOfSimulators: 1,
+                    developerDir: configuration.developerDir,
                     testDestination: configuration.testDestination,
                     fbsimctl: applicationTestSupport.fbsimctl
                 )

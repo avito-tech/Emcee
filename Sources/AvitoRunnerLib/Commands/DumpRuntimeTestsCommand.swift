@@ -59,7 +59,8 @@ final class DumpRuntimeTestsCommand: Command {
             ),
             applicationTestSupport: applicationTestSupport,
             testDestination: testDestinations[0].testDestination,
-            testsToRun: []
+            testsToRun: [],
+            developerDir: DeveloperDir.current
         )
 
         let tempFolder = try TemporaryFolder()

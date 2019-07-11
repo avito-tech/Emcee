@@ -19,7 +19,9 @@ class SimulatorPoolTests: XCTestCase {
             numberOfSimulators: 1,
             testDestination: TestDestinationFixtures.testDestination,
             fbsimctl: NonResolvableResourceLocation(),
-            tempFolder: tempFolder)
+            developerDir: DeveloperDir.current,
+            tempFolder: tempFolder
+        )
         _ = try pool.allocateSimulatorController()
         XCTAssertThrowsError(_ = try pool.allocateSimulatorController(), "Expected to throw") { error in
             XCTAssertEqual(error as? BorrowError, BorrowError.noSimulatorsLeft)
@@ -32,7 +34,9 @@ class SimulatorPoolTests: XCTestCase {
             numberOfSimulators: UInt(numberOfThreads),
             testDestination: TestDestinationFixtures.testDestination,
             fbsimctl: NonResolvableResourceLocation(),
-            tempFolder: tempFolder)
+            developerDir: DeveloperDir.current,
+            tempFolder: tempFolder
+        )
         let queue = OperationQueue()
         queue.maxConcurrentOperationCount = Int(numberOfThreads)
         
@@ -57,8 +61,10 @@ class SimulatorPoolTests: XCTestCase {
             numberOfSimulators: 1,
             testDestination: TestDestinationFixtures.testDestination,
             fbsimctl: NonResolvableResourceLocation(),
+            developerDir: DeveloperDir.current,
             tempFolder: tempFolder,
-            automaticCleanupTiumeout: 1)
+            automaticCleanupTiumeout: 1
+        )
         let simulatorController = try pool.allocateSimulatorController()
         pool.freeSimulatorController(simulatorController)
         

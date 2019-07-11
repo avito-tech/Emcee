@@ -1,3 +1,4 @@
+import DeveloperDirLocator
 import Dispatch
 import Foundation
 import Logging
@@ -12,6 +13,8 @@ import ResourceLocationResolver
  */
 public class DefaultSimulatorController: SimulatorController, CustomStringConvertible {
     private let simulator: Simulator
+    private let developerDir: DeveloperDir
+    private let developerDirLocator = DeveloperDirLocator()
     private let fbsimctl: ResolvableResourceLocation
     private let maximumBootAttempts = 2
     private var simulatorKeepAliveProcessController: ProcessController?
@@ -19,9 +22,14 @@ public class DefaultSimulatorController: SimulatorController, CustomStringConver
     private let simulatorStateMachine = SimulatorStateMachine()
     private var currentSimulatorState = SimulatorStateMachine.State.absent
 
-    required public init(simulator: Simulator, fbsimctl: ResolvableResourceLocation) {
+    required public init(
+        simulator: Simulator,
+        fbsimctl: ResolvableResourceLocation,
+        developerDir: DeveloperDir
+    ) {
         self.simulator = simulator
         self.fbsimctl = fbsimctl
+        self.developerDir = developerDir
     }
 
     public func bootedSimulator() throws -> Simulator {
@@ -179,6 +187,9 @@ public class DefaultSimulatorController: SimulatorController, CustomStringConver
                     simulatorUuid, "boot",
                     "--locale", "ru_US",
                     "--direct-launch", "--", "listen"
+                ],
+                environment: [
+                    "DEVELOPER_DIR": try developerDirLocator.path(developerDir: developerDir).pathString
                 ]
             )
         )
@@ -258,14 +269,16 @@ public class DefaultSimulatorController: SimulatorController, CustomStringConver
 
     public func hash(into hasher: inout Hasher) {
         hasher.combine(simulator)
+        hasher.combine(developerDir)
     }
 
-    public static func == (l: DefaultSimulatorController, r: DefaultSimulatorController) -> Bool {
-        return l.simulator == r.simulator
+    public static func == (left: DefaultSimulatorController, right: DefaultSimulatorController) -> Bool {
+        return left.simulator == right.simulator
+            && left.developerDir == right.developerDir
     }
 
     public var description: String {
-        return "Controller for simulator \(simulator)"
+        return "Controller for simulator \(simulator), developer dir: \(developerDir)"
     }
 
     // MARK: - Errors

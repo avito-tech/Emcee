@@ -157,7 +157,9 @@ final class RuntimeTestQuerierTests: XCTestCase {
             ),
             applicationTestSupport: applicationTestSupport,
             testDestination: TestDestinationFixtures.testDestination,
-            testsToRun: testsToRun)
+            testsToRun: testsToRun,
+            developerDir: DeveloperDir.current
+        )
     }
 
     private func buildApplicationTestSupport() -> RuntimeDumpApplicationTestSupport {

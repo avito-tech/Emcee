@@ -255,6 +255,24 @@ let package = Package(
             ]
         ),
         .target(
+            // MARK: DeveloperDirLocator
+            name: "DeveloperDirLocator",
+            dependencies: [
+                "ProcessController"
+            ]
+        ),
+        .testTarget(
+            // MARK: DeveloperDirLocatorTests
+            name: "DeveloperDirLocatorTests",
+            dependencies: [
+                "DeveloperDirLocator",
+                "Models",
+                "PathLib",
+                "ProcessController",
+                "TemporaryStuff"
+            ]
+        ),
+        .target(
             // MARK: DistDeployer
             name: "DistDeployer",
             dependencies: [
@@ -839,6 +857,7 @@ let package = Package(
             name: "Runner",
             dependencies: [
                 "EventBus",
+                "DeveloperDirLocator",
                 "LocalHostDeterminer",
                 "Logging",
                 "Models",
@@ -962,6 +981,7 @@ let package = Package(
             // MARK: SimulatorPool
             name: "SimulatorPool",
             dependencies: [
+                "DeveloperDirLocator",
                 "Extensions",
                 "Logging",
                 "Models",

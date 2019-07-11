@@ -6,5 +6,9 @@ public protocol SimulatorController: Hashable {
     func shutdownSimulator() throws
     func deleteSimulator() throws
     
-    init(simulator: Simulator, fbsimctl: ResolvableResourceLocation)
+    init(
+        simulator: Simulator,
+        fbsimctl: ResolvableResourceLocation,
+        developerDir: DeveloperDir
+    )
 }

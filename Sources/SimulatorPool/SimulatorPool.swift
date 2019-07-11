@@ -29,6 +29,7 @@ public class SimulatorPool<T>: CustomStringConvertible where T: SimulatorControl
         numberOfSimulators: UInt,
         testDestination: TestDestination,
         fbsimctl: ResolvableResourceLocation,
+        developerDir: DeveloperDir,
         tempFolder: TemporaryFolder,
         automaticCleanupTiumeout: TimeInterval = 10) throws
     {
@@ -39,7 +40,9 @@ public class SimulatorPool<T>: CustomStringConvertible where T: SimulatorControl
             count: numberOfSimulators,
             testDestination: testDestination,
             fbsimctl: fbsimctl,
-            tempFolder: tempFolder)
+            developerDir: developerDir,
+            tempFolder: tempFolder
+        )
     }
     
     deinit {
@@ -97,6 +100,7 @@ public class SimulatorPool<T>: CustomStringConvertible where T: SimulatorControl
         count: UInt,
         testDestination: TestDestination,
         fbsimctl: ResolvableResourceLocation,
+        developerDir: DeveloperDir,
         tempFolder: TemporaryFolder
     ) throws -> OrderedSet<T> {
         var result = OrderedSet<T>()
@@ -104,7 +108,7 @@ public class SimulatorPool<T>: CustomStringConvertible where T: SimulatorControl
             let folderName = "sim_\(testDestination.deviceType.removingWhitespaces())_\(testDestination.runtime)_\(index)"
             let workingDirectory = try tempFolder.pathByCreatingDirectories(components: [folderName])
             let simulator = Simulator(index: index, testDestination: testDestination, workingDirectory: workingDirectory)
-            let controller = T(simulator: simulator, fbsimctl: fbsimctl)
+            let controller = T(simulator: simulator, fbsimctl: fbsimctl, developerDir: developerDir)
             result.append(controller)
         }
         return result

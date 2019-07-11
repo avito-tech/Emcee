@@ -12,13 +12,15 @@ class SimulatorPoolMock: SimulatorPool<FakeSimulatorController> {
                 testDestination: try TestDestination(deviceType: "iPhone XL", runtime: "10.3"),
                 workingDirectory: AbsolutePath.root
             ),
-            fbsimctl: NonResolvableResourceLocation()
+            fbsimctl: NonResolvableResourceLocation(),
+            developerDir: DeveloperDir.current
         )
 
         try super.init(
             numberOfSimulators: 1,
             testDestination: TestDestinationFixtures.testDestination,
             fbsimctl: NonResolvableResourceLocation(),
+            developerDir: DeveloperDir.current,
             tempFolder: try TemporaryFolder()
         )
     }

@@ -22,14 +22,17 @@ public struct RuntimeDumpConfiguration {
     
     /** All tests that need to be run */
     public let testsToRun: [TestToRun]
+    
+    public let developerDir: DeveloperDir
 
     public init(
         fbxctest: FbxctestLocation,
         xcTestBundle: XcTestBundle,
         applicationTestSupport: RuntimeDumpApplicationTestSupport?,
         testDestination: TestDestination,
-        testsToRun: [TestToRun])
-    {
+        testsToRun: [TestToRun],
+        developerDir: DeveloperDir
+    ) {
         self.testTimeoutConfiguration = TestTimeoutConfiguration(
             singleTestMaximumDuration: 20,
             fbxctestSilenceMaximumDuration: 20
@@ -43,5 +46,6 @@ public struct RuntimeDumpConfiguration {
         self.applicationTestSupport = applicationTestSupport
         self.testDestination = testDestination
         self.testsToRun = testsToRun
+        self.developerDir = developerDir
     }
 }

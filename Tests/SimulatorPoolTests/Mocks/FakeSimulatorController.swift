@@ -6,13 +6,15 @@ final class FakeSimulatorController: SimulatorController {
     
     let simulator: Simulator
     let fbsimctl: ResolvableResourceLocation
+    let developerDir: DeveloperDir
     
     var didCallDelete = false
     var didCallShutdown = false
     
-    init(simulator: Simulator, fbsimctl: ResolvableResourceLocation) {
+    init(simulator: Simulator, fbsimctl: ResolvableResourceLocation, developerDir: DeveloperDir) {
         self.simulator = simulator
         self.fbsimctl = fbsimctl
+        self.developerDir = developerDir
     }
     
     func bootedSimulator() throws -> Simulator {

@@ -6,14 +6,24 @@ final class DefaultSimulatorControllerMock: DefaultSimulatorController {
 
     let simulator: Simulator
     let fbsimctl: ResolvableResourceLocation
+    let developerDir: DeveloperDir
 
     var didCallDelete = false
 
-    required init(simulator: Simulator, fbsimctl: ResolvableResourceLocation) {
+    required init(
+        simulator: Simulator,
+        fbsimctl: ResolvableResourceLocation,
+        developerDir: DeveloperDir
+    ) {
         self.simulator = simulator
         self.fbsimctl = fbsimctl
+        self.developerDir = developerDir
 
-        super.init(simulator: simulator, fbsimctl: fbsimctl)
+        super.init(
+            simulator: simulator,
+            fbsimctl: fbsimctl,
+            developerDir: developerDir
+        )
     }
 
     override func bootedSimulator() throws -> Simulator {
@@ -22,13 +32,5 @@ final class DefaultSimulatorControllerMock: DefaultSimulatorController {
 
     override func deleteSimulator() throws {
         didCallDelete = true
-    }
-
-    static func == (l: DefaultSimulatorControllerMock, r: DefaultSimulatorControllerMock) -> Bool {
-        return l.simulator == r.simulator
-    }
-
-    public override func hash(into hasher: inout Hasher) {
-        hasher.combine(simulator)
     }
 }

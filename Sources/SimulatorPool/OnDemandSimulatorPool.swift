@@ -9,11 +9,18 @@ public class OnDemandSimulatorPool<T> where T: SimulatorController {
     
     public struct Key: Hashable, CustomStringConvertible {
         public let numberOfSimulators: UInt
+        public let developerDir: DeveloperDir
         public let testDestination: TestDestination
         public let fbsimctl: FbsimctlLocation
         
-        public init(numberOfSimulators: UInt, testDestination: TestDestination, fbsimctl: FbsimctlLocation) {
+        public init(
+            numberOfSimulators: UInt,
+            developerDir: DeveloperDir,
+            testDestination: TestDestination,
+            fbsimctl: FbsimctlLocation
+        ) {
             self.numberOfSimulators = numberOfSimulators
+            self.developerDir = developerDir
             self.testDestination = testDestination
             self.fbsimctl = fbsimctl
         }
@@ -40,7 +47,10 @@ public class OnDemandSimulatorPool<T> where T: SimulatorController {
     private let syncQueue = DispatchQueue(label: "ru.avito.OnDemandSimulatorPool")
     private let resourceLocationResolver: ResourceLocationResolver
     
-    public init(resourceLocationResolver: ResourceLocationResolver, tempFolder: TemporaryFolder) {
+    public init(
+        resourceLocationResolver: ResourceLocationResolver,
+        tempFolder: TemporaryFolder
+    ) {
         self.resourceLocationResolver = resourceLocationResolver
         self.tempFolder = tempFolder
     }
@@ -50,22 +60,23 @@ public class OnDemandSimulatorPool<T> where T: SimulatorController {
     }
     
     public func pool(key: Key) throws -> SimulatorPool<T> {
-        var pool: SimulatorPool<T>?
-        try syncQueue.sync {
+        return try syncQueue.sync {
             if let existingPool = pools[key] {
                 Logger.verboseDebug("Got SimulatorPool for key \(key)")
-                pool = existingPool
+                return existingPool
             } else {
-                pool = try SimulatorPool(
+                let pool = try SimulatorPool<T>(
                     numberOfSimulators: key.numberOfSimulators,
                     testDestination: key.testDestination,
                     fbsimctl: resourceLocationResolver.resolvable(withRepresentable: key.fbsimctl),
-                    tempFolder: tempFolder)
+                    developerDir: key.developerDir,
+                    tempFolder: tempFolder
+                )
                 pools[key] = pool
                 Logger.verboseDebug("Created SimulatorPool for key \(key)")
+                return pool
             }
         }
-        return pool!
     }
     
     public func deleteSimulators() {

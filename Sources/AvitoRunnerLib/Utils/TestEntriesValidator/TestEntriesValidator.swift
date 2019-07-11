@@ -54,7 +54,8 @@ public final class TestEntriesValidator {
         testEntries: [TestArgFile.Entry]
     ) throws -> [ValidatedTestEntry] {
         let runtimeDumpApplicationTestSupport = try buildRuntimeDumpApplicationTestSupport(
-            buildArtifacts: buildArtifacts, testEntries: testEntries
+            buildArtifacts: buildArtifacts,
+            testEntries: testEntries
         )
 
         let runtimeDumpConfiguration = RuntimeDumpConfiguration(
@@ -62,7 +63,8 @@ public final class TestEntriesValidator {
             xcTestBundle: buildArtifacts.xcTestBundle,
             applicationTestSupport: runtimeDumpApplicationTestSupport,
             testDestination: validatorConfiguration.testDestination,
-            testsToRun: testEntries.map { $0.testToRun }
+            testsToRun: testEntries.map { $0.testToRun },
+            developerDir: DeveloperDir.current
         )
 
         let runtimeQueryResult = try runtimeTestQuerier.queryRuntime(configuration: runtimeDumpConfiguration)
