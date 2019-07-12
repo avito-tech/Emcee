@@ -1,6 +1,6 @@
 import Foundation
 
-public final class ArgumentValueHolder: Hashable {
+public final class ArgumentValueHolder: Equatable {
     public let argumentName: ArgumentName
     public let stringValue: String
     
@@ -18,11 +18,6 @@ public final class ArgumentValueHolder: Hashable {
     
     public func typedValue<T>() throws -> T where T: ParsableArgument {
         return try T(argumentValue: stringValue)
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(argumentName)
-        hasher.combine(stringValue)
     }
     
     public static func == (left: ArgumentValueHolder, right: ArgumentValueHolder) -> Bool {

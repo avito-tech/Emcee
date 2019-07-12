@@ -54,7 +54,7 @@ class CommandParserTests: XCTestCase {
             )
         ]
         
-        XCTAssertEqual(valueHolders, Set(expectedHolders))
+        XCTAssertEqual(valueHolders, expectedHolders)
     }
     
     func test___mapping_command_argument_with_unexpected_argument___throws() {

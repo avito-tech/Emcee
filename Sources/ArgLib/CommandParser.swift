@@ -19,7 +19,7 @@ public final class CommandParser {
     public static func map(
         stringValues: [String],
         to commandArguments: OrderedSet<ArgumentDescription>
-    ) throws -> Set<ArgumentValueHolder> {
+    ) throws -> [ArgumentValueHolder] {
         var stringValues = stringValues
         
         let result = try commandArguments.map { argumentDescription -> ArgumentValueHolder in
@@ -44,6 +44,6 @@ public final class CommandParser {
             throw CommandParserError.unexpectedValues(stringValues)
         }
         
-        return Set(result)
+        return result
     }
 }
