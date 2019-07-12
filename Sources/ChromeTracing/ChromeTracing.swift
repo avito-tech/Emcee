@@ -1,3 +1,4 @@
+import Extensions
 import Foundation
 import Models
 
@@ -109,9 +110,7 @@ public final class ChromeTraceGenerator {
     }
     
     public func writeReport(path: String) throws {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted]
-        let report = try encoder.encode(chromeTrace)
+        let report = try JSONEncoder.pretty().encode(chromeTrace)
         try report.write(to: URL(fileURLWithPath: path), options: [.atomicWrite])
     }
 }

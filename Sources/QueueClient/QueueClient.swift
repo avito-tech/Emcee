@@ -1,4 +1,5 @@
 import Dispatch
+import Extensions
 import Foundation
 import Logging
 import Models
@@ -8,12 +9,11 @@ public final class QueueClient {
     public weak var delegate: QueueClientDelegate?
     private let queueServerAddress: SocketAddress
     private let urlSession = URLSession(configuration: URLSessionConfiguration.default)
-    private let encoder = JSONEncoder()
+    private let encoder = JSONEncoder.pretty()
     private var isClosed = false
     
     public init(queueServerAddress: SocketAddress) {
         self.queueServerAddress = queueServerAddress
-        encoder.outputFormatting = [.sortedKeys, .prettyPrinted]
     }
     
     deinit {

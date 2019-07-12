@@ -11,7 +11,7 @@ import SynchronousWaiter
 public final class PluginManager: EventStream {
     public static let pluginBundleExtension = "emceeplugin"
     public static let pluginExecutableName = "Plugin"
-    private let encoder = JSONEncoder()
+    private let encoder = JSONEncoder.pretty()
     private let pluginLocations: [PluginLocation]
     private var processControllers = [ProcessController]()
     private let resourceLocationResolver: ResourceLocationResolver
@@ -21,7 +21,6 @@ public final class PluginManager: EventStream {
         pluginLocations: [PluginLocation],
         resourceLocationResolver: ResourceLocationResolver)
     {
-        self.encoder.outputFormatting = [.sortedKeys, .prettyPrinted]
         self.pluginLocations = pluginLocations
         self.resourceLocationResolver = resourceLocationResolver
         self.eventDistributor = EventDistributor()

@@ -206,6 +206,7 @@ let package = Package(
             // MARK: ChromeTracing
             name: "ChromeTracing",
             dependencies: [
+                "Extensions",
                 "Models"
             ]
         ),

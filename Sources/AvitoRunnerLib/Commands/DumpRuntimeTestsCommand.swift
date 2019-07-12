@@ -2,17 +2,18 @@ import ArgumentsParser
 import ChromeTracing
 import DistRunner
 import EventBus
+import Extensions
 import Foundation
 import JunitReporting
 import Logging
 import Models
 import ResourceLocationResolver
 import RuntimeDump
-import Scheduler
 import ScheduleStrategy
+import Scheduler
+import SimulatorPool
 import TemporaryStuff
 import Utility
-import SimulatorPool
 
 final class DumpRuntimeTestsCommand: Command {
     let command = "dump"
@@ -24,13 +25,8 @@ final class DumpRuntimeTestsCommand: Command {
     private let xctestBundle: OptionArgument<String>
     private let app: OptionArgument<String>
     private let fbsimctl: OptionArgument<String>
+    private let encoder = JSONEncoder.pretty()
     private let resourceLocationResolver = ResourceLocationResolver()
-    
-    private let encoder: JSONEncoder = {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .prettyPrinted
-        return encoder
-    }()
     
     required init(parser: ArgumentParser) {
         let subparser = parser.add(subparser: command, overview: overview)

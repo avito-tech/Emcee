@@ -1,13 +1,10 @@
+import Extensions
 import Foundation
 import Logging
 import Swifter
 
 public extension HttpResponse {
-    private static let responseEncoder: JSONEncoder = {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        return encoder
-    }()
+    private static let responseEncoder = JSONEncoder.pretty()
     
     static func json<R: Encodable>(response: R) -> HttpResponse {
         do {
