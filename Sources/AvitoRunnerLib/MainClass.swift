@@ -26,50 +26,15 @@ public final class Main {
     private var parentProcessTracker: ParentProcessTracker?
     
     private func runInProcess() -> Int32 {
-        try! LoggingSetup.setupLogging(stderrVerbosity: Verbosity.info)
-        defer { LoggingSetup.tearDown() }
-        
-        Logger.info("Arguments: \(ProcessInfo.processInfo.arguments)")
-        
-        var registry = CommandRegistry(
-            usage: "<subcommand> <options>",
-            overview: "Runs specific tasks related to iOS UI testing"
-        )
-        
-        registry.register(command: DistRunTestsCommand.self)
-        registry.register(command: DistWorkCommand.self)
-        registry.register(command: DumpRuntimeTestsCommand.self)
-        registry.register(command: RunTestsCommand.self)
-        registry.register(command: RunTestsOnRemoteQueueCommand.self)
-        registry.register(command: StartQueueServerCommand.self)
-        
-        var userSelectedCommand: Command? = nil
-        let exitCode: Int32
         do {
             try startTrackingParentProcessAliveness()
-            try registry.run { determinedCommand in
-                userSelectedCommand = determinedCommand
-                MetricRecorder.capture(
-                    LaunchMetric(
-                        command: determinedCommand.command,
-                        host: LocalHostDeterminer.currentHostAddress
-                    )
-                )
-            }
-            exitCode = 0
+            try InProcessMain().run()
+            return 0
         } catch {
             Logger.error("\(error)")
-            exitCode = 1
+            print("Error occured: \(error)")
+            return 1
         }
-        
-        MetricRecorder.capture(
-            ExitCodeMetric(
-                command: userSelectedCommand?.command ?? "not_determined_command",
-                host: LocalHostDeterminer.currentHostAddress,
-                exitCode: exitCode
-            )
-        )
-        return exitCode
     }
     
     private func startTrackingParentProcessAliveness() throws {
