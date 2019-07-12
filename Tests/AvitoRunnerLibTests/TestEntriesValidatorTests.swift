@@ -18,7 +18,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         XCTAssertEqual(querierConfiguration!.fbxctest, validatorConfiguration.fbxctest)
         XCTAssertEqual(querierConfiguration!.xcTestBundle, validatorConfiguration.testEntries[0].buildArtifacts.xcTestBundle)
         XCTAssertEqual(querierConfiguration!.testDestination, validatorConfiguration.testDestination)
-        XCTAssertEqual(querierConfiguration!.testsToRun.count, validatorConfiguration.testEntries.count)
+        XCTAssertEqual(querierConfiguration!.testsToValidate.count, validatorConfiguration.testEntries.count)
     }
 
     func test__dont_pass_app_test_data__if_no_app_tests_in_configuration() throws {

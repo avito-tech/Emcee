@@ -14,14 +14,14 @@ public struct RuntimeDumpConfiguration {
     /** Xctest bundle which contents should be dumped in runtime */
     public let xcTestBundle: XcTestBundle
 
-    /** Optional path app test dump*/
+    /** A helper object to perform runtime dump as an application test run */
     public let applicationTestSupport: RuntimeDumpApplicationTestSupport?
     
     /** Test destination */
     public let testDestination: TestDestination
     
-    /** All tests that need to be run */
-    public let testsToRun: [TestToRun]
+    /** Tests that are expected to run, so runtime dump can validate their presence */
+    public let testsToValidate: [TestToRun]
     
     public let developerDir: DeveloperDir
 
@@ -30,7 +30,7 @@ public struct RuntimeDumpConfiguration {
         xcTestBundle: XcTestBundle,
         applicationTestSupport: RuntimeDumpApplicationTestSupport?,
         testDestination: TestDestination,
-        testsToRun: [TestToRun],
+        testsToValidate: [TestToRun],
         developerDir: DeveloperDir
     ) {
         self.testTimeoutConfiguration = TestTimeoutConfiguration(
@@ -45,7 +45,7 @@ public struct RuntimeDumpConfiguration {
         self.xcTestBundle = xcTestBundle
         self.applicationTestSupport = applicationTestSupport
         self.testDestination = testDestination
-        self.testsToRun = testsToRun
+        self.testsToValidate = testsToValidate
         self.developerDir = developerDir
     }
 }

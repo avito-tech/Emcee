@@ -6,6 +6,7 @@ import XCTest
 
 final class TestToRunIntoTestEntryTransformerTests: XCTestCase {
     private let fakeBuildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
+    private let transformer = TestToRunIntoTestEntryTransformer()
 
     func test__transforming_concrete_test_names() throws {
         let testsToRun = [
@@ -14,7 +15,6 @@ final class TestToRunIntoTestEntryTransformerTests: XCTestCase {
             TestToRun.testName(TestName(className: "class", methodName: "test3"))
         ]
         
-        let transformer = TestToRunIntoTestEntryTransformer(testsToRun: testsToRun)
         let queryResult = RuntimeQueryResult(
             unavailableTestsToRun: [],
             availableRuntimeTests: [
@@ -44,9 +44,7 @@ final class TestToRunIntoTestEntryTransformerTests: XCTestCase {
     
     func test__with_missing_tests() throws {
         let missingTest = TestToRun.testName(TestName(className: "Class", methodName: "test404"))
-        let testToRunWithCaseId = TestToRun.testName(TestName(className: "Class", methodName: "testExisting"))
         
-        let transformer = TestToRunIntoTestEntryTransformer(testsToRun: [testToRunWithCaseId])
         let queryResult = RuntimeQueryResult(
             unavailableTestsToRun: [
                 missingTest
@@ -58,4 +56,3 @@ final class TestToRunIntoTestEntryTransformerTests: XCTestCase {
         XCTAssertThrowsError(_ = try transformer.transform(runtimeQueryResult: queryResult, buildArtifacts: fakeBuildArtifacts))
     }
 }
-

@@ -158,8 +158,8 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         runtimeDetectedEntries: [RuntimeTestEntry],
         configuration: RuntimeDumpConfiguration) -> [TestToRun]
     {
-        if configuration.testsToRun.isEmpty { return [] }
-        if runtimeDetectedEntries.isEmpty { return configuration.testsToRun }
+        if configuration.testsToValidate.isEmpty { return [] }
+        if runtimeDetectedEntries.isEmpty { return configuration.testsToValidate }
         
         let availableTestEntries = runtimeDetectedEntries.flatMap { runtimeDetectedTestEntry -> [TestEntry] in
             runtimeDetectedTestEntry.testMethods.map {
@@ -173,7 +173,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
                 )
             }
         }
-        let testsToRunMissingInRuntime = configuration.testsToRun.filter { requestedTestToRun -> Bool in
+        let testsToRunMissingInRuntime = configuration.testsToValidate.filter { requestedTestToRun -> Bool in
             switch requestedTestToRun {
             case .testName(let requestedTestName):
                 return availableTestEntries.first { $0.testName == requestedTestName } == nil

@@ -24,7 +24,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
         
         let querier = runtimeTestQuerier()
         let configuration = runtimeDumpConfiguration(
-            testsToRun: [],
+            testsToValidate: [],
             applicationTestSupport: nil
         )
         let queryResult = try querier.queryRuntime(configuration: configuration)
@@ -42,7 +42,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
         
         let querier = runtimeTestQuerier()
         let configuration = runtimeDumpConfiguration(
-            testsToRun: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
+            testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
             applicationTestSupport: nil
         )
         let queryResult = try querier.queryRuntime(configuration: configuration)
@@ -54,7 +54,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
     func test__when_JSON_file_is_missing_throws__without_application_test_support() throws {
         let querier = runtimeTestQuerier()
         let configuration = runtimeDumpConfiguration(
-            testsToRun: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
+            testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
             applicationTestSupport: nil
         )
         XCTAssertThrowsError(_ = try querier.queryRuntime(configuration: configuration))
@@ -67,7 +67,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
             contents: "oopps".data(using: .utf8)!)
         let querier = runtimeTestQuerier()
         let configuration = runtimeDumpConfiguration(
-            testsToRun: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
+            testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
             applicationTestSupport: nil
         )
         XCTAssertThrowsError(_ = try querier.queryRuntime(configuration: configuration))
@@ -83,7 +83,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
 
         let querier = runtimeTestQuerier()
         let configuration = runtimeDumpConfiguration(
-            testsToRun: [],
+            testsToValidate: [],
             applicationTestSupport: buildApplicationTestSupport()
         )
         let queryResult = try querier.queryRuntime(configuration: configuration)
@@ -101,7 +101,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
 
         let querier = runtimeTestQuerier()
         let configuration = runtimeDumpConfiguration(
-            testsToRun: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
+            testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
             applicationTestSupport: buildApplicationTestSupport()
         )
         let queryResult = try querier.queryRuntime(configuration: configuration)
@@ -113,7 +113,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
     func test__when_JSON_file_is_missing_throws__with_application_test_support() throws {
         let querier = runtimeTestQuerier()
         let configuration = runtimeDumpConfiguration(
-            testsToRun: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
+            testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
             applicationTestSupport: buildApplicationTestSupport()
         )
         XCTAssertThrowsError(_ = try querier.queryRuntime(configuration: configuration))
@@ -126,7 +126,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
             contents: "oopps".data(using: .utf8)!)
         let querier = runtimeTestQuerier()
         let configuration = runtimeDumpConfiguration(
-            testsToRun: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
+            testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
             applicationTestSupport: buildApplicationTestSupport()
         )
         XCTAssertThrowsError(_ = try querier.queryRuntime(configuration: configuration))
@@ -145,10 +145,14 @@ final class RuntimeTestQuerierTests: XCTestCase {
             eventBus: eventBus,
             resourceLocationResolver: resourceLocationResolver,
             onDemandSimulatorPool: simulatorPool,
-            tempFolder: tempFolder)
+            tempFolder: tempFolder
+        )
     }
     
-    private func runtimeDumpConfiguration(testsToRun: [TestToRun], applicationTestSupport: RuntimeDumpApplicationTestSupport?) -> RuntimeDumpConfiguration {
+    private func runtimeDumpConfiguration(
+        testsToValidate: [TestToRun],
+        applicationTestSupport: RuntimeDumpApplicationTestSupport?
+    ) -> RuntimeDumpConfiguration {
         return RuntimeDumpConfiguration(
             fbxctest: FbxctestLocation(ResourceLocation.localFilePath(fbxctest)),
             xcTestBundle: XcTestBundle(
@@ -157,7 +161,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
             ),
             applicationTestSupport: applicationTestSupport,
             testDestination: TestDestinationFixtures.testDestination,
-            testsToRun: testsToRun,
+            testsToValidate: testsToValidate,
             developerDir: DeveloperDir.current
         )
     }

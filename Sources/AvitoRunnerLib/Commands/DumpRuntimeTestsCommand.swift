@@ -55,7 +55,7 @@ final class DumpRuntimeTestsCommand: Command {
             ),
             applicationTestSupport: applicationTestSupport,
             testDestination: testDestinations[0].testDestination,
-            testsToRun: [],
+            testsToValidate: [],
             developerDir: DeveloperDir.current
         )
 

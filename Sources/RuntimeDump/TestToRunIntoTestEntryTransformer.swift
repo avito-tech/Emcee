@@ -2,11 +2,7 @@ import Foundation
 import Models
 
 public final class TestToRunIntoTestEntryTransformer {
-    private let testsToRun: [TestToRun]
-    
-    public init(testsToRun: [TestToRun]) {
-        self.testsToRun = testsToRun
-    }
+    public init() {}
     
     public func transform(
         runtimeQueryResult: RuntimeQueryResult,
