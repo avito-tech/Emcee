@@ -5,8 +5,8 @@ import XCTest
 final class ArgumentsTests: XCTestCase {
     func test___array_literal() {
         XCTAssertEqual(
-            Arguments([ArgumentDescription(name: "name", overview: "overview")]),
-            [ArgumentDescription(name: "name", overview: "overview")] as Arguments
+            Arguments([ArgumentDescription(name: .doubleDashed(dashlessName: "name"), overview: "overview")]),
+            [ArgumentDescription(name: .doubleDashed(dashlessName: "name"), overview: "overview")] as Arguments
         )
     }
 }

@@ -6,7 +6,11 @@ final class CommandA: Command {
     let description: String = ""
     let arguments = Arguments([])
     
-    func run(valueHolders: Set<ArgumentValueHolder>) throws {}
+    var didRun = false
+    
+    func run(payload: CommandPayload) throws {
+        didRun = true
+    }
 }
 
 final class CommandB: Command {
@@ -14,10 +18,14 @@ final class CommandB: Command {
     let description: String = ""
     let arguments = Arguments(
         [
-            ArgumentDescription(name: "string", overview: "string"),
-            ArgumentDescription(name: "int", overview: "int")
+            ArgumentDescription(name: .doubleDashed(dashlessName: "string"), overview: "string"),
+            ArgumentDescription(name: .doubleDashed(dashlessName: "int"), overview: "int")
         ]
     )
     
-    func run(valueHolders: Set<ArgumentValueHolder>) throws {}
+    var didRun = false
+    
+    func run(payload: CommandPayload) throws {
+        didRun = true
+    }
 }
