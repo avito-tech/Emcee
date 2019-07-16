@@ -4,6 +4,7 @@ import EventBus
 import Foundation
 import Logging
 import Models
+import PathLib
 import PluginManager
 import QueueClient
 import ResourceLocationResolver
@@ -17,7 +18,6 @@ public final class DistWorker: SchedulerDelegate {
     private let queueClient: SynchronousQueueClient
     private let syncQueue = DispatchQueue(label: "ru.avito.DistWorker")
     private var requestIdForBucketId = [BucketId: RequestId]()
-    private let bucketConfigurationFactory: BucketConfigurationFactory
     private let resourceLocationResolver: ResourceLocationResolver
     private var reportingAliveTimer: DispatchBasedTimer?
     private let currentlyBeingProcessedBucketsTracker = CurrentlyBeingProcessedBucketsTracker()
@@ -32,18 +32,15 @@ public final class DistWorker: SchedulerDelegate {
     public init(
         queueServerAddress: SocketAddress,
         workerId: WorkerId,
-        resourceLocationResolver: ResourceLocationResolver)
-    {
+        resourceLocationResolver: ResourceLocationResolver
+    ) {
         self.resourceLocationResolver = resourceLocationResolver
-        self.bucketConfigurationFactory = BucketConfigurationFactory(
-            resourceLocationResolver: resourceLocationResolver
-        )
         self.queueClient = SynchronousQueueClient(queueServerAddress: queueServerAddress)
         self.workerId = workerId
     }
     
     public func start() throws {
-        let tempFolder = try bucketConfigurationFactory.createTemporaryStuff()
+        let tempFolder = try createScopedTemporaryFolder()
         let workerConfiguration = try queueClient.registerWithServer(workerId: workerId)
         requestSignature = .success(workerConfiguration.requestSignature)
 
@@ -52,7 +49,8 @@ public final class DistWorker: SchedulerDelegate {
         
         let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>(
             resourceLocationResolver: resourceLocationResolver,
-            tempFolder: tempFolder)
+            tempFolder: tempFolder
+        )
         defer { onDemandSimulatorPool.deleteSimulators() }
         
         _ = try runTests(
@@ -90,25 +88,26 @@ public final class DistWorker: SchedulerDelegate {
     private func runTests(
         workerConfiguration: WorkerConfiguration,
         onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>,
-        tempFolder: TemporaryFolder)
-        throws -> [TestingResult]
-    {
-        let configuration = bucketConfigurationFactory.createConfiguration(
-            workerConfiguration: workerConfiguration,
-            schedulerDataSource: DistRunSchedulerDataSource(onNextBucketRequest: fetchNextBucket),
-            onDemandSimulatorPool: onDemandSimulatorPool
-        )
+        tempFolder: TemporaryFolder
+    ) throws -> [TestingResult] {
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
-            pluginLocations: bucketConfigurationFactory.pluginLocations + workerConfiguration.pluginUrls.map {
+            pluginLocations: workerConfiguration.pluginUrls.map {
                 PluginLocation(ResourceLocation.remoteUrl($0))
             },
             resourceLocationResolver: resourceLocationResolver
         )
         defer { eventBus.tearDown() }
         
+        let schedulerCconfiguration = SchedulerConfiguration(
+            testRunExecutionBehavior: workerConfiguration.testRunExecutionBehavior,
+            testTimeoutConfiguration: workerConfiguration.testTimeoutConfiguration,
+            schedulerDataSource: DistRunSchedulerDataSource(onNextBucketRequest: fetchNextBucket),
+            onDemandSimulatorPool: onDemandSimulatorPool
+        )
+        
         let scheduler = Scheduler(
             eventBus: eventBus,
-            configuration: configuration,
+            configuration: schedulerCconfiguration,
             tempFolder: tempFolder,
             resourceLocationResolver: resourceLocationResolver,
             schedulerDelegate: self
@@ -223,5 +222,12 @@ public final class DistWorker: SchedulerDelegate {
             Logger.error("Failed to send test run result for bucket \(testingResult.bucketId): \(error)")
             cleanUpAndStop()
         }
+    }
+    
+    private func createScopedTemporaryFolder() throws -> TemporaryFolder {
+        let containerPath = AbsolutePath(ProcessInfo.processInfo.executablePath)
+            .removingLastComponent
+            .appending(component: "tempFolder")
+        return try TemporaryFolder(containerPath: containerPath)
     }
 }
