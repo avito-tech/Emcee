@@ -3,9 +3,9 @@ import Dispatch
 import Foundation
 import Logging
 import Models
-import fbxctest
 import ProcessController
 import ResourceLocationResolver
+import SimulatorPool
 
 /**
  * Prepares and returns the simulator it owns. API is expected to be used from non multithreaded environment,

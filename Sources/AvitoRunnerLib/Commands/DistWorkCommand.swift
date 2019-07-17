@@ -4,7 +4,9 @@ import Foundation
 import Logging
 import LoggingSetup
 import Models
+import PathLib
 import ResourceLocationResolver
+import TemporaryStuff
 import Utility
 
 final class DistWorkCommand: Command {
@@ -38,12 +40,28 @@ final class DistWorkCommand: Command {
                 arguments.get(self.workerId), key: KnownStringArguments.workerId
             )
         )
+        let temporaryFolder = try createScopedTemporaryFolder()
+
+        let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
+            resourceLocationResolver: resourceLocationResolver,
+            tempFolder: temporaryFolder
+        )
+        defer { onDemandSimulatorPool.deleteSimulators() }
         
         let distWorker = DistWorker(
+            onDemandSimulatorPool: onDemandSimulatorPool,
             queueServerAddress: queueServerAddress,
             workerId: workerId,
-            resourceLocationResolver: resourceLocationResolver
+            resourceLocationResolver: resourceLocationResolver,
+            temporaryFolder: temporaryFolder
         )
         try distWorker.start()
+    }
+
+    private func createScopedTemporaryFolder() throws -> TemporaryFolder {
+        let containerPath = AbsolutePath(ProcessInfo.processInfo.executablePath)
+            .removingLastComponent
+            .appending(component: "tempFolder")
+        return try TemporaryFolder(containerPath: containerPath)
     }
 }

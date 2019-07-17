@@ -132,7 +132,8 @@ let package = Package(
                 "TemporaryStuff",
                 "UniqueIdentifierGenerator",
                 "Utility",
-                "Version"
+                "Version",
+                "fbxctest"
             ]
         ),
         .testTarget(
@@ -410,6 +411,7 @@ let package = Package(
                 "Metrics",
                 "Models",
                 "ProcessController",
+                "SimulatorPool",
                 "Timer"
             ]
         ),
@@ -992,8 +994,7 @@ let package = Package(
                 "Logging",
                 "Models",
                 "ProcessController",
-                "TemporaryStuff",
-                "fbxctest"
+                "TemporaryStuff"
             ]
         ),
         .target(

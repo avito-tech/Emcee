@@ -1,5 +1,6 @@
 import Foundation
 import ResourceLocationResolver
+import SimulatorPool
 import TemporaryStuff
 
 public final class OnDemandSimulatorPoolFactory {
