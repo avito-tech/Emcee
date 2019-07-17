@@ -76,7 +76,9 @@ final class RunTestsOnRemoteQueueCommand: Command {
         defer { eventBus.tearDown() }
         
         let fbxctest = FbxctestLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.fbxctest), key: KnownStringArguments.fbxctest))
-        let fbsimctl = (try? ArgumentsReader.validateResourceLocation(arguments.get(self.fbsimctl), key: KnownStringArguments.fbsimctl)).map { FbsimctlLocation($0) }
+        let simulatorControlTool = (try? ArgumentsReader.validateResourceLocation(arguments.get(self.fbsimctl), key: KnownStringArguments.fbsimctl)).map {
+            SimulatorControlTool.fbsimctl(FbsimctlLocation($0))
+        }
         let priority = try Priority(intValue: try ArgumentsReader.validateNotNil(arguments.get(self.priority), key: KnownUIntArguments.priority))
         let pluginLocations = try ArgumentsReader.validateResourceLocations(arguments.get(self.plugins) ?? [], key: KnownStringArguments.plugin).map({ PluginLocation($0) })
         
@@ -108,7 +110,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         let jobResults = try runTestsOnRemotelyRunningQueue(
             eventBus: eventBus,
             fbxctest: fbxctest,
-            fbsimctl: fbsimctl,
+            simulatorControlTool: simulatorControlTool,
             priority: priority,
             queueServerAddress: runningQueueServerAddress,
             runId: runId,
@@ -191,7 +193,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
     private func runTestsOnRemotelyRunningQueue(
         eventBus: EventBus,
         fbxctest: FbxctestLocation,
-        fbsimctl: FbsimctlLocation?,
+        simulatorControlTool: SimulatorControlTool?,
         priority: Priority,
         queueServerAddress: SocketAddress,
         runId: JobId,
@@ -202,11 +204,11 @@ final class RunTestsOnRemoteQueueCommand: Command {
     {        
         let validatorConfiguration = TestEntriesValidatorConfiguration(
             fbxctest: fbxctest,
-            fbsimctl: fbsimctl,
+            simulatorControlTool: simulatorControlTool,
             testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
             testEntries: testArgFile.entries
         )
-        let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>(
+        let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder
         )

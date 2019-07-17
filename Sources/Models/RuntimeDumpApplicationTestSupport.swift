@@ -14,32 +14,33 @@ public final class RuntimeDumpApplicationTestSupport: Equatable {
     public let appBundle: AppBundleLocation
 
     /** Path to Fbsimctl to run simulator*/
-    public let fbsimctl: FbsimctlLocation
+    public let simulatorControlTool: SimulatorControlTool
 
     public init(
         appBundle: AppBundleLocation,
-        fbsimctl: FbsimctlLocation
+        simulatorControlTool: SimulatorControlTool
     ) {
         self.appBundle = appBundle
-        self.fbsimctl = fbsimctl
+        self.simulatorControlTool = simulatorControlTool
     }
 
     public convenience init?(
         appBundle: AppBundleLocation?,
-        fbsimctl: FbsimctlLocation?
+        simulatorControlTool: SimulatorControlTool?
     ) throws {
-        guard (appBundle == nil && fbsimctl == nil) || (appBundle != nil && fbsimctl != nil) else {
+        guard (appBundle == nil && simulatorControlTool == nil) || (appBundle != nil && simulatorControlTool != nil) else {
             throw Error.badArguments
         }
 
-        guard let appBundle = appBundle, let fbsimctl = fbsimctl else {
+        guard let appBundle = appBundle, let simulatorControlTool = simulatorControlTool else {
             return nil
         }
 
-        self.init(appBundle: appBundle, fbsimctl: fbsimctl)
+        self.init(appBundle: appBundle, simulatorControlTool: simulatorControlTool)
     }
 
     public static func == (left: RuntimeDumpApplicationTestSupport, right: RuntimeDumpApplicationTestSupport) -> Bool {
-        return left.appBundle == right.appBundle && left.fbsimctl == right.fbsimctl
+        return left.appBundle == right.appBundle
+            && left.simulatorControlTool == right.simulatorControlTool
     }
 }

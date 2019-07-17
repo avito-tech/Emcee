@@ -60,7 +60,7 @@ final class DumpRuntimeTestsCommand: Command {
         )
 
         let tempFolder = try TemporaryFolder()
-        let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>(
+        let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder
         )
@@ -78,24 +78,24 @@ final class DumpRuntimeTestsCommand: Command {
     }
 
     private func getRuntimeDumpApplicationTestSupport(from arguments: ArgumentParser.Result) -> RuntimeDumpApplicationTestSupport? {
-        let fbsimctlPath = try? ArgumentsReader.validateResourceLocation(arguments.get(self.fbsimctl), key: KnownStringArguments.fbsimctl)
+        let fbsimctlLocation = try? ArgumentsReader.validateResourceLocation(arguments.get(self.fbsimctl), key: KnownStringArguments.fbsimctl)
         let appPath = try? ArgumentsReader.validateResourceLocation(arguments.get(self.app), key: KnownStringArguments.app)
 
         guard appPath != nil else {
-            if fbsimctlPath != nil {
+            if fbsimctlLocation != nil {
                 Logger.warning("--fbsimctl argument is unused")
             }
 
             return nil
         }
 
-        guard let app = appPath, let fbsimctl = fbsimctlPath else {
+        guard let app = appPath, let fbsimctl = fbsimctlLocation else {
             Logger.fatal("Both --fbsimctl and --app should be provided or be missing")
         }
 
         return RuntimeDumpApplicationTestSupport(
             appBundle: AppBundleLocation(app),
-            fbsimctl: FbsimctlLocation(fbsimctl)
+            simulatorControlTool: SimulatorControlTool.fbsimctl(FbsimctlLocation(fbsimctl))
         )
     }
 }

@@ -86,7 +86,7 @@ final class DistRunTestsCommand: Command {
         
         let auxiliaryResources = AuxiliaryResources(
             toolResources: ToolResources(
-                fbsimctl: FbsimctlLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.fbsimctl), key: KnownStringArguments.fbsimctl)),
+                simulatorControlTool: .fbsimctl(FbsimctlLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.fbsimctl), key: KnownStringArguments.fbsimctl))),
                 fbxctest: FbxctestLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.fbxctest), key: KnownStringArguments.fbxctest))
             ),
             plugins: try ArgumentsReader.validateResourceLocations(arguments.get(self.plugins) ?? [], key: KnownStringArguments.plugin).map({ PluginLocation($0) })
@@ -130,11 +130,11 @@ final class DistRunTestsCommand: Command {
 
         let validatorConfiguration = TestEntriesValidatorConfiguration(
             fbxctest: auxiliaryResources.toolResources.fbxctest,
-            fbsimctl: auxiliaryResources.toolResources.fbsimctl,
+            simulatorControlTool: auxiliaryResources.toolResources.simulatorControlTool,
             testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
             testEntries: testArgFile.entries
         )
-        let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>(
+        let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder
         )

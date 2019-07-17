@@ -11,7 +11,7 @@ import ResourceLocationResolver
  * Prepares and returns the simulator it owns. API is expected to be used from non multithreaded environment,
  * i.e. from serial queue.
  */
-public class DefaultSimulatorController: SimulatorController, CustomStringConvertible {
+public class FbsimctlBasedSimulatorController: SimulatorController, CustomStringConvertible {
     private let simulator: Simulator
     private let developerDir: DeveloperDir
     private let developerDirLocator = DeveloperDirLocator()
@@ -22,7 +22,7 @@ public class DefaultSimulatorController: SimulatorController, CustomStringConver
     private let simulatorStateMachine = SimulatorStateMachine()
     private var currentSimulatorState = SimulatorStateMachine.State.absent
 
-    required public init(
+    public init(
         simulator: Simulator,
         fbsimctl: ResolvableResourceLocation,
         developerDir: DeveloperDir
@@ -102,7 +102,7 @@ public class DefaultSimulatorController: SimulatorController, CustomStringConver
     }
 
     private func performBootSimulatorAction() throws {
-        return try DefaultSimulatorController.bootQueue.sync {
+        return try FbsimctlBasedSimulatorController.bootQueue.sync {
             var bootAttempt = 0
             while true {
                 do {
@@ -272,7 +272,7 @@ public class DefaultSimulatorController: SimulatorController, CustomStringConver
         hasher.combine(developerDir)
     }
 
-    public static func == (left: DefaultSimulatorController, right: DefaultSimulatorController) -> Bool {
+    public static func == (left: FbsimctlBasedSimulatorController, right: FbsimctlBasedSimulatorController) -> Bool {
         return left.simulator == right.simulator
             && left.developerDir == right.developerDir
     }

@@ -112,8 +112,9 @@ class QueueClientTests: XCTestCase {
     }
     
     func testAliveRequests() throws {
-        let alivenessReportReceivedExpectation = self.expectation(description: "Aliveness report has been received")
-        let bucketIdsProviderCalledExpectation = self.expectation(description: "Bucket Ids provider used")
+        let alivenessReportReceivedExpectation = expectation(description: "Aliveness report has been received")
+        let bucketIdsProviderCalledExpectation = expectation(description: "Bucket Ids provider used")
+        let completionHandlerCalledExpectation = expectation(description: "Completion handler has been called")
         
         let bucketId = BucketId(stringLiteral: UUID().uuidString)
         let provider: () -> Set<BucketId> = {
@@ -137,16 +138,15 @@ class QueueClientTests: XCTestCase {
             workerId: workerId,
             requestSignature: requestSignature,
             completion: { result in
-                XCTAssertNoThrow(
-                    try! {
-                        let response = try result.dematerialize()
-                        XCTAssertEqual(response, ReportAliveResponse.aliveReportAccepted)
-                    }()
+                XCTAssertEqual(
+                    try? result.dematerialize(),
+                    ReportAliveResponse.aliveReportAccepted
                 )
+                completionHandlerCalledExpectation.fulfill()
             }
         )
         
-        wait(for: [alivenessReportReceivedExpectation, bucketIdsProviderCalledExpectation], timeout: 10)
+        wait(for: [alivenessReportReceivedExpectation, bucketIdsProviderCalledExpectation, completionHandlerCalledExpectation], timeout: 10)
     }
     
     func test___when_queue_is_closed___requests_throw_correct_error() throws {

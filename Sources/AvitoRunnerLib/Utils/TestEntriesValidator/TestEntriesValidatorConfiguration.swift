@@ -3,18 +3,18 @@ import Models
 
 public struct TestEntriesValidatorConfiguration {
     public let fbxctest: FbxctestLocation
-    public let fbsimctl: FbsimctlLocation?
+    public let simulatorControlTool: SimulatorControlTool?
     public let testDestination: TestDestination
     public let testEntries: [TestArgFile.Entry]
 
     public init(
         fbxctest: FbxctestLocation,
-        fbsimctl: FbsimctlLocation?,
+        simulatorControlTool: SimulatorControlTool?,
         testDestination: TestDestination,
         testEntries: [TestArgFile.Entry]
     ) {
         self.fbxctest = fbxctest
-        self.fbsimctl = fbsimctl
+        self.simulatorControlTool = simulatorControlTool
         self.testDestination = testDestination
         self.testEntries = testEntries
     }

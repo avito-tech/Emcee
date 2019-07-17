@@ -44,7 +44,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         let querierConfiguration = runtimeTestQuerier.configuration
         XCTAssertNotNil(querierConfiguration!.applicationTestSupport)
         XCTAssertEqual(querierConfiguration!.applicationTestSupport!.appBundle, fakeBuildArtifacts.appBundle)
-        XCTAssertEqual(querierConfiguration!.applicationTestSupport!.fbsimctl, validatorConfiguration.fbsimctl)
+        XCTAssertEqual(querierConfiguration!.applicationTestSupport!.simulatorControlTool, validatorConfiguration.simulatorControlTool)
     }
 
     func test__throws_error__if_app_is_not_provided_for_app_tests() throws {
@@ -68,7 +68,7 @@ final class TestEntriesValidatorTests: XCTestCase {
                 runtimeDumpKind: .appTest
             )
         )
-        let validatorConfiguration = try createValidatorConfiguration(testEntries: [appTestEntry], fbsimctl: nil)
+        let validatorConfiguration = try createValidatorConfiguration(testEntries: [appTestEntry], simulatorControlTool: nil)
         let validator = try createValidator(configuration: validatorConfiguration)
 
         XCTAssertThrowsError(_ = try validator.validatedTestEntries())
@@ -94,11 +94,11 @@ final class TestEntriesValidatorTests: XCTestCase {
 
     private func createValidatorConfiguration(
         testEntries: [TestArgFile.Entry],
-        fbsimctl: FbsimctlLocation? = FbsimctlLocation(.localFilePath("/fbsimctl"))
+        simulatorControlTool: SimulatorControlTool? = SimulatorControlToolFixtures.fakeFbsimctlTool
     ) throws -> TestEntriesValidatorConfiguration {
         return TestEntriesValidatorConfiguration(
             fbxctest: FbxctestLocation(.localFilePath("/fbxctest")),
-            fbsimctl: fbsimctl,
+            simulatorControlTool: simulatorControlTool,
             testDestination: try TestDestination(deviceType: "iPhone XL", runtime: "10.3"),
             testEntries: testEntries
         )

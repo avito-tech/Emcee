@@ -12,10 +12,10 @@ import TemporaryStuff
  * There is no blocking mechanisms, the assumption is that the callers will use up to numberOfSimulators of threads
  * to borrow and free the simulators.
  */
-public class SimulatorPool<T>: CustomStringConvertible where T: SimulatorController {
+public class SimulatorPool: CustomStringConvertible {
     private let numberOfSimulators: UInt
     private let testDestination: TestDestination
-    private var controllers: OrderedSet<T>
+    private var controllers: [SimulatorController]
     private var automaticCleanupWorkItem: DispatchWorkItem?
     private let automaticCleanupTiumeout: TimeInterval
     private let syncQueue = DispatchQueue(label: "ru.avito.SimulatorPool")
@@ -28,8 +28,9 @@ public class SimulatorPool<T>: CustomStringConvertible where T: SimulatorControl
     public init(
         numberOfSimulators: UInt,
         testDestination: TestDestination,
-        fbsimctl: ResolvableResourceLocation,
+        simulatorControlTool: SimulatorControlTool,
         developerDir: DeveloperDir,
+        simulatorControllerProvider: SimulatorControllerProvider,
         tempFolder: TemporaryFolder,
         automaticCleanupTiumeout: TimeInterval = 10) throws
     {
@@ -39,8 +40,9 @@ public class SimulatorPool<T>: CustomStringConvertible where T: SimulatorControl
         controllers = try SimulatorPool.createControllers(
             count: numberOfSimulators,
             testDestination: testDestination,
-            fbsimctl: fbsimctl,
+            simulatorControlTool: simulatorControlTool,
             developerDir: developerDir,
+            simulatorControllerProvider: simulatorControllerProvider,
             tempFolder: tempFolder
         )
     }
@@ -49,9 +51,9 @@ public class SimulatorPool<T>: CustomStringConvertible where T: SimulatorControl
         deleteSimulators()
     }
     
-    public func allocateSimulatorController() throws -> T {
+    public func allocateSimulatorController() throws -> SimulatorController {
         return try syncQueue.sync {
-            guard let simulator = controllers.removeLast() else {
+            guard let simulator = controllers.popLast() else {
                 throw BorrowError.noSimulatorsLeft
             }
             Logger.verboseDebug("Allocated simulator: \(simulator)")
@@ -60,7 +62,7 @@ public class SimulatorPool<T>: CustomStringConvertible where T: SimulatorControl
         }
     }
     
-    public func freeSimulatorController(_ simulator: T) {
+    public func freeSimulatorController(_ simulator: SimulatorController) {
         syncQueue.sync {
             controllers.append(simulator)
             Logger.verboseDebug("Freed simulator: \(simulator)")
@@ -99,16 +101,21 @@ public class SimulatorPool<T>: CustomStringConvertible where T: SimulatorControl
     private static func createControllers(
         count: UInt,
         testDestination: TestDestination,
-        fbsimctl: ResolvableResourceLocation,
+        simulatorControlTool: SimulatorControlTool,
         developerDir: DeveloperDir,
+        simulatorControllerProvider: SimulatorControllerProvider,
         tempFolder: TemporaryFolder
-    ) throws -> OrderedSet<T> {
-        var result = OrderedSet<T>()
+    ) throws -> [SimulatorController] {
+        var result = [SimulatorController]()
         for index in 0 ..< count {
             let folderName = "sim_\(testDestination.deviceType.removingWhitespaces())_\(testDestination.runtime)_\(index)"
             let workingDirectory = try tempFolder.pathByCreatingDirectories(components: [folderName])
             let simulator = Simulator(index: index, testDestination: testDestination, workingDirectory: workingDirectory)
-            let controller = T(simulator: simulator, fbsimctl: fbsimctl, developerDir: developerDir)
+            let controller = try simulatorControllerProvider.createSimulatorController(
+                simulator: simulator,
+                simulatorControlTool: simulatorControlTool,
+                developerDir: developerDir
+            )
             result.append(controller)
         }
         return result

@@ -90,7 +90,7 @@ public final class TestEntriesValidator {
         testEntries: [TestArgFile.Entry]
     ) throws -> RuntimeDumpApplicationTestSupport? {
         if needToDumpApplicationTests(testEntries: testEntries) {
-            guard let fbsimctl = validatorConfiguration.fbsimctl else {
+            guard let simulatorControlTool = validatorConfiguration.simulatorControlTool else {
                 throw Error.runtimeDumpMissesFbsimctl
             }
 
@@ -98,7 +98,7 @@ public final class TestEntriesValidator {
                 throw Error.runtimeDumpMissesAppBundle
             }
 
-            return RuntimeDumpApplicationTestSupport(appBundle: appBundle, fbsimctl: fbsimctl)
+            return RuntimeDumpApplicationTestSupport(appBundle: appBundle, simulatorControlTool: simulatorControlTool)
         }
 
         return nil

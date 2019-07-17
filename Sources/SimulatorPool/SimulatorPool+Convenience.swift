@@ -13,7 +13,7 @@ public final class AllocatedSimulator {
     }
 }
 
-extension SimulatorPool where T: SimulatorController {
+extension SimulatorPool {
     public func allocateSimulator() throws -> AllocatedSimulator {
         let simulatorController = try self.allocateSimulatorController()
 

@@ -16,15 +16,15 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
     private let testQueryEntry = TestEntry(testName: TestName(className: "NonExistingTest", methodName: "fakeTest"), tags: [], caseId: nil)
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TemporaryFolder
-    private let onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>
+    private let onDemandSimulatorPool: OnDemandSimulatorPool
     static let runtimeTestsJsonFilename = "runtime_tests.json"
     
     public init(
         eventBus: EventBus,
         resourceLocationResolver: ResourceLocationResolver,
-        onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>,
-        tempFolder: TemporaryFolder)
-    {
+        onDemandSimulatorPool: OnDemandSimulatorPool,
+        tempFolder: TemporaryFolder
+    ) {
         self.eventBus = eventBus
         self.resourceLocationResolver = resourceLocationResolver
         self.onDemandSimulatorPool = onDemandSimulatorPool
@@ -77,7 +77,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         )
         let runnerRunResult = try runner.runOnce(
             entriesToRun: [testQueryEntry],
-            developerDir: DeveloperDir.current, // TODO - replace
+            developerDir: configuration.developerDir,
             simulator: allocatedSimulator.simulator
         )
         
@@ -138,7 +138,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
                     numberOfSimulators: 1,
                     developerDir: configuration.developerDir,
                     testDestination: configuration.testDestination,
-                    fbsimctl: applicationTestSupport.fbsimctl
+                    simulatorControlTool: applicationTestSupport.simulatorControlTool
                 )
             )
 

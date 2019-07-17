@@ -149,7 +149,7 @@ public final class Scheduler {
                 numberOfSimulators: configuration.testRunExecutionBehavior.numberOfSimulators,
                 developerDir: bucket.toolchainConfiguration.developerDir,
                 testDestination: bucket.testDestination,
-                fbsimctl: bucket.toolResources.fbsimctl
+                simulatorControlTool: bucket.toolResources.simulatorControlTool
             )
         )
 

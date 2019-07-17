@@ -47,7 +47,7 @@ public final class DistWorker: SchedulerDelegate {
         Logger.debug("Registered with server. Worker configuration: \(workerConfiguration)")
         startReportingWorkerIsAlive(interval: workerConfiguration.reportAliveInterval)
         
-        let onDemandSimulatorPool = OnDemandSimulatorPool<DefaultSimulatorController>(
+        let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder
         )
@@ -87,7 +87,7 @@ public final class DistWorker: SchedulerDelegate {
     
     private func runTests(
         workerConfiguration: WorkerConfiguration,
-        onDemandSimulatorPool: OnDemandSimulatorPool<DefaultSimulatorController>,
+        onDemandSimulatorPool: OnDemandSimulatorPool,
         tempFolder: TemporaryFolder
     ) throws -> [TestingResult] {
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
