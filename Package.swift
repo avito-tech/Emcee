@@ -187,7 +187,8 @@ let package = Package(
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessTracker"
-            ]
+            ],
+            path: "Tests/BucketQueueTestHelpers"
         ),
         .testTarget(
             // MARK: BucketQueueTests
@@ -235,7 +236,8 @@ let package = Package(
             name: "DateProviderTestHelpers",
             dependencies: [
                 "DateProvider"
-            ]
+            ],
+            path: "Tests/DateProviderTestHelpers"
         ),
         .target(
             // MARK: Deployer
@@ -584,7 +586,8 @@ let package = Package(
             dependencies: [
                 "Models",
                 "ScheduleStrategy"
-            ]
+            ],
+            path: "Tests/ModelsTestHelpers"
         ),
         .testTarget(
             // MARK: ModelsTests
@@ -778,7 +781,8 @@ let package = Package(
             name: "RemotePortDeterminerTestHelpers",
             dependencies: [
                 "RemotePortDeterminer"
-            ]
+            ],
+            path: "Tests/RemotePortDeterminerTestHelpers"
         ),
         .testTarget(
             // MARK: RemotePortDeterminerTests
@@ -1113,11 +1117,12 @@ let package = Package(
             ]
         ),
         .target(
-            // MARK: "UniqueIdentifierGeneratorTestHelpers"
+            // MARK: UniqueIdentifierGeneratorTestHelpers
             name: "UniqueIdentifierGeneratorTestHelpers",
             dependencies: [
                 "UniqueIdentifierGenerator"
-            ]
+            ],
+            path: "Tests/UniqueIdentifierGeneratorTestHelpers"
         ),
         .target(
             // MARK: URLResource
@@ -1151,7 +1156,8 @@ let package = Package(
             name: "VersionTestHelpers",
             dependencies: [
                 "Version"
-            ]
+            ],
+            path: "Tests/VersionTestHelpers"
         ),
         .testTarget(
             // MARK: VersionTests
@@ -1173,13 +1179,14 @@ let package = Package(
             ]
         ),
         .target(
-            // MARK: WorkerAlivenessTrackerTestHelpersTests
+            // MARK: WorkerAlivenessTrackerTestHelpers
             name: "WorkerAlivenessTrackerTestHelpers",
             dependencies: [
                 "DateProvider",
                 "DateProviderTestHelpers",
                 "WorkerAlivenessTracker"
-            ]
+            ],
+            path: "Tests/WorkerAlivenessTrackerTestHelpers"
         ),
         .testTarget(
             // MARK: WorkerAlivenessTrackerTests
