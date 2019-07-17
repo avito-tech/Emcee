@@ -991,7 +991,6 @@ let package = Package(
                 "Extensions",
                 "Logging",
                 "Models",
-                "OrderedSet",
                 "ProcessController",
                 "TemporaryStuff",
                 "fbxctest"

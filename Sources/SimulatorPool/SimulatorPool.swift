@@ -3,7 +3,6 @@ import Extensions
 import Foundation
 import Logging
 import Models
-import OrderedSet
 import ResourceLocationResolver
 import TemporaryStuff
 
@@ -139,15 +138,5 @@ public class SimulatorPool: CustomStringConvertible {
         }
         cleanUpQueue.asyncAfter(deadline: .now() + automaticCleanupTiumeout, execute: cancellationWorkItem)
         self.automaticCleanupWorkItem = cancellationWorkItem
-    }
-}
-
-private extension OrderedSet {
-    mutating func removeLast() -> T? {
-        guard let objectToRemove = last else {
-            return nil
-        }
-        remove(objectToRemove)
-        return objectToRemove
     }
 }
