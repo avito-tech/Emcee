@@ -15,7 +15,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         let querierConfiguration = runtimeTestQuerier.configuration
         XCTAssertNotNil(querierConfiguration)
         XCTAssertNil(querierConfiguration!.applicationTestSupport)
-        XCTAssertEqual(querierConfiguration!.fbxctest, validatorConfiguration.fbxctest)
+        XCTAssertEqual(querierConfiguration!.testRunnerTool, validatorConfiguration.testRunnerTool)
         XCTAssertEqual(querierConfiguration!.xcTestBundle, validatorConfiguration.testEntries[0].buildArtifacts.xcTestBundle)
         XCTAssertEqual(querierConfiguration!.testDestination, validatorConfiguration.testDestination)
         XCTAssertEqual(querierConfiguration!.testsToValidate.count, validatorConfiguration.testEntries.count)
@@ -97,10 +97,10 @@ final class TestEntriesValidatorTests: XCTestCase {
         simulatorControlTool: SimulatorControlTool? = SimulatorControlToolFixtures.fakeFbsimctlTool
     ) throws -> TestEntriesValidatorConfiguration {
         return TestEntriesValidatorConfiguration(
-            fbxctest: FbxctestLocation(.localFilePath("/fbxctest")),
             simulatorControlTool: simulatorControlTool,
-            testDestination: try TestDestination(deviceType: "iPhone XL", runtime: "10.3"),
-            testEntries: testEntries
+            testDestination: TestDestinationFixtures.testDestination,
+            testEntries: testEntries,
+            testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool
         )
     }
 

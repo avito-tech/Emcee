@@ -39,7 +39,9 @@ final class DumpRuntimeTestsCommand: Command {
     }
     
     func run(with arguments: ArgumentParser.Result) throws {
-        let fbxctest = try ArgumentsReader.validateResourceLocation(arguments.get(self.fbxctest), key: KnownStringArguments.fbxctest)
+        let testRunnerTool = TestRunnerTool.fbxctest(
+            FbxctestLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.fbxctest), key: KnownStringArguments.fbxctest))
+        )
         let output = try ArgumentsReader.validateNotNil(arguments.get(self.output), key: KnownStringArguments.output)
         let testDestinations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
         let xctestBundle = try ArgumentsReader.validateResourceLocation(arguments.get(self.xctestBundle), key: KnownStringArguments.xctestBundle)
@@ -48,7 +50,7 @@ final class DumpRuntimeTestsCommand: Command {
         let runtimeDumpKind: RuntimeDumpKind = applicationTestSupport != nil ? .appTest : .logicTest
 
         let configuration = RuntimeDumpConfiguration(
-            fbxctest: FbxctestLocation(fbxctest),
+            testRunnerTool: testRunnerTool,
             xcTestBundle: XcTestBundle(
                 location: TestBundleLocation(xctestBundle),
                 runtimeDumpKind: runtimeDumpKind

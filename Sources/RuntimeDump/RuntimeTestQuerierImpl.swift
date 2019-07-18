@@ -108,7 +108,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         if let applicationTestSupport = dumpConfiguration.applicationTestSupport {
             return RunnerConfiguration(
                 testType: .appTest,
-                fbxctest: dumpConfiguration.fbxctest,
+                testRunnerTool: dumpConfiguration.testRunnerTool,
                 buildArtifacts: BuildArtifacts(
                     appBundle: applicationTestSupport.appBundle,
                     runner: nil,
@@ -122,7 +122,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         } else {
             return RunnerConfiguration(
                 testType: .logicTest,
-                fbxctest: dumpConfiguration.fbxctest,
+                testRunnerTool: dumpConfiguration.testRunnerTool,
                 buildArtifacts: BuildArtifacts.onlyWithXctestBundle(xcTestBundle: dumpConfiguration.xcTestBundle),
                 environment: environment,
                 simulatorSettings: simulatorSettings,

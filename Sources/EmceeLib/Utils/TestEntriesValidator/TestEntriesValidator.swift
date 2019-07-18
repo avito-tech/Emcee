@@ -60,7 +60,7 @@ public final class TestEntriesValidator {
         )
 
         let runtimeDumpConfiguration = RuntimeDumpConfiguration(
-            fbxctest: validatorConfiguration.fbxctest,
+            testRunnerTool: validatorConfiguration.testRunnerTool,
             xcTestBundle: buildArtifacts.xcTestBundle,
             applicationTestSupport: runtimeDumpApplicationTestSupport,
             testDestination: validatorConfiguration.testDestination,
