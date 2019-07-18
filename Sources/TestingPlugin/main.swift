@@ -25,8 +25,8 @@ class Listener: DefaultBusListener {
     private func write() {
         for event in allEvents {
             do {
-                guard let outputPath = event.testContext.environment["AVITO_TEST_PLUGIN_OUTPUT"] else {
-                    Logger.fatal("TestingPlugin requires runner events to specify env.AVITO_TEST_PLUGIN_OUTPUT")
+                guard let outputPath = event.testContext.environment["EMCEE_TEST_PLUGIN_OUTPUT"] else {
+                    Logger.fatal("TestingPlugin requires runner events to specify env.EMCEE_TEST_PLUGIN_OUTPUT")
                 }
                 Logger.debug("Writing event \(event) to: \(outputPath)")
                 let encoder = JSONEncoder()

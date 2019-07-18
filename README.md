@@ -22,7 +22,7 @@ You can use `xcodebuild build-for-testing` command to generate these build artif
 To run UI tests locally, execute the following command:
 
 ```shell
-AvitoRunner runTests \
+Emcee runTests \
 --fbsimctl "https://github.com/beefon/FBSimulatorControl/releases/download/0.0.3/fbsimctl_20190208T125742.zip" \
 --fbxctest "https://github.com/beefon/FBSimulatorControl/releases/download/0.0.3/fbxctest_20190208T125921.zip" \
 --number-of-retries 1 \
@@ -68,7 +68,7 @@ For example:
 ### Using `distRunTests`
 
 ```shell
-AvitoRunner distRunTests \
+Emcee distRunTests \
     --destinations "remote_destinations.json" \
     --run-id "$(uuidgen)" \
     --remote-schedule-strategy progressive \
@@ -143,14 +143,14 @@ The CLI is split into subcommands. Currently the following commands are availabl
 
 - `runTests` - actually runs the UI tests on local machine and generates a report.
 - `distRunTests` - brings up the queue with tests to run, deploys the required data to the remote machines over SSH and then starts 
-
+  
   remote agents that run UI tests on remote machines. After running all tests, creates a report on local machine.
 - `distWork` - starts the runner as a client to the queue server that you start using the `distRunTests` command on the remote machines.
-
+  
   This can be considered as a worker instance of the runner. You don't need to invoke this command manually, Emcee will use it internally.
 - `dump` - runs runtime dump. This is a feature that allows you to filter the tests before running them. Read more about runtime dump [here](Sources/RuntimeDump).
 
-`AvitoRunner [subcommand] --help` will print the argument list for each subcommand. 
+`Emcee [subcommand] --help` will print the argument list for each subcommand. 
 
 # Publications
 

@@ -31,14 +31,14 @@ public final class FileHandleLoggerHandler: LoggerHandler {
             text = text.with(consoleColor: logEntry.color ?? logEntry.verbosity.color)
         }
         
-        _ = fileState.withExclusiveAccess { fileState in
+        fileState.withExclusiveAccess { fileState in
             guard var fileHandle = fileState.openedFileHandle else { return }
             print(text, to: &fileHandle)
         }
     }
     
     public func tearDownLogging(timeout: TimeInterval) {
-        _ = fileState.withExclusiveAccess { fileState in
+        fileState.withExclusiveAccess { fileState in
             if fileHandleShouldBeClosed {
                 fileState.close()
             }

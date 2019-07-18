@@ -41,9 +41,9 @@
         "package": "GraphiteClient",
         "repositoryURL": "https://github.com/avito-tech/GraphiteClient.git",
         "state": {
-          "branch": null,
-          "revision": "5d767afc87fde26bbbb9bd01f0492431bca6f434",
-          "version": "0.1.0"
+          "branch": "master",
+          "revision": "2333d2c4a73c19db636939033cbe2b5ba3fc9f8c",
+          "version": null
         }
       },
       {

@@ -17,7 +17,7 @@ def avito_runner(repo_root, request):
         bash(command='make build', current_directory=repo_root.path)
 
         yield ExecutableFixture(
-            path=f'{repo_root.path}/.build/x86_64-apple-macosx10.10/debug/AvitoRunner'
+            path=f'{repo_root.path}/.build/x86_64-apple-macosx10.10/debug/Emcee'
         )
 
     yield from using_pycache(

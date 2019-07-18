@@ -18,7 +18,7 @@ public final class Main {
         }
     }
     
-    private static let runInProcessEnvName = "AVITO_RUNNER_RUN_IN_PROCESS"
+    private static let runInProcessEnvName = "EMCEE_RUN_IN_PROCESS"
     private var shouldRunInProcess: Bool {
         return ProcessInfo.processInfo.environment[Main.runInProcessEnvName] == "true"
     }

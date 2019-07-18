@@ -31,7 +31,7 @@ public final class Ansi {
     return environment["TERM"] != nil &&
       environment["IS_ON_BUILD_MACHINE"] != "true" &&
       environment["TEAMCITY_VERSION"] == nil &&
-      environment["AVITO_RUNNER_DISABLE_COLORS"] != "false"
+      environment["EMCEE_RUNNER_DISABLE_COLORS"] != "false"
   }()
 
   private init() {}

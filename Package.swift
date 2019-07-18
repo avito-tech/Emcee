@@ -3,14 +3,21 @@
 import PackageDescription
 
 let package = Package(
-    name: "AvitoUITestRunner",
+    name: "EmceeTestRunner",
     products: [
         // MARK: - Products
         .executable(
-            // MARK: AvitoRunner
+            // MARK: AvitoRunner -- DEPRECATED
             name: "AvitoRunner",
             targets: [
-                "AvitoRunner"
+                "EmceeBinary"
+            ]
+        ),
+        .executable(
+            // MARK: Emcee
+            name: "Emcee",
+            targets: [
+                "EmceeBinary"
             ]
         ),
         .library(
@@ -38,7 +45,7 @@ let package = Package(
         .package(url: "https://github.com/0x7fs/CountedSet", .branch("master")),
         .package(url: "https://github.com/IBM-Swift/BlueSignals.git", .exact("1.0.16")),
         .package(url: "https://github.com/Weebly/OrderedSet", .exact("5.0.0")),
-        .package(url: "https://github.com/avito-tech/GraphiteClient.git", .exact("0.1.0")),
+        .package(url: "https://github.com/avito-tech/GraphiteClient.git", .branch("master")),
         .package(url: "https://github.com/beefon/swift-package-manager.git", .branch("swift-5.0-branch")),
         .package(url: "https://github.com/daltoniam/Starscream.git", .exact("3.0.6")),
         .package(url: "https://github.com/httpswift/swifter.git", .exact("1.4.6")),
@@ -97,15 +104,15 @@ let package = Package(
             ]
         ),
         .target(
-            // MARK: AvitoRunner
-            name: "AvitoRunner",
+            // MARK: EmceeBinary
+            name: "EmceeBinary",
             dependencies: [
-                "AvitoRunnerLib"
+                "EmceeLib"
             ]
         ),
         .target(
-            // MARK: AvitoRunnerLib
-            name: "AvitoRunnerLib",
+            // MARK: EmceeLib
+            name: "EmceeLib",
             dependencies: [
                 "ArgumentsParser",
                 "ChromeTracing",
@@ -137,10 +144,10 @@ let package = Package(
             ]
         ),
         .testTarget(
-            // MARK: AvitoRunnerLibTests
-            name: "AvitoRunnerLibTests",
+            // MARK: EmceeLibTests
+            name: "EmceeLibTests",
             dependencies: [
-                "AvitoRunnerLib",
+                "EmceeLib",
                 "Models",
                 "ModelsTestHelpers"
             ]

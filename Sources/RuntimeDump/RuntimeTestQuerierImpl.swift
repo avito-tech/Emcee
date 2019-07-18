@@ -193,7 +193,9 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
     
     private func environment(runtimeEntriesJSONPath: AbsolutePath) -> [String: String] {
         var environment = ProcessInfo.processInfo.environment
+        // TODO: remove AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH, left for backwards compatibility
         environment["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH"] = runtimeEntriesJSONPath.pathString
+        environment["EMCEE_RUNTIME_TESTS_EXPORT_PATH"] = runtimeEntriesJSONPath.pathString
         return environment
     }
 }

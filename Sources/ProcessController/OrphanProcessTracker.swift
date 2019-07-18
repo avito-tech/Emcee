@@ -21,7 +21,7 @@ public final class OrphanProcessTracker {
         }
     }
     
-    public static let envName = "AVITO_RUNNER_ORPHAN_PROCESSES_FILE"
+    public static let envName = "EMCEE_ORPHAN_PROCESSES_FILE"
     
     public init() {}
     

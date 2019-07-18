@@ -1,7 +1,7 @@
-import XCTest
-import AvitoRunnerLib
+import EmceeLib
 import Models
 import ModelsTestHelpers
+import XCTest
 
 final class TestEntriesValidatorTests: XCTestCase {
     let runtimeTestQuerier = RuntimeTestQuerierMock()

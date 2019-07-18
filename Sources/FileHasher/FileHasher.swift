@@ -12,9 +12,10 @@ public final class FileHasher {
     
     public func hash() throws -> String {
         return try hashValue.withExclusiveAccess { value in
-            guard value.isEmpty else { return }
+            guard value.isEmpty else { return value }
             let data = try Data(contentsOf: fileUrl)
             value = data.avito_sha256Hash().avito_hashStringFromSha256HashData()
+            return value
         }
     }
 }

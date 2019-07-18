@@ -68,7 +68,7 @@ final class PluginManagerTests: XCTestCase {
         let runnerEvent = RunnerEvent.willRun(
             testEntries: [TestEntryFixtures.testEntry()],
             testContext: TestContext(
-                environment: ["AVITO_TEST_PLUGIN_OUTPUT": outputPath.absolutePath.pathString],
+                environment: ["EMCEE_TEST_PLUGIN_OUTPUT": outputPath.absolutePath.pathString],
                 simulatorInfo: SimulatorInfo(
                     simulatorUuid: nil,
                     simulatorSetPath: outputPath.absolutePath.pathString

@@ -12,7 +12,7 @@ public final class ParentProcessTracker {
         case noParentPidProvided
     }
     
-    public static let envName = "AVITO_RUNNER_OUTER_PROCESS_ID"
+    public static let envName = "EMCEE_OUTER_PROCESS_ID"
     
     public init(whenParentDies: @escaping () -> ()) throws {
         self.whenParentDies = whenParentDies
