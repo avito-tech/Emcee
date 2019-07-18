@@ -120,7 +120,7 @@ public final class Runner {
                 environment: testContext.environment,
                 silenceBehavior: SilenceBehavior(
                     automaticAction: .noAutomaticAction,
-                    allowedSilenceDuration: configuration.maximumAllowedSilenceDuration ?? 0
+                    allowedSilenceDuration: configuration.maximumAllowedSilenceDuration
                 )
             ),
             simulatorId: simulator.identifier,

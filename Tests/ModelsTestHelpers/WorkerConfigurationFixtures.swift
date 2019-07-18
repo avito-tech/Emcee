@@ -7,7 +7,10 @@ public final class WorkerConfigurationFixtures {
             numberOfSimulators: 2,
             scheduleStrategy: .equallyDivided
         ),
-        testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 400),
+        testTimeoutConfiguration: TestTimeoutConfiguration(
+            singleTestMaximumDuration: 400,
+            testRunnerMaximumSilenceDuration: 0
+        ),
         pluginUrls: [],
         reportAliveInterval: 42,
         requestSignature: RequestSignature(value: "requestSignature")

@@ -129,29 +129,9 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
 ]
 
 private let knownUIntArguments: [KnownUIntArguments: ArgumentDescriptionHolder] = [
-    KnownUIntArguments.fbxctestSilenceTimeout: ArgumentDescriptionHolder(
-        name: "--fbxctest-silence-timeout",
-        comment: "A maximum allowed duration for a fbxctest stdout/stderr to be silent",
-        optional: true),
-    KnownUIntArguments.fbxtestFastTimeout: ArgumentDescriptionHolder(
-        name: "--fbxctest-fast-timeout",
-        comment: "Overrides fbxtest's internal FastTimeout",
-        optional: true),
-    KnownUIntArguments.fbxtestRegularTimeout: ArgumentDescriptionHolder(
-        name: "--fbxctest-regular-timeout",
-        comment: "Overrides fbxtest's internal RegularTimeout",
-        optional: true),
-    KnownUIntArguments.fbxtestSlowTimeout: ArgumentDescriptionHolder(
-        name: "--fbxctest-slow-timeout",
-        comment: "Overrides fbxtest's internal SlowTimeout",
-        optional: true),
-    KnownUIntArguments.fbxtestBundleReadyTimeout: ArgumentDescriptionHolder(
-        name: "--fbxctest-bundle-ready-timeout",
-        comment: "Overrides fbxtest's internal BundleReady Timeout",
-        optional: true),
-    KnownUIntArguments.fbxtestCrashCheckTimeout: ArgumentDescriptionHolder(
-        name: "--fbxctest-crash-check-timeout",
-        comment: "Overrides fbxtest's internal CrashCheck Timeout",
+    KnownUIntArguments.testRunnerSilenceTimeout: ArgumentDescriptionHolder(
+        name: "--test-runner-silence-timeout",
+        comment: "A maximum allowed duration for a test runner stdout/stderr to be silent",
         optional: true),
     KnownUIntArguments.numberOfSimulators: ArgumentDescriptionHolder(
         name: "--number-of-simulators",
@@ -211,12 +191,7 @@ enum KnownStringArguments: ArgumentDescription {
 }
 
 enum KnownUIntArguments: ArgumentDescription {
-    case fbxctestSilenceTimeout
-    case fbxtestBundleReadyTimeout
-    case fbxtestCrashCheckTimeout
-    case fbxtestFastTimeout
-    case fbxtestRegularTimeout
-    case fbxtestSlowTimeout
+    case testRunnerSilenceTimeout
     case numberOfSimulators
     case priority
     case singleTestTimeout

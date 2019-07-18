@@ -26,12 +26,7 @@ final class RunTestsCommand: Command {
     private let analyticsConfigurationLocation: OptionArgument<String>
     private let fbsimctl: OptionArgument<String>
     private let fbxctest: OptionArgument<String>
-    private let fbxctestSilenceTimeout: OptionArgument<UInt>
-    private let fbxtestBundleReadyTimeout: OptionArgument<UInt>
-    private let fbxtestCrashCheckTimeout: OptionArgument<UInt>
-    private let fbxtestFastTimeout: OptionArgument<UInt>
-    private let fbxtestRegularTimeout: OptionArgument<UInt>
-    private let fbxtestSlowTimeout: OptionArgument<UInt>
+    private let testRunnerMaximumSilenceDuration: OptionArgument<UInt>
     private let junit: OptionArgument<String>
     private let numberOfSimulators: OptionArgument<UInt>
     private let plugins: OptionArgument<[String]>
@@ -52,12 +47,7 @@ final class RunTestsCommand: Command {
         analyticsConfigurationLocation = subparser.add(stringArgument: KnownStringArguments.analyticsConfiguration)
         fbsimctl = subparser.add(stringArgument: KnownStringArguments.fbsimctl)
         fbxctest = subparser.add(stringArgument: KnownStringArguments.fbxctest)
-        fbxctestSilenceTimeout = subparser.add(intArgument: KnownUIntArguments.fbxctestSilenceTimeout)
-        fbxtestBundleReadyTimeout = subparser.add(intArgument: KnownUIntArguments.fbxtestBundleReadyTimeout)
-        fbxtestCrashCheckTimeout = subparser.add(intArgument: KnownUIntArguments.fbxtestCrashCheckTimeout)
-        fbxtestFastTimeout = subparser.add(intArgument: KnownUIntArguments.fbxtestFastTimeout)
-        fbxtestRegularTimeout = subparser.add(intArgument: KnownUIntArguments.fbxtestRegularTimeout)
-        fbxtestSlowTimeout = subparser.add(intArgument: KnownUIntArguments.fbxtestSlowTimeout)
+        testRunnerMaximumSilenceDuration = subparser.add(intArgument: KnownUIntArguments.testRunnerSilenceTimeout)
         junit = subparser.add(stringArgument: KnownStringArguments.junit)
         numberOfSimulators = subparser.add(intArgument: KnownUIntArguments.numberOfSimulators)
         plugins = subparser.add(multipleStringArgument: KnownStringArguments.plugin)
@@ -104,12 +94,7 @@ final class RunTestsCommand: Command {
         
         let testTimeoutConfiguration = TestTimeoutConfiguration(
             singleTestMaximumDuration: TimeInterval(try ArgumentsReader.validateNotNil(arguments.get(self.singleTestTimeout), key: KnownUIntArguments.singleTestTimeout)),
-            fbxctestSilenceMaximumDuration: arguments.get(self.fbxctestSilenceTimeout).map { TimeInterval($0) },
-            fbxtestFastTimeout: arguments.get(self.fbxtestFastTimeout).map { TimeInterval($0) },
-            fbxtestRegularTimeout: arguments.get(self.fbxtestRegularTimeout).map { TimeInterval($0) },
-            fbxtestSlowTimeout: arguments.get(self.fbxtestSlowTimeout).map { TimeInterval($0) },
-            fbxtestBundleReadyTimeout: arguments.get(self.fbxtestBundleReadyTimeout).map { TimeInterval($0) },
-            fbxtestCrashCheckTimeout: arguments.get(self.fbxtestCrashCheckTimeout).map { TimeInterval($0) }
+            testRunnerMaximumSilenceDuration: TimeInterval(arguments.get(self.testRunnerMaximumSilenceDuration) ?? 0)
         )
         let testRunExecutionBehavior = TestRunExecutionBehavior(
             numberOfSimulators: try ArgumentsReader.validateNotNil(arguments.get(self.numberOfSimulators), key: KnownUIntArguments.numberOfSimulators),

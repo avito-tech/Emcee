@@ -35,7 +35,7 @@ public struct RuntimeDumpConfiguration {
     ) {
         self.testTimeoutConfiguration = TestTimeoutConfiguration(
             singleTestMaximumDuration: 20,
-            fbxctestSilenceMaximumDuration: 20
+            testRunnerMaximumSilenceDuration: 20
         )
         self.testRunExecutionBehavior = TestRunExecutionBehavior(
             numberOfSimulators: 1,

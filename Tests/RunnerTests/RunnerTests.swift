@@ -68,7 +68,7 @@ public final class RunnerTests: XCTestCase {
             [TestException(reason: "a reason", filePathInProject: "file", lineNumber: 12)])
     }
     
-    func testRunningCrashedTestRevivesItAndIfTestSuccedsReturnsPositiveResults() throws {
+    func testRunningCrashedTestRevivesItAndIfTestSuccedesReturnsPositiveResults() throws {
         try FakeFbxctestExecutableProducer.setFakeOutputEvents(runId: runId, runIndex: 0, [
             AnyEncodableWrapper(
                 FbXcTestStartedEvent(
@@ -137,7 +137,10 @@ public final class RunnerTests: XCTestCase {
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
             environment: ["EMCEE_TESTS_RUN_ID": runId],
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-            testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 5)
+            testTimeoutConfiguration: TestTimeoutConfiguration(
+                singleTestMaximumDuration: 5,
+                testRunnerMaximumSilenceDuration: 0
+            )
         )
     }
 }
