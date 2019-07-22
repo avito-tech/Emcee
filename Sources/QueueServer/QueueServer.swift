@@ -45,7 +45,6 @@ public final class QueueServer {
         checkAgainTimeInterval: TimeInterval,
         localPortDeterminer: LocalPortDeterminer,
         workerAlivenessPolicy: WorkerAlivenessPolicy,
-        bucketSplitter: BucketSplitter,
         bucketSplitInfo: BucketSplitInfo,
         queueServerLock: QueueServerLock,
         queueVersionProvider: VersionProvider,
@@ -78,12 +77,12 @@ public final class QueueServer {
             localPortDeterminer: localPortDeterminer
         )
         self.testsEnqueuer = TestsEnqueuer(
-            bucketSplitter: bucketSplitter,
             bucketSplitInfo: bucketSplitInfo,
             enqueueableBucketReceptor: balancingBucketQueue
         )
         self.scheduleTestsHandler = ScheduleTestsEndpoint(
-            testsEnqueuer: testsEnqueuer
+            testsEnqueuer: testsEnqueuer,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         self.workerAlivenessEndpoint = WorkerAlivenessEndpoint(
             workerAlivenessProvider: workerAlivenessTracker,
@@ -151,8 +150,13 @@ public final class QueueServer {
         return port
     }
     
-    public func schedule(testEntryConfigurations: [TestEntryConfiguration], prioritizedJob: PrioritizedJob) {
+    public func schedule(
+        bucketSplitter: BucketSplitter,
+        testEntryConfigurations: [TestEntryConfiguration],
+        prioritizedJob: PrioritizedJob
+    ) {
         testsEnqueuer.enqueue(
+            bucketSplitter: bucketSplitter,
             testEntryConfigurations: testEntryConfigurations,
             prioritizedJob: prioritizedJob
         )

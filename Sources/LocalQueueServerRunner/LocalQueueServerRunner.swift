@@ -47,9 +47,6 @@ public final class LocalQueueServerRunner {
             checkAgainTimeInterval: queueServerRunConfiguration.checkAgainTimeInterval,
             localPortDeterminer: localPortDeterminer,
             workerAlivenessPolicy: .workersStayAliveWhenQueueIsDepleted,
-            bucketSplitter: queueServerRunConfiguration.remoteScheduleStrategyType.bucketSplitter(
-                uniqueIdentifierGenerator: uniqueIdentifierGenerator
-            ),
             bucketSplitInfo: BucketSplitInfo(
                 numberOfWorkers: UInt(queueServerRunConfiguration.deploymentDestinationConfigurations.count),
                 toolResources: queueServerRunConfiguration.auxiliaryResources.toolResources,

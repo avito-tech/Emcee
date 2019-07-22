@@ -19,7 +19,7 @@ final class ArgumentsReader {
     }
     
     public static func testArgFile(_ file: String?, key: ArgumentDescription) throws -> TestArgFile {
-        return try decodeModelsFromFile(file, defaultValueIfFileIsMissing: TestArgFile(entries: []), key: key, jsonDecoder: strictDecoder)
+        return try decodeModelsFromFile(file, key: key, jsonDecoder: strictDecoder)
     }
     
     public static func testDestinations(_ file: String?, key: ArgumentDescription) throws -> [TestDestinationConfiguration] {
@@ -86,14 +86,6 @@ final class ArgumentsReader {
             Logger.error("Unable to read or decode file '\(path)': \(error)")
             throw ArgumentsError.argumentValueCannotBeUsed(key, error)
         }
-    }
-    
-    public static func scheduleStrategy(_ value: String?, key: ArgumentDescription) throws -> ScheduleStrategyType {
-        let strategyRawType = try validateNotNil(value, key: key)
-        guard let scheduleStrategy = ScheduleStrategyType(rawValue: strategyRawType) else {
-            throw ArgumentsError.argumentValueCannotBeUsed(key, AdditionalArgumentValidationError.unknownScheduleStrategy(strategyRawType))
-        }
-        return scheduleStrategy
     }
     
     public static func socketAddress(_ value: String?, key: ArgumentDescription) throws -> SocketAddress {

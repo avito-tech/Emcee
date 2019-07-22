@@ -193,6 +193,7 @@ class QueueClientTests: XCTestCase {
                 ScheduleTestsRequest(
                     requestId: requestId,
                     prioritizedJob: prioritizedJob,
+                    scheduleStrategy: .individual,
                     testEntryConfigurations: testEntryConfigurations
                 )
             )
@@ -205,6 +206,7 @@ class QueueClientTests: XCTestCase {
         
         try queueClient.scheduleTests(
             prioritizedJob: prioritizedJob,
+            scheduleStrategy: .individual,
             testEntryConfigurations: testEntryConfigurations,
             requestId: requestId
         )

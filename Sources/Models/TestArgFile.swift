@@ -52,8 +52,13 @@ public struct TestArgFile: Decodable {
     }
     
     public let entries: [Entry]
+    public let scheduleStrategy: ScheduleStrategyType
     
-    public init(entries: [Entry]) {
+    public init(
+        entries: [Entry],
+        scheduleStrategy: ScheduleStrategyType
+    ) {
         self.entries = entries
+        self.scheduleStrategy = scheduleStrategy
     }
 }

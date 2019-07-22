@@ -1,4 +1,5 @@
 {
+	"scheduleStrategy": "individual",
     "entries": [
         {
             "testToRun": "TestAppUITests/testAlwaysSuccess",

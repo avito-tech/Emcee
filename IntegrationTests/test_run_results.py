@@ -193,7 +193,6 @@ def smoke_uitests_result(
             current_directory=current_directory,
             number_of_simulators=2,
             plugins=[smoke_tests_plugin],
-            schedule_strategy='individual',
             single_test_timeout=100,
             test_arg_file_path=modified_arg_file_path
         )
@@ -240,7 +239,6 @@ def smoke_apptests_result(
             current_directory=current_directory,
             number_of_simulators=1,
             plugins=[smoke_tests_plugin],
-            schedule_strategy='individual',
             single_test_timeout=20,
             test_arg_file_path=modified_arg_file_path
         )

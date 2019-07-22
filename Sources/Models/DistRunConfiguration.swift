@@ -16,7 +16,7 @@ public struct DistRunConfiguration {
     public let destinationConfigurations: [DestinationConfiguration]
     
     /** How to scatter tests onto destinations. */
-    public let remoteScheduleStrategyType: ScheduleStrategyType
+    public let scheduleStrategyType: ScheduleStrategyType
     
     /** Timeout values. */
     public let testTimeoutConfiguration: TestTimeoutConfiguration
@@ -46,21 +46,20 @@ public struct DistRunConfiguration {
         reportOutput: ReportOutput,
         destinations: [DeploymentDestination],
         destinationConfigurations: [DestinationConfiguration],
-        remoteScheduleStrategyType: ScheduleStrategyType,
+        scheduleStrategyType: ScheduleStrategyType,
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testRunExecutionBehavior: TestRunExecutionBehavior,
         auxiliaryResources: AuxiliaryResources,
         simulatorSettings: SimulatorSettings,
         testEntryConfigurations: [TestEntryConfiguration],
         testDestinationConfigurations: [TestDestinationConfiguration]
-        )
-    {
+    ) {
         self.analyticsConfigurationLocation = analyticsConfigurationLocation
         self.runId = runId
         self.reportOutput = reportOutput
         self.destinations = destinations
         self.destinationConfigurations = destinationConfigurations
-        self.remoteScheduleStrategyType = remoteScheduleStrategyType
+        self.scheduleStrategyType = scheduleStrategyType
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testRunExecutionBehavior = testRunExecutionBehavior
         self.auxiliaryResources = auxiliaryResources
@@ -86,8 +85,7 @@ public struct DistRunConfiguration {
         let overrides = destinationConfigurations.first { $0.destinationIdentifier.value == destination.identifier }
         
         return TestRunExecutionBehavior(
-            numberOfSimulators: overrides?.numberOfSimulators ?? testRunExecutionBehavior.numberOfSimulators,
-            scheduleStrategy: testRunExecutionBehavior.scheduleStrategy
+            numberOfSimulators: overrides?.numberOfSimulators ?? testRunExecutionBehavior.numberOfSimulators
         )
     }
 }

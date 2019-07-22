@@ -89,15 +89,9 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
     KnownStringArguments.queueServerRunConfigurationLocation: ArgumentDescriptionHolder(
         name: "--queue-server-run-configuration-location",
         comment: "JSON file location which describes QueueServerRunConfiguration. Either /path/to/file.json, or http://example.com/file.zip#path/to/config.json"),
-    KnownStringArguments.remoteScheduleStrategy: ArgumentDescriptionHolder(
-        name: "--remote-schedule-strategy",
-        comment: "Defines how to scatter tests to the destination machines. Can be: \(ScheduleStrategyType.availableRawValues.joined(separator: ", "))"),
     KnownStringArguments.runId: ArgumentDescriptionHolder(
         name: "--run-id",
         comment: "A logical test run id, usually a random string, e.g. UUID."),
-    KnownStringArguments.scheduleStrategy: ArgumentDescriptionHolder(
-        name: "--schedule-strategy",
-        comment: "Defines how to run tests. Can be: \(ScheduleStrategyType.availableRawValues.joined(separator: ", "))"),
     KnownStringArguments.simulatorLocalizationSettings: ArgumentDescriptionHolder(
         name: "--simulator-localization-settings",
         comment: "Location of JSON file with localization settings",
@@ -160,10 +154,8 @@ enum KnownStringArguments: ArgumentDescription {
     case queueServerDestination
     case queueServerRunConfigurationLocation
     case queueServerTearDownPolicy
-    case remoteScheduleStrategy
     case runId
     case runner
-    case scheduleStrategy
     case simulatorLocalizationSettings
     case tempFolder
     case testArgFile
@@ -279,13 +271,10 @@ extension UInt: ArgumentKind {
 }
 
 enum AdditionalArgumentValidationError: Error, CustomStringConvertible {
-    case unknownScheduleStrategy(String)
     case notFound(String)
     
     var description: String {
         switch self {
-        case .unknownScheduleStrategy(let value):
-            return "Unsupported schedule strategy value: \(value). Supported values: \(ScheduleStrategyType.availableRawValues)"
         case .notFound(let path):
             return "File not found: '\(path)'"
         }

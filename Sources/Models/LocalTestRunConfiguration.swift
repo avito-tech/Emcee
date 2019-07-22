@@ -14,6 +14,8 @@ public struct LocalTestRunConfiguration {
     /** Paths that are required to make things work. */
     public let auxiliaryResources: AuxiliaryResources
     
+    public let scheduleStrategy: ScheduleStrategyType
+    
     /** Some settings that should be applied to the test environment prior running the tests. */
     public let simulatorSettings: SimulatorSettings
     
@@ -27,6 +29,7 @@ public struct LocalTestRunConfiguration {
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testRunExecutionBehavior: TestRunExecutionBehavior,
         auxiliaryResources: AuxiliaryResources,
+        scheduleStrategy: ScheduleStrategyType,
         simulatorSettings: SimulatorSettings,
         testEntryConfigurations: [TestEntryConfiguration],
         testDestinationConfigurations: [TestDestinationConfiguration]) throws
@@ -35,6 +38,7 @@ public struct LocalTestRunConfiguration {
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testRunExecutionBehavior = testRunExecutionBehavior
         self.auxiliaryResources = auxiliaryResources
+        self.scheduleStrategy = scheduleStrategy
         self.simulatorSettings = simulatorSettings
         self.testEntryConfigurations = testEntryConfigurations
         self.testDestinationConfigurations = testDestinationConfigurations

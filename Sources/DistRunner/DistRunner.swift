@@ -54,9 +54,6 @@ public final class DistRunner {
             checkAgainTimeInterval: distRunConfiguration.checkAgainTimeInterval,
             localPortDeterminer: localPortDeterminer,
             workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
-            bucketSplitter: distRunConfiguration.remoteScheduleStrategyType.bucketSplitter(
-                uniqueIdentifierGenerator: uniqueIdentifierGenerator
-            ),
             bucketSplitInfo: BucketSplitInfo(
                 numberOfWorkers: UInt(distRunConfiguration.destinations.count),
                 toolResources: distRunConfiguration.auxiliaryResources.toolResources,
@@ -68,6 +65,9 @@ public final class DistRunner {
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         queueServer.schedule(
+            bucketSplitter: distRunConfiguration.scheduleStrategyType.bucketSplitter(
+                uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            ),
             testEntryConfigurations: distRunConfiguration.testEntryConfigurations,
             prioritizedJob: PrioritizedJob(jobId: distRunConfiguration.runId, priority: Priority.medium)
         )

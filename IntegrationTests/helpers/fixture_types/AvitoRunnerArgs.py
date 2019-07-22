@@ -20,7 +20,6 @@ class AvitoRunnerArgs:
             test_arg_file_path: str,
             number_of_simulators: int = 1,
             plugins: [EmceePluginFixture] = None,
-            schedule_strategy: str = "individual",
             single_test_timeout: int = 300,
     ):
         if plugins is None:
@@ -36,7 +35,6 @@ class AvitoRunnerArgs:
         self.test_arg_file_path = test_arg_file_path
         self.number_of_simulators = number_of_simulators
         self.plugins = plugins
-        self.schedule_strategy = schedule_strategy
         self.single_test_timeout = single_test_timeout
         self.current_directory = current_directory
 
@@ -47,7 +45,6 @@ class AvitoRunnerArgs:
             '--fbxctest', self.fbxctest_url,
             '--junit', self.junit_path,
             '--number-of-simulators', str(self.number_of_simulators),
-            '--schedule-strategy', self.schedule_strategy,
             '--single-test-timeout', str(self.single_test_timeout),
             '--temp-folder', self.temp_folder,
             '--test-arg-file', self.test_arg_file_path,

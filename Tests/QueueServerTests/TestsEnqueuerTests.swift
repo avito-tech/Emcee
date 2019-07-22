@@ -15,16 +15,14 @@ final class TestsEnqueuerTests: XCTestCase {
     func test() {
         let bucketId = BucketId(value: UUID().uuidString)
         let testsEnqueuer = TestsEnqueuer(
-            bucketSplitter: IndividualBucketSplitter(
-                uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(
-                    value: bucketId.value
-                )
-            ),
             bucketSplitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture(),
             enqueueableBucketReceptor: enqueueableBucketReceptor
         )
         
         testsEnqueuer.enqueue(
+            bucketSplitter: ScheduleStrategyType.individual.bucketSplitter(
+                uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(value: bucketId.value)
+            ),
             testEntryConfigurations: TestEntryConfigurationFixtures()
                 .add(testEntry: TestEntryFixtures.testEntry())
                 .testEntryConfigurations(),

@@ -8,19 +8,16 @@ import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class ScheduleTestsEndpointTests: XCTestCase {
-    private let fixedBucketId: BucketId = "fixedBucketId"
-    private lazy var individualBucketSplitter = IndividualBucketSplitter(
-        uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(
-            value: fixedBucketId.value
-        )
-    )
-
     func test___scheduling_tests() throws {
-        let endpoint = ScheduleTestsEndpoint(testsEnqueuer: testsEnqueuer)
+        let endpoint = ScheduleTestsEndpoint(
+            testsEnqueuer: testsEnqueuer,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+        )
         let response = try endpoint.handle(
             decodedRequest: ScheduleTestsRequest(
                 requestId: requestId,
                 prioritizedJob: prioritizedJob,
+                scheduleStrategy: .individual,
                 testEntryConfigurations: testEntryConfigurations
             )
         )
@@ -39,12 +36,16 @@ final class ScheduleTestsEndpointTests: XCTestCase {
     }
     
     func test___scheduling_tests_with_same_request_id___does_not_schedule_multiple_times() throws {
-        let endpoint = ScheduleTestsEndpoint(testsEnqueuer: testsEnqueuer)
+        let endpoint = ScheduleTestsEndpoint(
+            testsEnqueuer: testsEnqueuer,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+        )
         for _ in 0 ... 10 {
             _ = try endpoint.handle(
                 decodedRequest: ScheduleTestsRequest(
                     requestId: requestId,
                     prioritizedJob: prioritizedJob,
+                    scheduleStrategy: .individual,
                     testEntryConfigurations: testEntryConfigurations
                 )
             )
@@ -61,6 +62,10 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         )
     }
 
+    private let fixedBucketId: BucketId = "fixedBucketId"
+    private lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(
+        value: fixedBucketId.value
+    )
     let bucketSplitInfo = BucketSplitInfo(
         numberOfWorkers: 0,
         toolResources: ToolResourcesFixtures.fakeToolResources(),
@@ -74,7 +79,6 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         .testEntryConfigurations()
     let enqueueableBucketReceptor = FakeEnqueueableBucketReceptor()
     lazy var testsEnqueuer = TestsEnqueuer(
-        bucketSplitter: individualBucketSplitter,
         bucketSplitInfo: bucketSplitInfo,
         enqueueableBucketReceptor: enqueueableBucketReceptor
     )

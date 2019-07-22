@@ -17,9 +17,6 @@ public struct QueueServerRunConfiguration: Decodable {
     /// Defines when queue server will terminate itself.
     public let queueServerTerminationPolicy: AutomaticTerminationPolicy
     
-    /// How to scatter tests onto destinations.
-    public let remoteScheduleStrategyType: ScheduleStrategyType
-    
     /// Period of time when workers should report their aliveness
     public let reportAliveInterval: TimeInterval
     
@@ -28,9 +25,6 @@ public struct QueueServerRunConfiguration: Decodable {
     
     /// Timeout values.
     public let testTimeoutConfiguration: TestTimeoutConfiguration
-    
-    /// Schedule strategy on worker
-    public let workerScheduleStrategy: ScheduleStrategyType
 
     public init(
         analyticsConfiguration: AnalyticsConfiguration,
@@ -38,23 +32,18 @@ public struct QueueServerRunConfiguration: Decodable {
         checkAgainTimeInterval: TimeInterval,
         deploymentDestinationConfigurations: [DestinationConfiguration],
         queueServerTerminationPolicy: AutomaticTerminationPolicy,
-        remoteScheduleStrategyType: ScheduleStrategyType,
         reportAliveInterval: TimeInterval,
         simulatorSettings: SimulatorSettings,
-        testTimeoutConfiguration: TestTimeoutConfiguration,
-        workerScheduleStrategy: ScheduleStrategyType
-        )
-    {
+        testTimeoutConfiguration: TestTimeoutConfiguration
+    ) {
         self.analyticsConfiguration = analyticsConfiguration
         self.auxiliaryResources = auxiliaryResources
         self.checkAgainTimeInterval = checkAgainTimeInterval
         self.deploymentDestinationConfigurations = deploymentDestinationConfigurations
         self.queueServerTerminationPolicy = queueServerTerminationPolicy
-        self.remoteScheduleStrategyType = remoteScheduleStrategyType
         self.reportAliveInterval = reportAliveInterval
         self.simulatorSettings = simulatorSettings
         self.testTimeoutConfiguration = testTimeoutConfiguration
-        self.workerScheduleStrategy = workerScheduleStrategy
     }
     
     public func workerConfiguration(
@@ -76,8 +65,7 @@ public struct QueueServerRunConfiguration: Decodable {
         deploymentDestinationConfiguration: DestinationConfiguration
     ) -> TestRunExecutionBehavior {
         return TestRunExecutionBehavior(
-            numberOfSimulators: deploymentDestinationConfiguration.numberOfSimulators,
-            scheduleStrategy: workerScheduleStrategy
+            numberOfSimulators: deploymentDestinationConfiguration.numberOfSimulators
         )
     }
 }

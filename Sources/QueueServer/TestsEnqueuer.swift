@@ -6,21 +6,22 @@ import Metrics
 import ScheduleStrategy
 
 public final class TestsEnqueuer {
-    private let bucketSplitter: BucketSplitter
     private let bucketSplitInfo: BucketSplitInfo
     private let enqueueableBucketReceptor: EnqueueableBucketReceptor
 
     public init(
-        bucketSplitter: BucketSplitter,
         bucketSplitInfo: BucketSplitInfo,
-        enqueueableBucketReceptor: EnqueueableBucketReceptor)
-    {
-        self.bucketSplitter = bucketSplitter
+        enqueueableBucketReceptor: EnqueueableBucketReceptor
+    ) {
         self.bucketSplitInfo = bucketSplitInfo
         self.enqueueableBucketReceptor = enqueueableBucketReceptor
     }
     
-    public func enqueue(testEntryConfigurations: [TestEntryConfiguration], prioritizedJob: PrioritizedJob) {
+    public func enqueue(
+        bucketSplitter: BucketSplitter,
+        testEntryConfigurations: [TestEntryConfiguration],
+        prioritizedJob: PrioritizedJob
+    ) {
         let buckets = bucketSplitter.generate(
             inputs: testEntryConfigurations,
             splitInfo: bucketSplitInfo

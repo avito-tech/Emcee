@@ -30,7 +30,6 @@ final class RunTestsCommand: Command {
     private let junit: OptionArgument<String>
     private let numberOfSimulators: OptionArgument<UInt>
     private let plugins: OptionArgument<[String]>
-    private let scheduleStrategy: OptionArgument<String>
     private let simulatorLocalizationSettings: OptionArgument<String>
     private let singleTestTimeout: OptionArgument<UInt>
     private let tempFolder: OptionArgument<String>
@@ -51,7 +50,6 @@ final class RunTestsCommand: Command {
         junit = subparser.add(stringArgument: KnownStringArguments.junit)
         numberOfSimulators = subparser.add(intArgument: KnownUIntArguments.numberOfSimulators)
         plugins = subparser.add(multipleStringArgument: KnownStringArguments.plugin)
-        scheduleStrategy = subparser.add(stringArgument: KnownStringArguments.scheduleStrategy)
         simulatorLocalizationSettings = subparser.add(stringArgument: KnownStringArguments.simulatorLocalizationSettings)
         singleTestTimeout = subparser.add(intArgument: KnownUIntArguments.singleTestTimeout)
         tempFolder = subparser.add(stringArgument: KnownStringArguments.tempFolder)
@@ -97,8 +95,7 @@ final class RunTestsCommand: Command {
             testRunnerMaximumSilenceDuration: TimeInterval(arguments.get(self.testRunnerMaximumSilenceDuration) ?? 0)
         )
         let testRunExecutionBehavior = TestRunExecutionBehavior(
-            numberOfSimulators: try ArgumentsReader.validateNotNil(arguments.get(self.numberOfSimulators), key: KnownUIntArguments.numberOfSimulators),
-            scheduleStrategy: try ArgumentsReader.scheduleStrategy(arguments.get(self.scheduleStrategy), key: KnownStringArguments.scheduleStrategy)
+            numberOfSimulators: try ArgumentsReader.validateNotNil(arguments.get(self.numberOfSimulators), key: KnownUIntArguments.numberOfSimulators)
         )
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
             pluginLocations: auxiliaryResources.plugins,
@@ -143,6 +140,7 @@ final class RunTestsCommand: Command {
             testTimeoutConfiguration: testTimeoutConfiguration,
             testRunExecutionBehavior: testRunExecutionBehavior,
             auxiliaryResources: auxiliaryResources,
+            scheduleStrategy: testArgFile.scheduleStrategy,
             simulatorSettings: simulatorSettings,
             testEntryConfigurations: testEntryConfigurationGenerator.createTestEntryConfigurations(),
             testDestinationConfigurations: testDestinationConfigurations

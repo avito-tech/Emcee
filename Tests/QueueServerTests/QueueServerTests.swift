@@ -22,16 +22,13 @@ final class QueueServerTests: XCTestCase {
         automaticTerminationPolicy: .stayAlive
     ).createAutomaticTerminationController()
     let localPortDeterminer = LocalPortDeterminer(portRange: Ports.allPrivatePorts)
-    let uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator()
     let bucketSplitInfo = BucketSplitInfoFixtures.bucketSplitInfoFixture()
     let queueVersionProvider = VersionProviderFixture().buildVersionProvider()
     let requestSignature = RequestSignature(value: "expectedRequestSignature")
 
     let fixedBucketId: BucketId = "fixedBucketId"
-    lazy var bucketSplitter = ScheduleStrategyType.individual.bucketSplitter(
-        uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(
-            value: fixedBucketId.value
-        )
+    lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(
+        value: fixedBucketId.value
     )
 
     func test__queue_waits_for_new_workers_and_fails_if_they_not_appear_in_time() {
@@ -47,7 +44,6 @@ final class QueueServerTests: XCTestCase {
             checkAgainTimeInterval: .infinity, 
             localPortDeterminer: localPortDeterminer,
             workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
-            bucketSplitter: bucketSplitter,
             bucketSplitInfo: bucketSplitInfo,
             queueServerLock: NeverLockableQueueServerLock(),
             queueVersionProvider: queueVersionProvider,
@@ -74,14 +70,19 @@ final class QueueServerTests: XCTestCase {
             checkAgainTimeInterval: .infinity,
             localPortDeterminer: localPortDeterminer,
             workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
-            bucketSplitter: bucketSplitter,
             bucketSplitInfo: bucketSplitInfo,
             queueServerLock: NeverLockableQueueServerLock(),
             queueVersionProvider: queueVersionProvider,
             requestSignature: requestSignature,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
-        server.schedule(testEntryConfigurations: testEntryConfiguration, prioritizedJob: prioritizedJob)
+        server.schedule(
+            bucketSplitter: ScheduleStrategyType.individual.bucketSplitter(
+                uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            ),
+            testEntryConfigurations: testEntryConfiguration,
+            prioritizedJob: prioritizedJob
+        )
         
         let client = synchronousQueueClient(port: try server.start())
         
@@ -116,14 +117,19 @@ final class QueueServerTests: XCTestCase {
             checkAgainTimeInterval: .infinity,
             localPortDeterminer: localPortDeterminer,
             workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
-            bucketSplitter: bucketSplitter,
             bucketSplitInfo: bucketSplitInfo,
             queueServerLock: NeverLockableQueueServerLock(),
             queueVersionProvider: queueVersionProvider,
             requestSignature: requestSignature,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
-        server.schedule(testEntryConfigurations: testEntryConfigurations, prioritizedJob: prioritizedJob)
+        server.schedule(
+            bucketSplitter: ScheduleStrategyType.individual.bucketSplitter(
+                uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            ),
+            testEntryConfigurations: testEntryConfigurations,
+            prioritizedJob: prioritizedJob
+        )
         
         let expectationForResults = expectation(description: "results became available")
         

@@ -235,6 +235,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         let queueClient = SynchronousQueueClient(queueServerAddress: queueServerAddress)
         _ = try queueClient.scheduleTests(
             prioritizedJob: PrioritizedJob(jobId: runId, priority: priority),
+            scheduleStrategy: testArgFile.scheduleStrategy,
             testEntryConfigurations: testEntryConfigurations,
             requestId: RequestId(value: runId.value + "_" + UUID().uuidString)
         )

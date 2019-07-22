@@ -29,9 +29,7 @@ final class DistRunTestsCommand: Command {
     private let junit: OptionArgument<String>
     private let numberOfSimulators: OptionArgument<UInt>
     private let plugins: OptionArgument<[String]>
-    private let remoteScheduleStrategy: OptionArgument<String>
     private let runId: OptionArgument<String>
-    private let scheduleStrategy: OptionArgument<String>
     private let simulatorLocalizationSettings: OptionArgument<String>
     private let singleTestTimeout: OptionArgument<UInt>
     private let testArgFile: OptionArgument<String>
@@ -54,9 +52,7 @@ final class DistRunTestsCommand: Command {
         junit = subparser.add(stringArgument: KnownStringArguments.junit)
         numberOfSimulators = subparser.add(intArgument: KnownUIntArguments.numberOfSimulators)
         plugins = subparser.add(multipleStringArgument: KnownStringArguments.plugin)
-        remoteScheduleStrategy = subparser.add(stringArgument: KnownStringArguments.remoteScheduleStrategy)
         runId = subparser.add(stringArgument: KnownStringArguments.runId)
-        scheduleStrategy = subparser.add(stringArgument: KnownStringArguments.scheduleStrategy)
         simulatorLocalizationSettings = subparser.add(stringArgument: KnownStringArguments.simulatorLocalizationSettings)
         singleTestTimeout = subparser.add(intArgument: KnownUIntArguments.singleTestTimeout)
         testArgFile = subparser.add(stringArgument: KnownStringArguments.testArgFile)
@@ -100,8 +96,7 @@ final class DistRunTestsCommand: Command {
             testRunnerMaximumSilenceDuration: TimeInterval((arguments.get(self.testRunnerMaximumSilenceDuration) ?? 0))
         )
         let testRunExecutionBehavior = TestRunExecutionBehavior(
-            numberOfSimulators: try ArgumentsReader.validateNotNil(arguments.get(self.numberOfSimulators), key: KnownUIntArguments.numberOfSimulators),
-            scheduleStrategy: try ArgumentsReader.scheduleStrategy(arguments.get(self.scheduleStrategy), key: KnownStringArguments.scheduleStrategy)
+            numberOfSimulators: try ArgumentsReader.validateNotNil(arguments.get(self.numberOfSimulators), key: KnownUIntArguments.numberOfSimulators)
         )
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
             pluginLocations: auxiliaryResources.plugins,
@@ -111,7 +106,6 @@ final class DistRunTestsCommand: Command {
 
         let deploymentDestinations = try ArgumentsReader.deploymentDestinations(arguments.get(self.destinations), key: KnownStringArguments.destinations)
         let destinationConfigurations = try ArgumentsReader.destinationConfigurations(arguments.get(self.destinationConfigurations), key: KnownStringArguments.destinationConfigurations)
-        let remoteScheduleStrategy = try ArgumentsReader.scheduleStrategy(arguments.get(self.remoteScheduleStrategy), key: KnownStringArguments.remoteScheduleStrategy)
         let runId = JobId(value: try ArgumentsReader.validateNotNil(arguments.get(self.runId), key: KnownStringArguments.runId))
         let tempFolder = try TemporaryFolder()
         let testArgFile = try ArgumentsReader.testArgFile(arguments.get(self.testArgFile), key: KnownStringArguments.testArgFile)
@@ -150,7 +144,7 @@ final class DistRunTestsCommand: Command {
             reportOutput: reportOutput,
             destinations: deploymentDestinations,
             destinationConfigurations: destinationConfigurations,
-            remoteScheduleStrategyType: remoteScheduleStrategy,
+            scheduleStrategyType: testArgFile.scheduleStrategy,
             testTimeoutConfiguration: testTimeoutConfiguration,
             testRunExecutionBehavior: testRunExecutionBehavior,
             auxiliaryResources: auxiliaryResources,

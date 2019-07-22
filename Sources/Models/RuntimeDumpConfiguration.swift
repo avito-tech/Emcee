@@ -38,8 +38,7 @@ public struct RuntimeDumpConfiguration {
             testRunnerMaximumSilenceDuration: 20
         )
         self.testRunExecutionBehavior = TestRunExecutionBehavior(
-            numberOfSimulators: 1,
-            scheduleStrategy: .individual
+            numberOfSimulators: 1
         )
         self.testRunnerTool = testRunnerTool
         self.xcTestBundle = xcTestBundle

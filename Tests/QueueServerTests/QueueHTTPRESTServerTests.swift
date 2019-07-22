@@ -185,11 +185,6 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             .testEntryConfigurations()
         let enqueueableBucketReceptor = FakeEnqueueableBucketReceptor()
         let testsEnqueuer = TestsEnqueuer(
-            bucketSplitter: IndividualBucketSplitter(
-                uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(
-                    value: bucketId.value
-                )
-            ),
             bucketSplitInfo: BucketSplitInfo(
                 numberOfWorkers: 0,
                 toolResources: ToolResourcesFixtures.fakeToolResources(),
@@ -197,7 +192,10 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             ),
             enqueueableBucketReceptor: enqueueableBucketReceptor
         )
-        let scheduleTestsEndpoint = ScheduleTestsEndpoint(testsEnqueuer: testsEnqueuer)
+        let scheduleTestsEndpoint = ScheduleTestsEndpoint(
+            testsEnqueuer: testsEnqueuer,
+            uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(value: bucketId.value)
+        )
         
         restServer.setHandler(
             bucketResultHandler: stubbedHandler,
@@ -214,6 +212,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         
         let acceptedRequestId = try client.scheduleTests(
             prioritizedJob: prioritizedJob,
+            scheduleStrategy: .individual,
             testEntryConfigurations: testEntryConfigurations,
             requestId: requestId
         )

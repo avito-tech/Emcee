@@ -44,7 +44,7 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
         configuration: LocalTestRunConfiguration,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) -> [Bucket] {
-        let splitter = configuration.testRunExecutionBehavior.scheduleStrategy.bucketSplitter(
+        let splitter = configuration.scheduleStrategy.bucketSplitter(
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         Logger.verboseDebug("Using strategy: \(splitter.description)")

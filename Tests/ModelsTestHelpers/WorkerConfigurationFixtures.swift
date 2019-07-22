@@ -4,8 +4,7 @@ import Models
 public final class WorkerConfigurationFixtures {
     public static let workerConfiguration = WorkerConfiguration(
         testRunExecutionBehavior: TestRunExecutionBehavior(
-            numberOfSimulators: 2,
-            scheduleStrategy: .equallyDivided
+            numberOfSimulators: 2
         ),
         testTimeoutConfiguration: TestTimeoutConfiguration(
             singleTestMaximumDuration: 400,

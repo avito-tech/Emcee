@@ -100,15 +100,16 @@ public final class QueueClient {
     
     public func scheduleTests(
         prioritizedJob: PrioritizedJob,
+        scheduleStrategy: ScheduleStrategyType,
         testEntryConfigurations: [TestEntryConfiguration],
-        requestId: RequestId)
-        throws
-    {
+        requestId: RequestId
+    ) throws {
         try sendRequest(
             .scheduleTests,
             payload: ScheduleTestsRequest(
                 requestId: requestId,
                 prioritizedJob: prioritizedJob,
+                scheduleStrategy: scheduleStrategy,
                 testEntryConfigurations: testEntryConfigurations
             ),
             completionHandler: handleScheduleTestsResponse
