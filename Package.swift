@@ -7,13 +7,6 @@ let package = Package(
     products: [
         // MARK: - Products
         .executable(
-            // MARK: AvitoRunner -- DEPRECATED
-            name: "AvitoRunner",
-            targets: [
-                "EmceeBinary"
-            ]
-        ),
-        .executable(
             // MARK: Emcee
             name: "Emcee",
             targets: [
