@@ -14,7 +14,7 @@ public struct ChromeTraceEvent: Encodable {
         case flaky = "yellow"
     }
     
-    public let testName: TestName
+    public let testName: String
     public let result: Result
     public let phase: Phase
     public let timestamp: TimeInterval
@@ -22,7 +22,7 @@ public struct ChromeTraceEvent: Encodable {
     public let simulatorId: String
 
     public init(
-        testName: TestName,
+        testName: String,
         result: Result,
         phase: Phase,
         timestamp: TimeInterval,
@@ -92,14 +92,14 @@ public final class ChromeTraceGenerator {
         let testName = testResult.testEntry.testName
         return testResult.testRunResults.flatMap { testRunResult -> [ChromeTraceEvent] in
             let startEvent = ChromeTraceEvent(
-                testName: testName,
+                testName: testName.stringValue,
                 result: result,
                 phase: ChromeTraceEvent.Phase.begin,
                 timestamp: testRunResult.startTime * 1000 * 1000,
                 host: testRunResult.hostName,
                 simulatorId: testRunResult.simulatorId)
             let finishEvent = ChromeTraceEvent(
-                testName: testName,
+                testName: testName.stringValue,
                 result: result,
                 phase: ChromeTraceEvent.Phase.finish,
                 timestamp: testRunResult.finishTime * 1000 * 1000,
