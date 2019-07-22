@@ -1,14 +1,28 @@
 import Extensions
 import Foundation
+import UniqueIdentifierGenerator
 
 public final class FileCache {
     private let cachesUrl: URL
     private let nameKeyer: NameKeyer
+    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let fileManager = FileManager()
+    private let encoder = JSONEncoder()
+    private let decoder = JSONDecoder()
     
-    public init(cachesUrl: URL, nameHasher: NameKeyer = SHA256NameKeyer()) {
+    private struct CachedItemInfo: Codable {
+        let fileName: String
+        let timestamp: TimeInterval /// last time access
+    }
+    
+    public init(
+        cachesUrl: URL,
+        nameHasher: NameKeyer = SHA256NameKeyer(),
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator = UuidBasedUniqueIdentifierGenerator()
+    ) {
         self.cachesUrl = cachesUrl
         self.nameKeyer = nameHasher
+        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
     // MARK: - Public API
@@ -24,7 +38,7 @@ public final class FileCache {
     
     public func remove(itemWithName name: String) throws {
         let container = try containerUrl(forItemWithName: name)
-        try fileManager.removeItem(at: container)
+        try safelyEvict(itemUrl: container)
     }
     
     public func store(itemAtURL itemUrl: URL, underName name: String) throws {
@@ -36,7 +50,8 @@ public final class FileCache {
         let filename = itemUrl.lastPathComponent
         try fileManager.copyItem(
             at: itemUrl,
-            to: container.appendingPathComponent(filename, isDirectory: false))
+            to: container.appendingPathComponent(filename, isDirectory: false)
+        )
         
         let itemInfo = CachedItemInfo(fileName: filename, timestamp: Date().timeIntervalSince1970)
         try store(cachedItemInfo: itemInfo, forItemWithName: name)
@@ -55,14 +70,16 @@ public final class FileCache {
     @discardableResult
     public func cleanUpItems(olderThan date: Date) throws -> [URL] {
         let allStoredCachedItemInfos = try self.allStoredCachedItemInfos()
-        let evictables = allStoredCachedItemInfos.filter { (key: URL, value: FileCache.CachedItemInfo) -> Bool in
+        let evictables = allStoredCachedItemInfos.filter { (key: URL, value: CachedItemInfo) -> Bool in
             value.timestamp < date.timeIntervalSince1970
         }
-        try evictables.forEach { (key: URL, value: FileCache.CachedItemInfo) in
-            try fileManager.removeItem(at: key)
+        try evictables.forEach { (key: URL, value: CachedItemInfo) in
+            try safelyEvict(itemUrl: key)
         }
         return [URL](evictables.keys)
     }
+    
+    // MARK: - Internals
     
     private func allStoredCachedItemInfos() throws -> [URL: CachedItemInfo] {
         var cachedItemInfos = [URL: CachedItemInfo]()
@@ -70,7 +87,8 @@ public final class FileCache {
         let topLevelElements = try fileManager.contentsOfDirectory(
             at: cachesUrl,
             includingPropertiesForKeys: [.isDirectoryKey],
-            options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants])
+            options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants]
+        )
         
         for element in topLevelElements {
             if try element.resourceValues(forKeys: [.isDirectoryKey]).isDirectory == false {
@@ -86,16 +104,6 @@ public final class FileCache {
         
         return cachedItemInfos
     }
-    
-    // MARK: - Internals
-    
-    private struct CachedItemInfo: Codable {
-        let fileName: String
-        let timestamp: TimeInterval /// last time access
-    }
-    
-    private let encoder = JSONEncoder()
-    private let decoder = JSONDecoder()
     
     private func containerUrl(forItemWithName name: String) throws -> URL {
         let key = try nameKeyer.key(forName: name)
@@ -125,5 +133,18 @@ public final class FileCache {
     private func store(cachedItemInfo: CachedItemInfo, forItemWithName name: String) throws {
         let data = try encoder.encode(cachedItemInfo)
         try data.write(to: try cachedItemInfoFileUrl(forItemWithName: name), options: .atomicWrite)
+    }
+    
+    private func safelyEvict(itemUrl: URL) throws {
+        let evictableItemUrl = itemUrl
+            .deletingLastPathComponent()
+            .appendingPathComponent(["evicting", uniqueIdentifierGenerator.generate(), itemUrl.lastPathComponent].joined(separator: "_"))
+        try fileManager.moveItem(
+            at: itemUrl,
+            to: evictableItemUrl
+        )
+        try fileManager.removeItem(
+            at: evictableItemUrl
+        )
     }
 }

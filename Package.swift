@@ -426,7 +426,8 @@ let package = Package(
             // MARK: FileCache
             name: "FileCache",
             dependencies: [
-                "Extensions"
+                "Extensions",
+                "UniqueIdentifierGenerator"
             ]
         ),
         .testTarget(
@@ -434,7 +435,9 @@ let package = Package(
             name: "FileCacheTests",
             dependencies: [
                 "FileCache",
-                "TemporaryStuff"
+                "TemporaryStuff",
+                "UniqueIdentifierGenerator",
+                "UniqueIdentifierGeneratorTestHelpers"
             ]
         ),
         .target(
