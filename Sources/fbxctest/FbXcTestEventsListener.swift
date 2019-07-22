@@ -1,18 +1,18 @@
 import Dispatch
 import Foundation
 import Logging
+import Models
 
 final class FbXcTestEventsListener {    
     private let pairsController = TestEventPairsController()
     
-    private let onTestStarted: ((FbXcTestStartedEvent) -> ())
-    private let onTestStopped: ((FbXcTestEventPair) -> ())
+    private let onTestStarted: ((TestName) -> ())
+    private let onTestStopped: ((TestStoppedEvent) -> ())
 
     public init(
-        onTestStarted: @escaping ((FbXcTestStartedEvent) -> ()),
-        onTestStopped: @escaping ((FbXcTestEventPair) -> ())
-        )
-    {
+        onTestStarted: @escaping ((TestName) -> ()),
+        onTestStopped: @escaping ((TestStoppedEvent) -> ())
+    ) {
         self.onTestStarted = onTestStarted
         self.onTestStopped = onTestStopped
     }
@@ -21,7 +21,7 @@ final class FbXcTestEventsListener {
         pairsController.append(
             FbXcTestEventPair(startEvent: event, finishEvent: nil)
         )
-        onTestStarted(event)
+        onTestStarted(event.testName)
     }
     
     func testFinished(_ event: FbXcTestFinishedEvent) {
@@ -37,7 +37,14 @@ final class FbXcTestEventsListener {
         }
         let newPair = FbXcTestEventPair(startEvent: pair.startEvent, finishEvent: event)
         pairsController.append(newPair)
-        onTestStopped(newPair)
+        
+        onTestStopped(
+            TestStoppedEvent(
+                testName: newPair.startEvent.testName,
+                result: newPair.finishEvent?.succeeded == true ? .success : (newPair.finishEvent == nil ? .lost : .failure),
+                duration: newPair.finishEvent?.totalDuration ?? 0
+            )
+        )
     }
     
     func testPlanFinished(_ event: FbXcTestPlanFinishedEvent) {

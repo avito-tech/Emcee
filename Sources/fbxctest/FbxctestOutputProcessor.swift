@@ -2,6 +2,7 @@ import Ansi
 import Foundation
 import LocalHostDeterminer
 import Logging
+import Models
 import ProcessController
 import Timer
 
@@ -18,8 +19,8 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
         subprocess: Subprocess,
         simulatorId: String,
         singleTestMaximumDuration: TimeInterval,
-        onTestStarted: @escaping ((FbXcTestStartedEvent) -> ()),
-        onTestStopped: @escaping ((FbXcTestEventPair) -> ())
+        onTestStarted: @escaping ((TestName) -> ()),
+        onTestStopped: @escaping ((TestStoppedEvent) -> ())
     ) throws {
         self.simulatorId = simulatorId
         self.singleTestMaximumDuration = singleTestMaximumDuration

@@ -125,8 +125,20 @@ public final class Runner {
             ),
             simulatorId: simulator.identifier,
             singleTestMaximumDuration: configuration.singleTestMaximumDuration,
-            onTestStarted: { [weak self] event in self?.testStarted(entriesToRun: entriesToRun, event: event, testContext: testContext) },
-            onTestStopped: { [weak self] pair in self?.testStopped(entriesToRun: entriesToRun, eventPair: pair, testContext: testContext) }
+            onTestStarted: { [weak self] testName in
+                self?.testStarted(
+                    entriesToRun: entriesToRun,
+                    testName: testName,
+                    testContext: testContext
+                )
+            },
+            onTestStopped: { [weak self] testStoppedEvent in
+                self?.testStopped(
+                    entriesToRun: entriesToRun,
+                    testStoppedEvent: testStoppedEvent,
+                    testContext: testContext
+                )
+            }
         )
         fbxctestOutputProcessor.processOutputAndWaitForProcessTermination()
         
@@ -352,9 +364,9 @@ public final class Runner {
         })
     }
     
-    private func testStarted(entriesToRun: [TestEntry], event: FbXcTestStartedEvent, testContext: TestContext) {
-        guard let testEntry = testEntryToRun(entriesToRun: entriesToRun, testName: event.testName) else {
-            Logger.error("Can't find test entry for test \(event.testName)")
+    private func testStarted(entriesToRun: [TestEntry], testName: TestName, testContext: TestContext) {
+        guard let testEntry = testEntryToRun(entriesToRun: entriesToRun, testName: testName) else {
+            Logger.error("Can't find test entry for test \(testName)")
             return
         }
         
@@ -371,33 +383,30 @@ public final class Runner {
         )
     }
     
-    private func testStopped(entriesToRun: [TestEntry], eventPair: FbXcTestEventPair, testContext: TestContext) {
-        guard let testEntry = testEntryToRun(entriesToRun: entriesToRun, testName: eventPair.startEvent.testName) else {
-            Logger.error("Can't find test entry for test \(eventPair.startEvent.testName)")
+    private func testStopped(entriesToRun: [TestEntry], testStoppedEvent: TestStoppedEvent, testContext: TestContext) {
+        guard let testEntry = testEntryToRun(entriesToRun: entriesToRun, testName: testStoppedEvent.testName) else {
+            Logger.error("Can't find test entry for test \(testStoppedEvent.testName)")
             return
         }
         
-        let succeeded = eventPair.finishEvent?.succeeded ?? false
         eventBus.post(
-            event: .runnerEvent(.testFinished(testEntry: testEntry, succeeded: succeeded, testContext: testContext))
+            event: .runnerEvent(.testFinished(testEntry: testEntry, succeeded: testStoppedEvent.succeeded, testContext: testContext))
         )
         
-        let testResult = eventPair.finishEvent?.result ?? "unknown_result"
-        let testDuration = eventPair.finishEvent?.totalDuration ?? 0
         MetricRecorder.capture(
             TestFinishedMetric(
-                result: testResult,
+                result: testStoppedEvent.result.rawValue,
                 host: LocalHostDeterminer.currentHostAddress,
-                testClassName: testEntry.testName.className,
-                testMethodName: testEntry.testName.methodName,
+                testClassName: testStoppedEvent.testName.className,
+                testMethodName: testStoppedEvent.testName.methodName,
                 testsFinishedCount: 1
             ),
             TestDurationMetric(
-                result: testResult,
+                result: testStoppedEvent.result.rawValue,
                 host: LocalHostDeterminer.currentHostAddress,
-                testClassName: testEntry.testName.className,
-                testMethodName: testEntry.testName.methodName,
-                duration: testDuration
+                testClassName: testStoppedEvent.testName.className,
+                testMethodName: testStoppedEvent.testName.methodName,
+                duration: testStoppedEvent.duration
             )
         )
     }
