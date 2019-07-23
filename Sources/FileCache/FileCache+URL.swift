@@ -13,7 +13,7 @@ public extension FileCache {
         return try self.url(forItemWithName: itemNameForUrl(url))
     }
     
-    func store(contentsUrl: URL, ofUrl url: URL) throws {
-        try self.store(itemAtURL: contentsUrl, underName: itemNameForUrl(url))
+    func store(contentsUrl: URL, ofUrl url: URL, operation: Operation) throws {
+        try self.store(itemAtURL: contentsUrl, underName: itemNameForUrl(url), operation: operation)
     }
 }

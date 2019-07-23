@@ -71,7 +71,7 @@ public final class URLResource {
                 handlersWrapper.failedToGetContents(forUrl: url, error: Error.unknownError(response: response))
             } else if let localUrl = localUrl {
                 do {
-                    try fileCache.store(contentsUrl: localUrl, ofUrl: url)
+                    try fileCache.store(contentsUrl: localUrl, ofUrl: url, operation: .move)
                     let cachedUrl = try fileCache.urlForCachedContents(ofUrl: url)
                     Logger.debug("Stored resource for '\(url)' in file cache")
                     handlersWrapper.resourceUrl(contentUrl: cachedUrl, forUrl: url)

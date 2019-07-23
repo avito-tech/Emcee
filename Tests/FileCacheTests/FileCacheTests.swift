@@ -19,11 +19,11 @@ final class FileCacheTests: XCTestCase {
         tempFolder = nil
     }
     
-    func testStorage() throws {
+    func test__storing_with_copy_operation() throws {
         let cache = FileCache(cachesUrl: tempFolder.absolutePath.fileUrl)
         XCTAssertFalse(cache.contains(itemWithName: "item"))
         
-        XCTAssertNoThrow(try cache.store(itemAtURL: URL(fileURLWithPath: #file), underName: "item"))
+        XCTAssertNoThrow(try cache.store(itemAtURL: URL(fileURLWithPath: #file), underName: "item", operation: .copy))
         let cacheUrl = try cache.url(forItemWithName: "item")
         XCTAssertTrue(cache.contains(itemWithName: "item"))
         XCTAssertEqual(cacheUrl.lastPathComponent, URL(fileURLWithPath: #file).lastPathComponent)
@@ -36,10 +36,27 @@ final class FileCacheTests: XCTestCase {
         XCTAssertFalse(cache.contains(itemWithName: "item"))
     }
     
+    func test__storing_with_move_operation() throws {
+        let cache = FileCache(cachesUrl: tempFolder.absolutePath.fileUrl)
+        
+        let fileToStore = try tempFolder.createFile(
+            components: [],
+            filename: "source.swift",
+            contents: Data(contentsOf: URL(fileURLWithPath: #file))
+        )
+        
+        XCTAssertNoThrow(
+            try cache.store(itemAtURL: fileToStore.fileUrl, underName: "item", operation: .move)
+        )
+        XCTAssertTrue(cache.contains(itemWithName: "item"))
+        
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fileToStore.pathString))
+    }
+    
     func testEvicting() throws {
         let cache = FileCache(cachesUrl: tempFolder.absolutePath.fileUrl)
         
-        try cache.store(itemAtURL: URL(fileURLWithPath: #file), underName: "item")
+        try cache.store(itemAtURL: URL(fileURLWithPath: #file), underName: "item", operation: .copy)
         XCTAssertTrue(cache.contains(itemWithName: "item"))
         
         try cache.cleanUpItems(olderThan: Date.distantFuture)
@@ -52,7 +69,7 @@ final class FileCacheTests: XCTestCase {
             uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(value: "someid")
         )
         
-        try cache.store(itemAtURL: URL(fileURLWithPath: #file), underName: "item")
+        try cache.store(itemAtURL: URL(fileURLWithPath: #file), underName: "item", operation: .copy)
         let pathToBusyFile = try cache.url(forItemWithName: "item")
         let expectedEvictingContainerPath = tempFolder.pathWith(
             components: [

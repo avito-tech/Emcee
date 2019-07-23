@@ -80,6 +80,11 @@ public final class ResourceLocationResolver {
                     throw ValidationError.unpackProcessError
                 }
             }
+            
+            if FileManager.default.fileExists(atPath: zipUrl.path) {
+                Logger.debug("Will delete downloaded ZIP file at: \(zipUrl.path)")
+                try? FileManager.default.removeItem(at: zipUrl)
+            }
         }
         return contentsUrl
     }

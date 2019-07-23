@@ -15,6 +15,11 @@ public final class FileCache {
         let timestamp: TimeInterval /// last time access
     }
     
+    public enum Operation: Equatable {
+        case copy
+        case move
+    }
+    
     public init(
         cachesUrl: URL,
         nameHasher: NameKeyer = SHA256NameKeyer(),
@@ -41,17 +46,26 @@ public final class FileCache {
         try safelyEvict(itemUrl: container)
     }
     
-    public func store(itemAtURL itemUrl: URL, underName name: String) throws {
+    public func store(itemAtURL itemUrl: URL, underName name: String, operation: Operation) throws {
         if contains(itemWithName: name) {
             try remove(itemWithName: name)
         }
         
         let container = try containerUrl(forItemWithName: name)
         let filename = itemUrl.lastPathComponent
-        try fileManager.copyItem(
-            at: itemUrl,
-            to: container.appendingPathComponent(filename, isDirectory: false)
-        )
+        
+        switch operation {
+        case .copy:
+            try fileManager.copyItem(
+                at: itemUrl,
+                to: container.appendingPathComponent(filename, isDirectory: false)
+            )
+        case .move:
+            try fileManager.moveItem(
+                at: itemUrl,
+                to: container.appendingPathComponent(filename, isDirectory: false)
+            )
+        }
         
         let itemInfo = CachedItemInfo(fileName: filename, timestamp: Date().timeIntervalSince1970)
         try store(cachedItemInfo: itemInfo, forItemWithName: name)
