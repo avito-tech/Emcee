@@ -263,6 +263,11 @@ public class FbsimctlBasedSimulatorController: SimulatorController, CustomString
             Logger.verboseDebug("Removing files left by simulator \(simulator)")
             try FileManager.default.removeItem(atPath: simulator.simulatorSetContainerPath.pathString)
         }
+        
+        if FileManager.default.fileExists(atPath: simulator.workingDirectory.pathString) {
+            Logger.verboseDebug("Removing working directory of simulator \(simulator)")
+            try FileManager.default.removeItem(atPath: simulator.workingDirectory.pathString)
+        }
     }
 
     // MARK: - Protocols
