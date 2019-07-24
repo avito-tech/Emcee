@@ -35,10 +35,6 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
         processController.waitForProcessToDie()
     }
     
-    public var testEventPairs: [FbXcTestEventPair] {
-        return eventsListener.allEventPairs
-    }
-    
     public var subprocess: Subprocess {
         return processController.subprocess
     }

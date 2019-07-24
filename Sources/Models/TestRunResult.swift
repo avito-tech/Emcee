@@ -6,25 +6,25 @@ public final class TestRunResult: Codable, CustomStringConvertible, Equatable {
     public let exceptions: [TestException]
     public let duration: TimeInterval
     public let startTime: TimeInterval
-    public let finishTime: TimeInterval
     public let hostName: String
     public let simulatorId: String
+
+    public var finishTime: TimeInterval {
+        return startTime + duration
+    }
 
     public init(
         succeeded: Bool,
         exceptions: [TestException],
         duration: TimeInterval,
         startTime: TimeInterval,
-        finishTime: TimeInterval,
         hostName: String,
         simulatorId: String
-        )
-    {
+    ) {
         self.succeeded = succeeded
         self.exceptions = exceptions
         self.duration = duration
         self.startTime = startTime
-        self.finishTime = finishTime
         self.hostName = hostName
         self.simulatorId = simulatorId
     }
@@ -38,7 +38,6 @@ public final class TestRunResult: Codable, CustomStringConvertible, Equatable {
             && left.exceptions == right.exceptions
             && left.duration == right.duration
             && left.startTime == right.startTime
-            && left.finishTime == right.finishTime
             && left.hostName == right.hostName
             && left.simulatorId == right.simulatorId
     }

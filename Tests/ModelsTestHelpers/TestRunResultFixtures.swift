@@ -8,7 +8,6 @@ public final class TestRunResultFixtures {
             exceptions: [],
             duration: 0,
             startTime: timestamp,
-            finishTime: timestamp,
             hostName: "",
             simulatorId: ""
         )

@@ -86,7 +86,10 @@ public final class Runner {
         
         return RunnerRunResult(
             entriesToRun: entries,
-            testEntryResults: testEntryResults(runResult: runResult),
+            testEntryResults: testEntryResults(
+                runResult: runResult,
+                simulatorId: simulator.identifier
+            ),
             subprocessStandardStreamsCaptureConfig: lastSubprocessStandardStreamsCaptureConfig
         )
     }
@@ -105,6 +108,8 @@ public final class Runner {
                 subprocessStandardStreamsCaptureConfig: nil
             )
         }
+
+        var collectedTestStoppedEvents = [TestStoppedEvent]()
         
         let testContext = try createTestContext(
             developerDir: developerDir,
@@ -113,38 +118,49 @@ public final class Runner {
         
         Logger.info("Will run \(entriesToRun.count) tests on simulator \(simulator)")
         eventBus.post(event: .runnerEvent(.willRun(testEntries: entriesToRun, testContext: testContext)))
-        
-        let fbxctestOutputProcessor = try FbxctestOutputProcessor(
-            subprocess: Subprocess(
-                arguments: fbxctestArguments(entriesToRun: entriesToRun, simulator: simulator),
-                environment: testContext.environment,
-                silenceBehavior: SilenceBehavior(
-                    automaticAction: .noAutomaticAction,
-                    allowedSilenceDuration: configuration.maximumAllowedSilenceDuration
-                )
-            ),
-            simulatorId: simulator.identifier,
-            singleTestMaximumDuration: configuration.singleTestMaximumDuration,
-            onTestStarted: { [weak self] testName in
-                self?.testStarted(
-                    entriesToRun: entriesToRun,
-                    testName: testName,
-                    testContext: testContext
-                )
-            },
-            onTestStopped: { [weak self] testStoppedEvent in
-                self?.testStopped(
-                    entriesToRun: entriesToRun,
-                    testStoppedEvent: testStoppedEvent,
-                    testContext: testContext
-                )
-            }
+
+        let fbxctestLocation: FbxctestLocation
+        switch configuration.testRunnerTool {
+        case .fbxctest(let location):
+            fbxctestLocation = location
+        }
+
+        let fbxctestTestRunner = FbxctestBasedTestRunner(
+            resourceLocationResolver: resourceLocationResolver,
+            simulatorSettings: configuration.simulatorSettings
         )
-        fbxctestOutputProcessor.processOutputAndWaitForProcessTermination()
+        
+        let standardStreamsCaptureConfig = try fbxctestTestRunner.run(
+            buildArtifacts: configuration.buildArtifacts,
+            entriesToRun: entriesToRun,
+            fbxctestLocation: fbxctestLocation,
+            maximumAllowedSilenceDuration: configuration.maximumAllowedSilenceDuration,
+            singleTestMaximumDuration: configuration.singleTestMaximumDuration,
+            testContext: testContext,
+            testRunnerStream: TestRunnerStreamWrapper(
+                onTestStarted: { [weak self] testName in
+                    self?.testStarted(
+                        entriesToRun: entriesToRun,
+                        testContext: testContext,
+                        testName: testName
+                    )
+                },
+                onTestStopped: { [weak self] testStoppedEvent in
+                    collectedTestStoppedEvents.append(testStoppedEvent)
+                    self?.testStopped(
+                        entriesToRun: entriesToRun,
+                        testContext: testContext,
+                        testStoppedEvent: testStoppedEvent
+                    )
+                }
+            ),
+            testType: configuration.testType
+        )
         
         let result = prepareResults(
+            collectedTestStoppedEvents: collectedTestStoppedEvents,
             requestedEntriesToRun: entriesToRun,
-            testEventPairs: fbxctestOutputProcessor.testEventPairs
+            simulatorId: simulator.identifier
         )
         
         eventBus.post(event: .runnerEvent(.didRun(results: result, testContext: testContext)))
@@ -155,85 +171,8 @@ public final class Runner {
         return RunnerRunResult(
             entriesToRun: entriesToRun,
             testEntryResults: result,
-            subprocessStandardStreamsCaptureConfig: fbxctestOutputProcessor.subprocess.standardStreamsCaptureConfig
+            subprocessStandardStreamsCaptureConfig: standardStreamsCaptureConfig
         )
-    }
-    
-    private func fbxctestArguments(entriesToRun: [TestEntry], simulator: Simulator) throws -> [SubprocessArgument] {
-        let resolvableFbxctest: ResolvableResourceLocation
-        switch configuration.testRunnerTool {
-        case .fbxctest(let fbxctestLocation):
-            resolvableFbxctest = resourceLocationResolver.resolvable(withRepresentable: fbxctestLocation)
-        }
-        
-        var arguments: [SubprocessArgument] =
-            [resolvableFbxctest.asArgumentWith(packageName: PackageName.fbxctest),
-             "-destination", simulator.testDestination.destinationString,
-             configuration.testType.asArgument]
-        
-        let buildArtifacts = configuration.buildArtifacts
-        let resolvableXcTestBundle = resourceLocationResolver.resolvable(withRepresentable: buildArtifacts.xcTestBundle.location)
-        
-        switch configuration.testType {
-        case .logicTest:
-            arguments += [resolvableXcTestBundle.asArgument()]
-        case .appTest:
-            guard let representableAppBundle = buildArtifacts.appBundle else {
-                throw RunnerError.noAppBundleDefinedForUiOrApplicationTesting
-            }
-            arguments += [
-                JoinedSubprocessArgument(
-                    components: [
-                        resolvableXcTestBundle.asArgument(),
-                        resourceLocationResolver.resolvable(withRepresentable: representableAppBundle).asArgument()
-                    ],
-                    separator: ":")]
-        case .uiTest:
-            guard let representableAppBundle = buildArtifacts.appBundle else {
-                throw RunnerError.noAppBundleDefinedForUiOrApplicationTesting
-            }
-            guard let representableRunnerBundle = buildArtifacts.runner else {
-                throw RunnerError.noRunnerAppDefinedForUiTesting
-            }
-            let resolvableAdditionalAppBundles = buildArtifacts.additionalApplicationBundles
-                .map { resourceLocationResolver.resolvable(withRepresentable: $0) }
-            let components = ([
-                resolvableXcTestBundle,
-                resourceLocationResolver.resolvable(withRepresentable: representableRunnerBundle),
-                resourceLocationResolver.resolvable(withRepresentable: representableAppBundle)
-                ] + resolvableAdditionalAppBundles).map { $0.asArgument() }
-            arguments += [JoinedSubprocessArgument(components: components, separator: ":")]
-            
-            if let simulatorLocatizationSettings = configuration.simulatorSettings.simulatorLocalizationSettings {
-                arguments += [
-                    "-simulator-localization-settings",
-                    resourceLocationResolver.resolvable(withRepresentable: simulatorLocatizationSettings).asArgument()
-                ]
-            }
-            if let watchdogSettings = configuration.simulatorSettings.watchdogSettings {
-                arguments += [
-                    "-watchdog-settings",
-                    resourceLocationResolver.resolvable(withRepresentable: watchdogSettings).asArgument()
-                ]
-            }
-        }
-        
-        arguments += entriesToRun.flatMap {
-            [
-                "-only",
-                JoinedSubprocessArgument(
-                    components: [resolvableXcTestBundle.asArgument(), $0.testName.stringValue],
-                    separator: ":")
-            ]
-        }
-        arguments += ["run-tests", "-sdk", "iphonesimulator"]
-      
-        if type(of: simulator) != Shimulator.self {
-            arguments += ["-workingDirectory", simulator.workingDirectory]
-        }
-        
-        arguments += ["-keep-simulators-alive"]
-        return arguments
     }
     
     private func createTestContext(
@@ -256,65 +195,63 @@ public final class Runner {
     }
     
     private func prepareResults(
+        collectedTestStoppedEvents: [TestStoppedEvent],
         requestedEntriesToRun: [TestEntry],
-        testEventPairs: [FbXcTestEventPair]
-        ) -> [TestEntryResult]
-    {
+        simulatorId: String
+    ) -> [TestEntryResult] {
         return requestedEntriesToRun.map { requestedEntryToRun in
             prepareResult(
                 requestedEntryToRun: requestedEntryToRun,
-                testEventPairs: testEventPairs
+                simulatorId: simulatorId,
+                collectedTestStoppedEvents: collectedTestStoppedEvents
             )
         }
     }
     
     private func prepareResult(
         requestedEntryToRun: TestEntry,
-        testEventPairs: [FbXcTestEventPair]
-        ) -> TestEntryResult
-    {
-        let correspondingEventPair = testEventPair(
+        simulatorId: String,
+        collectedTestStoppedEvents: [TestStoppedEvent]
+    ) -> TestEntryResult {
+        let correspondingTestStoppedEvents = testStoppedEvents(
             testName: requestedEntryToRun.testName,
-            testEventPairs: testEventPairs
+            collectedTestStoppedEvents: collectedTestStoppedEvents
         )
-        
-        if let correspondingEventPair = correspondingEventPair, let finishEvent = correspondingEventPair.finishEvent {
-            return testEntryResultForFinishedTest(
-                testEntry: requestedEntryToRun,
-                startEvent: correspondingEventPair.startEvent,
-                finishEvent: finishEvent
-            )
-        } else {
-            return .lost(testEntry: requestedEntryToRun)
-        }
+        return testEntryResultForFinishedTest(
+            simulatorId: simulatorId,
+            testEntry: requestedEntryToRun,
+            testStoppedEvents: correspondingTestStoppedEvents
+        )
     }
     
     private func testEntryResultForFinishedTest(
+        simulatorId: String,
         testEntry: TestEntry,
-        startEvent: FbXcTestStartedEvent,
-        finishEvent: FbXcTestFinishedEvent
-        ) -> TestEntryResult
-    {
-        return .withResult(
+        testStoppedEvents: [TestStoppedEvent]
+    ) -> TestEntryResult {
+        guard !testStoppedEvents.isEmpty else {
+            return .lost(testEntry: testEntry)
+        }
+        return TestEntryResult.withResults(
             testEntry: testEntry,
-            testRunResult: TestRunResult(
-                succeeded: finishEvent.succeeded,
-                exceptions: finishEvent.exceptions.map { TestException(reason: $0.reason, filePathInProject: $0.filePathInProject, lineNumber: $0.lineNumber) },
-                duration: finishEvent.totalDuration,
-                startTime: startEvent.timestamp,
-                finishTime: finishEvent.timestamp,
-                hostName: LocalHostDeterminer.currentHostAddress,
-                simulatorId: startEvent.simulatorId ?? "unknown_simulator"
-            )
+            testRunResults: testStoppedEvents.map { testStoppedEvent -> TestRunResult in
+                TestRunResult(
+                    succeeded: testStoppedEvent.succeeded,
+                    exceptions: testStoppedEvent.testExceptions,
+                    duration: testStoppedEvent.testDuration,
+                    startTime: testStoppedEvent.testStartTimestamp,
+                    hostName: LocalHostDeterminer.currentHostAddress,
+                    simulatorId: simulatorId
+                )
+            }
         )
     }
     
-    private func testEventPair(
+    private func testStoppedEvents(
         testName: TestName,
-        testEventPairs: [FbXcTestEventPair])
-        -> FbXcTestEventPair?
-    {
-        return testEventPairs.first(where: { $0.startEvent.testName == testName })
+        collectedTestStoppedEvents: [TestStoppedEvent]
+    ) -> [TestStoppedEvent] {
+        return collectedTestStoppedEvents.filter { $0.testName == testName }
     }
     
     private func missingEntriesForScheduledEntries(
@@ -326,18 +263,26 @@ public final class Runner {
         return expectedEntriesToRun.filter { !receivedTestEntries.contains($0) }
     }
     
-    private func testEntryResults(runResult: RunResult) -> [TestEntryResult] {
+    private func testEntryResults(
+        runResult: RunResult,
+        simulatorId: String
+    ) -> [TestEntryResult] {
         return runResult.testEntryResults.map {
             if $0.isLost {
-                return resultForSingleTestThatDidNotRun(testEntry: $0.testEntry)
+                return resultForSingleTestThatDidNotRun(
+                    simulatorId: simulatorId,
+                    testEntry: $0.testEntry
+                )
             } else {
                 return $0
             }
         }
     }
     
-    private func resultForSingleTestThatDidNotRun(testEntry: TestEntry) -> TestEntryResult {
-        let timestamp = Date().timeIntervalSince1970
+    private func resultForSingleTestThatDidNotRun(
+        simulatorId: String,
+        testEntry: TestEntry
+    ) -> TestEntryResult {
         return .withResult(
             testEntry: testEntry,
             testRunResult: TestRunResult(
@@ -350,10 +295,9 @@ public final class Runner {
                     )
                 ],
                 duration: 0,
-                startTime: timestamp,
-                finishTime: timestamp,
+                startTime: Date().timeIntervalSince1970,
                 hostName: LocalHostDeterminer.currentHostAddress,
-                simulatorId: "no_simulator"
+                simulatorId: simulatorId
             )
         )
     }
@@ -363,8 +307,14 @@ public final class Runner {
             testEntry.testName == testName
         })
     }
-    
-    private func testStarted(entriesToRun: [TestEntry], testName: TestName, testContext: TestContext) {
+
+    // MARK: - Test Event Stream Handling
+
+    private func testStarted(
+        entriesToRun: [TestEntry],
+        testContext: TestContext,
+        testName: TestName
+    ) {
         guard let testEntry = testEntryToRun(entriesToRun: entriesToRun, testName: testName) else {
             Logger.error("Can't find test entry for test \(testName)")
             return
@@ -383,7 +333,11 @@ public final class Runner {
         )
     }
     
-    private func testStopped(entriesToRun: [TestEntry], testStoppedEvent: TestStoppedEvent, testContext: TestContext) {
+    private func testStopped(
+        entriesToRun: [TestEntry],
+        testContext: TestContext,
+        testStoppedEvent: TestStoppedEvent
+    ) {
         guard let testEntry = testEntryToRun(entriesToRun: entriesToRun, testName: testStoppedEvent.testName) else {
             Logger.error("Can't find test entry for test \(testStoppedEvent.testName)")
             return
@@ -406,14 +360,8 @@ public final class Runner {
                 host: LocalHostDeterminer.currentHostAddress,
                 testClassName: testStoppedEvent.testName.className,
                 testMethodName: testStoppedEvent.testName.methodName,
-                duration: testStoppedEvent.duration
+                duration: testStoppedEvent.testDuration
             )
         )
-    }
-}
-
-private extension TestType {
-    var asArgument: SubprocessArgument {
-        return "-" + self.rawValue
     }
 }

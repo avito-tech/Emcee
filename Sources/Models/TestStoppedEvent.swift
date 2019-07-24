@@ -9,16 +9,22 @@ public final class TestStoppedEvent {
     
     public let testName: TestName
     public let result: Result
-    public let duration: TimeInterval
+    public let testDuration: TimeInterval
+    public let testExceptions: [TestException]
+    public let testStartTimestamp: TimeInterval
     
     public init(
         testName: TestName,
         result: Result,
-        duration: TimeInterval
+        testDuration: TimeInterval,
+        testExceptions: [TestException],
+        testStartTimestamp: TimeInterval
     ) {
         self.testName = testName
         self.result = result
-        self.duration = duration
+        self.testDuration = testDuration
+        self.testExceptions = testExceptions
+        self.testStartTimestamp = testStartTimestamp
     }
     
     public var succeeded: Bool {

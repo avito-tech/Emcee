@@ -42,7 +42,15 @@ final class FbXcTestEventsListener {
             TestStoppedEvent(
                 testName: newPair.startEvent.testName,
                 result: newPair.finishEvent?.succeeded == true ? .success : (newPair.finishEvent == nil ? .lost : .failure),
-                duration: newPair.finishEvent?.totalDuration ?? 0
+                testDuration: newPair.finishEvent?.totalDuration ?? 0,
+                testExceptions: (newPair.finishEvent?.exceptions ?? []).map { fbxctestException -> TestException in
+                    TestException(
+                        reason: fbxctestException.reason,
+                        filePathInProject: fbxctestException.filePathInProject,
+                        lineNumber: fbxctestException.lineNumber
+                    )
+                },
+                testStartTimestamp: newPair.startEvent.timestamp
             )
         )
     }
@@ -111,10 +119,6 @@ final class FbXcTestEventsListener {
             logs: [],
             timestamp: timestamp)
         testFinished(failureEvent)
-    }
-    
-    var allEventPairs: [FbXcTestEventPair] {
-        return pairsController.allPairs
     }
     
     var lastStartedButNotFinishedTestEventPair: FbXcTestEventPair? {
