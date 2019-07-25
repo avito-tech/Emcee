@@ -56,14 +56,16 @@ public final class URLResource {
     }
     
     private func createDownloadTask(request: URLRequest, url: URL) -> URLSessionDownloadTask {
+        let initiateDownloadTimestamp = Date()
         return urlSession.downloadTask(with: request) { (localUrl: URL?, response: URLResponse?, error: Swift.Error?) in
-            self.processDownloadResponse(url: url, error, response, localUrl)
+            self.processDownloadResponse(url: url, error, response, localUrl, initiateDownloadTimestamp)
         }
     }
     
-    private func processDownloadResponse(url: URL, _ error: Swift.Error?, _ response: URLResponse?, _ localUrl: URL?) {
+    private func processDownloadResponse(url: URL, _ error: Swift.Error?, _ response: URLResponse?, _ localUrl: URL?, _ initiateDownloadTimestamp: Date) {
         syncQueue.async { [weak handlersWrapper, weak fileCache] in
             guard let handlersWrapper = handlersWrapper, let fileCache = fileCache else { return }
+            let receiveResponseTimestamp = Date()
             
             if let error = error {
                 handlersWrapper.failedToGetContents(forUrl: url, error: error)
@@ -71,6 +73,11 @@ public final class URLResource {
                 handlersWrapper.failedToGetContents(forUrl: url, error: Error.unknownError(response: response))
             } else if let localUrl = localUrl {
                 do {
+                    let timeToDownload = receiveResponseTimestamp.timeIntervalSince(initiateDownloadTimestamp)
+                    if let attribute = try? FileManager.default.attributesOfItem(atPath: localUrl.path)[.size], let downloadedSize = attribute as? NSNumber {
+                        Logger.verboseDebug("Downloaded resource for '\(url)' in \(Int(timeToDownload)) seconds, speed: \(Int(downloadedSize.doubleValue / timeToDownload / 1024)) KB/s")
+                    }
+                    
                     try fileCache.store(contentsUrl: localUrl, ofUrl: url, operation: .move)
                     let cachedUrl = try fileCache.urlForCachedContents(ofUrl: url)
                     Logger.debug("Stored resource for '\(url)' in file cache")

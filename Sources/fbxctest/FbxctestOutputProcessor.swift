@@ -30,8 +30,9 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
     }
     
     public func processOutputAndWaitForProcessTermination() {
+        processController.start()
         startMonitoringForHangs()
-        processController.startAndListenUntilProcessDies()
+        processController.waitForProcessToDie()
     }
     
     public var testEventPairs: [FbXcTestEventPair] {
