@@ -80,10 +80,14 @@ public final class ResourceLocationResolver {
                     throw ValidationError.unpackProcessError
                 }
             }
-            
+
+            // Once we unzip the contents, we don't want to keep zip file on disk since its contents is available under zip_contents.
+            // We erase it and keep empty file, to make sure cache does not refetch it when we access cached item.
             if FileManager.default.fileExists(atPath: zipUrl.path) {
-                Logger.debug("Will delete downloaded ZIP file at: \(zipUrl.path)")
-                try? FileManager.default.removeItem(at: zipUrl)
+                Logger.debug("Will replace ZIP file at: \(zipUrl.path) with empty contents")
+                let handle = try FileHandle(forWritingTo: zipUrl)
+                handle.truncateFile(atOffset: 0)
+                handle.closeFile()
             }
         }
         return contentsUrl

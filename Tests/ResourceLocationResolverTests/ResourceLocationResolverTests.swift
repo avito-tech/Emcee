@@ -77,6 +77,20 @@ final class ResourceLocationResolverTests: XCTestCase {
         }
     }
     
+    func test___once_resource_has_been_fetched___zip_file_is_truncated_to_zero_bytes_but_kept_on_disk() throws {
+        let server = try startServer(serverPath: "/contents/example.zip", localPath: smallZipFile)
+        let remoteUrl = URL(string: "http://localhost:\(server.port)/contents/example.zip")!
+        
+        _ = try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl))
+        let localCacheUrl = try fileCache.urlForCachedContents(ofUrl: remoteUrl)
+        
+        let attributes = try FileManager.default.attributesOfItem(atPath: localCacheUrl.path)
+        guard let size = attributes[.size] as? NSNumber else {
+            return XCTFail("Size of file is not available, but file is expected to be present on disk")
+        }
+        XCTAssertEqual(size.intValue, 0, "Zip file should have been erased to 0 bytes size")
+    }
+    
     func test___fetching_resource_from_multiple_threads() throws {
         let server = try startServer(serverPath: "/contents/example.zip", localPath: largeZipFile)
         let remoteUrl = URL(string: "http://localhost:\(server.port)/contents/example.zip")!
