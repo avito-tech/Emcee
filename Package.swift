@@ -42,8 +42,7 @@ let package = Package(
         .package(url: "https://github.com/beefon/swift-package-manager.git", .branch("swift-5.0-branch")),
         .package(url: "https://github.com/daltoniam/Starscream.git", .exact("3.0.6")),
         .package(url: "https://github.com/httpswift/swifter.git", .exact("1.4.6")),
-        .package(url: "https://github.com/jakeheis/Shout.git", .branch("master")),
-        .package(url: "https://github.com/weichsel/ZIPFoundation/", from: "0.9.6")
+        .package(url: "https://github.com/jakeheis/Shout.git", .branch("master"))
     ],
     targets: [
         // MARK: - Targets
@@ -247,8 +246,9 @@ let package = Package(
                 "Extensions",
                 "Logging",
                 "Models",
-                "TemporaryStuff",
-                "ZIPFoundation"
+                "PathLib",
+                "ProcessController",
+                "TemporaryStuff"
             ]
         ),
         .testTarget(

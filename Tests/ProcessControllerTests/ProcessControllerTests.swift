@@ -127,6 +127,23 @@ final class ProcessControllerTests: XCTestCase {
         XCTAssertEqual(delegate.noActivityDetected, false)
     }
     
+    func test__executing_from_specific_working_directory() throws {
+        let temporaryFolder = try TemporaryFolder()
+        
+        let controller = try ProcessController(
+            subprocess: Subprocess(
+                arguments: ["/bin/pwd"],
+                workingDirectory: temporaryFolder.absolutePath
+            )
+        )
+        controller.startAndListenUntilProcessDies()
+        
+        XCTAssertEqual(
+            try String(contentsOfFile: controller.subprocess.standardStreamsCaptureConfig.stdoutContentsFile.pathString),
+            temporaryFolder.absolutePath.pathString + "\n"
+        )
+    }
+    
     func testGettingStdout() throws {
         let tempFile = try TemporaryFile()
         

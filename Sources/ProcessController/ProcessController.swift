@@ -30,16 +30,24 @@ public final class ProcessController: CustomStringConvertible {
         self.process = try ProcessController.createProcess(
             arguments: arguments,
             environment: subprocess.environment,
-            processStdinPipe: processStdinPipe)
+            processStdinPipe: processStdinPipe,
+            workingDirectory: subprocess.workingDirectory
+        )
         setUpProcessListening()
     }
     
-    private static func createProcess(arguments: [String], environment: [String: String], processStdinPipe: Pipe) throws -> Process {
+    private static func createProcess(
+        arguments: [String],
+        environment: [String: String],
+        processStdinPipe: Pipe,
+        workingDirectory: AbsolutePath
+    ) throws -> Process {
         let process = Process()
         process.launchPath = arguments.elementAtIndex(0, "Path to executable")
         process.arguments = Array(arguments.dropFirst())
         process.environment = environment
         process.standardInput = processStdinPipe
+        process.currentDirectoryPath = workingDirectory.pathString
         try process.setStartsNewProcessGroup(false)
         return process
     }

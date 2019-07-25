@@ -50,26 +50,6 @@ class DeployablesGeneratorTests: XCTestCase {
         XCTAssertEqual(deployables[0].files.first?.source, AbsolutePath(ProcessInfo.processInfo.executablePath))
         XCTAssertEqual(deployables[0].files.first?.destination, RelativePath("Emcee_" + versionStringValue))
     }
-    
-    func testPluginIsPresent() throws {
-        let deployables = filterDeployables(.plugin)
-        XCTAssertEqual(deployables.count, 1)
-        
-        let files = deployables[0].files
-        let expectedFiles = Set(
-            [
-                DeployableFile(
-                    source: tempFolder.pathWith(components: ["TestPlugin.emceeplugin"]),
-                    destination: RelativePath("TestPlugin.emceeplugin")
-                ),
-                DeployableFile(
-                    source: tempFolder.pathWith(components: ["TestPlugin.emceeplugin", "Plugin"]),
-                    destination: RelativePath("TestPlugin.emceeplugin/Plugin")
-                )
-            ]
-        )
-        XCTAssertEqual(files, expectedFiles)
-    }
 }
 
 class FixedVersionProvider: VersionProvider {

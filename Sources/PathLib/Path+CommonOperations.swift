@@ -21,6 +21,11 @@ public extension Path {
         return Self(components: self.components + [component])
     }
     
+    func appending(extension: String) -> Self {
+        let lastComponent = self.lastComponent
+        return removingLastComponent.appending(component: lastComponent + "." + `extension`)
+    }
+    
     var removingLastComponent: Self {
         guard components.count > 0 else {
             return self

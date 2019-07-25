@@ -59,7 +59,8 @@ class SSHDeployerTests: XCTestCase {
         // we can only test that file exists
         var isDirectory: ObjCBool = false
         XCTAssertTrue(
-            FileManager.default.fileExists(atPath: Array(uploadCommand.keys)[0].path, isDirectory: &isDirectory))
+            FileManager.default.fileExists(atPath: Array(uploadCommand.keys)[0].path, isDirectory: &isDirectory)
+        )
         XCTAssertFalse(isDirectory.boolValue)
         XCTAssertEqual(
             Array(uploadCommand.values),
