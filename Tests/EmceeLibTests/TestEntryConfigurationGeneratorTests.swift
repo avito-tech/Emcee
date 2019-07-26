@@ -37,7 +37,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
             validatedEnteries: validatedEnteries,
             testArgEntries: [
                 TestArgFile.Entry(
-                    testToRun: argFileTestToRun1,
+                    testsToRun: [argFileTestToRun1],
                     buildArtifacts: buildArtifacts,
                     environment: [:],
                     numberOfRetries: 10,
@@ -46,7 +46,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                     toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
                 ),
                 TestArgFile.Entry(
-                    testToRun: argFileTestToRun2,
+                    testsToRun: [argFileTestToRun2],
                     buildArtifacts: buildArtifacts,
                     environment: [:],
                     numberOfRetries: 20,

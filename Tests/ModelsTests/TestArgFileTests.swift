@@ -30,7 +30,7 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFile.Entry(
-                testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
+                testsToRun: [.testName(TestName(className: "ClassName", methodName: "testMethod"))],
                 buildArtifacts: buildArtifacts(),
                 environment: ["value": "key"],
                 numberOfRetries: 42,
@@ -64,7 +64,7 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFile.Entry(
-                testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
+                testsToRun: [.testName(TestName(className: "ClassName", methodName: "testMethod"))],
                 buildArtifacts: buildArtifacts(runtimeDumpKind: .logicTest),
                 environment: ["value": "key"],
                 numberOfRetries: 42,
@@ -95,7 +95,7 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFile.Entry(
-                testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
+                testsToRun: [.testName(TestName(className: "ClassName", methodName: "testMethod"))],
                 buildArtifacts: buildArtifacts(runtimeDumpKind: .logicTest),
                 environment: [:],
                 numberOfRetries: 42,
@@ -129,7 +129,7 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFile.Entry(
-                testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
+                testsToRun: [.testName(TestName(className: "ClassName", methodName: "testMethod"))],
                 buildArtifacts: buildArtifacts(),
                 environment: [:],
                 numberOfRetries: 42,
@@ -165,7 +165,7 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFile.Entry(
-                testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
+                testsToRun: [.testName(TestName(className: "ClassName", methodName: "testMethod"))],
                 buildArtifacts: buildArtifacts(),
                 environment: [:],
                 numberOfRetries: 42,
@@ -201,7 +201,7 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFile.Entry(
-                testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
+                testsToRun: [.testName(TestName(className: "ClassName", methodName: "testMethod"))],
                 buildArtifacts: buildArtifacts(),
                 environment: ["value": "key"],
                 numberOfRetries: 42,
@@ -240,7 +240,7 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFile.Entry(
-                testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
+                testsToRun: [.testName(TestName(className: "ClassName", methodName: "testMethod"))],
                 buildArtifacts: buildArtifacts(),
                 environment: [:],
                 numberOfRetries: 42,
@@ -279,7 +279,7 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFile.Entry(
-                testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
+                testsToRun: [.testName(TestName(className: "ClassName", methodName: "testMethod"))],
                 buildArtifacts: buildArtifacts(),
                 environment: [:],
                 numberOfRetries: 42,
@@ -314,7 +314,7 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFile.Entry(
-                testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
+                testsToRun: [.testName(TestName(className: "ClassName", methodName: "testMethod"))],
                 buildArtifacts: buildArtifacts(appBundle: nil, runner: nil, additionalApplicationBundles: []),
                 environment: ["value": "key"],
                 numberOfRetries: 42,
@@ -349,7 +349,7 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFile.Entry(
-                testToRun: TestToRun.testName(TestName(className: "ClassName", methodName: "testMethod")),
+                testsToRun: [.testName(TestName(className: "ClassName", methodName: "testMethod"))],
                 buildArtifacts: buildArtifacts(additionalApplicationBundles: []),
                 environment: [:],
                 numberOfRetries: 42,

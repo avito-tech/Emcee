@@ -16,7 +16,7 @@ public final class TestEntryConfigurationGenerator {
     }
     
     public func createTestEntryConfigurations() -> [TestEntryConfiguration] {
-        Logger.debug("Preparing test entry configurations for tests: \(testArgEntries.map { $0.testToRun })")
+        Logger.debug("Preparing test entry configurations for tests: \(testArgEntries.flatMap { $0.testsToRun })")
         let testArgFileEntryConfigurations = testArgEntries.flatMap { testArgFileEntry -> [TestEntryConfiguration] in
             let testEntries = validatedEntriesForArgFileEntry(argFileEntry: testArgFileEntry)
             return testEntries.map { testEntry in
@@ -38,7 +38,10 @@ public final class TestEntryConfigurationGenerator {
 
     private func validatedEntriesForArgFileEntry(argFileEntry: TestArgFile.Entry) -> [TestEntry] {
         return validatedEnteries
-            .filter { argFileEntry.testToRun == $0.testToRun && argFileEntry.buildArtifacts == $0.buildArtifacts }
+            .filter { validatedTestEntry -> Bool in
+                argFileEntry.testsToRun.contains(validatedTestEntry.testToRun)
+                    && argFileEntry.buildArtifacts == validatedTestEntry.buildArtifacts
+            }
             .flatMap { $0.testEntries }
     }
 }

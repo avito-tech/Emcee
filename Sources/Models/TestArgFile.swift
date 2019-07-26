@@ -3,7 +3,7 @@ import Foundation
 /// Represents --test-arg-file file contents which describes all tests that should be ran.
 public struct TestArgFile: Decodable {
     public struct Entry: Decodable, Equatable {
-        public let testToRun: TestToRun
+        public let testsToRun: [TestToRun]
         public let buildArtifacts: BuildArtifacts
         public let environment: [String: String]
         public let numberOfRetries: UInt
@@ -12,7 +12,7 @@ public struct TestArgFile: Decodable {
         public let toolchainConfiguration: ToolchainConfiguration
         
         public init(
-            testToRun: TestToRun,
+            testsToRun: [TestToRun],
             buildArtifacts: BuildArtifacts,
             environment: [String: String],
             numberOfRetries: UInt,
@@ -20,7 +20,7 @@ public struct TestArgFile: Decodable {
             testType: TestType,
             toolchainConfiguration: ToolchainConfiguration
         ) {
-            self.testToRun = testToRun
+            self.testsToRun = testsToRun
             self.buildArtifacts = buildArtifacts
             self.environment = environment
             self.numberOfRetries = numberOfRetries
@@ -30,7 +30,8 @@ public struct TestArgFile: Decodable {
         }
         
         private enum CodingKeys: String, CodingKey {
-            case testToRun
+            case testToRun // TODO: remove, left for backwards compatibility
+            case testsToRun
             case environment
             case numberOfRetries
             case testDestination
@@ -41,7 +42,13 @@ public struct TestArgFile: Decodable {
         
         public init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
-            testToRun = try container.decode(TestToRun.self, forKey: .testToRun)
+
+            if let testToRun = try container.decodeIfPresent(TestToRun.self, forKey: .testToRun) {
+                testsToRun = [testToRun]
+            } else {
+                testsToRun = try container.decode([TestToRun].self, forKey: .testsToRun)
+            }
+
             buildArtifacts = try container.decode(BuildArtifacts.self, forKey: .buildArtifacts)
             environment = try container.decodeIfPresent([String: String].self, forKey: .environment) ?? [:]
             numberOfRetries = try container.decode(UInt.self, forKey: .numberOfRetries)

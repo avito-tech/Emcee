@@ -64,7 +64,7 @@ public final class TestEntriesValidator {
             xcTestBundle: buildArtifacts.xcTestBundle,
             applicationTestSupport: runtimeDumpApplicationTestSupport,
             testDestination: validatorConfiguration.testDestination,
-            testsToValidate: testEntries.map { $0.testToRun },
+            testsToValidate: testEntries.flatMap { $0.testsToRun },
             developerDir: DeveloperDir.current
         )
 

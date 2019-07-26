@@ -140,7 +140,6 @@ private let knownUIntArguments: [KnownUIntArguments: ArgumentDescriptionHolder] 
 ]
 
 enum KnownStringArguments: ArgumentDescription {
-    case additionalApp
     case app
     case analyticsConfiguration
     case destinationConfigurations
@@ -155,7 +154,6 @@ enum KnownStringArguments: ArgumentDescription {
     case queueServerRunConfigurationLocation
     case queueServerTearDownPolicy
     case runId
-    case runner
     case simulatorLocalizationSettings
     case tempFolder
     case testArgFile
