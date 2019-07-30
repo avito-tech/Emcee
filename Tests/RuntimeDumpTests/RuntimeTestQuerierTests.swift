@@ -45,6 +45,23 @@ final class RuntimeTestQuerierTests: XCTestCase {
         XCTAssertEqual(queryResult.unavailableTestsToRun, [])
     }
     
+    func test__getting_available_tests__for_all_available_tests() throws {
+        let runtimeTestEntries = [
+            RuntimeTestEntry(className: "class1", path: "", testMethods: ["test"], caseId: nil, tags: []),
+            RuntimeTestEntry(className: "class2", path: "", testMethods: ["test1", "test2"], caseId: nil, tags: [])
+        ]
+        try prepareFakeRuntimeDumpOutputForTestQuerier(entries: runtimeTestEntries)
+        
+        let querier = runtimeTestQuerier()
+        let configuration = runtimeDumpConfiguration(
+            testsToValidate: [.allProvidedByRuntimeDump],
+            applicationTestSupport: nil
+        )
+        let queryResult = try querier.queryRuntime(configuration: configuration)
+        XCTAssertEqual(queryResult.availableRuntimeTests, runtimeTestEntries)
+        XCTAssertTrue(queryResult.unavailableTestsToRun.isEmpty)
+    }
+    
     func test__getting_available_tests_while_some_tests_are_missing__without_application_test_support() throws {
         let runtimeTestEntries = [
             RuntimeTestEntry(className: "class1", path: "", testMethods: ["test"], caseId: nil, tags: []),

@@ -109,4 +109,43 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
             expectedTestEntryConfigurations + expectedTestEntryConfigurations
         )
     }
+    
+    func test__all_available_tests() {
+        let generator = TestEntryConfigurationGenerator(
+            validatedEntries: validatedEntries,
+            testArgEntries: [
+                TestArgFile.Entry(
+                    testsToRun: [.allProvidedByRuntimeDump],
+                    buildArtifacts: buildArtifacts,
+                    environment: [:],
+                    numberOfRetries: 10,
+                    testDestination: argFileDestination1,
+                    testType: .uiTest,
+                    toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
+                )
+            ]
+        )
+        
+        let expectedConfigurations = [
+            TestEntryConfigurationFixtures()
+                .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1"))
+                .with(buildArtifacts: buildArtifacts)
+                .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
+                .with(testDestination: argFileDestination1)
+                .with(testType: .uiTest)
+                .testEntryConfigurations(),
+            TestEntryConfigurationFixtures()
+                .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test2"))
+                .with(buildArtifacts: buildArtifacts)
+                .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
+                .with(testDestination: argFileDestination1)
+                .with(testType: .uiTest)
+                .testEntryConfigurations()
+            ].flatMap { $0 }
+        
+        XCTAssertEqual(
+            Set(generator.createTestEntryConfigurations()),
+            Set(expectedConfigurations)
+        )
+    }
 }

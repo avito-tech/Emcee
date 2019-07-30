@@ -177,6 +177,8 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
             switch requestedTestToRun {
             case .testName(let requestedTestName):
                 return availableTestEntries.first { $0.testName == requestedTestName } == nil
+            case .allProvidedByRuntimeDump:
+                return false
             }
         }
         return testsToRunMissingInRuntime
