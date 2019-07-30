@@ -16,31 +16,40 @@ public final class TestEntryConfigurationGenerator {
     }
     
     public func createTestEntryConfigurations() -> [TestEntryConfiguration] {
-        Logger.debug("Preparing test entry configurations for tests: \(testArgEntries.flatMap { $0.testsToRun })")
+        let testsToRun = testArgEntries.flatMap { $0.testsToRun }
+        Logger.debug("Preparing test entry configurations for \(testsToRun.count) tests: \(testsToRun)")
+        
         let testArgFileEntryConfigurations = testArgEntries.flatMap { testArgFileEntry -> [TestEntryConfiguration] in
-            let testEntries = validatedEntriesForArgFileEntry(argFileEntry: testArgFileEntry)
-            return testEntries.map { testEntry in
-                TestEntryConfiguration(
-                    testEntry: testEntry,
+            return testArgFileEntry.testsToRun.flatMap { testToRun -> [TestEntryConfiguration] in
+                let testEntries = testEntriesMatching(
                     buildArtifacts: testArgFileEntry.buildArtifacts,
-                    testDestination: testArgFileEntry.testDestination,
-                    testExecutionBehavior: TestExecutionBehavior(
-                        environment: testArgFileEntry.environment,
-                        numberOfRetries: testArgFileEntry.numberOfRetries
-                    ),
-                    testType: testArgFileEntry.testType,
-                    toolchainConfiguration: testArgFileEntry.toolchainConfiguration
+                    testToRun: testToRun
                 )
+                return testEntries.map { testEntry -> TestEntryConfiguration in
+                    TestEntryConfiguration(
+                        testEntry: testEntry,
+                        buildArtifacts: testArgFileEntry.buildArtifacts,
+                        testDestination: testArgFileEntry.testDestination,
+                        testExecutionBehavior: TestExecutionBehavior(
+                            environment: testArgFileEntry.environment,
+                            numberOfRetries: testArgFileEntry.numberOfRetries
+                        ),
+                        testType: testArgFileEntry.testType,
+                        toolchainConfiguration: testArgFileEntry.toolchainConfiguration
+                    )
+                }
             }
         }
         return testArgFileEntryConfigurations
     }
 
-    private func validatedEntriesForArgFileEntry(argFileEntry: TestArgFile.Entry) -> [TestEntry] {
+    private func testEntriesMatching(
+        buildArtifacts: BuildArtifacts,
+        testToRun: TestToRun
+    ) -> [TestEntry] {
         return validatedEnteries
             .filter { validatedTestEntry -> Bool in
-                argFileEntry.testsToRun.contains(validatedTestEntry.testToRun)
-                    && argFileEntry.buildArtifacts == validatedTestEntry.buildArtifacts
+                testToRun == validatedTestEntry.testToRun && buildArtifacts == validatedTestEntry.buildArtifacts
             }
             .flatMap { $0.testEntries }
     }

@@ -78,4 +78,35 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
         
         XCTAssertEqual(Set(configurations), Set(expectedConfigurations))
     }
+    
+    func test_repeated_items() {
+        let generator = TestEntryConfigurationGenerator(
+            validatedEnteries: validatedEnteries,
+            testArgEntries: [
+                TestArgFile.Entry(
+                    testsToRun: [argFileTestToRun1, argFileTestToRun1],
+                    buildArtifacts: buildArtifacts,
+                    environment: [:],
+                    numberOfRetries: 10,
+                    testDestination: argFileDestination1,
+                    testType: .uiTest,
+                    toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
+                )
+            ]
+        )
+        
+        let expectedTestEntryConfigurations =
+            TestEntryConfigurationFixtures()
+                .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1"))
+                .with(buildArtifacts: buildArtifacts)
+                .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
+                .with(testDestination: argFileDestination1)
+                .with(testType: .uiTest)
+                .testEntryConfigurations()
+        
+        XCTAssertEqual(
+            generator.createTestEntryConfigurations(),
+            expectedTestEntryConfigurations + expectedTestEntryConfigurations
+        )
+    }
 }
