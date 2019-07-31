@@ -9,12 +9,6 @@ final class TestToRunIntoTestEntryTransformerTests: XCTestCase {
     private let transformer = TestToRunIntoTestEntryTransformer()
 
     func test__transforming_concrete_test_names() throws {
-        let testsToRun = [
-            TestToRun.testName(TestName(className: "class", methodName: "test1")),
-            TestToRun.testName(TestName(className: "class", methodName: "test2")),
-            TestToRun.testName(TestName(className: "class", methodName: "test3"))
-        ]
-        
         let queryResult = RuntimeQueryResult(
             unavailableTestsToRun: [],
             availableRuntimeTests: [
@@ -26,15 +20,19 @@ final class TestToRunIntoTestEntryTransformerTests: XCTestCase {
             buildArtifacts: fakeBuildArtifacts
         )
         
-        let expectedTransformationResult = testsToRun.compactMap { testToRun -> ValidatedTestEntry? in
-            switch testToRun {
-            case let .testName(testName):
-                return ValidatedTestEntry(
-                    testToRun: testToRun,
+        let expectedTestNames = [
+            TestName(className: "class", methodName: "test1"),
+            TestName(className: "class", methodName: "test2"),
+            TestName(className: "class", methodName: "test3")
+        ]
+        let expectedTransformationResult = expectedTestNames.flatMap { testName -> [ValidatedTestEntry] in
+            return [
+                ValidatedTestEntry(
+                    testName: testName,
                     testEntries: [TestEntry(testName: testName, tags: [], caseId: nil)],
                     buildArtifacts: fakeBuildArtifacts
                 )
-            }
+            ]
         }
         XCTAssertEqual(
             transformationResult,

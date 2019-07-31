@@ -226,7 +226,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
             runtimeTestQuerier: runtimeTestQuerier
         )
         let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
-            validatedEnteries: try testEntriesValidator.validatedTestEntries(),
+            validatedEntries: try testEntriesValidator.validatedTestEntries(),
             testArgEntries: testArgFile.entries
         )
         let testEntryConfigurations = testEntryConfigurationGenerator.createTestEntryConfigurations()

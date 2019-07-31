@@ -5,8 +5,8 @@ import ModelsTestHelpers
 import XCTest
 
 final class TestEntryConfigurationGeneratorTests: XCTestCase {
-    let argFileTestToRun1 = TestToRun.testName(TestName(className: "classFromArgs", methodName: "test1"))
-    let argFileTestToRun2 = TestToRun.testName(TestName(className: "classFromArgs", methodName: "test2"))
+    let argFileTestToRun1 = TestName(className: "classFromArgs", methodName: "test1")
+    let argFileTestToRun2 = TestName(className: "classFromArgs", methodName: "test2")
     
     let buildArtifacts = BuildArtifactsFixtures.withLocalPaths(
         appBundle: "1",
@@ -17,15 +17,15 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
     let argFileDestination1 = try! TestDestination(deviceType: UUID().uuidString, runtime: "10.1")
     let argFileDestination2 = try! TestDestination(deviceType: UUID().uuidString, runtime: "10.2")
 
-    lazy var validatedEnteries: [ValidatedTestEntry] = {
+    lazy var validatedEntries: [ValidatedTestEntry] = {
         return [
             ValidatedTestEntry(
-                testToRun: argFileTestToRun1,
+                testName: argFileTestToRun1,
                 testEntries: [TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1")],
                 buildArtifacts: buildArtifacts
             ),
             ValidatedTestEntry(
-                testToRun: argFileTestToRun2,
+                testName: argFileTestToRun2,
                 testEntries: [TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test2")],
                 buildArtifacts: buildArtifacts
             )
@@ -34,10 +34,10 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
     
     func test() {
         let generator = TestEntryConfigurationGenerator(
-            validatedEnteries: validatedEnteries,
+            validatedEntries: validatedEntries,
             testArgEntries: [
                 TestArgFile.Entry(
-                    testsToRun: [argFileTestToRun1],
+                    testsToRun: [.testName(argFileTestToRun1)],
                     buildArtifacts: buildArtifacts,
                     environment: [:],
                     numberOfRetries: 10,
@@ -46,7 +46,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                     toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
                 ),
                 TestArgFile.Entry(
-                    testsToRun: [argFileTestToRun2],
+                    testsToRun: [.testName(argFileTestToRun2)],
                     buildArtifacts: buildArtifacts,
                     environment: [:],
                     numberOfRetries: 20,
@@ -81,10 +81,10 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
     
     func test_repeated_items() {
         let generator = TestEntryConfigurationGenerator(
-            validatedEnteries: validatedEnteries,
+            validatedEntries: validatedEntries,
             testArgEntries: [
                 TestArgFile.Entry(
-                    testsToRun: [argFileTestToRun1, argFileTestToRun1],
+                    testsToRun: [.testName(argFileTestToRun1), .testName(argFileTestToRun1)],
                     buildArtifacts: buildArtifacts,
                     environment: [:],
                     numberOfRetries: 10,

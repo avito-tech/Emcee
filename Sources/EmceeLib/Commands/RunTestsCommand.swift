@@ -131,7 +131,7 @@ final class RunTestsCommand: Command {
         let validatedTestEntries = try testEntriesValidator.validatedTestEntries()
         
         let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
-            validatedEnteries: validatedTestEntries,
+            validatedEntries: validatedTestEntries,
             testArgEntries: testArgFile.entries
         )
 

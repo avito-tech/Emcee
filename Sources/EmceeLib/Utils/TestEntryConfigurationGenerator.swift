@@ -4,14 +4,14 @@ import Logging
 import Models
 
 public final class TestEntryConfigurationGenerator {
-    private let validatedEnteries: [ValidatedTestEntry]
+    private let validatedEntries: [ValidatedTestEntry]
     private let testArgEntries: [TestArgFile.Entry]
 
     public init(
-        validatedEnteries: [ValidatedTestEntry],
+        validatedEntries: [ValidatedTestEntry],
         testArgEntries: [TestArgFile.Entry]
     ) {
-        self.validatedEnteries = validatedEnteries
+        self.validatedEntries = validatedEntries
         self.testArgEntries = testArgEntries
     }
     
@@ -47,9 +47,13 @@ public final class TestEntryConfigurationGenerator {
         buildArtifacts: BuildArtifacts,
         testToRun: TestToRun
     ) -> [TestEntry] {
-        return validatedEnteries
-            .filter { validatedTestEntry -> Bool in
-                testToRun == validatedTestEntry.testToRun && buildArtifacts == validatedTestEntry.buildArtifacts
+        return validatedEntries
+            .filter { buildArtifacts == $0.buildArtifacts }
+            .filter {
+                switch testToRun {
+                case .testName(let testName):
+                    return testName == $0.testName
+                }
             }
             .flatMap { $0.testEntries }
     }
