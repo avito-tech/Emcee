@@ -84,6 +84,7 @@ final class StartQueueServerCommand: Command {
         let localQueueServerRunner = LocalQueueServerRunner(
             queueServer: queueServer,
             automaticTerminationController: automaticTerminationController,
+            pollInterval: 5.0,
             queueServerTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy
         )
         try localQueueServerRunner.start()
