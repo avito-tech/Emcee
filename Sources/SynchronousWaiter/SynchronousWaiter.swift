@@ -6,7 +6,7 @@ public final class SynchronousWaiter {
     public struct Timeout: CustomStringConvertible {
         public let description: String
         public let value: TimeInterval
-
+        
         public init(description: String, value: TimeInterval) {
             self.description = description
             self.value = value
