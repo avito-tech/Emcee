@@ -34,7 +34,7 @@ final class QueueServerTests: XCTestCase {
     func test__queue_waits_for_new_workers_and_fails_if_they_not_appear_in_time() {
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
         
-        let server = QueueServer(
+        let server = QueueServerImpl(
             automaticTerminationController: automaticTerminationController,
             dateProvider: DateProviderFixture(),
             eventBus: eventBus,
@@ -59,7 +59,7 @@ final class QueueServerTests: XCTestCase {
             .testEntryConfigurations()
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
         
-        let server = QueueServer(
+        let server = QueueServerImpl(
             automaticTerminationController: automaticTerminationController,
             dateProvider: DateProviderFixture(),
             eventBus: EventBus(),
@@ -106,7 +106,7 @@ final class QueueServerTests: XCTestCase {
             .testingResult()
         
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
-        let server = QueueServer(
+        let server = QueueServerImpl(
             automaticTerminationController: automaticTerminationController,
             dateProvider: DateProviderFixture(),
             eventBus: EventBus(),

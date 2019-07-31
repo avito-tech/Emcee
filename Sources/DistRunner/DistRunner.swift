@@ -42,7 +42,7 @@ public final class DistRunner {
     }
     
     public func run() throws -> [TestingResult] {
-        let queueServer = QueueServer(
+        let queueServer = QueueServerImpl(
             automaticTerminationController: AutomaticTerminationControllerFactory(
                 automaticTerminationPolicy: .stayAlive
             ).createAutomaticTerminationController(),

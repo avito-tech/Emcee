@@ -1,4 +1,6 @@
+import AutomaticTermination
 import ArgumentsParser
+import DateProvider
 import Extensions
 import Foundation
 import LocalQueueServerRunner
@@ -7,7 +9,10 @@ import LoggingSetup
 import Models
 import PluginManager
 import PortDeterminer
+import QueueServer
 import ResourceLocationResolver
+import ScheduleStrategy
+import UniqueIdentifierGenerator
 import Utility
 import Version
 
@@ -46,13 +51,55 @@ final class StartQueueServerCommand: Command {
         )
         defer { eventBus.tearDown() }
         
-        let localQueueServerRunner = LocalQueueServerRunner(
+        let automaticTerminationController = AutomaticTerminationControllerFactory(
+            automaticTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy
+        ).createAutomaticTerminationController()
+        let uniqueIdentifierGenerator = UuidBasedUniqueIdentifierGenerator()
+        let localPortDeterminer = LocalPortDeterminer(portRange: Ports.defaultQueuePortRange)
+        let workerConfigurations = createWorkerConfigurations(
+            queueServerRunConfiguration: queueServerRunConfiguration
+        )
+        let queueServer = QueueServerImpl(
+            automaticTerminationController: automaticTerminationController,
+            dateProvider: SystemDateProvider(),
             eventBus: eventBus,
-            localPortDeterminer: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange),
-            localQueueVersionProvider: localQueueVersionProvider,
-            queueServerRunConfiguration: queueServerRunConfiguration,
-            requestSignature: requestSignature
+            workerConfigurations: workerConfigurations,
+            reportAliveInterval: queueServerRunConfiguration.reportAliveInterval,
+            newWorkerRegistrationTimeAllowance: 360.0,
+            checkAgainTimeInterval: queueServerRunConfiguration.checkAgainTimeInterval,
+            localPortDeterminer: localPortDeterminer,
+            workerAlivenessPolicy: .workersStayAliveWhenQueueIsDepleted,
+            bucketSplitInfo: BucketSplitInfo(
+                numberOfWorkers: UInt(queueServerRunConfiguration.deploymentDestinationConfigurations.count),
+                toolResources: queueServerRunConfiguration.auxiliaryResources.toolResources,
+                simulatorSettings: queueServerRunConfiguration.simulatorSettings
+            ),
+            queueServerLock: AutomaticTerminationControllerAwareQueueServerLock(
+                automaticTerminationController: automaticTerminationController
+            ),
+            queueVersionProvider: localQueueVersionProvider,
+            requestSignature: requestSignature,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+        )
+        let localQueueServerRunner = LocalQueueServerRunner(
+            queueServer: queueServer,
+            automaticTerminationController: automaticTerminationController,
+            queueServerTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy
         )
         try localQueueServerRunner.start()
+    }
+    
+    private func createWorkerConfigurations(queueServerRunConfiguration: QueueServerRunConfiguration) -> WorkerConfigurations {
+        let configurations = WorkerConfigurations()
+        for deploymentDestinationConfiguration in queueServerRunConfiguration.deploymentDestinationConfigurations {
+            configurations.add(
+                workerId: deploymentDestinationConfiguration.destinationIdentifier,
+                configuration: queueServerRunConfiguration.workerConfiguration(
+                    deploymentDestinationConfiguration: deploymentDestinationConfiguration,
+                    requestSignature: requestSignature
+                )
+            )
+        }
+        return configurations
     }
 }
