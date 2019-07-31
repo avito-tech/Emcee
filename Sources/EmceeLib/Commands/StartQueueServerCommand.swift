@@ -65,6 +65,7 @@ final class StartQueueServerCommand: Command {
             eventBus: eventBus,
             workerConfigurations: workerConfigurations,
             reportAliveInterval: queueServerRunConfiguration.reportAliveInterval,
+            newWorkerRegistrationTimeAllowance: 360.0,
             checkAgainTimeInterval: queueServerRunConfiguration.checkAgainTimeInterval,
             localPortDeterminer: localPortDeterminer,
             workerAlivenessPolicy: .workersStayAliveWhenQueueIsDepleted,
