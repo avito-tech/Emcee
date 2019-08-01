@@ -6,6 +6,7 @@ import Foundation
 import Logging
 import LoggingSetup
 import Models
+import PathLib
 import PluginManager
 import PortDeterminer
 import ResourceLocationResolver
@@ -36,7 +37,8 @@ final class DistRunTestsCommand: Command {
     private let testDestinations: OptionArgument<String>
     private let trace: OptionArgument<String>
     private let watchdogSettings: OptionArgument<String>
-    
+    private let tempFolder: OptionArgument<String>
+
     private let resourceLocationResolver = ResourceLocationResolver()
     private let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
 
@@ -59,6 +61,7 @@ final class DistRunTestsCommand: Command {
         testDestinations = subparser.add(stringArgument: KnownStringArguments.testDestinations)
         trace = subparser.add(stringArgument: KnownStringArguments.trace)
         watchdogSettings = subparser.add(stringArgument: KnownStringArguments.watchdogSettings)
+        tempFolder = subparser.add(stringArgument: KnownStringArguments.tempFolder)
     }
     
     func run(with arguments: ArgumentParser.Result) throws {
@@ -107,7 +110,13 @@ final class DistRunTestsCommand: Command {
         let deploymentDestinations = try ArgumentsReader.deploymentDestinations(arguments.get(self.destinations), key: KnownStringArguments.destinations)
         let destinationConfigurations = try ArgumentsReader.destinationConfigurations(arguments.get(self.destinationConfigurations), key: KnownStringArguments.destinationConfigurations)
         let runId = JobId(value: try ArgumentsReader.validateNotNil(arguments.get(self.runId), key: KnownStringArguments.runId))
-        let tempFolder = try TemporaryFolder()
+        let tempFolder = try TemporaryFolder(
+            containerPath: AbsolutePath(
+                try ArgumentsReader.validateNotNil(
+                    arguments.get(self.tempFolder), key: KnownStringArguments.tempFolder
+                )
+            )
+        )
         let testArgFile = try ArgumentsReader.testArgFile(arguments.get(self.testArgFile), key: KnownStringArguments.testArgFile)
         let testDestinationConfigurations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
 

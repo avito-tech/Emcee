@@ -10,6 +10,7 @@ import Models
 import PortDeterminer
 import QueueClient
 import QueueServer
+import PathLib
 import RemotePortDeterminer
 import RemoteQueue
 import ResourceLocationResolver
@@ -38,6 +39,8 @@ final class RunTestsOnRemoteQueueCommand: Command {
     private let testArgFile: OptionArgument<String>
     private let testDestinations: OptionArgument<String>
     private let trace: OptionArgument<String>
+    private let tempFolder: OptionArgument<String>
+
     
     private let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
     private let resourceLocationResolver = ResourceLocationResolver()
@@ -58,6 +61,7 @@ final class RunTestsOnRemoteQueueCommand: Command {
         testDestinations = subparser.add(stringArgument: KnownStringArguments.testDestinations)
         trace = subparser.add(stringArgument: KnownStringArguments.trace)
         workerDestinations = subparser.add(stringArgument: KnownStringArguments.destinations)
+        tempFolder = subparser.add(stringArgument: KnownStringArguments.tempFolder)
     }
     
     func run(with arguments: ArgumentParser.Result) throws {
@@ -95,7 +99,13 @@ final class RunTestsOnRemoteQueueCommand: Command {
             )
         )
         let runId = JobId(value: try ArgumentsReader.validateNotNil(arguments.get(self.runId), key: KnownStringArguments.runId))
-        let tempFolder = try TemporaryFolder()
+        let tempFolder = try TemporaryFolder(
+            containerPath: AbsolutePath(
+                try ArgumentsReader.validateNotNil(
+                    arguments.get(self.tempFolder), key: KnownStringArguments.tempFolder
+                )
+            )
+        )
         let testArgFile = try ArgumentsReader.testArgFile(arguments.get(self.testArgFile), key: KnownStringArguments.testArgFile)
         let testDestinationConfigurations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
         let workerDestinations = try ArgumentsReader.deploymentDestinations(arguments.get(self.workerDestinations), key: KnownStringArguments.destinations)

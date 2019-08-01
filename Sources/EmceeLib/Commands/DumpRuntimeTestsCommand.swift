@@ -7,6 +7,7 @@ import Foundation
 import JunitReporting
 import Logging
 import Models
+import PathLib
 import ResourceLocationResolver
 import RuntimeDump
 import ScheduleStrategy
@@ -25,6 +26,7 @@ final class DumpRuntimeTestsCommand: Command {
     private let xctestBundle: OptionArgument<String>
     private let app: OptionArgument<String>
     private let fbsimctl: OptionArgument<String>
+    private let tempFolder: OptionArgument<String>
     private let encoder = JSONEncoder.pretty()
     private let resourceLocationResolver = ResourceLocationResolver()
     
@@ -36,6 +38,7 @@ final class DumpRuntimeTestsCommand: Command {
         xctestBundle = subparser.add(stringArgument: KnownStringArguments.xctestBundle)
         app = subparser.add(stringArgument: KnownStringArguments.app)
         fbsimctl = subparser.add(stringArgument: KnownStringArguments.fbsimctl)
+        tempFolder = subparser.add(stringArgument: KnownStringArguments.tempFolder)
     }
     
     func run(with arguments: ArgumentParser.Result) throws {
@@ -61,7 +64,13 @@ final class DumpRuntimeTestsCommand: Command {
             developerDir: DeveloperDir.current
         )
 
-        let tempFolder = try TemporaryFolder()
+        let tempFolder = try TemporaryFolder(
+            containerPath: AbsolutePath(
+                try ArgumentsReader.validateNotNil(
+                    arguments.get(self.tempFolder), key: KnownStringArguments.tempFolder
+                )
+            )
+        )
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder

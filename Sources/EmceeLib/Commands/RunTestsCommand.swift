@@ -103,7 +103,13 @@ final class RunTestsCommand: Command {
         )
         defer { eventBus.tearDown() }
         
-        let tempFolder = try TemporaryFolder(containerPath: AbsolutePath(try ArgumentsReader.validateNotNil(arguments.get(self.tempFolder), key: KnownStringArguments.tempFolder)))
+        let tempFolder = try TemporaryFolder(
+            containerPath: AbsolutePath(
+                try ArgumentsReader.validateNotNil(
+                    arguments.get(self.tempFolder), key: KnownStringArguments.tempFolder
+                )
+            )
+        )
         let testArgFile = try ArgumentsReader.testArgFile(arguments.get(self.testArgFile), key: KnownStringArguments.testArgFile)
         let testDestinationConfigurations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
 
