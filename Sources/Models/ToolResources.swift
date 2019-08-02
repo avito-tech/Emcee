@@ -26,7 +26,7 @@ public final class ToolResources: Codable, Hashable, CustomStringConvertible {
     }
     
     public var description: String {
-        return "<\((type(of: self))), \(simulatorControlTool), \(testRunnerTool)>"
+        return "<\((type(of: self))), simulatorControlTool: \(simulatorControlTool), testRunnerTool: \(testRunnerTool)>"
     }
     
     // MARK: - TODO: remove custom Encodable & Decodable, left for backwards compatibility

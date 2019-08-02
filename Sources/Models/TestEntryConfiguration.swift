@@ -25,6 +25,6 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
     }
     
     public var description: String {
-        return "<\(type(of: self)): \(testEntry) \(testType) \(testDestination)>"
+        return "<\(type(of: self)): \(testEntry) \(testType) \(testDestination) \(buildArtifacts) \(testExecutionBehavior) \(toolchainConfiguration)>"
     }
 }

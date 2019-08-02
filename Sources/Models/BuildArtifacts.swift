@@ -81,6 +81,17 @@ public final class BuildArtifacts: Codable, Hashable, CustomStringConvertible {
     }
     
     public var description: String {
-        return "<\((type(of: self))) appBundle: \(String(describing: appBundle)), runner: \(String(describing: runner)), xcTestBundle: \(xcTestBundle), additionalApplicationBundles: \(additionalApplicationBundles)>"
+        var result: [String] = []
+        if let appBundle = appBundle {
+            result += ["appBundle: \(appBundle)"]
+        }
+        if let runner = runner {
+            result += ["runner: \(runner)"]
+        }
+        result += ["xcTestBundle: \(xcTestBundle)"]
+        if !additionalApplicationBundles.isEmpty {
+            result += ["additionalApplicationBundles: \(additionalApplicationBundles)"]
+        }
+        return "<\(type(of: self)): " + result.joined(separator: " ") + ">"
     }
 }

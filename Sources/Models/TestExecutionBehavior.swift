@@ -1,7 +1,7 @@
 import Foundation
 
 /// A per-test configuration that extends the global TestRunExecutionBehavior
-public struct TestExecutionBehavior: Codable, Hashable {
+public struct TestExecutionBehavior: Codable, Hashable, CustomStringConvertible {
 
     /// Test environment
     public let environment: [String: String]
@@ -15,5 +15,9 @@ public struct TestExecutionBehavior: Codable, Hashable {
     {
         self.environment = environment
         self.numberOfRetries = numberOfRetries
+    }
+    
+    public var description: String {
+        return "numberOfRetries: \(numberOfRetries), environment: \(environment)"
     }
 }

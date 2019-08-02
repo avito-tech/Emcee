@@ -58,7 +58,10 @@ public final class LocalRunSchedulerDataSource: SchedulerDataSource {
             )
         )
 
-        Logger.verboseDebug("Will execute \(configuration.testEntryConfigurations.count) tests: \(configuration.testEntryConfigurations)")
+        Logger.verboseDebug("Will execute \(configuration.testEntryConfigurations.count) tests:")
+        for testEntryConfiguration in configuration.testEntryConfigurations {
+            Logger.verboseDebug(" -- \(testEntryConfiguration)")
+        }
         Logger.verboseDebug("Will split tests into following buckets:")
         buckets.forEach {
             Logger.verboseDebug("Bucket: \($0)")

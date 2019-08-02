@@ -13,7 +13,19 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
     public let toolchainConfiguration: ToolchainConfiguration
     
     public var description: String {
-        return "<\((type(of: self))) bucketId=\(bucketId)>"
+        var result = [String]()
+        
+        result.append("\(bucketId)")
+        result.append("testEntries: " + testEntries.map { $0.testName.stringValue }.joined(separator: ","))
+        result.append("buildArtifacts: \(buildArtifacts)")
+        result.append("testDestination: " + testDestination.destinationString)
+        result.append("testExecutionBehavior: \(testExecutionBehavior)")
+        result.append("testType: \(testType)")
+        result.append("toolResources: \(toolResources)")
+        result.append("simulatorSettings: \(simulatorSettings)")
+        result.append("toolchainConfiguration: \(toolchainConfiguration)")
+        
+        return "<\((type(of: self))) " + result.joined(separator: " ") + ">"
     }
 
     public init(
