@@ -905,7 +905,8 @@ let package = Package(
                 "PathLib",
                 "Runner",
                 "SynchronousWaiter",
-                "TemporaryStuff"
+                "TemporaryStuff",
+                "UniqueIdentifierGenerator"
             ]
         ),
         .testTarget(
@@ -919,7 +920,9 @@ let package = Package(
                 "RuntimeDump",
                 "SimulatorPoolTestHelpers",
                 "TestingFakeFbxctest",
-                "TemporaryStuff"
+                "TemporaryStuff",
+                "UniqueIdentifierGenerator",
+                "UniqueIdentifierGeneratorTestHelpers"
             ]
         ),
         .target(

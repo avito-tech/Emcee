@@ -8,6 +8,8 @@ import SimulatorPool
 import SimulatorPoolTestHelpers
 import TemporaryStuff
 import TestingFakeFbxctest
+import UniqueIdentifierGenerator
+import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class RuntimeTestQuerierTests: XCTestCase {
@@ -15,6 +17,8 @@ final class RuntimeTestQuerierTests: XCTestCase {
     let fbxctest = try! FakeFbxctestExecutableProducer.fakeFbxctestPath(runId: UUID().uuidString)
     let resourceLocationResolver = ResourceLocationResolver()
     let tempFolder = try! TemporaryFolder()
+    let dumpFilename = UUID().uuidString
+    lazy var fixedValueUniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: dumpFilename)
     
     lazy var simulatorPool = OnDemandSimulatorPool(
         resourceLocationResolver: resourceLocationResolver,
@@ -90,7 +94,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
     
     func test__when_JSON_file_has_incorrect_format_throws__without_application_test_support() throws {
         try tempFolder.createFile(
-            filename: RuntimeTestQuerierImpl.runtimeTestsJsonFilename,
+            filename: dumpFilename,
             contents: "oopps".data(using: .utf8)!)
         let querier = runtimeTestQuerier()
         let configuration = runtimeDumpConfiguration(
@@ -145,7 +149,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
 
     func test__when_JSON_file_has_incorrect_format_throws__with_application_test_support() throws {
         try tempFolder.createFile(
-            filename: RuntimeTestQuerierImpl.runtimeTestsJsonFilename,
+            filename: dumpFilename,
             contents: "oopps".data(using: .utf8)!)
         let querier = runtimeTestQuerier()
         let configuration = runtimeDumpConfiguration(
@@ -158,8 +162,9 @@ final class RuntimeTestQuerierTests: XCTestCase {
     private func prepareFakeRuntimeDumpOutputForTestQuerier(entries: [RuntimeTestEntry]) throws {
         let data = try JSONEncoder().encode(entries)
         try tempFolder.createFile(
-            filename: RuntimeTestQuerierImpl.runtimeTestsJsonFilename,
-            contents: data)
+            filename: dumpFilename,
+            contents: data
+        )
     }
     
     private func runtimeTestQuerier() -> RuntimeTestQuerier {
@@ -167,6 +172,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
             eventBus: eventBus,
             resourceLocationResolver: resourceLocationResolver,
             onDemandSimulatorPool: simulatorPool,
+            uniqueIdentifierGenerator: fixedValueUniqueIdentifierGenerator,
             tempFolder: tempFolder
         )
     }

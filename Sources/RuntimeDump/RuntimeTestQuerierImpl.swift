@@ -10,6 +10,7 @@ import Runner
 import SimulatorPool
 import SynchronousWaiter
 import TemporaryStuff
+import UniqueIdentifierGenerator
 
 public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
     private let eventBus: EventBus
@@ -17,17 +18,19 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TemporaryFolder
     private let onDemandSimulatorPool: OnDemandSimulatorPool
-    static let runtimeTestsJsonFilename = "runtime_tests.json"
+    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     
     public init(
         eventBus: EventBus,
         resourceLocationResolver: ResourceLocationResolver,
         onDemandSimulatorPool: OnDemandSimulatorPool,
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator = UuidBasedUniqueIdentifierGenerator(),
         tempFolder: TemporaryFolder
     ) {
         self.eventBus = eventBus
         self.resourceLocationResolver = resourceLocationResolver
         self.onDemandSimulatorPool = onDemandSimulatorPool
+        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.tempFolder = tempFolder
     }
     
@@ -59,7 +62,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
     }
     
     private func availableTestsInRuntime(configuration: RuntimeDumpConfiguration) throws -> [RuntimeTestEntry] {
-        let runtimeEntriesJSONPath = tempFolder.pathWith(components: [RuntimeTestQuerierImpl.runtimeTestsJsonFilename])
+        let runtimeEntriesJSONPath = tempFolder.pathWith(components: [uniqueIdentifierGenerator.generate()])
         Logger.debug("Will dump runtime tests into file: \(runtimeEntriesJSONPath)")
 
         let allocatedSimulator = try simulatorForRuntimeDump(configuration: configuration)
