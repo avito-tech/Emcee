@@ -16,6 +16,8 @@ __pycache__
 .pytest_cache
 venv
 .python-version
+.mypy_cache
+.coverage
 
 # Utility
 *.ignored*
