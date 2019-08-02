@@ -241,6 +241,50 @@ public class FbsimctlBasedSimulatorController: SimulatorController, CustomString
     }
 
     private func attemptToDeleteSimulatorFiles() throws {
+        try deleteSimulatorLogs() // must be called before deleting files in simulator working directory
+        try deleteSimulatorViaXcrun()
+        try deleteSimulatorSetContainer()
+        try deleteSimulatorWorkingDirectory()
+    }
+    
+    // MARK: - Deletion
+    
+    private func deleteSimulatorLogs() throws {
+        if let simulatorLogsPath = simulatorLogsPath(simulator: simulator) {
+            if FileManager.default.fileExists(atPath: simulatorLogsPath) {
+                Logger.verboseDebug("Removing logs of simulator \(simulator)")
+                try FileManager.default.removeItem(atPath: simulatorLogsPath)
+            }
+        }
+    }
+    
+    private func simulatorLogsPath(simulator: Simulator) -> String? {
+        guard let uuid = simulator.uuid else {
+            Logger.warning("Couldn't get simulator uuid to get path to logs of simulator \(simulator)")
+            return nil
+        }
+        
+        let pathString = ("~/Library/Logs/CoreSimulator/" as NSString)
+            .expandingTildeInPath
+            .appending(pathComponent: uuid.uuidString)
+        
+        return pathString
+    }
+    
+    private func deleteSimulatorSetContainer() throws {
+        if FileManager.default.fileExists(atPath: simulator.simulatorSetContainerPath.pathString) {
+            Logger.verboseDebug("Removing files left by simulator \(simulator)")
+            try FileManager.default.removeItem(atPath: simulator.simulatorSetContainerPath.pathString)
+        }
+    }
+    private func deleteSimulatorWorkingDirectory() throws {
+        if FileManager.default.fileExists(atPath: simulator.workingDirectory.pathString) {
+            Logger.verboseDebug("Removing working directory of simulator \(simulator)")
+            try FileManager.default.removeItem(atPath: simulator.workingDirectory.pathString)
+        }
+    }
+    
+    private func deleteSimulatorViaXcrun() throws {
         if let simulatorUuid = simulator.simulatorInfo.simulatorUuid {
             Logger.debug("Deleting simulator \(simulatorUuid)")
             let deleteController = try ProcessController(
@@ -257,16 +301,6 @@ public class FbsimctlBasedSimulatorController: SimulatorController, CustomString
                 )
             )
             deleteController.startAndListenUntilProcessDies()
-        }
-
-        if FileManager.default.fileExists(atPath: simulator.simulatorSetContainerPath.pathString) {
-            Logger.verboseDebug("Removing files left by simulator \(simulator)")
-            try FileManager.default.removeItem(atPath: simulator.simulatorSetContainerPath.pathString)
-        }
-        
-        if FileManager.default.fileExists(atPath: simulator.workingDirectory.pathString) {
-            Logger.verboseDebug("Removing working directory of simulator \(simulator)")
-            try FileManager.default.removeItem(atPath: simulator.workingDirectory.pathString)
         }
     }
 
