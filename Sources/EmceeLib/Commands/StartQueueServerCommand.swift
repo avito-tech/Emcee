@@ -65,7 +65,6 @@ final class StartQueueServerCommand: Command {
             eventBus: eventBus,
             workerConfigurations: workerConfigurations,
             reportAliveInterval: queueServerRunConfiguration.reportAliveInterval,
-            newWorkerRegistrationTimeAllowance: 360.0,
             checkAgainTimeInterval: queueServerRunConfiguration.checkAgainTimeInterval,
             localPortDeterminer: localPortDeterminer,
             workerAlivenessPolicy: .workersStayAliveWhenQueueIsDepleted,
@@ -81,10 +80,14 @@ final class StartQueueServerCommand: Command {
             requestSignature: requestSignature,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
+        let queueServerTerminationWaiter = QueueServerTerminationWaiter(
+            pollInterval: 5.0,
+            queueServerTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy
+        )
         let localQueueServerRunner = LocalQueueServerRunner(
             queueServer: queueServer,
             automaticTerminationController: automaticTerminationController,
-            pollInterval: 5.0,
+            queueServerTerminationWaiter: queueServerTerminationWaiter,
             queueServerTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy
         )
         try localQueueServerRunner.start()

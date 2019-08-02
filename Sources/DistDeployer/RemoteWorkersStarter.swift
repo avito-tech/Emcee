@@ -12,7 +12,6 @@ public final class RemoteWorkersStarter {
     private let emceeVersionProvider: VersionProvider
     private let deploymentDestinations: [DeploymentDestination]
     private let pluginLocations: [PluginLocation]
-    private let queueAddress: SocketAddress
     private let analyticsConfigurationLocation: AnalyticsConfigurationLocation?
     private let tempFolder: TemporaryFolder
 
@@ -21,7 +20,6 @@ public final class RemoteWorkersStarter {
         emceeVersionProvider: VersionProvider,
         deploymentDestinations: [DeploymentDestination],
         pluginLocations: [PluginLocation],
-        queueAddress: SocketAddress,
         analyticsConfigurationLocation: AnalyticsConfigurationLocation?,
         tempFolder: TemporaryFolder
         )
@@ -30,12 +28,11 @@ public final class RemoteWorkersStarter {
         self.emceeVersionProvider = emceeVersionProvider
         self.deploymentDestinations = deploymentDestinations
         self.pluginLocations = pluginLocations
-        self.queueAddress = queueAddress
         self.analyticsConfigurationLocation = analyticsConfigurationLocation
         self.tempFolder = tempFolder
     }
     
-    public func deployAndStartWorkers() throws {
+    public func deployAndStartWorkers(queueAddress: SocketAddress) throws {
         let deployablesGenerator = DeployablesGenerator(
             emceeVersionProvider: emceeVersionProvider,
             pluginLocations: pluginLocations,

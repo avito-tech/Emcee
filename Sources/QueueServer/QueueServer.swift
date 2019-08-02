@@ -8,7 +8,7 @@ public protocol QueueServer {
         testEntryConfigurations: [TestEntryConfiguration],
         prioritizedJob: PrioritizedJob
     )
-    func waitForJobToFinish(jobId: JobId) throws -> JobResults
+    func queueResults(jobId: JobId) throws -> JobResults
     var isDepleted: Bool { get }
     var hasAnyAliveWorker: Bool { get }
     var ongoingJobIds: Set<JobId> { get }

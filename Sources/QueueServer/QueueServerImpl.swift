@@ -23,8 +23,6 @@ public final class QueueServerImpl: QueueServer {
     private let jobResultsEndpoint: JobResultsEndpoint
     private let jobStateEndpoint: JobStateEndpoint
     private let jobDeleteEndpoint: JobDeleteEndpoint
-    private let newWorkerRegistrationTimeAllowance: TimeInterval
-    private let queueExhaustTimeAllowance: TimeInterval
     private let queueServerVersionHandler: QueueServerVersionEndpoint
     private let restServer: QueueHTTPRESTServer
     private let scheduleTestsHandler: ScheduleTestsEndpoint
@@ -40,8 +38,6 @@ public final class QueueServerImpl: QueueServer {
         eventBus: EventBus,
         workerConfigurations: WorkerConfigurations,
         reportAliveInterval: TimeInterval,
-        newWorkerRegistrationTimeAllowance: TimeInterval,
-        queueExhaustTimeAllowance: TimeInterval = .infinity,
         checkAgainTimeInterval: TimeInterval,
         localPortDeterminer: LocalPortDeterminer,
         workerAlivenessPolicy: WorkerAlivenessPolicy,
@@ -113,8 +109,6 @@ public final class QueueServerImpl: QueueServer {
             expectedRequestSignature: requestSignature,
             workerAlivenessTracker: workerAlivenessTracker
         )
-        self.newWorkerRegistrationTimeAllowance = newWorkerRegistrationTimeAllowance
-        self.queueExhaustTimeAllowance = queueExhaustTimeAllowance
         self.queueServerVersionHandler = QueueServerVersionEndpoint(
             queueServerLock: queueServerLock,
             versionProvider: queueVersionProvider
@@ -174,8 +168,7 @@ public final class QueueServerImpl: QueueServer {
         return balancingBucketQueue.ongoingJobIds
     }
     
-    public func waitForJobToFinish(jobId: JobId) throws -> JobResults {
-        Logger.debug("Bucket queue has depleted")
+    public func queueResults(jobId: JobId) throws -> JobResults {
         return try balancingBucketQueue.results(jobId: jobId)
     }
 }

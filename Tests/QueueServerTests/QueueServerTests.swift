@@ -40,7 +40,6 @@ final class QueueServerTests: XCTestCase {
             eventBus: eventBus,
             workerConfigurations: workerConfigurations,
             reportAliveInterval: .infinity,
-            newWorkerRegistrationTimeAllowance: 0.0,
             checkAgainTimeInterval: .infinity, 
             localPortDeterminer: localPortDeterminer,
             workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
@@ -50,44 +49,7 @@ final class QueueServerTests: XCTestCase {
             requestSignature: requestSignature,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
-        XCTAssertThrowsError(try server.waitForJobToFinish(jobId: jobId))
-    }
-    
-    func test__queue_waits_for_depletion__when_worker_register_with_queue() throws {
-        let testEntryConfiguration = TestEntryConfigurationFixtures()
-            .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "test"))
-            .testEntryConfigurations()
-        workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
-        
-        let server = QueueServerImpl(
-            automaticTerminationController: automaticTerminationController,
-            dateProvider: DateProviderFixture(),
-            eventBus: EventBus(),
-            workerConfigurations: workerConfigurations,
-            reportAliveInterval: .infinity,
-            newWorkerRegistrationTimeAllowance: .infinity,
-            queueExhaustTimeAllowance: 0.0,
-            checkAgainTimeInterval: .infinity,
-            localPortDeterminer: localPortDeterminer,
-            workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
-            bucketSplitInfo: bucketSplitInfo,
-            queueServerLock: NeverLockableQueueServerLock(),
-            queueVersionProvider: queueVersionProvider,
-            requestSignature: requestSignature,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
-        )
-        server.schedule(
-            bucketSplitter: ScheduleStrategyType.individual.bucketSplitter(
-                uniqueIdentifierGenerator: uniqueIdentifierGenerator
-            ),
-            testEntryConfigurations: testEntryConfiguration,
-            prioritizedJob: prioritizedJob
-        )
-        
-        let client = synchronousQueueClient(port: try server.start())
-        
-        XCTAssertNoThrow(_ = try client.registerWithServer(workerId: workerId))
-        XCTAssertThrowsError(try server.waitForJobToFinish(jobId: jobId))
+        XCTAssertThrowsError(try server.queueResults(jobId: jobId))
     }
     
     func test__queue_returns_results_after_depletion() throws {
@@ -106,14 +68,15 @@ final class QueueServerTests: XCTestCase {
             .testingResult()
         
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
+        let terminationController = AutomaticTerminationControllerFactory(
+            automaticTerminationPolicy: .after(timeInterval: 0.1)
+        ).createAutomaticTerminationController()
         let server = QueueServerImpl(
-            automaticTerminationController: automaticTerminationController,
+            automaticTerminationController: terminationController,
             dateProvider: DateProviderFixture(),
             eventBus: EventBus(),
             workerConfigurations: workerConfigurations,
             reportAliveInterval: .infinity,
-            newWorkerRegistrationTimeAllowance: .infinity,
-            queueExhaustTimeAllowance: 10.0,
             checkAgainTimeInterval: .infinity,
             localPortDeterminer: localPortDeterminer,
             workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
@@ -130,25 +93,32 @@ final class QueueServerTests: XCTestCase {
             testEntryConfigurations: testEntryConfigurations,
             prioritizedJob: prioritizedJob
         )
+        let queueWaiter = QueueServerTerminationWaiter(pollInterval: 0.1, queueServerTerminationPolicy: .stayAlive)
         
         let expectationForResults = expectation(description: "results became available")
+        
+        let client = synchronousQueueClient(port: try server.start())
+        XCTAssertNoThrow(_ = try client.registerWithServer(workerId: workerId))
         
         var actualResults = [JobResults]()
         DispatchQueue.global().async {
             do {
-                actualResults.append(try server.waitForJobToFinish(jobId: self.jobId))
+                actualResults.append(
+                    try queueWaiter.waitForJobToFinish(
+                        queueServer: server,
+                        automaticTerminationController: terminationController,
+                        jobId: self.jobId
+                    )
+                )
                 expectationForResults.fulfill()
             } catch {
                 XCTFail("Unexpected error: \(error)")
             }
         }
         
-        let client = synchronousQueueClient(port: try server.start())
-        XCTAssertNoThrow(_ = try client.registerWithServer(workerId: workerId))
         let fetchResult = try client.fetchBucket(requestId: "request", workerId: workerId, requestSignature: requestSignature)
         XCTAssertEqual(fetchResult, SynchronousQueueClient.BucketFetchResult.bucket(bucket))
         XCTAssertNoThrow(try client.send(testingResult: testingResult, requestId: "request", workerId: workerId, requestSignature: requestSignature))
-        
         wait(for: [expectationForResults], timeout: 10)
         
         XCTAssertEqual(

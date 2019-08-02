@@ -15,92 +15,49 @@ import TemporaryStuff
 import UniqueIdentifierGenerator
 import Version
 
-public final class DistRunner {    
+public final class DistRunner {
+    private let automaticTerminationController: AutomaticTerminationController
+    private let bucketSplitter: BucketSplitter
     private let distRunConfiguration: DistRunConfiguration
-    private let eventBus: EventBus
-    private let localPortDeterminer: LocalPortDeterminer
-    private let localQueueVersionProvider: VersionProvider
-    private let resourceLocationResolver: ResourceLocationResolver
-    private let tempFolder: TemporaryFolder
-    private let requestSignature = RequestSignature(value: UUID().uuidString)
-    private let uniqueIdentifierGenerator = UuidBasedUniqueIdentifierGenerator()
+    private let queueServer: QueueServer
+    private let queueServerTerminationWaiter: QueueServerTerminationWaiter
+    private let workersStarter: RemoteWorkersStarter
     
     public init(
+        automaticTerminationController: AutomaticTerminationController,
+        bucketSplitter: BucketSplitter,
         distRunConfiguration: DistRunConfiguration,
-        eventBus: EventBus,
-        localPortDeterminer: LocalPortDeterminer,
-        localQueueVersionProvider: VersionProvider,
-        resourceLocationResolver: ResourceLocationResolver,
-        tempFolder: TemporaryFolder
+        queueServer: QueueServer,
+        queueServerTerminationWaiter: QueueServerTerminationWaiter,
+        workersStarter: RemoteWorkersStarter
     ) {
+        self.automaticTerminationController = automaticTerminationController
+        self.bucketSplitter = bucketSplitter
         self.distRunConfiguration = distRunConfiguration
-        self.eventBus = eventBus
-        self.localPortDeterminer = localPortDeterminer
-        self.localQueueVersionProvider = localQueueVersionProvider
-        self.resourceLocationResolver = resourceLocationResolver
-        self.tempFolder = tempFolder
+        self.queueServer = queueServer
+        self.queueServerTerminationWaiter = queueServerTerminationWaiter
+        self.workersStarter = workersStarter
     }
     
     public func run() throws -> [TestingResult] {
-        let queueServer = QueueServerImpl(
-            automaticTerminationController: AutomaticTerminationControllerFactory(
-                automaticTerminationPolicy: .stayAlive
-            ).createAutomaticTerminationController(),
-            dateProvider: SystemDateProvider(),
-            eventBus: eventBus,
-            workerConfigurations: createWorkerConfigurations(),
-            reportAliveInterval: distRunConfiguration.reportAliveInterval,
-            newWorkerRegistrationTimeAllowance: 360.0,
-            checkAgainTimeInterval: distRunConfiguration.checkAgainTimeInterval,
-            localPortDeterminer: localPortDeterminer,
-            workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
-            bucketSplitInfo: BucketSplitInfo(
-                numberOfWorkers: UInt(distRunConfiguration.destinations.count),
-                toolResources: distRunConfiguration.auxiliaryResources.toolResources,
-                simulatorSettings: distRunConfiguration.simulatorSettings
-            ),
-            queueServerLock: NeverLockableQueueServerLock(),
-            queueVersionProvider: localQueueVersionProvider,
-            requestSignature: requestSignature,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
-        )
         queueServer.schedule(
-            bucketSplitter: distRunConfiguration.scheduleStrategyType.bucketSplitter(
-                uniqueIdentifierGenerator: uniqueIdentifierGenerator
-            ),
+            bucketSplitter: bucketSplitter,
             testEntryConfigurations: distRunConfiguration.testEntryConfigurations,
             prioritizedJob: PrioritizedJob(jobId: distRunConfiguration.runId, priority: Priority.medium)
         )
         let queuePort = try queueServer.start()
-        
-        let workersStarter = RemoteWorkersStarter(
-            deploymentId: distRunConfiguration.runId.value,
-            emceeVersionProvider: localQueueVersionProvider,
-            deploymentDestinations: distRunConfiguration.destinations,
-            pluginLocations: distRunConfiguration.auxiliaryResources.plugins,
-            queueAddress: SocketAddress(
-                host: LocalHostDeterminer.currentHostAddress,
-                port: queuePort
-            ),
-            analyticsConfigurationLocation: distRunConfiguration.analyticsConfigurationLocation,
-            tempFolder: tempFolder
+        let queueAddress = SocketAddress(
+            host: LocalHostDeterminer.currentHostAddress,
+            port: queuePort
         )
-        try workersStarter.deployAndStartWorkers()
-        
-        return try queueServer.waitForJobToFinish(jobId: distRunConfiguration.runId).testingResults
+        try workersStarter.deployAndStartWorkers(
+            queueAddress: queueAddress
+        )
+        return try queueServerTerminationWaiter.waitForJobToFinish(
+            queueServer: queueServer,
+            automaticTerminationController: automaticTerminationController,
+            jobId: distRunConfiguration.runId
+        ).testingResults
     }
     
-    private func createWorkerConfigurations() -> WorkerConfigurations {
-        let configurations = WorkerConfigurations()
-        for destination in distRunConfiguration.destinations {
-            configurations.add(
-                workerId: WorkerId(value: destination.identifier),
-                configuration: distRunConfiguration.workerConfiguration(
-                    destination: destination,
-                    requestSignature: requestSignature
-                )
-            )
-        }
-        return configurations
-    }
 }

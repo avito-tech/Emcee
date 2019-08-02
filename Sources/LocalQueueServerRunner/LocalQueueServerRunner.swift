@@ -14,26 +14,26 @@ import Version
 public final class LocalQueueServerRunner {
     private let queueServer: QueueServer
     private let automaticTerminationController: AutomaticTerminationController
+    private let queueServerTerminationWaiter: QueueServerTerminationWaiter
     private let queueServerTerminationPolicy: AutomaticTerminationPolicy
-    private let pollInterval: TimeInterval
 
     public init(
         queueServer: QueueServer,
         automaticTerminationController: AutomaticTerminationController,
-        pollInterval: TimeInterval,
+        queueServerTerminationWaiter: QueueServerTerminationWaiter,
         queueServerTerminationPolicy: AutomaticTerminationPolicy
     ) {
         self.queueServer = queueServer
         self.automaticTerminationController = automaticTerminationController
+        self.queueServerTerminationWaiter = queueServerTerminationWaiter
         self.queueServerTerminationPolicy = queueServerTerminationPolicy
-        self.pollInterval = pollInterval
     }
     
     public func start() throws {
         _ = try queueServer.start()
-        try waitForAutomaticTerminationControllerToTriggerStartOfTermination(
-            automaticTerminationController: automaticTerminationController,
-            queueServer: queueServer
+        try queueServerTerminationWaiter.waitForAllJobsWillBeDone(
+            queueServer: queueServer,
+            automaticTerminationController: automaticTerminationController
         )
         try waitForAllJobsToBeDeleted(
             queueServer: queueServer,
@@ -41,17 +41,9 @@ public final class LocalQueueServerRunner {
         )
     }
     
-    private func waitForAutomaticTerminationControllerToTriggerStartOfTermination(
-        automaticTerminationController: AutomaticTerminationController,
-        queueServer: QueueServer) throws {
-        try SynchronousWaiter.waitWhile(pollPeriod: pollPeriod, description: "Wait for automatic termination") {
-            !automaticTerminationController.isTerminationAllowed || !queueServer.hasAnyAliveWorker
-        }
-    }
-    
     private func waitForAllJobsToBeDeleted(queueServer: QueueServer, timeout: TimeInterval) throws {
         try SynchronousWaiter.waitWhile(pollPeriod: pollPeriod, timeout: timeout, description: "Wait for all jobs to be deleted") {
-            !queueServer.ongoingJobIds.isEmpty || queueServer.isDepleted
+            !queueServer.ongoingJobIds.isEmpty
         }
     }
     

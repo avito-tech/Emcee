@@ -1,5 +1,8 @@
 import ArgumentsParser
+import AutomaticTermination
+import DateProvider
 import Deployer
+import DistDeployer
 import DistRunner
 import EventBus
 import Foundation
@@ -13,8 +16,10 @@ import ResourceLocationResolver
 import ScheduleStrategy
 import TemporaryStuff
 import Version
+import UniqueIdentifierGenerator
 import Utility
 import SimulatorPool
+import QueueServer
 import RuntimeDump
 
 final class DistRunTestsCommand: Command {
@@ -166,20 +171,80 @@ final class DistRunTestsCommand: Command {
     
     func run(distRunConfiguration: DistRunConfiguration, eventBus: EventBus, tempFolder: TemporaryFolder) throws {
         Logger.verboseDebug("Using dist run configuration: \(distRunConfiguration)")
-        
-        let distRunner = DistRunner(
+        let automaticTerminationController = AutomaticTerminationControllerFactory(
+            automaticTerminationPolicy: .stayAlive
+        ).createAutomaticTerminationController()
+        let uniqueIdentifierGenerator = UuidBasedUniqueIdentifierGenerator()
+        let bucketSplitter = distRunConfiguration.scheduleStrategyType.bucketSplitter(
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+        )
+        let requestSignature = RequestSignature(value: UUID().uuidString)
+        let localPortDeterminer = LocalPortDeterminer(portRange: Ports.defaultQueuePortRange)
+        let workerConfigurations = createWorkerConfigurations(
             distRunConfiguration: distRunConfiguration,
+            requestSignature: requestSignature
+        )
+        let queueServer = QueueServerImpl(
+            automaticTerminationController: automaticTerminationController,
+            dateProvider: SystemDateProvider(),
             eventBus: eventBus,
-            localPortDeterminer: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange),
-            localQueueVersionProvider: localQueueVersionProvider,
-            resourceLocationResolver: resourceLocationResolver,
+            workerConfigurations: workerConfigurations,
+            reportAliveInterval: distRunConfiguration.reportAliveInterval,
+            checkAgainTimeInterval: distRunConfiguration.checkAgainTimeInterval,
+            localPortDeterminer: localPortDeterminer,
+            workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
+            bucketSplitInfo: BucketSplitInfo(
+                numberOfWorkers: UInt(distRunConfiguration.destinations.count),
+                toolResources: distRunConfiguration.auxiliaryResources.toolResources,
+                simulatorSettings: distRunConfiguration.simulatorSettings
+            ),
+            queueServerLock: NeverLockableQueueServerLock(),
+            queueVersionProvider: localQueueVersionProvider,
+            requestSignature: requestSignature,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+        )
+        let workersStarter = RemoteWorkersStarter(
+            deploymentId: distRunConfiguration.runId.value,
+            emceeVersionProvider: localQueueVersionProvider,
+            deploymentDestinations: distRunConfiguration.destinations,
+            pluginLocations: distRunConfiguration.auxiliaryResources.plugins,
+            analyticsConfigurationLocation: distRunConfiguration.analyticsConfigurationLocation,
             tempFolder: tempFolder
+        )
+        let queueServerTerminationWaiter = QueueServerTerminationWaiter(
+            pollInterval: 5.0,
+            queueServerTerminationPolicy: .stayAlive // ?
+        )
+        let distRunner = DistRunner(
+            automaticTerminationController: automaticTerminationController,
+            bucketSplitter: bucketSplitter,
+            distRunConfiguration: distRunConfiguration,
+            queueServer: queueServer,
+            queueServerTerminationWaiter: queueServerTerminationWaiter,
+            workersStarter: workersStarter
         )
         let testingResults = try distRunner.run()
         try ResultingOutputGenerator(
             testingResults: testingResults,
             commonReportOutput: distRunConfiguration.reportOutput,
-            testDestinationConfigurations: distRunConfiguration.testDestinationConfigurations)
-            .generateOutput()
+            testDestinationConfigurations: distRunConfiguration.testDestinationConfigurations
+        ).generateOutput()
+    }
+    
+    private func createWorkerConfigurations(
+        distRunConfiguration: DistRunConfiguration,
+        requestSignature: RequestSignature
+    ) -> WorkerConfigurations {
+        let configurations = WorkerConfigurations()
+        for destination in distRunConfiguration.destinations {
+            configurations.add(
+                workerId: WorkerId(value: destination.identifier),
+                configuration: distRunConfiguration.workerConfiguration(
+                    destination: destination,
+                    requestSignature: requestSignature
+                )
+            )
+        }
+        return configurations
     }
 }

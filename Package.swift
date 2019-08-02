@@ -747,6 +747,14 @@ let package = Package(
                 "WorkerAlivenessTracker"
             ]
         ),
+        .target(
+            // MARK: QueueServerTestHelpers
+            name: "QueueServerTestHelpers",
+            dependencies: [
+                "QueueServer"
+            ],
+            path: "Tests/QueueServerTestHelpers"
+        ),
         .testTarget(
             // MARK: QueueServerTests
             name: "QueueServerTests",
@@ -762,6 +770,7 @@ let package = Package(
                 "Models",
                 "ModelsTestHelpers",
                 "QueueServer",
+                "QueueServerTestHelpers",
                 "RESTMethods",
                 "ResourceLocationResolver",
                 "ResultsCollector",

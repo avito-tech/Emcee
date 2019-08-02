@@ -2,6 +2,7 @@ import AutomaticTermination
 import LocalQueueServerRunner
 import Models
 import QueueServer
+import QueueServerTestHelpers
 import ScheduleStrategy
 import XCTest
 
@@ -9,14 +10,18 @@ final class LocalQueueServerRunnerTests: XCTestCase {
     
     private let automaticTerminationController = AutomaticTerminationControllerFixture(isTerminationAllowed: false)
     private let queueServer = QueueServerFixture()
+    let queueServerTerminationWaiter = QueueServerTerminationWaiter(
+        pollInterval: 0.1,
+        queueServerTerminationPolicy: AutomaticTerminationPolicy.stayAlive
+    )
     private lazy var runner = LocalQueueServerRunner(
         queueServer: queueServer,
         automaticTerminationController: automaticTerminationController,
-        pollInterval: 0.01,
+        queueServerTerminationWaiter: queueServerTerminationWaiter,
         queueServerTerminationPolicy: AutomaticTerminationPolicy.stayAlive
     )
     
-    let queue = DispatchQueue(label: "runner queue")
+    let runnerQueue = DispatchQueue(label: "runner queue")
     let impactQueue = DispatchQueue(label: "impact queue")
     
     func test___queue_server_runner_should_wait___while_automatic_termination_is_not_allowed() throws {
@@ -25,7 +30,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         
         queueServer.isDepleted = true
         
-        queue.async {
+        runnerQueue.async {
             _ = try? self.runner.start()
             expectation.fulfill()
         }
@@ -41,7 +46,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         queueServer.isDepleted = false
         queueServer.ongoingJobIds = [JobId(value: "jobid")]
         
-        queue.async {
+        runnerQueue.async {
             _ = try? self.runner.start()
             expectation.fulfill()
         }
@@ -57,7 +62,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         queueServer.isDepleted = true
         queueServer.ongoingJobIds = [JobId(value: "jobid")]
         
-        queue.async {
+        runnerQueue.async {
             _ = try? self.runner.start()
             expectation.fulfill()
         }
@@ -68,7 +73,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
     func test___queue_server_runner_stops___after_all_workers_have_died() throws {
         let expectation = self.expectation(description: "runner should stop when queue has no alive workers")
         
-        queue.async {
+        runnerQueue.async {
             _ = try? self.runner.start()
             expectation.fulfill()
         }
@@ -84,7 +89,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         let expectation = self.expectation(description: "runner should stop when automatic termination controller allows")
         queueServer.isDepleted = true
         
-        queue.async {
+        runnerQueue.async {
             _ = try? self.runner.start()
             expectation.fulfill()
         }
@@ -101,7 +106,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         
         let expectation = self.expectation(description: "runner should stop when automatic termination controller allows and after queue has been depleted")
         
-        queue.async {
+        runnerQueue.async {
             _ = try? self.runner.start()
             expectation.fulfill()
         }
@@ -120,7 +125,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         
         let expectation = self.expectation(description: "runner should stop when automatic termination controller allows and after queue has no jobs left")
         
-        queue.async {
+        runnerQueue.async {
             _ = try? self.runner.start()
             expectation.fulfill()
         }
@@ -131,26 +136,4 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         
         wait(for: [expectation], timeout: 60.0)
     }
-}
-
-class QueueServerFixture: QueueServer {
-    
-    public var isDepleted = false
-    public var hasAnyAliveWorker = true
-    public var ongoingJobIds = Set<JobId>()
-    
-    init() {}
-    
-    func start() throws -> Int {
-        return 1
-    }
-    
-    func schedule(bucketSplitter: BucketSplitter, testEntryConfigurations: [TestEntryConfiguration], prioritizedJob: PrioritizedJob) {
-        ongoingJobIds.insert(prioritizedJob.jobId)
-    }
-    
-    func waitForJobToFinish(jobId: JobId) throws -> JobResults {
-        return JobResults(jobId: jobId, testingResults: [])
-    }
-    
 }

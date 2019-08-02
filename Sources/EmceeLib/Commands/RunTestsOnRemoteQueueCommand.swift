@@ -193,11 +193,12 @@ final class RunTestsOnRemoteQueueCommand: Command {
             emceeVersionProvider: localQueueVersionProvider,
             deploymentDestinations: workerDestinations,
             pluginLocations: pluginLocations,
-            queueAddress: queueServerAddress,
             analyticsConfigurationLocation: analyticsConfigurationLocation,
             tempFolder: tempFolder
         )
-        try remoteWorkersStarter.deployAndStartWorkers()
+        try remoteWorkersStarter.deployAndStartWorkers(
+            queueAddress: queueServerAddress
+        )
         
         return queueServerAddress
     }
