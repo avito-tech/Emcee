@@ -87,11 +87,20 @@ let package = Package(
                 "Timer"
             ]
         ),
+        .target(
+            // MARK: AutomaticTerminationTestHelpers
+            name: "AutomaticTerminationTestHelpers",
+            dependencies: [
+                "AutomaticTermination"
+            ],
+            path: "Tests/AutomaticTerminationTestHelpers"
+        ),
         .testTarget(
             // MARK: AutomaticTerminationTests
             name: "AutomaticTerminationTests",
             dependencies: [
                 "AutomaticTermination",
+                "AutomaticTerminationTestHelpers",
                 "DateProvider"
             ]
         ),
@@ -760,6 +769,7 @@ let package = Package(
             name: "QueueServerTests",
             dependencies: [
                 "AutomaticTermination",
+                "AutomaticTerminationTestHelpers",
                 "BalancingBucketQueue",
                 "BucketQueue",
                 "BucketQueueTestHelpers",

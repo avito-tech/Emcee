@@ -1,4 +1,5 @@
 import AutomaticTermination
+import AutomaticTerminationTestHelpers
 import LocalQueueServerRunner
 import XCTest
 
@@ -12,16 +13,4 @@ final class AutomaticTerminationControllerAwareQueueServerLockTests: XCTestCase 
         controller.isTerminationAllowed = true
         XCTAssertFalse(queueServerLock.isDiscoverable)
     }
-}
-
-class AutomaticTerminationControllerFixture: AutomaticTerminationController {
-    var isTerminationAllowed: Bool
-
-    public init(isTerminationAllowed: Bool) {
-        self.isTerminationAllowed = isTerminationAllowed
-    }
-    
-    func indicateActivityFinished() {}
-    func add(handler: @escaping AutomaticTerminationControllerHandler) {}
-    func startTracking() {}
 }
