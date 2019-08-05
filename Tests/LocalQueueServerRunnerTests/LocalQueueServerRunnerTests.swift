@@ -10,7 +10,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
     
     private let automaticTerminationController = AutomaticTerminationControllerFixture(isTerminationAllowed: false)
     private let queueServer = QueueServerFixture()
-    let queueServerTerminationWaiter = QueueServerTerminationWaiter(
+    let queueServerTerminationWaiter = QueueServerTerminationWaiterImpl(
         pollInterval: 0.1,
         queueServerTerminationPolicy: AutomaticTerminationPolicy.stayAlive
     )

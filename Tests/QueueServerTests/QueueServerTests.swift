@@ -93,7 +93,10 @@ final class QueueServerTests: XCTestCase {
             testEntryConfigurations: testEntryConfigurations,
             prioritizedJob: prioritizedJob
         )
-        let queueWaiter = QueueServerTerminationWaiter(pollInterval: 0.1, queueServerTerminationPolicy: .stayAlive)
+        let queueWaiter = QueueServerTerminationWaiterImpl(
+            pollInterval: 0.1,
+            queueServerTerminationPolicy: .stayAlive
+        )
         
         let expectationForResults = expectation(description: "results became available")
         

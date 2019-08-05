@@ -4,18 +4,6 @@ import Foundation
 import Logging
 import Models
 
-public protocol QueueServerTerminationWaiter {
-    func waitForAllJobsToFinish(
-        queueServer: QueueServer,
-        automaticTerminationController: AutomaticTerminationController
-    ) throws
-    func waitForJobToFinish(
-        queueServer: QueueServer,
-        automaticTerminationController: AutomaticTerminationController,
-        jobId: JobId
-    ) throws -> JobResults
-}
-
 public final class QueueServerTerminationWaiterImpl: QueueServerTerminationWaiter {
     
     private let queueServerTerminationPolicy: AutomaticTerminationPolicy
