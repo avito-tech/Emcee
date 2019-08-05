@@ -211,7 +211,7 @@ final class DistRunTestsCommand: Command {
             analyticsConfigurationLocation: distRunConfiguration.analyticsConfigurationLocation,
             tempFolder: tempFolder
         )
-        let queueServerTerminationWaiter = QueueServerTerminationWaiter(
+        let queueServerTerminationWaiter = QueueServerTerminationWaiterImpl(
             pollInterval: 5.0,
             queueServerTerminationPolicy: .stayAlive // ?
         )

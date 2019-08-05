@@ -4,7 +4,19 @@ import Foundation
 import Logging
 import Models
 
-public final class QueueServerTerminationWaiter {
+public protocol QueueServerTerminationWaiter {
+    func waitForAllJobsToFinish(
+        queueServer: QueueServer,
+        automaticTerminationController: AutomaticTerminationController
+    ) throws
+    func waitForJobToFinish(
+        queueServer: QueueServer,
+        automaticTerminationController: AutomaticTerminationController,
+        jobId: JobId
+    ) throws -> JobResults
+}
+
+public final class QueueServerTerminationWaiterImpl: QueueServerTerminationWaiter {
     
     private let queueServerTerminationPolicy: AutomaticTerminationPolicy
     private let pollInterval: TimeInterval
@@ -17,7 +29,7 @@ public final class QueueServerTerminationWaiter {
         self.pollInterval = pollInterval
     }
     
-    public func waitForAllJobsWillBeDone(
+    public func waitForAllJobsToFinish(
         queueServer: QueueServer,
         automaticTerminationController: AutomaticTerminationController
     ) throws {
@@ -36,7 +48,7 @@ public final class QueueServerTerminationWaiter {
         automaticTerminationController: AutomaticTerminationController,
         jobId: JobId
     ) throws -> JobResults {
-        try waitForAllJobsWillBeDone(
+        try waitForAllJobsToFinish(
             queueServer: queueServer,
             automaticTerminationController: automaticTerminationController
         )

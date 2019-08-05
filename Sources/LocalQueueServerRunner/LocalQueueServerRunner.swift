@@ -31,7 +31,7 @@ public final class LocalQueueServerRunner {
     
     public func start() throws {
         _ = try queueServer.start()
-        try queueServerTerminationWaiter.waitForAllJobsWillBeDone(
+        try queueServerTerminationWaiter.waitForAllJobsToFinish(
             queueServer: queueServer,
             automaticTerminationController: automaticTerminationController
         )

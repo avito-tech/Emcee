@@ -80,7 +80,7 @@ final class StartQueueServerCommand: Command {
             requestSignature: requestSignature,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
-        let queueServerTerminationWaiter = QueueServerTerminationWaiter(
+        let queueServerTerminationWaiter = QueueServerTerminationWaiterImpl(
             pollInterval: 5.0,
             queueServerTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy
         )
