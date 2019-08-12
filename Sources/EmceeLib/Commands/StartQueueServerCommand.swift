@@ -80,15 +80,17 @@ final class StartQueueServerCommand: Command {
             requestSignature: requestSignature,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
+        let pollPeriod: TimeInterval = 5.0
         let queueServerTerminationWaiter = QueueServerTerminationWaiterImpl(
-            pollInterval: 5.0,
+            pollInterval: pollPeriod,
             queueServerTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy
         )
         let localQueueServerRunner = LocalQueueServerRunner(
             queueServer: queueServer,
             automaticTerminationController: automaticTerminationController,
             queueServerTerminationWaiter: queueServerTerminationWaiter,
-            queueServerTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy
+            queueServerTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy,
+            pollPeriod: pollPeriod
         )
         try localQueueServerRunner.start()
     }

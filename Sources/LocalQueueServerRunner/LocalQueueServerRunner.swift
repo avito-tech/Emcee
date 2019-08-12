@@ -16,17 +16,20 @@ public final class LocalQueueServerRunner {
     private let automaticTerminationController: AutomaticTerminationController
     private let queueServerTerminationWaiter: QueueServerTerminationWaiter
     private let queueServerTerminationPolicy: AutomaticTerminationPolicy
+    private let pollPeriod: TimeInterval
 
     public init(
         queueServer: QueueServer,
         automaticTerminationController: AutomaticTerminationController,
         queueServerTerminationWaiter: QueueServerTerminationWaiter,
-        queueServerTerminationPolicy: AutomaticTerminationPolicy
+        queueServerTerminationPolicy: AutomaticTerminationPolicy,
+        pollPeriod: TimeInterval
     ) {
         self.queueServer = queueServer
         self.automaticTerminationController = automaticTerminationController
         self.queueServerTerminationWaiter = queueServerTerminationWaiter
         self.queueServerTerminationPolicy = queueServerTerminationPolicy
+        self.pollPeriod = pollPeriod
     }
     
     public func start() throws {

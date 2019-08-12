@@ -19,7 +19,8 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         queueServer: queueServer,
         automaticTerminationController: automaticTerminationController,
         queueServerTerminationWaiter: queueServerTerminationWaiter,
-        queueServerTerminationPolicy: AutomaticTerminationPolicy.stayAlive
+        queueServerTerminationPolicy: AutomaticTerminationPolicy.stayAlive,
+        pollPeriod: 0.1
     )
     
     let runnerQueue = DispatchQueue(label: "runner queue")
