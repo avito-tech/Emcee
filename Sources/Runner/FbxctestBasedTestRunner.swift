@@ -33,6 +33,7 @@ public final class FbxctestBasedTestRunner {
                     buildArtifacts: buildArtifacts,
                     entriesToRun: entriesToRun,
                     fbxctestLocation: fbxctestLocation,
+                    simulatorInfo: testContext.simulatorInfo,
                     testDestination: testContext.testDestination,
                     testType: testType
                 ),
@@ -55,6 +56,7 @@ public final class FbxctestBasedTestRunner {
         buildArtifacts: BuildArtifacts,
         entriesToRun: [TestEntry],
         fbxctestLocation: FbxctestLocation,
+        simulatorInfo: SimulatorInfo,
         testDestination: TestDestination,
         testType: TestType
     ) throws -> [SubprocessArgument] {
@@ -124,6 +126,9 @@ public final class FbxctestBasedTestRunner {
         arguments += ["run-tests", "-sdk", "iphonesimulator"]
 
         arguments += ["-keep-simulators-alive"]
+        
+        // simulator set is inside ./sim folder, and fbxctest wants upper level view
+        arguments += ["-workingDirectory", simulatorInfo.simulatorSetPath.deletingLastPathComponent]
         return arguments
     }
 }

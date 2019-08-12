@@ -84,6 +84,7 @@ public class FbsimctlBasedSimulatorController: SimulatorController, CustomString
                     "create",
                     "iOS \(simulator.testDestination.runtime)", simulator.testDestination.deviceType
                 ],
+                environment: try environment(),
                 silenceBehavior: SilenceBehavior(
                     automaticAction: .interruptAndForceKill,
                     allowedSilenceDuration: 30
@@ -144,6 +145,7 @@ public class FbsimctlBasedSimulatorController: SimulatorController, CustomString
                     "simctl", "--set", simulator.simulatorSetContainerPath,
                     "shutdown", simulatorUuid.uuidString
                 ],
+                environment: try environment(),
                 silenceBehavior: SilenceBehavior(
                     automaticAction: .interruptAndForceKill,
                     allowedSilenceDuration: 20
@@ -188,9 +190,7 @@ public class FbsimctlBasedSimulatorController: SimulatorController, CustomString
                     "--locale", "ru_US",
                     "--direct-launch", "--", "listen"
                 ],
-                environment: [
-                    "DEVELOPER_DIR": try developerDirLocator.path(developerDir: developerDir).pathString
-                ]
+                environment: environment()
             )
         )
         try waitForFbsimctlToBootSimulator()
@@ -231,6 +231,7 @@ public class FbsimctlBasedSimulatorController: SimulatorController, CustomString
                     "--json", "--set", simulator.simulatorSetContainerPath,
                     "--simulators", "delete"
                 ],
+                environment: try environment(),
                 silenceBehavior: SilenceBehavior(
                     automaticAction: .interruptAndForceKill,
                     allowedSilenceDuration: 30
@@ -294,6 +295,7 @@ public class FbsimctlBasedSimulatorController: SimulatorController, CustomString
                         "simctl", "--set", simulator.simulatorSetContainerPath,
                         "delete", simulatorUuid.uuidString
                     ],
+                    environment: try environment(),
                     silenceBehavior: SilenceBehavior(
                         automaticAction: .interruptAndForceKill,
                         allowedSilenceDuration: 15
@@ -303,21 +305,15 @@ public class FbsimctlBasedSimulatorController: SimulatorController, CustomString
             deleteController.startAndListenUntilProcessDies()
         }
     }
-
-    // MARK: - Protocols
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(simulator)
-        hasher.combine(developerDir)
-    }
-
-    public static func == (left: FbsimctlBasedSimulatorController, right: FbsimctlBasedSimulatorController) -> Bool {
-        return left.simulator == right.simulator
-            && left.developerDir == right.developerDir
+    
+    private func environment() throws -> [String: String] {
+        return [
+            "DEVELOPER_DIR": try developerDirLocator.path(developerDir: developerDir).pathString
+        ]
     }
 
     public var description: String {
-        return "Controller for simulator \(simulator), developer dir: \(developerDir)"
+        return "<fbsimctl: \(simulator), developer dir: \(developerDir)>"
     }
 
     // MARK: - Errors
