@@ -17,23 +17,30 @@ public final class LocalQueueServerRunner {
     private let queueServerTerminationWaiter: QueueServerTerminationWaiter
     private let queueServerTerminationPolicy: AutomaticTerminationPolicy
     private let pollPeriod: TimeInterval
+    private let newWorkerRegistrationTimeAllowance: TimeInterval
 
     public init(
         queueServer: QueueServer,
         automaticTerminationController: AutomaticTerminationController,
         queueServerTerminationWaiter: QueueServerTerminationWaiter,
         queueServerTerminationPolicy: AutomaticTerminationPolicy,
-        pollPeriod: TimeInterval
+        pollPeriod: TimeInterval,
+        newWorkerRegistrationTimeAllowance: TimeInterval
     ) {
         self.queueServer = queueServer
         self.automaticTerminationController = automaticTerminationController
         self.queueServerTerminationWaiter = queueServerTerminationWaiter
         self.queueServerTerminationPolicy = queueServerTerminationPolicy
         self.pollPeriod = pollPeriod
+        self.newWorkerRegistrationTimeAllowance = newWorkerRegistrationTimeAllowance
     }
     
     public func start() throws {
         _ = try queueServer.start()
+        try queueServerTerminationWaiter.waitForWorkerToAppear(
+            queueServer: queueServer,
+            timeout: newWorkerRegistrationTimeAllowance
+        )
         try queueServerTerminationWaiter.waitForAllJobsToFinish(
             queueServer: queueServer,
             automaticTerminationController: automaticTerminationController

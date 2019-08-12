@@ -20,7 +20,8 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         automaticTerminationController: automaticTerminationController,
         queueServerTerminationWaiter: queueServerTerminationWaiter,
         queueServerTerminationPolicy: AutomaticTerminationPolicy.stayAlive,
-        pollPeriod: 0.1
+        pollPeriod: 0.1,
+        newWorkerRegistrationTimeAllowance: 60.0
     )
     
     let runnerQueue = DispatchQueue(label: "runner queue")
@@ -136,6 +137,26 @@ final class LocalQueueServerRunnerTests: XCTestCase {
             self.queueServer.ongoingJobIds.removeAll()
         }
         
+        wait(for: [expectation], timeout: 60.0)
+    }
+
+    func test___queue_server_runner_should_wait___while_workers_are_being_started_and_registered() throws {
+        let expectation = self.expectation(description: "runner should wait while workers are being registered")
+
+        queueServer.hasAnyAliveWorker = false
+        automaticTerminationController.isTerminationAllowed = true
+        queueServer.isDepleted = true
+        queueServer.ongoingJobIds = []
+
+        runnerQueue.async {
+            _ = try? self.runner.start()
+            expectation.fulfill()
+        }
+
+        impactQueue.async {
+            self.queueServer.hasAnyAliveWorker = true
+        }
+
         wait(for: [expectation], timeout: 60.0)
     }
 }

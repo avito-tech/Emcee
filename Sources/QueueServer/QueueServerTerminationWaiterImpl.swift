@@ -16,6 +16,19 @@ public final class QueueServerTerminationWaiterImpl: QueueServerTerminationWaite
         self.queueServerTerminationPolicy = queueServerTerminationPolicy
         self.pollInterval = pollInterval
     }
+
+    public func waitForWorkerToAppear(
+        queueServer: QueueServer,
+        timeout: TimeInterval
+    ) throws {
+        try SynchronousWaiter.waitWhile(
+            pollPeriod: pollInterval,
+            timeout: timeout,
+            description: "Wait for first worker to appear"
+        ) {
+            queueServer.hasAnyAliveWorker == false
+        }
+    }
     
     public func waitForAllJobsToFinish(
         queueServer: QueueServer,

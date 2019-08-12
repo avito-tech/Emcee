@@ -17,6 +17,16 @@ final class QueueServerTerminationWaiterImplTests: XCTestCase {
     
     let waiterQueue = DispatchQueue(label: "waiter queue")
     let impactQueue = DispatchQueue(label: "impact queue")
+
+    func test___queue_server_waiter_should_wait___until_first_worker_registers() throws {
+        queueServer.hasAnyAliveWorker = false
+
+        impactQueue.async { [weak self] in
+            self?.queueServer.hasAnyAliveWorker = true
+        }
+
+        try waiter.waitForWorkerToAppear(queueServer: queueServer, timeout: 60.0)
+    }
     
     func test___queue_server_waiter_should_wait___while_automatic_termination_is_not_allowed() throws {
         let expectation = self.expectation(description: "waiter should wait while automatic termination is not allowed and it has alive workers")

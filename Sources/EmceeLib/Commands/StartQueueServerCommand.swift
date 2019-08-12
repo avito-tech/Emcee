@@ -90,7 +90,8 @@ final class StartQueueServerCommand: Command {
             automaticTerminationController: automaticTerminationController,
             queueServerTerminationWaiter: queueServerTerminationWaiter,
             queueServerTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy,
-            pollPeriod: pollPeriod
+            pollPeriod: pollPeriod,
+            newWorkerRegistrationTimeAllowance: 360.0
         )
         try localQueueServerRunner.start()
     }
