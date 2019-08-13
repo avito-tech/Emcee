@@ -1,44 +1,15 @@
 import DateProvider
-import Dispatch
 import Foundation
-import Timer
 
-internal final class AfterFixedPeriodOfTimeTerminationController: AutomaticTerminationController {
-    private let dateProvider: DateProvider
+internal final class AfterFixedPeriodOfTimeTerminationController: BaseAutomaticTerminationController {
     private let fireAt: Date
-    private let syncQueue = DispatchQueue(label: "ru.avito.emcee.AfterFixedPeriodOfTimeTerminationController.syncQueue")
-    private var handlers = [AutomaticTerminationControllerHandler]()
     
     public init(dateProvider: DateProvider, fireAt: Date) {
-        self.dateProvider = dateProvider
         self.fireAt = fireAt
+        super.init(dateProvider: dateProvider)
     }
     
-    func startTracking() {
-        _ = DispatchBasedTimer.startedTimer(repeating: .seconds(1), leeway: .seconds(1)) { timer in
-            if self.isTerminationAllowed {
-                self.fireHandlers()
-                timer.stop()
-            }
-        }
-    }
-    
-    func add(handler: @escaping AutomaticTerminationControllerHandler) {
-        syncQueue.sync {
-            handlers.append(handler)
-        }
-    }
-    
-    func indicateActivityFinished() {}
-    
-    var isTerminationAllowed: Bool {
+    override var isTerminationAllowed: Bool {
         return fireAt < dateProvider.currentDate()
-    }
-    
-    private func fireHandlers() {
-        let handlers = syncQueue.sync { self.handlers }
-        for handler in handlers {
-            handler()
-        }
     }
 }
