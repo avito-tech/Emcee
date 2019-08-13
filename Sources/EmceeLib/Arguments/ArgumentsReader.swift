@@ -30,37 +30,23 @@ final class ArgumentsReader {
         return try decodeModelsFromFile(file, key: key, jsonDecoder: decoderWithSnakeCaseSupport)
     }
     
-    public static func destinationConfigurations(_ file: String?, key: ArgumentDescription) throws -> [DestinationConfiguration] {
-        return try decodeModelsFromFile(file, defaultValueIfFileIsMissing: [], key: key, jsonDecoder: decoderWithSnakeCaseSupport)
-    }
-    
     public static func simulatorSettings(
         localizationFile: String?,
         localizationKey: ArgumentDescription,
         watchdogFile: String?,
         watchdogKey: ArgumentDescription
-        ) throws -> SimulatorSettings
-    {
-        let localizationResource = try validateResourceLocationOrNil(localizationFile, key: localizationKey)
-        var localizationLocation: SimulatorLocalizationLocation?
-        if let localizationResource = localizationResource {
-            localizationLocation = SimulatorLocalizationLocation(localizationResource)
-        }
-        
-        let watchdogResource = try validateResourceLocationOrNil(watchdogFile, key: watchdogKey)
-        var watchdogLocation: WatchdogSettingsLocation?
-        if let watchdogResource = watchdogResource {
-            watchdogLocation = WatchdogSettingsLocation(watchdogResource)
-        }
-        return SimulatorSettings(simulatorLocalizationSettings: localizationLocation, watchdogSettings: watchdogLocation)
+    ) throws -> SimulatorSettings {
+        return SimulatorSettings(
+            simulatorLocalizationSettings: SimulatorLocalizationLocation(try validateResourceLocationOrNil(localizationFile, key: localizationKey)),
+            watchdogSettings: WatchdogSettingsLocation(try validateResourceLocationOrNil(watchdogFile, key: watchdogKey))
+        )
     }
     
     public static func queueServerRunConfiguration(
         _ value: String?,
         key: ArgumentDescription,
-        resourceLocationResolver: ResourceLocationResolver)
-        throws -> QueueServerRunConfiguration
-    {
+        resourceLocationResolver: ResourceLocationResolver
+    ) throws -> QueueServerRunConfiguration {
         let location = try ArgumentsReader.validateResourceLocation(value, key: key)
         let resolvingResult = try resourceLocationResolver.resolvePath(resourceLocation: location)
         return try decodeModelsFromFile(
@@ -74,7 +60,8 @@ final class ArgumentsReader {
         _ file: String?,
         defaultValueIfFileIsMissing: T? = nil,
         key: ArgumentDescription,
-        jsonDecoder: JSONDecoder) throws -> T where T: Decodable {
+        jsonDecoder: JSONDecoder
+    ) throws -> T where T: Decodable {
         if file == nil, let defaultValue = defaultValueIfFileIsMissing {
             return defaultValue
         }
@@ -121,14 +108,5 @@ final class ArgumentsReader {
             throw ArgumentsError.argumentValueCannotBeUsed(key, AdditionalArgumentValidationError.notFound(path))
         }
         return path
-    }
-    
-    public static func validateNilOrFileExists(_ value: String?, key: ArgumentDescription) throws -> String? {
-        guard value != nil else { return nil }
-        return try validateFileExists(value, key: key)
-    }
-    
-    public static func validateFilesExist(_ values: [String], key: ArgumentDescription) throws -> [String] {
-        return try values.map { try validateFileExists($0, key: key) }
     }
 }

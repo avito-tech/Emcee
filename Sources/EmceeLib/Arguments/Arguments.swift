@@ -82,7 +82,7 @@ private let knownStringArguments: [KnownStringArguments: ArgumentDescriptionHold
         optional: true),
     KnownStringArguments.queueServer: ArgumentDescriptionHolder(
         name: "--queue-server",
-        comment: "An address to a server which runs distRun command, e.g. 127.0.0.1:1234"),
+        comment: "An address to a server which runs job queues, e.g. 127.0.0.1:1234"),
     KnownStringArguments.queueServerDestination: ArgumentDescriptionHolder(
         name: "--queue-server-destination",
         comment: "A JSON file with info about deployment destination which will be used to start remote queue server"),

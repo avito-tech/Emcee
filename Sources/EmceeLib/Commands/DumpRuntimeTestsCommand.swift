@@ -1,6 +1,5 @@
 import ArgumentsParser
 import ChromeTracing
-import DistRunner
 import EventBus
 import Extensions
 import Foundation

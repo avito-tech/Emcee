@@ -21,7 +21,6 @@ public final class InProcessMain {
             overview: "Runs specific tasks related to iOS UI testing"
         )
         
-        registry.register(command: DistRunTestsCommand.self)
         registry.register(command: DistWorkCommand.self)
         registry.register(command: DumpRuntimeTestsCommand.self)
         registry.register(command: RunTestsCommand.self)

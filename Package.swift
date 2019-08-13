@@ -118,7 +118,6 @@ let package = Package(
                 "ArgumentsParser",
                 "ChromeTracing",
                 "Deployer",
-                "DistRunner",
                 "DistWorker",
                 "EventBus",
                 "JunitReporting",
@@ -311,34 +310,6 @@ let package = Package(
                 "PathLib",
                 "ResourceLocationResolver",
                 "TemporaryStuff"
-            ]
-        ),
-        .target(
-            // MARK: DistRunner
-            name: "DistRunner",
-            dependencies: [
-                "AutomaticTermination",
-                "BucketQueue",
-                "DateProvider",
-                "DistDeployer",
-                "EventBus",
-                "Extensions",
-                "LocalHostDeterminer",
-                "Models",
-                "PortDeterminer",
-                "QueueServer",
-                "ResourceLocationResolver",
-                "ScheduleStrategy",
-                "TemporaryStuff",
-                "UniqueIdentifierGenerator",
-                "Version"
-            ]
-        ),
-        .testTarget(
-            // MARK: DistRunnerTests
-            name: "DistRunnerTests",
-            dependencies: [
-                "DistRunner"
             ]
         ),
         .target(
