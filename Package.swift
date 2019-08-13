@@ -1051,12 +1051,16 @@ let package = Package(
         .target(
             // MARK: SynchronousWaiter
             name: "SynchronousWaiter",
-            dependencies: []
+            dependencies: [
+                "Logging"
+            ]
         ),
         .testTarget(
             // MARK: SynchronousWaiterTests
             name: "SynchronousWaiterTests",
-            dependencies: ["SynchronousWaiter"]
+            dependencies: [
+                "SynchronousWaiter"
+            ]
         ),
         .target(
             // MARK: TemporaryStuff

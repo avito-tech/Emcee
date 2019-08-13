@@ -39,7 +39,7 @@ class QueueClientTests: XCTestCase {
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
         try queueClient.fetchBucket(requestId: "id", workerId: workerId, requestSignature: requestSignature)
-        try SynchronousWaiter.waitWhile(timeout: 5.0) { delegate.responses.isEmpty }
+        try SynchronousWaiter.waitWhile(timeout: 5.0, description: "wait for response") { delegate.responses.isEmpty }
         
         switch delegate.responses[0] {
         case .queueIsEmpty:
@@ -66,7 +66,7 @@ class QueueClientTests: XCTestCase {
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
         try queueClient.fetchBucket(requestId: "id", workerId: workerId, requestSignature: requestSignature)
-        try SynchronousWaiter.waitWhile(timeout: 5.0) { delegate.responses.isEmpty }
+        try SynchronousWaiter.waitWhile(timeout: 5.0,  description: "wait for response") { delegate.responses.isEmpty }
         
         switch delegate.responses[0] {
         case .bucket(let dequeuedBucket):
@@ -83,7 +83,7 @@ class QueueClientTests: XCTestCase {
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
         try queueClient.fetchBucket(requestId: "id", workerId: workerId, requestSignature: requestSignature)
-        try SynchronousWaiter.waitWhile(timeout: 5.0) { delegate.responses.isEmpty }
+        try SynchronousWaiter.waitWhile(timeout: 5.0, description: "wait for response") { delegate.responses.isEmpty }
         
         switch delegate.responses[0] {
         case .checkAfter(let after):
@@ -101,7 +101,7 @@ class QueueClientTests: XCTestCase {
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
         try queueClient.registerWithServer(workerId: workerId)
-        try SynchronousWaiter.waitWhile(timeout: 5.0) { delegate.responses.isEmpty }
+        try SynchronousWaiter.waitWhile(timeout: 5.0, description: "wait for response") { delegate.responses.isEmpty }
         
         switch delegate.responses[0] {
         case .workerConfiguration(let configuration):
@@ -227,7 +227,7 @@ class QueueClientTests: XCTestCase {
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
         try queueClient.fetchJobState(jobId: jobId)
-        try SynchronousWaiter.waitWhile(timeout: 5.0) { delegate.responses.isEmpty }
+        try SynchronousWaiter.waitWhile(timeout: 5.0, description: "wait for response") { delegate.responses.isEmpty }
         
         switch delegate.responses[0] {
         case .fetchedJobState(let fetchedJobState):
@@ -244,7 +244,7 @@ class QueueClientTests: XCTestCase {
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
         try queueClient.deleteJob(jobId: jobId)
-        try SynchronousWaiter.waitWhile(timeout: 5.0) { delegate.responses.isEmpty }
+        try SynchronousWaiter.waitWhile(timeout: 5.0, description: "wait for response") { delegate.responses.isEmpty }
         
         switch delegate.responses[0] {
         case .deletedJob(let deletedJobId):

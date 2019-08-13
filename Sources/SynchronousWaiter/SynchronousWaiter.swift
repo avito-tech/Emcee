@@ -1,5 +1,6 @@
 import Darwin
 import Foundation
+import Logging
 
 public final class SynchronousWaiter {
     
@@ -30,28 +31,35 @@ public final class SynchronousWaiter {
     
     public typealias WaitCondition = () throws -> Bool
     
-    public static func wait(pollPeriod: TimeInterval = 0.3, timeout: TimeInterval) {
-        try? waitWhile(pollPeriod: pollPeriod, timeout: timeout) { true }
+    public static func wait(pollPeriod: TimeInterval = 0.3, timeout: TimeInterval, description: String) {
+        try? waitWhile(pollPeriod: pollPeriod, timeout: timeout, description: description) { true }
     }
     
     public static func waitWhile(
         pollPeriod: TimeInterval = 0.3,
         timeout: TimeInterval = .infinity,
-        description: String = "No description provided",
-        condition: WaitCondition) throws
-    {
+        description: String,
+        condition: WaitCondition
+    ) throws {
         return try waitWhile(
             pollPeriod: pollPeriod,
             timeout: Timeout(description: description, value: timeout),
-            condition: condition)
+            condition: condition
+        )
     }
     
     public static func waitWhile(
         pollPeriod: TimeInterval = 0.3,
         timeout: Timeout = .infinity,
-        condition: WaitCondition) throws
-    {
+        condition: WaitCondition
+    ) throws {
+        Logger.debug("Waiting for \(timeout.description), checking every \(pollPeriod) sec for up to \(timeout.value) sec")
         let startTime = Date().timeIntervalSince1970
+        
+        defer {
+            Logger.debug("Finished waiting for \(timeout.description), took \(Date().timeIntervalSince1970 - startTime) sec")
+        }
+        
         while try condition() {
             let currentTime = Date().timeIntervalSince1970
             if currentTime - startTime > timeout.value {

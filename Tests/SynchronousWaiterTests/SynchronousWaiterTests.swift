@@ -6,7 +6,7 @@ class SynchronousWaiterTest: XCTestCase {
     func testWaitWithinRunloop() {
         let expectedDuration = 0.75
         let start = Date()
-        SynchronousWaiter.wait(pollPeriod: 0.01, timeout: expectedDuration)
+        SynchronousWaiter.wait(pollPeriod: 0.01, timeout: expectedDuration, description: "")
         let actualDuration = Date().timeIntervalSince(start)
         XCTAssertEqual(actualDuration, expectedDuration, accuracy: 0.1)
     }
@@ -18,7 +18,7 @@ class SynchronousWaiterTest: XCTestCase {
         let queue = OperationQueue()
         queue.addOperation {
             let start = Date()
-            SynchronousWaiter.wait(pollPeriod: 0.01, timeout: expectedDuration)
+            SynchronousWaiter.wait(pollPeriod: 0.01, timeout: expectedDuration, description: "")
             actualDuration = Date().timeIntervalSince(start)
         }
         queue.waitUntilAllOperationsAreFinished()
@@ -28,7 +28,7 @@ class SynchronousWaiterTest: XCTestCase {
     
     func testWaitTimeout() {
         XCTAssertThrowsError(
-            try SynchronousWaiter.waitWhile(pollPeriod: 0.01, timeout: 0.1) { true },
+            try SynchronousWaiter.waitWhile(pollPeriod: 0.01, timeout: 0.1, description: "") { true },
             "Wait should throw specific exception on time out") { errorThrown in
                 guard let error = errorThrown as? SynchronousWaiter.TimeoutError else {
                     XCTFail("Unexpected error type")

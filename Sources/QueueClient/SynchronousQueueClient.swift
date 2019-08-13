@@ -194,7 +194,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
                 return try work()
             } catch {
                 Logger.error("Failed to send request with error: \(error)")
-                SynchronousWaiter.wait(timeout: 1.0)
+                SynchronousWaiter.wait(timeout: 1.0, description: "Pause between request retries")
             }
         }
         return try work()
