@@ -31,7 +31,7 @@ public final class LoggingSetup {
         GlobalLoggerConfig.loggerHandler = aggregatedHandler
         Logger.always("Logging verbosity level is set to \(stderrVerbosity.stringCode)")
         Logger.always("To fetch detailed verbose log:")
-        Logger.always("$ scp \(LocalHostDeterminer.currentHostAddress):\(detailedLogPath.absolutePath) /tmp/\(filename).log")
+        Logger.always("$ scp \(NSUserName())@\(LocalHostDeterminer.currentHostAddress):\(detailedLogPath.absolutePath) /tmp/\(filename).log && open /tmp/\(filename).log")
     }
     
     public static func setupAnalytics(analyticsConfiguration: AnalyticsConfiguration) throws {
