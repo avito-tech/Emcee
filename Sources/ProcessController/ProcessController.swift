@@ -223,7 +223,6 @@ public final class ProcessController: CustomStringConvertible {
                 Logger.warning("Will not store stdout output: \(message)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
             },
             pipeAssigningClosure: { pipe in
-                Logger.debug("Will store stdout output at: \(subprocess.standardStreamsCaptureConfig.stdoutContentsFile)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
                 self.process.standardOutput = pipe
             },
             onNewData: { data in
@@ -237,7 +236,6 @@ public final class ProcessController: CustomStringConvertible {
                 Logger.warning("Will not store stderr output: \(message)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
             },
             pipeAssigningClosure: { pipe in
-                Logger.debug("Will store stderr output at: \(subprocess.standardStreamsCaptureConfig.stderrContentsFile)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
                 self.process.standardError = pipe
             },
             onNewData: { data in
@@ -248,7 +246,6 @@ public final class ProcessController: CustomStringConvertible {
         if FileManager.default.createFile(atPath: subprocess.standardStreamsCaptureConfig.stdinContentsFile.pathString, contents: nil),
             let stdinHandle = FileHandle(forWritingAtPath: subprocess.standardStreamsCaptureConfig.stdinContentsFile.pathString)
         {
-            Logger.debug("Will store stdin input at: \(subprocess.standardStreamsCaptureConfig.stdinContentsFile)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
             self.stdinHandle = stdinHandle
         } else {
             Logger.warning("Will not store stdin input at file, failed to open a file handle", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))

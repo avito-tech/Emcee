@@ -27,6 +27,6 @@ public class Subprocess: CustomStringConvertible {
     }
     
     public var description: String {
-        return "<\(type(of: self)) args: \(arguments)>"
+        return "<\(type(of: self)) envs: \(environment), args: \(arguments), working dir: \(workingDirectory), std: \(standardStreamsCaptureConfig), silence behavior: \(silenceBehavior)>"
     }
 }
