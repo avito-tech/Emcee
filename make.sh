@@ -28,7 +28,6 @@ function expose_required_developer_dir() {
 function install_deps() {
 	brew ls --versions pkg-config > /dev/null || brew install pkg-config
 	brew ls --versions libssh2 > /dev/null || brew install libssh2
-	expose_required_developer_dir "10.1"
 }
 
 function open_xcodeproj() {
