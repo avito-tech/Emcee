@@ -28,7 +28,7 @@ final class BucketSplitterTests: XCTestCase {
                     .with(testDestination: testDestination2)
                     .testEntryConfigurations()
         
-        let splitter = ContinuousBucketSplitter(
+        let splitter = UnsplitBucketSplitter(
             uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator()
         )
         
@@ -51,7 +51,7 @@ final class BucketSplitterTests: XCTestCase {
                 .with(testDestination: testDestination1)
                 .testEntryConfigurations()
 
-        let splitter = ContinuousBucketSplitter(
+        let splitter = UnsplitBucketSplitter(
             uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator()
         )
 
@@ -82,7 +82,7 @@ final class BucketSplitterTests: XCTestCase {
             TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3")
         ]
 
-        let splitter = ContinuousBucketSplitter(
+        let splitter = UnsplitBucketSplitter(
             uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator()
         )
 

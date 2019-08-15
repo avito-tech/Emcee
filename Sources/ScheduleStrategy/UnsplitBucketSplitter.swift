@@ -1,12 +1,11 @@
-@testable import ScheduleStrategy
 import Foundation
 import Models
 import UniqueIdentifierGenerator
 
-public final class ContinuousBucketSplitter: BucketSplitter {
+public final class UnsplitBucketSplitter: BucketSplitter {
     public init(uniqueIdentifierGenerator: UniqueIdentifierGenerator) {
         super.init(
-            description: "Continuos schedule strategy",
+            description: "Unsplit schedule strategy",
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
     }
