@@ -1,4 +1,5 @@
 import AutomaticTermination
+import AutomaticTerminationTestHelpers
 import BucketQueue
 import BucketQueueTestHelpers
 import EventBus
@@ -18,10 +19,11 @@ import XCTest
 
 final class QueueHTTPRESTServerTests: XCTestCase {
     let expectedRequestSignature = RequestSignature(value: "expectedRequestSignature")
-    let restServer = QueueHTTPRESTServer(
-        automaticTerminationController: AutomaticTerminationControllerFactory(
-            automaticTerminationPolicy: .stayAlive
-        ).createAutomaticTerminationController(),
+    let automaticTerminationController = AutomaticTerminationControllerFixture(
+        isTerminationAllowed: false
+    )
+    lazy var restServer = QueueHTTPRESTServer(
+        automaticTerminationController: automaticTerminationController,
         localPortDeterminer: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange)
     )
     let workerConfigurations = WorkerConfigurations()
@@ -33,6 +35,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     
     override func setUp() {
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
+        automaticTerminationController.indicatedActivityFinished = false
     }
     
     func test__RegisterWorkerHandler() throws {
@@ -56,6 +59,11 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         XCTAssertEqual(
             try client.registerWithServer(workerId: workerId),
             WorkerConfigurationFixtures.workerConfiguration
+        )
+        
+        XCTAssertTrue(
+            automaticTerminationController.indicatedActivityFinished,
+            "Should indicate activity to automatic termination controller"
         )
     }
     
@@ -94,6 +102,11 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             try client.fetchBucket(requestId: requestId, workerId: workerId, requestSignature: expectedRequestSignature),
             SynchronousQueueClient.BucketFetchResult.bucket(bucket)
         )
+        
+        XCTAssertFalse(
+            automaticTerminationController.indicatedActivityFinished,
+            "Should not indicate activity to automatic termination controller"
+        )
     }
     
     func test__ResultHandler() throws {
@@ -128,6 +141,11 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         _ = try client.send(testingResult: testingResult, requestId: requestId, workerId: workerId, requestSignature: expectedRequestSignature)
         
         XCTAssertEqual(bucketQueue.acceptedResults, [testingResult])
+        
+        XCTAssertTrue(
+            automaticTerminationController.indicatedActivityFinished,
+            "Should indicate activity to automatic termination controller"
+        )
     }
     
     func test__ReportAliveHandler() throws {
@@ -154,6 +172,11 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         try client.reportAliveness(bucketIdsBeingProcessedProvider: [], workerId: workerId, requestSignature: expectedRequestSignature)
         
         XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId).status, .alive)
+        
+        XCTAssertFalse(
+            automaticTerminationController.indicatedActivityFinished,
+            "Should not indicate activity to automatic termination controller"
+        )
     }
     
     func test__QueueServerVersion() throws {
@@ -175,6 +198,11 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         XCTAssertEqual(
             try client.fetchQueueServerVersion(),
             "abc"
+        )
+        
+        XCTAssertFalse(
+            automaticTerminationController.indicatedActivityFinished,
+            "Should not indicate activity to automatic termination controller"
         )
     }
     
@@ -227,6 +255,11 @@ final class QueueHTTPRESTServerTests: XCTestCase {
                 )
             ]
         )
+        
+        XCTAssertTrue(
+            automaticTerminationController.indicatedActivityFinished,
+            "Should indicate activity to automatic termination controller"
+        )
     }
     
     func test___job_state() throws {
@@ -255,6 +288,11 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             try client.jobState(jobId: jobId),
             jobState
         )
+        
+        XCTAssertFalse(
+            automaticTerminationController.indicatedActivityFinished,
+            "Should not indicate activity to automatic termination controller"
+        )
     }
     
     func test___job_results() throws {
@@ -279,6 +317,11 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             try client.jobResults(jobId: jobId),
             jobResults
         )
+        
+        XCTAssertTrue(
+            automaticTerminationController.indicatedActivityFinished,
+            "Should indicate activity to automatic termination controller"
+        )
     }
     
     func test___deleting_job() throws {
@@ -301,6 +344,11 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         XCTAssertEqual(
             try client.delete(jobId: jobId),
             jobId
+        )
+        
+        XCTAssertTrue(
+            automaticTerminationController.indicatedActivityFinished,
+            "Should indicate activity to automatic termination controller"
         )
     }
     

@@ -63,7 +63,7 @@ public final class QueueServerTerminationWaiterImpl: QueueServerTerminationWaite
     ) throws {
         try SynchronousWaiter.waitWhile(
             pollPeriod: pollInterval,
-            description: "Wait for automatic termination"
+            description: "Automatic termination"
         ) {
             queueServer.hasAnyAliveWorker && !automaticTerminationController.isTerminationAllowed
         }

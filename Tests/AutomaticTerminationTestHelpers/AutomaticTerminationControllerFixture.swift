@@ -7,7 +7,13 @@ public class AutomaticTerminationControllerFixture: AutomaticTerminationControll
         self.isTerminationAllowed = isTerminationAllowed
     }
     
-    public func indicateActivityFinished() {}
+    public var indicatedActivityFinished = false
+    
+    public func indicateActivityFinished() {
+        indicatedActivityFinished = true
+    }
+    
     public func add(handler: @escaping AutomaticTerminationControllerHandler) {}
+    
     public func startTracking() {}
 }

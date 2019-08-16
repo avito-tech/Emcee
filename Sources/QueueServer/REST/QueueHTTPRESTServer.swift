@@ -30,29 +30,32 @@ public final class QueueHTTPRESTServer {
         scheduleTestsHandler: RESTEndpointOf<E1, E2>,
         versionHandler: RESTEndpointOf<F1, F2>)
     {
-        server[RESTMethod.bucketResult.withPrependingSlash] = processActivityRequest(usingEndpoint: bucketResultHandler)
-        server[RESTMethod.getBucket.withPrependingSlash] = processRequest(usingEndpoint: dequeueBucketRequestHandler)
-        server[RESTMethod.jobDelete.withPrependingSlash] = processActivityRequest(usingEndpoint: jobDeleteHandler)
-        server[RESTMethod.jobResults.withPrependingSlash] = processActivityRequest(usingEndpoint: jobResultsHandler)
-        server[RESTMethod.jobState.withPrependingSlash] = processRequest(usingEndpoint: jobStateHandler)
-        server[RESTMethod.queueVersion.withPrependingSlash] = processRequest(usingEndpoint: versionHandler)
-        server[RESTMethod.registerWorker.withPrependingSlash] = processActivityRequest(usingEndpoint: registerWorkerHandler)
-        server[RESTMethod.reportAlive.withPrependingSlash] = processRequest(usingEndpoint: reportAliveHandler)
-        server[RESTMethod.scheduleTests.withPrependingSlash] = processActivityRequest(usingEndpoint: scheduleTestsHandler)
-    }
-    
-    private func processActivityRequest<T, R>(usingEndpoint endpoint: RESTEndpointOf<T, R>) -> ((HttpRequest) -> HttpResponse) {
-        automaticTerminationController.indicateActivityFinished()
-        return processRequest(usingEndpoint: endpoint)
+        server[RESTMethod.bucketResult.withPrependingSlash] = processRequest(endpoint: bucketResultHandler, indicateActivity: true)
+        server[RESTMethod.getBucket.withPrependingSlash] = processRequest(endpoint: dequeueBucketRequestHandler, indicateActivity: false)
+        server[RESTMethod.jobDelete.withPrependingSlash] = processRequest(endpoint: jobDeleteHandler, indicateActivity: true)
+        server[RESTMethod.jobResults.withPrependingSlash] = processRequest(endpoint: jobResultsHandler, indicateActivity: true)
+        server[RESTMethod.jobState.withPrependingSlash] = processRequest(endpoint: jobStateHandler, indicateActivity: false)
+        server[RESTMethod.queueVersion.withPrependingSlash] = processRequest(endpoint: versionHandler, indicateActivity: false)
+        server[RESTMethod.registerWorker.withPrependingSlash] = processRequest(endpoint: registerWorkerHandler, indicateActivity: true)
+        server[RESTMethod.reportAlive.withPrependingSlash] = processRequest(endpoint: reportAliveHandler, indicateActivity: false)
+        server[RESTMethod.scheduleTests.withPrependingSlash] = processRequest(endpoint: scheduleTestsHandler, indicateActivity: true)
     }
 
-    private func processRequest<T, R>(usingEndpoint endpoint: RESTEndpointOf<T, R>) -> ((HttpRequest) -> HttpResponse) {
+    private func processRequest<T, R>(
+        endpoint: RESTEndpointOf<T, R>,
+        indicateActivity: Bool
+    ) -> ((HttpRequest) -> HttpResponse) {
         return { [weak self] (httpRequest: HttpRequest) -> HttpResponse in
             guard let strongSelf = self else {
                 Logger.error("\(type(of: self)) has been deallocated")
                 return .internalServerError
             }
             Logger.verboseDebug("Processing request to \(httpRequest.path)")
+            
+            if indicateActivity {
+                strongSelf.automaticTerminationController.indicateActivityFinished()
+            }
+            
             return strongSelf.requestParser.parse(request: httpRequest) { decodedObject in
                 try endpoint.handle(decodedRequest: decodedObject)
             }
