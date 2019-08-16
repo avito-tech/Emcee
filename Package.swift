@@ -686,6 +686,7 @@ let package = Package(
                 "Logging",
                 "Models",
                 "RESTMethods",
+                "RequestSender",
                 "SynchronousWaiter",
                 "Version"
             ]
@@ -770,7 +771,9 @@ let package = Package(
             // MARK: RemotePortDeterminer
             name: "RemotePortDeterminer",
             dependencies: [
+                "AtomicModels",
                 "QueueClient",
+                "RequestSender",
                 "Version"
             ]
         ),
@@ -786,7 +789,9 @@ let package = Package(
             // MARK: RemotePortDeterminerTests
             name: "RemotePortDeterminerTests",
             dependencies: [
-                "RemotePortDeterminer"
+                "RemotePortDeterminer",
+                "RequestSender",
+                "RequestSenderTestHelpers"
             ]
         ),
         .target(
@@ -807,6 +812,32 @@ let package = Package(
                 "RemotePortDeterminerTestHelpers",
                 "RemoteQueue",
                 "VersionTestHelpers"
+            ]
+        ),
+        .target(
+            // MARK: RequestSender
+            name: "RequestSender",
+            dependencies: [
+                "Extensions",
+                "Logging",
+                "Models"
+            ]
+        ),
+        .target(
+            // MARK: RequestSenderTestHelpers
+            name: "RequestSenderTestHelpers",
+            dependencies: [
+                "RequestSender"
+            ],
+            path: "Tests/RequestSenderTestHelpers"
+        ),
+        .testTarget(
+            // MARK: RequestSenderTests
+            name: "RequestSenderTests",
+            dependencies: [
+                "Models",
+                "RequestSender",
+                "Swifter"
             ]
         ),
         .target(

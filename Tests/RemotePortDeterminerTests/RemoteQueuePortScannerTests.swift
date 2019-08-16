@@ -3,16 +3,22 @@ import Models
 import PortDeterminer
 import RemotePortDeterminer
 import RESTMethods
+import RequestSender
+import RequestSenderTestHelpers
 import Swifter
 import Version
 import XCTest
 
 final class RemoteQueuePortScannerTests: XCTestCase {
-    let localPortDeterminer = LocalPortDeterminer(portRange: Ports.defaultQueuePortRange)
+    lazy var requestSenderProvider = DefaultRequestSenderProvider()
     
-    func test___scanning_ports_without_queue___returns_empty_result() {
-        let scanner = RemoteQueuePortScanner(host: "localhost", portRange: 12000...12005)
-        let result = scanner.queryPortAndQueueServerVersion()
+    func test___scanning_ports_without_queue___returns_empty_result() throws {
+        let scanner = RemoteQueuePortScanner(
+            host: "localhost",
+            portRange: 12000...12005,
+            requestSenderProvider: requestSenderProvider
+        )
+        let result = try scanner.queryPortAndQueueServerVersion(timeout: 10.0)
         XCTAssertEqual(result, [:])
     }
     
@@ -28,10 +34,12 @@ final class RemoteQueuePortScannerTests: XCTestCase {
         try server.start(0, forceIPv4: false, priority: .default)
         let port = try server.port()
         
-        let scanner = RemoteQueuePortScanner(host: "localhost", portRange: port...port)
-        let result = scanner.queryPortAndQueueServerVersion()
+        let scanner = RemoteQueuePortScanner(
+            host: "localhost",
+            portRange: port...port,
+            requestSenderProvider: requestSenderProvider
+        )
+        let result = try scanner.queryPortAndQueueServerVersion(timeout: 10.0)
         XCTAssertEqual(result, [port: expectedVersion])
     }
-    
-    
 }

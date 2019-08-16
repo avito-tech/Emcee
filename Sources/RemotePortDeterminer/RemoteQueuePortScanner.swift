@@ -1,30 +1,53 @@
+import AtomicModels
+import Dispatch
 import Foundation
 import Logging
 import Models
 import QueueClient
+import RequestSender
 import Version
 
 public final class RemoteQueuePortScanner: RemotePortDeterminer {
     private let host: String
     private let portRange: ClosedRange<Int>
+    private let requestSenderProvider: RequestSenderProvider
+    private let workQueue = DispatchQueue(label: "RemoteQueuePortScanner.workQueue")
     
-    public init(host: String, portRange: ClosedRange<Int>) {
+    public init(
+        host: String,
+        portRange: ClosedRange<Int>,
+        requestSenderProvider: RequestSenderProvider
+    ) {
         self.host = host
         self.portRange = portRange
+        self.requestSenderProvider = requestSenderProvider
     }
     
-    public func queryPortAndQueueServerVersion() -> [Int: Version] {
-        return portRange.reduce([Int: Version]()) { (result, port) -> [Int: Version] in
-            var result = result
-            let client = SynchronousQueueClient(
-                queueServerAddress: SocketAddress(host: host, port: port)
+    public func queryPortAndQueueServerVersion(timeout: TimeInterval) throws -> [Int: Version] {
+        let group = DispatchGroup()
+        
+        let portToVersion = AtomicValue<[Int: Version]>([:])
+        
+        for port in portRange {
+            group.enter()
+            Logger.debug("Checking availability of \(port)")
+            
+            let queueServerVersionFetcher = QueueServerVersionFetcherImpl(
+                requestSender: requestSenderProvider.requestSender(
+                    socketAddress: SocketAddress(host: host, port: port)
+                )
             )
-            Logger.debug("Checking availability of \(host):\(port)")
-            if let version = try? client.fetchQueueServerVersion() {
-                Logger.debug("Found queue server with \(version) version at \(host):\(port)")
-                result[port] = version
+            
+            try queueServerVersionFetcher.fetchQueueServerVersion { (result: Either<Version, RequestSenderError>) in
+                if let version = try? result.dematerialize() {
+                    Logger.debug("Found queue server with \(version) version at \(port)")
+                    portToVersion.withExclusiveAccess { $0[port] = version }
+                }
+                group.leave()
             }
-            return result
         }
+        
+        _ = group.wait(timeout: .now() + timeout)
+        return portToVersion.currentValue()
     }
 }

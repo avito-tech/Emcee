@@ -20,6 +20,17 @@ public enum Either<Left, Right>: CustomStringConvertible {
             return "Result.right(\(value))"
         }
     }
+    
+    public var isLeft: Bool {
+        switch self {
+        case .left: return true
+        case .right: return false
+        }
+    }
+    
+    public var isRight: Bool {
+        return !isLeft
+    }
 }
 
 public extension Either where Right: Error {
@@ -47,6 +58,9 @@ public extension Either where Right: Error {
             throw error
         }
     }
+    
+    var isSuccess: Bool { return isLeft }
+    var isError: Bool { return isRight }
 }
 
 extension Either: Equatable where Left: Equatable, Right: Equatable {}

@@ -10,9 +10,11 @@ import PortDeterminer
 import QueueClient
 import QueueServer
 import RESTMethods
+import RequestSender
 import ResultsCollector
 import ScheduleStrategy
 import UniqueIdentifierGeneratorTestHelpers
+import Version
 import WorkerAlivenessTracker
 import WorkerAlivenessTrackerTestHelpers
 import XCTest
@@ -167,9 +169,28 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             scheduleTestsHandler: stubbedHandler,
             versionHandler: stubbedHandler
         )
-        let client = synchronousQueueClient(port: try restServer.start())
         
-        try client.reportAliveness(bucketIdsBeingProcessedProvider: [], workerId: workerId, requestSignature: expectedRequestSignature)
+        let reportAlivenessSender = ReportAliveSenderImpl(
+            requestSender: DefaultRequestSenderProvider().requestSender(
+                socketAddress: queueServerAddress(port: try restServer.start())
+            )
+        )
+        
+        let resultHasBeenProcessedExpectation = expectation(description: "Report alive sender completion handler invoked")
+        
+        try reportAlivenessSender.reportAlive(
+            bucketIdsBeingProcessedProvider: Set(),
+            workerId: workerId,
+            requestSignature: expectedRequestSignature
+        ) { (result: Either<ReportAliveResponse, RequestSenderError>) in
+            XCTAssertEqual(
+                try? result.dematerialize(),
+                .aliveReportAccepted
+            )
+            resultHasBeenProcessedExpectation.fulfill()
+        }
+        
+        wait(for: [resultHasBeenProcessedExpectation], timeout: 10)
         
         XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId).status, .alive)
         
@@ -193,12 +214,24 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             scheduleTestsHandler: stubbedHandler,
             versionHandler: RESTEndpointOf(actualHandler: versionHandler)
         )
-        let client = synchronousQueueClient(port: try restServer.start())
-
-        XCTAssertEqual(
-            try client.fetchQueueServerVersion(),
-            "abc"
+        
+        let fetcher = QueueServerVersionFetcherImpl(
+            requestSender: RequestSenderImpl(
+                urlSession: URLSession(configuration: .default),
+                queueServerAddress: queueServerAddress(port: try restServer.start())
+            )
         )
+        
+        let requestFinishedExpectation = expectation(description: "Request processed")
+        try fetcher.fetchQueueServerVersion(completion: { result in
+            XCTAssertEqual(
+                try? result.dematerialize(),
+                Version(value: "abc")
+            )
+            requestFinishedExpectation.fulfill()
+        })
+
+        wait(for: [requestFinishedExpectation], timeout: 10.0)
         
         XCTAssertFalse(
             automaticTerminationController.indicatedActivityFinished,
@@ -352,7 +385,11 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         )
     }
     
+    private func queueServerAddress(port: Int) -> SocketAddress {
+        return SocketAddress(host: "localhost", port: port)
+    }
+    
     private func synchronousQueueClient(port: Int) -> SynchronousQueueClient {
-        return SynchronousQueueClient(queueServerAddress: SocketAddress(host: "localhost", port: port))
+        return SynchronousQueueClient(queueServerAddress: queueServerAddress(port: port))
     }
 }

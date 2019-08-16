@@ -7,17 +7,20 @@ import Models
 import PathLib
 import PluginManager
 import QueueClient
+import RequestSender
 import ResourceLocationResolver
 import Runner
 import Scheduler
 import SimulatorPool
 import SynchronousWaiter
 import TemporaryStuff
+import RESTMethods
 import Timer
 
 public final class DistWorker: SchedulerDelegate {
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let queueClient: SynchronousQueueClient
+    private let queueServerAddress: SocketAddress
     private let syncQueue = DispatchQueue(label: "ru.avito.DistWorker")
     private var requestIdForBucketId = [BucketId: RequestId]()
     private let resourceLocationResolver: ResourceLocationResolver
@@ -44,6 +47,7 @@ public final class DistWorker: SchedulerDelegate {
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.resourceLocationResolver = resourceLocationResolver
         self.queueClient = SynchronousQueueClient(queueServerAddress: queueServerAddress)
+        self.queueServerAddress = queueServerAddress
         self.workerId = workerId
         self.temporaryFolder = temporaryFolder
         self.testRunnerProvider = testRunnerProvider
@@ -78,11 +82,20 @@ public final class DistWorker: SchedulerDelegate {
     }
     
     private func reportAliveness() throws {
-        try queueClient.reportAliveness(
+        let reportAliveSender = ReportAliveSenderImpl(
+            requestSender: DefaultRequestSenderProvider().requestSender(socketAddress: queueServerAddress)
+        )
+        try reportAliveSender.reportAlive(
             bucketIdsBeingProcessedProvider: currentlyBeingProcessedBucketsTracker.bucketIdsBeingProcessed,
             workerId: workerId,
             requestSignature: try requestSignature.dematerialize()
-        )
+        ) { (result: Either<ReportAliveResponse, RequestSenderError>) in
+            do {
+                _ = try result.dematerialize()
+            } catch {
+                Logger.error("Report aliveness error: \(error)")
+            }
+        }
     }
     
     // MARK: - Private Stuff

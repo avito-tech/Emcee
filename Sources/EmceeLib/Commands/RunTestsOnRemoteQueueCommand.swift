@@ -7,20 +7,21 @@ import Foundation
 import Logging
 import LoggingSetup
 import Models
+import PathLib
 import PortDeterminer
 import QueueClient
 import QueueServer
-import PathLib
 import RemotePortDeterminer
 import RemoteQueue
+import RequestSender
 import ResourceLocationResolver
+import RuntimeDump
 import SignalHandling
+import SimulatorPool
 import SynchronousWaiter
 import TemporaryStuff
 import Utility
 import Version
-import SimulatorPool
-import RuntimeDump
 
 final class RunTestsOnRemoteQueueCommand: Command {
     let command = "runTestsOnRemoteQueue"
@@ -145,18 +146,18 @@ final class RunTestsOnRemoteQueueCommand: Command {
         queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation,
         runId: JobId,
         tempFolder: TemporaryFolder,
-        workerDestinations: [DeploymentDestination])
-        throws -> SocketAddress
-    {
+        workerDestinations: [DeploymentDestination]
+    ) throws -> SocketAddress {
         Logger.info("Searching for queue server on '\(queueServerDestination.host)'")
         let remoteQueueDetector = RemoteQueueDetector(
             localQueueClientVersionProvider: localQueueVersionProvider,
             remotePortDeterminer: RemoteQueuePortScanner(
                 host: queueServerDestination.host,
-                portRange: Ports.defaultQueuePortRange
+                portRange: Ports.defaultQueuePortRange,
+                requestSenderProvider: DefaultRequestSenderProvider()
             )
         )
-        var suitablePorts = try remoteQueueDetector.findSuitableRemoteRunningQueuePorts()
+        var suitablePorts = try remoteQueueDetector.findSuitableRemoteRunningQueuePorts(timeout: 10.0)
         if !suitablePorts.isEmpty {
             let socketAddress = SocketAddress(
                 host: queueServerDestination.host,
@@ -176,8 +177,8 @@ final class RunTestsOnRemoteQueueCommand: Command {
         )
         try remoteQueueStarter.deployAndStart()
         
-        try SynchronousWaiter.waitWhile(pollPeriod: 1.0, timeout: 10.0, description: "Wait for remote queue to start") {
-            suitablePorts = try remoteQueueDetector.findSuitableRemoteRunningQueuePorts()
+        try SynchronousWaiter.waitWhile(pollPeriod: 1.0, timeout: 30.0, description: "Wait for remote queue to start") {
+            suitablePorts = try remoteQueueDetector.findSuitableRemoteRunningQueuePorts(timeout: 10.0)
             return suitablePorts.isEmpty
         }
         

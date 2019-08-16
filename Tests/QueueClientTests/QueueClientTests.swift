@@ -2,6 +2,7 @@ import Models
 import ModelsTestHelpers
 import QueueClient
 import RESTMethods
+import RequestSender
 import Swifter
 import SynchronousWaiter
 import XCTest
@@ -25,7 +26,10 @@ class QueueClientTests: XCTestCase {
             server[query] = response
             try server.start(0)
             port = try server.port()
-            queueClient = QueueClient(queueServerAddress: SocketAddress(host: "127.0.0.1", port: port))
+            queueClient = QueueClient(
+                queueServerAddress: SocketAddress(host: "127.0.0.1", port: port),
+                requestSenderProvider: DefaultRequestSenderProvider()
+            )
             queueClient.delegate = delegate
         } catch {
             XCTFail("Failed to prepare server: \(error)")
@@ -109,44 +113,6 @@ class QueueClientTests: XCTestCase {
         default:
             XCTFail("Unexpected result")
         }
-    }
-    
-    func testAliveRequests() throws {
-        let alivenessReportReceivedExpectation = expectation(description: "Aliveness report has been received")
-        let bucketIdsProviderCalledExpectation = expectation(description: "Bucket Ids provider used")
-        let completionHandlerCalledExpectation = expectation(description: "Completion handler has been called")
-        
-        let bucketId = BucketId(stringLiteral: UUID().uuidString)
-        let provider: () -> Set<BucketId> = {
-            bucketIdsProviderCalledExpectation.fulfill()
-            return Set([bucketId])
-        }
-        
-        try prepareServer(RESTMethod.reportAlive.withPrependingSlash) { request -> HttpResponse in
-            defer { alivenessReportReceivedExpectation.fulfill() }
-            
-            let requestData = Data(request.body)
-            let body = try? JSONDecoder().decode(ReportAliveRequest.self, from: requestData)
-            XCTAssertEqual(body?.bucketIdsBeingProcessed, [bucketId])
-            
-            let data: Data = (try? JSONEncoder().encode(ReportAliveResponse.aliveReportAccepted)) ?? Data()
-            return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
-        }
-        
-        try queueClient.reportAlive(
-            bucketIdsBeingProcessedProvider: provider(),
-            workerId: workerId,
-            requestSignature: requestSignature,
-            completion: { result in
-                XCTAssertEqual(
-                    try? result.dematerialize(),
-                    ReportAliveResponse.aliveReportAccepted
-                )
-                completionHandlerCalledExpectation.fulfill()
-            }
-        )
-        
-        wait(for: [alivenessReportReceivedExpectation, bucketIdsProviderCalledExpectation, completionHandlerCalledExpectation], timeout: 10)
     }
     
     func test___when_queue_is_closed___requests_throw_correct_error() throws {

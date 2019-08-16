@@ -19,7 +19,7 @@ final class RemoteQueueDetectorTests: XCTestCase {
         )
         
         XCTAssertEqual(
-            try detector.findSuitableRemoteRunningQueuePorts(),
+            try detector.findSuitableRemoteRunningQueuePorts(timeout: 10.0),
             []
         )
     }
@@ -34,7 +34,7 @@ final class RemoteQueueDetectorTests: XCTestCase {
         )
         
         XCTAssertEqual(
-            try detector.findSuitableRemoteRunningQueuePorts(),
+            try detector.findSuitableRemoteRunningQueuePorts(timeout: 10.0),
             []
         )
     }
@@ -52,7 +52,7 @@ final class RemoteQueueDetectorTests: XCTestCase {
         )
         
         XCTAssertEqual(
-            try detector.findSuitableRemoteRunningQueuePorts(),
+            try detector.findSuitableRemoteRunningQueuePorts(timeout: 10.0),
             [42, 44]
         )
     }

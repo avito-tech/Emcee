@@ -14,9 +14,9 @@ public final class RemoteQueueDetector {
         self.remotePortDeterminer = remotePortDeterminer
     }
     
-    public func findSuitableRemoteRunningQueuePorts() throws -> Set<Int> {
+    public func findSuitableRemoteRunningQueuePorts(timeout: TimeInterval) throws -> Set<Int> {
         let localVersion = try localQueueClientVersionProvider.version()
-        let availableQueues = remotePortDeterminer.queryPortAndQueueServerVersion()
+        let availableQueues = try remotePortDeterminer.queryPortAndQueueServerVersion(timeout: timeout)
         let ports = availableQueues
             .filter { keyValue -> Bool in keyValue.value == localVersion }
             .map { $0.key }

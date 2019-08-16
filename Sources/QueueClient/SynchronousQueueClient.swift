@@ -4,6 +4,7 @@ import Logging
 import Models
 import RESTMethods
 import SynchronousWaiter
+import RequestSender
 import Version
 
 public final class SynchronousQueueClient: QueueClientDelegate {
@@ -32,11 +33,14 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     public init(
         queueServerAddress: SocketAddress,
         requestTimeout: TimeInterval = 10,
-        networkRequestRetryCount: Int = 5)
-    {
+        networkRequestRetryCount: Int = 5
+    ) {
         self.requestTimeout = requestTimeout
         self.networkRequestRetryCount = networkRequestRetryCount
-        self.queueClient = QueueClient(queueServerAddress: queueServerAddress)
+        self.queueClient = QueueClient(
+            queueServerAddress: queueServerAddress,
+            requestSenderProvider: DefaultRequestSenderProvider()
+        )
         self.queueClient.delegate = self
     }
     
@@ -85,36 +89,6 @@ public final class SynchronousQueueClient: QueueClientDelegate {
                 }
                 return try bucketResultSendResult!.dematerialize()
             }
-        }
-    }
-    
-    @discardableResult
-    public func reportAliveness(
-        bucketIdsBeingProcessedProvider: @autoclosure () -> (Set<BucketId>),
-        workerId: WorkerId,
-        requestSignature: RequestSignature
-    ) throws -> ReportAliveResponse {
-        
-        var result: Either<ReportAliveResponse, QueueClientError>? = nil
-        try queueClient.reportAlive(
-            bucketIdsBeingProcessedProvider: bucketIdsBeingProcessedProvider(),
-            workerId: workerId,
-            requestSignature: requestSignature,
-            completion: { result = $0 }
-        )
-        
-        try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for aliveness report response") { result == nil }
-        return try result!.dematerialize()
-    }
-    
-    public func fetchQueueServerVersion() throws -> Version {
-        return try synchronize {
-            queueServerVersionResult = nil
-            try queueClient.fetchQueueServerVersion()
-            try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for queue server version") {
-                self.queueServerVersionResult == nil
-            }
-            return try queueServerVersionResult!.dematerialize()
         }
     }
     

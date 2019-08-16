@@ -4,6 +4,8 @@ import Foundation
 import Logging
 import Models
 import RESTMethods
+import RequestSender
+import Version
 
 public final class QueueClient {
     public weak var delegate: QueueClientDelegate?
@@ -11,9 +13,11 @@ public final class QueueClient {
     private let urlSession = URLSession(configuration: URLSessionConfiguration.default)
     private let encoder = JSONEncoder.pretty()
     private var isClosed = false
+    private let requestSender: RequestSender
     
-    public init(queueServerAddress: SocketAddress) {
+    public init(queueServerAddress: SocketAddress, requestSenderProvider: RequestSenderProvider) {
         self.queueServerAddress = queueServerAddress
+        self.requestSender = requestSenderProvider.requestSender(socketAddress: queueServerAddress)
     }
     
     deinit {
@@ -29,6 +33,8 @@ public final class QueueClient {
     }
     
     public func close() {
+        requestSender.close()
+        
         Logger.verboseDebug("Invalidating queue client URL session")
         urlSession.finishTasksAndInvalidate()
         isClosed = true
@@ -70,31 +76,6 @@ public final class QueueClient {
                 requestSignature: requestSignature
             ),
             completionHandler: handleSendBucketResultResponse
-        )
-    }
-    
-    public func reportAlive(
-        bucketIdsBeingProcessedProvider: @autoclosure () -> (Set<BucketId>),
-        workerId: WorkerId,
-        requestSignature: RequestSignature,
-        completion: @escaping (Either<ReportAliveResponse, QueueClientError>) -> ()
-    ) throws {
-        try sendRequestWithCallback(
-            .reportAlive,
-            payload: ReportAliveRequest(
-                workerId: workerId,
-                bucketIdsBeingProcessed: bucketIdsBeingProcessedProvider(),
-                requestSignature: requestSignature
-            ),
-            callback: completion
-        )
-    }
-    
-    public func fetchQueueServerVersion() throws {
-        try sendRequest(
-            .queueVersion,
-            payload: QueueVersionRequest(),
-            completionHandler: handleQueueServerVersion
         )
     }
     
@@ -178,47 +159,6 @@ public final class QueueClient {
         dataTask.resume()
     }
     
-    private func sendRequestWithCallback<Payload, Response>(
-        _ restMethod: RESTMethod,
-        payload: Payload,
-        callback: @escaping (Either<Response, QueueClientError>) -> ()
-    ) throws where Payload : Encodable, Response : Decodable {
-        guard !isClosed else { throw QueueClientError.queueClientIsClosed(restMethod) }
-        let url = createUrl(restMethod: restMethod)
-        let jsonData = try encoder.encode(payload)
-        if let stringJson = String(data: jsonData, encoding: .utf8) {
-            Logger.verboseDebug("Sending request to \(url): \(stringJson)")
-        } else {
-            Logger.verboseDebug("Sending request to \(url): unable to get string for json data \(jsonData.count) bytes")
-        }
-        var urlRequest = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: .infinity)
-        urlRequest.httpMethod = "POST"
-        urlRequest.addValue("Content-Type", forHTTPHeaderField: "application/json")
-        urlRequest.httpBody = jsonData
-        let dataTask = urlSession.dataTask(with: urlRequest) { (data: Data?, response: URLResponse?, error: Error?) in
-            if let error = error {
-                callback(
-                    .error(QueueClientError.communicationError(error))
-                )
-            } else if let data = data {
-                do {
-                    callback(
-                        .success(try JSONDecoder().decode(Response.self, from: data))
-                    )
-                } catch {
-                    callback(
-                        .error(QueueClientError.parseError(error, data))
-                    )
-                }
-            } else {
-                callback(
-                    .error(QueueClientError.noData)
-                )
-            }
-        }
-        dataTask.resume()
-    }
-    
     private func createUrl(restMethod: RESTMethod) -> URL {
         var components = URLComponents()
         components.scheme = "http"
@@ -266,13 +206,6 @@ public final class QueueClient {
         switch response {
         case .aliveReportAccepted:
             delegate?.queueClientWorkerHasBeenIndicatedAsAlive(self)
-        }
-    }
-    
-    private func handleQueueServerVersion(response: QueueVersionResponse) {
-        switch response {
-        case .queueVersion(let version):
-            delegate?.queueClient(self, didFetchQueueServerVersion: version)
         }
     }
     

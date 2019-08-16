@@ -18,7 +18,7 @@ public final class RemotePortDeterminerFixture: RemotePortDeterminer {
         return self
     }
     
-    public func queryPortAndQueueServerVersion() -> [Int: Version] {
+    public func queryPortAndQueueServerVersion(timeout: TimeInterval) -> [Int: Version] {
         return result
     }
 }
