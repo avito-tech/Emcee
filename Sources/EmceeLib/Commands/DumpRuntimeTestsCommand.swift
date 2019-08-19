@@ -78,9 +78,13 @@ final class DumpRuntimeTestsCommand: Command {
         
         let runtimeTests = try RuntimeTestQuerierImpl(
             eventBus: EventBus(),
+            numberOfAttemptsToPerformRuntimeDump: 5,
             resourceLocationResolver: resourceLocationResolver,
             onDemandSimulatorPool: onDemandSimulatorPool,
-            tempFolder: tempFolder
+            tempFolder: tempFolder,
+            testRunnerProvider: DefaultTestRunnerProvider(
+                resourceLocationResolver: resourceLocationResolver
+            )
         ).queryRuntime(configuration: configuration)
         let encodedTests = try encoder.encode(runtimeTests.availableRuntimeTests)
         try encodedTests.write(to: URL(fileURLWithPath: output), options: [.atomic])

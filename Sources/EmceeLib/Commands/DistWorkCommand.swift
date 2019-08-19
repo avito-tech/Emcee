@@ -53,7 +53,10 @@ final class DistWorkCommand: Command {
             queueServerAddress: queueServerAddress,
             workerId: workerId,
             resourceLocationResolver: resourceLocationResolver,
-            temporaryFolder: temporaryFolder
+            temporaryFolder: temporaryFolder,
+            testRunnerProvider: DefaultTestRunnerProvider(
+                resourceLocationResolver: resourceLocationResolver
+            )
         )
         try distWorker.start()
     }

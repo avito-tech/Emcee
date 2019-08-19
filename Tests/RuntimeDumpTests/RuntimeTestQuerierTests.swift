@@ -4,17 +4,16 @@ import Foundation
 import Models
 import ModelsTestHelpers
 import ResourceLocationResolver
+import RunnerTestHelpers
 import SimulatorPool
 import SimulatorPoolTestHelpers
 import TemporaryStuff
-import TestingFakeFbxctest
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class RuntimeTestQuerierTests: XCTestCase {
     let eventBus = EventBus()
-    let fbxctest = try! FakeFbxctestExecutableProducer.fakeFbxctestPath(runId: UUID().uuidString)
     let resourceLocationResolver = ResourceLocationResolver()
     let tempFolder = try! TemporaryFolder()
     let dumpFilename = UUID().uuidString
@@ -170,10 +169,12 @@ final class RuntimeTestQuerierTests: XCTestCase {
     private func runtimeTestQuerier() -> RuntimeTestQuerier {
         return RuntimeTestQuerierImpl(
             eventBus: eventBus,
+            numberOfAttemptsToPerformRuntimeDump: 1,
             resourceLocationResolver: resourceLocationResolver,
             onDemandSimulatorPool: simulatorPool,
             uniqueIdentifierGenerator: fixedValueUniqueIdentifierGenerator,
-            tempFolder: tempFolder
+            tempFolder: tempFolder,
+            testRunnerProvider: FakeTestRunnerProvider()
         )
     }
     
@@ -182,7 +183,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
         applicationTestSupport: RuntimeDumpApplicationTestSupport?
     ) -> RuntimeDumpConfiguration {
         return RuntimeDumpConfiguration(
-            testRunnerTool: TestRunnerTool.fbxctest(FbxctestLocation(ResourceLocation.localFilePath(fbxctest))),
+            testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
             xcTestBundle: XcTestBundle(
                 location: TestBundleLocation(ResourceLocation.localFilePath("")),
                 runtimeDumpKind: .logicTest

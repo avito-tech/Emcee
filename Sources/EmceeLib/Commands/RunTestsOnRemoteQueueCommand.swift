@@ -227,9 +227,13 @@ final class RunTestsOnRemoteQueueCommand: Command {
         defer { onDemandSimulatorPool.deleteSimulators() }
         let runtimeTestQuerier = RuntimeTestQuerierImpl(
             eventBus: eventBus,
+            numberOfAttemptsToPerformRuntimeDump: 5,
             resourceLocationResolver: resourceLocationResolver,
             onDemandSimulatorPool: onDemandSimulatorPool,
-            tempFolder: tempFolder
+            tempFolder: tempFolder,
+            testRunnerProvider: DefaultTestRunnerProvider(
+                resourceLocationResolver: resourceLocationResolver
+            )
         )
 
         let testEntriesValidator = TestEntriesValidator(

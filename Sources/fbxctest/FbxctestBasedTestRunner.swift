@@ -2,26 +2,26 @@ import Foundation
 import Models
 import ProcessController
 import ResourceLocationResolver
+import Runner
 import SimulatorPool
-import fbxctest
 
-public final class FbxctestBasedTestRunner {
+public final class FbxctestBasedTestRunner: TestRunner {
+    private let fbxctestLocation: FbxctestLocation
     private let resourceLocationResolver: ResourceLocationResolver
-    private let simulatorSettings: SimulatorSettings
     
     public init(
-        resourceLocationResolver: ResourceLocationResolver,
-        simulatorSettings: SimulatorSettings
+        fbxctestLocation: FbxctestLocation,
+        resourceLocationResolver: ResourceLocationResolver
     ) {
+        self.fbxctestLocation = fbxctestLocation
         self.resourceLocationResolver = resourceLocationResolver
-        self.simulatorSettings = simulatorSettings
     }
     
     public func run(
         buildArtifacts: BuildArtifacts,
         entriesToRun: [TestEntry],
-        fbxctestLocation: FbxctestLocation,
         maximumAllowedSilenceDuration: TimeInterval,
+        simulatorSettings: SimulatorSettings,
         singleTestMaximumDuration: TimeInterval,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
@@ -34,6 +34,7 @@ public final class FbxctestBasedTestRunner {
                     entriesToRun: entriesToRun,
                     fbxctestLocation: fbxctestLocation,
                     simulatorInfo: testContext.simulatorInfo,
+                    simulatorSettings: simulatorSettings,
                     testDestination: testContext.testDestination,
                     testType: testType
                 ),
@@ -57,6 +58,7 @@ public final class FbxctestBasedTestRunner {
         entriesToRun: [TestEntry],
         fbxctestLocation: FbxctestLocation,
         simulatorInfo: SimulatorInfo,
+        simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testType: TestType
     ) throws -> [SubprocessArgument] {

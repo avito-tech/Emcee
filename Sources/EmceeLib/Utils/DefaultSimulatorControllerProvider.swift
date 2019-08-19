@@ -1,3 +1,4 @@
+import AppleTools
 import Foundation
 import Models
 import ResourceLocationResolver
@@ -22,6 +23,11 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
             return FbsimctlBasedSimulatorController(
                 simulator: simulator,
                 fbsimctl: resourceLocationResolver.resolvable(withRepresentable: fbsimctlLocation),
+                developerDir: developerDir
+            )
+        case .simctl:
+            return SimctlBasedSimulatorController(
+                simulator: simulator,
                 developerDir: developerDir
             )
         }

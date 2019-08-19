@@ -20,6 +20,7 @@ public final class Scheduler {
     private let queue = OperationQueue()
     private let syncQueue = DispatchQueue(label: "ru.avito.Scheduler")
     private let tempFolder: TemporaryFolder
+    private let testRunnerProvider: TestRunnerProvider
     private let resourceLocationResolver: ResourceLocationResolver
     private var gatheredErrors = [Error]()
     private weak var schedulerDelegate: SchedulerDelegate?
@@ -29,9 +30,9 @@ public final class Scheduler {
         configuration: SchedulerConfiguration,
         tempFolder: TemporaryFolder,
         resourceLocationResolver: ResourceLocationResolver,
-        schedulerDelegate: SchedulerDelegate?
-        )
-    {
+        schedulerDelegate: SchedulerDelegate?,
+        testRunnerProvider: TestRunnerProvider
+    ) {
         self.eventBus = eventBus
         self.configuration = configuration
         self.resourceSemaphore = ListeningSemaphore(
@@ -40,6 +41,7 @@ public final class Scheduler {
         self.tempFolder = tempFolder
         self.resourceLocationResolver = resourceLocationResolver
         self.schedulerDelegate = schedulerDelegate
+        self.testRunnerProvider = testRunnerProvider
     }
     
     public func run() throws -> [TestingResult] {
@@ -167,13 +169,15 @@ public final class Scheduler {
                 testTimeoutConfiguration: configuration.testTimeoutConfiguration
             ),
             tempFolder: tempFolder,
+            testRunnerProvider: testRunnerProvider,
             resourceLocationResolver: resourceLocationResolver
         )
 
         let runnerResult = try runner.run(
             entries: testsToRun,
             developerDir: bucket.toolchainConfiguration.developerDir,
-            simulator: allocatedSimulator.simulator
+            simulatorInfo: allocatedSimulator.simulator.simulatorInfo,
+            testDestination: allocatedSimulator.simulator.testDestination
         )
         
         if !runnerResult.testEntryResults.filter({ $0.isLost }).isEmpty {

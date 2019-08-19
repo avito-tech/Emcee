@@ -10,13 +10,13 @@ import ResourceLocationResolver
 import SimulatorPool
 import TemporaryStuff
 import TestsWorkingDirectorySupport
-import fbxctest
 
 /// This class runs the given tests on a single simulator.
 public final class Runner {
     private let eventBus: EventBus
     private let configuration: RunnerConfiguration
     private let tempFolder: TemporaryFolder
+    private let testRunnerProvider: TestRunnerProvider
     private let resourceLocationResolver: ResourceLocationResolver
     private let developerDirLocator = DeveloperDirLocator()
     
@@ -24,11 +24,13 @@ public final class Runner {
         eventBus: EventBus,
         configuration: RunnerConfiguration,
         tempFolder: TemporaryFolder,
-        resourceLocationResolver: ResourceLocationResolver)
-    {
+        testRunnerProvider: TestRunnerProvider,
+        resourceLocationResolver: ResourceLocationResolver
+    ) {
         self.eventBus = eventBus
         self.configuration = configuration
         self.tempFolder = tempFolder
+        self.testRunnerProvider = testRunnerProvider
         self.resourceLocationResolver = resourceLocationResolver
     }
     
@@ -36,7 +38,8 @@ public final class Runner {
     public func run(
         entries: [TestEntry],
         developerDir: DeveloperDir,
-        simulator: Simulator
+        simulatorInfo: SimulatorInfo,
+        testDestination: TestDestination
     ) throws -> RunnerRunResult {
         if entries.isEmpty {
             return RunnerRunResult(
@@ -68,7 +71,8 @@ public final class Runner {
             let runResults = try runOnce(
                 entriesToRun: entriesToRun,
                 developerDir: developerDir,
-                simulator: simulator
+                simulatorInfo: simulatorInfo,
+                testDestination: testDestination
             )
             lastSubprocessStandardStreamsCaptureConfig = runResults.subprocessStandardStreamsCaptureConfig
             
@@ -88,7 +92,7 @@ public final class Runner {
             entriesToRun: entries,
             testEntryResults: testEntryResults(
                 runResult: runResult,
-                simulatorId: simulator.identifier
+                simulatorId: simulatorInfo.simulatorSetPath // TODO
             ),
             subprocessStandardStreamsCaptureConfig: lastSubprocessStandardStreamsCaptureConfig
         )
@@ -98,7 +102,8 @@ public final class Runner {
     public func runOnce(
         entriesToRun: [TestEntry],
         developerDir: DeveloperDir,
-        simulator: Simulator
+        simulatorInfo: SimulatorInfo,
+        testDestination: TestDestination
     ) throws -> RunnerRunResult {
         if entriesToRun.isEmpty {
             Logger.info("Nothing to run!")
@@ -113,28 +118,20 @@ public final class Runner {
         
         let testContext = try createTestContext(
             developerDir: developerDir,
-            simulator: simulator
+            simulatorInfo: simulatorInfo,
+            testDestination: testDestination
         )
         
-        Logger.info("Will run \(entriesToRun.count) tests on simulator \(simulator)")
+        Logger.info("Will run \(entriesToRun.count) tests on simulator \(simulatorInfo)")
         eventBus.post(event: .runnerEvent(.willRun(testEntries: entriesToRun, testContext: testContext)))
 
-        let fbxctestLocation: FbxctestLocation
-        switch configuration.testRunnerTool {
-        case .fbxctest(let location):
-            fbxctestLocation = location
-        }
+        let testRunner = try testRunnerProvider.testRunner(testRunnerTool: configuration.testRunnerTool)
 
-        let fbxctestTestRunner = FbxctestBasedTestRunner(
-            resourceLocationResolver: resourceLocationResolver,
-            simulatorSettings: configuration.simulatorSettings
-        )
-        
-        let standardStreamsCaptureConfig = try fbxctestTestRunner.run(
+        let standardStreamsCaptureConfig = try testRunner.run(
             buildArtifacts: configuration.buildArtifacts,
             entriesToRun: entriesToRun,
-            fbxctestLocation: fbxctestLocation,
             maximumAllowedSilenceDuration: configuration.maximumAllowedSilenceDuration,
+            simulatorSettings: configuration.simulatorSettings,
             singleTestMaximumDuration: configuration.singleTestMaximumDuration,
             testContext: testContext,
             testRunnerStream: TestRunnerStreamWrapper(
@@ -160,12 +157,12 @@ public final class Runner {
         let result = prepareResults(
             collectedTestStoppedEvents: collectedTestStoppedEvents,
             requestedEntriesToRun: entriesToRun,
-            simulatorId: simulator.identifier
+            simulatorId: simulatorInfo.simulatorSetPath // TODO
         )
         
         eventBus.post(event: .runnerEvent(.didRun(results: result, testContext: testContext)))
         
-        Logger.info("Attempted to run \(entriesToRun.count) tests on simulator \(simulator): \(entriesToRun)")
+        Logger.info("Attempted to run \(entriesToRun.count) tests on simulator \(simulatorInfo): \(entriesToRun)")
         Logger.info("Did get \(result.count) results: \(result)")
         
         return RunnerRunResult(
@@ -177,20 +174,21 @@ public final class Runner {
     
     private func createTestContext(
         developerDir: DeveloperDir,
-        simulator: Simulator
+        simulatorInfo: SimulatorInfo,
+        testDestination: TestDestination
     ) throws -> TestContext {
+        let testsWorkingDirectory = try tempFolder.pathByCreatingDirectories(
+            components: ["testsWorkingDir", UUID().uuidString]
+        )
+
         var environment = configuration.environment
-        do {
-            let testsWorkingDirectory = try tempFolder.pathByCreatingDirectories(components: ["testsWorkingDir", UUID().uuidString])
-            environment[TestsWorkingDirectorySupport.envTestsWorkingDirectory] = testsWorkingDirectory.pathString
-            environment["DEVELOPER_DIR"] = try developerDirLocator.path(developerDir: developerDir).pathString
-        } catch {
-            Logger.error("Unable to create test context: \(error)")
-        }
+        environment[TestsWorkingDirectorySupport.envTestsWorkingDirectory] = testsWorkingDirectory.pathString
+        environment["DEVELOPER_DIR"] = try developerDirLocator.path(developerDir: developerDir).pathString
+
         return TestContext(
             environment: environment,
-            simulatorInfo: simulator.simulatorInfo,
-            testDestination: simulator.testDestination
+            simulatorInfo: simulatorInfo,
+            testDestination: testDestination
         )
     }
     

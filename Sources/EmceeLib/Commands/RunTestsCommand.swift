@@ -125,9 +125,13 @@ final class RunTestsCommand: Command {
         defer { onDemandSimulatorPool.deleteSimulators() }
         let runtimeTestQuerier = RuntimeTestQuerierImpl(
             eventBus: eventBus,
+            numberOfAttemptsToPerformRuntimeDump: 5,
             resourceLocationResolver: resourceLocationResolver,
             onDemandSimulatorPool: onDemandSimulatorPool,
-            tempFolder: tempFolder
+            tempFolder: tempFolder,
+            testRunnerProvider: DefaultTestRunnerProvider(
+                resourceLocationResolver: resourceLocationResolver
+            )
         )
 
         let testEntriesValidator = TestEntriesValidator(
@@ -181,7 +185,10 @@ final class RunTestsCommand: Command {
             configuration: schedulerConfiguration,
             tempFolder: tempFolder,
             resourceLocationResolver: resourceLocationResolver,
-            schedulerDelegate: nil
+            schedulerDelegate: nil,
+            testRunnerProvider: DefaultTestRunnerProvider(
+                resourceLocationResolver: resourceLocationResolver
+            )
         )
         let testingResults = try scheduler.run()
         try ResultingOutputGenerator(

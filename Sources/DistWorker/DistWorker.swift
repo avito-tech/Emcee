@@ -8,6 +8,7 @@ import PathLib
 import PluginManager
 import QueueClient
 import ResourceLocationResolver
+import Runner
 import Scheduler
 import SimulatorPool
 import SynchronousWaiter
@@ -25,6 +26,7 @@ public final class DistWorker: SchedulerDelegate {
     private let workerId: WorkerId
     private var requestSignature = Either<RequestSignature, DistWorkerError>.error(DistWorkerError.missingRequestSignature)
     private let temporaryFolder: TemporaryFolder
+    private let testRunnerProvider: TestRunnerProvider
     
     private enum BucketFetchResult: Equatable {
         case result(SchedulerBucket?)
@@ -36,13 +38,15 @@ public final class DistWorker: SchedulerDelegate {
         queueServerAddress: SocketAddress,
         workerId: WorkerId,
         resourceLocationResolver: ResourceLocationResolver,
-        temporaryFolder: TemporaryFolder
+        temporaryFolder: TemporaryFolder,
+        testRunnerProvider: TestRunnerProvider
     ) {
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.resourceLocationResolver = resourceLocationResolver
         self.queueClient = SynchronousQueueClient(queueServerAddress: queueServerAddress)
         self.workerId = workerId
         self.temporaryFolder = temporaryFolder
+        self.testRunnerProvider = testRunnerProvider
     }
     
     public func start() throws {
@@ -107,7 +111,8 @@ public final class DistWorker: SchedulerDelegate {
             configuration: schedulerCconfiguration,
             tempFolder: temporaryFolder,
             resourceLocationResolver: resourceLocationResolver,
-            schedulerDelegate: self
+            schedulerDelegate: self,
+            testRunnerProvider: testRunnerProvider
         )
         return try scheduler.run()
     }

@@ -23,11 +23,6 @@ let package = Package(
             ]
         ),
         .executable(
-            // MARK: fake_fbxctest
-            name: "fake_fbxctest",
-            targets: ["FakeFbxctest"]
-        ),
-        .executable(
             // MARK: testing_plugin
             name: "testing_plugin",
             targets: ["TestingPlugin"]
@@ -50,6 +45,18 @@ let package = Package(
             // MARK: Ansi
             name: "Ansi",
             dependencies: [
+            ]
+        ),
+        .target(
+            // MARK: AppleTools
+            name: "AppleTools",
+            dependencies: [
+                "DeveloperDirLocator",
+                "Logging",
+                "Models",
+                "ProcessController",
+                "ResourceLocationResolver",
+                "SimulatorPool",
             ]
         ),
         .target(
@@ -102,54 +109,6 @@ let package = Package(
                 "AutomaticTermination",
                 "AutomaticTerminationTestHelpers",
                 "DateProvider"
-            ]
-        ),
-        .target(
-            // MARK: EmceeBinary
-            name: "EmceeBinary",
-            dependencies: [
-                "EmceeLib"
-            ]
-        ),
-        .target(
-            // MARK: EmceeLib
-            name: "EmceeLib",
-            dependencies: [
-                "ArgumentsParser",
-                "ChromeTracing",
-                "Deployer",
-                "DistWorker",
-                "EventBus",
-                "JunitReporting",
-                "LaunchdUtils",
-                "LocalQueueServerRunner",
-                "LoggingSetup",
-                "Metrics",
-                "Models",
-                "PathLib",
-                "PluginManager",
-                "PortDeterminer",
-                "ProcessController",
-                "RemoteQueue",
-                "ResourceLocationResolver",
-                "SSHDeployer",
-                "ScheduleStrategy",
-                "Scheduler",
-                "SignalHandling",
-                "TemporaryStuff",
-                "UniqueIdentifierGenerator",
-                "Utility",
-                "Version",
-                "fbxctest"
-            ]
-        ),
-        .testTarget(
-            // MARK: EmceeLibTests
-            name: "EmceeLibTests",
-            dependencies: [
-                "EmceeLib",
-                "Models",
-                "ModelsTestHelpers"
             ]
         ),
         .target(
@@ -325,6 +284,7 @@ let package = Package(
                 "QueueClient",
                 "RESTMethods",
                 "ResourceLocationResolver",
+                "Runner",
                 "Scheduler",
                 "SimulatorPool",
                 "SynchronousWaiter",
@@ -339,6 +299,56 @@ let package = Package(
                 "DistWorker",
                 "ModelsTestHelpers",
                 "Scheduler"
+            ]
+        ),
+        .target(
+            // MARK: EmceeBinary
+            name: "EmceeBinary",
+            dependencies: [
+                "EmceeLib"
+            ]
+        ),
+        .target(
+            // MARK: EmceeLib
+            name: "EmceeLib",
+            dependencies: [
+                "AppleTools",
+                "ArgumentsParser",
+                "ChromeTracing",
+                "Deployer",
+                "DistWorker",
+                "EventBus",
+                "JunitReporting",
+                "LaunchdUtils",
+                "LocalQueueServerRunner",
+                "LoggingSetup",
+                "Metrics",
+                "Models",
+                "PathLib",
+                "PluginManager",
+                "PortDeterminer",
+                "ProcessController",
+                "RemoteQueue",
+                "ResourceLocationResolver",
+                "Runner",
+                "SSHDeployer",
+                "ScheduleStrategy",
+                "Scheduler",
+                "SignalHandling",
+                "TemporaryStuff",
+                "UniqueIdentifierGenerator",
+                "Utility",
+                "Version",
+                "fbxctest"
+            ]
+        ),
+        .testTarget(
+            // MARK: EmceeLibTests
+            name: "EmceeLibTests",
+            dependencies: [
+                "EmceeLib",
+                "Models",
+                "ModelsTestHelpers"
             ]
         ),
         .target(
@@ -373,14 +383,6 @@ let package = Package(
             ]
         ),
         .target(
-            // MARK: FakeFbxctest
-            name: "FakeFbxctest",
-            dependencies: [
-                "Extensions",
-                "TestingFakeFbxctest"
-            ]
-        ),
-        .target(
             // MARK: fbxctest
             name: "fbxctest",
             dependencies: [
@@ -391,6 +393,7 @@ let package = Package(
                 "Metrics",
                 "Models",
                 "ProcessController",
+                "Runner",
                 "SimulatorPool",
                 "Timer"
             ]
@@ -864,9 +867,18 @@ let package = Package(
                 "PathLib",
                 "SimulatorPool",
                 "TemporaryStuff",
-                "TestsWorkingDirectorySupport",
-                "fbxctest"
+                "TestsWorkingDirectorySupport"
             ]
+        ),
+        .target(
+            // MARK: RunnerTestHelpers
+            name: "RunnerTestHelpers",
+            dependencies: [
+                "Models",
+                "Runner",
+                "ProcessController"
+            ],
+            path: "Tests/RunnerTestHelpers"
         ),
         .testTarget(
             // MARK: RunnerTests
@@ -878,10 +890,10 @@ let package = Package(
                 "ProcessController",
                 "ResourceLocationResolver",
                 "Runner",
+                "RunnerTestHelpers",
                 "ScheduleStrategy",
                 "SimulatorPool",
-                "TemporaryStuff",
-                "TestingFakeFbxctest"
+                "TemporaryStuff"
             ]
         ),
         .target(
@@ -908,8 +920,8 @@ let package = Package(
                 "PathLib",
                 "ResourceLocationResolver",
                 "RuntimeDump",
+                "RunnerTestHelpers",
                 "SimulatorPoolTestHelpers",
-                "TestingFakeFbxctest",
                 "TemporaryStuff",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers"
@@ -1075,15 +1087,6 @@ let package = Package(
             dependencies: [
                 "PathLib",
                 "TemporaryStuff"
-            ]
-        ),
-        .target(
-            // MARK: TestingFakeFbxctest
-            name: "TestingFakeFbxctest",
-            dependencies: [
-                "Extensions",
-                "fbxctest",
-                "Logging"
             ]
         ),
         .target(

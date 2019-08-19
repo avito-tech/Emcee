@@ -17,27 +17,32 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
     private let testQueryEntry = TestEntry(testName: TestName(className: "NonExistingTest", methodName: "fakeTest"), tags: [], caseId: nil)
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TemporaryFolder
+    private let testRunnerProvider: TestRunnerProvider
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
+    private let numberOfAttemptsToPerformRuntimeDump: UInt
     
     public init(
         eventBus: EventBus,
+        numberOfAttemptsToPerformRuntimeDump: UInt,
         resourceLocationResolver: ResourceLocationResolver,
         onDemandSimulatorPool: OnDemandSimulatorPool,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator = UuidBasedUniqueIdentifierGenerator(),
-        tempFolder: TemporaryFolder
+        tempFolder: TemporaryFolder,
+        testRunnerProvider: TestRunnerProvider
     ) {
         self.eventBus = eventBus
+        self.numberOfAttemptsToPerformRuntimeDump = max(numberOfAttemptsToPerformRuntimeDump, 1)
         self.resourceLocationResolver = resourceLocationResolver
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.tempFolder = tempFolder
+        self.testRunnerProvider = testRunnerProvider
     }
     
     public func queryRuntime(configuration: RuntimeDumpConfiguration) throws -> RuntimeQueryResult {
-        let availableRuntimeTests = try runRetrying(times: 5) {
+        let availableRuntimeTests = try runRetrying(times: numberOfAttemptsToPerformRuntimeDump) {
             try availableTestsInRuntime(configuration: configuration)
-
         }
         let unavailableTestEntries = requestedTestsNotAvailableInRuntime(
             runtimeDetectedEntries: availableRuntimeTests,
@@ -49,7 +54,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         )
     }
     
-    private func runRetrying<T>(times: Int, _ work: () throws -> T) rethrows -> T {
+    private func runRetrying<T>(times: UInt, _ work: () throws -> T) rethrows -> T {
         for retryIndex in 0 ..< times {
             do {
                 return try work()
@@ -76,12 +81,14 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
             eventBus: eventBus,
             configuration: runnerConfiguration,
             tempFolder: tempFolder,
+            testRunnerProvider: testRunnerProvider,
             resourceLocationResolver: resourceLocationResolver
         )
         let runnerRunResult = try runner.runOnce(
             entriesToRun: [testQueryEntry],
             developerDir: configuration.developerDir,
-            simulator: allocatedSimulator.simulator
+            simulatorInfo: allocatedSimulator.simulator.simulatorInfo,
+            testDestination: allocatedSimulator.simulator.testDestination
         )
         
         guard let data = try? Data(contentsOf: runtimeEntriesJSONPath.fileUrl),
