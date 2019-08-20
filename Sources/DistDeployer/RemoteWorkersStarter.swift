@@ -108,7 +108,7 @@ public final class RemoteWorkersStarter {
             do {
                 try deployer.deploy()
             } catch {
-                Logger.warning("Failed to deploy launchd plist: \(error). This error will be ignored.")
+                Logger.error("Failed to deploy launchd plist: \(error). This error will be ignored.")
             }
         }
     }

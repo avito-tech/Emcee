@@ -49,7 +49,7 @@ public final class LoggingSetup {
                 GlobalLoggerConfig.loggerHandler,
                 try createSentryLoggerHandler(
                     sentryConfiguration: sentryConfiguration,
-                    verbosity: .warning
+                    verbosity: .error
                 )
             ]
         )
