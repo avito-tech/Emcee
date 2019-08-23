@@ -302,6 +302,7 @@ let package = Package(
             name: "EmceeLib",
             dependencies: [
                 "AppleTools",
+                "ArgLib",
                 "ChromeTracing",
                 "Deployer",
                 "DistWorker",

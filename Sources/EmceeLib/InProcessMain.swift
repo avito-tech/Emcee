@@ -1,3 +1,4 @@
+import ArgLib
 import Extensions
 import Foundation
 import LocalHostDeterminer
@@ -15,12 +16,42 @@ public final class InProcessMain {
         
         Logger.info("Arguments: \(ProcessInfo.processInfo.arguments)")
         
+        try runCommands()
+    }
+    
+    private func runCommands() throws {
+        // TODO: remove SPM branch when all commands are migrated to ArgLib
+        do {
+            try runArgLibCommands()
+        } catch {
+            if let commandParserError = error as? CommandParserError {
+                switch commandParserError {
+                case .unknownCommand:
+                    try runSPMCommands()
+                default:
+                    throw error
+                }
+            } else {
+                throw error
+            }
+        }
+    }
+    
+    private func runArgLibCommands() throws {
+        let commandInvoker = CommandInvoker(
+            commands: [
+                DistWorkCommand()
+            ]
+        )
+        try commandInvoker.invokeSuitableCommand()
+    }
+    
+    private func runSPMCommands() throws {
         var registry = SPMCommandRegistry(
             usage: "<subcommand> <options>",
             overview: "Runs specific tasks related to iOS UI testing"
         )
         
-        registry.register(command: DistWorkCommand.self)
         registry.register(command: DumpRuntimeTestsCommand.self)
         registry.register(command: RunTestsCommand.self)
         registry.register(command: RunTestsOnRemoteQueueCommand.self)

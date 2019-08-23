@@ -1,3 +1,4 @@
+import ArgLib
 import DistWorker
 import Foundation
 import Logging
@@ -8,37 +9,27 @@ import ResourceLocationResolver
 import TemporaryStuff
 import Utility
 
-final class DistWorkCommand: SPMCommand {
-    let command = "distWork"
-    let overview = "Takes jobs from a dist runner queue and performs them"
+public final class DistWorkCommand: Command {
+    public let name = "distWork"
+    public let description = "Takes jobs from a dist runner queue and performs them"
+    public var arguments: Arguments = [
+        ArgumentDescriptions.analyticsConfiguration.asOptional,
+        ArgumentDescriptions.queueServer.asRequired,
+        ArgumentDescriptions.workerId.asRequired
+    ]
     
-    private let analyticsConfigurationLocation: OptionArgument<String>
-    private let queueServer: OptionArgument<String>
-    private let workerId: OptionArgument<String>
     private let resourceLocationResolver = ResourceLocationResolver()
     
-    required init(parser: ArgumentParser) {
-        let subparser = parser.add(subparser: command, overview: overview)
-        analyticsConfigurationLocation = subparser.add(stringArgument: KnownStringArguments.analyticsConfiguration)
-        queueServer = subparser.add(stringArgument: KnownStringArguments.queueServer)
-        workerId = subparser.add(stringArgument: KnownStringArguments.workerId)
-    }
-    
-    func run(with arguments: ArgumentParser.Result) throws {
-        let analyticsConfigurationLocation = AnalyticsConfigurationLocation(
-            try ArgumentsReader.validateResourceLocationOrNil(arguments.get(self.analyticsConfigurationLocation), key: KnownStringArguments.analyticsConfiguration)
-        )
+    public func run(payload: CommandPayload) throws {
+        let analyticsConfigurationLocation: AnalyticsConfigurationLocation? = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.analyticsConfiguration.name)
+        let queueServerAddress: SocketAddress = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServer.name)
+        let workerId: WorkerId = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.workerId.name)
+
         if let analyticsConfigurationLocation = analyticsConfigurationLocation {
             try AnalyticsConfigurator(resourceLocationResolver: resourceLocationResolver)
                 .setup(analyticsConfigurationLocation: analyticsConfigurationLocation)
         }
-        
-        let queueServerAddress = try ArgumentsReader.socketAddress(arguments.get(self.queueServer), key: KnownStringArguments.queueServer)
-        let workerId = WorkerId(
-            value: try ArgumentsReader.validateNotNil(
-                arguments.get(self.workerId), key: KnownStringArguments.workerId
-            )
-        )
+
         let temporaryFolder = try createScopedTemporaryFolder()
 
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
@@ -46,7 +37,7 @@ final class DistWorkCommand: SPMCommand {
             tempFolder: temporaryFolder
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
-        
+
         let distWorker = DistWorker(
             onDemandSimulatorPool: onDemandSimulatorPool,
             queueServerAddress: queueServerAddress,
