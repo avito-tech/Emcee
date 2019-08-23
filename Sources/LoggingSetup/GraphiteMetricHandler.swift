@@ -13,9 +13,11 @@ public final class GraphiteMetricHandler: MetricHandler {
     public init(
         graphiteDomain: [String],
         graphiteSocketAddress: SocketAddress
-        ) throws
-    {
+    ) throws {
         self.graphiteDomain = graphiteDomain
+        
+        let streamReopener = StreamReopener(maximumAttemptsToReopenStream: 10)
+        
         outputStream = EasyOutputStream(
             outputStreamProvider: NetworkSocketOutputStreamProvider(
                 host: graphiteSocketAddress.host,
@@ -23,13 +25,15 @@ public final class GraphiteMetricHandler: MetricHandler {
             ),
             errorHandler: { stream, error in
                 Logger.error("Graphite stream error: \(error)")
-                GraphiteMetricHandler.attemptToReopenStream(stream: stream)
+                streamReopener.attemptToReopenStream(stream: stream)
             },
             streamEndHandler: { stream in
                 Logger.warning("Graphite stream has been closed")
-                GraphiteMetricHandler.attemptToReopenStream(stream: stream)
+                streamReopener.attemptToReopenStream(stream: stream)
             }
         )
+        
+        streamReopener.streamHasBeenOpened()
         try outputStream.open()
         self.graphiteClient = GraphiteClient(easyOutputStream: outputStream)
     }
@@ -50,30 +54,6 @@ public final class GraphiteMetricHandler: MetricHandler {
         let result = outputStream.waitAndClose(timeout: timeout)
         if result == .flushTimeout {
             Logger.warning("Failed to tear down in time")
-        }
-    }
-    
-    // MARK: - Tracking stream reopens
-    
-    private static var numberOfAttemptsToReopenStream = 0
-    private static let maximumAttemptsToReopenStream = 10
-    
-    private static func shouldAttemptToReopenStream() -> Bool {
-        numberOfAttemptsToReopenStream += 1
-        return numberOfAttemptsToReopenStream < maximumAttemptsToReopenStream
-    }
-    
-    private static func attemptToReopenStream(stream: EasyOutputStream) {
-        do {
-            if GraphiteMetricHandler.shouldAttemptToReopenStream() {
-                stream.close()
-                try stream.open()
-            } else {
-                Logger.warning("Exceeded number of attempts to reopen stream to graphite.")
-                stream.close()
-            }
-        } catch {
-            Logger.warning("Error re-opening previously closed stream to Graphite: \(error)")
         }
     }
 }
