@@ -1,4 +1,3 @@
-import ArgumentsParser
 import ChromeTracing
 import EventBus
 import Extensions
@@ -19,7 +18,7 @@ import TemporaryStuff
 import UniqueIdentifierGenerator
 import Utility
 
-final class RunTestsCommand: Command {
+final class RunTestsCommand: SPMCommand {
     let command = "runTests"
     let overview = "Runs UI tests and writes report"
 

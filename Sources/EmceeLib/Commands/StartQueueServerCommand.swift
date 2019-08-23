@@ -1,5 +1,4 @@
 import AutomaticTermination
-import ArgumentsParser
 import DateProvider
 import Extensions
 import Foundation
@@ -16,7 +15,7 @@ import UniqueIdentifierGenerator
 import Utility
 import Version
 
-final class StartQueueServerCommand: Command {
+final class StartQueueServerCommand: SPMCommand {
     let command = "startLocalQueueServer"
     let overview = "Starts queue server on local machine. This mode waits for jobs to be scheduled via REST API."
     

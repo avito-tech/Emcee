@@ -1,6 +1,6 @@
 import Foundation
 
-public enum CommandExecutionError: Error, CustomStringConvertible {
+public enum SPMCommandExecutionError: Error, CustomStringConvertible {
     case incorrectUsage(usageDescription: String)
     
     public var description: String {

@@ -1,4 +1,3 @@
-import ArgumentsParser
 import BucketQueue
 import DistDeployer
 import EventBus
@@ -23,7 +22,7 @@ import TemporaryStuff
 import Utility
 import Version
 
-final class RunTestsOnRemoteQueueCommand: Command {
+final class RunTestsOnRemoteQueueCommand: SPMCommand {
     let command = "runTestsOnRemoteQueue"
     let overview = "Starts queue server on remote machine if needed and runs tests on the remote queue. Waits for resuls to come back."
 

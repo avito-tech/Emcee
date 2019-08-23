@@ -1,7 +1,7 @@
 import Foundation
 import Utility
 
-public protocol Command {
+public protocol SPMCommand {
     var command: String { get }
     var overview: String { get }
     init(parser: ArgumentParser)

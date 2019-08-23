@@ -1,4 +1,3 @@
-import ArgumentsParser
 import DistWorker
 import Foundation
 import Logging
@@ -9,7 +8,7 @@ import ResourceLocationResolver
 import TemporaryStuff
 import Utility
 
-final class DistWorkCommand: Command {
+final class DistWorkCommand: SPMCommand {
     let command = "distWork"
     let overview = "Takes jobs from a dist runner queue and performs them"
     

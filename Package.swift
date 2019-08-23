@@ -75,17 +75,6 @@ let package = Package(
             ]
         ),
         .target(
-            // MARK: ArgumentsParser
-            name: "ArgumentsParser",
-            dependencies: [
-                "Extensions",
-                "Logging",
-                "Models",
-                "RuntimeDump",
-                "Utility"
-            ]
-        ),
-        .target(
             // MARK: AutomaticTermination
             name: "AutomaticTermination",
             dependencies: [
@@ -313,7 +302,6 @@ let package = Package(
             name: "EmceeLib",
             dependencies: [
                 "AppleTools",
-                "ArgumentsParser",
                 "ChromeTracing",
                 "Deployer",
                 "DistWorker",

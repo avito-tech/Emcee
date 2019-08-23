@@ -1,4 +1,3 @@
-import ArgumentsParser
 import ChromeTracing
 import EventBus
 import Extensions
@@ -15,7 +14,7 @@ import SimulatorPool
 import TemporaryStuff
 import Utility
 
-final class DumpRuntimeTestsCommand: Command {
+final class DumpRuntimeTestsCommand: SPMCommand {
     let command = "dump"
     let overview = "Dumps all available runtime tests into JSON file"
     

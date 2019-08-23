@@ -1,4 +1,3 @@
-import ArgumentsParser
 import Extensions
 import Foundation
 import LocalHostDeterminer
@@ -16,7 +15,7 @@ public final class InProcessMain {
         
         Logger.info("Arguments: \(ProcessInfo.processInfo.arguments)")
         
-        var registry = CommandRegistry(
+        var registry = SPMCommandRegistry(
             usage: "<subcommand> <options>",
             overview: "Runs specific tasks related to iOS UI testing"
         )
@@ -27,13 +26,6 @@ public final class InProcessMain {
         registry.register(command: RunTestsOnRemoteQueueCommand.self)
         registry.register(command: StartQueueServerCommand.self)
         
-        try registry.run { determinedCommand in
-            MetricRecorder.capture(
-                LaunchMetric(
-                    command: determinedCommand.command,
-                    host: LocalHostDeterminer.currentHostAddress
-                )
-            )
-        }
+        try registry.run()
     }
 }
