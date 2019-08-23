@@ -29,19 +29,13 @@ public enum TestToRun: Decodable, CustomStringConvertible, Hashable {
     }
     
     public init(from decoder: Decoder) throws {
-        do {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            let predicateType = try container.decode(PredicateType.self, forKey: .predicateType)
-            switch predicateType {
-            case .allProvidedByRuntimeDump:
-                self = .allProvidedByRuntimeDump
-            case .singleTestName:
-                self = .testName(try container.decode(TestName.self, forKey: .testName))
-            }
-        } catch {
-            // TODO: remove, left for backwards compatibility
-            let singleValueContainer = try decoder.singleValueContainer()
-            self = .testName(try singleValueContainer.decode(TestName.self))
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let predicateType = try container.decode(PredicateType.self, forKey: .predicateType)
+        switch predicateType {
+        case .allProvidedByRuntimeDump:
+            self = .allProvidedByRuntimeDump
+        case .singleTestName:
+            self = .testName(try container.decode(TestName.self, forKey: .testName))
         }
     }
 }

@@ -128,8 +128,11 @@ public final class RunnerTests: XCTestCase {
         return try runner.run(
             entries: testEntries,
             developerDir: .current,
-            simulatorInfo: SimulatorInfo(simulatorUuid: UUID(), simulatorSetPath: tempFolder.absolutePath.pathString),
-            testDestination: TestDestinationFixtures.testDestination
+            simulatorInfo: SimulatorInfo(
+                simulatorUuid: UUID(),
+                simulatorSetPath: tempFolder.absolutePath.pathString,
+                testDestination: TestDestinationFixtures.testDestination
+            )
         )
     }
 

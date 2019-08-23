@@ -7,7 +7,9 @@ final class TestArgFileTests: XCTestCase {
     func test___decoding_full_json() throws {
         let json = """
             {
-                "testToRun": "ClassName/testMethod",
+                "testsToRun": [
+                    {"predicateType": "singleTestName", "testName": "ClassName/testMethod"}
+                ],
                 "environment": {"value": "key"},
                 "numberOfRetries": 42,
                 "testDestination": {"deviceType": "iPhone SE", "runtime": "11.3"},
@@ -21,7 +23,8 @@ final class TestArgFileTests: XCTestCase {
                     },
                     "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"],
                     "needHostAppToDumpTests": true
-                }
+                },
+                "toolchainConfiguration": {"developerDir": {"kind": "current"}}
             }
         """.data(using: .utf8)!
 
@@ -44,7 +47,9 @@ final class TestArgFileTests: XCTestCase {
     func test___decoding_full_json___fallback_xcTestBundle() throws {
         let json = """
             {
-                "testToRun": "ClassName/testMethod",
+                "testsToRun": [
+                    {"predicateType": "singleTestName", "testName": "ClassName/testMethod"}
+                ],
                 "environment": {"value": "key"},
                 "numberOfRetries": 42,
                 "testDestination": {"deviceType": "iPhone SE", "runtime": "11.3"},
@@ -55,7 +60,8 @@ final class TestArgFileTests: XCTestCase {
                     "xcTestBundle": "/xcTestBundle",
                     "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"],
                     "needHostAppToDumpTests": true
-                }
+                },
+                "toolchainConfiguration": {"developerDir": {"kind": "current"}}
             }
         """.data(using: .utf8)!
 
@@ -78,7 +84,9 @@ final class TestArgFileTests: XCTestCase {
     func test___decoding_without_environment_fallback_xcTestBundle() throws {
         let json = """
             {
-                "testToRun": "ClassName/testMethod",
+                "testsToRun": [
+                    {"predicateType": "singleTestName", "testName": "ClassName/testMethod"}
+                ],
                 "numberOfRetries": 42,
                 "testDestination": {"deviceType": "iPhone SE", "runtime": "11.3"},
                 "buildArtifacts": {
@@ -86,7 +94,8 @@ final class TestArgFileTests: XCTestCase {
                     "runner": "/runner",
                     "xcTestBundle": "/xcTestBundle",
                     "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"]
-                }
+                },
+                "toolchainConfiguration": {"developerDir": {"kind": "current"}}
             }
         """.data(using: .utf8)!
         
@@ -109,7 +118,9 @@ final class TestArgFileTests: XCTestCase {
     func test___decoding_without_environment() throws {
         let json = """
             {
-                "testToRun": "ClassName/testMethod",
+                "testsToRun": [
+                    {"predicateType": "singleTestName", "testName": "ClassName/testMethod"}
+                ],
                 "numberOfRetries": 42,
                 "testDestination": {"deviceType": "iPhone SE", "runtime": "11.3"},
                 "buildArtifacts": {
@@ -120,7 +131,8 @@ final class TestArgFileTests: XCTestCase {
                         "runtimeDumpKind": "appTest"
                     },
                     "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"]
-                }
+                },
+                "toolchainConfiguration": {"developerDir": {"kind": "current"}}
             }
         """.data(using: .utf8)!
 
@@ -143,7 +155,9 @@ final class TestArgFileTests: XCTestCase {
     func test___decoding_with_test_type() throws {
         let json = """
             {
-                "testToRun": "ClassName/testMethod",
+                "testsToRun": [
+                    {"predicateType": "singleTestName", "testName": "ClassName/testMethod"}
+                ],
                 "numberOfRetries": 42,
                 "testDestination": {"deviceType": "iPhone SE", "runtime": "11.3"},
                 "testType": "logicTest",
@@ -156,7 +170,8 @@ final class TestArgFileTests: XCTestCase {
                     },
                     "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"],
                     "needHostAppToDumpTests": true
-                }
+                },
+                "toolchainConfiguration": {"developerDir": {"kind": "current"}}
             }
         """.data(using: .utf8)!
         
@@ -179,7 +194,9 @@ final class TestArgFileTests: XCTestCase {
     func test___decoding_with_environment() throws {
         let json = """
             {
-                "testToRun": "ClassName/testMethod",
+                "testsToRun": [
+                    {"predicateType": "singleTestName", "testName": "ClassName/testMethod"}
+                ],
                 "environment": {"value": "key"},
                 "numberOfRetries": 42,
                 "testDestination": {"deviceType": "iPhone SE", "runtime": "11.3"},
@@ -192,7 +209,8 @@ final class TestArgFileTests: XCTestCase {
                     },
                     "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"],
                     "needHostAppToDumpTests": true
-                }
+                },
+                "toolchainConfiguration": {"developerDir": {"kind": "current"}}
             }
         """.data(using: .utf8)!
         
@@ -215,7 +233,9 @@ final class TestArgFileTests: XCTestCase {
     func test___decoding_with_toolchain_configuration_current() throws {
         let json = """
             {
-                "testToRun": "ClassName/testMethod",
+                "testsToRun": [
+                    {"predicateType": "singleTestName", "testName": "ClassName/testMethod"}
+                ],
                 "numberOfRetries": 42,
                 "testDestination": {"deviceType": "iPhone SE", "runtime": "11.3"},
                 "testType": "logicTest",
@@ -254,7 +274,9 @@ final class TestArgFileTests: XCTestCase {
     func test___decoding_with_toolchain_configuration_use_xcode() throws {
         let json = """
             {
-                "testToRun": "ClassName/testMethod",
+                "testsToRun": [
+                    {"predicateType": "singleTestName", "testName": "ClassName/testMethod"}
+                ],
                 "numberOfRetries": 42,
                 "testDestination": {"deviceType": "iPhone SE", "runtime": "11.3"},
                 "testType": "logicTest",
@@ -295,7 +317,9 @@ final class TestArgFileTests: XCTestCase {
     func test___decoding_without_runner_additionalApplicationBundles_and_app() throws {
         let json = """
             {
-                "testToRun": "ClassName/testMethod",
+                "testsToRun": [
+                    {"predicateType": "singleTestName", "testName": "ClassName/testMethod"}
+                ],
                 "environment": {"value": "key"},
                 "numberOfRetries": 42,
                 "testDestination": {"deviceType": "iPhone SE", "runtime": "11.3"},
@@ -305,7 +329,8 @@ final class TestArgFileTests: XCTestCase {
                         "runtimeDumpKind": "appTest"
                     },
                     "needHostAppToDumpTests": true
-                }
+                },
+                "toolchainConfiguration": {"developerDir": {"kind": "current"}}
             }
         """.data(using: .utf8)!
 
@@ -328,7 +353,9 @@ final class TestArgFileTests: XCTestCase {
     func test___decoding_with_empty_additionalApplicationBundles() throws {
         let json = """
             {
-                "testToRun": "ClassName/testMethod",
+                "testsToRun": [
+                    {"predicateType": "singleTestName", "testName": "ClassName/testMethod"}
+                ],
                 "numberOfRetries": 42,
                 "testDestination": {"deviceType": "iPhone SE", "runtime": "11.3"},
                 "buildArtifacts": {
@@ -340,7 +367,8 @@ final class TestArgFileTests: XCTestCase {
                     },
                     "additionalApplicationBundles": [],
                     "needHostAppToDumpTests": true
-                }
+                },
+                "toolchainConfiguration": {"developerDir": {"kind": "current"}}
             }
         """.data(using: .utf8)!
 

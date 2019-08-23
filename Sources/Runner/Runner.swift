@@ -38,8 +38,7 @@ public final class Runner {
     public func run(
         entries: [TestEntry],
         developerDir: DeveloperDir,
-        simulatorInfo: SimulatorInfo,
-        testDestination: TestDestination
+        simulatorInfo: SimulatorInfo
     ) throws -> RunnerRunResult {
         if entries.isEmpty {
             return RunnerRunResult(
@@ -71,8 +70,7 @@ public final class Runner {
             let runResults = try runOnce(
                 entriesToRun: entriesToRun,
                 developerDir: developerDir,
-                simulatorInfo: simulatorInfo,
-                testDestination: testDestination
+                simulatorInfo: simulatorInfo
             )
             lastSubprocessStandardStreamsCaptureConfig = runResults.subprocessStandardStreamsCaptureConfig
             
@@ -102,8 +100,7 @@ public final class Runner {
     public func runOnce(
         entriesToRun: [TestEntry],
         developerDir: DeveloperDir,
-        simulatorInfo: SimulatorInfo,
-        testDestination: TestDestination
+        simulatorInfo: SimulatorInfo
     ) throws -> RunnerRunResult {
         if entriesToRun.isEmpty {
             Logger.info("Nothing to run!")
@@ -118,8 +115,7 @@ public final class Runner {
         
         let testContext = try createTestContext(
             developerDir: developerDir,
-            simulatorInfo: simulatorInfo,
-            testDestination: testDestination
+            simulatorInfo: simulatorInfo
         )
         
         Logger.info("Will run \(entriesToRun.count) tests on simulator \(simulatorInfo)")
@@ -174,8 +170,7 @@ public final class Runner {
     
     private func createTestContext(
         developerDir: DeveloperDir,
-        simulatorInfo: SimulatorInfo,
-        testDestination: TestDestination
+        simulatorInfo: SimulatorInfo
     ) throws -> TestContext {
         let testsWorkingDirectory = try tempFolder.pathByCreatingDirectories(
             components: ["testsWorkingDir", UUID().uuidString]
@@ -187,8 +182,7 @@ public final class Runner {
 
         return TestContext(
             environment: environment,
-            simulatorInfo: simulatorInfo,
-            testDestination: testDestination
+            simulatorInfo: simulatorInfo
         )
     }
     

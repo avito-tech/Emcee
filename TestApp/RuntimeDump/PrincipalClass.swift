@@ -9,7 +9,7 @@ final class EntryPoint: NSObject {
     }
 
     func main() {
-        let exportPath = ProcessInfo.processInfo.environment["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH"]
+        let exportPath = ProcessInfo.processInfo.environment["EMCEE_RUNTIME_TESTS_EXPORT_PATH"]
 
         if let exportPath = exportPath, !exportPath.isEmpty {
             TestQuery(outputPath: exportPath).export()

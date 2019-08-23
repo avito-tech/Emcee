@@ -6,11 +6,6 @@ public struct TestDestination: Hashable, CustomStringConvertible, Codable {
     
     /// Runtime version
     public let runtime: String
-    
-    /// Backwards compatibility
-    public var iOSVersion: String {
-        return runtime
-    }
 
     public init(
         deviceType: String,

@@ -51,13 +51,14 @@ public final class TestQuery {
         do {
             try data.write(to: URL(fileURLWithPath: outputPath), options: Data.WritingOptions.atomic)
         } catch let error {
-            let reason = "Failed to dump runtime tests into '\(output)': \(error)"
+            let reason = "Failed to dump runtime tests into '\(outputPath)': \(error)"
             print(reason)
-            NSException(
+            let exception = NSException(
               name: exceptionName,
               reason: reason,
               userInfo: nil
-              ).raise()
+            )
+            exception.raise()
         }
     }
 }

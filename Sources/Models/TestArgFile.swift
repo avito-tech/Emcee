@@ -30,7 +30,6 @@ public struct TestArgFile: Decodable {
         }
         
         private enum CodingKeys: String, CodingKey {
-            case testToRun // TODO: remove, left for backwards compatibility
             case testsToRun
             case environment
             case numberOfRetries
@@ -43,18 +42,13 @@ public struct TestArgFile: Decodable {
         public init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
 
-            if let testToRun = try container.decodeIfPresent(TestToRun.self, forKey: .testToRun) {
-                testsToRun = [testToRun]
-            } else {
-                testsToRun = try container.decode([TestToRun].self, forKey: .testsToRun)
-            }
-
+            testsToRun = try container.decode([TestToRun].self, forKey: .testsToRun)
             buildArtifacts = try container.decode(BuildArtifacts.self, forKey: .buildArtifacts)
             environment = try container.decodeIfPresent([String: String].self, forKey: .environment) ?? [:]
             numberOfRetries = try container.decode(UInt.self, forKey: .numberOfRetries)
             testDestination = try container.decode(TestDestination.self, forKey: .testDestination)
             testType = try container.decodeIfPresent(TestType.self, forKey: .testType) ?? .uiTest
-            toolchainConfiguration = try container.decodeIfPresent(ToolchainConfiguration.self, forKey: .toolchainConfiguration) ?? ToolchainConfiguration(developerDir: .current)
+            toolchainConfiguration = try container.decode(ToolchainConfiguration.self, forKey: .toolchainConfiguration)
         }
     }
     

@@ -87,8 +87,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         let runnerRunResult = try runner.runOnce(
             entriesToRun: [testQueryEntry],
             developerDir: configuration.developerDir,
-            simulatorInfo: allocatedSimulator.simulator.simulatorInfo,
-            testDestination: allocatedSimulator.simulator.testDestination
+            simulatorInfo: allocatedSimulator.simulator.simulatorInfo
         )
         
         guard let data = try? Data(contentsOf: runtimeEntriesJSONPath.fileUrl),
@@ -205,8 +204,6 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
     
     private func environment(runtimeEntriesJSONPath: AbsolutePath) -> [String: String] {
         var environment = ProcessInfo.processInfo.environment
-        // TODO: remove AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH, left for backwards compatibility
-        environment["AVITO_TEST_RUNNER_RUNTIME_TESTS_EXPORT_PATH"] = runtimeEntriesJSONPath.pathString
         environment["EMCEE_RUNTIME_TESTS_EXPORT_PATH"] = runtimeEntriesJSONPath.pathString
         return environment
     }

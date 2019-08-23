@@ -71,9 +71,9 @@ final class PluginManagerTests: XCTestCase {
                 environment: ["EMCEE_TEST_PLUGIN_OUTPUT": outputPath.absolutePath.pathString],
                 simulatorInfo: SimulatorInfo(
                     simulatorUuid: nil,
-                    simulatorSetPath: outputPath.absolutePath.pathString
-                ),
-                testDestination: TestDestinationFixtures.testDestination
+                    simulatorSetPath: outputPath.absolutePath.pathString,
+                    testDestination: TestDestinationFixtures.testDestination
+                )
             )
         )
         

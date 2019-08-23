@@ -21,7 +21,8 @@ public class Simulator: Hashable, CustomStringConvertible {
     public var simulatorInfo: SimulatorInfo {
         return SimulatorInfo(
             simulatorUuid: uuid,
-            simulatorSetPath: simulatorSetContainerPath.pathString
+            simulatorSetPath: simulatorSetContainerPath.pathString,
+            testDestination: testDestination
         )
     }
     

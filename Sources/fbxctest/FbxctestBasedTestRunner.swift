@@ -35,7 +35,6 @@ public final class FbxctestBasedTestRunner: TestRunner {
                     fbxctestLocation: fbxctestLocation,
                     simulatorInfo: testContext.simulatorInfo,
                     simulatorSettings: simulatorSettings,
-                    testDestination: testContext.testDestination,
                     testType: testType
                 ),
                 environment: testContext.environment,
@@ -59,14 +58,13 @@ public final class FbxctestBasedTestRunner: TestRunner {
         fbxctestLocation: FbxctestLocation,
         simulatorInfo: SimulatorInfo,
         simulatorSettings: SimulatorSettings,
-        testDestination: TestDestination,
         testType: TestType
     ) throws -> [SubprocessArgument] {
         let resolvableFbxctest = resourceLocationResolver.resolvable(withRepresentable: fbxctestLocation)
         
         var arguments: [SubprocessArgument] = [
             resolvableFbxctest.asArgumentWith(packageName: PackageName.fbxctest),
-             "-destination", testDestination.destinationString,
+             "-destination", simulatorInfo.testDestination.destinationString,
              testType.asArgument
         ]
         

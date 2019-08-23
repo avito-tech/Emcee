@@ -513,6 +513,7 @@ let package = Package(
             name: "LocalQueueServerRunnerTests",
             dependencies: [
                 "AutomaticTermination",
+                "AutomaticTerminationTestHelpers",
                 "LocalQueueServerRunner"
             ]
         ),
