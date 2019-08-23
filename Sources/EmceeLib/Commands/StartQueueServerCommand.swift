@@ -1,4 +1,5 @@
 import AutomaticTermination
+import ArgLib
 import DateProvider
 import Extensions
 import Foundation
@@ -15,24 +16,20 @@ import UniqueIdentifierGenerator
 import Utility
 import Version
 
-final class StartQueueServerCommand: SPMCommand {
-    let command = "startLocalQueueServer"
-    let overview = "Starts queue server on local machine. This mode waits for jobs to be scheduled via REST API."
-    
-    private let queueServerRunConfigurationLocation: OptionArgument<String>
+public final class StartQueueServerCommand: Command {
+    public let name = "startLocalQueueServer"
+    public let description = "Starts queue server on local machine. This mode waits for jobs to be scheduled via REST API."
+    public let arguments: Arguments = [
+        ArgumentDescriptions.queueServerRunConfigurationLocation.asRequired
+    ]
     
     private let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
     private let resourceLocationResolver = ResourceLocationResolver()
     private let requestSignature = RequestSignature(value: UUID().uuidString)
     
-    required init(parser: ArgumentParser) {
-        let subparser = parser.add(subparser: command, overview: overview)
-        queueServerRunConfigurationLocation = subparser.add(stringArgument: KnownStringArguments.queueServerRunConfigurationLocation)
-    }
-    
-    func run(with arguments: ArgumentParser.Result) throws {
+    public func run(payload: CommandPayload) throws {
         let queueServerRunConfiguration = try ArgumentsReader.queueServerRunConfiguration(
-            arguments.get(self.queueServerRunConfigurationLocation),
+            try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerRunConfigurationLocation.name),
             key: KnownStringArguments.queueServerRunConfigurationLocation,
             resourceLocationResolver: resourceLocationResolver
         )

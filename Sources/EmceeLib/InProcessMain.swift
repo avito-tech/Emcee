@@ -40,7 +40,8 @@ public final class InProcessMain {
     private func runArgLibCommands() throws {
         let commandInvoker = CommandInvoker(
             commands: [
-                DistWorkCommand()
+                DistWorkCommand(),
+                StartQueueServerCommand()
             ]
         )
         try commandInvoker.invokeSuitableCommand()
@@ -55,7 +56,6 @@ public final class InProcessMain {
         registry.register(command: DumpRuntimeTestsCommand.self)
         registry.register(command: RunTestsCommand.self)
         registry.register(command: RunTestsOnRemoteQueueCommand.self)
-        registry.register(command: StartQueueServerCommand.self)
         
         try registry.run()
     }
