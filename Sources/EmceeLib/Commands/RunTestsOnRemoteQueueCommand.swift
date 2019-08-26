@@ -1,3 +1,4 @@
+import ArgLib
 import BucketQueue
 import DistDeployer
 import EventBus
@@ -19,96 +20,68 @@ import SignalHandling
 import SimulatorPool
 import SynchronousWaiter
 import TemporaryStuff
-import Utility
 import Version
 
-final class RunTestsOnRemoteQueueCommand: SPMCommand {
-    let command = "runTestsOnRemoteQueue"
-    let overview = "Starts queue server on remote machine if needed and runs tests on the remote queue. Waits for resuls to come back."
-
-    private let analyticsConfigurationLocation: OptionArgument<String>
-    private let workerDestinations: OptionArgument<String>
-    private let fbsimctl: OptionArgument<String>
-    private let fbxctest: OptionArgument<String>
-    private let junit: OptionArgument<String>
-    private let priority: OptionArgument<UInt>
-    private let plugins: OptionArgument<[String]>
-    private let queueServerDestination: OptionArgument<String>
-    private let queueServerRunConfigurationLocation: OptionArgument<String>
-    private let runId: OptionArgument<String>
-    private let testArgFile: OptionArgument<String>
-    private let testDestinations: OptionArgument<String>
-    private let trace: OptionArgument<String>
-    private let tempFolder: OptionArgument<String>
-
+public final class RunTestsOnRemoteQueueCommand: Command {
+    public let name = "runTestsOnRemoteQueue"
+    public let description = "Starts queue server on remote machine if needed and runs tests on the remote queue. Waits for resuls to come back."
+    public let arguments: Arguments = [
+        ArgumentDescriptions.analyticsConfiguration.asOptional,
+        ArgumentDescriptions.fbsimctl.asRequired,
+        ArgumentDescriptions.fbxctest.asRequired,
+        ArgumentDescriptions.junit.asOptional,
+        ArgumentDescriptions.plugin.asOptional,
+        ArgumentDescriptions.priority.asRequired,
+        ArgumentDescriptions.queueServerDestination.asRequired,
+        ArgumentDescriptions.queueServerRunConfigurationLocation.asRequired,
+        ArgumentDescriptions.runId.asRequired,
+        ArgumentDescriptions.tempFolder.asRequired,
+        ArgumentDescriptions.testArgFile.asRequired,
+        ArgumentDescriptions.testDestinations.asRequired,
+        ArgumentDescriptions.trace.asOptional,
+        ArgumentDescriptions.workerDestinations.asRequired,
+    ]
     
     private let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
     private let resourceLocationResolver = ResourceLocationResolver()
     
-    required init(parser: ArgumentParser) {
-        let subparser = parser.add(subparser: command, overview: overview)
-
-        analyticsConfigurationLocation = subparser.add(stringArgument: KnownStringArguments.analyticsConfiguration)
-        fbsimctl = subparser.add(stringArgument: KnownStringArguments.fbsimctl)
-        fbxctest = subparser.add(stringArgument: KnownStringArguments.fbxctest)
-        junit = subparser.add(stringArgument: KnownStringArguments.junit)
-        priority = subparser.add(intArgument: KnownUIntArguments.priority)
-        plugins = subparser.add(multipleStringArgument: KnownStringArguments.plugin)
-        queueServerDestination = subparser.add(stringArgument: KnownStringArguments.queueServerDestination)
-        queueServerRunConfigurationLocation = subparser.add(stringArgument: KnownStringArguments.queueServerRunConfigurationLocation)
-        runId = subparser.add(stringArgument: KnownStringArguments.runId)
-        testArgFile = subparser.add(stringArgument: KnownStringArguments.testArgFile)
-        testDestinations = subparser.add(stringArgument: KnownStringArguments.testDestinations)
-        trace = subparser.add(stringArgument: KnownStringArguments.trace)
-        workerDestinations = subparser.add(stringArgument: KnownStringArguments.destinations)
-        tempFolder = subparser.add(stringArgument: KnownStringArguments.tempFolder)
-    }
-    
-    func run(with arguments: ArgumentParser.Result) throws {
-        let analyticsConfigurationLocation = AnalyticsConfigurationLocation(
-            try ArgumentsReader.validateResourceLocationOrNil(arguments.get(self.analyticsConfigurationLocation), key: KnownStringArguments.analyticsConfiguration)
-        )
+    public func run(payload: CommandPayload) throws {
+        let analyticsConfigurationLocation: AnalyticsConfigurationLocation? = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.analyticsConfiguration.name)
         if let analyticsConfigurationLocation = analyticsConfigurationLocation {
-            try AnalyticsConfigurator(resourceLocationResolver: resourceLocationResolver)
-                .setup(analyticsConfigurationLocation: analyticsConfigurationLocation)
+            try AnalyticsConfigurator(resourceLocationResolver: resourceLocationResolver).setup(analyticsConfigurationLocation: analyticsConfigurationLocation)
         }
+        
         let commonReportOutput = ReportOutput(
-            junit: arguments.get(self.junit),
-            tracingReport: arguments.get(self.trace)
+            junit: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.junit.name),
+            tracingReport: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.trace.name)
         )
         let eventBus = EventBus()
         defer { eventBus.tearDown() }
         
-        let testRunnerTool = TestRunnerTool.fbxctest(
-            FbxctestLocation(try ArgumentsReader.validateResourceLocation(arguments.get(self.fbxctest), key: KnownStringArguments.fbxctest))
+        let testRunnerTool: TestRunnerTool = .fbxctest(
+            try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.fbxctest.name)
         )
-        let simulatorControlTool = (try? ArgumentsReader.validateResourceLocation(arguments.get(self.fbsimctl), key: KnownStringArguments.fbsimctl)).map {
-            SimulatorControlTool.fbsimctl(FbsimctlLocation($0))
-        }
-        let priority = try Priority(intValue: try ArgumentsReader.validateNotNil(arguments.get(self.priority), key: KnownUIntArguments.priority))
-        let pluginLocations = try ArgumentsReader.validateResourceLocations(arguments.get(self.plugins) ?? [], key: KnownStringArguments.plugin).map({ PluginLocation($0) })
+        
+        let simulatorControlTool: SimulatorControlTool = SimulatorControlTool.fbsimctl(
+            try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.fbsimctl.name)
+        )
+
+        let priority: Priority = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.priority.name)
+        let pluginLocations: [PluginLocation] = try payload.possiblyEmptyCollectionOfValues(argumentName: ArgumentDescriptions.plugin.name)
         
         let queueServerDestination = try ArgumentsReader.deploymentDestinations(
-            arguments.get(self.queueServerDestination),
+            try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerDestination.name),
             key: KnownStringArguments.queueServerDestination
         ).elementAtIndex(0, "first and single queue server destination")
-        let queueServerRunConfigurationLocation = QueueServerRunConfigurationLocation(
-            try ArgumentsReader.validateResourceLocation(
-                arguments.get(self.queueServerRunConfigurationLocation),
-                key: KnownStringArguments.queueServerRunConfigurationLocation
-            )
-        )
-        let runId = JobId(value: try ArgumentsReader.validateNotNil(arguments.get(self.runId), key: KnownStringArguments.runId))
-        let tempFolder = try TemporaryFolder(
-            containerPath: AbsolutePath(
-                try ArgumentsReader.validateNotNil(
-                    arguments.get(self.tempFolder), key: KnownStringArguments.tempFolder
-                )
-            )
-        )
-        let testArgFile = try ArgumentsReader.testArgFile(arguments.get(self.testArgFile), key: KnownStringArguments.testArgFile)
-        let testDestinationConfigurations = try ArgumentsReader.testDestinations(arguments.get(self.testDestinations), key: KnownStringArguments.testDestinations)
-        let workerDestinations = try ArgumentsReader.deploymentDestinations(arguments.get(self.workerDestinations), key: KnownStringArguments.destinations)
+        
+        let queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerRunConfigurationLocation.name)
+        let runId: JobId = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.runId.name)
+        
+        let tempFolder = try TemporaryFolder(containerPath: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.tempFolder.name))
+        let testArgFile = try ArgumentsReader.testArgFile(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testArgFile.name), key: KnownStringArguments.testArgFile)
+        
+        let testDestinationConfigurations = try ArgumentsReader.testDestinations(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testDestinations.name), key: KnownStringArguments.testDestinations)
+        let workerDestinations = try ArgumentsReader.deploymentDestinations(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.workerDestinations.name), key: KnownStringArguments.destinations)
         
         let runningQueueServerAddress = try detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
             analyticsConfigurationLocation: analyticsConfigurationLocation,
@@ -213,7 +186,7 @@ final class RunTestsOnRemoteQueueCommand: SPMCommand {
         tempFolder: TemporaryFolder,
         testArgFile: TestArgFile,
         testDestinationConfigurations: [TestDestinationConfiguration]
-    ) throws -> JobResults {        
+    ) throws -> JobResults {
         let validatorConfiguration = TestEntriesValidatorConfiguration(
             simulatorControlTool: simulatorControlTool,
             testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,

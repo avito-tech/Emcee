@@ -41,8 +41,9 @@ public final class InProcessMain {
         let commandInvoker = CommandInvoker(
             commands: [
                 DistWorkCommand(),
-                StartQueueServerCommand(),
                 DumpRuntimeTestsCommand(),
+                RunTestsOnRemoteQueueCommand(),
+                StartQueueServerCommand(),
             ]
         )
         try commandInvoker.invokeSuitableCommand()
@@ -55,7 +56,6 @@ public final class InProcessMain {
         )
         
         registry.register(command: RunTestsCommand.self)
-        registry.register(command: RunTestsOnRemoteQueueCommand.self)
         
         try registry.run()
     }

@@ -21,3 +21,15 @@ extension WorkerId: ParsableArgument {
         self.init(value: argumentValue)
     }
 }
+
+extension Priority: ParsableArgument {
+    public convenience init(argumentValue: String) throws {
+        try self.init(intValue: try UInt(argumentValue: argumentValue))
+    }
+}
+
+extension JobId: ParsableArgument {
+    public convenience init(argumentValue: String) throws {
+        self.init(value: argumentValue)
+    }
+}
