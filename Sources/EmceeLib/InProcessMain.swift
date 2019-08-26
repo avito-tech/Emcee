@@ -41,7 +41,8 @@ public final class InProcessMain {
         let commandInvoker = CommandInvoker(
             commands: [
                 DistWorkCommand(),
-                StartQueueServerCommand()
+                StartQueueServerCommand(),
+                DumpRuntimeTestsCommand(),
             ]
         )
         try commandInvoker.invokeSuitableCommand()
@@ -53,7 +54,6 @@ public final class InProcessMain {
             overview: "Runs specific tasks related to iOS UI testing"
         )
         
-        registry.register(command: DumpRuntimeTestsCommand.self)
         registry.register(command: RunTestsCommand.self)
         registry.register(command: RunTestsOnRemoteQueueCommand.self)
         

@@ -13,7 +13,6 @@ import QueueServer
 import ResourceLocationResolver
 import ScheduleStrategy
 import UniqueIdentifierGenerator
-import Utility
 import Version
 
 public final class StartQueueServerCommand: Command {

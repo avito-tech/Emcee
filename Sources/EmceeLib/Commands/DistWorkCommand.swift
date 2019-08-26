@@ -7,7 +7,6 @@ import Models
 import PathLib
 import ResourceLocationResolver
 import TemporaryStuff
-import Utility
 
 public final class DistWorkCommand: Command {
     public let name = "distWork"
