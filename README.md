@@ -17,39 +17,12 @@ You will need to have the following build artifacts around:
 
 You can use `xcodebuild build-for-testing` command to generate these build artifacts. 
 
-## Running tests locally
+## Command Line Interface
 
-To run UI tests locally, execute the following command:
+The CLI is split into subcommands. Currently the following commands are available:
 
-```shell
-Emcee runTests \
---fbsimctl "https://github.com/beefon/FBSimulatorControl/releases/download/0.0.3/fbsimctl_20190208T125742.zip" \
---fbxctest "https://github.com/beefon/FBSimulatorControl/releases/download/0.0.3/fbxctest_20190208T125921.zip" \
---number-of-retries 1 \
---number-of-simulators 2 \
---app "MyApp.app" \
---runner "MyAppUITests-Runner.app" \
---xctest-bundle "MyAppUITests-Runner.app/PlugIns/MyAppUITests.xctest" \
---schedule-strategy "individual" \
---single-test-timeout 100 \
---temp-folder "$(pwd)/tempfolder" \
---test-destinations "destination_iphone_se_ios103.json"
-```
-
-Where `destination_iphone_se_ios103.json` might have the folllowing contents:
-
-```json
-[{
-    "testDestination": {
-        "deviceType": "iPhone SE",
-        "iOSVersion": "10.3"
-    },
-    "reportOutput": {
-        "junit": "test-results/iphone_se_ios_103.xml",
-        "tracingReport": "test-results/iphone_se_ios_103.json"
-    }
-}]
-```
+- `runTestsOnRemoteQueue` - brings up the shared queue server on a dedicated machine, submits a job to it, and then starts remote workers that run UI tests on remote machines. After running all tests, creates a report on a local machine.
+- `dump` - runs runtime dump. This is a feature that allows you to filter the tests before running them. Read more about runtime dump [here](Sources/RuntimeDump).
 
 ## Running tests on remote machines
 
@@ -62,20 +35,23 @@ You can refer internals of the archive via URL fragments.
 
 For example:
 
-- App bundle inside archive: `http://myserver.com/MyApp.zip#MyApp.app`
-- `xctest` bundle inside archive with `Runner.app`: `http://myserver.com/UITestsRunner.zip#UITestsRunner.app/PlugIns/UITests.xctest`
+- App bundle inside archive: `http://example.com/MyApp.zip#MyApp.app`
+- `xctest` bundle inside archive with `Runner.app`: `http://example.com/UITestsRunner.zip#UITestsRunner.app/PlugIns/UITests.xctest`
 
-### Using `distRunTests`
+### `runTestsOnRemoteQueue` Command
 
-```shell
-Emcee distRunTests \
+```bash
+Emcee runTestsOnRemoteQueue \
+    --queue-server-destination "queue_server.json" \
     --destinations "remote_destinations.json" \
-    --run-id "$(uuidgen)" \
-    --remote-schedule-strategy progressive \
-    # other arguments like --test-arg-file
+    --test-destinations "test_destinatios.json" \
+    --test-arg-file "test-arg-file.json" \
+    ...
 ```
 
-Where `remote_destinations.json` could contain the following contents:
+#### `--queue-server-destination` argument
+
+This is a JSON file that describes the SSH credentials of the host which will run shared queue Emcee process. It might contain the following contents:
 
 ```json
 [
@@ -84,47 +60,95 @@ Where `remote_destinations.json` could contain the following contents:
         "port": 22,
         "username": "remote_worker",
         "password": "awesomepassword",
-        "remote_deployment_path": "/Users/remote_worker/remote_ui_tests"
+        "remote_deployment_path": "/Users/remote_worker/remote_ui_tests.noindex/"
+ }
+]
+```
+
+In the example above we dedicate `"build-agent-macmini-01"` host to contain the shared queue. Shared queue will be started automatically when you submit the first job.
+
+#### `--destinations` argument
+
+This file describes all hosts that will run Emcee worker processes. These processes will execute jobs fetched from the shared queue. This file could contain the following contents:
+
+```json
+[
+    {
+        "host": "build-agent-macmini-01",
+        "port": 22,
+        "username": "remote_worker",
+        "password": "awesomepassword",
+        "remote_deployment_path": "/Users/remote_worker/remote_ui_tests.noindex/"
     },
     {
         "host": "build-agent-imacpro-02",
         "port": 22,
         "username": "remote_worker",
         "password": "awesomepassword",
-        "remote_deployment_path": "/Users/remote_worker/remote_ui_tests"
+        "remote_deployment_path": "/Users/remote_worker/remote_ui_tests.noindex/"
     }
 ]
 ```
 
-Currently, there is no need to prepare the remote machine except installing dependencies from the section below. Emcee will:
+As you can see, `"build-agent-macmini-01"`appears in this file as well, making you able to host both shared queue and shared worker processes on the same machine.
 
-- deploy itself
-- start the worker daemon
-- download artifacts by using the provided URLs
-- start running UI tests 
+> **Hint:** if you want to parallelize tests only on local machine, consider creating a file that describes `localhost` credentials.
 
-## Specifying tests to run
+#### `--test-destinations` argument
 
-### `--test-arg-file` JSON file
-
-This is the only way to specify a precise test plan to execute. The contents of this file should adopt the following schema:
+This JSON file describes information about where should Junit and trace reports be stored after running all tests from the submitted job.
 
 ```json
 {
+    "testDestination": {
+        "deviceType": "iPhone X",
+        "runtime": "12.4"
+    },
+    "reportOutput": {
+        "junit": "/path/to/test-results/junit.xml",
+        "trace": null
+    }
+}
+```
+
+In the example above, Emcee will create Junit for `iPhone X @ iOS 12.4` tests in the specified location (`/path/to/test-results/junit.xml`).
+
+#### `--test-arg-file` argument
+
+This file describes a precise test plan to execute. The contents of this file should adopt the following schema:
+
+```json
+{
+    "scheduleStrategy": "progressive",
     "entries": [
         {
-            "testToRun": "TestClass/testMethod",
+            "testsToRun": ["TestClass/testMethod"],
+            "buildArtifacts": {
+                "appBundle": "http://example.com/MyApp.zip#MyApp.app",
+                "runner": "http://example.com/MyApp-Runner.zip#MyApp-Runner.app",
+                "xcTestBundle": "http://example.com/MyApp-Runner.zip#MyApp-Runner.app/PlugIns/UITests.xctest"
+            },
             "testDestination": {"deviceType": "iPhone X", "runtime": "11.0"},
             "numberOfRetries": 2,
             "environment": {
                 "TEST_SPECIFIC_ENVS": "if needed"
+            },
+            "toolchainConfiguration": {
+                "developerDir": {"kind": "current"}
             }
         },
         {
-            "testToRun": "AnotherTestClass/testSomethingImportant",
+            "testsToRun": ["AnotherTestClass/testSomethingImportant"],
+            "buildArtifacts": { ... },
             "testDestination": {"deviceType": "iPhone SE", "runtime": "12.0"},
             "numberOfRetries": 0,
-            "environment": {}
+            "environment": {},
+            "toolchainConfiguration": {
+                 "developerDir": {
+                     "kind": "useXcode",
+                     "CFBundleShortVersionString:": "10.3"
+                 }
+            }
         }
     ]
 }
@@ -132,25 +156,15 @@ This is the only way to specify a precise test plan to execute. The contents of 
 
 This file will form the following test plan:
 
-```
-TestClass/testMethod @ iPhone X, iOS 11, up to 3 runs
-AnotherTestClass/testSomethingImportant @ iPhone SE, iOS 12, strictly 1 run
-```
+- `TestClass/testMethod` @ iPhone X, iOS 11, up to 3 runs (1 run + 2 retries), using current Xcode 
 
-# What Can This Project Do
+- `AnotherTestClass/testSomethingImportant` @ iPhone SE, iOS 12, strictly 1 run using Xcode 10.3
 
-The CLI is split into subcommands. Currently the following commands are available:
+> **Hint:** If you want to run a single test multiple times, you can repeat it in `--test-arg-file` multiple times. 
 
-- `runTests` - actually runs the UI tests on local machine and generates a report.
-- `distRunTests` - brings up the queue with tests to run, deploys the required data to the remote machines over SSH and then starts 
-  
-  remote agents that run UI tests on remote machines. After running all tests, creates a report on local machine.
-- `distWork` - starts the runner as a client to the queue server that you start using the `distRunTests` command on the remote machines.
-  
-  This can be considered as a worker instance of the runner. You don't need to invoke this command manually, Emcee will use it internally.
-- `dump` - runs runtime dump. This is a feature that allows you to filter the tests before running them. Read more about runtime dump [here](Sources/RuntimeDump).
+> **WARNINIG**: You must install Xcode simulators on each worker machine in order to run tests. Go to `Xcode.app` -> `Preferences` -> `Components`.
 
-`Emcee [subcommand] --help` will print the argument list for each subcommand. 
+Read more about test arg file format in `TestArgFile.swift`.
 
 # Publications
 
@@ -169,7 +183,7 @@ General commands that help you with a development workflow:
 
 - Generating an Xcode project: `make open`
 - Building the binary: `make build`
-- Running unit tests: `make test`
+- Running unit tests: `make test-parallel`
 - Running integration tests: `make integration-test`
 
 # Dependencies

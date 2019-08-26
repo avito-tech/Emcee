@@ -42,17 +42,12 @@ function generate_xcodeproj() {
 
 function clean() {
 	rm -rf .build/
-	rm -rf TestPlugin/.build/
+	rm -rf SamplePlugin/.build/
 }
 
 function build() {
 	install_deps
 	DEVELOPER_DIR="$DEVELOPER_DIR" swift build -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.13"
-}
-
-function run_tests() {
-	install_deps
-	DEVELOPER_DIR="$DEVELOPER_DIR" swift test -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.13" 
 }
 
 function run_tests_parallel() {
@@ -62,7 +57,7 @@ function run_tests_parallel() {
 
 function run_integration_tests() {
 	install_deps
-	DEVELOPER_DIR="$DEVELOPER_DIR" auxiliary/run_smoke_tests.sh
+	echo "Integration tests have been removed"
 }
 
 case "$1" in
@@ -73,14 +68,11 @@ case "$1" in
     	open_xcodeproj
     	;;
     test)
-        run_tests
+        run_tests_parallel
         ;;
-    integration-test)
+	integration-test)
         run_integration_tests
         ;;
-    test-parallel)
-    	run_tests_parallel
-    	;;
     build)
     	build
     	;;

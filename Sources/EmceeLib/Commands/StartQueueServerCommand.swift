@@ -28,8 +28,7 @@ public final class StartQueueServerCommand: Command {
     
     public func run(payload: CommandPayload) throws {
         let queueServerRunConfiguration = try ArgumentsReader.queueServerRunConfiguration(
-            try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerRunConfigurationLocation.name),
-            key: KnownStringArguments.queueServerRunConfigurationLocation,
+            location: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerRunConfigurationLocation.name),
             resourceLocationResolver: resourceLocationResolver
         )
         try LoggingSetup.setupAnalytics(analyticsConfiguration: queueServerRunConfiguration.analyticsConfiguration)

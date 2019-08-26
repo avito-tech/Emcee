@@ -10,8 +10,5 @@ build:
 test:
 	bash make.sh test
 
-test-parallel:
-	bash make.sh test-parallel
-
 integration-test:
 	bash make.sh integration-test

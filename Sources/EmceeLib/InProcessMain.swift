@@ -18,26 +18,8 @@ public final class InProcessMain {
         
         try runCommands()
     }
-    
+
     private func runCommands() throws {
-        // TODO: remove SPM branch when all commands are migrated to ArgLib
-        do {
-            try runArgLibCommands()
-        } catch {
-            if let commandParserError = error as? CommandParserError {
-                switch commandParserError {
-                case .unknownCommand:
-                    try runSPMCommands()
-                default:
-                    throw error
-                }
-            } else {
-                throw error
-            }
-        }
-    }
-    
-    private func runArgLibCommands() throws {
         let commandInvoker = CommandInvoker(
             commands: [
                 DistWorkCommand(),
@@ -47,16 +29,5 @@ public final class InProcessMain {
             ]
         )
         try commandInvoker.invokeSuitableCommand()
-    }
-    
-    private func runSPMCommands() throws {
-        var registry = SPMCommandRegistry(
-            usage: "<subcommand> <options>",
-            overview: "Runs specific tasks related to iOS UI testing"
-        )
-        
-        registry.register(command: RunTestsCommand.self)
-        
-        try registry.run()
     }
 }

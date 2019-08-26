@@ -70,18 +70,17 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         let pluginLocations: [PluginLocation] = try payload.possiblyEmptyCollectionOfValues(argumentName: ArgumentDescriptions.plugin.name)
         
         let queueServerDestination = try ArgumentsReader.deploymentDestinations(
-            try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerDestination.name),
-            key: KnownStringArguments.queueServerDestination
+            try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerDestination.name)
         ).elementAtIndex(0, "first and single queue server destination")
         
         let queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerRunConfigurationLocation.name)
         let runId: JobId = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.runId.name)
         
         let tempFolder = try TemporaryFolder(containerPath: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.tempFolder.name))
-        let testArgFile = try ArgumentsReader.testArgFile(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testArgFile.name), key: KnownStringArguments.testArgFile)
+        let testArgFile = try ArgumentsReader.testArgFile(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testArgFile.name))
         
-        let testDestinationConfigurations = try ArgumentsReader.testDestinations(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testDestinations.name), key: KnownStringArguments.testDestinations)
-        let workerDestinations = try ArgumentsReader.deploymentDestinations(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.workerDestinations.name), key: KnownStringArguments.destinations)
+        let testDestinationConfigurations = try ArgumentsReader.testDestinations(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testDestinations.name))
+        let workerDestinations = try ArgumentsReader.deploymentDestinations(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.workerDestinations.name))
         
         let runningQueueServerAddress = try detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
             analyticsConfigurationLocation: analyticsConfigurationLocation,

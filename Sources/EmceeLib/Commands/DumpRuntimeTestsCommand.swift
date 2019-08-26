@@ -35,8 +35,7 @@ public final class DumpRuntimeTestsCommand: Command {
             try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.fbxctest.name)
         )
         let testDestinations: [TestDestinationConfiguration] = try ArgumentsReader.testDestinations(
-            try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testDestinations.name),
-            key: KnownStringArguments.testDestinations
+            try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testDestinations.name)
         )
         let xctestBundle: TestBundleLocation = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.xctestBundle.name)
         let applicationTestSupport = try runtimeDumpApplicationTestSupport(payload: payload)
