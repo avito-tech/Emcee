@@ -22,8 +22,11 @@ public final class CommandParser {
     ) throws -> [ArgumentValueHolder] {
         var stringValues = stringValues
         
-        let result = try commandArguments.map { argumentDescription -> ArgumentValueHolder in
+        let result = try commandArguments.compactMap { argumentDescription -> ArgumentValueHolder? in
             guard let index = stringValues.firstIndex(of: argumentDescription.name.expectedInputValue) else {
+                if argumentDescription.optional {
+                    return nil
+                }
                 throw CommandParserError.expectedArgument(argumentDescription.name)
             }
             

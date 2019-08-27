@@ -1,6 +1,6 @@
 import Foundation
 
-public final class ArgumentDescription: Hashable {
+public final class ArgumentDescription: Hashable, CustomStringConvertible {
     public let name: ArgumentName
     public let overview: String
     public let multiple: Bool
@@ -16,6 +16,10 @@ public final class ArgumentDescription: Hashable {
         self.overview = overview
         self.multiple = multiple
         self.optional = optional
+    }
+    
+    public var description: String {
+        return "<\(name) \(multiple ? "multiple" : "single") \(optional ? "optional" : "required")>"
     }
     
     public static func == (left: ArgumentDescription, right: ArgumentDescription) -> Bool {

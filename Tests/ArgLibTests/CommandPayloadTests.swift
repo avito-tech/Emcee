@@ -48,6 +48,18 @@ final class CommandPayloadTests: XCTestCase {
         )
     }
     
+    func test___extracting_argument_value_for_optional_argument() throws {
+        let valueHolders = [
+            ArgumentValueHolder(argumentName: .doubleDashed(dashlessName: "string"), stringValue: "hello")
+        ]
+        let payload = CommandPayload(valueHolders: valueHolders)
+
+        XCTAssertEqual(
+            try payload.optionalSingleTypedValue(argumentName: .doubleDashed(dashlessName: "string")),
+            "hello"
+        )
+    }
+    
     func test___empty_collection_of_values() {
         let payload = CommandPayload(valueHolders: [])
         XCTAssertEqual(
