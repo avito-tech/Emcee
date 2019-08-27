@@ -1,7 +1,6 @@
 import AutomaticTermination
 import Foundation
 import Logging
-import PortDeterminer
 import RESTMethods
 import Swifter
 
