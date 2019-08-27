@@ -3,6 +3,7 @@ import Foundation
 import Logging
 import Models
 import RESTMethods
+import RESTServer
 import WorkerAlivenessTracker
 
 public final class WorkerRegistrar: RESTEndpoint {

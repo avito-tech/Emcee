@@ -3,6 +3,7 @@ import Extensions
 import Foundation
 import Models
 import RESTMethods
+import RESTServer
 
 public final class JobResultsEndpoint: RESTEndpoint {
     private let jobResultsProvider: JobResultsProvider

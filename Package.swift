@@ -711,6 +711,7 @@ let package = Package(
                 "Models",
                 "PortDeterminer",
                 "RESTMethods",
+                "RESTServer",
                 "ResultsCollector",
                 "ScheduleStrategy",
                 "Swifter",
@@ -747,6 +748,8 @@ let package = Package(
                 "QueueServer",
                 "QueueServerTestHelpers",
                 "RESTMethods",
+                "RESTServer",
+                "RESTServerTestHelpers",
                 "ResourceLocationResolver",
                 "ResultsCollector",
                 "ScheduleStrategy",
@@ -874,6 +877,33 @@ let package = Package(
             dependencies: [
                 "Models",
                 "Version"
+            ]
+        ),
+        .target(
+            // MARK: RESTServer
+            name: "RESTServer",
+            dependencies: [
+                "AutomaticTermination",
+                "Extensions",
+                "Logging",
+                "Models",
+                "RESTMethods",
+                "Swifter",
+            ]
+        ),
+        .target(
+            name: "RESTServerTestHelpers",
+            dependencies: [
+                "RESTServer",
+            ],
+            path: "Tests/RESTServerTestHelpers"
+        ),
+        .testTarget(
+            name: "RESTServerTests",
+            dependencies: [
+                "RESTMethods",
+                "RESTServer",
+                "Swifter",
             ]
         ),
         .target(

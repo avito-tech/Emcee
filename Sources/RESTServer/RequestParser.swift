@@ -2,7 +2,7 @@ import Foundation
 import Swifter
 import Logging
 
-public final class QueueServerRequestParser {
+public final class RequestParser {
     private let decoder: JSONDecoder
     
     public init(decoder: JSONDecoder = JSONDecoder()) {

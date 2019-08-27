@@ -2,6 +2,7 @@ import BalancingBucketQueue
 import Foundation
 import Models
 import RESTMethods
+import RESTServer
 
 public final class JobDeleteEndpoint: RESTEndpoint {
     private let jobManipulator: JobManipulator

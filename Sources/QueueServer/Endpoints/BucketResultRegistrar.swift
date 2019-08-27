@@ -2,6 +2,7 @@ import BucketQueue
 import Foundation
 import Models
 import RESTMethods
+import RESTServer
 import WorkerAlivenessTracker
 
 public final class BucketResultRegistrar: RequestSignatureVerifyingRESTEndpoint {

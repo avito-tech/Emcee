@@ -1,7 +1,7 @@
 import Foundation
 import Models
-import QueueServer
 import RESTMethods
+import RESTServer
 import XCTest
 
 class RequestSignatureVerifyingRESTEndpointTests: XCTestCase {

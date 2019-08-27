@@ -10,6 +10,8 @@ import PortDeterminer
 import QueueClient
 import QueueServer
 import RESTMethods
+import RESTServer
+import RESTServerTestHelpers
 import RequestSender
 import ResultsCollector
 import ScheduleStrategy
@@ -25,8 +27,10 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         isTerminationAllowed: false
     )
     lazy var restServer = QueueHTTPRESTServer(
-        automaticTerminationController: automaticTerminationController,
-        localPortDeterminer: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange)
+        httpRestServer: HTTPRESTServer(
+            automaticTerminationController: automaticTerminationController,
+            portProvider: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange)
+        )
     )
     let workerConfigurations = WorkerConfigurations()
     let workerId: WorkerId = "worker"

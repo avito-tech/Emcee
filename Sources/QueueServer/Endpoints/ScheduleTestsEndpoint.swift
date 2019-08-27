@@ -3,6 +3,7 @@ import Dispatch
 import Foundation
 import Models
 import RESTMethods
+import RESTServer
 import UniqueIdentifierGenerator
 
 public final class ScheduleTestsEndpoint: RESTEndpoint {

@@ -5,8 +5,8 @@ import EventBus
 import Foundation
 import Logging
 import Models
-import Metrics
 import RESTMethods
+import RESTServer
 
 public final class BucketProviderEndpoint: RequestSignatureVerifyingRESTEndpoint {
     public typealias DecodedObjectType = DequeueBucketRequest

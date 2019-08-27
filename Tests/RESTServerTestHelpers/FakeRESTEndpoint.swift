@@ -1,7 +1,7 @@
 import Foundation
-import QueueServer
+import RESTServer
 
-class FakeRESTEndpoint<RequestType: Decodable, ReturnType: Encodable>: RESTEndpoint {
+public final class FakeRESTEndpoint<RequestType: Decodable, ReturnType: Encodable>: RESTEndpoint {
     private let returnValue: ReturnType
 
     public init(_ returnValue: ReturnType) {

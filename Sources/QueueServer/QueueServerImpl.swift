@@ -9,6 +9,7 @@ import Logging
 import Models
 import PortDeterminer
 import RESTMethods
+import RESTServer
 import ScheduleStrategy
 import Swifter
 import SynchronousWaiter
@@ -69,8 +70,10 @@ public final class QueueServerImpl: QueueServer {
         )
         self.balancingBucketQueue = balancingBucketQueueFactory.create()
         self.restServer = QueueHTTPRESTServer(
-            automaticTerminationController: automaticTerminationController,
-            localPortDeterminer: localPortDeterminer
+            httpRestServer: HTTPRESTServer(
+                automaticTerminationController: automaticTerminationController,
+                portProvider: localPortDeterminer
+            )
         )
         self.testsEnqueuer = TestsEnqueuer(
             bucketSplitInfo: bucketSplitInfo,

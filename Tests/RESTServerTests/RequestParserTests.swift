@@ -1,10 +1,10 @@
 import Foundation
-import QueueServer
 import RESTMethods
+import RESTServer
 import Swifter
 import XCTest
 
-final class QueueServerRequestParserTests: XCTestCase {
+final class RequestParserTests: XCTestCase {
     enum Result: Error {
         case throwable
     }
@@ -13,7 +13,7 @@ final class QueueServerRequestParserTests: XCTestCase {
     let decoder = JSONDecoder()
     
     func testParseErrorMappedIntoInternalErrors() {
-        let parser = QueueServerRequestParser(decoder: decoder)
+        let parser = RequestParser(decoder: decoder)
         let httpResponse = parser.parse(request: HttpRequest()) { (decodedObject: Int) -> (Int) in
             throw Result.throwable
         }
@@ -24,7 +24,7 @@ final class QueueServerRequestParserTests: XCTestCase {
     }
     
     func testDecodedObjectIsCorrectlyPassed() {
-        let parser = QueueServerRequestParser(decoder: decoder)
+        let parser = RequestParser(decoder: decoder)
         
         let httpRequest = HttpRequest()
         httpRequest.body = [UInt8]("{\"value\": 42}".data(using: .utf8)!)
@@ -40,7 +40,7 @@ final class QueueServerRequestParserTests: XCTestCase {
     }
     
     func testResponseIsPassedBackAsEncodedJson() {
-        let parser = QueueServerRequestParser(decoder: decoder)
+        let parser = RequestParser(decoder: decoder)
         
         let httpRequest = HttpRequest()
         httpRequest.body = [UInt8]("{\"value\": 42}".data(using: .utf8)!)
