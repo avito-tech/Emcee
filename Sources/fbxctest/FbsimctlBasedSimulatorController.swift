@@ -6,6 +6,7 @@ import Models
 import ProcessController
 import ResourceLocationResolver
 import SimulatorPool
+import SynchronousWaiter
 
 /**
  * Prepares and returns the simulator it owns. API is expected to be used from non multithreaded environment,
@@ -87,7 +88,7 @@ public class FbsimctlBasedSimulatorController: SimulatorController, CustomString
                 environment: try environment(),
                 silenceBehavior: SilenceBehavior(
                     automaticAction: .interruptAndForceKill,
-                    allowedSilenceDuration: 30
+                    allowedSilenceDuration: 60
                 )
             )
         )
@@ -114,9 +115,7 @@ public class FbsimctlBasedSimulatorController: SimulatorController, CustomString
                     Logger.error("Attempt to boot simulator \(simulator.testDestination.destinationString) failed: \(error)")
                     bootAttempt += 1
                     if bootAttempt < maximumBootAttempts {
-                        let waitBetweenAttemptsToBoot = 5.0
-                        Logger.warning("Waiting \(waitBetweenAttemptsToBoot) seconds before attempting to boot again")
-                        Thread.sleep(forTimeInterval: waitBetweenAttemptsToBoot)
+                        SynchronousWaiter.wait(timeout: Double(bootAttempt) * 3.0, description: "Time gap between reboot attempts")
                     } else {
                         throw error
                     }
@@ -209,14 +208,14 @@ public class FbsimctlBasedSimulatorController: SimulatorController, CustomString
         }
         let outputProcessor = FbsimctlOutputProcessor(processController: simulatorKeepAliveProcessController)
         do {
-            try outputProcessor.waitForEvent(type: .ended, name: .boot, timeout: 90)
+            try outputProcessor.waitForEvent(type: .ended, name: .boot, timeout: 180)
         } catch {
             Logger.error("Simulator \(simulator.testDestination.destinationString) did not boot in time: \(error)")
             throw error
         }
 
         do {
-            try outputProcessor.waitForEvent(type: .started, name: .listen, timeout: 50)
+            try outputProcessor.waitForEvent(type: .started, name: .listen, timeout: 60)
         } catch {
             Logger.error("Boot operation for simulator \(simulator.testDestination.destinationString) did not finish: \(error)")
             throw error

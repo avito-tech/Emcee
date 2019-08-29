@@ -382,6 +382,7 @@ let package = Package(
                 "ProcessController",
                 "Runner",
                 "SimulatorPool",
+                "SynchronousWaiter",
                 "Timer"
             ]
         ),
