@@ -65,27 +65,4 @@ class SimulatorPoolTests: XCTestCase {
         
         queue.waitUntilAllOperationsAreFinished()
     }
-    
-    func test___automatic_cleanup_shuts_down_simulators() throws {
-        let pool = try SimulatorPool(
-            numberOfSimulators: 1,
-            testDestination: TestDestinationFixtures.testDestination,
-            simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
-            developerDir: DeveloperDir.current,
-            simulatorControllerProvider: simulatorControllerProvider,
-            tempFolder: tempFolder,
-            automaticCleanupTiumeout: 1
-        )
-        let simulatorController = try pool.allocateSimulatorController() as! FakeSimulatorController
-        pool.freeSimulatorController(simulatorController)
-        
-        try SynchronousWaiter.waitWhile(
-            pollPeriod: 0.01,
-            timeout: SynchronousWaiter.Timeout(description: "Automatic cleanup", value: 2)) {
-                simulatorController.didCallShutdown == false
-        }
-        
-        XCTAssertTrue(simulatorController.didCallShutdown, "Simulator should be automatically cleaned after timeout")
-        XCTAssertFalse(simulatorController.didCallDelete, "Simulator should not be deleted when cleaning up resources")
-    }
 }

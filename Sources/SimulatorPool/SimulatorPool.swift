@@ -15,10 +15,7 @@ public class SimulatorPool: CustomStringConvertible {
     private let numberOfSimulators: UInt
     private let testDestination: TestDestination
     private var controllers: [SimulatorController]
-    private var automaticCleanupWorkItem: DispatchWorkItem?
-    private let automaticCleanupTiumeout: TimeInterval
     private let syncQueue = DispatchQueue(label: "ru.avito.SimulatorPool")
-    private let cleanUpQueue = DispatchQueue(label: "ru.avito.SimulatorPool.cleanup")
     
     public var description: String {
         return "<\(type(of: self)): \(numberOfSimulators)-sim '\(testDestination.deviceType)'+'\(testDestination.runtime)'>"
@@ -30,12 +27,10 @@ public class SimulatorPool: CustomStringConvertible {
         simulatorControlTool: SimulatorControlTool,
         developerDir: DeveloperDir,
         simulatorControllerProvider: SimulatorControllerProvider,
-        tempFolder: TemporaryFolder,
-        automaticCleanupTiumeout: TimeInterval = 10) throws
-    {
+        tempFolder: TemporaryFolder
+    ) throws {
         self.numberOfSimulators = numberOfSimulators
         self.testDestination = testDestination
-        self.automaticCleanupTiumeout = automaticCleanupTiumeout
         controllers = try SimulatorPool.createControllers(
             count: numberOfSimulators,
             testDestination: testDestination,
@@ -56,7 +51,6 @@ public class SimulatorPool: CustomStringConvertible {
                 throw BorrowError.noSimulatorsLeft
             }
             Logger.verboseDebug("Allocated simulator: \(simulator)")
-            cancelAutomaticCleanup()
             return simulator
         }
     }
@@ -65,13 +59,11 @@ public class SimulatorPool: CustomStringConvertible {
         syncQueue.sync {
             controllers.append(simulator)
             Logger.verboseDebug("Freed simulator: \(simulator)")
-            scheduleAutomaticCleanup()
         }
     }
     
     public func deleteSimulators() {
         syncQueue.sync {
-            cancelAutomaticCleanup()
             Logger.verboseDebug("\(self): deleting simulators")
             controllers.forEach {
                 do {
@@ -85,7 +77,6 @@ public class SimulatorPool: CustomStringConvertible {
     
     public func shutdownSimulators() {
         syncQueue.sync {
-            cancelAutomaticCleanup()
             Logger.verboseDebug("\(self): deleting simulators")
             controllers.forEach {
                 do {
@@ -118,25 +109,5 @@ public class SimulatorPool: CustomStringConvertible {
             result.append(controller)
         }
         return result
-    }
-    
-    private func cancelAutomaticCleanup() {
-        automaticCleanupWorkItem?.cancel()
-        automaticCleanupWorkItem = nil
-    }
-    
-    private func scheduleAutomaticCleanup() {
-        cancelAutomaticCleanup()
-        
-        let cancellationWorkItem = DispatchWorkItem { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.automaticCleanupWorkItem = nil
-            if strongSelf.controllers.count == strongSelf.numberOfSimulators {
-                Logger.debug("Simulator controllers were not in use for \(strongSelf.automaticCleanupTiumeout) seconds.")
-                strongSelf.shutdownSimulators()
-            }
-        }
-        cleanUpQueue.asyncAfter(deadline: .now() + automaticCleanupTiumeout, execute: cancellationWorkItem)
-        self.automaticCleanupWorkItem = cancellationWorkItem
     }
 }
