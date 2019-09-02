@@ -55,6 +55,8 @@ final class ResourceLocationResolverTests: XCTestCase {
                 )
             )
         }
+        
+        XCTAssertTrue(fileCache.contains(itemForURL: URL(string: "http://localhost:\(server.port)/contents/example.zip")!))
     }
     
     func test___fetching_resource_without_fragment___resolves_into_archive_contents_without_filename_in_archive() throws {
@@ -75,6 +77,8 @@ final class ResourceLocationResolverTests: XCTestCase {
                 )
             )
         }
+        
+        XCTAssertTrue(fileCache.contains(itemForURL: remoteUrl))
     }
     
     func test___once_resource_has_been_fetched___zip_file_is_truncated_to_zero_bytes_but_kept_on_disk() throws {
@@ -134,6 +138,19 @@ final class ResourceLocationResolverTests: XCTestCase {
         XCTAssertEqual(fakeSession.providedDownloadTasks.count, 1)
     }
     
+    func test___when_zip_file_is_corrupted___it_is_removed_from_cache() throws {
+        urlSession = fakeSession
+        let server = try startServer(serverPath: "/contents/example.zip", localPath: corruptedZipFile)
+        let remoteUrl = URL(string: "http://localhost:\(server.port)/contents/example.zip")!
+        
+        XCTAssertThrowsError(
+            _ = try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl)),
+            "Corrupted ZIP file should throw error"
+        )
+        
+        XCTAssertFalse(fileCache.contains(itemForURL: remoteUrl))
+    }
+    
     var urlSession = URLSession.shared
     let fakeSession = FakeURLSession()
     lazy var resolver = ResourceLocationResolver(urlResource: urlResource)
@@ -145,6 +162,7 @@ final class ResourceLocationResolverTests: XCTestCase {
     lazy var smallZipFile = self.zipFile(toPath: serverFolder.appending(component: "example.zip"), fromPath: smallFile)
     lazy var largeFile = try! createFile(name: "example", size: 12000000)
     lazy var largeZipFile = self.zipFile(toPath: serverFolder.appending(component: "example.zip"), fromPath: largeFile)
+    lazy var corruptedZipFile = try! createFile(name: "corrupted", size: 1234)
     let operationQueue = OperationQueue()
     let maximumConcurrentOperations = 10
     

@@ -77,6 +77,11 @@ public final class ResourceLocationResolver {
                 )
                 process.waitUntilExit()
                 if process.terminationStatus != 0 {
+                    do {
+                        try urlResource.deleteResource(url: url)
+                    } catch {
+                        Logger.error("Failed to delete corrupted cached contents for item at url \(url)")
+                    }
                     throw ValidationError.unpackProcessError
                 }
             }

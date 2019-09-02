@@ -11,8 +11,24 @@ public final class URLResource {
     private let handlerQueue = DispatchQueue(label: "ru.avito.emcee.URLResource.handlerQueue")
     private let handlersWrapper: HandlersWrapper
     
-    public enum `Error`: Swift.Error {
-        case unknownError(response: URLResponse?)
+    public enum URLResourceError: Error, CustomStringConvertible {
+        case invalidResponse(url: URL, response: URLResponse?)
+        case noLocalUrl(url: URL, response: HTTPURLResponse)
+        case noFileSizeAttribute(localUrl: URL)
+        case unexpectedDownloadSize(url: URL, expected: Int64, actual: Int)
+        
+        public var description: String {
+            switch self {
+            case .invalidResponse(let url, let response):
+                return "Invalid URL response for url \(url): \(response?.description ?? "NULL")"
+            case .noLocalUrl(let url, let response):
+                return "No local URL provided by URL session for url: \(url), response: \(response)"
+            case .noFileSizeAttribute(let localUrl):
+                return "Cannot get file size attribute for path: \(localUrl.path)"
+            case .unexpectedDownloadSize(let url, let expected, let actual):
+                return "Unexpected resulting file size for url \(url): expected size \(expected), actual: \(actual)"
+            }
+        }
     }
     
     public init(fileCache: FileCache, urlSession: URLSession) {
@@ -32,6 +48,10 @@ public final class URLResource {
                 }
             }
         }
+    }
+    
+    public func deleteResource(url: URL) throws {
+        try fileCache.delete(itemForURL: url)
     }
     
     private func provideResourceImmediately_onSyncQueue(url: URL, handler: URLResourceHandler) {
@@ -68,27 +88,55 @@ public final class URLResource {
             let receiveResponseTimestamp = Date()
             
             if let error = error {
-                handlersWrapper.failedToGetContents(forUrl: url, error: error)
-            } else if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
-                handlersWrapper.failedToGetContents(forUrl: url, error: Error.unknownError(response: response))
-            } else if let localUrl = localUrl {
-                do {
-                    let timeToDownload = receiveResponseTimestamp.timeIntervalSince(initiateDownloadTimestamp)
-                    if let attribute = try? FileManager.default.attributesOfItem(atPath: localUrl.path)[.size], let downloadedSize = attribute as? NSNumber {
-                        Logger.verboseDebug("Downloaded resource for '\(url)' in \(Int(timeToDownload)) seconds, speed: \(Int(downloadedSize.doubleValue / timeToDownload / 1024)) KB/s")
-                    }
-                    
-                    try fileCache.store(contentsUrl: localUrl, ofUrl: url, operation: .move)
-                    let cachedUrl = try fileCache.urlForCachedContents(ofUrl: url)
-                    Logger.debug("Stored resource for '\(url)' in file cache")
-                    handlersWrapper.resourceUrl(contentUrl: cachedUrl, forUrl: url)
-                } catch {
-                    handlersWrapper.failedToGetContents(forUrl: url, error: error)
-                }
-            } else {
-                handlersWrapper.failedToGetContents(forUrl: url, error: Error.unknownError(response: response))
+                return handlersWrapper.failedToGetContents(forUrl: url, error: error)
             }
+            
+            guard let nonOptionalResponse = response, let httpResponse = nonOptionalResponse as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                return handlersWrapper.failedToGetContents(forUrl: url, error: URLResourceError.invalidResponse(url: url, response: response))
+            }
+            
+            guard let localUrl = localUrl else {
+                return handlersWrapper.failedToGetContents(forUrl: url, error: URLResourceError.noLocalUrl(url: url, response: httpResponse))
+            }
+            
+            do {
+                let timeToDownload = receiveResponseTimestamp.timeIntervalSince(initiateDownloadTimestamp)
+                
+                try self.validateDownloadedFileAgainstResponse(
+                    url: url,
+                    localUrl: localUrl,
+                    response: httpResponse,
+                    timeToDownload: timeToDownload
+                )
+                
+                try fileCache.store(contentsUrl: localUrl, ofUrl: url, operation: .move)
+                let cachedUrl = try fileCache.urlForCachedContents(ofUrl: url)
+                Logger.debug("Stored resource for '\(url)' in file cache")
+                handlersWrapper.resourceUrl(contentUrl: cachedUrl, forUrl: url)
+            } catch {
+                handlersWrapper.failedToGetContents(forUrl: url, error: error)
+            }
+            
             handlersWrapper.removeHandlers(url: url)
+        }
+    }
+    
+    private func validateDownloadedFileAgainstResponse(
+        url: URL,
+        localUrl: URL,
+        response: URLResponse,
+        timeToDownload: TimeInterval
+    ) throws {
+        let attribute = try FileManager.default.attributesOfItem(atPath: localUrl.path)
+        
+        guard let sizeAttributeValue = attribute[.size], let downloadedSize = sizeAttributeValue as? NSNumber else {
+            throw URLResourceError.noFileSizeAttribute(localUrl: localUrl)
+        }
+        
+        Logger.verboseDebug("Downloaded resource for '\(url)' in \(Int(timeToDownload)) seconds, size: \(Int(downloadedSize.doubleValue / 1024)) KB, speed: \(Int(downloadedSize.doubleValue / timeToDownload)) KB/s")
+        
+        if response.expectedContentLength > 0, response.expectedContentLength != downloadedSize.intValue {
+            throw URLResourceError.unexpectedDownloadSize(url: url, expected: response.expectedContentLength, actual: downloadedSize.intValue)
         }
     }
     

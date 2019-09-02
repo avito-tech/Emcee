@@ -16,4 +16,8 @@ public extension FileCache {
     func store(contentsUrl: URL, ofUrl url: URL, operation: Operation) throws {
         try self.store(itemAtURL: contentsUrl, underName: itemNameForUrl(url), operation: operation)
     }
+    
+    func delete(itemForURL url: URL) throws {
+        try self.remove(itemWithName: itemNameForUrl(url))
+    }
 }
