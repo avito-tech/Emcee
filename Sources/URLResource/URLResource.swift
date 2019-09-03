@@ -133,9 +133,11 @@ public final class URLResource {
             throw URLResourceError.noFileSizeAttribute(localUrl: localUrl)
         }
         
-        Logger.verboseDebug("Downloaded resource for '\(url)' in \(Int(timeToDownload)) seconds, size: \(Int(downloadedSize.doubleValue / 1024)) KB, speed: \(Int(downloadedSize.doubleValue / timeToDownload)) KB/s")
+        let sizeInBytes = downloadedSize.intValue
+        let speedInKBytesPerSecond = Int(Double(sizeInBytes) / 1024 / timeToDownload)
+        Logger.verboseDebug("Downloaded resource for '\(url)' in \(Int(timeToDownload)) seconds, size: \(sizeInBytes) bytes, speed: \(speedInKBytesPerSecond) KB/s")
         
-        if response.expectedContentLength > 0, response.expectedContentLength != downloadedSize.intValue {
+        if response.expectedContentLength > 0, response.expectedContentLength != sizeInBytes {
             throw URLResourceError.unexpectedDownloadSize(url: url, expected: response.expectedContentLength, actual: downloadedSize.intValue)
         }
     }

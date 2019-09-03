@@ -654,8 +654,7 @@ let package = Package(
                 "Extensions",
                 "Logging",
                 "PathLib",
-                "ResourceLocationResolver",
-                "Timer"
+                "Timer",
             ]
         ),
         .testTarget(
@@ -855,7 +854,8 @@ let package = Package(
                 "Extensions",
                 "FileCache",
                 "Models",
-                "URLResource"
+                "ProcessController",
+                "URLResource",
             ]
         ),
         .testTarget(
@@ -1052,7 +1052,8 @@ let package = Package(
                 "Logging",
                 "Models",
                 "ProcessController",
-                "TemporaryStuff"
+                "ResourceLocationResolver",
+                "TemporaryStuff",
             ]
         ),
         .target(
@@ -1060,9 +1061,10 @@ let package = Package(
             name: "SimulatorPoolTestHelpers",
             dependencies: [
                 "Models",
+                "ModelsTestHelpers",
                 "PathLib",
                 "SimulatorPool",
-                "TemporaryStuff"
+                "TemporaryStuff",
             ],
             path: "Tests/SimulatorPoolTestHelpers"
         ),

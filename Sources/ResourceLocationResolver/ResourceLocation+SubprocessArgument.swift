@@ -1,7 +1,7 @@
 import Extensions
 import Foundation
 import Models
-import ResourceLocationResolver
+import ProcessController
 
 private class ResolvableResourceLocationArg: SubprocessArgument, CustomStringConvertible {
     private let resolvableResourceLocation: ResolvableResourceLocation

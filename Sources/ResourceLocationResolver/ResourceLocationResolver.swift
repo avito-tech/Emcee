@@ -5,6 +5,7 @@ import FileCache
 import Foundation
 import Logging
 import Models
+import ProcessController
 import URLResource
 
 public final class ResourceLocationResolver {
@@ -12,11 +13,14 @@ public final class ResourceLocationResolver {
     private let cacheAccessCount = AtomicValue<Int>(0)
     private let unarchiveQueue = DispatchQueue(label: "ru.avito.emcee.ResourceLocationResolver.unarchiveQueue")
     
-    public enum ValidationError: String, Error, CustomStringConvertible {
-        case unpackProcessError = "Unzip operation failed."
+    public enum ValidationError: Error, CustomStringConvertible {
+        case unpackProcessError(zipPath: String)
         
         public var description: String {
-            return self.rawValue
+            switch self {
+            case .unpackProcessError(let zipPath):
+                return "Unzip operation failed for archive at path: \(zipPath)"
+            }
         }
     }
     
@@ -71,18 +75,20 @@ public final class ResourceLocationResolver {
         try unarchiveQueue.sync {
             if !FileManager.default.fileExists(atPath: contentsUrl.path) {
                 Logger.debug("Will unzip '\(zipUrl)' into '\(contentsUrl)'")
-                let process = Process.launchedProcess(
-                    launchPath: "/usr/bin/unzip",
-                    arguments: ["-qq", zipUrl.path, "-d", contentsUrl.path]
+                
+                let processController = try ProcessController(
+                    subprocess: Subprocess(
+                        arguments: ["/usr/bin/unzip", "-qq", zipUrl.path, "-d", contentsUrl.path]
+                    )
                 )
-                process.waitUntilExit()
-                if process.terminationStatus != 0 {
+                processController.startAndListenUntilProcessDies()
+                guard processController.processStatus() == .terminated(exitCode: 0) else {
                     do {
                         try urlResource.deleteResource(url: url)
                     } catch {
                         Logger.error("Failed to delete corrupted cached contents for item at url \(url)")
                     }
-                    throw ValidationError.unpackProcessError
+                    throw ValidationError.unpackProcessError(zipPath: zipUrl.path)
                 }
             }
 
