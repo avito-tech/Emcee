@@ -63,7 +63,7 @@ public final class FbxctestBasedTestRunner: TestRunner {
         let resolvableFbxctest = resourceLocationResolver.resolvable(withRepresentable: fbxctestLocation)
         
         var arguments: [SubprocessArgument] = [
-            resolvableFbxctest.asArgumentWith(packageName: PackageName.fbxctest),
+            resolvableFbxctest.asArgumentWith(implicitFilenameInArchive: "fbxctest"),
              "-destination", simulatorInfo.testDestination.destinationString,
              testType.asArgument
         ]

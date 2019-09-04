@@ -11,7 +11,6 @@ public final class RemoteWorkersStarter {
     private let deploymentId: String
     private let emceeVersionProvider: VersionProvider
     private let deploymentDestinations: [DeploymentDestination]
-    private let pluginLocations: [PluginLocation]
     private let analyticsConfigurationLocation: AnalyticsConfigurationLocation?
     private let tempFolder: TemporaryFolder
 
@@ -19,7 +18,6 @@ public final class RemoteWorkersStarter {
         deploymentId: String,
         emceeVersionProvider: VersionProvider,
         deploymentDestinations: [DeploymentDestination],
-        pluginLocations: [PluginLocation],
         analyticsConfigurationLocation: AnalyticsConfigurationLocation?,
         tempFolder: TemporaryFolder
         )
@@ -27,7 +25,6 @@ public final class RemoteWorkersStarter {
         self.deploymentId = deploymentId
         self.emceeVersionProvider = emceeVersionProvider
         self.deploymentDestinations = deploymentDestinations
-        self.pluginLocations = pluginLocations
         self.analyticsConfigurationLocation = analyticsConfigurationLocation
         self.tempFolder = tempFolder
     }
@@ -35,11 +32,10 @@ public final class RemoteWorkersStarter {
     public func deployAndStartWorkers(queueAddress: SocketAddress) throws {
         let deployablesGenerator = DeployablesGenerator(
             emceeVersionProvider: emceeVersionProvider,
-            pluginLocations: pluginLocations,
             remoteEmceeBinaryName: "EmceeWorker"
         )
         try deployWorkers(
-            deployableItems: try deployablesGenerator.deployables().values.flatMap { $0 }
+            deployableItems: try deployablesGenerator.deployables()
         )
         try startDeployedWorkers(
             emceeBinaryDeployableItem: try deployablesGenerator.runnerTool(),

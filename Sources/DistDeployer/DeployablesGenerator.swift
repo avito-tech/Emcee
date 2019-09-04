@@ -7,24 +7,20 @@ import Version
 
 final class DeployablesGenerator {
     private let emceeVersionProvider: VersionProvider
-    private let pluginLocations: [PluginLocation]
     private let remoteEmceeBinaryName: String
 
-    public init(emceeVersionProvider: VersionProvider, pluginLocations: [PluginLocation], remoteEmceeBinaryName: String) {
+    public init(emceeVersionProvider: VersionProvider, remoteEmceeBinaryName: String) {
         self.emceeVersionProvider = emceeVersionProvider
-        self.pluginLocations = pluginLocations
         self.remoteEmceeBinaryName = remoteEmceeBinaryName
     }
     
-    public func deployables() throws -> [PackageName: [DeployableItem]] {
-        var deployables = [PackageName: [DeployableItem]]()
-        deployables[.emceeBinary] = [try runnerTool()]
-        return deployables
+    public func deployables() throws -> [DeployableItem] {
+        return [try runnerTool()]
     }
     
     public func runnerTool() throws -> DeployableTool {
         return DeployableTool(
-            name: PackageName.emceeBinary.rawValue,
+            name: "emceeBinary",
             files: [
                 DeployableFile(
                     source: AbsolutePath(ProcessInfo.processInfo.executablePath),

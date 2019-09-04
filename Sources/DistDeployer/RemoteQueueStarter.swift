@@ -29,11 +29,10 @@ public final class RemoteQueueStarter {
     public func deployAndStart() throws {
         let deployablesGenerator = DeployablesGenerator(
             emceeVersionProvider: emceeVersionProvider,
-            pluginLocations: [],
             remoteEmceeBinaryName: "EmceeQueueServer"
         )
         try deploy(
-            deployableItems: try deployablesGenerator.deployables().values.flatMap { $0 }
+            deployableItems: try deployablesGenerator.deployables()
         )
         try start(
             emceeBinaryDeployableItem: try deployablesGenerator.runnerTool()

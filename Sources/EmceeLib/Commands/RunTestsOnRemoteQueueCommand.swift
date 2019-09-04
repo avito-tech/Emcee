@@ -71,7 +71,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         )
 
         let priority: Priority = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.priority.name)
-        let pluginLocations: [PluginLocation] = try payload.possiblyEmptyCollectionOfValues(argumentName: ArgumentDescriptions.plugin.name)
         
         let queueServerDestination = try ArgumentsReader.deploymentDestinations(
             try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerDestination.name)
@@ -88,7 +87,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         
         let runningQueueServerAddress = try detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
             analyticsConfigurationLocation: analyticsConfigurationLocation,
-            pluginLocations: pluginLocations,
             queueServerDestination: queueServerDestination,
             queueServerRunConfigurationLocation: queueServerRunConfigurationLocation,
             runId: runId,
@@ -116,7 +114,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     
     private func detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
         analyticsConfigurationLocation: AnalyticsConfigurationLocation?,
-        pluginLocations: [PluginLocation],
         queueServerDestination: DeploymentDestination,
         queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation,
         runId: JobId,
@@ -168,7 +165,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             deploymentId: runId.value,
             emceeVersionProvider: localQueueVersionProvider,
             deploymentDestinations: workerDestinations,
-            pluginLocations: pluginLocations,
             analyticsConfigurationLocation: analyticsConfigurationLocation,
             tempFolder: tempFolder
         )

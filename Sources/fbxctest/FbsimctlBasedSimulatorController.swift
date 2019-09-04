@@ -80,7 +80,7 @@ public class FbsimctlBasedSimulatorController: SimulatorController, CustomString
         let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: [
-                    fbsimctl.asArgumentWith(packageName: PackageName.fbsimctl),
+                    fbsimctlArg,
                     "--json", "--set", simulatorSetPath,
                     "create",
                     "iOS \(simulator.testDestination.runtime)", simulator.testDestination.deviceType
@@ -183,7 +183,7 @@ public class FbsimctlBasedSimulatorController: SimulatorController, CustomString
         simulatorKeepAliveProcessController = try ProcessController(
             subprocess: Subprocess(
                 arguments: [
-                    fbsimctl.asArgumentWith(packageName: PackageName.fbsimctl),
+                    fbsimctlArg,
                     "--json", "--set", simulator.simulatorSetContainerPath,
                     simulatorUuid, "boot",
                     "--locale", "ru_US",
@@ -226,7 +226,7 @@ public class FbsimctlBasedSimulatorController: SimulatorController, CustomString
         let controller = try ProcessController(
             subprocess: Subprocess(
                 arguments: [
-                    fbsimctl.asArgumentWith(packageName: PackageName.fbsimctl),
+                    fbsimctlArg,
                     "--json", "--set", simulator.simulatorSetContainerPath,
                     "--simulators", "delete"
                 ],
@@ -313,6 +313,10 @@ public class FbsimctlBasedSimulatorController: SimulatorController, CustomString
 
     public var description: String {
         return "<fbsimctl: \(simulator), developer dir: \(developerDir)>"
+    }
+    
+    private var fbsimctlArg: SubprocessArgument {
+        return fbsimctl.asArgumentWith(implicitFilenameInArchive: "fbsimctl")
     }
 
     // MARK: - Errors

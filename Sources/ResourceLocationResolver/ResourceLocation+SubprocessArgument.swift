@@ -5,7 +5,7 @@ import ProcessController
 
 private class ResolvableResourceLocationArg: SubprocessArgument, CustomStringConvertible {
     private let resolvableResourceLocation: ResolvableResourceLocation
-    private let packageName: PackageName?
+    private let implicitFilenameInArchive: String?
     
     enum ArgError: Error, CustomStringConvertible {
         case cannotResolve(ResolvableResourceLocation, containerPath: String)
@@ -23,10 +23,10 @@ private class ResolvableResourceLocationArg: SubprocessArgument, CustomStringCon
 
     public init(
         resolvableResourceLocation: ResolvableResourceLocation,
-        packageName: PackageName?)
+        implicitFilenameInArchive: String?)
     {
         self.resolvableResourceLocation = resolvableResourceLocation
-        self.packageName = packageName
+        self.implicitFilenameInArchive = implicitFilenameInArchive
     }
     
     public func stringValue() throws -> String {
@@ -37,8 +37,8 @@ private class ResolvableResourceLocationArg: SubprocessArgument, CustomStringCon
         case .contentsOfArchive(let containerPath, let filenameInArchive):
             if let filenameInArchive = filenameInArchive {
                 return containerPath.appending(pathComponent: filenameInArchive)
-            } else if let packageName = packageName {
-                return containerPath.appending(pathComponent: try PackageName.targetFileName(packageName))
+            } else if let implicitFilenameInArchive = implicitFilenameInArchive {
+                return containerPath.appending(pathComponent: implicitFilenameInArchive)
             } else {
                 throw ArgError.cannotResolve(resolvableResourceLocation, containerPath: containerPath)
             }
@@ -55,11 +55,11 @@ private class ResolvableResourceLocationArg: SubprocessArgument, CustomStringCon
 }
 
 public extension ResolvableResourceLocation {
-    func asArgumentWith(packageName: PackageName) -> SubprocessArgument {
-        return ResolvableResourceLocationArg(resolvableResourceLocation: self, packageName: packageName)
+    func asArgumentWith(implicitFilenameInArchive: String) -> SubprocessArgument {
+        return ResolvableResourceLocationArg(resolvableResourceLocation: self, implicitFilenameInArchive: implicitFilenameInArchive)
     }
     
     func asArgument() -> SubprocessArgument {
-        return ResolvableResourceLocationArg(resolvableResourceLocation: self, packageName: nil)
+        return ResolvableResourceLocationArg(resolvableResourceLocation: self, implicitFilenameInArchive: nil)
     }
 }
