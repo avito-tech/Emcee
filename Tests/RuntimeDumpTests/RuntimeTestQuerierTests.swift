@@ -14,7 +14,7 @@ import XCTest
 
 final class RuntimeTestQuerierTests: XCTestCase {
     let eventBus = EventBus()
-    let resourceLocationResolver = ResourceLocationResolver()
+    let resourceLocationResolver = try! ResourceLocationResolver()
     let tempFolder = try! TemporaryFolder()
     let dumpFilename = UUID().uuidString
     lazy var fixedValueUniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: dumpFilename)

@@ -17,7 +17,11 @@ public final class DistWorkCommand: Command {
         ArgumentDescriptions.workerId.asRequired
     ]
     
-    private let resourceLocationResolver = ResourceLocationResolver()
+    private let resourceLocationResolver: ResourceLocationResolver
+    
+    public init(resourceLocationResolver: ResourceLocationResolver) {
+        self.resourceLocationResolver = resourceLocationResolver
+    }
     
     public func run(payload: CommandPayload) throws {
         let analyticsConfigurationLocation: AnalyticsConfigurationLocation? = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.analyticsConfiguration.name)

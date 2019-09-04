@@ -13,7 +13,7 @@ class DeployablesGeneratorTests: XCTestCase {
     
     var deployables = [PackageName: [DeployableItem]]()
     var tempFolder: TemporaryFolder!
-    let resolver = ResourceLocationResolver()
+    let resolver = try! ResourceLocationResolver()
     let versionStringValue = "SomeVersion"
     lazy var versionProvider = FixedVersionProvider(value: versionStringValue)
     

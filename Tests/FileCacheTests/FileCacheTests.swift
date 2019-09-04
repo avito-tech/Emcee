@@ -20,7 +20,7 @@ final class FileCacheTests: XCTestCase {
     }
     
     func test__storing_with_copy_operation() throws {
-        let cache = FileCache(cachesUrl: tempFolder.absolutePath.fileUrl)
+        let cache = try FileCache(cachesUrl: tempFolder.absolutePath.fileUrl)
         XCTAssertFalse(cache.contains(itemWithName: "item"))
         
         XCTAssertNoThrow(try cache.store(itemAtURL: URL(fileURLWithPath: #file), underName: "item", operation: .copy))
@@ -37,7 +37,7 @@ final class FileCacheTests: XCTestCase {
     }
     
     func test__storing_with_move_operation() throws {
-        let cache = FileCache(cachesUrl: tempFolder.absolutePath.fileUrl)
+        let cache = try FileCache(cachesUrl: tempFolder.absolutePath.fileUrl)
         
         let fileToStore = try tempFolder.createFile(
             components: [],
@@ -54,7 +54,7 @@ final class FileCacheTests: XCTestCase {
     }
     
     func testEvicting() throws {
-        let cache = FileCache(cachesUrl: tempFolder.absolutePath.fileUrl)
+        let cache = try FileCache(cachesUrl: tempFolder.absolutePath.fileUrl)
         
         try cache.store(itemAtURL: URL(fileURLWithPath: #file), underName: "item", operation: .copy)
         XCTAssertTrue(cache.contains(itemWithName: "item"))
@@ -64,7 +64,7 @@ final class FileCacheTests: XCTestCase {
     }
     
     func test__evicting_busy_items___moves_them_to_evicting_state() throws {
-        let cache = FileCache(
+        let cache = try FileCache(
             cachesUrl: tempFolder.absolutePath.fileUrl,
             uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(value: "someid")
         )
@@ -99,7 +99,7 @@ final class FileCacheTests: XCTestCase {
         
         let tempFolderContents = try FileManager.default.contentsOfDirectory(
             atPath: tempFolder.absolutePath.pathString
-        )
+            ).filter { $0.hasPrefix(FileCache.evictingStatePrefix) }
         
         XCTAssertEqual(
             tempFolderContents,

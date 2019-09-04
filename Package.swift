@@ -391,7 +391,8 @@ let package = Package(
             name: "FileCache",
             dependencies: [
                 "Extensions",
-                "UniqueIdentifierGenerator"
+                "Models",
+                "UniqueIdentifierGenerator",
             ]
         ),
         .testTarget(

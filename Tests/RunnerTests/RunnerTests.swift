@@ -14,7 +14,7 @@ public final class RunnerTests: XCTestCase {
 
     let testRunnerProvider = FakeTestRunnerProvider()
     var tempFolder = try! TemporaryFolder()
-    let resolver = ResourceLocationResolver()
+    let resolver = try! ResourceLocationResolver()
     
     func test___running_test_without_output_to_stream___provides_test_did_not_run_results() throws {
         testRunnerProvider.predefinedFakeTestRunner.disableTestStartedTestRunnerStreamEvents()

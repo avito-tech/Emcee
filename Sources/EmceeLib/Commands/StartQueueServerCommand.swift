@@ -23,8 +23,12 @@ public final class StartQueueServerCommand: Command {
     ]
     
     private let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
-    private let resourceLocationResolver = ResourceLocationResolver()
+    private let resourceLocationResolver: ResourceLocationResolver
     private let requestSignature = RequestSignature(value: UUID().uuidString)
+
+    public init(resourceLocationResolver: ResourceLocationResolver) {
+        self.resourceLocationResolver = resourceLocationResolver
+    }
     
     public func run(payload: CommandPayload) throws {
         let queueServerRunConfiguration = try ArgumentsReader.queueServerRunConfiguration(

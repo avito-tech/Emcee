@@ -35,8 +35,8 @@ public final class ResourceLocationResolver {
         return cacheContainer.appendingPathComponent("ru.avito.Runner.cache", isDirectory: true)
     }
     
-    public convenience init() {
-        let fileCache = FileCache(cachesUrl: ResourceLocationResolver.cachesUrl())
+    public convenience init() throws {
+        let fileCache = try FileCache(cachesUrl: ResourceLocationResolver.cachesUrl())
         let urlResource = URLResource(fileCache: fileCache, urlSession: URLSession.shared)
         self.init(urlResource: urlResource)
     }

@@ -6,6 +6,7 @@ import Logging
 import LoggingSetup
 import Metrics
 import ProcessController
+import ResourceLocationResolver
 
 public final class InProcessMain {
     public init() {}
@@ -20,12 +21,14 @@ public final class InProcessMain {
     }
 
     private func runCommands() throws {
+        let resourceLocationResolver = try ResourceLocationResolver()
+        
         let commandInvoker = CommandInvoker(
             commands: [
-                DistWorkCommand(),
-                DumpRuntimeTestsCommand(),
-                RunTestsOnRemoteQueueCommand(),
-                StartQueueServerCommand(),
+                DistWorkCommand(resourceLocationResolver: resourceLocationResolver),
+                DumpRuntimeTestsCommand(resourceLocationResolver: resourceLocationResolver),
+                RunTestsOnRemoteQueueCommand(resourceLocationResolver: resourceLocationResolver),
+                StartQueueServerCommand(resourceLocationResolver: resourceLocationResolver),
             ]
         )
         try commandInvoker.invokeSuitableCommand()

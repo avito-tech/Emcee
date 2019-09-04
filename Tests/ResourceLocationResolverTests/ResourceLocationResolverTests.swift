@@ -156,7 +156,7 @@ final class ResourceLocationResolverTests: XCTestCase {
     lazy var resolver = ResourceLocationResolver(urlResource: urlResource)
     lazy var serverFolder = try! tempFolder.pathByCreatingDirectories(components: ["server"])
     let tempFolder = try! TemporaryFolder()
-    lazy var fileCache = FileCache(cachesUrl: tempFolder.absolutePath.fileUrl)
+    lazy var fileCache = try! FileCache(cachesUrl: tempFolder.absolutePath.fileUrl)
     lazy var urlResource = URLResource(fileCache: fileCache, urlSession: urlSession)
     lazy var smallFile = try! createFile(name: "example", size: 4096)
     lazy var smallZipFile = self.zipFile(toPath: serverFolder.appending(component: "example.zip"), fromPath: smallFile)

@@ -1,5 +1,6 @@
 import Extensions
 import Foundation
+import Models
 import UniqueIdentifierGenerator
 
 public final class FileCache {
@@ -9,6 +10,9 @@ public final class FileCache {
     private let fileManager = FileManager()
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
+    private let cacheLock: FileLock
+    
+    public static let evictingStatePrefix = "evicting"
     
     private struct CachedItemInfo: Codable {
         let fileName: String
@@ -24,73 +28,86 @@ public final class FileCache {
         cachesUrl: URL,
         nameHasher: NameKeyer = SHA256NameKeyer(),
         uniqueIdentifierGenerator: UniqueIdentifierGenerator = UuidBasedUniqueIdentifierGenerator()
-    ) {
+    ) throws {
         self.cachesUrl = cachesUrl
         self.nameKeyer = nameHasher
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
+        
+        let lockFilePath = cachesUrl.appendingPathComponent("emcee_cache.lock", isDirectory: false)
+        self.cacheLock = try FileLock(lockFilePath: lockFilePath.path)
     }
     
     // MARK: - Public API
     
     public func contains(itemWithName name: String) -> Bool {
         do {
-            let fileUrl = try url(forItemWithName: name)
-            return fileManager.fileExists(atPath: fileUrl.path)
+            return try whileLocked {
+                let fileUrl = try url(forItemWithName: name)
+                return fileManager.fileExists(atPath: fileUrl.path)
+            }
         } catch {
             return false
         }
     }
     
     public func remove(itemWithName name: String) throws {
-        let container = try containerUrl(forItemWithName: name)
-        try safelyEvict(itemUrl: container)
+        try whileLocked {
+            let container = try containerUrl(forItemWithName: name)
+            try safelyEvict(itemUrl: container)
+        }
     }
     
     public func store(itemAtURL itemUrl: URL, underName name: String, operation: Operation) throws {
-        if contains(itemWithName: name) {
-            try remove(itemWithName: name)
+        try whileLocked {
+            if contains(itemWithName: name) {
+                try remove(itemWithName: name)
+            }
+            
+            let container = try containerUrl(forItemWithName: name)
+            let filename = itemUrl.lastPathComponent
+            
+            switch operation {
+            case .copy:
+                try fileManager.copyItem(
+                    at: itemUrl,
+                    to: container.appendingPathComponent(filename, isDirectory: false)
+                )
+            case .move:
+                try fileManager.moveItem(
+                    at: itemUrl,
+                    to: container.appendingPathComponent(filename, isDirectory: false)
+                )
+            }
+            
+            let itemInfo = CachedItemInfo(fileName: filename, timestamp: Date().timeIntervalSince1970)
+            try store(cachedItemInfo: itemInfo, forItemWithName: name)
         }
-        
-        let container = try containerUrl(forItemWithName: name)
-        let filename = itemUrl.lastPathComponent
-        
-        switch operation {
-        case .copy:
-            try fileManager.copyItem(
-                at: itemUrl,
-                to: container.appendingPathComponent(filename, isDirectory: false)
-            )
-        case .move:
-            try fileManager.moveItem(
-                at: itemUrl,
-                to: container.appendingPathComponent(filename, isDirectory: false)
-            )
-        }
-        
-        let itemInfo = CachedItemInfo(fileName: filename, timestamp: Date().timeIntervalSince1970)
-        try store(cachedItemInfo: itemInfo, forItemWithName: name)
     }
     
     public func url(forItemWithName name: String) throws -> URL {
-        let itemInfo = try cachedItemInfo(forItemWithName: name)
-        let container = try containerUrl(forItemWithName: name)
-        
-        let updatedItemInfo = CachedItemInfo(fileName: itemInfo.fileName, timestamp: Date().timeIntervalSince1970)
-        try store(cachedItemInfo: updatedItemInfo, forItemWithName: name)
-        
-        return container.appendingPathComponent(itemInfo.fileName, isDirectory: false)
+        return try whileLocked {
+            let itemInfo = try cachedItemInfo(forItemWithName: name)
+            let container = try containerUrl(forItemWithName: name)
+            
+            let updatedItemInfo = CachedItemInfo(fileName: itemInfo.fileName, timestamp: Date().timeIntervalSince1970)
+            try store(cachedItemInfo: updatedItemInfo, forItemWithName: name)
+            
+            return container.appendingPathComponent(itemInfo.fileName, isDirectory: false)
+        }
     }
     
     @discardableResult
     public func cleanUpItems(olderThan date: Date) throws -> [URL] {
-        let allStoredCachedItemInfos = try self.allStoredCachedItemInfos()
-        let evictables = allStoredCachedItemInfos.filter { (key: URL, value: CachedItemInfo) -> Bool in
-            value.timestamp < date.timeIntervalSince1970
+        return try whileLocked {
+            let allStoredCachedItemInfos = try self.allStoredCachedItemInfos()
+            let evictables = allStoredCachedItemInfos.filter { (key: URL, value: CachedItemInfo) -> Bool in
+                value.timestamp < date.timeIntervalSince1970
+            }
+            try evictables.forEach { (key: URL, value: CachedItemInfo) in
+                try safelyEvict(itemUrl: key)
+            }
+            return [URL](evictables.keys)
         }
-        try evictables.forEach { (key: URL, value: CachedItemInfo) in
-            try safelyEvict(itemUrl: key)
-        }
-        return [URL](evictables.keys)
     }
     
     // MARK: - Internals
@@ -152,7 +169,7 @@ public final class FileCache {
     private func safelyEvict(itemUrl: URL) throws {
         let evictableItemUrl = itemUrl
             .deletingLastPathComponent()
-            .appendingPathComponent(["evicting", uniqueIdentifierGenerator.generate(), itemUrl.lastPathComponent].joined(separator: "_"))
+            .appendingPathComponent([FileCache.evictingStatePrefix, uniqueIdentifierGenerator.generate(), itemUrl.lastPathComponent].joined(separator: "_"))
         try fileManager.moveItem(
             at: itemUrl,
             to: evictableItemUrl
@@ -160,5 +177,9 @@ public final class FileCache {
         try fileManager.removeItem(
             at: evictableItemUrl
         )
+    }
+    
+    public func whileLocked<T>(work: () throws -> (T)) throws -> T {
+        return try cacheLock.whileLocked(work: work)
     }
 }

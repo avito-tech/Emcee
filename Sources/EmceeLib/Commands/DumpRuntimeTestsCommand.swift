@@ -28,7 +28,11 @@ public final class DumpRuntimeTestsCommand: Command {
     ]
     
     private let encoder = JSONEncoder.pretty()
-    private let resourceLocationResolver = ResourceLocationResolver()
+    private let resourceLocationResolver: ResourceLocationResolver
+    
+    public init(resourceLocationResolver: ResourceLocationResolver) {
+        self.resourceLocationResolver = resourceLocationResolver
+    }
 
     public func run(payload: CommandPayload) throws {
         let testRunnerTool: TestRunnerTool = .fbxctest(

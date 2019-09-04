@@ -9,7 +9,7 @@ final class URLResourceTests: XCTestCase {
     var server = HttpServer()
     var serverPort = 0
     lazy var url = URL(string: "http://localhost:\(serverPort)/get/")!
-    lazy var fileCache = FileCache(cachesUrl: URL(fileURLWithPath: tempFolder.absolutePath.pathString))
+    lazy var fileCache = try! FileCache(cachesUrl: URL(fileURLWithPath: tempFolder.absolutePath.pathString))
     lazy var resource = URLResource(fileCache: fileCache, urlSession: URLSession.shared)
     
     private func setServerHandler(handler: @escaping () -> (HttpResponse)) throws {

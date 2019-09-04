@@ -43,7 +43,11 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     ]
     
     private let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
-    private let resourceLocationResolver = ResourceLocationResolver()
+    private let resourceLocationResolver: ResourceLocationResolver
+    
+    public init(resourceLocationResolver: ResourceLocationResolver) {
+        self.resourceLocationResolver = resourceLocationResolver
+    }
     
     public func run(payload: CommandPayload) throws {
         let analyticsConfigurationLocation: AnalyticsConfigurationLocation? = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.analyticsConfiguration.name)

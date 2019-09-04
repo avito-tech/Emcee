@@ -10,7 +10,7 @@ import XCTest
 final class PluginManagerTests: XCTestCase {
     var testingPluginExecutablePath = TestingPluginExecutable.testingPluginPath!
     var tempFolder = try! TemporaryFolder(deleteOnDealloc: true)
-    let resolver = ResourceLocationResolver()
+    let resolver = try! ResourceLocationResolver()
     
     func testStartingPluginWithinBundleButWithWrongExecutableNameFails() throws {
         let pluginBundlePath = tempFolder.absolutePath.appending(component: "MyPlugin." + PluginManager.pluginBundleExtension)
