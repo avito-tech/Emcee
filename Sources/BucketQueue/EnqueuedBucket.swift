@@ -1,4 +1,5 @@
 import Foundation
+import Logging
 import Models
 
 public final class EnqueuedBucket: Hashable, Comparable, CustomStringConvertible {
@@ -13,7 +14,8 @@ public final class EnqueuedBucket: Hashable, Comparable, CustomStringConvertible
     }
     
     public var description: String {
-        return "<\(type(of: self)) enqueued at: \(enqueueTimestamp) bucket: \(bucket) uniqueIdentifier: \(uniqueIdentifier)>"
+        let formattedTimestamp = NSLogLikeLogEntryTextFormatter.logDateFormatter.string(from: enqueueTimestamp)
+        return "<\(type(of: self)) enqueued at: \(formattedTimestamp) bucket: \(bucket) uniqueIdentifier: \(uniqueIdentifier)>"
     }
     
     public func hash(into hasher: inout Hasher) {

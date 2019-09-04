@@ -27,6 +27,8 @@ public class Subprocess: CustomStringConvertible {
     }
     
     public var description: String {
-        return "<\(type(of: self)) envs: \(environment), args: \(arguments), working dir: \(workingDirectory), std: \(standardStreamsCaptureConfig), silence behavior: \(silenceBehavior)>"
+        let environmentDescription = environment.map { "\($0.key)=\($0.value)" }.joined(separator: " ")
+        let argumentsDescription = arguments.map { "\"\($0)\"" }.joined(separator: " ")
+        return "<\(type(of: self)) \(environmentDescription) \(argumentsDescription), working dir: \(workingDirectory), std: \(standardStreamsCaptureConfig), silence behavior: \(silenceBehavior)>"
     }
 }

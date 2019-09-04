@@ -1,4 +1,5 @@
 import Foundation
+import Logging
 import Models
 
 public struct StuckBucket: Equatable {
@@ -10,7 +11,8 @@ public struct StuckBucket: Equatable {
         public var description: String {
             switch self {
             case .workerIsSilent(let since):
-                return "worker is silent since \(since)"
+                let formatted = NSLogLikeLogEntryTextFormatter.logDateFormatter.string(from: since)
+                return "worker is silent since \(formatted)"
             case .workerIsBlocked:
                 return "worker is blocked"
             case .bucketLost:

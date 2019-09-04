@@ -116,7 +116,8 @@ public final class ResourceLocationResolver {
             if counter % evictionRegularity == 0 {
                 counter = 1
                 let evictedEntryURLs = (try? urlResource.evictResources(olderThan: evictBarrierDate)) ?? []
-                Logger.debug("Evicted \(evictedEntryURLs.count) cached items older than: \(evictBarrierDate)")
+                let formattedEvictBarrierDate = NSLogLikeLogEntryTextFormatter.logDateFormatter.string(from: evictBarrierDate)
+                Logger.debug("Evicted \(evictedEntryURLs.count) cached items older than: \(formattedEvictBarrierDate)")
                 for url in evictedEntryURLs {
                     Logger.debug("-- evicted \(url)")
                 }

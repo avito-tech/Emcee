@@ -26,7 +26,8 @@ internal class BaseAutomaticTerminationController: AutomaticTerminationControlle
         }
         set {
             syncQueue.sync { storedActivityDate = newValue }
-            Logger.debug("Recorded activity at \(newValue)")
+            let formatted = NSLogLikeLogEntryTextFormatter.logDateFormatter.string(from: newValue)
+            Logger.debug("Recorded activity at \(formatted)")
         }
     }
     
