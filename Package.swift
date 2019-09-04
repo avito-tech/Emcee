@@ -487,14 +487,17 @@ let package = Package(
             dependencies: [
                 "AutomaticTermination",
                 "DateProvider",
+                "LocalHostDeterminer",
                 "Logging",
                 "Models",
                 "PortDeterminer",
                 "QueueServer",
+                "RemotePortDeterminer",
                 "ScheduleStrategy",
                 "SynchronousWaiter",
+                "RequestSender",
                 "UniqueIdentifierGenerator",
-                "Version"
+                "Version",
             ]
         ),
         .testTarget(
@@ -503,7 +506,11 @@ let package = Package(
             dependencies: [
                 "AutomaticTermination",
                 "AutomaticTerminationTestHelpers",
-                "LocalQueueServerRunner"
+                "LocalQueueServerRunner",
+                "RemotePortDeterminer",
+                "RemotePortDeterminerTestHelpers",
+                "Version",
+                "VersionTestHelpers",
             ]
         ),
         .target(
@@ -598,10 +605,11 @@ let package = Package(
                 "Logging",
                 "LoggingSetup",
                 "Models",
+                "ResourceLocationResolver",
                 "SimulatorVideoRecorder",
                 "Starscream",
                 "SynchronousWaiter",
-                "TestsWorkingDirectorySupport"
+                "TestsWorkingDirectorySupport",
             ]
         ),
         .target(

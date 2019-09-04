@@ -26,6 +26,10 @@ public final class FileLock {
             }
         }
     }
+    
+    public static func named(_ name: String) throws -> FileLock {
+        return try FileLock(lockFilePath: NSTemporaryDirectory().appending(pathComponent: name + ".lock"))
+    }
 
     public init(lockFilePath: String) throws {
         fileDescriptor = open(lockFilePath, O_WRONLY | O_CREAT | O_CLOEXEC, 0o666)

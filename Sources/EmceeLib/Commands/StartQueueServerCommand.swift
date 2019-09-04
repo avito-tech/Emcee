@@ -1,8 +1,9 @@
-import AutomaticTermination
 import ArgLib
+import AutomaticTermination
 import DateProvider
 import Extensions
 import Foundation
+import LocalHostDeterminer
 import LocalQueueServerRunner
 import Logging
 import LoggingSetup
@@ -10,6 +11,8 @@ import Models
 import PluginManager
 import PortDeterminer
 import QueueServer
+import RemotePortDeterminer
+import RequestSender
 import ResourceLocationResolver
 import ScheduleStrategy
 import UniqueIdentifierGenerator
@@ -89,7 +92,13 @@ public final class StartQueueServerCommand: Command {
             queueServerTerminationWaiter: queueServerTerminationWaiter,
             queueServerTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy,
             pollPeriod: pollPeriod,
-            newWorkerRegistrationTimeAllowance: 360.0
+            newWorkerRegistrationTimeAllowance: 360.0,
+            versionProvider: localQueueVersionProvider,
+            remotePortDeterminer: RemoteQueuePortScanner(
+                host: LocalHostDeterminer.currentHostAddress,
+                portRange: Ports.defaultQueuePortRange,
+                requestSenderProvider: DefaultRequestSenderProvider()
+            )
         )
         try localQueueServerRunner.start()
     }

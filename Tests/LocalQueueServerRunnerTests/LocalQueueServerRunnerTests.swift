@@ -4,7 +4,11 @@ import LocalQueueServerRunner
 import Models
 import QueueServer
 import QueueServerTestHelpers
+import RemotePortDeterminer
+import RemotePortDeterminerTestHelpers
 import ScheduleStrategy
+import Version
+import VersionTestHelpers
 import XCTest
 
 final class LocalQueueServerRunnerTests: XCTestCase {
@@ -15,13 +19,17 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         pollInterval: 0.1,
         queueServerTerminationPolicy: AutomaticTerminationPolicy.stayAlive
     )
+    private let versionProvider = VersionProviderFixture()
+    private let remotePortDeterminer = RemotePortDeterminerFixture(result: [:])
     private lazy var runner = LocalQueueServerRunner(
         queueServer: queueServer,
         automaticTerminationController: automaticTerminationController,
         queueServerTerminationWaiter: queueServerTerminationWaiter,
         queueServerTerminationPolicy: AutomaticTerminationPolicy.stayAlive,
         pollPeriod: 0.1,
-        newWorkerRegistrationTimeAllowance: 60.0
+        newWorkerRegistrationTimeAllowance: 60.0,
+        versionProvider: versionProvider,
+        remotePortDeterminer: remotePortDeterminer
     )
     
     let runnerQueue = DispatchQueue(label: "runner queue")
@@ -158,5 +166,11 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         }
 
         wait(for: [expectation], timeout: 60.0)
+    }
+    
+    func test___queue_server_runner_fails_to_start___if_queue_with_same_version_is_already_running() throws {
+        remotePortDeterminer.set(port: 1234, version: try versionProvider.version())
+        
+        XCTAssertThrowsError(try runner.start())
     }
 }

@@ -9,6 +9,7 @@ public final class RemotePortDeterminerFixture: RemotePortDeterminer {
         self.result = result
     }
     
+    @discardableResult
     public func set(port: Int, version: Version) -> RemotePortDeterminerFixture {
         result.updateValue(version, forKey: port)
         return self
