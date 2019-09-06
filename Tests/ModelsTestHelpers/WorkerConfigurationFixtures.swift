@@ -3,6 +3,10 @@ import Models
 
 public final class WorkerConfigurationFixtures {
     public static let workerConfiguration = WorkerConfiguration(
+        analyticsConfiguration: AnalyticsConfiguration(
+            graphiteConfiguration: nil,
+            sentryConfiguration: nil
+        ),
         testRunExecutionBehavior: TestRunExecutionBehavior(
             numberOfSimulators: 2
         ),

@@ -23,7 +23,6 @@ final class LocalQueueServerRunnerTests: XCTestCase {
     private let versionProvider = VersionProviderFixture()
     private let remotePortDeterminer = RemotePortDeterminerFixture(result: [:])
     private lazy var runner = LocalQueueServerRunner(
-        analyticsConfigurationLocation: nil,
         queueServer: queueServer,
         automaticTerminationController: automaticTerminationController,
         queueServerTerminationWaiter: queueServerTerminationWaiter,

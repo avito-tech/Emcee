@@ -17,7 +17,6 @@ import UniqueIdentifierGenerator
 import Version
 
 public final class LocalQueueServerRunner {
-    private let analyticsConfigurationLocation: AnalyticsConfigurationLocation?
     private let queueServer: QueueServer
     private let automaticTerminationController: AutomaticTerminationController
     private let queueServerTerminationWaiter: QueueServerTerminationWaiter
@@ -30,7 +29,6 @@ public final class LocalQueueServerRunner {
     private let workerDestinations: [DeploymentDestination]
 
     public init(
-        analyticsConfigurationLocation: AnalyticsConfigurationLocation?,
         queueServer: QueueServer,
         automaticTerminationController: AutomaticTerminationController,
         queueServerTerminationWaiter: QueueServerTerminationWaiter,
@@ -42,7 +40,6 @@ public final class LocalQueueServerRunner {
         temporaryFolder: TemporaryFolder,
         workerDestinations: [DeploymentDestination]
     ) {
-        self.analyticsConfigurationLocation = analyticsConfigurationLocation
         self.queueServer = queueServer
         self.automaticTerminationController = automaticTerminationController
         self.queueServerTerminationWaiter = queueServerTerminationWaiter
@@ -100,7 +97,6 @@ public final class LocalQueueServerRunner {
         let remoteWorkersStarter = RemoteWorkersStarter(
             emceeVersionProvider: versionProvider,
             deploymentDestinations: workerDestinations,
-            analyticsConfigurationLocation: analyticsConfigurationLocation,
             tempFolder: temporaryFolder
         )
         try remoteWorkersStarter.deployAndStartWorkers(

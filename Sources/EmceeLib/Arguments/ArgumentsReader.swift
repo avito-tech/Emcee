@@ -30,17 +30,6 @@ final class ArgumentsReader {
         return try decodeModelsFromFile(file, jsonDecoder: decoderWithSnakeCaseSupport)
     }
     
-    public static func workerDeploymentDestinations(
-        location: WorkerDestinationsLocation,
-        resourceLocationResolver: ResourceLocationResolver
-    ) throws -> [DeploymentDestination] {
-        let resolvingResult = try resourceLocationResolver.resolvePath(resourceLocation: location.resourceLocation)
-        return try decodeModelsFromFile(
-            try resolvingResult.directlyAccessibleResourcePath(),
-            jsonDecoder: decoderWithSnakeCaseSupport
-        )
-    }
-    
     public static func queueServerRunConfiguration(
         location: QueueServerRunConfigurationLocation,
         resourceLocationResolver: ResourceLocationResolver

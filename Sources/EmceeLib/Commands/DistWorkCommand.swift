@@ -12,7 +12,6 @@ public final class DistWorkCommand: Command {
     public let name = "distWork"
     public let description = "Takes jobs from a dist runner queue and performs them"
     public var arguments: Arguments = [
-        ArgumentDescriptions.analyticsConfiguration.asOptional,
         ArgumentDescriptions.queueServer.asRequired,
         ArgumentDescriptions.workerId.asRequired
     ]
@@ -24,14 +23,8 @@ public final class DistWorkCommand: Command {
     }
     
     public func run(payload: CommandPayload) throws {
-        let analyticsConfigurationLocation: AnalyticsConfigurationLocation? = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.analyticsConfiguration.name)
         let queueServerAddress: SocketAddress = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServer.name)
         let workerId: WorkerId = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.workerId.name)
-
-        if let analyticsConfigurationLocation = analyticsConfigurationLocation {
-            try AnalyticsConfigurator(resourceLocationResolver: resourceLocationResolver)
-                .setup(analyticsConfigurationLocation: analyticsConfigurationLocation)
-        }
 
         let temporaryFolder = try createScopedTemporaryFolder()
 
@@ -51,7 +44,11 @@ public final class DistWorkCommand: Command {
                 resourceLocationResolver: resourceLocationResolver
             )
         )
-        try distWorker.start()
+        try distWorker.start(
+            didFetchAnalyticsConfiguration: { analyticsConfiguration in
+                try LoggingSetup.setupAnalytics(analyticsConfiguration: analyticsConfiguration)
+            }
+        )
     }
 
     private func createScopedTemporaryFolder() throws -> TemporaryFolder {

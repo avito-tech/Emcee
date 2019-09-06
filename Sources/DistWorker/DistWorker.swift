@@ -53,11 +53,15 @@ public final class DistWorker: SchedulerDelegate {
         self.testRunnerProvider = testRunnerProvider
     }
     
-    public func start() throws {
+    public func start(
+        didFetchAnalyticsConfiguration: (AnalyticsConfiguration) throws -> ()
+    ) throws {
         let workerConfiguration = try queueClient.registerWithServer(workerId: workerId)
         requestSignature = .success(workerConfiguration.requestSignature)
-
         Logger.debug("Registered with server. Worker configuration: \(workerConfiguration)")
+        
+        try didFetchAnalyticsConfiguration(workerConfiguration.analyticsConfiguration)
+        
         startReportingWorkerIsAlive(interval: workerConfiguration.reportAliveInterval)
         
         _ = try runTests(

@@ -10,18 +10,15 @@ import Version
 public final class RemoteWorkersStarter {
     private let emceeVersionProvider: VersionProvider
     private let deploymentDestinations: [DeploymentDestination]
-    private let analyticsConfigurationLocation: AnalyticsConfigurationLocation?
     private let tempFolder: TemporaryFolder
 
     public init(
         emceeVersionProvider: VersionProvider,
         deploymentDestinations: [DeploymentDestination],
-        analyticsConfigurationLocation: AnalyticsConfigurationLocation?,
         tempFolder: TemporaryFolder
     ) {
         self.emceeVersionProvider = emceeVersionProvider
         self.deploymentDestinations = deploymentDestinations
-        self.analyticsConfigurationLocation = analyticsConfigurationLocation
         self.tempFolder = tempFolder
     }
     
@@ -64,8 +61,7 @@ public final class RemoteWorkersStarter {
                 deploymentId: try emceeVersionProvider.version().value,
                 deploymentDestination: destination,
                 executableDeployableItem: emceeBinaryDeployableItem,
-                queueAddress: queueAddress,
-                analyticsConfigurationLocation: analyticsConfigurationLocation
+                queueAddress: queueAddress
             )
             let filePath = try tempFolder.createFile(
                 filename: launchdPlistTargetPath,

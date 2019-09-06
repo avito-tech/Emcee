@@ -25,6 +25,8 @@ public struct QueueServerRunConfiguration: Decodable {
     
     /// Timeout values.
     public let testTimeoutConfiguration: TestTimeoutConfiguration
+    
+    public let workerDeploymentDestinations: [DeploymentDestination]
 
     public init(
         analyticsConfiguration: AnalyticsConfiguration,
@@ -34,7 +36,8 @@ public struct QueueServerRunConfiguration: Decodable {
         queueServerTerminationPolicy: AutomaticTerminationPolicy,
         reportAliveInterval: TimeInterval,
         simulatorSettings: SimulatorSettings,
-        testTimeoutConfiguration: TestTimeoutConfiguration
+        testTimeoutConfiguration: TestTimeoutConfiguration,
+        workerDeploymentDestinations: [DeploymentDestination]
     ) {
         self.analyticsConfiguration = analyticsConfiguration
         self.auxiliaryResources = auxiliaryResources
@@ -44,6 +47,7 @@ public struct QueueServerRunConfiguration: Decodable {
         self.reportAliveInterval = reportAliveInterval
         self.simulatorSettings = simulatorSettings
         self.testTimeoutConfiguration = testTimeoutConfiguration
+        self.workerDeploymentDestinations = workerDeploymentDestinations
     }
     
     public func workerConfiguration(
@@ -51,6 +55,7 @@ public struct QueueServerRunConfiguration: Decodable {
         requestSignature: RequestSignature
     ) -> WorkerConfiguration {
         return WorkerConfiguration(
+            analyticsConfiguration: analyticsConfiguration,
             testRunExecutionBehavior: testRunExecutionBehavior(
                 deploymentDestinationConfiguration: deploymentDestinationConfiguration
             ),

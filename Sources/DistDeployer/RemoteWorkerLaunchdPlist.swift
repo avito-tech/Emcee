@@ -10,21 +10,17 @@ public final class RemoteWorkerLaunchdPlist {
     private let deploymentDestination: DeploymentDestination
     private let executableDeployableItem: DeployableItem
     private let queueAddress: SocketAddress
-    private let analyticsConfigurationLocation: AnalyticsConfigurationLocation?
 
     public init(
         deploymentId: String,
         deploymentDestination: DeploymentDestination,
         executableDeployableItem: DeployableItem,
-        queueAddress: SocketAddress,
-        analyticsConfigurationLocation: AnalyticsConfigurationLocation?
-        )
-    {
+        queueAddress: SocketAddress
+    ) {
         self.deploymentId = deploymentId
         self.deploymentDestination = deploymentDestination
         self.executableDeployableItem = executableDeployableItem
         self.queueAddress = queueAddress
-        self.analyticsConfigurationLocation = analyticsConfigurationLocation
     }
     
     public func plistData() throws -> Data {
@@ -48,7 +44,7 @@ public final class RemoteWorkerLaunchdPlist {
                     workerBinaryRemotePath.pathString, "distWork",
                     "--queue-server", queueAddress.asString,
                     "--worker-id", deploymentDestination.identifier,
-                ] + analyticsConfigurationArgs(),
+                ],
                 environmentVariables: [:],
                 workingDirectory: containerPath.pathString,
                 runAtLoad: true,
@@ -62,15 +58,4 @@ public final class RemoteWorkerLaunchdPlist {
         )
         return try launchdPlist.createPlistData()
     }
-    
-    private func analyticsConfigurationArgs() -> [String] {
-        if let analyticsConfigurationLocation = analyticsConfigurationLocation {
-            return [
-                "--analytics-configuration", analyticsConfigurationLocation.resourceLocation.stringValue
-            ]
-        } else {
-            return []
-        }
-    }
-    
 }

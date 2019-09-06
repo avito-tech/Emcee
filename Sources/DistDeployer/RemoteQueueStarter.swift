@@ -7,28 +7,22 @@ import Version
 
 public final class RemoteQueueStarter {
     private let deploymentId: String
-    private let analyticsConfigurationLocation: AnalyticsConfigurationLocation?
     private let emceeVersionProvider: VersionProvider
     private let deploymentDestination: DeploymentDestination
     private let queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation
-    private let workerDestinationsLocation: WorkerDestinationsLocation
     private let tempFolder: TemporaryFolder
 
     public init(
         deploymentId: String,
-        analyticsConfigurationLocation: AnalyticsConfigurationLocation?,
         emceeVersionProvider: VersionProvider,
         deploymentDestination: DeploymentDestination,
         queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation,
-        workerDestinationsLocation: WorkerDestinationsLocation,
         tempFolder: TemporaryFolder
     ) {
         self.deploymentId = deploymentId
-        self.analyticsConfigurationLocation = analyticsConfigurationLocation
         self.emceeVersionProvider = emceeVersionProvider
         self.deploymentDestination = deploymentDestination
         self.queueServerRunConfigurationLocation = queueServerRunConfigurationLocation
-        self.workerDestinationsLocation = workerDestinationsLocation
         self.tempFolder = tempFolder
     }
     
@@ -60,11 +54,9 @@ public final class RemoteQueueStarter {
         let launchdPlistTargetPath = "queue_server_launchd.plist"
         let launchdPlist = RemoteQueueLaunchdPlist(
             deploymentId: deploymentId,
-            analyticsConfigurationLocation: analyticsConfigurationLocation,
             deploymentDestination: deploymentDestination,
             emceeDeployableItem: emceeBinaryDeployableItem,
-            queueServerRunConfigurationLocation: queueServerRunConfigurationLocation,
-            workerDestinationsLocation: workerDestinationsLocation
+            queueServerRunConfigurationLocation: queueServerRunConfigurationLocation
         )
         let launchdPlistDeployableItem = DeployableItem(
             name: "queue_server_launchd_plist",

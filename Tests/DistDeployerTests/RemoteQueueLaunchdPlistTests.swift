@@ -10,7 +10,6 @@ final class RemoteQueueLaunchdPlistTests: XCTestCase {
     let remoteConfigUrl = URL(string: "http://example.com/file.zip#config.json")!
     lazy var launchdPlist = RemoteQueueLaunchdPlist(
         deploymentId: "deploymentId",
-        analyticsConfigurationLocation: nil,
         deploymentDestination: DeploymentDestinationFixtures().buildDeploymentDestination(),
         emceeDeployableItem: DeployableItem(
             name: "emcee",
@@ -21,8 +20,7 @@ final class RemoteQueueLaunchdPlistTests: XCTestCase {
                 )
             ]
         ),
-        queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation(.remoteUrl(remoteConfigUrl)),
-        workerDestinationsLocation: WorkerDestinationsLocation(.remoteUrl(remoteConfigUrl))
+        queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation(.remoteUrl(remoteConfigUrl))
     )
     
     func test() throws {
@@ -37,8 +35,7 @@ final class RemoteQueueLaunchdPlistTests: XCTestCase {
             [
                 "/Users/username/path/deploymentId/emcee/remote_filename",
                 "startLocalQueueServer",
-                "--queue-server-run-configuration-location", remoteConfigUrl.absoluteString,
-                "--worker-destinations-location", remoteConfigUrl.absoluteString,
+                "--queue-server-run-configuration-location", remoteConfigUrl.absoluteString
             ]
         )
         XCTAssertEqual(

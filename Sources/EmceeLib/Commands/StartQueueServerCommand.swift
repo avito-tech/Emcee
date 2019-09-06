@@ -23,9 +23,7 @@ public final class StartQueueServerCommand: Command {
     public let name = "startLocalQueueServer"
     public let description = "Starts queue server on local machine. This mode waits for jobs to be scheduled via REST API."
     public let arguments: Arguments = [
-        ArgumentDescriptions.analyticsConfiguration.asOptional,
-        ArgumentDescriptions.queueServerRunConfigurationLocation.asRequired,
-        ArgumentDescriptions.workerDestinationsLocation.asRequired
+        ArgumentDescriptions.queueServerRunConfigurationLocation.asRequired
     ]
     
     private let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
@@ -37,32 +35,20 @@ public final class StartQueueServerCommand: Command {
     }
     
     public func run(payload: CommandPayload) throws {
-        let analyticsConfigurationLocation: AnalyticsConfigurationLocation? = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.analyticsConfiguration.name)
-        
-        if let analyticsConfigurationLocation = analyticsConfigurationLocation {
-            try AnalyticsConfigurator(resourceLocationResolver: resourceLocationResolver)
-                .setup(analyticsConfigurationLocation: analyticsConfigurationLocation)
-        }
-        
         let queueServerRunConfiguration = try ArgumentsReader.queueServerRunConfiguration(
             location: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerRunConfigurationLocation.name),
             resourceLocationResolver: resourceLocationResolver
         )
         
-        let workerDestinations = try ArgumentsReader.workerDeploymentDestinations(
-            location: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.workerDestinationsLocation.name),
-            resourceLocationResolver: resourceLocationResolver
-        )
+        try LoggingSetup.setupAnalytics(analyticsConfiguration: queueServerRunConfiguration.analyticsConfiguration)
         
         try startQueueServer(
-            analyticsConfigurationLocation: analyticsConfigurationLocation,
             queueServerRunConfiguration: queueServerRunConfiguration,
-            workerDestinations: workerDestinations
+            workerDestinations: queueServerRunConfiguration.workerDeploymentDestinations
         )
     }
     
     private func startQueueServer(
-        analyticsConfigurationLocation: AnalyticsConfigurationLocation?,
         queueServerRunConfiguration: QueueServerRunConfiguration,
         workerDestinations: [DeploymentDestination]
     ) throws {
@@ -110,7 +96,6 @@ public final class StartQueueServerCommand: Command {
         )
         
         let localQueueServerRunner = LocalQueueServerRunner(
-            analyticsConfigurationLocation: analyticsConfigurationLocation,
             queueServer: queueServer,
             automaticTerminationController: automaticTerminationController,
             queueServerTerminationWaiter: queueServerTerminationWaiter,

@@ -14,8 +14,7 @@ final class RemoteWorkerLaunchdPlistTests: XCTestCase {
             name: "emcee",
             files: [DeployableFile(source: AbsolutePath("local_file"), destination: RelativePath("remote_filename"))]
         ),
-        queueAddress: SocketAddress(host: "queue.host", port: 24),
-        analyticsConfigurationLocation: nil
+        queueAddress: SocketAddress(host: "queue.host", port: 24)
     )
     
     func test() throws {

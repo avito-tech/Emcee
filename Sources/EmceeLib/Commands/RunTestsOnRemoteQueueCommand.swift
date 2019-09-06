@@ -26,11 +26,9 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     public let name = "runTestsOnRemoteQueue"
     public let description = "Starts queue server on remote machine if needed and runs tests on the remote queue. Waits for resuls to come back."
     public let arguments: Arguments = [
-        ArgumentDescriptions.analyticsConfiguration.asOptional,
         ArgumentDescriptions.fbsimctl.asRequired,
         ArgumentDescriptions.fbxctest.asRequired,
         ArgumentDescriptions.junit.asOptional,
-        ArgumentDescriptions.plugin.asOptional,
         ArgumentDescriptions.priority.asRequired,
         ArgumentDescriptions.queueServerDestination.asRequired,
         ArgumentDescriptions.queueServerRunConfigurationLocation.asRequired,
@@ -38,8 +36,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         ArgumentDescriptions.tempFolder.asRequired,
         ArgumentDescriptions.testArgFile.asRequired,
         ArgumentDescriptions.testDestinations.asRequired,
-        ArgumentDescriptions.trace.asOptional,
-        ArgumentDescriptions.workerDestinationsLocation.asRequired,
+        ArgumentDescriptions.trace.asOptional
     ]
     
     private let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
@@ -50,11 +47,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     }
     
     public func run(payload: CommandPayload) throws {
-        let analyticsConfigurationLocation: AnalyticsConfigurationLocation? = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.analyticsConfiguration.name)
-        if let analyticsConfigurationLocation = analyticsConfigurationLocation {
-            try AnalyticsConfigurator(resourceLocationResolver: resourceLocationResolver).setup(analyticsConfigurationLocation: analyticsConfigurationLocation)
-        }
-        
         let commonReportOutput = ReportOutput(
             junit: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.junit.name),
             tracingReport: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.trace.name)
@@ -83,14 +75,11 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         let testArgFile = try ArgumentsReader.testArgFile(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testArgFile.name))
         
         let testDestinationConfigurations = try ArgumentsReader.testDestinations(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testDestinations.name))
-        let workerDestinationsLocation: WorkerDestinationsLocation = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.workerDestinationsLocation.name)
         
         let runningQueueServerAddress = try detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
-            analyticsConfigurationLocation: analyticsConfigurationLocation,
             queueServerDestination: queueServerDestination,
             queueServerRunConfigurationLocation: queueServerRunConfigurationLocation,
             runId: runId,
-            workerDestinationsLocation: workerDestinationsLocation,
             tempFolder: tempFolder
         )
         let jobResults = try runTestsOnRemotelyRunningQueue(
@@ -113,11 +102,9 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     }
     
     private func detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
-        analyticsConfigurationLocation: AnalyticsConfigurationLocation?,
         queueServerDestination: DeploymentDestination,
         queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation,
         runId: JobId,
-        workerDestinationsLocation: WorkerDestinationsLocation,
         tempFolder: TemporaryFolder
     ) throws -> SocketAddress {
         Logger.info("Searching for queue server on '\(queueServerDestination.host)'")
@@ -142,11 +129,9 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         Logger.info("No running queue server has been found. Will deploy and start remote queue.")
         let remoteQueueStarter = RemoteQueueStarter(
             deploymentId: runId.value,
-            analyticsConfigurationLocation: analyticsConfigurationLocation,
             emceeVersionProvider: localQueueVersionProvider,
             deploymentDestination: queueServerDestination,
             queueServerRunConfigurationLocation: queueServerRunConfigurationLocation,
-            workerDestinationsLocation: workerDestinationsLocation,
             tempFolder: tempFolder
         )
         try remoteQueueStarter.deployAndStart()

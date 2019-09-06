@@ -1,6 +1,7 @@
 import Foundation
 
 public struct WorkerConfiguration: Codable, Equatable {
+    public let analyticsConfiguration: AnalyticsConfiguration
     public let testRunExecutionBehavior: TestRunExecutionBehavior
     public let testTimeoutConfiguration: TestTimeoutConfiguration
 
@@ -13,13 +14,14 @@ public struct WorkerConfiguration: Codable, Equatable {
     public let requestSignature: RequestSignature
 
     public init(
+        analyticsConfiguration: AnalyticsConfiguration,
         testRunExecutionBehavior: TestRunExecutionBehavior,
         testTimeoutConfiguration: TestTimeoutConfiguration,
         pluginUrls: [URL],
         reportAliveInterval: TimeInterval,
         requestSignature: RequestSignature
-        )
-    {
+    ) {
+        self.analyticsConfiguration = analyticsConfiguration
         self.testRunExecutionBehavior = testRunExecutionBehavior
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.pluginUrls = pluginUrls
