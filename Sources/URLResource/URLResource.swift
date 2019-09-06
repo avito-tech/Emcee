@@ -151,4 +151,8 @@ public final class URLResource {
     public func evictResources(olderThan date: Date) throws -> [URL] {
         return try fileCache.cleanUpItems(olderThan: date)
     }
+    
+    public func whileLocked<T>(work: () throws -> (T)) throws -> T {
+        return try fileCache.whileLocked(work: work)
+    }
 }

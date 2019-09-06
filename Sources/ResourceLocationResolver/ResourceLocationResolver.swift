@@ -73,32 +73,34 @@ public final class ResourceLocationResolver {
         
         let contentsUrl = zipUrl.deletingLastPathComponent().appendingPathComponent("zip_contents", isDirectory: true)
         try unarchiveQueue.sync {
-            if !FileManager.default.fileExists(atPath: contentsUrl.path) {
-                Logger.debug("Will unzip '\(zipUrl)' into '\(contentsUrl)'")
-                
-                let processController = try ProcessController(
-                    subprocess: Subprocess(
-                        arguments: ["/usr/bin/unzip", "-qq", zipUrl.path, "-d", contentsUrl.path]
+            try urlResource.whileLocked {
+                if !FileManager.default.fileExists(atPath: contentsUrl.path) {
+                    Logger.debug("Will unzip '\(zipUrl)' into '\(contentsUrl)'")
+                    
+                    let processController = try ProcessController(
+                        subprocess: Subprocess(
+                            arguments: ["/usr/bin/unzip", "-qq", zipUrl.path, "-d", contentsUrl.path]
+                        )
                     )
-                )
-                processController.startAndListenUntilProcessDies()
-                guard processController.processStatus() == .terminated(exitCode: 0) else {
-                    do {
-                        try urlResource.deleteResource(url: url)
-                    } catch {
-                        Logger.error("Failed to delete corrupted cached contents for item at url \(url)")
+                    processController.startAndListenUntilProcessDies()
+                    guard processController.processStatus() == .terminated(exitCode: 0) else {
+                        do {
+                            try urlResource.deleteResource(url: url)
+                        } catch {
+                            Logger.error("Failed to delete corrupted cached contents for item at url \(url)")
+                        }
+                        throw ValidationError.unpackProcessError(zipPath: zipUrl.path)
                     }
-                    throw ValidationError.unpackProcessError(zipPath: zipUrl.path)
                 }
-            }
-
-            // Once we unzip the contents, we don't want to keep zip file on disk since its contents is available under zip_contents.
-            // We erase it and keep empty file, to make sure cache does not refetch it when we access cached item.
-            if FileManager.default.fileExists(atPath: zipUrl.path) {
-                Logger.debug("Will replace ZIP file at: \(zipUrl.path) with empty contents")
-                let handle = try FileHandle(forWritingTo: zipUrl)
-                handle.truncateFile(atOffset: 0)
-                handle.closeFile()
+                
+                // Once we unzip the contents, we don't want to keep zip file on disk since its contents is available under zip_contents.
+                // We erase it and keep empty file, to make sure cache does not refetch it when we access cached item.
+                if FileManager.default.fileExists(atPath: zipUrl.path) {
+                    Logger.debug("Will replace ZIP file at: \(zipUrl.path) with empty contents")
+                    let handle = try FileHandle(forWritingTo: zipUrl)
+                    handle.truncateFile(atOffset: 0)
+                    handle.closeFile()
+                }
             }
         }
         return contentsUrl
