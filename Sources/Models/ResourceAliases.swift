@@ -15,6 +15,7 @@ public typealias TestBundleLocation = TypedResourceLocation<TestBundleResourceLo
 public typealias WatchdogSettingsLocation = TypedResourceLocation<WatchdogResourceLocationType>
 public typealias QueueServerRunConfigurationLocation = TypedResourceLocation<QueueServerRunConfigurationLocationType>
 public typealias AnalyticsConfigurationLocation = TypedResourceLocation<AnalyticsConfigurationLocationType>
+public typealias WorkerDestinationsLocation = TypedResourceLocation<WorkerDestinationsLocationType>
 
 
 public final class AdditionalAppBundleResourceLocationType: ResourceLocationType {
@@ -59,4 +60,8 @@ public final class QueueServerRunConfigurationLocationType: ResourceLocationType
 
 public final class AnalyticsConfigurationLocationType: ResourceLocationType {
     public static let name = "analytics configuration"
+}
+
+public final class WorkerDestinationsLocationType: ResourceLocationType {
+    public static let name = "worker destinations"
 }

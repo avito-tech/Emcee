@@ -39,7 +39,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         ArgumentDescriptions.testArgFile.asRequired,
         ArgumentDescriptions.testDestinations.asRequired,
         ArgumentDescriptions.trace.asOptional,
-        ArgumentDescriptions.workerDestinations.asRequired,
+        ArgumentDescriptions.workerDestinationsLocation.asRequired,
     ]
     
     private let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
@@ -83,15 +83,15 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         let testArgFile = try ArgumentsReader.testArgFile(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testArgFile.name))
         
         let testDestinationConfigurations = try ArgumentsReader.testDestinations(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testDestinations.name))
-        let workerDestinations = try ArgumentsReader.deploymentDestinations(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.workerDestinations.name))
+        let workerDestinationsLocation: WorkerDestinationsLocation = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.workerDestinationsLocation.name)
         
         let runningQueueServerAddress = try detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
             analyticsConfigurationLocation: analyticsConfigurationLocation,
             queueServerDestination: queueServerDestination,
             queueServerRunConfigurationLocation: queueServerRunConfigurationLocation,
             runId: runId,
-            tempFolder: tempFolder,
-            workerDestinations: workerDestinations
+            workerDestinationsLocation: workerDestinationsLocation,
+            tempFolder: tempFolder
         )
         let jobResults = try runTestsOnRemotelyRunningQueue(
             eventBus: eventBus,
@@ -117,8 +117,8 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         queueServerDestination: DeploymentDestination,
         queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation,
         runId: JobId,
-        tempFolder: TemporaryFolder,
-        workerDestinations: [DeploymentDestination]
+        workerDestinationsLocation: WorkerDestinationsLocation,
+        tempFolder: TemporaryFolder
     ) throws -> SocketAddress {
         Logger.info("Searching for queue server on '\(queueServerDestination.host)'")
         let remoteQueueDetector = RemoteQueueDetector(
@@ -142,9 +142,11 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         Logger.info("No running queue server has been found. Will deploy and start remote queue.")
         let remoteQueueStarter = RemoteQueueStarter(
             deploymentId: runId.value,
+            analyticsConfigurationLocation: analyticsConfigurationLocation,
             emceeVersionProvider: localQueueVersionProvider,
             deploymentDestination: queueServerDestination,
             queueServerRunConfigurationLocation: queueServerRunConfigurationLocation,
+            workerDestinationsLocation: workerDestinationsLocation,
             tempFolder: tempFolder
         )
         try remoteQueueStarter.deployAndStart()
@@ -159,19 +161,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             port: try selectPort(ports: suitablePorts)
         )
         Logger.info("Found queue server at '\(queueServerAddress)'")
-        
-        Logger.info("Deploying and starting workers")
-        let remoteWorkersStarter = RemoteWorkersStarter(
-            deploymentId: runId.value,
-            emceeVersionProvider: localQueueVersionProvider,
-            deploymentDestinations: workerDestinations,
-            analyticsConfigurationLocation: analyticsConfigurationLocation,
-            tempFolder: tempFolder
-        )
-        try remoteWorkersStarter.deployAndStartWorkers(
-            queueAddress: queueServerAddress
-        )
-        
+
         return queueServerAddress
     }
     

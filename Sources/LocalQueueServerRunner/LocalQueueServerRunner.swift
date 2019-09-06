@@ -1,7 +1,9 @@
 import AutomaticTermination
 import DateProvider
+import DistDeployer
 import EventBus
 import Foundation
+import LocalHostDeterminer
 import Logging
 import Models
 import PortDeterminer
@@ -10,10 +12,12 @@ import RemotePortDeterminer
 import RequestSender
 import ScheduleStrategy
 import SynchronousWaiter
+import TemporaryStuff
 import UniqueIdentifierGenerator
 import Version
 
 public final class LocalQueueServerRunner {
+    private let analyticsConfigurationLocation: AnalyticsConfigurationLocation?
     private let queueServer: QueueServer
     private let automaticTerminationController: AutomaticTerminationController
     private let queueServerTerminationWaiter: QueueServerTerminationWaiter
@@ -22,8 +26,11 @@ public final class LocalQueueServerRunner {
     private let newWorkerRegistrationTimeAllowance: TimeInterval
     private let versionProvider: VersionProvider
     private let remotePortDeterminer: RemotePortDeterminer
+    private let temporaryFolder: TemporaryFolder
+    private let workerDestinations: [DeploymentDestination]
 
     public init(
+        analyticsConfigurationLocation: AnalyticsConfigurationLocation?,
         queueServer: QueueServer,
         automaticTerminationController: AutomaticTerminationController,
         queueServerTerminationWaiter: QueueServerTerminationWaiter,
@@ -31,8 +38,11 @@ public final class LocalQueueServerRunner {
         pollPeriod: TimeInterval,
         newWorkerRegistrationTimeAllowance: TimeInterval,
         versionProvider: VersionProvider,
-        remotePortDeterminer: RemotePortDeterminer
+        remotePortDeterminer: RemotePortDeterminer,
+        temporaryFolder: TemporaryFolder,
+        workerDestinations: [DeploymentDestination]
     ) {
+        self.analyticsConfigurationLocation = analyticsConfigurationLocation
         self.queueServer = queueServer
         self.automaticTerminationController = automaticTerminationController
         self.queueServerTerminationWaiter = queueServerTerminationWaiter
@@ -41,10 +51,14 @@ public final class LocalQueueServerRunner {
         self.newWorkerRegistrationTimeAllowance = newWorkerRegistrationTimeAllowance
         self.versionProvider = versionProvider
         self.remotePortDeterminer = remotePortDeterminer
+        self.temporaryFolder = temporaryFolder
+        self.workerDestinations = workerDestinations
     }
     
     public func start() throws {
-        try startQueueServer()
+        try startWorkers(
+            port: try startQueueServer()
+        )
         
         try queueServerTerminationWaiter.waitForWorkerToAppear(
             queueServer: queueServer,
@@ -60,14 +74,13 @@ public final class LocalQueueServerRunner {
         )
     }
     
-    private func startQueueServer() throws {
+    private func startQueueServer() throws -> Int {
         let version = try versionProvider.version()
         
         let lockToStartQueueServer = try FileLock.named("emcee_starting_queue_server_\(version)")
-        try lockToStartQueueServer.whileLocked {
+        return try lockToStartQueueServer.whileLocked {
             try ensureQueueWithMatchingVersionIsNotRunning(version: version)
-            
-            _ = try queueServer.start()
+            return try queueServer.start()
         }
     }
     
@@ -81,7 +94,24 @@ public final class LocalQueueServerRunner {
         }
     }
     
-    private func waitForAllJobsToBeDeleted(queueServer: QueueServer, timeout: TimeInterval) throws {
+    private func startWorkers(port: Int) throws {
+        Logger.info("Deploying and starting workers")
+        
+        let remoteWorkersStarter = RemoteWorkersStarter(
+            emceeVersionProvider: versionProvider,
+            deploymentDestinations: workerDestinations,
+            analyticsConfigurationLocation: analyticsConfigurationLocation,
+            tempFolder: temporaryFolder
+        )
+        try remoteWorkersStarter.deployAndStartWorkers(
+            queueAddress: SocketAddress(host: LocalHostDeterminer.currentHostAddress, port: port)
+        )
+    }
+    
+    private func waitForAllJobsToBeDeleted(
+        queueServer: QueueServer,
+        timeout: TimeInterval
+    ) throws {
         try SynchronousWaiter.waitWhile(pollPeriod: pollPeriod, timeout: timeout, description: "Wait for all jobs to be deleted") {
             !queueServer.ongoingJobIds.isEmpty
         }

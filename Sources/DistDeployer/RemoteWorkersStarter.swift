@@ -8,21 +8,17 @@ import Version
 
 /// Starts the remote workers on the given destinations that will poll jobs from the given queue
 public final class RemoteWorkersStarter {
-    private let deploymentId: String
     private let emceeVersionProvider: VersionProvider
     private let deploymentDestinations: [DeploymentDestination]
     private let analyticsConfigurationLocation: AnalyticsConfigurationLocation?
     private let tempFolder: TemporaryFolder
 
     public init(
-        deploymentId: String,
         emceeVersionProvider: VersionProvider,
         deploymentDestinations: [DeploymentDestination],
         analyticsConfigurationLocation: AnalyticsConfigurationLocation?,
         tempFolder: TemporaryFolder
-        )
-    {
-        self.deploymentId = deploymentId
+    ) {
         self.emceeVersionProvider = emceeVersionProvider
         self.deploymentDestinations = deploymentDestinations
         self.analyticsConfigurationLocation = analyticsConfigurationLocation
@@ -43,9 +39,11 @@ public final class RemoteWorkersStarter {
         )
     }
     
-    private func deployWorkers(deployableItems: [DeployableItem]) throws {
+    private func deployWorkers(
+        deployableItems: [DeployableItem]
+    ) throws {
         let deployer = DistDeployer(
-            deploymentId: deploymentId,
+            deploymentId: try emceeVersionProvider.version().value,
             deploymentDestinations: deploymentDestinations,
             deployableItems: deployableItems,
             deployableCommands: [],
@@ -63,7 +61,7 @@ public final class RemoteWorkersStarter {
         
         for destination in deploymentDestinations {
             let launchdPlist = RemoteWorkerLaunchdPlist(
-                deploymentId: deploymentId,
+                deploymentId: try emceeVersionProvider.version().value,
                 deploymentDestination: destination,
                 executableDeployableItem: emceeBinaryDeployableItem,
                 queueAddress: queueAddress,
@@ -89,7 +87,7 @@ public final class RemoteWorkersStarter {
             )
             
             let deployer = DistDeployer(
-                deploymentId: deploymentId,
+                deploymentId: try emceeVersionProvider.version().value,
                 deploymentDestinations: [destination],
                 deployableItems: [launchdDeployableItem],
                 deployableCommands: [

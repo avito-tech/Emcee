@@ -45,7 +45,7 @@ public final class SSHDeployer: Deployer {
         }
         operationQueue.waitUntilAllOperationsAreFinished()
         
-        let didFailToDeployToAllDestinations = Set(destinationsFailedToDeploy) == Set(destinations)
+        let didFailToDeployToAllDestinations = Set(destinationsFailedToDeploy) == Set(destinations) && !destinationsFailedToDeploy.isEmpty
         if didFailToDeployToAllDestinations {
             throw DeploymentError.failedToDeployToDestination(destinationsFailedToDeploy)
         } else {

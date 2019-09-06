@@ -7,6 +7,7 @@ import QueueServerTestHelpers
 import RemotePortDeterminer
 import RemotePortDeterminerTestHelpers
 import ScheduleStrategy
+import TemporaryStuff
 import Version
 import VersionTestHelpers
 import XCTest
@@ -22,6 +23,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
     private let versionProvider = VersionProviderFixture()
     private let remotePortDeterminer = RemotePortDeterminerFixture(result: [:])
     private lazy var runner = LocalQueueServerRunner(
+        analyticsConfigurationLocation: nil,
         queueServer: queueServer,
         automaticTerminationController: automaticTerminationController,
         queueServerTerminationWaiter: queueServerTerminationWaiter,
@@ -29,7 +31,9 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         pollPeriod: 0.1,
         newWorkerRegistrationTimeAllowance: 60.0,
         versionProvider: versionProvider,
-        remotePortDeterminer: remotePortDeterminer
+        remotePortDeterminer: remotePortDeterminer,
+        temporaryFolder: try! TemporaryFolder(),
+        workerDestinations: []
     )
     
     let runnerQueue = DispatchQueue(label: "runner queue")

@@ -19,7 +19,7 @@ final class ArgumentDescriptions {
     static let testArgFile = doubleDashedDescription(dashlessName: "test-arg-file", overview: "JSON file with test plan")
     static let testDestinations = doubleDashedDescription(dashlessName: "test-destinations", overview: "JSON file with test destination configurations. For runtime dump only the first destination will be used.")
     static let trace = doubleDashedDescription(dashlessName: "trace", overview: "Path where the combined (for all test destinations) Chrome trace file should be created")
-    static let workerDestinations = doubleDashedDescription(dashlessName: "destinations", overview: "JSON file with info about the run destinations for distributed test run")
+    static let workerDestinationsLocation = doubleDashedDescription(dashlessName: "--worker-destinations-location", overview: "Location JSON file describing worker hosts")
     static let workerId = doubleDashedDescription(dashlessName: "worker-id", overview: "An identifier used to distinguish between workers. Useful to match with deployment destination's identifier")
     static let xctestBundle = doubleDashedDescription(dashlessName: "xctest-bundle", overview: "Location of .xctest bundle, URL to ZIP file or path to bundle")
     

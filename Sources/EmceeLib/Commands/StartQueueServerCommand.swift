@@ -15,6 +15,7 @@ import RemotePortDeterminer
 import RequestSender
 import ResourceLocationResolver
 import ScheduleStrategy
+import TemporaryStuff
 import UniqueIdentifierGenerator
 import Version
 
@@ -22,7 +23,9 @@ public final class StartQueueServerCommand: Command {
     public let name = "startLocalQueueServer"
     public let description = "Starts queue server on local machine. This mode waits for jobs to be scheduled via REST API."
     public let arguments: Arguments = [
-        ArgumentDescriptions.queueServerRunConfigurationLocation.asRequired
+        ArgumentDescriptions.analyticsConfiguration.asOptional,
+        ArgumentDescriptions.queueServerRunConfigurationLocation.asRequired,
+        ArgumentDescriptions.workerDestinationsLocation.asRequired
     ]
     
     private let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
@@ -34,16 +37,35 @@ public final class StartQueueServerCommand: Command {
     }
     
     public func run(payload: CommandPayload) throws {
+        let analyticsConfigurationLocation: AnalyticsConfigurationLocation? = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.analyticsConfiguration.name)
+        
+        if let analyticsConfigurationLocation = analyticsConfigurationLocation {
+            try AnalyticsConfigurator(resourceLocationResolver: resourceLocationResolver)
+                .setup(analyticsConfigurationLocation: analyticsConfigurationLocation)
+        }
+        
         let queueServerRunConfiguration = try ArgumentsReader.queueServerRunConfiguration(
             location: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerRunConfigurationLocation.name),
             resourceLocationResolver: resourceLocationResolver
         )
-        try LoggingSetup.setupAnalytics(analyticsConfiguration: queueServerRunConfiguration.analyticsConfiguration)
         
-        try startQueueServer(queueServerRunConfiguration: queueServerRunConfiguration)
+        let workerDestinations = try ArgumentsReader.workerDeploymentDestinations(
+            location: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.workerDestinationsLocation.name),
+            resourceLocationResolver: resourceLocationResolver
+        )
+        
+        try startQueueServer(
+            analyticsConfigurationLocation: analyticsConfigurationLocation,
+            queueServerRunConfiguration: queueServerRunConfiguration,
+            workerDestinations: workerDestinations
+        )
     }
     
-    private func startQueueServer(queueServerRunConfiguration: QueueServerRunConfiguration) throws {
+    private func startQueueServer(
+        analyticsConfigurationLocation: AnalyticsConfigurationLocation?,
+        queueServerRunConfiguration: QueueServerRunConfiguration,
+        workerDestinations: [DeploymentDestination]
+    ) throws {
         Logger.info("Generated request signature: \(requestSignature)")
         
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
@@ -86,7 +108,9 @@ public final class StartQueueServerCommand: Command {
             pollInterval: pollPeriod,
             queueServerTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy
         )
+        
         let localQueueServerRunner = LocalQueueServerRunner(
+            analyticsConfigurationLocation: analyticsConfigurationLocation,
             queueServer: queueServer,
             automaticTerminationController: automaticTerminationController,
             queueServerTerminationWaiter: queueServerTerminationWaiter,
@@ -98,7 +122,9 @@ public final class StartQueueServerCommand: Command {
                 host: LocalHostDeterminer.currentHostAddress,
                 portRange: Ports.defaultQueuePortRange,
                 requestSenderProvider: DefaultRequestSenderProvider()
-            )
+            ),
+            temporaryFolder: try TemporaryFolder(),
+            workerDestinations: workerDestinations
         )
         try localQueueServerRunner.start()
     }

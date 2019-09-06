@@ -487,15 +487,17 @@ let package = Package(
             dependencies: [
                 "AutomaticTermination",
                 "DateProvider",
+                "DistDeployer",
                 "LocalHostDeterminer",
                 "Logging",
                 "Models",
                 "PortDeterminer",
                 "QueueServer",
                 "RemotePortDeterminer",
+                "RequestSender",
                 "ScheduleStrategy",
                 "SynchronousWaiter",
-                "RequestSender",
+                "TemporaryStuff",
                 "UniqueIdentifierGenerator",
                 "Version",
             ]
@@ -509,6 +511,7 @@ let package = Package(
                 "LocalQueueServerRunner",
                 "RemotePortDeterminer",
                 "RemotePortDeterminerTestHelpers",
+                "TemporaryStuff",
                 "Version",
                 "VersionTestHelpers",
             ]
