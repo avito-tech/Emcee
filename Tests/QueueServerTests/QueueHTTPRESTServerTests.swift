@@ -142,9 +142,19 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             scheduleTestsHandler: stubbedHandler,
             versionHandler: stubbedHandler
         )
-        let client = synchronousQueueClient(port: try restServer.start())
-
-        _ = try client.send(testingResult: testingResult, requestId: requestId, workerId: workerId, requestSignature: expectedRequestSignature)
+        
+        let resultSender = BucketResultSenderImpl(
+            requestSender: RequestSenderImpl(
+                urlSession: URLSession.shared,
+                queueServerAddress: queueServerAddress(port: try restServer.start())
+            )
+        )
+        
+        let callbackExpectation = expectation(description: "result sender callback has been invoked")
+        try resultSender.send(testingResult: testingResult, requestId: requestId, workerId: workerId, requestSignature: expectedRequestSignature) { _ in
+            callbackExpectation.fulfill()
+        }
+        wait(for: [callbackExpectation], timeout: 10)
         
         XCTAssertEqual(bucketQueue.acceptedResults, [testingResult])
         

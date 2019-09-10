@@ -61,24 +61,6 @@ public final class QueueClient {
         )
     }
     
-    public func send(
-        testingResult: TestingResult,
-        requestId: RequestId,
-        workerId: WorkerId,
-        requestSignature: RequestSignature
-    ) throws {
-        try sendRequest(
-            .bucketResult,
-            payload: PushBucketResultRequest(
-                workerId: workerId,
-                requestId: requestId,
-                testingResult: testingResult,
-                requestSignature: requestSignature
-            ),
-            completionHandler: handleSendBucketResultResponse
-        )
-    }
-    
     public func scheduleTests(
         prioritizedJob: PrioritizedJob,
         scheduleStrategy: ScheduleStrategyType,
@@ -192,13 +174,6 @@ public final class QueueClient {
             delegate?.queueClientWorkerConsideredNotAlive(self)
         case .workerIsBlocked:
             delegate?.queueClientWorkerHasBeenBlocked(self)
-        }
-    }
-    
-    private func handleSendBucketResultResponse(response: BucketResultAcceptResponse) {
-        switch response {
-        case .bucketResultAccepted(let bucketId):
-            delegate?.queueClient(self, serverDidAcceptBucketResult: bucketId)
         }
     }
     

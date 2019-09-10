@@ -10,7 +10,6 @@ public protocol QueueClientDelegate: class {
     func queueClient(_ sender: QueueClient, fetchBucketLaterAfter after: TimeInterval)
     func queueClient(_ sender: QueueClient, didReceiveWorkerConfiguration workerConfiguration: WorkerConfiguration)
     func queueClient(_ sender: QueueClient, didFetchBucket bucket: Bucket)
-    func queueClient(_ sender: QueueClient, serverDidAcceptBucketResult bucketId: BucketId)
     func queueClientWorkerHasBeenIndicatedAsAlive(_ sender: QueueClient)
     func queueClient(_ sender: QueueClient, didFetchQueueServerVersion version: Version)
     func queueClientDidScheduleTests(_ sender: QueueClient, requestId: RequestId)

@@ -11,7 +11,6 @@ class FakeQueueClientDelegate: QueueClientDelegate {
         case checkAfter(TimeInterval)
         case workerConfiguration(WorkerConfiguration)
         case bucket(Bucket)
-        case acceptedBucketResult(BucketId)
         case workerHasBeenBlocked
         case workerConsideredNotAlive
         case alivenessAccepted
@@ -50,10 +49,6 @@ class FakeQueueClientDelegate: QueueClientDelegate {
     
     func queueClient(_ sender: QueueClient, didFetchBucket bucket: Bucket) {
         responses.append(ServerResponse.bucket(bucket))
-    }
-    
-    func queueClient(_ sender: QueueClient, serverDidAcceptBucketResult bucketId: BucketId) {
-        responses.append(ServerResponse.acceptedBucketResult(bucketId))
     }
     
     func queueClient(_ sender: QueueClient, didFetchQueueServerVersion version: Version) {

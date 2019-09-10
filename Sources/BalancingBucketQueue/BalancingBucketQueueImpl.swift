@@ -134,6 +134,7 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
                 })
                 .first
             {
+                Logger.debug("Found corresponding job queue for \(requestId) \(workerId)")
                 let result = try appropriateJobQueue.bucketQueue.accept(
                     testingResult: testingResult,
                     requestId: requestId,

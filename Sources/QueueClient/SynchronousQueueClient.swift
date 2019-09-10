@@ -19,7 +19,6 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     private let queueClient: QueueClient
     private var registrationResult: Either<WorkerConfiguration, QueueClientError>?
     private var bucketFetchResult: Either<BucketFetchResult, QueueClientError>?
-    private var bucketResultSendResult: Either<BucketId, QueueClientError>?
     private var alivenessReportResult: Either<Bool, QueueClientError>?
     private var queueServerVersionResult: Either<Version, QueueClientError>?
     private var scheduleTestsResult: Either<RequestId, QueueClientError>?
@@ -70,24 +69,6 @@ public final class SynchronousQueueClient: QueueClientDelegate {
                     self.bucketFetchResult == nil
                 }
                 return try bucketFetchResult!.dematerialize()
-            }
-        }
-    }
-    
-    public func send(testingResult: TestingResult, requestId: RequestId, workerId: WorkerId, requestSignature: RequestSignature) throws -> BucketId {
-        return try synchronize {
-            bucketResultSendResult = nil
-            return try runRetrying {
-                try queueClient.send(
-                    testingResult: testingResult,
-                    requestId: requestId,
-                    workerId: workerId,
-                    requestSignature: requestSignature
-                )
-                try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for bucket result send") {
-                    self.bucketResultSendResult == nil
-                }
-                return try bucketResultSendResult!.dematerialize()
             }
         }
     }
@@ -180,7 +161,6 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         registrationResult = Either.error(error)
         bucketFetchResult = Either.error(error)
         alivenessReportResult = Either.error(error)
-        bucketResultSendResult = Either.error(error)
         queueServerVersionResult = Either.error(error)
         scheduleTestsResult = Either.error(error)
         jobResultsResult = Either.error(error)
@@ -210,10 +190,6 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     
     public func queueClient(_ sender: QueueClient, didFetchBucket bucket: Bucket) {
         bucketFetchResult = Either.success(.bucket(bucket))
-    }
-    
-    public func queueClient(_ sender: QueueClient, serverDidAcceptBucketResult bucketId: BucketId) {
-        bucketResultSendResult = Either.success(bucketId)
     }
     
     public func queueClient(_ sender: QueueClient, didFetchQueueServerVersion version: Version) {

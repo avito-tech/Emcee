@@ -7,6 +7,7 @@ import ModelsTestHelpers
 import PortDeterminer
 import QueueClient
 import QueueServer
+import RequestSender
 import ScheduleStrategy
 import UniqueIdentifierGeneratorTestHelpers
 import VersionTestHelpers
@@ -97,10 +98,10 @@ final class QueueServerTests: XCTestCase {
             pollInterval: 0.1,
             queueServerTerminationPolicy: .stayAlive
         )
+        let port = try server.start()
         
         let expectationForResults = expectation(description: "results became available")
-        
-        let client = synchronousQueueClient(port: try server.start())
+        let client = synchronousQueueClient(port: port)
         XCTAssertNoThrow(_ = try client.registerWithServer(workerId: workerId))
         
         var actualResults = [JobResults]()
@@ -121,8 +122,32 @@ final class QueueServerTests: XCTestCase {
         
         let fetchResult = try client.fetchBucket(requestId: "request", workerId: workerId, requestSignature: requestSignature)
         XCTAssertEqual(fetchResult, SynchronousQueueClient.BucketFetchResult.bucket(bucket))
-        XCTAssertNoThrow(try client.send(testingResult: testingResult, requestId: "request", workerId: workerId, requestSignature: requestSignature))
-        wait(for: [expectationForResults], timeout: 10)
+        
+        let resultSender = BucketResultSenderImpl(
+            requestSender: RequestSenderImpl(
+                urlSession: URLSession.shared,
+                queueServerAddress: queueServerAddress(port: port)
+            )
+        )
+        let expectationForResultSenderCallback = expectation(description: "result sender callback invoked")
+        XCTAssertNoThrow(
+            try resultSender.send(
+                testingResult: testingResult,
+                requestId: "request",
+                workerId: workerId,
+                requestSignature: requestSignature,
+                completion: { (response: Either<BucketId, RequestSenderError>) in
+                    XCTAssertEqual(
+                        try? response.dematerialize(),
+                        testingResult.bucketId,
+                        "Server is expected to return a bucket id of accepted testing result"
+                    )
+                    expectationForResultSenderCallback.fulfill()
+                }
+            )
+        )
+        
+        wait(for: [expectationForResultSenderCallback, expectationForResults], timeout: 10)
         
         XCTAssertEqual(
             [JobResults(jobId: jobId, testingResults: [testingResult])],
@@ -131,7 +156,11 @@ final class QueueServerTests: XCTestCase {
     }
     
     private func synchronousQueueClient(port: Int) -> SynchronousQueueClient {
-        return SynchronousQueueClient(queueServerAddress: SocketAddress(host: "localhost", port: port))
+        return SynchronousQueueClient(queueServerAddress: queueServerAddress(port: port))
+    }
+    
+    private func queueServerAddress(port: Int) -> SocketAddress {
+        return SocketAddress(host: "localhost", port: port)
     }
 }
 
