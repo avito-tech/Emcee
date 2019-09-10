@@ -35,7 +35,7 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
     }
     
     public var description: String {
-        return "<\((type(of: self))) \(bucketId), \(testEntries.count) tests>"
+        return "<\((type(of: self))) \(bucketId) \(testEntries.count) tests>"
     }
     
     public var debugDescription: String {

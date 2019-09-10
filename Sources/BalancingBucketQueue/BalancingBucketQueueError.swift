@@ -8,9 +8,9 @@ public enum BalancingBucketQueueError: Error, CustomStringConvertible {
     public var description: String {
         switch self {
         case .noMatchingQueueFound(let testingResult, let requestId, let workerId):
-            return "Error: can't accept result for bucket '\(testingResult.bucketId)': no matching queue found for request '\(requestId)' from '\(workerId)'"
+            return "Can't accept result for \(testingResult.bucketId): no matching queue found for \(requestId) from \(workerId)"
         case .noQueue(let jobId):
-            return "Error: queue for job '\(jobId)' not found"
+            return "Can't find queue for for \(jobId)"
         }
     }
 }

@@ -165,7 +165,7 @@ public final class DistWorker: SchedulerDelegate {
             Logger.debug("Server asked to wait for \(after) seconds and fetch next bucket again")
             return .checkAgain(after: after)
         case .bucket(let fetchedBucket):
-            Logger.debug("Received bucket \(fetchedBucket.bucketId), requestId: \(requestId)")
+            Logger.debug("Received \(fetchedBucket.bucketId) for \(requestId)")
             currentlyBeingProcessedBucketsTracker.didFetch(bucketId: fetchedBucket.bucketId)
             syncQueue.sync {
                 requestIdForBucketId[fetchedBucket.bucketId] = requestId
@@ -217,7 +217,7 @@ public final class DistWorker: SchedulerDelegate {
                     Logger.error("No requestId for bucket: \(testingResult.bucketId)")
                     throw DistWorkerError.noRequestIdForBucketId(testingResult.bucketId)
                 }
-                Logger.verboseDebug("Found requestId for bucket: \(testingResult.bucketId): \(requestId)")
+                Logger.verboseDebug("Found \(requestId) for bucket \(testingResult.bucketId)")
                 return requestId
             }
             

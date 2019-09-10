@@ -128,8 +128,8 @@ final class BucketQueueImpl: BucketQueue {
             Logger.debug("Validating result from \(workerId) \(requestId): \(testingResult)")
             
             guard let dequeuedBucket = previouslyDequeuedBucket_onSyncQueue(requestId: requestId, workerId: workerId) else {
-                Logger.error("No dequeued bucket for worker \(workerId)")
-                Logger.verboseDebug("Validation failed: no dequeued bucket for request \(requestId) worker \(workerId)")
+                Logger.error("No dequeued bucket for \(workerId)")
+                Logger.verboseDebug("Validation failed: no dequeued bucket for \(requestId) \(workerId)")
                 throw ResultAcceptanceError.noDequeuedBucket(requestId: requestId, workerId: workerId)
             }
             
@@ -281,7 +281,7 @@ final class BucketQueueImpl: BucketQueue {
     {
         let lostTestEntries = expectedTestEntries.subtracting(actualTestEntries)
         if !lostTestEntries.isEmpty {
-            Logger.debug("Test result from \(workerId) (request \(requestId)) contains lost test entries: \(lostTestEntries)")
+            Logger.debug("Test result from \(workerId) \(requestId) contains lost test entries: \(lostTestEntries)")
             let lostResult = try testHistoryTracker.accept(
                 testingResult: TestingResult(
                     bucketId: bucket.bucketId,

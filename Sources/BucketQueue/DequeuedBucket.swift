@@ -21,6 +21,6 @@ public struct DequeuedBucket: CustomStringConvertible, Hashable {
     }
     
     public var description: String {
-        return "<\(type(of: self)) workerId: \(workerId), requestId: \(requestId), enqueuedBucket: \(enqueuedBucket)>"
+        return "<\(type(of: self)) \(workerId) \(requestId) \(enqueuedBucket)>"
     }
 }

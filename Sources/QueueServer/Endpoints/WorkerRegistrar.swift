@@ -16,9 +16,9 @@ public final class WorkerRegistrar: RESTEndpoint {
         public var description: String {
             switch self {
             case .missingWorkerConfiguration(let workerId):
-                return "Missing worker configuration for worker id: '\(workerId)'"
+                return "Missing worker configuration for \(workerId)"
             case .workerIsBlocked(let workerId):
-                return "Can't register worker '\(workerId)' because it has been blocked"
+                return "Can't register \(workerId) because it has been blocked"
             }
         }
     }

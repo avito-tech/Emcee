@@ -9,7 +9,7 @@ public enum QueueServerError: Error, CustomStringConvertible {
         case .noWorkers:
             return "No alive workers"
         case .missingWorkerConfigurationForWorkerId(let workerId):
-            return "Missing configuration for worker '\(workerId)'"
+            return "Missing configuration for \(workerId)"
         }
     }
 }
