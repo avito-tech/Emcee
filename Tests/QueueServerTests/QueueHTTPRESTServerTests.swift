@@ -20,6 +20,7 @@ import Version
 import WorkerAlivenessTracker
 import WorkerAlivenessTrackerTestHelpers
 import XCTest
+import RequestSenderTestHelpers
 
 final class QueueHTTPRESTServerTests: XCTestCase {
     let expectedRequestSignature = RequestSignature(value: "expectedRequestSignature")
@@ -60,12 +61,29 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             scheduleTestsHandler: stubbedHandler,
             versionHandler: stubbedHandler
         )
-        let client = synchronousQueueClient(port: try restServer.start())
         
-        XCTAssertEqual(
-            try client.registerWithServer(workerId: workerId),
-            WorkerConfigurationFixtures.workerConfiguration
+        let workerRegisterer = WorkerRegistererImpl(
+            requestSender: RequestSenderFixtures.localhostRequestSender(port: try restServer.start())
         )
+        
+        let expectation = self.expectation(description: "registerWithServer completion is called")
+        
+        try workerRegisterer.registerWithServer(workerId: workerId) { result in
+            do {
+                let workerConfiguration = try result.dematerialize()
+                
+                XCTAssertEqual(
+                    workerConfiguration,
+                    WorkerConfigurationFixtures.workerConfiguration
+                )
+            } catch {
+                XCTFail("\(error)")
+            }
+            
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 15)
         
         XCTAssertTrue(
             automaticTerminationController.indicatedActivityFinished,

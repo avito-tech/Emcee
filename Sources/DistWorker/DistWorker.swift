@@ -17,10 +17,10 @@ import TemporaryStuff
 import RESTMethods
 import Timer
 
+
 public final class DistWorker: SchedulerDelegate {
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let queueClient: SynchronousQueueClient
-    private let queueServerAddress: SocketAddress
     private let syncQueue = DispatchQueue(label: "ru.avito.DistWorker")
     private var requestIdForBucketId = [BucketId: RequestId]()
     private let resourceLocationResolver: ResourceLocationResolver
@@ -30,6 +30,9 @@ public final class DistWorker: SchedulerDelegate {
     private var requestSignature = Either<RequestSignature, DistWorkerError>.error(DistWorkerError.missingRequestSignature)
     private let temporaryFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
+    private let workerRegisterer: WorkerRegisterer
+    private let reportAliveSender: ReportAliveSender
+    private let bucketResultSender: BucketResultSender
     
     private enum BucketFetchResult: Equatable {
         case result(SchedulerBucket?)
@@ -38,38 +41,61 @@ public final class DistWorker: SchedulerDelegate {
     
     public init(
         onDemandSimulatorPool: OnDemandSimulatorPool,
-        queueServerAddress: SocketAddress,
+        queueClient: SynchronousQueueClient,
         workerId: WorkerId,
         resourceLocationResolver: ResourceLocationResolver,
         temporaryFolder: TemporaryFolder,
-        testRunnerProvider: TestRunnerProvider
+        testRunnerProvider: TestRunnerProvider,
+        reportAliveSender: ReportAliveSender,
+        workerRegisterer: WorkerRegisterer,
+        bucketResultSender: BucketResultSender
     ) {
         self.onDemandSimulatorPool = onDemandSimulatorPool
-        self.resourceLocationResolver = resourceLocationResolver
-        self.queueClient = SynchronousQueueClient(queueServerAddress: queueServerAddress)
-        self.queueServerAddress = queueServerAddress
+        self.queueClient = queueClient
         self.workerId = workerId
+        self.resourceLocationResolver = resourceLocationResolver
         self.temporaryFolder = temporaryFolder
         self.testRunnerProvider = testRunnerProvider
+        self.reportAliveSender = reportAliveSender
+        self.workerRegisterer = workerRegisterer
+        self.bucketResultSender = bucketResultSender
     }
     
     public func start(
-        didFetchAnalyticsConfiguration: (AnalyticsConfiguration) throws -> ()
+        didFetchAnalyticsConfiguration: @escaping (AnalyticsConfiguration) throws -> (),
+        completion: @escaping () -> ()
     ) throws {
-        let workerConfiguration = try queueClient.registerWithServer(workerId: workerId)
-        requestSignature = .success(workerConfiguration.requestSignature)
-        Logger.debug("Registered with server. Worker configuration: \(workerConfiguration)")
+        try workerRegisterer.registerWithServer(workerId: workerId) { [weak self] result in
+            do {
+                guard let strongSelf = self else {
+                    Logger.error("self is nil in start() in DistWorker")
+                    completion()
+                    return
+                }
+                
+                let workerConfiguration = try result.dematerialize()
+                
+                strongSelf.requestSignature = .success(workerConfiguration.requestSignature)
+                Logger.debug("Registered with server. Worker configuration: \(workerConfiguration)")
+                
+                try didFetchAnalyticsConfiguration(workerConfiguration.analyticsConfiguration)
+                
+                strongSelf.startReportingWorkerIsAlive(interval: workerConfiguration.reportAliveInterval)
+                
+                _ = try strongSelf.runTests(
+                    workerConfiguration: workerConfiguration,
+                    onDemandSimulatorPool: strongSelf.onDemandSimulatorPool
+                )
+                Logger.verboseDebug("Dist worker has finished")
+                strongSelf.cleanUpAndStop()
+                
+                completion()
+            } catch {
+                Logger.error("Caught unexpected error: \(error)")
+                completion()
+            }
+        }
         
-        try didFetchAnalyticsConfiguration(workerConfiguration.analyticsConfiguration)
-        
-        startReportingWorkerIsAlive(interval: workerConfiguration.reportAliveInterval)
-        
-        _ = try runTests(
-            workerConfiguration: workerConfiguration,
-            onDemandSimulatorPool: onDemandSimulatorPool
-        )
-        Logger.verboseDebug("Dist worker has finished")
-        cleanUpAndStop()
     }
     
     private func startReportingWorkerIsAlive(interval: TimeInterval) {
@@ -86,9 +112,6 @@ public final class DistWorker: SchedulerDelegate {
     }
     
     private func reportAliveness() throws {
-        let reportAliveSender = ReportAliveSenderImpl(
-            requestSender: DefaultRequestSenderProvider().requestSender(socketAddress: queueServerAddress)
-        )
         try reportAliveSender.reportAlive(
             bucketIdsBeingProcessedProvider: currentlyBeingProcessedBucketsTracker.bucketIdsBeingProcessed,
             workerId: workerId,
@@ -220,10 +243,6 @@ public final class DistWorker: SchedulerDelegate {
                 Logger.verboseDebug("Found \(requestId) for bucket \(testingResult.bucketId)")
                 return requestId
             }
-            
-            let bucketResultSender = BucketResultSenderImpl(
-                requestSender: DefaultRequestSenderProvider().requestSender(socketAddress: queueServerAddress)
-            )
             
             try bucketResultSender.send(
                 testingResult: testingResult,

@@ -762,8 +762,10 @@ let package = Package(
                 "RESTServerTestHelpers",
                 "ResourceLocationResolver",
                 "ResultsCollector",
+                "RequestSenderTestHelpers",
                 "ScheduleStrategy",
                 "TemporaryStuff",
+                "TestHelpers",
                 "UniqueIdentifierGeneratorTestHelpers",
                 "VersionTestHelpers",
                 "WorkerAlivenessTracker",
@@ -840,7 +842,8 @@ let package = Package(
             dependencies: [
                 "Models",
                 "RequestSender",
-                "Swifter"
+                "RequestSenderTestHelpers",
+                "Swifter",
             ]
         ),
         .target(
@@ -1163,6 +1166,13 @@ let package = Package(
                 "LoggingSetup",
                 "Plugin"
             ]
+        ),
+        .target(
+            // MARK: TestHelpers
+            name: "TestHelpers",
+            dependencies: [
+            ],
+            path: "Tests/TestHelpers"
         ),
         .target(
             // MARK: TestsWorkingDirectorySupport

@@ -9,7 +9,6 @@ class FakeQueueClientDelegate: QueueClientDelegate {
         case error(QueueClientError)
         case queueIsEmpty
         case checkAfter(TimeInterval)
-        case workerConfiguration(WorkerConfiguration)
         case bucket(Bucket)
         case workerHasBeenBlocked
         case workerConsideredNotAlive
@@ -41,10 +40,6 @@ class FakeQueueClientDelegate: QueueClientDelegate {
     
     func queueClient(_ sender: QueueClient, fetchBucketLaterAfter after: TimeInterval) {
         responses.append(ServerResponse.checkAfter(after))
-    }
-    
-    func queueClient(_ sender: QueueClient, didReceiveWorkerConfiguration workerConfiguration: WorkerConfiguration) {
-        responses.append(ServerResponse.workerConfiguration(workerConfiguration))
     }
     
     func queueClient(_ sender: QueueClient, didFetchBucket bucket: Bucket) {

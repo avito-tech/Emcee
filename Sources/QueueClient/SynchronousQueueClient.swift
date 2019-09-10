@@ -17,7 +17,6 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     }
     
     private let queueClient: QueueClient
-    private var registrationResult: Either<WorkerConfiguration, QueueClientError>?
     private var bucketFetchResult: Either<BucketFetchResult, QueueClientError>?
     private var alivenessReportResult: Either<Bool, QueueClientError>?
     private var queueServerVersionResult: Either<Version, QueueClientError>?
@@ -48,17 +47,6 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     }
     
     // MARK: Public API
-    
-    public func registerWithServer(workerId: WorkerId) throws -> WorkerConfiguration {
-        return try synchronize {
-            registrationResult = nil
-            try queueClient.registerWithServer(workerId: workerId)
-            try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for registration with server") {
-                self.registrationResult == nil
-            }
-            return try registrationResult!.dematerialize()
-        }
-    }
     
     public func fetchBucket(requestId: RequestId, workerId: WorkerId, requestSignature: RequestSignature) throws -> BucketFetchResult {
         return try synchronize {
@@ -158,7 +146,6 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     // MARK: - Queue Delegate
     
     public func queueClient(_ sender: QueueClient, didFailWithError error: QueueClientError) {
-        registrationResult = Either.error(error)
         bucketFetchResult = Either.error(error)
         alivenessReportResult = Either.error(error)
         queueServerVersionResult = Either.error(error)
@@ -166,10 +153,6 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         jobResultsResult = Either.error(error)
         jobStateResult = Either.error(error)
         jobDeleteResult = Either.error(error)
-    }
-    
-    public func queueClient(_ sender: QueueClient, didReceiveWorkerConfiguration workerConfiguration: WorkerConfiguration) {
-        registrationResult = Either.success(workerConfiguration)
     }
     
     public func queueClientQueueIsEmpty(_ sender: QueueClient) {

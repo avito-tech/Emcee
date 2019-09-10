@@ -8,7 +8,6 @@ public protocol QueueClientDelegate: class {
     func queueClientWorkerConsideredNotAlive(_ sender: QueueClient)
     func queueClientWorkerHasBeenBlocked(_ sender: QueueClient)
     func queueClient(_ sender: QueueClient, fetchBucketLaterAfter after: TimeInterval)
-    func queueClient(_ sender: QueueClient, didReceiveWorkerConfiguration workerConfiguration: WorkerConfiguration)
     func queueClient(_ sender: QueueClient, didFetchBucket bucket: Bucket)
     func queueClientWorkerHasBeenIndicatedAsAlive(_ sender: QueueClient)
     func queueClient(_ sender: QueueClient, didFetchQueueServerVersion version: Version)

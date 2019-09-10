@@ -3,15 +3,13 @@ import Models
 import RequestSender
 import Swifter
 import XCTest
+import ModelsTestHelpers
+import RequestSenderTestHelpers
 
 final class RequestSenderTests: XCTestCase {
     func test__failing_request() throws {
-        let sender = RequestSenderImpl(
-            urlSession: URLSession(configuration: .default),
-            queueServerAddress: SocketAddress(
-                host: "localhost",
-                port: 49151     // officially reserved port https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers
-            )
+        let sender = RequestSenderFixtures.localhostRequestSender(
+            port: 49151 // officially reserved port https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers
         )
         
         let callbackCalled = expectation(description: "callback has been called")

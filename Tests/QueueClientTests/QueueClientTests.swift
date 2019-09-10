@@ -97,24 +97,6 @@ class QueueClientTests: XCTestCase {
         }
     }
     
-    func testRegisteringWorker() throws {
-        let stubbedConfig = WorkerConfigurationFixtures.workerConfiguration
-        
-        try prepareServer(RESTMethod.registerWorker.withPrependingSlash) { request -> HttpResponse in
-            let data: Data = (try? JSONEncoder().encode(RegisterWorkerResponse.workerRegisterSuccess(workerConfiguration: stubbedConfig))) ?? Data()
-            return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
-        }
-        try queueClient.registerWithServer(workerId: workerId)
-        try SynchronousWaiter.waitWhile(timeout: 5.0, description: "wait for response") { delegate.responses.isEmpty }
-        
-        switch delegate.responses[0] {
-        case .workerConfiguration(let configuration):
-            XCTAssertEqual(stubbedConfig, configuration, "Response should have the provided worker configuration")
-        default:
-            XCTFail("Unexpected result")
-        }
-    }
-    
     func test___when_queue_is_closed___requests_throw_correct_error() throws {
         try prepareServer(RESTMethod.getBucket.withPrependingSlash) { request -> HttpResponse in
             XCTFail("Endpoint should not be called")

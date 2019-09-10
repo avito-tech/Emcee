@@ -12,6 +12,8 @@ import ScheduleStrategy
 import UniqueIdentifierGeneratorTestHelpers
 import VersionTestHelpers
 import XCTest
+import RequestSenderTestHelpers
+import TestHelpers
 
 final class QueueServerTests: XCTestCase {
     let eventBus = EventBus()
@@ -98,13 +100,24 @@ final class QueueServerTests: XCTestCase {
             pollInterval: 0.1,
             queueServerTerminationPolicy: .stayAlive
         )
-        let port = try server.start()
         
         let expectationForResults = expectation(description: "results became available")
+        
+        let port = try server.start()
+        
+        let requestSender = RequestSenderFixtures.localhostRequestSender(port: port)
         let client = synchronousQueueClient(port: port)
-        XCTAssertNoThrow(_ = try client.registerWithServer(workerId: workerId))
+        
+        let workerRegisterer = WorkerRegistererImpl(requestSender: requestSender)
         
         var actualResults = [JobResults]()
+        
+        let _: Void = try runSyncronously { [workerId] completion in
+            try workerRegisterer.registerWithServer(workerId: workerId) { _ in
+                completion(Void())
+            }
+        }
+        
         DispatchQueue.global().async {
             do {
                 actualResults.append(
@@ -120,35 +133,38 @@ final class QueueServerTests: XCTestCase {
             }
         }
         
-        let fetchResult = try client.fetchBucket(requestId: "request", workerId: workerId, requestSignature: requestSignature)
+        let fetchResult = try client.fetchBucket(
+            requestId: "request",
+            workerId: workerId,
+            requestSignature: requestSignature
+        )
         XCTAssertEqual(fetchResult, SynchronousQueueClient.BucketFetchResult.bucket(bucket))
-        
+
         let resultSender = BucketResultSenderImpl(
             requestSender: RequestSenderImpl(
                 urlSession: URLSession.shared,
                 queueServerAddress: queueServerAddress(port: port)
             )
         )
-        let expectationForResultSenderCallback = expectation(description: "result sender callback invoked")
-        XCTAssertNoThrow(
+        
+        let response: Either<BucketId, RequestSenderError> = try runSyncronously { [workerId, requestSignature] completion in
             try resultSender.send(
                 testingResult: testingResult,
                 requestId: "request",
                 workerId: workerId,
                 requestSignature: requestSignature,
-                completion: { (response: Either<BucketId, RequestSenderError>) in
-                    XCTAssertEqual(
-                        try? response.dematerialize(),
-                        testingResult.bucketId,
-                        "Server is expected to return a bucket id of accepted testing result"
-                    )
-                    expectationForResultSenderCallback.fulfill()
-                }
+                completion: completion
             )
+        }
+        
+        XCTAssertEqual(
+            try? response.dematerialize(),
+            testingResult.bucketId,
+            "Server is expected to return a bucket id of accepted testing result"
         )
         
-        wait(for: [expectationForResultSenderCallback, expectationForResults], timeout: 10)
-        
+        wait(for: [expectationForResults], timeout: 10)
+
         XCTAssertEqual(
             [JobResults(jobId: jobId, testingResults: [testingResult])],
             actualResults
@@ -163,4 +179,3 @@ final class QueueServerTests: XCTestCase {
         return SocketAddress(host: "localhost", port: port)
     }
 }
-

@@ -24,14 +24,6 @@ public final class QueueClient {
         close()
     }
     
-    public func registerWithServer(workerId: WorkerId) throws {
-        try sendRequest(
-            .registerWorker,
-            payload: RegisterWorkerRequest(workerId: workerId),
-            completionHandler: handleRegisterWorkerResponse
-        )
-    }
-    
     public func close() {
         requestSender.close()
         
@@ -154,13 +146,6 @@ public final class QueueClient {
     }
     
     // MARK: - Response Handlers
-    
-    private func handleRegisterWorkerResponse(response: RegisterWorkerResponse) {
-        switch response {
-        case .workerRegisterSuccess(let workerConfiguration):
-            delegate?.queueClient(self, didReceiveWorkerConfiguration: workerConfiguration)
-        }
-    }
     
     private func handleFetchBucketResponse(response: DequeueBucketResponse) {
         switch response {
