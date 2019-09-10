@@ -30,6 +30,7 @@ public final class QueueServerImpl: QueueServer {
     private let stuckBucketsPoller: StuckBucketsPoller
     private let testsEnqueuer: TestsEnqueuer
     private let workerAlivenessEndpoint: WorkerAlivenessEndpoint
+    private let workerAlivenessMatricCapturer: WorkerAlivenessMatricCapturer
     private let workerAlivenessTracker: WorkerAlivenessTracker
     private let workerRegistrar: WorkerRegistrar
     
@@ -125,6 +126,10 @@ public final class QueueServerImpl: QueueServer {
         self.jobDeleteEndpoint = JobDeleteEndpoint(
             jobManipulator: balancingBucketQueue
         )
+        self.workerAlivenessMatricCapturer = WorkerAlivenessMatricCapturer(
+            reportInterval: .seconds(30),
+            workerAlivenessTracker: workerAlivenessTracker
+        )
     }
     
     public func start() throws -> Int {
@@ -141,6 +146,7 @@ public final class QueueServerImpl: QueueServer {
         )
 
         stuckBucketsPoller.startTrackingStuckBuckets()
+        workerAlivenessMatricCapturer.start()
         
         let port = try restServer.start()
         Logger.info("Started queue server on port \(port)")
