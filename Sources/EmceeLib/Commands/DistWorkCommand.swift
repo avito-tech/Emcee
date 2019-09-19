@@ -8,6 +8,7 @@ import PathLib
 import ResourceLocationResolver
 import RequestSender
 import SimulatorPool
+import SynchronousWaiter
 import TemporaryStuff
 import QueueClient
 
@@ -36,17 +37,17 @@ public final class DistWorkCommand: Command {
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
 
-        let distWorker = self.distWorker(
+        let distWorker = createDistWorker(
             queueServerAddress: queueServerAddress,
             workerId: workerId,
             temporaryFolder: temporaryFolder,
             onDemandSimulatorPool: onDemandSimulatorPool
         )
         
-        startWorker(distWorker: distWorker)
+        try startWorker(distWorker: distWorker)
     }
     
-    private func distWorker(
+    private func createDistWorker(
         queueServerAddress: SocketAddress,
         workerId: WorkerId,
         temporaryFolder: TemporaryFolder,
@@ -73,28 +74,19 @@ public final class DistWorkCommand: Command {
         )
     }
         
-    private func startWorker(distWorker: DistWorker) {
-        let dispatchQueue = DispatchQueue(label: "DistWorker.queue")
-        let dispatchGroup = DispatchGroup()
+    private func startWorker(distWorker: DistWorker) throws {
+        var isWorking = true
         
-        dispatchGroup.enter()
-        dispatchQueue.async {
-            do {
-                try distWorker.start(
-                    didFetchAnalyticsConfiguration: { analyticsConfiguration in
-                        try LoggingSetup.setupAnalytics(analyticsConfiguration: analyticsConfiguration)
-                    },
-                    completion: {
-                        dispatchGroup.leave()
-                    }
-                )
-            } catch {
-                Logger.error("\(error)")
-                dispatchGroup.leave()
+        try distWorker.start(
+            didFetchAnalyticsConfiguration: { analyticsConfiguration in
+                try LoggingSetup.setupAnalytics(analyticsConfiguration: analyticsConfiguration)
+            },
+            completion: {
+                isWorking = false
             }
-            
-            dispatchGroup.wait()
-        }
+        )
+        
+        try SynchronousWaiter.waitWhile { isWorking }
     }
 
     private func createScopedTemporaryFolder() throws -> TemporaryFolder {

@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 
 - Updated README file to refer new builds of idb fork. Now they work correctly with Xcode 11 GM 2.
 
+- Fixed a bug when workers would start and exit immediately without connecting to a queue server.
+
 ## 2019-09-10
 
 ### Added

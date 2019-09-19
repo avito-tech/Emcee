@@ -794,6 +794,7 @@ let package = Package(
             // MARK: RemotePortDeterminerTests
             name: "RemotePortDeterminerTests",
             dependencies: [
+                "PortDeterminer",
                 "RemotePortDeterminer",
                 "RequestSender",
                 "RequestSenderTestHelpers"
