@@ -10,7 +10,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         let validatorConfiguration = try createValidatorConfiguration(testEntries: [createTestEntry(testType: .uiTest)])
         let validator = try createValidator(configuration: validatorConfiguration)
 
-        _ = try validator.validatedTestEntries()
+        _ = try validator.validatedTestEntries { _, _ in }
 
         let querierConfiguration = runtimeTestQuerier.configuration
         XCTAssertNotNil(querierConfiguration)
@@ -26,7 +26,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         let validatorConfiguration = try createValidatorConfiguration(testEntries: [uiTestEntry])
         let validator = try createValidator(configuration: validatorConfiguration)
 
-        _ = try validator.validatedTestEntries()
+        _ = try validator.validatedTestEntries { _, _ in }
 
         let querierConfiguration = runtimeTestQuerier.configuration
         XCTAssertNil(querierConfiguration?.applicationTestSupport)
@@ -39,7 +39,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         let validator = try createValidator(configuration: validatorConfiguration)
         let fakeBuildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
 
-        _ = try validator.validatedTestEntries()
+        _ = try validator.validatedTestEntries { _, _ in }
 
         let querierConfiguration = runtimeTestQuerier.configuration
         XCTAssertNotNil(querierConfiguration!.applicationTestSupport)
@@ -58,7 +58,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         let validatorConfiguration = try createValidatorConfiguration(testEntries: [appTestEntry])
         let validator = try createValidator(configuration: validatorConfiguration)
 
-        XCTAssertThrowsError(_ = try validator.validatedTestEntries())
+        XCTAssertThrowsError(_ = try validator.validatedTestEntries { _, _ in })
     }
 
     func test__throws_error__if_fbsimctl_is_not_provided_for_app_tests() throws {
@@ -71,7 +71,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         let validatorConfiguration = try createValidatorConfiguration(testEntries: [appTestEntry], simulatorControlTool: nil)
         let validator = try createValidator(configuration: validatorConfiguration)
 
-        XCTAssertThrowsError(_ = try validator.validatedTestEntries())
+        XCTAssertThrowsError(_ = try validator.validatedTestEntries { _, _ in })
     }
 
     func test__querier_called_several_times__if_configuration_contains_several_build_artifacts() throws {
@@ -80,7 +80,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         let validatorConfiguration = try createValidatorConfiguration(testEntries: [appTestEntry1, appTestEntry2])
         let validator = try createValidator(configuration: validatorConfiguration)
 
-        _ = try validator.validatedTestEntries()
+        _ = try validator.validatedTestEntries { _, _ in }
 
         XCTAssertEqual(runtimeTestQuerier.numberOfCalls, 2)
     }

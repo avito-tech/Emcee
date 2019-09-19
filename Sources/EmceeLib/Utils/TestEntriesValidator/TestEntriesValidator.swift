@@ -34,17 +34,19 @@ public final class TestEntriesValidator {
         self.runtimeTestQuerier = runtimeTestQuerier
     }
     
-    public func validatedTestEntries() throws -> [ValidatedTestEntry] {
+    public func validatedTestEntries(
+        intermediateResult: (BuildArtifacts, [ValidatedTestEntry]) throws -> ()
+    ) throws -> [ValidatedTestEntry] {
         let entriesPerBuildArtifact = Dictionary(grouping: validatorConfiguration.testEntries) { $0.buildArtifacts }
 
         var result = [ValidatedTestEntry]()
-        for (buildArtifacts, testEntries)  in entriesPerBuildArtifact {
-            result.append(
-                contentsOf: try validatedTestEntriesForBuildArtifacts(
-                    buildArtifacts: buildArtifacts,
-                    testEntries: testEntries
-                )
+        for (buildArtifacts, testEntries) in entriesPerBuildArtifact {
+            let validatedTestEntries = try validatedTestEntriesForBuildArtifacts(
+                buildArtifacts: buildArtifacts,
+                testEntries: testEntries
             )
+            try intermediateResult(buildArtifacts, validatedTestEntries)
+            result.append(contentsOf: validatedTestEntries)
         }
 
         return result

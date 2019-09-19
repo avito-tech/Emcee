@@ -842,6 +842,7 @@ let package = Package(
             name: "RequestSenderTests",
             dependencies: [
                 "Models",
+                "ModelsTestHelpers",
                 "RequestSender",
                 "RequestSenderTestHelpers",
                 "Swifter",

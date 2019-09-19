@@ -182,25 +182,43 @@ public final class RunTestsOnRemoteQueueCommand: Command {
                 resourceLocationResolver: resourceLocationResolver
             )
         )
+        
+        let queueClient = SynchronousQueueClient(queueServerAddress: queueServerAddress)
+        
+        defer {
+            Logger.info("Will delete job \(runId)")
+            do {
+                _ = try queueClient.delete(jobId: runId)
+            } catch {
+                Logger.error("Failed to delete job \(runId): \(error)")
+            }
+        }
 
         let testEntriesValidator = TestEntriesValidator(
             validatorConfiguration: validatorConfiguration,
             runtimeTestQuerier: runtimeTestQuerier
         )
-        let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
-            validatedEntries: try testEntriesValidator.validatedTestEntries(),
-            testArgEntries: testArgFile.entries
-        )
-        let testEntryConfigurations = testEntryConfigurationGenerator.createTestEntryConfigurations()
-        Logger.info("Will schedule \(testEntryConfigurations.count) tests to queue server at \(queueServerAddress)")
         
-        let queueClient = SynchronousQueueClient(queueServerAddress: queueServerAddress)
-        _ = try queueClient.scheduleTests(
-            prioritizedJob: PrioritizedJob(jobId: runId, priority: priority),
-            scheduleStrategy: testArgFile.scheduleStrategy,
-            testEntryConfigurations: testEntryConfigurations,
-            requestId: RequestId(value: runId.value + "_" + UUID().uuidString)
-        )
+        _ = try testEntriesValidator.validatedTestEntries { _, validatedTestEntry in
+            let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
+                validatedEntries: validatedTestEntry,
+                testArgEntries: testArgFile.entries
+            )
+            let testEntryConfigurations = testEntryConfigurationGenerator.createTestEntryConfigurations()
+            Logger.info("Will schedule \(testEntryConfigurations.count) tests to queue server at \(queueServerAddress)")
+            
+            do {
+                _ = try queueClient.scheduleTests(
+                    prioritizedJob: PrioritizedJob(jobId: runId, priority: priority),
+                    scheduleStrategy: testArgFile.scheduleStrategy,
+                    testEntryConfigurations: testEntryConfigurations,
+                    requestId: RequestId(value: runId.value + "_" + UUID().uuidString)
+                )
+            } catch {
+                Logger.error("Failed to schedule tests: \(error)")
+                throw error
+            }
+        }
         
         var caughtSignal = false
         SignalHandling.addSignalHandler(signals: [.int, .term]) { signal in
@@ -223,12 +241,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             }
         }
         Logger.info("Will now fetch job results")
-        let results = try queueClient.jobResults(jobId: runId)
-        
-        Logger.info("Will delete job \(runId)")
-        _ = try queueClient.delete(jobId: runId)
-        
-        return results
+        return try queueClient.jobResults(jobId: runId)
     }
     
     private func selectPort(ports: Set<Int>) throws -> Int {

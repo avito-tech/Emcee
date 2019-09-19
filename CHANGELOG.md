@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file.
 
 - Fixed a bug when workers would start and exit immediately without connecting to a queue server.
 
+- Emcee now dynamically schedules jobs after runtime dump finishes. It helps to speed up the test run. For example, if you run multiple test bundles, Emcee will now schedule tests from each bundle one by one after performing a runtime dump for each test bundle in opposite to scheduling all tests from all test bundles in one go. By the moment when the last set of tests from the last test bundle will be scheduled to the queue, test results for the first test bundle likely will be available.
+
 ## 2019-09-10
 
 ### Added
