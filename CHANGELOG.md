@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2019-09-19
+
+### Changed
+
+- Updated README file to refer new builds of idb fork. Now they work correctly with Xcode 11 GM 2.
+
 ## 2019-09-10
 
 ### Added
