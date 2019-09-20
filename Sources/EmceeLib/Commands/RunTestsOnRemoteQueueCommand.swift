@@ -164,7 +164,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         let validatorConfiguration = TestEntriesValidatorConfiguration(
             simulatorControlTool: simulatorControlTool,
             testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
-            testEntries: testArgFile.entries,
+            testArgFileEntries: testArgFile.entries,
             testRunnerTool: testRunnerTool
         )
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
@@ -199,7 +199,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             runtimeTestQuerier: runtimeTestQuerier
         )
         
-        _ = try testEntriesValidator.validatedTestEntries { _, validatedTestEntry in
+        _ = try testEntriesValidator.validatedTestEntries { testArgFileEntry, validatedTestEntry in
             let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
                 validatedEntries: validatedTestEntry,
                 testArgEntries: testArgFile.entries
@@ -210,7 +210,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             do {
                 _ = try queueClient.scheduleTests(
                     prioritizedJob: PrioritizedJob(jobId: runId, priority: priority),
-                    scheduleStrategy: testArgFile.scheduleStrategy,
+                    scheduleStrategy: testArgFileEntry.scheduleStrategy,
                     testEntryConfigurations: testEntryConfigurations,
                     requestId: RequestId(value: runId.value + "_" + UUID().uuidString)
                 )

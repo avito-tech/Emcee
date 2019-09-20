@@ -24,7 +24,7 @@ public enum TestToRun: Decodable, CustomStringConvertible, Hashable {
         case .testName(let testName):
             return "(\(TestToRun.self) '\(testName))'"
         case .allProvidedByRuntimeDump:
-            return "(\(TestToRun.self) all provided by runtime dump"
+            return "(\(TestToRun.self) all provided by runtime dump)"
         }
     }
     

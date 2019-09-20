@@ -7,6 +7,7 @@ public struct TestArgFile: Decodable {
         public let buildArtifacts: BuildArtifacts
         public let environment: [String: String]
         public let numberOfRetries: UInt
+        public let scheduleStrategy: ScheduleStrategyType
         public let testDestination: TestDestination
         public let testType: TestType
         public let toolchainConfiguration: ToolchainConfiguration
@@ -16,6 +17,7 @@ public struct TestArgFile: Decodable {
             buildArtifacts: BuildArtifacts,
             environment: [String: String],
             numberOfRetries: UInt,
+            scheduleStrategy: ScheduleStrategyType,
             testDestination: TestDestination,
             testType: TestType,
             toolchainConfiguration: ToolchainConfiguration
@@ -24,6 +26,7 @@ public struct TestArgFile: Decodable {
             self.buildArtifacts = buildArtifacts
             self.environment = environment
             self.numberOfRetries = numberOfRetries
+            self.scheduleStrategy = scheduleStrategy
             self.testDestination = testDestination
             self.testType = testType
             self.toolchainConfiguration = toolchainConfiguration
@@ -33,6 +36,7 @@ public struct TestArgFile: Decodable {
             case testsToRun
             case environment
             case numberOfRetries
+            case scheduleStrategy
             case testDestination
             case testType
             case buildArtifacts
@@ -46,6 +50,7 @@ public struct TestArgFile: Decodable {
             buildArtifacts = try container.decode(BuildArtifacts.self, forKey: .buildArtifacts)
             environment = try container.decodeIfPresent([String: String].self, forKey: .environment) ?? [:]
             numberOfRetries = try container.decode(UInt.self, forKey: .numberOfRetries)
+            scheduleStrategy = try container.decode(ScheduleStrategyType.self, forKey: .scheduleStrategy)
             testDestination = try container.decode(TestDestination.self, forKey: .testDestination)
             testType = try container.decodeIfPresent(TestType.self, forKey: .testType) ?? .uiTest
             toolchainConfiguration = try container.decode(ToolchainConfiguration.self, forKey: .toolchainConfiguration)
@@ -53,13 +58,10 @@ public struct TestArgFile: Decodable {
     }
     
     public let entries: [Entry]
-    public let scheduleStrategy: ScheduleStrategyType
     
     public init(
-        entries: [Entry],
-        scheduleStrategy: ScheduleStrategyType
+        entries: [Entry]
     ) {
         self.entries = entries
-        self.scheduleStrategy = scheduleStrategy
     }
 }

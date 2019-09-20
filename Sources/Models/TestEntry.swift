@@ -28,7 +28,9 @@ public final class TestEntry: CustomStringConvertible, Codable, Hashable {
             components.append("case id: \(caseId)")
         }
 
-        components.append("tags: \(tags)")
+        if !tags.isEmpty {
+            components.append("tags: \(tags)")
+        }
         
         let componentsJoined = components.joined(separator: ", ")
         

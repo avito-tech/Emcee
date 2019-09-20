@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2019-09-20
+
+### Changed
+
+- Previously, runtime dump would group all entries by their build artifacts and then perform dump in order to validate the provided tests to run. This logic has been removed. Now runtime dump performs a single dump for each test arg file entry. Pass a list of tests into `testsToRun` field to reduce number of runtime dumps.
+
+- `scheduleStrategy` root field has been moved from test arg file JSON to each test arg file entry. This allows you to specify schedule strategy on per-test-arg-file-entry basis.
+
+- Now Emcee respects toolchain configuration when performing a runtime dump for each test arg file entry. Previously, it would perform runtime dump using current developer dir provided by `xcode-select`.
+
 ## 2019-09-19
 
 ### Changed

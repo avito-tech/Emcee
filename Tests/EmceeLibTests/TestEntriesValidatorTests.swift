@@ -7,7 +7,7 @@ final class TestEntriesValidatorTests: XCTestCase {
     let runtimeTestQuerier = RuntimeTestQuerierMock()
 
     func test__pass_arguments_to_querier() throws {
-        let validatorConfiguration = try createValidatorConfiguration(testEntries: [createTestEntry(testType: .uiTest)])
+        let validatorConfiguration = try createValidatorConfiguration(testArgFileEntries: [createTestEntry(testType: .uiTest)])
         let validator = try createValidator(configuration: validatorConfiguration)
 
         _ = try validator.validatedTestEntries { _, _ in }
@@ -16,14 +16,14 @@ final class TestEntriesValidatorTests: XCTestCase {
         XCTAssertNotNil(querierConfiguration)
         XCTAssertNil(querierConfiguration!.applicationTestSupport)
         XCTAssertEqual(querierConfiguration!.testRunnerTool, validatorConfiguration.testRunnerTool)
-        XCTAssertEqual(querierConfiguration!.xcTestBundle, validatorConfiguration.testEntries[0].buildArtifacts.xcTestBundle)
+        XCTAssertEqual(querierConfiguration!.xcTestBundle, validatorConfiguration.testArgFileEntries[0].buildArtifacts.xcTestBundle)
         XCTAssertEqual(querierConfiguration!.testDestination, validatorConfiguration.testDestination)
-        XCTAssertEqual(querierConfiguration!.testsToValidate.count, validatorConfiguration.testEntries.count)
+        XCTAssertEqual(querierConfiguration!.testsToValidate.count, validatorConfiguration.testArgFileEntries.count)
     }
 
     func test__dont_pass_app_test_data__if_no_app_tests_in_configuration() throws {
         let uiTestEntry = try createTestEntry(testType: .uiTest)
-        let validatorConfiguration = try createValidatorConfiguration(testEntries: [uiTestEntry])
+        let validatorConfiguration = try createValidatorConfiguration(testArgFileEntries: [uiTestEntry])
         let validator = try createValidator(configuration: validatorConfiguration)
 
         _ = try validator.validatedTestEntries { _, _ in }
@@ -35,7 +35,7 @@ final class TestEntriesValidatorTests: XCTestCase {
     func test__pass_app_test_data__if_flag_is_true() throws {
         let buildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts(runtimeDumpKind: .appTest)
         let appTestEntry = try createTestEntry(testType: .appTest, buildArtifacts: buildArtifacts)
-        let validatorConfiguration = try createValidatorConfiguration(testEntries: [appTestEntry])
+        let validatorConfiguration = try createValidatorConfiguration(testArgFileEntries: [appTestEntry])
         let validator = try createValidator(configuration: validatorConfiguration)
         let fakeBuildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
 
@@ -55,7 +55,7 @@ final class TestEntriesValidatorTests: XCTestCase {
                 runtimeDumpKind: .appTest
             )
         )
-        let validatorConfiguration = try createValidatorConfiguration(testEntries: [appTestEntry])
+        let validatorConfiguration = try createValidatorConfiguration(testArgFileEntries: [appTestEntry])
         let validator = try createValidator(configuration: validatorConfiguration)
 
         XCTAssertThrowsError(_ = try validator.validatedTestEntries { _, _ in })
@@ -68,7 +68,7 @@ final class TestEntriesValidatorTests: XCTestCase {
                 runtimeDumpKind: .appTest
             )
         )
-        let validatorConfiguration = try createValidatorConfiguration(testEntries: [appTestEntry], simulatorControlTool: nil)
+        let validatorConfiguration = try createValidatorConfiguration(testArgFileEntries: [appTestEntry], simulatorControlTool: nil)
         let validator = try createValidator(configuration: validatorConfiguration)
 
         XCTAssertThrowsError(_ = try validator.validatedTestEntries { _, _ in })
@@ -77,7 +77,7 @@ final class TestEntriesValidatorTests: XCTestCase {
     func test__querier_called_several_times__if_configuration_contains_several_build_artifacts() throws {
         let appTestEntry1 = try createTestEntry(testType: .appTest, buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(appBundleLocation: "/App1"))
         let appTestEntry2 = try createTestEntry(testType: .appTest, buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(appBundleLocation: "/App2"))
-        let validatorConfiguration = try createValidatorConfiguration(testEntries: [appTestEntry1, appTestEntry2])
+        let validatorConfiguration = try createValidatorConfiguration(testArgFileEntries: [appTestEntry1, appTestEntry2])
         let validator = try createValidator(configuration: validatorConfiguration)
 
         _ = try validator.validatedTestEntries { _, _ in }
@@ -93,13 +93,13 @@ final class TestEntriesValidatorTests: XCTestCase {
     }
 
     private func createValidatorConfiguration(
-        testEntries: [TestArgFile.Entry],
+        testArgFileEntries: [TestArgFile.Entry],
         simulatorControlTool: SimulatorControlTool? = SimulatorControlToolFixtures.fakeFbsimctlTool
     ) throws -> TestEntriesValidatorConfiguration {
         return TestEntriesValidatorConfiguration(
             simulatorControlTool: simulatorControlTool,
             testDestination: TestDestinationFixtures.testDestination,
-            testEntries: testEntries,
+            testArgFileEntries: testArgFileEntries,
             testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool
         )
     }
@@ -113,6 +113,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             buildArtifacts: buildArtifacts,
             environment: [:],
             numberOfRetries: 1,
+            scheduleStrategy: .unsplit,
             testDestination: try TestDestination(deviceType: "iPhoneXL", runtime: "10.3"),
             testType: testType,
             toolchainConfiguration: ToolchainConfiguration(developerDir: .current)

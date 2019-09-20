@@ -41,6 +41,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                     buildArtifacts: buildArtifacts,
                     environment: [:],
                     numberOfRetries: 10,
+                    scheduleStrategy: .unsplit,
                     testDestination: argFileDestination1,
                     testType: .uiTest,
                     toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
@@ -50,6 +51,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                     buildArtifacts: buildArtifacts,
                     environment: [:],
                     numberOfRetries: 20,
+                    scheduleStrategy: .unsplit,
                     testDestination: argFileDestination2,
                     testType: .appTest,
                     toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
@@ -88,6 +90,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                     buildArtifacts: buildArtifacts,
                     environment: [:],
                     numberOfRetries: 10,
+                    scheduleStrategy: .unsplit,
                     testDestination: argFileDestination1,
                     testType: .uiTest,
                     toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
@@ -119,6 +122,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                     buildArtifacts: buildArtifacts,
                     environment: [:],
                     numberOfRetries: 10,
+                    scheduleStrategy: .unsplit,
                     testDestination: argFileDestination1,
                     testType: .uiTest,
                     toolchainConfiguration: ToolchainConfiguration(developerDir: .current)

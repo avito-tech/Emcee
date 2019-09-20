@@ -24,7 +24,8 @@ final class TestArgFileTests: XCTestCase {
                     "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"],
                     "needHostAppToDumpTests": true
                 },
-                "toolchainConfiguration": {"developerDir": {"kind": "current"}}
+                "toolchainConfiguration": {"developerDir": {"kind": "current"}},
+                "scheduleStrategy": "unsplit"
             }
         """.data(using: .utf8)!
 
@@ -37,6 +38,7 @@ final class TestArgFileTests: XCTestCase {
                 buildArtifacts: buildArtifacts(),
                 environment: ["value": "key"],
                 numberOfRetries: 42,
+                scheduleStrategy: .unsplit,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testType: .logicTest,
                 toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
@@ -61,7 +63,8 @@ final class TestArgFileTests: XCTestCase {
                     "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"],
                     "needHostAppToDumpTests": true
                 },
-                "toolchainConfiguration": {"developerDir": {"kind": "current"}}
+                "toolchainConfiguration": {"developerDir": {"kind": "current"}},
+                "scheduleStrategy": "unsplit"
             }
         """.data(using: .utf8)!
 
@@ -74,6 +77,7 @@ final class TestArgFileTests: XCTestCase {
                 buildArtifacts: buildArtifacts(runtimeDumpKind: .logicTest),
                 environment: ["value": "key"],
                 numberOfRetries: 42,
+                scheduleStrategy: .unsplit,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testType: .logicTest,
                 toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
@@ -95,7 +99,8 @@ final class TestArgFileTests: XCTestCase {
                     "xcTestBundle": "/xcTestBundle",
                     "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"]
                 },
-                "toolchainConfiguration": {"developerDir": {"kind": "current"}}
+                "toolchainConfiguration": {"developerDir": {"kind": "current"}},
+                "scheduleStrategy": "unsplit"
             }
         """.data(using: .utf8)!
         
@@ -108,6 +113,7 @@ final class TestArgFileTests: XCTestCase {
                 buildArtifacts: buildArtifacts(runtimeDumpKind: .logicTest),
                 environment: [:],
                 numberOfRetries: 42,
+                scheduleStrategy: .unsplit,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testType: .uiTest,
                 toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
@@ -132,7 +138,8 @@ final class TestArgFileTests: XCTestCase {
                     },
                     "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"]
                 },
-                "toolchainConfiguration": {"developerDir": {"kind": "current"}}
+                "toolchainConfiguration": {"developerDir": {"kind": "current"}},
+                "scheduleStrategy": "unsplit"
             }
         """.data(using: .utf8)!
 
@@ -145,6 +152,7 @@ final class TestArgFileTests: XCTestCase {
                 buildArtifacts: buildArtifacts(),
                 environment: [:],
                 numberOfRetries: 42,
+                scheduleStrategy: .unsplit,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testType: .uiTest,
                 toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
@@ -171,7 +179,8 @@ final class TestArgFileTests: XCTestCase {
                     "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"],
                     "needHostAppToDumpTests": true
                 },
-                "toolchainConfiguration": {"developerDir": {"kind": "current"}}
+                "toolchainConfiguration": {"developerDir": {"kind": "current"}},
+                "scheduleStrategy": "unsplit"
             }
         """.data(using: .utf8)!
         
@@ -184,6 +193,7 @@ final class TestArgFileTests: XCTestCase {
                 buildArtifacts: buildArtifacts(),
                 environment: [:],
                 numberOfRetries: 42,
+                scheduleStrategy: .unsplit,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testType: .logicTest,
                 toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
@@ -210,7 +220,8 @@ final class TestArgFileTests: XCTestCase {
                     "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"],
                     "needHostAppToDumpTests": true
                 },
-                "toolchainConfiguration": {"developerDir": {"kind": "current"}}
+                "toolchainConfiguration": {"developerDir": {"kind": "current"}},
+                "scheduleStrategy": "unsplit"
             }
         """.data(using: .utf8)!
         
@@ -223,6 +234,7 @@ final class TestArgFileTests: XCTestCase {
                 buildArtifacts: buildArtifacts(),
                 environment: ["value": "key"],
                 numberOfRetries: 42,
+                scheduleStrategy: .unsplit,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testType: .uiTest,
                 toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
@@ -251,7 +263,8 @@ final class TestArgFileTests: XCTestCase {
                 },
                 "toolchainConfiguration": {
                     "developerDir": {"kind": "current"}
-                }
+                },
+                "scheduleStrategy": "unsplit"
             }
         """.data(using: .utf8)!
         
@@ -264,6 +277,7 @@ final class TestArgFileTests: XCTestCase {
                 buildArtifacts: buildArtifacts(),
                 environment: [:],
                 numberOfRetries: 42,
+                scheduleStrategy: .unsplit,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testType: .logicTest,
                 toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
@@ -292,7 +306,8 @@ final class TestArgFileTests: XCTestCase {
                 },
                 "toolchainConfiguration": {
                     "developerDir": {"kind": "useXcode", "CFBundleShortVersionString": "10.1"}
-                }
+                },
+                "scheduleStrategy": "unsplit"
             }
         """.data(using: .utf8)!
         
@@ -305,6 +320,7 @@ final class TestArgFileTests: XCTestCase {
                 buildArtifacts: buildArtifacts(),
                 environment: [:],
                 numberOfRetries: 42,
+                scheduleStrategy: .unsplit,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testType: .logicTest,
                 toolchainConfiguration: ToolchainConfiguration(
@@ -330,7 +346,8 @@ final class TestArgFileTests: XCTestCase {
                     },
                     "needHostAppToDumpTests": true
                 },
-                "toolchainConfiguration": {"developerDir": {"kind": "current"}}
+                "toolchainConfiguration": {"developerDir": {"kind": "current"}},
+                "scheduleStrategy": "unsplit"
             }
         """.data(using: .utf8)!
 
@@ -343,6 +360,7 @@ final class TestArgFileTests: XCTestCase {
                 buildArtifacts: buildArtifacts(appBundle: nil, runner: nil, additionalApplicationBundles: []),
                 environment: ["value": "key"],
                 numberOfRetries: 42,
+                scheduleStrategy: .unsplit,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testType: .uiTest,
                 toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
@@ -368,7 +386,8 @@ final class TestArgFileTests: XCTestCase {
                     "additionalApplicationBundles": [],
                     "needHostAppToDumpTests": true
                 },
-                "toolchainConfiguration": {"developerDir": {"kind": "current"}}
+                "toolchainConfiguration": {"developerDir": {"kind": "current"}},
+                "scheduleStrategy": "unsplit"
             }
         """.data(using: .utf8)!
 
@@ -381,6 +400,7 @@ final class TestArgFileTests: XCTestCase {
                 buildArtifacts: buildArtifacts(additionalApplicationBundles: []),
                 environment: [:],
                 numberOfRetries: 42,
+                scheduleStrategy: .unsplit,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testType: .uiTest,
                 toolchainConfiguration: ToolchainConfiguration(developerDir: .current)

@@ -117,7 +117,8 @@ let package = Package(
                 "BalancingBucketQueue",
                 "BucketQueueTestHelpers",
                 "ResultsCollector",
-                "UniqueIdentifierGenerator"
+                "UniqueIdentifierGenerator",
+                "WorkerAlivenessTracker",
             ]
         ),
         .target(
