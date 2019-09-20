@@ -10,7 +10,7 @@ let package = Package(
             // MARK: Emcee
             name: "Emcee",
             targets: [
-                "EmceeBinary"
+                "EmceeBinary",
             ]
         ),
         .library(
@@ -19,7 +19,15 @@ let package = Package(
             targets: [
                 "Models",
                 "Logging",
-                "Plugin"
+                "Plugin",
+            ]
+        ),
+        .library(
+            // MARK: EmceeInterfaces
+            name: "EmceeInterfaces",
+            targets: [
+                "Models",
+                "RuntimeDump",
             ]
         ),
         .executable(
