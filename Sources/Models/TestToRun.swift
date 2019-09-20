@@ -1,7 +1,7 @@
 import Foundation
 
 /// An information about test that is requested and expected to be run.
-public enum TestToRun: Decodable, CustomStringConvertible, Hashable {
+public enum TestToRun: Codable, CustomStringConvertible, Hashable {
     
     /// A single test described by string in format: `ClassName/testMethod`
     case testName(TestName)
@@ -31,11 +31,24 @@ public enum TestToRun: Decodable, CustomStringConvertible, Hashable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let predicateType = try container.decode(PredicateType.self, forKey: .predicateType)
+        
         switch predicateType {
         case .allProvidedByRuntimeDump:
             self = .allProvidedByRuntimeDump
         case .singleTestName:
             self = .testName(try container.decode(TestName.self, forKey: .testName))
+        }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        switch self {
+        case .allProvidedByRuntimeDump:
+            try container.encode(PredicateType.allProvidedByRuntimeDump, forKey: .predicateType)
+        case .testName(let testName):
+            try container.encode(PredicateType.singleTestName, forKey: .predicateType)
+            try container.encode(testName, forKey: .testName)
         }
     }
 }

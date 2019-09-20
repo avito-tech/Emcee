@@ -1,8 +1,8 @@
 import Foundation
 
 /// Represents --test-arg-file file contents which describes all tests that should be ran.
-public struct TestArgFile: Decodable {
-    public struct Entry: Decodable, Equatable {
+public struct TestArgFile: Codable {
+    public struct Entry: Codable, Equatable {
         public let testsToRun: [TestToRun]
         public let buildArtifacts: BuildArtifacts
         public let environment: [String: String]
@@ -54,6 +54,18 @@ public struct TestArgFile: Decodable {
             testDestination = try container.decode(TestDestination.self, forKey: .testDestination)
             testType = try container.decodeIfPresent(TestType.self, forKey: .testType) ?? .uiTest
             toolchainConfiguration = try container.decode(ToolchainConfiguration.self, forKey: .toolchainConfiguration)
+        }
+        
+        public func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            
+            try container.encode(testsToRun, forKey: .testsToRun)
+            try container.encode(buildArtifacts, forKey: .buildArtifacts)
+            try container.encode(environment, forKey: .environment)
+            try container.encode(numberOfRetries, forKey: .numberOfRetries)
+            try container.encode(testDestination, forKey: .testDestination)
+            try container.encode(testType, forKey: .testType)
+            try container.encode(toolchainConfiguration, forKey: .toolchainConfiguration)
         }
     }
     
