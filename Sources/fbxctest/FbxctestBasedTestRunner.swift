@@ -26,6 +26,36 @@ public final class FbxctestBasedTestRunner: TestRunner {
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
         testType: TestType
+    ) -> StandardStreamsCaptureConfig {
+        do {
+            return try standardStreamsCaptureConfigOfFbxctestProcess(
+                buildArtifacts: buildArtifacts,
+                entriesToRun: entriesToRun,
+                maximumAllowedSilenceDuration: maximumAllowedSilenceDuration,
+                simulatorSettings: simulatorSettings,
+                singleTestMaximumDuration: singleTestMaximumDuration,
+                testContext: testContext,
+                testRunnerStream: testRunnerStream,
+                testType: testType
+            )
+        } catch {
+            return reportFailureToStartFbxctest(
+                error: error,
+                entriesToRun: entriesToRun,
+                testRunnerStream: testRunnerStream
+            )
+        }
+    }
+    
+    private func standardStreamsCaptureConfigOfFbxctestProcess(
+        buildArtifacts: BuildArtifacts,
+        entriesToRun: [TestEntry],
+        maximumAllowedSilenceDuration: TimeInterval,
+        simulatorSettings: SimulatorSettings,
+        singleTestMaximumDuration: TimeInterval,
+        testContext: TestContext,
+        testRunnerStream: TestRunnerStream,
+        testType: TestType
     ) throws -> StandardStreamsCaptureConfig {
         let fbxctestOutputProcessor = try FbxctestOutputProcessor(
             subprocess: Subprocess(
@@ -50,6 +80,28 @@ public final class FbxctestBasedTestRunner: TestRunner {
         )
         fbxctestOutputProcessor.processOutputAndWaitForProcessTermination()
         return fbxctestOutputProcessor.subprocess.standardStreamsCaptureConfig
+    }
+    
+    private func reportFailureToStartFbxctest(
+        error: Error,
+        entriesToRun: [TestEntry],
+        testRunnerStream: TestRunnerStream
+    ) -> StandardStreamsCaptureConfig {
+        for testEntry in entriesToRun {
+            testRunnerStream.testStarted(testName: testEntry.testName)
+            testRunnerStream.testStopped(
+                testStoppedEvent: TestStoppedEvent(
+                    testName: testEntry.testName,
+                    result: .lost,
+                    testDuration: 0,
+                    testExceptions: [
+                        TestException(reason: "Failed to execute fbxctest: \(error)", filePathInProject: #file, lineNumber: #line)
+                    ],
+                    testStartTimestamp: Date().timeIntervalSince1970
+                )
+            )
+        }
+        return StandardStreamsCaptureConfig(stdoutContentsFile: nil, stderrContentsFile: nil, stdinContentsFile: nil)
     }
     
     private func fbxctestArguments(

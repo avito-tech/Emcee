@@ -64,7 +64,7 @@ public final class FakeTestRunner: TestRunner {
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
         testType: TestType
-    ) throws -> StandardStreamsCaptureConfig {
+    ) -> StandardStreamsCaptureConfig {
         self.buildArtifacts = buildArtifacts
         self.entriesToRun = entriesToRun
         self.maximumAllowedSilenceDuration = maximumAllowedSilenceDuration

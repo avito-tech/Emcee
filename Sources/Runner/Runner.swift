@@ -123,7 +123,7 @@ public final class Runner {
 
         let testRunner = try testRunnerProvider.testRunner(testRunnerTool: configuration.testRunnerTool)
 
-        let standardStreamsCaptureConfig = try testRunner.run(
+        let standardStreamsCaptureConfig = testRunner.run(
             buildArtifacts: configuration.buildArtifacts,
             entriesToRun: entriesToRun,
             maximumAllowedSilenceDuration: configuration.maximumAllowedSilenceDuration,

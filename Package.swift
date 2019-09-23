@@ -387,6 +387,16 @@ let package = Package(
                 "Timer"
             ]
         ),
+        .testTarget(
+            // MARK: fbxctestTests
+            name: "fbxctestTests",
+            dependencies: [
+                "Models",
+                "ModelsTestHelpers",
+                "Runner",
+                "fbxctest",
+            ]
+        ),
         .target(
             // MARK: FileCache
             name: "FileCache",

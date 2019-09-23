@@ -12,6 +12,6 @@ public protocol TestRunner {
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
         testType: TestType
-    ) throws -> StandardStreamsCaptureConfig
+    ) -> StandardStreamsCaptureConfig
 }
 
