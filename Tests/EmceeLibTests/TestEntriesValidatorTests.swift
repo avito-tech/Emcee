@@ -17,7 +17,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         XCTAssertNil(querierConfiguration!.applicationTestSupport)
         XCTAssertEqual(querierConfiguration!.testRunnerTool, validatorConfiguration.testRunnerTool)
         XCTAssertEqual(querierConfiguration!.xcTestBundle, validatorConfiguration.testArgFileEntries[0].buildArtifacts.xcTestBundle)
-        XCTAssertEqual(querierConfiguration!.testDestination, validatorConfiguration.testDestination)
+        XCTAssertEqual(querierConfiguration!.testDestination, validatorConfiguration.testArgFileEntries[0].testDestination)
         XCTAssertEqual(querierConfiguration!.testsToValidate.count, validatorConfiguration.testArgFileEntries.count)
     }
 
@@ -98,7 +98,6 @@ final class TestEntriesValidatorTests: XCTestCase {
     ) throws -> TestEntriesValidatorConfiguration {
         return TestEntriesValidatorConfiguration(
             simulatorControlTool: simulatorControlTool,
-            testDestination: TestDestinationFixtures.testDestination,
             testArgFileEntries: testArgFileEntries,
             testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool
         )

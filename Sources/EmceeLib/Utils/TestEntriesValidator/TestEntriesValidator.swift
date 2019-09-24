@@ -60,7 +60,7 @@ public final class TestEntriesValidator {
             testRunnerTool: validatorConfiguration.testRunnerTool,
             xcTestBundle: testArgFileEntry.buildArtifacts.xcTestBundle,
             applicationTestSupport: runtimeDumpApplicationTestSupport,
-            testDestination: validatorConfiguration.testDestination,
+            testDestination: testArgFileEntry.testDestination,
             testsToValidate: testArgFileEntry.testsToRun,
             developerDir: testArgFileEntry.toolchainConfiguration.developerDir
         )

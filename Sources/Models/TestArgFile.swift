@@ -58,10 +58,16 @@ public struct TestArgFile: Decodable {
     }
     
     public let entries: [Entry]
+    public let priority: Priority
+    public let testDestinationConfigurations: [TestDestinationConfiguration]
     
     public init(
-        entries: [Entry]
+        entries: [Entry],
+        priority: Priority,
+        testDestinationConfigurations: [TestDestinationConfiguration]
     ) {
         self.entries = entries
+        self.priority = priority
+        self.testDestinationConfigurations = testDestinationConfigurations
     }
 }

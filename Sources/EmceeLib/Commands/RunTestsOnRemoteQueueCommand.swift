@@ -29,13 +29,11 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         ArgumentDescriptions.fbsimctl.asRequired,
         ArgumentDescriptions.fbxctest.asRequired,
         ArgumentDescriptions.junit.asOptional,
-        ArgumentDescriptions.priority.asRequired,
         ArgumentDescriptions.queueServerDestination.asRequired,
         ArgumentDescriptions.queueServerRunConfigurationLocation.asRequired,
         ArgumentDescriptions.runId.asRequired,
         ArgumentDescriptions.tempFolder.asRequired,
         ArgumentDescriptions.testArgFile.asRequired,
-        ArgumentDescriptions.testDestinations.asRequired,
         ArgumentDescriptions.trace.asOptional
     ]
     
@@ -61,8 +59,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         let simulatorControlTool: SimulatorControlTool = SimulatorControlTool.fbsimctl(
             try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.fbsimctl.name)
         )
-
-        let priority: Priority = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.priority.name)
         
         let queueServerDestination = try ArgumentsReader.deploymentDestinations(
             try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerDestination.name)
@@ -74,8 +70,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         let tempFolder = try TemporaryFolder(containerPath: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.tempFolder.name))
         let testArgFile = try ArgumentsReader.testArgFile(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testArgFile.name))
         
-        let testDestinationConfigurations = try ArgumentsReader.testDestinations(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testDestinations.name))
-        
         let runningQueueServerAddress = try detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
             queueServerDestination: queueServerDestination,
             queueServerRunConfigurationLocation: queueServerRunConfigurationLocation,
@@ -86,17 +80,15 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             eventBus: eventBus,
             testRunnerTool: testRunnerTool,
             simulatorControlTool: simulatorControlTool,
-            priority: priority,
             queueServerAddress: runningQueueServerAddress,
             runId: runId,
             tempFolder: tempFolder,
-            testArgFile: testArgFile,
-            testDestinationConfigurations: testDestinationConfigurations
+            testArgFile: testArgFile
         )
         let resultOutputGenerator = ResultingOutputGenerator(
             testingResults: jobResults.testingResults,
             commonReportOutput: commonReportOutput,
-            testDestinationConfigurations: testDestinationConfigurations
+            testDestinationConfigurations: testArgFile.testDestinationConfigurations
         )
         try resultOutputGenerator.generateOutput()
     }
@@ -154,16 +146,13 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         eventBus: EventBus,
         testRunnerTool: TestRunnerTool,
         simulatorControlTool: SimulatorControlTool?,
-        priority: Priority,
         queueServerAddress: SocketAddress,
         runId: JobId,
         tempFolder: TemporaryFolder,
-        testArgFile: TestArgFile,
-        testDestinationConfigurations: [TestDestinationConfiguration]
+        testArgFile: TestArgFile
     ) throws -> JobResults {
         let validatorConfiguration = TestEntriesValidatorConfiguration(
             simulatorControlTool: simulatorControlTool,
-            testDestination: testDestinationConfigurations.elementAtIndex(0, "First test destination").testDestination,
             testArgFileEntries: testArgFile.entries,
             testRunnerTool: testRunnerTool
         )
@@ -209,7 +198,10 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             
             do {
                 _ = try queueClient.scheduleTests(
-                    prioritizedJob: PrioritizedJob(jobId: runId, priority: priority),
+                    prioritizedJob: PrioritizedJob(
+                        jobId: runId,
+                        priority: testArgFile.priority
+                    ),
                     scheduleStrategy: testArgFileEntry.scheduleStrategy,
                     testEntryConfigurations: testEntryConfigurations,
                     requestId: RequestId(value: runId.value + "_" + UUID().uuidString)

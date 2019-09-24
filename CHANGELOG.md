@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2019-09-24
+
+### Changed
+
+- Test arg file is now expected to have `priority` and `testDestinationConfigurations` top level fields. This substitues now removed `--priority` and `--test-destinations` arguments from `runTestsOnRemoteQueue` command. Emcee will now use correct test destination for a corresponding test arg file entry when performing a runtime dump instead of using a first test destination from the `--test-destination` file.
+
 ## 2019-09-23
 
 ### Changed
