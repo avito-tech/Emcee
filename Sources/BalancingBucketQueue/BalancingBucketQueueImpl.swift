@@ -117,7 +117,11 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
                 switch dequeueResult {
                 case .dequeuedBucket:
                     return dequeueResult
-                case .queueIsEmpty, .checkAgainLater, .workerIsNotAlive, .workerIsBlocked:
+                case .workerIsBlocked:
+                    return .workerIsBlocked
+                case .workerIsNotAlive:
+                    return .workerIsNotAlive
+                case .queueIsEmpty, .checkAgainLater:
                     dequeueResults.append(dequeueResult)
                 }
             }

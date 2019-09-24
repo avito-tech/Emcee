@@ -371,6 +371,36 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
     }
     
+    func test___dequeueing_by_silent_worker___when_buckets_enqueued___provides_silent_response() throws {
+        workerAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(
+            status: .silent(lastAlivenessResponseTimestamp: Date().addingTimeInterval(-100)),
+            bucketIdsBeingProcessed: []
+        )
+        
+        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
+        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        
+        XCTAssertEqual(
+            balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId),
+            DequeueResult.workerIsNotAlive
+        )
+    }
+    
+    func test___dequeueing_by_blocked_worker___when_buckets_enqueued___provides_blocked_response() throws {
+        workerAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(
+            status: .blocked,
+            bucketIdsBeingProcessed: []
+        )
+        
+        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
+        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        
+        XCTAssertEqual(
+            balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId),
+            DequeueResult.workerIsBlocked
+        )
+    }
+    
     let dateProvider = DateProviderFixture()
     let uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator()
     let workerAlivenessProvider = MutableWorkerAlivenessProvider()
