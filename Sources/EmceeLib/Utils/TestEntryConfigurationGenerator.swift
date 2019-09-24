@@ -5,39 +5,36 @@ import Models
 
 public final class TestEntryConfigurationGenerator {
     private let validatedEntries: [ValidatedTestEntry]
-    private let testArgEntries: [TestArgFile.Entry]
+    private let testArgFileEntry: TestArgFile.Entry
 
     public init(
         validatedEntries: [ValidatedTestEntry],
-        testArgEntries: [TestArgFile.Entry]
+        testArgFileEntry: TestArgFile.Entry
     ) {
         self.validatedEntries = validatedEntries
-        self.testArgEntries = testArgEntries
+        self.testArgFileEntry = testArgFileEntry
     }
     
     public func createTestEntryConfigurations() -> [TestEntryConfiguration] {
-        let testsToRun = testArgEntries.flatMap { $0.testsToRun }
-        Logger.debug("Preparing test entry configurations for \(testsToRun.count) tests: \(testsToRun)")
+        Logger.debug("Preparing test entry configurations for \(testArgFileEntry.testsToRun.count) tests: \(testArgFileEntry.testsToRun)")
         
-        let testArgFileEntryConfigurations = testArgEntries.flatMap { testArgFileEntry -> [TestEntryConfiguration] in
-            return testArgFileEntry.testsToRun.flatMap { testToRun -> [TestEntryConfiguration] in
-                let testEntries = testEntriesMatching(
+        let testArgFileEntryConfigurations = testArgFileEntry.testsToRun.flatMap { testToRun -> [TestEntryConfiguration] in
+            let testEntries = testEntriesMatching(
+                buildArtifacts: testArgFileEntry.buildArtifacts,
+                testToRun: testToRun
+            )
+            return testEntries.map { testEntry -> TestEntryConfiguration in
+                TestEntryConfiguration(
+                    testEntry: testEntry,
                     buildArtifacts: testArgFileEntry.buildArtifacts,
-                    testToRun: testToRun
+                    testDestination: testArgFileEntry.testDestination,
+                    testExecutionBehavior: TestExecutionBehavior(
+                        environment: testArgFileEntry.environment,
+                        numberOfRetries: testArgFileEntry.numberOfRetries
+                    ),
+                    testType: testArgFileEntry.testType,
+                    toolchainConfiguration: testArgFileEntry.toolchainConfiguration
                 )
-                return testEntries.map { testEntry -> TestEntryConfiguration in
-                    TestEntryConfiguration(
-                        testEntry: testEntry,
-                        buildArtifacts: testArgFileEntry.buildArtifacts,
-                        testDestination: testArgFileEntry.testDestination,
-                        testExecutionBehavior: TestExecutionBehavior(
-                            environment: testArgFileEntry.environment,
-                            numberOfRetries: testArgFileEntry.numberOfRetries
-                        ),
-                        testType: testArgFileEntry.testType,
-                        toolchainConfiguration: testArgFileEntry.toolchainConfiguration
-                    )
-                }
             }
         }
         return testArgFileEntryConfigurations

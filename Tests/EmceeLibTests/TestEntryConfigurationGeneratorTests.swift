@@ -35,48 +35,27 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
     func test() {
         let generator = TestEntryConfigurationGenerator(
             validatedEntries: validatedEntries,
-            testArgEntries: [
-                TestArgFile.Entry(
-                    testsToRun: [.testName(argFileTestToRun1)],
-                    buildArtifacts: buildArtifacts,
-                    environment: [:],
-                    numberOfRetries: 10,
-                    scheduleStrategy: .unsplit,
-                    testDestination: argFileDestination1,
-                    testType: .uiTest,
-                    toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
-                ),
-                TestArgFile.Entry(
-                    testsToRun: [.testName(argFileTestToRun2)],
-                    buildArtifacts: buildArtifacts,
-                    environment: [:],
-                    numberOfRetries: 20,
-                    scheduleStrategy: .unsplit,
-                    testDestination: argFileDestination2,
-                    testType: .appTest,
-                    toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
-                )
-            ]
+            testArgFileEntry: TestArgFile.Entry(
+                testsToRun: [.testName(argFileTestToRun1)],
+                buildArtifacts: buildArtifacts,
+                environment: [:],
+                numberOfRetries: 10,
+                scheduleStrategy: .unsplit,
+                testDestination: argFileDestination1,
+                testType: .uiTest,
+                toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
+            )
         )
         
         let configurations = generator.createTestEntryConfigurations()
         
-        let expectedConfigurations = [
-            TestEntryConfigurationFixtures()
-                .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1"))
-                .with(buildArtifacts: buildArtifacts)
-                .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
-                .with(testDestination: argFileDestination1)
-                .with(testType: .uiTest)
-                .testEntryConfigurations(),
-            TestEntryConfigurationFixtures()
-                .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test2"))
-                .with(buildArtifacts: buildArtifacts)
-                .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 20))
-                .with(testDestination: argFileDestination2)
-                .with(testType: .appTest)
-                .testEntryConfigurations()
-            ].flatMap { $0 }
+        let expectedConfigurations = TestEntryConfigurationFixtures()
+            .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1"))
+            .with(buildArtifacts: buildArtifacts)
+            .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
+            .with(testDestination: argFileDestination1)
+            .with(testType: .uiTest)
+            .testEntryConfigurations()
         
         XCTAssertEqual(Set(configurations), Set(expectedConfigurations))
     }
@@ -84,18 +63,16 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
     func test_repeated_items() {
         let generator = TestEntryConfigurationGenerator(
             validatedEntries: validatedEntries,
-            testArgEntries: [
-                TestArgFile.Entry(
-                    testsToRun: [.testName(argFileTestToRun1), .testName(argFileTestToRun1)],
-                    buildArtifacts: buildArtifacts,
-                    environment: [:],
-                    numberOfRetries: 10,
-                    scheduleStrategy: .unsplit,
-                    testDestination: argFileDestination1,
-                    testType: .uiTest,
-                    toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
-                )
-            ]
+            testArgFileEntry: TestArgFile.Entry(
+                testsToRun: [.testName(argFileTestToRun1), .testName(argFileTestToRun1)],
+                buildArtifacts: buildArtifacts,
+                environment: [:],
+                numberOfRetries: 10,
+                scheduleStrategy: .unsplit,
+                testDestination: argFileDestination1,
+                testType: .uiTest,
+                toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
+            )
         )
         
         let expectedTestEntryConfigurations =
@@ -116,18 +93,16 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
     func test__all_available_tests() {
         let generator = TestEntryConfigurationGenerator(
             validatedEntries: validatedEntries,
-            testArgEntries: [
-                TestArgFile.Entry(
-                    testsToRun: [.allProvidedByRuntimeDump],
-                    buildArtifacts: buildArtifacts,
-                    environment: [:],
-                    numberOfRetries: 10,
-                    scheduleStrategy: .unsplit,
-                    testDestination: argFileDestination1,
-                    testType: .uiTest,
-                    toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
-                )
-            ]
+            testArgFileEntry: TestArgFile.Entry(
+                testsToRun: [.allProvidedByRuntimeDump],
+                buildArtifacts: buildArtifacts,
+                environment: [:],
+                numberOfRetries: 10,
+                scheduleStrategy: .unsplit,
+                testDestination: argFileDestination1,
+                testType: .uiTest,
+                toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
+            )
         )
         
         let expectedConfigurations = [

@@ -191,7 +191,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         _ = try testEntriesValidator.validatedTestEntries { testArgFileEntry, validatedTestEntry in
             let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
                 validatedEntries: validatedTestEntry,
-                testArgEntries: testArgFile.entries
+                testArgFileEntry: testArgFileEntry
             )
             let testEntryConfigurations = testEntryConfigurationGenerator.createTestEntryConfigurations()
             Logger.info("Will schedule \(testEntryConfigurations.count) tests to queue server at \(queueServerAddress)")

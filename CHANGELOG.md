@@ -14,6 +14,8 @@ All notable changes to this project will be documented in this file.
 
 - Emcee now reports some errors occurred when attempting to run fbxctest tool as test failure in opposite to failing with a critical error. This applies to misconfiguration, e.g. if you do not pass a location of app bundle when attempting to run UI or application test.
 
+- Fixed a bug when after processing runtime dump, Emcee would schedule a redundant amount of tests to the queue.
+
 ## 2019-09-20
 
 ### Changed
