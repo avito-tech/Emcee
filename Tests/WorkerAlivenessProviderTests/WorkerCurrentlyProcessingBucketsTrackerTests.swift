@@ -1,5 +1,5 @@
 import Foundation
-import WorkerAlivenessTracker
+import WorkerAlivenessProvider
 import XCTest
 import Models
 

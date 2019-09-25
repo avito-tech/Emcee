@@ -1,7 +1,7 @@
 import DateProvider
 import Foundation
 import UniqueIdentifierGenerator
-import WorkerAlivenessTracker
+import WorkerAlivenessProvider
 
 public final class BucketQueueFactory {
     private let checkAgainTimeInterval: TimeInterval

@@ -17,8 +17,8 @@ import ResultsCollector
 import ScheduleStrategy
 import UniqueIdentifierGeneratorTestHelpers
 import Version
-import WorkerAlivenessTracker
-import WorkerAlivenessTrackerTestHelpers
+import WorkerAlivenessProvider
+import WorkerAlivenessProviderTestHelpers
 import XCTest
 import RequestSenderTestHelpers
 
@@ -48,7 +48,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     func test__RegisterWorkerHandler() throws {
         let workerRegistrar = WorkerRegistrar(
             workerConfigurations: workerConfigurations,
-            workerAlivenessTracker: WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults())
+            workerAlivenessProvider: WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults())
         
         restServer.setHandler(
             bucketResultHandler: stubbedHandler,
@@ -134,7 +134,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     }
     
     func test__ResultHandler() throws {
-        let alivenessTracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
+        let alivenessTracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
         let bucketQueue = FakeBucketQueue(throwsOnAccept: false)
         let testingResult = TestingResultFixtures()
             .with(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "m1"))
@@ -146,7 +146,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let resultHandler = BucketResultRegistrar(
             bucketResultAccepter: bucketQueue,
             expectedRequestSignature: expectedRequestSignature,
-            workerAlivenessTracker: alivenessTracker
+            workerAlivenessProvider: alivenessTracker
         )
         
         restServer.setHandler(
@@ -183,7 +183,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     }
     
     func test__ReportAliveHandler() throws {
-        let alivenessTracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
+        let alivenessTracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
         
         restServer.setHandler(
             bucketResultHandler: stubbedHandler,

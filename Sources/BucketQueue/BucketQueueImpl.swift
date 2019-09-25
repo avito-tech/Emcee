@@ -4,7 +4,7 @@ import Foundation
 import Logging
 import Models
 import UniqueIdentifierGenerator
-import WorkerAlivenessTracker
+import WorkerAlivenessProvider
 
 final class BucketQueueImpl: BucketQueue {
     private let dateProvider: DateProvider

@@ -4,8 +4,8 @@ import Foundation
 import Logging
 import Models
 
-public final class WorkerAlivenessTracker: WorkerAlivenessProvider {
-    private let syncQueue = DispatchQueue(label: "ru.avito.emcee.WorkerAlivenessTracker.syncQueue")
+public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
+    private let syncQueue = DispatchQueue(label: "ru.avito.emcee.workerAlivenessProvider.syncQueue")
     private let dateProvider: DateProvider
     private var workerAliveReportTimestamps = [WorkerId: Date]()
     private let workerBucketIdsBeingProcessed = WorkerCurrentlyProcessingBucketsTracker()

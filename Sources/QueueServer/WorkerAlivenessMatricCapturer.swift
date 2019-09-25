@@ -2,23 +2,23 @@ import Foundation
 import Metrics
 import Models
 import Timer
-import WorkerAlivenessTracker
+import WorkerAlivenessProvider
 
 public final class WorkerAlivenessMatricCapturer {
     private let timer: DispatchBasedTimer
-    private let workerAlivenessTracker: WorkerAlivenessTracker
+    private let workerAlivenessProvider: WorkerAlivenessProvider
 
     public init(
         reportInterval: DispatchTimeInterval,
-        workerAlivenessTracker: WorkerAlivenessTracker
+        workerAlivenessProvider: WorkerAlivenessProvider
     ) {
         self.timer = DispatchBasedTimer(repeating: reportInterval, leeway: .seconds(1))
-        self.workerAlivenessTracker = workerAlivenessTracker
+        self.workerAlivenessProvider = workerAlivenessProvider
     }
     
     public func start() {
-        timer.start { [weak workerAlivenessTracker] timer in
-            guard let aliveness = workerAlivenessTracker?.workerAliveness else {
+        timer.start { [weak workerAlivenessProvider] timer in
+            guard let aliveness = workerAlivenessProvider?.workerAliveness else {
                 return timer.stop()
             }
             WorkerAlivenessMatricCapturer.captureMetrics(aliveness: aliveness)

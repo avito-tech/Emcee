@@ -9,6 +9,9 @@ public protocol WorkerAlivenessProvider: class {
     
     func set(bucketIdsBeingProcessed: Set<BucketId>, workerId: WorkerId)
     func didDequeueBucket(bucketId: BucketId, workerId: WorkerId)
+    
+    func didRegisterWorker(workerId: WorkerId)
+    func blockWorker(workerId: WorkerId) 
 }
 
 public extension WorkerAlivenessProvider {

@@ -1,17 +1,21 @@
 import Foundation
-import WorkerAlivenessTracker
+import WorkerAlivenessProvider
 import Models
 
 public final class MutableWorkerAlivenessProvider: WorkerAlivenessProvider {
-    public func markWorkerAsAlive(workerId: WorkerId) {
-        
-    }
-    
     public func set(bucketIdsBeingProcessed: Set<BucketId>, workerId: WorkerId) {
         
     }
     
     public func didDequeueBucket(bucketId: BucketId, workerId: WorkerId) {
+        
+    }
+    
+    public func blockWorker(workerId: WorkerId) {
+        
+    }
+    
+    public func didRegisterWorker(workerId: WorkerId) {
         
     }
     

@@ -6,8 +6,8 @@ import Models
 import ModelsTestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
-import WorkerAlivenessTracker
-import WorkerAlivenessTrackerTestHelpers
+import WorkerAlivenessProvider
+import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class BucketQueueRetryTests: XCTestCase {
@@ -163,7 +163,7 @@ final class BucketQueueRetryTests: XCTestCase {
     private let dateProvider = DateProviderFixture()
     
     private func bucketQueue(workerIds: [WorkerId]) -> BucketQueue {
-        let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
+        let tracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
         workerIds.forEach(tracker.didRegisterWorker)
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(

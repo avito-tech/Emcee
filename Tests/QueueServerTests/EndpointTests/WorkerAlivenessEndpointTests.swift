@@ -3,8 +3,8 @@ import Foundation
 import Models
 import QueueServer
 import RESTMethods
-import WorkerAlivenessTracker
-import WorkerAlivenessTrackerTestHelpers
+import WorkerAlivenessProvider
+import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class WorkerAlivenessEndpointTests: XCTestCase {
@@ -12,7 +12,7 @@ final class WorkerAlivenessEndpointTests: XCTestCase {
     let fixedDate = Date()
 
     func test___handling_requests() {
-        let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
+        let tracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
         let endpoint = WorkerAlivenessEndpoint(
             workerAlivenessProvider: tracker,
             expectedRequestSignature: expectedRequestSignature
@@ -30,7 +30,7 @@ final class WorkerAlivenessEndpointTests: XCTestCase {
     }
     
     func test___worker_is_silent_when_it_does_not_report_within_allowed_timeframe() {
-        let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithImmediateTimeout(
+        let tracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithImmediateTimeout(
             dateProvider: DateProviderFixture(fixedDate)
         )
         let endpoint = WorkerAlivenessEndpoint(
@@ -54,7 +54,7 @@ final class WorkerAlivenessEndpointTests: XCTestCase {
     }
     
     func test___handling_requests___sets_buckets_being_processed() {
-        let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
+        let tracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
         let endpoint = WorkerAlivenessEndpoint(
             workerAlivenessProvider: tracker,
             expectedRequestSignature: expectedRequestSignature
@@ -75,7 +75,7 @@ final class WorkerAlivenessEndpointTests: XCTestCase {
     }
 
     func test___throws___when_request_signature_mismatches() {
-        let tracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
+        let tracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
         let endpoint = WorkerAlivenessEndpoint(
             workerAlivenessProvider: tracker,
             expectedRequestSignature: expectedRequestSignature

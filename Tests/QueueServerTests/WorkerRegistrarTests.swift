@@ -3,12 +3,12 @@ import Models
 import ModelsTestHelpers
 import QueueServer
 import RESTMethods
-import WorkerAlivenessTracker
-import WorkerAlivenessTrackerTestHelpers
+import WorkerAlivenessProvider
+import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class WorkerRegistrarTests: XCTestCase {
-    let alivenessTracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
+    let alivenessTracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
     let workerConfigurations = WorkerConfigurations()
     let workerId: WorkerId = "worker_id"
     
@@ -18,7 +18,7 @@ final class WorkerRegistrarTests: XCTestCase {
     }
     
     private func createRegistrar() -> WorkerRegistrar {
-        return WorkerRegistrar(workerConfigurations: workerConfigurations, workerAlivenessTracker: alivenessTracker)
+        return WorkerRegistrar(workerConfigurations: workerConfigurations, workerAlivenessProvider: alivenessTracker)
     }
     
     func test_registration_for_known_worker() throws {

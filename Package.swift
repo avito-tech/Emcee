@@ -118,7 +118,7 @@ let package = Package(
                 "BucketQueueTestHelpers",
                 "ResultsCollector",
                 "UniqueIdentifierGenerator",
-                "WorkerAlivenessTracker",
+                "WorkerAlivenessProvider",
             ]
         ),
         .target(
@@ -129,7 +129,7 @@ let package = Package(
                 "Logging",
                 "Models",
                 "UniqueIdentifierGenerator",
-                "WorkerAlivenessTracker"
+                "WorkerAlivenessProvider"
             ]
         ),
         .target(
@@ -142,7 +142,7 @@ let package = Package(
                 "ModelsTestHelpers",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
-                "WorkerAlivenessTracker"
+                "WorkerAlivenessProvider"
             ],
             path: "Tests/BucketQueueTestHelpers"
         ),
@@ -156,7 +156,7 @@ let package = Package(
                 "ModelsTestHelpers",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
-                "WorkerAlivenessTrackerTestHelpers"
+                "WorkerAlivenessProviderTestHelpers"
             ]
         ),
         .target(
@@ -740,7 +740,7 @@ let package = Package(
                 "Timer",
                 "UniqueIdentifierGenerator",
                 "Version",
-                "WorkerAlivenessTracker"
+                "WorkerAlivenessProvider"
             ]
         ),
         .target(
@@ -779,8 +779,8 @@ let package = Package(
                 "TestHelpers",
                 "UniqueIdentifierGeneratorTestHelpers",
                 "VersionTestHelpers",
-                "WorkerAlivenessTracker",
-                "WorkerAlivenessTrackerTestHelpers"
+                "WorkerAlivenessProvider",
+                "WorkerAlivenessProviderTestHelpers"
             ]
         ),
         .target(
@@ -1260,8 +1260,8 @@ let package = Package(
             ]
         ),
         .target(
-            // MARK: WorkerAlivenessTracker
-            name: "WorkerAlivenessTracker",
+            // MARK: WorkerAlivenessProvider
+            name: "WorkerAlivenessProvider",
             dependencies: [
                 "DateProvider",
                 "Logging",
@@ -1269,21 +1269,21 @@ let package = Package(
             ]
         ),
         .target(
-            // MARK: WorkerAlivenessTrackerTestHelpers
-            name: "WorkerAlivenessTrackerTestHelpers",
+            // MARK: WorkerAlivenessProviderTestHelpers
+            name: "WorkerAlivenessProviderTestHelpers",
             dependencies: [
                 "DateProvider",
                 "DateProviderTestHelpers",
-                "WorkerAlivenessTracker"
+                "WorkerAlivenessProvider"
             ],
-            path: "Tests/WorkerAlivenessTrackerTestHelpers"
+            path: "Tests/WorkerAlivenessProviderTestHelpers"
         ),
         .testTarget(
-            // MARK: WorkerAlivenessTrackerTests
-            name: "WorkerAlivenessTrackerTests",
+            // MARK: WorkerAlivenessProviderTests
+            name: "WorkerAlivenessProviderTests",
             dependencies: [
-                "WorkerAlivenessTracker",
-                "WorkerAlivenessTrackerTestHelpers"
+                "WorkerAlivenessProvider",
+                "WorkerAlivenessProviderTestHelpers"
             ]
         ),
         .target(

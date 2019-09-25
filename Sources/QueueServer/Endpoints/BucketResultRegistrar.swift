@@ -3,7 +3,7 @@ import Foundation
 import Models
 import RESTMethods
 import RESTServer
-import WorkerAlivenessTracker
+import WorkerAlivenessProvider
 
 public final class BucketResultRegistrar: RequestSignatureVerifyingRESTEndpoint {
     public typealias DecodedObjectType = PushBucketResultRequest
@@ -11,16 +11,16 @@ public final class BucketResultRegistrar: RequestSignatureVerifyingRESTEndpoint 
 
     private let bucketResultAccepter: BucketResultAccepter
     public let expectedRequestSignature: RequestSignature
-    private let workerAlivenessTracker: WorkerAlivenessTracker
+    private let workerAlivenessProvider: WorkerAlivenessProvider
 
     public init(
         bucketResultAccepter: BucketResultAccepter,
         expectedRequestSignature: RequestSignature,
-        workerAlivenessTracker: WorkerAlivenessTracker
+        workerAlivenessProvider: WorkerAlivenessProvider
     ) {
         self.bucketResultAccepter = bucketResultAccepter
         self.expectedRequestSignature = expectedRequestSignature
-        self.workerAlivenessTracker = workerAlivenessTracker
+        self.workerAlivenessProvider = workerAlivenessProvider
     }
 
     public func handle(verifiedRequest: PushBucketResultRequest) throws -> BucketResultAcceptResponse {
@@ -32,7 +32,7 @@ public final class BucketResultRegistrar: RequestSignatureVerifyingRESTEndpoint 
             )
             return .bucketResultAccepted(bucketId: acceptResult.dequeuedBucket.enqueuedBucket.bucket.bucketId)
         } catch {
-            workerAlivenessTracker.blockWorker(workerId: verifiedRequest.workerId)
+            workerAlivenessProvider.blockWorker(workerId: verifiedRequest.workerId)
             throw error
         }
     }

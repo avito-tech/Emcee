@@ -7,8 +7,8 @@ import Models
 import ModelsTestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
-import WorkerAlivenessTracker
-import WorkerAlivenessTrackerTestHelpers
+import WorkerAlivenessProvider
+import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class BalancingBucketQueueTests: XCTestCase {

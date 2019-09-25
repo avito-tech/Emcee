@@ -15,7 +15,7 @@ import Swifter
 import SynchronousWaiter
 import UniqueIdentifierGenerator
 import Version
-import WorkerAlivenessTracker
+import WorkerAlivenessProvider
 
 public final class QueueServerImpl: QueueServer {
     private let balancingBucketQueue: BalancingBucketQueue
@@ -31,7 +31,7 @@ public final class QueueServerImpl: QueueServer {
     private let testsEnqueuer: TestsEnqueuer
     private let workerAlivenessEndpoint: WorkerAlivenessEndpoint
     private let workerAlivenessMatricCapturer: WorkerAlivenessMatricCapturer
-    private let workerAlivenessTracker: WorkerAlivenessTracker
+    private let workerAlivenessProvider: WorkerAlivenessProvider
     private let workerRegistrar: WorkerRegistrar
     
     public init(
@@ -49,7 +49,7 @@ public final class QueueServerImpl: QueueServer {
         requestSignature: RequestSignature,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
-        self.workerAlivenessTracker = WorkerAlivenessTracker(
+        self.workerAlivenessProvider = WorkerAlivenessProviderImpl(
             dateProvider: dateProvider,
             reportAliveInterval: reportAliveInterval,
             additionalTimeToPerformWorkerIsAliveReport: 10.0
@@ -63,7 +63,7 @@ public final class QueueServerImpl: QueueServer {
                     uniqueIdentifierGenerator: uniqueIdentifierGenerator
                 ),
                 uniqueIdentifierGenerator: uniqueIdentifierGenerator,
-                workerAlivenessProvider: workerAlivenessTracker
+                workerAlivenessProvider: workerAlivenessProvider
             ),
             nothingToDequeueBehavior: workerAlivenessPolicy.nothingToDequeueBehavior(
                 checkLaterInterval: checkAgainTimeInterval
@@ -85,12 +85,12 @@ public final class QueueServerImpl: QueueServer {
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         self.workerAlivenessEndpoint = WorkerAlivenessEndpoint(
-            workerAlivenessProvider: workerAlivenessTracker,
+            workerAlivenessProvider: workerAlivenessProvider,
             expectedRequestSignature: requestSignature
         )
         self.workerRegistrar = WorkerRegistrar(
             workerConfigurations: workerConfigurations,
-            workerAlivenessTracker: workerAlivenessTracker
+            workerAlivenessProvider: workerAlivenessProvider
         )
         self.stuckBucketsPoller = StuckBucketsPoller(
             statefulStuckBucketsReenqueuer: balancingBucketQueue
@@ -111,7 +111,7 @@ public final class QueueServerImpl: QueueServer {
                 queueStateProvider: balancingBucketQueue
             ),
             expectedRequestSignature: requestSignature,
-            workerAlivenessTracker: workerAlivenessTracker
+            workerAlivenessProvider: workerAlivenessProvider
         )
         self.queueServerVersionHandler = QueueServerVersionEndpoint(
             queueServerLock: queueServerLock,
@@ -128,7 +128,7 @@ public final class QueueServerImpl: QueueServer {
         )
         self.workerAlivenessMatricCapturer = WorkerAlivenessMatricCapturer(
             reportInterval: .seconds(30),
-            workerAlivenessTracker: workerAlivenessTracker
+            workerAlivenessProvider: workerAlivenessProvider
         )
     }
     
@@ -170,7 +170,7 @@ public final class QueueServerImpl: QueueServer {
     }
     
     public var hasAnyAliveWorker: Bool {
-        return workerAlivenessTracker.hasAnyAliveWorker
+        return workerAlivenessProvider.hasAnyAliveWorker
     }
     
     public var ongoingJobIds: Set<JobId> {

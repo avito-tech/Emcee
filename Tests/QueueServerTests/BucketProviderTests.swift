@@ -5,8 +5,8 @@ import Models
 import ModelsTestHelpers
 import QueueServer
 import RESTMethods
-import WorkerAlivenessTracker
-import WorkerAlivenessTrackerTestHelpers
+import WorkerAlivenessProvider
+import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class BucketProviderTests: XCTestCase {
@@ -16,7 +16,7 @@ final class BucketProviderTests: XCTestCase {
         requestId: "request",
         requestSignature: expectedRequestSignature
     )
-    let alivenessTracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
+    let alivenessTracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
     
     func test___reponse_is_empty_queue___if_queue_is_empty() throws {
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: .queueIsEmpty)

@@ -6,8 +6,8 @@ import Models
 import ModelsTestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
-import WorkerAlivenessTracker
-import WorkerAlivenessTrackerTestHelpers
+import WorkerAlivenessProvider
+import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class BucketQueueTests: XCTestCase {
@@ -15,8 +15,8 @@ final class BucketQueueTests: XCTestCase {
     
     let workerId: WorkerId = "worker_id"
     let requestId: RequestId = "request_id"
-    let alivenessTrackerWithImmediateTimeout = WorkerAlivenessTrackerFixtures.alivenessTrackerWithImmediateTimeout()
-    let alivenessTrackerWithAlwaysAliveResults = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
+    let alivenessTrackerWithImmediateTimeout = WorkerAlivenessProviderFixtures.alivenessTrackerWithImmediateTimeout()
+    let alivenessTrackerWithAlwaysAliveResults = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
     let mutableAlivenessProvider = MutableWorkerAlivenessProvider()
     let dateProvider = DateProviderFixture()
     let uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator()

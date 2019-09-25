@@ -4,11 +4,11 @@ import Logging
 import Models
 import RESTMethods
 import RESTServer
-import WorkerAlivenessTracker
+import WorkerAlivenessProvider
 
 public final class WorkerRegistrar: RESTEndpoint {
     private let workerConfigurations: WorkerConfigurations
-    private let workerAlivenessTracker: WorkerAlivenessTracker
+    private let workerAlivenessProvider: WorkerAlivenessProvider
     
     public enum WorkerRegistrarError: Swift.Error, CustomStringConvertible {
         case missingWorkerConfiguration(workerId: WorkerId)
@@ -23,9 +23,9 @@ public final class WorkerRegistrar: RESTEndpoint {
         }
     }
     
-    public init(workerConfigurations: WorkerConfigurations, workerAlivenessTracker: WorkerAlivenessTracker) {
+    public init(workerConfigurations: WorkerConfigurations, workerAlivenessProvider: WorkerAlivenessProvider) {
         self.workerConfigurations = workerConfigurations
-        self.workerAlivenessTracker = workerAlivenessTracker
+        self.workerAlivenessProvider = workerAlivenessProvider
     }
     
     public func handle(decodedRequest: RegisterWorkerRequest) throws -> RegisterWorkerResponse {
@@ -33,11 +33,11 @@ public final class WorkerRegistrar: RESTEndpoint {
             throw WorkerRegistrarError.missingWorkerConfiguration(workerId: decodedRequest.workerId)
         }
         
-        let workerAliveness = workerAlivenessTracker.alivenessForWorker(workerId: decodedRequest.workerId)
+        let workerAliveness = workerAlivenessProvider.alivenessForWorker(workerId: decodedRequest.workerId)
         switch workerAliveness.status {
         case .notRegistered, .alive, .silent:
             Logger.debug("Registration request from worker with id: \(decodedRequest.workerId)")
-            workerAlivenessTracker.didRegisterWorker(workerId: decodedRequest.workerId)
+            workerAlivenessProvider.didRegisterWorker(workerId: decodedRequest.workerId)
             return .workerRegisterSuccess(workerConfiguration: workerConfiguration)
         case .blocked:
             throw WorkerRegistrarError.workerIsBlocked(workerId: decodedRequest.workerId)

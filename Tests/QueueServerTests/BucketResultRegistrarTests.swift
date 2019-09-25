@@ -6,7 +6,7 @@ import ModelsTestHelpers
 import QueueServer
 import RESTMethods
 import ResultsCollector
-import WorkerAlivenessTrackerTestHelpers
+import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class BucketResultRegistrarTests: XCTestCase {
@@ -23,7 +23,7 @@ final class BucketResultRegistrarTests: XCTestCase {
         let registrar = BucketResultRegistrar(
             bucketResultAccepter: bucketQueue,
             expectedRequestSignature: expectedRequestSignature,
-            workerAlivenessTracker: WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
+            workerAlivenessProvider: WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
         )
         
         let request = PushBucketResultRequest(
@@ -38,14 +38,14 @@ final class BucketResultRegistrarTests: XCTestCase {
     }
     
     func test___results_collector_stays_unmodified___if_bucket_queue_does_not_accept_results() {
-        let alivenessTracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
+        let alivenessTracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
         alivenessTracker.didRegisterWorker(workerId: "worker")
         let bucketQueue = FakeBucketQueue(throwsOnAccept: true)
         
         let registrar = BucketResultRegistrar(
             bucketResultAccepter: bucketQueue,
             expectedRequestSignature: expectedRequestSignature,
-            workerAlivenessTracker: alivenessTracker
+            workerAlivenessProvider: alivenessTracker
         )
         
         let request = PushBucketResultRequest(
@@ -60,14 +60,14 @@ final class BucketResultRegistrarTests: XCTestCase {
     }
 
     func test___throws___when_expected_request_signature_mismatch() {
-        let alivenessTracker = WorkerAlivenessTrackerFixtures.alivenessTrackerWithAlwaysAliveResults()
+        let alivenessTracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
         alivenessTracker.didRegisterWorker(workerId: "worker")
         let bucketQueue = FakeBucketQueue(throwsOnAccept: false)
 
         let registrar = BucketResultRegistrar(
             bucketResultAccepter: bucketQueue,
             expectedRequestSignature: expectedRequestSignature,
-            workerAlivenessTracker: alivenessTracker
+            workerAlivenessProvider: alivenessTracker
         )
 
         XCTAssertThrowsError(

@@ -5,7 +5,7 @@ import Foundation
 import UniqueIdentifierGenerator
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
-import WorkerAlivenessTracker
+import WorkerAlivenessProvider
 
 public final class BucketQueueFixtures {
     public static let fixedGeneratorValue = UUID().uuidString

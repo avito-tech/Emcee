@@ -3,7 +3,7 @@ import Foundation
 import Models
 import RESTMethods
 import RESTServer
-import WorkerAlivenessTracker
+import WorkerAlivenessProvider
 
 public final class WorkerAlivenessEndpoint: RequestSignatureVerifyingRESTEndpoint {
     public typealias DecodedObjectType = ReportAliveRequest

@@ -1,13 +1,13 @@
 import DateProvider
 import DateProviderTestHelpers
 import Foundation
-import WorkerAlivenessTracker
+import WorkerAlivenessProvider
 
-public final class WorkerAlivenessTrackerFixtures {
+public final class WorkerAlivenessProviderFixtures {
     public static func alivenessTrackerWithAlwaysAliveResults(
         dateProvider: DateProvider = DateProviderFixture()
-    ) -> WorkerAlivenessTracker {
-        return WorkerAlivenessTracker(
+    ) -> WorkerAlivenessProvider {
+        return WorkerAlivenessProviderImpl(
             dateProvider: dateProvider,
             reportAliveInterval: .infinity,
             additionalTimeToPerformWorkerIsAliveReport: .infinity
@@ -16,8 +16,8 @@ public final class WorkerAlivenessTrackerFixtures {
     
     public static func alivenessTrackerWithImmediateTimeout(
         dateProvider: DateProvider = DateProviderFixture()
-    ) -> WorkerAlivenessTracker {
-        return WorkerAlivenessTracker(
+    ) -> WorkerAlivenessProvider {
+        return WorkerAlivenessProviderImpl(
             dateProvider: dateProvider,
             reportAliveInterval: 0.0,
             additionalTimeToPerformWorkerIsAliveReport: 0.0
