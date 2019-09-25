@@ -63,6 +63,7 @@ public struct TestArgFile: Codable {
             try container.encode(buildArtifacts, forKey: .buildArtifacts)
             try container.encode(environment, forKey: .environment)
             try container.encode(numberOfRetries, forKey: .numberOfRetries)
+            try container.encode(scheduleStrategy, forKey: .scheduleStrategy)
             try container.encode(testDestination, forKey: .testDestination)
             try container.encode(testType, forKey: .testType)
             try container.encode(toolchainConfiguration, forKey: .toolchainConfiguration)
