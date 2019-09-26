@@ -8,7 +8,8 @@ import Version
 import XCTest
 
 final class QueueServerVersionFetcherTests: XCTestCase {
-    let version = Version(value: "version")
+    private let version = Version(value: "version")
+    private let callbackQueue = DispatchQueue(label: "callbackQueue")
     
     func test() throws {
         let requestSender = FakeRequestSender(
@@ -21,7 +22,9 @@ final class QueueServerVersionFetcherTests: XCTestCase {
         )
     
         let completionHandlerCalledExpectation = expectation(description: "Completion handler has been called")
-        try fetcher.fetchQueueServerVersion { (result: Either<Version, RequestSenderError>) in
+        try fetcher.fetchQueueServerVersion(
+            callbackQueue: callbackQueue
+        ) { (result: Either<Version, RequestSenderError>) in
             XCTAssertEqual(
                 try? result.dematerialize(),
                 self.version

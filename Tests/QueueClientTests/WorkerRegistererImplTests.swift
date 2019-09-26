@@ -9,6 +9,8 @@ import ModelsTestHelpers
 
 final class WorkerRegistererImplTests: XCTestCase {
     private let workerId = WorkerId(value: "workerId")
+    private let callbackQueue = DispatchQueue(label: "callbackQueue")
+    
     
     func test() throws {
         let workerConfiguration = WorkerConfigurationFixtures.workerConfiguration
@@ -24,18 +26,21 @@ final class WorkerRegistererImplTests: XCTestCase {
         
         var result: Either<WorkerConfiguration, RequestSenderError>?
         
-        try workerRegisterer.registerWithServer(workerId: workerId) { localResult in
+        try workerRegisterer.registerWithServer(
+            workerId: workerId,
+            callbackQueue: callbackQueue
+        ) { localResult in
             result = localResult
             expectation.fulfill()
         }
+        
+        wait(for: [expectation], timeout: 10)
         
         XCTAssertEqual(
             try result?.dematerialize(),
             workerConfiguration,
             "Response should have the provided worker configuration"
         )
-        
-        wait(for: [expectation], timeout: 10)
     }
 }
 

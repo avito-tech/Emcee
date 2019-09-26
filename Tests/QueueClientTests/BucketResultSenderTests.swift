@@ -8,7 +8,8 @@ import RequestSenderTestHelpers
 import XCTest
 
 final class BucketResultSenderTests: XCTestCase {
-    let testingResult = TestingResultFixtures().testingResult()
+    private let testingResult = TestingResultFixtures().testingResult()
+    private let callbackQueue = DispatchQueue(label: "callbackQueue")
     
     func test___callback_with_result() throws {
         let sender = BucketResultSenderImpl(
@@ -24,6 +25,7 @@ final class BucketResultSenderTests: XCTestCase {
             requestId: "request id",
             workerId: "worker id",
             requestSignature: RequestSignature(value: "signature"),
+            callbackQueue: callbackQueue,
             completion: { result in
                 XCTAssertEqual(
                     try? result.dematerialize(),
@@ -47,6 +49,7 @@ final class BucketResultSenderTests: XCTestCase {
             requestId: "request id",
             workerId: "worker id",
             requestSignature: RequestSignature(value: "signature"),
+            callbackQueue: callbackQueue,
             completion: { result in
                 do {
                     _ = try result.dematerialize()

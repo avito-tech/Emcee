@@ -1,3 +1,4 @@
+import Dispatch
 import Extensions
 import Foundation
 import Logging
@@ -7,6 +8,7 @@ public protocol RequestSender {
     func sendRequestWithCallback<Payload, Response>(
         pathWithSlash: String,
         payload: Payload,
+        callbackQueue: DispatchQueue,
         callback: @escaping (Either<Response, RequestSenderError>) -> ()
     ) throws where Payload : Encodable, Response : Decodable
     

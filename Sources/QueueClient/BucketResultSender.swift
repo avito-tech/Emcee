@@ -9,6 +9,7 @@ public protocol BucketResultSender {
         requestId: RequestId,
         workerId: WorkerId,
         requestSignature: RequestSignature,
-        completion: @escaping (Either<BucketId, RequestSenderError>) -> ()
+        callbackQueue: DispatchQueue,
+        completion: @escaping (Either<BucketId, Error>) -> ()
     ) throws
 }

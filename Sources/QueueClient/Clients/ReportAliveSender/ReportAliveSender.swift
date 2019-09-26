@@ -8,6 +8,7 @@ public protocol ReportAliveSender {
         bucketIdsBeingProcessedProvider: @autoclosure () -> (Set<BucketId>),
         workerId: WorkerId,
         requestSignature: RequestSignature,
+        callbackQueue: DispatchQueue,
         completion: @escaping (Either<ReportAliveResponse, RequestSenderError>) -> ()
     ) throws
 }

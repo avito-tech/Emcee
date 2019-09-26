@@ -16,23 +16,24 @@ import RequestSenderTestHelpers
 import TestHelpers
 
 final class QueueServerTests: XCTestCase {
-    let eventBus = EventBus()
-    let workerConfigurations = WorkerConfigurations()
-    let workerId: WorkerId = "workerId"
-    let jobId: JobId = "jobId"
-    lazy var prioritizedJob = PrioritizedJob(jobId: jobId, priority: .medium)
-    let automaticTerminationController = AutomaticTerminationControllerFactory(
+    private let eventBus = EventBus()
+    private let workerConfigurations = WorkerConfigurations()
+    private let workerId: WorkerId = "workerId"
+    private let jobId: JobId = "jobId"
+    private lazy var prioritizedJob = PrioritizedJob(jobId: jobId, priority: .medium)
+    private let automaticTerminationController = AutomaticTerminationControllerFactory(
         automaticTerminationPolicy: .stayAlive
     ).createAutomaticTerminationController()
-    let localPortDeterminer = LocalPortDeterminer(portRange: Ports.allPrivatePorts)
-    let bucketSplitInfo = BucketSplitInfoFixtures.bucketSplitInfoFixture()
-    let queueVersionProvider = VersionProviderFixture().buildVersionProvider()
-    let requestSignature = RequestSignature(value: "expectedRequestSignature")
+    private let localPortDeterminer = LocalPortDeterminer(portRange: Ports.allPrivatePorts)
+    private let bucketSplitInfo = BucketSplitInfoFixtures.bucketSplitInfoFixture()
+    private let queueVersionProvider = VersionProviderFixture().buildVersionProvider()
+    private let requestSignature = RequestSignature(value: "expectedRequestSignature")
 
-    let fixedBucketId: BucketId = "fixedBucketId"
-    lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(
+    private let fixedBucketId: BucketId = "fixedBucketId"
+    private lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(
         value: fixedBucketId.value
     )
+    private let callbackQueue = DispatchQueue(label: "callbackQueue")
 
     func test__queue_waits_for_new_workers_and_fails_if_they_not_appear_in_time() {
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
@@ -112,8 +113,11 @@ final class QueueServerTests: XCTestCase {
         
         var actualResults = [JobResults]()
         
-        let _: Void = try runSyncronously { [workerId] completion in
-            try workerRegisterer.registerWithServer(workerId: workerId) { _ in
+        _ = try runSyncronously { [callbackQueue, workerId] completion in
+            try workerRegisterer.registerWithServer(
+                workerId: workerId,
+                callbackQueue: callbackQueue
+            ) { _ in
                 completion(Void())
             }
         }
@@ -147,12 +151,13 @@ final class QueueServerTests: XCTestCase {
             )
         )
         
-        let response: Either<BucketId, RequestSenderError> = try runSyncronously { [workerId, requestSignature] completion in
+        let response: Either<BucketId, Error> = try runSyncronously { [callbackQueue, workerId, requestSignature] completion in
             try resultSender.send(
                 testingResult: testingResult,
                 requestId: "request",
                 workerId: workerId,
                 requestSignature: requestSignature,
+                callbackQueue: callbackQueue,
                 completion: completion
             )
         }

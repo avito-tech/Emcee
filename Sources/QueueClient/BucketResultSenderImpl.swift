@@ -1,3 +1,4 @@
+import Dispatch
 import Foundation
 import Models
 import RESTMethods
@@ -15,7 +16,8 @@ public final class BucketResultSenderImpl: BucketResultSender {
         requestId: RequestId,
         workerId: WorkerId,
         requestSignature: RequestSignature,
-        completion: @escaping (Either<BucketId, RequestSenderError>) -> ()
+        callbackQueue: DispatchQueue,
+        completion: @escaping (Either<BucketId, Error>) -> ()
     ) throws {
         try requestSender.sendRequestWithCallback(
             pathWithSlash: RESTMethod.bucketResult.withPrependingSlash,
@@ -25,15 +27,16 @@ public final class BucketResultSenderImpl: BucketResultSender {
                 testingResult: testingResult,
                 requestSignature: requestSignature
         	),
+            callbackQueue: callbackQueue,
             callback: { (response: Either<BucketResultAcceptResponse, RequestSenderError>) in
-                switch response {
-                case .left(let value):
+                do {
+                    let value = try response.dematerialize()
                     switch value {
                     case .bucketResultAccepted(let bucketId):
-                        completion(.success(bucketId))
+                        completion(Either<BucketId, Error>.success(bucketId))
                     }
-                case .right(let error):
-                    completion(.error(error))
+                } catch {
+                    completion(Either<BucketId, Error>.error(error))
                 }
             }
         )

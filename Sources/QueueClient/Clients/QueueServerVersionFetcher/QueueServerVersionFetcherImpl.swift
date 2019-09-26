@@ -1,3 +1,4 @@
+import Dispatch
 import Foundation
 import Models
 import RESTMethods
@@ -11,10 +12,14 @@ public final class QueueServerVersionFetcherImpl: QueueServerVersionFetcher {
         self.requestSender = requestSender
     }
     
-    public func fetchQueueServerVersion(completion: @escaping (Either<Version, RequestSenderError>) -> Void) throws {
+    public func fetchQueueServerVersion(
+        callbackQueue: DispatchQueue,
+        completion: @escaping (Either<Version, RequestSenderError>) -> Void
+    ) throws {
         try requestSender.sendRequestWithCallback(
             pathWithSlash: RESTMethod.queueVersion.withPrependingSlash,
             payload: QueueVersionRequest(),
+            callbackQueue: callbackQueue,
             callback: { (result: Either<QueueVersionResponse, RequestSenderError>) in
                 switch result {
                 case .left(let queueVersionResponse):

@@ -39,6 +39,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     let jobId: JobId = "JobId"
     lazy var prioritizedJob = PrioritizedJob(jobId: jobId, priority: .medium)
     let stubbedHandler = RESTEndpointOf(actualHandler: FakeRESTEndpoint<Int, Int>(0))
+    let callbackQueue = DispatchQueue(label: "callbackQueue")
     
     override func setUp() {
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
@@ -68,7 +69,10 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         
         let expectation = self.expectation(description: "registerWithServer completion is called")
         
-        try workerRegisterer.registerWithServer(workerId: workerId) { result in
+        try workerRegisterer.registerWithServer(
+            workerId: workerId,
+            callbackQueue: callbackQueue
+        ) { result in
             do {
                 let workerConfiguration = try result.dematerialize()
                 
@@ -169,7 +173,13 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         )
         
         let callbackExpectation = expectation(description: "result sender callback has been invoked")
-        try resultSender.send(testingResult: testingResult, requestId: requestId, workerId: workerId, requestSignature: expectedRequestSignature) { _ in
+        try resultSender.send(
+            testingResult: testingResult,
+            requestId: requestId,
+            workerId: workerId,
+            requestSignature: expectedRequestSignature,
+            callbackQueue: callbackQueue
+        ) { _ in
             callbackExpectation.fulfill()
         }
         wait(for: [callbackExpectation], timeout: 10)
@@ -213,7 +223,8 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         try reportAlivenessSender.reportAlive(
             bucketIdsBeingProcessedProvider: Set(),
             workerId: workerId,
-            requestSignature: expectedRequestSignature
+            requestSignature: expectedRequestSignature,
+            callbackQueue: callbackQueue
         ) { (result: Either<ReportAliveResponse, RequestSenderError>) in
             XCTAssertEqual(
                 try? result.dematerialize(),
@@ -255,13 +266,15 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         )
         
         let requestFinishedExpectation = expectation(description: "Request processed")
-        try fetcher.fetchQueueServerVersion(completion: { result in
+        try fetcher.fetchQueueServerVersion(
+            callbackQueue: callbackQueue
+        ) { result in
             XCTAssertEqual(
                 try? result.dematerialize(),
                 Version(value: "abc")
             )
             requestFinishedExpectation.fulfill()
-        })
+        }
 
         wait(for: [requestFinishedExpectation], timeout: 10.0)
         

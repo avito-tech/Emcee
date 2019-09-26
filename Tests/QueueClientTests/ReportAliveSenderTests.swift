@@ -7,7 +7,8 @@ import QueueClient
 import XCTest
 
 final class ReportAliveSenderTests: XCTestCase {
-    let bucketId = BucketId(value: UUID().uuidString)
+    private let bucketId = BucketId(value: UUID().uuidString)
+    private let callbackQueue = DispatchQueue(label: "callbackQueue")
     
     func test() throws {
         let requestSender = FakeRequestSender(
@@ -28,7 +29,8 @@ final class ReportAliveSenderTests: XCTestCase {
         try reportAliveSender.reportAlive(
             bucketIdsBeingProcessedProvider: provider(),
             workerId: "worker id",
-            requestSignature: RequestSignature(value: "signature")
+            requestSignature: RequestSignature(value: "signature"),
+            callbackQueue: callbackQueue
         ) { (result: Either<ReportAliveResponse, RequestSenderError>) in
             XCTAssertEqual(
                 try? result.dematerialize(),

@@ -15,12 +15,13 @@ public final class FakeRequestSender: RequestSender {
     public func sendRequestWithCallback<Payload, Response>(
         pathWithSlash: String,
         payload: Payload,
+        callbackQueue: DispatchQueue,
         callback: @escaping (Either<Response, RequestSenderError>) -> ()
     ) throws where Payload : Encodable, Response : Decodable {
         if let result = result {
-            callback(Either.left(result as! Response))
+            callbackQueue.async { callback(Either.left(result as! Response)) }
         } else if let requestSenderError = requestSenderError {
-            callback(Either.right(requestSenderError))
+            callbackQueue.async { callback(Either.right(requestSenderError)) }
         }
     }
     

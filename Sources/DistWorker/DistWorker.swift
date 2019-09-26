@@ -21,7 +21,8 @@ import Timer
 public final class DistWorker: SchedulerDelegate {
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let queueClient: SynchronousQueueClient
-    private let syncQueue = DispatchQueue(label: "ru.avito.DistWorker")
+    private let syncQueue = DispatchQueue(label: "DistWorker.syncQueue")
+    private let callbackQueue = DispatchQueue(label: "DistWorker.callbackQueue")
     private var requestIdForBucketId = [BucketId: RequestId]()
     private let resourceLocationResolver: ResourceLocationResolver
     private var reportingAliveTimer: DispatchBasedTimer?
@@ -65,7 +66,10 @@ public final class DistWorker: SchedulerDelegate {
         didFetchAnalyticsConfiguration: @escaping (AnalyticsConfiguration) throws -> (),
         completion: @escaping () -> ()
     ) throws {
-        try workerRegisterer.registerWithServer(workerId: workerId) { [weak self] result in
+        try workerRegisterer.registerWithServer(
+            workerId: workerId,
+            callbackQueue: callbackQueue
+        ) { [weak self] result in
             do {
                 guard let strongSelf = self else {
                     Logger.error("self is nil in start() in DistWorker")
@@ -115,7 +119,8 @@ public final class DistWorker: SchedulerDelegate {
         try reportAliveSender.reportAlive(
             bucketIdsBeingProcessedProvider: currentlyBeingProcessedBucketsTracker.bucketIdsBeingProcessed,
             workerId: workerId,
-            requestSignature: try requestSignature.dematerialize()
+            requestSignature: try requestSignature.dematerialize(),
+            callbackQueue: callbackQueue
         ) { (result: Either<ReportAliveResponse, RequestSenderError>) in
             do {
                 _ = try result.dematerialize()
@@ -227,8 +232,7 @@ public final class DistWorker: SchedulerDelegate {
         _ sender: Scheduler,
         obtainedTestingResult testingResult: TestingResult,
         forBucket bucket: SchedulerBucket
-        )
-    {
+    ) {
         Logger.debug("Obtained testingResult: \(testingResult)")
         didReceiveTestResult(testingResult: testingResult)
     }
@@ -249,7 +253,8 @@ public final class DistWorker: SchedulerDelegate {
                 requestId: requestId,
                 workerId: workerId,
                 requestSignature: try requestSignature.dematerialize(),
-                completion: { [currentlyBeingProcessedBucketsTracker] (result: Either<BucketId, RequestSenderError>) in
+                callbackQueue: callbackQueue,
+                completion: { [currentlyBeingProcessedBucketsTracker] (result: Either<BucketId, Error>) in
                     defer {
                         currentlyBeingProcessedBucketsTracker.didObtainResult(bucketId: testingResult.bucketId)
                     }

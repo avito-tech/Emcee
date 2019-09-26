@@ -7,6 +7,8 @@ import ModelsTestHelpers
 import RequestSenderTestHelpers
 
 final class RequestSenderTests: XCTestCase {
+    private let callbackQueue = DispatchQueue(label: "callbackQueue")
+    
     func test__failing_request() throws {
         let sender = RequestSenderFixtures.localhostRequestSender(
             port: 49151 // officially reserved port https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers
@@ -16,6 +18,7 @@ final class RequestSenderTests: XCTestCase {
         try sender.sendRequestWithCallback(
             pathWithSlash: "/",
             payload: ["foo": "bar"],
+            callbackQueue: callbackQueue,
             callback: { (result: Either<String, RequestSenderError>) in
                 XCTAssertTrue(result.isError)
                 callbackCalled.fulfill()
@@ -41,6 +44,7 @@ final class RequestSenderTests: XCTestCase {
         try sender.sendRequestWithCallback(
             pathWithSlash: "/",
             payload: ["foo": "bar"],
+            callbackQueue: callbackQueue,
             callback: { (result: Either<[String: String], RequestSenderError>) in
                 XCTAssertEqual(
                     try? result.dematerialize(),

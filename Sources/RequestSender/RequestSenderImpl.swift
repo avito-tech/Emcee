@@ -23,9 +23,10 @@ public final class RequestSenderImpl: RequestSender {
     public func sendRequestWithCallback<Payload, Response>(
         pathWithSlash: String,
         payload: Payload,
+        callbackQueue: DispatchQueue,
         callback: @escaping (Either<Response, RequestSenderError>) -> ()
     ) throws where Payload : Encodable, Response : Decodable {
-        let url = createUrl(pathWithSlash: pathWithSlash)
+        let url = try createUrl(pathWithSlash: pathWithSlash)
         
         guard !isClosed else {
             throw RequestSenderError.sessionIsClosed(url)
@@ -43,36 +44,33 @@ public final class RequestSenderImpl: RequestSender {
         urlRequest.httpBody = jsonData
         let dataTask = urlSession.dataTask(with: urlRequest) { (data: Data?, response: URLResponse?, error: Error?) in
             if let error = error {
-                callback(
-                    .error(RequestSenderError.communicationError(error))
-                )
+                Logger.error("Failed to perform request to \(url): \(error)")
+                callbackQueue.async { callback(.error(.communicationError(error))) }
             } else if let data = data {
                 do {
-                    callback(
-                        .success(try JSONDecoder().decode(Response.self, from: data))
-                    )
+                    let decodedObject = try JSONDecoder().decode(Response.self, from: data)
+                    Logger.verboseDebug("Successfully decoded object from response of request to \(url): \(decodedObject)")
+                    callbackQueue.async { callback(.success(decodedObject)) }
                 } catch {
-                    callback(
-                        .error(RequestSenderError.parseError(error, data))
-                    )
+                    Logger.error("Failed to decode object from response of request to \(url): \(error)")
+                    callbackQueue.async { callback(.error(.parseError(error, data))) }
                 }
             } else {
-                callback(
-                    .error(RequestSenderError.noData)
-                )
+                Logger.error("Failed to perform request to \(url): response has no data")
+                callbackQueue.async { callback(.error(.noData)) }
             }
         }
         dataTask.resume()
     }
     
-    private func createUrl(pathWithSlash: String) -> URL {
+    private func createUrl(pathWithSlash: String) throws -> URL {
         var components = URLComponents()
         components.scheme = "http"
         components.host = queueServerAddress.host
         components.port = queueServerAddress.port
         components.path = pathWithSlash
         guard let url = components.url else {
-            Logger.fatal("Unable to convert components to url: \(components)")
+            throw RequestSenderError.unableToCreateUrl(components)
         }
         return url
     }

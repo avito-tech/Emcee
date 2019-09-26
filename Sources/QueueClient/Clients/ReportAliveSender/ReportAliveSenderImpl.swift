@@ -1,3 +1,4 @@
+import Dispatch
 import Foundation
 import Models
 import RESTMethods
@@ -14,6 +15,7 @@ public final class ReportAliveSenderImpl: ReportAliveSender {
         bucketIdsBeingProcessedProvider: @autoclosure () -> (Set<BucketId>),
         workerId: WorkerId,
         requestSignature: RequestSignature,
+        callbackQueue: DispatchQueue,
         completion: @escaping (Either<ReportAliveResponse, RequestSenderError>) -> ()
     ) throws {
         try requestSender.sendRequestWithCallback(
@@ -23,6 +25,7 @@ public final class ReportAliveSenderImpl: ReportAliveSender {
                 bucketIdsBeingProcessed: bucketIdsBeingProcessedProvider(),
                 requestSignature: requestSignature
             ),
+            callbackQueue: callbackQueue,
             callback: completion
         )
     }
