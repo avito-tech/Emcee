@@ -22,7 +22,7 @@ public final class DistWorker: SchedulerDelegate {
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let queueClient: SynchronousQueueClient
     private let syncQueue = DispatchQueue(label: "DistWorker.syncQueue")
-    private let callbackQueue = DispatchQueue(label: "DistWorker.callbackQueue")
+    private let callbackQueue = DispatchQueue(label: "DistWorker.callbackQueue", qos: .default, attributes: .concurrent, autoreleaseFrequency: .inherit, target: nil)
     private var requestIdForBucketId = [BucketId: RequestId]()
     private let resourceLocationResolver: ResourceLocationResolver
     private var reportingAliveTimer: DispatchBasedTimer?

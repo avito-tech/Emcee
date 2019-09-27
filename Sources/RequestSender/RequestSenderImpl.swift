@@ -44,7 +44,7 @@ public final class RequestSenderImpl: RequestSender {
         urlRequest.httpBody = jsonData
         let dataTask = urlSession.dataTask(with: urlRequest) { (data: Data?, response: URLResponse?, error: Error?) in
             if let error = error {
-                Logger.error("Failed to perform request to \(url): \(error)")
+                Logger.verboseDebug("Failed to perform request to \(url): \(error)")
                 callbackQueue.async { callback(.error(.communicationError(error))) }
             } else if let data = data {
                 do {
@@ -52,11 +52,11 @@ public final class RequestSenderImpl: RequestSender {
                     Logger.verboseDebug("Successfully decoded object from response of request to \(url): \(decodedObject)")
                     callbackQueue.async { callback(.success(decodedObject)) }
                 } catch {
-                    Logger.error("Failed to decode object from response of request to \(url): \(error)")
+                    Logger.verboseDebug("Failed to decode object from response of request to \(url): \(error)")
                     callbackQueue.async { callback(.error(.parseError(error, data))) }
                 }
             } else {
-                Logger.error("Failed to perform request to \(url): response has no data")
+                Logger.verboseDebug("Failed to perform request to \(url): response has no data")
                 callbackQueue.async { callback(.error(.noData)) }
             }
         }

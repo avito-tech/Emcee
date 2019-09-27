@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2019-09-27
+
+### Changed
+
+- Fixed a bug when worker does not drop already processed buckets. This would make logs vary large and unreadable.
+
 ## 2019-09-24
 
 ### Changed
