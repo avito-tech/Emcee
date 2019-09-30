@@ -33,6 +33,10 @@ public final class FileCache {
         self.nameKeyer = nameHasher
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         
+        if !fileManager.fileExists(atPath: cachesUrl.path) {
+            try fileManager.createDirectory(at: cachesUrl, withIntermediateDirectories: true)
+        }
+        
         let lockFilePath = cachesUrl.appendingPathComponent("emcee_cache.lock", isDirectory: false)
         self.cacheLock = try FileLock(lockFilePath: lockFilePath.path)
     }

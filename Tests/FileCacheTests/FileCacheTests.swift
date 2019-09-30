@@ -19,6 +19,12 @@ final class FileCacheTests: XCTestCase {
         tempFolder = nil
     }
     
+    func test__creating_cache___when_cache_path_does_not_exists() {
+        XCTAssertNoThrow(
+            _ = try FileCache(cachesUrl: tempFolder.absolutePath.appending(component: "subfolder").fileUrl)
+        )
+    }
+    
     func test__storing_with_copy_operation() throws {
         let cache = try FileCache(cachesUrl: tempFolder.absolutePath.fileUrl)
         XCTAssertFalse(cache.contains(itemWithName: "item"))

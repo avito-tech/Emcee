@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2019-09-30
+
+### Changed
+
+- Fixed a bug when Emcee would fail to start with error `errno 2` if default cache folder at `~/Library/Caches/ru.avito.Runner.cache` does not exist.
+
 ## 2019-09-27
 
 ### Changed
