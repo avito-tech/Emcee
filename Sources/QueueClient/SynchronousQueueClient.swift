@@ -18,8 +18,6 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     
     private let queueClient: QueueClient
     private var bucketFetchResult: Either<BucketFetchResult, QueueClientError>?
-    private var alivenessReportResult: Either<Bool, QueueClientError>?
-    private var queueServerVersionResult: Either<Version, QueueClientError>?
     private var scheduleTestsResult: Either<RequestId, QueueClientError>?
     private var jobResultsResult: Either<JobResults, QueueClientError>?
     private var jobStateResult: Either<JobState, QueueClientError>?
@@ -147,8 +145,6 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     
     public func queueClient(_ sender: QueueClient, didFailWithError error: QueueClientError) {
         bucketFetchResult = Either.error(error)
-        alivenessReportResult = Either.error(error)
-        queueServerVersionResult = Either.error(error)
         scheduleTestsResult = Either.error(error)
         jobResultsResult = Either.error(error)
         jobStateResult = Either.error(error)
@@ -174,15 +170,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     public func queueClient(_ sender: QueueClient, didFetchBucket bucket: Bucket) {
         bucketFetchResult = Either.success(.bucket(bucket))
     }
-    
-    public func queueClient(_ sender: QueueClient, didFetchQueueServerVersion version: Version) {
-        queueServerVersionResult = Either.success(version)
-    }
-    
-    public func queueClientWorkerHasBeenIndicatedAsAlive(_ sender: QueueClient) {
-        alivenessReportResult = Either.success(true)
-    }
-    
+
     public func queueClientDidScheduleTests(_ sender: QueueClient, requestId: RequestId) {
         scheduleTestsResult = Either.success(requestId)
     }

@@ -162,13 +162,6 @@ public final class QueueClient {
         }
     }
     
-    private func handleAlivenessResponse(response: ReportAliveResponse) {
-        switch response {
-        case .aliveReportAccepted:
-            delegate?.queueClientWorkerHasBeenIndicatedAsAlive(self)
-        }
-    }
-    
     private func handleScheduleTestsResponse(response: ScheduleTestsResponse) {
         switch response {
         case .scheduledTests(let requestId):
