@@ -66,7 +66,7 @@ public final class DistWorker: SchedulerDelegate {
         didFetchAnalyticsConfiguration: @escaping (AnalyticsConfiguration) throws -> (),
         completion: @escaping () -> ()
     ) throws {
-        try workerRegisterer.registerWithServer(
+        workerRegisterer.registerWithServer(
             workerId: workerId,
             callbackQueue: callbackQueue
         ) { [weak self] result in
@@ -116,7 +116,7 @@ public final class DistWorker: SchedulerDelegate {
     }
     
     private func reportAliveness() throws {
-        try reportAliveSender.reportAlive(
+        reportAliveSender.reportAlive(
             bucketIdsBeingProcessedProvider: currentlyBeingProcessedBucketsTracker.bucketIdsBeingProcessed,
             workerId: workerId,
             requestSignature: try requestSignature.dematerialize(),
@@ -248,7 +248,7 @@ public final class DistWorker: SchedulerDelegate {
                 return requestId
             }
             
-            try bucketResultSender.send(
+            bucketResultSender.send(
                 testingResult: testingResult,
                 requestId: requestId,
                 workerId: workerId,

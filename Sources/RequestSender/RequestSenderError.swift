@@ -7,6 +7,7 @@ public enum RequestSenderError: Error, CustomStringConvertible {
     case parseError(Error, Data)
     case sessionIsClosed(URL)
     case unableToCreateUrl(URLComponents)
+    case cannotIssueRequest(Error)
     
     public var description: String {
         switch self {
@@ -24,6 +25,8 @@ public enum RequestSenderError: Error, CustomStringConvertible {
             return "Cannot send request to '\(url)' because session is closed"
         case .unableToCreateUrl(let components):
             return "Unable to convert components to url: \(components)"
+        case .cannotIssueRequest(let error):
+            return "Failed to issue request: \(error)"
         }
     }
 }

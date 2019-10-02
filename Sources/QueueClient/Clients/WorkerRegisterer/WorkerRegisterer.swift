@@ -6,5 +6,5 @@ public protocol WorkerRegisterer {
         workerId: WorkerId,
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<WorkerConfiguration, Error>) -> Void
-    ) throws
+    )
 }

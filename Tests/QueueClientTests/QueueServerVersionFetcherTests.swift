@@ -22,7 +22,7 @@ final class QueueServerVersionFetcherTests: XCTestCase {
         )
     
         let completionHandlerCalledExpectation = expectation(description: "Completion handler has been called")
-        try fetcher.fetchQueueServerVersion(
+        fetcher.fetchQueueServerVersion(
             callbackQueue: callbackQueue
         ) { (result: Either<Version, Error>) in
             XCTAssertEqual(

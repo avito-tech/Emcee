@@ -17,8 +17,8 @@ public final class ReportAliveSenderImpl: ReportAliveSender {
         requestSignature: RequestSignature,
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<ReportAliveResponse, Error>) -> ()
-    ) throws {
-        try requestSender.sendRequestWithCallback(
+    ) {
+        requestSender.sendRequestWithCallback(
             pathWithSlash: RESTMethod.reportAlive.withPrependingSlash,
             payload: ReportAliveRequest(
                 workerId: workerId,

@@ -18,8 +18,8 @@ public final class BucketResultSenderImpl: BucketResultSender {
         requestSignature: RequestSignature,
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<BucketId, Error>) -> ()
-    ) throws {
-        try requestSender.sendRequestWithCallback(
+    ) {
+        requestSender.sendRequestWithCallback(
             pathWithSlash: RESTMethod.bucketResult.withPrependingSlash,
             payload: PushBucketResultRequest(
                 workerId: workerId,

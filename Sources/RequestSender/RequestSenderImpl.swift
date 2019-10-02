@@ -25,6 +25,26 @@ public final class RequestSenderImpl: RequestSender {
         payload: Payload,
         callbackQueue: DispatchQueue,
         callback: @escaping (Either<Response, RequestSenderError>) -> ()
+    ) where Payload : Encodable, Response : Decodable {
+        do {
+            try sendRequest(
+                pathWithSlash: pathWithSlash,
+                payload: payload,
+                callbackQueue: callbackQueue,
+                callback: callback
+            )
+        } catch {
+            callbackQueue.async {
+                callback(.error(.cannotIssueRequest(error)))
+            }
+        }
+    }
+    
+    private func sendRequest<Payload, Response>(
+        pathWithSlash: String,
+        payload: Payload,
+        callbackQueue: DispatchQueue,
+        callback: @escaping (Either<Response, RequestSenderError>) -> ()
     ) throws where Payload : Encodable, Response : Decodable {
         let url = try createUrl(pathWithSlash: pathWithSlash)
         

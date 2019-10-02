@@ -7,5 +7,5 @@ public protocol QueueServerVersionFetcher {
     func fetchQueueServerVersion(
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<Version, Error>) -> Void
-    ) throws
+    )
 }

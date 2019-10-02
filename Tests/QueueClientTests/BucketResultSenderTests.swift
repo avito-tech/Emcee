@@ -20,7 +20,7 @@ final class BucketResultSenderTests: XCTestCase {
         )
         
         let callbackExpectation = expectation(description: "callback should be called")
-        try sender.send(
+        sender.send(
             testingResult: testingResult,
             requestId: "request id",
             workerId: "worker id",
@@ -44,7 +44,7 @@ final class BucketResultSenderTests: XCTestCase {
         )
         
         let callbackExpectation = expectation(description: "callback should be called")
-        try sender.send(
+        sender.send(
             testingResult: testingResult,
             requestId: "request id",
             workerId: "worker id",

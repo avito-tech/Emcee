@@ -15,7 +15,7 @@ final class RequestSenderTests: XCTestCase {
         )
         
         let callbackCalled = expectation(description: "callback has been called")
-        try sender.sendRequestWithCallback(
+        sender.sendRequestWithCallback(
             pathWithSlash: "/",
             payload: ["foo": "bar"],
             callbackQueue: callbackQueue,
@@ -41,7 +41,7 @@ final class RequestSenderTests: XCTestCase {
         )
         
         let callbackCalled = expectation(description: "callback has been called")
-        try sender.sendRequestWithCallback(
+        sender.sendRequestWithCallback(
             pathWithSlash: "/",
             payload: ["foo": "bar"],
             callbackQueue: callbackQueue,

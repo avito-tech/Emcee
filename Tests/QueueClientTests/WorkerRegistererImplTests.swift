@@ -26,7 +26,7 @@ final class WorkerRegistererImplTests: XCTestCase {
         
         var result: Either<WorkerConfiguration, Error>?
         
-        try workerRegisterer.registerWithServer(
+        workerRegisterer.registerWithServer(
             workerId: workerId,
             callbackQueue: callbackQueue
         ) { localResult in

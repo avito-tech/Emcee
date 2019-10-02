@@ -10,5 +10,5 @@ public protocol ReportAliveSender {
         requestSignature: RequestSignature,
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<ReportAliveResponse, Error>) -> ()
-    ) throws
+    )
 }

@@ -17,7 +17,7 @@ public final class FakeRequestSender: RequestSender {
         payload: Payload,
         callbackQueue: DispatchQueue,
         callback: @escaping (Either<Response, RequestSenderError>) -> ()
-    ) throws where Payload : Encodable, Response : Decodable {
+    ) where Payload : Encodable, Response : Decodable {
         if let result = result {
             callbackQueue.async { callback(Either.left(result as! Response)) }
         } else if let requestSenderError = requestSenderError {

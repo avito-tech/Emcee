@@ -15,8 +15,8 @@ public final class QueueServerVersionFetcherImpl: QueueServerVersionFetcher {
     public func fetchQueueServerVersion(
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<Version, Error>) -> Void
-    ) throws {
-        try requestSender.sendRequestWithCallback(
+    ) {
+        requestSender.sendRequestWithCallback(
             pathWithSlash: RESTMethod.queueVersion.withPrependingSlash,
             payload: QueueVersionRequest(),
             callbackQueue: callbackQueue,

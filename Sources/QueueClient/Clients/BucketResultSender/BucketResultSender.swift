@@ -10,5 +10,5 @@ public protocol BucketResultSender {
         requestSignature: RequestSignature,
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<BucketId, Error>) -> ()
-    ) throws
+    )
 }

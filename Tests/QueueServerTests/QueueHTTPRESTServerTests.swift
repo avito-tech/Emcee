@@ -69,7 +69,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         
         let expectation = self.expectation(description: "registerWithServer completion is called")
         
-        try workerRegisterer.registerWithServer(
+        workerRegisterer.registerWithServer(
             workerId: workerId,
             callbackQueue: callbackQueue
         ) { result in
@@ -173,7 +173,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         )
         
         let callbackExpectation = expectation(description: "result sender callback has been invoked")
-        try resultSender.send(
+        resultSender.send(
             testingResult: testingResult,
             requestId: requestId,
             workerId: workerId,
@@ -220,7 +220,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         
         let resultHasBeenProcessedExpectation = expectation(description: "Report alive sender completion handler invoked")
         
-        try reportAlivenessSender.reportAlive(
+        reportAlivenessSender.reportAlive(
             bucketIdsBeingProcessedProvider: Set(),
             workerId: workerId,
             requestSignature: expectedRequestSignature,
@@ -266,7 +266,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         )
         
         let requestFinishedExpectation = expectation(description: "Request processed")
-        try fetcher.fetchQueueServerVersion(
+        fetcher.fetchQueueServerVersion(
             callbackQueue: callbackQueue
         ) { result in
             XCTAssertEqual(

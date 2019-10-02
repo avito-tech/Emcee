@@ -23,7 +23,7 @@ public final class RemoteQueuePortScanner: RemotePortDeterminer {
         self.requestSenderProvider = requestSenderProvider
     }
     
-    public func queryPortAndQueueServerVersion(timeout: TimeInterval) throws -> [Int: Version] {
+    public func queryPortAndQueueServerVersion(timeout: TimeInterval) -> [Int: Version] {
         let group = DispatchGroup()
         
         let portToVersion = AtomicValue<[Int: Version]>([:])
@@ -38,7 +38,7 @@ public final class RemoteQueuePortScanner: RemotePortDeterminer {
                 )
             )
             
-            try queueServerVersionFetcher.fetchQueueServerVersion(
+            queueServerVersionFetcher.fetchQueueServerVersion(
                 callbackQueue: workQueue
             ) { (result: Either<Version, Error>) in
                 if let version = try? result.dematerialize() {

@@ -26,7 +26,7 @@ final class ReportAliveSenderTests: XCTestCase {
         }
 
         let completionHandlerCalledExpectation = expectation(description: "Completion handler has been called")
-        try reportAliveSender.reportAlive(
+        reportAliveSender.reportAlive(
             bucketIdsBeingProcessedProvider: provider(),
             workerId: "worker id",
             requestSignature: RequestSignature(value: "signature"),

@@ -10,7 +10,7 @@ public protocol RequestSender {
         payload: Payload,
         callbackQueue: DispatchQueue,
         callback: @escaping (Either<Response, RequestSenderError>) -> ()
-    ) throws where Payload : Encodable, Response : Decodable
+    ) where Payload : Encodable, Response : Decodable
     
     func close()
 }

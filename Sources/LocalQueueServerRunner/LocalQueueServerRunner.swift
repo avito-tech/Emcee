@@ -82,7 +82,7 @@ public final class LocalQueueServerRunner {
     }
     
     private func ensureQueueWithMatchingVersionIsNotRunning(version: Version) throws {
-        let portToQueueServerVersion = try remotePortDeterminer.queryPortAndQueueServerVersion(timeout: 10)
+        let portToQueueServerVersion = remotePortDeterminer.queryPortAndQueueServerVersion(timeout: 10)
         
         try portToQueueServerVersion.forEach { (item: (key: Int, value: Version)) in
             if item.value == version {

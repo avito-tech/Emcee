@@ -114,7 +114,7 @@ final class QueueServerTests: XCTestCase {
         var actualResults = [JobResults]()
         
         _ = try runSyncronously { [callbackQueue, workerId] completion in
-            try workerRegisterer.registerWithServer(
+            workerRegisterer.registerWithServer(
                 workerId: workerId,
                 callbackQueue: callbackQueue
             ) { _ in
@@ -152,7 +152,7 @@ final class QueueServerTests: XCTestCase {
         )
         
         let response: Either<BucketId, Error> = try runSyncronously { [callbackQueue, workerId, requestSignature] completion in
-            try resultSender.send(
+            resultSender.send(
                 testingResult: testingResult,
                 requestId: "request",
                 workerId: workerId,

@@ -18,7 +18,7 @@ final class RemoteQueuePortScannerTests: XCTestCase {
             portRange: 12000...12005,
             requestSenderProvider: requestSenderProvider
         )
-        let result = try scanner.queryPortAndQueueServerVersion(timeout: 10.0)
+        let result = scanner.queryPortAndQueueServerVersion(timeout: 10.0)
         XCTAssertEqual(result, [:])
     }
     
@@ -39,7 +39,7 @@ final class RemoteQueuePortScannerTests: XCTestCase {
             portRange: port...port,
             requestSenderProvider: requestSenderProvider
         )
-        let result = try scanner.queryPortAndQueueServerVersion(timeout: 10.0)
+        let result = scanner.queryPortAndQueueServerVersion(timeout: 10.0)
         XCTAssertEqual(result, [port: expectedVersion])
     }
 }
