@@ -40,7 +40,7 @@ public final class RemoteQueuePortScanner: RemotePortDeterminer {
             
             try queueServerVersionFetcher.fetchQueueServerVersion(
                 callbackQueue: workQueue
-            ) { (result: Either<Version, RequestSenderError>) in
+            ) { (result: Either<Version, Error>) in
                 if let version = try? result.dematerialize() {
                     Logger.debug("Found queue server with \(version) version at \(port)")
                     portToVersion.withExclusiveAccess { $0[port] = version }

@@ -13,21 +13,21 @@ public final class WorkerRegistererImpl: WorkerRegisterer {
     public func registerWithServer(
         workerId: WorkerId,
         callbackQueue: DispatchQueue,
-        completion: @escaping (Either<WorkerConfiguration, RequestSenderError>) -> Void
+        completion: @escaping (Either<WorkerConfiguration, Error>) -> Void
     ) throws {
         try requestSender.sendRequestWithCallback(
             pathWithSlash: RESTMethod.registerWorker.withPrependingSlash,
             payload: RegisterWorkerRequest(workerId: workerId),
             callbackQueue: callbackQueue,
             callback: { (result: Either<RegisterWorkerResponse, RequestSenderError>) in
-                switch result {
-                case .left(let response):
+                do {
+                    let response = try result.dematerialize()
                     switch response {
                     case .workerRegisterSuccess(let workerConfiguration):
                         completion(Either.success(workerConfiguration))
                     }
-                case .right(let requestSenderError):
-                    completion(Either.error(requestSenderError))
+                } catch {
+                    completion(Either.error(error))
                 }
             }
         )

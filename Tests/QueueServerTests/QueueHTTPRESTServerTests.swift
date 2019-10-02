@@ -225,7 +225,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             workerId: workerId,
             requestSignature: expectedRequestSignature,
             callbackQueue: callbackQueue
-        ) { (result: Either<ReportAliveResponse, RequestSenderError>) in
+        ) { (result: Either<ReportAliveResponse, Error>) in
             XCTAssertEqual(
                 try? result.dematerialize(),
                 .aliveReportAccepted

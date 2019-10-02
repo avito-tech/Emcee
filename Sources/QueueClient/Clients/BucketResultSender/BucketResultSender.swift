@@ -1,7 +1,6 @@
+import Dispatch
 import Foundation
 import Models
-import RESTMethods
-import RequestSender
 
 public protocol BucketResultSender {
     func send(

@@ -24,7 +24,7 @@ final class WorkerRegistererImplTests: XCTestCase {
         
         let expectation = self.expectation(description: "registerWithServer completion is called")
         
-        var result: Either<WorkerConfiguration, RequestSenderError>?
+        var result: Either<WorkerConfiguration, Error>?
         
         try workerRegisterer.registerWithServer(
             workerId: workerId,

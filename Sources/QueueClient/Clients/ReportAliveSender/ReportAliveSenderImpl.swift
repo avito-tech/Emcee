@@ -16,7 +16,7 @@ public final class ReportAliveSenderImpl: ReportAliveSender {
         workerId: WorkerId,
         requestSignature: RequestSignature,
         callbackQueue: DispatchQueue,
-        completion: @escaping (Either<ReportAliveResponse, RequestSenderError>) -> ()
+        completion: @escaping (Either<ReportAliveResponse, Error>) -> ()
     ) throws {
         try requestSender.sendRequestWithCallback(
             pathWithSlash: RESTMethod.reportAlive.withPrependingSlash,
@@ -26,7 +26,14 @@ public final class ReportAliveSenderImpl: ReportAliveSender {
                 requestSignature: requestSignature
             ),
             callbackQueue: callbackQueue,
-            callback: completion
+            callback: { (result: Either<ReportAliveResponse, RequestSenderError>) in
+                do {
+                    let response = try result.dematerialize()
+                    completion(Either.success(response))
+                } catch {
+                    completion(Either.error(error))
+                }
+            }
         )
     }
 }

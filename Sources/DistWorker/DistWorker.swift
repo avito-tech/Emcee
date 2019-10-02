@@ -121,7 +121,7 @@ public final class DistWorker: SchedulerDelegate {
             workerId: workerId,
             requestSignature: try requestSignature.dematerialize(),
             callbackQueue: callbackQueue
-        ) { (result: Either<ReportAliveResponse, RequestSenderError>) in
+        ) { (result: Either<ReportAliveResponse, Error>) in
             do {
                 _ = try result.dematerialize()
             } catch {

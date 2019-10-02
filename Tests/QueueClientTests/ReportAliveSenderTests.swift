@@ -31,7 +31,7 @@ final class ReportAliveSenderTests: XCTestCase {
             workerId: "worker id",
             requestSignature: RequestSignature(value: "signature"),
             callbackQueue: callbackQueue
-        ) { (result: Either<ReportAliveResponse, RequestSenderError>) in
+        ) { (result: Either<ReportAliveResponse, Error>) in
             XCTAssertEqual(
                 try? result.dematerialize(),
                 ReportAliveResponse.aliveReportAccepted

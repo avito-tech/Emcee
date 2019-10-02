@@ -1,7 +1,7 @@
+import Dispatch
 import Foundation
 import Models
 import RESTMethods
-import RequestSender
 
 public protocol ReportAliveSender {
     func reportAlive(
@@ -9,6 +9,6 @@ public protocol ReportAliveSender {
         workerId: WorkerId,
         requestSignature: RequestSignature,
         callbackQueue: DispatchQueue,
-        completion: @escaping (Either<ReportAliveResponse, RequestSenderError>) -> ()
+        completion: @escaping (Either<ReportAliveResponse, Error>) -> ()
     ) throws
 }

@@ -14,21 +14,21 @@ public final class QueueServerVersionFetcherImpl: QueueServerVersionFetcher {
     
     public func fetchQueueServerVersion(
         callbackQueue: DispatchQueue,
-        completion: @escaping (Either<Version, RequestSenderError>) -> Void
+        completion: @escaping (Either<Version, Error>) -> Void
     ) throws {
         try requestSender.sendRequestWithCallback(
             pathWithSlash: RESTMethod.queueVersion.withPrependingSlash,
             payload: QueueVersionRequest(),
             callbackQueue: callbackQueue,
             callback: { (result: Either<QueueVersionResponse, RequestSenderError>) in
-                switch result {
-                case .left(let queueVersionResponse):
-                    switch queueVersionResponse {
+                do {
+                    let response = try result.dematerialize()
+                    switch response {
                     case .queueVersion(let version):
                         completion(Either.success(version))
                     }
-                case .right(let requestSenderError):
-                    completion(Either.error(requestSenderError))
+                } catch {
+                    completion(Either.error(error))
                 }
             }
         )
