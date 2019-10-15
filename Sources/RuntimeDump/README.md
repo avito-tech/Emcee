@@ -60,4 +60,4 @@ Example:
 ]
 ```
 
-You may find the sample implementation of the runtime dump in [`TestApp/RuntimeDump`](../../TestApp/RuntimeDump)
+You may find the sample implementation of the runtime dump in [`Samples/RuntimeDump`](../../Samples/RuntimeDump)
