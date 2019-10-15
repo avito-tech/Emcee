@@ -4,6 +4,7 @@
 # Swift
 .build
 .cache
+.swiftpm
 /Packages
 /*.xcodeproj
 xcuserdata
