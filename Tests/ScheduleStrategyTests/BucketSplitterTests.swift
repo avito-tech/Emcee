@@ -37,8 +37,6 @@ final class BucketSplitterTests: XCTestCase {
             splitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture()
         )
         XCTAssertEqual(buckets.count, 2)
-        
-        // TODO: add more checks
     }
 
     func test_splits_same_tests_in_different_buckets_with_one_test() {
