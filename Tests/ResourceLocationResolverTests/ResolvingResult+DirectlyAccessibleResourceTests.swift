@@ -19,4 +19,3 @@ final class ResolvingResult_DirectlyAccessibleResourceTests: XCTestCase {
         XCTAssertThrowsError(try resolvingResult.directlyAccessibleResourcePath())
     }
 }
-

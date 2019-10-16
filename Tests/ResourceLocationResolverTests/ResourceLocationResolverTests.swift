@@ -204,4 +204,3 @@ final class ResourceLocationResolverTests: XCTestCase {
         return (server: server, port: try server.port())
     }
 }
-
