@@ -37,22 +37,21 @@ function open_xcodeproj() {
 
 function generate_xcodeproj() {
 	install_deps
-	DEVELOPER_DIR="$DEVELOPER_DIR" swift package generate-xcodeproj --xcconfig-overrides Package.xcconfig --enable-code-coverage
+	DEVELOPER_DIR="$DEVELOPER_DIR" swift package generate-xcodeproj --enable-code-coverage
 }
 
 function clean() {
 	rm -rf .build/
-	rm -rf SamplePlugin/.build/
 }
 
 function build() {
 	install_deps
-	DEVELOPER_DIR="$DEVELOPER_DIR" swift build -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.13"
+	DEVELOPER_DIR="$DEVELOPER_DIR" swift build
 }
 
 function run_tests_parallel() {
 	install_deps
-	DEVELOPER_DIR="$DEVELOPER_DIR" swift test -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.13" --parallel
+	DEVELOPER_DIR="$DEVELOPER_DIR" swift test --parallel
 }
 
 function run_integration_tests() {
