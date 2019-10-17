@@ -40,7 +40,7 @@ class SimulatorTests: XCTestCase {
     }
     
     func test___uuid() throws {
-        XCTAssertEqual(simulator.uuid?.uuidString, uuid)
+        XCTAssertEqual(simulator.uuid, uuid)
     }
     
     func test___simulatorSetContainerPath() throws {

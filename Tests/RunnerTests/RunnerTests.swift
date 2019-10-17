@@ -129,7 +129,7 @@ public final class RunnerTests: XCTestCase {
             entries: testEntries,
             developerDir: .current,
             simulatorInfo: SimulatorInfo(
-                simulatorUuid: UUID(),
+                simulatorUuid: UUID().uuidString,
                 simulatorSetPath: tempFolder.absolutePath.pathString,
                 testDestination: TestDestinationFixtures.testDestination
             )
