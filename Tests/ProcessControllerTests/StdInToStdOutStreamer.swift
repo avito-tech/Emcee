@@ -21,7 +21,7 @@ class StdInToStdOutStreamer {
         }
         
         while FileHandle.standardInput.readabilityHandler != nil {
-           sleep(1)
+            RunLoop.current.run(mode: .common, before: Date(timeIntervalSinceNow: 0.1))
         }
     }
 }
@@ -32,7 +32,8 @@ func write(string: String, file: UnsafeMutablePointer<FILE>) {
 }
 
 func write(data: Data, file: UnsafeMutablePointer<FILE>) {
-    data.withUnsafeBytes { (bytes: UnsafePointer<Int8>) -> Void in
+    data.withUnsafeBytes { (pointer: UnsafeRawBufferPointer) -> Void in
+        let bytes = pointer.load(as: [Int8].self)
         fwrite(bytes, 1, data.count, file)
         fflush(file)
     }

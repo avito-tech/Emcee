@@ -23,11 +23,11 @@ private func inShellWhitelist(_ codeUnit: UInt8) -> Bool {
 
 public extension String {
     func shellEscaped() -> String {
-        guard let blackListCharacterPosition = utf8.index(where: { !inShellWhitelist($0) }) else {
+        guard let blackListCharacterPosition = utf8.firstIndex(where: { !inShellWhitelist($0) }) else {
             return self
         }
         
-        guard let singleQuotePosition = utf8[blackListCharacterPosition...].index(of: UInt8(ascii: "'")) else {
+        guard let singleQuotePosition = utf8[blackListCharacterPosition...].firstIndex(of: UInt8(ascii: "'")) else {
             return "'\(self)'"
         }
         

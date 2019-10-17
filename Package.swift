@@ -1,9 +1,12 @@
-// swift-tools-version:4.2
+// swift-tools-version:5.0
 
 import PackageDescription
 
 let package = Package(
     name: "EmceeTestRunner",
+    platforms: [
+        .macOS(.v10_13),
+    ],
     products: [
         // MARK: - Products
         .executable(
@@ -127,6 +130,7 @@ let package = Package(
                 "ResultsCollector",
                 "UniqueIdentifierGenerator",
                 "WorkerAlivenessProvider",
+                "WorkerAlivenessProviderTestHelpers",
             ]
         ),
         .target(
@@ -528,6 +532,7 @@ let package = Package(
                 "AutomaticTermination",
                 "AutomaticTerminationTestHelpers",
                 "LocalQueueServerRunner",
+                "QueueServerTestHelpers",
                 "RemotePortDeterminer",
                 "RemotePortDeterminerTestHelpers",
                 "TemporaryStuff",
@@ -735,12 +740,14 @@ let package = Package(
                 "EventBus",
                 "Extensions",
                 "FileHasher",
+                "LocalHostDeterminer",
                 "Logging",
                 "Metrics",
                 "Models",
                 "PortDeterminer",
                 "RESTMethods",
                 "RESTServer",
+                "RequestSenderTestHelpers",
                 "ResultsCollector",
                 "ScheduleStrategy",
                 "Swifter",
@@ -774,6 +781,7 @@ let package = Package(
                 "FileHasher",
                 "Models",
                 "ModelsTestHelpers",
+                "QueueClient",
                 "QueueServer",
                 "QueueServerTestHelpers",
                 "RESTMethods",
@@ -971,6 +979,7 @@ let package = Package(
             name: "RunnerTests",
             dependencies: [
                 "Extensions",
+                "Metrics",
                 "Models",
                 "ModelsTestHelpers",
                 "ProcessController",
