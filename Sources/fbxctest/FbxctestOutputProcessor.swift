@@ -8,7 +8,6 @@ import Timer
 
 public final class FbxctestOutputProcessor: ProcessControllerDelegate {
     private let processController: ProcessController
-    private let simulatorId: String
     private let eventsListener: FbXcTestEventsListener
     private let singleTestMaximumDuration: TimeInterval
     private var testHangTrackingTimer: DispatchBasedTimer?
@@ -17,12 +16,10 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
 
     public init(
         subprocess: Subprocess,
-        simulatorId: String,
         singleTestMaximumDuration: TimeInterval,
         onTestStarted: @escaping ((TestName) -> ()),
         onTestStopped: @escaping ((TestStoppedEvent) -> ())
     ) throws {
-        self.simulatorId = simulatorId
         self.singleTestMaximumDuration = singleTestMaximumDuration
         self.eventsListener = FbXcTestEventsListener(onTestStarted: onTestStarted, onTestStopped: onTestStopped)
         self.processController = try ProcessController(subprocess: subprocess)
@@ -106,9 +103,7 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
         
         switch fbxctestEvent.event {
         case .testStarted:
-            if let result = try? decoder.decode(FbXcTestStartedEvent.self, from: data)
-                .withSimulatorId(newSimulatorId: simulatorId)
-            {
+            if let result = try? decoder.decode(FbXcTestStartedEvent.self, from: data) {
                 eventsListener.testStarted(result)
                 return true
             }

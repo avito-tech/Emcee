@@ -14,8 +14,7 @@ public final class FbXcTestPlanFinishedEvent: CustomStringConvertible, Decodable
         bundleName: String,
         testType: String,
         succeeded: Bool
-        )
-    {
+    ) {
         self.targetName = targetName
         self.timestamp = timestamp
         self.bundleName = bundleName

@@ -73,7 +73,6 @@ public final class FbxctestBasedTestRunner: TestRunner {
                     allowedSilenceDuration: maximumAllowedSilenceDuration
                 )
             ),
-            simulatorId: testContext.simulatorInfo.simulatorUuid ?? "unknown_uuid",
             singleTestMaximumDuration: singleTestMaximumDuration,
             onTestStarted: { testName in testRunnerStream.testStarted(testName: testName) },
             onTestStopped: { testStoppedEvent in testRunnerStream.testStopped(testStoppedEvent: testStoppedEvent) }

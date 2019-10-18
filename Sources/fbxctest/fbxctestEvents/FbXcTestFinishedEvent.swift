@@ -24,8 +24,7 @@ public final class FbXcTestFinishedEvent: CustomStringConvertible, CommonTestFie
         output: String,
         logs: [String],
         timestamp: TimeInterval
-        )
-    {
+    ) {
         self.test = test
         self.result = result
         self.className = className
