@@ -1,7 +1,9 @@
+import DeveloperDirLocator
 import Foundation
 import Models
 import ProcessController
 import Runner
+import TemporaryStuff
 
 public final class FakeTestRunner: TestRunner {
     public var buildArtifacts: BuildArtifacts?
@@ -12,14 +14,19 @@ public final class FakeTestRunner: TestRunner {
     public var testContext: TestContext?
     public var testRunnerStream: TestRunnerStream?
     public var testType: TestType?
+    public var errorToThrowOnRun: Error?
 
     public let runningQueue = DispatchQueue(label: "FakeTestRunner")
 
-    public var standardStreamsCaptureConfig = StandardStreamsCaptureConfig(
-        stdoutContentsFile: nil,
-        stderrContentsFile: nil,
-        stdinContentsFile: nil
-    )
+    public var standardStreamsCaptureConfig = StandardStreamsCaptureConfig()
+    
+    public struct SomeError: Error, CustomStringConvertible {
+        public let description = "some error happened"
+        public init() {}
+    }
+    
+    public init() {}
+    
 
     // Configuration
 
@@ -52,19 +59,25 @@ public final class FakeTestRunner: TestRunner {
     public func disableTestStoppedTestRunnerStreamEvents() {
         onTestStopped = { _, _ in }
     }
+    
+    public func makeRunThrowErrors() {
+        errorToThrowOnRun = SomeError()
+    }
 
     // - TestRunner Protocol
 
     public func run(
         buildArtifacts: BuildArtifacts,
+        developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         maximumAllowedSilenceDuration: TimeInterval,
         simulatorSettings: SimulatorSettings,
         singleTestMaximumDuration: TimeInterval,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
-        testType: TestType
-    ) -> StandardStreamsCaptureConfig {
+        testType: TestType,
+        temporaryFolder: TemporaryFolder
+    ) throws -> StandardStreamsCaptureConfig {
         self.buildArtifacts = buildArtifacts
         self.entriesToRun = entriesToRun
         self.maximumAllowedSilenceDuration = maximumAllowedSilenceDuration
@@ -73,6 +86,10 @@ public final class FakeTestRunner: TestRunner {
         self.testContext = testContext
         self.testRunnerStream = testRunnerStream
         self.testType = testType
+        
+        if let errorToThrowOnRun = errorToThrowOnRun {
+            throw errorToThrowOnRun
+        }
 
         let group = DispatchGroup()
 

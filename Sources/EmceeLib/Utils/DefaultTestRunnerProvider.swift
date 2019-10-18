@@ -1,3 +1,4 @@
+import AppleTools
 import Foundation
 import Models
 import ResourceLocationResolver
@@ -16,6 +17,10 @@ public final class DefaultTestRunnerProvider: TestRunnerProvider {
         case .fbxctest(let fbxctestLocation):
             return FbxctestBasedTestRunner(
                 fbxctestLocation: fbxctestLocation,
+                resourceLocationResolver: resourceLocationResolver
+            )
+        case .xcodebuild:
+            return XcodebuildBasedTestRunner(
                 resourceLocationResolver: resourceLocationResolver
             )
         }

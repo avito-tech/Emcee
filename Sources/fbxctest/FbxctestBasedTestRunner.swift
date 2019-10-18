@@ -1,9 +1,11 @@
+import DeveloperDirLocator
 import Foundation
 import Models
 import ProcessController
 import ResourceLocationResolver
 import Runner
 import SimulatorPool
+import TemporaryStuff
 
 public final class FbxctestBasedTestRunner: TestRunner {
     private let fbxctestLocation: FbxctestLocation
@@ -19,32 +21,27 @@ public final class FbxctestBasedTestRunner: TestRunner {
     
     public func run(
         buildArtifacts: BuildArtifacts,
+        developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         maximumAllowedSilenceDuration: TimeInterval,
         simulatorSettings: SimulatorSettings,
         singleTestMaximumDuration: TimeInterval,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
-        testType: TestType
-    ) -> StandardStreamsCaptureConfig {
-        do {
-            return try standardStreamsCaptureConfigOfFbxctestProcess(
-                buildArtifacts: buildArtifacts,
-                entriesToRun: entriesToRun,
-                maximumAllowedSilenceDuration: maximumAllowedSilenceDuration,
-                simulatorSettings: simulatorSettings,
-                singleTestMaximumDuration: singleTestMaximumDuration,
-                testContext: testContext,
-                testRunnerStream: testRunnerStream,
-                testType: testType
-            )
-        } catch {
-            return reportFailureToStartFbxctest(
-                error: error,
-                entriesToRun: entriesToRun,
-                testRunnerStream: testRunnerStream
-            )
-        }
+        testType: TestType,
+        temporaryFolder: TemporaryFolder
+    ) throws -> StandardStreamsCaptureConfig {
+        return try standardStreamsCaptureConfigOfFbxctestProcess(
+            buildArtifacts: buildArtifacts,
+            entriesToRun: entriesToRun,
+            maximumAllowedSilenceDuration: maximumAllowedSilenceDuration,
+            simulatorSettings: simulatorSettings,
+            singleTestMaximumDuration: singleTestMaximumDuration,
+            testContext: testContext,
+            testRunnerStream: testRunnerStream,
+            testType: testType,
+            temporaryFolder: temporaryFolder
+        )
     }
     
     private func standardStreamsCaptureConfigOfFbxctestProcess(
@@ -55,7 +52,8 @@ public final class FbxctestBasedTestRunner: TestRunner {
         singleTestMaximumDuration: TimeInterval,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
-        testType: TestType
+        testType: TestType,
+        temporaryFolder: TemporaryFolder
     ) throws -> StandardStreamsCaptureConfig {
         let fbxctestOutputProcessor = try FbxctestOutputProcessor(
             subprocess: Subprocess(
@@ -65,7 +63,8 @@ public final class FbxctestBasedTestRunner: TestRunner {
                     fbxctestLocation: fbxctestLocation,
                     simulatorInfo: testContext.simulatorInfo,
                     simulatorSettings: simulatorSettings,
-                    testType: testType
+                    testType: testType,
+                    temporaryFolder: temporaryFolder
                 ),
                 environment: testContext.environment,
                 silenceBehavior: SilenceBehavior(
@@ -81,35 +80,14 @@ public final class FbxctestBasedTestRunner: TestRunner {
         return fbxctestOutputProcessor.subprocess.standardStreamsCaptureConfig
     }
     
-    private func reportFailureToStartFbxctest(
-        error: Error,
-        entriesToRun: [TestEntry],
-        testRunnerStream: TestRunnerStream
-    ) -> StandardStreamsCaptureConfig {
-        for testEntry in entriesToRun {
-            testRunnerStream.testStarted(testName: testEntry.testName)
-            testRunnerStream.testStopped(
-                testStoppedEvent: TestStoppedEvent(
-                    testName: testEntry.testName,
-                    result: .lost,
-                    testDuration: 0,
-                    testExceptions: [
-                        TestException(reason: "Failed to execute fbxctest: \(error)", filePathInProject: #file, lineNumber: #line)
-                    ],
-                    testStartTimestamp: Date().timeIntervalSince1970
-                )
-            )
-        }
-        return StandardStreamsCaptureConfig(stdoutContentsFile: nil, stderrContentsFile: nil, stdinContentsFile: nil)
-    }
-    
     private func fbxctestArguments(
         buildArtifacts: BuildArtifacts,
         entriesToRun: [TestEntry],
         fbxctestLocation: FbxctestLocation,
         simulatorInfo: SimulatorInfo,
         simulatorSettings: SimulatorSettings,
-        testType: TestType
+        testType: TestType,
+        temporaryFolder: TemporaryFolder
     ) throws -> [SubprocessArgument] {
         let resolvableFbxctest = resourceLocationResolver.resolvable(withRepresentable: fbxctestLocation)
         

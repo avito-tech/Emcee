@@ -66,7 +66,22 @@ let package = Package(
                 "Models",
                 "ProcessController",
                 "ResourceLocationResolver",
+                "Runner",
                 "SimulatorPool",
+                "TemporaryStuff",
+                "XcTestRun",
+            ]
+        ),
+        .testTarget(
+            // MARK: AppleToolsTests
+            name: "AppleToolsTests",
+            dependencies: [
+                "AppleTools",
+                "DeveloperDirLocatorTestHelpers",
+                "Models",
+                "ModelsTestHelpers",
+                "ResourceLocationResolver",
+                "TemporaryStuff",
             ]
         ),
         .target(
@@ -400,6 +415,7 @@ let package = Package(
             name: "fbxctest",
             dependencies: [
                 "Ansi",
+                "DeveloperDirLocator",
                 "JSONStream",
                 "LocalHostDeterminer",
                 "Logging",
@@ -409,16 +425,20 @@ let package = Package(
                 "Runner",
                 "SimulatorPool",
                 "SynchronousWaiter",
-                "Timer"
+                "TemporaryStuff",
+                "Timer",
             ]
         ),
         .testTarget(
             // MARK: fbxctestTests
             name: "fbxctestTests",
             dependencies: [
+                "DeveloperDirLocator",
+                "DeveloperDirLocatorTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
                 "Runner",
+                "TemporaryStuff",
                 "fbxctest",
             ]
         ),
@@ -983,7 +1003,8 @@ let package = Package(
             dependencies: [
                 "Models",
                 "Runner",
-                "ProcessController"
+                "ProcessController",
+                "TemporaryStuff",
             ],
             path: "Tests/RunnerTestHelpers"
         ),

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2019-10-18
+
+### Changed
+
+- `auxiliaryResources.toolResources` field format of queue server run configuration file has changed. Previously, you would pass a single string as a value to `testRunnerTool` field and it would resolve to `fbxctest` runner tool. Now this field is expected to be an object with `toolType` (must be either `fbxctest` or `xcodebuild`, the latter is not supported yet) field and optional `fbxctestLocation` filed (must be URL of `fbxctest`) in case if you are using `fbxctest` to run tests. To adopt and keep using `fbxctest` as test runner tool you can pass this object in your queue server run configuration file: `{"testRunnerTool": {"toolType": "fbxctest", "fbxctestLocation": "your URL"}}`
+
 ## 2019-09-30
 
 ### Changed

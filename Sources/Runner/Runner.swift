@@ -27,12 +27,12 @@ public final class Runner {
         tempFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider
     ) {
-        self.eventBus = eventBus
         self.configuration = configuration
         self.developerDirLocator = developerDirLocator
+        self.eventBus = eventBus
+        self.resourceLocationResolver = resourceLocationResolver
         self.tempFolder = tempFolder
         self.testRunnerProvider = testRunnerProvider
-        self.resourceLocationResolver = resourceLocationResolver
     }
     
     /** Runs the given tests, attempting to restart the runner in case of crash. */
@@ -122,14 +122,9 @@ public final class Runner {
         Logger.info("Will run \(entriesToRun.count) tests on simulator \(simulatorInfo)")
         eventBus.post(event: .runnerEvent(.willRun(testEntries: entriesToRun, testContext: testContext)))
 
-        let testRunner = try testRunnerProvider.testRunner(testRunnerTool: configuration.testRunnerTool)
-
-        let standardStreamsCaptureConfig = testRunner.run(
-            buildArtifacts: configuration.buildArtifacts,
+        let standardStreamsCaptureConfig = runTestsViaTestRunner(
+            testRunner: try testRunnerProvider.testRunner(testRunnerTool: configuration.testRunnerTool),
             entriesToRun: entriesToRun,
-            maximumAllowedSilenceDuration: configuration.maximumAllowedSilenceDuration,
-            simulatorSettings: configuration.simulatorSettings,
-            singleTestMaximumDuration: configuration.singleTestMaximumDuration,
             testContext: testContext,
             testRunnerStream: TestRunnerStreamWrapper(
                 onTestStarted: { [weak self] testName in
@@ -147,8 +142,7 @@ public final class Runner {
                         testStoppedEvent: testStoppedEvent
                     )
                 }
-            ),
-            testType: configuration.testType
+            )
         )
         
         let result = prepareResults(
@@ -186,6 +180,56 @@ public final class Runner {
             environment: environment,
             simulatorInfo: simulatorInfo
         )
+    }
+    
+    private func runTestsViaTestRunner(
+        testRunner: TestRunner,
+        entriesToRun: [TestEntry],
+        testContext: TestContext,
+        testRunnerStream: TestRunnerStream
+    ) -> StandardStreamsCaptureConfig {
+        do {
+            return try testRunner.run(
+                buildArtifacts: configuration.buildArtifacts,
+                developerDirLocator: developerDirLocator,
+                entriesToRun: entriesToRun,
+                maximumAllowedSilenceDuration: configuration.maximumAllowedSilenceDuration,
+                simulatorSettings: configuration.simulatorSettings,
+                singleTestMaximumDuration: configuration.singleTestMaximumDuration,
+                testContext: testContext,
+                testRunnerStream: testRunnerStream,
+                testType: configuration.testType,
+                temporaryFolder: tempFolder
+            )
+        } catch {
+            return generateTestFailuresBecauseOfRunnerFailure(
+                runnerError: error,
+                entriesToRun: entriesToRun,
+                testRunnerStream: testRunnerStream
+            )
+        }
+    }
+    
+    private func generateTestFailuresBecauseOfRunnerFailure(
+        runnerError: Error,
+        entriesToRun: [TestEntry],
+        testRunnerStream: TestRunnerStream
+    ) -> StandardStreamsCaptureConfig {
+        for testEntry in entriesToRun {
+            testRunnerStream.testStarted(testName: testEntry.testName)
+            testRunnerStream.testStopped(
+                testStoppedEvent: TestStoppedEvent(
+                    testName: testEntry.testName,
+                    result: .lost,
+                    testDuration: 0,
+                    testExceptions: [
+                        TestException(reason: RunnerConstants.failedToStartTestRunner.rawValue + ": \(runnerError)", filePathInProject: #file, lineNumber: #line)
+                    ],
+                    testStartTimestamp: Date().timeIntervalSince1970
+                )
+            )
+        }
+        return StandardStreamsCaptureConfig()
     }
     
     private func prepareResults(

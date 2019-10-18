@@ -118,9 +118,26 @@ public final class RunnerTests: XCTestCase {
         XCTAssertEqual(testResult.testEntry, testEntry)
     }
 
+    func test___if_test_runner_fails_to_run___runner_provides_back_all_tests_as_failed() throws {
+        testRunnerProvider.predefinedFakeTestRunner.makeRunThrowErrors()
+        
+        let runnerResults = try runTestEntries([testEntry])
+
+        guard runnerResults.testEntryResults.count == 1, let testResult = runnerResults.testEntryResults.first else {
+            return XCTFail("Unexpected number of test results")
+        }
+
+        XCTAssertFalse(testResult.succeeded)
+        XCTAssertEqual(testResult.testEntry, testEntry)
+        XCTAssertEqual(
+            testResult.testRunResults[0].exceptions[0].reason,
+            RunnerConstants.failedToStartTestRunner.rawValue + ": \(FakeTestRunner.SomeError())"
+        )
+    }
+    
     private func runTestEntries(_ testEntries: [TestEntry]) throws -> RunnerRunResult {
         let runner = Runner(
-            configuration: try createRunnerConfig(),
+            configuration: createRunnerConfig(),
             developerDirLocator: FakeDeveloperDirLocator(result: tempFolder.absolutePath),
             eventBus: EventBus(),
             resourceLocationResolver: resolver,
@@ -138,7 +155,7 @@ public final class RunnerTests: XCTestCase {
         )
     }
 
-    private func createRunnerConfig() throws -> RunnerConfiguration {
+    private func createRunnerConfig() -> RunnerConfiguration {
         return RunnerConfiguration(
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
             environment: [:],
