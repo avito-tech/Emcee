@@ -1,3 +1,4 @@
+import DeveloperDirLocator
 import Dispatch
 import Extensions
 import Foundation
@@ -22,22 +23,24 @@ public class SimulatorPool: CustomStringConvertible {
     }
     
     public init(
-        numberOfSimulators: UInt,
-        testDestination: TestDestination,
-        simulatorControlTool: SimulatorControlTool,
         developerDir: DeveloperDir,
+        developerDirLocator: DeveloperDirLocator,
+        numberOfSimulators: UInt,
+        simulatorControlTool: SimulatorControlTool,
         simulatorControllerProvider: SimulatorControllerProvider,
-        tempFolder: TemporaryFolder
+        tempFolder: TemporaryFolder,
+        testDestination: TestDestination
     ) throws {
         self.numberOfSimulators = numberOfSimulators
         self.testDestination = testDestination
         controllers = try SimulatorPool.createControllers(
             count: numberOfSimulators,
-            testDestination: testDestination,
-            simulatorControlTool: simulatorControlTool,
             developerDir: developerDir,
+            developerDirLocator: developerDirLocator,
+            simulatorControlTool: simulatorControlTool,
             simulatorControllerProvider: simulatorControllerProvider,
-            tempFolder: tempFolder
+            tempFolder: tempFolder,
+            testDestination: testDestination
         )
     }
     
@@ -90,11 +93,12 @@ public class SimulatorPool: CustomStringConvertible {
     
     private static func createControllers(
         count: UInt,
-        testDestination: TestDestination,
-        simulatorControlTool: SimulatorControlTool,
         developerDir: DeveloperDir,
+        developerDirLocator: DeveloperDirLocator,
+        simulatorControlTool: SimulatorControlTool,
         simulatorControllerProvider: SimulatorControllerProvider,
-        tempFolder: TemporaryFolder
+        tempFolder: TemporaryFolder,
+        testDestination: TestDestination
     ) throws -> [SimulatorController] {
         var result = [SimulatorController]()
         for index in 0 ..< count {
@@ -102,9 +106,10 @@ public class SimulatorPool: CustomStringConvertible {
             let workingDirectory = try tempFolder.pathByCreatingDirectories(components: [folderName])
             let simulator = Simulator(index: index, testDestination: testDestination, workingDirectory: workingDirectory)
             let controller = try simulatorControllerProvider.createSimulatorController(
+                developerDir: developerDir,
+                developerDirLocator: developerDirLocator,
                 simulator: simulator,
-                simulatorControlTool: simulatorControlTool,
-                developerDir: developerDir
+                simulatorControlTool: simulatorControlTool
             )
             result.append(controller)
         }

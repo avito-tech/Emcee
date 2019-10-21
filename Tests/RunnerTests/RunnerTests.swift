@@ -1,12 +1,13 @@
+import DeveloperDirLocatorTestHelpers
 import EventBus
 import Extensions
 import Foundation
 import Models
 import ModelsTestHelpers
-import TemporaryStuff
 import ResourceLocationResolver
 import Runner
 import RunnerTestHelpers
+import TemporaryStuff
 import XCTest
 
 public final class RunnerTests: XCTestCase {
@@ -119,11 +120,12 @@ public final class RunnerTests: XCTestCase {
 
     private func runTestEntries(_ testEntries: [TestEntry]) throws -> RunnerRunResult {
         let runner = Runner(
-            eventBus: EventBus(),
             configuration: try createRunnerConfig(),
+            developerDirLocator: FakeDeveloperDirLocator(result: tempFolder.absolutePath),
+            eventBus: EventBus(),
+            resourceLocationResolver: resolver,
             tempFolder: tempFolder,
-            testRunnerProvider: testRunnerProvider,
-            resourceLocationResolver: resolver
+            testRunnerProvider: testRunnerProvider
         )
         return try runner.run(
             entries: testEntries,
@@ -138,15 +140,15 @@ public final class RunnerTests: XCTestCase {
 
     private func createRunnerConfig() throws -> RunnerConfiguration {
         return RunnerConfiguration(
-            testType: .logicTest,
-            testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
             environment: [:],
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
+            testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
             testTimeoutConfiguration: TestTimeoutConfiguration(
                 singleTestMaximumDuration: 5,
                 testRunnerMaximumSilenceDuration: 0
-            )
+            ),
+            testType: .logicTest
         )
     }
 }

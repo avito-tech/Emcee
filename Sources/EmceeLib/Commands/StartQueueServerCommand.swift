@@ -26,11 +26,20 @@ public final class StartQueueServerCommand: Command {
         ArgumentDescriptions.queueServerRunConfigurationLocation.asRequired
     ]
     
-    private let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
+    private let localQueueVersionProvider: VersionProvider
+    private let requestSenderProvider: RequestSenderProvider
+    private let requestSignature: RequestSignature
     private let resourceLocationResolver: ResourceLocationResolver
-    private let requestSignature = RequestSignature(value: UUID().uuidString)
 
-    public init(resourceLocationResolver: ResourceLocationResolver) {
+    public init(
+        localQueueVersionProvider: VersionProvider,
+        requestSenderProvider: RequestSenderProvider,
+        requestSignature: RequestSignature,
+        resourceLocationResolver: ResourceLocationResolver
+    ) {
+        self.localQueueVersionProvider = localQueueVersionProvider
+        self.requestSenderProvider = requestSenderProvider
+        self.requestSignature = requestSignature
         self.resourceLocationResolver = resourceLocationResolver
     }
     
@@ -64,18 +73,16 @@ public final class StartQueueServerCommand: Command {
             automaticTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy
         ).createAutomaticTerminationController()
         let uniqueIdentifierGenerator = UuidBasedUniqueIdentifierGenerator()
-        let localPortDeterminer = LocalPortDeterminer(portRange: Ports.defaultQueuePortRange)
-        let workerConfigurations = createWorkerConfigurations(
-            queueServerRunConfiguration: queueServerRunConfiguration
-        )
         let queueServer = QueueServerImpl(
             automaticTerminationController: automaticTerminationController,
             dateProvider: SystemDateProvider(),
             eventBus: eventBus,
-            workerConfigurations: workerConfigurations,
+            workerConfigurations: createWorkerConfigurations(
+                queueServerRunConfiguration: queueServerRunConfiguration
+            ),
             reportAliveInterval: queueServerRunConfiguration.reportAliveInterval,
             checkAgainTimeInterval: queueServerRunConfiguration.checkAgainTimeInterval,
-            localPortDeterminer: localPortDeterminer,
+            localPortDeterminer: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange),
             workerAlivenessPolicy: .workersStayAliveWhenQueueIsDepleted,
             bucketSplitInfo: BucketSplitInfo(
                 numberOfWorkers: UInt(queueServerRunConfiguration.deploymentDestinationConfigurations.count),
@@ -106,7 +113,7 @@ public final class StartQueueServerCommand: Command {
             remotePortDeterminer: RemoteQueuePortScanner(
                 host: LocalHostDeterminer.currentHostAddress,
                 portRange: Ports.defaultQueuePortRange,
-                requestSenderProvider: DefaultRequestSenderProvider()
+                requestSenderProvider: requestSenderProvider
             ),
             temporaryFolder: try TemporaryFolder(),
             workerDestinations: workerDestinations
@@ -114,7 +121,9 @@ public final class StartQueueServerCommand: Command {
         try localQueueServerRunner.start()
     }
     
-    private func createWorkerConfigurations(queueServerRunConfiguration: QueueServerRunConfiguration) -> WorkerConfigurations {
+    private func createWorkerConfigurations(
+        queueServerRunConfiguration: QueueServerRunConfiguration
+    ) -> WorkerConfigurations {
         let configurations = WorkerConfigurations()
         for deploymentDestinationConfiguration in queueServerRunConfiguration.deploymentDestinationConfigurations {
             configurations.add(

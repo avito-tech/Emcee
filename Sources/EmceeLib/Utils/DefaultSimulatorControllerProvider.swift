@@ -15,9 +15,10 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
     }
 
     public func createSimulatorController(
+        developerDir: DeveloperDir,
+        developerDirLocator: DeveloperDirLocator,
         simulator: Simulator,
-        simulatorControlTool: SimulatorControlTool,
-        developerDir: DeveloperDir
+        simulatorControlTool: SimulatorControlTool
     ) throws -> SimulatorController {
         let simulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor
         switch simulatorControlTool {
@@ -31,7 +32,7 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
         
         return StateMachineDrivenSimulatorController(
             developerDir: developerDir,
-            developerDirLocator: DeveloperDirLocator(),
+            developerDirLocator: developerDirLocator,
             simulator: simulator,
             simulatorStateMachine: SimulatorStateMachine(),
             simulatorStateMachineActionExecutor: simulatorStateMachineActionExecutor

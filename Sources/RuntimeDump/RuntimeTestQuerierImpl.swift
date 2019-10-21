@@ -1,3 +1,4 @@
+import DeveloperDirLocator
 import EventBus
 import Extensions
 import Foundation
@@ -14,30 +15,33 @@ import UniqueIdentifierGenerator
 
 public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
     private let eventBus: EventBus
-    private let testQueryEntry = TestEntry(testName: TestName(className: "NonExistingTest", methodName: "fakeTest"), tags: [], caseId: nil)
+    private let developerDirLocator: DeveloperDirLocator
+    private let numberOfAttemptsToPerformRuntimeDump: UInt
+    private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TemporaryFolder
+    private let testQueryEntry = TestEntry(testName: TestName(className: "NonExistingTest", methodName: "fakeTest"), tags: [], caseId: nil)
     private let testRunnerProvider: TestRunnerProvider
-    private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
-    private let numberOfAttemptsToPerformRuntimeDump: UInt
     
     public init(
         eventBus: EventBus,
+        developerDirLocator: DeveloperDirLocator,
         numberOfAttemptsToPerformRuntimeDump: UInt,
-        resourceLocationResolver: ResourceLocationResolver,
         onDemandSimulatorPool: OnDemandSimulatorPool,
-        uniqueIdentifierGenerator: UniqueIdentifierGenerator = UuidBasedUniqueIdentifierGenerator(),
+        resourceLocationResolver: ResourceLocationResolver,
         tempFolder: TemporaryFolder,
-        testRunnerProvider: TestRunnerProvider
+        testRunnerProvider: TestRunnerProvider,
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
         self.eventBus = eventBus
+        self.developerDirLocator = developerDirLocator
         self.numberOfAttemptsToPerformRuntimeDump = max(numberOfAttemptsToPerformRuntimeDump, 1)
-        self.resourceLocationResolver = resourceLocationResolver
         self.onDemandSimulatorPool = onDemandSimulatorPool
-        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
+        self.resourceLocationResolver = resourceLocationResolver
         self.tempFolder = tempFolder
         self.testRunnerProvider = testRunnerProvider
+        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
     public func queryRuntime(configuration: RuntimeDumpConfiguration) throws -> RuntimeQueryResult {
@@ -78,11 +82,12 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
             runtimeEntriesJSONPath: runtimeEntriesJSONPath
         )
         let runner = Runner(
-            eventBus: eventBus,
             configuration: runnerConfiguration,
+            developerDirLocator: developerDirLocator,
+            eventBus: eventBus,
+            resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
-            testRunnerProvider: testRunnerProvider,
-            resourceLocationResolver: resourceLocationResolver
+            testRunnerProvider: testRunnerProvider
         )
         let runnerRunResult = try runner.runOnce(
             entriesToRun: [testQueryEntry],
@@ -116,8 +121,6 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         
         if let applicationTestSupport = dumpConfiguration.applicationTestSupport {
             return RunnerConfiguration(
-                testType: .appTest,
-                testRunnerTool: dumpConfiguration.testRunnerTool,
                 buildArtifacts: BuildArtifacts(
                     appBundle: applicationTestSupport.appBundle,
                     runner: nil,
@@ -126,16 +129,18 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
                 ),
                 environment: environment,
                 simulatorSettings: simulatorSettings,
-                testTimeoutConfiguration: dumpConfiguration.testTimeoutConfiguration
+                testRunnerTool: dumpConfiguration.testRunnerTool,
+                testTimeoutConfiguration: dumpConfiguration.testTimeoutConfiguration,
+                testType: .appTest
             )
         } else {
             return RunnerConfiguration(
-                testType: .logicTest,
-                testRunnerTool: dumpConfiguration.testRunnerTool,
                 buildArtifacts: BuildArtifacts.onlyWithXctestBundle(xcTestBundle: dumpConfiguration.xcTestBundle),
                 environment: environment,
                 simulatorSettings: simulatorSettings,
-                testTimeoutConfiguration: dumpConfiguration.testTimeoutConfiguration
+                testRunnerTool: dumpConfiguration.testRunnerTool,
+                testTimeoutConfiguration: dumpConfiguration.testTimeoutConfiguration,
+                testType: .logicTest
             )
         }
     }

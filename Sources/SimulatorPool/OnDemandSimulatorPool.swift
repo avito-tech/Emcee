@@ -1,9 +1,10 @@
+import DeveloperDirLocator
 import Dispatch
 import Foundation
 import Logging
 import Models
-import TemporaryStuff
 import ResourceLocationResolver
+import TemporaryStuff
 
 public class OnDemandSimulatorPool {
     
@@ -42,17 +43,20 @@ public class OnDemandSimulatorPool {
         }
     }
     
-    private let tempFolder: TemporaryFolder
-    private var pools = [Key: SimulatorPool]()
-    private let syncQueue = DispatchQueue(label: "ru.avito.OnDemandSimulatorPool")
+    private let developerDirLocator: DeveloperDirLocator
     private let resourceLocationResolver: ResourceLocationResolver
     private let simulatorControllerProvider: SimulatorControllerProvider
+    private let syncQueue = DispatchQueue(label: "ru.avito.OnDemandSimulatorPool")
+    private let tempFolder: TemporaryFolder
+    private var pools = [Key: SimulatorPool]()
     
     public init(
+        developerDirLocator: DeveloperDirLocator,
         resourceLocationResolver: ResourceLocationResolver,
         simulatorControllerProvider: SimulatorControllerProvider,
         tempFolder: TemporaryFolder
     ) {
+        self.developerDirLocator = developerDirLocator
         self.resourceLocationResolver = resourceLocationResolver
         self.simulatorControllerProvider = simulatorControllerProvider
         self.tempFolder = tempFolder
@@ -69,12 +73,13 @@ public class OnDemandSimulatorPool {
                 return existingPool
             } else {
                 let pool = try SimulatorPool(
-                    numberOfSimulators: key.numberOfSimulators,
-                    testDestination: key.testDestination,
-                    simulatorControlTool: key.simulatorControlTool,
                     developerDir: key.developerDir,
+                    developerDirLocator: developerDirLocator,
+                    numberOfSimulators: key.numberOfSimulators,
+                    simulatorControlTool: key.simulatorControlTool,
                     simulatorControllerProvider: simulatorControllerProvider,
-                    tempFolder: tempFolder
+                    tempFolder: tempFolder,
+                    testDestination: key.testDestination
                 )
                 pools[key] = pool
                 Logger.verboseDebug("Created SimulatorPool for key \(key)")

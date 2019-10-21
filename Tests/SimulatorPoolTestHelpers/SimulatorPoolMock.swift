@@ -1,4 +1,6 @@
 @testable import SimulatorPool
+import DeveloperDirLocator
+import DeveloperDirLocatorTestHelpers
 import Models
 import ModelsTestHelpers
 import PathLib
@@ -17,14 +19,15 @@ public final class SimulatorPoolMock: SimulatorPool {
     
     public init() throws {
         try super.init(
-            numberOfSimulators: 1,
-            testDestination: TestDestinationFixtures.testDestination,
-            simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
             developerDir: DeveloperDir.current,
+            developerDirLocator: FakeDeveloperDirLocator(),
+            numberOfSimulators: 1,
+            simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
             simulatorControllerProvider: FakeSimulatorControllerProvider { _ in
                 return SimulatorPoolMock.simulatorController
             },
-            tempFolder: try TemporaryFolder()
+            tempFolder: try TemporaryFolder(),
+            testDestination: TestDestinationFixtures.testDestination
         )
     }
 

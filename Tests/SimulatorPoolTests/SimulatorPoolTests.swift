@@ -1,4 +1,5 @@
 @testable import SimulatorPool
+import DeveloperDirLocatorTestHelpers
 import Models
 import ModelsTestHelpers
 import ResourceLocationResolver
@@ -9,7 +10,7 @@ import XCTest
 
 class SimulatorPoolTests: XCTestCase {
     
-    var tempFolder: TemporaryFolder!
+    var tempFolder = try! TemporaryFolder()
     let simulatorControllerProvider = FakeSimulatorControllerProvider { (simulator) -> SimulatorController in
         return FakeSimulatorController(
             simulator: simulator,
@@ -17,19 +18,17 @@ class SimulatorPoolTests: XCTestCase {
             developerDir: .current
         )
     }
-    
-    override func setUp() {
-        XCTAssertNoThrow(tempFolder = try TemporaryFolder())
-    }
+    lazy var developerDirLocator = FakeDeveloperDirLocator(result: tempFolder.absolutePath)
     
     func testThrowingError() throws {
         let pool = try SimulatorPool(
-            numberOfSimulators: 1,
-            testDestination: TestDestinationFixtures.testDestination,
-            simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
             developerDir: DeveloperDir.current,
+            developerDirLocator: developerDirLocator,
+            numberOfSimulators: 1,
+            simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
             simulatorControllerProvider: simulatorControllerProvider,
-            tempFolder: tempFolder
+            tempFolder: tempFolder,
+            testDestination: TestDestinationFixtures.testDestination
         )
         _ = try pool.allocateSimulatorController()
         XCTAssertThrowsError(_ = try pool.allocateSimulatorController(), "Expected to throw") { error in
@@ -40,12 +39,13 @@ class SimulatorPoolTests: XCTestCase {
     func testUsingFromQueue() throws {
         let numberOfThreads = 4
         let pool = try SimulatorPool(
-            numberOfSimulators: UInt(numberOfThreads),
-            testDestination: TestDestinationFixtures.testDestination,
-            simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
             developerDir: DeveloperDir.current,
+            developerDirLocator: developerDirLocator,
+            numberOfSimulators: UInt(numberOfThreads),
+            simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
             simulatorControllerProvider: simulatorControllerProvider,
-            tempFolder: tempFolder
+            tempFolder: tempFolder,
+            testDestination: TestDestinationFixtures.testDestination
         )
         let queue = OperationQueue()
         queue.maxConcurrentOperationCount = Int(numberOfThreads)

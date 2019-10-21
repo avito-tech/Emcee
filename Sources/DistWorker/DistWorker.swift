@@ -1,4 +1,5 @@
 import CurrentlyBeingProcessedBucketsTracker
+import DeveloperDirLocator
 import Dispatch
 import EventBus
 import Foundation
@@ -7,6 +8,7 @@ import Models
 import PathLib
 import PluginManager
 import QueueClient
+import RESTMethods
 import RequestSender
 import ResourceLocationResolver
 import Runner
@@ -14,26 +16,25 @@ import Scheduler
 import SimulatorPool
 import SynchronousWaiter
 import TemporaryStuff
-import RESTMethods
 import Timer
 
-
 public final class DistWorker: SchedulerDelegate {
+    private let bucketResultSender: BucketResultSender
+    private let callbackQueue = DispatchQueue(label: "DistWorker.callbackQueue", qos: .default, attributes: .concurrent, autoreleaseFrequency: .inherit, target: nil)
+    private let currentlyBeingProcessedBucketsTracker = CurrentlyBeingProcessedBucketsTracker()
+    private let developerDirLocator: DeveloperDirLocator
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let queueClient: SynchronousQueueClient
-    private let syncQueue = DispatchQueue(label: "DistWorker.syncQueue")
-    private let callbackQueue = DispatchQueue(label: "DistWorker.callbackQueue", qos: .default, attributes: .concurrent, autoreleaseFrequency: .inherit, target: nil)
-    private var requestIdForBucketId = [BucketId: RequestId]()
+    private let reportAliveSender: ReportAliveSender
     private let resourceLocationResolver: ResourceLocationResolver
-    private var reportingAliveTimer: DispatchBasedTimer?
-    private let currentlyBeingProcessedBucketsTracker = CurrentlyBeingProcessedBucketsTracker()
-    private let workerId: WorkerId
-    private var requestSignature = Either<RequestSignature, DistWorkerError>.error(DistWorkerError.missingRequestSignature)
+    private let syncQueue = DispatchQueue(label: "DistWorker.syncQueue")
     private let temporaryFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
+    private let workerId: WorkerId
     private let workerRegisterer: WorkerRegisterer
-    private let reportAliveSender: ReportAliveSender
-    private let bucketResultSender: BucketResultSender
+    private var reportingAliveTimer: DispatchBasedTimer?
+    private var requestIdForBucketId = [BucketId: RequestId]()
+    private var requestSignature = Either<RequestSignature, DistWorkerError>.error(DistWorkerError.missingRequestSignature)
     
     private enum BucketFetchResult: Equatable {
         case result(SchedulerBucket?)
@@ -41,25 +42,27 @@ public final class DistWorker: SchedulerDelegate {
     }
     
     public init(
+        bucketResultSender: BucketResultSender,
+        developerDirLocator: DeveloperDirLocator,
         onDemandSimulatorPool: OnDemandSimulatorPool,
         queueClient: SynchronousQueueClient,
-        workerId: WorkerId,
+        reportAliveSender: ReportAliveSender,
         resourceLocationResolver: ResourceLocationResolver,
         temporaryFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider,
-        reportAliveSender: ReportAliveSender,
-        workerRegisterer: WorkerRegisterer,
-        bucketResultSender: BucketResultSender
+        workerId: WorkerId,
+        workerRegisterer: WorkerRegisterer
     ) {
+        self.bucketResultSender = bucketResultSender
+        self.developerDirLocator = developerDirLocator
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.queueClient = queueClient
-        self.workerId = workerId
+        self.reportAliveSender = reportAliveSender
         self.resourceLocationResolver = resourceLocationResolver
         self.temporaryFolder = temporaryFolder
         self.testRunnerProvider = testRunnerProvider
-        self.reportAliveSender = reportAliveSender
+        self.workerId = workerId
         self.workerRegisterer = workerRegisterer
-        self.bucketResultSender = bucketResultSender
     }
     
     public func start(
@@ -152,11 +155,12 @@ public final class DistWorker: SchedulerDelegate {
         )
         
         let scheduler = Scheduler(
-            eventBus: eventBus,
             configuration: schedulerCconfiguration,
-            tempFolder: temporaryFolder,
+            developerDirLocator: developerDirLocator,
+            eventBus: eventBus,
             resourceLocationResolver: resourceLocationResolver,
             schedulerDelegate: self,
+            tempFolder: temporaryFolder,
             testRunnerProvider: testRunnerProvider
         )
         return try scheduler.run()

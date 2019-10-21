@@ -1,4 +1,5 @@
 import ArgLib
+import DeveloperDirLocator
 import DistWorker
 import Foundation
 import Logging
@@ -20,9 +21,17 @@ public final class DistWorkCommand: Command {
         ArgumentDescriptions.workerId.asRequired
     ]
     
+    private let developerDirLocator: DeveloperDirLocator
+    private let requestSenderProvider: RequestSenderProvider
     private let resourceLocationResolver: ResourceLocationResolver
-    
-    public init(resourceLocationResolver: ResourceLocationResolver) {
+
+    public init(
+        developerDirLocator: DeveloperDirLocator,
+        requestSenderProvider: RequestSenderProvider,
+        resourceLocationResolver: ResourceLocationResolver
+    ) {
+        self.developerDirLocator = developerDirLocator
+        self.requestSenderProvider = requestSenderProvider
         self.resourceLocationResolver = resourceLocationResolver
     }
     
@@ -32,45 +41,45 @@ public final class DistWorkCommand: Command {
         let temporaryFolder = try createScopedTemporaryFolder()
 
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
+            developerDirLocator: developerDirLocator,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: temporaryFolder
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
 
         let distWorker = createDistWorker(
+            onDemandSimulatorPool: onDemandSimulatorPool,
             queueServerAddress: queueServerAddress,
-            workerId: workerId,
             temporaryFolder: temporaryFolder,
-            onDemandSimulatorPool: onDemandSimulatorPool
+            workerId: workerId
         )
         
         try startWorker(distWorker: distWorker)
     }
     
     private func createDistWorker(
+        onDemandSimulatorPool: OnDemandSimulatorPool,
         queueServerAddress: SocketAddress,
-        workerId: WorkerId,
         temporaryFolder: TemporaryFolder,
-        onDemandSimulatorPool: OnDemandSimulatorPool
+        workerId: WorkerId
     ) -> DistWorker {
-        let requestSender = DefaultRequestSenderProvider().requestSender(socketAddress: queueServerAddress)
+        let requestSender = requestSenderProvider.requestSender(socketAddress: queueServerAddress)
         
         let reportAliveSender = ReportAliveSenderImpl(requestSender: requestSender)
         let workerRegisterer = WorkerRegistererImpl(requestSender: requestSender)
         let bucketResultSender = BucketResultSenderImpl(requestSender: requestSender)
         
         return DistWorker(
+            bucketResultSender: bucketResultSender,
+            developerDirLocator: developerDirLocator,
             onDemandSimulatorPool: onDemandSimulatorPool,
             queueClient: SynchronousQueueClient(queueServerAddress: queueServerAddress),
-            workerId: workerId,
+            reportAliveSender: reportAliveSender,
             resourceLocationResolver: resourceLocationResolver,
             temporaryFolder: temporaryFolder,
-            testRunnerProvider: DefaultTestRunnerProvider(
-                resourceLocationResolver: resourceLocationResolver
-            ),
-            reportAliveSender: reportAliveSender,
-            workerRegisterer: workerRegisterer,
-            bucketResultSender: bucketResultSender
+            testRunnerProvider: DefaultTestRunnerProvider(resourceLocationResolver: resourceLocationResolver),
+            workerId: workerId,
+            workerRegisterer: workerRegisterer
         )
     }
         

@@ -233,6 +233,16 @@ let package = Package(
                 "ProcessController"
             ]
         ),
+        .target(
+            // MARK: DeveloperDirLocatorTestHelpers
+            name: "DeveloperDirLocatorTestHelpers",
+            dependencies: [
+                "DeveloperDirLocator",
+                "Models",
+                "PathLib",
+            ],
+            path: "Tests/DeveloperDirLocatorTestHelpers"
+        ),
         .testTarget(
             // MARK: DeveloperDirLocatorTests
             name: "DeveloperDirLocatorTests",
@@ -277,6 +287,7 @@ let package = Package(
             name: "DistWorker",
             dependencies: [
                 "CurrentlyBeingProcessedBucketsTracker",
+                "DeveloperDirLocator",
                 "EventBus",
                 "Extensions",
                 "Logging",
@@ -290,7 +301,7 @@ let package = Package(
                 "SimulatorPool",
                 "SynchronousWaiter",
                 "TemporaryStuff",
-                "Timer"
+                "Timer",
             ]
         ),
         .testTarget(
@@ -317,6 +328,7 @@ let package = Package(
                 "ArgLib",
                 "ChromeTracing",
                 "Deployer",
+                "DeveloperDirLocator",
                 "DistWorker",
                 "EventBus",
                 "JunitReporting",
@@ -330,6 +342,7 @@ let package = Package(
                 "PortDeterminer",
                 "ProcessController",
                 "RemoteQueue",
+                "RequestSender",
                 "ResourceLocationResolver",
                 "Runner",
                 "SSHDeployer",
@@ -339,7 +352,7 @@ let package = Package(
                 "TemporaryStuff",
                 "UniqueIdentifierGenerator",
                 "Version",
-                "fbxctest"
+                "fbxctest",
             ]
         ),
         .testTarget(
@@ -978,6 +991,7 @@ let package = Package(
             // MARK: RunnerTests
             name: "RunnerTests",
             dependencies: [
+                "DeveloperDirLocatorTestHelpers",
                 "Extensions",
                 "Metrics",
                 "Models",
@@ -995,6 +1009,7 @@ let package = Package(
             // MARK: RuntimeDump
             name: "RuntimeDump",
             dependencies: [
+                "DeveloperDirLocator",
                 "EventBus",
                 "Extensions",
                 "Metrics",
@@ -1003,23 +1018,24 @@ let package = Package(
                 "Runner",
                 "SynchronousWaiter",
                 "TemporaryStuff",
-                "UniqueIdentifierGenerator"
+                "UniqueIdentifierGenerator",
             ]
         ),
         .testTarget(
             // MARK: RuntimeDumpTests
             name: "RuntimeDumpTests",
             dependencies: [
+                "DeveloperDirLocatorTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
                 "PathLib",
                 "ResourceLocationResolver",
-                "RuntimeDump",
                 "RunnerTestHelpers",
+                "RuntimeDump",
                 "SimulatorPoolTestHelpers",
                 "TemporaryStuff",
                 "UniqueIdentifierGenerator",
-                "UniqueIdentifierGeneratorTestHelpers"
+                "UniqueIdentifierGeneratorTestHelpers",
             ]
         ),
         .target(
@@ -1038,6 +1054,7 @@ let package = Package(
             // MARK: Scheduler
             name: "Scheduler",
             dependencies: [
+                "DeveloperDirLocator",
                 "EventBus",
                 "ListeningSemaphore",
                 "Logging",
@@ -1048,7 +1065,7 @@ let package = Package(
                 "SimulatorPool",
                 "SynchronousWaiter",
                 "TemporaryStuff",
-                "UniqueIdentifierGenerator"
+                "UniqueIdentifierGenerator",
             ]
         ),
         .target(
@@ -1105,6 +1122,8 @@ let package = Package(
             // MARK: SimulatorPoolTestHelpers
             name: "SimulatorPoolTestHelpers",
             dependencies: [
+                "DeveloperDirLocator",
+                "DeveloperDirLocatorTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
                 "PathLib",
@@ -1117,6 +1136,7 @@ let package = Package(
             // MARK: SimulatorPoolTests
             name: "SimulatorPoolTests",
             dependencies: [
+                "DeveloperDirLocatorTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
                 "PathLib",
@@ -1124,7 +1144,7 @@ let package = Package(
                 "SimulatorPool",
                 "SimulatorPoolTestHelpers",
                 "SynchronousWaiter",
-                "TemporaryStuff"
+                "TemporaryStuff",
             ]
         ),
         .target(

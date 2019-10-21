@@ -1,3 +1,4 @@
+import DeveloperDirLocator
 import Dispatch
 import EventBus
 import Extensions
@@ -13,34 +14,39 @@ import SynchronousWaiter
 import TemporaryStuff
 
 public final class Scheduler {
-    private let eventBus: EventBus
     private let configuration: SchedulerConfiguration
-    private let resourceSemaphore: ListeningSemaphore<ResourceAmounts>
-    private var testingResults = [TestingResult]()
+    private let developerDirLocator: DeveloperDirLocator
+    private let eventBus: EventBus
     private let queue = OperationQueue()
+    private let resourceLocationResolver: ResourceLocationResolver
+    private let resourceSemaphore: ListeningSemaphore<ResourceAmounts>
     private let syncQueue = DispatchQueue(label: "ru.avito.Scheduler")
     private let tempFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
-    private let resourceLocationResolver: ResourceLocationResolver
     private var gatheredErrors = [Error]()
+    private var testingResults = [TestingResult]()
     private weak var schedulerDelegate: SchedulerDelegate?
     
     public init(
-        eventBus: EventBus,
         configuration: SchedulerConfiguration,
-        tempFolder: TemporaryFolder,
+        developerDirLocator: DeveloperDirLocator,
+        eventBus: EventBus,
         resourceLocationResolver: ResourceLocationResolver,
         schedulerDelegate: SchedulerDelegate?,
+        tempFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider
     ) {
-        self.eventBus = eventBus
         self.configuration = configuration
+        self.developerDirLocator = developerDirLocator
+        self.eventBus = eventBus
+        self.resourceLocationResolver = resourceLocationResolver
         self.resourceSemaphore = ListeningSemaphore(
             maximumValues: .of(
-                runningTests: Int(configuration.testRunExecutionBehavior.numberOfSimulators)))
-        self.tempFolder = tempFolder
-        self.resourceLocationResolver = resourceLocationResolver
+                runningTests: Int(configuration.testRunExecutionBehavior.numberOfSimulators)
+            )
+        )
         self.schedulerDelegate = schedulerDelegate
+        self.tempFolder = tempFolder
         self.testRunnerProvider = testRunnerProvider
     }
     
@@ -159,18 +165,19 @@ public final class Scheduler {
         defer { allocatedSimulator.releaseSimulator() }
             
         let runner = Runner(
-            eventBus: eventBus,
             configuration: RunnerConfiguration(
-                testType: bucket.testType,
-                testRunnerTool: bucket.toolResources.testRunnerTool,
                 buildArtifacts: bucket.buildArtifacts,
                 environment: bucket.testExecutionBehavior.environment,
                 simulatorSettings: bucket.simulatorSettings,
-                testTimeoutConfiguration: configuration.testTimeoutConfiguration
+                testRunnerTool: bucket.toolResources.testRunnerTool,
+                testTimeoutConfiguration: configuration.testTimeoutConfiguration,
+                testType: bucket.testType
             ),
+            developerDirLocator: developerDirLocator,
+            eventBus: eventBus,
+            resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
-            testRunnerProvider: testRunnerProvider,
-            resourceLocationResolver: resourceLocationResolver
+            testRunnerProvider: testRunnerProvider
         )
 
         let runnerResult = try runner.run(

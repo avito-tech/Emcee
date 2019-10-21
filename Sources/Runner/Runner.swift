@@ -11,24 +11,25 @@ import SimulatorPool
 import TemporaryStuff
 import TestsWorkingDirectorySupport
 
-/// This class runs the given tests on a single simulator.
 public final class Runner {
-    private let eventBus: EventBus
     private let configuration: RunnerConfiguration
+    private let developerDirLocator: DeveloperDirLocator
+    private let eventBus: EventBus
+    private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
-    private let resourceLocationResolver: ResourceLocationResolver
-    private let developerDirLocator = DeveloperDirLocator()
     
     public init(
-        eventBus: EventBus,
         configuration: RunnerConfiguration,
+        developerDirLocator: DeveloperDirLocator,
+        eventBus: EventBus,
+        resourceLocationResolver: ResourceLocationResolver,
         tempFolder: TemporaryFolder,
-        testRunnerProvider: TestRunnerProvider,
-        resourceLocationResolver: ResourceLocationResolver
+        testRunnerProvider: TestRunnerProvider
     ) {
         self.eventBus = eventBus
         self.configuration = configuration
+        self.developerDirLocator = developerDirLocator
         self.tempFolder = tempFolder
         self.testRunnerProvider = testRunnerProvider
         self.resourceLocationResolver = resourceLocationResolver
@@ -181,6 +182,7 @@ public final class Runner {
         environment["DEVELOPER_DIR"] = try developerDirLocator.path(developerDir: developerDir).pathString
 
         return TestContext(
+            developerDir: developerDir,
             environment: environment,
             simulatorInfo: simulatorInfo
         )

@@ -1,4 +1,5 @@
 @testable import RuntimeDump
+import DeveloperDirLocatorTestHelpers
 import EventBus
 import Foundation
 import Models
@@ -18,8 +19,9 @@ final class RuntimeTestQuerierTests: XCTestCase {
     let tempFolder = try! TemporaryFolder()
     let dumpFilename = UUID().uuidString
     lazy var fixedValueUniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: dumpFilename)
-    
+    lazy var developerDirLocator = FakeDeveloperDirLocator(result: tempFolder.absolutePath)
     lazy var simulatorPool = OnDemandSimulatorPool(
+        developerDirLocator: developerDirLocator,
         resourceLocationResolver: resourceLocationResolver,
         simulatorControllerProvider: FakeSimulatorControllerProvider(result: { simulator -> SimulatorController in
             return FakeSimulatorController(
@@ -169,12 +171,13 @@ final class RuntimeTestQuerierTests: XCTestCase {
     private func runtimeTestQuerier() -> RuntimeTestQuerier {
         return RuntimeTestQuerierImpl(
             eventBus: eventBus,
+            developerDirLocator: developerDirLocator,
             numberOfAttemptsToPerformRuntimeDump: 1,
-            resourceLocationResolver: resourceLocationResolver,
             onDemandSimulatorPool: simulatorPool,
-            uniqueIdentifierGenerator: fixedValueUniqueIdentifierGenerator,
+            resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
-            testRunnerProvider: FakeTestRunnerProvider()
+            testRunnerProvider: FakeTestRunnerProvider(),
+            uniqueIdentifierGenerator: fixedValueUniqueIdentifierGenerator
         )
     }
     

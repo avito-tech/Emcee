@@ -1,5 +1,6 @@
 import ArgLib
 import BucketQueue
+import DeveloperDirLocator
 import DistDeployer
 import EventBus
 import Extensions
@@ -20,6 +21,7 @@ import SignalHandling
 import SimulatorPool
 import SynchronousWaiter
 import TemporaryStuff
+import UniqueIdentifierGenerator
 import Version
 
 public final class RunTestsOnRemoteQueueCommand: Command {
@@ -37,10 +39,20 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         ArgumentDescriptions.trace.asOptional
     ]
     
-    private let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
+    private let developerDirLocator: DeveloperDirLocator
+    private let localQueueVersionProvider: VersionProvider
+    private let requestSenderProvider: RequestSenderProvider
     private let resourceLocationResolver: ResourceLocationResolver
-    
-    public init(resourceLocationResolver: ResourceLocationResolver) {
+
+    public init(
+        developerDirLocator: DeveloperDirLocator,
+        localQueueVersionProvider: VersionProvider,
+        requestSenderProvider: RequestSenderProvider,
+        resourceLocationResolver: ResourceLocationResolver
+    ) {
+        self.developerDirLocator = developerDirLocator
+        self.localQueueVersionProvider = localQueueVersionProvider
+        self.requestSenderProvider = requestSenderProvider
         self.resourceLocationResolver = resourceLocationResolver
     }
     
@@ -105,7 +117,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             remotePortDeterminer: RemoteQueuePortScanner(
                 host: queueServerDestination.host,
                 portRange: Ports.defaultQueuePortRange,
-                requestSenderProvider: DefaultRequestSenderProvider()
+                requestSenderProvider: requestSenderProvider
             )
         )
         var suitablePorts = try remoteQueueDetector.findSuitableRemoteRunningQueuePorts(timeout: 10.0)
@@ -157,19 +169,20 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             testRunnerTool: testRunnerTool
         )
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
+            developerDirLocator: developerDirLocator,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
         let runtimeTestQuerier = RuntimeTestQuerierImpl(
             eventBus: eventBus,
+            developerDirLocator: developerDirLocator,
             numberOfAttemptsToPerformRuntimeDump: 5,
-            resourceLocationResolver: resourceLocationResolver,
             onDemandSimulatorPool: onDemandSimulatorPool,
+            resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
-            testRunnerProvider: DefaultTestRunnerProvider(
-                resourceLocationResolver: resourceLocationResolver
-            )
+            testRunnerProvider: DefaultTestRunnerProvider(resourceLocationResolver: resourceLocationResolver),
+            uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator()
         )
         
         let queueClient = SynchronousQueueClient(queueServerAddress: queueServerAddress)

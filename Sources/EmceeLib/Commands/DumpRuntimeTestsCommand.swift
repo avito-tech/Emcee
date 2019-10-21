@@ -1,5 +1,6 @@
 import ArgLib
 import ChromeTracing
+import DeveloperDirLocator
 import EventBus
 import Extensions
 import Foundation
@@ -13,6 +14,7 @@ import ScheduleStrategy
 import Scheduler
 import SimulatorPool
 import TemporaryStuff
+import UniqueIdentifierGenerator
 
 public final class DumpRuntimeTestsCommand: Command {
     public let name = "dump"
@@ -28,9 +30,14 @@ public final class DumpRuntimeTestsCommand: Command {
     ]
     
     private let encoder = JSONEncoder.pretty()
+    private let developerDirLocator: DeveloperDirLocator
     private let resourceLocationResolver: ResourceLocationResolver
     
-    public init(resourceLocationResolver: ResourceLocationResolver) {
+    public init(
+        developerDirLocator: DeveloperDirLocator,
+        resourceLocationResolver: ResourceLocationResolver
+    ) {
+        self.developerDirLocator = developerDirLocator
         self.resourceLocationResolver = resourceLocationResolver
     }
 
@@ -62,6 +69,7 @@ public final class DumpRuntimeTestsCommand: Command {
         )
         
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
+            developerDirLocator: developerDirLocator,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder
         )
@@ -69,13 +77,13 @@ public final class DumpRuntimeTestsCommand: Command {
 
         let runtimeTestQuerier = RuntimeTestQuerierImpl(
             eventBus: EventBus(),
+            developerDirLocator: developerDirLocator,
             numberOfAttemptsToPerformRuntimeDump: 5,
-            resourceLocationResolver: resourceLocationResolver,
             onDemandSimulatorPool: onDemandSimulatorPool,
+            resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
-            testRunnerProvider: DefaultTestRunnerProvider(
-                resourceLocationResolver: resourceLocationResolver
-            )
+            testRunnerProvider: DefaultTestRunnerProvider(resourceLocationResolver: resourceLocationResolver),
+            uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator()
         )
         let runtimeTests = try runtimeTestQuerier.queryRuntime(configuration: configuration)
         

@@ -1,3 +1,4 @@
+import DeveloperDirLocator
 import Foundation
 import Models
 import SimulatorPool
@@ -10,9 +11,10 @@ public final class FakeSimulatorControllerProvider: SimulatorControllerProvider 
     }
     
     public func createSimulatorController(
+        developerDir: DeveloperDir,
+        developerDirLocator: DeveloperDirLocator,
         simulator: Simulator,
-        simulatorControlTool: SimulatorControlTool,
-        developerDir: DeveloperDir
+        simulatorControlTool: SimulatorControlTool
     ) throws -> SimulatorController {
         return result(simulator)
     }

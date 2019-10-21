@@ -4,28 +4,28 @@ import Models
 import ResourceLocationResolver
 
 public struct RunnerConfiguration {
-    public let testType: TestType
-    public let testRunnerTool: TestRunnerTool
     public let buildArtifacts: BuildArtifacts
     public let environment: [String: String]
-    public let simulatorSettings: SimulatorSettings
     public let maximumAllowedSilenceDuration: TimeInterval
+    public let simulatorSettings: SimulatorSettings
     public let singleTestMaximumDuration: TimeInterval
+    public let testRunnerTool: TestRunnerTool
+    public let testType: TestType
     
     public init(
-        testType: TestType,
-        testRunnerTool: TestRunnerTool,
         buildArtifacts: BuildArtifacts,
         environment: [String: String],
         simulatorSettings: SimulatorSettings,
-        testTimeoutConfiguration: TestTimeoutConfiguration
+        testRunnerTool: TestRunnerTool,
+        testTimeoutConfiguration: TestTimeoutConfiguration,
+        testType: TestType
     ) {
-        self.testType = testType
-        self.testRunnerTool = testRunnerTool
         self.buildArtifacts = buildArtifacts
         self.environment = environment
-        self.simulatorSettings = simulatorSettings
         self.maximumAllowedSilenceDuration = testTimeoutConfiguration.testRunnerMaximumSilenceDuration
+        self.simulatorSettings = simulatorSettings
         self.singleTestMaximumDuration = testTimeoutConfiguration.singleTestMaximumDuration
+        self.testRunnerTool = testRunnerTool
+        self.testType = testType
     }
 }

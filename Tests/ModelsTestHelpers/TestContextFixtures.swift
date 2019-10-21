@@ -2,10 +2,12 @@ import Foundation
 import Models
 
 public final class TestContextFixtures {
+    public var developerDir: DeveloperDir
     public var environment: [String: String]
     public var simulatorInfo: SimulatorInfo
     
     public init(
+        developerDir: DeveloperDir = DeveloperDir.current,
         environment: [String: String] = [:],
         simulatorInfo: SimulatorInfo = SimulatorInfo(
             simulatorUuid: nil,
@@ -13,11 +15,16 @@ public final class TestContextFixtures {
             testDestination: TestDestinationFixtures.testDestination
         )
     ) {
+        self.developerDir = developerDir
         self.environment = environment
         self.simulatorInfo = simulatorInfo
     }
     
     public var testContext: TestContext {
-        return TestContext(environment: environment, simulatorInfo: simulatorInfo)
+        return TestContext(
+            developerDir: developerDir,
+            environment: environment,
+            simulatorInfo: simulatorInfo
+        )
     }
 }
