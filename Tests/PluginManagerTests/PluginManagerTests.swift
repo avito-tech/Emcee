@@ -3,14 +3,16 @@ import Models
 import ModelsTestHelpers
 import PathLib
 import PluginManager
-import ResourceLocationResolver
+import ResourceLocationResolverTestHelpers
 import TemporaryStuff
 import XCTest
 
 final class PluginManagerTests: XCTestCase {
     var testingPluginExecutablePath = TestingPluginExecutable.testingPluginPath!
     var tempFolder = try! TemporaryFolder(deleteOnDealloc: true)
-    let resolver = try! ResourceLocationResolver()
+    lazy var resolver = FakeResourceLocationResolver(
+        resolvingResult: ResolvingResult.directlyAccessibleFile(path: tempFolder.absolutePath.pathString)
+    )
     
     func testStartingPluginWithinBundleButWithWrongExecutableNameFails() throws {
         let pluginBundlePath = tempFolder.absolutePath.appending(component: "MyPlugin." + PluginManager.pluginBundleExtension)
@@ -20,6 +22,10 @@ final class PluginManagerTests: XCTestCase {
         try FileManager.default.copyItem(
             atPath: testingPluginExecutablePath,
             toPath: executablePath.pathString
+        )
+        
+        resolver.resolveWithResult(
+            resolvingResult: .directlyAccessibleFile(path: pluginBundlePath.pathString)
         )
         
         let manager = PluginManager(
@@ -57,6 +63,10 @@ final class PluginManagerTests: XCTestCase {
             toPath: executablePath.pathString
         )
     
+        resolver.resolveWithResult(
+            resolvingResult: .directlyAccessibleFile(path: pluginBundlePath.pathString)
+        )
+        
         let manager = PluginManager(
             pluginLocations: [
                 PluginLocation(.localFilePath(pluginBundlePath.pathString))

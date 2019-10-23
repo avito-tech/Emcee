@@ -5,6 +5,7 @@ import Foundation
 import Models
 import ModelsTestHelpers
 import ResourceLocationResolver
+import ResourceLocationResolverTestHelpers
 import RunnerTestHelpers
 import SimulatorPool
 import SimulatorPoolTestHelpers
@@ -15,7 +16,7 @@ import XCTest
 
 final class RuntimeTestQuerierTests: XCTestCase {
     let eventBus = EventBus()
-    let resourceLocationResolver = try! ResourceLocationResolver()
+    let resourceLocationResolver: ResourceLocationResolver = FakeResourceLocationResolver.throwing()
     let tempFolder = try! TemporaryFolder()
     let dumpFilename = UUID().uuidString
     lazy var fixedValueUniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: dumpFilename)

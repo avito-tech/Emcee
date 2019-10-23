@@ -153,7 +153,7 @@ final class ResourceLocationResolverTests: XCTestCase {
     
     var urlSession = URLSession.shared
     let fakeSession = FakeURLSession()
-    lazy var resolver = ResourceLocationResolver(urlResource: urlResource)
+    lazy var resolver = ResourceLocationResolverImpl(urlResource: urlResource)
     lazy var serverFolder = try! tempFolder.pathByCreatingDirectories(components: ["server"])
     let tempFolder = try! TemporaryFolder()
     lazy var fileCache = try! FileCache(cachesUrl: tempFolder.absolutePath.fileUrl)

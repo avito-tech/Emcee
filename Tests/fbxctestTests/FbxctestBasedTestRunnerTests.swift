@@ -1,7 +1,7 @@
 import DeveloperDirLocatorTestHelpers
 import Models
 import ModelsTestHelpers
-import ResourceLocationResolver
+import ResourceLocationResolverTestHelpers
 import Runner
 import TemporaryStuff
 import XCTest
@@ -10,7 +10,7 @@ import fbxctest
 final class FbxctestBasedTestRunnerTests: XCTestCase, TestRunnerStream {
     let runner = FbxctestBasedTestRunner(
         fbxctestLocation: FbxctestLocationFixtures.fakeFbxctestLocation,
-        resourceLocationResolver: try! ResourceLocationResolver()
+        resourceLocationResolver: FakeResourceLocationResolver.throwing()
     )
     
     func test___when_app_is_missing_and_test_type_is_ui_test___throws() throws {

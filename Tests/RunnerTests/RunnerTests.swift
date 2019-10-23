@@ -4,7 +4,7 @@ import Extensions
 import Foundation
 import Models
 import ModelsTestHelpers
-import ResourceLocationResolver
+import ResourceLocationResolverTestHelpers
 import Runner
 import RunnerTestHelpers
 import TemporaryStuff
@@ -15,7 +15,7 @@ public final class RunnerTests: XCTestCase {
 
     let testRunnerProvider = FakeTestRunnerProvider()
     var tempFolder = try! TemporaryFolder()
-    let resolver = try! ResourceLocationResolver()
+    let resolver = FakeResourceLocationResolver.resolvingToTempFolder()
     
     func test___running_test_without_output_to_stream___provides_test_did_not_run_results() throws {
         testRunnerProvider.predefinedFakeTestRunner.disableTestStartedTestRunnerStreamEvents()

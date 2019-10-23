@@ -81,6 +81,7 @@ let package = Package(
                 "Models",
                 "ModelsTestHelpers",
                 "ResourceLocationResolver",
+                "ResourceLocationResolverTestHelpers",
                 "TemporaryStuff",
             ]
         ),
@@ -346,6 +347,7 @@ let package = Package(
                 "DeveloperDirLocator",
                 "DistWorker",
                 "EventBus",
+                "FileCache",
                 "JunitReporting",
                 "LaunchdUtils",
                 "LocalQueueServerRunner",
@@ -365,6 +367,7 @@ let package = Package(
                 "Scheduler",
                 "SignalHandling",
                 "TemporaryStuff",
+                "URLResource",
                 "UniqueIdentifierGenerator",
                 "Version",
                 "fbxctest",
@@ -437,6 +440,7 @@ let package = Package(
                 "DeveloperDirLocatorTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
+                "ResourceLocationResolverTestHelpers",
                 "Runner",
                 "TemporaryStuff",
                 "fbxctest",
@@ -697,7 +701,8 @@ let package = Package(
                 "ModelsTestHelpers",
                 "PluginManager",
                 "ResourceLocationResolver",
-                "TemporaryStuff"
+                "ResourceLocationResolverTestHelpers",
+                "TemporaryStuff",
             ]
         ),
         .target(
@@ -935,6 +940,15 @@ let package = Package(
                 "URLResource",
             ]
         ),
+        .target(
+            // MARK: ResourceLocationResolverTestHelpers
+            name: "ResourceLocationResolverTestHelpers",
+            dependencies: [
+                "Models",
+                "ResourceLocationResolver",
+            ],
+            path: "Tests/ResourceLocationResolverTestHelpers"
+        ),
         .testTarget(
             // MARK: ResourceLocationResolverTests
             name: "ResourceLocationResolverTests",
@@ -1019,6 +1033,7 @@ let package = Package(
                 "ModelsTestHelpers",
                 "ProcessController",
                 "ResourceLocationResolver",
+                "ResourceLocationResolverTestHelpers",
                 "Runner",
                 "RunnerTestHelpers",
                 "ScheduleStrategy",
@@ -1051,6 +1066,7 @@ let package = Package(
                 "ModelsTestHelpers",
                 "PathLib",
                 "ResourceLocationResolver",
+                "ResourceLocationResolverTestHelpers",
                 "RunnerTestHelpers",
                 "RuntimeDump",
                 "SimulatorPoolTestHelpers",

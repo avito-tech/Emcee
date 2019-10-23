@@ -3,7 +3,7 @@ import DeveloperDirLocatorTestHelpers
 import Foundation
 import Models
 import ModelsTestHelpers
-import ResourceLocationResolver
+import ResourceLocationResolverTestHelpers
 import TemporaryStuff
 import XCTest
 
@@ -18,7 +18,7 @@ final class XcTestRunFileArgumentTests: XCTestCase {
             ),
             developerDirLocator: FakeDeveloperDirLocator(),
             entriesToRun: [],
-            resourceLocationResolver: try ResourceLocationResolver(),
+            resourceLocationResolver: FakeResourceLocationResolver.resolvingToTempFolder(),
             temporaryFolder: try TemporaryFolder(),
             testContext: TestContextFixtures().testContext,
             testType: .appTest
@@ -37,7 +37,7 @@ final class XcTestRunFileArgumentTests: XCTestCase {
             ),
             developerDirLocator: FakeDeveloperDirLocator(),
             entriesToRun: [],
-            resourceLocationResolver: try ResourceLocationResolver(),
+            resourceLocationResolver: FakeResourceLocationResolver.resolvingToTempFolder(),
             temporaryFolder: try TemporaryFolder(),
             testContext: TestContextFixtures().testContext,
             testType: .uiTest
@@ -56,7 +56,7 @@ final class XcTestRunFileArgumentTests: XCTestCase {
             ),
             developerDirLocator: FakeDeveloperDirLocator(),
             entriesToRun: [],
-            resourceLocationResolver: try ResourceLocationResolver(),
+            resourceLocationResolver: FakeResourceLocationResolver.resolvingToTempFolder(),
             temporaryFolder: try TemporaryFolder(),
             testContext: TestContextFixtures().testContext,
             testType: .uiTest

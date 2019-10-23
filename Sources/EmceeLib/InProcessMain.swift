@@ -1,6 +1,7 @@
 import ArgLib
 import DeveloperDirLocator
 import Extensions
+import FileCache
 import Foundation
 import LocalHostDeterminer
 import Logging
@@ -10,6 +11,7 @@ import Models
 import ProcessController
 import RequestSender
 import ResourceLocationResolver
+import URLResource
 import Version
 
 public final class InProcessMain {
@@ -23,12 +25,27 @@ public final class InProcessMain {
         
         try runCommands()
     }
+    
+    private static func cacheContainerUrl() throws -> URL {
+        let cacheContainer = try FileManager.default.url(
+            for: .cachesDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: true
+        )
+        return cacheContainer.appendingPathComponent("ru.avito.Runner.cache", isDirectory: true)
+    }
 
     private func runCommands() throws {
         let developerDirLocator = DefaultDeveloperDirLocator()
         let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
         let requestSenderProvider = DefaultRequestSenderProvider()
-        let resourceLocationResolver = try ResourceLocationResolver()
+        let resourceLocationResolver = ResourceLocationResolverImpl(
+            urlResource: URLResource(
+                fileCache: try FileCache(cachesUrl: try InProcessMain.cacheContainerUrl()),
+                urlSession: URLSession.shared
+            )
+        )
         
         let commandInvoker = CommandInvoker(
             commands: [
