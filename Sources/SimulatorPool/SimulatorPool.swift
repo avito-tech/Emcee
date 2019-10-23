@@ -104,7 +104,7 @@ public class SimulatorPool: CustomStringConvertible {
         for index in 0 ..< count {
             let folderName = "sim_\(testDestination.deviceType.removingWhitespaces())_\(testDestination.runtime)_\(index)"
             let workingDirectory = try tempFolder.pathByCreatingDirectories(components: [folderName])
-            let simulator = Simulator(index: index, testDestination: testDestination, workingDirectory: workingDirectory)
+            let simulator = Simulator(testDestination: testDestination, workingDirectory: workingDirectory)
             let controller = try simulatorControllerProvider.createSimulatorController(
                 developerDir: developerDir,
                 developerDirLocator: developerDirLocator,

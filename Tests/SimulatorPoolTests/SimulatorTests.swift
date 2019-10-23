@@ -32,7 +32,6 @@ class SimulatorTests: XCTestCase {
             )
             
             simulator = Simulator(
-                index: 0,
                 testDestination: testDestination,
                 workingDirectory: tempFolder.absolutePath
             )
@@ -49,10 +48,11 @@ class SimulatorTests: XCTestCase {
             AbsolutePath("\(tempFolder.absolutePath.pathString)/sim")
         )
     }
+    
     func test___identifier() throws {
         XCTAssertEqual(
             simulator.identifier,
-            "simulator_0_iPhoneX_iOS12.1"
+            "simulator_iPhoneX_iOS12.1"
         )
     }
 }

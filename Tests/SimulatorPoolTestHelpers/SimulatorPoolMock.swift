@@ -9,7 +9,6 @@ import TemporaryStuff
 public final class SimulatorPoolMock: SimulatorPool {
     public static let simulatorController = FakeSimulatorController(
         simulator: Shimulator(
-            index: 0,
             testDestination: TestDestinationFixtures.testDestination,
             workingDirectory: .root
         ),
