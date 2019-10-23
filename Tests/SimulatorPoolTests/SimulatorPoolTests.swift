@@ -19,29 +19,12 @@ class SimulatorPoolTests: XCTestCase {
         )
     }
     lazy var developerDirLocator = FakeDeveloperDirLocator(result: tempFolder.absolutePath)
-    
-    func testThrowingError() throws {
-        let pool = try SimulatorPool(
-            developerDir: DeveloperDir.current,
-            developerDirLocator: developerDirLocator,
-            numberOfSimulators: 1,
-            simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
-            simulatorControllerProvider: simulatorControllerProvider,
-            tempFolder: tempFolder,
-            testDestination: TestDestinationFixtures.testDestination
-        )
-        _ = try pool.allocateSimulatorController()
-        XCTAssertThrowsError(_ = try pool.allocateSimulatorController(), "Expected to throw") { error in
-            XCTAssertEqual(error as? BorrowError, BorrowError.noSimulatorsLeft)
-        }
-    }
-    
+
     func testUsingFromQueue() throws {
         let numberOfThreads = 4
         let pool = try SimulatorPool(
             developerDir: DeveloperDir.current,
             developerDirLocator: developerDirLocator,
-            numberOfSimulators: UInt(numberOfThreads),
             simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
             simulatorControllerProvider: simulatorControllerProvider,
             tempFolder: tempFolder,
@@ -58,11 +41,16 @@ class SimulatorPoolTests: XCTestCase {
                     Thread.sleep(forTimeInterval: duration)
                     pool.freeSimulatorController(simulator)
                 } catch {
-                    XCTFail("No exception should be thrown")
+                    XCTFail("Unexpected exception has been thrown: \(error)")
                 }
             }
         }
         
         queue.waitUntilAllOperationsAreFinished()
+        
+        XCTAssertEqual(
+            pool.numberExistingOfControllers(),
+            numberOfThreads
+        )
     }
 }

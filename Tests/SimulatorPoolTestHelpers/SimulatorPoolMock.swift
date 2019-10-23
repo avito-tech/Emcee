@@ -20,7 +20,6 @@ public final class SimulatorPoolMock: SimulatorPool {
         try super.init(
             developerDir: DeveloperDir.current,
             developerDirLocator: FakeDeveloperDirLocator(),
-            numberOfSimulators: 1,
             simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
             simulatorControllerProvider: FakeSimulatorControllerProvider { _ in
                 return SimulatorPoolMock.simulatorController

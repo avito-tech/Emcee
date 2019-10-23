@@ -149,7 +149,6 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         if let applicationTestSupport = configuration.applicationTestSupport {
             let simulatorPool = try onDemandSimulatorPool.pool(
                 key: OnDemandSimulatorPool.Key(
-                    numberOfSimulators: 1,
                     developerDir: configuration.developerDir,
                     testDestination: configuration.testDestination,
                     simulatorControlTool: applicationTestSupport.simulatorControlTool

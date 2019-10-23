@@ -13,35 +13,33 @@ import TemporaryStuff
  * to borrow and free the simulators.
  */
 public class SimulatorPool: CustomStringConvertible {
-    private let numberOfSimulators: UInt
+    private let developerDir: DeveloperDir
+    private let developerDirLocator: DeveloperDirLocator
+    private let simulatorControlTool: SimulatorControlTool
+    private let simulatorControllerProvider: SimulatorControllerProvider
+    private let tempFolder: TemporaryFolder
     private let testDestination: TestDestination
-    private var controllers: [SimulatorController]
+    private var controllers = [SimulatorController]()
     private let syncQueue = DispatchQueue(label: "ru.avito.SimulatorPool")
     
     public var description: String {
-        return "<\(type(of: self)): \(numberOfSimulators)-sim '\(testDestination.deviceType)'+'\(testDestination.runtime)'>"
+        return "<\(type(of: self)): '\(testDestination.deviceType)'+'\(testDestination.runtime)'>"
     }
     
     public init(
         developerDir: DeveloperDir,
         developerDirLocator: DeveloperDirLocator,
-        numberOfSimulators: UInt,
         simulatorControlTool: SimulatorControlTool,
         simulatorControllerProvider: SimulatorControllerProvider,
         tempFolder: TemporaryFolder,
         testDestination: TestDestination
     ) throws {
-        self.numberOfSimulators = numberOfSimulators
+        self.developerDir = developerDir
+        self.developerDirLocator = developerDirLocator
+        self.simulatorControlTool = simulatorControlTool
+        self.simulatorControllerProvider = simulatorControllerProvider
+        self.tempFolder = tempFolder
         self.testDestination = testDestination
-        controllers = try SimulatorPool.createControllers(
-            count: numberOfSimulators,
-            developerDir: developerDir,
-            developerDirLocator: developerDirLocator,
-            simulatorControlTool: simulatorControlTool,
-            simulatorControllerProvider: simulatorControllerProvider,
-            tempFolder: tempFolder,
-            testDestination: testDestination
-        )
     }
     
     deinit {
@@ -50,11 +48,22 @@ public class SimulatorPool: CustomStringConvertible {
     
     public func allocateSimulatorController() throws -> SimulatorController {
         return try syncQueue.sync {
-            guard let simulator = controllers.popLast() else {
-                throw BorrowError.noSimulatorsLeft
+            if let controller = controllers.popLast() {
+                Logger.verboseDebug("Allocated simulator: \(controller)")
+                return controller
             }
-            Logger.verboseDebug("Allocated simulator: \(simulator)")
-            return simulator
+            
+            let folderName = "sim_\(testDestination.deviceType.removingWhitespaces())_\(testDestination.runtime)"
+            let workingDirectory = try tempFolder.pathByCreatingDirectories(components: [folderName])
+            let simulator = Simulator(testDestination: testDestination, workingDirectory: workingDirectory)
+            let controller = try simulatorControllerProvider.createSimulatorController(
+                developerDir: developerDir,
+                developerDirLocator: developerDirLocator,
+                simulator: simulator,
+                simulatorControlTool: simulatorControlTool
+            )
+            Logger.verboseDebug("Allocated new simulator: \(controller)")
+            return controller
         }
     }
     
@@ -91,28 +100,7 @@ public class SimulatorPool: CustomStringConvertible {
         }
     }
     
-    private static func createControllers(
-        count: UInt,
-        developerDir: DeveloperDir,
-        developerDirLocator: DeveloperDirLocator,
-        simulatorControlTool: SimulatorControlTool,
-        simulatorControllerProvider: SimulatorControllerProvider,
-        tempFolder: TemporaryFolder,
-        testDestination: TestDestination
-    ) throws -> [SimulatorController] {
-        var result = [SimulatorController]()
-        for index in 0 ..< count {
-            let folderName = "sim_\(testDestination.deviceType.removingWhitespaces())_\(testDestination.runtime)_\(index)"
-            let workingDirectory = try tempFolder.pathByCreatingDirectories(components: [folderName])
-            let simulator = Simulator(testDestination: testDestination, workingDirectory: workingDirectory)
-            let controller = try simulatorControllerProvider.createSimulatorController(
-                developerDir: developerDir,
-                developerDirLocator: developerDirLocator,
-                simulator: simulator,
-                simulatorControlTool: simulatorControlTool
-            )
-            result.append(controller)
-        }
-        return result
+    internal func numberExistingOfControllers() -> Int {
+        return syncQueue.sync { controllers.count }
     }
 }
