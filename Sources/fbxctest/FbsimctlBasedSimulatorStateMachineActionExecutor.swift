@@ -20,7 +20,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
         simulatorSetPath: AbsolutePath,
         testDestination: TestDestination
     ) throws {
-        let controller = try ProcessController(
+        let processController = try ProcessController(
             subprocess: Subprocess(
                 arguments: [
                     fbsimctlArg,
@@ -28,18 +28,16 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
                     "create",
                     "iOS \(testDestination.runtime)", testDestination.deviceType
                 ],
-                environment: environment,
-                silenceBehavior: SilenceBehavior(
-                    automaticAction: .interruptAndForceKill,
-                    allowedSilenceDuration: 60
-                )
+                environment: environment
             )
         )
-        controller.startAndListenUntilProcessDies()
 
-        guard controller.processStatus() == .terminated(exitCode: 0) else {
-            throw FbsimctlError.createOperationFailed("fbsimctl exit code \(controller.processStatus())")
+        let fbsimctlEvents = try waitForFbsimctlToCreateSimulator(processController: processController)
+        let createEndedEvents = fbsimctlEvents.compactMap { $0 as? FbSimCtlCreateEndedEvent }
+        guard createEndedEvents.count == 1, let createEndedEvent = createEndedEvents.first else {
+            throw FbsimctlError.createOperationFailed("Failed to get single create ended event")
         }
+        Logger.debug("Created simulator with UUID: \(createEndedEvent.subject.udid)")
     }
     
     public func performBootSimulatorAction(
@@ -47,8 +45,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
         simulatorSetPath: AbsolutePath,
         simulatorUuid: String
     ) throws {
-        // we keep this process alive throughout the run, as it owns the simulator process.
-        simulatorKeepAliveProcessController = try ProcessController(
+        let processController = try ProcessController(
             subprocess: Subprocess(
                 arguments: [
                     fbsimctlArg,
@@ -60,12 +57,17 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
                 environment: environment
             )
         )
-        try waitForFbsimctlToBootSimulator()
+        try waitForFbsimctlToBootSimulator(processController: processController)
 
         // process should be alive at this point and the boot should have finished
-        guard simulatorKeepAliveProcessController?.isProcessRunning == true else {
+        guard processController.isProcessRunning == true else {
             throw FbsimctlError.bootOperationFailed("Simulator keep-alive process died unexpectedly")
         }
+
+        // we keep this process alive throughout the run, as it owns the simulator process.
+        simulatorKeepAliveProcessController = processController
+
+
     }
     
     public func performShutdownSimulatorAction(
@@ -126,12 +128,15 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
 
     // MARK: - Utility Methods
 
-    private func waitForFbsimctlToBootSimulator() throws {
-        guard let simulatorKeepAliveProcessController = simulatorKeepAliveProcessController else {
-            Logger.error("Expected to have keep-alive process")
-            throw FbsimctlError.bootOperationFailed("No keep-alive process found")
-        }
-        let outputProcessor = FbsimctlOutputProcessor(processController: simulatorKeepAliveProcessController)
+    private func waitForFbsimctlToCreateSimulator(
+        processController: ProcessController
+    ) throws -> [FbSimCtlEventCommonFields] {
+        let outputProcessor = FbsimctlOutputProcessor(processController: processController)
+        return try outputProcessor.waitForEvent(type: .ended, name: .create, timeout: 60)
+    }
+
+    private func waitForFbsimctlToBootSimulator(processController: ProcessController) throws {
+        let outputProcessor = FbsimctlOutputProcessor(processController: processController)
         try outputProcessor.waitForEvent(type: .ended, name: .boot, timeout: 180)
         try outputProcessor.waitForEvent(type: .started, name: .listen, timeout: 60)
     }
