@@ -157,7 +157,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     private func runTestsOnRemotelyRunningQueue(
         eventBus: EventBus,
         testRunnerTool: TestRunnerTool,
-        simulatorControlTool: SimulatorControlTool?,
+        simulatorControlTool: SimulatorControlTool,
         queueServerAddress: SocketAddress,
         runId: JobId,
         tempFolder: TemporaryFolder,

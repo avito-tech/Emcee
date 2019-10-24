@@ -4,7 +4,7 @@ import Models
 public final class BuildArtifactsFixtures {
     public static func fakeEmptyBuildArtifacts(
         appBundleLocation: String? = "",
-        runtimeDumpKind: RuntimeDumpKind = .logicTest
+        runtimeDumpKind: XcTestBundleRuntimeDumpMode = .logicTest
     ) -> BuildArtifacts {
         let appBundle = appBundleLocation != nil ? AppBundleLocation(.localFilePath(appBundleLocation!)) : nil
         return BuildArtifacts(
@@ -23,7 +23,7 @@ public final class BuildArtifactsFixtures {
         runner: String?,
         xcTestBundle: String,
         additionalApplicationBundles: [String],
-        runtimeDumpKind: RuntimeDumpKind = .logicTest
+        runtimeDumpKind: XcTestBundleRuntimeDumpMode = .logicTest
     ) -> BuildArtifacts {
         return BuildArtifacts(
             appBundle: appBundle != nil ? AppBundleLocation(.localFilePath(appBundle!)) : nil,

@@ -12,13 +12,15 @@ final class TestEntriesValidatorTests: XCTestCase {
 
         _ = try validator.validatedTestEntries { _, _ in }
 
-        let querierConfiguration = runtimeTestQuerier.configuration
-        XCTAssertNotNil(querierConfiguration)
-        XCTAssertNil(querierConfiguration!.applicationTestSupport)
-        XCTAssertEqual(querierConfiguration!.testRunnerTool, validatorConfiguration.testRunnerTool)
-        XCTAssertEqual(querierConfiguration!.xcTestBundle, validatorConfiguration.testArgFileEntries[0].buildArtifacts.xcTestBundle)
-        XCTAssertEqual(querierConfiguration!.testDestination, validatorConfiguration.testArgFileEntries[0].testDestination)
-        XCTAssertEqual(querierConfiguration!.testsToValidate.count, validatorConfiguration.testArgFileEntries.count)
+        guard let querierConfiguration = runtimeTestQuerier.configuration else {
+            return XCTFail("configuration is unexpectedly nil")
+        }
+
+        XCTAssertEqual(querierConfiguration.runtimeDumpMode, .logicTest)
+        XCTAssertEqual(querierConfiguration.testRunnerTool, validatorConfiguration.testRunnerTool)
+        XCTAssertEqual(querierConfiguration.xcTestBundleLocation, validatorConfiguration.testArgFileEntries[0].buildArtifacts.xcTestBundle.location)
+        XCTAssertEqual(querierConfiguration.testDestination, validatorConfiguration.testArgFileEntries[0].testDestination)
+        XCTAssertEqual(querierConfiguration.testsToValidate.count, validatorConfiguration.testArgFileEntries.count)
     }
 
     func test__dont_pass_app_test_data__if_no_app_tests_in_configuration() throws {
@@ -28,8 +30,10 @@ final class TestEntriesValidatorTests: XCTestCase {
 
         _ = try validator.validatedTestEntries { _, _ in }
 
-        let querierConfiguration = runtimeTestQuerier.configuration
-        XCTAssertNil(querierConfiguration?.applicationTestSupport)
+        guard let querierConfiguration = runtimeTestQuerier.configuration else {
+            return XCTFail("configuration is unexpectedly nil")
+        }
+        XCTAssertEqual(querierConfiguration.runtimeDumpMode, .logicTest)
     }
 
     func test__pass_app_test_data__if_flag_is_true() throws {
@@ -41,10 +45,19 @@ final class TestEntriesValidatorTests: XCTestCase {
 
         _ = try validator.validatedTestEntries { _, _ in }
 
-        let querierConfiguration = runtimeTestQuerier.configuration
-        XCTAssertNotNil(querierConfiguration!.applicationTestSupport)
-        XCTAssertEqual(querierConfiguration!.applicationTestSupport!.appBundle, fakeBuildArtifacts.appBundle)
-        XCTAssertEqual(querierConfiguration!.applicationTestSupport!.simulatorControlTool, validatorConfiguration.simulatorControlTool)
+        guard let querierConfiguration = runtimeTestQuerier.configuration else {
+            return XCTFail("configuration is unexpectedly nil")
+        }
+
+        XCTAssertEqual(
+            querierConfiguration.runtimeDumpMode,
+            .appTest(
+                RuntimeDumpApplicationTestSupport(
+                    appBundle: fakeBuildArtifacts.appBundle!,
+                    simulatorControlTool: validatorConfiguration.simulatorControlTool
+                )
+            )
+        )
     }
 
     func test__throws_error__if_app_is_not_provided_for_app_tests() throws {
@@ -56,19 +69,6 @@ final class TestEntriesValidatorTests: XCTestCase {
             )
         )
         let validatorConfiguration = try createValidatorConfiguration(testArgFileEntries: [appTestEntry])
-        let validator = try createValidator(configuration: validatorConfiguration)
-
-        XCTAssertThrowsError(_ = try validator.validatedTestEntries { _, _ in })
-    }
-
-    func test__throws_error__if_fbsimctl_is_not_provided_for_app_tests() throws {
-        let appTestEntry = try createTestEntry(
-            testType: .appTest,
-            buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(
-                runtimeDumpKind: .appTest
-            )
-        )
-        let validatorConfiguration = try createValidatorConfiguration(testArgFileEntries: [appTestEntry], simulatorControlTool: nil)
         let validator = try createValidator(configuration: validatorConfiguration)
 
         XCTAssertThrowsError(_ = try validator.validatedTestEntries { _, _ in })
@@ -94,7 +94,7 @@ final class TestEntriesValidatorTests: XCTestCase {
 
     private func createValidatorConfiguration(
         testArgFileEntries: [TestArgFile.Entry],
-        simulatorControlTool: SimulatorControlTool? = SimulatorControlToolFixtures.fakeFbsimctlTool
+        simulatorControlTool: SimulatorControlTool = SimulatorControlToolFixtures.fakeFbsimctlTool
     ) throws -> TestEntriesValidatorConfiguration {
         return TestEntriesValidatorConfiguration(
             simulatorControlTool: simulatorControlTool,

@@ -12,11 +12,10 @@ public struct RuntimeDumpConfiguration {
     public let testRunnerTool: TestRunnerTool
     
     /** Xctest bundle which contents should be dumped in runtime */
-    public let xcTestBundle: XcTestBundle
+    public let xcTestBundleLocation: TestBundleLocation
 
-    /** A helper object to perform runtime dump as an application test run */
-    public let applicationTestSupport: RuntimeDumpApplicationTestSupport?
-    
+    public let runtimeDumpMode: RuntimeDumpMode
+
     /** Test destination */
     public let testDestination: TestDestination
     
@@ -27,8 +26,8 @@ public struct RuntimeDumpConfiguration {
 
     public init(
         testRunnerTool: TestRunnerTool,
-        xcTestBundle: XcTestBundle,
-        applicationTestSupport: RuntimeDumpApplicationTestSupport?,
+        xcTestBundleLocation: TestBundleLocation,
+        runtimeDumpMode: RuntimeDumpMode,
         testDestination: TestDestination,
         testsToValidate: [TestToRun],
         developerDir: DeveloperDir
@@ -41,8 +40,8 @@ public struct RuntimeDumpConfiguration {
             numberOfSimulators: 1
         )
         self.testRunnerTool = testRunnerTool
-        self.xcTestBundle = xcTestBundle
-        self.applicationTestSupport = applicationTestSupport
+        self.xcTestBundleLocation = xcTestBundleLocation
+        self.runtimeDumpMode = runtimeDumpMode
         self.testDestination = testDestination
         self.testsToValidate = testsToValidate
         self.developerDir = developerDir

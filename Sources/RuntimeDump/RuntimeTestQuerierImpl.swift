@@ -118,13 +118,31 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
     ) -> RunnerConfiguration {
         let simulatorSettings = SimulatorSettings(simulatorLocalizationSettings: nil, watchdogSettings: nil)
         let environment = self.environment(runtimeEntriesJSONPath: runtimeEntriesJSONPath)
-        
-        if let applicationTestSupport = dumpConfiguration.applicationTestSupport {
+
+        switch dumpConfiguration.runtimeDumpMode {
+        case .logicTest:
+            return RunnerConfiguration(
+                buildArtifacts: BuildArtifacts.onlyWithXctestBundle(
+                    xcTestBundle: XcTestBundle(
+                        location: dumpConfiguration.xcTestBundleLocation,
+                        runtimeDumpKind: .logicTest
+                    )
+                ),
+                environment: environment,
+                simulatorSettings: simulatorSettings,
+                testRunnerTool: dumpConfiguration.testRunnerTool,
+                testTimeoutConfiguration: dumpConfiguration.testTimeoutConfiguration,
+                testType: .logicTest
+            )
+        case .appTest(let runtimeDumpApplicationTestSupport):
             return RunnerConfiguration(
                 buildArtifacts: BuildArtifacts(
-                    appBundle: applicationTestSupport.appBundle,
+                    appBundle: runtimeDumpApplicationTestSupport.appBundle,
                     runner: nil,
-                    xcTestBundle: dumpConfiguration.xcTestBundle,
+                    xcTestBundle: XcTestBundle(
+                        location: dumpConfiguration.xcTestBundleLocation,
+                        runtimeDumpKind: .appTest
+                    ),
                     additionalApplicationBundles: []
                 ),
                 environment: environment,
@@ -133,30 +151,14 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
                 testTimeoutConfiguration: dumpConfiguration.testTimeoutConfiguration,
                 testType: .appTest
             )
-        } else {
-            return RunnerConfiguration(
-                buildArtifacts: BuildArtifacts.onlyWithXctestBundle(xcTestBundle: dumpConfiguration.xcTestBundle),
-                environment: environment,
-                simulatorSettings: simulatorSettings,
-                testRunnerTool: dumpConfiguration.testRunnerTool,
-                testTimeoutConfiguration: dumpConfiguration.testTimeoutConfiguration,
-                testType: .logicTest
-            )
         }
     }
 
-    private func simulatorForRuntimeDump(configuration: RuntimeDumpConfiguration) throws -> AllocatedSimulator {
-        if let applicationTestSupport = configuration.applicationTestSupport {
-            let simulatorPool = try onDemandSimulatorPool.pool(
-                key: OnDemandSimulatorPool.Key(
-                    developerDir: configuration.developerDir,
-                    testDestination: configuration.testDestination,
-                    simulatorControlTool: applicationTestSupport.simulatorControlTool
-                )
-            )
-
-            return try simulatorPool.allocateSimulator()
-        } else {
+    private func simulatorForRuntimeDump(
+        configuration: RuntimeDumpConfiguration
+    ) throws -> AllocatedSimulator {
+        switch configuration.runtimeDumpMode {
+        case .logicTest:
             return AllocatedSimulator(
                 simulator: Shimulator.shimulator(
                     testDestination: configuration.testDestination,
@@ -164,6 +166,15 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
                 ),
                 releaseSimulator: {}
             )
+        case .appTest(let runtimeDumpApplicationTestSupport):
+            let simulatorPool = try onDemandSimulatorPool.pool(
+                key: OnDemandSimulatorPool.Key(
+                    developerDir: configuration.developerDir,
+                    testDestination: configuration.testDestination,
+                    simulatorControlTool: runtimeDumpApplicationTestSupport.simulatorControlTool
+                )
+            )
+            return try simulatorPool.allocateSimulator()
         }
     }
     
@@ -198,7 +209,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
     }
     
     private func reportStats(testCaseCount: Int, testCount: Int, configuration: RuntimeDumpConfiguration) {
-        let testBundleName = configuration.xcTestBundle.location.resourceLocation.stringValue.lastPathComponent
+        let testBundleName = configuration.xcTestBundleLocation.resourceLocation.stringValue.lastPathComponent
         Logger.info("Runtime dump contains \(testCaseCount) XCTestCases, \(testCount) tests")
         MetricRecorder.capture(
             RuntimeDumpTestCountMetric(testBundleName: testBundleName, numberOfTests: testCount),

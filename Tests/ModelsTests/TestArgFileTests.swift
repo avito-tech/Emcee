@@ -412,7 +412,7 @@ final class TestArgFileTests: XCTestCase {
         appBundle: String? = "/appBundle",
         runner: String? = "/runner",
         additionalApplicationBundles: [String] = ["/additionalApp1", "/additionalApp2"],
-        runtimeDumpKind: RuntimeDumpKind = .appTest
+        runtimeDumpKind: XcTestBundleRuntimeDumpMode = .appTest
     ) -> BuildArtifacts {
         return BuildArtifactsFixtures.withLocalPaths(
             appBundle: appBundle,

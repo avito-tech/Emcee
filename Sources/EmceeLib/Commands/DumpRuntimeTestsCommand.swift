@@ -49,8 +49,7 @@ public final class DumpRuntimeTestsCommand: Command {
             try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testDestinations.name)
         )
         let xctestBundle: TestBundleLocation = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.xctestBundle.name)
-        let applicationTestSupport = try runtimeDumpApplicationTestSupport(payload: payload)
-        let runtimeDumpKind: RuntimeDumpKind = applicationTestSupport != nil ? .appTest : .logicTest
+        let runtimeDumpMode = try determineDumpMode(payload: payload)
         let tempFolder = try TemporaryFolder(
             containerPath: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.tempFolder.name)
         )
@@ -58,11 +57,8 @@ public final class DumpRuntimeTestsCommand: Command {
 
         let configuration = RuntimeDumpConfiguration(
             testRunnerTool: testRunnerTool,
-            xcTestBundle: XcTestBundle(
-                location: xctestBundle,
-                runtimeDumpKind: runtimeDumpKind
-            ),
-            applicationTestSupport: applicationTestSupport,
+            xcTestBundleLocation: xctestBundle,
+            runtimeDumpMode: runtimeDumpMode,
             testDestination: testDestinations[0].testDestination,
             testsToValidate: [],
             developerDir: DeveloperDir.current
@@ -92,26 +88,20 @@ public final class DumpRuntimeTestsCommand: Command {
         Logger.debug("Wrote run time tests dump to file \(outputPath)")
     }
         
-    private func runtimeDumpApplicationTestSupport(
-        payload: CommandPayload
-    ) throws -> RuntimeDumpApplicationTestSupport? {
-        let fbsimctlLocation: FbsimctlLocation? = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.fbsimctl.name)
+    private func determineDumpMode(payload: CommandPayload) throws -> RuntimeDumpMode {
         let app: AppBundleLocation? = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.app.name)
 
         guard let appLocation = app else {
-            if fbsimctlLocation != nil {
-                Logger.warning("--fbsimctl argument is unused")
-            }
-            return nil
+            return .logicTest
         }
 
-        guard let fbsimctl = fbsimctlLocation else {
-            Logger.fatal("To perform runtime dump in application test mode, both --fbsimctl and --app arguments should be provided. Omit both arguments to perform runtime dump in logic test mode.")
-        }
+        let fbsimctlLocation: FbsimctlLocation = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.fbsimctl.name)
 
-        return RuntimeDumpApplicationTestSupport(
-            appBundle: appLocation,
-            simulatorControlTool: SimulatorControlTool.fbsimctl(fbsimctl)
+        return .appTest(
+            RuntimeDumpApplicationTestSupport(
+                appBundle: appLocation,
+                simulatorControlTool: .fbsimctl(fbsimctlLocation)
+            )
         )
     }
 }

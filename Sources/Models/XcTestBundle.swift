@@ -1,10 +1,10 @@
 public final class XcTestBundle: Codable, Hashable, CustomStringConvertible {
     public let location: TestBundleLocation
-    public let runtimeDumpKind: RuntimeDumpKind
+    public let runtimeDumpKind: XcTestBundleRuntimeDumpMode
 
     public init(
         location: TestBundleLocation,
-        runtimeDumpKind: RuntimeDumpKind
+        runtimeDumpKind: XcTestBundleRuntimeDumpMode
     ) {
         self.location = location
         self.runtimeDumpKind = runtimeDumpKind
@@ -23,7 +23,7 @@ public final class XcTestBundle: Codable, Hashable, CustomStringConvertible {
         } else {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             self.location = try container.decode(TestBundleLocation.self, forKey: .location)
-            self.runtimeDumpKind = try container.decode(RuntimeDumpKind.self, forKey: .runtimeDumpKind)
+            self.runtimeDumpKind = try container.decode(XcTestBundleRuntimeDumpMode.self, forKey: .runtimeDumpKind)
         }
     }
 

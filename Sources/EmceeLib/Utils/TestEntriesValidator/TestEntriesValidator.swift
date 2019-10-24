@@ -8,14 +8,11 @@ import TemporaryStuff
 
 public final class TestEntriesValidator {
 
-    enum `Error`: Swift.Error, CustomStringConvertible {
-        case runtimeDumpMissesFbsimctl
+    enum TestEntriesValidatorError: Error, CustomStringConvertible {
         case runtimeDumpMissesAppBundle
 
         public var description: String {
             switch self {
-            case .runtimeDumpMissesFbsimctl:
-                return "No fbsimctl provided for application tests, pass --fbsimctl argument"
             case .runtimeDumpMissesAppBundle:
                 return "Pass buildArtifacts.app inside --test-arg-file for each appTest"
             }
@@ -51,15 +48,15 @@ public final class TestEntriesValidator {
     private func validatedTestEntries(
         testArgFileEntry: TestArgFile.Entry
     ) throws -> [ValidatedTestEntry] {
-        let runtimeDumpApplicationTestSupport = try buildRuntimeDumpApplicationTestSupport(
+        let runtimeDumpMode = try determineDumpMode(
             buildArtifacts: testArgFileEntry.buildArtifacts,
             testArgFileEntry: testArgFileEntry
         )
 
         let runtimeDumpConfiguration = RuntimeDumpConfiguration(
             testRunnerTool: validatorConfiguration.testRunnerTool,
-            xcTestBundle: testArgFileEntry.buildArtifacts.xcTestBundle,
-            applicationTestSupport: runtimeDumpApplicationTestSupport,
+            xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location,
+            runtimeDumpMode: runtimeDumpMode,
             testDestination: testArgFileEntry.testDestination,
             testsToValidate: testArgFileEntry.testsToRun,
             developerDir: testArgFileEntry.toolchainConfiguration.developerDir
@@ -73,25 +70,23 @@ public final class TestEntriesValidator {
         )
     }
 
-    private func buildRuntimeDumpApplicationTestSupport(
+    private func determineDumpMode(
         buildArtifacts: BuildArtifacts,
         testArgFileEntry: TestArgFile.Entry
-    ) throws -> RuntimeDumpApplicationTestSupport? {
-        let needToDumpApplicationTests = testArgFileEntry.buildArtifacts.xcTestBundle.runtimeDumpKind == .appTest
-        
-        guard needToDumpApplicationTests else { return nil }
-        
-        guard let simulatorControlTool = validatorConfiguration.simulatorControlTool else {
-            throw Error.runtimeDumpMissesFbsimctl
+    ) throws -> RuntimeDumpMode {
+        if testArgFileEntry.buildArtifacts.xcTestBundle.runtimeDumpKind == .logicTest {
+            return .logicTest
         }
-        
+
         guard let appBundle = buildArtifacts.appBundle else {
-            throw Error.runtimeDumpMissesAppBundle
+            throw TestEntriesValidatorError.runtimeDumpMissesAppBundle
         }
-        
-        return RuntimeDumpApplicationTestSupport(
-            appBundle: appBundle,
-            simulatorControlTool: simulatorControlTool
+
+        return .appTest(
+            RuntimeDumpApplicationTestSupport(
+                appBundle: appBundle,
+                simulatorControlTool: validatorConfiguration.simulatorControlTool
+            )
         )
     }
 }

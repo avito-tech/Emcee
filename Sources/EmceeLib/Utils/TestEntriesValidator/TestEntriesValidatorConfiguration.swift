@@ -2,12 +2,12 @@ import Foundation
 import Models
 
 public struct TestEntriesValidatorConfiguration {
-    public let simulatorControlTool: SimulatorControlTool?
+    public let simulatorControlTool: SimulatorControlTool
     public let testArgFileEntries: [TestArgFile.Entry]
     public let testRunnerTool: TestRunnerTool
 
     public init(
-        simulatorControlTool: SimulatorControlTool?,
+        simulatorControlTool: SimulatorControlTool,
         testArgFileEntries: [TestArgFile.Entry],
         testRunnerTool: TestRunnerTool
     ) {
