@@ -44,14 +44,14 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
     public func performBootSimulatorAction(
         environment: [String: String],
         simulatorSetPath: AbsolutePath,
-        simulatorUuid: String
+        simulatorUuid: UDID
     ) throws {
         let processController = try ProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun", "simctl",
                     "--set", simulatorSetPath,
-                    "bootstatus", simulatorUuid,
+                    "bootstatus", simulatorUuid.value,
                     "-bd"
                 ],
                 environment: environment
@@ -63,14 +63,14 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
     public func performShutdownSimulatorAction(
         environment: [String: String],
         simulatorSetPath: AbsolutePath,
-        simulatorUuid: String
+        simulatorUuid: UDID
     ) throws {
         let shutdownController = try ProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun", "simctl",
                     "--set", simulatorSetPath,
-                    "shutdown", simulatorUuid
+                    "shutdown", simulatorUuid.value
                 ],
                 environment: environment,
                 silenceBehavior: SilenceBehavior(
@@ -85,14 +85,14 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
     public func performDeleteSimulatorAction(
         environment: [String: String],
         simulatorSetPath: AbsolutePath,
-        simulatorUuid: String
+        simulatorUuid: UDID
     ) throws {
         let deleteController = try ProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun", "simctl",
                     "--set", simulatorSetPath,
-                    "delete", simulatorUuid
+                    "delete", simulatorUuid.value
                 ],
                 environment: environment,
                 silenceBehavior: SilenceBehavior(

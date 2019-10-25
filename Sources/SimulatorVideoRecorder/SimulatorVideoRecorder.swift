@@ -1,6 +1,7 @@
 import Foundation
 import Models
 import ProcessController
+import PathLib
 
 public final class SimulatorVideoRecorder {
     public enum CodecType: String {
@@ -9,15 +10,18 @@ public final class SimulatorVideoRecorder {
         case fmp4
     }
     
-    private let simulatorUuid: UUID
-    private let simulatorSetPath: String
+    private let simulatorUuid: UDID
+    private let simulatorSetPath: AbsolutePath
 
-    public init(simulatorUuid: UUID, simulatorSetPath: String) {
+    public init(simulatorUuid: UDID, simulatorSetPath: AbsolutePath) {
         self.simulatorUuid = simulatorUuid
         self.simulatorSetPath = simulatorSetPath
     }
     
-    public func startRecording(codecType: CodecType, outputPath: String) throws -> CancellableRecording {
+    public func startRecording(
+        codecType: CodecType,
+        outputPath: AbsolutePath
+    ) throws -> CancellableRecording {
         let processController = try ProcessController(
             subprocess: Subprocess(
                 arguments: [
@@ -26,7 +30,7 @@ public final class SimulatorVideoRecorder {
                     "--set",
                     simulatorSetPath,
                     "io",
-                    simulatorUuid.uuidString,
+                    simulatorUuid.value,
                     "recordVideo",
                     "--type=\(codecType.rawValue)",
                     outputPath

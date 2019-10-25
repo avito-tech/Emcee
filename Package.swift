@@ -1190,7 +1190,8 @@ let package = Package(
             dependencies: [
                 "Logging",
                 "Models",
-                "ProcessController"
+                "PathLib",
+                "ProcessController",
             ]
         ),
         .target(

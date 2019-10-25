@@ -102,7 +102,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController {
             try self.simulatorStateMachineActionExecutor.performBootSimulatorAction(
                 environment: try self.environment(),
                 simulatorSetPath: self.simulator.simulatorSetContainerPath,
-                simulatorUuid: simulatorUuid
+                simulatorUuid: UDID(value: simulatorUuid)
             )
         }
         
@@ -160,19 +160,19 @@ public final class StateMachineDrivenSimulatorController: SimulatorController {
     }
     
     private func attemptToDeleteSimulatorFiles(
-        simulatorUuid: String
+        simulatorUuid: UDID
     ) throws {
         try deleteSimulatorSetContainer()
         try deleteSimulatorWorkingDirectory()
-        try deleteSimulatorLogs(simulatorUuid:simulatorUuid)
+        try deleteSimulatorLogs(simulatorUuid: simulatorUuid)
     }
     
     private func deleteSimulatorLogs(
-        simulatorUuid: String
+        simulatorUuid: UDID
     ) throws {
         let simulatorLogsPath = ("~/Library/Logs/CoreSimulator/" as NSString)
             .expandingTildeInPath
-            .appending(pathComponent: simulatorUuid)
+            .appending(pathComponent: simulatorUuid.value)
         if FileManager.default.fileExists(atPath: simulatorLogsPath) {
             Logger.verboseDebug("Removing logs of simulator \(simulator)")
             try FileManager.default.removeItem(atPath: simulatorLogsPath)

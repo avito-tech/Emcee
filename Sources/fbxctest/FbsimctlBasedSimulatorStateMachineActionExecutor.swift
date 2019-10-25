@@ -43,14 +43,14 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
     public func performBootSimulatorAction(
         environment: [String : String],
         simulatorSetPath: AbsolutePath,
-        simulatorUuid: String
+        simulatorUuid: UDID
     ) throws {
         let processController = try ProcessController(
             subprocess: Subprocess(
                 arguments: [
                     fbsimctlArg,
                     "--json", "--set", simulatorSetPath,
-                    simulatorUuid, "boot",
+                    simulatorUuid.value, "boot",
                     "--locale", "ru_US",
                     "--direct-launch", "--", "listen"
                 ],
@@ -73,7 +73,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
     public func performShutdownSimulatorAction(
         environment: [String : String],
         simulatorSetPath: AbsolutePath,
-        simulatorUuid: String
+        simulatorUuid: UDID
     ) throws {
         if let simulatorKeepAliveProcessController = simulatorKeepAliveProcessController {
             simulatorKeepAliveProcessController.interruptAndForceKillIfNeeded()
@@ -86,7 +86,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
                 arguments: [
                     "/usr/bin/xcrun",
                     "simctl", "--set", simulatorSetPath,
-                    "shutdown", simulatorUuid
+                    "shutdown", simulatorUuid.value
                 ],
                 environment: environment,
                 silenceBehavior: SilenceBehavior(
@@ -101,7 +101,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
     public func performDeleteSimulatorAction(
         environment: [String : String],
         simulatorSetPath: AbsolutePath,
-        simulatorUuid: String
+        simulatorUuid: UDID
     ) throws {
         if let simulatorKeepAliveProcessController = simulatorKeepAliveProcessController {
             simulatorKeepAliveProcessController.interruptAndForceKillIfNeeded()

@@ -12,18 +12,18 @@ public protocol SimulatorStateMachineActionExecutor {
     func performBootSimulatorAction(
         environment: [String: String],
         simulatorSetPath: AbsolutePath,
-        simulatorUuid: String
+        simulatorUuid: UDID
     ) throws
     
     func performShutdownSimulatorAction(
         environment: [String: String],
         simulatorSetPath: AbsolutePath,
-        simulatorUuid: String
+        simulatorUuid: UDID
     ) throws
 
     func performDeleteSimulatorAction(
         environment: [String: String],
         simulatorSetPath: AbsolutePath,
-        simulatorUuid: String
+        simulatorUuid: UDID
     ) throws
 }

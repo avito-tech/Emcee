@@ -30,11 +30,11 @@ public class Simulator: Hashable, CustomStringConvertible {
         return workingDirectory.appending(component: "sim")
     }
     
-    /// Simulator's UUID/UDID if it has been created. Will return nil if it hasn't been created yet.
+    /// Simulator's UDID if it has been created. Will return nil if it hasn't been created yet.
     /// Currently there is an assumption that simulator set contains only a single simulator.
-    public var uuid: String? {
+    public var uuid: UDID? {
         let contents = (try? FileManager.default.contentsOfDirectory(atPath: simulatorSetContainerPath.pathString)) ?? []
-        return contents.first { UUID(uuidString: $0) != nil }
+        return contents.first { UUID(uuidString: $0) != nil }.map { UDID(value: $0) }
     }
  
     init(testDestination: TestDestination, workingDirectory: AbsolutePath) {

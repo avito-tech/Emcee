@@ -11,7 +11,7 @@ class SimulatorTests: XCTestCase {
     var home: String!
     var testDestination: TestDestination!
     
-    let uuid = "C7AFD056-F6BB-4F30-A0C6-B17810EA4B53"
+    let uuid = UDID("C7AFD056-F6BB-4F30-A0C6-B17810EA4B53")
     
     override func setUp() {
         if let home = ProcessInfo.processInfo.environment["HOME"] {
@@ -27,7 +27,7 @@ class SimulatorTests: XCTestCase {
             _ = try tempFolder.pathByCreatingDirectories(
                 components: [
                     "sim",
-                    uuid
+                    uuid.value
                 ]
             )
             

@@ -1,17 +1,21 @@
 import Foundation
 import Logging
+import PathLib
 import ProcessController
 
 class CancellableRecordingImpl: CancellableRecording {
-    private let outputPath: String
+    private let outputPath: AbsolutePath
     private let recordingProcess: ProcessController
 
-    public init(outputPath: String, recordingProcess: ProcessController) {
+    public init(
+        outputPath: AbsolutePath,
+        recordingProcess: ProcessController
+    ) {
         self.outputPath = outputPath
         self.recordingProcess = recordingProcess
     }
     
-    func stopRecording() -> String {
+    func stopRecording() -> AbsolutePath {
         Logger.verboseDebug("Stopping recording into \(outputPath)")
         recordingProcess.interruptAndForceKillIfNeeded()
         recordingProcess.waitForProcessToDie()
@@ -24,8 +28,8 @@ class CancellableRecordingImpl: CancellableRecording {
         recordingProcess.terminateAndForceKillIfNeeded()
         recordingProcess.waitForProcessToDie()
         
-        if FileManager.default.fileExists(atPath: outputPath) {
-            try? FileManager.default.removeItem(atPath: outputPath)
+        if FileManager.default.fileExists(atPath: outputPath.pathString) {
+            try? FileManager.default.removeItem(atPath: outputPath.pathString)
         }
         
         Logger.debug("Recoring process cancelled")
