@@ -52,7 +52,7 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
                 if !FileManager.default.fileExists(atPath: contentsUrl.path) {
                     Logger.debug("Will unzip '\(zipUrl)' into '\(contentsUrl)'")
                     
-                    let processController = try ProcessController(
+                    let processController = try DefaultProcessController(
                         subprocess: Subprocess(
                             arguments: ["/usr/bin/unzip", "-qq", zipUrl.path, "-d", contentsUrl.path]
                         )

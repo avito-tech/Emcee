@@ -68,7 +68,7 @@ public final class Plugin {
     private func interrupt() {
         eventBus.uponDeliveryOfAllEvents {
             self.eventReceiver.stop()
-            self.jsonInputStream.willProvideMoreData = false
+            self.jsonInputStream.close()
             self.jsonStreamHasFinished = true
         }
     }
@@ -91,10 +91,10 @@ public final class Plugin {
     }
     
     private func onNewData(data: Data) {
-        jsonInputStream.append(data)
+        jsonInputStream.append(data: data)
     }
     
     private func onEndOfData() {
-        jsonInputStream.willProvideMoreData = false
+        jsonInputStream.close()
     }
 }

@@ -3,6 +3,7 @@ import JSONStream
 
 class FakeJSONStream: JSONStream {
     var data: [Unicode.Scalar]
+    var isClosed = false
     
     public init(string: String) {
         data = Array(string.unicodeScalars).reversed()
@@ -16,6 +17,10 @@ class FakeJSONStream: JSONStream {
     
     func touch() -> Unicode.Scalar? {
         return data.last
+    }
+    
+    func close() {
+        isClosed = true
     }
 }
 

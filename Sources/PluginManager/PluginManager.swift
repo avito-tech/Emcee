@@ -81,7 +81,7 @@ public final class PluginManager: EventStream {
             let pluginExecutable = bundlePath.appending(component: PluginManager.pluginExecutableName)
             let pluginIdentifier = try pluginExecutable.pathString.avito_sha256Hash()
             eventDistributor.add(pluginIdentifier: pluginIdentifier)
-            let controller = try ProcessController(
+            let controller = try DefaultProcessController(
                 subprocess: Subprocess(
                     arguments: [pluginExecutable],
                     environment: environmentForLaunchingPlugin(

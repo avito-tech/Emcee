@@ -1,12 +1,12 @@
 import Dispatch
 import Foundation
 
-public final class BlockingArrayBasedJSONStream: JSONStream {
+public final class BlockingArrayBasedJSONStream: AppendableJSONStream {
     private let readQueue = DispatchQueue(label: "ru.avito.SynchronizedArrayBasedJSONStream.readQueue")
     private let writeQueue = DispatchQueue(label: "ru.avito.SynchronizedArrayBasedJSONStream.writeQueue")
     private var storage = ThreadSafeArray<Unicode.Scalar>()
     
-    public var willProvideMoreData = true {
+    private var willProvideMoreData = true {
         didSet {
             if !willProvideMoreData {
                 newDataCondition.signal()
@@ -17,15 +17,11 @@ public final class BlockingArrayBasedJSONStream: JSONStream {
     
     public init() {}
     
-    public func append(_ scalars: [Unicode.Scalar]) {
+    public func append(scalars: [Unicode.Scalar]) {
         writeQueue.async {
             self.storage.insert(contentsOf: scalars.reversed(), at: 0)
             self.newDataCondition.signal()
         }
-    }
-    
-    public func append(_ data: Data) {
-        append(data.map { Unicode.Scalar($0) })
     }
     
     // MARK: - JSONStream
@@ -36,6 +32,10 @@ public final class BlockingArrayBasedJSONStream: JSONStream {
     
     public func read() -> Unicode.Scalar? {
         return lastScalar(delete: true)
+    }
+    
+    public func close() {
+        willProvideMoreData = false
     }
     
     private func lastScalar(delete: Bool) -> Unicode.Scalar? {

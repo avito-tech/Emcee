@@ -8,7 +8,7 @@ import XCTest
 
 final class DefaultDeveloperDirLocatorTests: XCTestCase {
     func test___current_developer_dir() throws {
-        let processController = try ProcessController(subprocess: Subprocess(arguments: ["/usr/bin/xcode-select", "-p"]))
+        let processController = try DefaultProcessController(subprocess: Subprocess(arguments: ["/usr/bin/xcode-select", "-p"]))
         processController.startAndListenUntilProcessDies()
         let expectedPath = AbsolutePath(
             try String(

@@ -1,3 +1,4 @@
+import AtomicModels
 import Dispatch
 import Foundation
 import JSONStream
@@ -6,14 +7,18 @@ import ProcessController
 
 public final class FbsimctlOutputProcessor: ProcessControllerDelegate, JSONReaderEventStream {
     private let processController: ProcessController
-    private var receivedEvents = [FbSimCtlEventCommonFields]()
-    private let jsonStream = BlockingArrayBasedJSONStream()
+    private let receivedEvents = AtomicValue<[FbSimCtlEventCommonFields]>([])
+    private let jsonStream: AppendableJSONStream
     private let decoder = JSONDecoder()
     private let jsonReaderQueue = DispatchQueue(label: "ru.avito.FbsimctlOutputProcessor.jsonReaderQueue")
     
-    public init(processController: ProcessController) {
+    public init(
+        jsonStream: AppendableJSONStream = BlockingArrayBasedJSONStream(),
+        processController: ProcessController
+    ) {
+        self.jsonStream = jsonStream
         self.processController = processController
-        processController.delegate = self
+        self.processController.delegate = self
     }
 
     @discardableResult
@@ -24,7 +29,7 @@ public final class FbsimctlOutputProcessor: ProcessControllerDelegate, JSONReade
     ) throws -> [FbSimCtlEventCommonFields] {
         let startTime = Date().timeIntervalSinceReferenceDate
         startProcessingJSONStream()
-        defer { jsonStream.willProvideMoreData = false }
+        defer { jsonStream.close() }
         processController.start()
         while processController.isProcessRunning, !checkDidReceiveEvent(type: type, name: name) {
             guard Date().timeIntervalSinceReferenceDate - startTime < timeout else {
@@ -36,7 +41,7 @@ public final class FbsimctlOutputProcessor: ProcessControllerDelegate, JSONReade
         }
         let receivedEvents = filterReceivedEvents(type: type, name: name)
         if receivedEvents.isEmpty {
-            throw FbsimctlEventWaitError.processTerminatedWithoutEvent(name, type)
+            throw FbsimctlEventWaitError.processTerminatedWithoutEvent(pid: processController.processId, name, type)
         }
         return receivedEvents
     }
@@ -51,7 +56,7 @@ public final class FbsimctlOutputProcessor: ProcessControllerDelegate, JSONReade
         type: FbSimCtlEventType,
         name: FbSimCtlEventName
     ) -> [FbSimCtlEventCommonFields] {
-        return receivedEvents.filter { $0.name == name && $0.type == type }
+        return receivedEvents.currentValue().filter { $0.name == name && $0.type == type }
     }
 
     private func startProcessingJSONStream() {
@@ -76,22 +81,24 @@ public final class FbsimctlOutputProcessor: ProcessControllerDelegate, JSONReade
     }
     
     private func processSingleLiveEvent(eventData: Data, dataStringRepresentation: String) {
+        Logger.verboseDebug("Parsing fbsimctl event: '\(dataStringRepresentation)'")
+        
         if let event = try? decoder.decode(FbSimCtlCreateEndedEvent.self, from: eventData) {
-            Logger.verboseDebug(String(describing: event), subprocessInfo: SubprocessInfo(subprocessId: processController.processId, subprocessName: processController.processName))
-            receivedEvents.append(event)
+            Logger.verboseDebug("Parsed event: \(event)")
+            receivedEvents.withExclusiveAccess { $0.append(event) }
             return
         }
 
         if let event = try? decoder.decode(FbSimCtlEventWithStringSubject.self, from: eventData) {
-            Logger.verboseDebug(String(describing: event), subprocessInfo: SubprocessInfo(subprocessId: processController.processId, subprocessName: processController.processName))
-            receivedEvents.append(event)
+            Logger.verboseDebug("Parsed event: \(event)")
+            receivedEvents.withExclusiveAccess { $0.append(event) }
             return
         }
 
         do {
             let event = try decoder.decode(FbSimCtlEvent.self, from: eventData)
-            Logger.verboseDebug(String(describing: event), subprocessInfo: SubprocessInfo(subprocessId: processController.processId, subprocessName: processController.processName))
-            receivedEvents.append(event)
+            receivedEvents.withExclusiveAccess { $0.append(event) }
+            Logger.verboseDebug("Parsed event: \(event)")
         } catch {
             Logger.warning("Failed to parse event: '\(dataStringRepresentation)': \(error)", subprocessInfo: SubprocessInfo(subprocessId: processController.processId, subprocessName: processController.processName))
         }
@@ -110,7 +117,7 @@ public final class FbsimctlOutputProcessor: ProcessControllerDelegate, JSONReade
     // MARK: - ProcessControllerDelegate
     
     public func processController(_ sender: ProcessController, newStdoutData data: Data) {
-        jsonStream.append(data)
+        jsonStream.append(data: data)
     }
     
     public func processController(_ sender: ProcessController, newStderrData data: Data) {

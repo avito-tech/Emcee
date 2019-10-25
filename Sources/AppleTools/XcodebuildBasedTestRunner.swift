@@ -27,7 +27,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         testType: TestType,
         temporaryFolder: TemporaryFolder
     ) throws -> StandardStreamsCaptureConfig {
-        let processController = try ProcessController(
+        let processController = try DefaultProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun",

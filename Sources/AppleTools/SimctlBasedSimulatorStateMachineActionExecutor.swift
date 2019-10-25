@@ -21,7 +21,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
         simulatorSetPath: AbsolutePath,
         testDestination: TestDestination
     ) throws {
-        let controller = try ProcessController(
+        let controller = try DefaultProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun", "simctl",
@@ -46,7 +46,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
         simulatorSetPath: AbsolutePath,
         simulatorUuid: UDID
     ) throws {
-        let processController = try ProcessController(
+        let processController = try DefaultProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun", "simctl",
@@ -65,7 +65,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
         simulatorSetPath: AbsolutePath,
         simulatorUuid: UDID
     ) throws {
-        let shutdownController = try ProcessController(
+        let shutdownController = try DefaultProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun", "simctl",
@@ -87,7 +87,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
         simulatorSetPath: AbsolutePath,
         simulatorUuid: UDID
     ) throws {
-        let deleteController = try ProcessController(
+        let deleteController = try DefaultProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun", "simctl",

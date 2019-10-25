@@ -438,8 +438,11 @@ let package = Package(
             dependencies: [
                 "DeveloperDirLocator",
                 "DeveloperDirLocatorTestHelpers",
+                "JSONStream",
                 "Models",
                 "ModelsTestHelpers",
+                "ProcessController",
+                "ProcessControllerTestHelpers",
                 "ResourceLocationResolverTestHelpers",
                 "Runner",
                 "TemporaryStuff",
@@ -730,6 +733,14 @@ let package = Package(
                 "PathLib",
                 "Timer",
             ]
+        ),
+        .target(
+            //MARK: ProcessControllerTestHelpers
+            name: "ProcessControllerTestHelpers",
+            dependencies: [
+                "ProcessController",
+            ],
+            path: "Tests/ProcessControllerTestHelpers/"
         ),
         .testTarget(
             // MARK: ProcessControllerTests

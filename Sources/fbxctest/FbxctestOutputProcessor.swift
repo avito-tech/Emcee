@@ -22,7 +22,7 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
     ) throws {
         self.singleTestMaximumDuration = singleTestMaximumDuration
         self.eventsListener = FbXcTestEventsListener(onTestStarted: onTestStarted, onTestStopped: onTestStopped)
-        self.processController = try ProcessController(subprocess: subprocess)
+        self.processController = try DefaultProcessController(subprocess: subprocess)
         self.processController.delegate = self
     }
     

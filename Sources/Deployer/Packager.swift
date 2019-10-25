@@ -35,7 +35,7 @@ public final class Packager {
             )
         }
         
-        let controller = try ProcessController(
+        let controller = try DefaultProcessController(
             subprocess: Subprocess(
                 arguments: ["/usr/bin/zip", archivePath.pathString, "-r", "."],
                 workingDirectory: temporaryFolder.absolutePath

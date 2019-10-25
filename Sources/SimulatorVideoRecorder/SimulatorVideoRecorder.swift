@@ -22,7 +22,7 @@ public final class SimulatorVideoRecorder {
         codecType: CodecType,
         outputPath: AbsolutePath
     ) throws -> CancellableRecording {
-        let processController = try ProcessController(
+        let processController = try DefaultProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun",

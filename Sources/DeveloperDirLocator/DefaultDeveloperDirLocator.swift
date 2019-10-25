@@ -23,7 +23,7 @@ public final class DefaultDeveloperDirLocator: DeveloperDirLocator {
     }
     
     private func xcodeSelectProvidedDeveloperDir() throws -> AbsolutePath {
-        let processController = try ProcessController(subprocess: Subprocess(arguments: ["/usr/bin/xcode-select", "-p"]))
+        let processController = try DefaultProcessController(subprocess: Subprocess(arguments: ["/usr/bin/xcode-select", "-p"]))
         processController.startAndListenUntilProcessDies()
         let path = try String(contentsOf: processController.subprocess.standardStreamsCaptureConfig.stdoutContentsFile.fileUrl)
         return AbsolutePath(path.trimmingCharacters(in: .whitespacesAndNewlines))

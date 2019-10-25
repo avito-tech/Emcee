@@ -20,7 +20,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
         simulatorSetPath: AbsolutePath,
         testDestination: TestDestination
     ) throws {
-        let processController = try ProcessController(
+        let processController = try DefaultProcessController(
             subprocess: Subprocess(
                 arguments: [
                     fbsimctlArg,
@@ -45,7 +45,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
         simulatorSetPath: AbsolutePath,
         simulatorUuid: UDID
     ) throws {
-        let processController = try ProcessController(
+        let processController = try DefaultProcessController(
             subprocess: Subprocess(
                 arguments: [
                     fbsimctlArg,
@@ -81,7 +81,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
         }
         simulatorKeepAliveProcessController = nil
 
-        let shutdownController = try ProcessController(
+        let shutdownController = try DefaultProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun",
@@ -109,7 +109,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
         }
         simulatorKeepAliveProcessController = nil
         
-        let controller = try ProcessController(
+        let controller = try DefaultProcessController(
             subprocess: Subprocess(
                 arguments: [
                     fbsimctlArg,

@@ -7,7 +7,7 @@ class BlockingArrayBasedJSONStreamTests: XCTestCase {
         let readQueue = OperationQueue()
         let writeQeuue = OperationQueue()
         let stream = BlockingArrayBasedJSONStream()
-        stream.append(["1"])
+        stream.append(scalars: ["1"])
         
         var scalar: Unicode.Scalar?
         readQueue.addOperation {
@@ -18,7 +18,7 @@ class BlockingArrayBasedJSONStreamTests: XCTestCase {
         
         writeQeuue.addOperation {
             Thread.sleep(forTimeInterval: 0.3)
-            stream.append(["2"])
+            stream.append(scalars: ["2"])
         }
         
         readQueue.waitUntilAllOperationsAreFinished()
@@ -31,7 +31,7 @@ class BlockingArrayBasedJSONStreamTests: XCTestCase {
         let readQueue = OperationQueue()
         let writeQeuue = OperationQueue()
         let stream = BlockingArrayBasedJSONStream()
-        stream.append(["1"])
+        stream.append(scalars: ["1"])
         
         var scalar: Unicode.Scalar?
         readQueue.addOperation {
@@ -42,7 +42,7 @@ class BlockingArrayBasedJSONStreamTests: XCTestCase {
         
         writeQeuue.addOperation {
             Thread.sleep(forTimeInterval: 0.3)
-            stream.willProvideMoreData = false
+            stream.close()
         }
         
         readQueue.waitUntilAllOperationsAreFinished()
@@ -65,7 +65,7 @@ class BlockingArrayBasedJSONStreamTests: XCTestCase {
         
         writeQeuue.addOperation {
             Thread.sleep(forTimeInterval: 0.3)
-            stream.append(["1", "2"])
+            stream.append(scalars: ["1", "2"])
         }
         
         readQueue1.waitUntilAllOperationsAreFinished()
