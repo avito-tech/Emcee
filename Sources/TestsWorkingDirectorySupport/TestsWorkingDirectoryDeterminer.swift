@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import PathLib
 
 public final class TestsWorkingDirectoryDeterminer {
     private let testContext: TestContext
@@ -8,9 +9,9 @@ public final class TestsWorkingDirectoryDeterminer {
         self.testContext = testContext
     }
     
-    public func testsWorkingDirectory() throws -> String {
+    public func testsWorkingDirectory() throws -> AbsolutePath {
         if let value = testContext.environment[TestsWorkingDirectorySupport.envTestsWorkingDirectory] {
-            return value
+            return AbsolutePath(value)
         }
         throw MissingTestsWorkingDirectoryError.missingEnvironment(
             envName: TestsWorkingDirectorySupport.envTestsWorkingDirectory

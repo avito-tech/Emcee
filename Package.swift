@@ -1266,7 +1266,8 @@ let package = Package(
             // MARK: TestsWorkingDirectorySupport
             name: "TestsWorkingDirectorySupport",
             dependencies: [
-                "Models"
+                "Models",
+                "PathLib",
             ]
         ),
         .target(
