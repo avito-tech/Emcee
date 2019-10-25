@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2019-10-25
+
+### Changed
+
+- During the last refactorings a bug appeared: Emcee would create simulators inside the same folder. This has now been fixed. 
+
 ## 2019-10-18
 
 ### Changed

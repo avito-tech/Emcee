@@ -4,15 +4,28 @@ public final class FbSimCtlCreateEndedEvent: FbSimCtlEventCommonFields, Decodabl
     public let name: FbSimCtlEventName = .create
     public let type: FbSimCtlEventType = .ended
     public let timestamp: TimeInterval
-    public let subject: CreateEndedSubject
+    public let subject: Subject
 
-    public struct CreateEndedSubject: Decodable, Hashable, CustomStringConvertible {
+    public struct Subject: Decodable, Hashable, CustomStringConvertible {
         public let name: String     // iPhone SE
         public let arch: String     // x86_64
         public let os: String       // iOS 10.3
         public let model: String    // iPhone SE
         public let udid: String     // 046FB37A-7CE4-4CF4-BB6A-93FB91CD85A6
 
+        public init(
+            name: String,
+            arch: String,
+            os: String,
+            model: String,
+            udid: String
+        ) {
+            self.name = name
+            self.arch = arch
+            self.os = os
+            self.model = model
+            self.udid = udid
+        }
         public var description: String {
             return "\(name) \(os) \(udid)"
         }
@@ -27,7 +40,7 @@ public final class FbSimCtlCreateEndedEvent: FbSimCtlEventCommonFields, Decodabl
 
     public init(
         timestamp: TimeInterval,
-        subject: CreateEndedSubject
+        subject: Subject
     ) {
         self.timestamp = timestamp
         self.subject = subject

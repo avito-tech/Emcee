@@ -20,6 +20,7 @@ public class SimulatorPool: CustomStringConvertible {
     private let tempFolder: TemporaryFolder
     private let testDestination: TestDestination
     private var controllers = [SimulatorController]()
+    private var allocationCounter = 0
     private let syncQueue = DispatchQueue(label: "ru.avito.SimulatorPool")
     
     public var description: String {
@@ -53,7 +54,7 @@ public class SimulatorPool: CustomStringConvertible {
                 return controller
             }
             
-            let folderName = "sim_\(testDestination.deviceType.removingWhitespaces())_\(testDestination.runtime)"
+            let folderName = "sim_\(allocationCounter)_\(testDestination.deviceType.removingWhitespaces())_\(testDestination.runtime)"
             let workingDirectory = try tempFolder.pathByCreatingDirectories(components: [folderName])
             let simulator = Simulator(testDestination: testDestination, workingDirectory: workingDirectory)
             let controller = try simulatorControllerProvider.createSimulatorController(
@@ -62,7 +63,8 @@ public class SimulatorPool: CustomStringConvertible {
                 simulator: simulator,
                 simulatorControlTool: simulatorControlTool
             )
-            Logger.verboseDebug("Allocated new simulator: \(controller)")
+            Logger.verboseDebug("Allocated new simulator (\(allocationCounter)-th): \(controller)")
+            allocationCounter += 1
             return controller
         }
     }
