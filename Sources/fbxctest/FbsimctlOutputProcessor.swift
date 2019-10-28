@@ -31,31 +31,32 @@ public final class FbsimctlOutputProcessor: ProcessControllerDelegate, JSONReade
         startProcessingJSONStream()
         defer { jsonStream.close() }
         processController.start()
-        while processController.isProcessRunning, !checkDidReceiveEvent(type: type, name: name) {
+        while shouldKeepWaitingForEvent(type: type, name: name) {
             guard Date().timeIntervalSinceReferenceDate - startTime < timeout else {
-                Logger.debug("Did not receive event \(name) \(type) within \(timeout) seconds")
+                Logger.debug("Did not receive event \(name) \(type) within \(timeout) seconds", processController.subprocessInfo)
                 processController.interruptAndForceKillIfNeeded()
                 throw FbsimctlEventWaitError.timeoutOccured(name, type)
             }
             RunLoop.current.run(until: Date().addingTimeInterval(0.5))
         }
-        let receivedEvents = filterReceivedEvents(type: type, name: name)
-        if receivedEvents.isEmpty {
+        let filteredReceivedEvents = filterReceivedEvents(type: type, name: name)
+        if filteredReceivedEvents.isEmpty {
             throw FbsimctlEventWaitError.processTerminatedWithoutEvent(pid: processController.processId, name, type)
         }
-        return receivedEvents
+        return filteredReceivedEvents
     }
     
     // MARK: - Private
     
-    private func checkDidReceiveEvent(type: FbSimCtlEventType, name: FbSimCtlEventName) -> Bool {
-        return !filterReceivedEvents(type: type, name: name).isEmpty
+    private func shouldKeepWaitingForEvent(type: FbSimCtlEventType, name: FbSimCtlEventName) -> Bool {
+        return filterReceivedEvents(type: type, name: name).isEmpty
     }
 
     private func filterReceivedEvents(
         type: FbSimCtlEventType,
         name: FbSimCtlEventName
     ) -> [FbSimCtlEventCommonFields] {
+        Logger.verboseDebug("All received events: \(receivedEvents.currentValue())", processController.subprocessInfo)
         return receivedEvents.currentValue().filter { $0.name == name && $0.type == type }
     }
 
@@ -74,23 +75,21 @@ public final class FbsimctlOutputProcessor: ProcessControllerDelegate, JSONReade
         var string = String()
         string.unicodeScalars.append(contentsOf: scalars)
         guard let eventData = string.data(using: .utf8) else {
-            Logger.warning("Failed to convert JSON string to data: '\(string)'")
+            Logger.warning("Failed to convert JSON string to data: '\(string)'", processController.subprocessInfo)
             return
         }
         processSingleLiveEvent(eventData: eventData, dataStringRepresentation: string)
     }
     
     private func processSingleLiveEvent(eventData: Data, dataStringRepresentation: String) {
-        Logger.verboseDebug("Parsing fbsimctl event: '\(dataStringRepresentation)'")
-        
         if let event = try? decoder.decode(FbSimCtlCreateEndedEvent.self, from: eventData) {
-            Logger.verboseDebug("Parsed event: \(event)")
+            Logger.verboseDebug("Parsed event: \(event)", processController.subprocessInfo)
             receivedEvents.withExclusiveAccess { $0.append(event) }
             return
         }
 
         if let event = try? decoder.decode(FbSimCtlEventWithStringSubject.self, from: eventData) {
-            Logger.verboseDebug("Parsed event: \(event)")
+            Logger.verboseDebug("Parsed event: \(event)", processController.subprocessInfo)
             receivedEvents.withExclusiveAccess { $0.append(event) }
             return
         }
@@ -98,9 +97,9 @@ public final class FbsimctlOutputProcessor: ProcessControllerDelegate, JSONReade
         do {
             let event = try decoder.decode(FbSimCtlEvent.self, from: eventData)
             receivedEvents.withExclusiveAccess { $0.append(event) }
-            Logger.verboseDebug("Parsed event: \(event)")
+            Logger.verboseDebug("Parsed event: \(event)", processController.subprocessInfo)
         } catch {
-            Logger.warning("Failed to parse event: '\(dataStringRepresentation)': \(error)", subprocessInfo: SubprocessInfo(subprocessId: processController.processId, subprocessName: processController.processName))
+            Logger.error("Failed to parse event: '\(dataStringRepresentation)': \(error)", processController.subprocessInfo)
         }
     }
     
@@ -122,7 +121,7 @@ public final class FbsimctlOutputProcessor: ProcessControllerDelegate, JSONReade
     
     public func processController(_ sender: ProcessController, newStderrData data: Data) {
         if let string = String(data: data, encoding: .utf8) {
-            Logger.verboseDebug("stderr: " + string, subprocessInfo: SubprocessInfo(subprocessId: processController.processId, subprocessName: processController.processName))
+            Logger.verboseDebug("stderr: " + string, processController.subprocessInfo)
         }
     }
     

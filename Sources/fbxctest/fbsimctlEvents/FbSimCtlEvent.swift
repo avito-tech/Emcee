@@ -34,6 +34,6 @@ public final class FbSimCtlEvent: FbSimCtlEventCommonFields, Decodable, Hashable
     }
 
     public var description: String {
-        return "\(name) \(type)"
+        return "\(FbSimCtlEvent.self) \(name) \(type) \(timestamp)"
     }
 }

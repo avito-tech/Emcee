@@ -206,12 +206,6 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
     }
     
     private func log_fbxctest(_ text: String) {
-        Logger.verboseDebug(
-            text,
-            subprocessInfo: SubprocessInfo(
-                subprocessId: processController.processId,
-                subprocessName: "fbxctest"
-            )
-        )
+        Logger.verboseDebug(text, processController.subprocessInfo)
     }
 }

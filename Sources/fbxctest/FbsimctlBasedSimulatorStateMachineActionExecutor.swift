@@ -66,8 +66,6 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
 
         // we keep this process alive throughout the run, as it owns the simulator process.
         simulatorKeepAliveProcessController = processController
-
-
     }
     
     public func performShutdownSimulatorAction(

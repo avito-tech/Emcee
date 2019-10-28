@@ -27,7 +27,7 @@ public final class FbSimCtlCreateEndedEvent: FbSimCtlEventCommonFields, Decodabl
             self.udid = udid
         }
         public var description: String {
-            return "\(name) \(os) \(udid)"
+            return "\(name) \(arch) \(os) \(model) \(udid)"
         }
     }
 
@@ -47,7 +47,7 @@ public final class FbSimCtlCreateEndedEvent: FbSimCtlEventCommonFields, Decodabl
     }
 
     public var description: String {
-        return "\(name) \(subject) \(timestamp) \(subject)"
+        return "\(FbSimCtlCreateEndedEvent.self) \(name) \(type) \(timestamp) \(subject)"
     }
 
     public func hash(into hasher: inout Hasher) {

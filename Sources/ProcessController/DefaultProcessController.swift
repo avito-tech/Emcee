@@ -66,7 +66,7 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         }
         
         didStartProcess = true
-        Logger.debug("Starting subprocess: \(subprocess)", subprocessInfo: SubprocessInfo(subprocessId: 0, subprocessName: processName))
+        Logger.debug("Starting subprocess: \(subprocess)", subprocessInfo)
         process.launch()
         process.terminationHandler = { _ in
             OrphanProcessTracker().removeProcessFromCleanup(pid: self.processId, name: self.processName)
@@ -74,7 +74,7 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         }
         processId = process.processIdentifier
         OrphanProcessTracker().storeProcessForCleanup(pid: processId, name: processName)
-        Logger.debug("Started process \(processId)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
+        Logger.debug("Started process \(processId)", subprocessInfo)
         startMonitoringForHangs()
     }
     
@@ -119,14 +119,14 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
     
     public func terminateAndForceKillIfNeeded() {
         attemptToKillProcess { process in
-            Logger.debug("Terminating the process", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
+            Logger.debug("Terminating the process", subprocessInfo)
             process.terminate()
         }
     }
     
     public func interruptAndForceKillIfNeeded() {
         attemptToKillProcess { process in
-            Logger.debug("Interrupting the process", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
+            Logger.debug("Interrupting the process", subprocessInfo)
             process.interrupt()
         }
     }
@@ -144,7 +144,7 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
     
     private func forceKillProcess() {
         if isProcessRunning {
-            Logger.warning("Failed to interrupt the process in time, terminating", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
+            Logger.warning("Failed to interrupt the process in time, terminating", subprocessInfo)
             kill(-processId, SIGKILL)
         }
     }
@@ -153,11 +153,11 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
     
     private func startMonitoringForHangs() {
         guard subprocess.silenceBehavior.allowedSilenceDuration > 0 else {
-            Logger.debug("Will not track hangs as allowedSilenceDuration must be positive", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
+            Logger.debug("Will not track hangs as allowedSilenceDuration must be positive", subprocessInfo)
             return
         }
         
-        Logger.debug("Will track silences with timeout \(subprocess.silenceBehavior.allowedSilenceDuration)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
+        Logger.debug("Will track silences with timeout \(subprocess.silenceBehavior.allowedSilenceDuration)", subprocessInfo)
         
         silenceTrackingTimer = DispatchBasedTimer.startedTimer(repeating: .seconds(1), leeway: .seconds(1)) { [weak self] timer in
             guard let strongSelf = self else {
@@ -174,7 +174,7 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
     private func didDetectLongPeriodOfSilence() {
         silenceTrackingTimer?.stop()
         silenceTrackingTimer = nil
-        Logger.error("Detected a long period of silence of \(processName)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
+        Logger.error("Detected a long period of silence of \(processName)", subprocessInfo)
         delegate?.processControllerDidNotReceiveAnyOutputWithinAllowedSilenceDuration(self)
         
         switch subprocess.silenceBehavior.automaticAction {
@@ -213,7 +213,7 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         storeStdForProcess(
             path: subprocess.standardStreamsCaptureConfig.stdoutContentsFile,
             onError: { message in
-                Logger.warning("Will not store stdout output: \(message)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
+                Logger.warning("Will not store stdout output: \(message)", subprocessInfo)
             },
             pipeAssigningClosure: { pipe in
                 self.process.standardOutput = pipe
@@ -226,7 +226,7 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         storeStdForProcess(
             path: subprocess.standardStreamsCaptureConfig.stderrContentsFile,
             onError: { message in
-                Logger.warning("Will not store stderr output: \(message)", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
+                Logger.warning("Will not store stderr output: \(message)", subprocessInfo)
             },
             pipeAssigningClosure: { pipe in
                 self.process.standardError = pipe
@@ -241,7 +241,7 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         {
             self.stdinHandle = stdinHandle
         } else {
-            Logger.warning("Will not store stdin input at file, failed to open a file handle", subprocessInfo: SubprocessInfo(subprocessId: processId, subprocessName: processName))
+            Logger.warning("Will not store stdin input at file, failed to open a file handle", subprocessInfo)
         }
     }
     

@@ -1,4 +1,5 @@
 import Foundation
+import Logging
 
 public protocol ProcessController: class {
     var subprocess: Subprocess { get }
@@ -20,5 +21,9 @@ public protocol ProcessController: class {
 public extension ProcessController {
     var isProcessRunning: Bool {
         return processStatus() == .stillRunning
+    }
+    
+    var subprocessInfo: SubprocessInfo {
+        return SubprocessInfo(subprocessId: processId, subprocessName: processName)
     }
 }

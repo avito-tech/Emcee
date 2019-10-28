@@ -40,6 +40,6 @@ public final class FbSimCtlEventWithStringSubject: FbSimCtlEventCommonFields, De
     }
 
     public var description: String {
-        return "\(name) \(type): \(subject)"
+        return "\(FbSimCtlEventWithStringSubject.self) \(name) \(type) \(timestamp) \(subject)"
     }
 }

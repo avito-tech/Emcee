@@ -7,7 +7,7 @@ import JSONStream
 
 final class FbsimctlOutputProcessorTests: XCTestCase {
     let appendableJsonStream = BlockingArrayBasedJSONStream()
-    let processController = FakeProcessController(subprocess: Subprocess(arguments: []))
+    let processController = FakeProcessController(subprocess: Subprocess(arguments: ["fbsimctl"]))
     
     lazy var processor = FbsimctlOutputProcessor(
         jsonStream: appendableJsonStream,
