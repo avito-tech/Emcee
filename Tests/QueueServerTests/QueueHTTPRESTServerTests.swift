@@ -293,7 +293,6 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let testsEnqueuer = TestsEnqueuer(
             bucketSplitInfo: BucketSplitInfo(
                 numberOfWorkers: 0,
-                toolResources: ToolResourcesFixtures.fakeToolResources(),
                 simulatorSettings: SimulatorSettingsFixtures().simulatorSettings()
             ),
             enqueueableBucketReceptor: enqueueableBucketReceptor

@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2019-10-28
+
+### Changed
+
+- `environment` and `testType` fiels are required to be present in test arg file. 
+```json
+    ...
+    "environment": {"ENV1": "VAL1", ...},
+    "testType": "uiTest",  # supported values are "appTest", "logicTest", "uiTest"
+    ...
+```
+
+- Test arg file JSON entries is now expected to have `toolResources` field. This field describes the tools used to perform testing. This is an object with `testRunnerTool` and `simulatorControlTool`. Example:
+
+```json
+    ...
+    "toolResources": {
+        "testRunnerTool": {"toolType": "fbxctest", "fbxctestLocation": "http://example.com/fbxctest.zip"},
+        "simulatorControlTool": {"toolType": "fbsimctl", "location": "http://example.com/fbsimctl.zip"}
+    },
+    ...
+```
+
 ## 2019-10-25
 
 ### Changed

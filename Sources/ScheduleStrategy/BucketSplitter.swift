@@ -5,17 +5,13 @@ import UniqueIdentifierGenerator
 
 public struct BucketSplitInfo {
     public let numberOfWorkers: UInt
-    public let toolResources: ToolResources
     public let simulatorSettings: SimulatorSettings
     
     public init(
         numberOfWorkers: UInt,
-        toolResources: ToolResources,
         simulatorSettings: SimulatorSettings
-        )
-    {
+    ) {
         self.numberOfWorkers = numberOfWorkers
-        self.toolResources = toolResources
         self.simulatorSettings = simulatorSettings
     }
 }
@@ -59,7 +55,7 @@ public class BucketSplitter: Splitter, CustomStringConvertible {
                 testDestination: entry.testDestination,
                 testExecutionBehavior: entry.testExecutionBehavior,
                 testType: entry.testType,
-                toolResources: bucketSplitInfo.toolResources,
+                toolResources: entry.toolResources,
                 toolchainConfiguration: entry.toolchainConfiguration
             )
         }

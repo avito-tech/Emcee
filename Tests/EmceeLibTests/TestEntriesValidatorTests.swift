@@ -115,6 +115,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             scheduleStrategy: .unsplit,
             testDestination: try TestDestination(deviceType: "iPhoneXL", runtime: "10.3"),
             testType: testType,
+            toolResources: ToolResourcesFixtures.fakeToolResources(),
             toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
         )
     }

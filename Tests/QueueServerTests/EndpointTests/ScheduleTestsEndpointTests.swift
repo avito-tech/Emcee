@@ -68,7 +68,6 @@ final class ScheduleTestsEndpointTests: XCTestCase {
     )
     let bucketSplitInfo = BucketSplitInfo(
         numberOfWorkers: 0,
-        toolResources: ToolResourcesFixtures.fakeToolResources(),
         simulatorSettings: SimulatorSettingsFixtures().simulatorSettings()
     )
     let jobId = JobId(value: "jobId")

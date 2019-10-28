@@ -10,6 +10,7 @@ public struct TestArgFile: Codable {
         public let scheduleStrategy: ScheduleStrategyType
         public let testDestination: TestDestination
         public let testType: TestType
+        public let toolResources: ToolResources
         public let toolchainConfiguration: ToolchainConfiguration
         
         public init(
@@ -20,6 +21,7 @@ public struct TestArgFile: Codable {
             scheduleStrategy: ScheduleStrategyType,
             testDestination: TestDestination,
             testType: TestType,
+            toolResources: ToolResources,
             toolchainConfiguration: ToolchainConfiguration
         ) {
             self.testsToRun = testsToRun
@@ -29,6 +31,7 @@ public struct TestArgFile: Codable {
             self.scheduleStrategy = scheduleStrategy
             self.testDestination = testDestination
             self.testType = testType
+            self.toolResources = toolResources
             self.toolchainConfiguration = toolchainConfiguration
         }
         
@@ -40,6 +43,7 @@ public struct TestArgFile: Codable {
             case testDestination
             case testType
             case buildArtifacts
+            case toolResources
             case toolchainConfiguration
         }
         
@@ -48,11 +52,12 @@ public struct TestArgFile: Codable {
 
             testsToRun = try container.decode([TestToRun].self, forKey: .testsToRun)
             buildArtifacts = try container.decode(BuildArtifacts.self, forKey: .buildArtifacts)
-            environment = try container.decodeIfPresent([String: String].self, forKey: .environment) ?? [:]
+            environment = try container.decode([String: String].self, forKey: .environment)
             numberOfRetries = try container.decode(UInt.self, forKey: .numberOfRetries)
             scheduleStrategy = try container.decode(ScheduleStrategyType.self, forKey: .scheduleStrategy)
             testDestination = try container.decode(TestDestination.self, forKey: .testDestination)
-            testType = try container.decodeIfPresent(TestType.self, forKey: .testType) ?? .uiTest
+            testType = try container.decode(TestType.self, forKey: .testType)
+            toolResources = try container.decode(ToolResources.self, forKey: .toolResources)
             toolchainConfiguration = try container.decode(ToolchainConfiguration.self, forKey: .toolchainConfiguration)
         }
         
@@ -66,6 +71,7 @@ public struct TestArgFile: Codable {
             try container.encode(scheduleStrategy, forKey: .scheduleStrategy)
             try container.encode(testDestination, forKey: .testDestination)
             try container.encode(testType, forKey: .testType)
+            try container.encode(toolResources, forKey: .toolResources)
             try container.encode(toolchainConfiguration, forKey: .toolchainConfiguration)
         }
     }

@@ -647,7 +647,8 @@ let package = Package(
             dependencies: [
                 "Models",
                 "ModelsTestHelpers",
-                "TemporaryStuff"
+                "TestHelpers",
+                "TemporaryStuff",
             ]
         ),
         .target(

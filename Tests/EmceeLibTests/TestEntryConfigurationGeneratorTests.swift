@@ -43,6 +43,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 scheduleStrategy: .unsplit,
                 testDestination: argFileDestination1,
                 testType: .uiTest,
+                toolResources: ToolResourcesFixtures.fakeToolResources(),
                 toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
             )
         )
@@ -71,6 +72,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 scheduleStrategy: .unsplit,
                 testDestination: argFileDestination1,
                 testType: .uiTest,
+                toolResources: ToolResourcesFixtures.fakeToolResources(),
                 toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
             )
         )
@@ -101,6 +103,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 scheduleStrategy: .unsplit,
                 testDestination: argFileDestination1,
                 testType: .uiTest,
+                toolResources: ToolResourcesFixtures.fakeToolResources(),
                 toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
             )
         )

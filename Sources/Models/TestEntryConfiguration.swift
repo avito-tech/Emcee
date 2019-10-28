@@ -6,6 +6,7 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
     public let testDestination: TestDestination
     public let testExecutionBehavior: TestExecutionBehavior
     public let testType: TestType
+    public let toolResources: ToolResources
     public let toolchainConfiguration: ToolchainConfiguration
 
     public init(
@@ -14,6 +15,7 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
         testDestination: TestDestination,
         testExecutionBehavior: TestExecutionBehavior,
         testType: TestType,
+        toolResources: ToolResources,
         toolchainConfiguration: ToolchainConfiguration
     ) {
         self.testEntry = testEntry
@@ -21,10 +23,11 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
         self.testDestination = testDestination
         self.testExecutionBehavior = testExecutionBehavior
         self.testType = testType
+        self.toolResources = toolResources
         self.toolchainConfiguration = toolchainConfiguration
     }
     
     public var description: String {
-        return "<\(type(of: self)): \(testEntry) \(testType) \(testDestination) \(buildArtifacts) \(testExecutionBehavior) \(toolchainConfiguration)>"
+        return "<\(type(of: self)): \(testEntry) \(testType) \(testDestination) \(buildArtifacts) \(testExecutionBehavior) \(toolResources) \(toolchainConfiguration)>"
     }
 }

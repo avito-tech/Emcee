@@ -7,6 +7,7 @@ public final class TestEntryConfigurationFixtures {
     public var testExecutionBehavior = TestExecutionBehavior(environment: [:], numberOfRetries: 0)
     public var buildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
     public var testType = TestType.uiTest
+    public var toolResources: ToolResources = ToolResourcesFixtures.fakeToolResources()
     public var toolchainConfiguration = ToolchainConfiguration(developerDir: .current)
     
     public init() {}
@@ -41,6 +42,11 @@ public final class TestEntryConfigurationFixtures {
         return self
     }
     
+    public func with(toolResources: ToolResources) -> Self {
+        self.toolResources = toolResources
+        return self
+    }
+    
     public func with(toolchainConfiguration: ToolchainConfiguration) -> Self {
         self.toolchainConfiguration = toolchainConfiguration
         return self
@@ -54,6 +60,7 @@ public final class TestEntryConfigurationFixtures {
                 testDestination: testDestination,
                 testExecutionBehavior: testExecutionBehavior,
                 testType: testType,
+                toolResources: ToolResourcesFixtures.fakeToolResources(),
                 toolchainConfiguration: toolchainConfiguration
             )
         }

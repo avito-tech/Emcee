@@ -33,6 +33,7 @@ public final class TestEntryConfigurationGenerator {
                         numberOfRetries: testArgFileEntry.numberOfRetries
                     ),
                     testType: testArgFileEntry.testType,
+                    toolResources: testArgFileEntry.toolResources,
                     toolchainConfiguration: testArgFileEntry.toolchainConfiguration
                 )
             }

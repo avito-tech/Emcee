@@ -86,7 +86,6 @@ public final class StartQueueServerCommand: Command {
             workerAlivenessPolicy: .workersStayAliveWhenQueueIsDepleted,
             bucketSplitInfo: BucketSplitInfo(
                 numberOfWorkers: UInt(queueServerRunConfiguration.deploymentDestinationConfigurations.count),
-                toolResources: queueServerRunConfiguration.auxiliaryResources.toolResources,
                 simulatorSettings: queueServerRunConfiguration.simulatorSettings
             ),
             queueServerLock: AutomaticTerminationControllerAwareQueueServerLock(
