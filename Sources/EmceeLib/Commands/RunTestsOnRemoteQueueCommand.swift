@@ -28,8 +28,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     public let name = "runTestsOnRemoteQueue"
     public let description = "Starts queue server on remote machine if needed and runs tests on the remote queue. Waits for resuls to come back."
     public let arguments: Arguments = [
-        ArgumentDescriptions.fbsimctl.asRequired,
-        ArgumentDescriptions.fbxctest.asRequired,
         ArgumentDescriptions.junit.asOptional,
         ArgumentDescriptions.queueServerDestination.asRequired,
         ArgumentDescriptions.queueServerRunConfigurationLocation.asRequired,
@@ -64,14 +62,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         let eventBus = EventBus()
         defer { eventBus.tearDown() }
         
-        let testRunnerTool: TestRunnerTool = .fbxctest(
-            try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.fbxctest.name)
-        )
-        
-        let simulatorControlTool: SimulatorControlTool = SimulatorControlTool.fbsimctl(
-            try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.fbsimctl.name)
-        )
-        
         let queueServerDestination = try ArgumentsReader.deploymentDestinations(
             try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerDestination.name)
         ).elementAtIndex(0, "first and single queue server destination")
@@ -90,8 +80,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         )
         let jobResults = try runTestsOnRemotelyRunningQueue(
             eventBus: eventBus,
-            testRunnerTool: testRunnerTool,
-            simulatorControlTool: simulatorControlTool,
             queueServerAddress: runningQueueServerAddress,
             runId: runId,
             tempFolder: tempFolder,
@@ -156,18 +144,11 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     
     private func runTestsOnRemotelyRunningQueue(
         eventBus: EventBus,
-        testRunnerTool: TestRunnerTool,
-        simulatorControlTool: SimulatorControlTool,
         queueServerAddress: SocketAddress,
         runId: JobId,
         tempFolder: TemporaryFolder,
         testArgFile: TestArgFile
     ) throws -> JobResults {
-        let validatorConfiguration = TestEntriesValidatorConfiguration(
-            simulatorControlTool: simulatorControlTool,
-            testArgFileEntries: testArgFile.entries,
-            testRunnerTool: testRunnerTool
-        )
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
             developerDirLocator: developerDirLocator,
             resourceLocationResolver: resourceLocationResolver,
@@ -197,7 +178,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         }
 
         let testEntriesValidator = TestEntriesValidator(
-            validatorConfiguration: validatorConfiguration,
+            testArgFileEntries: testArgFile.entries,
             runtimeTestQuerier: runtimeTestQuerier
         )
         

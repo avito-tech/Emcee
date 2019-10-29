@@ -14,13 +14,13 @@ import TemporaryStuff
 import UniqueIdentifierGenerator
 
 public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
-    private let eventBus: EventBus
     private let developerDirLocator: DeveloperDirLocator
+    private let eventBus: EventBus
     private let numberOfAttemptsToPerformRuntimeDump: UInt
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TemporaryFolder
-    private let testQueryEntry = TestEntry(testName: TestName(className: "NonExistingTest", methodName: "fakeTest"), tags: [], caseId: nil)
+    private let testEntryToQueryRuntimeDump: TestEntry
     private let testRunnerProvider: TestRunnerProvider
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     
@@ -31,6 +31,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         onDemandSimulatorPool: OnDemandSimulatorPool,
         resourceLocationResolver: ResourceLocationResolver,
         tempFolder: TemporaryFolder,
+        testEntryToQueryRuntimeDump: TestEntry = TestEntry(testName: TestName(className: "NonExistingTest", methodName: "fakeTest"), tags: [], caseId: nil),
         testRunnerProvider: TestRunnerProvider,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
@@ -40,6 +41,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.resourceLocationResolver = resourceLocationResolver
         self.tempFolder = tempFolder
+        self.testEntryToQueryRuntimeDump = testEntryToQueryRuntimeDump
         self.testRunnerProvider = testRunnerProvider
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
@@ -90,7 +92,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
             testRunnerProvider: testRunnerProvider
         )
         let runnerRunResult = try runner.runOnce(
-            entriesToRun: [testQueryEntry],
+            entriesToRun: [testEntryToQueryRuntimeDump],
             developerDir: configuration.developerDir,
             simulatorInfo: allocatedSimulator.simulator.simulatorInfo
         )
@@ -117,7 +119,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         runtimeEntriesJSONPath: AbsolutePath
     ) -> RunnerConfiguration {
         let simulatorSettings = SimulatorSettings(simulatorLocalizationSettings: nil, watchdogSettings: nil)
-        let environment = self.environment(runtimeEntriesJSONPath: runtimeEntriesJSONPath)
+        let environment = self.environment(configuration: dumpConfiguration, runtimeEntriesJSONPath: runtimeEntriesJSONPath)
 
         switch dumpConfiguration.runtimeDumpMode {
         case .logicTest:
@@ -217,8 +219,11 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         )
     }
     
-    private func environment(runtimeEntriesJSONPath: AbsolutePath) -> [String: String] {
-        var environment = ProcessInfo.processInfo.environment
+    private func environment(
+        configuration: RuntimeDumpConfiguration,
+        runtimeEntriesJSONPath: AbsolutePath
+    ) -> [String: String] {
+        var environment = configuration.testExecutionBehavior.environment
         environment["EMCEE_RUNTIME_TESTS_EXPORT_PATH"] = runtimeEntriesJSONPath.pathString
         return environment
     }

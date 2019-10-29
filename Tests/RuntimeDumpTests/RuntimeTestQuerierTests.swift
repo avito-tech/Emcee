@@ -187,12 +187,17 @@ final class RuntimeTestQuerierTests: XCTestCase {
         applicationTestSupport: RuntimeDumpApplicationTestSupport?
     ) -> RuntimeDumpConfiguration {
         return RuntimeDumpConfiguration(
-            testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
-            xcTestBundleLocation: TestBundleLocation(ResourceLocation.localFilePath("")),
+            developerDir: DeveloperDir.current,
             runtimeDumpMode: .logicTest,
             testDestination: TestDestinationFixtures.testDestination,
+            testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 0),
+            testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
+            testTimeoutConfiguration: TestTimeoutConfiguration(
+                singleTestMaximumDuration: 10,
+                testRunnerMaximumSilenceDuration: 10
+            ),
             testsToValidate: testsToValidate,
-            developerDir: DeveloperDir.current
+            xcTestBundleLocation: TestBundleLocation(ResourceLocation.localFilePath(""))
         )
     }
 

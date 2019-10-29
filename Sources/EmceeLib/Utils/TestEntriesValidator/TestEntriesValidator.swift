@@ -7,27 +7,15 @@ import ResourceLocationResolver
 import TemporaryStuff
 
 public final class TestEntriesValidator {
-
-    enum TestEntriesValidatorError: Error, CustomStringConvertible {
-        case runtimeDumpMissesAppBundle
-
-        public var description: String {
-            switch self {
-            case .runtimeDumpMissesAppBundle:
-                return "Pass buildArtifacts.app inside --test-arg-file for each appTest"
-            }
-        }
-    }
-
-    private let validatorConfiguration: TestEntriesValidatorConfiguration
+    private let testArgFileEntries: [TestArgFile.Entry]
     private let runtimeTestQuerier: RuntimeTestQuerier
     private let transformer = TestToRunIntoTestEntryTransformer()
 
     public init(
-        validatorConfiguration: TestEntriesValidatorConfiguration,
+        testArgFileEntries: [TestArgFile.Entry],
         runtimeTestQuerier: RuntimeTestQuerier
     ) {
-        self.validatorConfiguration = validatorConfiguration
+        self.testArgFileEntries = testArgFileEntries
         self.runtimeTestQuerier = runtimeTestQuerier
     }
     
@@ -36,7 +24,7 @@ public final class TestEntriesValidator {
     ) throws -> [ValidatedTestEntry] {
         var result = [ValidatedTestEntry]()
         
-        for testArgFileEntry in validatorConfiguration.testArgFileEntries {
+        for testArgFileEntry in testArgFileEntries {
             let validatedTestEntries = try self.validatedTestEntries(testArgFileEntry: testArgFileEntry)
             try intermediateResult(testArgFileEntry, validatedTestEntries)
             result.append(contentsOf: validatedTestEntries)
@@ -48,18 +36,20 @@ public final class TestEntriesValidator {
     private func validatedTestEntries(
         testArgFileEntry: TestArgFile.Entry
     ) throws -> [ValidatedTestEntry] {
-        let runtimeDumpMode = try determineDumpMode(
-            buildArtifacts: testArgFileEntry.buildArtifacts,
-            testArgFileEntry: testArgFileEntry
-        )
-
         let runtimeDumpConfiguration = RuntimeDumpConfiguration(
-            testRunnerTool: validatorConfiguration.testRunnerTool,
-            xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location,
-            runtimeDumpMode: runtimeDumpMode,
+            developerDir: testArgFileEntry.toolchainConfiguration.developerDir,
+            runtimeDumpMode: try RuntimeDumpModeDeterminer.runtimeDumpMode(
+                testArgFileEntry: testArgFileEntry
+            ),
             testDestination: testArgFileEntry.testDestination,
+            testExecutionBehavior: TestExecutionBehavior(
+                environment: testArgFileEntry.environment,
+                numberOfRetries: testArgFileEntry.numberOfRetries
+            ),
+            testRunnerTool: testArgFileEntry.toolResources.testRunnerTool,
+            testTimeoutConfiguration: testTimeoutConfigurationForRuntimeDump,
             testsToValidate: testArgFileEntry.testsToRun,
-            developerDir: testArgFileEntry.toolchainConfiguration.developerDir
+            xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location
         )
 
         return try transformer.transform(
@@ -67,26 +57,6 @@ public final class TestEntriesValidator {
                 configuration: runtimeDumpConfiguration
             ),
             buildArtifacts: testArgFileEntry.buildArtifacts
-        )
-    }
-
-    private func determineDumpMode(
-        buildArtifacts: BuildArtifacts,
-        testArgFileEntry: TestArgFile.Entry
-    ) throws -> RuntimeDumpMode {
-        if testArgFileEntry.buildArtifacts.xcTestBundle.runtimeDumpKind == .logicTest {
-            return .logicTest
-        }
-
-        guard let appBundle = buildArtifacts.appBundle else {
-            throw TestEntriesValidatorError.runtimeDumpMissesAppBundle
-        }
-
-        return .appTest(
-            RuntimeDumpApplicationTestSupport(
-                appBundle: appBundle,
-                simulatorControlTool: validatorConfiguration.simulatorControlTool
-            )
         )
     }
 }

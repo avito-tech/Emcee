@@ -1,49 +1,32 @@
 import Foundation
 
 public struct RuntimeDumpConfiguration {
-    
-    /** Timeout values. */
-    public let testTimeoutConfiguration: TestTimeoutConfiguration
-    
-    /** Parameters that determinte how to execute the tests. */
-    public let testRunExecutionBehavior: TestRunExecutionBehavior
-    
-    /** Path to logic test runner. */
+    public let developerDir: DeveloperDir
+    public let runtimeDumpMode: RuntimeDumpMode
+    public let testDestination: TestDestination
+    public let testExecutionBehavior: TestExecutionBehavior
     public let testRunnerTool: TestRunnerTool
-    
-    /** Xctest bundle which contents should be dumped in runtime */
+    public let testTimeoutConfiguration: TestTimeoutConfiguration
+    public let testsToValidate: [TestToRun]
     public let xcTestBundleLocation: TestBundleLocation
 
-    public let runtimeDumpMode: RuntimeDumpMode
-
-    /** Test destination */
-    public let testDestination: TestDestination
-    
-    /** Tests that are expected to run, so runtime dump can validate their presence */
-    public let testsToValidate: [TestToRun]
-    
-    public let developerDir: DeveloperDir
-
     public init(
-        testRunnerTool: TestRunnerTool,
-        xcTestBundleLocation: TestBundleLocation,
+        developerDir: DeveloperDir,
         runtimeDumpMode: RuntimeDumpMode,
         testDestination: TestDestination,
+        testExecutionBehavior: TestExecutionBehavior,
+        testRunnerTool: TestRunnerTool,
+        testTimeoutConfiguration: TestTimeoutConfiguration,
         testsToValidate: [TestToRun],
-        developerDir: DeveloperDir
+        xcTestBundleLocation: TestBundleLocation
     ) {
-        self.testTimeoutConfiguration = TestTimeoutConfiguration(
-            singleTestMaximumDuration: 20,
-            testRunnerMaximumSilenceDuration: 20
-        )
-        self.testRunExecutionBehavior = TestRunExecutionBehavior(
-            numberOfSimulators: 1
-        )
-        self.testRunnerTool = testRunnerTool
-        self.xcTestBundleLocation = xcTestBundleLocation
+        self.developerDir = developerDir
         self.runtimeDumpMode = runtimeDumpMode
         self.testDestination = testDestination
+        self.testExecutionBehavior = testExecutionBehavior
+        self.testRunnerTool = testRunnerTool
+        self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testsToValidate = testsToValidate
-        self.developerDir = developerDir
+        self.xcTestBundleLocation = xcTestBundleLocation
     }
 }

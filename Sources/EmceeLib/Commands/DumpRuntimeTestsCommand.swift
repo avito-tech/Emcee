@@ -20,13 +20,9 @@ public final class DumpRuntimeTestsCommand: Command {
     public let name = "dump"
     public let description = "Dumps all available runtime tests into JSON file"
     public let arguments: Arguments = [
-        ArgumentDescriptions.app.asOptional,
-        ArgumentDescriptions.fbsimctl.asOptional,
-        ArgumentDescriptions.fbxctest.asRequired,
         ArgumentDescriptions.output.asRequired,
         ArgumentDescriptions.tempFolder.asRequired,
-        ArgumentDescriptions.testDestinations.asRequired,
-        ArgumentDescriptions.xctestBundle.asRequired,
+        ArgumentDescriptions.testArgFile.asRequired,
     ]
     
     private let encoder = JSONEncoder.pretty()
@@ -42,27 +38,11 @@ public final class DumpRuntimeTestsCommand: Command {
     }
 
     public func run(payload: CommandPayload) throws {
-        let testRunnerTool: TestRunnerTool = .fbxctest(
-            try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.fbxctest.name)
-        )
-        let testDestinations: [TestDestinationConfiguration] = try ArgumentsReader.testDestinations(
-            try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testDestinations.name)
-        )
-        let xctestBundle: TestBundleLocation = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.xctestBundle.name)
-        let runtimeDumpMode = try determineDumpMode(payload: payload)
+        let testArgFile = try ArgumentsReader.testArgFile(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testArgFile.name))
         let tempFolder = try TemporaryFolder(
             containerPath: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.tempFolder.name)
         )
         let outputPath: AbsolutePath = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.output.name)
-
-        let configuration = RuntimeDumpConfiguration(
-            testRunnerTool: testRunnerTool,
-            xcTestBundleLocation: xctestBundle,
-            runtimeDumpMode: runtimeDumpMode,
-            testDestination: testDestinations[0].testDestination,
-            testsToValidate: [],
-            developerDir: DeveloperDir.current
-        )
         
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
             developerDirLocator: developerDirLocator,
@@ -70,38 +50,40 @@ public final class DumpRuntimeTestsCommand: Command {
             tempFolder: tempFolder
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
-
-        let runtimeTestQuerier = RuntimeTestQuerierImpl(
-            eventBus: EventBus(),
-            developerDirLocator: developerDirLocator,
-            numberOfAttemptsToPerformRuntimeDump: 5,
-            onDemandSimulatorPool: onDemandSimulatorPool,
-            resourceLocationResolver: resourceLocationResolver,
-            tempFolder: tempFolder,
-            testRunnerProvider: DefaultTestRunnerProvider(resourceLocationResolver: resourceLocationResolver),
-            uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator()
-        )
-        let runtimeTests = try runtimeTestQuerier.queryRuntime(configuration: configuration)
         
-        let encodedTests = try encoder.encode(runtimeTests.availableRuntimeTests)
-        try encodedTests.write(to: outputPath.fileUrl, options: [.atomic])
-        Logger.debug("Wrote run time tests dump to file \(outputPath)")
-    }
-        
-    private func determineDumpMode(payload: CommandPayload) throws -> RuntimeDumpMode {
-        let app: AppBundleLocation? = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.app.name)
-
-        guard let appLocation = app else {
-            return .logicTest
-        }
-
-        let fbsimctlLocation: FbsimctlLocation = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.fbsimctl.name)
-
-        return .appTest(
-            RuntimeDumpApplicationTestSupport(
-                appBundle: appLocation,
-                simulatorControlTool: .fbsimctl(fbsimctlLocation)
+        let dumpedTests: [[RuntimeTestEntry]] = try testArgFile.entries.map { testArgFileEntry -> [RuntimeTestEntry] in
+            let configuration = RuntimeDumpConfiguration(
+                developerDir: testArgFileEntry.toolchainConfiguration.developerDir,
+                runtimeDumpMode: try RuntimeDumpModeDeterminer.runtimeDumpMode(testArgFileEntry: testArgFileEntry),
+                testDestination: testArgFileEntry.testDestination,
+                testExecutionBehavior: TestExecutionBehavior(
+                    environment: testArgFileEntry.environment,
+                    numberOfRetries: testArgFileEntry.numberOfRetries
+                ),
+                testRunnerTool: testArgFileEntry.toolResources.testRunnerTool,
+                testTimeoutConfiguration: testTimeoutConfigurationForRuntimeDump,
+                testsToValidate: testArgFileEntry.testsToRun,
+                xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location
             )
-        )
+            
+            let runtimeTestQuerier = RuntimeTestQuerierImpl(
+                eventBus: EventBus(),
+                developerDirLocator: developerDirLocator,
+                numberOfAttemptsToPerformRuntimeDump: testArgFileEntry.numberOfRetries,
+                onDemandSimulatorPool: onDemandSimulatorPool,
+                resourceLocationResolver: resourceLocationResolver,
+                tempFolder: tempFolder,
+                testRunnerProvider: DefaultTestRunnerProvider(resourceLocationResolver: resourceLocationResolver),
+                uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator()
+            )
+            
+            let result = try runtimeTestQuerier.queryRuntime(configuration: configuration)
+            Logger.debug("Test bundle \(testArgFileEntry.buildArtifacts.xcTestBundle) contains \(result.availableRuntimeTests.count) tests")
+            return result.availableRuntimeTests
+        }
+        
+        let encodedResult = try encoder.encode(dumpedTests)
+        try encodedResult.write(to: outputPath.fileUrl, options: [.atomic])
+        Logger.debug("Wrote run time tests dump to file \(outputPath)")
     }
 }

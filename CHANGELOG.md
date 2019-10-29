@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2019-10-29
+
+- `dump` command now expects `--test-arg-file` argument to be provided. It iterates over its `entry` objects and performs runtime dump for each `buildArtifacts.xcTestBundle`. It then merges the result and writes it out into the given value of `--output` argument. Thus, the resulting JSON now contains an array of results instead of a single result.
+
+- `--app`, `--fbxctest`, `--fbsimctl`, `--test-destinations`, `--xctest-bundle` arguments have been removed from `dump` command. Pass these values via test arg file.
+
+- Runtime dump now uses `environment` from test arg file. It does not pass Emcee process environment into test bundle anymore  when performing runtime dump.
+
+- Use can control how many times runtime dump operation can be retried by specifying `numberOfRetries` for test entry. Previously Emcee had 5 hardcoded retries, and now this value must be set via test arg file.
+
+- `--fbxctest` and `--fbsimctl` arguments have been removed from `runTestsOnRemoteQueue` command. It now uses test arg file entries to obtain simulator control tool and test runner tool.
+
 ## 2019-10-28
 
 ### Changed
