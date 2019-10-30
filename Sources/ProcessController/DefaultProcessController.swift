@@ -12,11 +12,11 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
     private var didInitiateKillOfProcess = false
     private var lastDataTimestamp: TimeInterval = Date().timeIntervalSince1970
     private let processTerminationQueue = DispatchQueue(label: "ru.avito.runner.ProcessListener.processTerminationQueue")
-    private let stdReadQueue = DispatchQueue(label: "ru.avito.runner.ProcessListener.stdReadQueue", attributes: .concurrent)
     private let stdinWriteQueue = DispatchQueue(label: "ru.avito.runner.ProcessListener.stdinWriteQueue")
     private var silenceTrackingTimer: DispatchBasedTimer?
     private var stdinHandle: FileHandle?
     private let processStdinPipe = Pipe()
+    private let openPipeFileHandleGroup = DispatchGroup()
     private static let newLineCharacterData = Data([UInt8(10)])
     
     private var didStartProcess = false
@@ -78,13 +78,9 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         startMonitoringForHangs()
     }
     
-    public func startAndListenUntilProcessDies() {
-        start()
-        waitForProcessToDie()
-    }
-    
     public func waitForProcessToDie() {
         process.waitUntilExit()
+        openPipeFileHandleGroup.wait()
     }
     
     public func processStatus() -> ProcessStatus {
@@ -196,12 +192,18 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
     
     // MARK: - Processing Output
     
-    private func streamFromPipeIntoHandle(_ pipe: Pipe, _ storageHandle: FileHandle, onNewData: @escaping (Data) -> ()) {
+    private func streamFromPipeIntoHandle(
+        pipe: Pipe,
+        storageHandle: FileHandle,
+        onNewData: @escaping (Data) -> (),
+        onEndOfData: @escaping () -> Void
+    ) {
         pipe.fileHandleForReading.readabilityHandler = { handle in
             let data = handle.availableData
             if data.isEmpty {
                 storageHandle.closeFile()
-                pipe.fileHandleForReading.readabilityHandler = nil
+                handle.readabilityHandler = nil
+                onEndOfData()
             } else {
                 storageHandle.write(data)
                 onNewData(data)
@@ -217,9 +219,13 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
             },
             pipeAssigningClosure: { pipe in
                 self.process.standardOutput = pipe
+                self.openPipeFileHandleGroup.enter()
             },
             onNewData: { data in
                 self.delegate?.processController(self, newStdoutData: data)
+            },
+            onEndOfData: {
+                self.openPipeFileHandleGroup.leave()
             }
         )
         
@@ -230,9 +236,13 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
             },
             pipeAssigningClosure: { pipe in
                 self.process.standardError = pipe
+                self.openPipeFileHandleGroup.enter()
             },
             onNewData: { data in
                 self.delegate?.processController(self, newStderrData: data)
+            },
+            onEndOfData: {
+                self.openPipeFileHandleGroup.leave()
             }
         )
         
@@ -249,7 +259,8 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         path: AbsolutePath,
         onError: (String) -> (),
         pipeAssigningClosure: (Pipe) -> (),
-        onNewData: @escaping (Data) -> ()
+        onNewData: @escaping (Data) -> (),
+        onEndOfData: @escaping () -> ()
     ) {
         guard FileManager.default.createFile(atPath: path.pathString, contents: nil) else {
             onError("Failed to create a file at path: '\(path)'")
@@ -261,10 +272,17 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         }
         let pipe = Pipe()
         pipeAssigningClosure(pipe)
-        streamFromPipeIntoHandle(pipe, storageHandle) { data in
-            self.didProcessDataFromProcess()
-            onNewData(data)
-        }
+        streamFromPipeIntoHandle(
+            pipe: pipe,
+            storageHandle: storageHandle,
+            onNewData: { data in
+                self.didProcessDataFromProcess()
+                onNewData(data)
+            },
+            onEndOfData: {
+                onEndOfData()
+            }
+        )
     }
     
     private func didProcessDataFromProcess() {

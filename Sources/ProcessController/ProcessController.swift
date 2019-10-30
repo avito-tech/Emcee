@@ -7,7 +7,6 @@ public protocol ProcessController: class {
     var processId: Int32 { get }
     
     func start()
-    func startAndListenUntilProcessDies()
     func waitForProcessToDie()
     func processStatus() -> ProcessStatus
     
@@ -19,6 +18,11 @@ public protocol ProcessController: class {
 }
 
 public extension ProcessController {
+    func startAndListenUntilProcessDies() {
+        start()
+        waitForProcessToDie()
+    }
+    
     var isProcessRunning: Bool {
         return processStatus() == .stillRunning
     }
