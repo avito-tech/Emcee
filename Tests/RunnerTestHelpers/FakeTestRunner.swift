@@ -4,6 +4,7 @@ import Models
 import ProcessController
 import Runner
 import TemporaryStuff
+import SimulatorPool
 
 public final class FakeTestRunner: TestRunner {
     public var buildArtifacts: BuildArtifacts?
@@ -71,12 +72,13 @@ public final class FakeTestRunner: TestRunner {
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         maximumAllowedSilenceDuration: TimeInterval,
+        simulator: Simulator,
         simulatorSettings: SimulatorSettings,
         singleTestMaximumDuration: TimeInterval,
+        temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
-        testType: TestType,
-        temporaryFolder: TemporaryFolder
+        testType: TestType
     ) throws -> StandardStreamsCaptureConfig {
         self.buildArtifacts = buildArtifacts
         self.entriesToRun = entriesToRun

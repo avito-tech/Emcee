@@ -18,7 +18,8 @@ public final class OnDemandSimulatorPoolFactory {
             simulatorControllerProvider: DefaultSimulatorControllerProvider(
                 maximumBootAttempts: maximumBootAttempts,
                 resourceLocationResolver: resourceLocationResolver,
-                simulatorBootQueue: simulatorBootQueue
+                simulatorBootQueue: simulatorBootQueue,
+                temporaryFolder: tempFolder
             ),
             tempFolder: tempFolder
         )

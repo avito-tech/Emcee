@@ -5,6 +5,8 @@ public final class AbsolutePath: Path, Codable, Hashable {
     
     public static let root = AbsolutePath(components: [])
     
+    public static let home = AbsolutePath(NSHomeDirectory())
+    
     public init(components: [String]) {
         self.components = components
     }

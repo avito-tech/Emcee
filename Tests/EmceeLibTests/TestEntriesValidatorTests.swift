@@ -16,7 +16,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             return XCTFail("configuration is unexpectedly nil")
         }
 
-        XCTAssertEqual(querierConfiguration.runtimeDumpMode, .logicTest)
+        XCTAssertEqual(querierConfiguration.runtimeDumpMode, .logicTest(testArgFileEntry.toolResources.simulatorControlTool))
         XCTAssertEqual(querierConfiguration.testRunnerTool, ToolResourcesFixtures.fakeToolResources().testRunnerTool)
         XCTAssertEqual(querierConfiguration.xcTestBundleLocation, testArgFileEntry.buildArtifacts.xcTestBundle.location)
         XCTAssertEqual(querierConfiguration.testDestination, testArgFileEntry.testDestination)
@@ -32,7 +32,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         guard let querierConfiguration = runtimeTestQuerier.configuration else {
             return XCTFail("configuration is unexpectedly nil")
         }
-        XCTAssertEqual(querierConfiguration.runtimeDumpMode, .logicTest)
+        XCTAssertEqual(querierConfiguration.runtimeDumpMode, .logicTest(uiTestEntry.toolResources.simulatorControlTool))
     }
 
     func test__pass_app_test_data__if_flag_is_true() throws {

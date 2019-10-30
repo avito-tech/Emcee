@@ -7,24 +7,23 @@ import PathLib
 import TemporaryStuff
 
 public final class SimulatorPoolMock: SimulatorPool {
-    public static let simulatorController = FakeSimulatorController(
-        simulator: Shimulator(
-            testDestination: TestDestinationFixtures.testDestination,
-            workingDirectory: .root
-        ),
-        simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
-        developerDir: .current
-    )
+    private let temporaryFolder: TemporaryFolder
     
     public init() throws {
+        let temporaryFolder = try TemporaryFolder()
+        self.temporaryFolder = temporaryFolder
         try super.init(
             developerDir: DeveloperDir.current,
             developerDirLocator: FakeDeveloperDirLocator(),
             simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
-            simulatorControllerProvider: FakeSimulatorControllerProvider { _ in
-                return SimulatorPoolMock.simulatorController
+            simulatorControllerProvider: FakeSimulatorControllerProvider { testDestination in
+                return FakeSimulatorController(
+                    simulator: SimulatorFixture.simulator(),
+                    simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
+                    developerDir: .current
+                )
             },
-            tempFolder: try TemporaryFolder(),
+            tempFolder: temporaryFolder,
             testDestination: TestDestinationFixtures.testDestination
         )
     }

@@ -7,7 +7,7 @@ public final class TestRunResult: Codable, CustomStringConvertible, Equatable {
     public let duration: TimeInterval
     public let startTime: TimeInterval
     public let hostName: String
-    public let simulatorId: String
+    public let simulatorId: UDID
 
     public var finishTime: TimeInterval {
         return startTime + duration
@@ -19,7 +19,7 @@ public final class TestRunResult: Codable, CustomStringConvertible, Equatable {
         duration: TimeInterval,
         startTime: TimeInterval,
         hostName: String,
-        simulatorId: String
+        simulatorId: UDID
     ) {
         self.succeeded = succeeded
         self.exceptions = exceptions

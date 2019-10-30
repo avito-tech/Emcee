@@ -39,7 +39,7 @@ public final class Runner {
     public func run(
         entries: [TestEntry],
         developerDir: DeveloperDir,
-        simulatorInfo: SimulatorInfo
+        simulator: Simulator
     ) throws -> RunnerRunResult {
         if entries.isEmpty {
             return RunnerRunResult(
@@ -71,7 +71,7 @@ public final class Runner {
             let runResults = try runOnce(
                 entriesToRun: entriesToRun,
                 developerDir: developerDir,
-                simulatorInfo: simulatorInfo
+                simulator: simulator
             )
             lastSubprocessStandardStreamsCaptureConfig = runResults.subprocessStandardStreamsCaptureConfig
             
@@ -91,7 +91,7 @@ public final class Runner {
             entriesToRun: entries,
             testEntryResults: testEntryResults(
                 runResult: runResult,
-                simulatorId: simulatorInfo.simulatorSetPath // TODO
+                simulatorId: simulator.udid
             ),
             subprocessStandardStreamsCaptureConfig: lastSubprocessStandardStreamsCaptureConfig
         )
@@ -101,7 +101,7 @@ public final class Runner {
     public func runOnce(
         entriesToRun: [TestEntry],
         developerDir: DeveloperDir,
-        simulatorInfo: SimulatorInfo
+        simulator: Simulator
     ) throws -> RunnerRunResult {
         if entriesToRun.isEmpty {
             Logger.info("Nothing to run!")
@@ -116,15 +116,16 @@ public final class Runner {
         
         let testContext = try createTestContext(
             developerDir: developerDir,
-            simulatorInfo: simulatorInfo
+            testDestination: simulator.testDestination
         )
         
-        Logger.info("Will run \(entriesToRun.count) tests on simulator \(simulatorInfo)")
+        Logger.info("Will run \(entriesToRun.count) tests on simulator \(simulator)")
         eventBus.post(event: .runnerEvent(.willRun(testEntries: entriesToRun, testContext: testContext)))
 
         let standardStreamsCaptureConfig = runTestsViaTestRunner(
             testRunner: try testRunnerProvider.testRunner(testRunnerTool: configuration.testRunnerTool),
             entriesToRun: entriesToRun,
+            simulator: simulator,
             testContext: testContext,
             testRunnerStream: TestRunnerStreamWrapper(
                 onTestStarted: { [weak self] testName in
@@ -148,12 +149,12 @@ public final class Runner {
         let result = prepareResults(
             collectedTestStoppedEvents: collectedTestStoppedEvents,
             requestedEntriesToRun: entriesToRun,
-            simulatorId: simulatorInfo.simulatorSetPath // TODO
+            simulatorId: simulator.udid
         )
         
         eventBus.post(event: .runnerEvent(.didRun(results: result, testContext: testContext)))
         
-        Logger.info("Attempted to run \(entriesToRun.count) tests on simulator \(simulatorInfo): \(entriesToRun)")
+        Logger.info("Attempted to run \(entriesToRun.count) tests on simulator \(simulator): \(entriesToRun)")
         Logger.info("Did get \(result.count) results: \(result)")
         
         return RunnerRunResult(
@@ -165,7 +166,7 @@ public final class Runner {
     
     private func createTestContext(
         developerDir: DeveloperDir,
-        simulatorInfo: SimulatorInfo
+        testDestination: TestDestination
     ) throws -> TestContext {
         let testsWorkingDirectory = try tempFolder.pathByCreatingDirectories(
             components: ["testsWorkingDir", UUID().uuidString]
@@ -178,13 +179,14 @@ public final class Runner {
         return TestContext(
             developerDir: developerDir,
             environment: environment,
-            simulatorInfo: simulatorInfo
+            testDestination: testDestination
         )
     }
     
     private func runTestsViaTestRunner(
         testRunner: TestRunner,
         entriesToRun: [TestEntry],
+        simulator: Simulator,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream
     ) -> StandardStreamsCaptureConfig {
@@ -194,12 +196,13 @@ public final class Runner {
                 developerDirLocator: developerDirLocator,
                 entriesToRun: entriesToRun,
                 maximumAllowedSilenceDuration: configuration.maximumAllowedSilenceDuration,
+                simulator: simulator,
                 simulatorSettings: configuration.simulatorSettings,
                 singleTestMaximumDuration: configuration.singleTestMaximumDuration,
+                temporaryFolder: tempFolder,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream,
-                testType: configuration.testType,
-                temporaryFolder: tempFolder
+                testType: configuration.testType
             )
         } catch {
             return generateTestFailuresBecauseOfRunnerFailure(
@@ -235,7 +238,7 @@ public final class Runner {
     private func prepareResults(
         collectedTestStoppedEvents: [TestStoppedEvent],
         requestedEntriesToRun: [TestEntry],
-        simulatorId: String
+        simulatorId: UDID
     ) -> [TestEntryResult] {
         return requestedEntriesToRun.map { requestedEntryToRun in
             prepareResult(
@@ -248,7 +251,7 @@ public final class Runner {
     
     private func prepareResult(
         requestedEntryToRun: TestEntry,
-        simulatorId: String,
+        simulatorId: UDID,
         collectedTestStoppedEvents: [TestStoppedEvent]
     ) -> TestEntryResult {
         let correspondingTestStoppedEvents = testStoppedEvents(
@@ -263,7 +266,7 @@ public final class Runner {
     }
     
     private func testEntryResultForFinishedTest(
-        simulatorId: String,
+        simulatorId: UDID,
         testEntry: TestEntry,
         testStoppedEvents: [TestStoppedEvent]
     ) -> TestEntryResult {
@@ -303,7 +306,7 @@ public final class Runner {
     
     private func testEntryResults(
         runResult: RunResult,
-        simulatorId: String
+        simulatorId: UDID
     ) -> [TestEntryResult] {
         return runResult.testEntryResults.map {
             if $0.isLost {
@@ -318,7 +321,7 @@ public final class Runner {
     }
     
     private func resultForSingleTestThatDidNotRun(
-        simulatorId: String,
+        simulatorId: UDID,
         testEntry: TestEntry
     ) -> TestEntryResult {
         return .withResult(

@@ -24,13 +24,17 @@ final class RuntimeTestQuerierTests: XCTestCase {
     lazy var simulatorPool = OnDemandSimulatorPool(
         developerDirLocator: developerDirLocator,
         resourceLocationResolver: resourceLocationResolver,
-        simulatorControllerProvider: FakeSimulatorControllerProvider(result: { simulator -> SimulatorController in
+        simulatorControllerProvider: FakeSimulatorControllerProvider { testDestination -> SimulatorController in
             return FakeSimulatorController(
-                simulator: simulator,
+                simulator: Simulator(
+                    testDestination: testDestination,
+                    udid: UDID(value: "fixed_udid"),
+                    path: self.tempFolder.absolutePath
+                ),
                 simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
                 developerDir: .current
             )
-        }),
+        },
         tempFolder: tempFolder
     )
     
@@ -188,7 +192,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
     ) -> RuntimeDumpConfiguration {
         return RuntimeDumpConfiguration(
             developerDir: DeveloperDir.current,
-            runtimeDumpMode: .logicTest,
+            runtimeDumpMode: .logicTest(applicationTestSupport?.simulatorControlTool ?? .simctl),
             testDestination: TestDestinationFixtures.testDestination,
             testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 0),
             testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,

@@ -4,18 +4,18 @@ import Models
 import SimulatorPool
 
 public final class FakeSimulatorControllerProvider: SimulatorControllerProvider {
-    public var result: (Simulator) -> SimulatorController
+    public var result: (TestDestination) -> SimulatorController
     
-    public init(result: @escaping (Simulator) -> SimulatorController) {
+    public init(result: @escaping (TestDestination) -> SimulatorController) {
         self.result = result
     }
     
     public func createSimulatorController(
         developerDir: DeveloperDir,
         developerDirLocator: DeveloperDirLocator,
-        simulator: Simulator,
-        simulatorControlTool: SimulatorControlTool
+        simulatorControlTool: SimulatorControlTool,
+        testDestination: TestDestination
     ) throws -> SimulatorController {
-        return result(simulator)
+        return result(testDestination)
     }
 }

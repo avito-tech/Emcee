@@ -445,6 +445,7 @@ let package = Package(
                 "ProcessControllerTestHelpers",
                 "ResourceLocationResolverTestHelpers",
                 "Runner",
+                "SimulatorPoolTestHelpers",
                 "TemporaryStuff",
                 "fbxctest",
             ]
@@ -1030,6 +1031,7 @@ let package = Package(
                 "Models",
                 "Runner",
                 "ProcessController",
+                "SimulatorPool",
                 "TemporaryStuff",
             ],
             path: "Tests/RunnerTestHelpers"
@@ -1050,7 +1052,7 @@ let package = Package(
                 "RunnerTestHelpers",
                 "ScheduleStrategy",
                 "SimulatorPool",
-                "TemporaryStuff"
+                "TemporaryStuff",
             ]
         ),
         .target(

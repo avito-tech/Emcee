@@ -9,23 +9,33 @@ import SimulatorPool
 
 public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor, CustomStringConvertible {
     private let fbsimctl: ResolvableResourceLocation
+    private let simulatorsContainerPath: AbsolutePath
+    private var allocationCounter = 0
     private var simulatorKeepAliveProcessController: ProcessController?
 
-    public init(fbsimctl: ResolvableResourceLocation) {
+    public init(
+        fbsimctl: ResolvableResourceLocation,
+        simulatorsContainerPath: AbsolutePath
+    ) {
         self.fbsimctl = fbsimctl
+        self.simulatorsContainerPath = simulatorsContainerPath
     }
 
     public func performCreateSimulatorAction(
         environment: [String : String],
-        simulatorSetPath: AbsolutePath,
         testDestination: TestDestination,
         timeout: TimeInterval
-    ) throws {
+    ) throws -> Simulator {
+        let setPath = simulatorsContainerPath.appending(
+            components: ["\(allocationCounter)", testDestination.deviceType.removingWhitespaces(), testDestination.runtime]
+        )
+        try FileManager.default.createDirectory(atPath: setPath)
+        
         let processController = try DefaultProcessController(
             subprocess: Subprocess(
                 arguments: [
                     fbsimctlArg,
-                    "--json", "--set", simulatorSetPath,
+                    "--json", "--set", setPath,
                     "create",
                     "iOS \(testDestination.runtime)", testDestination.deviceType
                 ],
@@ -41,12 +51,20 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
         guard createEndedEvents.count == 1, let createEndedEvent = createEndedEvents.first else {
             throw FbsimctlError.createOperationFailed("Failed to get single create ended event")
         }
-        Logger.debug("Created simulator with UUID: \(createEndedEvent.subject.udid)")
+        Logger.debug("Created new simulator #\(allocationCounter) with UUID: \(createEndedEvent.subject.udid)")
+        
+        allocationCounter += 1
+        
+        return Simulator(
+            testDestination: testDestination,
+            udid: createEndedEvent.subject.udid,
+            path: setPath.appending(components: ["sim", createEndedEvent.subject.udid.value])
+        )
     }
     
     public func performBootSimulatorAction(
         environment: [String : String],
-        simulatorSetPath: AbsolutePath,
+        path: AbsolutePath,
         simulatorUuid: UDID,
         timeout: TimeInterval
     ) throws {
@@ -54,7 +72,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
             subprocess: Subprocess(
                 arguments: [
                     fbsimctlArg,
-                    "--json", "--set", simulatorSetPath,
+                    "--json", "--set", path.removingLastComponent,
                     simulatorUuid.value, "boot",
                     "--locale", "ru_US",
                     "--direct-launch", "--", "listen"
@@ -78,7 +96,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
     
     public func performShutdownSimulatorAction(
         environment: [String : String],
-        simulatorSetPath: AbsolutePath,
+        path: AbsolutePath,
         simulatorUuid: UDID,
         timeout: TimeInterval
     ) throws {
@@ -92,7 +110,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun",
-                    "simctl", "--set", simulatorSetPath,
+                    "simctl", "--set", path.removingLastComponent,
                     "shutdown", simulatorUuid.value
                 ],
                 environment: environment,
@@ -107,7 +125,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
     
     public func performDeleteSimulatorAction(
         environment: [String : String],
-        simulatorSetPath: AbsolutePath,
+        path: AbsolutePath,
         simulatorUuid: UDID,
         timeout: TimeInterval
     ) throws {
@@ -121,7 +139,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
             subprocess: Subprocess(
                 arguments: [
                     fbsimctlArg,
-                    "--json", "--set", simulatorSetPath,
+                    "--json", "--set", path.removingLastComponent,
                     "--simulators", "delete"
                 ],
                 environment: environment,

@@ -94,7 +94,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         let runnerRunResult = try runner.runOnce(
             entriesToRun: [testEntryToQueryRuntimeDump],
             developerDir: configuration.developerDir,
-            simulatorInfo: allocatedSimulator.simulator.simulatorInfo
+            simulator: allocatedSimulator.simulator
         )
         
         guard let data = try? Data(contentsOf: runtimeEntriesJSONPath.fileUrl),
@@ -159,25 +159,23 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
     private func simulatorForRuntimeDump(
         configuration: RuntimeDumpConfiguration
     ) throws -> AllocatedSimulator {
+        let simulatorControlTool: SimulatorControlTool
+        
         switch configuration.runtimeDumpMode {
-        case .logicTest:
-            return AllocatedSimulator(
-                simulator: Shimulator.shimulator(
-                    testDestination: configuration.testDestination,
-                    workingDirectory: try tempFolder.pathByCreatingDirectories(components: ["shimulator"])
-                ),
-                releaseSimulator: {}
-            )
+        case .logicTest(let tool):
+            simulatorControlTool = tool
         case .appTest(let runtimeDumpApplicationTestSupport):
-            let simulatorPool = try onDemandSimulatorPool.pool(
-                key: OnDemandSimulatorPool.Key(
-                    developerDir: configuration.developerDir,
-                    testDestination: configuration.testDestination,
-                    simulatorControlTool: runtimeDumpApplicationTestSupport.simulatorControlTool
-                )
-            )
-            return try simulatorPool.allocateSimulator()
+            simulatorControlTool = runtimeDumpApplicationTestSupport.simulatorControlTool
         }
+        
+        let simulatorPool = try onDemandSimulatorPool.pool(
+            key: OnDemandSimulatorPool.Key(
+                developerDir: configuration.developerDir,
+                testDestination: configuration.testDestination,
+                simulatorControlTool: simulatorControlTool
+            )
+        )
+        return try simulatorPool.allocateSimulator()
     }
     
     private func requestedTestsNotAvailableInRuntime(

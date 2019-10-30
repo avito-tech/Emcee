@@ -2,30 +2,28 @@ import Foundation
 
 public final class TestContext: Codable, Hashable {
     public let developerDir: DeveloperDir
-    /// Test execution environment.
     public let environment: [String: String]
-    /// Simulator used to run tests.
-    public let simulatorInfo: SimulatorInfo
+    public let testDestination: TestDestination
     
     public init(
         developerDir: DeveloperDir,
         environment: [String: String],
-        simulatorInfo: SimulatorInfo
+        testDestination: TestDestination
     ) {
         self.developerDir = developerDir
         self.environment = environment
-        self.simulatorInfo = simulatorInfo
+        self.testDestination = testDestination
     }
     
     public func hash(into hasher: inout Hasher) {
         hasher.combine(developerDir)
         hasher.combine(environment)
-        hasher.combine(simulatorInfo)
+        hasher.combine(testDestination)
     }
     
     public static func == (left: TestContext, right: TestContext) -> Bool {
         return left.developerDir == right.developerDir
             && left.environment == right.environment
-            && left.simulatorInfo == right.simulatorInfo
+            && left.testDestination == right.testDestination
     }
 }

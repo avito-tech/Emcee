@@ -11,9 +11,9 @@ import XCTest
 class SimulatorPoolTests: XCTestCase {
     
     var tempFolder = try! TemporaryFolder()
-    let simulatorControllerProvider = FakeSimulatorControllerProvider { (simulator) -> SimulatorController in
+    lazy var simulatorControllerProvider = FakeSimulatorControllerProvider { testDestination -> SimulatorController in
         return FakeSimulatorController(
-            simulator: simulator,
+            simulator: SimulatorFixture.simulator(),
             simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
             developerDir: .current
         )

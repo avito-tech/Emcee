@@ -1,4 +1,5 @@
 import Foundation
+import Models
 
 public final class FbSimCtlCreateEndedEvent: FbSimCtlEventCommonFields, Decodable, Hashable, CustomStringConvertible {
     public let name: FbSimCtlEventName = .create
@@ -11,14 +12,14 @@ public final class FbSimCtlCreateEndedEvent: FbSimCtlEventCommonFields, Decodabl
         public let arch: String     // x86_64
         public let os: String       // iOS 10.3
         public let model: String    // iPhone SE
-        public let udid: String     // 046FB37A-7CE4-4CF4-BB6A-93FB91CD85A6
+        public let udid: UDID       // 046FB37A-7CE4-4CF4-BB6A-93FB91CD85A6
 
         public init(
             name: String,
             arch: String,
             os: String,
             model: String,
-            udid: String
+            udid: UDID
         ) {
             self.name = name
             self.arch = arch

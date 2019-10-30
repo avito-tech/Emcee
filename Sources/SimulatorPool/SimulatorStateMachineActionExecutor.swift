@@ -5,28 +5,27 @@ import PathLib
 public protocol SimulatorStateMachineActionExecutor {
     func performCreateSimulatorAction(
         environment: [String: String],
-        simulatorSetPath: AbsolutePath,
         testDestination: TestDestination,
         timeout: TimeInterval
-    ) throws
+    ) throws -> Simulator
     
     func performBootSimulatorAction(
         environment: [String: String],
-        simulatorSetPath: AbsolutePath,
+        path: AbsolutePath,
         simulatorUuid: UDID,
         timeout: TimeInterval
     ) throws
     
     func performShutdownSimulatorAction(
         environment: [String: String],
-        simulatorSetPath: AbsolutePath,
+        path: AbsolutePath,
         simulatorUuid: UDID,
         timeout: TimeInterval
     ) throws
 
     func performDeleteSimulatorAction(
         environment: [String: String],
-        simulatorSetPath: AbsolutePath,
+        path: AbsolutePath,
         simulatorUuid: UDID,
         timeout: TimeInterval
     ) throws

@@ -1,6 +1,6 @@
 import Foundation
 
 public enum RuntimeDumpMode: Equatable {
-    case logicTest
+    case logicTest(SimulatorControlTool)
     case appTest(RuntimeDumpApplicationTestSupport)
 }

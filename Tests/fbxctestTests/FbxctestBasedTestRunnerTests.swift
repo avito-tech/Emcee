@@ -3,6 +3,7 @@ import Models
 import ModelsTestHelpers
 import ResourceLocationResolverTestHelpers
 import Runner
+import SimulatorPoolTestHelpers
 import TemporaryStuff
 import XCTest
 import fbxctest
@@ -21,12 +22,13 @@ final class FbxctestBasedTestRunnerTests: XCTestCase, TestRunnerStream {
                 developerDirLocator: FakeDeveloperDirLocator(),
                 entriesToRun: [TestEntryFixtures.testEntry()],
                 maximumAllowedSilenceDuration: .infinity,
+                simulator: SimulatorFixture.simulator(),
                 simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
                 singleTestMaximumDuration: .infinity,
+                temporaryFolder: temporaryFolder,
                 testContext: TestContextFixtures().testContext,
                 testRunnerStream: self,
-                testType: .uiTest,
-                temporaryFolder: temporaryFolder
+                testType: .uiTest
             )
         )
     }
@@ -39,12 +41,13 @@ final class FbxctestBasedTestRunnerTests: XCTestCase, TestRunnerStream {
                 developerDirLocator: FakeDeveloperDirLocator(),
                 entriesToRun: [TestEntryFixtures.testEntry()],
                 maximumAllowedSilenceDuration: .infinity,
+                simulator: SimulatorFixture.simulator(),
                 simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
                 singleTestMaximumDuration: .infinity,
+                temporaryFolder: temporaryFolder,
                 testContext: TestContextFixtures().testContext,
                 testRunnerStream: self,
-                testType: .uiTest,
-                temporaryFolder: temporaryFolder
+                testType: .uiTest
             )
         )
     }

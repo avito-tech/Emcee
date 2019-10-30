@@ -21,7 +21,7 @@ public final class ChromeTraceGenerator {
                 timestamp: .seconds(testRunResult.startTime),
                 duration: .seconds(testRunResult.duration),
                 processId: testRunResult.hostName,
-                threadId: testRunResult.simulatorId,
+                threadId: testRunResult.simulatorId.value,
                 color: testRunResult.succeeded ? .good : .bad
             )
         }

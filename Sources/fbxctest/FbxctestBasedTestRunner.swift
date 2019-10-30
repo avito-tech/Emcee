@@ -24,23 +24,25 @@ public final class FbxctestBasedTestRunner: TestRunner {
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         maximumAllowedSilenceDuration: TimeInterval,
+        simulator: Simulator,
         simulatorSettings: SimulatorSettings,
         singleTestMaximumDuration: TimeInterval,
+        temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
-        testType: TestType,
-        temporaryFolder: TemporaryFolder
+        testType: TestType
     ) throws -> StandardStreamsCaptureConfig {
         return try standardStreamsCaptureConfigOfFbxctestProcess(
             buildArtifacts: buildArtifacts,
             entriesToRun: entriesToRun,
             maximumAllowedSilenceDuration: maximumAllowedSilenceDuration,
+            simulator: simulator,
             simulatorSettings: simulatorSettings,
             singleTestMaximumDuration: singleTestMaximumDuration,
+            temporaryFolder: temporaryFolder,
             testContext: testContext,
             testRunnerStream: testRunnerStream,
-            testType: testType,
-            temporaryFolder: temporaryFolder
+            testType: testType
         )
     }
     
@@ -48,12 +50,13 @@ public final class FbxctestBasedTestRunner: TestRunner {
         buildArtifacts: BuildArtifacts,
         entriesToRun: [TestEntry],
         maximumAllowedSilenceDuration: TimeInterval,
+        simulator: Simulator,
         simulatorSettings: SimulatorSettings,
         singleTestMaximumDuration: TimeInterval,
+        temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
-        testType: TestType,
-        temporaryFolder: TemporaryFolder
+        testType: TestType
     ) throws -> StandardStreamsCaptureConfig {
         let fbxctestOutputProcessor = try FbxctestOutputProcessor(
             subprocess: Subprocess(
@@ -61,8 +64,9 @@ public final class FbxctestBasedTestRunner: TestRunner {
                     buildArtifacts: buildArtifacts,
                     entriesToRun: entriesToRun,
                     fbxctestLocation: fbxctestLocation,
-                    simulatorInfo: testContext.simulatorInfo,
+                    simulator: simulator,
                     simulatorSettings: simulatorSettings,
+                    testDestination: testContext.testDestination,
                     testType: testType,
                     temporaryFolder: temporaryFolder
                 ),
@@ -84,8 +88,9 @@ public final class FbxctestBasedTestRunner: TestRunner {
         buildArtifacts: BuildArtifacts,
         entriesToRun: [TestEntry],
         fbxctestLocation: FbxctestLocation,
-        simulatorInfo: SimulatorInfo,
+        simulator: Simulator,
         simulatorSettings: SimulatorSettings,
+        testDestination: TestDestination,
         testType: TestType,
         temporaryFolder: TemporaryFolder
     ) throws -> [SubprocessArgument] {
@@ -93,7 +98,7 @@ public final class FbxctestBasedTestRunner: TestRunner {
         
         var arguments: [SubprocessArgument] = [
             resolvableFbxctest.asArgumentWith(implicitFilenameInArchive: "fbxctest"),
-             "-destination", simulatorInfo.testDestination.destinationString,
+             "-destination", testDestination.destinationString,
              testType.asArgument
         ]
         
@@ -156,8 +161,7 @@ public final class FbxctestBasedTestRunner: TestRunner {
 
         arguments += ["-keep-simulators-alive"]
         
-        // simulator set is inside ./sim folder, and fbxctest wants upper level view
-        arguments += ["-workingDirectory", simulatorInfo.simulatorSetPath.deletingLastPathComponent]
+        arguments += ["-workingDirectory", simulator.path.removingLastComponent]
         return arguments
     }
 }

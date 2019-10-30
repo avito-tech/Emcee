@@ -7,6 +7,7 @@ import ModelsTestHelpers
 import ResourceLocationResolverTestHelpers
 import Runner
 import RunnerTestHelpers
+import SimulatorPool
 import TemporaryStuff
 import XCTest
 
@@ -147,10 +148,10 @@ public final class RunnerTests: XCTestCase {
         return try runner.run(
             entries: testEntries,
             developerDir: .current,
-            simulatorInfo: SimulatorInfo(
-                simulatorUuid: UDID(value: UUID().uuidString),
-                simulatorSetPath: tempFolder.absolutePath.pathString,
-                testDestination: TestDestinationFixtures.testDestination
+            simulator: Simulator(
+                testDestination: TestDestinationFixtures.testDestination,
+                udid: UDID(value: UUID().uuidString),
+                path: tempFolder.absolutePath
             )
         )
     }

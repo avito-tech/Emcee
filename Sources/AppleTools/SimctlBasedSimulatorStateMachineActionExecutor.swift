@@ -10,18 +10,21 @@ import SimulatorPool
 
 public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor, CustomStringConvertible {
 
-    public init() {}
+    private let simulatorSetPath: AbsolutePath
+
+    public init(simulatorSetPath: AbsolutePath) {
+        self.simulatorSetPath = simulatorSetPath
+    }
     
     public var description: String {
-        return "simctl"
+        return "simctl with set path \(simulatorSetPath)"
     }
     
     public func performCreateSimulatorAction(
         environment: [String: String],
-        simulatorSetPath: AbsolutePath,
         testDestination: TestDestination,
         timeout: TimeInterval
-    ) throws {
+    ) throws -> Simulator {
         let controller = try DefaultProcessController(
             subprocess: Subprocess(
                 arguments: [
@@ -40,11 +43,20 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
             )
         )
         controller.startAndListenUntilProcessDies()
+        
+        let udid: UDID = UDID(
+            value: try String(contentsOf: controller.subprocess.standardStreamsCaptureConfig.stdoutContentsFile.fileUrl, encoding: .utf8).trimmingCharacters(in: .whitespacesAndNewlines)
+        )
+        
+        return Simulator(
+            testDestination: testDestination,
+            udid: udid,
+            path: simulatorSetPath.appending(component: udid.value))
     }
     
     public func performBootSimulatorAction(
         environment: [String: String],
-        simulatorSetPath: AbsolutePath,
+        path: AbsolutePath,
         simulatorUuid: UDID,
         timeout: TimeInterval
     ) throws {
@@ -52,7 +64,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun", "simctl",
-                    "--set", simulatorSetPath,
+                    "--set", path.removingLastComponent,
                     "bootstatus", simulatorUuid.value,
                     "-bd"
                 ],
@@ -68,7 +80,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
     
     public func performShutdownSimulatorAction(
         environment: [String: String],
-        simulatorSetPath: AbsolutePath,
+        path: AbsolutePath,
         simulatorUuid: UDID,
         timeout: TimeInterval
     ) throws {
@@ -76,7 +88,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun", "simctl",
-                    "--set", simulatorSetPath,
+                    "--set", path.removingLastComponent,
                     "shutdown", simulatorUuid.value
                 ],
                 environment: environment,
@@ -91,7 +103,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
     
     public func performDeleteSimulatorAction(
         environment: [String: String],
-        simulatorSetPath: AbsolutePath,
+        path: AbsolutePath,
         simulatorUuid: UDID,
         timeout: TimeInterval
     ) throws {
@@ -99,7 +111,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun", "simctl",
-                    "--set", simulatorSetPath,
+                    "--set", path.removingLastComponent,
                     "delete", simulatorUuid.value
                 ],
                 environment: environment,

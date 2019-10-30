@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2019-10-30
+
+- `SimulatorInfo` type has been deleted. Use `Simulator` model from `SimulatorPool`.
+
 ## 2019-10-29
 
 - `dump` command now expects `--test-arg-file` argument to be provided. It iterates over its `entry` objects and performs runtime dump for each `buildArtifacts.xcTestBundle`. It then merges the result and writes it out into the given value of `--output` argument. Thus, the resulting JSON now contains an array of results instead of a single result.

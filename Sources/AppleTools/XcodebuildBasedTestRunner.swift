@@ -4,6 +4,7 @@ import Models
 import ProcessController
 import ResourceLocationResolver
 import Runner
+import SimulatorPool
 import TemporaryStuff
 
 public final class XcodebuildBasedTestRunner: TestRunner {
@@ -20,12 +21,13 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         maximumAllowedSilenceDuration: TimeInterval,
+        simulator: Simulator,
         simulatorSettings: SimulatorSettings,
         singleTestMaximumDuration: TimeInterval,
+        temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
-        testType: TestType,
-        temporaryFolder: TemporaryFolder
+        testType: TestType
     ) throws -> StandardStreamsCaptureConfig {
         let processController = try DefaultProcessController(
             subprocess: Subprocess(
@@ -33,8 +35,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                     "/usr/bin/xcrun",
                     "xcodebuild", "test-without-building",
                     "-destination", XcodebuildSimulatorDestinationArgument(
-                        simulatorInfo: testContext.simulatorInfo,
-                        testType: testType
+                        destinationId: simulator.udid
                     ),
                     "-xctestrun", XcTestRunFileArgument(
                         buildArtifacts: buildArtifacts,
