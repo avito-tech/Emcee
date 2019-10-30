@@ -8,10 +8,18 @@ import fbxctest
 
 public final class DefaultSimulatorControllerProvider: SimulatorControllerProvider {
     
+    private let maximumBootAttempts: UInt
     private let resourceLocationResolver: ResourceLocationResolver
+    private let simulatorBootQueue: DispatchQueue
     
-    public init(resourceLocationResolver: ResourceLocationResolver) {
+    public init(
+        maximumBootAttempts: UInt,
+        resourceLocationResolver: ResourceLocationResolver,
+        simulatorBootQueue: DispatchQueue
+    ) {
+        self.maximumBootAttempts = maximumBootAttempts
         self.resourceLocationResolver = resourceLocationResolver
+        self.simulatorBootQueue = simulatorBootQueue
     }
 
     public func createSimulatorController(
@@ -31,9 +39,12 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
         }
         
         return StateMachineDrivenSimulatorController(
+            bootQueue: simulatorBootQueue,
             developerDir: developerDir,
             developerDirLocator: developerDirLocator,
+            maximumBootAttempts: maximumBootAttempts,
             simulator: simulator,
+            simulatorOperationTimeouts: StateMachineDrivenSimulatorController.SimulatorOperationTimeouts(create: 30, boot: 180, delete: 20, shutdown: 20),
             simulatorStateMachine: SimulatorStateMachine(),
             simulatorStateMachineActionExecutor: simulatorStateMachineActionExecutor
         )

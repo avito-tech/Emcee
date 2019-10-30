@@ -19,7 +19,8 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
     public func performCreateSimulatorAction(
         environment: [String: String],
         simulatorSetPath: AbsolutePath,
-        testDestination: TestDestination
+        testDestination: TestDestination,
+        timeout: TimeInterval
     ) throws {
         let controller = try DefaultProcessController(
             subprocess: Subprocess(
@@ -34,7 +35,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                 environment: environment,
                 silenceBehavior: SilenceBehavior(
                     automaticAction: .interruptAndForceKill,
-                    allowedSilenceDuration: 30
+                    allowedSilenceDuration: timeout
                 )
             )
         )
@@ -44,7 +45,8 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
     public func performBootSimulatorAction(
         environment: [String: String],
         simulatorSetPath: AbsolutePath,
-        simulatorUuid: UDID
+        simulatorUuid: UDID,
+        timeout: TimeInterval
     ) throws {
         let processController = try DefaultProcessController(
             subprocess: Subprocess(
@@ -54,7 +56,11 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                     "bootstatus", simulatorUuid.value,
                     "-bd"
                 ],
-                environment: environment
+                environment: environment,
+                silenceBehavior: SilenceBehavior(
+                    automaticAction: .interruptAndForceKill,
+                    allowedSilenceDuration: timeout
+                )
             )
         )
         processController.startAndListenUntilProcessDies()
@@ -63,7 +69,8 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
     public func performShutdownSimulatorAction(
         environment: [String: String],
         simulatorSetPath: AbsolutePath,
-        simulatorUuid: UDID
+        simulatorUuid: UDID,
+        timeout: TimeInterval
     ) throws {
         let shutdownController = try DefaultProcessController(
             subprocess: Subprocess(
@@ -75,7 +82,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                 environment: environment,
                 silenceBehavior: SilenceBehavior(
                     automaticAction: .interruptAndForceKill,
-                    allowedSilenceDuration: 20
+                    allowedSilenceDuration: timeout
                 )
             )
         )
@@ -85,7 +92,8 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
     public func performDeleteSimulatorAction(
         environment: [String: String],
         simulatorSetPath: AbsolutePath,
-        simulatorUuid: UDID
+        simulatorUuid: UDID,
+        timeout: TimeInterval
     ) throws {
         let deleteController = try DefaultProcessController(
             subprocess: Subprocess(
@@ -97,7 +105,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                 environment: environment,
                 silenceBehavior: SilenceBehavior(
                     automaticAction: .interruptAndForceKill,
-                    allowedSilenceDuration: 15
+                    allowedSilenceDuration: timeout
                 )
             )
         )

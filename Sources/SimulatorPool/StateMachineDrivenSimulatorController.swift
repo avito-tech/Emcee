@@ -6,26 +6,46 @@ import PathLib
 import SynchronousWaiter
 
 public final class StateMachineDrivenSimulatorController: SimulatorController {
-    private var currentSimulatorState = SimulatorStateMachine.State.absent
-    private let simulator: Simulator
+    public final class SimulatorOperationTimeouts {
+        public let create: TimeInterval
+        public let boot: TimeInterval
+        public let delete: TimeInterval
+        public let shutdown: TimeInterval
+
+        public init(create: TimeInterval, boot: TimeInterval, delete: TimeInterval, shutdown: TimeInterval) {
+            self.create = create
+            self.boot = boot
+            self.delete = delete
+            self.shutdown = shutdown
+        }
+    }
+    
+    private let bootQueue: DispatchQueue
     private let developerDir: DeveloperDir
     private let developerDirLocator: DeveloperDirLocator
+    private let maximumBootAttempts: UInt
+    private let simulator: Simulator
+    private let simulatorOperationTimeouts: SimulatorOperationTimeouts
     private let simulatorStateMachine: SimulatorStateMachine
     private let simulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor
-    
-    private let maximumBootAttempts = 2
-    private static let bootQueue = DispatchQueue(label: "SimulatorBootQueue")
+    private var currentSimulatorState = SimulatorStateMachine.State.absent
 
     public init(
+        bootQueue: DispatchQueue,
         developerDir: DeveloperDir,
         developerDirLocator: DeveloperDirLocator,
+        maximumBootAttempts: UInt,
         simulator: Simulator,
+        simulatorOperationTimeouts: SimulatorOperationTimeouts,
         simulatorStateMachine: SimulatorStateMachine,
         simulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor
     ) {
+        self.bootQueue = bootQueue
         self.developerDir = developerDir
         self.developerDirLocator = developerDirLocator
+        self.maximumBootAttempts = maximumBootAttempts
         self.simulator = simulator
+        self.simulatorOperationTimeouts = simulatorOperationTimeouts
         self.simulatorStateMachine = simulatorStateMachine
         self.simulatorStateMachineActionExecutor = simulatorStateMachineActionExecutor
     }
@@ -80,7 +100,8 @@ public final class StateMachineDrivenSimulatorController: SimulatorController {
         try simulatorStateMachineActionExecutor.performCreateSimulatorAction(
             environment: try environment(),
             simulatorSetPath: simulatorSetPath,
-            testDestination: simulator.testDestination
+            testDestination: simulator.testDestination,
+            timeout: simulatorOperationTimeouts.create
         )
         
         guard let simulatorUuid = simulator.uuid else {
@@ -102,11 +123,12 @@ public final class StateMachineDrivenSimulatorController: SimulatorController {
             try self.simulatorStateMachineActionExecutor.performBootSimulatorAction(
                 environment: try self.environment(),
                 simulatorSetPath: self.simulator.simulatorSetContainerPath,
-                simulatorUuid: UDID(value: simulatorUuid)
+                simulatorUuid: UDID(value: simulatorUuid),
+                timeout: self.simulatorOperationTimeouts.boot
             )
         }
         
-        try StateMachineDrivenSimulatorController.bootQueue.sync {
+        try bootQueue.sync {
             var bootAttempt = 0
             while true {
                 do {
@@ -137,7 +159,8 @@ public final class StateMachineDrivenSimulatorController: SimulatorController {
         try simulatorStateMachineActionExecutor.performShutdownSimulatorAction(
             environment: try environment(),
             simulatorSetPath: simulator.simulatorSetContainerPath,
-            simulatorUuid: simulatorUuid
+            simulatorUuid: simulatorUuid,
+            timeout: simulatorOperationTimeouts.shutdown
         )
     }
 
@@ -151,7 +174,8 @@ public final class StateMachineDrivenSimulatorController: SimulatorController {
         try simulatorStateMachineActionExecutor.performDeleteSimulatorAction(
             environment: try environment(),
             simulatorSetPath: simulator.simulatorSetContainerPath,
-            simulatorUuid: simulatorUuid
+            simulatorUuid: simulatorUuid,
+            timeout: simulatorOperationTimeouts.delete
         )
         
         try attemptToDeleteSimulatorFiles(
