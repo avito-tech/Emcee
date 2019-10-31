@@ -12,7 +12,7 @@ final class EventBusTest: XCTestCase {
         bus.add(stream: stream)
         bus.tearDown()
         
-        try SynchronousWaiter.waitWhile(timeout: 5.0, description: "Waiting for event bus to deliver events") {
+        try SynchronousWaiter().waitWhile(timeout: 5.0, description: "Waiting for event bus to deliver events") {
             stream.didTearDown == nil
         }
         

@@ -2,53 +2,10 @@ import Darwin
 import Foundation
 import Logging
 
-public final class SynchronousWaiter {
+public final class SynchronousWaiter: Waiter {
+    public init() {}
     
-    public struct Timeout: CustomStringConvertible {
-        public let description: String
-        public let value: TimeInterval
-
-        public init(description: String, value: TimeInterval) {
-            self.description = description
-            self.value = value
-        }
-        
-        public static var infinity: Timeout {
-            return Timeout(description: "Infinite wait will never timeout", value: .infinity)
-        }
-    }
-    
-    public enum TimeoutError: Error, CustomStringConvertible {
-        case waitTimeout(Timeout)
-        
-        public var description: String {
-            switch self {
-            case .waitTimeout(let timeout):
-                return "SynchronousWaiter reached timeout of \(timeout.value) s for '\(timeout.description)' operation"
-            }
-        }
-    }
-    
-    public typealias WaitCondition = () throws -> Bool
-    
-    public static func wait(pollPeriod: TimeInterval = 0.3, timeout: TimeInterval, description: String) {
-        try? waitWhile(pollPeriod: pollPeriod, timeout: timeout, description: description) { true }
-    }
-    
-    public static func waitWhile(
-        pollPeriod: TimeInterval = 0.3,
-        timeout: TimeInterval = .infinity,
-        description: String,
-        condition: WaitCondition
-    ) throws {
-        return try waitWhile(
-            pollPeriod: pollPeriod,
-            timeout: Timeout(description: description, value: timeout),
-            condition: condition
-        )
-    }
-    
-    public static func waitWhile(
+    public func waitWhile(
         pollPeriod: TimeInterval = 0.3,
         timeout: Timeout = .infinity,
         condition: WaitCondition

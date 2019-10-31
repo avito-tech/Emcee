@@ -95,7 +95,7 @@ public final class DistWorkCommand: Command {
             }
         )
         
-        try SynchronousWaiter.waitWhile { isWorking }
+        try SynchronousWaiter().waitWhile { isWorking }
     }
 
     private func createScopedTemporaryFolder() throws -> TemporaryFolder {

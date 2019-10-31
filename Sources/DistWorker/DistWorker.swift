@@ -223,7 +223,7 @@ public final class DistWorker: SchedulerDelegate {
                 case .result(let result):
                     return result
                 case .checkAgain(let after):
-                    SynchronousWaiter.wait(timeout: after, description: "Pause before checking queue server again")
+                    SynchronousWaiter().wait(timeout: after, description: "Pause before checking queue server again")
                 }
             } catch {
                 Logger.error("Failed to fetch next bucket: \(error)")

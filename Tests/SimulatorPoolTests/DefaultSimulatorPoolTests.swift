@@ -8,7 +8,7 @@ import SynchronousWaiter
 import TemporaryStuff
 import XCTest
 
-class SimulatorPoolTests: XCTestCase {
+class DefaultSimulatorPoolTests: XCTestCase {
     
     var tempFolder = try! TemporaryFolder()
     lazy var simulatorControllerProvider = FakeSimulatorControllerProvider { testDestination -> SimulatorController in
@@ -22,7 +22,7 @@ class SimulatorPoolTests: XCTestCase {
 
     func testUsingFromQueue() throws {
         let numberOfThreads = 4
-        let pool = try SimulatorPool(
+        let pool = try DefaultSimulatorPool(
             developerDir: DeveloperDir.current,
             developerDirLocator: developerDirLocator,
             simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
@@ -39,7 +39,7 @@ class SimulatorPoolTests: XCTestCase {
                     let simulator = try pool.allocateSimulatorController()
                     let duration = TimeInterval(Float(arc4random()) / Float(UINT32_MAX) * 0.05)
                     Thread.sleep(forTimeInterval: duration)
-                    pool.freeSimulatorController(simulator)
+                    pool.free(simulatorController: simulator)
                 } catch {
                     XCTFail("Unexpected exception has been thrown: \(error)")
                 }

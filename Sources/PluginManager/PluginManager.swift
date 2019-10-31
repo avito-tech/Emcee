@@ -137,7 +137,7 @@ public final class PluginManager: EventStream {
     private func tearDown() {
         do {
             let tearDownAllowance: TimeInterval = 10.0
-            try SynchronousWaiter.waitWhile(timeout: tearDownAllowance, description: "Tear down plugins") {
+            try SynchronousWaiter().waitWhile(timeout: tearDownAllowance, description: "Tear down plugins") {
                 processControllers.map { $0.isProcessRunning }.contains(true)
             }
             Logger.debug("All plugins torn down successfully without force killing.")

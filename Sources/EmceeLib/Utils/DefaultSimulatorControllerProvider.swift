@@ -10,18 +10,18 @@ import fbxctest
 
 public final class DefaultSimulatorControllerProvider: SimulatorControllerProvider {
     
-    private let maximumBootAttempts: UInt
+    private let additionalBootAttempts: UInt
     private let resourceLocationResolver: ResourceLocationResolver
     private let simulatorBootQueue: DispatchQueue
     private let temporaryFolder: TemporaryFolder
     
     public init(
-        maximumBootAttempts: UInt,
+        additionalBootAttempts: UInt,
         resourceLocationResolver: ResourceLocationResolver,
         simulatorBootQueue: DispatchQueue,
         temporaryFolder: TemporaryFolder
     ) {
-        self.maximumBootAttempts = maximumBootAttempts
+        self.additionalBootAttempts = additionalBootAttempts
         self.resourceLocationResolver = resourceLocationResolver
         self.simulatorBootQueue = simulatorBootQueue
         self.temporaryFolder = temporaryFolder
@@ -47,11 +47,16 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
         }
         
         return StateMachineDrivenSimulatorController(
+            additionalBootAttempts: additionalBootAttempts,
             bootQueue: simulatorBootQueue,
             developerDir: developerDir,
             developerDirLocator: developerDirLocator,
-            maximumBootAttempts: maximumBootAttempts,
-            simulatorOperationTimeouts: StateMachineDrivenSimulatorController.SimulatorOperationTimeouts(create: 30, boot: 180, delete: 20, shutdown: 20),
+            simulatorOperationTimeouts: SimulatorOperationTimeouts(
+                create: 30,
+                boot: 180,
+                delete: 20,
+                shutdown: 20
+            ),
             simulatorStateMachine: SimulatorStateMachine(),
             simulatorStateMachineActionExecutor: simulatorStateMachineActionExecutor,
             testDestination: testDestination

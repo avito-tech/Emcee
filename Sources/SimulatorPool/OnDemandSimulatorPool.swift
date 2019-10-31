@@ -69,7 +69,7 @@ public class OnDemandSimulatorPool {
                 Logger.verboseDebug("Got SimulatorPool for key \(key)")
                 return existingPool
             } else {
-                let pool = try SimulatorPool(
+                let pool = try DefaultSimulatorPool(
                     developerDir: key.developerDir,
                     developerDirLocator: developerDirLocator,
                     simulatorControlTool: key.simulatorControlTool,

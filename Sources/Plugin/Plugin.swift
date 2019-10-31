@@ -38,7 +38,7 @@ public final class Plugin {
     }
     
     public func join() {
-        try? SynchronousWaiter.waitWhile(description: "Wait for JSON stream to finish") {
+        try? SynchronousWaiter().waitWhile(description: "Wait for JSON stream to finish") {
             return jsonStreamHasFinished == false
         }
         LoggingSetup.tearDown()

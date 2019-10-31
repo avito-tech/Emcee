@@ -20,7 +20,7 @@ extension SimulatorPool {
         do {
             return AllocatedSimulator(
                 simulator: try simulatorController.bootedSimulator(),
-                releaseSimulator: { self.freeSimulatorController(simulatorController) }
+                releaseSimulator: { self.free(simulatorController: simulatorController) }
             )
         } catch {
             Logger.error("Failed to get booted simulator: \(error)")

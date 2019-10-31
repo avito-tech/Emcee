@@ -7,29 +7,23 @@ import PathLib
 import TemporaryStuff
 
 public final class SimulatorPoolMock: SimulatorPool {
-    private let temporaryFolder: TemporaryFolder
+    public var freedSimulatorContoller: SimulatorController?
     
-    public init() throws {
-        let temporaryFolder = try TemporaryFolder()
-        self.temporaryFolder = temporaryFolder
-        try super.init(
-            developerDir: DeveloperDir.current,
-            developerDirLocator: FakeDeveloperDirLocator(),
+    public init() {}
+    
+    public func allocateSimulatorController() throws -> SimulatorController {
+        return FakeSimulatorController(
+            simulator: SimulatorFixture.simulator(),
             simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
-            simulatorControllerProvider: FakeSimulatorControllerProvider { testDestination in
-                return FakeSimulatorController(
-                    simulator: SimulatorFixture.simulator(),
-                    simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
-                    developerDir: .current
-                )
-            },
-            tempFolder: temporaryFolder,
-            testDestination: TestDestinationFixtures.testDestination
+            developerDir: .current
         )
     }
-
-    public var freedSimulator: SimulatorController?
-    public override func freeSimulatorController(_ simulator: SimulatorController) {
-        freedSimulator = simulator
+    
+    public func free(simulatorController: SimulatorController) {
+        freedSimulatorContoller = simulatorController
     }
+    
+    public func deleteSimulators() {}
+    
+    public func shutdownSimulators() {}
 }

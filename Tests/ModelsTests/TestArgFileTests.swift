@@ -34,7 +34,9 @@ final class TestArgFileTests: XCTestCase {
             }
         """.data(using: .utf8)!
         
-        let entry = assertDoesNotThrow(try JSONDecoder().decode(TestArgFile.Entry.self, from: json))
+        let entry = assertDoesNotThrow {
+            try JSONDecoder().decode(TestArgFile.Entry.self, from: json)
+        }
 
         XCTAssertEqual(
             entry,

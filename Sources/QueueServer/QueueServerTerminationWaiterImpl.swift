@@ -21,7 +21,7 @@ public final class QueueServerTerminationWaiterImpl: QueueServerTerminationWaite
         queueServer: QueueServer,
         timeout: TimeInterval
     ) throws {
-        try SynchronousWaiter.waitWhile(
+        try SynchronousWaiter().waitWhile(
             pollPeriod: pollInterval,
             timeout: timeout,
             description: "Wait for first worker to appear"
@@ -61,7 +61,7 @@ public final class QueueServerTerminationWaiterImpl: QueueServerTerminationWaite
         automaticTerminationController: AutomaticTerminationController,
         queueServer: QueueServer
     ) throws {
-        try SynchronousWaiter.waitWhile(
+        try SynchronousWaiter().waitWhile(
             pollPeriod: pollInterval,
             description: "Automatic termination"
         ) {
@@ -73,7 +73,7 @@ public final class QueueServerTerminationWaiterImpl: QueueServerTerminationWaite
         queueServer: QueueServer,
         timeout: TimeInterval
     ) throws {
-        try SynchronousWaiter.waitWhile(
+        try SynchronousWaiter().waitWhile(
             pollPeriod: pollInterval,
             timeout: timeout,
             description: "Wait for all jobs to be deleted"

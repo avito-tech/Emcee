@@ -246,7 +246,9 @@ let package = Package(
             // MARK: DeveloperDirLocator
             name: "DeveloperDirLocator",
             dependencies: [
-                "ProcessController"
+                "Models",
+                "PathLib",
+                "ProcessController",
             ]
         ),
         .target(
@@ -1138,7 +1140,7 @@ let package = Package(
                 "ScheduleStrategy",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
-                ]
+            ]
         ),
         .target(
             // MARK: SignalHandling
@@ -1196,6 +1198,7 @@ let package = Package(
                 "SimulatorPoolTestHelpers",
                 "SynchronousWaiter",
                 "TemporaryStuff",
+                "TestHelpers",
             ]
         ),
         .target(

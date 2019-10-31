@@ -7,7 +7,7 @@ import TemporaryStuff
 public final class OnDemandSimulatorPoolFactory {
     public static func create(
         developerDirLocator: DeveloperDirLocator,
-        maximumBootAttempts: UInt = 2,
+        additionalBootAttempts: UInt = 2,
         resourceLocationResolver: ResourceLocationResolver,
         simulatorBootQueue: DispatchQueue = DispatchQueue(label: "SimulatorBootQueue"),
         tempFolder: TemporaryFolder
@@ -16,7 +16,7 @@ public final class OnDemandSimulatorPoolFactory {
             developerDirLocator: developerDirLocator,
             resourceLocationResolver: resourceLocationResolver,
             simulatorControllerProvider: DefaultSimulatorControllerProvider(
-                maximumBootAttempts: maximumBootAttempts,
+                additionalBootAttempts: additionalBootAttempts,
                 resourceLocationResolver: resourceLocationResolver,
                 simulatorBootQueue: simulatorBootQueue,
                 temporaryFolder: tempFolder

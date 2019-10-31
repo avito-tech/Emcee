@@ -108,7 +108,7 @@ public final class LocalQueueServerRunner {
         queueServer: QueueServer,
         timeout: TimeInterval
     ) throws {
-        try SynchronousWaiter.waitWhile(pollPeriod: pollPeriod, timeout: timeout, description: "Wait for all jobs to be deleted") {
+        try SynchronousWaiter().waitWhile(pollPeriod: pollPeriod, timeout: timeout, description: "Wait for all jobs to be deleted") {
             !queueServer.ongoingJobIds.isEmpty
         }
     }

@@ -9,7 +9,9 @@ public final class FakeDeveloperDirLocator: DeveloperDirLocator {
         self.result = result
     }
     
-    public struct FakeError: Error {}
+    public struct FakeError: Error, CustomStringConvertible {
+        public var description: String = "FakeDeveloperDirLocator.result was not set, cannot resolve developer dir path"
+    }
     
     public func path(developerDir: DeveloperDir) throws -> AbsolutePath {
         guard let result = result else {

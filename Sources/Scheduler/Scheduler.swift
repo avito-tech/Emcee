@@ -52,7 +52,7 @@ public final class Scheduler {
     
     public func run() throws -> [TestingResult] {
         startFetchingAndRunningTests()
-        try SynchronousWaiter.waitWhile(pollPeriod: 1.0) {
+        try SynchronousWaiter().waitWhile(pollPeriod: 1.0) {
             queue.operationCount > 0 && allGatheredErrors().isEmpty
         }
         if !allGatheredErrors().isEmpty {

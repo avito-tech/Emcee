@@ -135,11 +135,13 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
         }
         simulatorKeepAliveProcessController = nil
         
+        let simulatorSetPath = path.removingLastComponent
+        
         let controller = try DefaultProcessController(
             subprocess: Subprocess(
                 arguments: [
                     fbsimctlArg,
-                    "--json", "--set", path.removingLastComponent,
+                    "--json", "--set", simulatorSetPath,
                     "--simulators", "delete"
                 ],
                 environment: environment,
@@ -150,6 +152,21 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
             )
         )
         controller.startAndListenUntilProcessDies()
+        
+        try deleteSimulatorSetContainer(simulatorSetPath: simulatorSetPath)
+    }
+    
+    private func deleteSimulatorSetContainer(
+        simulatorSetPath: AbsolutePath
+    ) throws {
+        guard simulatorSetPath.lastComponent == "sim" else {
+            Logger.warning("Expected simulator set path to be inside 'sim' folder, but the path is \(simulatorSetPath). Will not delete set folder.")
+            return
+        }
+        if FileManager.default.fileExists(atPath: simulatorSetPath.pathString) {
+            Logger.verboseDebug("Removing simulator's container path \(simulatorSetPath)")
+            try FileManager.default.removeItem(atPath: simulatorSetPath.pathString)
+        }
     }
 
     // MARK: - Utility Methods

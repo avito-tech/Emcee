@@ -7,13 +7,13 @@ import SynchronousWaiter
 
 final class SimulatorPoolConvenienceTests: XCTestCase {
     func test__simulator_contoller_frees__upon_release() throws {
-        let pool = try SimulatorPoolMock()
+        let pool = SimulatorPoolMock()
         let allocatedSimulator = try pool.allocateSimulator()
         allocatedSimulator.releaseSimulator()
         
         XCTAssertEqual(
             allocatedSimulator.simulator,
-            (pool.freedSimulator as? FakeSimulatorController)?.simulator
+            (pool.freedSimulatorContoller as? FakeSimulatorController)?.simulator
         )
     }
 }

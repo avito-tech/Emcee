@@ -128,7 +128,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         )
         try remoteQueueStarter.deployAndStart()
         
-        try SynchronousWaiter.waitWhile(pollPeriod: 1.0, timeout: 30.0, description: "Wait for remote queue to start") {
+        try SynchronousWaiter().waitWhile(pollPeriod: 1.0, timeout: 30.0, description: "Wait for remote queue to start") {
             suitablePorts = try remoteQueueDetector.findSuitableRemoteRunningQueuePorts(timeout: 10.0)
             return suitablePorts.isEmpty
         }
@@ -215,7 +215,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         }
         
         Logger.info("Will now wait for job queue to deplete")
-        try SynchronousWaiter.waitWhile(pollPeriod: 30.0, description: "Wait for job queue to deplete") {
+        try SynchronousWaiter().waitWhile(pollPeriod: 30.0, description: "Wait for job queue to deplete") {
             if caughtSignal { return false }
             let jobState = try queueClient.jobState(jobId: runId)
             switch jobState.queueState {

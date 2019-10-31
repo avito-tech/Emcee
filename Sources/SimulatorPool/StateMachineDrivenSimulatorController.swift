@@ -6,49 +6,38 @@ import PathLib
 import SynchronousWaiter
 
 public final class StateMachineDrivenSimulatorController: SimulatorController {
-    public final class SimulatorOperationTimeouts {
-        public let create: TimeInterval
-        public let boot: TimeInterval
-        public let delete: TimeInterval
-        public let shutdown: TimeInterval
-
-        public init(create: TimeInterval, boot: TimeInterval, delete: TimeInterval, shutdown: TimeInterval) {
-            self.create = create
-            self.boot = boot
-            self.delete = delete
-            self.shutdown = shutdown
-        }
-    }
-    
+    private let additionalBootAttempts: UInt
     private let bootQueue: DispatchQueue
     private let developerDir: DeveloperDir
     private let developerDirLocator: DeveloperDirLocator
-    private let maximumBootAttempts: UInt
     private let simulatorOperationTimeouts: SimulatorOperationTimeouts
     private let simulatorStateMachine: SimulatorStateMachine
     private let simulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor
     private let testDestination: TestDestination
+    private let waiter: Waiter
     private var currentSimulatorState = SimulatorStateMachine.State.absent
     private var simulator: Simulator?
 
     public init(
+        additionalBootAttempts: UInt,
         bootQueue: DispatchQueue,
         developerDir: DeveloperDir,
         developerDirLocator: DeveloperDirLocator,
-        maximumBootAttempts: UInt,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,
         simulatorStateMachine: SimulatorStateMachine,
         simulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor,
-        testDestination: TestDestination
+        testDestination: TestDestination,
+        waiter: Waiter = SynchronousWaiter()
     ) {
+        self.additionalBootAttempts = additionalBootAttempts
         self.bootQueue = bootQueue
         self.developerDir = developerDir
         self.developerDirLocator = developerDirLocator
-        self.maximumBootAttempts = maximumBootAttempts
         self.simulatorOperationTimeouts = simulatorOperationTimeouts
         self.simulatorStateMachine = simulatorStateMachine
         self.simulatorStateMachineActionExecutor = simulatorStateMachineActionExecutor
         self.testDestination = testDestination
+        self.waiter = waiter
     }
     
     // MARK: - SimulatorController
@@ -117,7 +106,6 @@ public final class StateMachineDrivenSimulatorController: SimulatorController {
         try work(simulator)
     }
     
-    
     private func boot(simulator: Simulator) throws {
         Logger.verboseDebug("Booting simulator: \(simulator)")
         
@@ -140,8 +128,8 @@ public final class StateMachineDrivenSimulatorController: SimulatorController {
                 } catch {
                     Logger.error("Attempt to boot simulator \(simulator.testDestination.destinationString) failed: \(error)")
                     bootAttempt += 1
-                    if bootAttempt < maximumBootAttempts {
-                        SynchronousWaiter.wait(timeout: Double(bootAttempt) * 3.0, description: "Time gap between reboot attempts")
+                    if bootAttempt < 1 + additionalBootAttempts {
+                        waiter.wait(timeout: Double(bootAttempt) * 3.0, description: "Time gap between reboot attempts")
                     } else {
                         throw error
                     }
@@ -176,7 +164,6 @@ public final class StateMachineDrivenSimulatorController: SimulatorController {
     }
     
     private func attemptToDeleteSimulatorFiles(simulator: Simulator) throws {
-        try deleteSimulatorSetContainer(simulator: simulator)
         try deleteSimulatorWorkingDirectory(simulator: simulator)
         try deleteSimulatorLogs(simulator: simulator)
     }
@@ -193,12 +180,6 @@ public final class StateMachineDrivenSimulatorController: SimulatorController {
         }
     }
     
-    private func deleteSimulatorSetContainer(simulator: Simulator) throws {
-        if FileManager.default.fileExists(atPath: simulator.path.pathString) {
-            Logger.verboseDebug("Removing files left by simulator \(simulator)")
-            try FileManager.default.removeItem(atPath: simulator.path.pathString)
-        }
-    }
     private func deleteSimulatorWorkingDirectory(simulator: Simulator) throws {
         if FileManager.default.fileExists(atPath: simulator.path.pathString) {
             Logger.verboseDebug("Removing working directory of simulator \(simulator)")

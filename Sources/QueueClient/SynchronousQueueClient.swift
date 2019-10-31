@@ -51,7 +51,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
             bucketFetchResult = nil
             return try runRetrying {
                 try queueClient.fetchBucket(requestId: requestId, workerId: workerId, requestSignature: requestSignature)
-                try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait bucket to return from server") {
+                try SynchronousWaiter().waitWhile(timeout: requestTimeout, description: "Wait bucket to return from server") {
                     self.bucketFetchResult == nil
                 }
                 return try bucketFetchResult!.dematerialize()
@@ -75,7 +75,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
                     testEntryConfigurations: testEntryConfigurations,
                     requestId: requestId
                 )
-                try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for tests to be scheduled") {
+                try SynchronousWaiter().waitWhile(timeout: requestTimeout, description: "Wait for tests to be scheduled") {
                     self.scheduleTestsResult == nil
                 }
                 return try scheduleTestsResult!.dematerialize()
@@ -88,7 +88,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
             jobResultsResult = nil
             return try runRetrying {
                 try queueClient.fetchJobResults(jobId: jobId)
-                try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for \(jobId) job results") {
+                try SynchronousWaiter().waitWhile(timeout: requestTimeout, description: "Wait for \(jobId) job results") {
                     self.jobResultsResult == nil
                 }
                 return try jobResultsResult!.dematerialize()
@@ -101,7 +101,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
             jobStateResult = nil
             return try runRetrying {
                 try queueClient.fetchJobState(jobId: jobId)
-                try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for \(jobId) job state") {
+                try SynchronousWaiter().waitWhile(timeout: requestTimeout, description: "Wait for \(jobId) job state") {
                     self.jobStateResult == nil
                 }
                 return try jobStateResult!.dematerialize()
@@ -113,7 +113,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         return try synchronize {
             jobDeleteResult = nil
             try queueClient.deleteJob(jobId: jobId)
-            try SynchronousWaiter.waitWhile(timeout: requestTimeout, description: "Wait for job \(jobId) to be deleted") {
+            try SynchronousWaiter().waitWhile(timeout: requestTimeout, description: "Wait for job \(jobId) to be deleted") {
                 self.jobDeleteResult == nil
             }
             return try jobDeleteResult!.dematerialize()
@@ -135,7 +135,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
                 return try work()
             } catch {
                 Logger.error("Failed to send request with error: \(error)")
-                SynchronousWaiter.wait(timeout: 1.0, description: "Pause between request retries")
+                SynchronousWaiter().wait(timeout: 1.0, description: "Pause between request retries")
             }
         }
         return try work()

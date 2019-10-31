@@ -66,7 +66,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
                 return try work()
             } catch {
                 Logger.error("Failed to get runtime dump, error: \(error)")
-                SynchronousWaiter.wait(timeout: TimeInterval(retryIndex) * 2.0, description: "Pause between runtime dump retries")
+                SynchronousWaiter().wait(timeout: TimeInterval(retryIndex) * 2.0, description: "Pause between runtime dump retries")
             }
         }
         return try work()
