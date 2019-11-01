@@ -26,9 +26,7 @@ public extension XCTestCase {
     ) {
         do {
             try work()
-            withoutContinuingTestAfterFailure {
-                XCTFail("Expected to throw an error, but no error has been thrown", file: file, line: line)
-            }
+            XCTFail("Expected to throw an error, but no error has been thrown", file: file, line: line)
         } catch {
             return
         }

@@ -1,6 +1,6 @@
 import Foundation
 
-public final class TestStoppedEvent {
+public final class TestStoppedEvent: Equatable {
     public enum Result: String, Equatable {
         case success
         case failure
@@ -29,5 +29,13 @@ public final class TestStoppedEvent {
     
     public var succeeded: Bool {
         return result == .success
+    }
+    
+    public static func == (left: TestStoppedEvent, right: TestStoppedEvent) -> Bool {
+        return left.testName == right.testName
+            && left.result == right.result
+            && (left.testDuration - right.testDuration) < 0.01
+            && left.testExceptions == right.testExceptions
+            && (left.testStartTimestamp - right.testStartTimestamp) < 0.01
     }
 }

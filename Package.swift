@@ -61,6 +61,7 @@ let package = Package(
             // MARK: AppleTools
             name: "AppleTools",
             dependencies: [
+                "DateProvider",
                 "DeveloperDirLocator",
                 "Logging",
                 "Models",
@@ -77,11 +78,14 @@ let package = Package(
             name: "AppleToolsTests",
             dependencies: [
                 "AppleTools",
+                "DateProvider",
+                "DateProviderTestHelpers",
                 "DeveloperDirLocatorTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
                 "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
+                "RunnerTestHelpers",
                 "TemporaryStuff",
             ]
         ),
