@@ -1,6 +1,8 @@
 import DeveloperDirLocator
 import Foundation
+import Logging
 import Models
+import PathLib
 import ProcessController
 import ResourceLocationResolver
 import Runner
@@ -10,6 +12,7 @@ import TemporaryStuff
 public final class FbxctestBasedTestRunner: TestRunner {
     private let fbxctestLocation: FbxctestLocation
     private let resourceLocationResolver: ResourceLocationResolver
+    private let fbxctestSimFolderCreator = FbxctestSimFolderCreator()
     
     public init(
         fbxctestLocation: FbxctestLocation,
@@ -58,17 +61,23 @@ public final class FbxctestBasedTestRunner: TestRunner {
         testRunnerStream: TestRunnerStream,
         testType: TestType
     ) throws -> StandardStreamsCaptureConfig {
+        let simFolderPath = try fbxctestSimFolderCreator.createSimFolderForFbxctest(
+            containerPath: try temporaryFolder.pathByCreatingDirectories(components: ["fbxctest_sim_env", UUID().uuidString]),
+            simulatorPath: simulator.path
+        )
+        defer { deleteFbxctestSimulatorEnvironment(simFolderPath: simFolderPath) }
+        
         let fbxctestOutputProcessor = try FbxctestOutputProcessor(
             subprocess: Subprocess(
                 arguments: try fbxctestArguments(
                     buildArtifacts: buildArtifacts,
                     entriesToRun: entriesToRun,
                     fbxctestLocation: fbxctestLocation,
+                    simFolderPath: simFolderPath,
                     simulator: simulator,
                     simulatorSettings: simulatorSettings,
                     testDestination: testContext.testDestination,
-                    testType: testType,
-                    temporaryFolder: temporaryFolder
+                    testType: testType
                 ),
                 environment: testContext.environment,
                 silenceBehavior: SilenceBehavior(
@@ -88,11 +97,11 @@ public final class FbxctestBasedTestRunner: TestRunner {
         buildArtifacts: BuildArtifacts,
         entriesToRun: [TestEntry],
         fbxctestLocation: FbxctestLocation,
+        simFolderPath: AbsolutePath,
         simulator: Simulator,
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
-        testType: TestType,
-        temporaryFolder: TemporaryFolder
+        testType: TestType
     ) throws -> [SubprocessArgument] {
         let resolvableFbxctest = resourceLocationResolver.resolvable(withRepresentable: fbxctestLocation)
         
@@ -161,8 +170,17 @@ public final class FbxctestBasedTestRunner: TestRunner {
 
         arguments += ["-keep-simulators-alive"]
         
-        arguments += ["-workingDirectory", simulator.path.removingLastComponent]
+        arguments += ["-workingDirectory", simFolderPath]
         return arguments
+    }
+    
+    private func deleteFbxctestSimulatorEnvironment(simFolderPath: AbsolutePath) {
+        do {
+            Logger.debug("Deleting sim folder: \(simFolderPath)")
+            try FileManager.default.removeItem(atPath: simFolderPath.pathString)
+        } catch {
+            Logger.warning("Failed to delete sim folder \(simFolderPath): \(error). This error will be ignored.")
+        }
     }
 }
 
