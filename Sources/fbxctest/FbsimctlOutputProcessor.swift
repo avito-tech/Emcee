@@ -54,14 +54,13 @@ public final class FbsimctlOutputProcessor: JSONReaderEventStream {
     // MARK: - Private
     
     private func shouldKeepWaitingForEvent(type: FbSimCtlEventType, name: FbSimCtlEventName) -> Bool {
-        return filterReceivedEvents(type: type, name: name).isEmpty
+        return processController.isProcessRunning && filterReceivedEvents(type: type, name: name).isEmpty
     }
 
     private func filterReceivedEvents(
         type: FbSimCtlEventType,
         name: FbSimCtlEventName
     ) -> [FbSimCtlEventCommonFields] {
-        Logger.verboseDebug("All received events: \(receivedEvents.currentValue())", processController.subprocessInfo)
         return receivedEvents.currentValue().filter { $0.name == name && $0.type == type }
     }
 
