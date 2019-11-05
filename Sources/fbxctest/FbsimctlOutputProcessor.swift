@@ -5,7 +5,7 @@ import JSONStream
 import Logging
 import ProcessController
 
-public final class FbsimctlOutputProcessor: ProcessControllerDelegate, JSONReaderEventStream {
+public final class FbsimctlOutputProcessor: JSONReaderEventStream {
     private let processController: ProcessController
     private let receivedEvents = AtomicValue<[FbSimCtlEventCommonFields]>([])
     private let jsonStream: AppendableJSONStream
@@ -18,7 +18,6 @@ public final class FbsimctlOutputProcessor: ProcessControllerDelegate, JSONReade
     ) {
         self.jsonStream = jsonStream
         self.processController = processController
-        self.processController.delegate = self
     }
 
     @discardableResult
@@ -30,7 +29,13 @@ public final class FbsimctlOutputProcessor: ProcessControllerDelegate, JSONReade
         let startTime = Date().timeIntervalSinceReferenceDate
         startProcessingJSONStream()
         defer { jsonStream.close() }
+        
+        processController.onStdout { [weak self] _, data, unsubscriber in
+            guard let strongSelf = self else { return unsubscriber() }
+            strongSelf.jsonStream.append(data: data)
+        }
         processController.start()
+        
         while shouldKeepWaitingForEvent(type: type, name: name) {
             guard Date().timeIntervalSinceReferenceDate - startTime < timeout else {
                 Logger.debug("Did not receive event \(name) \(type) within \(timeout) seconds", processController.subprocessInfo)
@@ -111,21 +116,5 @@ public final class FbsimctlOutputProcessor: ProcessControllerDelegate, JSONReade
     
     public func newObject(_ object: NSDictionary, scalars: [Unicode.Scalar]) {
         processSingleLiveEvent(scalars)
-    }
-    
-    // MARK: - ProcessControllerDelegate
-    
-    public func processController(_ sender: ProcessController, newStdoutData data: Data) {
-        jsonStream.append(data: data)
-    }
-    
-    public func processController(_ sender: ProcessController, newStderrData data: Data) {
-        if let string = String(data: data, encoding: .utf8) {
-            Logger.verboseDebug("stderr: " + string, processController.subprocessInfo)
-        }
-    }
-    
-    public func processControllerDidNotReceiveAnyOutputWithinAllowedSilenceDuration(_ sender: ProcessController) {
-        sender.interruptAndForceKillIfNeeded()
     }
 }

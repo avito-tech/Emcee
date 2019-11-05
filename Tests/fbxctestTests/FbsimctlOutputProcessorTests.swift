@@ -82,14 +82,6 @@ final class FbsimctlOutputProcessorTests: XCTestCase {
         )
     }
     
-    func test___when_process_controller_reports_silence___process_gets_interrupted() {
-        processor.processControllerDidNotReceiveAnyOutputWithinAllowedSilenceDuration(processController)
-        XCTAssertEqual(
-            processController.overridedProcessStatus,
-            .terminated(exitCode: SIGINT)
-        )
-    }
-    
     func test___waiting_for_event___realdata() throws {
         processController.overridedProcessStatus = .stillRunning
 

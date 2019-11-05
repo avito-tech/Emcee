@@ -6,7 +6,7 @@ import Models
 import ProcessController
 import Timer
 
-public final class FbxctestOutputProcessor: ProcessControllerDelegate {
+public final class FbxctestOutputProcessor {
     private let processController: ProcessController
     private let eventsListener: FbXcTestEventsListener
     private let singleTestMaximumDuration: TimeInterval
@@ -23,10 +23,22 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
         self.singleTestMaximumDuration = singleTestMaximumDuration
         self.eventsListener = FbXcTestEventsListener(onTestStarted: onTestStarted, onTestStopped: onTestStopped)
         self.processController = try DefaultProcessController(subprocess: subprocess)
-        self.processController.delegate = self
     }
     
     public func processOutputAndWaitForProcessTermination() {
+        processController.onSilence { [weak self] sender, unsubscriber in
+            guard let strongSelf = self else { return unsubscriber() }
+            strongSelf.eventsListener.timeoutDueToSilence()
+        }
+        processController.onStdout { [weak self] (sender, data, unsubscriber) in
+            guard let strongSelf = self else { return unsubscriber() }
+            strongSelf.processController(sender, newStdoutData: data)
+        }
+        processController.onStderr { [weak self] (sender, data, unsubscriber) in
+            guard let strongSelf = self else { return unsubscriber() }
+            strongSelf.processController(sender, newStderrData: data)
+        }
+        
         processController.start()
         startMonitoringForHangs()
         processController.waitForProcessToDie()
@@ -37,11 +49,6 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
     }
     
     // MARK: - Hang detection
-    
-    public func processControllerDidNotReceiveAnyOutputWithinAllowedSilenceDuration(_ sender: ProcessController) {
-        eventsListener.timeoutDueToSilence()
-        processController.interruptAndForceKillIfNeeded()
-    }
 
     private func startMonitoringForHangs() {
         guard singleTestMaximumDuration > 0 else {
@@ -72,7 +79,7 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
     
     private var notParsedEventDataPerProcess = [Int32: Data]()
     
-    public func processController(_ sender: ProcessController, newStdoutData data: Data) {
+    private func processController(_ sender: ProcessController, newStdoutData data: Data) {
         let joinedData: Data
         if let processData = notParsedEventDataPerProcess[processController.processId] {
             joinedData = processData + data
@@ -152,7 +159,7 @@ public final class FbxctestOutputProcessor: ProcessControllerDelegate {
     
     // MARK: - stderr Processing
     
-    public func processController(_ sender: ProcessController, newStderrData data: Data) {
+    private func processController(_ sender: ProcessController, newStderrData data: Data) {
         let possibleEvents = data.split(separator: newLineByte)
         possibleEvents.forEach { eventData in
             self.processSingleStdErrLiveEvent(data: eventData, processId: processController.processId)

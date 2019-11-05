@@ -222,6 +222,123 @@ final class DefaultProcessControllerTests: XCTestCase {
         XCTAssertTrue(stderrString.contains("ls: \(argument): No such file or directory"))
     }
     
+    func test___stdout_listener() throws {
+        let controller = try DefaultProcessController(
+            subprocess: Subprocess(
+                arguments: ["/bin/ls", "/bin/ls"]
+            )
+        )
+        
+        var stdoutData = Data()
+        controller.onStdout { _, data, _ in stdoutData.append(contentsOf: data) }
+        controller.startAndListenUntilProcessDies()
+        
+        guard let string = String(data: stdoutData, encoding: .utf8) else {
+            return XCTFail("Unable to get stdout string")
+        }
+        XCTAssertEqual(string, "/bin/ls\n")
+    }
+    
+    func test___stderr_listener() throws {
+        let argument = UUID().uuidString + UUID().uuidString
+        
+        let controller = try DefaultProcessController(
+            subprocess: Subprocess(
+                arguments: ["/bin/ls", "/bin/" + argument]
+            )
+        )
+        
+        var stderrData = Data()
+        controller.onStderr { _, data, _ in stderrData.append(contentsOf: data) }
+        controller.startAndListenUntilProcessDies()
+        
+        guard let string = String(data: stderrData, encoding: .utf8) else {
+            return XCTFail("Unable to get stdout string")
+        }
+        XCTAssertEqual(string, "ls: /bin/\(argument): No such file or directory\n")
+    }
+    
+    func test___silence_listener() throws {
+        let controller = try DefaultProcessController(
+            subprocess: Subprocess(
+                arguments: ["/bin/sleep", "10"],
+                silenceBehavior: SilenceBehavior(
+                    automaticAction: .noAutomaticAction,
+                    allowedSilenceDuration: 0.01
+                )
+            )
+        )
+        
+        let listenerCalled = expectation(description: "Silence listener has been invoked")
+        
+        controller.onSilence { sender, _ in
+            sender.interruptAndForceKillIfNeeded()
+            listenerCalled.fulfill()
+        }
+        controller.startAndListenUntilProcessDies()
+        
+        wait(for: [listenerCalled], timeout: 10)
+    }
+    
+    func test___cancelling_stdout_listener___does_not_invoke_cancelled_listener_anymore() throws {
+        let swiftTempFile = try TemporaryFile(suffix: ".swift")
+
+        try prepareTestScriptToRun(
+            swiftScriptPath: #file.deletingLastPathComponent.appending(pathComponent: "PrintSleepPrint.swift"),
+            outputHandle: swiftTempFile.fileHandleForWriting
+        )
+        
+        let controller = try DefaultProcessController(
+            subprocess: Subprocess(
+                arguments: ["/usr/bin/swift", swiftTempFile.absolutePath],
+                environment: ["EMCEE_TEST_USE_STDERR": "false"]
+            )
+        )
+        
+        var collectedData = Data()
+        
+        controller.onStdout { _, data, unsubscriber in
+            collectedData.append(contentsOf: data)
+            unsubscriber()
+        }
+        controller.startAndListenUntilProcessDies()
+        
+        XCTAssertEqual(
+            collectedData,
+            "Print".data(using: .utf8)
+        )
+    }
+    
+    func test___cancelling_stderr_listener___does_not_invoke_cancelled_listener_anymore() throws {
+        let swiftTempFile = try TemporaryFile(suffix: ".swift")
+
+        try prepareTestScriptToRun(
+            swiftScriptPath: #file.deletingLastPathComponent.appending(pathComponent: "PrintSleepPrint.swift"),
+            outputHandle: swiftTempFile.fileHandleForWriting
+        )
+        
+        let controller = try DefaultProcessController(
+            subprocess: Subprocess(
+                arguments: ["/usr/bin/swift", swiftTempFile.absolutePath],
+                environment: ["EMCEE_TEST_USE_STDERR": "true"]
+            )
+        )
+        
+        var collectedData = Data()
+        
+        controller.onStderr { _, data, unsubscriber in
+            collectedData.append(contentsOf: data)
+            unsubscriber()
+        }
+        controller.startAndListenUntilProcessDies()
+        
+        XCTAssertEqual(
+            collectedData,
+            "Print".data(using: .utf8)
+        )
+    }
+
+    
     func disabled_testWritingToStdin() throws {
         continueAfterFailure = true
         
@@ -308,11 +425,10 @@ final class DefaultProcessControllerTests: XCTestCase {
         delegate: ProcessControllerDelegate
     ) throws -> ProcessController {
         let streamingSwiftTempFile = try TemporaryFile(suffix: ".swift")
-        let streamingSwiftFile = #file.deletingLastPathComponent.appending(pathComponent: "StdInToStdOutStreamer.swift")
-        var swiftTestCode = try String(contentsOfFile: streamingSwiftFile)
-        swiftTestCode = swiftTestCode.replacingOccurrences(of: "//uncomment_from_tests", with: "")
-        streamingSwiftTempFile.fileHandleForWriting.write(swiftTestCode)
-        
+        try prepareTestScriptToRun(
+            swiftScriptPath: #file.deletingLastPathComponent.appending(pathComponent: "StdInToStdOutStreamer.swift"),
+            outputHandle: streamingSwiftTempFile.fileHandleForWriting
+        )
         let compiledExecutable = try TemporaryFile()
         
         // precompile
@@ -344,6 +460,12 @@ final class DefaultProcessControllerTests: XCTestCase {
         controller.delegate = delegate
         controller.start()
         return controller
+    }
+    
+    private func prepareTestScriptToRun(swiftScriptPath: String, outputHandle: FileHandle) throws {
+        var swiftTestCode = try String(contentsOfFile: swiftScriptPath)
+        swiftTestCode = swiftTestCode.replacingOccurrences(of: "//uncomment_from_tests", with: "")
+        outputHandle.write(swiftTestCode)
     }
 }
 

@@ -11,17 +11,30 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
     public let processName: String
     private var didInitiateKillOfProcess = false
     private var lastDataTimestamp: TimeInterval = Date().timeIntervalSince1970
-    private let processTerminationQueue = DispatchQueue(label: "ru.avito.runner.ProcessListener.processTerminationQueue")
-    private let stdinWriteQueue = DispatchQueue(label: "ru.avito.runner.ProcessListener.stdinWriteQueue")
+    private let processTerminationQueue = DispatchQueue(label: "DefaultProcessController.processTerminationQueue")
+    private let stdinWriteQueue = DispatchQueue(label: "DefaultProcessController.stdinWriteQueue")
     private var silenceTrackingTimer: DispatchBasedTimer?
     private var stdinHandle: FileHandle?
     private let processStdinPipe = Pipe()
     private let openPipeFileHandleGroup = DispatchGroup()
     private static let newLineCharacterData = Data([UInt8(10)])
-    
+    private var stdoutListeners = [ListenerWrapper<StdoutListener>]()
+    private var stderrListeners = [ListenerWrapper<StderrListener>]()
+    private var silenceListeners = [ListenerWrapper<SilenceListener>]()
+    private let listenerQueue = DispatchQueue(label: "DefaultProcessController.listenerQueue")
     private var didStartProcess = false
     public private(set) var processId: Int32 = 0
     public weak var delegate: ProcessControllerDelegate?
+    
+    private final class ListenerWrapper<T> {
+        let uuid: UUID
+        let listener: T
+
+        init(uuid: UUID, listener: T) {
+            self.uuid = uuid
+            self.listener = listener
+        }
+    }
     
     public init(subprocess: Subprocess) throws {
         self.subprocess = subprocess
@@ -76,6 +89,10 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         OrphanProcessTracker().storeProcessForCleanup(pid: processId, name: processName)
         Logger.debug("Started process \(processId)", subprocessInfo)
         startMonitoringForHangs()
+        
+        onStdout { processController, data, _ in processController.delegate?.processController(processController, newStdoutData: data) }
+        onStderr { processController, data, _ in processController.delegate?.processController(processController, newStderrData: data) }
+        onSilence { processController, _ in processController.delegate?.processControllerDidNotReceiveAnyOutputWithinAllowedSilenceDuration(processController) }
     }
     
     public func waitForProcessToDie() {
@@ -95,20 +112,18 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
     
     public func writeToStdIn(data: Data) throws {
         guard isProcessRunning else { throw StdinError.processIsNotRunning(self) }
-        let condition = NSCondition()
+        let consumeWaiter = DispatchGroup()
+        consumeWaiter.enter()
         
         stdinWriteQueue.async {
             self.processStdinPipe.fileHandleForWriting.write(data)
-            self.processStdinPipe.fileHandleForWriting.write("\n")
-            
             self.stdinHandle?.write(data)
-            self.stdinHandle?.write("\n")
             if self.subprocess.silenceBehavior.allowedTimeToConsumeStdin > 0 {
-                condition.signal()
+                consumeWaiter.leave()
             }
         }
         
-        if !condition.wait(until: Date().addingTimeInterval(subprocess.silenceBehavior.allowedTimeToConsumeStdin)) {
+        if consumeWaiter.wait(timeout: .now() + subprocess.silenceBehavior.allowedTimeToConsumeStdin) == .timedOut {
             throw StdinError.didNotConsumeStdinInTime(self)
         }
     }
@@ -127,6 +142,18 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         }
     }
     
+    public func onStdout(listener: @escaping StdoutListener) {
+        stdoutListeners.append(ListenerWrapper(uuid: UUID(), listener: listener))
+    }
+    
+    public func onStderr(listener: @escaping StderrListener) {
+        stderrListeners.append(ListenerWrapper(uuid: UUID(), listener: listener))
+    }
+    
+    public func onSilence(listener: @escaping SilenceListener) {
+        silenceListeners.append(ListenerWrapper(uuid: UUID(), listener: listener))
+    }
+    
     private func attemptToKillProcess(killer: (Process) -> ()) {
         processTerminationQueue.sync {
             guard self.didInitiateKillOfProcess == false else { return }
@@ -142,6 +169,10 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         if isProcessRunning {
             Logger.warning("Failed to interrupt the process in time, terminating", subprocessInfo)
             kill(-processId, SIGKILL)
+            
+            stdoutListeners.removeAll()
+            stderrListeners.removeAll()
+            silenceListeners.removeAll()
         }
     }
     
@@ -171,7 +202,17 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         silenceTrackingTimer?.stop()
         silenceTrackingTimer = nil
         Logger.error("Detected a long period of silence of \(processName)", subprocessInfo)
-        delegate?.processControllerDidNotReceiveAnyOutputWithinAllowedSilenceDuration(self)
+        
+        listenerQueue.async {
+            for listenerWrapper in self.silenceListeners {
+                let unsubscriber: Unsubscribe = {
+                    self.listenerQueue.async {
+                        self.silenceListeners.removeAll { $0.uuid == listenerWrapper.uuid }
+                    }
+                }
+                listenerWrapper.listener(self, unsubscriber)
+            }
+        }
         
         switch subprocess.silenceBehavior.automaticAction {
         case .noAutomaticAction:
@@ -221,9 +262,7 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
                 self.process.standardOutput = pipe
                 self.openPipeFileHandleGroup.enter()
             },
-            onNewData: { data in
-                self.delegate?.processController(self, newStdoutData: data)
-            },
+            onNewData: didReceiveStdout,
             onEndOfData: {
                 self.openPipeFileHandleGroup.leave()
             }
@@ -238,9 +277,7 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
                 self.process.standardError = pipe
                 self.openPipeFileHandleGroup.enter()
             },
-            onNewData: { data in
-                self.delegate?.processController(self, newStderrData: data)
-            },
+            onNewData: didReceiveStderr,
             onEndOfData: {
                 self.openPipeFileHandleGroup.leave()
             }
@@ -283,6 +320,32 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
                 onEndOfData()
             }
         )
+    }
+    
+    private func didReceiveStdout(data: Data) {
+        listenerQueue.async {
+            for listenerWrapper in self.stdoutListeners {
+                let unsubscriber: Unsubscribe = {
+                    self.listenerQueue.async {
+                        self.stdoutListeners.removeAll { $0.uuid == listenerWrapper.uuid }
+                    }
+                }
+                listenerWrapper.listener(self, data, unsubscriber)
+            }
+        }
+    }
+    
+    private func didReceiveStderr(data: Data) {
+        listenerQueue.async {
+            for listenerWrapper in self.stderrListeners {
+                let unsubscriber: Unsubscribe = {
+                    self.listenerQueue.async {
+                        self.stderrListeners.removeAll { $0.uuid == listenerWrapper.uuid }
+                    }
+                }
+                listenerWrapper.listener(self, data, unsubscriber)
+            }
+        }
     }
     
     private func didProcessDataFromProcess() {

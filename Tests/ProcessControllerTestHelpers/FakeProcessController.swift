@@ -37,4 +37,8 @@ public final class FakeProcessController: ProcessController {
     }
     
     public weak var delegate: ProcessControllerDelegate?
+    
+    public func onStdout(listener: @escaping StdoutListener) {}
+    public func onStderr(listener: @escaping StderrListener) {}
+    public func onSilence(listener: @escaping SilenceListener) {}
 }

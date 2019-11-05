@@ -14,6 +14,10 @@ public protocol ProcessController: class {
     func terminateAndForceKillIfNeeded()
     func interruptAndForceKillIfNeeded()
     
+    func onStdout(listener: @escaping StdoutListener)
+    func onStderr(listener: @escaping StderrListener)
+    func onSilence(listener: @escaping SilenceListener)
+    
     var delegate: ProcessControllerDelegate? { get set }
 }
 
