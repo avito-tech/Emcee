@@ -1,5 +1,6 @@
 import ArgLib
 import ChromeTracing
+import DateProvider
 import DeveloperDirLocator
 import EventBus
 import Extensions
@@ -26,13 +27,16 @@ public final class DumpRuntimeTestsCommand: Command {
     ]
     
     private let encoder = JSONEncoder.pretty()
+    private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let resourceLocationResolver: ResourceLocationResolver
     
     public init(
+        dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         resourceLocationResolver: ResourceLocationResolver
     ) {
+        self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.resourceLocationResolver = resourceLocationResolver
     }
@@ -73,7 +77,10 @@ public final class DumpRuntimeTestsCommand: Command {
                 onDemandSimulatorPool: onDemandSimulatorPool,
                 resourceLocationResolver: resourceLocationResolver,
                 tempFolder: tempFolder,
-                testRunnerProvider: DefaultTestRunnerProvider(resourceLocationResolver: resourceLocationResolver),
+                testRunnerProvider: DefaultTestRunnerProvider(
+                    dateProvider: dateProvider,
+                    resourceLocationResolver: resourceLocationResolver
+                ),
                 uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator()
             )
             

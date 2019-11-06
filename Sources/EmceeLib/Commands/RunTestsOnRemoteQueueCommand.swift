@@ -1,5 +1,6 @@
 import ArgLib
 import BucketQueue
+import DateProvider
 import DeveloperDirLocator
 import DistDeployer
 import EventBus
@@ -37,17 +38,20 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         ArgumentDescriptions.trace.asOptional
     ]
     
+    private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let localQueueVersionProvider: VersionProvider
     private let requestSenderProvider: RequestSenderProvider
     private let resourceLocationResolver: ResourceLocationResolver
 
     public init(
+        dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         localQueueVersionProvider: VersionProvider,
         requestSenderProvider: RequestSenderProvider,
         resourceLocationResolver: ResourceLocationResolver
     ) {
+        self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.localQueueVersionProvider = localQueueVersionProvider
         self.requestSenderProvider = requestSenderProvider
@@ -163,7 +167,10 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             onDemandSimulatorPool: onDemandSimulatorPool,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
-            testRunnerProvider: DefaultTestRunnerProvider(resourceLocationResolver: resourceLocationResolver),
+            testRunnerProvider: DefaultTestRunnerProvider(
+                dateProvider: dateProvider,
+                resourceLocationResolver: resourceLocationResolver
+            ),
             uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator()
         )
         

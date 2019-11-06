@@ -1,4 +1,5 @@
 import ArgLib
+import DateProvider
 import DeveloperDirLocator
 import Extensions
 import FileCache
@@ -37,6 +38,7 @@ public final class InProcessMain {
     }
 
     private func runCommands() throws {
+        let dateProvider = SystemDateProvider()
         let developerDirLocator = DefaultDeveloperDirLocator()
         let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
         let requestSenderProvider = DefaultRequestSenderProvider()
@@ -50,15 +52,18 @@ public final class InProcessMain {
         let commandInvoker = CommandInvoker(
             commands: [
                 DistWorkCommand(
+                    dateProvider: dateProvider,
                     developerDirLocator: developerDirLocator,
                     requestSenderProvider: requestSenderProvider,
                     resourceLocationResolver: resourceLocationResolver
                 ),
                 DumpRuntimeTestsCommand(
+                    dateProvider: dateProvider,
                     developerDirLocator: developerDirLocator,
                     resourceLocationResolver: resourceLocationResolver
                 ),
                 RunTestsOnRemoteQueueCommand(
+                    dateProvider: dateProvider,
                     developerDirLocator: developerDirLocator,
                     localQueueVersionProvider: localQueueVersionProvider,
                     requestSenderProvider: requestSenderProvider,

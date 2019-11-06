@@ -1,5 +1,7 @@
+import DateProvider
 import DeveloperDirLocator
 import Foundation
+import Logging
 import Models
 import ProcessController
 import ResourceLocationResolver
@@ -8,11 +10,14 @@ import SimulatorPool
 import TemporaryStuff
 
 public final class XcodebuildBasedTestRunner: TestRunner {
+    private let dateProvider: DateProvider
     private let resourceLocationResolver: ResourceLocationResolver
     
     public init(
+        dateProvider: DateProvider,
         resourceLocationResolver: ResourceLocationResolver
     ) {
+        self.dateProvider = dateProvider
         self.resourceLocationResolver = resourceLocationResolver
     }
     
@@ -28,6 +33,8 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testType: TestType
     ) throws -> StandardStreamsCaptureConfig {
+        let xcodebuildLogParser = try XcodebuildLogParser(dateProvider: dateProvider)
+        
         let processController = try DefaultProcessController(
             subprocess: Subprocess(
                 arguments: [
@@ -53,6 +60,26 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                 )
             )
         )
+        
+        processController.onStdout { sender, data, unsubscribe in
+            let stopOnFailure = {
+                unsubscribe()
+                sender.interruptAndForceKillIfNeeded()
+            }
+            
+            guard let string = String(data: data, encoding: .utf8) else {
+                Logger.warning("Can't obtain string from xcodebuild stdout \(data.count) bytes")
+                return stopOnFailure()
+            }
+            
+            do {
+                try xcodebuildLogParser.parse(string: string, testRunnerStream: testRunnerStream)
+            } catch {
+                Logger.error("Failed to parse xcodebuild output: \(error)")
+                return stopOnFailure()
+            }
+        }
+        
         processController.startAndListenUntilProcessDies()
         return processController.subprocess.standardStreamsCaptureConfig
     }

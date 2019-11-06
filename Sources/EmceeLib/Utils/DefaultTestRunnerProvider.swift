@@ -1,4 +1,5 @@
 import AppleTools
+import DateProvider
 import Foundation
 import Models
 import ResourceLocationResolver
@@ -6,9 +7,14 @@ import Runner
 import fbxctest
 
 public final class DefaultTestRunnerProvider: TestRunnerProvider {
+    private let dateProvider: DateProvider
     private let resourceLocationResolver: ResourceLocationResolver
 
-    public init(resourceLocationResolver: ResourceLocationResolver) {
+    public init(
+        dateProvider: DateProvider,
+        resourceLocationResolver: ResourceLocationResolver
+    ) {
+        self.dateProvider = dateProvider
         self.resourceLocationResolver = resourceLocationResolver
     }
 
@@ -21,6 +27,7 @@ public final class DefaultTestRunnerProvider: TestRunnerProvider {
             )
         case .xcodebuild:
             return XcodebuildBasedTestRunner(
+                dateProvider: dateProvider,
                 resourceLocationResolver: resourceLocationResolver
             )
         }

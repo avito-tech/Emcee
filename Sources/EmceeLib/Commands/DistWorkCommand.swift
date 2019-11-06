@@ -1,4 +1,5 @@
 import ArgLib
+import DateProvider
 import DeveloperDirLocator
 import DistWorker
 import Foundation
@@ -21,15 +22,18 @@ public final class DistWorkCommand: Command {
         ArgumentDescriptions.workerId.asRequired
     ]
     
+    private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let requestSenderProvider: RequestSenderProvider
     private let resourceLocationResolver: ResourceLocationResolver
 
     public init(
+        dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         requestSenderProvider: RequestSenderProvider,
         resourceLocationResolver: ResourceLocationResolver
     ) {
+        self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.requestSenderProvider = requestSenderProvider
         self.resourceLocationResolver = resourceLocationResolver
@@ -77,7 +81,10 @@ public final class DistWorkCommand: Command {
             reportAliveSender: reportAliveSender,
             resourceLocationResolver: resourceLocationResolver,
             temporaryFolder: temporaryFolder,
-            testRunnerProvider: DefaultTestRunnerProvider(resourceLocationResolver: resourceLocationResolver),
+            testRunnerProvider: DefaultTestRunnerProvider(
+                dateProvider: dateProvider,
+                resourceLocationResolver: resourceLocationResolver
+            ),
             workerId: workerId,
             workerRegisterer: workerRegisterer
         )
