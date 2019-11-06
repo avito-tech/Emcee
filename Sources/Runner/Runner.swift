@@ -116,7 +116,7 @@ public final class Runner {
         
         let testContext = try createTestContext(
             developerDir: developerDir,
-            testDestination: simulator.testDestination
+            simulator: simulator
         )
         
         Logger.info("Will run \(entriesToRun.count) tests on simulator \(simulator)")
@@ -166,7 +166,7 @@ public final class Runner {
     
     private func createTestContext(
         developerDir: DeveloperDir,
-        testDestination: TestDestination
+        simulator: Simulator
     ) throws -> TestContext {
         let testsWorkingDirectory = try tempFolder.pathByCreatingDirectories(
             components: ["testsWorkingDir", UUID().uuidString]
@@ -179,7 +179,9 @@ public final class Runner {
         return TestContext(
             developerDir: developerDir,
             environment: environment,
-            testDestination: testDestination
+            simulatorPath: simulator.path.fileUrl,
+            simulatorUdid: simulator.udid,
+            testDestination: simulator.testDestination
         )
     }
     

@@ -77,11 +77,9 @@ final class PluginManagerTests: XCTestCase {
         
         let runnerEvent = RunnerEvent.willRun(
             testEntries: [TestEntryFixtures.testEntry()],
-            testContext: TestContext(
-                developerDir: .current,
-                environment: ["EMCEE_TEST_PLUGIN_OUTPUT": outputPath.absolutePath.pathString],
-                testDestination: TestDestinationFixtures.testDestination
-            )
+            testContext: TestContextFixtures(
+                environment: ["EMCEE_TEST_PLUGIN_OUTPUT": outputPath.absolutePath.pathString]
+            ).testContext
         )
         
         let eventBus = EventBus()
