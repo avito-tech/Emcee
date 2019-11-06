@@ -51,14 +51,16 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
         guard createEndedEvents.count == 1, let createEndedEvent = createEndedEvents.first else {
             throw FbsimctlError.createOperationFailed("Failed to get single create ended event")
         }
-        Logger.debug("Created new simulator #\(allocationCounter) with UUID: \(createEndedEvent.subject.udid)")
+        
+        let simulatorPath = setPath.appending(component: createEndedEvent.subject.udid.value)
+        Logger.debug("Created new simulator #\(allocationCounter) \(createEndedEvent.subject.udid) at \(simulatorPath)")
         
         allocationCounter += 1
         
         return Simulator(
             testDestination: testDestination,
             udid: createEndedEvent.subject.udid,
-            path: setPath.appending(components: ["sim", createEndedEvent.subject.udid.value])
+            path: simulatorPath
         )
     }
     
@@ -159,10 +161,6 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
     private func deleteSimulatorSetContainer(
         simulatorSetPath: AbsolutePath
     ) throws {
-        guard simulatorSetPath.lastComponent == "sim" else {
-            Logger.warning("Expected simulator set path to be inside 'sim' folder, but the path is \(simulatorSetPath). Will not delete set folder.")
-            return
-        }
         if FileManager.default.fileExists(atPath: simulatorSetPath.pathString) {
             Logger.verboseDebug("Removing simulator's container path \(simulatorSetPath)")
             try FileManager.default.removeItem(atPath: simulatorSetPath.pathString)
