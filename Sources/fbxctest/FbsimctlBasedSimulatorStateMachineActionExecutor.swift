@@ -10,7 +10,6 @@ import SimulatorPool
 public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor, CustomStringConvertible {
     private let fbsimctl: ResolvableResourceLocation
     private let simulatorsContainerPath: AbsolutePath
-    private var allocationCounter = 0
     private var simulatorKeepAliveProcessController: ProcessController?
 
     public init(
@@ -27,7 +26,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
         timeout: TimeInterval
     ) throws -> Simulator {
         let setPath = simulatorsContainerPath.appending(
-            components: ["\(allocationCounter)", testDestination.deviceType.removingWhitespaces(), testDestination.runtime]
+            components: [testDestination.deviceType.removingWhitespaces(), testDestination.runtime]
         )
         try FileManager.default.createDirectory(atPath: setPath)
         
@@ -53,9 +52,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
         }
         
         let simulatorPath = setPath.appending(component: createEndedEvent.subject.udid.value)
-        Logger.debug("Created new simulator #\(allocationCounter) \(createEndedEvent.subject.udid) at \(simulatorPath)")
-        
-        allocationCounter += 1
+        Logger.debug("Created new simulator \(createEndedEvent.subject.udid) at \(simulatorPath)")
         
         return Simulator(
             testDestination: testDestination,

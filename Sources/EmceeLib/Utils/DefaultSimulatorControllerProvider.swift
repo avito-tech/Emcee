@@ -38,7 +38,9 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
         case .fbsimctl(let fbsimctlLocation):
             simulatorStateMachineActionExecutor = FbsimctlBasedSimulatorStateMachineActionExecutor(
                 fbsimctl: resourceLocationResolver.resolvable(withRepresentable: fbsimctlLocation),
-                simulatorsContainerPath: try temporaryFolder.pathByCreatingDirectories(components: ["fbsimctl_simulators"])
+                simulatorsContainerPath: try temporaryFolder.pathByCreatingDirectories(
+                    components: ["fbsimctl_simulators", UUID().uuidString]
+                )
             )
         case .simctl:
             simulatorStateMachineActionExecutor = SimctlBasedSimulatorStateMachineActionExecutor(

@@ -10,10 +10,10 @@ public final class FbxctestSimFolderCreator {
         containerPath: AbsolutePath,
         simulatorPath: AbsolutePath
     ) throws -> AbsolutePath {
-        let path = containerPath.appending(component: "sim")
-        try FileManager.default.createDirectory(atPath: path)
+        let simFolderPath = containerPath.appending(component: "sim")
+        try FileManager.default.createDirectory(atPath: simFolderPath)
         
-        let sourcePath = path.appending(component: simulatorPath.lastComponent)
+        let sourcePath = simFolderPath.appending(component: simulatorPath.lastComponent)
         
         Logger.debug("Creating simulator environment for fbxctest: mapping \(sourcePath) -> \(simulatorPath)")
         try FileManager.default.createSymbolicLink(
@@ -21,11 +21,11 @@ public final class FbxctestSimFolderCreator {
             withDestinationPath: simulatorPath.pathString
         )
         
-        let deviceSetPlistPath = path.appending(component: "device_set.plist")
+        let deviceSetPlistPath = simFolderPath.appending(component: "device_set.plist")
         Logger.debug("Creating fake device_set.plist at \(deviceSetPlistPath)")
         try createDeviceSetPlist(path: deviceSetPlistPath)
         
-        return path
+        return containerPath
     }
 
     private func createDeviceSetPlist(path: AbsolutePath) throws {

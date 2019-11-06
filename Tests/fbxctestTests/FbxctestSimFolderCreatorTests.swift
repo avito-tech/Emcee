@@ -21,11 +21,11 @@ final class FbxctestSimFolderCreatorTests: XCTestCase {
             )
             
             XCTAssertTrue(
-                FileManager.default.fileExists(atPath: simFolder.appending(component: "device_set.plist").pathString),
+                FileManager.default.fileExists(atPath: simFolder.appending(components: ["sim", "device_set.plist"]).pathString),
                 "device_set.plist should be created"
             )
             XCTAssertTrue(
-                FileManager.default.fileExists(atPath: simFolder.appending(components: [udid.value, "flag"]).pathString),
+                FileManager.default.fileExists(atPath: simFolder.appending(components: ["sim", udid.value, "flag"]).pathString),
                 "Simulator contents should be reachable via symlink"
             )
         }
