@@ -27,6 +27,14 @@ public final class FbxctestSimFolderCreator {
         
         return containerPath
     }
+    
+    public func cleanUpSimFolder(simFolderPath: AbsolutePath) throws {
+        let tmp = simFolderPath.appending(component: "tmp")
+        if FileManager.default.fileExists(atPath: tmp.pathString) {
+            Logger.debug("Cleaning up fbxctest tmp folder: \(tmp)")
+            try FileManager.default.removeItem(atPath: tmp.pathString)
+        }
+    }
 
     private func createDeviceSetPlist(path: AbsolutePath) throws {
         try savePlist(

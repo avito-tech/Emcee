@@ -176,6 +176,7 @@ public final class FbxctestBasedTestRunner: TestRunner {
     
     private func deleteFbxctestSimulatorEnvironment(simFolderPath: AbsolutePath) {
         do {
+            try fbxctestSimFolderCreator.cleanUpSimFolder(simFolderPath: simFolderPath)
             Logger.debug("Deleting sim folder: \(simFolderPath)")
             try FileManager.default.removeItem(atPath: simFolderPath.pathString)
         } catch {
