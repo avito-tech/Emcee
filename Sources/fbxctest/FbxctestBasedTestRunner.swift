@@ -65,7 +65,7 @@ public final class FbxctestBasedTestRunner: TestRunner {
             containerPath: try temporaryFolder.pathByCreatingDirectories(components: ["fbxctest_sim_env", UUID().uuidString]),
             simulatorPath: simulator.path
         )
-        defer { deleteFbxctestSimulatorEnvironment(simFolderPath: simFolderPath) }
+        defer { fbxctestSimFolderCreator.cleanUpSimFolder(simFolderPath: simFolderPath) }
         
         let fbxctestOutputProcessor = try FbxctestOutputProcessor(
             subprocess: Subprocess(
@@ -172,16 +172,6 @@ public final class FbxctestBasedTestRunner: TestRunner {
         
         arguments += ["-workingDirectory", simFolderPath]
         return arguments
-    }
-    
-    private func deleteFbxctestSimulatorEnvironment(simFolderPath: AbsolutePath) {
-        do {
-            try fbxctestSimFolderCreator.cleanUpSimFolder(simFolderPath: simFolderPath)
-            Logger.debug("Deleting sim folder: \(simFolderPath)")
-            try FileManager.default.removeItem(atPath: simFolderPath.pathString)
-        } catch {
-            Logger.warning("Failed to delete sim folder \(simFolderPath): \(error). This error will be ignored.")
-        }
     }
 }
 

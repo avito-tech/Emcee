@@ -28,11 +28,38 @@ public final class FbxctestSimFolderCreator {
         return containerPath
     }
     
-    public func cleanUpSimFolder(simFolderPath: AbsolutePath) throws {
+    public func cleanUpSimFolder(simFolderPath: AbsolutePath) {
         let tmp = simFolderPath.appending(component: "tmp")
         if FileManager.default.fileExists(atPath: tmp.pathString) {
-            Logger.debug("Cleaning up fbxctest tmp folder: \(tmp)")
-            try FileManager.default.removeItem(atPath: tmp.pathString)
+            Logger.debug("Removing 'tmp' folder: \(tmp)")
+            try? FileManager.default.removeItem(atPath: tmp.pathString)
+        }
+        
+        let sim = simFolderPath.appending(component: "sim")
+        if FileManager.default.fileExists(atPath: sim.pathString) {
+            Logger.debug("Removing 'sim' folder: \(sim)")
+            try? FileManager.default.removeItem(atPath: sim.pathString)
+        }
+        
+        do {
+            Logger.debug("Removing fbxctest simulator folder: \(sim)")
+            try FileManager.default.removeItem(atPath: simFolderPath.pathString)
+        } catch {
+            Logger.warning("Failed to delete fbxctest simulator folder: \(error)")
+            FbxctestSimFolderCreator.removeFolderAfterDelay(simFolderPath: simFolderPath)
+        }
+    }
+    
+    private static func removeFolderAfterDelay(simFolderPath: AbsolutePath) {
+        DispatchQueue.global().asyncAfter(deadline: .now() + 5.0) {
+            if FileManager.default.fileExists(atPath: simFolderPath.pathString) {
+                Logger.debug("Removing fbxctest simulator folder last time: \(simFolderPath)")
+                do {
+                    try FileManager.default.removeItem(atPath: simFolderPath.pathString)
+                } catch {
+                    Logger.warning("Failed to delete fbxctest simulator folder after all attempts: \(error)")
+                }
+            }
         }
     }
 
