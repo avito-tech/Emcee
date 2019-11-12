@@ -42,11 +42,11 @@ For example:
 
 ```bash
 Emcee runTestsOnRemoteQueue \
-    --queue-server-destination "queue_server.json" \
-    --destinations "remote_destinations.json" \
-    --test-destinations "test_destinatios.json" \
+    --queue-server-destination "queue_server_machine.json" \
+    --queue-server-run-configuration-location "http://example.com/queue_config.json" \
     --test-arg-file "test-arg-file.json" \
-    ...
+    --run-id "some_random_job_id_eg_uuidgen" \
+    --temp-folder "/path/to/folder/where/emcee/can/put/stuff"
 ```
 
 #### `--queue-server-destination` argument
@@ -67,49 +67,7 @@ This is a JSON file that describes the SSH credentials of the host which will ru
 
 In the example above we dedicate `"build-agent-macmini-01"` host to contain the shared queue. Shared queue will be started automatically when you submit the first job.
 
-#### `--destinations` argument
-
-This file describes all hosts that will run Emcee worker processes. These processes will execute jobs fetched from the shared queue. This file could contain the following contents:
-
-```json
-[
-    {
-        "host": "build-agent-macmini-01",
-        "port": 22,
-        "username": "remote_worker",
-        "password": "awesomepassword",
-        "remote_deployment_path": "/Users/remote_worker/remote_ui_tests.noindex/"
-    },
-    {
-        "host": "build-agent-imacpro-02",
-        "port": 22,
-        "username": "remote_worker",
-        "password": "awesomepassword",
-        "remote_deployment_path": "/Users/remote_worker/remote_ui_tests.noindex/"
-    }
-]
-```
-
-As you can see, `"build-agent-macmini-01"`appears in this file as well, making you able to host both shared queue and shared worker processes on the same machine.
-
 > **Hint:** if you want to parallelize tests only on local machine, consider creating a file that describes `localhost` credentials.
-
-#### `--test-destinations` argument
-
-This JSON file describes information about where should Junit and trace reports be stored after running all tests from the submitted job.
-
-```json
-{
-    "testDestination": {
-        "deviceType": "iPhone X",
-        "runtime": "12.4"
-    },
-    "reportOutput": {
-        "junit": "/path/to/test-results/junit.xml",
-        "trace": null
-    }
-}
-```
 
 In the example above, Emcee will create Junit for `iPhone X @ iOS 12.4` tests in the specified location (`/path/to/test-results/junit.xml`).
 
@@ -119,7 +77,7 @@ This file describes a precise test plan to execute. The contents of this file sh
 
 ```json
 {
-    "scheduleStrategy": "progressive",
+    "priority": 500,
     "entries": [
         {
             "testsToRun": ["TestClass/testMethod"],
@@ -133,6 +91,17 @@ This file describes a precise test plan to execute. The contents of this file sh
             "environment": {
                 "TEST_SPECIFIC_ENVS": "if needed"
             },
+            "scheduleStrategy": "progressive",
+            "toolResources": {
+                "simulatorControlTool": {
+                    "toolType": "fbsimctl", 
+                    "location": "https://github.com/beefon/FBSimulatorControl/releases/download/avito0.0.6/fbsimctl_20191111T182802.zip"
+                },
+                "testRunnerTool": {
+                    "toolType": "fbxctest",
+                    "fbxctestLocation": "https://github.com/beefon/FBSimulatorControl/releases/download/avito0.0.6/fbxctest_20191108T173517.zip"
+                }
+            },
             "toolchainConfiguration": {
                 "developerDir": {"kind": "current"}
             }
@@ -143,6 +112,17 @@ This file describes a precise test plan to execute. The contents of this file sh
             "testDestination": {"deviceType": "iPhone SE", "runtime": "12.0"},
             "numberOfRetries": 0,
             "environment": {},
+            "scheduleStrategy": "progressive",
+            "toolResources": {
+                "simulatorControlTool": {
+                    "toolType": "fbsimctl", 
+                    "location": "https://github.com/beefon/FBSimulatorControl/releases/download/avito0.0.6/fbsimctl_20191111T182802.zip"
+                },
+                "testRunnerTool": {
+                    "toolType": "fbxctest",
+                    "fbxctestLocation": "https://github.com/beefon/FBSimulatorControl/releases/download/avito0.0.6/fbxctest_20191108T173517.zip"
+                }
+            },
             "toolchainConfiguration": {
                  "developerDir": {
                      "kind": "useXcode",
@@ -150,15 +130,19 @@ This file describes a precise test plan to execute. The contents of this file sh
                  }
             }
         }
+    ],
+    "testDestinationConfigurations": [
+        {
+            "testDestination": {"deviceType": "iPhone SE", "runtime": "12.0"},
+            "reportOutput": {"junit": "/path/to/junit/specific/for/iphone_se/ios12.0/junit.xml"}
+        },
+        {
+            "testDestination": {"deviceType": "iPhone X", "runtime": "11.0"},
+            "reportOutput": {"junit": "/path/to/junit/specific/for/iphone_x/ios11.0/junit.xml"}
+        }
     ]
 }
 ```
-
-This file will form the following test plan:
-
-- `TestClass/testMethod` @ iPhone X, iOS 11, up to 3 runs (1 run + 2 retries), using current Xcode 
-
-- `AnotherTestClass/testSomethingImportant` @ iPhone SE, iOS 12, strictly 1 run using Xcode 10.3
 
 > **Hint:** If you want to run a single test multiple times, you can repeat it in `--test-arg-file` multiple times. 
 

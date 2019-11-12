@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2019-11-12
+
+- Emcee changed a way how it creates its simulators. It still creates a private folder with private simulators, but when Emcee attempts to execute test, it will create a symbolic link to the private simulator, and pass it to `fbxctest`. 
+
+- Prebuilt `fbxctest` and `fbsimctl` have been updated to support Xcode 11.2, you may find their URLs in README file. 
+
+- Recently some work has been done in order to support `xcodebuild` test execution. It is worth mentioning that only `fbxctest` and  `fbsimctl` are still fully supported; `xcrun simctl` and `xcodebuild` are not fully supported yet.
+
 ## 2019-10-30
 
 - `SimulatorInfo` type has been deleted. Use `Simulator` model from `SimulatorPool`.
