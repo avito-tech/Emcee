@@ -12,7 +12,6 @@ import TemporaryStuff
 public final class FbxctestBasedTestRunner: TestRunner {
     private let fbxctestLocation: FbxctestLocation
     private let resourceLocationResolver: ResourceLocationResolver
-    private let fbxctestSimFolderCreator = FbxctestSimFolderCreator()
     
     public init(
         fbxctestLocation: FbxctestLocation,
@@ -61,11 +60,8 @@ public final class FbxctestBasedTestRunner: TestRunner {
         testRunnerStream: TestRunnerStream,
         testType: TestType
     ) throws -> StandardStreamsCaptureConfig {
-        let simFolderPath = try fbxctestSimFolderCreator.createSimFolderForFbxctest(
-            containerPath: try temporaryFolder.pathByCreatingDirectories(components: ["fbxctest_sim_env", UUID().uuidString]),
-            simulatorPath: simulator.path
-        )
-        defer { fbxctestSimFolderCreator.cleanUpSimFolder(simFolderPath: simFolderPath) }
+        let fbxctestWorkingDirectory = try temporaryFolder.pathByCreatingDirectories(components: ["fbxctest_working_dir", UUID().uuidString])
+        defer { cleanUp(fbxctestWorkingDirectory: fbxctestWorkingDirectory) }
         
         let fbxctestOutputProcessor = try FbxctestOutputProcessor(
             subprocess: Subprocess(
@@ -73,7 +69,7 @@ public final class FbxctestBasedTestRunner: TestRunner {
                     buildArtifacts: buildArtifacts,
                     entriesToRun: entriesToRun,
                     fbxctestLocation: fbxctestLocation,
-                    simFolderPath: simFolderPath,
+                    fbxctestWorkingDirectory: fbxctestWorkingDirectory,
                     simulator: simulator,
                     simulatorSettings: simulatorSettings,
                     testDestination: testContext.testDestination,
@@ -97,7 +93,7 @@ public final class FbxctestBasedTestRunner: TestRunner {
         buildArtifacts: BuildArtifacts,
         entriesToRun: [TestEntry],
         fbxctestLocation: FbxctestLocation,
-        simFolderPath: AbsolutePath,
+        fbxctestWorkingDirectory: AbsolutePath,
         simulator: Simulator,
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
@@ -170,8 +166,17 @@ public final class FbxctestBasedTestRunner: TestRunner {
 
         arguments += ["-keep-simulators-alive"]
         
-        arguments += ["-workingDirectory", simFolderPath]
+        arguments += ["-simulatorSetPath", simulator.simulatorSetPath.pathString]
+        arguments += ["-workingDirectory", fbxctestWorkingDirectory.pathString]
         return arguments
+    }
+    
+    private func cleanUp(fbxctestWorkingDirectory: AbsolutePath) {
+        do {
+            try FileManager.default.removeItem(atPath: fbxctestWorkingDirectory.pathString)
+        } catch {
+            Logger.warning("Failed to remove fbxctest working directory \(fbxctestWorkingDirectory): \(error)")
+        }
     }
 }
 

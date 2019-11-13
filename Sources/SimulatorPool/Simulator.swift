@@ -21,6 +21,10 @@ public class Simulator: Hashable, CustomStringConvertible {
     public var description: String {
         return "Simulator \(testDestination.deviceType) \(testDestination.runtime) at \(path)"
     }
+    
+    public var simulatorSetPath: AbsolutePath {
+        return path.removingLastComponent
+    }
 
     public static func == (left: Simulator, right: Simulator) -> Bool {
         return left.testDestination == right.testDestination
