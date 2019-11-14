@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2019-11-14
+
+- Emcee will try to clean up dead simulator cache before executing tests by deleting `simulator_folder/data/Library/Caches/com.apple.containermanagerd/Dead` folder.
+
 ## 2019-11-12
 
 - Emcee changed a way how it creates its simulators. It still creates a private folder with private simulators, but when Emcee attempts to execute test, it will create a symbolic link to the private simulator, and pass it to `fbxctest`. 

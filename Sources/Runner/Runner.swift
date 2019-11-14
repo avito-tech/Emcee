@@ -5,6 +5,7 @@ import LocalHostDeterminer
 import Logging
 import Metrics
 import Models
+import PathLib
 import ProcessController
 import ResourceLocationResolver
 import SimulatorPool
@@ -192,6 +193,7 @@ public final class Runner {
         testContext: TestContext,
         testRunnerStream: TestRunnerStream
     ) -> StandardStreamsCaptureConfig {
+        cleanUpDeadCache(simulator: simulator)
         do {
             return try testRunner.run(
                 buildArtifacts: configuration.buildArtifacts,
@@ -212,6 +214,18 @@ public final class Runner {
                 entriesToRun: entriesToRun,
                 testRunnerStream: testRunnerStream
             )
+        }
+    }
+    
+    private func cleanUpDeadCache(simulator: Simulator) {
+        let deadCachePath = simulator.path.appending(relativePath: RelativePath("data/Library/Caches/com.apple.containermanagerd/Dead"))
+        do {
+            if FileManager.default.fileExists(atPath: deadCachePath.pathString) {
+                Logger.debug("Will attempt to clean up simulator dead cache at: \(deadCachePath)")
+                try FileManager.default.removeItem(at: deadCachePath.fileUrl)
+            }
+        } catch {
+            Logger.warning("Failed to delete dead cache at \(deadCachePath): \(error)")
         }
     }
     
