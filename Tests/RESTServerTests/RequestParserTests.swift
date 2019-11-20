@@ -5,49 +5,80 @@ import Swifter
 import XCTest
 
 final class RequestParserTests: XCTestCase {
-    enum Result: Error {
-        case throwable
+    enum Result: Error, CustomStringConvertible {
+        case error
+        
+        var description: String {
+            switch self {
+            case .error:
+                return "(error with description)"
+            }
+        }
     }
     
     let encoder = JSONEncoder()
     let decoder = JSONDecoder()
     
-    func testParseErrorMappedIntoInternalErrors() {
-        let parser = RequestParser(decoder: decoder)
-        let httpResponse = parser.parse(request: HttpRequest()) { (decodedObject: Int) -> (Int) in
-            throw Result.throwable
-        }
-        switch httpResponse {
-        case .internalServerError: break
-        default: XCTFail("Unexpected response: \(httpResponse)")
-        }
+    private typealias TypeThatMatchesDefaultRequest = [String: Int]
+    private typealias TypeThatDontMatchDefaultRequest = [String: String]
+    private var defaultRequestForThisTest: HttpRequest {
+        let request = HttpRequest()
+        request.path = "request_path"
+        request.body = [UInt8]("{\"value\": 42}".data(using: .utf8)!)
+        return request
     }
     
-    func testDecodedObjectIsCorrectlyPassed() {
+    func test___parse___produces_bad_request_response___if_request_is_malformed() {
         let parser = RequestParser(decoder: decoder)
         
-        let httpRequest = HttpRequest()
-        httpRequest.body = [UInt8]("{\"value\": 42}".data(using: .utf8)!)
+        let httpResponse = parser.parse(request: defaultRequestForThisTest) { (decodedObject: TypeThatDontMatchDefaultRequest) -> (Int) in
+            1
+        }
+        
+        assert(
+            httpResponse: httpResponse,
+            isBadRequestResponseWithText:
+            """
+            Failed to process request with path "request_path", error: "typeMismatch(Swift.String, Swift.DecodingError.Context(codingPath: [_JSONKey(stringValue: "value", intValue: nil)], debugDescription: "Expected to decode String but found a number instead.", underlyingError: nil))"
+            """
+        )
+    }
+    
+    func test___parse___produces_bad_request_response___if_responseProducer_throws() {
+        let parser = RequestParser(decoder: decoder)
+        
+        let httpResponse = parser.parse(request: defaultRequestForThisTest) { (decodedObject: TypeThatMatchesDefaultRequest) -> (Int) in
+            throw Result.error
+        }
+        
+        assert(
+            httpResponse: httpResponse,
+            isBadRequestResponseWithText:
+            """
+            Failed to process request with path "request_path", error: "(error with description)"
+            """
+        )
+    }
+    
+    func test___parse___passes_parsed_object_to_responseProducer___if_request_is_correct() {
+        let parser = RequestParser(decoder: decoder)
         
         var actuallyDecodedObject: [String: Int]?
         
-        _ = parser.parse(request: httpRequest) { (decodedObject: [String: Int]) -> (Int) in
+        _ = parser.parse(request: defaultRequestForThisTest) { (decodedObject: TypeThatMatchesDefaultRequest) -> (Int) in
             actuallyDecodedObject = decodedObject
-            throw Result.throwable
+            throw Result.error
         }
         
         XCTAssertEqual(actuallyDecodedObject, ["value": 42])
     }
     
-    func testResponseIsPassedBackAsEncodedJson() {
+    func test___parse___returns_correct_httpResponse_with_object_returned_from_responseProducer___if_request_is_correct() {
         let parser = RequestParser(decoder: decoder)
-        
-        let httpRequest = HttpRequest()
-        httpRequest.body = [UInt8]("{\"value\": 42}".data(using: .utf8)!)
         
         let expectedResponse = ReportAliveResponse.aliveReportAccepted
         
-        let httpResponse = parser.parse(request: httpRequest) { (decodedObject: [String: Int]) -> (ReportAliveResponse) in
+        let httpResponse = parser.parse(request: defaultRequestForThisTest) { (decodedObject: TypeThatMatchesDefaultRequest) -> (ReportAliveResponse) in
             return expectedResponse
         }
         
@@ -67,6 +98,25 @@ final class RequestParserTests: XCTestCase {
             }
         default:
             XCTFail("Unexpected response: \(httpResponse)")
+        }
+    }
+    
+    private func assert(
+        httpResponse: HttpResponse,
+        isBadRequestResponseWithText expectedText: String,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        switch httpResponse {
+        case .badRequest(let body):
+            switch body {
+            case .text(let actualText)?:
+                XCTAssertEqual(actualText, expectedText, file: file, line: line)
+            default:
+                XCTFail("Unexpected body: \(String(describing: body))", file: file, line: line)
+            }
+        default:
+            XCTFail("Unexpected response: \(httpResponse)", file: file, line: line)
         }
     }
 }

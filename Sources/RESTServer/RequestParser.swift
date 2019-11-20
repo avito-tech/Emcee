@@ -20,8 +20,9 @@ public final class RequestParser {
             let object: T = try decoder.decode(T.self, from: requestData)
             return .json(response: try responseProducer(object))
         } catch {
-            Logger.error("Failed to process \(request.path) data: \(error). Will return server error response.")
-            return .internalServerError
+            let errorString = "Failed to process request with path \"\(request.path)\", error: \"\(error)\""
+            Logger.error("\(errorString). Will return badRequest response.")
+            return .badRequest(HttpResponseBody.text(errorString))
         }
     }
 }
