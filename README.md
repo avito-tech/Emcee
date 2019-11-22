@@ -146,7 +146,7 @@ This file describes a precise test plan to execute. The contents of this file sh
 
 > **Hint:** If you want to run a single test multiple times, you can repeat it in `--test-arg-file` multiple times. 
 
-> **WARNINIG**: You must install Xcode simulators on each worker machine in order to run tests. Go to `Xcode.app` -> `Preferences` -> `Components`.
+> **WARNING**: You must install Xcode simulators on each worker machine in order to run tests. Go to `Xcode.app` -> `Preferences` -> `Components`.
 
 Read more about test arg file format in `TestArgFile.swift`.
 
