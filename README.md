@@ -148,7 +148,7 @@ This file describes a precise test plan to execute. The contents of this file sh
 
 > **WARNING**: You must install Xcode simulators on each worker machine in order to run tests. Go to `Xcode.app` -> `Preferences` -> `Components`.
 
-Read more about test arg file format in `TestArgFile.swift`.
+Please, read more about test arg file format in `TestArgFile.swift`.
 
 # Publications
 
