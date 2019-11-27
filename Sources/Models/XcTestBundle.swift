@@ -42,7 +42,7 @@ public final class XcTestBundle: Codable, Hashable, CustomStringConvertible {
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(self.location)
-        hasher.combine(self.runtimeDumpKind)
+        hasher.combine(location)
+        hasher.combine(runtimeDumpKind)
     }
 }
