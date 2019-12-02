@@ -14,6 +14,7 @@ final class DistRunSchedulerDataSourceTests: XCTestCase {
                 simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
                 testDestination: TestDestinationFixtures.testDestination,
                 testExecutionBehavior: TestExecutionBehaviorFixtures(environment: ["a": "b"]).build(),
+                testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
                 testType: .uiTest,
                 toolResources: ToolResourcesFixtures.fakeToolResources(),
                 toolchainConfiguration: ToolchainConfiguration(developerDir: .current)

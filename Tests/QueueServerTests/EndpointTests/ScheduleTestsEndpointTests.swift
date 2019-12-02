@@ -67,8 +67,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         value: fixedBucketId.value
     )
     let bucketSplitInfo = BucketSplitInfo(
-        numberOfWorkers: 0,
-        simulatorSettings: SimulatorSettingsFixtures().simulatorSettings()
+        numberOfWorkers: 0
     )
     let jobId = JobId(value: "jobId")
     lazy var prioritizedJob = PrioritizedJob(jobId: jobId, priority: .medium)

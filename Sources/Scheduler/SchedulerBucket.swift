@@ -8,6 +8,7 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
     public let testExecutionBehavior: TestExecutionBehavior
+    public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testType: TestType
     public let toolResources: ToolResources
     public let toolchainConfiguration: ToolchainConfiguration
@@ -20,6 +21,7 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
         result.append("buildArtifacts: \(buildArtifacts)")
         result.append("testDestination: " + testDestination.destinationString)
         result.append("testExecutionBehavior: \(testExecutionBehavior)")
+        result.append("testTimeoutConfiguration: \(testTimeoutConfiguration)")
         result.append("testType: \(testType)")
         result.append("toolResources: \(toolResources)")
         result.append("simulatorSettings: \(simulatorSettings)")
@@ -35,6 +37,7 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testExecutionBehavior: TestExecutionBehavior,
+        testTimeoutConfiguration: TestTimeoutConfiguration,
         testType: TestType,
         toolResources: ToolResources,
         toolchainConfiguration: ToolchainConfiguration
@@ -45,6 +48,7 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
         self.testExecutionBehavior = testExecutionBehavior
+        self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testType = testType
         self.toolResources = toolResources
         self.toolchainConfiguration = toolchainConfiguration
@@ -58,6 +62,7 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
             simulatorSettings: bucket.simulatorSettings,
             testDestination: bucket.testDestination,
             testExecutionBehavior: testExecutionBehavior,
+            testTimeoutConfiguration: bucket.testTimeoutConfiguration,
             testType: bucket.testType,
             toolResources: bucket.toolResources,
             toolchainConfiguration: bucket.toolchainConfiguration
@@ -71,6 +76,7 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
             && left.simulatorSettings == right.simulatorSettings
             && left.testDestination == right.testDestination
             && left.testExecutionBehavior == right.testExecutionBehavior
+            && left.testTimeoutConfiguration == right.testTimeoutConfiguration
             && left.testType == right.testType
             && left.toolResources == right.toolResources
             && left.toolchainConfiguration == right.toolchainConfiguration

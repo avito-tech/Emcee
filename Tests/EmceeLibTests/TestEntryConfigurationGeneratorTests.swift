@@ -16,6 +16,8 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
     )
     let argFileDestination1 = try! TestDestination(deviceType: UUID().uuidString, runtime: "10.1")
     let argFileDestination2 = try! TestDestination(deviceType: UUID().uuidString, runtime: "10.2")
+    let simulatorSettings = SimulatorSettings(simulatorLocalizationSettings: nil, watchdogSettings: nil)
+    let testTimeoutConfiguration = TestTimeoutConfiguration(singleTestMaximumDuration: 10, testRunnerMaximumSilenceDuration: 20)
 
     lazy var validatedEntries: [ValidatedTestEntry] = {
         return [
@@ -36,13 +38,15 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
         let generator = TestEntryConfigurationGenerator(
             validatedEntries: validatedEntries,
             testArgFileEntry: TestArgFile.Entry(
-                testsToRun: [.testName(argFileTestToRun1)],
                 buildArtifacts: buildArtifacts,
                 environment: [:],
                 numberOfRetries: 10,
                 scheduleStrategy: .unsplit,
+                simulatorSettings: simulatorSettings,
                 testDestination: argFileDestination1,
+                testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .uiTest,
+                testsToRun: [.testName(argFileTestToRun1)],
                 toolResources: ToolResourcesFixtures.fakeToolResources(),
                 toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
             )
@@ -53,8 +57,10 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
         let expectedConfigurations = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1"))
             .with(buildArtifacts: buildArtifacts)
-            .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
+            .with(simulatorSettings: simulatorSettings)
             .with(testDestination: argFileDestination1)
+            .with(testTimeoutConfiguration: testTimeoutConfiguration)
+            .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
             .with(testType: .uiTest)
             .testEntryConfigurations()
         
@@ -65,13 +71,15 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
         let generator = TestEntryConfigurationGenerator(
             validatedEntries: validatedEntries,
             testArgFileEntry: TestArgFile.Entry(
-                testsToRun: [.testName(argFileTestToRun1), .testName(argFileTestToRun1)],
                 buildArtifacts: buildArtifacts,
                 environment: [:],
                 numberOfRetries: 10,
                 scheduleStrategy: .unsplit,
+                simulatorSettings: simulatorSettings,
                 testDestination: argFileDestination1,
+                testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .uiTest,
+                testsToRun: [.testName(argFileTestToRun1), .testName(argFileTestToRun1)],
                 toolResources: ToolResourcesFixtures.fakeToolResources(),
                 toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
             )
@@ -81,8 +89,10 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
             TestEntryConfigurationFixtures()
                 .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1"))
                 .with(buildArtifacts: buildArtifacts)
+                .with(simulatorSettings: simulatorSettings)
                 .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
                 .with(testDestination: argFileDestination1)
+                .with(testTimeoutConfiguration: testTimeoutConfiguration)
                 .with(testType: .uiTest)
                 .testEntryConfigurations()
         
@@ -96,13 +106,15 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
         let generator = TestEntryConfigurationGenerator(
             validatedEntries: validatedEntries,
             testArgFileEntry: TestArgFile.Entry(
-                testsToRun: [.allProvidedByRuntimeDump],
                 buildArtifacts: buildArtifacts,
                 environment: [:],
                 numberOfRetries: 10,
                 scheduleStrategy: .unsplit,
+                simulatorSettings: simulatorSettings,
                 testDestination: argFileDestination1,
+                testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .uiTest,
+                testsToRun: [.allProvidedByRuntimeDump],
                 toolResources: ToolResourcesFixtures.fakeToolResources(),
                 toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
             )
@@ -112,15 +124,17 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
             TestEntryConfigurationFixtures()
                 .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1"))
                 .with(buildArtifacts: buildArtifacts)
-                .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
                 .with(testDestination: argFileDestination1)
+                .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
+                .with(testTimeoutConfiguration: testTimeoutConfiguration)
                 .with(testType: .uiTest)
                 .testEntryConfigurations(),
             TestEntryConfigurationFixtures()
                 .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test2"))
                 .with(buildArtifacts: buildArtifacts)
-                .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
                 .with(testDestination: argFileDestination1)
+                .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
+                .with(testTimeoutConfiguration: testTimeoutConfiguration)
                 .with(testType: .uiTest)
                 .testEntryConfigurations()
             ].flatMap { $0 }

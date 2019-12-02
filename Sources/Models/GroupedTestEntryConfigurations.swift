@@ -10,8 +10,10 @@ public final class GroupedTestEntryConfigurations {
     public func grouped() -> [[TestEntryConfiguration]] {
         struct Key: Hashable {
             let buildArtifacts: BuildArtifacts
+            let simulatorSettings: SimulatorSettings
             let testDestination: TestDestination
             let testExecutionBehavior: TestExecutionBehavior
+            let testTimeoutConfiguration: TestTimeoutConfiguration
             let testType: TestType
             let toolchainConfiguration: ToolchainConfiguration
         }
@@ -21,8 +23,10 @@ public final class GroupedTestEntryConfigurations {
         for testEntryConfiguration in testEntryConfigurations {
             let key = Key(
                 buildArtifacts: testEntryConfiguration.buildArtifacts,
+                simulatorSettings: testEntryConfiguration.simulatorSettings,
                 testDestination: testEntryConfiguration.testDestination,
                 testExecutionBehavior: testEntryConfiguration.testExecutionBehavior,
+                testTimeoutConfiguration: testEntryConfiguration.testTimeoutConfiguration,
                 testType: testEntryConfiguration.testType,
                 toolchainConfiguration: testEntryConfiguration.toolchainConfiguration
             )

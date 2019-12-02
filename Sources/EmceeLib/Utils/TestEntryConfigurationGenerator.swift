@@ -25,13 +25,15 @@ public final class TestEntryConfigurationGenerator {
             )
             return testEntries.map { testEntry -> TestEntryConfiguration in
                 TestEntryConfiguration(
-                    testEntry: testEntry,
                     buildArtifacts: testArgFileEntry.buildArtifacts,
+                    simulatorSettings: testArgFileEntry.simulatorSettings,
                     testDestination: testArgFileEntry.testDestination,
+                    testEntry: testEntry,
                     testExecutionBehavior: TestExecutionBehavior(
                         environment: testArgFileEntry.environment,
                         numberOfRetries: testArgFileEntry.numberOfRetries
                     ),
+                    testTimeoutConfiguration: testArgFileEntry.testTimeoutConfiguration,
                     testType: testArgFileEntry.testType,
                     toolResources: testArgFileEntry.toolResources,
                     toolchainConfiguration: testArgFileEntry.toolchainConfiguration

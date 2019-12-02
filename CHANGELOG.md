@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2019-12-02
+
+- Test arg file entries are expected to have `simulatorSettings` and `testTimeoutConfiguration` fields present. Previously these fields were part of queue server run configuration. By moving these values into test arg file it is now possible to specify them on per-test basis.
+
 ## 2019-11-14
 
 - Emcee will try to clean up dead simulator cache before executing tests by deleting `simulator_folder/data/Library/Caches/com.apple.containermanagerd/Dead` folder.

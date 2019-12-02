@@ -20,13 +20,12 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         buildArtifacts: BuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
-        maximumAllowedSilenceDuration: TimeInterval,
         simulator: Simulator,
         simulatorSettings: SimulatorSettings,
-        singleTestMaximumDuration: TimeInterval,
         temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
+        testTimeoutConfiguration: TestTimeoutConfiguration,
         testType: TestType
     ) throws -> StandardStreamsCaptureConfig {
         let processController = try DefaultProcessController(
@@ -50,7 +49,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                 environment: testContext.environment,
                 silenceBehavior: SilenceBehavior(
                     automaticAction: .interruptAndForceKill,
-                    allowedSilenceDuration: maximumAllowedSilenceDuration
+                    allowedSilenceDuration: testTimeoutConfiguration.testRunnerMaximumSilenceDuration
                 )
             )
         )

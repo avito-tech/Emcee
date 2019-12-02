@@ -14,6 +14,7 @@ public final class BucketFixtures {
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: TestDestinationFixtures.testDestination,
             testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: numberOfRetries),
+            testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
             testType: TestType.uiTest,
             toolResources: ToolResourcesFixtures.fakeToolResources(),
             toolchainConfiguration: ToolchainConfiguration(developerDir: .current)

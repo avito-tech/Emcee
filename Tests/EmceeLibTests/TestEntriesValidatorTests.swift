@@ -95,13 +95,15 @@ final class TestEntriesValidatorTests: XCTestCase {
         buildArtifacts: BuildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
     ) throws -> TestArgFile.Entry {
         return TestArgFile.Entry(
-            testsToRun: [.testName(TestName(className: "MyTest", methodName: "test"))],
             buildArtifacts: buildArtifacts,
             environment: [:],
             numberOfRetries: 1,
             scheduleStrategy: .unsplit,
+            simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: nil, watchdogSettings: nil),
             testDestination: try TestDestination(deviceType: "iPhoneXL", runtime: "10.3"),
+            testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
             testType: testType,
+            testsToRun: [.testName(TestName(className: "MyTest", methodName: "test"))],
             toolResources: ToolResourcesFixtures.fakeToolResources(),
             toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
         )

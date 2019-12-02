@@ -202,6 +202,7 @@ final class BucketQueueImpl: BucketQueue {
                         simulatorSettings: stuckBucket.bucket.simulatorSettings,
                         testDestination: stuckBucket.bucket.testDestination,
                         testExecutionBehavior: stuckBucket.bucket.testExecutionBehavior,
+                        testTimeoutConfiguration: stuckBucket.bucket.testTimeoutConfiguration,
                         testType: stuckBucket.bucket.testType,
                         toolResources: stuckBucket.bucket.toolResources,
                         toolchainConfiguration: stuckBucket.bucket.toolchainConfiguration

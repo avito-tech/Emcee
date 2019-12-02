@@ -9,6 +9,77 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
         continueAfterFailure = false
     }
     
+    func test___grouping_into_same_group___when_all_fields_match() {
+        let testEntryConfigurations1 = TestEntryConfigurationFixtures()
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "test1"))
+            .testEntryConfigurations()
+        let testEntryConfigurations2 = TestEntryConfigurationFixtures()
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "test2"))
+            .testEntryConfigurations()
+        let mixedTestEntryConfigurations = [
+            testEntryConfigurations1[0],
+            testEntryConfigurations2[0]
+        ]
+        
+        let grouper = GroupedTestEntryConfigurations(testEntryConfigurations: mixedTestEntryConfigurations)
+        let groups = grouper.grouped()
+        
+        XCTAssertEqual(groups.count, 1)
+        XCTAssertEqual(groups[0], testEntryConfigurations1 + testEntryConfigurations2)
+    }
+    
+    func test___grouping_by_TestTimeoutConfiguration() {
+        let testEntryConfigurations1 = TestEntryConfigurationFixtures()
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "test1"))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "test2"))
+            .with(testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 1, testRunnerMaximumSilenceDuration: 1))
+            .testEntryConfigurations()
+        let testEntryConfigurations2 = TestEntryConfigurationFixtures()
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "test3"))
+            .with(testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 2, testRunnerMaximumSilenceDuration: 2))
+            .testEntryConfigurations()
+        let mixedTestEntryConfigurations = [
+            testEntryConfigurations1[0],
+            testEntryConfigurations1[1],
+            testEntryConfigurations2[0]
+        ]
+        
+        let grouper = GroupedTestEntryConfigurations(testEntryConfigurations: mixedTestEntryConfigurations)
+        let groups = grouper.grouped()
+        
+        XCTAssertEqual(groups.count, 2)
+        XCTAssertEqual(
+            groups,
+            [testEntryConfigurations1, testEntryConfigurations2]
+        )
+    }
+    
+    func test___grouping_by_SimulatorSettings() {
+        let testEntryConfigurations1 = TestEntryConfigurationFixtures()
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "test1"))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "test2"))
+            .with(simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: nil, watchdogSettings: nil))
+            .testEntryConfigurations()
+        let testEntryConfigurations2 = TestEntryConfigurationFixtures()
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "test3"))
+            .with(simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: SimulatorLocalizationLocation(.localFilePath("/l10n")), watchdogSettings: nil))
+            .testEntryConfigurations()
+        let mixedTestEntryConfigurations = [
+            testEntryConfigurations1[0],
+            testEntryConfigurations1[1],
+            testEntryConfigurations2[0]
+        ]
+        
+        let grouper = GroupedTestEntryConfigurations(testEntryConfigurations: mixedTestEntryConfigurations)
+        let groups = grouper.grouped()
+        
+        XCTAssertEqual(groups.count, 2)
+        XCTAssertEqual(
+            groups,
+            [testEntryConfigurations1, testEntryConfigurations2]
+        )
+    }
+    
     func test___grouping_by_TestDestination___preserves_order_and_sorts_by_test_count() {
         let testEntryConfigurations1 = TestEntryConfigurationFixtures()
             .with(testDestination: try! TestDestination(deviceType: "1", runtime: "11.0"))

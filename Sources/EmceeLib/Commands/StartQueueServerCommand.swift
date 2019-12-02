@@ -85,8 +85,7 @@ public final class StartQueueServerCommand: Command {
             localPortDeterminer: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange),
             workerAlivenessPolicy: .workersStayAliveWhenQueueIsDepleted,
             bucketSplitInfo: BucketSplitInfo(
-                numberOfWorkers: UInt(queueServerRunConfiguration.deploymentDestinationConfigurations.count),
-                simulatorSettings: queueServerRunConfiguration.simulatorSettings
+                numberOfWorkers: UInt(queueServerRunConfiguration.deploymentDestinationConfigurations.count)
             ),
             queueServerLock: AutomaticTerminationControllerAwareQueueServerLock(
                 automaticTerminationController: automaticTerminationController

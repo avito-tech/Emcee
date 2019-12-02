@@ -6,10 +6,9 @@ import ResourceLocationResolver
 public struct RunnerConfiguration {
     public let buildArtifacts: BuildArtifacts
     public let environment: [String: String]
-    public let maximumAllowedSilenceDuration: TimeInterval
     public let simulatorSettings: SimulatorSettings
-    public let singleTestMaximumDuration: TimeInterval
     public let testRunnerTool: TestRunnerTool
+    public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testType: TestType
     
     public init(
@@ -22,10 +21,9 @@ public struct RunnerConfiguration {
     ) {
         self.buildArtifacts = buildArtifacts
         self.environment = environment
-        self.maximumAllowedSilenceDuration = testTimeoutConfiguration.testRunnerMaximumSilenceDuration
         self.simulatorSettings = simulatorSettings
-        self.singleTestMaximumDuration = testTimeoutConfiguration.singleTestMaximumDuration
         self.testRunnerTool = testRunnerTool
+        self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testType = testType
     }
 }

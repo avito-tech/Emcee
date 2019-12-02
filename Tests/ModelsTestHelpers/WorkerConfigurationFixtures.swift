@@ -7,15 +7,11 @@ public final class WorkerConfigurationFixtures {
             graphiteConfiguration: nil,
             sentryConfiguration: nil
         ),
-        testRunExecutionBehavior: TestRunExecutionBehavior(
-            numberOfSimulators: 2
-        ),
-        testTimeoutConfiguration: TestTimeoutConfiguration(
-            singleTestMaximumDuration: 400,
-            testRunnerMaximumSilenceDuration: 0
-        ),
         pluginUrls: [],
         reportAliveInterval: 42,
-        requestSignature: RequestSignature(value: "requestSignature")
+        requestSignature: RequestSignature(value: "requestSignature"),
+        testRunExecutionBehavior: TestRunExecutionBehavior(
+            numberOfSimulators: 2
+        )
     )
 }

@@ -1,6 +1,7 @@
 import AutomaticTermination
 import Foundation
 import Models
+import SimulatorPool
 
 public struct QueueServerRunConfiguration: Decodable {
     public let analyticsConfiguration: AnalyticsConfiguration
@@ -20,12 +21,6 @@ public struct QueueServerRunConfiguration: Decodable {
     /// Period of time when workers should report their aliveness
     public let reportAliveInterval: TimeInterval
     
-    /// Some settings that should be applied to the test environment prior running the tests
-    public let simulatorSettings: SimulatorSettings
-    
-    /// Timeout values.
-    public let testTimeoutConfiguration: TestTimeoutConfiguration
-    
     public let workerDeploymentDestinations: [DeploymentDestination]
 
     public init(
@@ -35,8 +30,6 @@ public struct QueueServerRunConfiguration: Decodable {
         deploymentDestinationConfigurations: [DestinationConfiguration],
         queueServerTerminationPolicy: AutomaticTerminationPolicy,
         reportAliveInterval: TimeInterval,
-        simulatorSettings: SimulatorSettings,
-        testTimeoutConfiguration: TestTimeoutConfiguration,
         workerDeploymentDestinations: [DeploymentDestination]
     ) {
         self.analyticsConfiguration = analyticsConfiguration
@@ -45,8 +38,6 @@ public struct QueueServerRunConfiguration: Decodable {
         self.deploymentDestinationConfigurations = deploymentDestinationConfigurations
         self.queueServerTerminationPolicy = queueServerTerminationPolicy
         self.reportAliveInterval = reportAliveInterval
-        self.simulatorSettings = simulatorSettings
-        self.testTimeoutConfiguration = testTimeoutConfiguration
         self.workerDeploymentDestinations = workerDeploymentDestinations
     }
     
@@ -56,13 +47,12 @@ public struct QueueServerRunConfiguration: Decodable {
     ) -> WorkerConfiguration {
         return WorkerConfiguration(
             analyticsConfiguration: analyticsConfiguration,
-            testRunExecutionBehavior: testRunExecutionBehavior(
-                deploymentDestinationConfiguration: deploymentDestinationConfiguration
-            ),
-            testTimeoutConfiguration: testTimeoutConfiguration,
             pluginUrls: auxiliaryResources.plugins.compactMap { $0.resourceLocation.url },
             reportAliveInterval: reportAliveInterval,
-            requestSignature: requestSignature
+            requestSignature: requestSignature,
+            testRunExecutionBehavior: testRunExecutionBehavior(
+                deploymentDestinationConfiguration: deploymentDestinationConfiguration
+            )
         )
     }
     

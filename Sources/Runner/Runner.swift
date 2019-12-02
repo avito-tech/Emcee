@@ -199,13 +199,12 @@ public final class Runner {
                 buildArtifacts: configuration.buildArtifacts,
                 developerDirLocator: developerDirLocator,
                 entriesToRun: entriesToRun,
-                maximumAllowedSilenceDuration: configuration.maximumAllowedSilenceDuration,
                 simulator: simulator,
                 simulatorSettings: configuration.simulatorSettings,
-                singleTestMaximumDuration: configuration.singleTestMaximumDuration,
                 temporaryFolder: tempFolder,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream,
+                testTimeoutConfiguration: configuration.testTimeoutConfiguration,
                 testType: configuration.testType
             )
         } catch {

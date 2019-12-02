@@ -8,8 +8,9 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
     public let testExecutionBehavior: TestExecutionBehavior
-    public let toolResources: ToolResources
+    public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testType: TestType
+    public let toolResources: ToolResources
     public let toolchainConfiguration: ToolchainConfiguration
 
     public init(
@@ -19,6 +20,7 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testExecutionBehavior: TestExecutionBehavior,
+        testTimeoutConfiguration: TestTimeoutConfiguration,
         testType: TestType,
         toolResources: ToolResources,
         toolchainConfiguration: ToolchainConfiguration
@@ -30,6 +32,7 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
         self.testDestination = testDestination
         self.testExecutionBehavior = testExecutionBehavior
         self.testType = testType
+        self.testTimeoutConfiguration = testTimeoutConfiguration
         self.toolResources = toolResources
         self.toolchainConfiguration = toolchainConfiguration
     }
@@ -49,8 +52,9 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
         hasher.combine(simulatorSettings)
         hasher.combine(testDestination)
         hasher.combine(testExecutionBehavior)
-        hasher.combine(toolResources)
+        hasher.combine(testTimeoutConfiguration)
         hasher.combine(testType)
+        hasher.combine(toolResources)
         hasher.combine(toolchainConfiguration)
     }
     
@@ -61,8 +65,9 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
         && left.simulatorSettings == right.simulatorSettings
         && left.testDestination == right.testDestination
         && left.testExecutionBehavior == right.testExecutionBehavior
-        && left.toolResources == right.toolResources
+        && left.testTimeoutConfiguration == right.testTimeoutConfiguration
         && left.testType == right.testType
+        && left.toolResources == right.toolResources
         && left.toolchainConfiguration == right.toolchainConfiguration
     }
 }

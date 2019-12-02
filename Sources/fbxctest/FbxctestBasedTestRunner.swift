@@ -25,25 +25,23 @@ public final class FbxctestBasedTestRunner: TestRunner {
         buildArtifacts: BuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
-        maximumAllowedSilenceDuration: TimeInterval,
         simulator: Simulator,
         simulatorSettings: SimulatorSettings,
-        singleTestMaximumDuration: TimeInterval,
         temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
+        testTimeoutConfiguration: TestTimeoutConfiguration,
         testType: TestType
     ) throws -> StandardStreamsCaptureConfig {
         return try standardStreamsCaptureConfigOfFbxctestProcess(
             buildArtifacts: buildArtifacts,
             entriesToRun: entriesToRun,
-            maximumAllowedSilenceDuration: maximumAllowedSilenceDuration,
             simulator: simulator,
             simulatorSettings: simulatorSettings,
-            singleTestMaximumDuration: singleTestMaximumDuration,
             temporaryFolder: temporaryFolder,
             testContext: testContext,
             testRunnerStream: testRunnerStream,
+            testTimeoutConfiguration: testTimeoutConfiguration,
             testType: testType
         )
     }
@@ -51,13 +49,12 @@ public final class FbxctestBasedTestRunner: TestRunner {
     private func standardStreamsCaptureConfigOfFbxctestProcess(
         buildArtifacts: BuildArtifacts,
         entriesToRun: [TestEntry],
-        maximumAllowedSilenceDuration: TimeInterval,
         simulator: Simulator,
         simulatorSettings: SimulatorSettings,
-        singleTestMaximumDuration: TimeInterval,
         temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
+        testTimeoutConfiguration: TestTimeoutConfiguration,
         testType: TestType
     ) throws -> StandardStreamsCaptureConfig {
         let fbxctestWorkingDirectory = try temporaryFolder.pathByCreatingDirectories(components: ["fbxctest_working_dir", UUID().uuidString])
@@ -78,10 +75,10 @@ public final class FbxctestBasedTestRunner: TestRunner {
                 environment: testContext.environment,
                 silenceBehavior: SilenceBehavior(
                     automaticAction: .interruptAndForceKill,
-                    allowedSilenceDuration: maximumAllowedSilenceDuration
+                    allowedSilenceDuration: testTimeoutConfiguration.testRunnerMaximumSilenceDuration
                 )
             ),
-            singleTestMaximumDuration: singleTestMaximumDuration,
+            singleTestMaximumDuration: testTimeoutConfiguration.singleTestMaximumDuration,
             onTestStarted: { testName in testRunnerStream.testStarted(testName: testName) },
             onTestStopped: { testStoppedEvent in testRunnerStream.testStopped(testStoppedEvent: testStoppedEvent) }
         )

@@ -1,6 +1,6 @@
 import Foundation
 
-public struct TestTimeoutConfiguration: Codable, Equatable {
+public struct TestTimeoutConfiguration: Codable, Hashable {
     /** A maximum duration for a single test. */
     public let singleTestMaximumDuration: TimeInterval
     

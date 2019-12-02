@@ -30,7 +30,15 @@ final class TestArgFileTests: XCTestCase {
                     "simulatorControlTool": {"toolType": "fbsimctl", "location": "http://example.com/fbsimctl.zip"}
                 },
                 "toolchainConfiguration": {"developerDir": {"kind": "current"}},
-                "scheduleStrategy": "unsplit"
+                "scheduleStrategy": "unsplit",
+                "simulatorSettings": {
+                    "simulatorLocalizationSettings": "/l10n",
+                    "watchdogSettings": "/wd"
+                },
+                "testTimeoutConfiguration": {
+                    "singleTestMaximumDuration": 42,
+                    "testRunnerMaximumSilenceDuration": 24
+                }
             }
         """.data(using: .utf8)!
         
@@ -41,13 +49,21 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFile.Entry(
-                testsToRun: [.testName(TestName(className: "ClassName", methodName: "testMethod"))],
                 buildArtifacts: buildArtifacts(),
                 environment: ["value": "key"],
                 numberOfRetries: 42,
                 scheduleStrategy: .unsplit,
+                simulatorSettings: SimulatorSettings(
+                    simulatorLocalizationSettings: SimulatorLocalizationLocation(.localFilePath("/l10n")),
+                    watchdogSettings: WatchdogSettingsLocation(.localFilePath("/wd"))
+                ),
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
+                testTimeoutConfiguration: TestTimeoutConfiguration(
+                    singleTestMaximumDuration: 42,
+                    testRunnerMaximumSilenceDuration: 24
+                ),
                 testType: .logicTest,
+                testsToRun: [.testName(TestName(className: "ClassName", methodName: "testMethod"))],
                 toolResources: ToolResources(
                     simulatorControlTool: .fbsimctl(FbsimctlLocation(.remoteUrl(URL(string: "http://example.com/fbsimctl.zip")!))),
                     testRunnerTool: .fbxctest(FbxctestLocation(.remoteUrl(URL(string: "http://example.com/fbxctest.zip")!)))

@@ -2,10 +2,12 @@ import Foundation
 import Models
 
 public final class TestEntryConfigurationFixtures {
-    public var testEntries = [TestEntry]()
-    public var testDestination = TestDestinationFixtures.testDestination
-    public var testExecutionBehavior = TestExecutionBehavior(environment: [:], numberOfRetries: 0)
     public var buildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
+    public var simulatorSettings = SimulatorSettings(simulatorLocalizationSettings: nil, watchdogSettings: nil)
+    public var testDestination = TestDestinationFixtures.testDestination
+    public var testEntries = [TestEntry]()
+    public var testExecutionBehavior = TestExecutionBehavior(environment: [:], numberOfRetries: 0)
+    public var testTimeoutConfiguration = TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0)
     public var testType = TestType.uiTest
     public var toolResources: ToolResources = ToolResourcesFixtures.fakeToolResources()
     public var toolchainConfiguration = ToolchainConfiguration(developerDir: .current)
@@ -22,6 +24,16 @@ public final class TestEntryConfigurationFixtures {
         return self
     }
     
+    public func with(buildArtifacts: BuildArtifacts) -> Self {
+        self.buildArtifacts = buildArtifacts
+        return self
+    }
+    
+    public func with(simulatorSettings: SimulatorSettings) -> Self {
+        self.simulatorSettings = simulatorSettings
+        return self
+    }
+    
     public func with(testDestination: TestDestination) -> Self {
         self.testDestination = testDestination
         return self
@@ -32,8 +44,8 @@ public final class TestEntryConfigurationFixtures {
         return self
     }
     
-    public func with(buildArtifacts: BuildArtifacts) -> Self {
-        self.buildArtifacts = buildArtifacts
+    public func with(testTimeoutConfiguration: TestTimeoutConfiguration) -> Self {
+        self.testTimeoutConfiguration = testTimeoutConfiguration
         return self
     }
     
@@ -55,10 +67,12 @@ public final class TestEntryConfigurationFixtures {
     public func testEntryConfigurations() -> [TestEntryConfiguration] {
         return testEntries.map {
             TestEntryConfiguration(
-                testEntry: $0,
                 buildArtifacts: buildArtifacts,
+                simulatorSettings: simulatorSettings,
                 testDestination: testDestination,
+                testEntry: $0,
                 testExecutionBehavior: testExecutionBehavior,
+                testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: testType,
                 toolResources: ToolResourcesFixtures.fakeToolResources(),
                 toolchainConfiguration: toolchainConfiguration

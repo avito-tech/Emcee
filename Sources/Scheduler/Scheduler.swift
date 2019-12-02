@@ -169,7 +169,7 @@ public final class Scheduler {
                 environment: bucket.testExecutionBehavior.environment,
                 simulatorSettings: bucket.simulatorSettings,
                 testRunnerTool: bucket.toolResources.testRunnerTool,
-                testTimeoutConfiguration: configuration.testTimeoutConfiguration,
+                testTimeoutConfiguration: bucket.testTimeoutConfiguration,
                 testType: bucket.testType
             ),
             developerDirLocator: developerDirLocator,

@@ -5,14 +5,11 @@ import UniqueIdentifierGenerator
 
 public struct BucketSplitInfo {
     public let numberOfWorkers: UInt
-    public let simulatorSettings: SimulatorSettings
     
     public init(
-        numberOfWorkers: UInt,
-        simulatorSettings: SimulatorSettings
+        numberOfWorkers: UInt
     ) {
         self.numberOfWorkers = numberOfWorkers
-        self.simulatorSettings = simulatorSettings
     }
 }
 
@@ -51,9 +48,10 @@ public class BucketSplitter: Splitter, CustomStringConvertible {
                 bucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
                 testEntries: group.map { $0.testEntry },
                 buildArtifacts: entry.buildArtifacts,
-                simulatorSettings: bucketSplitInfo.simulatorSettings,
+                simulatorSettings: entry.simulatorSettings,
                 testDestination: entry.testDestination,
                 testExecutionBehavior: entry.testExecutionBehavior,
+                testTimeoutConfiguration: entry.testTimeoutConfiguration,
                 testType: entry.testType,
                 toolResources: entry.toolResources,
                 toolchainConfiguration: entry.toolchainConfiguration

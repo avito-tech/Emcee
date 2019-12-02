@@ -9,13 +9,12 @@ import SimulatorPool
 public final class FakeTestRunner: TestRunner {
     public var buildArtifacts: BuildArtifacts?
     public var entriesToRun: [TestEntry]?
-    public var maximumAllowedSilenceDuration: TimeInterval?
+    public var errorToThrowOnRun: Error?
     public var simulatorSettings: SimulatorSettings?
-    public var singleTestMaximumDuration: TimeInterval?
     public var testContext: TestContext?
     public var testRunnerStream: TestRunnerStream?
+    public var testTimeoutConfiguration: TestTimeoutConfiguration?
     public var testType: TestType?
-    public var errorToThrowOnRun: Error?
 
     public let runningQueue = DispatchQueue(label: "FakeTestRunner")
 
@@ -71,20 +70,18 @@ public final class FakeTestRunner: TestRunner {
         buildArtifacts: BuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
-        maximumAllowedSilenceDuration: TimeInterval,
         simulator: Simulator,
         simulatorSettings: SimulatorSettings,
-        singleTestMaximumDuration: TimeInterval,
         temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
+        testTimeoutConfiguration: TestTimeoutConfiguration,
         testType: TestType
     ) throws -> StandardStreamsCaptureConfig {
         self.buildArtifacts = buildArtifacts
         self.entriesToRun = entriesToRun
-        self.maximumAllowedSilenceDuration = maximumAllowedSilenceDuration
         self.simulatorSettings = simulatorSettings
-        self.singleTestMaximumDuration = singleTestMaximumDuration
+        self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testContext = testContext
         self.testRunnerStream = testRunnerStream
         self.testType = testType

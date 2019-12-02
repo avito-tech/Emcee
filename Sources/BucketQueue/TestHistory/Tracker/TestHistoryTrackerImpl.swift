@@ -92,6 +92,7 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
                 simulatorSettings: bucket.simulatorSettings,
                 testDestination: bucket.testDestination,
                 testExecutionBehavior: bucket.testExecutionBehavior,
+                testTimeoutConfiguration: bucket.testTimeoutConfiguration,
                 testType: bucket.testType,
                 toolResources: bucket.toolResources,
                 toolchainConfiguration: bucket.toolchainConfiguration

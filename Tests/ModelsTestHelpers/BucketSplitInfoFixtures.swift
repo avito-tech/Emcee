@@ -8,8 +8,7 @@ public final class BucketSplitInfoFixtures {
         simulatorSettings: SimulatorSettings = SimulatorSettingsFixtures().simulatorSettings()
     ) -> BucketSplitInfo {
         return BucketSplitInfo(
-            numberOfWorkers: numberOfWorkers,
-            simulatorSettings: simulatorSettings
+            numberOfWorkers: numberOfWorkers
         )
     }
 }

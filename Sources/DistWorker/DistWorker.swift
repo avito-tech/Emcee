@@ -149,7 +149,6 @@ public final class DistWorker: SchedulerDelegate {
         
         let schedulerCconfiguration = SchedulerConfiguration(
             testRunExecutionBehavior: workerConfiguration.testRunExecutionBehavior,
-            testTimeoutConfiguration: workerConfiguration.testTimeoutConfiguration,
             schedulerDataSource: DistRunSchedulerDataSource(onNextBucketRequest: fetchNextBucket),
             onDemandSimulatorPool: onDemandSimulatorPool
         )
