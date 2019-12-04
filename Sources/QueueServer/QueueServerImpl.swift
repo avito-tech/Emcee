@@ -52,7 +52,7 @@ public final class QueueServerImpl: QueueServer {
         self.workerAlivenessProvider = WorkerAlivenessProviderImpl(
             dateProvider: dateProvider,
             reportAliveInterval: reportAliveInterval,
-            additionalTimeToPerformWorkerIsAliveReport: 10.0
+            additionalTimeToPerformWorkerIsAliveReport: 30.0
         )
         let balancingBucketQueueFactory = BalancingBucketQueueFactory(
             bucketQueueFactory: BucketQueueFactory(
