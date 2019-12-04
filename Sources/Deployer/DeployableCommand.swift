@@ -5,7 +5,7 @@ import Foundation
  *
  *        let deployableCommand = ["cp", .item(myItem, "file"), .item(myItem, "copy_of_file")]
  */
-public final class DeployableCommand: ExpressibleByArrayLiteral {
+public final class DeployableCommand: ExpressibleByArrayLiteral, CustomStringConvertible {
     
     public typealias ArrayLiteralElement = DeployableCommandArg
     
@@ -18,12 +18,16 @@ public final class DeployableCommand: ExpressibleByArrayLiteral {
     public init(_ commandArgs: [DeployableCommandArg]) {
         self.commandArgs = commandArgs
     }
+    
+    public var description: String {
+        return commandArgs.map { $0.description }.joined(separator: " ")
+    }
 }
 
 /**
  * A marker that object can be used as a remote deployment command argument.
  */
-public enum DeployableCommandArg: ExpressibleByStringLiteral, Hashable {
+public enum DeployableCommandArg: ExpressibleByStringLiteral, Hashable, CustomStringConvertible {
     public typealias StringLiteralType = String
     
     /** A regular string argument. */
@@ -44,5 +48,18 @@ public enum DeployableCommandArg: ExpressibleByStringLiteral, Hashable {
     
     public init(extendedGraphemeClusterLiteral value: String) {
         self.init(stringLiteral: value)
+    }
+    
+    public var description: String {
+        switch self {
+        case .string(let value):
+            return value
+        case .item(let deployableItem, let relativePath):
+            if let relativePath = relativePath {
+                return "\(deployableItem) with path: \(relativePath)"
+            } else {
+                return deployableItem.description
+            }
+        }
     }
 }

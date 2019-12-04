@@ -27,38 +27,27 @@ public final class RemoteWorkersStarter {
             emceeVersionProvider: emceeVersionProvider,
             remoteEmceeBinaryName: "EmceeWorker"
         )
-        try deployWorkers(
-            deployableItems: try deployablesGenerator.deployables()
-        )
-        try startDeployedWorkers(
+        try deployAndStartWorkers(
+            deployableItems: try deployablesGenerator.deployables(),
             emceeBinaryDeployableItem: try deployablesGenerator.runnerTool(),
             queueAddress: queueAddress
         )
     }
     
-    private func deployWorkers(
-        deployableItems: [DeployableItem]
-    ) throws {
-        let deployer = DistDeployer(
-            deploymentId: try emceeVersionProvider.version().value,
-            deploymentDestinations: deploymentDestinations,
-            deployableItems: deployableItems,
-            deployableCommands: [],
-            tempFolder: tempFolder
-        )
-        try deployer.deploy()
-    }
-    
-    private func startDeployedWorkers(
+    private func deployAndStartWorkers(
+        deployableItems: [DeployableItem],
         emceeBinaryDeployableItem: DeployableItem,
-        queueAddress: SocketAddress)
-        throws
-    {
+        queueAddress: SocketAddress
+    ) throws {
+        let deployQueue = DispatchQueue(label: "RemoteWorkersStarter.deployQueue", attributes: .concurrent)
+        
         let launchdPlistTargetPath = "launchd.plist"
+        
+        let emceeVersion = try emceeVersionProvider.version().value
         
         for destination in deploymentDestinations {
             let launchdPlist = RemoteWorkerLaunchdPlist(
-                deploymentId: try emceeVersionProvider.version().value,
+                deploymentId: emceeVersion,
                 deploymentDestination: destination,
                 executableDeployableItem: emceeBinaryDeployableItem,
                 queueAddress: queueAddress
@@ -68,38 +57,45 @@ public final class RemoteWorkersStarter {
                 contents: try launchdPlist.plistData()
             )
             
-            let launchdDeployableItem = DeployableItem(
-                name: "launchd_plist",
-                files: [
-                    DeployableFile(
-                        source: filePath,
-                        destination: RelativePath(launchdPlistTargetPath)
-                    )
-                ]
-            )
-            let launchctlDeployableCommands = LaunchctlDeployableCommands(
-                launchdPlistDeployableItem: launchdDeployableItem,
-                plistFilename: launchdPlistTargetPath
-            )
-            
-            let deployer = DistDeployer(
-                deploymentId: try emceeVersionProvider.version().value,
-                deploymentDestinations: [destination],
-                deployableItems: [launchdDeployableItem],
-                deployableCommands: [
-                    launchctlDeployableCommands.forceUnloadFromBackgroundCommand(),
-                    [
-                        "sleep", "2"        // launchctl is async, so we have to wait :(
+            deployQueue.async { [tempFolder] in
+                let launchdDeployableItem = DeployableItem(
+                    name: "launchd_plist",
+                    files: [
+                        DeployableFile(
+                            source: filePath,
+                            destination: RelativePath(launchdPlistTargetPath)
+                        )
+                    ]
+                )
+                let launchctlDeployableCommands = LaunchctlDeployableCommands(
+                    launchdPlistDeployableItem: launchdDeployableItem,
+                    plistFilename: launchdPlistTargetPath
+                )
+                
+                let deployer = DistDeployer(
+                    deploymentId: emceeVersion,
+                    deploymentDestinations: [destination],
+                    deployableItems: deployableItems + [launchdDeployableItem],
+                    deployableCommands: [
+                        launchctlDeployableCommands.forceUnloadFromBackgroundCommand(),
+                        [
+                            "sleep", "2"        // launchctl is async, so we have to wait :(
+                        ],
+                        launchctlDeployableCommands.forceLoadInBackgroundCommand()
                     ],
-                    launchctlDeployableCommands.forceLoadInBackgroundCommand()
-                ],
-                tempFolder: tempFolder
-            )
-            do {
-                try deployer.deploy()
-            } catch {
-                Logger.error("Failed to deploy launchd plist: \(error). This error will be ignored.")
+                    tempFolder: tempFolder
+                )
+                
+                do {
+                    try deployer.deploy()
+                } catch {
+                    Logger.error("Failed to deploy to \(destination): \(error). This error will be ignored.")
+                }
             }
+        }
+        
+        deployQueue.sync(flags: .barrier) {
+            Logger.debug("Finished deploying workers")
         }
     }
 }
