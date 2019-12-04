@@ -41,8 +41,6 @@ public final class RemoteWorkersStarter {
     ) throws {
         let deployQueue = DispatchQueue(label: "RemoteWorkersStarter.deployQueue", attributes: .concurrent)
         
-        let launchdPlistTargetPath = "launchd.plist"
-        
         let emceeVersion = try emceeVersionProvider.version().value
         
         for destination in deploymentDestinations {
@@ -52,6 +50,8 @@ public final class RemoteWorkersStarter {
                 executableDeployableItem: emceeBinaryDeployableItem,
                 queueAddress: queueAddress
             )
+            let launchdPlistTargetPath = "launchd_\(destination.identifier).plist"
+            
             let filePath = try tempFolder.createFile(
                 filename: launchdPlistTargetPath,
                 contents: try launchdPlist.plistData()
