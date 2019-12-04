@@ -9,7 +9,6 @@ import PathLib
 public final class SSHDeployer: Deployer {
     
     private let sshClientType: SSHClient.Type
-    private let maximumSimultaneousDeployOperations = 4
     
     public init(
         sshClientType: SSHClient.Type,
@@ -27,13 +26,12 @@ public final class SSHDeployer: Deployer {
     }
     
     override public func deployToDestinations(pathToDeployable: [AbsolutePath: DeployableItem]) throws {
-        let syncQueue = DispatchQueue(label: "ru.avito.SSHDeployer.syncQueue")
-        let operationQueue = OperationQueue()
-        operationQueue.maxConcurrentOperationCount = maximumSimultaneousDeployOperations
+        let syncQueue = DispatchQueue(label: "SSHDeployer.syncQueue")
+        let deployQueue = DispatchQueue(label: "SSHDeployer.deployQueue", attributes: .concurrent)
         
         var destinationsFailedToDeploy = [DeploymentDestination]()
         for destination in destinations {
-            operationQueue.addOperation {
+            deployQueue.async {
                 do {
                     try self.deploy(destination: destination, pathToDeployable: pathToDeployable)
                 } catch let error {
@@ -42,7 +40,10 @@ public final class SSHDeployer: Deployer {
                 }
             }
         }
-        operationQueue.waitUntilAllOperationsAreFinished()
+        
+        deployQueue.sync(flags: .barrier) {
+            Logger.debug("Finished deploying with \(destinationsFailedToDeploy.count) errors")
+        }
         
         let didFailToDeployToAllDestinations = Set(destinationsFailedToDeploy) == Set(destinations) && !destinationsFailedToDeploy.isEmpty
         if didFailToDeployToAllDestinations {

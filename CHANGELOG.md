@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 
 - Emcee starts workers differently now. Instead of deploying itself to all worker machines and then performing worker start, it now deploys and starts the worker immediately after that.
 
+- Instead of using fixed 4 threads to deploy workers, Emcee uses variable thread count now to speed up deployment process. 
+
 ## 2019-12-02
 
 - Test arg file entries are expected to have `simulatorSettings` and `testTimeoutConfiguration` fields present. Previously these fields were part of queue server run configuration. By moving these values into test arg file it is now possible to specify them on per-test basis.
