@@ -16,9 +16,8 @@ public final class SSHDeployer: Deployer {
         deploymentId: String,
         deployables: [DeployableItem],
         deployableCommands: [DeployableCommand],
-        destinations: [DeploymentDestination],
-        cleanUpAutomatically: Bool = true) throws
-    {
+        destinations: [DeploymentDestination]
+    ) throws {
         self.sshClientType = sshClientType
         try super.init(
             deploymentId: deploymentId,
@@ -86,13 +85,17 @@ public final class SSHDeployer: Deployer {
     
     // MARK: - Private - Deploy
     
-    private func deploy(destination: DeploymentDestination, pathToDeployable: [AbsolutePath: DeployableItem]) throws {
+    private func deploy(
+        destination: DeploymentDestination,
+        pathToDeployable: [AbsolutePath: DeployableItem]
+    ) throws {
         SSHDeployer.log(destination, "Connecting")
         let sshClient = try self.sshClientType.init(
             host: destination.host,
             port: destination.port,
             username: destination.username,
-            password: destination.password)
+            password: destination.password
+        )
         try sshClient.connectAndAuthenticate()
         SSHDeployer.log(destination, "Connected and authenticated")
         
@@ -121,8 +124,13 @@ public final class SSHDeployer: Deployer {
                 remoteDeploymentPath: remoteDeploymentPath
             )
             
-            try invokeCommands(sshClient: sshClient, destination: destination)
+            try invokeCommands(
+                sshClient: sshClient,
+                destination: destination
+            )
         }
+        
+        SSHDeployer.log(destination, "Finished deploying")
     }
     
     private func uploadFile(
@@ -133,6 +141,7 @@ public final class SSHDeployer: Deployer {
     ) throws {
         SSHDeployer.log(destination, "Uploading \(localAbsolutePath) -> \(remoteAbsolutePath)")
         try sshClient.upload(localUrl: localAbsolutePath.fileUrl, remotePath: remoteAbsolutePath.pathString)
+        SSHDeployer.log(destination, "Uploaded \(localAbsolutePath) -> \(remoteAbsolutePath)")
     }
     
     private func deployPackageRemotely(
@@ -144,6 +153,7 @@ public final class SSHDeployer: Deployer {
     ) throws {
         SSHDeployer.log(destination, "Deploying '\(deployable.name)'")
         try sshClient.execute(["unzip", remotePackagePath.pathString, "-d", remoteDeploymentPath.pathString])
+        SSHDeployer.log(destination, "Deployed '\(deployable.name)'")
     }
     
     // MARK: - Private - Command Invocatoin
@@ -165,13 +175,20 @@ public final class SSHDeployer: Deployer {
                     return remotePath.pathString
                 }
             }
+            SSHDeployer.log(destination, "Executing command: \(command)")
             try sshClient.execute(commandArgs)
+            SSHDeployer.log(destination, "Executed command")
         }
     }
     
     // MARK: - Private - Logging
 
-    private static func log(_ destination: DeploymentDestination, _ text: String) {
-        Logger.debug("\(destination.host): \(text)")
+    private static func log(
+        _ destination: DeploymentDestination,
+        _ text: String,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        Logger.debug("\(destination.host): \(text)", file: file, line: line)
     }
 }

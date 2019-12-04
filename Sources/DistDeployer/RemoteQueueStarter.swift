@@ -32,25 +32,15 @@ public final class RemoteQueueStarter {
             remoteEmceeBinaryName: "EmceeQueueServer"
         )
         try deploy(
-            deployableItems: try deployablesGenerator.deployables()
-        )
-        try start(
+            deployableItems: try deployablesGenerator.deployables(),
             emceeBinaryDeployableItem: try deployablesGenerator.runnerTool()
         )
     }
     
-    private func deploy(deployableItems: [DeployableItem]) throws {
-        let deployer = DistDeployer(
-            deploymentId: deploymentId,
-            deploymentDestinations: [deploymentDestination],
-            deployableItems: deployableItems,
-            deployableCommands: [],
-            tempFolder: tempFolder
-        )
-        try deployer.deploy()
-    }
-    
-    private func start(emceeBinaryDeployableItem: DeployableItem) throws {
+    private func deploy(
+        deployableItems: [DeployableItem],
+        emceeBinaryDeployableItem: DeployableItem
+    ) throws {
         let launchdPlistTargetPath = "queue_server_launchd.plist"
         let launchdPlist = RemoteQueueLaunchdPlist(
             deploymentId: deploymentId,
@@ -74,10 +64,11 @@ public final class RemoteQueueStarter {
             launchdPlistDeployableItem: launchdPlistDeployableItem,
             plistFilename: launchdPlistTargetPath
         )
+
         let deployer = DistDeployer(
             deploymentId: deploymentId,
             deploymentDestinations: [deploymentDestination],
-            deployableItems: [launchdPlistDeployableItem],
+            deployableItems: deployableItems + [launchdPlistDeployableItem],
             deployableCommands: [
                 launchctlDeployableCommands.forceUnloadFromBackgroundCommand(),
                 launchctlDeployableCommands.forceLoadInBackgroundCommand()

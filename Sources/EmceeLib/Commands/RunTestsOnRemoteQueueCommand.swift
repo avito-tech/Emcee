@@ -99,7 +99,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         runId: JobId,
         tempFolder: TemporaryFolder
     ) throws -> SocketAddress {
-        Logger.info("Searching for queue server on '\(queueServerDestination.host)'")
+        Logger.info("Searching for queue server on '\(queueServerDestination.host)' with queue version \(try localQueueVersionProvider.version())")
         let remoteQueueDetector = RemoteQueueDetector(
             localQueueClientVersionProvider: localQueueVersionProvider,
             remotePortDeterminer: RemoteQueuePortScanner(
