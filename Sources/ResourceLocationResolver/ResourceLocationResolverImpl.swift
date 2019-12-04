@@ -82,13 +82,11 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
     }
     
     private func evictOldCache() {
-        // let's evict old cached data from time to time, on each N-th cache access
         let evictionRegularity = 10
-        let secondsInDay: TimeInterval = 86400
-        let days: TimeInterval = 0.25
+        let cacheElementTimeToLive: TimeInterval = 1 * 3600
         
         cacheAccessCount.withExclusiveAccess { (counter: inout Int) in
-            let evictBarrierDate = Date().addingTimeInterval(-days * secondsInDay)
+            let evictBarrierDate = Date().addingTimeInterval(-cacheElementTimeToLive)
             
             if counter % evictionRegularity == 0 {
                 counter = 1

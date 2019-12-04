@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file.
 
 - Emcee specifies `TMPDIR` environment variable when it launches `fbxctest` process now so `fbxctest` shouldn't put litter into `/tmp/` shared folder anymore.
 
+- Emcee evicts elements from its file cache if they weren't used for more than 1 hour. Previously the TTL was set to 6 hours.
+
 ## 2019-12-02
 
 - Test arg file entries are expected to have `simulatorSettings` and `testTimeoutConfiguration` fields present. Previously these fields were part of queue server run configuration. By moving these values into test arg file it is now possible to specify them on per-test basis.
