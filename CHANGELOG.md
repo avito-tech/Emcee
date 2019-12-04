@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 
 - Instead of using fixed 4 threads to deploy workers, Emcee uses variable thread count now to speed up deployment process. 
 
+- Emcee specifies `TMPDIR` environment variable when it launches `fbxctest` process now so `fbxctest` shouldn't put litter into `/tmp/` shared folder anymore.
+
 ## 2019-12-02
 
 - Test arg file entries are expected to have `simulatorSettings` and `testTimeoutConfiguration` fields present. Previously these fields were part of queue server run configuration. By moving these values into test arg file it is now possible to specify them on per-test basis.

@@ -57,7 +57,9 @@ public final class FbxctestBasedTestRunner: TestRunner {
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testType: TestType
     ) throws -> StandardStreamsCaptureConfig {
-        let fbxctestWorkingDirectory = try temporaryFolder.pathByCreatingDirectories(components: ["fbxctest_working_dir", UUID().uuidString])
+        let folderStack = try temporaryFolder.pathByCreatingDirectories(components: ["fbxctest_working_dir", UUID().uuidString, "fbxctest_tmp"])
+        let fbxctestWorkingDirectory = folderStack.removingLastComponent
+        let fbxctestTempFolder = folderStack
         defer { cleanUp(fbxctestWorkingDirectory: fbxctestWorkingDirectory) }
         
         let fbxctestOutputProcessor = try FbxctestOutputProcessor(
@@ -72,7 +74,10 @@ public final class FbxctestBasedTestRunner: TestRunner {
                     testDestination: testContext.testDestination,
                     testType: testType
                 ),
-                environment: testContext.environment,
+                environment: fbxctestEnvironment(
+                    testContext: testContext,
+                    fbxctestTempFolder: fbxctestTempFolder
+                ),
                 silenceBehavior: SilenceBehavior(
                     automaticAction: .interruptAndForceKill,
                     allowedSilenceDuration: testTimeoutConfiguration.testRunnerMaximumSilenceDuration
@@ -166,6 +171,15 @@ public final class FbxctestBasedTestRunner: TestRunner {
         arguments += ["-simulatorSetPath", simulator.simulatorSetPath.pathString]
         arguments += ["-workingDirectory", fbxctestWorkingDirectory.pathString]
         return arguments
+    }
+    
+    private func fbxctestEnvironment(
+        testContext: TestContext,
+        fbxctestTempFolder: AbsolutePath
+    ) -> [String: String] {
+        var result = testContext.environment
+        result["TMPDIR"] = fbxctestTempFolder.pathString
+        return result
     }
     
     private func cleanUp(fbxctestWorkingDirectory: AbsolutePath) {
