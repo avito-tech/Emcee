@@ -120,7 +120,7 @@ public final class Runner {
             simulator: simulator
         )
         
-        Logger.info("Will run \(entriesToRun.count) tests on simulator \(simulator)")
+        Logger.debug("Will run \(entriesToRun.count) tests on simulator \(simulator)")
         eventBus.post(event: .runnerEvent(.willRun(testEntries: entriesToRun, testContext: testContext)))
 
         let standardStreamsCaptureConfig = runTestsViaTestRunner(
@@ -155,8 +155,8 @@ public final class Runner {
         
         eventBus.post(event: .runnerEvent(.didRun(results: result, testContext: testContext)))
         
-        Logger.info("Attempted to run \(entriesToRun.count) tests on simulator \(simulator): \(entriesToRun)")
-        Logger.info("Did get \(result.count) results: \(result)")
+        Logger.debug("Attempted to run \(entriesToRun.count) tests on simulator \(simulator): \(entriesToRun)")
+        Logger.debug("Did get \(result.count) results: \(result)")
         
         return RunnerRunResult(
             entriesToRun: entriesToRun,
