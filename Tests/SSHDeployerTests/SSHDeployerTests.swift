@@ -31,8 +31,12 @@ class SSHDeployerTests: XCTestCase {
                     .item(deployableWithSingleFile, relativePath: "remote/file.swift")
                 ]
             ],
-            destinations: [destination])
-        try deployer.deploy()
+            destinations: [destination]
+        )
+        let queue = DispatchQueue(label: "queue")
+        try deployer.deploy(deployQueue: queue)
+        
+        queue.sync(flags: .barrier) {}
         
         guard let client = FakeSSHClient.lastCreatedInstance else {
             XCTFail("Expected FakeSSHClient.lastCreatedInstance to be non nil as instance should be created")

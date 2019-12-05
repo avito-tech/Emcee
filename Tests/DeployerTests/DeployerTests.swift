@@ -10,6 +10,7 @@ class DeployerTests: XCTestCase {
         source: AbsolutePath(#file),
         destination: RelativePath("remote/file.swift")
     )
+    let queue = DispatchQueue(label: "queue")
     
     func testDeployer() throws {
         let deployableWithSingleFile = DeployableItem(
@@ -30,7 +31,7 @@ class DeployerTests: XCTestCase {
                     password: "pass",
                     remoteDeploymentPath: "/remote/path")
             ])
-        try deployer.deploy()
+        try deployer.deploy(deployQueue: queue)
         XCTAssertEqual(deployer.pathsAskedToBeDeployed.count, 1)
         
         deployer.pathsAskedToBeDeployed.forEach { path, deployable in
@@ -66,7 +67,7 @@ class DeployerTests: XCTestCase {
                         remoteDeploymentPath: "/remote/path")
                 ],
                 cleanUpAutomatically: true)
-            try deployer.deploy()
+            try deployer.deploy(deployQueue: self.queue)
             paths = Array(deployer.pathsAskedToBeDeployed.keys)
         }
         try deployerWork()

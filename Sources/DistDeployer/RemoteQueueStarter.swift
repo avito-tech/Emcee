@@ -26,18 +26,20 @@ public final class RemoteQueueStarter {
         self.tempFolder = tempFolder
     }
     
-    public func deployAndStart() throws {
+    public func deployAndStart(deployQueue: DispatchQueue) throws {
         let deployablesGenerator = DeployablesGenerator(
             emceeVersionProvider: emceeVersionProvider,
             remoteEmceeBinaryName: "EmceeQueueServer"
         )
         try deploy(
+            deployQueue: deployQueue,
             deployableItems: try deployablesGenerator.deployables(),
             emceeBinaryDeployableItem: try deployablesGenerator.runnerTool()
         )
     }
     
     private func deploy(
+        deployQueue: DispatchQueue,
         deployableItems: [DeployableItem],
         emceeBinaryDeployableItem: DeployableItem
     ) throws {
@@ -75,6 +77,6 @@ public final class RemoteQueueStarter {
             ],
             tempFolder: tempFolder
         )
-        try deployer.deploy()
+        try deployer.deploy(deployQueue: deployQueue)
     }
 }

@@ -25,35 +25,17 @@ public final class SSHDeployer: Deployer {
             destinations: destinations)
     }
     
-    override public func deployToDestinations(pathToDeployable: [AbsolutePath: DeployableItem]) throws {
-        let syncQueue = DispatchQueue(label: "SSHDeployer.syncQueue")
-        let deployQueue = DispatchQueue(label: "SSHDeployer.deployQueue", attributes: .concurrent)
-        
-        var destinationsFailedToDeploy = [DeploymentDestination]()
+    override public func deployToDestinations(
+        deployQueue: DispatchQueue,
+        pathToDeployable: [AbsolutePath: DeployableItem]
+    ) throws {
         for destination in destinations {
             deployQueue.async {
                 do {
                     try self.deploy(destination: destination, pathToDeployable: pathToDeployable)
                 } catch let error {
-                    syncQueue.sync { destinationsFailedToDeploy.append(destination) }
                     SSHDeployer.log(destination, "Failed to deploy to this destination with error: \(error)")
                 }
-            }
-        }
-        
-        deployQueue.sync(flags: .barrier) {
-            Logger.debug("Finished deploying with \(destinationsFailedToDeploy.count) errors")
-        }
-        
-        let didFailToDeployToAllDestinations = Set(destinationsFailedToDeploy) == Set(destinations) && !destinationsFailedToDeploy.isEmpty
-        if didFailToDeployToAllDestinations {
-            throw DeploymentError.failedToDeployToDestination(destinationsFailedToDeploy)
-        } else {
-            for destination in destinationsFailedToDeploy {
-                SSHDeployer.log(
-                    destination,
-                    "Failed to deploy to this destination. Will skip this error as some deployments were successful."
-                )
             }
         }
     }

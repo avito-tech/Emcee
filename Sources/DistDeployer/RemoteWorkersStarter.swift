@@ -22,12 +22,16 @@ public final class RemoteWorkersStarter {
         self.tempFolder = tempFolder
     }
     
-    public func deployAndStartWorkers(queueAddress: SocketAddress) throws {
+    public func deployAndStartWorkers(
+        deployQueue: DispatchQueue,
+        queueAddress: SocketAddress
+    ) throws {
         let deployablesGenerator = DeployablesGenerator(
             emceeVersionProvider: emceeVersionProvider,
             remoteEmceeBinaryName: "EmceeWorker"
         )
         try deployAndStartWorkers(
+            deployQueue: deployQueue,
             deployableItems: try deployablesGenerator.deployables(),
             emceeBinaryDeployableItem: try deployablesGenerator.runnerTool(),
             queueAddress: queueAddress
@@ -35,12 +39,11 @@ public final class RemoteWorkersStarter {
     }
     
     private func deployAndStartWorkers(
+        deployQueue: DispatchQueue,
         deployableItems: [DeployableItem],
         emceeBinaryDeployableItem: DeployableItem,
         queueAddress: SocketAddress
     ) throws {
-        let deployQueue = DispatchQueue(label: "RemoteWorkersStarter.deployQueue", attributes: .concurrent)
-        
         let emceeVersion = try emceeVersionProvider.version().value
         
         for destination in deploymentDestinations {
@@ -87,15 +90,11 @@ public final class RemoteWorkersStarter {
                 )
                 
                 do {
-                    try deployer.deploy()
+                    try deployer.deploy(deployQueue: deployQueue)
                 } catch {
                     Logger.error("Failed to deploy to \(destination): \(error). This error will be ignored.")
                 }
             }
-        }
-        
-        deployQueue.sync(flags: .barrier) {
-            Logger.debug("Finished deploying workers")
         }
     }
 }

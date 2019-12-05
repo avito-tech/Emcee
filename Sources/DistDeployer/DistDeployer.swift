@@ -28,7 +28,7 @@ final class DistDeployer {
         self.tempFolder = tempFolder
     }
     
-    public func deploy() throws {
+    public func deploy(deployQueue: DispatchQueue) throws {
         let deployer = try SSHDeployer(
             sshClientType: DefaultSSHClient.self,
             deploymentId: deploymentId,
@@ -36,6 +36,6 @@ final class DistDeployer {
             deployableCommands: deployableCommands,
             destinations: deploymentDestinations
         )
-        try deployer.deploy()
+        try deployer.deploy(deployQueue: deployQueue)
     }
 }

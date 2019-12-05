@@ -126,7 +126,8 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             queueServerRunConfigurationLocation: queueServerRunConfigurationLocation,
             tempFolder: tempFolder
         )
-        try remoteQueueStarter.deployAndStart()
+        let deployQueue = DispatchQueue(label: "RunTestsOnRemoteQueueCommand.deployQueue", attributes: .concurrent)
+        try remoteQueueStarter.deployAndStart(deployQueue: deployQueue)
         
         try SynchronousWaiter().waitWhile(pollPeriod: 1.0, timeout: 30.0, description: "Wait for remote queue to start") {
             suitablePorts = try remoteQueueDetector.findSuitableRemoteRunningQueuePorts(timeout: 10.0)

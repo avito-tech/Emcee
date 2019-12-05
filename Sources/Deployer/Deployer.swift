@@ -39,8 +39,11 @@ open class Deployer {
     }
     
     /** Deploys all the deployable items and invokes deployment commands. */
-    public func deploy() throws {
-        try deployToDestinations(pathToDeployable: try prepareDeployables())
+    public func deploy(deployQueue: DispatchQueue) throws {
+        try deployToDestinations(
+            deployQueue: deployQueue,
+            pathToDeployable: try prepareDeployables()
+        )
     }
     
     /**
@@ -87,7 +90,10 @@ open class Deployer {
      * Subclasses should override this to perform their delivery logic.
      * @param   urlToDeployable   A map from local URL of package (zip) to a deployable item it represents.
      */
-    open func deployToDestinations(pathToDeployable: [AbsolutePath: DeployableItem]) throws {
+    open func deployToDestinations(
+        deployQueue: DispatchQueue,
+        pathToDeployable: [AbsolutePath: DeployableItem]
+    ) throws {
         Logger.fatal("Deployer.deployToDestinations() must be overrided in subclass")
     }
 }

@@ -8,7 +8,6 @@ public enum DeploymentError: Error, CustomStringConvertible {
     case failedToEnumerateContentsOfDirectory(AbsolutePath)
     case failedToRelativizePath(AbsolutePath, anchorPath: AbsolutePath)
     case failedToPrepareDeployable([DeployableItem])
-    case failedToDeployToDestination([DeploymentDestination])
     
     public var description: String {
         switch self {
@@ -22,8 +21,6 @@ public enum DeploymentError: Error, CustomStringConvertible {
             return "Failed to build a relative path for '\(path)', anchor: '\(anchorPath)'"
         case .failedToPrepareDeployable(let deployableItems):
             return "Failed to prepare deployable items: \(deployableItems)"
-        case .failedToDeployToDestination(let deploymentDestinations):
-            return "Failed to deploy to destinations: \(deploymentDestinations)"
         }
     }
 }

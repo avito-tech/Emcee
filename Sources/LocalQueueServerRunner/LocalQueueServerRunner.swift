@@ -27,6 +27,8 @@ public final class LocalQueueServerRunner {
     private let remotePortDeterminer: RemotePortDeterminer
     private let temporaryFolder: TemporaryFolder
     private let workerDestinations: [DeploymentDestination]
+    private let deployQueue = DispatchQueue(label: "LocalQueueServerRunner.deployQueue", attributes: .concurrent)
+    
 
     public init(
         queueServer: QueueServer,
@@ -92,7 +94,7 @@ public final class LocalQueueServerRunner {
     }
     
     private func startWorkers(port: Int) throws {
-        Logger.info("Deploying and starting workers")
+        Logger.info("Deploying and starting workers in background")
         
         let remoteWorkersStarter = RemoteWorkersStarter(
             emceeVersionProvider: versionProvider,
@@ -100,8 +102,12 @@ public final class LocalQueueServerRunner {
             tempFolder: temporaryFolder
         )
         try remoteWorkersStarter.deployAndStartWorkers(
+            deployQueue: deployQueue,
             queueAddress: SocketAddress(host: LocalHostDeterminer.currentHostAddress, port: port)
         )
+        deployQueue.async(flags: .barrier) {
+            Logger.debug("Finished deploying workers")
+        }
     }
     
     private func waitForAllJobsToBeDeleted(
