@@ -37,18 +37,4 @@ public final class ArgumentDescription: Hashable, CustomStringConvertible {
     public var asRequired: ArgumentDescription {
         return ArgumentDescription(name: name, overview: overview, multiple: multiple, optional: false)
     }
-    
-    public var usage: String {
-        var usage = "\(name.expectedInputValue)   --   \(overview)"
-        if usage.last != "." { usage += "." }
-        if multiple {
-            usage += " This argument may be repeated multiple times."
-        }
-        if optional {
-            usage += " Optional."
-        } else {
-            usage += " Required."
-        }
-        return usage
-    }
 }

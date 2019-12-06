@@ -7,7 +7,8 @@ final class CommandInvokerTests: XCTestCase {
         let commandA = CommandA()
         let commandB = CommandB()
         let invoker = CommandInvoker(
-            commands: [commandA, commandB]
+            commands: [commandA, commandB],
+            helpCommandType: .missing
         )
         
         try invoker.invokeSuitableCommand(
@@ -20,7 +21,7 @@ final class CommandInvokerTests: XCTestCase {
     
     func test_with_all_arguments() throws {
         let command = CommandC()
-        let invoker = CommandInvoker(commands: [command])
+        let invoker = CommandInvoker(commands: [command], helpCommandType: .missing)
         
         try invoker.invokeSuitableCommand(arguments: ["command_c", "--required", "42", "--optional", "60"])
         
@@ -30,7 +31,7 @@ final class CommandInvokerTests: XCTestCase {
     
     func test_without_optioanl_arguments() throws {
         let command = CommandC()
-        let invoker = CommandInvoker(commands: [command])
+        let invoker = CommandInvoker(commands: [command], helpCommandType: .missing)
         
         try invoker.invokeSuitableCommand(arguments: ["command_c", "--required", "42"])
         

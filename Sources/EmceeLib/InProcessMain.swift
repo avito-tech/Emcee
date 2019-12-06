@@ -75,7 +75,8 @@ public final class InProcessMain {
                     requestSignature: RequestSignature(value: UUID().uuidString),
                     resourceLocationResolver: resourceLocationResolver
                 ),
-            ]
+            ],
+            helpCommandType: .generateAutomatically
         )
         try commandInvoker.invokeSuitableCommand()
     }
