@@ -1,6 +1,6 @@
 import Foundation
 
-public enum RunnerEvent: Equatable {
+public enum RunnerEvent: Codable, Equatable, CustomStringConvertible {
     case willRun(testEntries: [TestEntry], testContext: TestContext)
     case didRun(results: [TestEntryResult], testContext: TestContext)
     
@@ -19,9 +19,34 @@ public enum RunnerEvent: Equatable {
             return testContext
         }
     }
-}
+    
+    public var description: String {
+        let eventName: String
+        let testContext: TestContext
+        let additionalInfo: String
+        
+        switch self {
+        case .willRun(let testEntries, let context):
+            eventName = "willRun"
+            testContext = context
+            additionalInfo = "testEntries: " + testEntries.map { $0.description }.joined(separator: ", ")
+        case .didRun(let results, let context):
+            eventName = "didRun"
+            testContext = context
+            additionalInfo = "results: " + results.map { $0.description }.joined(separator: ", ")
+        case .testStarted(let testEntry, let context):
+            eventName = "testStarted"
+            testContext = context
+            additionalInfo = "testEntry: \(testEntry)"
+        case .testFinished(let testEntry, let succeeded, let context):
+            eventName = "testFinished"
+            testContext = context
+            additionalInfo = "testEntry: \(testEntry), \(succeeded ? "succeeded" : "failed")"
+        }
+        
+        return "<\(type(of: self)) " + [eventName, String(describing: testContext), additionalInfo].joined(separator: ", ") + ">"
+    }
 
-extension RunnerEvent: Codable {
     private enum CodingKeys: CodingKey {
         case eventType
         case succeeded

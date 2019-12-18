@@ -1,6 +1,6 @@
 import Foundation
 
-public final class TestContext: Codable, Hashable {
+public final class TestContext: Codable, Hashable, CustomStringConvertible {
     public let developerDir: DeveloperDir
     public let environment: [String: String]
     public let simulatorPath: URL
@@ -19,6 +19,10 @@ public final class TestContext: Codable, Hashable {
         self.simulatorPath = simulatorPath
         self.simulatorUdid = simulatorUdid
         self.testDestination = testDestination
+    }
+    
+    public var description: String {
+        return "<\(type(of: self)): simulator: \(simulatorUdid) \(testDestination), developerDir: \(developerDir), \(environment)>"
     }
     
     public func hash(into hasher: inout Hasher) {

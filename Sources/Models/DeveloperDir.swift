@@ -1,8 +1,17 @@
 import Foundation
 
-public enum DeveloperDir: Codable, Hashable {
+public enum DeveloperDir: Codable, Hashable, CustomStringConvertible {
     case current
     case useXcode(CFBundleShortVersionString: String)
+    
+    public var description: String {
+        switch self {
+        case .current:
+            return "<\(type(of: self)) currently selected Xcode>"
+        case .useXcode(let CFBundleShortVersionString):
+            return "<\(type(of: self)) Xcode with CFBundleShortVersionString equal to \(CFBundleShortVersionString)>"
+        }
+    }
     
     private enum CodingKeys: CodingKey {
         case kind
