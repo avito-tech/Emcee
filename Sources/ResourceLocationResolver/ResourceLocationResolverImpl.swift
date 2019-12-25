@@ -60,6 +60,7 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
                     processController.startAndListenUntilProcessDies()
                     guard processController.processStatus() == .terminated(exitCode: 0) else {
                         do {
+                            Logger.debug("Removing downloaded file at \(url) because process \(processController.processName) finished unexpectedly: \(processController.processStatus())")
                             try urlResource.deleteResource(url: url)
                         } catch {
                             Logger.error("Failed to delete corrupted cached contents for item at url \(url)")
@@ -71,10 +72,16 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
                 // Once we unzip the contents, we don't want to keep zip file on disk since its contents is available under zip_contents.
                 // We erase it and keep empty file, to make sure cache does not refetch it when we access cached item.
                 if FileManager.default.fileExists(atPath: zipUrl.path) {
-                    Logger.debug("Will replace ZIP file at: \(zipUrl.path) with empty contents")
-                    let handle = try FileHandle(forWritingTo: zipUrl)
-                    handle.truncateFile(atOffset: 0)
-                    handle.closeFile()
+                    let values = try zipUrl.resourceValues(forKeys: Set([.fileSizeKey]))
+                    if values.fileSize == 0 {
+                        Logger.debug("ZIP file at \(zipUrl.path) is already empty")
+                    } else {
+                        Logger.debug("Will replace ZIP file at \(zipUrl.path) with empty contents")
+                        let handle = try FileHandle(forWritingTo: zipUrl)
+                        handle.truncateFile(atOffset: 0)
+                        handle.closeFile()
+                        Logger.debug("ZIP file at \(zipUrl.path) now has empty contents")
+                    }
                 }
             }
         }

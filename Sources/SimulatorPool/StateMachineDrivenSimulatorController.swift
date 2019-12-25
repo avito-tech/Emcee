@@ -5,7 +5,7 @@ import Models
 import PathLib
 import SynchronousWaiter
 
-public final class StateMachineDrivenSimulatorController: SimulatorController {
+public final class StateMachineDrivenSimulatorController: SimulatorController, CustomStringConvertible {
     private let additionalBootAttempts: UInt
     private let bootQueue: DispatchQueue
     private let developerDir: DeveloperDir
@@ -185,6 +185,10 @@ public final class StateMachineDrivenSimulatorController: SimulatorController {
             Logger.verboseDebug("Removing working directory of simulator \(simulator)")
             try FileManager.default.removeItem(atPath: simulator.path.pathString)
         }
+    }
+    
+    public var description: String {
+        return "<\(type(of: self)) \(testDestination) \(currentSimulatorState)>"
     }
     
     // MARK: - Envrironment
