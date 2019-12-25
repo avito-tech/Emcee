@@ -64,7 +64,7 @@ public final class StartQueueServerCommand: Command {
         Logger.info("Generated request signature: \(requestSignature)")
         
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
-            pluginLocations: queueServerRunConfiguration.auxiliaryResources.plugins,
+            pluginLocations: queueServerRunConfiguration.plugins,
             resourceLocationResolver: resourceLocationResolver
         )
         defer { eventBus.tearDown() }

@@ -6,8 +6,8 @@ import SimulatorPool
 public struct QueueServerRunConfiguration: Decodable {
     public let analyticsConfiguration: AnalyticsConfiguration
     
-    /// Paths that are required to make things work
-    public let auxiliaryResources: AuxiliaryResources
+    /// Plugins that should be running on workers and on queue
+    public let plugins: [PluginLocation]
 
     /// Delay after workers should ask for a next bucket when all jobs are depleted
     public let checkAgainTimeInterval: TimeInterval
@@ -25,7 +25,7 @@ public struct QueueServerRunConfiguration: Decodable {
 
     public init(
         analyticsConfiguration: AnalyticsConfiguration,
-        auxiliaryResources: AuxiliaryResources,
+        plugins: [PluginLocation],
         checkAgainTimeInterval: TimeInterval,
         deploymentDestinationConfigurations: [DestinationConfiguration],
         queueServerTerminationPolicy: AutomaticTerminationPolicy,
@@ -33,7 +33,7 @@ public struct QueueServerRunConfiguration: Decodable {
         workerDeploymentDestinations: [DeploymentDestination]
     ) {
         self.analyticsConfiguration = analyticsConfiguration
-        self.auxiliaryResources = auxiliaryResources
+        self.plugins = plugins
         self.checkAgainTimeInterval = checkAgainTimeInterval
         self.deploymentDestinationConfigurations = deploymentDestinationConfigurations
         self.queueServerTerminationPolicy = queueServerTerminationPolicy
@@ -47,7 +47,7 @@ public struct QueueServerRunConfiguration: Decodable {
     ) -> WorkerConfiguration {
         return WorkerConfiguration(
             analyticsConfiguration: analyticsConfiguration,
-            pluginUrls: auxiliaryResources.plugins.compactMap { $0.resourceLocation.url },
+            pluginUrls: plugins.compactMap { $0.resourceLocation.url },
             reportAliveInterval: reportAliveInterval,
             requestSignature: requestSignature,
             testRunExecutionBehavior: testRunExecutionBehavior(

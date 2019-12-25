@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## 2019-12-25
+
+- `auxiliaryResources` key has been removed from queue server run configuration JSON file because only plugin URLs are required in order to start up the queue. 
+
+- `plugins` key must now be present in queue server run configuration. This is an array of URLs to ZIP files with `emceeplugin` bundles.
+
 ## 2019-12-04
 
 - Emcee starts workers differently now. Instead of deploying itself to all worker machines and then performing worker start, it now deploys and starts the worker immediately after that.
