@@ -40,12 +40,6 @@ public final class ResultingOutputGenerator {
     private func generateCommonOutput() throws {
         let combinedTestingResults = CombinedTestingResults(testingResults: testingResults)
         try generateOutput(combinedTestingResults: combinedTestingResults, reportOutput: commonReportOutput)
-        
-        if !combinedTestingResults.failedTests.isEmpty {
-            Logger.info("Failed tests: \(combinedTestingResults.failedTests)")
-        } else {
-            Logger.info("All tests passed")
-        }
     }
     
     private func generateOutput(combinedTestingResults: CombinedTestingResults, reportOutput: ReportOutput) throws {

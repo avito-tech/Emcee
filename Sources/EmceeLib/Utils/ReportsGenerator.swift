@@ -20,6 +20,8 @@ public final class ReportsGenerator {
         if let tracePath = reportOutput.tracingReport {
             try prepareTraceReport(testingResult: testingResult, path: tracePath)
         }
+        
+        prepareConsoleReport(testingResult: testingResult)
     }
     
     private func prepareJunitReport(testingResult: CombinedTestingResults, path: String) throws {
@@ -72,6 +74,29 @@ public final class ReportsGenerator {
         } catch let error {
             Logger.error("Failed to write out trace report: \(error)")
             throw error
+        }
+    }
+    
+    private func prepareConsoleReport(testingResult: CombinedTestingResults) {
+        guard !testingResult.failedTests.isEmpty else {
+            return Logger.info("All \(testingResult.successfulTests.count) tests completed successfully")
+        }
+        Logger.info("\(testingResult.successfulTests.count) tests completed successfully")
+        Logger.info("\(testingResult.failedTests.count) tests completed with errors")
+        for testEntryResult in testingResult.failedTests {
+            Logger.info("Test \(testEntryResult.testEntry) failed after \(testEntryResult.testRunResults.count) runs")
+            for testRunResult in testEntryResult.testRunResults {
+                let formattedDate = NSLogLikeLogEntryTextFormatter.logDateFormatter.string(from: Date(timeIntervalSince1970: testRunResult.startTime))
+                Logger.info("   executed on \(testRunResult.hostName) at \(formattedDate) using \(testRunResult.simulatorId)")
+                if !testRunResult.exceptions.isEmpty {
+                    Logger.info("   caught \(testRunResult.exceptions.count) exceptions")
+                    for exception in testRunResult.exceptions {
+                        Logger.info("       \(exception)")
+                    }
+                } else {
+                    Logger.info("   no test exception has been caught")
+                }
+            }
         }
     }
 }
