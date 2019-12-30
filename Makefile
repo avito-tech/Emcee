@@ -9,6 +9,3 @@ build:
 
 test:
 	bash make.sh test
-
-integration-test:
-	bash make.sh integration-test
