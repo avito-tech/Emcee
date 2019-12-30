@@ -63,7 +63,7 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
         let testEntryConfigurations2 = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "test3"))
             .with(simulatorSettings: SimulatorSettingsFixtures()
-                .with(simulatorLocalizationSettings: Optional(SimulatorLocalizationLocation(.localFilePath("/l10n"))))
+                .with(watchdogSettings: WatchdogSettings(bundleIds: ["a.p.p"], timeout: 123))
                 .simulatorSettings())
             .testEntryConfigurations()
         let mixedTestEntryConfigurations = [

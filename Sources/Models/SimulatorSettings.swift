@@ -3,11 +3,11 @@ import Foundation
 public struct SimulatorSettings: Codable, Hashable, CustomStringConvertible {
     /// Location of JSON file with localization settings for Simulator.
     /// These settings will be applied after simulator has been created and before it will be booted.
-    public let simulatorLocalizationSettings: SimulatorLocalizationLocation?
+    public let simulatorLocalizationSettings: SimulatorLocalizationSettings
     public let watchdogSettings: WatchdogSettings
 
     public init(
-        simulatorLocalizationSettings: SimulatorLocalizationLocation?,
+        simulatorLocalizationSettings: SimulatorLocalizationSettings,
         watchdogSettings: WatchdogSettings
     ) {
         self.simulatorLocalizationSettings = simulatorLocalizationSettings
@@ -15,7 +15,6 @@ public struct SimulatorSettings: Codable, Hashable, CustomStringConvertible {
     }
     
     public var description: String {
-        let localization = String(describing: simulatorLocalizationSettings)
-        return "<\((type(of: self))): localization: \(localization), watchdogSettings: \(watchdogSettings)>"
+        return "<\((type(of: self))): simulatorLocalizationSettings: \(simulatorLocalizationSettings), watchdogSettings: \(watchdogSettings)>"
     }
 }

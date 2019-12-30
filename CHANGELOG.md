@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 
 
+## 2019-12-30
+
+- Simulator settings now provided as JSON inside test arg file instead of URLs to JSON inside ZIP archive. See `SimulatorSetttings`, `SimulatorLocalizationSettings` and `WatchdogSettings` for format description.  
+
 ## 2019-12-25
 
 - `auxiliaryResources` key has been removed from queue server run configuration JSON file because only plugin URLs are required in order to start up the queue. 

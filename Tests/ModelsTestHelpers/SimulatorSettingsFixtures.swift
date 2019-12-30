@@ -2,12 +2,12 @@ import Foundation
 import Models
 
 public final class SimulatorSettingsFixtures {
-    var simulatorLocalizationSettings: SimulatorLocalizationLocation?
+    var simulatorLocalizationSettings: SimulatorLocalizationSettings = SimulatorLocalizationSettingsFixture().simulatorLocalizationSettings()
     var watchdogSettings: WatchdogSettings = WatchdogSettings(bundleIds: [], timeout: 0)
     
     public init() {}
     
-    public func with(simulatorLocalizationSettings: SimulatorLocalizationLocation?) -> SimulatorSettingsFixtures {
+    public func with(simulatorLocalizationSettings: SimulatorLocalizationSettings) -> SimulatorSettingsFixtures {
         self.simulatorLocalizationSettings = simulatorLocalizationSettings
         return self
     }

@@ -3,6 +3,7 @@ import Foundation
 public struct RuntimeDumpConfiguration {
     public let developerDir: DeveloperDir
     public let runtimeDumpMode: RuntimeDumpMode
+    public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
     public let testExecutionBehavior: TestExecutionBehavior
     public let testRunnerTool: TestRunnerTool
@@ -13,6 +14,7 @@ public struct RuntimeDumpConfiguration {
     public init(
         developerDir: DeveloperDir,
         runtimeDumpMode: RuntimeDumpMode,
+        simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testExecutionBehavior: TestExecutionBehavior,
         testRunnerTool: TestRunnerTool,
@@ -22,6 +24,7 @@ public struct RuntimeDumpConfiguration {
     ) {
         self.developerDir = developerDir
         self.runtimeDumpMode = runtimeDumpMode
+        self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
         self.testExecutionBehavior = testExecutionBehavior
         self.testRunnerTool = testRunnerTool

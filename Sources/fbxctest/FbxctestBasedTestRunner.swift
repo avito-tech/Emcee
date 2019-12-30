@@ -12,6 +12,7 @@ import TemporaryStuff
 public final class FbxctestBasedTestRunner: TestRunner {
     private let fbxctestLocation: FbxctestLocation
     private let resourceLocationResolver: ResourceLocationResolver
+    private let encoder = JSONEncoder()
     
     public init(
         fbxctestLocation: FbxctestLocation,
@@ -141,22 +142,27 @@ public final class FbxctestBasedTestRunner: TestRunner {
                 ] + resolvableAdditionalAppBundles).map { $0.asArgument() }
             arguments += [JoinedSubprocessArgument(components: components, separator: ":")]
             
-            if let simulatorLocatizationSettings = simulatorSettings.simulatorLocalizationSettings {
-                arguments += [
-                    "-simulator-localization-settings",
-                    resourceLocationResolver.resolvable(withRepresentable: simulatorLocatizationSettings).asArgument()
-                ]
-            }
+            let simulatorLocalizationFile = FbxctestSimulatorLocalizationFile(
+                localeIdentifier: simulatorSettings.simulatorLocalizationSettings.localeIdentifier,
+                keyboards: simulatorSettings.simulatorLocalizationSettings.keyboards,
+                passcodeKeyboards: simulatorSettings.simulatorLocalizationSettings.passcodeKeyboards,
+                languages: simulatorSettings.simulatorLocalizationSettings.languages,
+                addingEmojiKeybordHandled: simulatorSettings.simulatorLocalizationSettings.addingEmojiKeybordHandled,
+                enableKeyboardExpansion: simulatorSettings.simulatorLocalizationSettings.enableKeyboardExpansion,
+                didShowInternationalInfoAlert: simulatorSettings.simulatorLocalizationSettings.didShowInternationalInfoAlert
+            )
+            let simulatorLocalizationFilePath = fbxctestWorkingDirectory.appending(component: "simulator_localization_settings.json")
+            try encoder.encode(simulatorLocalizationFile).write(to: simulatorLocalizationFilePath.fileUrl)
+            arguments += [
+                "-simulator-localization-settings", simulatorLocalizationFilePath
+            ]
             
             let watchdogFile = FbxctestWatchdogFile(
                 bundleIds: simulatorSettings.watchdogSettings.bundleIds,
                 timeout: simulatorSettings.watchdogSettings.timeout
             )
-            
-            let encoder = JSONEncoder()
-            let watchdogFileContents = try encoder.encode(watchdogFile)
             let watchdogFilePath = fbxctestWorkingDirectory.appending(component: "watchdog_settings.json")
-            try watchdogFileContents.write(to: watchdogFilePath.fileUrl)
+            try encoder.encode(watchdogFile).write(to: watchdogFilePath.fileUrl)
             arguments += [
                 "-watchdog-settings", watchdogFilePath
             ]

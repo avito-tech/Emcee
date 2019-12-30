@@ -32,7 +32,15 @@ final class TestArgFileTests: XCTestCase {
                 "toolchainConfiguration": {"developerDir": {"kind": "current"}},
                 "scheduleStrategy": "unsplit",
                 "simulatorSettings": {
-                    "simulatorLocalizationSettings": "/l10n",
+                    "simulatorLocalizationSettings": {
+                        "localeIdentifier": "ru_US",
+                        "keyboards":  ["ru_RU@sw=Russian;hw=Automatic", "en_US@sw=QWERTY;hw=Automatic"],
+                        "passcodeKeyboards": ["ru_RU@sw=Russian;hw=Automatic", "en_US@sw=QWERTY;hw=Automatic"],
+                        "languages": ["ru-US", "en", "ru-RU"],
+                        "addingEmojiKeybordHandled": true,
+                        "enableKeyboardExpansion": true,
+                        "didShowInternationalInfoAlert": true
+                    },
                     "watchdogSettings": {
                         "bundleIds": ["sample.app"],
                         "timeout": 42
@@ -57,7 +65,7 @@ final class TestArgFileTests: XCTestCase {
                 numberOfRetries: 42,
                 scheduleStrategy: .unsplit,
                 simulatorSettings: SimulatorSettings(
-                    simulatorLocalizationSettings: SimulatorLocalizationLocation(.localFilePath("/l10n")),
+                    simulatorLocalizationSettings: SimulatorLocalizationSettingsFixture().simulatorLocalizationSettings(),
                     watchdogSettings: WatchdogSettings(bundleIds: ["sample.app"], timeout: 42)
                 ),
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),

@@ -193,6 +193,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
         return RuntimeDumpConfiguration(
             developerDir: DeveloperDir.current,
             runtimeDumpMode: .logicTest(applicationTestSupport?.simulatorControlTool ?? .simctl),
+            simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: TestDestinationFixtures.testDestination,
             testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 0),
             testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,

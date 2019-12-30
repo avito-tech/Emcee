@@ -41,6 +41,7 @@ public final class TestEntriesValidator {
             runtimeDumpMode: try RuntimeDumpModeDeterminer.runtimeDumpMode(
                 testArgFileEntry: testArgFileEntry
             ),
+            simulatorSettings: testArgFileEntry.simulatorSettings,
             testDestination: testArgFileEntry.testDestination,
             testExecutionBehavior: TestExecutionBehavior(
                 environment: testArgFileEntry.environment,
