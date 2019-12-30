@@ -118,7 +118,10 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         dumpConfiguration: RuntimeDumpConfiguration,
         runtimeEntriesJSONPath: AbsolutePath
     ) -> RunnerConfiguration {
-        let simulatorSettings = SimulatorSettings(simulatorLocalizationSettings: nil, watchdogSettings: nil)
+        let simulatorSettings = SimulatorSettings(
+            simulatorLocalizationSettings: nil,
+            watchdogSettings: WatchdogSettings(bundleIds: [], timeout: 0)
+        )
         let environment = self.environment(configuration: dumpConfiguration, runtimeEntriesJSONPath: runtimeEntriesJSONPath)
 
         switch dumpConfiguration.runtimeDumpMode {

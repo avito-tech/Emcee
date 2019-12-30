@@ -16,7 +16,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
     )
     let argFileDestination1 = try! TestDestination(deviceType: UUID().uuidString, runtime: "10.1")
     let argFileDestination2 = try! TestDestination(deviceType: UUID().uuidString, runtime: "10.2")
-    let simulatorSettings = SimulatorSettings(simulatorLocalizationSettings: nil, watchdogSettings: nil)
+    let simulatorSettings = SimulatorSettingsFixtures().simulatorSettings()
     let testTimeoutConfiguration = TestTimeoutConfiguration(singleTestMaximumDuration: 10, testRunnerMaximumSilenceDuration: 20)
 
     lazy var validatedEntries: [ValidatedTestEntry] = {

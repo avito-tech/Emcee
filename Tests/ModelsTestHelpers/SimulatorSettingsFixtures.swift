@@ -3,7 +3,7 @@ import Models
 
 public final class SimulatorSettingsFixtures {
     var simulatorLocalizationSettings: SimulatorLocalizationLocation?
-    var watchdogSettings: WatchdogSettingsLocation?
+    var watchdogSettings: WatchdogSettings = WatchdogSettings(bundleIds: [], timeout: 0)
     
     public init() {}
     
@@ -12,7 +12,7 @@ public final class SimulatorSettingsFixtures {
         return self
     }
     
-    public func with(watchdogSettings: WatchdogSettingsLocation?) -> SimulatorSettingsFixtures {
+    public func with(watchdogSettings: WatchdogSettings) -> SimulatorSettingsFixtures {
         self.watchdogSettings = watchdogSettings
         return self
     }

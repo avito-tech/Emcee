@@ -33,7 +33,10 @@ final class TestArgFileTests: XCTestCase {
                 "scheduleStrategy": "unsplit",
                 "simulatorSettings": {
                     "simulatorLocalizationSettings": "/l10n",
-                    "watchdogSettings": "/wd"
+                    "watchdogSettings": {
+                        "bundleIds": ["sample.app"],
+                        "timeout": 42
+                    },
                 },
                 "testTimeoutConfiguration": {
                     "singleTestMaximumDuration": 42,
@@ -55,7 +58,7 @@ final class TestArgFileTests: XCTestCase {
                 scheduleStrategy: .unsplit,
                 simulatorSettings: SimulatorSettings(
                     simulatorLocalizationSettings: SimulatorLocalizationLocation(.localFilePath("/l10n")),
-                    watchdogSettings: WatchdogSettingsLocation(.localFilePath("/wd"))
+                    watchdogSettings: WatchdogSettings(bundleIds: ["sample.app"], timeout: 42)
                 ),
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testTimeoutConfiguration: TestTimeoutConfiguration(

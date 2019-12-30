@@ -12,7 +12,6 @@ public typealias PluginLocation = TypedResourceLocation<PluginResourceLocationTy
 public typealias RunnerAppLocation = TypedResourceLocation<RunnerAppResourceLocationType>
 public typealias SimulatorLocalizationLocation = TypedResourceLocation<SimulatorLocalizationResourceLocationType>
 public typealias TestBundleLocation = TypedResourceLocation<TestBundleResourceLocationType>
-public typealias WatchdogSettingsLocation = TypedResourceLocation<WatchdogResourceLocationType>
 public typealias QueueServerRunConfigurationLocation = TypedResourceLocation<QueueServerRunConfigurationLocationType>
 public typealias AnalyticsConfigurationLocation = TypedResourceLocation<AnalyticsConfigurationLocationType>
 
@@ -47,10 +46,6 @@ public final class SimulatorLocalizationResourceLocationType: ResourceLocationTy
 
 public final class TestBundleResourceLocationType: ResourceLocationType {
     public static let name = "xctest bundle"
-}
-
-public final class WatchdogResourceLocationType: ResourceLocationType {
-    public static let name = "watchdog settings"
 }
 
 public final class QueueServerRunConfigurationLocationType: ResourceLocationType {

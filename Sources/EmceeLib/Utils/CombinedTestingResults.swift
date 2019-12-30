@@ -1,4 +1,4 @@
-import Foundation
+import Models
 
 /// A combination of TestingResult of all Buckets
 public struct CombinedTestingResults {

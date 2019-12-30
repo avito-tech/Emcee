@@ -99,7 +99,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             environment: [:],
             numberOfRetries: 1,
             scheduleStrategy: .unsplit,
-            simulatorSettings: SimulatorSettings(simulatorLocalizationSettings: nil, watchdogSettings: nil),
+            simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: try TestDestination(deviceType: "iPhoneXL", runtime: "10.3"),
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
             testType: testType,

@@ -147,12 +147,19 @@ public final class FbxctestBasedTestRunner: TestRunner {
                     resourceLocationResolver.resolvable(withRepresentable: simulatorLocatizationSettings).asArgument()
                 ]
             }
-            if let watchdogSettings = simulatorSettings.watchdogSettings {
-                arguments += [
-                    "-watchdog-settings",
-                    resourceLocationResolver.resolvable(withRepresentable: watchdogSettings).asArgument()
-                ]
-            }
+            
+            let watchdogFile = FbxctestWatchdogFile(
+                bundleIds: simulatorSettings.watchdogSettings.bundleIds,
+                timeout: simulatorSettings.watchdogSettings.timeout
+            )
+            
+            let encoder = JSONEncoder()
+            let watchdogFileContents = try encoder.encode(watchdogFile)
+            let watchdogFilePath = fbxctestWorkingDirectory.appending(component: "watchdog_settings.json")
+            try watchdogFileContents.write(to: watchdogFilePath.fileUrl)
+            arguments += [
+                "-watchdog-settings", watchdogFilePath
+            ]
         }
         
         arguments += entriesToRun.flatMap {

@@ -3,7 +3,10 @@ import Models
 
 public final class TestEntryConfigurationFixtures {
     public var buildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
-    public var simulatorSettings = SimulatorSettings(simulatorLocalizationSettings: nil, watchdogSettings: nil)
+    public var simulatorSettings = SimulatorSettings(
+        simulatorLocalizationSettings: nil,
+        watchdogSettings: WatchdogSettings(bundleIds: [], timeout: 0)
+    )
     public var testDestination = TestDestinationFixtures.testDestination
     public var testEntries = [TestEntry]()
     public var testExecutionBehavior = TestExecutionBehavior(environment: [:], numberOfRetries: 0)
