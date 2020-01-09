@@ -41,9 +41,9 @@
         "package": "GraphiteClient",
         "repositoryURL": "https://github.com/avito-tech/GraphiteClient.git",
         "state": {
-          "branch": "master",
+          "branch": null,
           "revision": "2333d2c4a73c19db636939033cbe2b5ba3fc9f8c",
-          "version": null
+          "version": "0.1.1"
         }
       },
       {
@@ -59,9 +59,9 @@
         "package": "Shout",
         "repositoryURL": "https://github.com/jakeheis/Shout.git",
         "state": {
-          "branch": "master",
-          "revision": "40aafa4c4baaf0569349fc9bdae8217b4a67fcfc",
-          "version": null
+          "branch": null,
+          "revision": "2ee35de0411c2e74700dc4bf4b57bf7dc1de2e84",
+          "version": "0.5.1"
         }
       },
       {

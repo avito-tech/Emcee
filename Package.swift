@@ -44,10 +44,10 @@ let package = Package(
         .package(url: "https://github.com/0x7fs/CountedSet", .branch("master")),
         .package(url: "https://github.com/IBM-Swift/BlueSignals.git", .exact("1.0.16")),
         .package(url: "https://github.com/Weebly/OrderedSet", .exact("5.0.0")),
-        .package(url: "https://github.com/avito-tech/GraphiteClient.git", .branch("master")),
+        .package(url: "https://github.com/avito-tech/GraphiteClient.git", .exact("0.1.1")),
         .package(url: "https://github.com/daltoniam/Starscream.git", .exact("3.0.6")),
         .package(url: "https://github.com/httpswift/swifter.git", .exact("1.4.6")),
-        .package(url: "https://github.com/jakeheis/Shout.git", .branch("master"))
+        .package(url: "https://github.com/jakeheis/Shout.git", .exact("0.5.1"))
     ],
     targets: [
         // MARK: - Targets
