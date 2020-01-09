@@ -28,3 +28,37 @@ public extension Waiter {
         )
     }
 }
+
+public struct NoUnwrappableValueProvidedError: Error, CustomStringConvertible {
+    public let waiter: Waiter
+
+    public init(waiter: Waiter) {
+        self.waiter = waiter
+    }
+    
+    public var description: String {
+        return "No unwrappable value provided back to waiter \(waiter)"
+    }
+}
+
+public extension Waiter {
+    func waitForUnwrap<T>(
+        pollPeriod: TimeInterval = 0.1,
+        timeout: TimeInterval,
+        valueProvider: () throws -> T?,
+        description: String
+    ) throws -> T {
+        var result: T?
+        
+        try waitWhile(pollPeriod: pollPeriod, timeout: timeout, description: description, condition: { () -> Bool in
+            result = try valueProvider()
+            return result == nil
+        })
+        
+        if let result = result {
+            return result
+        } else {
+            throw NoUnwrappableValueProvidedError(waiter: self)
+        }
+    }
+}

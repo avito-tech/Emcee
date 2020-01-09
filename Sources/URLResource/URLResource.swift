@@ -85,6 +85,11 @@ public final class URLResource {
     private func processDownloadResponse(url: URL, _ error: Swift.Error?, _ response: URLResponse?, _ localUrl: URL?, _ initiateDownloadTimestamp: Date) {
         syncQueue.async { [weak handlersWrapper, weak fileCache] in
             guard let handlersWrapper = handlersWrapper, let fileCache = fileCache else { return }
+            
+            defer {
+                handlersWrapper.removeHandlers(url: url)
+            }
+            
             let receiveResponseTimestamp = Date()
             
             if let error = error {
@@ -116,8 +121,6 @@ public final class URLResource {
             } catch {
                 handlersWrapper.failedToGetContents(forUrl: url, error: error)
             }
-            
-            handlersWrapper.removeHandlers(url: url)
         }
     }
     

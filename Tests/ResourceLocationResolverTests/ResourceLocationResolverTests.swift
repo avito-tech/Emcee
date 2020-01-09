@@ -1,11 +1,13 @@
 import FileCache
 import Foundation
+import Logging
 import Models
 import PathLib
 import ResourceLocationResolver
 import Swifter
 import SynchronousWaiter
 import TemporaryStuff
+import TestHelpers
 import URLResource
 import XCTest
 
@@ -151,6 +153,32 @@ final class ResourceLocationResolverTests: XCTestCase {
         XCTAssertFalse(fileCache.contains(itemForURL: remoteUrl))
     }
     
+    func test___fetching_unavailable_resource_sequentially___attempts_to_fetch_sequentially() throws {
+        var attemptsToFetchResource = 0
+        
+        let serverAndPort = startServer()
+        serverAndPort.server["/url"] = { _ in
+            attemptsToFetchResource += 1
+            return .notFound
+        }
+        
+        let remoteUrl = URL(string: "http://localhost:\(serverAndPort.port)/url")!
+        
+        assertThrows {
+            _ = try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl))
+        }
+        
+        assertThrows {
+            _ = try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl))
+        }
+        
+        XCTAssertEqual(
+            attemptsToFetchResource,
+            2,
+            "2 attempts to fetch not available resource should be performed"
+        )
+    }
+    
     var urlSession = URLSession.shared
     let fakeSession = FakeURLSession()
     lazy var resolver = ResourceLocationResolverImpl(urlResource: urlResource)
@@ -197,10 +225,18 @@ final class ResourceLocationResolverTests: XCTestCase {
         return path
     }
     
-    private func startServer(serverPath: String, localPath: AbsolutePath) throws -> (server: HttpServer, port: Int) {
+    private func startServer() -> (server: HttpServer, port: Int) {
         let server = HttpServer()
-        server[serverPath] = shareFile(localPath.pathString)
-        XCTAssertNoThrow(try server.start(0, forceIPv4: false, priority: .default))
-        return (server: server, port: try server.port())
+        let port: Int = assertDoesNotThrow {
+            try server.start(0, forceIPv4: false, priority: .default)
+            return try server.port()
+        }
+        return (server: server, port: port)
+    }
+    
+    private func startServer(serverPath: String, localPath: AbsolutePath) throws -> (server: HttpServer, port: Int) {
+        let serverAndPort = startServer()
+        serverAndPort.server[serverPath] = shareFile(localPath.pathString)
+        return serverAndPort
     }
 }

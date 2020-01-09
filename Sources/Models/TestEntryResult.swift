@@ -32,6 +32,6 @@ public struct TestEntryResult: Codable, CustomStringConvertible, Equatable {
     }
 
     public var description: String {
-        return "<\(type(of: self)) \(testEntry): \(succeeded ? "succeeded" : "failed"), \(testRunResults.count) runs>"
+        return "<\(type(of: self)) \(testEntry): \(succeeded ? "succeeded" : "failed"), \(testRunResults.count) runs: \(testRunResults)>"
     }
 }

@@ -30,7 +30,14 @@ public final class TestRunResult: Codable, CustomStringConvertible, Equatable {
     }
     
     public var description: String {
-        return "<\(type(of: self)) \(succeeded ? "success" : "failure")>"
+        var result: [String] = ["\(type(of: self)) \(succeeded ? "succeeded" : "failed")"]
+        result += ["duration \(duration) sec"]
+        result += ["hostName \(hostName)"]
+        result += ["udid \(simulatorId)"]
+        if !exceptions.isEmpty {
+            result += ["exceptions: \(exceptions)"]
+        }
+        return "<\(result.joined(separator: ", "))>"
     }
 
     public static func ==(left: TestRunResult, right: TestRunResult) -> Bool {

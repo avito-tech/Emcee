@@ -956,6 +956,7 @@ let package = Package(
                 "FileCache",
                 "Models",
                 "ProcessController",
+                "SynchronousWaiter",
                 "URLResource",
             ]
         ),
@@ -1240,14 +1241,15 @@ let package = Package(
             // MARK: SynchronousWaiter
             name: "SynchronousWaiter",
             dependencies: [
-                "Logging"
+                "Logging",
             ]
         ),
         .testTarget(
             // MARK: SynchronousWaiterTests
             name: "SynchronousWaiterTests",
             dependencies: [
-                "SynchronousWaiter"
+                "SynchronousWaiter",
+                "TestHelpers",
             ]
         ),
         .target(

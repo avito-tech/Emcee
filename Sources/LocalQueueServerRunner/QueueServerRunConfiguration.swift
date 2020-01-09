@@ -1,7 +1,6 @@
 import AutomaticTermination
 import Foundation
 import Models
-import SimulatorPool
 
 public struct QueueServerRunConfiguration: Decodable {
     public let analyticsConfiguration: AnalyticsConfiguration

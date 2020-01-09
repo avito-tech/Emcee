@@ -31,7 +31,7 @@ final class URLResourceTests: XCTestCase {
             url: url,
             handler: handler
         )
-        let contentUrl = try handler.wait(limit: 5)
+        let contentUrl = try handler.wait(limit: 5, remoteUrl: url)
         
         XCTAssertEqual(try String(contentsOf: contentUrl), expectedContents)
     }
@@ -44,7 +44,7 @@ final class URLResourceTests: XCTestCase {
             url: url,
             handler: handler
         )
-        XCTAssertThrowsError(try handler.wait(limit: 5))
+        XCTAssertThrowsError(try handler.wait(limit: 5, remoteUrl: url))
     }
     
     func test___does_not_throw_error___when_content_length_matches_downloaded_size() throws {
@@ -61,7 +61,7 @@ final class URLResourceTests: XCTestCase {
             handler: handler
         )
         
-        _ = try handler.wait(limit: 5)
+        _ = try handler.wait(limit: 5, remoteUrl: url)
     }
     
     func test___throws_error___when_content_length_mismatches_downloaded_size() throws {
@@ -78,7 +78,7 @@ final class URLResourceTests: XCTestCase {
             handler: handler
         )
         XCTAssertThrowsError(
-            try handler.wait(limit: 5),
+            try handler.wait(limit: 5, remoteUrl: url),
             "Incorrect content length should be detected"
         )
     }
@@ -92,7 +92,7 @@ final class URLResourceTests: XCTestCase {
             url: url,
             handler: handler
         )
-        let contentUrl = try handler.wait(limit: 5)
+        let contentUrl = try handler.wait(limit: 5, remoteUrl: url)
         
         XCTAssertTrue(FileManager.default.fileExists(atPath: contentUrl.path))
         try resource.deleteResource(url: url)

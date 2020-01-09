@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2020-01-09
+
+- Fixed a bug when Emcee would fail to fetch contents of URL if server returns an error (e.g. 404 status). All sequential attempts to fetch the contents of the URL would result to dead lock. Now Emcee correctly handles this.
 
 ## 2019-12-30
 

@@ -6,12 +6,13 @@ import Foundation
 import Logging
 import Models
 import ProcessController
+import SynchronousWaiter
 import URLResource
 
 public final class ResourceLocationResolverImpl: ResourceLocationResolver {
     private let urlResource: URLResource
     private let cacheAccessCount = AtomicValue<Int>(0)
-    private let unarchiveQueue = DispatchQueue(label: "ru.avito.emcee.ResourceLocationResolver.unarchiveQueue")
+    private let unarchiveQueue = DispatchQueue(label: "ResourceLocationResolverImpl.unarchiveQueue")
     
     public enum ValidationError: Error, CustomStringConvertible {
         case unpackProcessError(zipPath: String)
@@ -44,7 +45,7 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
         
         let handler = BlockingURLResourceHandler()
         urlResource.fetchResource(url: url, handler: handler)
-        let zipUrl = try handler.wait()
+        let zipUrl = try handler.wait(limit: 120, remoteUrl: url)
         
         let contentsUrl = zipUrl.deletingLastPathComponent().appendingPathComponent("zip_contents", isDirectory: true)
         try unarchiveQueue.sync {
