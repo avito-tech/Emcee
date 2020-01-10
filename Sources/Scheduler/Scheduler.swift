@@ -20,11 +20,8 @@ public final class Scheduler {
     private let queue = OperationQueue()
     private let resourceLocationResolver: ResourceLocationResolver
     private let resourceSemaphore: ListeningSemaphore<ResourceAmounts>
-    private let syncQueue = DispatchQueue(label: "ru.avito.Scheduler")
     private let tempFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
-    private var gatheredErrors = [Error]()
-    private var testingResults = [TestingResult]()
     private weak var schedulerDelegate: SchedulerDelegate?
     
     public init(
@@ -50,15 +47,11 @@ public final class Scheduler {
         self.testRunnerProvider = testRunnerProvider
     }
     
-    public func run() throws -> [TestingResult] {
+    public func run() throws {
         startFetchingAndRunningTests()
         try SynchronousWaiter().waitWhile(pollPeriod: 1.0) {
-            queue.operationCount > 0 && allGatheredErrors().isEmpty
+            queue.operationCount > 0
         }
-        if !allGatheredErrors().isEmpty {
-            throw SchedulerError.someErrorsHappened(allGatheredErrors())
-        }
-        return testingResults
     }
     
     // MARK: - Running on Queue
@@ -72,13 +65,6 @@ public final class Scheduler {
     private func fetchAndRunBucket() {
         queue.addOperation {
             if self.resourceSemaphore.availableResources.runningTests == 0 {
-                return
-            }
-            guard self.allGatheredErrors().isEmpty else {
-                Logger.error("Some errors occured, will not fetch and run more buckets")
-                for error in self.allGatheredErrors() {
-                    Logger.error("\(error)")
-                }
                 return
             }
             guard let bucket = self.configuration.schedulerDataSource.nextBucket() else {
@@ -97,11 +83,10 @@ public final class Scheduler {
                 do {
                     let testingResult = try self.runRetrying(bucket: bucket)
                     try self.resourceSemaphore.release(.of(runningTests: 1))
-                    self.didReceiveResults(testingResult: testingResult)
                     self.schedulerDelegate?.scheduler(self, obtainedTestingResult: testingResult, forBucket: bucket)
                     self.fetchAndRunBucket()
                 } catch {
-                    self.didFailRunningTests(bucket: bucket, error: error)
+                    Logger.error("Error running tests from fetched bucket '\(bucket)' with error: \(error)")
                 }
             }
             acquireResources.addCascadeCancellableDependency(runTestsInBucketAfterAcquiringResources)
@@ -109,17 +94,6 @@ public final class Scheduler {
         } catch {
             Logger.error("Failed to run tests from bucket \(bucket): \(error)")
         }
-    }
-    
-    private func didReceiveResults(testingResult: TestingResult) {
-        syncQueue.sync {
-            testingResults.append(testingResult)
-        }
-    }
-    
-    private func didFailRunningTests(bucket: SchedulerBucket, error: Error) {
-        Logger.error("Error running tests from fetched bucket '\(bucket)' with error: \(error)")
-        gather(error: error)
     }
     
     // MARK: - Running the Tests
@@ -213,13 +187,5 @@ public final class Scheduler {
         let result = try TestingResult.byMerging(testingResults: runResults)
         Logger.verboseDebug("Combined result: \(result)")
         return result
-    }
-    
-    private func allGatheredErrors() -> [Error] {
-        return syncQueue.sync { gatheredErrors }
-    }
-    
-    private func gather(error: Error) {
-        syncQueue.sync { gatheredErrors.append(error) }
     }
 }

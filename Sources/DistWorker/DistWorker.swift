@@ -138,7 +138,7 @@ public final class DistWorker: SchedulerDelegate {
     private func runTests(
         workerConfiguration: WorkerConfiguration,
         onDemandSimulatorPool: OnDemandSimulatorPool
-    ) throws -> [TestingResult] {
+    ) throws {
         let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
             pluginLocations: workerConfiguration.pluginUrls.map {
                 PluginLocation(ResourceLocation.remoteUrl($0))
@@ -162,7 +162,7 @@ public final class DistWorker: SchedulerDelegate {
             tempFolder: temporaryFolder,
             testRunnerProvider: testRunnerProvider
         )
-        return try scheduler.run()
+        try scheduler.run()
     }
     
     private func cleanUpAndStop() {
