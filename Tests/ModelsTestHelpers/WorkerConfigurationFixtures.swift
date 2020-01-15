@@ -7,7 +7,6 @@ public final class WorkerConfigurationFixtures {
             graphiteConfiguration: nil,
             sentryConfiguration: nil
         ),
-        pluginUrls: [],
         reportAliveInterval: 42,
         requestSignature: RequestSignature(value: "requestSignature"),
         testRunExecutionBehavior: TestRunExecutionBehavior(

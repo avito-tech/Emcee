@@ -63,12 +63,6 @@ public final class StartQueueServerCommand: Command {
     ) throws {
         Logger.info("Generated request signature: \(requestSignature)")
         
-        let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
-            pluginLocations: queueServerRunConfiguration.plugins,
-            resourceLocationResolver: resourceLocationResolver
-        )
-        defer { eventBus.tearDown() }
-        
         let automaticTerminationController = AutomaticTerminationControllerFactory(
             automaticTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy
         ).createAutomaticTerminationController()
@@ -76,7 +70,6 @@ public final class StartQueueServerCommand: Command {
         let queueServer = QueueServerImpl(
             automaticTerminationController: automaticTerminationController,
             dateProvider: SystemDateProvider(),
-            eventBus: eventBus,
             workerConfigurations: createWorkerConfigurations(
                 queueServerRunConfiguration: queueServerRunConfiguration
             ),

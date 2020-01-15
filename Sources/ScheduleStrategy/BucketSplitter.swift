@@ -48,6 +48,7 @@ public class BucketSplitter: Splitter, CustomStringConvertible {
                 bucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
                 testEntries: group.map { $0.testEntry },
                 buildArtifacts: entry.buildArtifacts,
+                pluginLocations: entry.pluginLocations,
                 simulatorSettings: entry.simulatorSettings,
                 testDestination: entry.testDestination,
                 testExecutionBehavior: entry.testExecutionBehavior,

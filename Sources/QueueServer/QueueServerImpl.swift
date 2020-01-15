@@ -2,7 +2,6 @@ import AutomaticTermination
 import BalancingBucketQueue
 import BucketQueue
 import DateProvider
-import EventBus
 import Extensions
 import Foundation
 import Logging
@@ -37,7 +36,6 @@ public final class QueueServerImpl: QueueServer {
     public init(
         automaticTerminationController: AutomaticTerminationController,
         dateProvider: DateProvider,
-        eventBus: EventBus,
         workerConfigurations: WorkerConfigurations,
         reportAliveInterval: TimeInterval,
         checkAgainTimeInterval: TimeInterval,
@@ -106,7 +104,6 @@ public final class QueueServerImpl: QueueServer {
         self.bucketResultRegistrar = BucketResultRegistrar(
             bucketResultAccepter: BucketResultAccepterWithMetricSupport(
                 bucketResultAccepter: balancingBucketQueue,
-                eventBus: eventBus,
                 jobStateProvider: balancingBucketQueue,
                 queueStateProvider: balancingBucketQueue
             ),

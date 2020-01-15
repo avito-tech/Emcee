@@ -11,6 +11,7 @@ public final class BucketFixtures {
             bucketId: bucketId,
             testEntries: testEntries,
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
+            pluginLocations: [],
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: TestDestinationFixtures.testDestination,
             testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: numberOfRetries),

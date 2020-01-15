@@ -30,6 +30,9 @@ final class TestArgFileTests: XCTestCase {
                     "simulatorControlTool": {"toolType": "fbsimctl", "location": "http://example.com/fbsimctl.zip"}
                 },
                 "toolchainConfiguration": {"developerDir": {"kind": "current"}},
+                "pluginLocations": [
+                    "http://example.com/plugin.zip#sample.emceeplugin"
+                ],
                 "scheduleStrategy": "unsplit",
                 "simulatorSettings": {
                     "simulatorLocalizationSettings": {
@@ -63,6 +66,9 @@ final class TestArgFileTests: XCTestCase {
                 buildArtifacts: buildArtifacts(),
                 environment: ["value": "key"],
                 numberOfRetries: 42,
+                pluginLocations: [
+                    PluginLocation(.remoteUrl(URL(string: "http://example.com/plugin.zip#sample.emceeplugin")!))
+                ],
                 scheduleStrategy: .unsplit,
                 simulatorSettings: SimulatorSettings(
                     simulatorLocalizationSettings: SimulatorLocalizationSettingsFixture().simulatorLocalizationSettings(),

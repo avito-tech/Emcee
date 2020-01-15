@@ -310,7 +310,6 @@ let package = Package(
             dependencies: [
                 "CurrentlyBeingProcessedBucketsTracker",
                 "DeveloperDirLocator",
-                "EventBus",
                 "Extensions",
                 "Logging",
                 "Models",
@@ -352,7 +351,6 @@ let package = Package(
                 "Deployer",
                 "DeveloperDirLocator",
                 "DistWorker",
-                "EventBus",
                 "FileCache",
                 "JunitReporting",
                 "LaunchdUtils",
@@ -694,14 +692,23 @@ let package = Package(
                 "EventBus",
                 "LocalHostDeterminer",
                 "Logging",
-                "ResourceLocationResolver",
                 "Models",
                 "PathLib",
                 "ProcessController",
-                "Scheduler",
+                "ResourceLocationResolver",
                 "Swifter",
                 "SynchronousWaiter"
             ]
+        ),
+        .target(
+            // MARK: PluginManagerTestHelpers
+            name: "PluginManagerTestHelpers",
+            dependencies: [
+                "EventBus",
+                "Models",
+                "PluginManager",
+            ],
+            path: "Tests/PluginManagerTestHelpers"
         ),
         .testTarget(
             // MARK: PluginManagerTests
@@ -794,7 +801,6 @@ let package = Package(
                 "BalancingBucketQueue",
                 "BucketQueue",
                 "DateProvider",
-                "EventBus",
                 "Extensions",
                 "FileHasher",
                 "LocalHostDeterminer",
@@ -834,7 +840,6 @@ let package = Package(
                 "BucketQueueTestHelpers",
                 "DateProviderTestHelpers",
                 "Deployer",
-                "EventBus",
                 "FileHasher",
                 "Models",
                 "ModelsTestHelpers",
@@ -1020,15 +1025,16 @@ let package = Package(
             // MARK: Runner
             name: "Runner",
             dependencies: [
-                "EventBus",
                 "DeveloperDirLocator",
+                "EventBus",
                 "LocalHostDeterminer",
                 "Logging",
                 "Models",
                 "PathLib",
+                "PluginManager",
                 "SimulatorPool",
                 "TemporaryStuff",
-                "TestsWorkingDirectorySupport"
+                "TestsWorkingDirectorySupport",
             ]
         ),
         .target(
@@ -1052,6 +1058,7 @@ let package = Package(
                 "Metrics",
                 "Models",
                 "ModelsTestHelpers",
+                "PluginManagerTestHelpers",
                 "ProcessController",
                 "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
@@ -1067,11 +1074,11 @@ let package = Package(
             name: "RuntimeDump",
             dependencies: [
                 "DeveloperDirLocator",
-                "EventBus",
                 "Extensions",
                 "Metrics",
                 "Models",
                 "PathLib",
+                "PluginManager",
                 "Runner",
                 "SynchronousWaiter",
                 "TemporaryStuff",
@@ -1113,7 +1120,6 @@ let package = Package(
             name: "Scheduler",
             dependencies: [
                 "DeveloperDirLocator",
-                "EventBus",
                 "ListeningSemaphore",
                 "Logging",
                 "Models",

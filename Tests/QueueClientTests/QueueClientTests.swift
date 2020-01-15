@@ -58,6 +58,7 @@ class QueueClientTests: XCTestCase {
             bucketId: BucketId(value: UUID().uuidString),
             testEntries: [TestEntryFixtures.testEntry(className: "class", methodName: "method")],
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
+            pluginLocations: [],
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: TestDestinationFixtures.testDestination,
             testExecutionBehavior: TestExecutionBehaviorFixtures().build(),

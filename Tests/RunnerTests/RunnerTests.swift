@@ -4,6 +4,7 @@ import Extensions
 import Foundation
 import Models
 import ModelsTestHelpers
+import PluginManagerTestHelpers
 import ResourceLocationResolverTestHelpers
 import Runner
 import RunnerTestHelpers
@@ -13,10 +14,10 @@ import XCTest
 
 public final class RunnerTests: XCTestCase {
     let testEntry = TestEntryFixtures.testEntry()
-
+    let noOpPluginEventBusProvider = NoOoPluginEventBusProvider()
+    let resolver = FakeResourceLocationResolver.resolvingToTempFolder()
     let testRunnerProvider = FakeTestRunnerProvider()
     var tempFolder = try! TemporaryFolder()
-    let resolver = FakeResourceLocationResolver.resolvingToTempFolder()
     
     func test___running_test_without_output_to_stream___provides_test_did_not_run_results() throws {
         testRunnerProvider.predefinedFakeTestRunner.disableTestStartedTestRunnerStreamEvents()
@@ -70,6 +71,35 @@ public final class RunnerTests: XCTestCase {
 
         XCTAssertFalse(testResult.succeeded)
         XCTAssertEqual(testResult.testEntry, testEntry)
+    }
+    
+    func test___running_test___creates_plugin_event_bus() throws {
+        _ = try runTestEntries([testEntry])
+
+        XCTAssertEqual(
+            noOpPluginEventBusProvider.eventBusRequests,
+            1,
+            "Runner should have requested event bus"
+        )
+    }
+    
+    func test___running_test___tears_down_plugin_event_bus() throws {
+        let busTornDownExpectation = expectation(description: "Event Bus has been torn down")
+        
+        noOpPluginEventBusProvider.eventBus.add(
+            stream: BlockBasedEventStream { (busEvent: BusEvent) in
+                switch busEvent {
+                case .runnerEvent:
+                    break
+                case .tearDown:
+                    busTornDownExpectation.fulfill()
+                }
+            }
+        )
+        
+        _ = try runTestEntries([testEntry])
+
+        wait(for: [busTornDownExpectation], timeout: 15)
     }
 
     func test___running_test_without_stop_event_output_to_stream___revives_and_attempts_to_run_it_again() throws {
@@ -140,7 +170,7 @@ public final class RunnerTests: XCTestCase {
         let runner = Runner(
             configuration: createRunnerConfig(),
             developerDirLocator: FakeDeveloperDirLocator(result: tempFolder.absolutePath),
-            eventBus: EventBus(),
+            pluginEventBusProvider: noOpPluginEventBusProvider,
             resourceLocationResolver: resolver,
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider
@@ -160,6 +190,7 @@ public final class RunnerTests: XCTestCase {
         return RunnerConfiguration(
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
             environment: [:],
+            pluginLocations: [],
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
             testTimeoutConfiguration: TestTimeoutConfiguration(

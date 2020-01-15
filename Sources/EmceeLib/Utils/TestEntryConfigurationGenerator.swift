@@ -26,6 +26,7 @@ public final class TestEntryConfigurationGenerator {
             return testEntries.map { testEntry -> TestEntryConfiguration in
                 TestEntryConfiguration(
                     buildArtifacts: testArgFileEntry.buildArtifacts,
+                    pluginLocations: testArgFileEntry.pluginLocations,
                     simulatorSettings: testArgFileEntry.simulatorSettings,
                     testDestination: testArgFileEntry.testDestination,
                     testEntry: testEntry,

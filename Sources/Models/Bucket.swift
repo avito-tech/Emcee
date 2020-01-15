@@ -5,6 +5,7 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
     public let bucketId: BucketId
     public let testEntries: [TestEntry]
     public let buildArtifacts: BuildArtifacts
+    public let pluginLocations: Set<PluginLocation>
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
     public let testExecutionBehavior: TestExecutionBehavior
@@ -17,6 +18,7 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
         bucketId: BucketId,
         testEntries: [TestEntry],
         buildArtifacts: BuildArtifacts,
+        pluginLocations: Set<PluginLocation>,
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testExecutionBehavior: TestExecutionBehavior,
@@ -28,6 +30,7 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
         self.bucketId = bucketId
         self.testEntries = testEntries
         self.buildArtifacts = buildArtifacts
+        self.pluginLocations = pluginLocations
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
         self.testExecutionBehavior = testExecutionBehavior
@@ -42,13 +45,14 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
     }
     
     public var debugDescription: String {
-        return "<\((type(of: self))) \(bucketId) \(testType) \(testDestination), \(toolResources), \(buildArtifacts), \(testEntries.debugDescription)>"
+        return "<\((type(of: self))) \(bucketId) \(testType) \(testDestination), \(toolResources), \(buildArtifacts), \(pluginLocations), \(testEntries.debugDescription)>"
     }
     
     public func hash(into hasher: inout Hasher) {
         hasher.combine(bucketId)
         hasher.combine(testEntries)
         hasher.combine(buildArtifacts)
+        hasher.combine(pluginLocations)
         hasher.combine(simulatorSettings)
         hasher.combine(testDestination)
         hasher.combine(testExecutionBehavior)
@@ -62,6 +66,7 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
         return left.bucketId == right.bucketId
         && left.testEntries == right.testEntries
         && left.buildArtifacts == right.buildArtifacts
+        && left.pluginLocations == right.pluginLocations
         && left.simulatorSettings == right.simulatorSettings
         && left.testDestination == right.testDestination
         && left.testExecutionBehavior == right.testExecutionBehavior

@@ -7,6 +7,7 @@ import Logging
 import LoggingSetup
 import Models
 import PathLib
+import PluginManager
 import ResourceLocationResolver
 import RequestSender
 import SimulatorPool
@@ -24,17 +25,20 @@ public final class DistWorkCommand: Command {
     
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
+    private let pluginEventBusProvider: PluginEventBusProvider
     private let requestSenderProvider: RequestSenderProvider
     private let resourceLocationResolver: ResourceLocationResolver
 
     public init(
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
+        pluginEventBusProvider: PluginEventBusProvider,
         requestSenderProvider: RequestSenderProvider,
         resourceLocationResolver: ResourceLocationResolver
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
+        self.pluginEventBusProvider = pluginEventBusProvider
         self.requestSenderProvider = requestSenderProvider
         self.resourceLocationResolver = resourceLocationResolver
     }
@@ -77,6 +81,7 @@ public final class DistWorkCommand: Command {
             bucketResultSender: bucketResultSender,
             developerDirLocator: developerDirLocator,
             onDemandSimulatorPool: onDemandSimulatorPool,
+            pluginEventBusProvider: pluginEventBusProvider,
             queueClient: SynchronousQueueClient(queueServerAddress: queueServerAddress),
             reportAliveSender: reportAliveSender,
             resourceLocationResolver: resourceLocationResolver,

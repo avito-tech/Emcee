@@ -199,6 +199,7 @@ final class BucketQueueImpl: BucketQueue {
                         bucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
                         testEntries: [testEntry],
                         buildArtifacts: stuckBucket.bucket.buildArtifacts,
+                        pluginLocations: stuckBucket.bucket.pluginLocations,
                         simulatorSettings: stuckBucket.bucket.simulatorSettings,
                         testDestination: stuckBucket.bucket.testDestination,
                         testExecutionBehavior: stuckBucket.bucket.testExecutionBehavior,

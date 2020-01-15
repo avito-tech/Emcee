@@ -3,13 +3,13 @@ import BucketQueue
 import DateProvider
 import DeveloperDirLocator
 import DistDeployer
-import EventBus
 import Extensions
 import Foundation
 import Logging
 import LoggingSetup
 import Models
 import PathLib
+import PluginManager
 import PortDeterminer
 import QueueClient
 import QueueServer
@@ -41,6 +41,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let localQueueVersionProvider: VersionProvider
+    private let pluginEventBusProvider: PluginEventBusProvider
     private let requestSenderProvider: RequestSenderProvider
     private let resourceLocationResolver: ResourceLocationResolver
 
@@ -48,12 +49,14 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         localQueueVersionProvider: VersionProvider,
+        pluginEventBusProvider: PluginEventBusProvider,
         requestSenderProvider: RequestSenderProvider,
         resourceLocationResolver: ResourceLocationResolver
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.localQueueVersionProvider = localQueueVersionProvider
+        self.pluginEventBusProvider = pluginEventBusProvider
         self.requestSenderProvider = requestSenderProvider
         self.resourceLocationResolver = resourceLocationResolver
     }
@@ -63,8 +66,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             junit: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.junit.name),
             tracingReport: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.trace.name)
         )
-        let eventBus = EventBus()
-        defer { eventBus.tearDown() }
         
         let queueServerDestination = try ArgumentsReader.deploymentDestinations(
             try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerDestination.name)
@@ -83,7 +84,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             tempFolder: tempFolder
         )
         let jobResults = try runTestsOnRemotelyRunningQueue(
-            eventBus: eventBus,
             queueServerAddress: runningQueueServerAddress,
             runId: runId,
             tempFolder: tempFolder,
@@ -148,7 +148,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     }
     
     private func runTestsOnRemotelyRunningQueue(
-        eventBus: EventBus,
         queueServerAddress: SocketAddress,
         runId: JobId,
         tempFolder: TemporaryFolder,
@@ -161,10 +160,10 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
         let runtimeTestQuerier = RuntimeTestQuerierImpl(
-            eventBus: eventBus,
             developerDirLocator: developerDirLocator,
             numberOfAttemptsToPerformRuntimeDump: 5,
             onDemandSimulatorPool: onDemandSimulatorPool,
+            pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
             testRunnerProvider: DefaultTestRunnerProvider(

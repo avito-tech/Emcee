@@ -24,6 +24,7 @@ public final class DistWorker: SchedulerDelegate {
     private let currentlyBeingProcessedBucketsTracker = CurrentlyBeingProcessedBucketsTracker()
     private let developerDirLocator: DeveloperDirLocator
     private let onDemandSimulatorPool: OnDemandSimulatorPool
+    private let pluginEventBusProvider: PluginEventBusProvider
     private let queueClient: SynchronousQueueClient
     private let reportAliveSender: ReportAliveSender
     private let resourceLocationResolver: ResourceLocationResolver
@@ -45,6 +46,7 @@ public final class DistWorker: SchedulerDelegate {
         bucketResultSender: BucketResultSender,
         developerDirLocator: DeveloperDirLocator,
         onDemandSimulatorPool: OnDemandSimulatorPool,
+        pluginEventBusProvider: PluginEventBusProvider,
         queueClient: SynchronousQueueClient,
         reportAliveSender: ReportAliveSender,
         resourceLocationResolver: ResourceLocationResolver,
@@ -56,6 +58,7 @@ public final class DistWorker: SchedulerDelegate {
         self.bucketResultSender = bucketResultSender
         self.developerDirLocator = developerDirLocator
         self.onDemandSimulatorPool = onDemandSimulatorPool
+        self.pluginEventBusProvider = pluginEventBusProvider
         self.queueClient = queueClient
         self.reportAliveSender = reportAliveSender
         self.resourceLocationResolver = resourceLocationResolver
@@ -139,14 +142,6 @@ public final class DistWorker: SchedulerDelegate {
         workerConfiguration: WorkerConfiguration,
         onDemandSimulatorPool: OnDemandSimulatorPool
     ) throws {
-        let eventBus = try EventBusFactory.createEventBusWithAttachedPluginManager(
-            pluginLocations: workerConfiguration.pluginUrls.map {
-                PluginLocation(ResourceLocation.remoteUrl($0))
-            },
-            resourceLocationResolver: resourceLocationResolver
-        )
-        defer { eventBus.tearDown() }
-        
         let schedulerCconfiguration = SchedulerConfiguration(
             testRunExecutionBehavior: workerConfiguration.testRunExecutionBehavior,
             schedulerDataSource: DistRunSchedulerDataSource(onNextBucketRequest: fetchNextBucket),
@@ -156,7 +151,7 @@ public final class DistWorker: SchedulerDelegate {
         let scheduler = Scheduler(
             configuration: schedulerCconfiguration,
             developerDirLocator: developerDirLocator,
-            eventBus: eventBus,
+            pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,
             schedulerDelegate: self,
             tempFolder: temporaryFolder,

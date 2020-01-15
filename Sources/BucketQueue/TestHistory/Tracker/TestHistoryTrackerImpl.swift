@@ -89,6 +89,7 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
                 bucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
                 testEntries: [testEntryResult.testEntry],
                 buildArtifacts: bucket.buildArtifacts,
+                pluginLocations: bucket.pluginLocations,
                 simulatorSettings: bucket.simulatorSettings,
                 testDestination: bucket.testDestination,
                 testExecutionBehavior: bucket.testExecutionBehavior,

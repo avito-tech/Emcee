@@ -188,6 +188,49 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
         XCTAssertEqual(groups[1], testEntryConfiguration2)
     }
     
+    func test___grouping_accounts_plugins___preserves_order_and_sorts_by_test_count() {
+        let testEntryConfigurations1 = TestEntryConfigurationFixtures()
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class2", methodName: "test"))
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class3", methodName: "test"))
+            .with(pluginLocations: [PluginLocation(.localFilePath("plugin1"))])
+            .testEntryConfigurations()
+            .shuffled()
+        let testEntryConfiguration2 = TestEntryConfigurationFixtures()
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
+            .with(pluginLocations: [PluginLocation(.localFilePath("plugin2"))])
+            .testEntryConfigurations()
+        
+        let grouper = GroupedTestEntryConfigurations(testEntryConfigurations: testEntryConfiguration2 + testEntryConfigurations1)
+        let groups = grouper.grouped()
+        
+        XCTAssertEqual(groups.count, 2)
+        XCTAssertEqual(groups[0], testEntryConfigurations1)
+        XCTAssertEqual(groups[1], testEntryConfiguration2)
+    }
+    
+    func test___grouping_merges_tests_by_plugins() {
+        let testEntryConfiguration1 = TestEntryConfigurationFixtures()
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test1"))
+            .with(pluginLocations: [PluginLocation(.localFilePath("plugin1"))])
+            .testEntryConfigurations()
+        let testEntryConfiguration2 = TestEntryConfigurationFixtures()
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test2"))
+            .with(pluginLocations: [PluginLocation(.localFilePath("plugin2"))])
+            .testEntryConfigurations()
+        let testEntryConfiguration3 = TestEntryConfigurationFixtures()
+            .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test3"))
+            .with(pluginLocations: [PluginLocation(.localFilePath("plugin1"))])
+            .testEntryConfigurations()
+        
+        let grouper = GroupedTestEntryConfigurations(testEntryConfigurations: testEntryConfiguration1 + testEntryConfiguration2 + testEntryConfiguration3)
+        let groups = grouper.grouped()
+        
+        XCTAssertEqual(groups.count, 2)
+        XCTAssertEqual(groups[0], testEntryConfiguration1 + testEntryConfiguration3)
+        XCTAssertEqual(groups[1], testEntryConfiguration2)
+    }
+    
     func test___grouping_mixed_entries___accounts_all_field_values() {
         let testEntryConfiguration1 = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))

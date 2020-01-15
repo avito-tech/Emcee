@@ -5,6 +5,7 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
     public let bucketId: BucketId
     public let testEntries: [TestEntry]
     public let buildArtifacts: BuildArtifacts
+    public let pluginLocations: Set<PluginLocation>
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
     public let testExecutionBehavior: TestExecutionBehavior
@@ -19,6 +20,7 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
         result.append("\(bucketId)")
         result.append("testEntries: " + testEntries.map { $0.testName.stringValue }.joined(separator: ","))
         result.append("buildArtifacts: \(buildArtifacts)")
+        result.append("pluginLocations: \(pluginLocations)")
         result.append("testDestination: " + testDestination.destinationString)
         result.append("testExecutionBehavior: \(testExecutionBehavior)")
         result.append("testTimeoutConfiguration: \(testTimeoutConfiguration)")
@@ -34,6 +36,7 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
         bucketId: BucketId,
         testEntries: [TestEntry],
         buildArtifacts: BuildArtifacts,
+        pluginLocations: Set<PluginLocation>,
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testExecutionBehavior: TestExecutionBehavior,
@@ -45,6 +48,7 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
         self.bucketId = bucketId
         self.testEntries = testEntries
         self.buildArtifacts = buildArtifacts
+        self.pluginLocations = pluginLocations
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
         self.testExecutionBehavior = testExecutionBehavior
@@ -59,6 +63,7 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
             bucketId: bucket.bucketId,
             testEntries: bucket.testEntries,
             buildArtifacts: bucket.buildArtifacts,
+            pluginLocations: bucket.pluginLocations,
             simulatorSettings: bucket.simulatorSettings,
             testDestination: bucket.testDestination,
             testExecutionBehavior: testExecutionBehavior,
@@ -73,6 +78,7 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
         return left.bucketId == right.bucketId
             && left.testEntries == right.testEntries
             && left.buildArtifacts == right.buildArtifacts
+            && left.pluginLocations == right.pluginLocations
             && left.simulatorSettings == right.simulatorSettings
             && left.testDestination == right.testDestination
             && left.testExecutionBehavior == right.testExecutionBehavior

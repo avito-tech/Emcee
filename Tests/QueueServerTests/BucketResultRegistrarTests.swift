@@ -1,5 +1,4 @@
 import BucketQueueTestHelpers
-import EventBus
 import Foundation
 import Models
 import ModelsTestHelpers
@@ -10,7 +9,6 @@ import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class BucketResultRegistrarTests: XCTestCase {
-    let eventBus = EventBus()
     let expectedRequestSignature = RequestSignature(value: "expectedRequestSignature")
     let testingResult = TestingResultFixtures()
         .with(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "method"))

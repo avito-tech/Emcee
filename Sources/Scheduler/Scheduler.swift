@@ -1,11 +1,11 @@
 import DeveloperDirLocator
 import Dispatch
-import EventBus
 import Extensions
 import Foundation
 import ListeningSemaphore
 import Logging
 import Models
+import PluginManager
 import ResourceLocationResolver
 import Runner
 import ScheduleStrategy
@@ -16,8 +16,8 @@ import TemporaryStuff
 public final class Scheduler {
     private let configuration: SchedulerConfiguration
     private let developerDirLocator: DeveloperDirLocator
-    private let eventBus: EventBus
     private let queue = OperationQueue()
+    private let pluginEventBusProvider: PluginEventBusProvider
     private let resourceLocationResolver: ResourceLocationResolver
     private let resourceSemaphore: ListeningSemaphore<ResourceAmounts>
     private let tempFolder: TemporaryFolder
@@ -27,7 +27,7 @@ public final class Scheduler {
     public init(
         configuration: SchedulerConfiguration,
         developerDirLocator: DeveloperDirLocator,
-        eventBus: EventBus,
+        pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver,
         schedulerDelegate: SchedulerDelegate?,
         tempFolder: TemporaryFolder,
@@ -35,7 +35,7 @@ public final class Scheduler {
     ) {
         self.configuration = configuration
         self.developerDirLocator = developerDirLocator
-        self.eventBus = eventBus
+        self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
         self.resourceSemaphore = ListeningSemaphore(
             maximumValues: .of(
@@ -141,13 +141,14 @@ public final class Scheduler {
             configuration: RunnerConfiguration(
                 buildArtifacts: bucket.buildArtifacts,
                 environment: bucket.testExecutionBehavior.environment,
+                pluginLocations: bucket.pluginLocations,
                 simulatorSettings: bucket.simulatorSettings,
                 testRunnerTool: bucket.toolResources.testRunnerTool,
                 testTimeoutConfiguration: bucket.testTimeoutConfiguration,
                 testType: bucket.testType
             ),
             developerDirLocator: developerDirLocator,
-            eventBus: eventBus,
+            pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider

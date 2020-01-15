@@ -1,25 +1,20 @@
 import BalancingBucketQueue
 import BucketQueue
-import EventBus
 import Foundation
 import Metrics
 import Models
 
 public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
     private let bucketResultAccepter: BucketResultAccepter
-    private let eventBus: EventBus
     private let jobStateProvider: JobStateProvider
     private let queueStateProvider: RunningQueueStateProvider
 
     public init(
         bucketResultAccepter: BucketResultAccepter,
-        eventBus: EventBus,
         jobStateProvider: JobStateProvider,
         queueStateProvider: RunningQueueStateProvider
-        )
-    {
+    ) {
         self.bucketResultAccepter = bucketResultAccepter
-        self.eventBus = eventBus
         self.jobStateProvider = jobStateProvider
         self.queueStateProvider = queueStateProvider
     }

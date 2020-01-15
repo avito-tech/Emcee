@@ -6,6 +6,7 @@ import Logging
 import Metrics
 import Models
 import PathLib
+import PluginManager
 import ProcessController
 import ResourceLocationResolver
 import SimulatorPool
@@ -15,7 +16,8 @@ import TestsWorkingDirectorySupport
 public final class Runner {
     private let configuration: RunnerConfiguration
     private let developerDirLocator: DeveloperDirLocator
-    private let eventBus: EventBus
+    private let pluginEventBusProvider: PluginEventBusProvider
+    private let pluginTearDownQueue = OperationQueue()
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
@@ -23,14 +25,14 @@ public final class Runner {
     public init(
         configuration: RunnerConfiguration,
         developerDirLocator: DeveloperDirLocator,
-        eventBus: EventBus,
+        pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver,
         tempFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider
     ) {
         self.configuration = configuration
         self.developerDirLocator = developerDirLocator
-        self.eventBus = eventBus
+        self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
         self.tempFolder = tempFolder
         self.testRunnerProvider = testRunnerProvider
@@ -120,6 +122,13 @@ public final class Runner {
             simulator: simulator
         )
         
+        let eventBus = try pluginEventBusProvider.createEventBus(
+            pluginLocations: configuration.pluginLocations
+        )
+        defer {
+            pluginTearDownQueue.addOperation(eventBus.tearDown)
+        }
+        
         Logger.debug("Will run \(entriesToRun.count) tests on simulator \(simulator)")
         eventBus.post(event: .runnerEvent(.willRun(testEntries: entriesToRun, testContext: testContext)))
 
@@ -132,6 +141,7 @@ public final class Runner {
                 onTestStarted: { [weak self] testName in
                     self?.testStarted(
                         entriesToRun: entriesToRun,
+                        eventBus: eventBus,
                         testContext: testContext,
                         testName: testName
                     )
@@ -140,6 +150,7 @@ public final class Runner {
                     collectedTestStoppedEvents.append(testStoppedEvent)
                     self?.testStopped(
                         entriesToRun: entriesToRun,
+                        eventBus: eventBus,
                         testContext: testContext,
                         testStoppedEvent: testStoppedEvent
                     )
@@ -368,6 +379,7 @@ public final class Runner {
 
     private func testStarted(
         entriesToRun: [TestEntry],
+        eventBus: EventBus,
         testContext: TestContext,
         testName: TestName
     ) {
@@ -391,6 +403,7 @@ public final class Runner {
     
     private func testStopped(
         entriesToRun: [TestEntry],
+        eventBus: EventBus,
         testContext: TestContext,
         testStoppedEvent: TestStoppedEvent
     ) {

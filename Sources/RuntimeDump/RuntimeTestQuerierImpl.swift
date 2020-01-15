@@ -1,11 +1,11 @@
 import DeveloperDirLocator
-import EventBus
 import Extensions
 import Foundation
 import Logging
 import Metrics
 import Models
 import PathLib
+import PluginManager
 import ResourceLocationResolver
 import Runner
 import SimulatorPool
@@ -15,9 +15,9 @@ import UniqueIdentifierGenerator
 
 public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
     private let developerDirLocator: DeveloperDirLocator
-    private let eventBus: EventBus
     private let numberOfAttemptsToPerformRuntimeDump: UInt
     private let onDemandSimulatorPool: OnDemandSimulatorPool
+    private let pluginEventBusProvider: PluginEventBusProvider
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TemporaryFolder
     private let testEntryToQueryRuntimeDump: TestEntry
@@ -25,20 +25,20 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     
     public init(
-        eventBus: EventBus,
         developerDirLocator: DeveloperDirLocator,
         numberOfAttemptsToPerformRuntimeDump: UInt,
         onDemandSimulatorPool: OnDemandSimulatorPool,
+        pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver,
         tempFolder: TemporaryFolder,
         testEntryToQueryRuntimeDump: TestEntry = TestEntry(testName: TestName(className: "NonExistingTest", methodName: "fakeTest"), tags: [], caseId: nil),
         testRunnerProvider: TestRunnerProvider,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
-        self.eventBus = eventBus
         self.developerDirLocator = developerDirLocator
         self.numberOfAttemptsToPerformRuntimeDump = max(numberOfAttemptsToPerformRuntimeDump, 1)
         self.onDemandSimulatorPool = onDemandSimulatorPool
+        self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
         self.tempFolder = tempFolder
         self.testEntryToQueryRuntimeDump = testEntryToQueryRuntimeDump
@@ -86,7 +86,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         let runner = Runner(
             configuration: runnerConfiguration,
             developerDirLocator: developerDirLocator,
-            eventBus: eventBus,
+            pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider
@@ -130,6 +130,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
                     )
                 ),
                 environment: environment,
+                pluginLocations: dumpConfiguration.pluginLocations,
                 simulatorSettings: dumpConfiguration.simulatorSettings,
                 testRunnerTool: dumpConfiguration.testRunnerTool,
                 testTimeoutConfiguration: dumpConfiguration.testTimeoutConfiguration,
@@ -147,6 +148,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
                     additionalApplicationBundles: []
                 ),
                 environment: environment,
+                pluginLocations: dumpConfiguration.pluginLocations,
                 simulatorSettings: dumpConfiguration.simulatorSettings,
                 testRunnerTool: dumpConfiguration.testRunnerTool,
                 testTimeoutConfiguration: dumpConfiguration.testTimeoutConfiguration,

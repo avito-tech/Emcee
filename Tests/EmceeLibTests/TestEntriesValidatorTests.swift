@@ -98,6 +98,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             buildArtifacts: buildArtifacts,
             environment: [:],
             numberOfRetries: 1,
+            pluginLocations: [],
             scheduleStrategy: .unsplit,
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: try TestDestination(deviceType: "iPhoneXL", runtime: "10.3"),

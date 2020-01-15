@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2020-01-16
+
+- Changed the way Emcee manages plugins. They now start right before Runner is about to start tests, and stopped after that. Plugins are started on the workers only.
+
+- `plugins` key is now removed from Queue Server Run Configuration
+
+- `testArgFile` entries now expect to have `plugins` key.
+
 ## 2020-01-09
 
 - Fixed a bug when Emcee would fail to fetch contents of URL if server returns an error (e.g. 404 status). All sequential attempts to fetch the contents of the URL would result to dead lock. Now Emcee correctly handles this.

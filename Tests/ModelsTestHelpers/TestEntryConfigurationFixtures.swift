@@ -3,6 +3,7 @@ import Models
 
 public final class TestEntryConfigurationFixtures {
     public var buildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
+    public var pluginLocations = Set<PluginLocation>()
     public var simulatorSettings = SimulatorSettings(
         simulatorLocalizationSettings: SimulatorLocalizationSettingsFixture().simulatorLocalizationSettings(),
         watchdogSettings: WatchdogSettings(bundleIds: [], timeout: 0)
@@ -29,6 +30,11 @@ public final class TestEntryConfigurationFixtures {
     
     public func with(buildArtifacts: BuildArtifacts) -> Self {
         self.buildArtifacts = buildArtifacts
+        return self
+    }
+    
+    public func with(pluginLocations: Set<PluginLocation>) -> Self {
+        self.pluginLocations = pluginLocations
         return self
     }
     
@@ -68,12 +74,13 @@ public final class TestEntryConfigurationFixtures {
     }
     
     public func testEntryConfigurations() -> [TestEntryConfiguration] {
-        return testEntries.map {
+        return testEntries.map { testEntry in
             TestEntryConfiguration(
                 buildArtifacts: buildArtifacts,
+                pluginLocations: pluginLocations,
                 simulatorSettings: simulatorSettings,
                 testDestination: testDestination,
-                testEntry: $0,
+                testEntry: testEntry,
                 testExecutionBehavior: testExecutionBehavior,
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: testType,

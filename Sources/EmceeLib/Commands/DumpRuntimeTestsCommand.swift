@@ -9,6 +9,7 @@ import JunitReporting
 import Logging
 import Models
 import PathLib
+import PluginManager
 import ResourceLocationResolver
 import RuntimeDump
 import ScheduleStrategy
@@ -29,15 +30,18 @@ public final class DumpRuntimeTestsCommand: Command {
     private let encoder = JSONEncoder.pretty()
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
+    private let pluginEventBusProvider: PluginEventBusProvider
     private let resourceLocationResolver: ResourceLocationResolver
     
     public init(
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
+        pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
+        self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
     }
 
@@ -58,6 +62,7 @@ public final class DumpRuntimeTestsCommand: Command {
         let dumpedTests: [[RuntimeTestEntry]] = try testArgFile.entries.map { testArgFileEntry -> [RuntimeTestEntry] in
             let configuration = RuntimeDumpConfiguration(
                 developerDir: testArgFileEntry.toolchainConfiguration.developerDir,
+                pluginLocations: testArgFileEntry.pluginLocations,
                 runtimeDumpMode: try RuntimeDumpModeDeterminer.runtimeDumpMode(testArgFileEntry: testArgFileEntry),
                 simulatorSettings: testArgFileEntry.simulatorSettings,
                 testDestination: testArgFileEntry.testDestination,
@@ -72,10 +77,11 @@ public final class DumpRuntimeTestsCommand: Command {
             )
             
             let runtimeTestQuerier = RuntimeTestQuerierImpl(
-                eventBus: EventBus(),
+
                 developerDirLocator: developerDirLocator,
                 numberOfAttemptsToPerformRuntimeDump: testArgFileEntry.numberOfRetries,
                 onDemandSimulatorPool: onDemandSimulatorPool,
+                pluginEventBusProvider: pluginEventBusProvider,
                 resourceLocationResolver: resourceLocationResolver,
                 tempFolder: tempFolder,
                 testRunnerProvider: DefaultTestRunnerProvider(

@@ -2,6 +2,7 @@ import Foundation
 
 public struct RuntimeDumpConfiguration {
     public let developerDir: DeveloperDir
+    public let pluginLocations: Set<PluginLocation>
     public let runtimeDumpMode: RuntimeDumpMode
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
@@ -13,6 +14,7 @@ public struct RuntimeDumpConfiguration {
 
     public init(
         developerDir: DeveloperDir,
+        pluginLocations: Set<PluginLocation>,
         runtimeDumpMode: RuntimeDumpMode,
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
@@ -23,6 +25,7 @@ public struct RuntimeDumpConfiguration {
         xcTestBundleLocation: TestBundleLocation
     ) {
         self.developerDir = developerDir
+        self.pluginLocations = pluginLocations
         self.runtimeDumpMode = runtimeDumpMode
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination

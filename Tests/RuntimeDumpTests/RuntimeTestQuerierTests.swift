@@ -1,9 +1,9 @@
 @testable import RuntimeDump
 import DeveloperDirLocatorTestHelpers
-import EventBus
 import Foundation
 import Models
 import ModelsTestHelpers
+import PluginManagerTestHelpers
 import ResourceLocationResolver
 import ResourceLocationResolverTestHelpers
 import RunnerTestHelpers
@@ -15,7 +15,6 @@ import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class RuntimeTestQuerierTests: XCTestCase {
-    let eventBus = EventBus()
     let resourceLocationResolver: ResourceLocationResolver = FakeResourceLocationResolver.throwing()
     let tempFolder = try! TemporaryFolder()
     let dumpFilename = UUID().uuidString
@@ -175,10 +174,10 @@ final class RuntimeTestQuerierTests: XCTestCase {
     
     private func runtimeTestQuerier() -> RuntimeTestQuerier {
         return RuntimeTestQuerierImpl(
-            eventBus: eventBus,
             developerDirLocator: developerDirLocator,
             numberOfAttemptsToPerformRuntimeDump: 1,
             onDemandSimulatorPool: simulatorPool,
+            pluginEventBusProvider: NoOoPluginEventBusProvider(),
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
             testRunnerProvider: FakeTestRunnerProvider(),
@@ -192,6 +191,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
     ) -> RuntimeDumpConfiguration {
         return RuntimeDumpConfiguration(
             developerDir: DeveloperDir.current,
+            pluginLocations: [],
             runtimeDumpMode: .logicTest(applicationTestSupport?.simulatorControlTool ?? .simctl),
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: TestDestinationFixtures.testDestination,

@@ -2,6 +2,7 @@ import Foundation
 
 public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable {
     public let buildArtifacts: BuildArtifacts
+    public let pluginLocations: Set<PluginLocation>
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
     public let testEntry: TestEntry
@@ -13,6 +14,7 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
 
     public init(
         buildArtifacts: BuildArtifacts,
+        pluginLocations: Set<PluginLocation>,
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testEntry: TestEntry,
@@ -23,6 +25,7 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
         toolchainConfiguration: ToolchainConfiguration
     ) {
         self.buildArtifacts = buildArtifacts
+        self.pluginLocations = pluginLocations
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
         self.testEntry = testEntry
@@ -34,6 +37,6 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
     }
     
     public var description: String {
-        return "<\(type(of: self)): \(testEntry) \(testType) \(testDestination) \(buildArtifacts) \(simulatorSettings) \(testExecutionBehavior) \(testTimeoutConfiguration) \(toolResources) \(toolchainConfiguration)>"
+        return "<\(type(of: self)): \(testEntry) \(testType) \(testDestination) \(buildArtifacts) \(pluginLocations) \(simulatorSettings) \(testExecutionBehavior) \(testTimeoutConfiguration) \(toolResources) \(toolchainConfiguration)>"
     }
 }

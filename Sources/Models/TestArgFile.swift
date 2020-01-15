@@ -6,6 +6,7 @@ public struct TestArgFile: Codable {
         public let buildArtifacts: BuildArtifacts
         public let environment: [String: String]
         public let numberOfRetries: UInt
+        public let pluginLocations: Set<PluginLocation>
         public let scheduleStrategy: ScheduleStrategyType
         public let simulatorSettings: SimulatorSettings
         public let testDestination: TestDestination
@@ -19,6 +20,7 @@ public struct TestArgFile: Codable {
             buildArtifacts: BuildArtifacts,
             environment: [String: String],
             numberOfRetries: UInt,
+            pluginLocations: Set<PluginLocation>,
             scheduleStrategy: ScheduleStrategyType,
             simulatorSettings: SimulatorSettings,
             testDestination: TestDestination,
@@ -31,6 +33,7 @@ public struct TestArgFile: Codable {
             self.buildArtifacts = buildArtifacts
             self.environment = environment
             self.numberOfRetries = numberOfRetries
+            self.pluginLocations = pluginLocations
             self.scheduleStrategy = scheduleStrategy
             self.simulatorSettings = simulatorSettings
             self.testDestination = testDestination
@@ -45,6 +48,7 @@ public struct TestArgFile: Codable {
             case buildArtifacts
             case environment
             case numberOfRetries
+            case pluginLocations
             case scheduleStrategy
             case simulatorSettings
             case testDestination
@@ -61,6 +65,7 @@ public struct TestArgFile: Codable {
             buildArtifacts = try container.decode(BuildArtifacts.self, forKey: .buildArtifacts)
             environment = try container.decode([String: String].self, forKey: .environment)
             numberOfRetries = try container.decode(UInt.self, forKey: .numberOfRetries)
+            pluginLocations = try container.decode(Set<PluginLocation>.self, forKey: .pluginLocations)
             scheduleStrategy = try container.decode(ScheduleStrategyType.self, forKey: .scheduleStrategy)
             simulatorSettings = try container.decode(SimulatorSettings.self, forKey: .simulatorSettings)
             testDestination = try container.decode(TestDestination.self, forKey: .testDestination)
@@ -77,6 +82,7 @@ public struct TestArgFile: Codable {
             try container.encode(buildArtifacts, forKey: .buildArtifacts)
             try container.encode(environment, forKey: .environment)
             try container.encode(numberOfRetries, forKey: .numberOfRetries)
+            try container.encode(pluginLocations, forKey: .pluginLocations)
             try container.encode(scheduleStrategy, forKey: .scheduleStrategy)
             try container.encode(simulatorSettings, forKey: .simulatorSettings)
             try container.encode(testDestination, forKey: .testDestination)

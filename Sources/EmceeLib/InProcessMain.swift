@@ -9,6 +9,7 @@ import Logging
 import LoggingSetup
 import Metrics
 import Models
+import PluginManager
 import ProcessController
 import RequestSender
 import ResourceLocationResolver
@@ -48,24 +49,30 @@ public final class InProcessMain {
                 urlSession: URLSession.shared
             )
         )
+        let pluginEventBusProvider: PluginEventBusProvider = PluginEventBusProviderImpl(
+            resourceLocationResolver: resourceLocationResolver
+        )
         
         let commandInvoker = CommandInvoker(
             commands: [
                 DistWorkCommand(
                     dateProvider: dateProvider,
                     developerDirLocator: developerDirLocator,
+                    pluginEventBusProvider: pluginEventBusProvider,
                     requestSenderProvider: requestSenderProvider,
                     resourceLocationResolver: resourceLocationResolver
                 ),
                 DumpRuntimeTestsCommand(
                     dateProvider: dateProvider,
                     developerDirLocator: developerDirLocator,
+                    pluginEventBusProvider: pluginEventBusProvider,
                     resourceLocationResolver: resourceLocationResolver
                 ),
                 RunTestsOnRemoteQueueCommand(
                     dateProvider: dateProvider,
                     developerDirLocator: developerDirLocator,
                     localQueueVersionProvider: localQueueVersionProvider,
+                    pluginEventBusProvider: pluginEventBusProvider,
                     requestSenderProvider: requestSenderProvider,
                     resourceLocationResolver: resourceLocationResolver
                 ),

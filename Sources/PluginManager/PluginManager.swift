@@ -12,13 +12,13 @@ public final class PluginManager: EventStream {
     public static let pluginBundleExtension = "emceeplugin"
     public static let pluginExecutableName = "Plugin"
     private let encoder = JSONEncoder.pretty()
-    private let pluginLocations: [PluginLocation]
+    private let pluginLocations: Set<PluginLocation>
     private var processControllers = [ProcessController]()
     private let resourceLocationResolver: ResourceLocationResolver
     private let eventDistributor: EventDistributor
     
     public init(
-        pluginLocations: [PluginLocation],
+        pluginLocations: Set<PluginLocation>,
         resourceLocationResolver: ResourceLocationResolver)
     {
         self.pluginLocations = pluginLocations
@@ -27,7 +27,7 @@ public final class PluginManager: EventStream {
     }
     
     private static func pathsToPluginBundles(
-        pluginLocations: [PluginLocation],
+        pluginLocations: Set<PluginLocation>,
         resourceLocationResolver: ResourceLocationResolver
     ) throws -> [AbsolutePath] {
         var paths = [AbsolutePath]()
