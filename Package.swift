@@ -1121,6 +1121,7 @@ let package = Package(
             dependencies: [
                 "DeveloperDirLocator",
                 "ListeningSemaphore",
+                "LocalHostDeterminer",
                 "Logging",
                 "Models",
                 "Runner",

@@ -2,6 +2,7 @@ import DeveloperDirLocator
 import Dispatch
 import Extensions
 import Foundation
+import LocalHostDeterminer
 import ListeningSemaphore
 import Logging
 import Models
@@ -81,7 +82,7 @@ public final class Scheduler {
             let acquireResources = try resourceSemaphore.acquire(.of(runningTests: 1))
             let runTestsInBucketAfterAcquiringResources = BlockOperation {
                 do {
-                    let testingResult = try self.runRetrying(bucket: bucket)
+                    let testingResult = self.execute(bucket: bucket)
                     try self.resourceSemaphore.release(.of(runningTests: 1))
                     self.schedulerDelegate?.scheduler(self, obtainedTestingResult: testingResult, forBucket: bucket)
                     self.fetchAndRunBucket()
@@ -97,6 +98,38 @@ public final class Scheduler {
     }
     
     // MARK: - Running the Tests
+    
+    private func execute(bucket: SchedulerBucket) -> TestingResult {
+        let startedAt = Date()
+        do {
+            return try self.runRetrying(bucket: bucket)
+        } catch {
+            Logger.error("Failed to execute bucket \(bucket.bucketId): \(error)")
+            return TestingResult(
+                bucketId: bucket.bucketId,
+                testDestination: bucket.testDestination,
+                unfilteredResults: bucket.testEntries.map { testEntry -> TestEntryResult in
+                    TestEntryResult.withResult(
+                        testEntry: testEntry,
+                        testRunResult: TestRunResult(
+                            succeeded: false,
+                            exceptions: [
+                                TestException(
+                                    reason: "Emcee failed to execute this test: \(error)",
+                                    filePathInProject: #file,
+                                    lineNumber: #line
+                                )
+                            ],
+                            duration: Date().timeIntervalSince(startedAt),
+                            startTime: startedAt.timeIntervalSince1970,
+                            hostName: LocalHostDeterminer.currentHostAddress,
+                            simulatorId: UDID(value: "undefined")
+                        )
+                    )
+                }
+            )
+        }
+    }
     
     /**
      Runs tests in a given Bucket, retrying failed tests multiple times if necessary.

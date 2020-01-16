@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## 2020-01-16
 
+- Fixed a bug: when Emcee fails to execute a test because of underlying error (e.g. failed to fetch a file, failed to boot simulator), worker wouldn't send back a test failure result. This would result to an infinitely processing buckets on worker. Now it will report back a test failure.
+
 - Changed the way Emcee manages plugins. They now start right before Runner is about to start tests, and stopped after that. Plugins are started on the workers only.
 
 - `plugins` key is now removed from Queue Server Run Configuration
