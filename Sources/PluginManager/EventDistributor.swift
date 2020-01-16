@@ -45,7 +45,7 @@ public final class EventDistributor {
     }
     
     public func waitForPluginsToConnect(timeout: TimeInterval) throws {
-        try SynchronousWaiter().waitWhile(pollPeriod: 0.5, timeout: timeout, description: "Waiting for all plugins to connect") {
+        try SynchronousWaiter().waitWhile(pollPeriod: 0.5, timeout: timeout, description: "Waiting for \(pluginIdentifiers.count) plugins to connect") {
             connectedPluginIdentifiers != pluginIdentifiers
         }
     }

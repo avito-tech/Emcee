@@ -27,16 +27,6 @@ public final class InProcessMain {
         
         try runCommands()
     }
-    
-    private static func cacheContainerUrl() throws -> URL {
-        let cacheContainer = try FileManager.default.url(
-            for: .cachesDirectory,
-            in: .userDomainMask,
-            appropriateFor: nil,
-            create: true
-        )
-        return cacheContainer.appendingPathComponent("ru.avito.Runner.cache", isDirectory: true)
-    }
 
     private func runCommands() throws {
         let dateProvider = SystemDateProvider()
@@ -45,7 +35,7 @@ public final class InProcessMain {
         let requestSenderProvider = DefaultRequestSenderProvider()
         let resourceLocationResolver = ResourceLocationResolverImpl(
             urlResource: URLResource(
-                fileCache: try FileCache(cachesUrl: try InProcessMain.cacheContainerUrl()),
+                fileCache: try FileCache.fileCacheInDefaultLocation(),
                 urlSession: URLSession.shared
             )
         )

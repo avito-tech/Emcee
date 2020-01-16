@@ -24,6 +24,17 @@ public final class FileCache {
         case move
     }
     
+    public static func fileCacheInDefaultLocation() throws -> FileCache {
+        let cacheContainer = try FileManager.default.url(
+            for: .cachesDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: true
+        )
+        let url = cacheContainer.appendingPathComponent("ru.avito.Runner.cache", isDirectory: true)
+        return try FileCache(cachesUrl: url)
+    }
+    
     public init(
         cachesUrl: URL,
         nameHasher: NameKeyer = SHA256NameKeyer(),
