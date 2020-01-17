@@ -8,10 +8,12 @@ class JunitTests: XCTestCase {
         let testCase = JunitTestCase(
             className: "SomeTests",
             name: "name",
+            timestamp: 10000,
             time: 10,
+            hostname: "host.example.com",
             isFailure: true,
-            failures: [JunitTestCaseFailure(reason: "a reason", fileLine: "file:12")],
-            boundaries: JunitTestCaseBoundaries(startTime: 1, finishTime: 11))
+            failures: [JunitTestCaseFailure(reason: "a reason", fileLine: "file:12")]
+        )
         let generator = JunitGenerator(testCases: [testCase])
         let xmlString = try generator.generateReport()
         
@@ -31,10 +33,12 @@ class JunitTests: XCTestCase {
         let testCase = JunitTestCase(
             className: "SomeTests",
             name: "name",
+            timestamp: 10000,
             time: 10,
+            hostname: "host.example.com",
             isFailure: true,
-            failures: [JunitTestCaseFailure(reason: stringWithControlCharacters, fileLine: "file:12")],
-            boundaries: JunitTestCaseBoundaries(startTime: 1, finishTime: 11))
+            failures: [JunitTestCaseFailure(reason: stringWithControlCharacters, fileLine: "file:12")]
+        )
         let generator = JunitGenerator(testCases: [testCase])
         let xmlString = try generator.generateReport()
         XCTAssertFalse(xmlString.contains(stringWithControlCharacters))

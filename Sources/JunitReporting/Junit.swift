@@ -10,47 +10,41 @@ public struct JunitTestCaseFailure {
     }
 }
 
-public struct JunitTestCaseBoundaries {
-    public let startTime: TimeInterval
-    public let finishTime: TimeInterval
-
-    public init(startTime: TimeInterval, finishTime: TimeInterval) {
-        self.startTime = startTime
-        self.finishTime = finishTime
-    }
-}
-
 public struct JunitTestCase {
-    public let className: String     /* FunctionalTests.AbuseTests_91953 */
-    public let name: String          /* test, testDataSet0 */
-    public let time: TimeInterval    /* 34.56 */
+    public let className: String         // FunctionalTests.AbuseTests_91953
+    public let name: String              // test, testDataSet0
+    public let timestamp: TimeInterval   // when the test was executed, current timezone will be used
+    public let time: TimeInterval        // Time taken (in seconds) to execute the tests in the suite
+    public let hostname: String
     public let isFailure: Bool
     public let failures: [JunitTestCaseFailure]
-    public let boundaries: JunitTestCaseBoundaries
 
     public init(
         className: String,
         name: String,
+        timestamp: TimeInterval,
         time: TimeInterval,
+        hostname: String,
         isFailure: Bool,
-        failures: [JunitTestCaseFailure],
-        boundaries: JunitTestCaseBoundaries
-        )
-    {
+        failures: [JunitTestCaseFailure]
+    ) {
         self.className = className
         self.name = name
+        self.timestamp = timestamp
         self.time = time
+        self.hostname = hostname
         self.isFailure = isFailure
         self.failures = failures
-        self.boundaries = boundaries
     }
 }
 
 public final class JunitGenerator {
     private let testCases: [JunitTestCase]
+    private let iso8601DateFormatter = ISO8601DateFormatter()
     
     public init(testCases: [JunitTestCase]) {
         self.testCases = testCases
+        iso8601DateFormatter.timeZone = TimeZone.autoupdatingCurrent
     }
     
     public func writeReport(path: String) throws {
@@ -104,7 +98,9 @@ public final class JunitGenerator {
                 
                 try xmlTestCase.addAttribute(withName: "classname", stringValue: "\(className)")
                 try xmlTestCase.addAttribute(withName: "name", stringValue: "\(testCase.name)")
+                try xmlTestCase.addAttribute(withName: "timestamp", stringValue: "\(iso8601DateFormatter.string(from: Date(timeIntervalSince1970: testCase.timestamp)))")
                 try xmlTestCase.addAttribute(withName: "time", stringValue: "\(testCase.time)")
+                try xmlTestCase.addAttribute(withName: "hostname", stringValue: "\(testCase.hostname)")
                 xmlTestSuite.addChild(xmlTestCase)
             }
             

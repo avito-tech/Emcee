@@ -38,17 +38,15 @@ public final class ReportsGenerator {
                         reason: $0.reason,
                         fileLine: "\($0.filePathInProject):\($0.lineNumber)")
                 }
-                let boundaries = JunitTestCaseBoundaries(
-                    startTime: testRunResult.startTime,
-                    finishTime: testRunResult.finishTime
-                )
                 return JunitTestCase(
                     className: testEntryResult.testEntry.testName.className,
                     name: testEntryResult.testEntry.testName.methodName,
+                    timestamp: testRunResult.startTime,
                     time: testRunResult.duration,
+                    hostname: testRunResult.hostName,
                     isFailure: !testRunResult.succeeded,
-                    failures: failures,
-                    boundaries: boundaries)
+                    failures: failures
+                )
         }
         
         let generator = JunitGenerator(testCases: testCases)
