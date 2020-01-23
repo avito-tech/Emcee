@@ -63,4 +63,16 @@ class AbsolutePathTests: XCTestCase {
             RelativePath("../..")
         )
     }
+    
+    func test___is_subpath() {
+        XCTAssertTrue(
+            AbsolutePath("/path/to/something").isSubpathOf(anchorPath: AbsolutePath("/path/to/"))
+        )
+        XCTAssertFalse(
+            AbsolutePath("/path/to/something").isSubpathOf(anchorPath: AbsolutePath("/path/to/something"))
+        )
+        XCTAssertFalse(
+            AbsolutePath("/path/of/something").isSubpathOf(anchorPath: AbsolutePath("/path/to/"))
+        )
+    }
 }

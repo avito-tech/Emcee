@@ -19,6 +19,7 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
     private let simulatorControllerProvider: SimulatorControllerProvider
     private let tempFolder: TemporaryFolder
     private let testDestination: TestDestination
+    private let testRunnerTool: TestRunnerTool
     private var controllers = [SimulatorController]()
     private let syncQueue = DispatchQueue(label: "ru.avito.SimulatorPool")
     
@@ -32,7 +33,8 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
         simulatorControlTool: SimulatorControlTool,
         simulatorControllerProvider: SimulatorControllerProvider,
         tempFolder: TemporaryFolder,
-        testDestination: TestDestination
+        testDestination: TestDestination,
+        testRunnerTool: TestRunnerTool
     ) throws {
         self.developerDir = developerDir
         self.developerDirLocator = developerDirLocator
@@ -40,6 +42,7 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
         self.simulatorControllerProvider = simulatorControllerProvider
         self.tempFolder = tempFolder
         self.testDestination = testDestination
+        self.testRunnerTool = testRunnerTool
     }
     
     deinit {
@@ -56,7 +59,8 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
                 developerDir: developerDir,
                 developerDirLocator: developerDirLocator,
                 simulatorControlTool: simulatorControlTool,
-                testDestination: testDestination
+                testDestination: testDestination,
+                testRunnerTool: testRunnerTool
             )
             Logger.verboseDebug("Allocated new simulator: \(controller)")
             return controller

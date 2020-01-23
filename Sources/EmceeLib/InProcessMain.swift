@@ -14,6 +14,7 @@ import ProcessController
 import RequestSender
 import ResourceLocationResolver
 import URLResource
+import UniqueIdentifierGenerator
 import Version
 
 public final class InProcessMain {
@@ -42,6 +43,7 @@ public final class InProcessMain {
         let pluginEventBusProvider: PluginEventBusProvider = PluginEventBusProviderImpl(
             resourceLocationResolver: resourceLocationResolver
         )
+        let uniqueIdentifierGenerator = UuidBasedUniqueIdentifierGenerator()
         
         let commandInvoker = CommandInvoker(
             commands: [
@@ -50,13 +52,15 @@ public final class InProcessMain {
                     developerDirLocator: developerDirLocator,
                     pluginEventBusProvider: pluginEventBusProvider,
                     requestSenderProvider: requestSenderProvider,
-                    resourceLocationResolver: resourceLocationResolver
+                    resourceLocationResolver: resourceLocationResolver,
+                    uniqueIdentifierGenerator: uniqueIdentifierGenerator
                 ),
                 DumpRuntimeTestsCommand(
                     dateProvider: dateProvider,
                     developerDirLocator: developerDirLocator,
                     pluginEventBusProvider: pluginEventBusProvider,
-                    resourceLocationResolver: resourceLocationResolver
+                    resourceLocationResolver: resourceLocationResolver,
+                    uniqueIdentifierGenerator: uniqueIdentifierGenerator
                 ),
                 RunTestsOnRemoteQueueCommand(
                     dateProvider: dateProvider,
@@ -64,13 +68,15 @@ public final class InProcessMain {
                     localQueueVersionProvider: localQueueVersionProvider,
                     pluginEventBusProvider: pluginEventBusProvider,
                     requestSenderProvider: requestSenderProvider,
-                    resourceLocationResolver: resourceLocationResolver
+                    resourceLocationResolver: resourceLocationResolver,
+                    uniqueIdentifierGenerator: uniqueIdentifierGenerator
                 ),
                 StartQueueServerCommand(
                     localQueueVersionProvider: localQueueVersionProvider,
                     requestSenderProvider: requestSenderProvider,
                     requestSignature: RequestSignature(value: UUID().uuidString),
-                    resourceLocationResolver: resourceLocationResolver
+                    resourceLocationResolver: resourceLocationResolver,
+                    uniqueIdentifierGenerator: uniqueIdentifierGenerator
                 ),
             ],
             helpCommandType: .generateAutomatically

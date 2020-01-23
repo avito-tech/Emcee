@@ -11,15 +11,18 @@ public class OnDemandSimulatorPool {
     public struct Key: Hashable, CustomStringConvertible {
         public let developerDir: DeveloperDir
         public let testDestination: TestDestination
+        public let testRunnerTool: TestRunnerTool
         public let simulatorControlTool: SimulatorControlTool
         
         public init(
             developerDir: DeveloperDir,
             testDestination: TestDestination,
+            testRunnerTool: TestRunnerTool,
             simulatorControlTool: SimulatorControlTool
         ) {
             self.developerDir = developerDir
             self.testDestination = testDestination
+            self.testRunnerTool = testRunnerTool
             self.simulatorControlTool = simulatorControlTool
         }
         
@@ -29,6 +32,7 @@ public class OnDemandSimulatorPool {
         
         public func hash(into hasher: inout Hasher) {
             hasher.combine(developerDir)
+            hasher.combine(testRunnerTool)
             hasher.combine(testDestination)
             hasher.combine(simulatorControlTool)
         }
@@ -36,6 +40,7 @@ public class OnDemandSimulatorPool {
         public static func == (left: OnDemandSimulatorPool.Key, right: OnDemandSimulatorPool.Key) -> Bool {
             return left.developerDir == right.developerDir
                 && left.testDestination == right.testDestination
+                && left.testRunnerTool == right.testRunnerTool
                 && left.simulatorControlTool == right.simulatorControlTool
         }
     }
@@ -75,7 +80,8 @@ public class OnDemandSimulatorPool {
                     simulatorControlTool: key.simulatorControlTool,
                     simulatorControllerProvider: simulatorControllerProvider,
                     tempFolder: tempFolder,
-                    testDestination: key.testDestination
+                    testDestination: key.testDestination,
+                    testRunnerTool: key.testRunnerTool
                 )
                 pools[key] = pool
                 Logger.verboseDebug("Created SimulatorPool for key \(key)")

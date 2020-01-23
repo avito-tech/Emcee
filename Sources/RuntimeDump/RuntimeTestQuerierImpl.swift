@@ -173,6 +173,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
             key: OnDemandSimulatorPool.Key(
                 developerDir: configuration.developerDir,
                 testDestination: configuration.testDestination,
+                testRunnerTool: configuration.testRunnerTool,
                 simulatorControlTool: simulatorControlTool
             )
         )

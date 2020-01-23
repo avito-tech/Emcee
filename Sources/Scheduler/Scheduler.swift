@@ -163,6 +163,7 @@ public final class Scheduler {
             key: OnDemandSimulatorPool.Key(
                 developerDir: bucket.toolchainConfiguration.developerDir,
                 testDestination: bucket.testDestination,
+                testRunnerTool: bucket.toolResources.testRunnerTool,
                 simulatorControlTool: bucket.toolResources.simulatorControlTool
             )
         )

@@ -32,17 +32,20 @@ public final class DumpRuntimeTestsCommand: Command {
     private let developerDirLocator: DeveloperDirLocator
     private let pluginEventBusProvider: PluginEventBusProvider
     private let resourceLocationResolver: ResourceLocationResolver
+    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     
     public init(
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         pluginEventBusProvider: PluginEventBusProvider,
-        resourceLocationResolver: ResourceLocationResolver
+        resourceLocationResolver: ResourceLocationResolver,
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
+        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
 
     public func run(payload: CommandPayload) throws {
@@ -55,7 +58,8 @@ public final class DumpRuntimeTestsCommand: Command {
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
             developerDirLocator: developerDirLocator,
             resourceLocationResolver: resourceLocationResolver,
-            tempFolder: tempFolder
+            tempFolder: tempFolder,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
         
@@ -88,7 +92,7 @@ public final class DumpRuntimeTestsCommand: Command {
                     dateProvider: dateProvider,
                     resourceLocationResolver: resourceLocationResolver
                 ),
-                uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator()
+                uniqueIdentifierGenerator: uniqueIdentifierGenerator
             )
             
             let result = try runtimeTestQuerier.queryRuntime(configuration: configuration)

@@ -14,7 +14,8 @@ public final class FakeSimulatorControllerProvider: SimulatorControllerProvider 
         developerDir: DeveloperDir,
         developerDirLocator: DeveloperDirLocator,
         simulatorControlTool: SimulatorControlTool,
-        testDestination: TestDestination
+        testDestination: TestDestination,
+        testRunnerTool: TestRunnerTool
     ) throws -> SimulatorController {
         return result(testDestination)
     }

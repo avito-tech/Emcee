@@ -44,14 +44,16 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     private let pluginEventBusProvider: PluginEventBusProvider
     private let requestSenderProvider: RequestSenderProvider
     private let resourceLocationResolver: ResourceLocationResolver
-
+    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
+    
     public init(
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         localQueueVersionProvider: VersionProvider,
         pluginEventBusProvider: PluginEventBusProvider,
         requestSenderProvider: RequestSenderProvider,
-        resourceLocationResolver: ResourceLocationResolver
+        resourceLocationResolver: ResourceLocationResolver,
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
@@ -59,6 +61,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         self.pluginEventBusProvider = pluginEventBusProvider
         self.requestSenderProvider = requestSenderProvider
         self.resourceLocationResolver = resourceLocationResolver
+        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
     public func run(payload: CommandPayload) throws {
@@ -156,7 +159,9 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
             developerDirLocator: developerDirLocator,
             resourceLocationResolver: resourceLocationResolver,
-            tempFolder: tempFolder
+            tempFolder: tempFolder,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
         let runtimeTestQuerier = RuntimeTestQuerierImpl(

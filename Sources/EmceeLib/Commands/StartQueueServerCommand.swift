@@ -30,17 +30,20 @@ public final class StartQueueServerCommand: Command {
     private let requestSenderProvider: RequestSenderProvider
     private let requestSignature: RequestSignature
     private let resourceLocationResolver: ResourceLocationResolver
+    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
 
     public init(
         localQueueVersionProvider: VersionProvider,
         requestSenderProvider: RequestSenderProvider,
         requestSignature: RequestSignature,
-        resourceLocationResolver: ResourceLocationResolver
+        resourceLocationResolver: ResourceLocationResolver,
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
         self.localQueueVersionProvider = localQueueVersionProvider
         self.requestSenderProvider = requestSenderProvider
         self.requestSignature = requestSignature
         self.resourceLocationResolver = resourceLocationResolver
+        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
     public func run(payload: CommandPayload) throws {
@@ -66,7 +69,6 @@ public final class StartQueueServerCommand: Command {
         let automaticTerminationController = AutomaticTerminationControllerFactory(
             automaticTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy
         ).createAutomaticTerminationController()
-        let uniqueIdentifierGenerator = UuidBasedUniqueIdentifierGenerator()
         let queueServer = QueueServerImpl(
             automaticTerminationController: automaticTerminationController,
             dateProvider: SystemDateProvider(),

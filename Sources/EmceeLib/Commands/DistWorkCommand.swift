@@ -8,12 +8,13 @@ import LoggingSetup
 import Models
 import PathLib
 import PluginManager
-import ResourceLocationResolver
+import QueueClient
 import RequestSender
+import ResourceLocationResolver
 import SimulatorPool
 import SynchronousWaiter
 import TemporaryStuff
-import QueueClient
+import UniqueIdentifierGenerator
 
 public final class DistWorkCommand: Command {
     public let name = "distWork"
@@ -28,19 +29,22 @@ public final class DistWorkCommand: Command {
     private let pluginEventBusProvider: PluginEventBusProvider
     private let requestSenderProvider: RequestSenderProvider
     private let resourceLocationResolver: ResourceLocationResolver
+    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
 
     public init(
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         pluginEventBusProvider: PluginEventBusProvider,
         requestSenderProvider: RequestSenderProvider,
-        resourceLocationResolver: ResourceLocationResolver
+        resourceLocationResolver: ResourceLocationResolver,
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.pluginEventBusProvider = pluginEventBusProvider
         self.requestSenderProvider = requestSenderProvider
         self.resourceLocationResolver = resourceLocationResolver
+        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
     public func run(payload: CommandPayload) throws {
@@ -51,7 +55,8 @@ public final class DistWorkCommand: Command {
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
             developerDirLocator: developerDirLocator,
             resourceLocationResolver: resourceLocationResolver,
-            tempFolder: temporaryFolder
+            tempFolder: temporaryFolder,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
 

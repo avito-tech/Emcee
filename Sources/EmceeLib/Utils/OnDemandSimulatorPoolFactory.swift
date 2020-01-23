@@ -3,6 +3,7 @@ import Foundation
 import ResourceLocationResolver
 import SimulatorPool
 import TemporaryStuff
+import UniqueIdentifierGenerator
 
 public final class OnDemandSimulatorPoolFactory {
     public static func create(
@@ -10,16 +11,22 @@ public final class OnDemandSimulatorPoolFactory {
         additionalBootAttempts: UInt = 2,
         resourceLocationResolver: ResourceLocationResolver,
         simulatorBootQueue: DispatchQueue = DispatchQueue(label: "SimulatorBootQueue"),
-        tempFolder: TemporaryFolder
+        tempFolder: TemporaryFolder,
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) -> OnDemandSimulatorPool {
         return OnDemandSimulatorPool(
             developerDirLocator: developerDirLocator,
             resourceLocationResolver: resourceLocationResolver,
             simulatorControllerProvider: DefaultSimulatorControllerProvider(
                 additionalBootAttempts: additionalBootAttempts,
-                resourceLocationResolver: resourceLocationResolver,
                 simulatorBootQueue: simulatorBootQueue,
-                temporaryFolder: tempFolder
+                simulatorStateMachineActionExecutorProvider: SimulatorStateMachineActionExecutorProviderImpl(
+                    resourceLocationResolver: resourceLocationResolver,
+                    simulatorSetPathDeterminer: SimulatorSetPathDeterminerImpl(
+                        temporaryFolder: tempFolder,
+                        uniqueIdentifierGenerator: uniqueIdentifierGenerator
+                    )
+                )
             ),
             tempFolder: tempFolder
         )

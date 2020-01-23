@@ -383,7 +383,12 @@ let package = Package(
             dependencies: [
                 "EmceeLib",
                 "Models",
-                "ModelsTestHelpers"
+                "ModelsTestHelpers",
+                "ResourceLocationResolver",
+                "ResourceLocationResolverTestHelpers",
+                "TemporaryStuff",
+                "TestHelpers",
+                "UniqueIdentifierGeneratorTestHelpers",
             ]
         ),
         .target(

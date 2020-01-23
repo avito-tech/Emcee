@@ -19,6 +19,19 @@ public final class AbsolutePath: Path, Codable, Hashable {
         return URL(fileURLWithPath: pathString)
     }
     
+    /// Returns true if current path is a child of given anchor path.
+    /// Examples:
+    ///     `/path/to/something` is subpath of `/path/to`.
+    ///     `/path/to/something` is NOT subpath of `/path/to/something`.
+    ///     `/path/of/something` is NOT subpath of `/path/to/`.
+    public func isSubpathOf(anchorPath: AbsolutePath) -> Bool {
+        guard components.count > anchorPath.components.count else {
+            return false
+        }
+        let headComponents = Array(components.dropLast(components.count - anchorPath.components.count))
+        return headComponents == anchorPath.components
+    }
+    
     /// Finds a `RelativePath` for this instance and a given anchor path.
     public func relativePath(anchorPath: AbsolutePath) -> RelativePath {
         let pathComponents = components

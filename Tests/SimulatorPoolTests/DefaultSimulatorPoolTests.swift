@@ -28,7 +28,8 @@ class DefaultSimulatorPoolTests: XCTestCase {
             simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
             simulatorControllerProvider: simulatorControllerProvider,
             tempFolder: tempFolder,
-            testDestination: TestDestinationFixtures.testDestination
+            testDestination: TestDestinationFixtures.testDestination,
+            testRunnerTool: .xcodebuild
         )
         let queue = OperationQueue()
         queue.maxConcurrentOperationCount = Int(numberOfThreads)

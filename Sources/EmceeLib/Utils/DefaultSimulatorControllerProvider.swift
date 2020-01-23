@@ -3,7 +3,6 @@ import DeveloperDirLocator
 import Foundation
 import Models
 import PathLib
-import ResourceLocationResolver
 import SimulatorPool
 import TemporaryStuff
 import fbxctest
@@ -11,43 +10,26 @@ import fbxctest
 public final class DefaultSimulatorControllerProvider: SimulatorControllerProvider {
     
     private let additionalBootAttempts: UInt
-    private let resourceLocationResolver: ResourceLocationResolver
     private let simulatorBootQueue: DispatchQueue
-    private let temporaryFolder: TemporaryFolder
+    private let simulatorStateMachineActionExecutorProvider: SimulatorStateMachineActionExecutorProvider
     
     public init(
         additionalBootAttempts: UInt,
-        resourceLocationResolver: ResourceLocationResolver,
         simulatorBootQueue: DispatchQueue,
-        temporaryFolder: TemporaryFolder
+        simulatorStateMachineActionExecutorProvider: SimulatorStateMachineActionExecutorProvider
     ) {
         self.additionalBootAttempts = additionalBootAttempts
-        self.resourceLocationResolver = resourceLocationResolver
         self.simulatorBootQueue = simulatorBootQueue
-        self.temporaryFolder = temporaryFolder
+        self.simulatorStateMachineActionExecutorProvider = simulatorStateMachineActionExecutorProvider
     }
 
     public func createSimulatorController(
         developerDir: DeveloperDir,
         developerDirLocator: DeveloperDirLocator,
         simulatorControlTool: SimulatorControlTool,
-        testDestination: TestDestination
+        testDestination: TestDestination,
+        testRunnerTool: TestRunnerTool
     ) throws -> SimulatorController {
-        let simulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor
-        switch simulatorControlTool {
-        case .fbsimctl(let fbsimctlLocation):
-            simulatorStateMachineActionExecutor = FbsimctlBasedSimulatorStateMachineActionExecutor(
-                fbsimctl: resourceLocationResolver.resolvable(withRepresentable: fbsimctlLocation),
-                simulatorsContainerPath: try temporaryFolder.pathByCreatingDirectories(
-                    components: ["fbsimctl_simulators", UUID().uuidString]
-                )
-            )
-        case .simctl:
-            simulatorStateMachineActionExecutor = SimctlBasedSimulatorStateMachineActionExecutor(
-                simulatorSetPath: AbsolutePath.home.appending(relativePath: RelativePath("Library/Developer/CoreSimulator/Devices"))
-            )
-        }
-        
         return StateMachineDrivenSimulatorController(
             additionalBootAttempts: additionalBootAttempts,
             bootQueue: simulatorBootQueue,
@@ -60,7 +42,10 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
                 shutdown: 20
             ),
             simulatorStateMachine: SimulatorStateMachine(),
-            simulatorStateMachineActionExecutor: simulatorStateMachineActionExecutor,
+            simulatorStateMachineActionExecutor: try simulatorStateMachineActionExecutorProvider.simulatorStateMachineActionExecutor(
+                simulatorControlTool: simulatorControlTool,
+                testRunnerTool: testRunnerTool
+            ),
             testDestination: testDestination
         )
     }
