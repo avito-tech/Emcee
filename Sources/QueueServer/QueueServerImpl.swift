@@ -44,7 +44,7 @@ public final class QueueServerImpl: QueueServer {
         bucketSplitInfo: BucketSplitInfo,
         queueServerLock: QueueServerLock,
         queueVersionProvider: VersionProvider,
-        requestSignature: PayloadSignature,
+        payloadSignature: PayloadSignature,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
         self.workerAlivenessProvider = WorkerAlivenessProviderImpl(
@@ -84,7 +84,7 @@ public final class QueueServerImpl: QueueServer {
         )
         self.workerAlivenessEndpoint = WorkerAlivenessEndpoint(
             workerAlivenessProvider: workerAlivenessProvider,
-            expectedRequestSignature: requestSignature
+            expectedPayloadSignature: payloadSignature
         )
         self.workerRegistrar = WorkerRegistrar(
             workerConfigurations: workerConfigurations,
@@ -99,7 +99,7 @@ public final class QueueServerImpl: QueueServer {
                 jobStateProvider: balancingBucketQueue,
                 queueStateProvider: balancingBucketQueue
             ),
-            expectedRequestSignature: requestSignature
+            expectedPayloadSignature: payloadSignature
         )
         self.bucketResultRegistrar = BucketResultRegistrar(
             bucketResultAccepter: BucketResultAccepterWithMetricSupport(
@@ -107,7 +107,7 @@ public final class QueueServerImpl: QueueServer {
                 jobStateProvider: balancingBucketQueue,
                 queueStateProvider: balancingBucketQueue
             ),
-            expectedRequestSignature: requestSignature,
+            expectedPayloadSignature: payloadSignature,
             workerAlivenessProvider: workerAlivenessProvider
         )
         self.queueServerVersionHandler = QueueServerVersionEndpoint(

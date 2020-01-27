@@ -37,12 +37,12 @@ public struct QueueServerRunConfiguration: Decodable {
     
     public func workerConfiguration(
         deploymentDestinationConfiguration: DestinationConfiguration,
-        requestSignature: PayloadSignature
+        payloadSignature: PayloadSignature
     ) -> WorkerConfiguration {
         return WorkerConfiguration(
             analyticsConfiguration: analyticsConfiguration,
             reportAliveInterval: reportAliveInterval,
-            requestSignature: requestSignature,
+            payloadSignature: payloadSignature,
             testRunExecutionBehavior: testRunExecutionBehavior(
                 deploymentDestinationConfiguration: deploymentDestinationConfiguration
             )

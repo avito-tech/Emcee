@@ -15,7 +15,7 @@ public final class BucketResultSenderImpl: BucketResultSender {
         testingResult: TestingResult,
         requestId: RequestId,
         workerId: WorkerId,
-        requestSignature: PayloadSignature,
+        payloadSignature: PayloadSignature,
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<BucketId, Error>) -> ()
     ) {
@@ -24,7 +24,7 @@ public final class BucketResultSenderImpl: BucketResultSender {
                 workerId: workerId,
                 requestId: requestId,
                 testingResult: testingResult,
-                requestSignature: requestSignature
+                payloadSignature: payloadSignature
             )
         )
 

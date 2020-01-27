@@ -7,7 +7,7 @@ public protocol BucketResultSender {
         testingResult: TestingResult,
         requestId: RequestId,
         workerId: WorkerId,
-        requestSignature: PayloadSignature,
+        payloadSignature: PayloadSignature,
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<BucketId, Error>) -> ()
     )

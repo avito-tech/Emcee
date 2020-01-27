@@ -9,10 +9,10 @@ public final class ReportAlivePayload: Codable, SignedPayload {
     public init(
         workerId: WorkerId,
         bucketIdsBeingProcessed: Set<BucketId>,
-        requestSignature: PayloadSignature
+        payloadSignature: PayloadSignature
     ) {
         self.workerId = workerId
         self.bucketIdsBeingProcessed = bucketIdsBeingProcessed
-        self.payloadSignature = requestSignature
+        self.payloadSignature = payloadSignature
     }
 }

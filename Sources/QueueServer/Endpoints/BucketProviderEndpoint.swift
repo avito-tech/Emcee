@@ -17,10 +17,10 @@ public final class BucketProviderEndpoint: PayloadSignatureVerifyingRESTEndpoint
 
     public init(
         dequeueableBucketSource: DequeueableBucketSource,
-        expectedRequestSignature: PayloadSignature
+        expectedPayloadSignature: PayloadSignature
     ) {
         self.dequeueableBucketSource = dequeueableBucketSource
-        self.expectedPayloadSignature = expectedRequestSignature
+        self.expectedPayloadSignature = expectedPayloadSignature
     }
     
     public func handle(verifiedPayload: DequeueBucketPayload) throws -> DequeueBucketResponse {

@@ -8,21 +8,21 @@ import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class WorkerAlivenessEndpointTests: XCTestCase {
-    let expectedRequestSignature = PayloadSignature(value: "expectedRequestSignature")
+    let expectedPayloadSignature = PayloadSignature(value: "expectedPayloadSignature")
     let fixedDate = Date()
 
     func test___handling_requests() {
         let tracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
         let endpoint = WorkerAlivenessEndpoint(
             workerAlivenessProvider: tracker,
-            expectedRequestSignature: expectedRequestSignature
+            expectedPayloadSignature: expectedPayloadSignature
         )
         XCTAssertNoThrow(
             try endpoint.handle(
                 verifiedPayload: ReportAlivePayload(
                     workerId: "worker",
                     bucketIdsBeingProcessed: [],
-                    requestSignature: expectedRequestSignature
+                    payloadSignature: expectedPayloadSignature
                 )
             )
         )
@@ -35,14 +35,14 @@ final class WorkerAlivenessEndpointTests: XCTestCase {
         )
         let endpoint = WorkerAlivenessEndpoint(
             workerAlivenessProvider: tracker,
-            expectedRequestSignature: expectedRequestSignature
+            expectedPayloadSignature: expectedPayloadSignature
         )
         XCTAssertNoThrow(
             try endpoint.handle(
                 verifiedPayload: ReportAlivePayload(
                     workerId: "worker",
                     bucketIdsBeingProcessed: [],
-                    requestSignature: expectedRequestSignature
+                    payloadSignature: expectedPayloadSignature
                 )
             )
         )
@@ -57,14 +57,14 @@ final class WorkerAlivenessEndpointTests: XCTestCase {
         let tracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
         let endpoint = WorkerAlivenessEndpoint(
             workerAlivenessProvider: tracker,
-            expectedRequestSignature: expectedRequestSignature
+            expectedPayloadSignature: expectedPayloadSignature
         )
         XCTAssertNoThrow(
             try endpoint.handle(
                 verifiedPayload: ReportAlivePayload(
                     workerId: "worker",
                     bucketIdsBeingProcessed: ["bucketid"],
-                    requestSignature: expectedRequestSignature
+                    payloadSignature: expectedPayloadSignature
                 )
             )
         )
@@ -78,17 +78,17 @@ final class WorkerAlivenessEndpointTests: XCTestCase {
         let tracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
         let endpoint = WorkerAlivenessEndpoint(
             workerAlivenessProvider: tracker,
-            expectedRequestSignature: expectedRequestSignature
+            expectedPayloadSignature: expectedPayloadSignature
         )
         XCTAssertThrowsError(
             try endpoint.handle(
                 decodedPayload: ReportAlivePayload(
                     workerId: "worker",
                     bucketIdsBeingProcessed: ["bucketid"],
-                    requestSignature: PayloadSignature(value: UUID().uuidString)
+                    payloadSignature: PayloadSignature(value: UUID().uuidString)
                 )
             ),
-            "When request signature mismatches, bucket provider endpoind should throw"
+            "When payload signature mismatches, bucket provider endpoind should throw"
         )
     }
 }

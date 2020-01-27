@@ -6,9 +6,9 @@ public final class DequeueBucketPayload: Codable, SignedPayload {
     public let requestId: RequestId
     public let payloadSignature: PayloadSignature
     
-    public init(workerId: WorkerId, requestId: RequestId, requestSignature: PayloadSignature) {
+    public init(workerId: WorkerId, requestId: RequestId, payloadSignature: PayloadSignature) {
         self.workerId = workerId
         self.requestId = requestId
-        self.payloadSignature = requestSignature
+        self.payloadSignature = payloadSignature
     }
 }

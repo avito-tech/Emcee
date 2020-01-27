@@ -28,20 +28,20 @@ public final class StartQueueServerCommand: Command {
     
     private let localQueueVersionProvider: VersionProvider
     private let requestSenderProvider: RequestSenderProvider
-    private let requestSignature: PayloadSignature
+    private let payloadSignature: PayloadSignature
     private let resourceLocationResolver: ResourceLocationResolver
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
 
     public init(
         localQueueVersionProvider: VersionProvider,
         requestSenderProvider: RequestSenderProvider,
-        requestSignature: PayloadSignature,
+        payloadSignature: PayloadSignature,
         resourceLocationResolver: ResourceLocationResolver,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
         self.localQueueVersionProvider = localQueueVersionProvider
         self.requestSenderProvider = requestSenderProvider
-        self.requestSignature = requestSignature
+        self.payloadSignature = payloadSignature
         self.resourceLocationResolver = resourceLocationResolver
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
@@ -64,7 +64,7 @@ public final class StartQueueServerCommand: Command {
         queueServerRunConfiguration: QueueServerRunConfiguration,
         workerDestinations: [DeploymentDestination]
     ) throws {
-        Logger.info("Generated request signature: \(requestSignature)")
+        Logger.info("Generated payload signature: \(payloadSignature)")
         
         let automaticTerminationController = AutomaticTerminationControllerFactory(
             automaticTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy
@@ -86,7 +86,7 @@ public final class StartQueueServerCommand: Command {
                 automaticTerminationController: automaticTerminationController
             ),
             queueVersionProvider: localQueueVersionProvider,
-            requestSignature: requestSignature,
+            payloadSignature: payloadSignature,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         let pollPeriod: TimeInterval = 5.0
@@ -123,7 +123,7 @@ public final class StartQueueServerCommand: Command {
                 workerId: deploymentDestinationConfiguration.destinationIdentifier,
                 configuration: queueServerRunConfiguration.workerConfiguration(
                     deploymentDestinationConfiguration: deploymentDestinationConfiguration,
-                    requestSignature: requestSignature
+                    payloadSignature: payloadSignature
                 )
             )
         }

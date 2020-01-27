@@ -23,7 +23,7 @@ import XCTest
 import RequestSenderTestHelpers
 
 final class QueueHTTPRESTServerTests: XCTestCase {
-    let expectedRequestSignature = PayloadSignature(value: "expectedRequestSignature")
+    let expectedPayloadSignature = PayloadSignature(value: "expectedPayloadSignature")
     let automaticTerminationController = AutomaticTerminationControllerFixture(
         isTerminationAllowed: false
     )
@@ -110,7 +110,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: DequeueResult.dequeuedBucket(dequeuedBucket))
         let bucketProvider = BucketProviderEndpoint(
             dequeueableBucketSource: bucketQueue,
-            expectedRequestSignature: expectedRequestSignature
+            expectedPayloadSignature: expectedPayloadSignature
         )
         
         restServer.setHandler(
@@ -127,7 +127,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         let client = synchronousQueueClient(port: try restServer.start())
         
         XCTAssertEqual(
-            try client.fetchBucket(requestId: requestId, workerId: workerId, requestSignature: expectedRequestSignature),
+            try client.fetchBucket(requestId: requestId, workerId: workerId, payloadSignature: expectedPayloadSignature),
             SynchronousQueueClient.BucketFetchResult.bucket(bucket)
         )
         
@@ -149,7 +149,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         
         let resultHandler = BucketResultRegistrar(
             bucketResultAccepter: bucketQueue,
-            expectedRequestSignature: expectedRequestSignature,
+            expectedPayloadSignature: expectedPayloadSignature,
             workerAlivenessProvider: alivenessTracker
         )
         
@@ -177,7 +177,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             testingResult: testingResult,
             requestId: requestId,
             workerId: workerId,
-            requestSignature: expectedRequestSignature,
+            payloadSignature: expectedPayloadSignature,
             callbackQueue: callbackQueue
         ) { _ in
             callbackExpectation.fulfill()
@@ -205,7 +205,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             reportAliveHandler: RESTEndpointOf(
                 actualHandler: WorkerAlivenessEndpoint(
                     workerAlivenessProvider: alivenessTracker,
-                    expectedRequestSignature: expectedRequestSignature
+                    expectedPayloadSignature: expectedPayloadSignature
                 )
             ),
             scheduleTestsHandler: stubbedHandler,
@@ -223,7 +223,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         reportAlivenessSender.reportAlive(
             bucketIdsBeingProcessedProvider: Set(),
             workerId: workerId,
-            requestSignature: expectedRequestSignature,
+            payloadSignature: expectedPayloadSignature,
             callbackQueue: callbackQueue
         ) { (result: Either<ReportAliveResponse, Error>) in
             XCTAssertEqual(

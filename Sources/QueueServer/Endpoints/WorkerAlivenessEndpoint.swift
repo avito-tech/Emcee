@@ -14,10 +14,10 @@ public final class WorkerAlivenessEndpoint: PayloadSignatureVerifyingRESTEndpoin
     
     public init(
         workerAlivenessProvider: WorkerAlivenessProvider,
-        expectedRequestSignature: PayloadSignature
+        expectedPayloadSignature: PayloadSignature
     ) {
         self.workerAlivenessProvider = workerAlivenessProvider
-        self.expectedPayloadSignature = expectedRequestSignature
+        self.expectedPayloadSignature = expectedPayloadSignature
     }
     
     public func handle(verifiedPayload: ReportAlivePayload) throws -> ReportAliveResponse {

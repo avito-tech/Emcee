@@ -25,7 +25,7 @@ final class QueueServerTests: XCTestCase {
     private let localPortDeterminer = LocalPortDeterminer(portRange: Ports.allPrivatePorts)
     private let bucketSplitInfo = BucketSplitInfoFixtures.bucketSplitInfoFixture()
     private let queueVersionProvider = VersionProviderFixture().buildVersionProvider()
-    private let requestSignature = PayloadSignature(value: "expectedRequestSignature")
+    private let payloadSignature = PayloadSignature(value: "expectedPayloadSignature")
 
     private let fixedBucketId: BucketId = "fixedBucketId"
     private lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(
@@ -47,7 +47,7 @@ final class QueueServerTests: XCTestCase {
             bucketSplitInfo: bucketSplitInfo,
             queueServerLock: NeverLockableQueueServerLock(),
             queueVersionProvider: queueVersionProvider,
-            requestSignature: requestSignature,
+            payloadSignature: payloadSignature,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         XCTAssertThrowsError(try server.queueResults(jobId: jobId))
@@ -83,7 +83,7 @@ final class QueueServerTests: XCTestCase {
             bucketSplitInfo: bucketSplitInfo,
             queueServerLock: NeverLockableQueueServerLock(),
             queueVersionProvider: queueVersionProvider,
-            requestSignature: requestSignature,
+            payloadSignature: payloadSignature,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         server.schedule(
@@ -136,7 +136,7 @@ final class QueueServerTests: XCTestCase {
         let fetchResult = try client.fetchBucket(
             requestId: "request",
             workerId: workerId,
-            requestSignature: requestSignature
+            payloadSignature: payloadSignature
         )
         XCTAssertEqual(fetchResult, SynchronousQueueClient.BucketFetchResult.bucket(bucket))
 
@@ -147,12 +147,12 @@ final class QueueServerTests: XCTestCase {
             )
         )
         
-        let response: Either<BucketId, Error> = try runSyncronously { [callbackQueue, workerId, requestSignature] completion in
+        let response: Either<BucketId, Error> = try runSyncronously { [callbackQueue, workerId, payloadSignature] completion in
             resultSender.send(
                 testingResult: testingResult,
                 requestId: "request",
                 workerId: workerId,
-                requestSignature: requestSignature,
+                payloadSignature: payloadSignature,
                 callbackQueue: callbackQueue,
                 completion: completion
             )

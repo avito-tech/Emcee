@@ -74,7 +74,7 @@ public final class InProcessMain {
                 StartQueueServerCommand(
                     localQueueVersionProvider: localQueueVersionProvider,
                     requestSenderProvider: requestSenderProvider,
-                    requestSignature: PayloadSignature(value: UUID().uuidString),
+                    payloadSignature: PayloadSignature(value: UUID().uuidString),
                     resourceLocationResolver: resourceLocationResolver,
                     uniqueIdentifierGenerator: uniqueIdentifierGenerator
                 ),

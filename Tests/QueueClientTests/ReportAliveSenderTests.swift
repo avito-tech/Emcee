@@ -29,7 +29,7 @@ final class ReportAliveSenderTests: XCTestCase {
         reportAliveSender.reportAlive(
             bucketIdsBeingProcessedProvider: provider(),
             workerId: "worker id",
-            requestSignature: PayloadSignature(value: "signature"),
+            payloadSignature: PayloadSignature(value: "signature"),
             callbackQueue: callbackQueue
         ) { (result: Either<ReportAliveResponse, Error>) in
             XCTAssertEqual(

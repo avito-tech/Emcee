@@ -4,17 +4,17 @@ import RESTMethods
 import RESTServer
 import XCTest
 
-class RequestSignatureVerifyingRESTEndpointTests: XCTestCase {
+class PayloadSignatureVerifyingRESTEndpointTests: XCTestCase {
     let expectedPayloadSignature = PayloadSignature(value: "expected")
     let unexpectedPayloadSignature = PayloadSignature(value: "unexpected")
 
     func test___expected_request_signature_allows_execution_of_handler() {
         let endpoint = FakeVerifyingEndpoint(
-            expectedRequestSignature: expectedPayloadSignature,
+            expectedPayloadSignature: expectedPayloadSignature,
             response: "good"
         )
         let payload = FakeSignedPayload(
-            requestSignature: expectedPayloadSignature
+            payloadSignature: expectedPayloadSignature
         )
         XCTAssertEqual(
             try endpoint.handle(decodedPayload: payload),
@@ -24,11 +24,11 @@ class RequestSignatureVerifyingRESTEndpointTests: XCTestCase {
 
     func test___mismatching_request_signature_prevents_execution_of_handler() {
         let endpoint = FakeVerifyingEndpoint(
-            expectedRequestSignature: expectedPayloadSignature,
+            expectedPayloadSignature: expectedPayloadSignature,
             response: "good"
         )
         let payload = FakeSignedPayload(
-            requestSignature: unexpectedPayloadSignature
+            payloadSignature: unexpectedPayloadSignature
         )
         XCTAssertThrowsError(
             try endpoint.handle(decodedPayload: payload)
@@ -39,8 +39,8 @@ class RequestSignatureVerifyingRESTEndpointTests: XCTestCase {
 class FakeSignedPayload: SignedPayload, Codable {
     let payloadSignature: PayloadSignature
 
-    init(requestSignature: PayloadSignature) {
-        self.payloadSignature = requestSignature
+    init(payloadSignature: PayloadSignature) {
+        self.payloadSignature = payloadSignature
     }
 }
 
@@ -51,8 +51,8 @@ class FakeVerifyingEndpoint: PayloadSignatureVerifyingRESTEndpoint {
     let expectedPayloadSignature: PayloadSignature
     let response: String
 
-    init(expectedRequestSignature: PayloadSignature, response: String) {
-        self.expectedPayloadSignature = expectedRequestSignature
+    init(expectedPayloadSignature: PayloadSignature, response: String) {
+        self.expectedPayloadSignature = expectedPayloadSignature
         self.response = response
     }
 

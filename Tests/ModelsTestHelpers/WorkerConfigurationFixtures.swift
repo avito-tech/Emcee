@@ -8,7 +8,7 @@ public final class WorkerConfigurationFixtures {
             sentryConfiguration: nil
         ),
         reportAliveInterval: 42,
-        requestSignature: PayloadSignature(value: "requestSignature"),
+        payloadSignature: PayloadSignature(value: "payloadSignature"),
         testRunExecutionBehavior: TestRunExecutionBehavior(
             numberOfSimulators: 2
         )

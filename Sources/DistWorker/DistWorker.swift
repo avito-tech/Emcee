@@ -35,7 +35,7 @@ public final class DistWorker: SchedulerDelegate {
     private let workerRegisterer: WorkerRegisterer
     private var reportingAliveTimer: DispatchBasedTimer?
     private var requestIdForBucketId = [BucketId: RequestId]()
-    private var requestSignature = Either<PayloadSignature, DistWorkerError>.error(DistWorkerError.missingRequestSignature)
+    private var payloadSignature = Either<PayloadSignature, DistWorkerError>.error(DistWorkerError.missingPayloadSignature)
     
     private enum BucketFetchResult: Equatable {
         case result(SchedulerBucket?)
@@ -85,7 +85,7 @@ public final class DistWorker: SchedulerDelegate {
                 
                 let workerConfiguration = try result.dematerialize()
                 
-                strongSelf.requestSignature = .success(workerConfiguration.requestSignature)
+                strongSelf.payloadSignature = .success(workerConfiguration.payloadSignature)
                 Logger.debug("Registered with server. Worker configuration: \(workerConfiguration)")
                 
                 try didFetchAnalyticsConfiguration(workerConfiguration.analyticsConfiguration)
@@ -125,7 +125,7 @@ public final class DistWorker: SchedulerDelegate {
         reportAliveSender.reportAlive(
             bucketIdsBeingProcessedProvider: currentlyBeingProcessedBucketsTracker.bucketIdsBeingProcessed,
             workerId: workerId,
-            requestSignature: try requestSignature.dematerialize(),
+            payloadSignature: try payloadSignature.dematerialize(),
             callbackQueue: callbackQueue
         ) { (result: Either<ReportAliveResponse, Error>) in
             do {
@@ -175,7 +175,7 @@ public final class DistWorker: SchedulerDelegate {
         let result = try queueClient.fetchBucket(
             requestId: requestId,
             workerId: workerId,
-            requestSignature: try requestSignature.dematerialize()
+            payloadSignature: try payloadSignature.dematerialize()
         )
         switch result {
         case .queueIsEmpty:
@@ -250,7 +250,7 @@ public final class DistWorker: SchedulerDelegate {
                 testingResult: testingResult,
                 requestId: requestId,
                 workerId: workerId,
-                requestSignature: try requestSignature.dematerialize(),
+                payloadSignature: try payloadSignature.dematerialize(),
                 callbackQueue: callbackQueue,
                 completion: { [currentlyBeingProcessedBucketsTracker] (result: Either<BucketId, Error>) in
                     defer {

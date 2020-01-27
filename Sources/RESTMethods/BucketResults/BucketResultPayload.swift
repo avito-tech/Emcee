@@ -11,11 +11,11 @@ public final class BucketResultPayload: Codable, SignedPayload {
         workerId: WorkerId,
         requestId: RequestId,
         testingResult: TestingResult,
-        requestSignature: PayloadSignature
+        payloadSignature: PayloadSignature
     ) {
         self.workerId = workerId
         self.requestId = requestId
         self.testingResult = testingResult
-        self.payloadSignature = requestSignature
+        self.payloadSignature = payloadSignature
     }
 }

@@ -14,7 +14,7 @@ public final class ReportAliveSenderImpl: ReportAliveSender {
     public func reportAlive(
         bucketIdsBeingProcessedProvider: @autoclosure () -> (Set<BucketId>),
         workerId: WorkerId,
-        requestSignature: PayloadSignature,
+        payloadSignature: PayloadSignature,
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<ReportAliveResponse, Error>) -> ()
     ) {
@@ -22,7 +22,7 @@ public final class ReportAliveSenderImpl: ReportAliveSender {
             payload: ReportAlivePayload(
                 workerId: workerId,
                 bucketIdsBeingProcessed: bucketIdsBeingProcessedProvider(),
-                requestSignature: requestSignature
+                payloadSignature: payloadSignature
             )
         )
 

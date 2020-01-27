@@ -14,7 +14,7 @@ class QueueClientTests: XCTestCase {
     private let delegate = FakeQueueClientDelegate()
     private var queueClient: QueueClient!
     private let workerId = WorkerId(value: "workerId")
-    private let requestSignature = PayloadSignature(value: "expectedRequestSignature")
+    private let payloadSignature = PayloadSignature(value: "expectedPayloadSignature")
     
     override func tearDown() {
         server.stop()
@@ -42,7 +42,7 @@ class QueueClientTests: XCTestCase {
             let data: Data = (try? JSONEncoder().encode(DequeueBucketResponse.queueIsEmpty)) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
-        try queueClient.fetchBucket(requestId: "id", workerId: workerId, requestSignature: requestSignature)
+        try queueClient.fetchBucket(requestId: "id", workerId: workerId, payloadSignature: payloadSignature)
         try SynchronousWaiter().waitWhile(timeout: 5.0, description: "wait for response") { delegate.responses.isEmpty }
         
         switch delegate.responses[0] {
@@ -71,7 +71,7 @@ class QueueClientTests: XCTestCase {
             let data: Data = (try? JSONEncoder().encode(DequeueBucketResponse.bucketDequeued(bucket: bucket))) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
-        try queueClient.fetchBucket(requestId: "id", workerId: workerId, requestSignature: requestSignature)
+        try queueClient.fetchBucket(requestId: "id", workerId: workerId, payloadSignature: payloadSignature)
         try SynchronousWaiter().waitWhile(timeout: 5.0,  description: "wait for response") { delegate.responses.isEmpty }
         
         switch delegate.responses[0] {
@@ -88,7 +88,7 @@ class QueueClientTests: XCTestCase {
             let data: Data = (try? JSONEncoder().encode(DequeueBucketResponse.checkAgainLater(checkAfter: 10.0))) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
-        try queueClient.fetchBucket(requestId: "id", workerId: workerId, requestSignature: requestSignature)
+        try queueClient.fetchBucket(requestId: "id", workerId: workerId, payloadSignature: payloadSignature)
         try SynchronousWaiter().waitWhile(timeout: 5.0, description: "wait for response") { delegate.responses.isEmpty }
         
         switch delegate.responses[0] {
@@ -106,7 +106,7 @@ class QueueClientTests: XCTestCase {
         }
         queueClient.close()
         XCTAssertThrowsError(
-            try queueClient.fetchBucket(requestId: "id", workerId: workerId, requestSignature: requestSignature),
+            try queueClient.fetchBucket(requestId: "id", workerId: workerId, payloadSignature: payloadSignature),
             "Closed queue client should throw"
         ) { throwedError in
             guard let error = throwedError as? QueueClientError else {

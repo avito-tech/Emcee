@@ -9,7 +9,7 @@ import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class BucketResultRegistrarTests: XCTestCase {
-    let expectedRequestSignature = PayloadSignature(value: "expectedRequestSignature")
+    let expectedPayloadSignature = PayloadSignature(value: "expectedPayloadSignature")
     let testingResult = TestingResultFixtures()
         .with(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "method"))
         .addingLostResult()
@@ -20,7 +20,7 @@ final class BucketResultRegistrarTests: XCTestCase {
         
         let registrar = BucketResultRegistrar(
             bucketResultAccepter: bucketQueue,
-            expectedRequestSignature: expectedRequestSignature,
+            expectedPayloadSignature: expectedPayloadSignature,
             workerAlivenessProvider: WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
         )
         
@@ -28,7 +28,7 @@ final class BucketResultRegistrarTests: XCTestCase {
             workerId: "worker",
             requestId: "request",
             testingResult: testingResult,
-            requestSignature: expectedRequestSignature
+            payloadSignature: expectedPayloadSignature
         )
         XCTAssertNoThrow(try registrar.handle(decodedPayload: request))
         
@@ -42,7 +42,7 @@ final class BucketResultRegistrarTests: XCTestCase {
         
         let registrar = BucketResultRegistrar(
             bucketResultAccepter: bucketQueue,
-            expectedRequestSignature: expectedRequestSignature,
+            expectedPayloadSignature: expectedPayloadSignature,
             workerAlivenessProvider: alivenessTracker
         )
         
@@ -50,7 +50,7 @@ final class BucketResultRegistrarTests: XCTestCase {
             workerId: "worker",
             requestId: "request",
             testingResult: testingResult,
-            requestSignature: expectedRequestSignature
+            payloadSignature: expectedPayloadSignature
         )
         XCTAssertThrowsError(try registrar.handle(decodedPayload: request))
         
@@ -64,7 +64,7 @@ final class BucketResultRegistrarTests: XCTestCase {
 
         let registrar = BucketResultRegistrar(
             bucketResultAccepter: bucketQueue,
-            expectedRequestSignature: expectedRequestSignature,
+            expectedPayloadSignature: expectedPayloadSignature,
             workerAlivenessProvider: alivenessTracker
         )
 
@@ -74,10 +74,10 @@ final class BucketResultRegistrarTests: XCTestCase {
                     workerId: "worker",
                     requestId: "request",
                     testingResult: testingResult,
-                    requestSignature: PayloadSignature(value: UUID().uuidString)
+                    payloadSignature: PayloadSignature(value: UUID().uuidString)
                 )
             ),
-            "When request signature mismatches, bucket provider endpoind should throw"
+            "When payload signature mismatches, bucket provider endpoind should throw"
         )
     }
 }

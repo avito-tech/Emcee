@@ -15,11 +15,11 @@ public final class BucketResultRegistrar: PayloadSignatureVerifyingRESTEndpoint 
 
     public init(
         bucketResultAccepter: BucketResultAccepter,
-        expectedRequestSignature: PayloadSignature,
+        expectedPayloadSignature: PayloadSignature,
         workerAlivenessProvider: WorkerAlivenessProvider
     ) {
         self.bucketResultAccepter = bucketResultAccepter
-        self.expectedPayloadSignature = expectedRequestSignature
+        self.expectedPayloadSignature = expectedPayloadSignature
         self.workerAlivenessProvider = workerAlivenessProvider
     }
 

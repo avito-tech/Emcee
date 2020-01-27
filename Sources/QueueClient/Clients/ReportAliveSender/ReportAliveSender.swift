@@ -7,7 +7,7 @@ public protocol ReportAliveSender {
     func reportAlive(
         bucketIdsBeingProcessedProvider: @autoclosure () -> (Set<BucketId>),
         workerId: WorkerId,
-        requestSignature: PayloadSignature,
+        payloadSignature: PayloadSignature,
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<ReportAliveResponse, Error>) -> ()
     )
