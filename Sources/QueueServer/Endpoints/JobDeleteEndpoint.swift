@@ -11,8 +11,8 @@ public final class JobDeleteEndpoint: RESTEndpoint {
         self.jobManipulator = jobManipulator
     }
     
-    public func handle(decodedRequest: JobDeleteRequest) throws -> JobDeleteResponse {
-        try jobManipulator.delete(jobId: decodedRequest.jobId)
-        return JobDeleteResponse(jobId: decodedRequest.jobId)
+    public func handle(decodedPayload: JobDeleteRequest) throws -> JobDeleteResponse {
+        try jobManipulator.delete(jobId: decodedPayload.jobId)
+        return JobDeleteResponse(jobId: decodedPayload.jobId)
     }
 }

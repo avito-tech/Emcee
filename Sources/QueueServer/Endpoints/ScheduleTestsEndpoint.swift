@@ -21,22 +21,22 @@ public final class ScheduleTestsEndpoint: RESTEndpoint {
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
-    public func handle(decodedRequest: ScheduleTestsRequest) throws -> ScheduleTestsResponse {
+    public func handle(decodedPayload: ScheduleTestsRequest) throws -> ScheduleTestsResponse {
         return queue.sync {
-            if !enqueuedTestRequestIds.contains(decodedRequest.requestId) {
-                enqueuedTestRequestIds.insert(decodedRequest.requestId)
+            if !enqueuedTestRequestIds.contains(decodedPayload.requestId) {
+                enqueuedTestRequestIds.insert(decodedPayload.requestId)
                 
                 testsEnqueuer.enqueue(
-                    bucketSplitter: decodedRequest.scheduleStrategy.bucketSplitter(
+                    bucketSplitter: decodedPayload.scheduleStrategy.bucketSplitter(
                         uniqueIdentifierGenerator: uniqueIdentifierGenerator
                     ),
-                    testEntryConfigurations: decodedRequest.testEntryConfigurations,
-                    prioritizedJob: decodedRequest.prioritizedJob
+                    testEntryConfigurations: decodedPayload.testEntryConfigurations,
+                    prioritizedJob: decodedPayload.prioritizedJob
                 )
                 
-                scheduleRemoval(requestId: decodedRequest.requestId)
+                scheduleRemoval(requestId: decodedPayload.requestId)
             }
-            return .scheduledTests(requestId: decodedRequest.requestId)
+            return .scheduledTests(requestId: decodedPayload.requestId)
         }
     }
     

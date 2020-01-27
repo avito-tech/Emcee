@@ -5,12 +5,33 @@ import Logging
 import Models
 
 public protocol RequestSender {
-    func sendRequestWithCallback<Payload, Response>(
-        pathWithSlash: String,
-        payload: Payload,
+    func sendRequestWithCallback<NetworkRequestType: NetworkRequest>(
+        request: NetworkRequestType,
+        credentials: Credentials?,
         callbackQueue: DispatchQueue,
-        callback: @escaping (Either<Response, RequestSenderError>) -> ()
-    ) where Payload : Encodable, Response : Decodable
+        callback: @escaping (Either<NetworkRequestType.Response, RequestSenderError>) -> ()
+    )
+
+    func sendRequestWithCallback<NetworkRequestType: NetworkRequest>(
+        request: NetworkRequestType,
+        callbackQueue: DispatchQueue,
+        callback: @escaping (Either<NetworkRequestType.Response, RequestSenderError>) -> ()
+    )
     
     func close()
+}
+
+extension RequestSender {
+    public func sendRequestWithCallback<NetworkRequestType: NetworkRequest>(
+        request: NetworkRequestType,
+        callbackQueue: DispatchQueue,
+        callback: @escaping (Either<NetworkRequestType.Response, RequestSenderError>) -> ()
+    ) {
+        self.sendRequestWithCallback(
+            request: request,
+            credentials: nil,
+            callbackQueue: callbackQueue,
+            callback: callback
+        )
+    }
 }

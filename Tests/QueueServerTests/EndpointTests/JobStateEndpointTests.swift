@@ -31,13 +31,13 @@ final class JobStateEndpointTests: XCTestCase, JobStateProvider {
     
     func test___requesting_job_state_for_existing_job() throws {
         let endpoint = JobStateEndpoint(stateProvider: self)
-        let response = try endpoint.handle(decodedRequest: JobStateRequest(jobId: jobId))
+        let response = try endpoint.handle(decodedPayload: JobStateRequest(jobId: jobId))
         XCTAssertEqual(response.jobState, jobState)
     }
     
     func test___request_state_for_non_existing_job() {
         let endpoint = JobStateEndpoint(stateProvider: self)
-        XCTAssertThrowsError(try endpoint.handle(decodedRequest: JobStateRequest(jobId: "invalid_job")))
+        XCTAssertThrowsError(try endpoint.handle(decodedPayload: JobStateRequest(jobId: "invalid_job")))
     }
 }
 

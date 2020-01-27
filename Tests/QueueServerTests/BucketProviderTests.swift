@@ -10,8 +10,8 @@ import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class BucketProviderTests: XCTestCase {
-    let expectedRequestSignature = RequestSignature(value: "expectedRequestSignature")
-    lazy var fetchRequest = DequeueBucketRequest(
+    let expectedRequestSignature = PayloadSignature(value: "expectedRequestSignature")
+    lazy var fetchRequest = DequeueBucketPayload(
         workerId: "worker",
         requestId: "request",
         requestSignature: expectedRequestSignature
@@ -25,7 +25,7 @@ final class BucketProviderTests: XCTestCase {
             expectedRequestSignature: expectedRequestSignature
         )
         
-        let response = try bucketProvider.handle(decodedRequest: fetchRequest)
+        let response = try bucketProvider.handle(decodedPayload: fetchRequest)
         XCTAssertEqual(response, .queueIsEmpty)
     }
     
@@ -36,7 +36,7 @@ final class BucketProviderTests: XCTestCase {
             expectedRequestSignature: expectedRequestSignature
         )
         
-        let response = try bucketProvider.handle(decodedRequest: fetchRequest)
+        let response = try bucketProvider.handle(decodedPayload: fetchRequest)
         XCTAssertEqual(response, .checkAgainLater(checkAfter: 42))
     }
     
@@ -47,7 +47,7 @@ final class BucketProviderTests: XCTestCase {
             expectedRequestSignature: expectedRequestSignature
         )
         
-        let response = try bucketProvider.handle(decodedRequest: fetchRequest)
+        let response = try bucketProvider.handle(decodedPayload: fetchRequest)
         XCTAssertEqual(response, .workerIsNotAlive)
     }
     
@@ -67,7 +67,7 @@ final class BucketProviderTests: XCTestCase {
             expectedRequestSignature: expectedRequestSignature
         )
         
-        let response = try bucketProvider.handle(decodedRequest: fetchRequest)
+        let response = try bucketProvider.handle(decodedPayload: fetchRequest)
         XCTAssertEqual(response, DequeueBucketResponse.bucketDequeued(bucket: dequeuedBucket.enqueuedBucket.bucket))
     }
 
@@ -78,10 +78,10 @@ final class BucketProviderTests: XCTestCase {
         )
         XCTAssertThrowsError(
             try bucketProvider.handle(
-                decodedRequest: DequeueBucketRequest(
+                decodedPayload: DequeueBucketPayload(
                     workerId: "worker",
                     requestId: "request",
-                    requestSignature: RequestSignature(value: UUID().uuidString)
+                    requestSignature: PayloadSignature(value: UUID().uuidString)
                 )
             ),
             "When request signature mismatches, bucket provider endpoind should throw"

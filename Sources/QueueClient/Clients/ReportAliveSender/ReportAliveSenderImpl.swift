@@ -14,17 +14,20 @@ public final class ReportAliveSenderImpl: ReportAliveSender {
     public func reportAlive(
         bucketIdsBeingProcessedProvider: @autoclosure () -> (Set<BucketId>),
         workerId: WorkerId,
-        requestSignature: RequestSignature,
+        requestSignature: PayloadSignature,
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<ReportAliveResponse, Error>) -> ()
     ) {
-        requestSender.sendRequestWithCallback(
-            pathWithSlash: RESTMethod.reportAlive.withPrependingSlash,
-            payload: ReportAliveRequest(
+        let request = ReportAliveRequest(
+            payload: ReportAlivePayload(
                 workerId: workerId,
                 bucketIdsBeingProcessed: bucketIdsBeingProcessedProvider(),
                 requestSignature: requestSignature
-            ),
+            )
+        )
+
+        requestSender.sendRequestWithCallback(
+            request: request,
             callbackQueue: callbackQueue,
             callback: { (result: Either<ReportAliveResponse, RequestSenderError>) in
                 do {

@@ -26,7 +26,7 @@ final class WorkerRegistrarTests: XCTestCase {
         XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId).status, .notRegistered)
         
         XCTAssertEqual(
-            try registrar.handle(decodedRequest: RegisterWorkerRequest(workerId: workerId)),
+            try registrar.handle(decodedPayload: RegisterWorkerPayload(workerId: workerId)),
             .workerRegisterSuccess(workerConfiguration: WorkerConfigurationFixtures.workerConfiguration))
         XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId).status, .alive)
     }
@@ -36,19 +36,19 @@ final class WorkerRegistrarTests: XCTestCase {
         alivenessTracker.didRegisterWorker(workerId: workerId)
         alivenessTracker.blockWorker(workerId: workerId)
         
-        XCTAssertThrowsError(try registrar.handle(decodedRequest: RegisterWorkerRequest(workerId: workerId)))
+        XCTAssertThrowsError(try registrar.handle(decodedPayload: RegisterWorkerPayload(workerId: workerId)))
     }
     
     func test_successful_registration() throws {
         let registrar = createRegistrar()
         
-        let response = try registrar.handle(decodedRequest: RegisterWorkerRequest(workerId: workerId))
+        let response = try registrar.handle(decodedPayload: RegisterWorkerPayload(workerId: workerId))
         XCTAssertEqual(response, .workerRegisterSuccess(workerConfiguration: WorkerConfigurationFixtures.workerConfiguration))
     }
     
     func test_registration_of_unknown_worker() {
         let registrar = createRegistrar()
-        XCTAssertThrowsError(try registrar.handle(decodedRequest: RegisterWorkerRequest(workerId: "unknown")))
+        XCTAssertThrowsError(try registrar.handle(decodedPayload: RegisterWorkerPayload(workerId: "unknown")))
     }
 }
 

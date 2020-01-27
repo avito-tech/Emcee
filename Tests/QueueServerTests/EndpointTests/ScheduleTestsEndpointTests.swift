@@ -14,7 +14,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         let response = try endpoint.handle(
-            decodedRequest: ScheduleTestsRequest(
+            decodedPayload: ScheduleTestsRequest(
                 requestId: requestId,
                 prioritizedJob: prioritizedJob,
                 scheduleStrategy: .individual,
@@ -42,7 +42,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         )
         for _ in 0 ... 10 {
             _ = try endpoint.handle(
-                decodedRequest: ScheduleTestsRequest(
+                decodedPayload: ScheduleTestsRequest(
                     requestId: requestId,
                     prioritizedJob: prioritizedJob,
                     scheduleStrategy: .individual,

@@ -12,14 +12,14 @@ public final class FakeRequestSender: RequestSender {
         self.requestSenderError = requestSenderError
     }
 
-    public func sendRequestWithCallback<Payload, Response>(
-        pathWithSlash: String,
-        payload: Payload,
+    public func sendRequestWithCallback<NetworkRequestType: NetworkRequest>(
+        request: NetworkRequestType,
+        credentials: Credentials?,
         callbackQueue: DispatchQueue,
-        callback: @escaping (Either<Response, RequestSenderError>) -> ()
-    ) where Payload : Encodable, Response : Decodable {
+        callback: @escaping (Either<NetworkRequestType.Response, RequestSenderError>) -> ()
+    ) {
         if let result = result {
-            callbackQueue.async { callback(Either.left(result as! Response)) }
+            callbackQueue.async { callback(Either.left(result as! NetworkRequestType.Response)) }
         } else if let requestSenderError = requestSenderError {
             callbackQueue.async { callback(Either.right(requestSenderError)) }
         }

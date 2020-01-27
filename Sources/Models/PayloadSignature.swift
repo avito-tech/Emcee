@@ -1,6 +1,6 @@
 import Foundation
 
-public final class RequestSignature: Codable, Hashable, CustomStringConvertible {
+public final class PayloadSignature: Codable, Hashable, CustomStringConvertible {
     public let value: String
 
     public init(value: String) {
@@ -15,7 +15,7 @@ public final class RequestSignature: Codable, Hashable, CustomStringConvertible 
         hasher.combine(value)
     }
 
-    public static func == (left: RequestSignature, right: RequestSignature) -> Bool {
+    public static func == (left: PayloadSignature, right: PayloadSignature) -> Bool {
         return left.value == right.value
     }
 

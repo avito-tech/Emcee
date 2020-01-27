@@ -23,7 +23,7 @@ import XCTest
 import RequestSenderTestHelpers
 
 final class QueueHTTPRESTServerTests: XCTestCase {
-    let expectedRequestSignature = RequestSignature(value: "expectedRequestSignature")
+    let expectedRequestSignature = PayloadSignature(value: "expectedRequestSignature")
     let automaticTerminationController = AutomaticTerminationControllerFixture(
         isTerminationAllowed: false
     )
@@ -244,7 +244,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     }
     
     func test__QueueServerVersion() throws {
-        let versionHandler = FakeRESTEndpoint<QueueVersionRequest, QueueVersionResponse>(QueueVersionResponse.queueVersion("abc"))
+        let versionHandler = FakeRESTEndpoint<QueueVersionPayload, QueueVersionResponse>(QueueVersionResponse.queueVersion("abc"))
         
         restServer.setHandler(
             bucketResultHandler: stubbedHandler,

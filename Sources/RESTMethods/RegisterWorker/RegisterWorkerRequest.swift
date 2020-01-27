@@ -1,10 +1,13 @@
-import Foundation
-import Models
+import RequestSender
 
-public final class RegisterWorkerRequest: Codable {
-    public let workerId: WorkerId
-    
-    public init(workerId: WorkerId) {
-        self.workerId = workerId
+public final class RegisterWorkerRequest: NetworkRequest {
+    public typealias Response = RegisterWorkerResponse
+
+    public let httpMethod = HTTPMethod.post
+    public let pathWithLeadingSlash = RESTMethod.registerWorker.withPrependingSlash
+
+    public let payload: RegisterWorkerPayload?
+    public init(payload: RegisterWorkerPayload) {
+        self.payload = payload
     }
 }

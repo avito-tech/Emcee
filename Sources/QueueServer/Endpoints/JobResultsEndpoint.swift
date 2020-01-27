@@ -12,8 +12,8 @@ public final class JobResultsEndpoint: RESTEndpoint {
         self.jobResultsProvider = jobResultsProvider
     }
     
-    public func handle(decodedRequest: JobResultsRequest) throws -> JobResultsResponse {
-        let jobResults = try jobResultsProvider.results(jobId: decodedRequest.jobId)
+    public func handle(decodedPayload: JobResultsRequest) throws -> JobResultsResponse {
+        let jobResults = try jobResultsProvider.results(jobId: decodedPayload.jobId)
         return JobResultsResponse(jobResults: jobResults)
     }
 }

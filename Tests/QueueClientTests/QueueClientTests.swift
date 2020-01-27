@@ -14,7 +14,7 @@ class QueueClientTests: XCTestCase {
     private let delegate = FakeQueueClientDelegate()
     private var queueClient: QueueClient!
     private let workerId = WorkerId(value: "workerId")
-    private let requestSignature = RequestSignature(value: "expectedRequestSignature")
+    private let requestSignature = PayloadSignature(value: "expectedRequestSignature")
     
     override func tearDown() {
         server.stop()

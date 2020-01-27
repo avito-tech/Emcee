@@ -5,58 +5,58 @@ import RESTServer
 import XCTest
 
 class RequestSignatureVerifyingRESTEndpointTests: XCTestCase {
-    let expectedRequestSignature = RequestSignature(value: "expected")
-    let unexpectedRequestSignature = RequestSignature(value: "unexpected")
+    let expectedPayloadSignature = PayloadSignature(value: "expected")
+    let unexpectedPayloadSignature = PayloadSignature(value: "unexpected")
 
     func test___expected_request_signature_allows_execution_of_handler() {
         let endpoint = FakeVerifyingEndpoint(
-            expectedRequestSignature: expectedRequestSignature,
+            expectedRequestSignature: expectedPayloadSignature,
             response: "good"
         )
-        let request = FakeSignedRequest(
-            requestSignature: expectedRequestSignature
+        let payload = FakeSignedPayload(
+            requestSignature: expectedPayloadSignature
         )
         XCTAssertEqual(
-            try endpoint.handle(decodedRequest: request),
+            try endpoint.handle(decodedPayload: payload),
             "good"
         )
     }
 
     func test___mismatching_request_signature_prevents_execution_of_handler() {
         let endpoint = FakeVerifyingEndpoint(
-            expectedRequestSignature: expectedRequestSignature,
+            expectedRequestSignature: expectedPayloadSignature,
             response: "good"
         )
-        let request = FakeSignedRequest(
-            requestSignature: unexpectedRequestSignature
+        let payload = FakeSignedPayload(
+            requestSignature: unexpectedPayloadSignature
         )
         XCTAssertThrowsError(
-            try endpoint.handle(decodedRequest: request)
+            try endpoint.handle(decodedPayload: payload)
         )
     }
 }
 
-class FakeSignedRequest: SignedRequest, Codable {
-    let requestSignature: RequestSignature
+class FakeSignedPayload: SignedPayload, Codable {
+    let payloadSignature: PayloadSignature
 
-    init(requestSignature: RequestSignature) {
-        self.requestSignature = requestSignature
+    init(requestSignature: PayloadSignature) {
+        self.payloadSignature = requestSignature
     }
 }
 
-class FakeVerifyingEndpoint: RequestSignatureVerifyingRESTEndpoint {
-    typealias DecodedObjectType = FakeSignedRequest
+class FakeVerifyingEndpoint: PayloadSignatureVerifyingRESTEndpoint {
+    typealias DecodedObjectType = FakeSignedPayload
     typealias ResponseType = String
 
-    let expectedRequestSignature: RequestSignature
+    let expectedPayloadSignature: PayloadSignature
     let response: String
 
-    init(expectedRequestSignature: RequestSignature, response: String) {
-        self.expectedRequestSignature = expectedRequestSignature
+    init(expectedRequestSignature: PayloadSignature, response: String) {
+        self.expectedPayloadSignature = expectedRequestSignature
         self.response = response
     }
 
-    func handle(verifiedRequest: FakeSignedRequest) throws -> String {
+    func handle(verifiedPayload: FakeSignedPayload) throws -> String {
         return response
     }
 }

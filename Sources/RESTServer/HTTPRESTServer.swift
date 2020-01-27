@@ -42,7 +42,7 @@ public final class HTTPRESTServer {
             }
             
             return strongSelf.requestParser.parse(request: httpRequest) { decodedObject in
-                try endpoint.handle(decodedRequest: decodedObject)
+                try endpoint.handle(decodedPayload: decodedObject)
             }
         }
     }

@@ -28,14 +28,14 @@ public final class StartQueueServerCommand: Command {
     
     private let localQueueVersionProvider: VersionProvider
     private let requestSenderProvider: RequestSenderProvider
-    private let requestSignature: RequestSignature
+    private let requestSignature: PayloadSignature
     private let resourceLocationResolver: ResourceLocationResolver
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
 
     public init(
         localQueueVersionProvider: VersionProvider,
         requestSenderProvider: RequestSenderProvider,
-        requestSignature: RequestSignature,
+        requestSignature: PayloadSignature,
         resourceLocationResolver: ResourceLocationResolver,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {

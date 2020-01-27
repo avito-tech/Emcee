@@ -13,7 +13,7 @@ final class QueueServerVersionEndpointTests: XCTestCase {
             queueServerLock: NeverLockableQueueServerLock(),
             versionProvider: VersionProviderFixture().with(predefinedVersion: "version").buildVersionProvider()
         )
-        let actualResult = try endpoint.handle(decodedRequest: QueueVersionRequest())
+        let actualResult = try endpoint.handle(decodedPayload: QueueVersionPayload())
         XCTAssertEqual(QueueVersionResponse.queueVersion("version"), actualResult)
     }
     
@@ -22,7 +22,7 @@ final class QueueServerVersionEndpointTests: XCTestCase {
             queueServerLock: AlwaysLockedQueueServerLock(),
             versionProvider: VersionProviderFixture().with(predefinedVersion: "version").buildVersionProvider()
         )
-        let actualResult = try endpoint.handle(decodedRequest: QueueVersionRequest())
+        let actualResult = try endpoint.handle(decodedPayload: QueueVersionPayload())
         XCTAssertEqual(QueueVersionResponse.queueVersion("not_discoverable_version"), actualResult)
     }
 }

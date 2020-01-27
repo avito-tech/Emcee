@@ -35,7 +35,7 @@ public final class DistWorker: SchedulerDelegate {
     private let workerRegisterer: WorkerRegisterer
     private var reportingAliveTimer: DispatchBasedTimer?
     private var requestIdForBucketId = [BucketId: RequestId]()
-    private var requestSignature = Either<RequestSignature, DistWorkerError>.error(DistWorkerError.missingRequestSignature)
+    private var requestSignature = Either<PayloadSignature, DistWorkerError>.error(DistWorkerError.missingRequestSignature)
     
     private enum BucketFetchResult: Equatable {
         case result(SchedulerBucket?)

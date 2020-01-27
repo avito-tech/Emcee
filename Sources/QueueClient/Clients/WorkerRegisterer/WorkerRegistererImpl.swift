@@ -16,8 +16,7 @@ public final class WorkerRegistererImpl: WorkerRegisterer {
         completion: @escaping (Either<WorkerConfiguration, Error>) -> Void
     ) {
         requestSender.sendRequestWithCallback(
-            pathWithSlash: RESTMethod.registerWorker.withPrependingSlash,
-            payload: RegisterWorkerRequest(workerId: workerId),
+            request: RegisterWorkerRequest(payload: RegisterWorkerPayload(workerId: workerId)),
             callbackQueue: callbackQueue,
             callback: { (result: Either<RegisterWorkerResponse, RequestSenderError>) in
                 do {

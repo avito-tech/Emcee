@@ -12,11 +12,11 @@ public final class RESTEndpointOf<RequestType: Decodable, ReturnType: Encodable>
         EndpointType.ResponseType == ReturnType
     {
         internalHandler = { (request: RequestType) throws -> ReturnType in
-            try actualHandler.handle(decodedRequest: request)
+            try actualHandler.handle(decodedPayload: request)
         }
     }
     
-    public func handle(decodedRequest: RequestType) throws -> ReturnType {
-        return try internalHandler(decodedRequest)
+    public func handle(decodedPayload: RequestType) throws -> ReturnType {
+        return try internalHandler(decodedPayload)
     }
 }

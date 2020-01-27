@@ -46,7 +46,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     
     // MARK: Public API
     
-    public func fetchBucket(requestId: RequestId, workerId: WorkerId, requestSignature: RequestSignature) throws -> BucketFetchResult {
+    public func fetchBucket(requestId: RequestId, workerId: WorkerId, requestSignature: PayloadSignature) throws -> BucketFetchResult {
         return try synchronize {
             bucketFetchResult = nil
             return try runRetrying {

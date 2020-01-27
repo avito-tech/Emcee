@@ -4,5 +4,5 @@ public protocol RESTEndpoint {
     associatedtype DecodedObjectType: Decodable
     associatedtype ResponseType: Encodable
     
-    func handle(decodedRequest: DecodedObjectType) throws -> ResponseType
+    func handle(decodedPayload: DecodedObjectType) throws -> ResponseType
 }

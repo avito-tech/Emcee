@@ -15,18 +15,21 @@ public final class BucketResultSenderImpl: BucketResultSender {
         testingResult: TestingResult,
         requestId: RequestId,
         workerId: WorkerId,
-        requestSignature: RequestSignature,
+        requestSignature: PayloadSignature,
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<BucketId, Error>) -> ()
     ) {
-        requestSender.sendRequestWithCallback(
-            pathWithSlash: RESTMethod.bucketResult.withPrependingSlash,
-            payload: PushBucketResultRequest(
+        let request = BucketResultRequest(
+            payload: BucketResultPayload(
                 workerId: workerId,
                 requestId: requestId,
                 testingResult: testingResult,
                 requestSignature: requestSignature
-        	),
+            )
+        )
+
+        requestSender.sendRequestWithCallback(
+            request: request,
             callbackQueue: callbackQueue,
             callback: { (response: Either<BucketResultAcceptResponse, RequestSenderError>) in
                 do {

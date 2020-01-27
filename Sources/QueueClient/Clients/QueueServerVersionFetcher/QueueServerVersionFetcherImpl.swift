@@ -17,8 +17,7 @@ public final class QueueServerVersionFetcherImpl: QueueServerVersionFetcher {
         completion: @escaping (Either<Version, Error>) -> Void
     ) {
         requestSender.sendRequestWithCallback(
-            pathWithSlash: RESTMethod.queueVersion.withPrependingSlash,
-            payload: QueueVersionRequest(),
+            request: QueueVersionRequest(),
             callbackQueue: callbackQueue,
             callback: { (result: Either<QueueVersionResponse, RequestSenderError>) in
                 do {

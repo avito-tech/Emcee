@@ -8,7 +8,7 @@ import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class WorkerAlivenessEndpointTests: XCTestCase {
-    let expectedRequestSignature = RequestSignature(value: "expectedRequestSignature")
+    let expectedRequestSignature = PayloadSignature(value: "expectedRequestSignature")
     let fixedDate = Date()
 
     func test___handling_requests() {
@@ -19,7 +19,7 @@ final class WorkerAlivenessEndpointTests: XCTestCase {
         )
         XCTAssertNoThrow(
             try endpoint.handle(
-                verifiedRequest: ReportAliveRequest(
+                verifiedPayload: ReportAlivePayload(
                     workerId: "worker",
                     bucketIdsBeingProcessed: [],
                     requestSignature: expectedRequestSignature
@@ -39,7 +39,7 @@ final class WorkerAlivenessEndpointTests: XCTestCase {
         )
         XCTAssertNoThrow(
             try endpoint.handle(
-                verifiedRequest: ReportAliveRequest(
+                verifiedPayload: ReportAlivePayload(
                     workerId: "worker",
                     bucketIdsBeingProcessed: [],
                     requestSignature: expectedRequestSignature
@@ -61,7 +61,7 @@ final class WorkerAlivenessEndpointTests: XCTestCase {
         )
         XCTAssertNoThrow(
             try endpoint.handle(
-                verifiedRequest: ReportAliveRequest(
+                verifiedPayload: ReportAlivePayload(
                     workerId: "worker",
                     bucketIdsBeingProcessed: ["bucketid"],
                     requestSignature: expectedRequestSignature
@@ -82,10 +82,10 @@ final class WorkerAlivenessEndpointTests: XCTestCase {
         )
         XCTAssertThrowsError(
             try endpoint.handle(
-                decodedRequest: ReportAliveRequest(
+                decodedPayload: ReportAlivePayload(
                     workerId: "worker",
                     bucketIdsBeingProcessed: ["bucketid"],
-                    requestSignature: RequestSignature(value: UUID().uuidString)
+                    requestSignature: PayloadSignature(value: UUID().uuidString)
                 )
             ),
             "When request signature mismatches, bucket provider endpoind should throw"

@@ -28,19 +28,19 @@ public final class WorkerRegistrar: RESTEndpoint {
         self.workerAlivenessProvider = workerAlivenessProvider
     }
     
-    public func handle(decodedRequest: RegisterWorkerRequest) throws -> RegisterWorkerResponse {
-        guard let workerConfiguration = workerConfigurations.workerConfiguration(workerId: decodedRequest.workerId) else {
-            throw WorkerRegistrarError.missingWorkerConfiguration(workerId: decodedRequest.workerId)
+    public func handle(decodedPayload: RegisterWorkerPayload) throws -> RegisterWorkerResponse {
+        guard let workerConfiguration = workerConfigurations.workerConfiguration(workerId: decodedPayload.workerId) else {
+            throw WorkerRegistrarError.missingWorkerConfiguration(workerId: decodedPayload.workerId)
         }
         
-        let workerAliveness = workerAlivenessProvider.alivenessForWorker(workerId: decodedRequest.workerId)
+        let workerAliveness = workerAlivenessProvider.alivenessForWorker(workerId: decodedPayload.workerId)
         switch workerAliveness.status {
         case .notRegistered, .alive, .silent:
-            Logger.debug("Registration request from worker with id: \(decodedRequest.workerId)")
-            workerAlivenessProvider.didRegisterWorker(workerId: decodedRequest.workerId)
+            Logger.debug("Registration request from worker with id: \(decodedPayload.workerId)")
+            workerAlivenessProvider.didRegisterWorker(workerId: decodedPayload.workerId)
             return .workerRegisterSuccess(workerConfiguration: workerConfiguration)
         case .blocked:
-            throw WorkerRegistrarError.workerIsBlocked(workerId: decodedRequest.workerId)
+            throw WorkerRegistrarError.workerIsBlocked(workerId: decodedPayload.workerId)
         }
     }
 }

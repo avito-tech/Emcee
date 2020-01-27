@@ -24,7 +24,7 @@ final class BucketResultSenderTests: XCTestCase {
             testingResult: testingResult,
             requestId: "request id",
             workerId: "worker id",
-            requestSignature: RequestSignature(value: "signature"),
+            requestSignature: PayloadSignature(value: "signature"),
             callbackQueue: callbackQueue,
             completion: { result in
                 XCTAssertEqual(
@@ -48,7 +48,7 @@ final class BucketResultSenderTests: XCTestCase {
             testingResult: testingResult,
             requestId: "request id",
             workerId: "worker id",
-            requestSignature: RequestSignature(value: "signature"),
+            requestSignature: PayloadSignature(value: "signature"),
             callbackQueue: callbackQueue,
             completion: { result in
                 do {

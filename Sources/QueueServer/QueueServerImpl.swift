@@ -44,7 +44,7 @@ public final class QueueServerImpl: QueueServer {
         bucketSplitInfo: BucketSplitInfo,
         queueServerLock: QueueServerLock,
         queueVersionProvider: VersionProvider,
-        requestSignature: RequestSignature,
+        requestSignature: PayloadSignature,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
         self.workerAlivenessProvider = WorkerAlivenessProviderImpl(

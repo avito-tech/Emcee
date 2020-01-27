@@ -40,11 +40,11 @@ public final class QueueClient {
     public func fetchBucket(
         requestId: RequestId,
         workerId: WorkerId,
-        requestSignature: RequestSignature
+        requestSignature: PayloadSignature
     ) throws {
         try sendRequest(
             .getBucket,
-            payload: DequeueBucketRequest(
+            payload: DequeueBucketPayload(
                 workerId: workerId,
                 requestId: requestId,
                 requestSignature: requestSignature

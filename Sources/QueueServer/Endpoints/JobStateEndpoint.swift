@@ -12,8 +12,8 @@ public final class JobStateEndpoint: RESTEndpoint {
         self.stateProvider = stateProvider
     }
     
-    public func handle(decodedRequest: JobStateRequest) throws -> JobStateResponse {
-        let jobState = try stateProvider.state(jobId: decodedRequest.jobId)
+    public func handle(decodedPayload: JobStateRequest) throws -> JobStateResponse {
+        let jobState = try stateProvider.state(jobId: decodedPayload.jobId)
         return JobStateResponse(jobState: jobState)
     }
 }

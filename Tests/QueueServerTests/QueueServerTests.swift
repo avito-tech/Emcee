@@ -25,7 +25,7 @@ final class QueueServerTests: XCTestCase {
     private let localPortDeterminer = LocalPortDeterminer(portRange: Ports.allPrivatePorts)
     private let bucketSplitInfo = BucketSplitInfoFixtures.bucketSplitInfoFixture()
     private let queueVersionProvider = VersionProviderFixture().buildVersionProvider()
-    private let requestSignature = RequestSignature(value: "expectedRequestSignature")
+    private let requestSignature = PayloadSignature(value: "expectedRequestSignature")
 
     private let fixedBucketId: BucketId = "fixedBucketId"
     private lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(

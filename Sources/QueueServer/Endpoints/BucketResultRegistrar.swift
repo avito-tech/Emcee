@@ -5,34 +5,34 @@ import RESTMethods
 import RESTServer
 import WorkerAlivenessProvider
 
-public final class BucketResultRegistrar: RequestSignatureVerifyingRESTEndpoint {
-    public typealias DecodedObjectType = PushBucketResultRequest
+public final class BucketResultRegistrar: PayloadSignatureVerifyingRESTEndpoint {
+    public typealias DecodedObjectType = BucketResultPayload
     public typealias ResponseType = BucketResultAcceptResponse
 
     private let bucketResultAccepter: BucketResultAccepter
-    public let expectedRequestSignature: RequestSignature
+    public let expectedPayloadSignature: PayloadSignature
     private let workerAlivenessProvider: WorkerAlivenessProvider
 
     public init(
         bucketResultAccepter: BucketResultAccepter,
-        expectedRequestSignature: RequestSignature,
+        expectedRequestSignature: PayloadSignature,
         workerAlivenessProvider: WorkerAlivenessProvider
     ) {
         self.bucketResultAccepter = bucketResultAccepter
-        self.expectedRequestSignature = expectedRequestSignature
+        self.expectedPayloadSignature = expectedRequestSignature
         self.workerAlivenessProvider = workerAlivenessProvider
     }
 
-    public func handle(verifiedRequest: PushBucketResultRequest) throws -> BucketResultAcceptResponse {
+    public func handle(verifiedPayload: BucketResultPayload) throws -> BucketResultAcceptResponse {
         do {
             let acceptResult = try bucketResultAccepter.accept(
-                testingResult: verifiedRequest.testingResult,
-                requestId: verifiedRequest.requestId,
-                workerId: verifiedRequest.workerId
+                testingResult: verifiedPayload.testingResult,
+                requestId: verifiedPayload.requestId,
+                workerId: verifiedPayload.workerId
             )
             return .bucketResultAccepted(bucketId: acceptResult.dequeuedBucket.enqueuedBucket.bucket.bucketId)
         } catch {
-            workerAlivenessProvider.blockWorker(workerId: verifiedRequest.workerId)
+            workerAlivenessProvider.blockWorker(workerId: verifiedPayload.workerId)
             throw error
         }
     }

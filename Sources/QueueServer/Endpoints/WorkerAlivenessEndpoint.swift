@@ -5,25 +5,25 @@ import RESTMethods
 import RESTServer
 import WorkerAlivenessProvider
 
-public final class WorkerAlivenessEndpoint: RequestSignatureVerifyingRESTEndpoint {
-    public typealias DecodedObjectType = ReportAliveRequest
+public final class WorkerAlivenessEndpoint: PayloadSignatureVerifyingRESTEndpoint {
+    public typealias DecodedObjectType = ReportAlivePayload
     public typealias ResponseType = ReportAliveResponse
 
     private let workerAlivenessProvider: WorkerAlivenessProvider
-    public let expectedRequestSignature: RequestSignature
+    public let expectedPayloadSignature: PayloadSignature
     
     public init(
         workerAlivenessProvider: WorkerAlivenessProvider,
-        expectedRequestSignature: RequestSignature
+        expectedRequestSignature: PayloadSignature
     ) {
         self.workerAlivenessProvider = workerAlivenessProvider
-        self.expectedRequestSignature = expectedRequestSignature
+        self.expectedPayloadSignature = expectedRequestSignature
     }
     
-    public func handle(verifiedRequest: ReportAliveRequest) throws -> ReportAliveResponse {
+    public func handle(verifiedPayload: ReportAlivePayload) throws -> ReportAliveResponse {
         workerAlivenessProvider.set(
-            bucketIdsBeingProcessed: verifiedRequest.bucketIdsBeingProcessed,
-            workerId: verifiedRequest.workerId
+            bucketIdsBeingProcessed: verifiedPayload.bucketIdsBeingProcessed,
+            workerId: verifiedPayload.workerId
         )
         return .aliveReportAccepted
     }

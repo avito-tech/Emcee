@@ -996,7 +996,8 @@ let package = Package(
             name: "RESTMethods",
             dependencies: [
                 "Models",
-                "Version"
+                "Version",
+                "RequestSender"
             ]
         ),
         .target(

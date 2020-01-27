@@ -9,7 +9,7 @@ import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class BucketResultRegistrarTests: XCTestCase {
-    let expectedRequestSignature = RequestSignature(value: "expectedRequestSignature")
+    let expectedRequestSignature = PayloadSignature(value: "expectedRequestSignature")
     let testingResult = TestingResultFixtures()
         .with(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "method"))
         .addingLostResult()
@@ -24,13 +24,13 @@ final class BucketResultRegistrarTests: XCTestCase {
             workerAlivenessProvider: WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
         )
         
-        let request = PushBucketResultRequest(
+        let request = BucketResultPayload(
             workerId: "worker",
             requestId: "request",
             testingResult: testingResult,
             requestSignature: expectedRequestSignature
         )
-        XCTAssertNoThrow(try registrar.handle(decodedRequest: request))
+        XCTAssertNoThrow(try registrar.handle(decodedPayload: request))
         
         XCTAssertEqual(bucketQueue.acceptedResults, [testingResult])
     }
@@ -46,13 +46,13 @@ final class BucketResultRegistrarTests: XCTestCase {
             workerAlivenessProvider: alivenessTracker
         )
         
-        let request = PushBucketResultRequest(
+        let request = BucketResultPayload(
             workerId: "worker",
             requestId: "request",
             testingResult: testingResult,
             requestSignature: expectedRequestSignature
         )
-        XCTAssertThrowsError(try registrar.handle(decodedRequest: request))
+        XCTAssertThrowsError(try registrar.handle(decodedPayload: request))
         
         XCTAssertEqual(bucketQueue.acceptedResults, [])
     }
@@ -70,11 +70,11 @@ final class BucketResultRegistrarTests: XCTestCase {
 
         XCTAssertThrowsError(
             try registrar.handle(
-                decodedRequest: PushBucketResultRequest(
+                decodedPayload: BucketResultPayload(
                     workerId: "worker",
                     requestId: "request",
                     testingResult: testingResult,
-                    requestSignature: RequestSignature(value: UUID().uuidString)
+                    requestSignature: PayloadSignature(value: UUID().uuidString)
                 )
             ),
             "When request signature mismatches, bucket provider endpoind should throw"

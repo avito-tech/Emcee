@@ -1,14 +1,14 @@
 import Foundation
 import RESTServer
 
-public final class FakeRESTEndpoint<RequestType: Decodable, ReturnType: Encodable>: RESTEndpoint {
+public final class FakeRESTEndpoint<PayloadType: Decodable, ReturnType: Encodable>: RESTEndpoint {
     private let returnValue: ReturnType
 
     public init(_ returnValue: ReturnType) {
         self.returnValue = returnValue
     }
     
-    public func handle(decodedRequest: RequestType) throws -> ReturnType {
+    public func handle(decodedPayload: PayloadType) throws -> ReturnType {
         return returnValue
     }
 }

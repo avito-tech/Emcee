@@ -8,25 +8,25 @@ import Models
 import RESTMethods
 import RESTServer
 
-public final class BucketProviderEndpoint: RequestSignatureVerifyingRESTEndpoint {
-    public typealias DecodedObjectType = DequeueBucketRequest
+public final class BucketProviderEndpoint: PayloadSignatureVerifyingRESTEndpoint {
+    public typealias DecodedObjectType = DequeueBucketPayload
     public typealias ResponseType = DequeueBucketResponse
 
     private let dequeueableBucketSource: DequeueableBucketSource
-    public let expectedRequestSignature: RequestSignature
+    public let expectedPayloadSignature: PayloadSignature
 
     public init(
         dequeueableBucketSource: DequeueableBucketSource,
-        expectedRequestSignature: RequestSignature
+        expectedRequestSignature: PayloadSignature
     ) {
         self.dequeueableBucketSource = dequeueableBucketSource
-        self.expectedRequestSignature = expectedRequestSignature
+        self.expectedPayloadSignature = expectedRequestSignature
     }
     
-    public func handle(verifiedRequest: DequeueBucketRequest) throws -> DequeueBucketResponse {
+    public func handle(verifiedPayload: DequeueBucketPayload) throws -> DequeueBucketResponse {
         let dequeueResult = dequeueableBucketSource.dequeueBucket(
-            requestId: verifiedRequest.requestId,
-            workerId: verifiedRequest.workerId
+            requestId: verifiedPayload.requestId,
+            workerId: verifiedPayload.workerId
         )
         
         switch dequeueResult {
