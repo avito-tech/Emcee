@@ -42,9 +42,9 @@ public final class JunitGenerator {
     private let testCases: [JunitTestCase]
     private let iso8601DateFormatter = ISO8601DateFormatter()
     
-    public init(testCases: [JunitTestCase]) {
+    public init(testCases: [JunitTestCase], timeZone: TimeZone = TimeZone.autoupdatingCurrent) {
         self.testCases = testCases
-        iso8601DateFormatter.timeZone = TimeZone.autoupdatingCurrent
+        iso8601DateFormatter.timeZone = timeZone
     }
     
     public func writeReport(path: String) throws {

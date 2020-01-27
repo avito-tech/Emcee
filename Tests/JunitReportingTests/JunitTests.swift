@@ -14,7 +14,7 @@ class JunitTests: XCTestCase {
             isFailure: true,
             failures: [JunitTestCaseFailure(reason: "a reason", fileLine: "file:12")]
         )
-        let generator = JunitGenerator(testCases: [testCase])
+        let generator = JunitGenerator(testCases: [testCase], timeZone: TimeZone(secondsFromGMT: 3 * 3600)!)
         let xmlString = try generator.generateReport()
         
         let expectedXmlStringPath = #file.deletingLastPathComponent.appending(pathComponent: "basic.xml")
@@ -39,7 +39,7 @@ class JunitTests: XCTestCase {
             isFailure: true,
             failures: [JunitTestCaseFailure(reason: stringWithControlCharacters, fileLine: "file:12")]
         )
-        let generator = JunitGenerator(testCases: [testCase])
+        let generator = JunitGenerator(testCases: [testCase], timeZone: TimeZone(secondsFromGMT: 3 * 3600)!)
         let xmlString = try generator.generateReport()
         XCTAssertFalse(xmlString.contains(stringWithControlCharacters))
         XCTAssertTrue(xmlString.contains("reason with -- chars"))
