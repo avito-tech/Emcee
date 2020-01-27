@@ -16,6 +16,9 @@ public final class PluginManager: EventStream {
     private var processControllers = [ProcessController]()
     private let resourceLocationResolver: ResourceLocationResolver
     private let eventDistributor: EventDistributor
+    private let pluginsConnectionTimeout: TimeInterval = 30.0
+    private let tearDownAllowance: TimeInterval = 60.0
+    private let sessionId = UUID()
     
     public init(
         pluginLocations: Set<PluginLocation>,
@@ -77,7 +80,7 @@ public final class PluginManager: EventStream {
             resourceLocationResolver: resourceLocationResolver)
         
         for bundlePath in pluginBundles {
-            Logger.debug("Starting plugin at '\(bundlePath)'")
+            Logger.debug("[\(sessionId)] Starting plugin at '\(bundlePath)'")
             let pluginExecutable = bundlePath.appending(component: PluginManager.pluginExecutableName)
             let pluginIdentifier = try pluginExecutable.pathString.avito_sha256Hash()
             eventDistributor.add(pluginIdentifier: pluginIdentifier)
@@ -94,7 +97,6 @@ public final class PluginManager: EventStream {
             processControllers.append(controller)
         }
         
-        let pluginsConnectionTimeout = 30.0
         try eventDistributor.waitForPluginsToConnect(timeout: pluginsConnectionTimeout)
     }
     
@@ -106,7 +108,7 @@ public final class PluginManager: EventStream {
     }
     
     private func killPlugins() {
-        Logger.debug("Killing plugins that are still alive")
+        Logger.debug("[\(sessionId)] Killing plugins that are still alive")
         for controller in processControllers {
             controller.interruptAndForceKillIfNeeded()
         }
@@ -135,11 +137,10 @@ public final class PluginManager: EventStream {
     
     private func tearDown() {
         do {
-            let tearDownAllowance: TimeInterval = 10.0
-            try SynchronousWaiter().waitWhile(timeout: tearDownAllowance, description: "Tear down plugins") {
+            try SynchronousWaiter().waitWhile(timeout: tearDownAllowance, description: "[\(sessionId)] Tear down plugins") {
                 processControllers.map { $0.isProcessRunning }.contains(true)
             }
-            Logger.debug("All plugins torn down successfully without force killing.")
+            Logger.debug("[\(sessionId)] All plugins torn down successfully without force killing.")
         } catch {
             killPlugins()
         }
@@ -153,7 +154,7 @@ public final class PluginManager: EventStream {
             let data = try encoder.encode(busEvent)
             sendData(data)
         } catch {
-            Logger.error("Failed to get data for \(busEvent) event: \(error)")
+            Logger.error("[\(sessionId)] Failed to get data for \(busEvent) event: \(error)")
         }
     }
     
