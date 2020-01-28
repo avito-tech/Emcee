@@ -91,7 +91,17 @@ public final class RequestSenderImpl: RequestSender {
             if let error = error {
                 Logger.verboseDebug("Failed to perform request to \(url): \(error)")
                 callbackQueue.async { callback(.error(.communicationError(error))) }
-            } else if let data = data {
+                return
+            }
+
+            if let httpResponse = response as? HTTPURLResponse {
+                guard 200 ... 299 ~= httpResponse.statusCode else {
+                    callbackQueue.async { callback(.error(.badStatusCode(httpResponse.statusCode))) }
+                    return
+                }
+            }
+
+            if let data = data {
                 do {
                     let decodedObject = try JSONDecoder().decode(ResponseType.self, from: data)
                     Logger.verboseDebug("Successfully decoded object from response of request to \(url): \(decodedObject)")

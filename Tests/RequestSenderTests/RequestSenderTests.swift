@@ -170,6 +170,42 @@ final class RequestSenderTests: XCTestCase {
         wait(for: [requestSent], timeout: 10)
     }
 
+    func test__request_404_status_code() throws {
+        server["/"] = { request in
+            return HttpResponse.notFound
+        }
+        startServer()
+
+        let sender = RequestSenderFixtures.localhostRequestSender(port: try server.port())
+
+        let callbackCalled = expectation(description: "callback has been called")
+        sender.sendRequestWithCallback(
+            request: FakeNetworkRequest(),
+            callbackQueue: callbackQueue,
+            callback: { (result: Either<[String: String], RequestSenderError>) in
+                XCTAssertTrue(result.isError)
+                do {
+                    _ = try result.dematerialize()
+                } catch let error {
+                    guard let senderError = error as? RequestSenderError else {
+                        XCTFail("Wrong error type of \(error)")
+                        return
+                    }
+
+                    switch senderError {
+                    case .badStatusCode(let code):
+                        XCTAssertEqual(code, 404)
+                    default:
+                        XCTFail("Wrong error type of \(error)")
+                    }
+                }
+
+                callbackCalled.fulfill()
+            }
+        )
+        wait(for: [callbackCalled], timeout: 10)
+    }
+
     /// https://github.com/httpswift/swifter/issues/306
     /// Start the HTTP server in the specified port number, in case of the port number
     /// is being used it would try to find another free port.
