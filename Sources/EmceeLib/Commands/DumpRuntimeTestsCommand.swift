@@ -33,19 +33,23 @@ public final class DumpRuntimeTestsCommand: Command {
     private let pluginEventBusProvider: PluginEventBusProvider
     private let resourceLocationResolver: ResourceLocationResolver
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
+    private let runtimeDumpRemoteCacheProvider: RuntimeDumpRemoteCacheProvider
     
     public init(
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver,
-        uniqueIdentifierGenerator: UniqueIdentifierGenerator
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator,
+        runtimeDumpRemoteCacheProvider: RuntimeDumpRemoteCacheProvider
+
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
+        self.runtimeDumpRemoteCacheProvider = runtimeDumpRemoteCacheProvider
     }
 
     public func run(payload: CommandPayload) throws {
@@ -79,9 +83,8 @@ public final class DumpRuntimeTestsCommand: Command {
                 testsToValidate: testArgFileEntry.testsToRun,
                 xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location
             )
-            
-            let runtimeTestQuerier = RuntimeTestQuerierImpl(
 
+            let runtimeTestQuerier = RuntimeTestQuerierImpl(
                 developerDirLocator: developerDirLocator,
                 numberOfAttemptsToPerformRuntimeDump: testArgFileEntry.numberOfRetries,
                 onDemandSimulatorPool: onDemandSimulatorPool,
@@ -92,7 +95,8 @@ public final class DumpRuntimeTestsCommand: Command {
                     dateProvider: dateProvider,
                     resourceLocationResolver: resourceLocationResolver
                 ),
-                uniqueIdentifierGenerator: uniqueIdentifierGenerator
+                uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+                remoteCache: runtimeDumpRemoteCacheProvider.remoteCache(config: nil)
             )
             
             let result = try runtimeTestQuerier.queryRuntime(configuration: configuration)

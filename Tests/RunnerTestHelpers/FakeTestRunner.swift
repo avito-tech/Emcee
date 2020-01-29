@@ -65,7 +65,7 @@ public final class FakeTestRunner: TestRunner {
     }
 
     // - TestRunner Protocol
-
+    public var isRunCalled = false
     public func run(
         buildArtifacts: BuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
@@ -78,6 +78,8 @@ public final class FakeTestRunner: TestRunner {
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testType: TestType
     ) throws -> StandardStreamsCaptureConfig {
+        isRunCalled = true
+
         self.buildArtifacts = buildArtifacts
         self.entriesToRun = entriesToRun
         self.simulatorSettings = simulatorSettings

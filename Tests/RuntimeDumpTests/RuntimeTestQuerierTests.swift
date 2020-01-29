@@ -15,6 +15,8 @@ import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class RuntimeTestQuerierTests: XCTestCase {
+    let remoteCache = FakeRuntimeDumpRemoteCache()
+    let testRunnerProvider = FakeTestRunnerProvider()
     let resourceLocationResolver: ResourceLocationResolver = FakeResourceLocationResolver.throwing()
     let tempFolder = try! TemporaryFolder()
     let dumpFilename = UUID().uuidString
@@ -163,6 +165,46 @@ final class RuntimeTestQuerierTests: XCTestCase {
         )
         XCTAssertThrowsError(_ = try querier.queryRuntime(configuration: configuration))
     }
+
+    func test__result_is_stored__when_query_is_successful() throws {
+        let runtimeTestEntries = [
+            RuntimeTestEntry(className: "class1", path: "", testMethods: ["test"], caseId: nil, tags: [])
+        ]
+        try prepareFakeRuntimeDumpOutputForTestQuerier(entries: runtimeTestEntries)
+
+        let querier = runtimeTestQuerier()
+        let xcTestBundleLocation = TestBundleLocation(ResourceLocation.localFilePath("xcTestBundleLocationPathForCacheTest"))
+        let configuration = runtimeDumpConfiguration(
+            testsToValidate: [],
+            applicationTestSupport: nil,
+            xcTestBundleLocation: xcTestBundleLocation
+        )
+        let queryResult = try querier.queryRuntime(configuration: configuration)
+        XCTAssertEqual(remoteCache.storedResult, queryResult)
+        XCTAssertEqual(remoteCache.storedXcTestBundleLocation, xcTestBundleLocation)
+    }
+
+    func test__runner_is_not_called__with_data_in_remote_cache() throws {
+        try tempFolder.createFile(
+            filename: dumpFilename,
+            contents: "oopps".data(using: .utf8)!)
+        let querier = runtimeTestQuerier()
+
+        let xcTestBundleLocation = TestBundleLocation(ResourceLocation.localFilePath("xcTestBundleLocationPathForCacheTest"))
+        let configuration = runtimeDumpConfiguration(
+            testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
+            applicationTestSupport: buildApplicationTestSupport(),
+            xcTestBundleLocation: xcTestBundleLocation
+        )
+
+        let cachedResult = RuntimeQueryResultFixtures.queryResult()
+        remoteCache.resultsXcTestBundleLocation = xcTestBundleLocation
+        remoteCache.resultToReturn = cachedResult
+
+        let queryResult = try querier.queryRuntime(configuration: configuration)
+        XCTAssertEqual(cachedResult, queryResult)
+        XCTAssertFalse(testRunnerProvider.predefinedFakeTestRunner.isRunCalled)
+    }
     
     private func prepareFakeRuntimeDumpOutputForTestQuerier(entries: [RuntimeTestEntry]) throws {
         let data = try JSONEncoder().encode(entries)
@@ -180,14 +222,16 @@ final class RuntimeTestQuerierTests: XCTestCase {
             pluginEventBusProvider: NoOoPluginEventBusProvider(),
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
-            testRunnerProvider: FakeTestRunnerProvider(),
-            uniqueIdentifierGenerator: fixedValueUniqueIdentifierGenerator
+            testRunnerProvider: testRunnerProvider,
+            uniqueIdentifierGenerator: fixedValueUniqueIdentifierGenerator,
+            remoteCache: remoteCache
         )
     }
     
     private func runtimeDumpConfiguration(
         testsToValidate: [TestToRun],
-        applicationTestSupport: RuntimeDumpApplicationTestSupport?
+        applicationTestSupport: RuntimeDumpApplicationTestSupport?,
+        xcTestBundleLocation: TestBundleLocation = TestBundleLocation(ResourceLocation.localFilePath(""))
     ) -> RuntimeDumpConfiguration {
         return RuntimeDumpConfiguration(
             developerDir: DeveloperDir.current,
@@ -202,7 +246,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
                 testRunnerMaximumSilenceDuration: 10
             ),
             testsToValidate: testsToValidate,
-            xcTestBundleLocation: TestBundleLocation(ResourceLocation.localFilePath(""))
+            xcTestBundleLocation: xcTestBundleLocation
         )
     }
 

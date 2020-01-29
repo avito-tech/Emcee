@@ -45,6 +45,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     private let requestSenderProvider: RequestSenderProvider
     private let resourceLocationResolver: ResourceLocationResolver
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
+    private let runtimeDumpRemoteCacheProvider: RuntimeDumpRemoteCacheProvider
     
     public init(
         dateProvider: DateProvider,
@@ -53,7 +54,8 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         pluginEventBusProvider: PluginEventBusProvider,
         requestSenderProvider: RequestSenderProvider,
         resourceLocationResolver: ResourceLocationResolver,
-        uniqueIdentifierGenerator: UniqueIdentifierGenerator
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator,
+        runtimeDumpRemoteCacheProvider: RuntimeDumpRemoteCacheProvider
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
@@ -62,6 +64,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         self.requestSenderProvider = requestSenderProvider
         self.resourceLocationResolver = resourceLocationResolver
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
+        self.runtimeDumpRemoteCacheProvider = runtimeDumpRemoteCacheProvider
     }
     
     public func run(payload: CommandPayload) throws {
@@ -175,7 +178,8 @@ public final class RunTestsOnRemoteQueueCommand: Command {
                 dateProvider: dateProvider,
                 resourceLocationResolver: resourceLocationResolver
             ),
-            uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator()
+            uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator(),
+            remoteCache: runtimeDumpRemoteCacheProvider.remoteCache(config: nil)
         )
         
         let queueClient = SynchronousQueueClient(queueServerAddress: queueServerAddress)

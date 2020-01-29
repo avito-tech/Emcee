@@ -13,6 +13,7 @@ import PluginManager
 import ProcessController
 import RequestSender
 import ResourceLocationResolver
+import RuntimeDump
 import URLResource
 import UniqueIdentifierGenerator
 import Version
@@ -34,6 +35,7 @@ public final class InProcessMain {
         let developerDirLocator = DefaultDeveloperDirLocator()
         let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
         let requestSenderProvider = DefaultRequestSenderProvider()
+        let runtimeDumpRemoteCacheProvider = DefaultRuntimeDumpRemoteCacheProvider(senderProvider: requestSenderProvider)
         let resourceLocationResolver = ResourceLocationResolverImpl(
             urlResource: URLResource(
                 fileCache: try FileCache.fileCacheInDefaultLocation(),
@@ -60,7 +62,8 @@ public final class InProcessMain {
                     developerDirLocator: developerDirLocator,
                     pluginEventBusProvider: pluginEventBusProvider,
                     resourceLocationResolver: resourceLocationResolver,
-                    uniqueIdentifierGenerator: uniqueIdentifierGenerator
+                    uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+                    runtimeDumpRemoteCacheProvider: runtimeDumpRemoteCacheProvider
                 ),
                 RunTestsOnRemoteQueueCommand(
                     dateProvider: dateProvider,
@@ -69,7 +72,8 @@ public final class InProcessMain {
                     pluginEventBusProvider: pluginEventBusProvider,
                     requestSenderProvider: requestSenderProvider,
                     resourceLocationResolver: resourceLocationResolver,
-                    uniqueIdentifierGenerator: uniqueIdentifierGenerator
+                    uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+                    runtimeDumpRemoteCacheProvider: runtimeDumpRemoteCacheProvider
                 ),
                 StartQueueServerCommand(
                     localQueueVersionProvider: localQueueVersionProvider,

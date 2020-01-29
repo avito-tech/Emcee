@@ -23,6 +23,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
     private let testEntryToQueryRuntimeDump: TestEntry
     private let testRunnerProvider: TestRunnerProvider
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
+    private let remoteCache: RuntimeDumpRemoteCache
     
     public init(
         developerDirLocator: DeveloperDirLocator,
@@ -33,7 +34,8 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         tempFolder: TemporaryFolder,
         testEntryToQueryRuntimeDump: TestEntry = TestEntry(testName: TestName(className: "NonExistingTest", methodName: "fakeTest"), tags: [], caseId: nil),
         testRunnerProvider: TestRunnerProvider,
-        uniqueIdentifierGenerator: UniqueIdentifierGenerator
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator,
+        remoteCache: RuntimeDumpRemoteCache
     ) {
         self.developerDirLocator = developerDirLocator
         self.numberOfAttemptsToPerformRuntimeDump = max(numberOfAttemptsToPerformRuntimeDump, 1)
@@ -44,9 +46,14 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         self.testEntryToQueryRuntimeDump = testEntryToQueryRuntimeDump
         self.testRunnerProvider = testRunnerProvider
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
+        self.remoteCache = remoteCache
     }
     
     public func queryRuntime(configuration: RuntimeDumpConfiguration) throws -> RuntimeQueryResult {
+        if let cachedResult = try? remoteCache.results(xcTestBundleLocation: configuration.xcTestBundleLocation) {
+            return cachedResult
+        }
+
         let availableRuntimeTests = try runRetrying(times: numberOfAttemptsToPerformRuntimeDump) {
             try availableTestsInRuntime(configuration: configuration)
         }
@@ -54,10 +61,14 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
             runtimeDetectedEntries: availableRuntimeTests,
             configuration: configuration
         )
-        return RuntimeQueryResult(
+
+        let result = RuntimeQueryResult(
             unavailableTestsToRun: unavailableTestEntries,
             availableRuntimeTests: availableRuntimeTests
         )
+        remoteCache.store(result: result, xcTestBundleLocation: configuration.xcTestBundleLocation)
+
+        return result
     }
     
     private func runRetrying<T>(times: UInt, _ work: () throws -> T) rethrows -> T {

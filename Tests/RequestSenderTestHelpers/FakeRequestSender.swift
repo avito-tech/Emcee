@@ -12,12 +12,17 @@ public final class FakeRequestSender: RequestSender {
         self.requestSenderError = requestSenderError
     }
 
+    public var request: Any?
+    public var credentials: Credentials?
     public func sendRequestWithCallback<NetworkRequestType: NetworkRequest>(
         request: NetworkRequestType,
         credentials: Credentials?,
         callbackQueue: DispatchQueue,
         callback: @escaping (Either<NetworkRequestType.Response, RequestSenderError>) -> ()
     ) {
+        self.request = request
+        self.credentials = credentials
+
         if let result = result {
             callbackQueue.async { callback(Either.left(result as! NetworkRequestType.Response)) }
         } else if let requestSenderError = requestSenderError {

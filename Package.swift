@@ -1085,10 +1085,11 @@ let package = Package(
                 "Models",
                 "PathLib",
                 "PluginManager",
+                "RequestSender",
                 "Runner",
                 "SynchronousWaiter",
                 "TemporaryStuff",
-                "UniqueIdentifierGenerator",
+                "UniqueIdentifierGenerator"
             ]
         ),
         .testTarget(
