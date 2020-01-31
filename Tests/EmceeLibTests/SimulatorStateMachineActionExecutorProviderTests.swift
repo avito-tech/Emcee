@@ -2,16 +2,19 @@ import AppleTools
 import EmceeLib
 import Foundation
 import ModelsTestHelpers
+import ProcessControllerTestHelpers
 import ResourceLocationResolverTestHelpers
 import TemporaryStuff
 import XCTest
 import fbxctest
 
 final class SimulatorStateMachineActionExecutorProviderTests: XCTestCase {
-    lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
+    private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
+    private let fakeProcessControllerProvider = FakeProcessControllerProvider()
     
     func test___simctl() {
         let provider = SimulatorStateMachineActionExecutorProviderImpl(
+            processControllerProvider: fakeProcessControllerProvider,
             resourceLocationResolver: FakeResourceLocationResolver.throwing(),
             simulatorSetPathDeterminer: FakeSimulatorSetPathDeterminer(provider: { _ in self.tempFolder.absolutePath })
         )
@@ -27,6 +30,7 @@ final class SimulatorStateMachineActionExecutorProviderTests: XCTestCase {
     
     func test___fbsimctl() {
         let provider = SimulatorStateMachineActionExecutorProviderImpl(
+            processControllerProvider: fakeProcessControllerProvider,
             resourceLocationResolver: FakeResourceLocationResolver.throwing(),
             simulatorSetPathDeterminer: FakeSimulatorSetPathDeterminer(provider: { _ in self.tempFolder.absolutePath })
         )

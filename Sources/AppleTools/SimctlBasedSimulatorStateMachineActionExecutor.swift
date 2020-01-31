@@ -9,10 +9,23 @@ import ResourceLocationResolver
 import SimulatorPool
 
 public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor, CustomStringConvertible {
+    
+    public enum SimctlUdidParseError: Error, CustomStringConvertible {
+        case emptyUdid
+        
+        public var description: String {
+            switch self {
+            case .emptyUdid:
+                return "Simctl returned an empty udid value, ot the value was not found"
+            }
+        }
+    }
 
+    private let processControllerProvider: ProcessControllerProvider
     private let simulatorSetPath: AbsolutePath
 
-    public init(simulatorSetPath: AbsolutePath) {
+    public init(processControllerProvider: ProcessControllerProvider, simulatorSetPath: AbsolutePath) {
+        self.processControllerProvider = processControllerProvider
         self.simulatorSetPath = simulatorSetPath
     }
     
@@ -25,14 +38,14 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
         testDestination: TestDestination,
         timeout: TimeInterval
     ) throws -> Simulator {
-        let controller = try DefaultProcessController(
+        let controller = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun", "simctl",
                     "--set", simulatorSetPath,
                     "create",
                     "Emcee Sim \(testDestination.deviceType) \(testDestination.runtime)",
-                    "com.apple.CoreSimulator.SimDeviceType." + testDestination.deviceType.replacingOccurrences(of: " ", with: "."),
+                    "com.apple.CoreSimulator.SimDeviceType." + testDestination.deviceType.replacingOccurrences(of: " ", with: "-"),
                     "com.apple.CoreSimulator.SimRuntime.iOS-" + testDestination.runtime.replacingOccurrences(of: ".", with: "-")
                 ],
                 environment: environment,
@@ -42,16 +55,18 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                 )
             )
         )
-        controller.startAndListenUntilProcessDies()
+        try controller.startAndWaitForSuccessfulTermination()
         
-        let udid: UDID = UDID(
-            value: try String(contentsOf: controller.subprocess.standardStreamsCaptureConfig.stdoutContentsFile.fileUrl, encoding: .utf8).trimmingCharacters(in: .whitespacesAndNewlines)
-        )
+        let createdUdid = try String(contentsOf: controller.subprocess.standardStreamsCaptureConfig.stdoutContentsFile.fileUrl, encoding: .utf8).trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !createdUdid.isEmpty else { throw SimctlUdidParseError.emptyUdid }
+        
+        let udid = UDID(value: createdUdid)
         
         return Simulator(
             testDestination: testDestination,
             udid: udid,
-            path: simulatorSetPath.appending(component: udid.value))
+            path: simulatorSetPath.appending(component: udid.value)
+        )
     }
     
     public func performBootSimulatorAction(
@@ -60,7 +75,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
         simulatorUuid: UDID,
         timeout: TimeInterval
     ) throws {
-        let processController = try DefaultProcessController(
+        let processController = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun", "simctl",
@@ -75,7 +90,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                 )
             )
         )
-        processController.startAndListenUntilProcessDies()
+        try processController.startAndWaitForSuccessfulTermination()
     }
     
     public func performShutdownSimulatorAction(
@@ -84,7 +99,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
         simulatorUuid: UDID,
         timeout: TimeInterval
     ) throws {
-        let shutdownController = try DefaultProcessController(
+        let shutdownController = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun", "simctl",
@@ -98,7 +113,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                 )
             )
         )
-        shutdownController.startAndListenUntilProcessDies()
+        try shutdownController.startAndWaitForSuccessfulTermination()
     }
     
     public func performDeleteSimulatorAction(
@@ -107,7 +122,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
         simulatorUuid: UDID,
         timeout: TimeInterval
     ) throws {
-        let deleteController = try DefaultProcessController(
+        let deleteController = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun", "simctl",
@@ -121,6 +136,6 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                 )
             )
         )
-        deleteController.startAndListenUntilProcessDies()
+        try deleteController.startAndWaitForSuccessfulTermination()
     }
 }

@@ -9,14 +9,17 @@ import SimulatorPool
 
 public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor, CustomStringConvertible {
     private let fbsimctl: ResolvableResourceLocation
+    private let processControllerProvider: ProcessControllerProvider
     private let simulatorsContainerPath: AbsolutePath
     private var simulatorKeepAliveProcessController: ProcessController?
 
     public init(
         fbsimctl: ResolvableResourceLocation,
+        processControllerProvider: ProcessControllerProvider,
         simulatorsContainerPath: AbsolutePath
     ) {
         self.fbsimctl = fbsimctl
+        self.processControllerProvider = processControllerProvider
         self.simulatorsContainerPath = simulatorsContainerPath
     }
 
@@ -30,7 +33,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
         )
         try FileManager.default.createDirectory(atPath: setPath)
         
-        let processController = try DefaultProcessController(
+        let processController = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
                 arguments: [
                     fbsimctlArg,
@@ -67,7 +70,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
         simulatorUuid: UDID,
         timeout: TimeInterval
     ) throws {
-        let processController = try DefaultProcessController(
+        let processController = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
                 arguments: [
                     fbsimctlArg,
@@ -105,7 +108,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
         }
         simulatorKeepAliveProcessController = nil
 
-        let shutdownController = try DefaultProcessController(
+        let shutdownController = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun",
@@ -136,7 +139,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
         
         let simulatorSetPath = path.removingLastComponent
         
-        let controller = try DefaultProcessController(
+        let controller = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
                 arguments: [
                     fbsimctlArg,

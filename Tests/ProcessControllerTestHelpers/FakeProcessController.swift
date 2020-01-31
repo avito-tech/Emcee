@@ -2,7 +2,7 @@ import Foundation
 import ProcessController
 
 public final class FakeProcessController: ProcessController {
-    public let subprocess: Subprocess
+    public var subprocess: Subprocess
 
     public init(subprocess: Subprocess) {
         self.subprocess = subprocess

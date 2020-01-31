@@ -83,6 +83,9 @@ let package = Package(
                 "DeveloperDirLocatorTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
+                "PathLib",
+                "ProcessController",
+                "ProcessControllerTestHelpers",
                 "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
                 "RunnerTestHelpers",
@@ -384,6 +387,7 @@ let package = Package(
                 "EmceeLib",
                 "Models",
                 "ModelsTestHelpers",
+                "ProcessControllerTestHelpers",
                 "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
                 "TemporaryStuff",
@@ -769,7 +773,8 @@ let package = Package(
                 "Extensions",
                 "PathLib",
                 "ProcessController",
-                "TemporaryStuff"
+                "TemporaryStuff",
+                "TestHelpers",
             ]
         ),
         .target(

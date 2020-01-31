@@ -1,5 +1,6 @@
 import DeveloperDirLocator
 import Foundation
+import ProcessController
 import ResourceLocationResolver
 import SimulatorPool
 import TemporaryStuff
@@ -21,6 +22,7 @@ public final class OnDemandSimulatorPoolFactory {
                 additionalBootAttempts: additionalBootAttempts,
                 simulatorBootQueue: simulatorBootQueue,
                 simulatorStateMachineActionExecutorProvider: SimulatorStateMachineActionExecutorProviderImpl(
+                    processControllerProvider: DefaultProcessControllerProvider(),
                     resourceLocationResolver: resourceLocationResolver,
                     simulatorSetPathDeterminer: SimulatorSetPathDeterminerImpl(
                         temporaryFolder: tempFolder,

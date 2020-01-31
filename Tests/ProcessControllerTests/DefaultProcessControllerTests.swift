@@ -3,6 +3,7 @@ import Foundation
 import PathLib
 import ProcessController
 import TemporaryStuff
+import TestHelpers
 import XCTest
 
 final class DefaultProcessControllerTests: XCTestCase {
@@ -46,6 +47,40 @@ final class DefaultProcessControllerTests: XCTestCase {
             )
         )
         XCTAssertEqual(controller.processStatus(), .notStarted)
+    }
+    
+    func test___successful_termination___does_not_throw() throws {
+        let controller = assertDoesNotThrow {
+            try DefaultProcessController(
+                subprocess: Subprocess(
+                    arguments: ["/usr/bin/env"]
+                )
+            )
+        }
+        assertDoesNotThrow {
+            try controller.startAndWaitForSuccessfulTermination()
+        }
+    }
+    
+    func test___termination_with_non_zero_exit_code___throws() throws {
+        let tempFile = assertDoesNotThrow { try TemporaryFile() }
+        
+        let argument = "/\(UUID().uuidString)"
+        let controller = assertDoesNotThrow {
+            try DefaultProcessController(
+                subprocess: Subprocess(
+                    arguments: ["/bin/ls", argument],
+                    standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
+                        stderrContentsFile: tempFile.absolutePath
+                    )
+                )
+            )
+        }
+        controller.startAndListenUntilProcessDies()
+        
+        assertThrows {
+            try controller.startAndWaitForSuccessfulTermination()
+        }
     }
     
     func test___no_automatic_action() throws {
