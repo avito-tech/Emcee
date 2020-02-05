@@ -1336,6 +1336,7 @@ let package = Package(
             // MARK: URLResource
             name: "URLResource",
             dependencies: [
+                "AtomicModels",
                 "FileCache",
                 "Logging",
                 "Models",
@@ -1348,8 +1349,10 @@ let package = Package(
             dependencies: [
                 "FileCache",
                 "Swifter",
+                "SynchronousWaiter",
                 "TemporaryStuff",
-                "URLResource"
+                "TestHelpers",
+                "URLResource",
             ]
         ),
         .target(
