@@ -1,4 +1,5 @@
 import RequestSender
+import Models
 
 class RuntimeDumpRemoteCacheResultRequest: NetworkRequest {
     typealias Response = RuntimeQueryResult

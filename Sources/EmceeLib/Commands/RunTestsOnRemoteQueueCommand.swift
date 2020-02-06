@@ -82,7 +82,11 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         
         let tempFolder = try TemporaryFolder(containerPath: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.tempFolder.name))
         let testArgFile = try ArgumentsReader.testArgFile(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testArgFile.name))
-        
+
+        let remoteCacheConfig = try ArgumentsReader.remoteCacheConfig(
+            try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.remoteCacheConfig.name)
+        )
+
         let runningQueueServerAddress = try detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
             queueServerDestination: queueServerDestination,
             queueServerRunConfigurationLocation: queueServerRunConfigurationLocation,
@@ -93,7 +97,8 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             queueServerAddress: runningQueueServerAddress,
             runId: runId,
             tempFolder: tempFolder,
-            testArgFile: testArgFile
+            testArgFile: testArgFile,
+            remoteCacheConfig: remoteCacheConfig
         )
         let resultOutputGenerator = ResultingOutputGenerator(
             testingResults: jobResults.testingResults,
@@ -157,7 +162,8 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         queueServerAddress: SocketAddress,
         runId: JobId,
         tempFolder: TemporaryFolder,
-        testArgFile: TestArgFile
+        testArgFile: TestArgFile,
+        remoteCacheConfig: RuntimeDumpRemoteCacheConfig?
     ) throws -> JobResults {
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
             developerDirLocator: developerDirLocator,
@@ -179,7 +185,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
                 resourceLocationResolver: resourceLocationResolver
             ),
             uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator(),
-            remoteCache: runtimeDumpRemoteCacheProvider.remoteCache(config: nil)
+            remoteCache: runtimeDumpRemoteCacheProvider.remoteCache(config: remoteCacheConfig)
         )
         
         let queueClient = SynchronousQueueClient(queueServerAddress: queueServerAddress)

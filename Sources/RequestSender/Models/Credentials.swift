@@ -1,4 +1,4 @@
-public struct Credentials: Equatable {
+public struct Credentials: Equatable, Codable {
     public let username: String
     public let password: String
 

@@ -54,6 +54,9 @@ public final class DumpRuntimeTestsCommand: Command {
 
     public func run(payload: CommandPayload) throws {
         let testArgFile = try ArgumentsReader.testArgFile(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testArgFile.name))
+        let remoteCacheConfig = try ArgumentsReader.remoteCacheConfig(
+            try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.remoteCacheConfig.name)
+        )
         let tempFolder = try TemporaryFolder(
             containerPath: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.tempFolder.name)
         )
@@ -96,7 +99,7 @@ public final class DumpRuntimeTestsCommand: Command {
                     resourceLocationResolver: resourceLocationResolver
                 ),
                 uniqueIdentifierGenerator: uniqueIdentifierGenerator,
-                remoteCache: runtimeDumpRemoteCacheProvider.remoteCache(config: nil)
+                remoteCache: runtimeDumpRemoteCacheProvider.remoteCache(config: remoteCacheConfig)
             )
             
             let result = try runtimeTestQuerier.queryRuntime(configuration: configuration)

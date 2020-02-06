@@ -3,6 +3,7 @@ import LocalQueueServerRunner
 import Logging
 import Models
 import ResourceLocationResolver
+import RuntimeDump
 
 final class ArgumentsReader {
     private init() {}
@@ -27,6 +28,14 @@ final class ArgumentsReader {
     }
     
     public static func deploymentDestinations(_ file: String) throws -> [DeploymentDestination] {
+        return try decodeModelsFromFile(file, jsonDecoder: decoderWithSnakeCaseSupport)
+    }
+
+    public static func remoteCacheConfig(_ file: String?) throws -> RuntimeDumpRemoteCacheConfig? {
+        guard let file = file else {
+            return nil
+        }
+        
         return try decodeModelsFromFile(file, jsonDecoder: decoderWithSnakeCaseSupport)
     }
     

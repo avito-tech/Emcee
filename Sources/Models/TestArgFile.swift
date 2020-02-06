@@ -43,55 +43,6 @@ public struct TestArgFile: Codable {
             self.toolResources = toolResources
             self.toolchainConfiguration = toolchainConfiguration
         }
-        
-        private enum CodingKeys: String, CodingKey {
-            case buildArtifacts
-            case environment
-            case numberOfRetries
-            case pluginLocations
-            case scheduleStrategy
-            case simulatorSettings
-            case testDestination
-            case testTimeoutConfiguration
-            case testType
-            case testsToRun
-            case toolResources
-            case toolchainConfiguration
-        }
-        
-        public init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-
-            buildArtifacts = try container.decode(BuildArtifacts.self, forKey: .buildArtifacts)
-            environment = try container.decode([String: String].self, forKey: .environment)
-            numberOfRetries = try container.decode(UInt.self, forKey: .numberOfRetries)
-            pluginLocations = try container.decode(Set<PluginLocation>.self, forKey: .pluginLocations)
-            scheduleStrategy = try container.decode(ScheduleStrategyType.self, forKey: .scheduleStrategy)
-            simulatorSettings = try container.decode(SimulatorSettings.self, forKey: .simulatorSettings)
-            testDestination = try container.decode(TestDestination.self, forKey: .testDestination)
-            testTimeoutConfiguration = try container.decode(TestTimeoutConfiguration.self, forKey: .testTimeoutConfiguration)
-            testType = try container.decode(TestType.self, forKey: .testType)
-            testsToRun = try container.decode([TestToRun].self, forKey: .testsToRun)
-            toolResources = try container.decode(ToolResources.self, forKey: .toolResources)
-            toolchainConfiguration = try container.decode(ToolchainConfiguration.self, forKey: .toolchainConfiguration)
-        }
-        
-        public func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            
-            try container.encode(buildArtifacts, forKey: .buildArtifacts)
-            try container.encode(environment, forKey: .environment)
-            try container.encode(numberOfRetries, forKey: .numberOfRetries)
-            try container.encode(pluginLocations, forKey: .pluginLocations)
-            try container.encode(scheduleStrategy, forKey: .scheduleStrategy)
-            try container.encode(simulatorSettings, forKey: .simulatorSettings)
-            try container.encode(testDestination, forKey: .testDestination)
-            try container.encode(testTimeoutConfiguration, forKey: .testTimeoutConfiguration)
-            try container.encode(testType, forKey: .testType)
-            try container.encode(testsToRun, forKey: .testsToRun)
-            try container.encode(toolResources, forKey: .toolResources)
-            try container.encode(toolchainConfiguration, forKey: .toolchainConfiguration)
-        }
     }
     
     public let entries: [Entry]

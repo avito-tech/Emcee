@@ -1,4 +1,4 @@
-public enum HTTPMethod: String {
+public enum HTTPMethod: String, Codable {
     case get
     case post
     case put

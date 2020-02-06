@@ -3,6 +3,7 @@ import Models
 import RequestSender
 import RequestSenderTestHelpers
 import XCTest
+import PathLib
 
 class RuntimeDumpRemoteCacheTests: XCTestCase {
     private let requestSender = FakeRequestSender(result: nil, requestSenderError: nil)
@@ -85,7 +86,7 @@ class RuntimeDumpRemoteCacheTests: XCTestCase {
             credentials: Credentials(username: "username", password: "password"),
             storeHttpMethod: .post,
             obtainHttpMethod: .get,
-            pathToRemoteStorage: "pathToRemoteStorage",
+            relativePathToRemoteStorage: RelativePath("pathToRemoteStorage"),
             socketAddress: SocketAddress(host: "example.com", port: 1337)
         )
     }

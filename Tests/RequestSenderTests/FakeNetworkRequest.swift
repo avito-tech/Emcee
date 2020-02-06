@@ -1,4 +1,5 @@
 import RequestSender
+import Models
 
 class FakeNetworkRequest: NetworkRequest {
     typealias Payload = [String: String]

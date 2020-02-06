@@ -3,6 +3,7 @@ import RequestSender
 import Logging
 import Models
 import SynchronousWaiter
+import PathLib
 
 class DefaultRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
     private let sender: RequestSender
@@ -66,16 +67,16 @@ class DefaultRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
     }
 
     private func pathToRemoteFile(_ xcTestBundleLocation: TestBundleLocation) -> String {
-        return addLeadingSlashIfNeeded(config.pathToRemoteStorage).appending(
+        return addLeadingSlashIfNeeded(config.relativePathToRemoteStorage).appending(
             pathComponent: "\(xcTestBundleLocation.hashValue).json"
         )
     }
 
-    func addLeadingSlashIfNeeded(_ string: String) -> String {
-        guard string.first != "/" else {
-            return string
+    func addLeadingSlashIfNeeded(_ path: RelativePath) -> String {
+        guard path.pathString.first != "/" else {
+            return path.pathString
         }
 
-        return "/\(string)"
+        return "/\(path.pathString)"
     }
 }

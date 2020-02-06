@@ -1,24 +1,25 @@
-import RequestSender
 import Models
+import RequestSender
+import PathLib
 
-public final class RuntimeDumpRemoteCacheConfig {
+public struct RuntimeDumpRemoteCacheConfig: Decodable, Equatable {
     public let credentials: Credentials
     public let storeHttpMethod: HTTPMethod
     public let obtainHttpMethod: HTTPMethod
-    public let pathToRemoteStorage: String
+    public let relativePathToRemoteStorage: RelativePath
     public let socketAddress: SocketAddress
     
     public init(
         credentials: Credentials,
         storeHttpMethod: HTTPMethod,
         obtainHttpMethod: HTTPMethod,
-        pathToRemoteStorage: String,
+        relativePathToRemoteStorage: RelativePath,
         socketAddress: SocketAddress
     ) {
         self.credentials = credentials
         self.storeHttpMethod = storeHttpMethod
         self.obtainHttpMethod = obtainHttpMethod
-        self.pathToRemoteStorage = pathToRemoteStorage
+        self.relativePathToRemoteStorage = relativePathToRemoteStorage
         self.socketAddress = socketAddress
     }
 }

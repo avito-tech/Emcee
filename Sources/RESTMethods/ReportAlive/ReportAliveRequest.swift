@@ -1,4 +1,5 @@
 import RequestSender
+import Models
 
 public final class ReportAliveRequest: NetworkRequest {
     public typealias Response = ReportAliveResponse

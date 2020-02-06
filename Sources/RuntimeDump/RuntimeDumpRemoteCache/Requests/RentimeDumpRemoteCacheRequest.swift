@@ -1,4 +1,5 @@
 import RequestSender
+import Models
 
 class RentimeDumpRemoteCacheStoreRequest: NetworkRequest {
     typealias Response = EmptyData

@@ -1,4 +1,5 @@
 import RequestSender
+import Models
 
 public final class RegisterWorkerRequest: NetworkRequest {
     public typealias Response = RegisterWorkerResponse
