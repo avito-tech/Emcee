@@ -31,6 +31,6 @@ public final class JoinedSubprocessArgument: SubprocessArgument, CustomStringCon
     }
     
     public var description: String {
-        return (try? stringValue()) ?? components.description
+        return components.map { "\($0)" }.joined(separator: " ")
     }
 }

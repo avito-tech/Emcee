@@ -10,11 +10,6 @@ public final class BlockingURLResourceHandler: URLResourceHandler {
     private let waiter: Waiter
     private let result: AtomicValue<Either<URL, Error>?> = AtomicValue(nil)
 
-    public enum HandlerError: Error {
-        case timeout
-        case failure(Error)
-    }
-    
     public init(
         waiter: Waiter = SynchronousWaiter()
     ) {

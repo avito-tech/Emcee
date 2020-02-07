@@ -23,8 +23,8 @@ private class ResolvableResourceLocationArg: SubprocessArgument, CustomStringCon
 
     public init(
         resolvableResourceLocation: ResolvableResourceLocation,
-        implicitFilenameInArchive: String?)
-    {
+        implicitFilenameInArchive: String?
+    ) {
         self.resolvableResourceLocation = resolvableResourceLocation
         self.implicitFilenameInArchive = implicitFilenameInArchive
     }
@@ -46,10 +46,15 @@ private class ResolvableResourceLocationArg: SubprocessArgument, CustomStringCon
     }
     
     public var description: String {
-        do {
-            return try stringValue()
-        } catch {
-            return "Error resolving resource location \(resolvableResourceLocation): \(error)"
+        switch resolvableResourceLocation.resourceLocation {
+        case .localFilePath(let path):
+            return path
+        case .remoteUrl(let url):
+            var items = ["url: \(url)"]
+            if let implicitFilenameInArchive = implicitFilenameInArchive {
+                items.append("file: \(implicitFilenameInArchive)")
+            }
+            return "<\(type(of: self)): " + items.joined(separator: " ") + ">"
         }
     }
 }

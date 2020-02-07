@@ -2,14 +2,18 @@ import Foundation
 import Models
 import ProcessController
 
-public class XcodebuildSimulatorDestinationArgument: SubprocessArgument {
-    private let destinationId: UDID
+public class XcodebuildSimulatorDestinationArgument: SubprocessArgument, CustomStringConvertible {
+    private let xcodeDestinationString: String
 
     public init(destinationId: UDID) {
-        self.destinationId = destinationId
+        self.xcodeDestinationString = "platform=iOS Simulator,id=\(destinationId.value)"
     }
 
     public func stringValue() throws -> String {
-        return "platform=iOS Simulator,id=\(destinationId.value)"
+        return xcodeDestinationString
+    }
+    
+    public var description: String {
+        return xcodeDestinationString
     }
 }
