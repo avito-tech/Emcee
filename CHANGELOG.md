@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2020-02-07
+
+- Added remote cache support for runtime dump action. Provide `--remote-cache-config` argument with JSON config for remote cache to use it. Next time runtime dump action will be executed Emcee will try to obtain cached version of runtime dump results from remote cache storage. See Wiki for more details.
+
 ## 2020-01-16
 
 - Fixed a bug: when Emcee fails to execute a test because of underlying error (e.g. failed to fetch a file, failed to boot simulator), worker wouldn't send back a test failure result. This would result to an infinitely processing buckets on worker. Now it will report back a test failure.
