@@ -50,6 +50,6 @@ public final class HTTPRESTServer {
     public func start() throws -> Int {
         let port = try portProvider.localPort()
         try server.start(in_port_t(port), forceIPv4: false, priority: .default)
-        return port
+        return try server.port()
     }
 }

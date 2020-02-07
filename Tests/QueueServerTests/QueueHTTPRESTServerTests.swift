@@ -30,7 +30,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     lazy var restServer = QueueHTTPRESTServer(
         httpRestServer: HTTPRESTServer(
             automaticTerminationController: automaticTerminationController,
-            portProvider: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange)
+            portProvider: PortProviderWrapper { 0 }
         )
     )
     let workerConfigurations = WorkerConfigurations()
