@@ -40,6 +40,11 @@ public final class FakeResourceLocationResolver: ResourceLocationResolver {
         if let error = resolveError {
             throw error
         }
-        return resolvingResult
+        switch resourceLocation {
+        case .localFilePath(let path):
+            return ResolvingResult.directlyAccessibleFile(path: path)
+        case .remoteUrl:
+            return resolvingResult
+        }
     }
 }

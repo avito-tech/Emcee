@@ -10,6 +10,7 @@ import Logging
 import Models
 import PathLib
 import PluginManager
+import ProcessController
 import ResourceLocationResolver
 import RuntimeDump
 import ScheduleStrategy
@@ -31,6 +32,7 @@ public final class DumpRuntimeTestsCommand: Command {
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let pluginEventBusProvider: PluginEventBusProvider
+    private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let runtimeDumpRemoteCacheProvider: RuntimeDumpRemoteCacheProvider
@@ -39,6 +41,7 @@ public final class DumpRuntimeTestsCommand: Command {
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         pluginEventBusProvider: PluginEventBusProvider,
+        processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         runtimeDumpRemoteCacheProvider: RuntimeDumpRemoteCacheProvider
@@ -47,6 +50,7 @@ public final class DumpRuntimeTestsCommand: Command {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.pluginEventBusProvider = pluginEventBusProvider
+        self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.runtimeDumpRemoteCacheProvider = runtimeDumpRemoteCacheProvider
@@ -64,6 +68,7 @@ public final class DumpRuntimeTestsCommand: Command {
         
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
             developerDirLocator: developerDirLocator,
+            processControllerProvider: processControllerProvider,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
@@ -96,6 +101,7 @@ public final class DumpRuntimeTestsCommand: Command {
                 tempFolder: tempFolder,
                 testRunnerProvider: DefaultTestRunnerProvider(
                     dateProvider: dateProvider,
+                    processControllerProvider: processControllerProvider,
                     resourceLocationResolver: resourceLocationResolver
                 ),
                 uniqueIdentifierGenerator: uniqueIdentifierGenerator,

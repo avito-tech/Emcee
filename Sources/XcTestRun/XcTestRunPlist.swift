@@ -20,7 +20,7 @@ public final class XcTestRunPlist {
         dictionary["TestHostPath"] = xcTestRun.testHostPath
         dictionary["TestHostBundleIdentifier"] = xcTestRun.testHostBundleIdentifier
         if let uiTargetAppPath = xcTestRun.uiTargetAppPath {
-            dictionary["UiTargetAppPath"] = uiTargetAppPath
+            dictionary["UITargetAppPath"] = uiTargetAppPath
         }
         dictionary["EnvironmentVariables"] = xcTestRun.environmentVariables
         dictionary["CommandLineArguments"] = xcTestRun.commandLineArguments
@@ -33,6 +33,7 @@ public final class XcTestRunPlist {
         dictionary["IsUITestBundle"] = xcTestRun.isUITestBundle
         dictionary["IsAppHostedTestBundle"] = xcTestRun.isAppHostedTestBundle
         dictionary["IsXCTRunnerHostedTestBundle"] = xcTestRun.isXCTRunnerHostedTestBundle
+        dictionary["ProductModuleName"] = xcTestRun.testTargetProductModuleName
         return NSDictionary(
             object: dictionary,
             forKey: xcTestRun.testTargetName as NSString

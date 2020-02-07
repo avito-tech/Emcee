@@ -8,6 +8,7 @@ import LoggingSetup
 import Models
 import PathLib
 import PluginManager
+import ProcessController
 import QueueClient
 import RequestSender
 import ResourceLocationResolver
@@ -26,6 +27,7 @@ public final class DistWorkCommand: Command {
     
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
+    private let processControllerProvider: ProcessControllerProvider
     private let pluginEventBusProvider: PluginEventBusProvider
     private let requestSenderProvider: RequestSenderProvider
     private let resourceLocationResolver: ResourceLocationResolver
@@ -35,6 +37,7 @@ public final class DistWorkCommand: Command {
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         pluginEventBusProvider: PluginEventBusProvider,
+        processControllerProvider: ProcessControllerProvider,
         requestSenderProvider: RequestSenderProvider,
         resourceLocationResolver: ResourceLocationResolver,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
@@ -42,6 +45,7 @@ public final class DistWorkCommand: Command {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.pluginEventBusProvider = pluginEventBusProvider
+        self.processControllerProvider = processControllerProvider
         self.requestSenderProvider = requestSenderProvider
         self.resourceLocationResolver = resourceLocationResolver
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
@@ -54,6 +58,7 @@ public final class DistWorkCommand: Command {
 
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
             developerDirLocator: developerDirLocator,
+            processControllerProvider: processControllerProvider,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: temporaryFolder,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
@@ -93,6 +98,7 @@ public final class DistWorkCommand: Command {
             temporaryFolder: temporaryFolder,
             testRunnerProvider: DefaultTestRunnerProvider(
                 dateProvider: dateProvider,
+                processControllerProvider: processControllerProvider,
                 resourceLocationResolver: resourceLocationResolver
             ),
             workerId: workerId,

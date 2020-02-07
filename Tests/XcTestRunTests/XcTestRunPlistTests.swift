@@ -28,7 +28,8 @@ final class XcTestRunPlistTests: XCTestCase {
             testingEnvironmentVariables: ["TESTING_ENV": "VAL"],
             isUITestBundle: true,
             isAppHostedTestBundle: false,
-            isXCTRunnerHostedTestBundle: true
+            isXCTRunnerHostedTestBundle: true,
+            testTargetProductModuleName: "TestModuleName"
         )
         let plist = XcTestRunPlist(xcTestRun: testRun)
         let contents = try plist.createPlistData()
@@ -77,6 +78,8 @@ final class XcTestRunPlistTests: XCTestCase {
             <string>to</string>
             <string>run</string>
         </array>
+        <key>ProductModuleName</key>
+        <string>TestModuleName</string>
         <key>SkipTestIdentifiers</key>
         <array>
             <string>tests</string>
@@ -107,7 +110,7 @@ final class XcTestRunPlistTests: XCTestCase {
         </dict>
         <key>UITargetAppMainThreadCheckerEnabled</key>
         <false/>
-        <key>UiTargetAppPath</key>
+        <key>UITargetAppPath</key>
         <string>ui.target.app.path</string>
     </dict>
 </dict>

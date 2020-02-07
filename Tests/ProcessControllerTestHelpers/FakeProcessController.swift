@@ -1,5 +1,6 @@
 import Foundation
 import ProcessController
+import SynchronousWaiter
 
 public final class FakeProcessController: ProcessController {
     public var subprocess: Subprocess
@@ -17,8 +18,10 @@ public final class FakeProcessController: ProcessController {
     }
     
     public func start() {}
-    public func startAndListenUntilProcessDies() {}
-    public func waitForProcessToDie() {}
+    
+    public func waitForProcessToDie() {
+        try? SynchronousWaiter().waitWhile { isProcessRunning }
+    }
     
     public var overridedProcessStatus: ProcessStatus = .notStarted
     
@@ -38,7 +41,39 @@ public final class FakeProcessController: ProcessController {
     
     public weak var delegate: ProcessControllerDelegate?
     
-    public func onStdout(listener: @escaping StdoutListener) {}
-    public func onStderr(listener: @escaping StderrListener) {}
-    public func onSilence(listener: @escaping SilenceListener) {}
+    // Stdout
+    
+    public var stdoutListeners = [StdoutListener]()
+    
+    public func onStdout(listener: @escaping StdoutListener) {
+        stdoutListeners.append(listener)
+    }
+    
+    public func broadcastStdout(data: Data) {
+        stdoutListeners.forEach { $0(self, data, { }) }
+    }
+    
+    // Stderr
+    
+    public var stderrListeners = [StdoutListener]()
+    
+    public func onStderr(listener: @escaping StderrListener) {
+        stderrListeners.append(listener)
+    }
+    
+    public func broadcastStderr(data: Data) {
+        stderrListeners.forEach { $0(self, data, { }) }
+    }
+    
+    // Silence
+    
+    public var silenceListeners = [SilenceListener]()
+    
+    public func onSilence(listener: @escaping SilenceListener) {
+        silenceListeners.append(listener)
+    }
+    
+    public func broadcastSilence() {
+        silenceListeners.forEach { $0(self, { }) }
+    }
 }

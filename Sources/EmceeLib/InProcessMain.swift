@@ -45,6 +45,7 @@ public final class InProcessMain {
         let pluginEventBusProvider: PluginEventBusProvider = PluginEventBusProviderImpl(
             resourceLocationResolver: resourceLocationResolver
         )
+        let processControllerProvider = DefaultProcessControllerProvider()
         let uniqueIdentifierGenerator = UuidBasedUniqueIdentifierGenerator()
         
         let commandInvoker = CommandInvoker(
@@ -53,6 +54,7 @@ public final class InProcessMain {
                     dateProvider: dateProvider,
                     developerDirLocator: developerDirLocator,
                     pluginEventBusProvider: pluginEventBusProvider,
+                    processControllerProvider: processControllerProvider,
                     requestSenderProvider: requestSenderProvider,
                     resourceLocationResolver: resourceLocationResolver,
                     uniqueIdentifierGenerator: uniqueIdentifierGenerator
@@ -61,6 +63,7 @@ public final class InProcessMain {
                     dateProvider: dateProvider,
                     developerDirLocator: developerDirLocator,
                     pluginEventBusProvider: pluginEventBusProvider,
+                    processControllerProvider: processControllerProvider,
                     resourceLocationResolver: resourceLocationResolver,
                     uniqueIdentifierGenerator: uniqueIdentifierGenerator,
                     runtimeDumpRemoteCacheProvider: runtimeDumpRemoteCacheProvider
@@ -70,6 +73,7 @@ public final class InProcessMain {
                     developerDirLocator: developerDirLocator,
                     localQueueVersionProvider: localQueueVersionProvider,
                     pluginEventBusProvider: pluginEventBusProvider,
+                    processControllerProvider: processControllerProvider,
                     requestSenderProvider: requestSenderProvider,
                     resourceLocationResolver: resourceLocationResolver,
                     uniqueIdentifierGenerator: uniqueIdentifierGenerator,

@@ -62,6 +62,9 @@ public final class XcTestRun {
 
     /// true for Xcode UI tests.
     public let isXCTRunnerHostedTestBundle: Bool
+    
+    /// The module name of this test target, as specified by the target's `PRODUCT_MODULE_NAME` build setting in Xcode.
+    public let testTargetProductModuleName: String
 
     public init(
         testTargetName: String,
@@ -81,9 +84,9 @@ public final class XcTestRun {
         testingEnvironmentVariables: [String: String],
         isUITestBundle: Bool,
         isAppHostedTestBundle: Bool,
-        isXCTRunnerHostedTestBundle: Bool
-        )
-    {
+        isXCTRunnerHostedTestBundle: Bool,
+        testTargetProductModuleName: String
+    ) {
         self.testTargetName = testTargetName
         self.bundleIdentifiersForCrashReportEmphasis = bundleIdentifiersForCrashReportEmphasis
         self.dependentProductPaths = dependentProductPaths
@@ -102,6 +105,7 @@ public final class XcTestRun {
         self.isUITestBundle = isUITestBundle
         self.isAppHostedTestBundle = isAppHostedTestBundle
         self.isXCTRunnerHostedTestBundle = isXCTRunnerHostedTestBundle
+        self.testTargetProductModuleName = testTargetProductModuleName
     }
 }
 

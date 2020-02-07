@@ -11,6 +11,7 @@ import Models
 import PathLib
 import PluginManager
 import PortDeterminer
+import ProcessController
 import QueueClient
 import QueueServer
 import RemotePortDeterminer
@@ -42,6 +43,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     private let developerDirLocator: DeveloperDirLocator
     private let localQueueVersionProvider: VersionProvider
     private let pluginEventBusProvider: PluginEventBusProvider
+    private let processControllerProvider: ProcessControllerProvider
     private let requestSenderProvider: RequestSenderProvider
     private let resourceLocationResolver: ResourceLocationResolver
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
@@ -52,6 +54,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         developerDirLocator: DeveloperDirLocator,
         localQueueVersionProvider: VersionProvider,
         pluginEventBusProvider: PluginEventBusProvider,
+        processControllerProvider: ProcessControllerProvider,
         requestSenderProvider: RequestSenderProvider,
         resourceLocationResolver: ResourceLocationResolver,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
@@ -61,6 +64,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         self.developerDirLocator = developerDirLocator
         self.localQueueVersionProvider = localQueueVersionProvider
         self.pluginEventBusProvider = pluginEventBusProvider
+        self.processControllerProvider = processControllerProvider
         self.requestSenderProvider = requestSenderProvider
         self.resourceLocationResolver = resourceLocationResolver
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
@@ -167,6 +171,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     ) throws -> JobResults {
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
             developerDirLocator: developerDirLocator,
+            processControllerProvider: processControllerProvider,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
@@ -182,6 +187,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             tempFolder: tempFolder,
             testRunnerProvider: DefaultTestRunnerProvider(
                 dateProvider: dateProvider,
+                processControllerProvider: processControllerProvider,
                 resourceLocationResolver: resourceLocationResolver
             ),
             uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator(),

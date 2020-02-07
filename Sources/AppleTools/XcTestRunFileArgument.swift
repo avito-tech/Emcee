@@ -89,9 +89,9 @@ public final class XcTestRunFileArgument: SubprocessArgument {
             testHostPath: testHostPath.pathString,
             testHostBundleIdentifier: "StubBundleId",
             uiTargetAppPath: nil,
-            environmentVariables: [:],
+            environmentVariables: testContext.environment,
             commandLineArguments: [],
-            uiTargetAppEnvironmentVariables: [:],
+            uiTargetAppEnvironmentVariables: testContext.environment,
             uiTargetAppCommandLineArguments: [],
             uiTargetAppMainThreadCheckerEnabled: false,
             skipTestIdentifiers: [],
@@ -99,7 +99,10 @@ public final class XcTestRunFileArgument: SubprocessArgument {
             testingEnvironmentVariables: xctestSpecificEnvironment.byMergingWith(testContext.environment),
             isUITestBundle: false,
             isAppHostedTestBundle: false,
-            isXCTRunnerHostedTestBundle: false
+            isXCTRunnerHostedTestBundle: false,
+            testTargetProductModuleName: try testTargetProductModuleName(
+                resolvableXcTestBundle: resolvableXcTestBundle
+            )
         )
     }
 
@@ -119,9 +122,9 @@ public final class XcTestRunFileArgument: SubprocessArgument {
             testHostPath: hostAppPath,
             testHostBundleIdentifier: "StubBundleId",
             uiTargetAppPath: nil,
-            environmentVariables: [:],
+            environmentVariables: testContext.environment,
             commandLineArguments: [],
-            uiTargetAppEnvironmentVariables: [:],
+            uiTargetAppEnvironmentVariables: testContext.environment,
             uiTargetAppCommandLineArguments: [],
             uiTargetAppMainThreadCheckerEnabled: false,
             skipTestIdentifiers: [],
@@ -129,7 +132,10 @@ public final class XcTestRunFileArgument: SubprocessArgument {
             testingEnvironmentVariables: [:],
             isUITestBundle: false,
             isAppHostedTestBundle: true,
-            isXCTRunnerHostedTestBundle: false
+            isXCTRunnerHostedTestBundle: false,
+            testTargetProductModuleName: try testTargetProductModuleName(
+                resolvableXcTestBundle: resolvableXcTestBundle
+            )
         )
     }
 
@@ -158,9 +164,9 @@ public final class XcTestRunFileArgument: SubprocessArgument {
             testHostPath: hostAppPath,
             testHostBundleIdentifier: "StubBundleId",
             uiTargetAppPath: uiTargetAppPath,
-            environmentVariables: [:],
+            environmentVariables: testContext.environment,
             commandLineArguments: [],
-            uiTargetAppEnvironmentVariables: [:],
+            uiTargetAppEnvironmentVariables: testContext.environment,
             uiTargetAppCommandLineArguments: [],
             uiTargetAppMainThreadCheckerEnabled: false,
             skipTestIdentifiers: [],
@@ -171,7 +177,44 @@ public final class XcTestRunFileArgument: SubprocessArgument {
             ],
             isUITestBundle: true,
             isAppHostedTestBundle: false,
-            isXCTRunnerHostedTestBundle: true
+            isXCTRunnerHostedTestBundle: true,
+            testTargetProductModuleName: try testTargetProductModuleName(
+                resolvableXcTestBundle: resolvableXcTestBundle
+            )
         )
+    }
+    
+    private enum ProductModuleNameError: Error, CustomStringConvertible {
+        case failedToReadPlistContents(path: AbsolutePath, contents: Any)
+        case noValueCFBundleName(path: AbsolutePath)
+        
+        var description: String {
+            switch self {
+            case .failedToReadPlistContents(let path, let contents):
+                return "Unexpected contents of plist at \(path): \(contents)"
+            case .noValueCFBundleName(let path):
+                return "Plist at \(path) does not have a value for CFBundleName key"
+            }
+        }
+    }
+    
+    private func testTargetProductModuleName(
+        resolvableXcTestBundle: ResolvableResourceLocation
+    ) throws -> String {
+        let resolveResult = try resolvableXcTestBundle.resolve()
+        let pathToBundle = AbsolutePath(try resolveResult.directlyAccessibleResourcePath())
+        let plistPath = pathToBundle.appending(component: "Info.plist")
+        let plistContents = try PropertyListSerialization.propertyList(
+            from: Data(contentsOf: plistPath.fileUrl, options: .mappedIfSafe),
+            options: [],
+            format: nil
+        )
+        guard let plistDict = plistContents as? NSDictionary else {
+            throw ProductModuleNameError.failedToReadPlistContents(path: plistPath, contents: plistContents)
+        }
+        guard let bundleName = plistDict["CFBundleName"] as? String else {
+            throw ProductModuleNameError.noValueCFBundleName(path: plistPath)
+        }
+        return bundleName
     }
 }

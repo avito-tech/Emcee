@@ -10,6 +10,7 @@ public final class OnDemandSimulatorPoolFactory {
     public static func create(
         developerDirLocator: DeveloperDirLocator,
         additionalBootAttempts: UInt = 2,
+        processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver,
         simulatorBootQueue: DispatchQueue = DispatchQueue(label: "SimulatorBootQueue"),
         tempFolder: TemporaryFolder,
@@ -22,7 +23,7 @@ public final class OnDemandSimulatorPoolFactory {
                 additionalBootAttempts: additionalBootAttempts,
                 simulatorBootQueue: simulatorBootQueue,
                 simulatorStateMachineActionExecutorProvider: SimulatorStateMachineActionExecutorProviderImpl(
-                    processControllerProvider: DefaultProcessControllerProvider(),
+                    processControllerProvider: processControllerProvider,
                     resourceLocationResolver: resourceLocationResolver,
                     simulatorSetPathDeterminer: SimulatorSetPathDeterminerImpl(
                         temporaryFolder: tempFolder,

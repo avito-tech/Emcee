@@ -11,13 +11,16 @@ import TemporaryStuff
 
 public final class XcodebuildBasedTestRunner: TestRunner {
     private let dateProvider: DateProvider
+    private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
     
     public init(
         dateProvider: DateProvider,
+        processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver
     ) {
         self.dateProvider = dateProvider
+        self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
     }
     
@@ -35,11 +38,11 @@ public final class XcodebuildBasedTestRunner: TestRunner {
     ) throws -> StandardStreamsCaptureConfig {
         let xcodebuildLogParser = try XcodebuildLogParser(dateProvider: dateProvider)
         
-        let processController = try DefaultProcessController(
+        let processController = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun",
-                    "xcodebuild", "test-without-building",
+                    "xcodebuild",
                     "-destination", XcodebuildSimulatorDestinationArgument(
                         destinationId: simulator.udid
                     ),
@@ -51,7 +54,9 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                         temporaryFolder: temporaryFolder,
                         testContext: testContext,
                         testType: testType
-                    )
+                    ),
+                    "-parallel-testing-enabled", "NO",
+                    "test-without-building",
                 ],
                 environment: testContext.environment,
                 silenceBehavior: SilenceBehavior(
@@ -80,7 +85,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
             }
         }
         
-        processController.startAndListenUntilProcessDies()
+        try processController.startAndWaitForSuccessfulTermination()
         return processController.subprocess.standardStreamsCaptureConfig
     }
 }
