@@ -26,6 +26,7 @@ public final class DumpRuntimeTestsCommand: Command {
         ArgumentDescriptions.output.asRequired,
         ArgumentDescriptions.tempFolder.asRequired,
         ArgumentDescriptions.testArgFile.asRequired,
+        ArgumentDescriptions.remoteCacheConfig.asOptional,
     ]
     
     private let encoder = JSONEncoder.pretty()

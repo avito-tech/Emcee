@@ -36,7 +36,8 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         ArgumentDescriptions.runId.asRequired,
         ArgumentDescriptions.tempFolder.asRequired,
         ArgumentDescriptions.testArgFile.asRequired,
-        ArgumentDescriptions.trace.asOptional
+        ArgumentDescriptions.trace.asOptional,
+        ArgumentDescriptions.remoteCacheConfig.asOptional,
     ]
     
     private let dateProvider: DateProvider
