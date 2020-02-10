@@ -30,7 +30,7 @@ class DefaultRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
     func results(xcTestBundleLocation: TestBundleLocation) throws -> TestsInRuntimeDump? {
         let request = RuntimeDumpRemoteCacheResultRequest(
             httpMethod: config.obtainHttpMethod,
-            pathWithLeadingSlash: pathToRemoteFile(xcTestBundleLocation)
+            pathWithLeadingSlash: try pathToRemoteFile(xcTestBundleLocation)
         )
 
         var queryResult: Either<TestsInRuntimeDump, RequestSenderError>?
@@ -50,10 +50,10 @@ class DefaultRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
         )
     }
 
-    func store(tests: TestsInRuntimeDump, xcTestBundleLocation: TestBundleLocation) {
+    func store(tests: TestsInRuntimeDump, xcTestBundleLocation: TestBundleLocation) throws {
         let request = RentimeDumpRemoteCacheStoreRequest(
             httpMethod: config.storeHttpMethod,
-            pathWithLeadingSlash: pathToRemoteFile(xcTestBundleLocation),
+            pathWithLeadingSlash: try pathToRemoteFile(xcTestBundleLocation),
             payload: tests
         )
 
@@ -66,9 +66,11 @@ class DefaultRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
         }
     }
 
-    private func pathToRemoteFile(_ xcTestBundleLocation: TestBundleLocation) -> String {
+    private func pathToRemoteFile(_ xcTestBundleLocation: TestBundleLocation) throws -> String {
+        let remoteFileName = try xcTestBundleLocation.resourceLocation.stringValue.avito_sha256Hash()
+
         return addLeadingSlashIfNeeded(config.relativePathToRemoteStorage).appending(
-            pathComponent: "\(xcTestBundleLocation.hashValue).json"
+            pathComponent: "\(remoteFileName).json"
         )
     }
 

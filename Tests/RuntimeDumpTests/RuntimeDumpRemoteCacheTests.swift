@@ -16,12 +16,12 @@ class RuntimeDumpRemoteCacheTests: XCTestCase {
         )
     }
 
-    func test__store() {
+    func test__store() throws {
         let xcTestBundleLocation = TestBundleLocation(ResourceLocation.localFilePath("xcTestBundleLocation"))
-        let expectedPath = "/pathToRemoteStorage/\(xcTestBundleLocation.hashValue).json"
+        let expectedPath = "/pathToRemoteStorage/a74c1c98661e4c27fc3e569f40c74feaf4775d1b77c4a82928364728ab6c23b0.json"
         let queryResult = RuntimeQueryResultFixtures.queryResult()
 
-        cache.store(
+        try cache.store(
             tests: queryResult.testsInRuntimeDump,
             xcTestBundleLocation: xcTestBundleLocation
         )
@@ -39,7 +39,7 @@ class RuntimeDumpRemoteCacheTests: XCTestCase {
 
     func test__results__success_request() {
         let xcTestBundleLocation = TestBundleLocation(ResourceLocation.localFilePath("xcTestBundleLocation"))
-        let expectedPath = "/pathToRemoteStorage/\(xcTestBundleLocation.hashValue).json"
+        let expectedPath = "/pathToRemoteStorage/a74c1c98661e4c27fc3e569f40c74feaf4775d1b77c4a82928364728ab6c23b0.json"
         let senderResult = RuntimeQueryResultFixtures.queryResult().testsInRuntimeDump
         requestSender.result = senderResult
         
@@ -59,7 +59,7 @@ class RuntimeDumpRemoteCacheTests: XCTestCase {
 
     func test__results__error_request() {
         let xcTestBundleLocation = TestBundleLocation(ResourceLocation.localFilePath("xcTestBundleLocation"))
-        let expectedPath = "/pathToRemoteStorage/\(xcTestBundleLocation.hashValue).json"
+        let expectedPath = "/pathToRemoteStorage/a74c1c98661e4c27fc3e569f40c74feaf4775d1b77c4a82928364728ab6c23b0.json"
         requestSender.requestSenderError = RequestSenderError.noData
         let expectation = self.expectation(description: "Result throws")
 

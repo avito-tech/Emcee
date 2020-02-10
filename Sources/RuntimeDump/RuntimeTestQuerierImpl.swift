@@ -77,7 +77,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
             try availableTestsInRuntime(configuration: configuration)
         }
 
-        remoteCache.store(tests: dumpedTests, xcTestBundleLocation: configuration.xcTestBundleLocation)
+        try? remoteCache.store(tests: dumpedTests, xcTestBundleLocation: configuration.xcTestBundleLocation)
         return dumpedTests
     }
 
