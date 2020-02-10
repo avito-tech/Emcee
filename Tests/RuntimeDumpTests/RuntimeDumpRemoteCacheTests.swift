@@ -22,7 +22,7 @@ class RuntimeDumpRemoteCacheTests: XCTestCase {
         let queryResult = RuntimeQueryResultFixtures.queryResult()
 
         cache.store(
-            result: queryResult,
+            tests: queryResult.testsInRuntimeDump,
             xcTestBundleLocation: xcTestBundleLocation
         )
 
@@ -34,13 +34,13 @@ class RuntimeDumpRemoteCacheTests: XCTestCase {
 
         XCTAssertEqual(request.httpMethod, HTTPMethod.post)
         XCTAssertEqual(request.pathWithLeadingSlash, expectedPath)
-        XCTAssertEqual(request.payload, queryResult)
+        XCTAssertEqual(request.payload, queryResult.testsInRuntimeDump)
     }
 
     func test__results__success_request() {
         let xcTestBundleLocation = TestBundleLocation(ResourceLocation.localFilePath("xcTestBundleLocation"))
         let expectedPath = "/pathToRemoteStorage/\(xcTestBundleLocation.hashValue).json"
-        let senderResult = RuntimeQueryResultFixtures.queryResult()
+        let senderResult = RuntimeQueryResultFixtures.queryResult().testsInRuntimeDump
         requestSender.result = senderResult
         
         let result = try? cache.results(xcTestBundleLocation: xcTestBundleLocation)

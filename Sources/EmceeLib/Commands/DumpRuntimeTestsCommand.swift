@@ -109,8 +109,8 @@ public final class DumpRuntimeTestsCommand: Command {
             )
             
             let result = try runtimeTestQuerier.queryRuntime(configuration: configuration)
-            Logger.debug("Test bundle \(testArgFileEntry.buildArtifacts.xcTestBundle) contains \(result.availableRuntimeTests.count) tests")
-            return result.availableRuntimeTests
+            Logger.debug("Test bundle \(testArgFileEntry.buildArtifacts.xcTestBundle) contains \(result.testsInRuntimeDump.tests.count) tests")
+            return result.testsInRuntimeDump.tests
         }
         
         let encodedResult = try encoder.encode(dumpedTests)

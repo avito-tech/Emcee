@@ -50,27 +50,37 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
     }
     
     public func queryRuntime(configuration: RuntimeDumpConfiguration) throws -> RuntimeQueryResult {
-        if let cachedResult = try? remoteCache.results(xcTestBundleLocation: configuration.xcTestBundleLocation) {
-            return cachedResult
-        }
+        let testsInRuntimeDump = try obtainAvailableRuntimeTests(configuration: configuration)
 
-        let availableRuntimeTests = try runRetrying(times: numberOfAttemptsToPerformRuntimeDump) {
-            try availableTestsInRuntime(configuration: configuration)
-        }
         let unavailableTestEntries = requestedTestsNotAvailableInRuntime(
-            runtimeDetectedEntries: availableRuntimeTests,
+            testsInRuntimeDump: testsInRuntimeDump,
             configuration: configuration
         )
 
         let result = RuntimeQueryResult(
             unavailableTestsToRun: unavailableTestEntries,
-            availableRuntimeTests: availableRuntimeTests
+            testsInRuntimeDump: testsInRuntimeDump
         )
-        remoteCache.store(result: result, xcTestBundleLocation: configuration.xcTestBundleLocation)
 
         return result
     }
-    
+
+    private func obtainAvailableRuntimeTests(configuration: RuntimeDumpConfiguration) throws -> TestsInRuntimeDump {
+        Logger.debug("Trying to fetch cached runtime dump entries for bundle: \(configuration.xcTestBundleLocation)")
+        if let cachedRuntimeTests = try? remoteCache.results(xcTestBundleLocation: configuration.xcTestBundleLocation) {
+            Logger.debug("Fetched cached runtime dump entries for test bundle \(configuration.xcTestBundleLocation): \(cachedRuntimeTests)")
+            return cachedRuntimeTests
+        }
+
+        Logger.debug("No cached runtime dump entries found for bundle: \(configuration.xcTestBundleLocation)")
+        let dumpedTests =  try runRetrying(times: numberOfAttemptsToPerformRuntimeDump) {
+            try availableTestsInRuntime(configuration: configuration)
+        }
+
+        remoteCache.store(tests: dumpedTests, xcTestBundleLocation: configuration.xcTestBundleLocation)
+        return dumpedTests
+    }
+
     private func runRetrying<T>(times: UInt, _ work: () throws -> T) rethrows -> T {
         for retryIndex in 0 ..< times {
             do {
@@ -83,7 +93,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         return try work()
     }
     
-    private func availableTestsInRuntime(configuration: RuntimeDumpConfiguration) throws -> [RuntimeTestEntry] {
+    private func availableTestsInRuntime(configuration: RuntimeDumpConfiguration) throws -> TestsInRuntimeDump {
         let runtimeEntriesJSONPath = tempFolder.pathWith(components: [uniqueIdentifierGenerator.generate()])
         Logger.debug("Will dump runtime tests into file: \(runtimeEntriesJSONPath)")
 
@@ -122,7 +132,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
             configuration: configuration
         )
         
-        return foundTestEntries
+        return TestsInRuntimeDump(tests: foundTestEntries)
     }
 
     private func buildRunnerConfiguration(
@@ -192,13 +202,13 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
     }
     
     private func requestedTestsNotAvailableInRuntime(
-        runtimeDetectedEntries: [RuntimeTestEntry],
+        testsInRuntimeDump: TestsInRuntimeDump,
         configuration: RuntimeDumpConfiguration) -> [TestToRun]
     {
         if configuration.testsToValidate.isEmpty { return [] }
-        if runtimeDetectedEntries.isEmpty { return configuration.testsToValidate }
+        if testsInRuntimeDump.tests.isEmpty { return configuration.testsToValidate }
         
-        let availableTestEntries = runtimeDetectedEntries.flatMap { runtimeDetectedTestEntry -> [TestEntry] in
+        let availableTestEntries = testsInRuntimeDump.tests.flatMap { runtimeDetectedTestEntry -> [TestEntry] in
             runtimeDetectedTestEntry.testMethods.map {
                 TestEntry(
                     testName: TestName(

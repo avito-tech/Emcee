@@ -6,12 +6,12 @@ class RentimeDumpRemoteCacheStoreRequest: NetworkRequest {
 
     public let httpMethod: HTTPMethod
     public let pathWithLeadingSlash: String
-    public let payload: RuntimeQueryResult?
+    public let payload: TestsInRuntimeDump?
 
     public init(
         httpMethod: HTTPMethod,
         pathWithLeadingSlash: String,
-        payload: RuntimeQueryResult
+        payload: TestsInRuntimeDump
     ) {
         self.httpMethod = httpMethod
         self.pathWithLeadingSlash = pathWithLeadingSlash

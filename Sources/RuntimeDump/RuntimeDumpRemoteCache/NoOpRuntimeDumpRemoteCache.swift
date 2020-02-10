@@ -1,11 +1,11 @@
 import Models
 
 class NoOpRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
-    func results(xcTestBundleLocation: TestBundleLocation) -> RuntimeQueryResult? {
+    func results(xcTestBundleLocation: TestBundleLocation) -> TestsInRuntimeDump? {
         return nil
     }
 
-    func store(result: RuntimeQueryResult, xcTestBundleLocation: TestBundleLocation) {
+    func store(tests: TestsInRuntimeDump, xcTestBundleLocation: TestBundleLocation) {
 
     }
 }

@@ -2,21 +2,20 @@ import RuntimeDump
 import Models
 
 class FakeRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
-
-    var resultToReturn: RuntimeQueryResult?
+    var testsToReturn: TestsInRuntimeDump?
     var resultsXcTestBundleLocation: TestBundleLocation?
-    func results(xcTestBundleLocation: TestBundleLocation) -> RuntimeQueryResult? {
+    func results(xcTestBundleLocation: TestBundleLocation) throws -> TestsInRuntimeDump? {
         guard resultsXcTestBundleLocation == xcTestBundleLocation else {
             return nil
         }
 
-        return resultToReturn
+        return testsToReturn
     }
 
-    var storedResult: RuntimeQueryResult?
+    var storedTests: TestsInRuntimeDump?
     var storedXcTestBundleLocation: TestBundleLocation?
-    func store(result: RuntimeQueryResult, xcTestBundleLocation: TestBundleLocation) {
-        self.storedResult = result
+    func store(tests: TestsInRuntimeDump, xcTestBundleLocation: TestBundleLocation) {
+        self.storedTests  = tests
         self.storedXcTestBundleLocation = xcTestBundleLocation
     }
 }

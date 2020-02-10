@@ -10,7 +10,7 @@ final class RuntimeTestQuerierMock: RuntimeTestQuerier {
         
         return RuntimeQueryResult(
             unavailableTestsToRun: [],
-            availableRuntimeTests: []
+            testsInRuntimeDump: TestsInRuntimeDump(tests: [])
         )
     }
 }

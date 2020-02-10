@@ -16,7 +16,7 @@ public final class TestToRunIntoTestEntryTransformer {
         
         var result = [ValidatedTestEntry]()
         for testName in testsToTransform {
-            let matchingRuntimeEntry = runtimeQueryResult.availableRuntimeTests.first { runtimeEntry -> Bool in
+            let matchingRuntimeEntry = runtimeQueryResult.testsInRuntimeDump.tests.first { runtimeEntry -> Bool in
                 return runtimeEntry.className == testName.className
                     && runtimeEntry.testMethods.contains(testName.methodName)
             }
@@ -37,7 +37,7 @@ public final class TestToRunIntoTestEntryTransformer {
     }
     
     private func allExistingTestsFromRuntimeDump(runtimeQueryResult: RuntimeQueryResult) -> [TestName] {
-        return runtimeQueryResult.availableRuntimeTests.flatMap { runtimeEntry -> [TestName] in
+        return runtimeQueryResult.testsInRuntimeDump.tests.flatMap { runtimeEntry -> [TestName] in
             runtimeEntry.testMethods.map { methodName -> TestName in
                 TestName(className: runtimeEntry.className, methodName: methodName)
             }

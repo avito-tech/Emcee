@@ -2,7 +2,7 @@ import RequestSender
 import Models
 
 class RuntimeDumpRemoteCacheResultRequest: NetworkRequest {
-    typealias Response = RuntimeQueryResult
+    typealias Response = TestsInRuntimeDump
 
     public let httpMethod: HTTPMethod
     public let pathWithLeadingSlash: String

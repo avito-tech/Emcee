@@ -11,9 +11,10 @@ final class TestToRunIntoTestEntryTransformerTests: XCTestCase {
     func test__transforming_concrete_test_names() throws {
         let queryResult = RuntimeQueryResult(
             unavailableTestsToRun: [],
-            availableRuntimeTests: [
-                RuntimeTestEntry(className: "class", path: "", testMethods: ["test1", "test2", "test3"], caseId: nil, tags: [])
+            testsInRuntimeDump: TestsInRuntimeDump(tests: [
+                RuntimeTestEntryFixtures.entry(className: "class", testMethods: ["test1", "test2", "test3"])
             ])
+        )
         
         let transformationResult = try transformer.transform(
             runtimeQueryResult: queryResult,
@@ -47,9 +48,10 @@ final class TestToRunIntoTestEntryTransformerTests: XCTestCase {
             unavailableTestsToRun: [
                 missingTest
             ],
-            availableRuntimeTests: [
-                RuntimeTestEntry(className: "class", path: "", testMethods: ["test"], caseId: nil, tags: [])
+            testsInRuntimeDump: TestsInRuntimeDump(tests: [
+                RuntimeTestEntryFixtures.entry()
             ])
+        )
         
         XCTAssertThrowsError(_ = try transformer.transform(runtimeQueryResult: queryResult, buildArtifacts: fakeBuildArtifacts))
     }
