@@ -70,7 +70,7 @@ final class QueueServerTests: XCTestCase {
         
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
         let terminationController = AutomaticTerminationControllerFactory(
-            automaticTerminationPolicy: .after(timeInterval: 0.1)
+            automaticTerminationPolicy: .afterBeingIdle(period: 0.1)
         ).createAutomaticTerminationController()
         let server = QueueServerImpl(
             automaticTerminationController: terminationController,
