@@ -27,21 +27,7 @@ public class OnDemandSimulatorPool {
         }
         
         public var description: String {
-            return "<\(type(of: self)): destination: \(testDestination)>"
-        }
-        
-        public func hash(into hasher: inout Hasher) {
-            hasher.combine(developerDir)
-            hasher.combine(testRunnerTool)
-            hasher.combine(testDestination)
-            hasher.combine(simulatorControlTool)
-        }
-        
-        public static func == (left: OnDemandSimulatorPool.Key, right: OnDemandSimulatorPool.Key) -> Bool {
-            return left.developerDir == right.developerDir
-                && left.testDestination == right.testDestination
-                && left.testRunnerTool == right.testRunnerTool
-                && left.simulatorControlTool == right.simulatorControlTool
+            return "<\(type(of: self)): destination: \(testDestination), testRunnerTool: \(testRunnerTool), simulatorControlTool: \(simulatorControlTool)>"
         }
     }
     

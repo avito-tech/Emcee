@@ -21,7 +21,7 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
         result.append("testEntries: " + testEntries.map { $0.testName.stringValue }.joined(separator: ","))
         result.append("buildArtifacts: \(buildArtifacts)")
         result.append("pluginLocations: \(pluginLocations)")
-        result.append("testDestination: " + testDestination.destinationString)
+        result.append("testDestination: \(testDestination)")
         result.append("testExecutionBehavior: \(testExecutionBehavior)")
         result.append("testTimeoutConfiguration: \(testTimeoutConfiguration)")
         result.append("testType: \(testType)")

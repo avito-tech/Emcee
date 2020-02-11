@@ -126,7 +126,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
                     Logger.debug("Booted simulator \(simulator) using #\(bootAttempt + 1) attempts")
                     break
                 } catch {
-                    Logger.error("Attempt to boot simulator \(simulator.testDestination.destinationString) failed: \(error)")
+                    Logger.error("Attempt to boot simulator \(simulator.testDestination) failed: \(error)")
                     bootAttempt += 1
                     if bootAttempt < 1 + additionalBootAttempts {
                         waiter.wait(timeout: Double(bootAttempt) * 3.0, description: "Time gap between reboot attempts")

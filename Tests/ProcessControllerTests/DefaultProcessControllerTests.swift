@@ -316,23 +316,15 @@ final class DefaultProcessControllerTests: XCTestCase {
     }
     
     func test___cancelling_stdout_listener___does_not_invoke_cancelled_listener_anymore() throws {
-        let swiftTempFile = try TemporaryFile(suffix: ".swift")
-
-        try prepareTestScriptToRun(
-            swiftScriptPath: #file.deletingLastPathComponent.appending(pathComponent: "PrintSleepPrint.swift"),
-            outputHandle: swiftTempFile.fileHandleForWriting
-        )
-        
         let controller = try DefaultProcessController(
             subprocess: Subprocess(
-                arguments: ["/usr/bin/swift", swiftTempFile.absolutePath],
-                environment: ["EMCEE_TEST_USE_STDERR": "false"]
+                arguments: ["/bin/sh", "-c", "echo aa; sleep 3; echo aa"]
             )
         )
         
         var collectedData = Data()
         
-        controller.onStdout { _, data, unsubscriber in
+        controller.onStdout { sender, data, unsubscriber in
             collectedData.append(contentsOf: data)
             unsubscriber()
         }
@@ -340,28 +332,20 @@ final class DefaultProcessControllerTests: XCTestCase {
         
         XCTAssertEqual(
             collectedData,
-            "Print".data(using: .utf8)
+            "aa\n".data(using: .utf8)
         )
     }
     
     func test___cancelling_stderr_listener___does_not_invoke_cancelled_listener_anymore() throws {
-        let swiftTempFile = try TemporaryFile(suffix: ".swift")
-
-        try prepareTestScriptToRun(
-            swiftScriptPath: #file.deletingLastPathComponent.appending(pathComponent: "PrintSleepPrint.swift"),
-            outputHandle: swiftTempFile.fileHandleForWriting
-        )
-        
         let controller = try DefaultProcessController(
             subprocess: Subprocess(
-                arguments: ["/usr/bin/swift", swiftTempFile.absolutePath],
-                environment: ["EMCEE_TEST_USE_STDERR": "true"]
+                arguments: ["/bin/sh", "-c", ">&2 echo aa; sleep 3; echo aa"]
             )
         )
         
         var collectedData = Data()
         
-        controller.onStderr { _, data, unsubscriber in
+        controller.onStderr { sender, data, unsubscriber in
             collectedData.append(contentsOf: data)
             unsubscriber()
         }
@@ -369,10 +353,9 @@ final class DefaultProcessControllerTests: XCTestCase {
         
         XCTAssertEqual(
             collectedData,
-            "Print".data(using: .utf8)
+            "aa\n".data(using: .utf8)
         )
     }
-
     
     func disabled_testWritingToStdin() throws {
         continueAfterFailure = true

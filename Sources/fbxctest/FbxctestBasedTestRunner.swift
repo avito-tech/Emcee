@@ -106,7 +106,7 @@ public final class FbxctestBasedTestRunner: TestRunner {
         
         var arguments: [SubprocessArgument] = [
             resolvableFbxctest.asArgumentWith(implicitFilenameInArchive: "fbxctest"),
-             "-destination", testDestination.destinationString,
+             "-destination", testDestination.fbxctestDestinationString,
              testType.asArgument
         ]
         
@@ -207,5 +207,11 @@ public final class FbxctestBasedTestRunner: TestRunner {
 private extension TestType {
     var asArgument: SubprocessArgument {
         return "-" + self.rawValue
+    }
+}
+
+private extension TestDestination {
+    var fbxctestDestinationString: String {
+        return "name=\(deviceType),OS=iOS \(runtime)"
     }
 }
