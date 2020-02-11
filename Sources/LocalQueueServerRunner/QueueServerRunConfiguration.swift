@@ -1,4 +1,5 @@
 import AutomaticTermination
+import DistWorkerModels
 import Foundation
 import Models
 

@@ -1,3 +1,5 @@
+import DistWorkerModels
+import DistWorkerModelsTestHelpers
 import Foundation
 import Models
 import ModelsTestHelpers

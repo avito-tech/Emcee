@@ -1,6 +1,7 @@
 import BucketQueue
 import BucketQueueTestHelpers
 import DateProviderTestHelpers
+import DistWorkerModels
 import Foundation
 import Models
 import ModelsTestHelpers

@@ -1,4 +1,5 @@
 import Foundation
+import Models
 
 public struct WorkerConfiguration: Codable, Equatable {
     public let analyticsConfiguration: AnalyticsConfiguration

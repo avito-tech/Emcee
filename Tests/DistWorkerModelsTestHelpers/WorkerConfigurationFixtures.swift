@@ -1,3 +1,4 @@
+import DistWorkerModels
 import Foundation
 import Models
 

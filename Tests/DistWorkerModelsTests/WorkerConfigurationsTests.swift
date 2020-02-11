@@ -1,6 +1,6 @@
+import DistWorkerModels
+import DistWorkerModelsTestHelpers
 import Foundation
-import Models
-import ModelsTestHelpers
 import XCTest
 
 final class WorkerConfigurationsTests: XCTestCase {

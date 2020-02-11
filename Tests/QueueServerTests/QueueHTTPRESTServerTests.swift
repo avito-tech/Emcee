@@ -2,6 +2,8 @@ import AutomaticTermination
 import AutomaticTerminationTestHelpers
 import BucketQueue
 import BucketQueueTestHelpers
+import DistWorkerModels
+import DistWorkerModelsTestHelpers
 import EventBus
 import Foundation
 import Models

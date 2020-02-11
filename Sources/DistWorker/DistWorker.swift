@@ -1,6 +1,7 @@
 import CurrentlyBeingProcessedBucketsTracker
 import DeveloperDirLocator
 import Dispatch
+import DistWorkerModels
 import EventBus
 import Foundation
 import Logging

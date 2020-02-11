@@ -188,6 +188,7 @@ let package = Package(
                 "BucketQueue",
                 "BucketQueueTestHelpers",
                 "DateProviderTestHelpers",
+                "DistWorkerModels",
                 "ModelsTestHelpers",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
@@ -313,6 +314,7 @@ let package = Package(
             dependencies: [
                 "CurrentlyBeingProcessedBucketsTracker",
                 "DeveloperDirLocator",
+                "DistWorkerModels",
                 "Extensions",
                 "Logging",
                 "Models",
@@ -326,6 +328,29 @@ let package = Package(
                 "SynchronousWaiter",
                 "TemporaryStuff",
                 "Timer",
+            ]
+        ),
+        .target(
+            // MARK: DistWorkerModels
+            name: "DistWorkerModels",
+            dependencies: [
+                "Models",
+            ]
+        ),
+        .target(
+            // MARK: DistWorkerModelsTestHelpers
+            name: "DistWorkerModelsTestHelpers",
+            dependencies: [
+                "DistWorkerModels",
+            ],
+            path: "Tests/DistWorkerModelsTestHelpers"
+        ),
+        .testTarget(
+            // MARK: DistWorkerModelsTests,
+            name: "DistWorkerModelsTests",
+            dependencies: [
+                "DistWorkerModels",
+                "DistWorkerModelsTestHelpers",
             ]
         ),
         .testTarget(
@@ -354,6 +379,7 @@ let package = Package(
                 "Deployer",
                 "DeveloperDirLocator",
                 "DistWorker",
+                "DistWorkerModels",
                 "FileCache",
                 "JunitReporting",
                 "LaunchdUtils",
@@ -565,6 +591,7 @@ let package = Package(
                 "AutomaticTermination",
                 "DateProvider",
                 "DistDeployer",
+                "DistWorkerModels",
                 "LocalHostDeterminer",
                 "Logging",
                 "Models",
@@ -781,18 +808,21 @@ let package = Package(
             // MARK: QueueClient
             name: "QueueClient",
             dependencies: [
+                "DistWorkerModels",
                 "Logging",
                 "Models",
                 "RESTMethods",
                 "RequestSender",
                 "SynchronousWaiter",
-                "Version"
+                "Version",
             ]
         ),
         .testTarget(
             // MARK: QueueClientTests
             name: "QueueClientTests",
             dependencies: [
+                "DistWorkerModels",
+                "DistWorkerModelsTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
                 "PortDeterminer",
@@ -811,6 +841,7 @@ let package = Package(
                 "BalancingBucketQueue",
                 "BucketQueue",
                 "DateProvider",
+                "DistWorkerModels",
                 "Extensions",
                 "FileHasher",
                 "LocalHostDeterminer",
@@ -850,6 +881,8 @@ let package = Package(
                 "BucketQueueTestHelpers",
                 "DateProviderTestHelpers",
                 "Deployer",
+                "DistWorkerModels",
+                "DistWorkerModelsTestHelpers",
                 "FileHasher",
                 "Models",
                 "ModelsTestHelpers",
@@ -859,16 +892,16 @@ let package = Package(
                 "RESTMethods",
                 "RESTServer",
                 "RESTServerTestHelpers",
+                "RequestSenderTestHelpers",
                 "ResourceLocationResolver",
                 "ResultsCollector",
-                "RequestSenderTestHelpers",
                 "ScheduleStrategy",
                 "TemporaryStuff",
                 "TestHelpers",
                 "UniqueIdentifierGeneratorTestHelpers",
                 "VersionTestHelpers",
                 "WorkerAlivenessProvider",
-                "WorkerAlivenessProviderTestHelpers"
+                "WorkerAlivenessProviderTestHelpers",
             ]
         ),
         .target(
@@ -1000,9 +1033,10 @@ let package = Package(
             // MARK: RESTMethods
             name: "RESTMethods",
             dependencies: [
+                "DistWorkerModels",
                 "Models",
+                "RequestSender",
                 "Version",
-                "RequestSender"
             ]
         ),
         .target(

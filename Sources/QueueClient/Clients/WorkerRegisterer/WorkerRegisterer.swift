@@ -1,4 +1,5 @@
 import Dispatch
+import DistWorkerModels
 import Models
 
 public protocol WorkerRegisterer {

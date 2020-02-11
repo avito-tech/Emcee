@@ -2,6 +2,7 @@ import AutomaticTermination
 import BalancingBucketQueue
 import BucketQueue
 import DateProvider
+import DistWorkerModels
 import Extensions
 import Foundation
 import Logging

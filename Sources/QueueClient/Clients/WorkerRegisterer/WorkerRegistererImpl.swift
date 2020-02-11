@@ -1,7 +1,8 @@
 import Dispatch
-import RequestSender
+import DistWorkerModels
 import Models
 import RESTMethods
+import RequestSender
 
 public final class WorkerRegistererImpl: WorkerRegisterer {
     private let requestSender: RequestSender

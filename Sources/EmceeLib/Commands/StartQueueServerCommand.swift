@@ -1,6 +1,7 @@
 import ArgLib
 import AutomaticTermination
 import DateProvider
+import DistWorkerModels
 import Extensions
 import Foundation
 import LocalHostDeterminer

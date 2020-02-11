@@ -1,11 +1,13 @@
+import DistWorkerModels
+import DistWorkerModelsTestHelpers
 import Foundation
 import Models
+import ModelsTestHelpers
+import QueueClient
 import RESTMethods
 import RequestSender
 import RequestSenderTestHelpers
-import QueueClient
 import XCTest
-import ModelsTestHelpers
 
 final class WorkerRegistererImplTests: XCTestCase {
     private let workerId = WorkerId(value: "workerId")
