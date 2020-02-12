@@ -1145,6 +1145,7 @@ let package = Package(
                 "RuntimeDump",
                 "SimulatorPoolTestHelpers",
                 "TemporaryStuff",
+                "TestHelpers",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
             ]

@@ -191,7 +191,7 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
         }
         
         let simulatorPool = try onDemandSimulatorPool.pool(
-            key: OnDemandSimulatorPool.Key(
+            key: OnDemandSimulatorPoolKey(
                 developerDir: configuration.developerDir,
                 testDestination: configuration.testDestination,
                 testRunnerTool: configuration.testRunnerTool,

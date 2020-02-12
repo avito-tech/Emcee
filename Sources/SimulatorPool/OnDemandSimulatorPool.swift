@@ -1,87 +1,17 @@
-import DeveloperDirLocator
-import Dispatch
 import Foundation
 import Logging
-import Models
-import ResourceLocationResolver
-import TemporaryStuff
 
-public class OnDemandSimulatorPool {
+public protocol OnDemandSimulatorPool {
+    func pool(key: OnDemandSimulatorPoolKey) throws -> SimulatorPool
     
-    public struct Key: Hashable, CustomStringConvertible {
-        public let developerDir: DeveloperDir
-        public let testDestination: TestDestination
-        public let testRunnerTool: TestRunnerTool
-        public let simulatorControlTool: SimulatorControlTool
-        
-        public init(
-            developerDir: DeveloperDir,
-            testDestination: TestDestination,
-            testRunnerTool: TestRunnerTool,
-            simulatorControlTool: SimulatorControlTool
-        ) {
-            self.developerDir = developerDir
-            self.testDestination = testDestination
-            self.testRunnerTool = testRunnerTool
-            self.simulatorControlTool = simulatorControlTool
-        }
-        
-        public var description: String {
-            return "<\(type(of: self)): destination: \(testDestination), testRunnerTool: \(testRunnerTool), simulatorControlTool: \(simulatorControlTool)>"
-        }
-    }
-    
-    private let developerDirLocator: DeveloperDirLocator
-    private let resourceLocationResolver: ResourceLocationResolver
-    private let simulatorControllerProvider: SimulatorControllerProvider
-    private let syncQueue = DispatchQueue(label: "ru.avito.OnDemandSimulatorPool")
-    private let tempFolder: TemporaryFolder
-    private var pools = [Key: SimulatorPool]()
-    
-    public init(
-        developerDirLocator: DeveloperDirLocator,
-        resourceLocationResolver: ResourceLocationResolver,
-        simulatorControllerProvider: SimulatorControllerProvider,
-        tempFolder: TemporaryFolder
-    ) {
-        self.developerDirLocator = developerDirLocator
-        self.resourceLocationResolver = resourceLocationResolver
-        self.simulatorControllerProvider = simulatorControllerProvider
-        self.tempFolder = tempFolder
-    }
-    
-    deinit {
-        deleteSimulators()
-    }
-    
-    public func pool(key: Key) throws -> SimulatorPool {
-        return try syncQueue.sync {
-            if let existingPool = pools[key] {
-                Logger.verboseDebug("Got SimulatorPool for key \(key)")
-                return existingPool
-            } else {
-                let pool = try DefaultSimulatorPool(
-                    developerDir: key.developerDir,
-                    developerDirLocator: developerDirLocator,
-                    simulatorControlTool: key.simulatorControlTool,
-                    simulatorControllerProvider: simulatorControllerProvider,
-                    tempFolder: tempFolder,
-                    testDestination: key.testDestination,
-                    testRunnerTool: key.testRunnerTool
-                )
-                pools[key] = pool
-                Logger.verboseDebug("Created SimulatorPool for key \(key)")
-                return pool
-            }
-        }
-    }
-    
-    public func deleteSimulators() {
-        syncQueue.sync {
-            for pool in pools.values {
-                pool.deleteSimulators()
-            }
-            pools.removeAll()
+    func enumeratePools(iterator: (OnDemandSimulatorPoolKey, SimulatorPool) -> ())
+}
+
+public extension OnDemandSimulatorPool {
+    func deleteSimulators() {
+        enumeratePools { (key: OnDemandSimulatorPoolKey, pool: SimulatorPool) in
+            Logger.debug("Deleting simulators in pool \(key)")
+            pool.deleteSimulators()
         }
     }
 }

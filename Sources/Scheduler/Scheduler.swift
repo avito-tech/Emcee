@@ -160,7 +160,7 @@ public final class Scheduler {
     
     private func runBucketOnce(bucket: SchedulerBucket, testsToRun: [TestEntry]) throws -> TestingResult {
         let simulatorPool = try configuration.onDemandSimulatorPool.pool(
-            key: OnDemandSimulatorPool.Key(
+            key: OnDemandSimulatorPoolKey(
                 developerDir: bucket.toolchainConfiguration.developerDir,
                 testDestination: bucket.testDestination,
                 testRunnerTool: bucket.toolResources.testRunnerTool,

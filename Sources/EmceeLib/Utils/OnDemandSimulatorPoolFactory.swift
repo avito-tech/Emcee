@@ -16,7 +16,7 @@ public final class OnDemandSimulatorPoolFactory {
         tempFolder: TemporaryFolder,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) -> OnDemandSimulatorPool {
-        return OnDemandSimulatorPool(
+        return DefaultOnDemandSimulatorPool(
             developerDirLocator: developerDirLocator,
             resourceLocationResolver: resourceLocationResolver,
             simulatorControllerProvider: DefaultSimulatorControllerProvider(

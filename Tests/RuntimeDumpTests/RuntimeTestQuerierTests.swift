@@ -10,34 +10,20 @@ import RunnerTestHelpers
 import SimulatorPool
 import SimulatorPoolTestHelpers
 import TemporaryStuff
+import TestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class RuntimeTestQuerierTests: XCTestCase {
-    let remoteCache = FakeRuntimeDumpRemoteCache()
-    let testRunnerProvider = FakeTestRunnerProvider()
-    let resourceLocationResolver: ResourceLocationResolver = FakeResourceLocationResolver.throwing()
-    let tempFolder = try! TemporaryFolder()
-    let dumpFilename = UUID().uuidString
-    lazy var fixedValueUniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: dumpFilename)
     lazy var developerDirLocator = FakeDeveloperDirLocator(result: tempFolder.absolutePath)
-    lazy var simulatorPool = OnDemandSimulatorPool(
-        developerDirLocator: developerDirLocator,
-        resourceLocationResolver: resourceLocationResolver,
-        simulatorControllerProvider: FakeSimulatorControllerProvider { testDestination -> SimulatorController in
-            return FakeSimulatorController(
-                simulator: Simulator(
-                    testDestination: testDestination,
-                    udid: UDID(value: "fixed_udid"),
-                    path: self.tempFolder.absolutePath
-                ),
-                simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
-                developerDir: .current
-            )
-        },
-        tempFolder: tempFolder
-    )
+    lazy var fixedValueUniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: dumpFilename)
+    lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
+    let dumpFilename = UUID().uuidString
+    let remoteCache = FakeRuntimeDumpRemoteCache()
+    let resourceLocationResolver: ResourceLocationResolver = FakeResourceLocationResolver.throwing()
+    let simulatorPool = FakeOnDemandSimulatorPool()
+    let testRunnerProvider = FakeTestRunnerProvider()
     
     func test__getting_available_tests__without_application_test_support() throws {
         let runtimeTestEntries = [
