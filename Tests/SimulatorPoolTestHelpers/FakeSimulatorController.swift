@@ -4,11 +4,13 @@ import SimulatorPool
 
 public final class FakeSimulatorController: SimulatorController {
     
+    public let developerDir: DeveloperDir
     public let simulator: Simulator
     public let simulatorControlTool: SimulatorControlTool
-    public let developerDir: DeveloperDir
     public var didCallDelete = false
     public var didCallShutdown = false
+    public var isBusy = false
+    public var onShutdown: () -> () = {}
     
     public init(simulator: Simulator, simulatorControlTool: SimulatorControlTool, developerDir: DeveloperDir) {
         self.simulator = simulator
@@ -26,5 +28,14 @@ public final class FakeSimulatorController: SimulatorController {
     
     public func shutdownSimulator() throws {
         didCallShutdown = true
+        onShutdown()
+    }
+    
+    public func simulatorBecameBusy() {
+        isBusy = true
+    }
+    
+    public func simulatorBecameIdle() {
+        isBusy = false
     }
 }

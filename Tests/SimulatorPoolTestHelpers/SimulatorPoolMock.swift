@@ -12,14 +12,17 @@ public final class SimulatorPoolMock: SimulatorPool {
     public init() {}
     
     public func allocateSimulatorController() throws -> SimulatorController {
-        return FakeSimulatorController(
+        let controller = FakeSimulatorController(
             simulator: SimulatorFixture.simulator(),
             simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
             developerDir: .current
         )
+        controller.simulatorBecameBusy()
+        return controller
     }
     
     public func free(simulatorController: SimulatorController) {
+        simulatorController.simulatorBecameIdle()
         freedSimulatorContoller = simulatorController
     }
     

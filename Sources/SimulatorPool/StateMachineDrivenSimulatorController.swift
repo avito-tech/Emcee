@@ -59,6 +59,14 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
         try attemptToSwitchState(targetStates: [.created, .absent])
     }
     
+    public func simulatorBecameBusy() {
+        Logger.debug("Simulator controller \(self) is now busy")
+    }
+    
+    public func simulatorBecameIdle() {
+        Logger.debug("Simulator controller \(self) is now idle")
+    }
+    
     // MARK: - State Switching
 
     private func attemptToSwitchState(targetStates: [SimulatorStateMachine.State]) throws {

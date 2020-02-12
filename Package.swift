@@ -1221,6 +1221,7 @@ let package = Package(
             // MARK: SimulatorPool
             name: "SimulatorPool",
             dependencies: [
+                "AutomaticTermination",
                 "DeveloperDirLocator",
                 "Extensions",
                 "Logging",

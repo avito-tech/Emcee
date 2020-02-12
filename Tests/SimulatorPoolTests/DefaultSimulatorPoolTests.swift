@@ -6,6 +6,7 @@ import ResourceLocationResolver
 import SimulatorPoolTestHelpers
 import SynchronousWaiter
 import TemporaryStuff
+import TestHelpers
 import XCTest
 
 class DefaultSimulatorPoolTests: XCTestCase {
@@ -19,10 +20,8 @@ class DefaultSimulatorPoolTests: XCTestCase {
         )
     }
     lazy var developerDirLocator = FakeDeveloperDirLocator(result: tempFolder.absolutePath)
-
-    func testUsingFromQueue() throws {
-        let numberOfThreads = 4
-        let pool = try DefaultSimulatorPool(
+    lazy var pool = assertDoesNotThrow {
+        try DefaultSimulatorPool(
             developerDir: DeveloperDir.current,
             developerDirLocator: developerDirLocator,
             simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
@@ -31,19 +30,35 @@ class DefaultSimulatorPoolTests: XCTestCase {
             testDestination: TestDestinationFixtures.testDestination,
             testRunnerTool: .xcodebuild
         )
+    }
+    
+    func test___simulator_is_busy___after_allocation() throws {
+        guard let controller = try pool.allocateSimulatorController() as? FakeSimulatorController else {
+            return XCTFail("Unexpected type of controller")
+        }
+        XCTAssertTrue(controller.isBusy)
+    }
+    
+    func test___simulator_is_free___after_freeing_it() throws {
+        guard let controller = try pool.allocateSimulatorController() as? FakeSimulatorController else {
+            return XCTFail("Unexpected type of controller")
+        }
+        pool.free(simulatorController: controller)
+        
+        XCTAssertFalse(controller.isBusy)
+    }
+
+    func testUsingFromQueue() throws {
+        let numberOfThreads = 4
         let queue = OperationQueue()
         queue.maxConcurrentOperationCount = Int(numberOfThreads)
         
         for _ in 0...999 {
             queue.addOperation {
-                do {
-                    let simulator = try pool.allocateSimulatorController()
-                    let duration = TimeInterval(Float(arc4random()) / Float(UINT32_MAX) * 0.05)
-                    Thread.sleep(forTimeInterval: duration)
-                    pool.free(simulatorController: simulator)
-                } catch {
-                    XCTFail("Unexpected exception has been thrown: \(error)")
-                }
+                let simulator = self.assertDoesNotThrow { try self.pool.allocateSimulatorController() }
+                let duration = TimeInterval(Float(arc4random()) / Float(UINT32_MAX) * 0.05)
+                Thread.sleep(forTimeInterval: duration)
+                self.pool.free(simulatorController: simulator)
             }
         }
         

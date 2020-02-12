@@ -53,6 +53,7 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
         return try syncQueue.sync {
             if let controller = controllers.popLast() {
                 Logger.verboseDebug("Allocated simulator: \(controller)")
+                controller.simulatorBecameBusy()
                 return controller
             }
             let controller = try simulatorControllerProvider.createSimulatorController(
@@ -63,6 +64,7 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
                 testRunnerTool: testRunnerTool
             )
             Logger.verboseDebug("Allocated new simulator: \(controller)")
+            controller.simulatorBecameBusy()
             return controller
         }
     }
@@ -71,6 +73,7 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
         syncQueue.sync {
             controllers.append(simulatorController)
             Logger.verboseDebug("Freed simulator: \(simulatorController)")
+            simulatorController.simulatorBecameIdle()
         }
     }
     
