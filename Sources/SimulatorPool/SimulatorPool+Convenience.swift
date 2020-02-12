@@ -1,4 +1,5 @@
 import Logging
+import SimulatorPoolModels
 
 public final class AllocatedSimulator {
     public let simulator: Simulator

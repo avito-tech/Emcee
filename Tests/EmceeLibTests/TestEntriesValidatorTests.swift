@@ -1,6 +1,7 @@
 import EmceeLib
 import Models
 import ModelsTestHelpers
+import TestArgFile
 import XCTest
 
 final class TestEntriesValidatorTests: XCTestCase {

@@ -5,6 +5,7 @@ import Models
 import ModelsTestHelpers
 import PathLib
 import SimulatorPool
+import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import SynchronousWaiter
 import TemporaryStuff

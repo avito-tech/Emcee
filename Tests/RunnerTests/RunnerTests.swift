@@ -8,7 +8,7 @@ import PluginManagerTestHelpers
 import ResourceLocationResolverTestHelpers
 import Runner
 import RunnerTestHelpers
-import SimulatorPool
+import SimulatorPoolModels
 import TemporaryStuff
 import XCTest
 

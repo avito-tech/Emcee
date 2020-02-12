@@ -2,6 +2,7 @@ import EmceeLib
 import Foundation
 import Models
 import ModelsTestHelpers
+import TestArgFile
 import XCTest
 
 final class TestEntryConfigurationGeneratorTests: XCTestCase {

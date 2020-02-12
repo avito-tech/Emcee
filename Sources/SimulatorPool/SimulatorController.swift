@@ -1,5 +1,5 @@
 import Foundation
-import Models
+import SimulatorPoolModels
 
 public protocol SimulatorController {
     func bootedSimulator() throws -> Simulator

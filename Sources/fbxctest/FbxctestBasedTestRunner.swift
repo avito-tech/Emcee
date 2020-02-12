@@ -6,7 +6,7 @@ import PathLib
 import ProcessController
 import ResourceLocationResolver
 import Runner
-import SimulatorPool
+import SimulatorPoolModels
 import TemporaryStuff
 
 public final class FbxctestBasedTestRunner: TestRunner {

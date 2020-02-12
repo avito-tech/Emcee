@@ -31,6 +31,8 @@ let package = Package(
             targets: [
                 "Models",
                 "RuntimeDump",
+                "SimulatorPoolModels",
+                "TestArgFile",
             ]
         ),
         .executable(
@@ -69,6 +71,7 @@ let package = Package(
                 "ResourceLocationResolver",
                 "Runner",
                 "SimulatorPool",
+                "SimulatorPoolModels",
                 "TemporaryStuff",
                 "XcTestRun",
             ]
@@ -89,6 +92,7 @@ let package = Package(
                 "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
                 "RunnerTestHelpers",
+                "SimulatorPoolModels",
                 "TemporaryStuff",
             ]
         ),
@@ -400,6 +404,7 @@ let package = Package(
                 "Scheduler",
                 "SignalHandling",
                 "TemporaryStuff",
+                "TestArgFile",
                 "URLResource",
                 "UniqueIdentifierGenerator",
                 "Version",
@@ -417,6 +422,7 @@ let package = Package(
                 "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
                 "TemporaryStuff",
+                "TestArgFile",
                 "TestHelpers",
                 "UniqueIdentifierGeneratorTestHelpers",
             ]
@@ -466,6 +472,7 @@ let package = Package(
                 "ProcessController",
                 "Runner",
                 "SimulatorPool",
+                "SimulatorPoolModels",
                 "SynchronousWaiter",
                 "TemporaryStuff",
                 "Timer",
@@ -1077,7 +1084,7 @@ let package = Package(
                 "Models",
                 "PathLib",
                 "PluginManager",
-                "SimulatorPool",
+                "SimulatorPoolModels",
                 "TemporaryStuff",
                 "TestsWorkingDirectorySupport",
             ]
@@ -1089,7 +1096,7 @@ let package = Package(
                 "Models",
                 "Runner",
                 "ProcessController",
-                "SimulatorPool",
+                "SimulatorPoolModels",
                 "TemporaryStuff",
             ],
             path: "Tests/RunnerTestHelpers"
@@ -1110,7 +1117,7 @@ let package = Package(
                 "Runner",
                 "RunnerTestHelpers",
                 "ScheduleStrategy",
-                "SimulatorPool",
+                "SimulatorPoolModels",
                 "TemporaryStuff",
             ]
         ),
@@ -1126,6 +1133,7 @@ let package = Package(
                 "PluginManager",
                 "RequestSender",
                 "Runner",
+                "SimulatorPool",
                 "SynchronousWaiter",
                 "TemporaryStuff",
                 "UniqueIdentifierGenerator"
@@ -1228,7 +1236,17 @@ let package = Package(
                 "Models",
                 "ProcessController",
                 "ResourceLocationResolver",
+                "SimulatorPoolModels",
                 "TemporaryStuff",
+            ]
+        ),
+        .target(
+            // MARK: SimulatorPoolModels
+            name: "SimulatorPoolModels",
+            dependencies: [
+                "Extensions",
+                "Models",
+                "PathLib",
             ]
         ),
         .target(
@@ -1241,6 +1259,7 @@ let package = Package(
                 "ModelsTestHelpers",
                 "PathLib",
                 "SimulatorPool",
+                "SimulatorPoolModels",
                 "TemporaryStuff",
             ],
             path: "Tests/SimulatorPoolTestHelpers"
@@ -1255,6 +1274,7 @@ let package = Package(
                 "PathLib",
                 "ResourceLocationResolver",
                 "SimulatorPool",
+                "SimulatorPoolModels",
                 "SimulatorPoolTestHelpers",
                 "SynchronousWaiter",
                 "TemporaryStuff",
@@ -1320,6 +1340,24 @@ let package = Package(
             dependencies: [
                 "PathLib",
                 "TemporaryStuff"
+            ]
+        ),
+        .target(
+            // MARK: TestArgFile
+            name: "TestArgFile",
+            dependencies: [
+                "Models",
+                "SimulatorPoolModels",
+            ]
+        ),
+        .testTarget(
+            // MARK: TestArgFileTests
+            name: "TestArgFileTests",
+            dependencies: [
+                "Models",
+                "ModelsTestHelpers",
+                "TestArgFile",
+                "TestHelpers",
             ]
         ),
         .target(

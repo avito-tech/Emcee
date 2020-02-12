@@ -7,7 +7,6 @@ import PluginManagerTestHelpers
 import ResourceLocationResolver
 import ResourceLocationResolverTestHelpers
 import RunnerTestHelpers
-import SimulatorPool
 import SimulatorPoolTestHelpers
 import TemporaryStuff
 import TestHelpers

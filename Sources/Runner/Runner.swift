@@ -9,7 +9,7 @@ import PathLib
 import PluginManager
 import ProcessController
 import ResourceLocationResolver
-import SimulatorPool
+import SimulatorPoolModels
 import TemporaryStuff
 import TestsWorkingDirectorySupport
 

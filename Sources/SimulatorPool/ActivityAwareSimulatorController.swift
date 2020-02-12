@@ -1,6 +1,7 @@
 import AutomaticTermination
 import Foundation
 import Logging
+import SimulatorPoolModels
 
 public final class ActivityAwareSimulatorController: SimulatorController {
     private let automaticTerminationControllerFactory: AutomaticTerminationControllerFactory

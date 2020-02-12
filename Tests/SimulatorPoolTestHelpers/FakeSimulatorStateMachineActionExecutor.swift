@@ -2,6 +2,7 @@ import Foundation
 import Models
 import PathLib
 import SimulatorPool
+import SimulatorPoolModels
 
 public final class FakeSimulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor {
     private let create: ([String : String], TestDestination, TimeInterval) throws -> Simulator

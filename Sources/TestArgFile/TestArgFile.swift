@@ -1,4 +1,5 @@
 import Foundation
+import Models
 
 /// Represents --test-arg-file file contents which describes test plan.
 public struct TestArgFile: Codable {

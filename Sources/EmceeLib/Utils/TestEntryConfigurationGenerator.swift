@@ -2,6 +2,7 @@ import Extensions
 import Foundation
 import Logging
 import Models
+import TestArgFile
 
 public final class TestEntryConfigurationGenerator {
     private let validatedEntries: [ValidatedTestEntry]

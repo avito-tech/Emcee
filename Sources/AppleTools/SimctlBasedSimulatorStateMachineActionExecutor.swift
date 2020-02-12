@@ -7,6 +7,7 @@ import PathLib
 import ProcessController
 import ResourceLocationResolver
 import SimulatorPool
+import SimulatorPoolModels
 
 public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor, CustomStringConvertible {
     

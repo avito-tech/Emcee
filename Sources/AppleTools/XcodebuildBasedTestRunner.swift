@@ -6,7 +6,7 @@ import Models
 import ProcessController
 import ResourceLocationResolver
 import Runner
-import SimulatorPool
+import SimulatorPoolModels
 import TemporaryStuff
 
 public final class XcodebuildBasedTestRunner: TestRunner {

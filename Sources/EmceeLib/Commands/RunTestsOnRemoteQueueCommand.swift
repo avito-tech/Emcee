@@ -23,6 +23,7 @@ import SignalHandling
 import SimulatorPool
 import SynchronousWaiter
 import TemporaryStuff
+import TestArgFile
 import UniqueIdentifierGenerator
 import Version
 

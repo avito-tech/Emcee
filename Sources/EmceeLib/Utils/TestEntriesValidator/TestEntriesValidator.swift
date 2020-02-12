@@ -5,6 +5,7 @@ import SimulatorPool
 import Logging
 import ResourceLocationResolver
 import TemporaryStuff
+import TestArgFile
 
 public final class TestEntriesValidator {
     private let testArgFileEntries: [TestArgFile.Entry]

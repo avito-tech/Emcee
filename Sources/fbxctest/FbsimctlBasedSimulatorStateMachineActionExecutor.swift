@@ -6,6 +6,7 @@ import PathLib
 import ProcessController
 import ResourceLocationResolver
 import SimulatorPool
+import SimulatorPoolModels
 
 public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor, CustomStringConvertible {
     private let fbsimctl: ResolvableResourceLocation

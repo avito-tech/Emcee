@@ -1,6 +1,6 @@
 import Foundation
 
-public final class SimulatorOperationTimeouts {
+public struct SimulatorOperationTimeouts: Codable, CustomStringConvertible {
     public let create: TimeInterval
     public let boot: TimeInterval
     public let delete: TimeInterval
@@ -16,5 +16,9 @@ public final class SimulatorOperationTimeouts {
         self.boot = boot
         self.delete = delete
         self.shutdown = shutdown
+    }
+    
+    public var description: String {
+        return "<\(type(of: self)): create: \(create), boot: \(boot), delete: \(delete), shutdown: \(shutdown)>"
     }
 }

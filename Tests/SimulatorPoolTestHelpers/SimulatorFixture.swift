@@ -2,7 +2,7 @@ import Foundation
 import Models
 import ModelsTestHelpers
 import PathLib
-import SimulatorPool
+import SimulatorPoolModels
 
 public final class SimulatorFixture {
     public static func simulator(

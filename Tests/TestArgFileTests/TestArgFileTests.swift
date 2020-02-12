@@ -1,6 +1,7 @@
 import Foundation
 import Models
 import ModelsTestHelpers
+import TestArgFile
 import TestHelpers
 import XCTest
 

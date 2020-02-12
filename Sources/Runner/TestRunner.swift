@@ -2,7 +2,7 @@ import DeveloperDirLocator
 import Foundation
 import Models
 import ProcessController
-import SimulatorPool
+import SimulatorPoolModels
 import TemporaryStuff
 
 public protocol TestRunner {

@@ -14,7 +14,7 @@ import ResourceLocationResolver
 import ResourceLocationResolverTestHelpers
 import Runner
 import RunnerTestHelpers
-import SimulatorPool
+import SimulatorPoolModels
 import TemporaryStuff
 import TestHelpers
 import URLResource

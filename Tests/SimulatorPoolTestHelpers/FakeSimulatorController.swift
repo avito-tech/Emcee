@@ -1,6 +1,7 @@
 import Foundation
 import Models
 import SimulatorPool
+import SimulatorPoolModels
 
 public final class FakeSimulatorController: SimulatorController {
     

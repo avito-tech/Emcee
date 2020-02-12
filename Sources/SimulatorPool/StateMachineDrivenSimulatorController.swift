@@ -3,6 +3,7 @@ import Foundation
 import Logging
 import Models
 import PathLib
+import SimulatorPoolModels
 import SynchronousWaiter
 
 public final class StateMachineDrivenSimulatorController: SimulatorController, CustomStringConvertible {

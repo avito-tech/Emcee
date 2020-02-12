@@ -3,8 +3,8 @@ import Foundation
 import Models
 import ProcessController
 import Runner
+import SimulatorPoolModels
 import TemporaryStuff
-import SimulatorPool
 
 public final class FakeTestRunner: TestRunner {
     public var buildArtifacts: BuildArtifacts?
