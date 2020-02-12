@@ -1,4 +1,3 @@
-import DeveloperDirLocator
 import Dispatch
 import Foundation
 import Logging
@@ -7,7 +6,6 @@ import ResourceLocationResolver
 import TemporaryStuff
 
 public class DefaultOnDemandSimulatorPool: OnDemandSimulatorPool {
-    private let developerDirLocator: DeveloperDirLocator
     private let resourceLocationResolver: ResourceLocationResolver
     private let simulatorControllerProvider: SimulatorControllerProvider
     private let syncQueue = DispatchQueue(label: "ru.avito.OnDemandSimulatorPool")
@@ -15,12 +13,10 @@ public class DefaultOnDemandSimulatorPool: OnDemandSimulatorPool {
     private var pools = [OnDemandSimulatorPoolKey: SimulatorPool]()
     
     public init(
-        developerDirLocator: DeveloperDirLocator,
         resourceLocationResolver: ResourceLocationResolver,
         simulatorControllerProvider: SimulatorControllerProvider,
         tempFolder: TemporaryFolder
     ) {
-        self.developerDirLocator = developerDirLocator
         self.resourceLocationResolver = resourceLocationResolver
         self.simulatorControllerProvider = simulatorControllerProvider
         self.tempFolder = tempFolder
@@ -38,7 +34,6 @@ public class DefaultOnDemandSimulatorPool: OnDemandSimulatorPool {
             } else {
                 let pool = try DefaultSimulatorPool(
                     developerDir: key.developerDir,
-                    developerDirLocator: developerDirLocator,
                     simulatorControlTool: key.simulatorControlTool,
                     simulatorControllerProvider: simulatorControllerProvider,
                     tempFolder: tempFolder,

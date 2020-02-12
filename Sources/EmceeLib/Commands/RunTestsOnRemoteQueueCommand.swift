@@ -176,7 +176,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
-            
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
         let runtimeTestQuerier = RuntimeTestQuerierImpl(

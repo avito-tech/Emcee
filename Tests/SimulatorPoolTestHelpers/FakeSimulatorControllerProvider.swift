@@ -1,4 +1,3 @@
-import DeveloperDirLocator
 import Foundation
 import Models
 import SimulatorPool
@@ -12,7 +11,6 @@ public final class FakeSimulatorControllerProvider: SimulatorControllerProvider 
     
     public func createSimulatorController(
         developerDir: DeveloperDir,
-        developerDirLocator: DeveloperDirLocator,
         simulatorControlTool: SimulatorControlTool,
         testDestination: TestDestination,
         testRunnerTool: TestRunnerTool

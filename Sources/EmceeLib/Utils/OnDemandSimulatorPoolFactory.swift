@@ -8,8 +8,8 @@ import UniqueIdentifierGenerator
 
 public final class OnDemandSimulatorPoolFactory {
     public static func create(
-        developerDirLocator: DeveloperDirLocator,
         additionalBootAttempts: UInt = 2,
+        developerDirLocator: DeveloperDirLocator,
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver,
         simulatorBootQueue: DispatchQueue = DispatchQueue(label: "SimulatorBootQueue"),
@@ -17,10 +17,10 @@ public final class OnDemandSimulatorPoolFactory {
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) -> OnDemandSimulatorPool {
         return DefaultOnDemandSimulatorPool(
-            developerDirLocator: developerDirLocator,
             resourceLocationResolver: resourceLocationResolver,
             simulatorControllerProvider: DefaultSimulatorControllerProvider(
                 additionalBootAttempts: additionalBootAttempts,
+                developerDirLocator: developerDirLocator,
                 simulatorBootQueue: simulatorBootQueue,
                 simulatorStateMachineActionExecutorProvider: SimulatorStateMachineActionExecutorProviderImpl(
                     processControllerProvider: processControllerProvider,

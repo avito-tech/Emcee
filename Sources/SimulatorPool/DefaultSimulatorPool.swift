@@ -1,4 +1,3 @@
-import DeveloperDirLocator
 import Dispatch
 import Extensions
 import Foundation
@@ -7,21 +6,15 @@ import Models
 import ResourceLocationResolver
 import TemporaryStuff
 
-/**
- * Every 'borrow' must have a corresponding 'free' call, otherwise the next borrow will throw an error.
- * There is no blocking mechanisms, the assumption is that the callers will use up to numberOfSimulators of threads
- * to borrow and free the simulators.
- */
 public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible {
     private let developerDir: DeveloperDir
-    private let developerDirLocator: DeveloperDirLocator
     private let simulatorControlTool: SimulatorControlTool
     private let simulatorControllerProvider: SimulatorControllerProvider
     private let tempFolder: TemporaryFolder
     private let testDestination: TestDestination
     private let testRunnerTool: TestRunnerTool
     private var controllers = [SimulatorController]()
-    private let syncQueue = DispatchQueue(label: "ru.avito.SimulatorPool")
+    private let syncQueue = DispatchQueue(label: "DefaultSimulatorPool.syncQueue")
     
     public var description: String {
         return "<\(type(of: self)): '\(testDestination.deviceType)'+'\(testDestination.runtime)'>"
@@ -29,7 +22,6 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
     
     public init(
         developerDir: DeveloperDir,
-        developerDirLocator: DeveloperDirLocator,
         simulatorControlTool: SimulatorControlTool,
         simulatorControllerProvider: SimulatorControllerProvider,
         tempFolder: TemporaryFolder,
@@ -37,7 +29,6 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
         testRunnerTool: TestRunnerTool
     ) throws {
         self.developerDir = developerDir
-        self.developerDirLocator = developerDirLocator
         self.simulatorControlTool = simulatorControlTool
         self.simulatorControllerProvider = simulatorControllerProvider
         self.tempFolder = tempFolder
@@ -58,7 +49,6 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
             }
             let controller = try simulatorControllerProvider.createSimulatorController(
                 developerDir: developerDir,
-                developerDirLocator: developerDirLocator,
                 simulatorControlTool: simulatorControlTool,
                 testDestination: testDestination,
                 testRunnerTool: testRunnerTool

@@ -1,5 +1,4 @@
 @testable import SimulatorPool
-import DeveloperDirLocatorTestHelpers
 import Models
 import ModelsTestHelpers
 import ResourceLocationResolver
@@ -19,11 +18,9 @@ class DefaultSimulatorPoolTests: XCTestCase {
             developerDir: .current
         )
     }
-    lazy var developerDirLocator = FakeDeveloperDirLocator(result: tempFolder.absolutePath)
     lazy var pool = assertDoesNotThrow {
         try DefaultSimulatorPool(
             developerDir: DeveloperDir.current,
-            developerDirLocator: developerDirLocator,
             simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
             simulatorControllerProvider: simulatorControllerProvider,
             tempFolder: tempFolder,
