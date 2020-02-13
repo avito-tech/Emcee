@@ -1,6 +1,7 @@
 import BucketQueue
 import Foundation
 import Models
+import QueueModels
 
 public protocol JobStateProvider {
     func state(jobId: JobId) throws -> JobState

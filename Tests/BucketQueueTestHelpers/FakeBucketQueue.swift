@@ -2,6 +2,7 @@ import BucketQueue
 import Foundation
 import Models
 import ModelsTestHelpers
+import QueueModels
 
 public class FakeBucketQueue: BucketQueue {
     

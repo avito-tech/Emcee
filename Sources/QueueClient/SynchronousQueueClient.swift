@@ -2,9 +2,10 @@ import Dispatch
 import Foundation
 import Logging
 import Models
+import QueueModels
 import RESTMethods
-import SynchronousWaiter
 import RequestSender
+import SynchronousWaiter
 import Version
 
 public final class SynchronousQueueClient: QueueClientDelegate {

@@ -1,6 +1,7 @@
 import Foundation
 import Models
 import Version
+import QueueModels
 
 public protocol QueueClientDelegate: class {
     func queueClient(_ sender: QueueClient, didFailWithError error: QueueClientError)

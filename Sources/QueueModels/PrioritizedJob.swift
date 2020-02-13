@@ -1,4 +1,5 @@
 import Foundation
+import Models
 
 public final class PrioritizedJob: Hashable, Codable, CustomStringConvertible {
     public let jobId: JobId

@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import QueueModels
 
 public final class ScheduleTestsRequest: Codable {
     public let requestId: RequestId

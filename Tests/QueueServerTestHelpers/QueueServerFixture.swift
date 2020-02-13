@@ -1,6 +1,7 @@
 import QueueServer
 import ScheduleStrategy
 import Models
+import QueueModels
 
 public class QueueServerFixture: QueueServer {
 

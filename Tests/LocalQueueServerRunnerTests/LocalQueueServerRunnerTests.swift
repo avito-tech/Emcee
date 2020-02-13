@@ -2,6 +2,7 @@ import AutomaticTermination
 import AutomaticTerminationTestHelpers
 import LocalQueueServerRunner
 import Models
+import QueueModels
 import QueueServer
 import QueueServerTestHelpers
 import RemotePortDeterminer

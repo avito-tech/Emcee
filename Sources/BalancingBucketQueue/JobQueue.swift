@@ -1,6 +1,7 @@
 import BucketQueue
 import Foundation
 import Models
+import QueueModels
 import ResultsCollector
 
 final class JobQueue {

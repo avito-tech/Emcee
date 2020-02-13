@@ -1,6 +1,8 @@
 import Models
 import ModelsTestHelpers
 import QueueClient
+import QueueModels
+import QueueModelsTestHelpers
 import RESTMethods
 import RequestSender
 import Swifter

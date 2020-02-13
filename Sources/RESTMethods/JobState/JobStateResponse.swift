@@ -1,5 +1,5 @@
 import Foundation
-import Models
+import QueueModels
 
 public final class JobStateResponse: Codable {
     public let jobState: JobState

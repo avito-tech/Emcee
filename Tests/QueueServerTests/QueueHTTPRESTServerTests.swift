@@ -10,6 +10,8 @@ import Models
 import ModelsTestHelpers
 import PortDeterminer
 import QueueClient
+import QueueModels
+import QueueModelsTestHelpers
 import QueueServer
 import RESTMethods
 import RESTServer

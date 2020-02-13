@@ -1,7 +1,8 @@
 import Foundation
+import LocalHostDeterminer
 import Metrics
 import Models
-import LocalHostDeterminer
+import QueueModels
 
 public final class QueueStateMetricGatherer {
     private init() {}

@@ -14,6 +14,7 @@ import PluginManager
 import PortDeterminer
 import ProcessController
 import QueueClient
+import QueueModels
 import QueueServer
 import RemotePortDeterminer
 import RemoteQueue

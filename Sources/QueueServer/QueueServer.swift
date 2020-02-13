@@ -1,5 +1,6 @@
 import ScheduleStrategy
 import Models
+import QueueModels
 
 public protocol QueueServer {
     func start() throws -> Int

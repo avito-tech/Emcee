@@ -1,6 +1,7 @@
 import Foundation
 import Models
 import QueueClient
+import QueueModels
 import Version
 import Models
 

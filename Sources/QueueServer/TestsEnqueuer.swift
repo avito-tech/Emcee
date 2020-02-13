@@ -1,8 +1,9 @@
 import BalancingBucketQueue
 import Foundation
 import Logging
-import Models
 import Metrics
+import Models
+import QueueModels
 import ScheduleStrategy
 
 public final class TestsEnqueuer {

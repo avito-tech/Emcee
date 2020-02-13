@@ -3,6 +3,7 @@ import Dispatch
 import Foundation
 import Logging
 import Models
+import QueueModels
 import UniqueIdentifierGenerator
 import WorkerAlivenessProvider
 

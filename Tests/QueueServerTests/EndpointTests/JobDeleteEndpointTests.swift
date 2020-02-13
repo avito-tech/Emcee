@@ -1,6 +1,7 @@
 import BalancingBucketQueue
 import Foundation
 import Models
+import QueueModels
 import QueueServer
 import RESTMethods
 import XCTest

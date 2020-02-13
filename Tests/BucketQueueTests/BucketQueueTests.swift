@@ -5,6 +5,7 @@ import DistWorkerModels
 import Foundation
 import Models
 import ModelsTestHelpers
+import QueueModels
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessProvider

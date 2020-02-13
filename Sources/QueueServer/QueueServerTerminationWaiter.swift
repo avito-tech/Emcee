@@ -1,6 +1,6 @@
 import AutomaticTermination
 import Foundation
-import Models
+import QueueModels
 
 public protocol QueueServerTerminationWaiter {
     func waitForWorkerToAppear(

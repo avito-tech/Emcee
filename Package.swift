@@ -145,7 +145,8 @@ let package = Package(
                 "DateProvider",
                 "Logging",
                 "Models",
-                "ResultsCollector"
+                "QueueModels",
+                "ResultsCollector",
             ]
         ),
         .testTarget(
@@ -154,6 +155,7 @@ let package = Package(
             dependencies: [
                 "BalancingBucketQueue",
                 "BucketQueueTestHelpers",
+                "QueueModels",
                 "ResultsCollector",
                 "UniqueIdentifierGenerator",
                 "WorkerAlivenessProvider",
@@ -167,8 +169,9 @@ let package = Package(
                 "DateProvider",
                 "Logging",
                 "Models",
+                "QueueModels",
                 "UniqueIdentifierGenerator",
-                "WorkerAlivenessProvider"
+                "WorkerAlivenessProvider",
             ]
         ),
         .target(
@@ -179,9 +182,10 @@ let package = Package(
                 "DateProviderTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
+                "QueueModels",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
-                "WorkerAlivenessProvider"
+                "WorkerAlivenessProvider",
             ],
             path: "Tests/BucketQueueTestHelpers"
         ),
@@ -194,9 +198,10 @@ let package = Package(
                 "DateProviderTestHelpers",
                 "DistWorkerModels",
                 "ModelsTestHelpers",
+                "QueueModels",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
-                "WorkerAlivenessProviderTestHelpers"
+                "WorkerAlivenessProviderTestHelpers",
             ]
         ),
         .target(
@@ -405,6 +410,9 @@ let package = Package(
                 "PluginManager",
                 "PortDeterminer",
                 "ProcessController",
+                "QueueClient",
+                "QueueModels",
+                "QueueServer",
                 "RemoteQueue",
                 "RequestSender",
                 "ResourceLocationResolver",
@@ -631,6 +639,8 @@ let package = Package(
                 "AutomaticTermination",
                 "AutomaticTerminationTestHelpers",
                 "LocalQueueServerRunner",
+                "QueueModels",
+                "QueueServer",
                 "QueueServerTestHelpers",
                 "RemotePortDeterminer",
                 "RemotePortDeterminerTestHelpers",
@@ -845,11 +855,28 @@ let package = Package(
                 "ModelsTestHelpers",
                 "PortDeterminer",
                 "QueueClient",
+                "QueueModels",
+                "QueueModelsTestHelpers",
                 "QueueServer",
                 "RESTMethods",
                 "Swifter",
                 "SynchronousWaiter"
             ]
+        ),
+        .target(
+            // MARK: QueueModels
+            name: "QueueModels",
+            dependencies: [
+                "Models",
+            ]
+        ),
+        .target(
+            // MARK: QueueModelsTestHelpers
+            name: "QueueModelsTestHelpers",
+            dependencies: [
+                "QueueModels",
+            ],
+            path: "Tests/QueueModelsTestHelpers"
         ),
         .target(
             // MARK: QueueServer
@@ -867,6 +894,7 @@ let package = Package(
                 "Metrics",
                 "Models",
                 "PortDeterminer",
+                "QueueModels",
                 "RESTMethods",
                 "RESTServer",
                 "RequestSenderTestHelpers",
@@ -877,7 +905,7 @@ let package = Package(
                 "Timer",
                 "UniqueIdentifierGenerator",
                 "Version",
-                "WorkerAlivenessProvider"
+                "WorkerAlivenessProvider",
             ]
         ),
         .target(
@@ -905,6 +933,8 @@ let package = Package(
                 "Models",
                 "ModelsTestHelpers",
                 "QueueClient",
+                "QueueModels",
+                "QueueModelsTestHelpers",
                 "QueueServer",
                 "QueueServerTestHelpers",
                 "RESTMethods",
@@ -1053,6 +1083,7 @@ let package = Package(
             dependencies: [
                 "DistWorkerModels",
                 "Models",
+                "QueueModels",
                 "RequestSender",
                 "Version",
             ]

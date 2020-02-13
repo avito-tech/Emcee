@@ -1,6 +1,7 @@
 import Foundation
+import Models
 
-public class JobResults: Codable, CustomStringConvertible, Equatable {
+public struct JobResults: Codable, CustomStringConvertible, Equatable {
     public let jobId: JobId
     public let testingResults: [TestingResult]
 
@@ -11,11 +12,6 @@ public class JobResults: Codable, CustomStringConvertible, Equatable {
     
     public var description: String {
         return "<\(type(of: self)) job: \(jobId) results: \(testingResults)>"
-    }
-    
-    public static func == (left: JobResults, right: JobResults) -> Bool {
-        return left.jobId == right.jobId
-            && left.testingResults == right.testingResults
     }
 }
 

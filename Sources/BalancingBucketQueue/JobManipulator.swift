@@ -1,5 +1,5 @@
 import Foundation
-import Models
+import QueueModels
 
 public protocol JobManipulator {
     func delete(jobId: JobId) throws

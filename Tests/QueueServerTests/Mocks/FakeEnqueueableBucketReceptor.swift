@@ -1,6 +1,7 @@
 import BalancingBucketQueue
 import Foundation
 import Models
+import QueueModels
 
 class FakeEnqueueableBucketReceptor: EnqueueableBucketReceptor {
     var enqueuedJobs = MapWithCollection<PrioritizedJob, Bucket>()

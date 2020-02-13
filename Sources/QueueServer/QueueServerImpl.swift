@@ -8,6 +8,7 @@ import Foundation
 import Logging
 import Models
 import PortDeterminer
+import QueueModels
 import RESTMethods
 import RESTServer
 import ScheduleStrategy

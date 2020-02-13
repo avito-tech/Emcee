@@ -1,6 +1,7 @@
 import Foundation
 import Models
 import ModelsTestHelpers
+import QueueModels
 import QueueServer
 import RESTMethods
 import ScheduleStrategy

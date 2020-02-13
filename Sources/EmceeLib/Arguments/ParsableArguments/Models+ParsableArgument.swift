@@ -1,6 +1,7 @@
 import ArgLib
 import Foundation
 import Models
+import QueueModels
 
 extension TypedResourceLocation: ParsableArgument {
     public convenience init(argumentValue: String) throws {
