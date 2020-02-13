@@ -28,7 +28,8 @@ public final class FileLock {
     }
     
     public static func named(_ name: String) throws -> FileLock {
-        return try FileLock(lockFilePath: NSTemporaryDirectory().appending(pathComponent: name + ".lock"))
+        let tempFolderPath = NSTemporaryDirectory() as NSString
+        return try FileLock(lockFilePath: tempFolderPath.appendingPathComponent(name + ".lock"))
     }
 
     public init(lockFilePath: String) throws {

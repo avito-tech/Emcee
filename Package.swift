@@ -521,6 +521,7 @@ let package = Package(
             name: "FileCache",
             dependencies: [
                 "Extensions",
+                "FileLock",
                 "Models",
                 "UniqueIdentifierGenerator",
             ]
@@ -550,6 +551,19 @@ let package = Package(
             dependencies: [
                 "FileHasher",
                 "TemporaryStuff"
+            ]
+        ),
+        .target(
+            // MARK: FileLock
+            name: "FileLock",
+            dependencies: [
+            ]
+        ),
+        .testTarget(
+            // MARK: FileLockTests
+            name: "FileLockTests",
+            dependencies: [
+                "FileLock",
             ]
         ),
         .target(
@@ -620,6 +634,7 @@ let package = Package(
                 "Deployer",
                 "DistDeployer",
                 "DistWorkerModels",
+                "FileLock",
                 "LocalHostDeterminer",
                 "Logging",
                 "Models",

@@ -3,6 +3,7 @@ import DateProvider
 import Deployer
 import DistDeployer
 import EventBus
+import FileLock
 import Foundation
 import LocalHostDeterminer
 import Logging

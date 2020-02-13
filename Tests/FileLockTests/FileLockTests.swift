@@ -1,10 +1,10 @@
 import Foundation
-import Models
+import FileLock
 import XCTest
 
 final class FileLockTests: XCTestCase {
-    let tmp = NSTemporaryDirectory()
-    lazy var uniqueTempFile = tmp.appending(pathComponent: ProcessInfo.processInfo.globallyUniqueString + ".lock")
+    let tmp = NSTemporaryDirectory() as NSString
+    lazy var uniqueTempFile = tmp.appendingPathComponent(ProcessInfo.processInfo.globallyUniqueString + ".lock")
     
     func test__lock_unlock() throws {
         let fileLock = try FileLock(lockFilePath: uniqueTempFile)
@@ -64,7 +64,7 @@ final class FileLockTests: XCTestCase {
     
     func test__unexisting_path_throws() throws {
         XCTAssertThrowsError(
-            try FileLock(lockFilePath: tmp.appending(pathComponents: [UUID().uuidString, ProcessInfo.processInfo.globallyUniqueString]))
+            try FileLock(lockFilePath: tmp.appendingPathComponent("\(UUID().uuidString)/\(ProcessInfo.processInfo.globallyUniqueString)"))
         )
     }
     
