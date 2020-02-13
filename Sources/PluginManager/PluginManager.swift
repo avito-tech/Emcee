@@ -4,6 +4,7 @@ import Foundation
 import Logging
 import Models
 import PathLib
+import PluginSupport
 import ProcessController
 import ResourceLocationResolver
 import SynchronousWaiter

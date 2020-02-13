@@ -2,6 +2,7 @@ import Foundation
 import Starscream
 import Logging
 import Models
+import PluginSupport
 
 public final class EventReceiver: WebSocketDelegate {
     public typealias Handler = () -> ()

@@ -30,6 +30,8 @@ let package = Package(
             name: "EmceeInterfaces",
             targets: [
                 "Models",
+                "PluginSupport",
+                "QueueModels",
                 "RuntimeDump",
                 "SimulatorPoolModels",
                 "TestArgFile",
@@ -742,6 +744,7 @@ let package = Package(
                 "Logging",
                 "LoggingSetup",
                 "Models",
+                "PluginSupport",
                 "ResourceLocationResolver",
                 "SimulatorVideoRecorder",
                 "Starscream",
@@ -758,10 +761,11 @@ let package = Package(
                 "Logging",
                 "Models",
                 "PathLib",
+                "PluginSupport",
                 "ProcessController",
                 "ResourceLocationResolver",
                 "Swifter",
-                "SynchronousWaiter"
+                "SynchronousWaiter",
             ]
         ),
         .target(
@@ -782,9 +786,17 @@ let package = Package(
                 "Models",
                 "ModelsTestHelpers",
                 "PluginManager",
+                "PluginSupport",
                 "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
                 "TemporaryStuff",
+            ]
+        ),
+        .target(
+            // MARK: PluginSupport
+            name: "PluginSupport",
+            dependencies: [
+                "Models",
             ]
         ),
         .target(

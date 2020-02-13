@@ -4,7 +4,7 @@ import Foundation
 import JSONStream
 import Logging
 import LoggingSetup
-import Models
+import PluginSupport
 import SynchronousWaiter
 
 /// Allows the plugin to track `PluginEvent`s from the main process using the provided `EventBus`.
