@@ -1,5 +1,6 @@
 import AutomaticTermination
 import DateProvider
+import Deployer
 import DistDeployer
 import EventBus
 import Foundation

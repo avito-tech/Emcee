@@ -247,6 +247,15 @@ let package = Package(
                 "TemporaryStuff"
             ]
         ),
+        .target(
+            // MARK: DeployerTestHelpers
+            name: "DeployerTestHelpers",
+            dependencies: [
+                "Deployer",
+                "Models",
+            ],
+            path: "Tests/DeployerTestHelpers"
+        ),
         .testTarget(
             // MARK: DeployerTests
             name: "DeployerTests",
@@ -303,13 +312,14 @@ let package = Package(
             name: "DistDeployerTests",
             dependencies: [
                 "Deployer",
+                "DeployerTestHelpers",
                 "DistDeployer",
                 "Extensions",
                 "Models",
                 "ModelsTestHelpers",
                 "PathLib",
                 "ResourceLocationResolver",
-                "TemporaryStuff"
+                "TemporaryStuff",
             ]
         ),
         .target(
@@ -597,6 +607,7 @@ let package = Package(
             dependencies: [
                 "AutomaticTermination",
                 "DateProvider",
+                "Deployer",
                 "DistDeployer",
                 "DistWorkerModels",
                 "LocalHostDeterminer",

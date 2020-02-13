@@ -1,6 +1,7 @@
 import ArgLib
 import BucketQueue
 import DateProvider
+import Deployer
 import DeveloperDirLocator
 import DistDeployer
 import Extensions
