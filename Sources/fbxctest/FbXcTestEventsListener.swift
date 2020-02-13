@@ -2,6 +2,7 @@ import Dispatch
 import Foundation
 import Logging
 import Models
+import Runner
 
 final class FbXcTestEventsListener {    
     private let pairsController = TestEventPairsController()
