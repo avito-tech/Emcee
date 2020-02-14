@@ -46,16 +46,16 @@ public class BucketSplitter: Splitter, CustomStringConvertible {
             guard let entry = group.first else { return nil }
             return Bucket(
                 bucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
-                testEntries: group.map { $0.testEntry },
                 buildArtifacts: entry.buildArtifacts,
+                developerDir: entry.developerDir,
                 pluginLocations: entry.pluginLocations,
                 simulatorSettings: entry.simulatorSettings,
                 testDestination: entry.testDestination,
+                testEntries: group.map { $0.testEntry },
                 testExecutionBehavior: entry.testExecutionBehavior,
                 testTimeoutConfiguration: entry.testTimeoutConfiguration,
                 testType: entry.testType,
-                toolResources: entry.toolResources,
-                toolchainConfiguration: entry.toolchainConfiguration
+                toolResources: entry.toolResources
             )
         }
     }

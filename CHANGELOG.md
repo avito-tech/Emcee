@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2020-02-14
+
+- `ToolchainConfiguration` object and `toolchainConfiguration` field have been removed from test arg file, because this object contained only `developerDir` value. You must provide a value via `developerDir` field in test arg file instead.
+
 ## 2020-02-07
 
 - Added remote cache support for runtime dump action. Provide `--remote-cache-config` argument with JSON config for remote cache to use it. Next time runtime dump action will be executed Emcee will try to obtain cached version of runtime dump results from remote cache storage. See Wiki for more details.

@@ -78,7 +78,7 @@ public final class DumpRuntimeTestsCommand: Command {
         
         let dumpedTests: [[RuntimeTestEntry]] = try testArgFile.entries.map { testArgFileEntry -> [RuntimeTestEntry] in
             let configuration = RuntimeDumpConfiguration(
-                developerDir: testArgFileEntry.toolchainConfiguration.developerDir,
+                developerDir: testArgFileEntry.developerDir,
                 pluginLocations: testArgFileEntry.pluginLocations,
                 runtimeDumpMode: try RuntimeDumpModeDeterminer.runtimeDumpMode(testArgFileEntry: testArgFileEntry),
                 simulatorSettings: testArgFileEntry.simulatorSettings,

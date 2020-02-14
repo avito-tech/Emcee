@@ -161,7 +161,7 @@ public final class Scheduler {
     private func runBucketOnce(bucket: SchedulerBucket, testsToRun: [TestEntry]) throws -> TestingResult {
         let simulatorPool = try configuration.onDemandSimulatorPool.pool(
             key: OnDemandSimulatorPoolKey(
-                developerDir: bucket.toolchainConfiguration.developerDir,
+                developerDir: bucket.developerDir,
                 testDestination: bucket.testDestination,
                 testRunnerTool: bucket.toolResources.testRunnerTool,
                 simulatorControlTool: bucket.toolResources.simulatorControlTool
@@ -190,7 +190,7 @@ public final class Scheduler {
 
         let runnerResult = try runner.run(
             entries: testsToRun,
-            developerDir: bucket.toolchainConfiguration.developerDir,
+            developerDir: bucket.developerDir,
             simulator: allocatedSimulator.simulator
         )
         

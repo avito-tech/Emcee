@@ -14,7 +14,7 @@ public final class TestEntryConfigurationFixtures {
     public var testTimeoutConfiguration = TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0)
     public var testType = TestType.uiTest
     public var toolResources: ToolResources = ToolResourcesFixtures.fakeToolResources()
-    public var toolchainConfiguration = ToolchainConfiguration(developerDir: .current)
+    public var developerDir = DeveloperDir.current
     
     public init() {}
     
@@ -68,8 +68,8 @@ public final class TestEntryConfigurationFixtures {
         return self
     }
     
-    public func with(toolchainConfiguration: ToolchainConfiguration) -> Self {
-        self.toolchainConfiguration = toolchainConfiguration
+    public func with(developerDir: DeveloperDir) -> Self {
+        self.developerDir = developerDir
         return self
     }
     
@@ -77,6 +77,7 @@ public final class TestEntryConfigurationFixtures {
         return testEntries.map { testEntry in
             TestEntryConfiguration(
                 buildArtifacts: buildArtifacts,
+                developerDir: developerDir,
                 pluginLocations: pluginLocations,
                 simulatorSettings: simulatorSettings,
                 testDestination: testDestination,
@@ -84,8 +85,7 @@ public final class TestEntryConfigurationFixtures {
                 testExecutionBehavior: testExecutionBehavior,
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: testType,
-                toolResources: ToolResourcesFixtures.fakeToolResources(),
-                toolchainConfiguration: toolchainConfiguration
+                toolResources: ToolResourcesFixtures.fakeToolResources()
             )
         }
     }

@@ -27,6 +27,7 @@ public final class TestEntryConfigurationGenerator {
             return testEntries.map { testEntry -> TestEntryConfiguration in
                 TestEntryConfiguration(
                     buildArtifacts: testArgFileEntry.buildArtifacts,
+                    developerDir: testArgFileEntry.developerDir,
                     pluginLocations: testArgFileEntry.pluginLocations,
                     simulatorSettings: testArgFileEntry.simulatorSettings,
                     testDestination: testArgFileEntry.testDestination,
@@ -37,8 +38,7 @@ public final class TestEntryConfigurationGenerator {
                     ),
                     testTimeoutConfiguration: testArgFileEntry.testTimeoutConfiguration,
                     testType: testArgFileEntry.testType,
-                    toolResources: testArgFileEntry.toolResources,
-                    toolchainConfiguration: testArgFileEntry.toolchainConfiguration
+                    toolResources: testArgFileEntry.toolResources
                 )
             }
         }

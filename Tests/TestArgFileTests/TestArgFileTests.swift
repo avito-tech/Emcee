@@ -30,7 +30,7 @@ final class TestArgFileTests: XCTestCase {
                     "testRunnerTool": {"toolType": "fbxctest", "fbxctestLocation": "http://example.com/fbxctest.zip"},
                     "simulatorControlTool": {"toolType": "fbsimctl", "location": "http://example.com/fbsimctl.zip"}
                 },
-                "toolchainConfiguration": {"developerDir": {"kind": "current"}},
+                "developerDir": {"kind": "current"},
                 "pluginLocations": [
                     "http://example.com/plugin.zip#sample.emceeplugin"
                 ],
@@ -65,6 +65,7 @@ final class TestArgFileTests: XCTestCase {
             entry,
             TestArgFile.Entry(
                 buildArtifacts: buildArtifacts(),
+                developerDir: .current,
                 environment: ["value": "key"],
                 numberOfRetries: 42,
                 pluginLocations: [
@@ -85,8 +86,7 @@ final class TestArgFileTests: XCTestCase {
                 toolResources: ToolResources(
                     simulatorControlTool: .fbsimctl(FbsimctlLocation(.remoteUrl(URL(string: "http://example.com/fbsimctl.zip")!))),
                     testRunnerTool: .fbxctest(FbxctestLocation(.remoteUrl(URL(string: "http://example.com/fbxctest.zip")!)))
-                ),
-                toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
+                )
             )
         )
     }

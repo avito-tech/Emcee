@@ -38,7 +38,7 @@ public final class TestEntriesValidator {
         testArgFileEntry: TestArgFile.Entry
     ) throws -> [ValidatedTestEntry] {
         let runtimeDumpConfiguration = RuntimeDumpConfiguration(
-            developerDir: testArgFileEntry.toolchainConfiguration.developerDir,
+            developerDir: testArgFileEntry.developerDir,
             pluginLocations: testArgFileEntry.pluginLocations,
             runtimeDumpMode: try RuntimeDumpModeDeterminer.runtimeDumpMode(
                 testArgFileEntry: testArgFileEntry

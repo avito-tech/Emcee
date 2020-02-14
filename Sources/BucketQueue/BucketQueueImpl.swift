@@ -198,16 +198,16 @@ final class BucketQueueImpl: BucketQueue {
                 stuckBucket.bucket.testEntries.map { testEntry in
                     Bucket(
                         bucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
-                        testEntries: [testEntry],
                         buildArtifacts: stuckBucket.bucket.buildArtifacts,
+                        developerDir: stuckBucket.bucket.developerDir,
                         pluginLocations: stuckBucket.bucket.pluginLocations,
                         simulatorSettings: stuckBucket.bucket.simulatorSettings,
                         testDestination: stuckBucket.bucket.testDestination,
+                        testEntries: [testEntry],
                         testExecutionBehavior: stuckBucket.bucket.testExecutionBehavior,
                         testTimeoutConfiguration: stuckBucket.bucket.testTimeoutConfiguration,
                         testType: stuckBucket.bucket.testType,
-                        toolResources: stuckBucket.bucket.toolResources,
-                        toolchainConfiguration: stuckBucket.bucket.toolchainConfiguration
+                        toolResources: stuckBucket.bucket.toolResources
                     )
                 }
             }

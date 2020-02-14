@@ -1,8 +1,9 @@
 import Foundation
 import Models
 
-public final class SchedulerBucket: CustomStringConvertible, Equatable {
+public struct SchedulerBucket: CustomStringConvertible, Equatable {
     public let bucketId: BucketId
+    public let developerDir: DeveloperDir
     public let testEntries: [TestEntry]
     public let buildArtifacts: BuildArtifacts
     public let pluginLocations: Set<PluginLocation>
@@ -12,7 +13,6 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testType: TestType
     public let toolResources: ToolResources
-    public let toolchainConfiguration: ToolchainConfiguration
     
     public var description: String {
         var result = [String]()
@@ -20,6 +20,7 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
         result.append("\(bucketId)")
         result.append("testEntries: " + testEntries.map { $0.testName.stringValue }.joined(separator: ","))
         result.append("buildArtifacts: \(buildArtifacts)")
+        result.append("developerDir: \(developerDir)")
         result.append("pluginLocations: \(pluginLocations)")
         result.append("testDestination: \(testDestination)")
         result.append("testExecutionBehavior: \(testExecutionBehavior)")
@@ -27,7 +28,6 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
         result.append("testType: \(testType)")
         result.append("toolResources: \(toolResources)")
         result.append("simulatorSettings: \(simulatorSettings)")
-        result.append("toolchainConfiguration: \(toolchainConfiguration)")
         
         return "<\((type(of: self))) " + result.joined(separator: " ") + ">"
     }
@@ -36,18 +36,19 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
         bucketId: BucketId,
         testEntries: [TestEntry],
         buildArtifacts: BuildArtifacts,
+        developerDir: DeveloperDir,
         pluginLocations: Set<PluginLocation>,
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testExecutionBehavior: TestExecutionBehavior,
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testType: TestType,
-        toolResources: ToolResources,
-        toolchainConfiguration: ToolchainConfiguration
+        toolResources: ToolResources
     ) {
         self.bucketId = bucketId
         self.testEntries = testEntries
         self.buildArtifacts = buildArtifacts
+        self.developerDir = developerDir
         self.pluginLocations = pluginLocations
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
@@ -55,7 +56,6 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testType = testType
         self.toolResources = toolResources
-        self.toolchainConfiguration = toolchainConfiguration
     }
     
     public static func from(bucket: Bucket, testExecutionBehavior: TestExecutionBehavior) -> SchedulerBucket {
@@ -63,28 +63,14 @@ public final class SchedulerBucket: CustomStringConvertible, Equatable {
             bucketId: bucket.bucketId,
             testEntries: bucket.testEntries,
             buildArtifacts: bucket.buildArtifacts,
+            developerDir: bucket.developerDir,
             pluginLocations: bucket.pluginLocations,
             simulatorSettings: bucket.simulatorSettings,
             testDestination: bucket.testDestination,
             testExecutionBehavior: testExecutionBehavior,
             testTimeoutConfiguration: bucket.testTimeoutConfiguration,
             testType: bucket.testType,
-            toolResources: bucket.toolResources,
-            toolchainConfiguration: bucket.toolchainConfiguration
+            toolResources: bucket.toolResources
         )
-    }
-    
-    public static func == (left: SchedulerBucket, right: SchedulerBucket) -> Bool {
-        return left.bucketId == right.bucketId
-            && left.testEntries == right.testEntries
-            && left.buildArtifacts == right.buildArtifacts
-            && left.pluginLocations == right.pluginLocations
-            && left.simulatorSettings == right.simulatorSettings
-            && left.testDestination == right.testDestination
-            && left.testExecutionBehavior == right.testExecutionBehavior
-            && left.testTimeoutConfiguration == right.testTimeoutConfiguration
-            && left.testType == right.testType
-            && left.toolResources == right.toolResources
-            && left.toolchainConfiguration == right.toolchainConfiguration
     }
 }

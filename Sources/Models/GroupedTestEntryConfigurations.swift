@@ -10,13 +10,13 @@ public final class GroupedTestEntryConfigurations {
     public func grouped() -> [[TestEntryConfiguration]] {
         struct Key: Hashable {
             let buildArtifacts: BuildArtifacts
+            let developerDir: DeveloperDir
             let pluginLocations: Set<PluginLocation>
             let simulatorSettings: SimulatorSettings
             let testDestination: TestDestination
             let testExecutionBehavior: TestExecutionBehavior
             let testTimeoutConfiguration: TestTimeoutConfiguration
             let testType: TestType
-            let toolchainConfiguration: ToolchainConfiguration
         }
         
         var groups = MapWithCollection<Key, TestEntryConfiguration>()
@@ -24,13 +24,13 @@ public final class GroupedTestEntryConfigurations {
         for testEntryConfiguration in testEntryConfigurations {
             let key = Key(
                 buildArtifacts: testEntryConfiguration.buildArtifacts,
+                developerDir: testEntryConfiguration.developerDir,
                 pluginLocations: testEntryConfiguration.pluginLocations,
                 simulatorSettings: testEntryConfiguration.simulatorSettings,
                 testDestination: testEntryConfiguration.testDestination,
                 testExecutionBehavior: testEntryConfiguration.testExecutionBehavior,
                 testTimeoutConfiguration: testEntryConfiguration.testTimeoutConfiguration,
-                testType: testEntryConfiguration.testType,
-                toolchainConfiguration: testEntryConfiguration.toolchainConfiguration
+                testType: testEntryConfiguration.testType
             )
             
             groups.append(key: key, element: testEntryConfiguration)

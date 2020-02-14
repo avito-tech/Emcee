@@ -40,6 +40,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
             validatedEntries: validatedEntries,
             testArgFileEntry: TestArgFile.Entry(
                 buildArtifacts: buildArtifacts,
+                developerDir: .current,
                 environment: [:],
                 numberOfRetries: 10,
                 pluginLocations: [],
@@ -49,8 +50,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .uiTest,
                 testsToRun: [.testName(argFileTestToRun1)],
-                toolResources: ToolResourcesFixtures.fakeToolResources(),
-                toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
+                toolResources: ToolResourcesFixtures.fakeToolResources()
             )
         )
         
@@ -74,6 +74,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
             validatedEntries: validatedEntries,
             testArgFileEntry: TestArgFile.Entry(
                 buildArtifacts: buildArtifacts,
+                developerDir: .current,
                 environment: [:],
                 numberOfRetries: 10,
                 pluginLocations: [],
@@ -83,8 +84,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .uiTest,
                 testsToRun: [.testName(argFileTestToRun1), .testName(argFileTestToRun1)],
-                toolResources: ToolResourcesFixtures.fakeToolResources(),
-                toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
+                toolResources: ToolResourcesFixtures.fakeToolResources()
             )
         )
         
@@ -110,6 +110,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
             validatedEntries: validatedEntries,
             testArgFileEntry: TestArgFile.Entry(
                 buildArtifacts: buildArtifacts,
+                developerDir: .current,
                 environment: [:],
                 numberOfRetries: 10,
                 pluginLocations: [],
@@ -119,8 +120,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .uiTest,
                 testsToRun: [.allProvidedByRuntimeDump],
-                toolResources: ToolResourcesFixtures.fakeToolResources(),
-                toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
+                toolResources: ToolResourcesFixtures.fakeToolResources()
             )
         )
         

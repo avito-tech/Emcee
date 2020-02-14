@@ -71,10 +71,6 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
         }
     }
     
-    public static func from(_ strings: [String]) throws -> [ResourceLocation] {
-        return try strings.map { try from($0) }
-    }
-    
     private static func withUrl(_ url: URL) -> ResourceLocation {
         return ResourceLocation.remoteUrl(url)
     }

@@ -58,16 +58,16 @@ class QueueClientTests: XCTestCase {
     func testDequeueingBucket() throws {
         let bucket = Bucket(
             bucketId: BucketId(value: UUID().uuidString),
-            testEntries: [TestEntryFixtures.testEntry(className: "class", methodName: "method")],
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
+            developerDir: .current,
             pluginLocations: [],
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: TestDestinationFixtures.testDestination,
+            testEntries: [TestEntryFixtures.testEntry(className: "class", methodName: "method")],
             testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
             testType: .uiTest,
-            toolResources: ToolResourcesFixtures.fakeToolResources(),
-            toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
+            toolResources: ToolResourcesFixtures.fakeToolResources()
         )
         try prepareServer(RESTMethod.getBucket.withPrependingSlash) { request -> HttpResponse in
             let data: Data = (try? JSONEncoder().encode(DequeueBucketResponse.bucketDequeued(bucket: bucket))) ?? Data()

@@ -1,43 +1,43 @@
 import Extensions
 import Foundation
 
-public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStringConvertible {
+public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStringConvertible {
     public let bucketId: BucketId
-    public let testEntries: [TestEntry]
     public let buildArtifacts: BuildArtifacts
+    public let developerDir: DeveloperDir
     public let pluginLocations: Set<PluginLocation>
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
+    public let testEntries: [TestEntry]
     public let testExecutionBehavior: TestExecutionBehavior
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testType: TestType
     public let toolResources: ToolResources
-    public let toolchainConfiguration: ToolchainConfiguration
 
     public init(
         bucketId: BucketId,
-        testEntries: [TestEntry],
         buildArtifacts: BuildArtifacts,
+        developerDir: DeveloperDir,
         pluginLocations: Set<PluginLocation>,
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
+        testEntries: [TestEntry],
         testExecutionBehavior: TestExecutionBehavior,
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testType: TestType,
-        toolResources: ToolResources,
-        toolchainConfiguration: ToolchainConfiguration
+        toolResources: ToolResources
     ) {
         self.bucketId = bucketId
-        self.testEntries = testEntries
         self.buildArtifacts = buildArtifacts
+        self.developerDir = developerDir
         self.pluginLocations = pluginLocations
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
+        self.testEntries = testEntries
         self.testExecutionBehavior = testExecutionBehavior
-        self.testType = testType
         self.testTimeoutConfiguration = testTimeoutConfiguration
+        self.testType = testType
         self.toolResources = toolResources
-        self.toolchainConfiguration = toolchainConfiguration
     }
     
     public var description: String {
@@ -45,34 +45,6 @@ public final class Bucket: Codable, Hashable, CustomStringConvertible, CustomDeb
     }
     
     public var debugDescription: String {
-        return "<\((type(of: self))) \(bucketId) \(testType) \(testDestination), \(toolResources), \(buildArtifacts), \(pluginLocations), \(testEntries.debugDescription)>"
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(bucketId)
-        hasher.combine(testEntries)
-        hasher.combine(buildArtifacts)
-        hasher.combine(pluginLocations)
-        hasher.combine(simulatorSettings)
-        hasher.combine(testDestination)
-        hasher.combine(testExecutionBehavior)
-        hasher.combine(testTimeoutConfiguration)
-        hasher.combine(testType)
-        hasher.combine(toolResources)
-        hasher.combine(toolchainConfiguration)
-    }
-    
-    public static func == (left: Bucket, right: Bucket) -> Bool {
-        return left.bucketId == right.bucketId
-        && left.testEntries == right.testEntries
-        && left.buildArtifacts == right.buildArtifacts
-        && left.pluginLocations == right.pluginLocations
-        && left.simulatorSettings == right.simulatorSettings
-        && left.testDestination == right.testDestination
-        && left.testExecutionBehavior == right.testExecutionBehavior
-        && left.testTimeoutConfiguration == right.testTimeoutConfiguration
-        && left.testType == right.testType
-        && left.toolResources == right.toolResources
-        && left.toolchainConfiguration == right.toolchainConfiguration
+        return "<\((type(of: self))) \(bucketId) \(developerDir) \(testType) \(testDestination), \(toolResources), \(buildArtifacts), \(pluginLocations), \(testEntries.debugDescription)>"
     }
 }

@@ -177,7 +177,7 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
             .shuffled()
         let testEntryConfiguration2 = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
-            .with(toolchainConfiguration: ToolchainConfiguration(developerDir: .useXcode(CFBundleShortVersionString: "10.2.1")))
+            .with(developerDir: .useXcode(CFBundleShortVersionString: "10.2.1"))
             .testEntryConfigurations()
         
         let grouper = GroupedTestEntryConfigurations(testEntryConfigurations: testEntryConfiguration2 + testEntryConfigurations1)

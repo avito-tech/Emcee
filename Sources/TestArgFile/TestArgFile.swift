@@ -5,6 +5,7 @@ import Models
 public struct TestArgFile: Codable {
     public struct Entry: Codable, Equatable {
         public let buildArtifacts: BuildArtifacts
+        public let developerDir: DeveloperDir
         public let environment: [String: String]
         public let numberOfRetries: UInt
         public let pluginLocations: Set<PluginLocation>
@@ -15,10 +16,10 @@ public struct TestArgFile: Codable {
         public let testType: TestType
         public let testsToRun: [TestToRun]
         public let toolResources: ToolResources
-        public let toolchainConfiguration: ToolchainConfiguration
         
         public init(
             buildArtifacts: BuildArtifacts,
+            developerDir: DeveloperDir,
             environment: [String: String],
             numberOfRetries: UInt,
             pluginLocations: Set<PluginLocation>,
@@ -28,10 +29,10 @@ public struct TestArgFile: Codable {
             testTimeoutConfiguration: TestTimeoutConfiguration,
             testType: TestType,
             testsToRun: [TestToRun],
-            toolResources: ToolResources,
-            toolchainConfiguration: ToolchainConfiguration
+            toolResources: ToolResources
         ) {
             self.buildArtifacts = buildArtifacts
+            self.developerDir = developerDir
             self.environment = environment
             self.numberOfRetries = numberOfRetries
             self.pluginLocations = pluginLocations
@@ -42,7 +43,6 @@ public struct TestArgFile: Codable {
             self.testType = testType
             self.testsToRun = testsToRun
             self.toolResources = toolResources
-            self.toolchainConfiguration = toolchainConfiguration
         }
     }
     

@@ -2,6 +2,7 @@ import Foundation
 
 public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable {
     public let buildArtifacts: BuildArtifacts
+    public let developerDir: DeveloperDir
     public let pluginLocations: Set<PluginLocation>
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
@@ -10,10 +11,10 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testType: TestType
     public let toolResources: ToolResources
-    public let toolchainConfiguration: ToolchainConfiguration
 
     public init(
         buildArtifacts: BuildArtifacts,
+        developerDir: DeveloperDir,
         pluginLocations: Set<PluginLocation>,
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
@@ -21,10 +22,10 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
         testExecutionBehavior: TestExecutionBehavior,
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testType: TestType,
-        toolResources: ToolResources,
-        toolchainConfiguration: ToolchainConfiguration
+        toolResources: ToolResources
     ) {
         self.buildArtifacts = buildArtifacts
+        self.developerDir = developerDir
         self.pluginLocations = pluginLocations
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
@@ -33,10 +34,9 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testType = testType
         self.toolResources = toolResources
-        self.toolchainConfiguration = toolchainConfiguration
     }
     
     public var description: String {
-        return "<\(type(of: self)): \(testEntry) \(testType) \(testDestination) \(buildArtifacts) \(pluginLocations) \(simulatorSettings) \(testExecutionBehavior) \(testTimeoutConfiguration) \(toolResources) \(toolchainConfiguration)>"
+        return "<\(type(of: self)): \(testEntry) \(testType) \(testDestination) \(buildArtifacts) \(pluginLocations) \(simulatorSettings) \(testExecutionBehavior) \(testTimeoutConfiguration) \(toolResources) \(developerDir)>"
     }
 }

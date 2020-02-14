@@ -97,6 +97,7 @@ final class TestEntriesValidatorTests: XCTestCase {
     ) throws -> TestArgFile.Entry {
         return TestArgFile.Entry(
             buildArtifacts: buildArtifacts,
+            developerDir: .current,
             environment: [:],
             numberOfRetries: 1,
             pluginLocations: [],
@@ -106,8 +107,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
             testType: testType,
             testsToRun: [.testName(TestName(className: "MyTest", methodName: "test"))],
-            toolResources: ToolResourcesFixtures.fakeToolResources(),
-            toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
+            toolResources: ToolResourcesFixtures.fakeToolResources()
         )
     }
 }

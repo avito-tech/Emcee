@@ -9,16 +9,16 @@ public final class BucketFixtures {
     ) -> Bucket {
         return Bucket(
             bucketId: bucketId,
-            testEntries: testEntries,
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
+            developerDir: .current,
             pluginLocations: [],
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: TestDestinationFixtures.testDestination,
+            testEntries: testEntries,
             testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: numberOfRetries),
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
             testType: TestType.uiTest,
-            toolResources: ToolResourcesFixtures.fakeToolResources(),
-            toolchainConfiguration: ToolchainConfiguration(developerDir: .current)
+            toolResources: ToolResourcesFixtures.fakeToolResources()
         )
     }
 }
