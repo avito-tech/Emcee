@@ -5,6 +5,7 @@ import DistWorkerModels
 import EventBus
 import Foundation
 import Logging
+import LoggingSetup
 import Models
 import PathLib
 import PluginManager

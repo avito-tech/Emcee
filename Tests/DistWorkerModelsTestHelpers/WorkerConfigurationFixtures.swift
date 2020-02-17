@@ -1,5 +1,6 @@
 import DistWorkerModels
 import Foundation
+import LoggingSetup
 import Models
 
 public final class WorkerConfigurationFixtures {

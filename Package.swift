@@ -355,6 +355,7 @@ let package = Package(
             // MARK: DistWorkerModels
             name: "DistWorkerModels",
             dependencies: [
+                "LoggingSetup",
                 "Models",
             ]
         ),
@@ -363,11 +364,12 @@ let package = Package(
             name: "DistWorkerModelsTestHelpers",
             dependencies: [
                 "DistWorkerModels",
+                "LoggingSetup",
             ],
             path: "Tests/DistWorkerModelsTestHelpers"
         ),
         .testTarget(
-            // MARK: DistWorkerModelsTests,
+            // MARK: DistWorkerModelsTests
             name: "DistWorkerModelsTests",
             dependencies: [
                 "DistWorkerModels",
@@ -637,6 +639,7 @@ let package = Package(
                 "FileLock",
                 "LocalHostDeterminer",
                 "Logging",
+                "LoggingSetup",
                 "Models",
                 "PortDeterminer",
                 "QueueServer",

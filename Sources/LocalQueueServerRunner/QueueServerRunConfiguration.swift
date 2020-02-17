@@ -2,6 +2,7 @@ import AutomaticTermination
 import Deployer
 import DistWorkerModels
 import Foundation
+import LoggingSetup
 import Models
 
 public struct QueueServerRunConfiguration: Decodable {
