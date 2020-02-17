@@ -25,7 +25,8 @@ final class QueueServerTests: XCTestCase {
     private let automaticTerminationController = AutomaticTerminationControllerFactory(
         automaticTerminationPolicy: .stayAlive
     ).createAutomaticTerminationController()
-    private let localPortDeterminer = LocalPortDeterminer(portRange: Ports.allPrivatePorts)
+    /// https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?&page=1
+    private let localPortDeterminer = LocalPortDeterminer(portRange: 49152...65535)
     private let bucketSplitInfo = BucketSplitInfoFixtures.bucketSplitInfoFixture()
     private let queueVersionProvider = VersionProviderFixture().buildVersionProvider()
     private let payloadSignature = PayloadSignature(value: "expectedPayloadSignature")
