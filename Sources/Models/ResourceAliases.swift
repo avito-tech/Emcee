@@ -12,7 +12,6 @@ public typealias PluginLocation = TypedResourceLocation<PluginResourceLocationTy
 public typealias RunnerAppLocation = TypedResourceLocation<RunnerAppResourceLocationType>
 public typealias TestBundleLocation = TypedResourceLocation<TestBundleResourceLocationType>
 public typealias QueueServerRunConfigurationLocation = TypedResourceLocation<QueueServerRunConfigurationLocationType>
-public typealias AnalyticsConfigurationLocation = TypedResourceLocation<AnalyticsConfigurationLocationType>
 
 
 public final class AdditionalAppBundleResourceLocationType: ResourceLocationType {
@@ -45,8 +44,4 @@ public final class TestBundleResourceLocationType: ResourceLocationType {
 
 public final class QueueServerRunConfigurationLocationType: ResourceLocationType {
     public static let name = "queue server run configuration"
-}
-
-public final class AnalyticsConfigurationLocationType: ResourceLocationType {
-    public static let name = "analytics configuration"
 }
