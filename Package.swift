@@ -872,6 +872,7 @@ let package = Package(
                 "Models",
                 "RESTMethods",
                 "RequestSender",
+                "ScheduleStrategy",
                 "SynchronousWaiter",
                 "Version",
             ]
@@ -1123,6 +1124,7 @@ let package = Package(
                 "Models",
                 "QueueModels",
                 "RequestSender",
+                "ScheduleStrategy",
                 "Version",
             ]
         ),
@@ -1428,6 +1430,7 @@ let package = Package(
             dependencies: [
                 "Models",
                 "QueueModels",
+                "ScheduleStrategy",
                 "SimulatorPoolModels",
             ]
         ),

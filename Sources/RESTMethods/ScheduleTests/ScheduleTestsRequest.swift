@@ -1,6 +1,7 @@
 import Foundation
 import Models
 import QueueModels
+import ScheduleStrategy
 
 public final class ScheduleTestsRequest: Codable {
     public let requestId: RequestId

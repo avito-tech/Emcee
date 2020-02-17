@@ -5,6 +5,7 @@ import Models
 import QueueModels
 import RESTMethods
 import RequestSender
+import ScheduleStrategy
 import SynchronousWaiter
 import Version
 

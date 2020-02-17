@@ -6,6 +6,7 @@ import Models
 import QueueModels
 import RESTMethods
 import RequestSender
+import ScheduleStrategy
 import Version
 
 public final class QueueClient {
