@@ -1,4 +1,5 @@
 import Foundation
+import Models
 
 public enum RunnerEvent: Codable, Equatable, CustomStringConvertible {
     case willRun(testEntries: [TestEntry], testContext: TestContext)
