@@ -1,6 +1,7 @@
 import Foundation
+import Models
 
-public final class GroupedTestEntryConfigurations {
+final class GroupedTestEntryConfigurations {
     private let testEntryConfigurations: [TestEntryConfiguration]
     
     public init(testEntryConfigurations: [TestEntryConfiguration]) {

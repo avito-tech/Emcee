@@ -1,3 +1,4 @@
+@testable import ScheduleStrategy
 import Foundation
 import Models
 import ModelsTestHelpers
