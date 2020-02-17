@@ -1,7 +1,7 @@
 import Foundation
 
 /// A result of a single test run.
-public final class TestRunResult: Codable, CustomStringConvertible, Equatable {
+public struct TestRunResult: Codable, CustomStringConvertible, Equatable {
     public let succeeded: Bool
     public let exceptions: [TestException]
     public let duration: TimeInterval
@@ -38,14 +38,5 @@ public final class TestRunResult: Codable, CustomStringConvertible, Equatable {
             result += ["exceptions: \(exceptions)"]
         }
         return "<\(result.joined(separator: ", "))>"
-    }
-
-    public static func ==(left: TestRunResult, right: TestRunResult) -> Bool {
-        return left.succeeded == right.succeeded
-            && left.exceptions == right.exceptions
-            && left.duration == right.duration
-            && left.startTime == right.startTime
-            && left.hostName == right.hostName
-            && left.simulatorId == right.simulatorId
     }
 }

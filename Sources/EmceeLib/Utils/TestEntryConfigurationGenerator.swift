@@ -2,6 +2,7 @@ import Extensions
 import Foundation
 import Logging
 import Models
+import RuntimeDump
 import TestArgFile
 
 public final class TestEntryConfigurationGenerator {
