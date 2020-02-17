@@ -1,5 +1,5 @@
 import Foundation
-import Models
+import QueueModels
 import XCTest
 
 final class PriorityTests: XCTestCase {
@@ -8,11 +8,11 @@ final class PriorityTests: XCTestCase {
     }
     
     func test___comparing_priorities() {
-        XCTAssertLessThan(try! Priority(intValue: 1), try! Priority(intValue: 2))
+        XCTAssertLessThan(try Priority(intValue: 1), try Priority(intValue: 2))
     }
     
     func test___equality() {
-        XCTAssertEqual(try! Priority(intValue: 1), try! Priority(intValue: 1))
+        XCTAssertEqual(try Priority(intValue: 1), try Priority(intValue: 1))
     }
 }
 

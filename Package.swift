@@ -939,6 +939,13 @@ let package = Package(
                 "WorkerAlivenessProvider",
             ]
         ),
+        .testTarget(
+            // MARK: QueueModelsTests
+            name: "QueueModelsTests",
+            dependencies: [
+                "QueueModels",
+            ]
+        ),
         .target(
             // MARK: QueueServerTestHelpers
             name: "QueueServerTestHelpers",
@@ -1420,6 +1427,7 @@ let package = Package(
             name: "TestArgFile",
             dependencies: [
                 "Models",
+                "QueueModels",
                 "SimulatorPoolModels",
             ]
         ),

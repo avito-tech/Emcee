@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import QueueModels
 
 /// Represents --test-arg-file file contents which describes test plan.
 public struct TestArgFile: Codable {
