@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import RuntimeDump
 import TestArgFile
 
 public enum RuntimeDumpModeInputValidationError: Error, CustomStringConvertible {

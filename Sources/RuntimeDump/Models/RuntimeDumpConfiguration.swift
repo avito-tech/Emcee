@@ -1,4 +1,5 @@
 import Foundation
+import Models
 
 public struct RuntimeDumpConfiguration {
     public let developerDir: DeveloperDir

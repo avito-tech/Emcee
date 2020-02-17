@@ -443,6 +443,7 @@ let package = Package(
                 "ProcessControllerTestHelpers",
                 "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
+                "RuntimeDump",
                 "TemporaryStuff",
                 "TestArgFile",
                 "TestHelpers",

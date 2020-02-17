@@ -1,6 +1,7 @@
 import EmceeLib
 import Models
 import ModelsTestHelpers
+import RuntimeDump
 import TestArgFile
 import XCTest
 
