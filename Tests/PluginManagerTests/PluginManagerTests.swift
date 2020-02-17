@@ -3,6 +3,8 @@ import Models
 import ModelsTestHelpers
 import PathLib
 import PluginManager
+import PluginSupport
+import ResourceLocation
 import ResourceLocationResolverTestHelpers
 import TemporaryStuff
 import XCTest

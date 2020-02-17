@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import ResourceLocation
 
 public extension ResolvingResult {
     enum DirectlyAccessibleResourceError: Error, CustomStringConvertible {

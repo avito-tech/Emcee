@@ -1,4 +1,5 @@
 import AppleTools
+import BuildArtifacts
 import DateProvider
 import DateProviderTestHelpers
 import DeveloperDirLocator

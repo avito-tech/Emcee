@@ -1,7 +1,7 @@
 import EventBus
 import Foundation
-import Models
 import ResourceLocationResolver
+import PluginSupport
 
 public final class PluginEventBusProviderImpl: PluginEventBusProvider {
     private let resourceLocationResolver: ResourceLocationResolver

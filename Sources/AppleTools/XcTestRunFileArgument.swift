@@ -1,9 +1,11 @@
+import BuildArtifacts
 import DeveloperDirLocator
 import Foundation
 import Logging
 import Models
 import PathLib
 import ProcessController
+import ResourceLocation
 import ResourceLocationResolver
 import Runner
 import TemporaryStuff

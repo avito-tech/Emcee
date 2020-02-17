@@ -4,6 +4,7 @@ import DateProviderTestHelpers
 import Foundation
 import Models
 import ModelsTestHelpers
+import QueueModelsTestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessProvider

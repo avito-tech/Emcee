@@ -1,6 +1,7 @@
 import BucketQueue
 import Foundation
 import ModelsTestHelpers
+import QueueModelsTestHelpers
 import XCTest
 
 final class EnqueuedBucketTests: XCTestCase {

@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import QueueModels
 import UniqueIdentifierGenerator
 
 public final class UnsplitBucketSplitter: BucketSplitter {
@@ -13,8 +14,7 @@ public final class UnsplitBucketSplitter: BucketSplitter {
     public override func split(
         inputs: [TestEntryConfiguration],
         bucketSplitInfo: BucketSplitInfo
-        ) -> [[TestEntryConfiguration]]
-    {
+    ) -> [[TestEntryConfiguration]] {
         return [inputs]
     }
 }

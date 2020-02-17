@@ -1,4 +1,5 @@
 import Models
+import QueueModels
 
 public final class TestHistoryTrackerAcceptResult {
     public let bucketsToReenqueue: [Bucket]
@@ -6,8 +7,8 @@ public final class TestHistoryTrackerAcceptResult {
     
     public init(
         bucketsToReenqueue: [Bucket],
-        testingResult: TestingResult)
-    {
+        testingResult: TestingResult
+    ) {
         self.bucketsToReenqueue = bucketsToReenqueue
         self.testingResult = testingResult
     }

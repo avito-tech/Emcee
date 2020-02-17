@@ -1,3 +1,4 @@
+import BuildArtifactsTestHelpers
 import DeveloperDirLocatorTestHelpers
 import Models
 import ModelsTestHelpers

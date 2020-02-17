@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import ResourceLocation
 
 class ResolvableResourceLocationImpl: ResolvableResourceLocation {
     let resourceLocation: ResourceLocation

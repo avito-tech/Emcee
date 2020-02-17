@@ -3,6 +3,7 @@ import BucketQueueTestHelpers
 import Foundation
 import Models
 import ModelsTestHelpers
+import QueueModelsTestHelpers
 import QueueServer
 import RESTMethods
 import WorkerAlivenessProvider

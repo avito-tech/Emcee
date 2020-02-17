@@ -1,6 +1,8 @@
 import Models
 import BucketQueue
 import ModelsTestHelpers
+import QueueModels
+import QueueModelsTestHelpers
 
 public final class TestEntryHistoryFixtures {
     public let testEntry: TestEntry

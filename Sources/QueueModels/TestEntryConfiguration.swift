@@ -1,4 +1,7 @@
+import BuildArtifacts
 import Foundation
+import Models
+import PluginSupport
 
 public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable {
     public let buildArtifacts: BuildArtifacts

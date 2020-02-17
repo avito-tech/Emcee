@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import ResourceLocation
 import ResourceLocationResolver
 
 public final class FakeResourceLocationResolver: ResourceLocationResolver {

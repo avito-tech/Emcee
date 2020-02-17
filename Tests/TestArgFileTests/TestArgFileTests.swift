@@ -1,6 +1,9 @@
 import Foundation
+import BuildArtifacts
+import BuildArtifactsTestHelpers
 import Models
 import ModelsTestHelpers
+import PluginSupport
 import TestArgFile
 import TestHelpers
 import XCTest

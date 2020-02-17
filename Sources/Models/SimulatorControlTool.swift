@@ -1,4 +1,5 @@
 import Foundation
+import ResourceLocation
 
 public enum SimulatorControlTool: Codable, CustomStringConvertible, Hashable {
     /// Use provided fbsimctl binary

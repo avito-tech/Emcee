@@ -1,3 +1,4 @@
+import BuildArtifacts
 import DateProvider
 import DeveloperDirLocator
 import Foundation

@@ -1,4 +1,5 @@
 import Models
+import QueueModels
 import UniqueIdentifierGenerator
 
 public final class TestHistoryTrackerImpl: TestHistoryTracker {

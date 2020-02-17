@@ -1,6 +1,6 @@
 import EventBus
 import Foundation
-import Models
+import PluginSupport
 
 public protocol PluginEventBusProvider {
     func createEventBus(

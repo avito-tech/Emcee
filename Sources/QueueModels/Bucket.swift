@@ -1,5 +1,8 @@
+import BuildArtifacts
 import Extensions
 import Foundation
+import Models
+import PluginSupport
 
 public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStringConvertible {
     public let bucketId: BucketId

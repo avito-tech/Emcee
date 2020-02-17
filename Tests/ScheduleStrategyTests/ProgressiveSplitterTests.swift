@@ -1,6 +1,8 @@
 @testable import ScheduleStrategy
 import Models
 import ModelsTestHelpers
+import QueueModels
+import QueueModelsTestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest

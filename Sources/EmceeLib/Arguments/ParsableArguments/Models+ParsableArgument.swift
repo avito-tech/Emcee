@@ -2,9 +2,11 @@ import ArgLib
 import Foundation
 import Models
 import QueueModels
+import ResourceLocation
+import TypedResourceLocation
 
 extension TypedResourceLocation: ParsableArgument {
-    public convenience init(argumentValue: String) throws {
+    public init(argumentValue: String) throws {
         let resourceLocation = try ResourceLocation.from(argumentValue)
         self.init(resourceLocation)
     }

@@ -1,7 +1,12 @@
 @testable import ScheduleStrategy
+import BuildArtifacts
+import BuildArtifactsTestHelpers
 import Foundation
 import Models
 import ModelsTestHelpers
+import PluginSupport
+import QueueModels
+import QueueModelsTestHelpers
 import XCTest
 
 final class GroupedTestEntryConfigurationsTests: XCTestCase {

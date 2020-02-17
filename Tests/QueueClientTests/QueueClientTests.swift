@@ -1,3 +1,4 @@
+import BuildArtifactsTestHelpers
 import Models
 import ModelsTestHelpers
 import QueueClient

@@ -1,5 +1,7 @@
+import BuildArtifacts
 import Foundation
 import Models
+import PluginSupport
 
 public struct RuntimeDumpConfiguration {
     public let developerDir: DeveloperDir

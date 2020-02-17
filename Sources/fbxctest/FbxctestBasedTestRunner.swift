@@ -1,3 +1,4 @@
+import BuildArtifacts
 import DeveloperDirLocator
 import Foundation
 import Logging

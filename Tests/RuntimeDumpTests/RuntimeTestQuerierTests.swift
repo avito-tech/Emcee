@@ -1,9 +1,11 @@
 @testable import RuntimeDump
+import BuildArtifacts
 import DeveloperDirLocatorTestHelpers
 import Foundation
 import Models
 import ModelsTestHelpers
 import PluginManagerTestHelpers
+import ResourceLocation
 import ResourceLocationResolver
 import ResourceLocationResolverTestHelpers
 import RunnerTestHelpers

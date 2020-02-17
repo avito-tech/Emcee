@@ -1,5 +1,8 @@
+import BuildArtifacts
 import Foundation
 import Models
+import PluginSupport
+import QueueModels
 
 public struct SchedulerBucket: CustomStringConvertible, Equatable {
     public let bucketId: BucketId

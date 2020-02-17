@@ -1,4 +1,4 @@
-import Models
+import BuildArtifacts
 
 class NoOpRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
     func results(xcTestBundleLocation: TestBundleLocation) -> TestsInRuntimeDump? {

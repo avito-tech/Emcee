@@ -6,6 +6,7 @@ import Foundation
 import Logging
 import Models
 import ProcessController
+import ResourceLocation
 import SynchronousWaiter
 import URLResource
 

@@ -1,6 +1,7 @@
 import Foundation
 import Logging
 import Models
+import QueueModels
 
 public final class EnqueuedBucket: Hashable, Comparable, CustomStringConvertible {
     public let bucket: Bucket

@@ -2,6 +2,7 @@ import EventBus
 import Foundation
 import Models
 import PluginManager
+import PluginSupport
 
 public final class NoOoPluginEventBusProvider: PluginEventBusProvider {
     public init() {}

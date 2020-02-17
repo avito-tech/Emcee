@@ -1,5 +1,7 @@
+import BuildArtifacts
 import Foundation
 import Models
+import PluginSupport
 import QueueModels
 import ScheduleStrategy
 

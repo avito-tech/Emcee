@@ -1,7 +1,9 @@
+import BuildArtifacts
 import Foundation
 import Models
+import QueueModels
 
-public final class TestEntryHistoryId: Hashable {
+public struct TestEntryHistoryId: Hashable {
     public let testEntry: TestEntry
     public let testDestination: TestDestination
     public let toolResources: ToolResources
@@ -22,7 +24,7 @@ public final class TestEntryHistoryId: Hashable {
         self.bucketId = bucketId
     }
     
-    public convenience init(testEntry: TestEntry, bucket: Bucket) {
+    public init(testEntry: TestEntry, bucket: Bucket) {
         self.init(
             testEntry: testEntry,
             testDestination: bucket.testDestination,
@@ -30,21 +32,5 @@ public final class TestEntryHistoryId: Hashable {
             buildArtifacts: bucket.buildArtifacts,
             bucketId: bucket.bucketId
         )
-    }
-    
-    public static func ==(left: TestEntryHistoryId, right: TestEntryHistoryId) -> Bool {
-        return left.testEntry == right.testEntry
-            && left.testDestination == right.testDestination
-            && left.toolResources == right.toolResources
-            && left.buildArtifacts == right.buildArtifacts
-            && left.bucketId == right.bucketId
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(testEntry)
-        hasher.combine(testDestination)
-        hasher.combine(toolResources)
-        hasher.combine(buildArtifacts)
-        hasher.combine(bucketId)
     }
 }

@@ -2,6 +2,7 @@ import Foundation
 import Models
 import ModelsTestHelpers
 import ScheduleStrategy
+import QueueModelsTestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest

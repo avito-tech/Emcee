@@ -1,5 +1,5 @@
 import Foundation
-import Models
+import ResourceLocation
 import TemporaryStuff
 import XCTest
 

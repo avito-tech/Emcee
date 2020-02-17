@@ -3,6 +3,7 @@ import Foundation
 import Logging
 import Models
 import PathLib
+import ResourceLocation
 import ResourceLocationResolver
 import Swifter
 import SynchronousWaiter

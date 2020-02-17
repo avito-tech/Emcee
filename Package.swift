@@ -29,12 +29,15 @@ let package = Package(
             // MARK: EmceeInterfaces
             name: "EmceeInterfaces",
             targets: [
+                "BuildArtifacts",
                 "Models",
                 "PluginSupport",
                 "QueueModels",
+                "ResourceLocation",
                 "RuntimeDump",
                 "SimulatorPoolModels",
                 "TestArgFile",
+                "TypedResourceLocation",
             ]
         ),
         .executable(
@@ -65,11 +68,13 @@ let package = Package(
             // MARK: AppleTools
             name: "AppleTools",
             dependencies: [
+                "BuildArtifacts",
                 "DateProvider",
                 "DeveloperDirLocator",
                 "Logging",
                 "Models",
                 "ProcessController",
+                "ResourceLocation",
                 "ResourceLocationResolver",
                 "Runner",
                 "SimulatorPool",
@@ -83,6 +88,7 @@ let package = Package(
             name: "AppleToolsTests",
             dependencies: [
                 "AppleTools",
+                "BuildArtifactsTestHelpers",
                 "DateProvider",
                 "DateProviderTestHelpers",
                 "DeveloperDirLocatorTestHelpers",
@@ -91,6 +97,7 @@ let package = Package(
                 "PathLib",
                 "ProcessController",
                 "ProcessControllerTestHelpers",
+                "QueueModelsTestHelpers",
                 "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
                 "RunnerTestHelpers",
@@ -158,6 +165,7 @@ let package = Package(
                 "BalancingBucketQueue",
                 "BucketQueueTestHelpers",
                 "QueueModels",
+                "QueueModelsTestHelpers",
                 "ResultsCollector",
                 "UniqueIdentifierGenerator",
                 "WorkerAlivenessProvider",
@@ -168,6 +176,7 @@ let package = Package(
             // MARK: BucketQueue
             name: "BucketQueue",
             dependencies: [
+                "BuildArtifacts",
                 "DateProvider",
                 "Logging",
                 "Models",
@@ -185,6 +194,7 @@ let package = Package(
                 "Models",
                 "ModelsTestHelpers",
                 "QueueModels",
+                "QueueModelsTestHelpers",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessProvider",
@@ -201,10 +211,29 @@ let package = Package(
                 "DistWorkerModels",
                 "ModelsTestHelpers",
                 "QueueModels",
+                "QueueModelsTestHelpers",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessProviderTestHelpers",
             ]
+        ),
+        .target(
+            // MARK: BuildArtifacts
+            name: "BuildArtifacts",
+            dependencies: [
+                "Models",
+                "TypedResourceLocation",
+            ]
+        ),
+        .target(
+            // MARK: BuildArtifactsTestHelpers
+            name: "BuildArtifactsTestHelpers",
+            dependencies: [
+                "BuildArtifacts",
+                "Models",
+                "ModelsTestHelpers",
+            ],
+            path: "Tests/BuildArtifactsTestHelpers"
         ),
         .target(
             // MARK: ChromeTracing
@@ -380,6 +409,7 @@ let package = Package(
             // MARK: DistWorkerTests
             name: "DistWorkerTests",
             dependencies: [
+                "BuildArtifactsTestHelpers",
                 "DistWorker",
                 "ModelsTestHelpers",
                 "Scheduler"
@@ -398,6 +428,7 @@ let package = Package(
             dependencies: [
                 "AppleTools",
                 "ArgLib",
+                "BuildArtifacts",
                 "ChromeTracing",
                 "Deployer",
                 "DeveloperDirLocator",
@@ -419,6 +450,7 @@ let package = Package(
                 "QueueServer",
                 "RemoteQueue",
                 "RequestSender",
+                "ResourceLocation",
                 "ResourceLocationResolver",
                 "Runner",
                 "SSHDeployer",
@@ -427,6 +459,7 @@ let package = Package(
                 "SignalHandling",
                 "TemporaryStuff",
                 "TestArgFile",
+                "TypedResourceLocation",
                 "URLResource",
                 "UniqueIdentifierGenerator",
                 "Version",
@@ -437,10 +470,13 @@ let package = Package(
             // MARK: EmceeLibTests
             name: "EmceeLibTests",
             dependencies: [
+                "BuildArtifacts",
+                "BuildArtifactsTestHelpers",
                 "EmceeLib",
                 "Models",
                 "ModelsTestHelpers",
                 "ProcessControllerTestHelpers",
+                "QueueModelsTestHelpers",
                 "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
                 "RuntimeDump",
@@ -486,6 +522,7 @@ let package = Package(
             name: "fbxctest",
             dependencies: [
                 "Ansi",
+                "BuildArtifacts",
                 "DeveloperDirLocator",
                 "JSONStream",
                 "LocalHostDeterminer",
@@ -505,6 +542,8 @@ let package = Package(
             // MARK: fbxctestTests
             name: "fbxctestTests",
             dependencies: [
+                "BuildArtifacts",
+                "BuildArtifactsTestHelpers",
                 "DeveloperDirLocator",
                 "DeveloperDirLocatorTestHelpers",
                 "JSONStream",
@@ -719,7 +758,9 @@ let package = Package(
             // MARK: Models
             name: "Models",
             dependencies: [
-                "Extensions"
+                "Extensions",
+                "ResourceLocation",
+                "TypedResourceLocation",
             ]
         ),
         .target(
@@ -794,6 +835,7 @@ let package = Package(
                 "EventBus",
                 "Models",
                 "PluginManager",
+                "PluginSupport",
             ],
             path: "Tests/PluginManagerTestHelpers"
         ),
@@ -806,6 +848,7 @@ let package = Package(
                 "ModelsTestHelpers",
                 "PluginManager",
                 "PluginSupport",
+                "ResourceLocation",
                 "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
                 "TemporaryStuff",
@@ -816,6 +859,7 @@ let package = Package(
             name: "PluginSupport",
             dependencies: [
                 "Models",
+                "TypedResourceLocation",
             ]
         ),
         .target(
@@ -881,6 +925,7 @@ let package = Package(
             // MARK: QueueClientTests
             name: "QueueClientTests",
             dependencies: [
+                "BuildArtifactsTestHelpers",
                 "DistWorkerModels",
                 "DistWorkerModelsTestHelpers",
                 "Models",
@@ -899,13 +944,20 @@ let package = Package(
             // MARK: QueueModels
             name: "QueueModels",
             dependencies: [
+                "BuildArtifacts",
+                "Extensions",
                 "Models",
+                "PluginSupport",
             ]
         ),
         .target(
-            // MARK: QueueModelsTestHelpers
+            // MARK: QueueModelsTesteHlpers
             name: "QueueModelsTestHelpers",
             dependencies: [
+                "BuildArtifacts",
+                "BuildArtifactsTestHelpers",
+                "Models",
+                "ModelsTestHelpers",
                 "QueueModels",
             ],
             path: "Tests/QueueModelsTestHelpers"
@@ -1083,6 +1135,12 @@ let package = Package(
             ]
         ),
         .target(
+            // MARK: ResourceLocation
+            name: "ResourceLocation",
+            dependencies: [
+            ]
+        ),
+        .target(
             // MARK: ResourceLocationResolver
             name: "ResourceLocationResolver",
             dependencies: [
@@ -1091,7 +1149,9 @@ let package = Package(
                 "FileCache",
                 "Models",
                 "ProcessController",
+                "ResourceLocation",
                 "SynchronousWaiter",
+                "TypedResourceLocation",
                 "URLResource",
             ]
         ),
@@ -1100,6 +1160,7 @@ let package = Package(
             name: "ResourceLocationResolverTestHelpers",
             dependencies: [
                 "Models",
+                "ResourceLocation",
                 "ResourceLocationResolver",
             ],
             path: "Tests/ResourceLocationResolverTestHelpers"
@@ -1110,10 +1171,19 @@ let package = Package(
             dependencies: [
                 "FileCache",
                 "PathLib",
+                "ResourceLocation",
                 "ResourceLocationResolver",
                 "Swifter",
                 "TemporaryStuff",
-                "URLResource"
+                "URLResource",
+            ]
+        ),
+        .testTarget(
+            // MARK: ResourceLocationTests
+            name: "ResourceLocationTests",
+            dependencies: [
+                "ResourceLocation",
+                "TemporaryStuff",
             ]
         ),
         .target(
@@ -1159,6 +1229,7 @@ let package = Package(
             // MARK: Runner
             name: "Runner",
             dependencies: [
+                "BuildArtifacts",
                 "DeveloperDirLocator",
                 "EventBus",
                 "LocalHostDeterminer",
@@ -1166,6 +1237,7 @@ let package = Package(
                 "Models",
                 "PathLib",
                 "PluginManager",
+                "PluginSupport",
                 "SimulatorPoolModels",
                 "TemporaryStuff",
                 "TestsWorkingDirectorySupport",
@@ -1175,6 +1247,7 @@ let package = Package(
             // MARK: RunnerTestHelpers
             name: "RunnerTestHelpers",
             dependencies: [
+                "BuildArtifacts",
                 "Models",
                 "Runner",
                 "ProcessController",
@@ -1187,6 +1260,8 @@ let package = Package(
             // MARK: RunnerTests
             name: "RunnerTests",
             dependencies: [
+                "BuildArtifacts",
+                "BuildArtifactsTestHelpers",
                 "DeveloperDirLocatorTestHelpers",
                 "Extensions",
                 "Metrics",
@@ -1207,28 +1282,32 @@ let package = Package(
             // MARK: RuntimeDump
             name: "RuntimeDump",
             dependencies: [
+                "BuildArtifacts",
                 "DeveloperDirLocator",
                 "Extensions",
                 "Metrics",
                 "Models",
                 "PathLib",
                 "PluginManager",
+                "PluginSupport",
                 "RequestSender",
                 "Runner",
                 "SimulatorPool",
                 "SynchronousWaiter",
                 "TemporaryStuff",
-                "UniqueIdentifierGenerator"
+                "UniqueIdentifierGenerator",
             ]
         ),
         .testTarget(
             // MARK: RuntimeDumpTests
             name: "RuntimeDumpTests",
             dependencies: [
+                "BuildArtifacts",
                 "DeveloperDirLocatorTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
                 "PathLib",
+                "ResourceLocation",
                 "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
                 "RunnerTestHelpers",
@@ -1253,17 +1332,20 @@ let package = Package(
             ]
         ),
         .target(
-            // MARK: Scheduler
+            // Scheduler
             name: "Scheduler",
             dependencies: [
+                "BuildArtifacts",
                 "DeveloperDirLocator",
                 "ListeningSemaphore",
                 "LocalHostDeterminer",
                 "Logging",
                 "Models",
+                "PluginSupport",
                 "Runner",
                 "RuntimeDump",
                 "ScheduleStrategy",
+                "QueueModels",
                 "SimulatorPool",
                 "SynchronousWaiter",
                 "TemporaryStuff",
@@ -1274,10 +1356,12 @@ let package = Package(
             // MARK: ScheduleStrategy
             name: "ScheduleStrategy",
             dependencies: [
+                "BuildArtifacts",
                 "Extensions",
                 "Logging",
                 "Models",
-                "UniqueIdentifierGenerator"
+                "QueueModels",
+                "UniqueIdentifierGenerator",
             ]
         ),
         .testTarget(
@@ -1286,6 +1370,9 @@ let package = Package(
             dependencies: [
                 "Models",
                 "ModelsTestHelpers",
+                "PluginSupport",
+                "QueueModels",
+                "QueueModelsTestHelpers",
                 "ScheduleStrategy",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
@@ -1428,6 +1515,7 @@ let package = Package(
             // MARK: TestArgFile
             name: "TestArgFile",
             dependencies: [
+                "BuildArtifacts",
                 "Models",
                 "QueueModels",
                 "ScheduleStrategy",
@@ -1438,8 +1526,11 @@ let package = Package(
             // MARK: TestArgFileTests
             name: "TestArgFileTests",
             dependencies: [
+                "BuildArtifacts",
+                "BuildArtifactsTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
+                "PluginSupport",
                 "TestArgFile",
                 "TestHelpers",
             ]
@@ -1474,6 +1565,13 @@ let package = Package(
             // MARK: Timer
             name: "Timer",
             dependencies: [
+            ]
+        ),
+        .target(
+            // MARK: TypedResourceLocation
+            name: "TypedResourceLocation",
+            dependencies: [
+                "ResourceLocation",
             ]
         ),
         .target(

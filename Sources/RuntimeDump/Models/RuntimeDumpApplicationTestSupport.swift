@@ -1,3 +1,4 @@
+import BuildArtifacts
 import Models
 
 public struct RuntimeDumpApplicationTestSupport: Hashable {

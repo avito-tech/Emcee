@@ -1,6 +1,7 @@
 import Foundation
 import Logging
 import Models
+import QueueModels
 
 public struct StuckBucket: Equatable {
     public enum Reason: Equatable, CustomStringConvertible {

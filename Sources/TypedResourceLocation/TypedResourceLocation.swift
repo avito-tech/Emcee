@@ -1,11 +1,11 @@
-import Foundation
+import ResourceLocation
 
 public protocol ResourceLocationType {
     static var name: String { get }
 }
 
 /// This is just a wrapper around ResourceLocation, but it provides a type safety for it
-public final class TypedResourceLocation<T: ResourceLocationType>: Codable, Hashable, CustomStringConvertible, RepresentableByResourceLocation {
+public struct TypedResourceLocation<T: ResourceLocationType>: Codable, Hashable, CustomStringConvertible, RepresentableByResourceLocation {
     public let resourceLocation: ResourceLocation
     
     public init(_ resourceLocation: ResourceLocation) {
@@ -32,13 +32,5 @@ public final class TypedResourceLocation<T: ResourceLocationType>: Codable, Hash
     
     public var description: String {
         return "<\(T.name): \(resourceLocation)>"
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(resourceLocation)
-    }
-    
-    public static func == (left: TypedResourceLocation<T>, right: TypedResourceLocation<T>) -> Bool {
-        return left.resourceLocation == right.resourceLocation
     }
 }

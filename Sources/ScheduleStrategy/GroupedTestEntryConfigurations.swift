@@ -1,5 +1,8 @@
+import BuildArtifacts
 import Foundation
 import Models
+import PluginSupport
+import QueueModels
 
 final class GroupedTestEntryConfigurations {
     private let testEntryConfigurations: [TestEntryConfiguration]

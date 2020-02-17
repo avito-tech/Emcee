@@ -1,3 +1,4 @@
+import BuildArtifactsTestHelpers
 import DistWorker
 import Models
 import ModelsTestHelpers

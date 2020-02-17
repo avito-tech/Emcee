@@ -8,6 +8,7 @@ import ModelsTestHelpers
 import PortDeterminer
 import QueueClient
 import QueueModels
+import QueueModelsTestHelpers
 import QueueServer
 import RequestSender
 import ScheduleStrategy

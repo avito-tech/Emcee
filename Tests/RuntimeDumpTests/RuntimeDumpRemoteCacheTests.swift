@@ -1,9 +1,11 @@
 @testable import RuntimeDump
+import BuildArtifacts
 import Models
+import PathLib
 import RequestSender
 import RequestSenderTestHelpers
+import ResourceLocation
 import XCTest
-import PathLib
 
 class RuntimeDumpRemoteCacheTests: XCTestCase {
     private let requestSender = FakeRequestSender(result: nil, requestSenderError: nil)

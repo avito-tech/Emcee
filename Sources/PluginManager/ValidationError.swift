@@ -1,5 +1,5 @@
 import Foundation
-import Models
+import PluginSupport
 
 public enum ValidationError: Error, CustomStringConvertible {
     case unexpectedExtension(PluginLocation, actual: String, expected: String)

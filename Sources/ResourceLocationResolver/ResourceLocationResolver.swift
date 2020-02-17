@@ -1,5 +1,7 @@
 import Foundation
 import Models
+import ResourceLocation
+import TypedResourceLocation
 
 public protocol ResourceLocationResolver {
     func resolvePath(resourceLocation: ResourceLocation) throws -> ResolvingResult

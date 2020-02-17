@@ -1,3 +1,5 @@
+import BuildArtifacts
+import BuildArtifactsTestHelpers
 import DeveloperDirLocatorTestHelpers
 import EventBus
 import Extensions

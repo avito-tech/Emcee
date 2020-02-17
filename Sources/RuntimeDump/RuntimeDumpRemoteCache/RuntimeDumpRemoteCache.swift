@@ -1,4 +1,4 @@
-import Models
+import BuildArtifacts
 
 public protocol RuntimeDumpRemoteCache {
     func results(xcTestBundleLocation: TestBundleLocation) throws -> TestsInRuntimeDump?

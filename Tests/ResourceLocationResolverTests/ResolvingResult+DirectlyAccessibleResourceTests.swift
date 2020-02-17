@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import ResourceLocation
 import ResourceLocationResolver
 import XCTest
 
