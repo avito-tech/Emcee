@@ -6,6 +6,8 @@ import QueueModels
 import QueueModelsTestHelpers
 import RESTMethods
 import RequestSender
+import RunnerTestHelpers
+import SimulatorPoolTestHelpers
 import Swifter
 import SynchronousWaiter
 import XCTest

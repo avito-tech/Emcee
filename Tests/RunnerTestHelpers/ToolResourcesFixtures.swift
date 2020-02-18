@@ -1,5 +1,7 @@
 import Foundation
 import Models
+import RunnerModels
+import SimulatorPoolTestHelpers
 
 public final class ToolResourcesFixtures {
     public static func fakeToolResources() -> ToolResources {

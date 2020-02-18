@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import SimulatorPoolModels
 
 public enum RuntimeDumpMode: Hashable {
     case logicTest(SimulatorControlTool)

@@ -4,6 +4,8 @@ import Foundation
 import ModelsTestHelpers
 import ProcessControllerTestHelpers
 import ResourceLocationResolverTestHelpers
+import RunnerTestHelpers
+import SimulatorPoolTestHelpers
 import TemporaryStuff
 import XCTest
 import fbxctest

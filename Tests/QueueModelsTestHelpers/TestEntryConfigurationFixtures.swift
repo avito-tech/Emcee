@@ -5,6 +5,10 @@ import Models
 import ModelsTestHelpers
 import PluginSupport
 import QueueModels
+import RunnerModels
+import RunnerTestHelpers
+import SimulatorPoolModels
+import SimulatorPoolTestHelpers
 
 public final class TestEntryConfigurationFixtures {
     public var buildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()

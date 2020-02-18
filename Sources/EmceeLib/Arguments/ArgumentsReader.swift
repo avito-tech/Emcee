@@ -1,4 +1,5 @@
 import Deployer
+import DistDeployer
 import Foundation
 import LocalQueueServerRunner
 import Models

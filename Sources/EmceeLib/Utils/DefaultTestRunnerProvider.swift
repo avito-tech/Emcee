@@ -5,6 +5,7 @@ import Models
 import ProcessController
 import ResourceLocationResolver
 import Runner
+import RunnerModels
 import fbxctest
 
 public final class DefaultTestRunnerProvider: TestRunnerProvider {

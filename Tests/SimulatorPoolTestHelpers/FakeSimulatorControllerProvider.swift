@@ -1,6 +1,8 @@
 import Foundation
 import Models
+import RunnerModels
 import SimulatorPool
+import SimulatorPoolModels
 
 public final class FakeSimulatorControllerProvider: SimulatorControllerProvider {
     public var result: (TestDestination) -> SimulatorController

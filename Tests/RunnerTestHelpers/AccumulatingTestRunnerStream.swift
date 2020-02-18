@@ -1,6 +1,7 @@
 import Foundation
 import Models
 import Runner
+import RunnerModels
 
 public final class AccumulatingTestRunnerStream: TestRunnerStream {
     public var accumulatedData = [Either<TestName, TestStoppedEvent>]()

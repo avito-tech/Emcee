@@ -1,9 +1,8 @@
 import BuildArtifacts
-import EventBus
 import Foundation
 import Models
 import PluginSupport
-import ResourceLocationResolver
+import SimulatorPoolModels
 
 public struct RunnerConfiguration {
     public let buildArtifacts: BuildArtifacts

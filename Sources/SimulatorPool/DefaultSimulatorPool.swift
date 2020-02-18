@@ -4,6 +4,8 @@ import Foundation
 import Logging
 import Models
 import ResourceLocationResolver
+import RunnerModels
+import SimulatorPoolModels
 import TemporaryStuff
 
 public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible {

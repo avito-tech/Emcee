@@ -4,6 +4,8 @@ import Models
 import ModelsTestHelpers
 import ResourceLocationResolverTestHelpers
 import Runner
+import RunnerModels
+import RunnerTestHelpers
 import SimulatorPoolTestHelpers
 import TemporaryStuff
 import XCTest

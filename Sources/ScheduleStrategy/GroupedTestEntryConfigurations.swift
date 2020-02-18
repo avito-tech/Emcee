@@ -3,6 +3,7 @@ import Foundation
 import Models
 import PluginSupport
 import QueueModels
+import SimulatorPoolModels
 
 final class GroupedTestEntryConfigurations {
     private let testEntryConfigurations: [TestEntryConfiguration]

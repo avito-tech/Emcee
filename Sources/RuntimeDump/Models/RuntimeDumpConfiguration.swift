@@ -2,6 +2,8 @@ import BuildArtifacts
 import Foundation
 import Models
 import PluginSupport
+import RunnerModels
+import SimulatorPoolModels
 
 public struct RuntimeDumpConfiguration {
     public let developerDir: DeveloperDir

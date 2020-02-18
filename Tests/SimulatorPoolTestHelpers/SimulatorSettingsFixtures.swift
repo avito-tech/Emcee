@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import SimulatorPoolModels
 
 public final class SimulatorSettingsFixtures {
     var simulatorLocalizationSettings: SimulatorLocalizationSettings = SimulatorLocalizationSettingsFixture().simulatorLocalizationSettings()

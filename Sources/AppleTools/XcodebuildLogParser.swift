@@ -2,6 +2,7 @@ import DateProvider
 import Foundation
 import Models
 import Runner
+import RunnerModels
 
 public final class XcodebuildLogParser {
     private let dateProvider: DateProvider

@@ -5,6 +5,7 @@ import Logging
 import Models
 import ProcessController
 import Runner
+import RunnerModels
 import Timer
 
 public final class FbxctestOutputProcessor {

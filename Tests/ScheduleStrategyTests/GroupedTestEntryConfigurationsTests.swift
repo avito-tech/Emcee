@@ -7,6 +7,8 @@ import ModelsTestHelpers
 import PluginSupport
 import QueueModels
 import QueueModelsTestHelpers
+import SimulatorPoolModels
+import SimulatorPoolTestHelpers
 import XCTest
 
 final class GroupedTestEntryConfigurationsTests: XCTestCase {

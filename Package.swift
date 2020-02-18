@@ -34,6 +34,7 @@ let package = Package(
                 "PluginSupport",
                 "QueueModels",
                 "ResourceLocation",
+                "RunnerModels",
                 "RuntimeDump",
                 "SimulatorPoolModels",
                 "TestArgFile",
@@ -77,6 +78,7 @@ let package = Package(
                 "ResourceLocation",
                 "ResourceLocationResolver",
                 "Runner",
+                "RunnerModels",
                 "SimulatorPool",
                 "SimulatorPoolModels",
                 "TemporaryStuff",
@@ -102,6 +104,7 @@ let package = Package(
                 "ResourceLocationResolverTestHelpers",
                 "RunnerTestHelpers",
                 "SimulatorPoolModels",
+                "SimulatorPoolTestHelpers",
                 "TemporaryStuff",
             ]
         ),
@@ -181,6 +184,7 @@ let package = Package(
                 "Logging",
                 "Models",
                 "QueueModels",
+                "RunnerModels",
                 "UniqueIdentifierGenerator",
                 "WorkerAlivenessProvider",
             ]
@@ -340,7 +344,8 @@ let package = Package(
                 "PathLib",
                 "SSHDeployer",
                 "TemporaryStuff",
-                "Version"
+                "TypedResourceLocation",
+                "Version",
             ]
         ),
         .testTarget(
@@ -412,7 +417,9 @@ let package = Package(
                 "BuildArtifactsTestHelpers",
                 "DistWorker",
                 "ModelsTestHelpers",
-                "Scheduler"
+                "RunnerTestHelpers",
+                "Scheduler",
+                "SimulatorPoolTestHelpers",
             ]
         ),
         .target(
@@ -453,9 +460,11 @@ let package = Package(
                 "ResourceLocation",
                 "ResourceLocationResolver",
                 "Runner",
+                "RunnerModels",
                 "SSHDeployer",
                 "ScheduleStrategy",
                 "Scheduler",
+                "SimulatorPoolModels",
                 "SignalHandling",
                 "TemporaryStuff",
                 "TestArgFile",
@@ -479,7 +488,10 @@ let package = Package(
                 "QueueModelsTestHelpers",
                 "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
+                "RunnerModels",
+                "RunnerTestHelpers",
                 "RuntimeDump",
+                "SimulatorPoolTestHelpers",
                 "TemporaryStuff",
                 "TestArgFile",
                 "TestHelpers",
@@ -531,11 +543,13 @@ let package = Package(
                 "Models",
                 "ProcessController",
                 "Runner",
+                "RunnerModels",
                 "SimulatorPool",
                 "SimulatorPoolModels",
                 "SynchronousWaiter",
                 "TemporaryStuff",
                 "Timer",
+                "TypedResourceLocation",
             ]
         ),
         .testTarget(
@@ -553,6 +567,8 @@ let package = Package(
                 "ProcessControllerTestHelpers",
                 "ResourceLocationResolverTestHelpers",
                 "Runner",
+                "RunnerModels",
+                "RunnerTestHelpers",
                 "SimulatorPoolTestHelpers",
                 "TemporaryStuff",
                 "fbxctest",
@@ -936,8 +952,10 @@ let package = Package(
                 "QueueModelsTestHelpers",
                 "QueueServer",
                 "RESTMethods",
+                "RunnerTestHelpers",
+                "SimulatorPoolTestHelpers",
                 "Swifter",
-                "SynchronousWaiter"
+                "SynchronousWaiter",
             ]
         ),
         .target(
@@ -948,10 +966,12 @@ let package = Package(
                 "Extensions",
                 "Models",
                 "PluginSupport",
+                "RunnerModels",
+                "SimulatorPoolModels",
             ]
         ),
         .target(
-            // MARK: QueueModelsTesteHlpers
+            // MARK: QueueModelsTestHelpers
             name: "QueueModelsTestHelpers",
             dependencies: [
                 "BuildArtifacts",
@@ -959,6 +979,9 @@ let package = Package(
                 "Models",
                 "ModelsTestHelpers",
                 "QueueModels",
+                "RunnerTestHelpers",
+                "SimulatorPoolModels",
+                "SimulatorPoolTestHelpers",
             ],
             path: "Tests/QueueModelsTestHelpers"
         ),
@@ -1238,9 +1261,20 @@ let package = Package(
                 "PathLib",
                 "PluginManager",
                 "PluginSupport",
+                "RunnerModels",
                 "SimulatorPoolModels",
                 "TemporaryStuff",
                 "TestsWorkingDirectorySupport",
+            ]
+        ),
+        .target(
+            // MARK: RunnerModels
+            name: "RunnerModels",
+            dependencies: [
+                "BuildArtifacts",
+                "Models",
+                "PluginSupport",
+                "SimulatorPoolModels",
             ]
         ),
         .target(
@@ -1250,8 +1284,10 @@ let package = Package(
                 "BuildArtifacts",
                 "Models",
                 "Runner",
+                "RunnerModels",
                 "ProcessController",
                 "SimulatorPoolModels",
+                "SimulatorPoolTestHelpers",
                 "TemporaryStuff",
             ],
             path: "Tests/RunnerTestHelpers"
@@ -1272,9 +1308,11 @@ let package = Package(
                 "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
                 "Runner",
+                "RunnerModels",
                 "RunnerTestHelpers",
                 "ScheduleStrategy",
                 "SimulatorPoolModels",
+                "SimulatorPoolTestHelpers",
                 "TemporaryStuff",
             ]
         ),
@@ -1292,7 +1330,9 @@ let package = Package(
                 "PluginSupport",
                 "RequestSender",
                 "Runner",
+                "RunnerModels",
                 "SimulatorPool",
+                "SimulatorPoolModels",
                 "SynchronousWaiter",
                 "TemporaryStuff",
                 "UniqueIdentifierGenerator",
@@ -1332,7 +1372,7 @@ let package = Package(
             ]
         ),
         .target(
-            // Scheduler
+            // MARK: Scheduler
             name: "Scheduler",
             dependencies: [
                 "BuildArtifacts",
@@ -1342,11 +1382,13 @@ let package = Package(
                 "Logging",
                 "Models",
                 "PluginSupport",
+                "QueueModels",
                 "Runner",
+                "RunnerModels",
                 "RuntimeDump",
                 "ScheduleStrategy",
-                "QueueModels",
                 "SimulatorPool",
+                "SimulatorPoolModels",
                 "SynchronousWaiter",
                 "TemporaryStuff",
                 "UniqueIdentifierGenerator",
@@ -1361,6 +1403,7 @@ let package = Package(
                 "Logging",
                 "Models",
                 "QueueModels",
+                "SimulatorPoolModels",
                 "UniqueIdentifierGenerator",
             ]
         ),
@@ -1374,6 +1417,8 @@ let package = Package(
                 "QueueModels",
                 "QueueModelsTestHelpers",
                 "ScheduleStrategy",
+                "SimulatorPoolModels",
+                "SimulatorPoolTestHelpers",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
             ]
@@ -1405,6 +1450,7 @@ let package = Package(
                 "Models",
                 "ProcessController",
                 "ResourceLocationResolver",
+                "RunnerModels",
                 "SimulatorPoolModels",
                 "TemporaryStuff",
             ]
@@ -1427,6 +1473,7 @@ let package = Package(
                 "Models",
                 "ModelsTestHelpers",
                 "PathLib",
+                "RunnerModels",
                 "SimulatorPool",
                 "SimulatorPoolModels",
                 "TemporaryStuff",
@@ -1518,6 +1565,7 @@ let package = Package(
                 "BuildArtifacts",
                 "Models",
                 "QueueModels",
+                "RunnerModels",
                 "ScheduleStrategy",
                 "SimulatorPoolModels",
             ]
@@ -1531,6 +1579,10 @@ let package = Package(
                 "Models",
                 "ModelsTestHelpers",
                 "PluginSupport",
+                "RunnerModels",
+                "RunnerTestHelpers",
+                "SimulatorPoolModels",
+                "SimulatorPoolTestHelpers",
                 "TestArgFile",
                 "TestHelpers",
             ]

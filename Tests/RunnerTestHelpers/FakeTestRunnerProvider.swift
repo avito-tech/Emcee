@@ -1,5 +1,6 @@
 import Runner
 import Models
+import RunnerModels
 
 public final class FakeTestRunnerProvider: TestRunnerProvider {
     public var predefinedFakeTestRunner = FakeTestRunner()

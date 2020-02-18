@@ -4,6 +4,8 @@ import Models
 import PluginSupport
 import QueueModels
 import ScheduleStrategy
+import SimulatorPoolModels
+import RunnerModels
 
 /// Represents --test-arg-file file contents which describes test plan.
 public struct TestArgFile: Codable {

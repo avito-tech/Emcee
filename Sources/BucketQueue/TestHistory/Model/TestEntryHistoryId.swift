@@ -2,6 +2,7 @@ import BuildArtifacts
 import Foundation
 import Models
 import QueueModels
+import RunnerModels
 
 public struct TestEntryHistoryId: Hashable {
     public let testEntry: TestEntry

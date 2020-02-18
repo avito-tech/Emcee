@@ -2,6 +2,7 @@ import EmceeLib
 import Foundation
 import ModelsTestHelpers
 import ResourceLocationResolverTestHelpers
+import RunnerTestHelpers
 import TemporaryStuff
 import TestHelpers
 import UniqueIdentifierGeneratorTestHelpers

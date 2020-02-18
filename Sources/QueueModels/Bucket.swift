@@ -3,6 +3,8 @@ import Extensions
 import Foundation
 import Models
 import PluginSupport
+import SimulatorPoolModels
+import RunnerModels
 
 public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStringConvertible {
     public let bucketId: BucketId

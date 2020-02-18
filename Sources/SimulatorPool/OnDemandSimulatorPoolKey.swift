@@ -1,5 +1,7 @@
 import Foundation
 import Models
+import RunnerModels
+import SimulatorPoolModels
 
 public struct OnDemandSimulatorPoolKey: Hashable, CustomStringConvertible {
     public let developerDir: DeveloperDir

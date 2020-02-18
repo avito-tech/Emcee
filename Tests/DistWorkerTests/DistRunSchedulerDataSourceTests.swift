@@ -2,7 +2,9 @@ import BuildArtifactsTestHelpers
 import DistWorker
 import Models
 import ModelsTestHelpers
+import RunnerTestHelpers
 import Scheduler
+import SimulatorPoolTestHelpers
 import XCTest
 
 final class DistRunSchedulerDataSourceTests: XCTestCase {
