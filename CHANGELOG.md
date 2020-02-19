@@ -6,6 +6,19 @@ All notable changes to this project will be documented in this file.
 
 - `toolResources` field in test arg file has gone. Inline `simulatorControlTool` and `testRunnerTool` values in test arg file instead of wrapping them in `toolResources`.
 
+- Test arg file now required to pass `simulatorOperationTimeouts` field. This allows to set time out operations for various simulator operations like boot, create, delete and shutdown. Previously, Emcee has had a hardcoded values for these operations. Previously hard coded values are:
+
+```json
+{
+    "simulatorOperationTimeouts": {
+        "create": 30,
+        "boot": 180,
+        "shutdown": 20,
+        "delete": 20
+    }
+}
+```
+
 ## 2020-02-14
 
 - `ToolchainConfiguration` object and `toolchainConfiguration` field have been removed from test arg file, because this object contained only `developerDir` value. You must provide a value via `developerDir` field in test arg file instead.

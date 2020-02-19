@@ -8,7 +8,9 @@ import SynchronousWaiter
 final class SimulatorPoolConvenienceTests: XCTestCase {
     func test__simulator_contoller_frees__upon_release() throws {
         let pool = SimulatorPoolMock()
-        let allocatedSimulator = try pool.allocateSimulator()
+        let allocatedSimulator = try pool.allocateSimulator(
+            simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts()
+        )
         allocatedSimulator.releaseSimulator()
         
         XCTAssertEqual(

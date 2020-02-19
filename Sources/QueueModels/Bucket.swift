@@ -12,6 +12,7 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStr
     public let developerDir: DeveloperDir
     public let pluginLocations: Set<PluginLocation>
     public let simulatorControlTool: SimulatorControlTool
+    public let simulatorOperationTimeouts: SimulatorOperationTimeouts
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
     public let testEntries: [TestEntry]
@@ -26,6 +27,7 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStr
         developerDir: DeveloperDir,
         pluginLocations: Set<PluginLocation>,
         simulatorControlTool: SimulatorControlTool,
+        simulatorOperationTimeouts: SimulatorOperationTimeouts,
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testEntries: [TestEntry],
@@ -39,6 +41,7 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStr
         self.developerDir = developerDir
         self.pluginLocations = pluginLocations
         self.simulatorControlTool = simulatorControlTool
+        self.simulatorOperationTimeouts = simulatorOperationTimeouts
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
         self.testEntries = testEntries
@@ -53,6 +56,6 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStr
     }
     
     public var debugDescription: String {
-        return "<\((type(of: self))) \(bucketId) \(developerDir) \(testType) \(testDestination), \(simulatorControlTool) \(testRunnerTool), \(buildArtifacts), \(pluginLocations), \(testEntries.debugDescription)>"
+        return "<\((type(of: self))) \(bucketId) \(developerDir) \(testType) \(testDestination), \(simulatorControlTool), \(simulatorOperationTimeouts), \(testRunnerTool), \(buildArtifacts), \(pluginLocations), \(testEntries.debugDescription)>"
     }
 }

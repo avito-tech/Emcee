@@ -17,6 +17,7 @@ public struct TestArgFile: Codable {
         public let pluginLocations: Set<PluginLocation>
         public let scheduleStrategy: ScheduleStrategyType
         public let simulatorControlTool: SimulatorControlTool
+        public let simulatorOperationTimeouts: SimulatorOperationTimeouts
         public let simulatorSettings: SimulatorSettings
         public let testDestination: TestDestination
         public let testRunnerTool: TestRunnerTool
@@ -33,6 +34,7 @@ public struct TestArgFile: Codable {
             pluginLocations: Set<PluginLocation>,
             scheduleStrategy: ScheduleStrategyType,
             simulatorControlTool: SimulatorControlTool,
+            simulatorOperationTimeouts: SimulatorOperationTimeouts,
             simulatorSettings: SimulatorSettings,
             testDestination: TestDestination,
             testRunnerTool: TestRunnerTool,
@@ -47,6 +49,7 @@ public struct TestArgFile: Codable {
             self.pluginLocations = pluginLocations
             self.scheduleStrategy = scheduleStrategy
             self.simulatorControlTool = simulatorControlTool
+            self.simulatorOperationTimeouts = simulatorOperationTimeouts
             self.simulatorSettings = simulatorSettings
             self.testDestination = testDestination
             self.testRunnerTool = testRunnerTool

@@ -23,12 +23,6 @@ public final class OnDemandSimulatorPoolFactory {
                 automaticSimulatorShutdown: 3600,
                 developerDirLocator: developerDirLocator,
                 simulatorBootQueue: simulatorBootQueue,
-                simulatorOperationTimeouts: SimulatorOperationTimeouts(
-                    create: 30,
-                    boot: 180,
-                    delete: 20,
-                    shutdown: 20
-                ),
                 simulatorStateMachineActionExecutorProvider: SimulatorStateMachineActionExecutorProviderImpl(
                     processControllerProvider: processControllerProvider,
                     resourceLocationResolver: resourceLocationResolver,

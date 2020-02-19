@@ -5,6 +5,7 @@ import Foundation
 import Logging
 import Models
 import ResourceLocationResolver
+import SimulatorPoolModels
 import TemporaryStuff
 
 /**
@@ -13,7 +14,9 @@ import TemporaryStuff
  * to borrow and free the simulators.
  */
 public protocol SimulatorPool {
-    func allocateSimulatorController() throws -> SimulatorController
+    func allocateSimulatorController(
+        simulatorOperationTimeouts: SimulatorOperationTimeouts
+    ) throws -> SimulatorController
     func free(simulatorController: SimulatorController)
     func deleteSimulators()
     func shutdownSimulators()

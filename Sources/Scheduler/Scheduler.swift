@@ -169,7 +169,9 @@ public final class Scheduler {
             )
         )
 
-        let allocatedSimulator = try simulatorPool.allocateSimulator()
+        let allocatedSimulator = try simulatorPool.allocateSimulator(
+            simulatorOperationTimeouts: bucket.simulatorOperationTimeouts
+        )
         defer { allocatedSimulator.releaseSimulator() }
             
         let runner = Runner(

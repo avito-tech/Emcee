@@ -15,8 +15,12 @@ public final class AllocatedSimulator {
 }
 
 extension SimulatorPool {
-    public func allocateSimulator() throws -> AllocatedSimulator {
-        let simulatorController = try self.allocateSimulatorController()
+    public func allocateSimulator(
+        simulatorOperationTimeouts: SimulatorOperationTimeouts
+    ) throws -> AllocatedSimulator {
+        let simulatorController = try self.allocateSimulatorController(
+            simulatorOperationTimeouts: simulatorOperationTimeouts
+        )
 
         do {
             return AllocatedSimulator(

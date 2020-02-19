@@ -42,7 +42,9 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
         deleteSimulators()
     }
     
-    public func allocateSimulatorController() throws -> SimulatorController {
+    public func allocateSimulatorController(
+        simulatorOperationTimeouts: SimulatorOperationTimeouts
+    ) throws -> SimulatorController {
         return try syncQueue.sync {
             if let controller = controllers.popLast() {
                 Logger.verboseDebug("Allocated simulator: \(controller)")
@@ -52,6 +54,7 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
             let controller = try simulatorControllerProvider.createSimulatorController(
                 developerDir: developerDir,
                 simulatorControlTool: simulatorControlTool,
+                simulatorOperationTimeouts: simulatorOperationTimeouts,
                 testDestination: testDestination,
                 testRunnerTool: testRunnerTool
             )

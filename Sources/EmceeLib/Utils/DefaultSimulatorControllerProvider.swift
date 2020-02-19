@@ -14,7 +14,6 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
     private let automaticSimulatorShutdown: TimeInterval
     private let developerDirLocator: DeveloperDirLocator
     private let simulatorBootQueue: DispatchQueue
-    private let simulatorOperationTimeouts: SimulatorOperationTimeouts
     private let simulatorStateMachineActionExecutorProvider: SimulatorStateMachineActionExecutorProvider
     
     public init(
@@ -22,20 +21,19 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
         automaticSimulatorShutdown: TimeInterval,
         developerDirLocator: DeveloperDirLocator,
         simulatorBootQueue: DispatchQueue,
-        simulatorOperationTimeouts: SimulatorOperationTimeouts,
         simulatorStateMachineActionExecutorProvider: SimulatorStateMachineActionExecutorProvider
     ) {
         self.additionalBootAttempts = additionalBootAttempts
         self.automaticSimulatorShutdown = automaticSimulatorShutdown
         self.developerDirLocator = developerDirLocator
         self.simulatorBootQueue = simulatorBootQueue
-        self.simulatorOperationTimeouts = simulatorOperationTimeouts
         self.simulatorStateMachineActionExecutorProvider = simulatorStateMachineActionExecutorProvider
     }
 
     public func createSimulatorController(
         developerDir: DeveloperDir,
         simulatorControlTool: SimulatorControlTool,
+        simulatorOperationTimeouts: SimulatorOperationTimeouts,
         testDestination: TestDestination,
         testRunnerTool: TestRunnerTool
     ) throws -> SimulatorController {

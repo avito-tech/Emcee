@@ -40,6 +40,12 @@ final class TestArgFileTests: XCTestCase {
                     "http://example.com/plugin.zip#sample.emceeplugin"
                 ],
                 "scheduleStrategy": "unsplit",
+                "simulatorOperationTimeouts": {
+                    "create": 50,
+                    "boot": 51,
+                    "delete": 52,
+                    "shutdown": 53
+                },
                 "simulatorSettings": {
                     "simulatorLocalizationSettings": {
                         "localeIdentifier": "ru_US",
@@ -78,6 +84,12 @@ final class TestArgFileTests: XCTestCase {
                 ],
                 scheduleStrategy: .unsplit,
                 simulatorControlTool: .fbsimctl(FbsimctlLocation(.remoteUrl(URL(string: "http://example.com/fbsimctl.zip")!))),
+                simulatorOperationTimeouts: SimulatorOperationTimeouts(
+                    create: 50,
+                    boot: 51,
+                    delete: 52,
+                    shutdown: 53
+                ),
                 simulatorSettings: SimulatorSettings(
                     simulatorLocalizationSettings: SimulatorLocalizationSettingsFixture().simulatorLocalizationSettings(),
                     watchdogSettings: WatchdogSettings(bundleIds: ["sample.app"], timeout: 42)

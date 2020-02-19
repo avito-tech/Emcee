@@ -1403,6 +1403,7 @@ let package = Package(
                 "Logging",
                 "Models",
                 "QueueModels",
+                "RunnerModels",
                 "SimulatorPoolModels",
                 "UniqueIdentifierGenerator",
             ]

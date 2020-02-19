@@ -95,6 +95,7 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
                 developerDir: bucket.developerDir,
                 pluginLocations: bucket.pluginLocations,
                 simulatorControlTool: bucket.simulatorControlTool,
+                simulatorOperationTimeouts: bucket.simulatorOperationTimeouts,
                 simulatorSettings: bucket.simulatorSettings,
                 testDestination: bucket.testDestination,
                 testEntries: [testEntryResult.testEntry],

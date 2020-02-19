@@ -19,6 +19,7 @@ public final class BucketFixtures {
             developerDir: .current,
             pluginLocations: [],
             simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
+            simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: TestDestinationFixtures.testDestination,
             testEntries: testEntries,

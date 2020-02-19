@@ -83,6 +83,7 @@ public final class TestEntryConfigurationFixtures {
                 developerDir: developerDir,
                 pluginLocations: pluginLocations,
                 simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
+                simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
                 simulatorSettings: simulatorSettings,
                 testDestination: testDestination,
                 testEntry: testEntry,

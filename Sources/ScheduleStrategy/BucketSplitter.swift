@@ -51,6 +51,7 @@ public class BucketSplitter: Splitter, CustomStringConvertible {
                 developerDir: entry.developerDir,
                 pluginLocations: entry.pluginLocations,
                 simulatorControlTool: entry.simulatorControlTool,
+                simulatorOperationTimeouts: entry.simulatorOperationTimeouts,
                 simulatorSettings: entry.simulatorSettings,
                 testDestination: entry.testDestination,
                 testEntries: group.map { $0.testEntry },

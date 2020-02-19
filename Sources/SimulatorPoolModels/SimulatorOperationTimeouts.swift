@@ -1,6 +1,6 @@
 import Foundation
 
-public struct SimulatorOperationTimeouts: Codable, CustomStringConvertible {
+public struct SimulatorOperationTimeouts: Codable, CustomStringConvertible, Hashable {
     public let create: TimeInterval
     public let boot: TimeInterval
     public let delete: TimeInterval

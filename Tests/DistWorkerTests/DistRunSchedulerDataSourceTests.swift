@@ -16,6 +16,7 @@ final class DistRunSchedulerDataSourceTests: XCTestCase {
                 developerDir: .current,
                 pluginLocations: [],
                 simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
+                simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
                 simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
                 testDestination: TestDestinationFixtures.testDestination,
                 testEntries: [TestEntryFixtures.testEntry()],

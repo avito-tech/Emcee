@@ -3,6 +3,7 @@ import Foundation
 import Models
 import PluginSupport
 import QueueModels
+import RunnerModels
 import SimulatorPoolModels
 
 final class GroupedTestEntryConfigurations {
@@ -17,9 +18,12 @@ final class GroupedTestEntryConfigurations {
             let buildArtifacts: BuildArtifacts
             let developerDir: DeveloperDir
             let pluginLocations: Set<PluginLocation>
+            let simulatorControlTool: SimulatorControlTool
+            let simulatorOperationTimeouts: SimulatorOperationTimeouts
             let simulatorSettings: SimulatorSettings
             let testDestination: TestDestination
             let testExecutionBehavior: TestExecutionBehavior
+            let testRunnerTool: TestRunnerTool
             let testTimeoutConfiguration: TestTimeoutConfiguration
             let testType: TestType
         }
@@ -31,9 +35,12 @@ final class GroupedTestEntryConfigurations {
                 buildArtifacts: testEntryConfiguration.buildArtifacts,
                 developerDir: testEntryConfiguration.developerDir,
                 pluginLocations: testEntryConfiguration.pluginLocations,
+                simulatorControlTool: testEntryConfiguration.simulatorControlTool,
+                simulatorOperationTimeouts: testEntryConfiguration.simulatorOperationTimeouts,
                 simulatorSettings: testEntryConfiguration.simulatorSettings,
                 testDestination: testEntryConfiguration.testDestination,
                 testExecutionBehavior: testEntryConfiguration.testExecutionBehavior,
+                testRunnerTool: testEntryConfiguration.testRunnerTool,
                 testTimeoutConfiguration: testEntryConfiguration.testTimeoutConfiguration,
                 testType: testEntryConfiguration.testType
             )

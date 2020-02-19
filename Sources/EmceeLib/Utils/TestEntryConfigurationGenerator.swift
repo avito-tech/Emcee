@@ -33,6 +33,7 @@ public final class TestEntryConfigurationGenerator {
                     developerDir: testArgFileEntry.developerDir,
                     pluginLocations: testArgFileEntry.pluginLocations,
                     simulatorControlTool: testArgFileEntry.simulatorControlTool,
+                    simulatorOperationTimeouts: testArgFileEntry.simulatorOperationTimeouts,
                     simulatorSettings: testArgFileEntry.simulatorSettings,
                     testDestination: testArgFileEntry.testDestination,
                     testEntry: testEntry,

@@ -4,6 +4,7 @@ import DeveloperDirLocatorTestHelpers
 import Models
 import ModelsTestHelpers
 import PathLib
+import SimulatorPoolModels
 import TemporaryStuff
 
 public final class SimulatorPoolMock: SimulatorPool {
@@ -11,7 +12,9 @@ public final class SimulatorPoolMock: SimulatorPool {
     
     public init() {}
     
-    public func allocateSimulatorController() throws -> SimulatorController {
+    public func allocateSimulatorController(
+        simulatorOperationTimeouts: SimulatorOperationTimeouts
+    ) throws -> SimulatorController {
         let controller = FakeSimulatorController(
             simulator: SimulatorFixture.simulator(),
             simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,

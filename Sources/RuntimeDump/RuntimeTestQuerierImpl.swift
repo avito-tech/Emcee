@@ -201,7 +201,9 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
                 simulatorControlTool: simulatorControlTool
             )
         )
-        return try simulatorPool.allocateSimulator()
+        return try simulatorPool.allocateSimulator(
+            simulatorOperationTimeouts: configuration.simulatorOperationTimeouts
+        )
     }
     
     private func requestedTestsNotAvailableInRuntime(

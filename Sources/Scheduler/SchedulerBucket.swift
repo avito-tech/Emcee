@@ -12,6 +12,7 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
     public let developerDir: DeveloperDir
     public let pluginLocations: Set<PluginLocation>
     public let simulatorControlTool: SimulatorControlTool
+    public let simulatorOperationTimeouts: SimulatorOperationTimeouts
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
     public let testEntries: [TestEntry]
@@ -28,6 +29,7 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
         result.append("developerDir: \(developerDir)")
         result.append("pluginLocations: \(pluginLocations)")
         result.append("simulatorControlTool: \(simulatorControlTool)")
+        result.append("simulatorOperationTimeouts: \(simulatorOperationTimeouts)")
         result.append("simulatorSettings: \(simulatorSettings)")
         result.append("testDestination: \(testDestination)")
         result.append("testEntries: " + testEntries.map { $0.testName.stringValue }.joined(separator: ","))
@@ -45,6 +47,7 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
         developerDir: DeveloperDir,
         pluginLocations: Set<PluginLocation>,
         simulatorControlTool: SimulatorControlTool,
+        simulatorOperationTimeouts: SimulatorOperationTimeouts,
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testEntries: [TestEntry],
@@ -58,6 +61,7 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
         self.developerDir = developerDir
         self.pluginLocations = pluginLocations
         self.simulatorControlTool = simulatorControlTool
+        self.simulatorOperationTimeouts = simulatorOperationTimeouts
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
         self.testEntries = testEntries
@@ -74,6 +78,7 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
             developerDir: bucket.developerDir,
             pluginLocations: bucket.pluginLocations,
             simulatorControlTool: bucket.simulatorControlTool,
+            simulatorOperationTimeouts: bucket.simulatorOperationTimeouts,
             simulatorSettings: bucket.simulatorSettings,
             testDestination: bucket.testDestination,
             testEntries: bucket.testEntries,

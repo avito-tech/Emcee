@@ -81,6 +81,7 @@ public final class DumpRuntimeTestsCommand: Command {
                 developerDir: testArgFileEntry.developerDir,
                 pluginLocations: testArgFileEntry.pluginLocations,
                 runtimeDumpMode: try RuntimeDumpModeDeterminer.runtimeDumpMode(testArgFileEntry: testArgFileEntry),
+                simulatorOperationTimeouts: testArgFileEntry.simulatorOperationTimeouts,
                 simulatorSettings: testArgFileEntry.simulatorSettings,
                 testDestination: testArgFileEntry.testDestination,
                 testExecutionBehavior: TestExecutionBehavior(

@@ -202,6 +202,7 @@ final class BucketQueueImpl: BucketQueue {
                         developerDir: stuckBucket.bucket.developerDir,
                         pluginLocations: stuckBucket.bucket.pluginLocations,
                         simulatorControlTool: stuckBucket.bucket.simulatorControlTool,
+                        simulatorOperationTimeouts: stuckBucket.bucket.simulatorOperationTimeouts,
                         simulatorSettings: stuckBucket.bucket.simulatorSettings,
                         testDestination: stuckBucket.bucket.testDestination,
                         testEntries: [testEntry],

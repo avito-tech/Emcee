@@ -65,6 +65,7 @@ class QueueClientTests: XCTestCase {
             developerDir: .current,
             pluginLocations: [],
             simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
+            simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: TestDestinationFixtures.testDestination,
             testEntries: [TestEntryFixtures.testEntry(className: "class", methodName: "method")],

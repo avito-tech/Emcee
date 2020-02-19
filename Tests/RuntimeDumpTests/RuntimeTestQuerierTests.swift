@@ -222,6 +222,7 @@ final class RuntimeTestQuerierTests: XCTestCase {
             developerDir: DeveloperDir.current,
             pluginLocations: [],
             runtimeDumpMode: .logicTest(applicationTestSupport?.simulatorControlTool ?? .simctl),
+            simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: TestDestinationFixtures.testDestination,
             testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 0),

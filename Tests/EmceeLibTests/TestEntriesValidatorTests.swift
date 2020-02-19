@@ -108,6 +108,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             pluginLocations: [],
             scheduleStrategy: .unsplit,
             simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
+            simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: try TestDestination(deviceType: "iPhoneXL", runtime: "10.3"),
             testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,

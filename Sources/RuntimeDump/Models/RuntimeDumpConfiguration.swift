@@ -9,6 +9,7 @@ public struct RuntimeDumpConfiguration {
     public let developerDir: DeveloperDir
     public let pluginLocations: Set<PluginLocation>
     public let runtimeDumpMode: RuntimeDumpMode
+    public let simulatorOperationTimeouts: SimulatorOperationTimeouts
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
     public let testExecutionBehavior: TestExecutionBehavior
@@ -21,6 +22,7 @@ public struct RuntimeDumpConfiguration {
         developerDir: DeveloperDir,
         pluginLocations: Set<PluginLocation>,
         runtimeDumpMode: RuntimeDumpMode,
+        simulatorOperationTimeouts: SimulatorOperationTimeouts,
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testExecutionBehavior: TestExecutionBehavior,
@@ -32,6 +34,7 @@ public struct RuntimeDumpConfiguration {
         self.developerDir = developerDir
         self.pluginLocations = pluginLocations
         self.runtimeDumpMode = runtimeDumpMode
+        self.simulatorOperationTimeouts = simulatorOperationTimeouts
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
         self.testExecutionBehavior = testExecutionBehavior
