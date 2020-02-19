@@ -43,11 +43,8 @@ public final class TestHistoryStorageImpl: TestHistoryStorage {
     ) {
         
         let newTestEntryHistoryId = TestEntryHistoryId(
-            testEntry: testEntryHistoryId.testEntry,
-            testDestination: testEntryHistoryId.testDestination,
-            toolResources: testEntryHistoryId.toolResources,
-            buildArtifacts: testEntryHistoryId.buildArtifacts,
-            bucketId: enqueuedBucketId
+            bucketId: enqueuedBucketId,
+            testEntry: testEntryHistoryId.testEntry
         )
         
         let oldHistory = historyByTest[

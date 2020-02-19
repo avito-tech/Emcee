@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2020-02-19
+
+- `toolResources` field in test arg file has gone. Inline `simulatorControlTool` and `testRunnerTool` values in test arg file instead of wrapping them in `toolResources`.
+
 ## 2020-02-14
 
 - `ToolchainConfiguration` object and `toolchainConfiguration` field have been removed from test arg file, because this object contained only `developerDir` value. You must provide a value via `developerDir` field in test arg file instead.

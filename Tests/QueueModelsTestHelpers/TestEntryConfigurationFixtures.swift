@@ -22,7 +22,6 @@ public final class TestEntryConfigurationFixtures {
     public var testExecutionBehavior = TestExecutionBehavior(environment: [:], numberOfRetries: 0)
     public var testTimeoutConfiguration = TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0)
     public var testType = TestType.uiTest
-    public var toolResources: ToolResources = ToolResourcesFixtures.fakeToolResources()
     public var developerDir = DeveloperDir.current
     
     public init() {}
@@ -72,11 +71,6 @@ public final class TestEntryConfigurationFixtures {
         return self
     }
     
-    public func with(toolResources: ToolResources) -> Self {
-        self.toolResources = toolResources
-        return self
-    }
-    
     public func with(developerDir: DeveloperDir) -> Self {
         self.developerDir = developerDir
         return self
@@ -88,13 +82,14 @@ public final class TestEntryConfigurationFixtures {
                 buildArtifacts: buildArtifacts,
                 developerDir: developerDir,
                 pluginLocations: pluginLocations,
+                simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
                 simulatorSettings: simulatorSettings,
                 testDestination: testDestination,
                 testEntry: testEntry,
                 testExecutionBehavior: testExecutionBehavior,
+                testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
                 testTimeoutConfiguration: testTimeoutConfiguration,
-                testType: testType,
-                toolResources: ToolResourcesFixtures.fakeToolResources()
+                testType: testType
             )
         }
     }

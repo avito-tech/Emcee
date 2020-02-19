@@ -59,7 +59,10 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         var resultsOfTestsToRetry = [TestEntryResult]()
         
         for testEntryResult in testingResult.unfilteredResults {
-            let id = TestEntryHistoryId(testEntry: testEntryResult.testEntry, bucket: bucket)
+            let id = TestEntryHistoryId(
+                bucketId: bucket.bucketId,
+                testEntry: testEntryResult.testEntry
+            )
             
             let testEntryHistory = testHistoryStorage.registerAttempt(
                 id: id,
@@ -91,19 +94,23 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
                 buildArtifacts: bucket.buildArtifacts,
                 developerDir: bucket.developerDir,
                 pluginLocations: bucket.pluginLocations,
+                simulatorControlTool: bucket.simulatorControlTool,
                 simulatorSettings: bucket.simulatorSettings,
                 testDestination: bucket.testDestination,
                 testEntries: [testEntryResult.testEntry],
                 testExecutionBehavior: bucket.testExecutionBehavior,
+                testRunnerTool: bucket.testRunnerTool,
                 testTimeoutConfiguration: bucket.testTimeoutConfiguration,
-                testType: bucket.testType,
-                toolResources: bucket.toolResources
+                testType: bucket.testType
             )
         }
         
         bucketsToReenqueue.forEach { reenqueuingBucket in
             reenqueuingBucket.testEntries.forEach { entry in
-                let id = TestEntryHistoryId(testEntry: entry, bucket: bucket)
+                let id = TestEntryHistoryId(
+                    bucketId: bucket.bucketId,
+                    testEntry: entry
+                )
 
                 testHistoryStorage.registerReenqueuedBucketId(
                     testEntryHistoryId: id,
@@ -169,7 +176,10 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         whereItWasFailing: (TestEntryHistory) -> Bool)
         -> Bool
     {
-        let testEntryHistoryId = TestEntryHistoryId(testEntry: testEntry, bucket: bucket)
+        let testEntryHistoryId = TestEntryHistoryId(
+            bucketId: bucket.bucketId,
+            testEntry: testEntry
+        )
         let testEntryHistory = testHistoryStorage.history(id: testEntryHistoryId)
         
         return whereItWasFailing(testEntryHistory)

@@ -22,8 +22,8 @@ final class TestEntriesValidatorTests: XCTestCase {
             return XCTFail("configuration is unexpectedly nil")
         }
 
-        XCTAssertEqual(querierConfiguration.runtimeDumpMode, .logicTest(testArgFileEntry.toolResources.simulatorControlTool))
-        XCTAssertEqual(querierConfiguration.testRunnerTool, ToolResourcesFixtures.fakeToolResources().testRunnerTool)
+        XCTAssertEqual(querierConfiguration.runtimeDumpMode, .logicTest(testArgFileEntry.simulatorControlTool))
+        XCTAssertEqual(querierConfiguration.testRunnerTool, TestRunnerToolFixtures.fakeFbxctestTool)
         XCTAssertEqual(querierConfiguration.xcTestBundleLocation, testArgFileEntry.buildArtifacts.xcTestBundle.location)
         XCTAssertEqual(querierConfiguration.testDestination, testArgFileEntry.testDestination)
         XCTAssertEqual(querierConfiguration.testsToValidate.count, 1)
@@ -38,7 +38,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         guard let querierConfiguration = runtimeTestQuerier.configuration else {
             return XCTFail("configuration is unexpectedly nil")
         }
-        XCTAssertEqual(querierConfiguration.runtimeDumpMode, .logicTest(uiTestEntry.toolResources.simulatorControlTool))
+        XCTAssertEqual(querierConfiguration.runtimeDumpMode, .logicTest(uiTestEntry.simulatorControlTool))
     }
 
     func test__pass_app_test_data__if_flag_is_true() throws {
@@ -58,7 +58,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             .appTest(
                 RuntimeDumpApplicationTestSupport(
                     appBundle: fakeBuildArtifacts.appBundle!,
-                    simulatorControlTool: ToolResourcesFixtures.fakeToolResources().simulatorControlTool
+                    simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool
                 )
             )
         )
@@ -107,12 +107,13 @@ final class TestEntriesValidatorTests: XCTestCase {
             numberOfRetries: 1,
             pluginLocations: [],
             scheduleStrategy: .unsplit,
+            simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: try TestDestination(deviceType: "iPhoneXL", runtime: "10.3"),
+            testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
             testType: testType,
-            testsToRun: [.testName(TestName(className: "MyTest", methodName: "test"))],
-            toolResources: ToolResourcesFixtures.fakeToolResources()
+            testsToRun: [.testName(TestName(className: "MyTest", methodName: "test"))]
         )
     }
 }

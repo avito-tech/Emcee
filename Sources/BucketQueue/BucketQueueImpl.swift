@@ -201,13 +201,14 @@ final class BucketQueueImpl: BucketQueue {
                         buildArtifacts: stuckBucket.bucket.buildArtifacts,
                         developerDir: stuckBucket.bucket.developerDir,
                         pluginLocations: stuckBucket.bucket.pluginLocations,
+                        simulatorControlTool: stuckBucket.bucket.simulatorControlTool,
                         simulatorSettings: stuckBucket.bucket.simulatorSettings,
                         testDestination: stuckBucket.bucket.testDestination,
                         testEntries: [testEntry],
                         testExecutionBehavior: stuckBucket.bucket.testExecutionBehavior,
+                        testRunnerTool: stuckBucket.bucket.testRunnerTool,
                         testTimeoutConfiguration: stuckBucket.bucket.testTimeoutConfiguration,
-                        testType: stuckBucket.bucket.testType,
-                        toolResources: stuckBucket.bucket.toolResources
+                        testType: stuckBucket.bucket.testType
                     )
                 }
             }

@@ -164,8 +164,8 @@ public final class Scheduler {
             key: OnDemandSimulatorPoolKey(
                 developerDir: bucket.developerDir,
                 testDestination: bucket.testDestination,
-                testRunnerTool: bucket.toolResources.testRunnerTool,
-                simulatorControlTool: bucket.toolResources.simulatorControlTool
+                testRunnerTool: bucket.testRunnerTool,
+                simulatorControlTool: bucket.simulatorControlTool
             )
         )
 
@@ -178,7 +178,7 @@ public final class Scheduler {
                 environment: bucket.testExecutionBehavior.environment,
                 pluginLocations: bucket.pluginLocations,
                 simulatorSettings: bucket.simulatorSettings,
-                testRunnerTool: bucket.toolResources.testRunnerTool,
+                testRunnerTool: bucket.testRunnerTool,
                 testTimeoutConfiguration: bucket.testTimeoutConfiguration,
                 testType: bucket.testType
             ),

@@ -11,38 +11,41 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStr
     public let buildArtifacts: BuildArtifacts
     public let developerDir: DeveloperDir
     public let pluginLocations: Set<PluginLocation>
+    public let simulatorControlTool: SimulatorControlTool
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
     public let testEntries: [TestEntry]
     public let testExecutionBehavior: TestExecutionBehavior
+    public let testRunnerTool: TestRunnerTool
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testType: TestType
-    public let toolResources: ToolResources
 
     public init(
         bucketId: BucketId,
         buildArtifacts: BuildArtifacts,
         developerDir: DeveloperDir,
         pluginLocations: Set<PluginLocation>,
+        simulatorControlTool: SimulatorControlTool,
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testEntries: [TestEntry],
         testExecutionBehavior: TestExecutionBehavior,
+        testRunnerTool: TestRunnerTool,
         testTimeoutConfiguration: TestTimeoutConfiguration,
-        testType: TestType,
-        toolResources: ToolResources
+        testType: TestType
     ) {
         self.bucketId = bucketId
         self.buildArtifacts = buildArtifacts
         self.developerDir = developerDir
         self.pluginLocations = pluginLocations
+        self.simulatorControlTool = simulatorControlTool
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
         self.testEntries = testEntries
         self.testExecutionBehavior = testExecutionBehavior
+        self.testRunnerTool = testRunnerTool
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testType = testType
-        self.toolResources = toolResources
     }
     
     public var description: String {
@@ -50,6 +53,6 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStr
     }
     
     public var debugDescription: String {
-        return "<\((type(of: self))) \(bucketId) \(developerDir) \(testType) \(testDestination), \(toolResources), \(buildArtifacts), \(pluginLocations), \(testEntries.debugDescription)>"
+        return "<\((type(of: self))) \(bucketId) \(developerDir) \(testType) \(testDestination), \(simulatorControlTool) \(testRunnerTool), \(buildArtifacts), \(pluginLocations), \(testEntries.debugDescription)>"
     }
 }

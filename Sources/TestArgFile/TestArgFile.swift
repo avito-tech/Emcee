@@ -16,12 +16,14 @@ public struct TestArgFile: Codable {
         public let numberOfRetries: UInt
         public let pluginLocations: Set<PluginLocation>
         public let scheduleStrategy: ScheduleStrategyType
+        public let simulatorControlTool: SimulatorControlTool
         public let simulatorSettings: SimulatorSettings
         public let testDestination: TestDestination
+        public let testRunnerTool: TestRunnerTool
         public let testTimeoutConfiguration: TestTimeoutConfiguration
         public let testType: TestType
         public let testsToRun: [TestToRun]
-        public let toolResources: ToolResources
+
         
         public init(
             buildArtifacts: BuildArtifacts,
@@ -30,12 +32,13 @@ public struct TestArgFile: Codable {
             numberOfRetries: UInt,
             pluginLocations: Set<PluginLocation>,
             scheduleStrategy: ScheduleStrategyType,
+            simulatorControlTool: SimulatorControlTool,
             simulatorSettings: SimulatorSettings,
             testDestination: TestDestination,
+            testRunnerTool: TestRunnerTool,
             testTimeoutConfiguration: TestTimeoutConfiguration,
             testType: TestType,
-            testsToRun: [TestToRun],
-            toolResources: ToolResources
+            testsToRun: [TestToRun]
         ) {
             self.buildArtifacts = buildArtifacts
             self.developerDir = developerDir
@@ -43,12 +46,13 @@ public struct TestArgFile: Codable {
             self.numberOfRetries = numberOfRetries
             self.pluginLocations = pluginLocations
             self.scheduleStrategy = scheduleStrategy
+            self.simulatorControlTool = simulatorControlTool
             self.simulatorSettings = simulatorSettings
             self.testDestination = testDestination
+            self.testRunnerTool = testRunnerTool
             self.testTimeoutConfiguration = testTimeoutConfiguration
             self.testType = testType
             self.testsToRun = testsToRun
-            self.toolResources = toolResources
         }
     }
     

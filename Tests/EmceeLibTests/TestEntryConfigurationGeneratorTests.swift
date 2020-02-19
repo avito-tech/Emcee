@@ -51,12 +51,13 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 numberOfRetries: 10,
                 pluginLocations: [],
                 scheduleStrategy: .unsplit,
+                simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
                 simulatorSettings: simulatorSettings,
                 testDestination: argFileDestination1,
+                testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .uiTest,
-                testsToRun: [.testName(argFileTestToRun1)],
-                toolResources: ToolResourcesFixtures.fakeToolResources()
+                testsToRun: [.testName(argFileTestToRun1)]
             )
         )
         
@@ -85,12 +86,13 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 numberOfRetries: 10,
                 pluginLocations: [],
                 scheduleStrategy: .unsplit,
+                simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
                 simulatorSettings: simulatorSettings,
                 testDestination: argFileDestination1,
+                testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .uiTest,
-                testsToRun: [.testName(argFileTestToRun1), .testName(argFileTestToRun1)],
-                toolResources: ToolResourcesFixtures.fakeToolResources()
+                testsToRun: [.testName(argFileTestToRun1), .testName(argFileTestToRun1)]
             )
         )
         
@@ -121,12 +123,13 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 numberOfRetries: 10,
                 pluginLocations: [],
                 scheduleStrategy: .unsplit,
+                simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
                 simulatorSettings: simulatorSettings,
                 testDestination: argFileDestination1,
+                testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .uiTest,
-                testsToRun: [.allProvidedByRuntimeDump],
-                toolResources: ToolResourcesFixtures.fakeToolResources()
+                testsToRun: [.allProvidedByRuntimeDump]
             )
         )
         

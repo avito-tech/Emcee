@@ -33,10 +33,8 @@ final class TestArgFileTests: XCTestCase {
                     "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"],
                     "needHostAppToDumpTests": true
                 },
-                "toolResources": {
-                    "testRunnerTool": {"toolType": "fbxctest", "fbxctestLocation": "http://example.com/fbxctest.zip"},
-                    "simulatorControlTool": {"toolType": "fbsimctl", "location": "http://example.com/fbsimctl.zip"}
-                },
+                "testRunnerTool": {"toolType": "fbxctest", "fbxctestLocation": "http://example.com/fbxctest.zip"},
+                "simulatorControlTool": {"toolType": "fbsimctl", "location": "http://example.com/fbsimctl.zip"},
                 "developerDir": {"kind": "current"},
                 "pluginLocations": [
                     "http://example.com/plugin.zip#sample.emceeplugin"
@@ -79,21 +77,19 @@ final class TestArgFileTests: XCTestCase {
                     PluginLocation(.remoteUrl(URL(string: "http://example.com/plugin.zip#sample.emceeplugin")!))
                 ],
                 scheduleStrategy: .unsplit,
+                simulatorControlTool: .fbsimctl(FbsimctlLocation(.remoteUrl(URL(string: "http://example.com/fbsimctl.zip")!))),
                 simulatorSettings: SimulatorSettings(
                     simulatorLocalizationSettings: SimulatorLocalizationSettingsFixture().simulatorLocalizationSettings(),
                     watchdogSettings: WatchdogSettings(bundleIds: ["sample.app"], timeout: 42)
                 ),
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
+                testRunnerTool: .fbxctest(FbxctestLocation(.remoteUrl(URL(string: "http://example.com/fbxctest.zip")!))),
                 testTimeoutConfiguration: TestTimeoutConfiguration(
                     singleTestMaximumDuration: 42,
                     testRunnerMaximumSilenceDuration: 24
                 ),
                 testType: .logicTest,
-                testsToRun: [.testName(TestName(className: "ClassName", methodName: "testMethod"))],
-                toolResources: ToolResources(
-                    simulatorControlTool: .fbsimctl(FbsimctlLocation(.remoteUrl(URL(string: "http://example.com/fbsimctl.zip")!))),
-                    testRunnerTool: .fbxctest(FbxctestLocation(.remoteUrl(URL(string: "http://example.com/fbxctest.zip")!)))
-                )
+                testsToRun: [.testName(TestName(className: "ClassName", methodName: "testMethod"))]
             )
         )
     }

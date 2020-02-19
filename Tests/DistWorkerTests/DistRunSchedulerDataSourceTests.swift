@@ -12,16 +12,17 @@ final class DistRunSchedulerDataSourceTests: XCTestCase {
         let handler: () -> SchedulerBucket? = {
             SchedulerBucket(
                 bucketId: "id",
-                testEntries: [TestEntryFixtures.testEntry()],
                 buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
                 developerDir: .current,
                 pluginLocations: [],
+                simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
                 simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
                 testDestination: TestDestinationFixtures.testDestination,
+                testEntries: [TestEntryFixtures.testEntry()],
                 testExecutionBehavior: TestExecutionBehaviorFixtures(environment: ["a": "b"]).build(),
+                testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
                 testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
-                testType: .uiTest,
-                toolResources: ToolResourcesFixtures.fakeToolResources()
+                testType: .uiTest
             )
         }
         let dataSource = DistRunSchedulerDataSource(onNextBucketRequest: handler)

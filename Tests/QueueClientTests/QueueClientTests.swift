@@ -64,13 +64,14 @@ class QueueClientTests: XCTestCase {
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
             developerDir: .current,
             pluginLocations: [],
+            simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: TestDestinationFixtures.testDestination,
             testEntries: [TestEntryFixtures.testEntry(className: "class", methodName: "method")],
             testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
+            testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
-            testType: .uiTest,
-            toolResources: ToolResourcesFixtures.fakeToolResources()
+            testType: .uiTest
         )
         try prepareServer(RESTMethod.getBucket.withPrependingSlash) { request -> HttpResponse in
             let data: Data = (try? JSONEncoder().encode(DequeueBucketResponse.bucketDequeued(bucket: bucket))) ?? Data()

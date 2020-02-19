@@ -8,74 +8,79 @@ import RunnerModels
 
 public struct SchedulerBucket: CustomStringConvertible, Equatable {
     public let bucketId: BucketId
-    public let developerDir: DeveloperDir
-    public let testEntries: [TestEntry]
     public let buildArtifacts: BuildArtifacts
+    public let developerDir: DeveloperDir
     public let pluginLocations: Set<PluginLocation>
+    public let simulatorControlTool: SimulatorControlTool
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
+    public let testEntries: [TestEntry]
     public let testExecutionBehavior: TestExecutionBehavior
+    public let testRunnerTool: TestRunnerTool
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testType: TestType
-    public let toolResources: ToolResources
     
     public var description: String {
         var result = [String]()
         
         result.append("\(bucketId)")
-        result.append("testEntries: " + testEntries.map { $0.testName.stringValue }.joined(separator: ","))
         result.append("buildArtifacts: \(buildArtifacts)")
         result.append("developerDir: \(developerDir)")
         result.append("pluginLocations: \(pluginLocations)")
+        result.append("simulatorControlTool: \(simulatorControlTool)")
+        result.append("simulatorSettings: \(simulatorSettings)")
         result.append("testDestination: \(testDestination)")
+        result.append("testEntries: " + testEntries.map { $0.testName.stringValue }.joined(separator: ","))
         result.append("testExecutionBehavior: \(testExecutionBehavior)")
+        result.append("testRunnerTool: \(testRunnerTool)")
         result.append("testTimeoutConfiguration: \(testTimeoutConfiguration)")
         result.append("testType: \(testType)")
-        result.append("toolResources: \(toolResources)")
-        result.append("simulatorSettings: \(simulatorSettings)")
         
         return "<\((type(of: self))) " + result.joined(separator: " ") + ">"
     }
 
     public init(
         bucketId: BucketId,
-        testEntries: [TestEntry],
         buildArtifacts: BuildArtifacts,
         developerDir: DeveloperDir,
         pluginLocations: Set<PluginLocation>,
+        simulatorControlTool: SimulatorControlTool,
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
+        testEntries: [TestEntry],
         testExecutionBehavior: TestExecutionBehavior,
+        testRunnerTool: TestRunnerTool,
         testTimeoutConfiguration: TestTimeoutConfiguration,
-        testType: TestType,
-        toolResources: ToolResources
+        testType: TestType
     ) {
         self.bucketId = bucketId
-        self.testEntries = testEntries
         self.buildArtifacts = buildArtifacts
         self.developerDir = developerDir
         self.pluginLocations = pluginLocations
+        self.simulatorControlTool = simulatorControlTool
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
+        self.testEntries = testEntries
         self.testExecutionBehavior = testExecutionBehavior
+        self.testRunnerTool = testRunnerTool
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testType = testType
-        self.toolResources = toolResources
     }
     
     public static func from(bucket: Bucket, testExecutionBehavior: TestExecutionBehavior) -> SchedulerBucket {
         return SchedulerBucket(
             bucketId: bucket.bucketId,
-            testEntries: bucket.testEntries,
             buildArtifacts: bucket.buildArtifacts,
             developerDir: bucket.developerDir,
             pluginLocations: bucket.pluginLocations,
+            simulatorControlTool: bucket.simulatorControlTool,
             simulatorSettings: bucket.simulatorSettings,
             testDestination: bucket.testDestination,
+            testEntries: bucket.testEntries,
             testExecutionBehavior: testExecutionBehavior,
+            testRunnerTool: bucket.testRunnerTool,
             testTimeoutConfiguration: bucket.testTimeoutConfiguration,
-            testType: bucket.testType,
-            toolResources: bucket.toolResources
+            testType: bucket.testType
         )
     }
 }

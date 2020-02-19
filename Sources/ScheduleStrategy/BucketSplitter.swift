@@ -50,13 +50,14 @@ public class BucketSplitter: Splitter, CustomStringConvertible {
                 buildArtifacts: entry.buildArtifacts,
                 developerDir: entry.developerDir,
                 pluginLocations: entry.pluginLocations,
+                simulatorControlTool: entry.simulatorControlTool,
                 simulatorSettings: entry.simulatorSettings,
                 testDestination: entry.testDestination,
                 testEntries: group.map { $0.testEntry },
                 testExecutionBehavior: entry.testExecutionBehavior,
+                testRunnerTool: entry.testRunnerTool,
                 testTimeoutConfiguration: entry.testTimeoutConfiguration,
-                testType: entry.testType,
-                toolResources: entry.toolResources
+                testType: entry.testType
             )
         }
     }

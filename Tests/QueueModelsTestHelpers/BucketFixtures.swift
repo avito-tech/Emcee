@@ -18,13 +18,14 @@ public final class BucketFixtures {
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
             developerDir: .current,
             pluginLocations: [],
+            simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: TestDestinationFixtures.testDestination,
             testEntries: testEntries,
             testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: numberOfRetries),
+            testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
-            testType: TestType.uiTest,
-            toolResources: ToolResourcesFixtures.fakeToolResources()
+            testType: TestType.uiTest
         )
     }
 }

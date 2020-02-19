@@ -16,7 +16,10 @@ public final class TestEntryHistoryFixtures {
     }
     
     public func testEntryHistoryId() -> TestEntryHistoryId {
-        return TestEntryHistoryId(testEntry: testEntry, bucket: bucket)
+        return TestEntryHistoryId(
+            bucketId: bucket.bucketId,
+            testEntry: testEntry
+        )
     }
     
     public func testEntryHistoryItem(success: Bool = true, workerId: WorkerId = "doesn't matter") -> TestEntryHistoryItem {

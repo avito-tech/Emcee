@@ -3,12 +3,12 @@ import Foundation
 import ProcessController
 import ResourceLocationResolver
 import SimulatorPool
+import SimulatorPoolModels
 import TemporaryStuff
 import UniqueIdentifierGenerator
 
 public final class OnDemandSimulatorPoolFactory {
     public static func create(
-        additionalBootAttempts: UInt = 2,
         developerDirLocator: DeveloperDirLocator,
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver,
@@ -19,9 +19,16 @@ public final class OnDemandSimulatorPoolFactory {
         return DefaultOnDemandSimulatorPool(
             resourceLocationResolver: resourceLocationResolver,
             simulatorControllerProvider: DefaultSimulatorControllerProvider(
-                additionalBootAttempts: additionalBootAttempts,
+                additionalBootAttempts: 2,
+                automaticSimulatorShutdown: 3600,
                 developerDirLocator: developerDirLocator,
                 simulatorBootQueue: simulatorBootQueue,
+                simulatorOperationTimeouts: SimulatorOperationTimeouts(
+                    create: 30,
+                    boot: 180,
+                    delete: 20,
+                    shutdown: 20
+                ),
                 simulatorStateMachineActionExecutorProvider: SimulatorStateMachineActionExecutorProviderImpl(
                     processControllerProvider: processControllerProvider,
                     resourceLocationResolver: resourceLocationResolver,

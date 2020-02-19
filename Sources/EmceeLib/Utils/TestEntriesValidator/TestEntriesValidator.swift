@@ -49,7 +49,7 @@ public final class TestEntriesValidator {
                 environment: testArgFileEntry.environment,
                 numberOfRetries: testArgFileEntry.numberOfRetries
             ),
-            testRunnerTool: testArgFileEntry.toolResources.testRunnerTool,
+            testRunnerTool: testArgFileEntry.testRunnerTool,
             testTimeoutConfiguration: testTimeoutConfigurationForRuntimeDump,
             testsToValidate: testArgFileEntry.testsToRun,
             xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location

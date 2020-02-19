@@ -18,7 +18,7 @@ public final class RuntimeDumpModeDeterminer {
     public static func runtimeDumpMode(testArgFileEntry: TestArgFile.Entry) throws -> RuntimeDumpMode {
         switch testArgFileEntry.buildArtifacts.xcTestBundle.runtimeDumpKind {
         case .logicTest:
-            return .logicTest(testArgFileEntry.toolResources.simulatorControlTool)
+            return .logicTest(testArgFileEntry.simulatorControlTool)
         case .appTest:
             guard let appLocation = testArgFileEntry.buildArtifacts.appBundle else {
                 throw RuntimeDumpModeInputValidationError.missingAppBundleToPerformApplicationTestRuntimeDump(testArgFileEntry.buildArtifacts.xcTestBundle)
@@ -26,7 +26,7 @@ public final class RuntimeDumpModeDeterminer {
             return .appTest(
                 RuntimeDumpApplicationTestSupport(
                     appBundle: appLocation,
-                    simulatorControlTool: testArgFileEntry.toolResources.simulatorControlTool
+                    simulatorControlTool: testArgFileEntry.simulatorControlTool
                 )
             )
         }
