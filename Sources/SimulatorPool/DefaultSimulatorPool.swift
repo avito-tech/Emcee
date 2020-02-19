@@ -54,7 +54,6 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
             let controller = try simulatorControllerProvider.createSimulatorController(
                 developerDir: developerDir,
                 simulatorControlTool: simulatorControlTool,
-                simulatorOperationTimeouts: simulatorOperationTimeouts,
                 testDestination: testDestination,
                 testRunnerTool: testRunnerTool
             )

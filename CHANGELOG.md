@@ -14,10 +14,13 @@ All notable changes to this project will be documented in this file.
         "create": 30,
         "boot": 180,
         "shutdown": 20,
-        "delete": 20
+        "delete": 20,
+        "automaticSimulatorShutdown": 3600
     }
 }
 ```
+
+- Emcee now allows you to control automatic simulator shutdown by setting `simulatorOperationTimeouts.automaticSimulatorShutdown` in test arg file to a positive value in seconds after which simulator will be shut down if it stays idle. When it is needed again, it will be booted. Shutting down simulators allows to free up some RAM and reduce swap size. 
 
 ## 2020-02-14
 

@@ -2,20 +2,31 @@ import XCTest
 import SimulatorPool
 import ModelsTestHelpers
 import TemporaryStuff
+import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import SynchronousWaiter
 
 final class SimulatorPoolConvenienceTests: XCTestCase {
+    private let simulatorOperationTimeouts = SimulatorOperationTimeouts(create: 1, boot: 2, delete: 3, shutdown: 4, automaticSimulatorShutdown: 5)
+    
     func test__simulator_contoller_frees__upon_release() throws {
         let pool = SimulatorPoolMock()
         let allocatedSimulator = try pool.allocateSimulator(
-            simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts()
+            simulatorOperationTimeouts: simulatorOperationTimeouts
         )
         allocatedSimulator.releaseSimulator()
         
+        guard let fakeSimulatorController = pool.freedSimulatorContoller as? FakeSimulatorController else {
+            return XCTFail("Unexpected behaviour")
+        }
+        
         XCTAssertEqual(
             allocatedSimulator.simulator,
-            (pool.freedSimulatorContoller as? FakeSimulatorController)?.simulator
+            fakeSimulatorController.simulator
+        )
+        XCTAssertEqual(
+            fakeSimulatorController.simulatorOperationTimeouts,
+            simulatorOperationTimeouts
         )
     }
 }

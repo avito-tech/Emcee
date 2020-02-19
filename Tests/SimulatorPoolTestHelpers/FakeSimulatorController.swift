@@ -12,11 +12,16 @@ public final class FakeSimulatorController: SimulatorController {
     public var didCallShutdown = false
     public var isBusy = false
     public var onShutdown: () -> () = {}
+    public var simulatorOperationTimeouts: SimulatorOperationTimeouts?
     
     public init(simulator: Simulator, simulatorControlTool: SimulatorControlTool, developerDir: DeveloperDir) {
         self.simulator = simulator
         self.simulatorControlTool = simulatorControlTool
         self.developerDir = developerDir
+    }
+    
+    public func apply(simulatorOperationTimeouts: SimulatorOperationTimeouts) {
+        self.simulatorOperationTimeouts = simulatorOperationTimeouts
     }
     
     public func bootedSimulator() throws -> Simulator {

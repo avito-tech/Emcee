@@ -21,6 +21,7 @@ extension SimulatorPool {
         let simulatorController = try self.allocateSimulatorController(
             simulatorOperationTimeouts: simulatorOperationTimeouts
         )
+        simulatorController.apply(simulatorOperationTimeouts: simulatorOperationTimeouts)
 
         do {
             return AllocatedSimulator(

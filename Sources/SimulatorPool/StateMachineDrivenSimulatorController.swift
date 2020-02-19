@@ -1,3 +1,4 @@
+import AtomicModels
 import DeveloperDirLocator
 import Foundation
 import Logging
@@ -11,7 +12,9 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     private let bootQueue: DispatchQueue
     private let developerDir: DeveloperDir
     private let developerDirLocator: DeveloperDirLocator
-    private let simulatorOperationTimeouts: SimulatorOperationTimeouts
+    private let simulatorOperationTimeouts = AtomicValue<SimulatorOperationTimeouts>(
+        SimulatorOperationTimeouts(create: 30, boot: 180, delete: 20, shutdown: 20, automaticSimulatorShutdown: 3600)
+    )
     private let simulatorStateMachine: SimulatorStateMachine
     private let simulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor
     private let testDestination: TestDestination
@@ -24,7 +27,6 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
         bootQueue: DispatchQueue,
         developerDir: DeveloperDir,
         developerDirLocator: DeveloperDirLocator,
-        simulatorOperationTimeouts: SimulatorOperationTimeouts,
         simulatorStateMachine: SimulatorStateMachine,
         simulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor,
         testDestination: TestDestination,
@@ -34,7 +36,6 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
         self.bootQueue = bootQueue
         self.developerDir = developerDir
         self.developerDirLocator = developerDirLocator
-        self.simulatorOperationTimeouts = simulatorOperationTimeouts
         self.simulatorStateMachine = simulatorStateMachine
         self.simulatorStateMachineActionExecutor = simulatorStateMachineActionExecutor
         self.testDestination = testDestination
@@ -42,6 +43,10 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     }
     
     // MARK: - SimulatorController
+    
+    public func apply(simulatorOperationTimeouts: SimulatorOperationTimeouts) {
+        self.simulatorOperationTimeouts.set(simulatorOperationTimeouts)
+    }
     
     public func bootedSimulator() throws -> Simulator {
         try attemptToSwitchState(targetStates: [.booted])
@@ -102,7 +107,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
         let simulator = try simulatorStateMachineActionExecutor.performCreateSimulatorAction(
             environment: try environment(),
             testDestination: testDestination,
-            timeout: simulatorOperationTimeouts.create
+            timeout: simulatorOperationTimeouts.currentValue().create
         )
         Logger.debug("Created simulator: \(simulator)")
         return simulator
@@ -123,7 +128,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
                 environment: try self.environment(),
                 path: simulator.path,
                 simulatorUuid: simulator.udid,
-                timeout: self.simulatorOperationTimeouts.boot
+                timeout: self.simulatorOperationTimeouts.currentValue().boot
             )
         }
         
@@ -155,7 +160,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
             environment: try environment(),
             path: simulator.path,
             simulatorUuid: simulator.udid,
-            timeout: simulatorOperationTimeouts.shutdown
+            timeout: simulatorOperationTimeouts.currentValue().shutdown
         )
     }
 
@@ -166,7 +171,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
             environment: try environment(),
             path: simulator.path,
             simulatorUuid: simulator.udid,
-            timeout: simulatorOperationTimeouts.delete
+            timeout: simulatorOperationTimeouts.currentValue().delete
         )
         
         try attemptToDeleteSimulatorFiles(simulator: simulator)

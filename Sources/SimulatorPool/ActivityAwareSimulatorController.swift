@@ -4,7 +4,7 @@ import Logging
 import SimulatorPoolModels
 
 public final class ActivityAwareSimulatorController: SimulatorController {
-    private let automaticTerminationControllerFactory: AutomaticTerminationControllerFactory
+    private var automaticTerminationControllerFactory: AutomaticTerminationControllerFactory
     private var automaticShutdownController: AutomaticTerminationController?
     private let delegate: SimulatorController
 
@@ -12,10 +12,24 @@ public final class ActivityAwareSimulatorController: SimulatorController {
         automaticShutdownTimePeriod: TimeInterval,
         delegate: SimulatorController
     ) {
-        self.automaticTerminationControllerFactory = AutomaticTerminationControllerFactory(
-            automaticTerminationPolicy: .afterBeingIdle(period: automaticShutdownTimePeriod)
+        automaticTerminationControllerFactory = ActivityAwareSimulatorController.automaticTerminationController(
+            period: automaticShutdownTimePeriod
         )
         self.delegate = delegate
+    }
+    
+    private static func automaticTerminationController(period: TimeInterval) -> AutomaticTerminationControllerFactory {
+        return AutomaticTerminationControllerFactory(
+            automaticTerminationPolicy: .afterBeingIdle(period: period)
+        )
+    }
+    
+    public func apply(simulatorOperationTimeouts: SimulatorOperationTimeouts) {
+        delegate.apply(simulatorOperationTimeouts: simulatorOperationTimeouts)
+        
+        automaticTerminationControllerFactory = ActivityAwareSimulatorController.automaticTerminationController(
+            period: simulatorOperationTimeouts.automaticSimulatorShutdown
+        )
     }
     
     public func bootedSimulator() throws -> Simulator {

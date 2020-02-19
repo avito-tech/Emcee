@@ -20,7 +20,6 @@ public final class OnDemandSimulatorPoolFactory {
             resourceLocationResolver: resourceLocationResolver,
             simulatorControllerProvider: DefaultSimulatorControllerProvider(
                 additionalBootAttempts: 2,
-                automaticSimulatorShutdown: 3600,
                 developerDirLocator: developerDirLocator,
                 simulatorBootQueue: simulatorBootQueue,
                 simulatorStateMachineActionExecutorProvider: SimulatorStateMachineActionExecutorProviderImpl(

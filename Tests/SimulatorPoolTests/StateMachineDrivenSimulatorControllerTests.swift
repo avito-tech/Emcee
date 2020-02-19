@@ -183,7 +183,8 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
             create: .infinity,
             boot: .infinity,
             delete: .infinity,
-            shutdown: .infinity
+            shutdown: .infinity,
+            automaticSimulatorShutdown: .infinity
         )
     ) -> StateMachineDrivenSimulatorController {
         let tempFolder = assertDoesNotThrow {
@@ -211,30 +212,33 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
         developerDirLocator: DeveloperDirLocator,
         timeouts: SimulatorOperationTimeouts
     ) -> StateMachineDrivenSimulatorController {
-        return StateMachineDrivenSimulatorController(
+        let controller = StateMachineDrivenSimulatorController(
             additionalBootAttempts: additionalBootAttempts,
             bootQueue: DispatchQueue(label: "serial"),
             developerDir: .current,
             developerDirLocator: developerDirLocator,
-            simulatorOperationTimeouts: timeouts,
             simulatorStateMachine: SimulatorStateMachine(),
             simulatorStateMachineActionExecutor: actionExecutor,
             testDestination: expectedTestDestination,
             waiter: NoOpWaiter()
         )
+        controller.apply(simulatorOperationTimeouts: timeouts)
+        return controller
     }
     
     private func createTimeouts(
         create: TimeInterval = .infinity,
         boot: TimeInterval = .infinity,
         delete: TimeInterval = .infinity,
-        shutdown: TimeInterval = .infinity
+        shutdown: TimeInterval = .infinity,
+        automaticSimulatorShutdown: TimeInterval = .infinity
     ) -> SimulatorOperationTimeouts {
         return SimulatorOperationTimeouts(
             create: create,
             boot: boot,
             delete: delete,
-            shutdown: shutdown
+            shutdown: shutdown,
+            automaticSimulatorShutdown: automaticSimulatorShutdown
         )
     }
     
