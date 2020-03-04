@@ -62,7 +62,7 @@ class DefaultRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
             request: request,
             credentials: config.credentials,
             callbackQueue: callbackQueue
-        ) { (result: Either<EmptyData, RequestSenderError>) in
+        ) { (result: Either<VoidPayload, RequestSenderError>) in
             Logger.verboseDebug("Stored runtime query with result: \(result)")
         }
     }

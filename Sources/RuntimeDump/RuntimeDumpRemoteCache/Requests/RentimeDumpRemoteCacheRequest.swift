@@ -2,7 +2,7 @@ import RequestSender
 import Models
 
 class RentimeDumpRemoteCacheStoreRequest: NetworkRequest {
-    typealias Response = EmptyData
+    typealias Response = VoidPayload
 
     public let httpMethod: HTTPMethod
     public let pathWithLeadingSlash: String

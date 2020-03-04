@@ -1055,6 +1055,7 @@ let package = Package(
                 "RESTMethods",
                 "RESTServer",
                 "RESTServerTestHelpers",
+                "RequestSender",
                 "RequestSenderTestHelpers",
                 "ResourceLocationResolver",
                 "ResultsCollector",

@@ -6,7 +6,7 @@ class RuntimeDumpRemoteCacheResultRequest: NetworkRequest {
 
     public let httpMethod: HTTPMethod
     public let pathWithLeadingSlash: String
-    public let payload: EmptyData? = nil
+    public let payload: VoidPayload? = nil
 
     public init(
         httpMethod: HTTPMethod,

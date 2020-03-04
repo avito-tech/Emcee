@@ -56,6 +56,7 @@ public final class RequestSenderImpl: RequestSender {
         urlRequest.addValue("Content-Type", forHTTPHeaderField: "application/json")
         urlRequest.httpMethod = request.httpMethod.value
         urlRequest.httpBody = try buildHttpBody(payload: request.payload)
+        urlRequest.timeoutInterval = request.timeout
 
         if let credentials = credentials {
             let loginString = try "\(credentials.username):\(credentials.password)".base64()
