@@ -44,19 +44,9 @@ public struct QueueServerRunConfiguration: Decodable {
     ) -> WorkerConfiguration {
         return WorkerConfiguration(
             analyticsConfiguration: analyticsConfiguration,
-            reportAliveInterval: reportAliveInterval,
+            numberOfSimulators: deploymentDestinationConfiguration.numberOfSimulators,
             payloadSignature: payloadSignature,
-            testRunExecutionBehavior: testRunExecutionBehavior(
-                deploymentDestinationConfiguration: deploymentDestinationConfiguration
-            )
-        )
-    }
-    
-    private func testRunExecutionBehavior(
-        deploymentDestinationConfiguration: DestinationConfiguration
-    ) -> TestRunExecutionBehavior {
-        return TestRunExecutionBehavior(
-            numberOfSimulators: deploymentDestinationConfiguration.numberOfSimulators
+            reportAliveInterval: reportAliveInterval
         )
     }
 }

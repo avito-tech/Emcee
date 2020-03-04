@@ -5,16 +5,16 @@ import Runner
 import SimulatorPool
 
 public class SchedulerConfiguration {
-    public let testRunExecutionBehavior: TestRunExecutionBehavior
-    public let schedulerDataSource: SchedulerDataSource
+    public let numberOfSimulators: UInt
     public let onDemandSimulatorPool: OnDemandSimulatorPool
+    public let schedulerDataSource: SchedulerDataSource
 
     public init(
-        testRunExecutionBehavior: TestRunExecutionBehavior,
-        schedulerDataSource: SchedulerDataSource,
-        onDemandSimulatorPool: OnDemandSimulatorPool
+        numberOfSimulators: UInt,
+        onDemandSimulatorPool: OnDemandSimulatorPool,
+        schedulerDataSource: SchedulerDataSource
     ) {
-        self.testRunExecutionBehavior = testRunExecutionBehavior
+        self.numberOfSimulators = numberOfSimulators
         self.schedulerDataSource = schedulerDataSource
         self.onDemandSimulatorPool = onDemandSimulatorPool
     }

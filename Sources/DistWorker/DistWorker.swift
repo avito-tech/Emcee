@@ -145,9 +145,11 @@ public final class DistWorker: SchedulerDelegate {
         onDemandSimulatorPool: OnDemandSimulatorPool
     ) throws {
         let schedulerCconfiguration = SchedulerConfiguration(
-            testRunExecutionBehavior: workerConfiguration.testRunExecutionBehavior,
-            schedulerDataSource: DistRunSchedulerDataSource(onNextBucketRequest: fetchNextBucket),
-            onDemandSimulatorPool: onDemandSimulatorPool
+            numberOfSimulators: workerConfiguration.numberOfSimulators,
+            onDemandSimulatorPool: onDemandSimulatorPool,
+            schedulerDataSource: DistRunSchedulerDataSource(
+                onNextBucketRequest: fetchNextBucket
+            )
         )
         
         let scheduler = Scheduler(

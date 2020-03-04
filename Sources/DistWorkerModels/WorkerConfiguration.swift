@@ -4,19 +4,19 @@ import Models
 
 public struct WorkerConfiguration: Codable, Equatable {
     public let analyticsConfiguration: AnalyticsConfiguration
-    public let reportAliveInterval: TimeInterval
+    public let numberOfSimulators: UInt
     public let payloadSignature: PayloadSignature
-    public let testRunExecutionBehavior: TestRunExecutionBehavior
+    public let reportAliveInterval: TimeInterval
 
     public init(
         analyticsConfiguration: AnalyticsConfiguration,
-        reportAliveInterval: TimeInterval,
+        numberOfSimulators: UInt,
         payloadSignature: PayloadSignature,
-        testRunExecutionBehavior: TestRunExecutionBehavior
+        reportAliveInterval: TimeInterval
     ) {
         self.analyticsConfiguration = analyticsConfiguration
-        self.reportAliveInterval = reportAliveInterval
+        self.numberOfSimulators = numberOfSimulators
         self.payloadSignature = payloadSignature
-        self.testRunExecutionBehavior = testRunExecutionBehavior
+        self.reportAliveInterval = reportAliveInterval
     }
 }

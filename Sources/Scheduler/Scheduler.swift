@@ -41,7 +41,7 @@ public final class Scheduler {
         self.resourceLocationResolver = resourceLocationResolver
         self.resourceSemaphore = ListeningSemaphore(
             maximumValues: .of(
-                runningTests: Int(configuration.testRunExecutionBehavior.numberOfSimulators)
+                runningTests: Int(configuration.numberOfSimulators)
             )
         )
         self.schedulerDelegate = schedulerDelegate
@@ -59,7 +59,7 @@ public final class Scheduler {
     // MARK: - Running on Queue
     
     private func startFetchingAndRunningTests() {
-        for _ in 0 ..< configuration.testRunExecutionBehavior.numberOfSimulators {
+        for _ in 0 ..< configuration.numberOfSimulators {
             fetchAndRunBucket()
         }
     }
