@@ -5,6 +5,7 @@ import Models
 import ModelsTestHelpers
 import QueueServer
 import RESTMethods
+import TestHelpers
 import WorkerAlivenessProvider
 import WorkerAlivenessProviderTestHelpers
 import XCTest
@@ -20,7 +21,11 @@ final class WorkerRegistrarTests: XCTestCase {
     }
     
     private func createRegistrar() -> WorkerRegistrar {
-        return WorkerRegistrar(workerConfigurations: workerConfigurations, workerAlivenessProvider: alivenessTracker)
+        return WorkerRegistrar(
+            workerAlivenessProvider: alivenessTracker,
+            workerConfigurations: workerConfigurations,
+            workerDetailsHolder: WorkerDetailsHolderImpl()
+        )
     }
     
     func test_registration_for_known_worker() throws {
@@ -28,7 +33,12 @@ final class WorkerRegistrarTests: XCTestCase {
         XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId).status, .notRegistered)
         
         XCTAssertEqual(
-            try registrar.handle(decodedPayload: RegisterWorkerPayload(workerId: workerId)),
+            try registrar.handle(
+                decodedPayload: RegisterWorkerPayload(
+                    workerId: workerId,
+                    workerRestPort: 0
+                )
+            ),
             .workerRegisterSuccess(workerConfiguration: WorkerConfigurationFixtures.workerConfiguration))
         XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId).status, .alive)
     }
@@ -38,19 +48,42 @@ final class WorkerRegistrarTests: XCTestCase {
         alivenessTracker.didRegisterWorker(workerId: workerId)
         alivenessTracker.blockWorker(workerId: workerId)
         
-        XCTAssertThrowsError(try registrar.handle(decodedPayload: RegisterWorkerPayload(workerId: workerId)))
+        assertThrows {
+            _ = try registrar.handle(
+                decodedPayload: RegisterWorkerPayload(
+                    workerId: workerId,
+                    workerRestPort: 0
+                )
+            )
+        }
     }
     
     func test_successful_registration() throws {
         let registrar = createRegistrar()
         
-        let response = try registrar.handle(decodedPayload: RegisterWorkerPayload(workerId: workerId))
-        XCTAssertEqual(response, .workerRegisterSuccess(workerConfiguration: WorkerConfigurationFixtures.workerConfiguration))
+        let response = try registrar.handle(
+            decodedPayload: RegisterWorkerPayload(
+                workerId: workerId,
+                workerRestPort: 0
+            )
+        )
+        XCTAssertEqual(
+            response,
+            .workerRegisterSuccess(workerConfiguration: WorkerConfigurationFixtures.workerConfiguration)
+        )
     }
     
     func test_registration_of_unknown_worker() {
         let registrar = createRegistrar()
-        XCTAssertThrowsError(try registrar.handle(decodedPayload: RegisterWorkerPayload(workerId: "unknown")))
+        
+        assertThrows {
+            _ = try registrar.handle(
+                decodedPayload: RegisterWorkerPayload(
+                    workerId: "unknown",
+                    workerRestPort: 0
+                )
+            )
+        }
     }
 }
 

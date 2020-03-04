@@ -13,11 +13,17 @@ public final class WorkerRegistererImpl: WorkerRegisterer {
     
     public func registerWithServer(
         workerId: WorkerId,
+        workerRestPort: Int,
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<WorkerConfiguration, Error>) -> Void
     ) {
         requestSender.sendRequestWithCallback(
-            request: RegisterWorkerRequest(payload: RegisterWorkerPayload(workerId: workerId)),
+            request: RegisterWorkerRequest(
+                payload: RegisterWorkerPayload(
+                    workerId: workerId,
+                    workerRestPort: workerRestPort
+                )
+            ),
             callbackQueue: callbackQueue,
             callback: { (result: Either<RegisterWorkerResponse, RequestSenderError>) in
                 do {

@@ -989,6 +989,7 @@ let package = Package(
             // MARK: QueueServer
             name: "QueueServer",
             dependencies: [
+                "AtomicModels",
                 "AutomaticTermination",
                 "BalancingBucketQueue",
                 "BucketQueue",

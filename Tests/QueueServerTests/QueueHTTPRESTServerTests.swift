@@ -52,8 +52,10 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     
     func test__RegisterWorkerHandler() throws {
         let workerRegistrar = WorkerRegistrar(
+            workerAlivenessProvider: WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults(),
             workerConfigurations: workerConfigurations,
-            workerAlivenessProvider: WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults())
+            workerDetailsHolder: WorkerDetailsHolderImpl()
+        )
         
         restServer.setHandler(
             bucketResultHandler: stubbedHandler,
@@ -75,6 +77,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         
         workerRegisterer.registerWithServer(
             workerId: workerId,
+            workerRestPort: 0,
             callbackQueue: callbackQueue
         ) { result in
             do {

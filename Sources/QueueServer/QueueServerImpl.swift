@@ -49,6 +49,8 @@ public final class QueueServerImpl: QueueServer {
         payloadSignature: PayloadSignature,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
+        let workerDetailsHolder = WorkerDetailsHolderImpl()
+        
         self.workerAlivenessProvider = WorkerAlivenessProviderImpl(
             dateProvider: dateProvider,
             reportAliveInterval: reportAliveInterval,
@@ -89,8 +91,9 @@ public final class QueueServerImpl: QueueServer {
             expectedPayloadSignature: payloadSignature
         )
         self.workerRegistrar = WorkerRegistrar(
+            workerAlivenessProvider: workerAlivenessProvider,
             workerConfigurations: workerConfigurations,
-            workerAlivenessProvider: workerAlivenessProvider
+            workerDetailsHolder: workerDetailsHolder
         )
         self.stuckBucketsPoller = StuckBucketsPoller(
             statefulStuckBucketsReenqueuer: balancingBucketQueue

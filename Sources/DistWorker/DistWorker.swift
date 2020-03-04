@@ -76,6 +76,7 @@ public final class DistWorker: SchedulerDelegate {
     ) throws {
         workerRegisterer.registerWithServer(
             workerId: workerId,
+            workerRestPort: 0,
             callbackQueue: callbackQueue
         ) { [weak self] result in
             do {

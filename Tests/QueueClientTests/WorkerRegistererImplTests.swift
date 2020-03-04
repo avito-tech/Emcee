@@ -30,6 +30,7 @@ final class WorkerRegistererImplTests: XCTestCase {
         
         workerRegisterer.registerWithServer(
             workerId: workerId,
+            workerRestPort: 0,
             callbackQueue: callbackQueue
         ) { localResult in
             result = localResult
