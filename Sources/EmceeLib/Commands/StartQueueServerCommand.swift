@@ -73,23 +73,24 @@ public final class StartQueueServerCommand: Command {
         ).createAutomaticTerminationController()
         let queueServer = QueueServerImpl(
             automaticTerminationController: automaticTerminationController,
-            dateProvider: SystemDateProvider(),
-            workerConfigurations: createWorkerConfigurations(
-                queueServerRunConfiguration: queueServerRunConfiguration
-            ),
-            reportAliveInterval: queueServerRunConfiguration.reportAliveInterval,
-            checkAgainTimeInterval: queueServerRunConfiguration.checkAgainTimeInterval,
-            localPortDeterminer: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange),
-            workerAlivenessPolicy: .workersStayAliveWhenQueueIsDepleted,
             bucketSplitInfo: BucketSplitInfo(
                 numberOfWorkers: UInt(queueServerRunConfiguration.deploymentDestinationConfigurations.count)
             ),
+            checkAgainTimeInterval: queueServerRunConfiguration.checkAgainTimeInterval,
+            dateProvider: SystemDateProvider(),
+            localPortDeterminer: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange),
+            payloadSignature: payloadSignature,
             queueServerLock: AutomaticTerminationControllerAwareQueueServerLock(
                 automaticTerminationController: automaticTerminationController
             ),
             queueVersionProvider: localQueueVersionProvider,
-            payloadSignature: payloadSignature,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            reportAliveInterval: queueServerRunConfiguration.reportAliveInterval,
+            requestSenderProvider: requestSenderProvider,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+            workerAlivenessPolicy: .workersStayAliveWhenQueueIsDepleted,
+            workerConfigurations: createWorkerConfigurations(
+                queueServerRunConfiguration: queueServerRunConfiguration
+            )
         )
         let pollPeriod: TimeInterval = 5.0
         let queueServerTerminationWaiter = QueueServerTerminationWaiterImpl(

@@ -1,3 +1,4 @@
+import AutomaticTermination
 import CurrentlyBeingProcessedBucketsTracker
 import DeveloperDirLocator
 import Dispatch
@@ -11,6 +12,7 @@ import PathLib
 import PluginManager
 import QueueClient
 import RESTMethods
+import RESTServer
 import RequestSender
 import ResourceLocationResolver
 import Runner
@@ -34,10 +36,11 @@ public final class DistWorker: SchedulerDelegate {
     private let temporaryFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
     private let workerId: WorkerId
+    private let workerRESTServer: WorkerRESTServer
     private let workerRegisterer: WorkerRegisterer
+    private var payloadSignature = Either<PayloadSignature, DistWorkerError>.error(DistWorkerError.missingPayloadSignature)
     private var reportingAliveTimer: DispatchBasedTimer?
     private var requestIdForBucketId = [BucketId: RequestId]()
-    private var payloadSignature = Either<PayloadSignature, DistWorkerError>.error(DistWorkerError.missingPayloadSignature)
     
     private enum BucketFetchResult: Equatable {
         case result(SchedulerBucket?)
@@ -68,15 +71,29 @@ public final class DistWorker: SchedulerDelegate {
         self.testRunnerProvider = testRunnerProvider
         self.workerId = workerId
         self.workerRegisterer = workerRegisterer
+        self.workerRESTServer = WorkerRESTServer(
+            httpRestServer: HTTPRESTServer(
+                automaticTerminationController: StayAliveTerminationController(),
+                portProvider: PortProviderWrapper(provider: { 0 })
+            )
+        )
     }
     
     public func start(
         didFetchAnalyticsConfiguration: @escaping (AnalyticsConfiguration) throws -> (),
         completion: @escaping () -> ()
     ) throws {
+        workerRESTServer.setHandler(
+            currentlyProcessingBucketsHandler: RESTEndpointOf(
+                actualHandler: CurrentlyProcessingBucketsEndpoint(
+                    currentlyBeingProcessedBucketsTracker: currentlyBeingProcessedBucketsTracker
+                )
+            )
+        )
+        
         workerRegisterer.registerWithServer(
             workerId: workerId,
-            workerRestPort: 0,
+            workerRestPort: try workerRESTServer.start(),
             callbackQueue: callbackQueue
         ) { [weak self] result in
             do {
@@ -259,7 +276,7 @@ public final class DistWorker: SchedulerDelegate {
                 callbackQueue: callbackQueue,
                 completion: { [currentlyBeingProcessedBucketsTracker] (result: Either<BucketId, Error>) in
                     defer {
-                        currentlyBeingProcessedBucketsTracker.didObtainResult(bucketId: testingResult.bucketId)
+                        currentlyBeingProcessedBucketsTracker.didSendResults(bucketId: testingResult.bucketId)
                     }
                     
                     do {

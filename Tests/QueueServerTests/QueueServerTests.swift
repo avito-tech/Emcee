@@ -43,17 +43,18 @@ final class QueueServerTests: XCTestCase {
         
         let server = QueueServerImpl(
             automaticTerminationController: automaticTerminationController,
-            dateProvider: DateProviderFixture(),
-            workerConfigurations: workerConfigurations,
-            reportAliveInterval: .infinity,
-            checkAgainTimeInterval: .infinity, 
-            localPortDeterminer: localPortDeterminer,
-            workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
             bucketSplitInfo: bucketSplitInfo,
+            checkAgainTimeInterval: .infinity,
+            dateProvider: DateProviderFixture(),
+            localPortDeterminer: localPortDeterminer,
+            payloadSignature: payloadSignature,
             queueServerLock: NeverLockableQueueServerLock(),
             queueVersionProvider: queueVersionProvider,
-            payloadSignature: payloadSignature,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            reportAliveInterval: .infinity,
+            requestSenderProvider: DefaultRequestSenderProvider(),
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+            workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
+            workerConfigurations: workerConfigurations
         )
         XCTAssertThrowsError(try server.queueResults(jobId: jobId))
     }
@@ -79,17 +80,18 @@ final class QueueServerTests: XCTestCase {
         ).createAutomaticTerminationController()
         let server = QueueServerImpl(
             automaticTerminationController: terminationController,
-            dateProvider: DateProviderFixture(),
-            workerConfigurations: workerConfigurations,
-            reportAliveInterval: .infinity,
-            checkAgainTimeInterval: .infinity,
-            localPortDeterminer: localPortDeterminer,
-            workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
             bucketSplitInfo: bucketSplitInfo,
+            checkAgainTimeInterval: .infinity,
+            dateProvider: DateProviderFixture(),
+            localPortDeterminer: localPortDeterminer,
+            payloadSignature: payloadSignature,
             queueServerLock: NeverLockableQueueServerLock(),
             queueVersionProvider: queueVersionProvider,
-            payloadSignature: payloadSignature,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            reportAliveInterval: .infinity,
+            requestSenderProvider: DefaultRequestSenderProvider(),
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+            workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
+            workerConfigurations: workerConfigurations
         )
         server.schedule(
             bucketSplitter: ScheduleStrategyType.individual.bucketSplitter(

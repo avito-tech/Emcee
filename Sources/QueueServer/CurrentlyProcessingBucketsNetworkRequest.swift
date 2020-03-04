@@ -8,7 +8,7 @@ public class CurrentlyProcessingBucketsNetworkRequest: NetworkRequest {
     
     public let httpMethod: HTTPMethod = .get
     public let pathWithLeadingSlash: String = CurrentlyProcessingBuckets.path.withPrependedSlash
-    public let payload: VoidPayload? = nil
+    public let payload: VoidPayload? = VoidPayload()
     public let timeout: TimeInterval
 
     public init(timeout: TimeInterval) {

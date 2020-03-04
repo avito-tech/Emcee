@@ -11,6 +11,7 @@ import PortDeterminer
 import QueueModels
 import RESTMethods
 import RESTServer
+import RequestSender
 import ScheduleStrategy
 import Swifter
 import SynchronousWaiter
@@ -32,22 +33,24 @@ public final class QueueServerImpl: QueueServer {
     private let testsEnqueuer: TestsEnqueuer
     private let workerAlivenessEndpoint: WorkerAlivenessEndpoint
     private let workerAlivenessMatricCapturer: WorkerAlivenessMatricCapturer
+    private let workerAlivenessPoller: WorkerAlivenessPoller
     private let workerAlivenessProvider: WorkerAlivenessProvider
     private let workerRegistrar: WorkerRegistrar
     
     public init(
         automaticTerminationController: AutomaticTerminationController,
-        dateProvider: DateProvider,
-        workerConfigurations: WorkerConfigurations,
-        reportAliveInterval: TimeInterval,
-        checkAgainTimeInterval: TimeInterval,
-        localPortDeterminer: LocalPortDeterminer,
-        workerAlivenessPolicy: WorkerAlivenessPolicy,
         bucketSplitInfo: BucketSplitInfo,
+        checkAgainTimeInterval: TimeInterval,
+        dateProvider: DateProvider,
+        localPortDeterminer: LocalPortDeterminer,
+        payloadSignature: PayloadSignature,
         queueServerLock: QueueServerLock,
         queueVersionProvider: VersionProvider,
-        payloadSignature: PayloadSignature,
-        uniqueIdentifierGenerator: UniqueIdentifierGenerator
+        reportAliveInterval: TimeInterval,
+        requestSenderProvider: RequestSenderProvider,
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator,
+        workerAlivenessPolicy: WorkerAlivenessPolicy,
+        workerConfigurations: WorkerConfigurations
     ) {
         let workerDetailsHolder = WorkerDetailsHolderImpl()
         
@@ -55,6 +58,12 @@ public final class QueueServerImpl: QueueServer {
             dateProvider: dateProvider,
             reportAliveInterval: reportAliveInterval,
             additionalTimeToPerformWorkerIsAliveReport: 30.0
+        )
+        self.workerAlivenessPoller = WorkerAlivenessPoller(
+            pollInterval: 20,
+            requestSenderProvider: requestSenderProvider,
+            workerAlivenessProvider: workerAlivenessProvider,
+            workerDetailsHolder: workerDetailsHolder
         )
         let balancingBucketQueueFactory = BalancingBucketQueueFactory(
             bucketQueueFactory: BucketQueueFactory(
@@ -149,6 +158,7 @@ public final class QueueServerImpl: QueueServer {
 
         stuckBucketsPoller.startTrackingStuckBuckets()
         workerAlivenessMatricCapturer.start()
+        workerAlivenessPoller.startPolling()
         
         let port = try restServer.start()
         Logger.info("Started queue server on port \(port)")

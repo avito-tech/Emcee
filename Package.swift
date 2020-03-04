@@ -367,6 +367,7 @@ let package = Package(
             // MARK: DistWorker
             name: "DistWorker",
             dependencies: [
+                "AutomaticTermination",
                 "CurrentlyBeingProcessedBucketsTracker",
                 "DeveloperDirLocator",
                 "DistWorkerModels",
@@ -376,6 +377,8 @@ let package = Package(
                 "PluginManager",
                 "QueueClient",
                 "RESTMethods",
+                "RESTServer",
+                "RequestSender",
                 "ResourceLocationResolver",
                 "Runner",
                 "Scheduler",
@@ -415,8 +418,10 @@ let package = Package(
             name: "DistWorkerTests",
             dependencies: [
                 "BuildArtifactsTestHelpers",
+                "CurrentlyBeingProcessedBucketsTracker",
                 "DistWorker",
                 "ModelsTestHelpers",
+                "RequestSender",
                 "RunnerTestHelpers",
                 "Scheduler",
                 "SimulatorPoolTestHelpers",

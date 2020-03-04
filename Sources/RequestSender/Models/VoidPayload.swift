@@ -1,1 +1,3 @@
-public class VoidPayload: Codable {}
+public class VoidPayload: Codable {
+    public init() {}
+}

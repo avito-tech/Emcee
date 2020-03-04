@@ -12,7 +12,7 @@ final class CurrentlyBeingProcessedBucketsTrackerTests: XCTestCase {
     func test___result_drops_bucket_id() {
         let tracker = CurrentlyBeingProcessedBucketsTracker()
         tracker.didFetch(bucketId: "bucket1")
-        tracker.didObtainResult(bucketId: "bucket1")
+        tracker.didSendResults(bucketId: "bucket1")
         XCTAssertEqual(tracker.bucketIdsBeingProcessed, [])
     }
     
@@ -20,7 +20,7 @@ final class CurrentlyBeingProcessedBucketsTrackerTests: XCTestCase {
         let tracker = CurrentlyBeingProcessedBucketsTracker()
         tracker.didFetch(bucketId: "bucket1")
         tracker.didFetch(bucketId: "bucket1")
-        tracker.didObtainResult(bucketId: "bucket1")
+        tracker.didSendResults(bucketId: "bucket1")
         XCTAssertEqual(tracker.bucketIdsBeingProcessed, ["bucket1"])
     }
 }

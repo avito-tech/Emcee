@@ -21,7 +21,7 @@ public final class CurrentlyBeingProcessedBucketsTracker {
         }
     }
     
-    public func didObtainResult(bucketId: BucketId) {
+    public func didSendResults(bucketId: BucketId) {
         _ = syncQueue.sync {
             bucketIds.remove(bucketId)
         }
