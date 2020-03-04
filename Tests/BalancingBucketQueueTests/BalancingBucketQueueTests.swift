@@ -263,6 +263,8 @@ final class BalancingBucketQueueTests: XCTestCase {
         balancingQueue.enqueue(buckets: [bucket2], prioritizedJob: anotherPrioritizedJob)
         _ = balancingQueue.dequeueBucket(requestId: anotherRequestId, workerId: workerId)
         
+        workerAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [])
+        
         XCTAssertEqual(
             balancingQueue.reenqueueStuckBuckets(),
             [
