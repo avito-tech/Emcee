@@ -372,6 +372,7 @@ let package = Package(
                 "DeveloperDirLocator",
                 "DistWorkerModels",
                 "Extensions",
+                "LocalHostDeterminer",
                 "Logging",
                 "Models",
                 "PluginManager",

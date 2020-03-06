@@ -2,7 +2,7 @@ import Foundation
 import Models
 
 public protocol WorkerDetailsHolder {
-    func update(workerId: WorkerId, restPort: Int)
+    func update(workerId: WorkerId, restAddress: SocketAddress)
     
-    var knownPorts: [WorkerId: Int] { get }
+    var knownAddresses: [WorkerId: SocketAddress] { get }
 }

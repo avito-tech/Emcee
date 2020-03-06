@@ -119,7 +119,7 @@ final class QueueServerTests: XCTestCase {
         _ = try runSyncronously { [callbackQueue, workerId] completion in
             workerRegisterer.registerWithServer(
                 workerId: workerId,
-                workerRestPort: 0,
+                workerRestAddress: SocketAddress(host: "host", port: 0),
                 callbackQueue: callbackQueue
             ) { _ in
                 completion(Void())

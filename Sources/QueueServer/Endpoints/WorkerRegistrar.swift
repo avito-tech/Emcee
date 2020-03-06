@@ -52,7 +52,7 @@ public final class WorkerRegistrar: RESTEndpoint {
             Logger.debug("Worker \(decodedPayload.workerId) has acceptable status")
             workerDetailsHolder.update(
                 workerId: decodedPayload.workerId,
-                restPort: decodedPayload.workerRestPort
+                restAddress: decodedPayload.workerRestAddress
             )
             return .workerRegisterSuccess(workerConfiguration: workerConfiguration)
         case .alive:

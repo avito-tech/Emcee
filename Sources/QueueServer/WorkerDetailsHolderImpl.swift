@@ -3,17 +3,17 @@ import Foundation
 import Models
 
 public final class WorkerDetailsHolderImpl: WorkerDetailsHolder {
-    private let storage = AtomicValue<[WorkerId: Int]>([:])
+    private let storage = AtomicValue<[WorkerId: SocketAddress]>([:])
 
     public init() {}
     
-    public func update(workerId: WorkerId, restPort: Int) {
+    public func update(workerId: WorkerId, restAddress: SocketAddress) {
         storage.withExclusiveAccess {
-            $0[workerId] = restPort
+            $0[workerId] = restAddress
         }
     }
     
-    public var knownPorts: [WorkerId: Int] {
+    public var knownAddresses: [WorkerId: SocketAddress] {
         return storage.currentValue()
     }
 }

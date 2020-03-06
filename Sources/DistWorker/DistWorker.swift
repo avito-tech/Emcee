@@ -5,6 +5,7 @@ import Dispatch
 import DistWorkerModels
 import EventBus
 import Foundation
+import LocalHostDeterminer
 import Logging
 import LoggingSetup
 import Models
@@ -93,7 +94,10 @@ public final class DistWorker: SchedulerDelegate {
         
         workerRegisterer.registerWithServer(
             workerId: workerId,
-            workerRestPort: try workerRESTServer.start(),
+            workerRestAddress: SocketAddress(
+                host: LocalHostDeterminer.currentHostAddress,
+                port: try workerRESTServer.start()
+            ),
             callbackQueue: callbackQueue
         ) { [weak self] result in
             do {

@@ -45,10 +45,10 @@ public final class WorkerAlivenessPoller {
         let queue = DispatchQueue(label: "pollqueue", qos: .userInteractive, attributes: .concurrent)
         Logger.debug("Polling workers for currently processing buckets")
         
-        for (workerId, port) in workerDetailsHolder.knownPorts {
+        for (workerId, socketAddress) in workerDetailsHolder.knownAddresses {
             queue.async { [pollInterval] in
                 let sender = self.requestSenderProvider.requestSender(
-                    socketAddress: SocketAddress(host: workerId.value, port: port)
+                    socketAddress: socketAddress
                 )
                 Logger.debug("Polling \(workerId) for currently processing buckets")
                 sender.sendRequestWithCallback(

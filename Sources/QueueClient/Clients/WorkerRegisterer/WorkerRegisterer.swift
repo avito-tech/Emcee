@@ -5,7 +5,7 @@ import Models
 public protocol WorkerRegisterer {
     func registerWithServer(
         workerId: WorkerId,
-        workerRestPort: Int,
+        workerRestAddress: SocketAddress,
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<WorkerConfiguration, Error>) -> Void
     )

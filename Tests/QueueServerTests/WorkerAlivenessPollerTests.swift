@@ -17,12 +17,12 @@ final class WorkerAlivenessPollerTests: XCTestCase {
     let bucketId1 = BucketId(value: "bucketId1")
     
     func test___querying_worker_state___updates_worker_aliveness_provider() {
-        workerDetailsHolder.update(workerId: worker1, restPort: 42)
+        workerDetailsHolder.update(workerId: worker1, restAddress: SocketAddress(host: "host1", port: 42))
         
         let requestSenderHasBeenUsedToQueryWorker1 = XCTestExpectation(description: "\(worker1) has been queried")
         
         let requestSenderProvider = FakeRequestSenderProvider { [worker1, bucketId1] socketAddress -> RequestSender in
-            XCTAssertEqual(socketAddress, SocketAddress(host: worker1.value, port: 42))
+            XCTAssertEqual(socketAddress, SocketAddress(host: "host1", port: 42))
             
             let requestSender = FakeRequestSender()
             
@@ -57,7 +57,7 @@ final class WorkerAlivenessPollerTests: XCTestCase {
     }
     
     func test___when_worker_does_not_respond_in_time___aliveness_not_updated() {
-        workerDetailsHolder.update(workerId: worker1, restPort: 42)
+        workerDetailsHolder.update(workerId: worker1, restAddress: SocketAddress(host: "host1", port: 0))
         
         let requestSenderHasBeenUsedToQueryWorker1 = XCTestExpectation(description: "\(worker1) has been queried")
         
@@ -82,8 +82,8 @@ final class WorkerAlivenessPollerTests: XCTestCase {
     }
     
     func test___querying_multiple_workers() {
-        workerDetailsHolder.update(workerId: worker1, restPort: 42)
-        workerDetailsHolder.update(workerId: worker2, restPort: 24)
+        workerDetailsHolder.update(workerId: worker1, restAddress: SocketAddress(host: "host1", port: 42))
+        workerDetailsHolder.update(workerId: worker2, restAddress: SocketAddress(host: "host2", port: 24))
         
         let requestSenderHasBeenUsedToQueryWorker1 = XCTestExpectation(description: "\(worker1) has been queried")
         let requestSenderHasBeenUsedToQueryWorker2 = XCTestExpectation(description: "\(worker2) has been queried")
@@ -91,9 +91,9 @@ final class WorkerAlivenessPollerTests: XCTestCase {
         let requestSenderProvider = FakeRequestSenderProvider { [worker1, worker2] socketAddress -> RequestSender in
             let requestSender = FakeRequestSender()
             requestSender.requestCompleted = { _ in
-                if socketAddress == SocketAddress(host: worker1.value, port: 42) {
+                if socketAddress == SocketAddress(host: "host1", port: 42) {
                     requestSenderHasBeenUsedToQueryWorker1.fulfill()
-                } else if socketAddress == SocketAddress(host: worker2.value, port: 24) {
+                } else if socketAddress == SocketAddress(host: "host2", port: 24) {
                     requestSenderHasBeenUsedToQueryWorker2.fulfill()
                 } else {
                     XCTFail("Unexpected request to \(socketAddress)")
