@@ -11,7 +11,7 @@ public enum RESTMethod: String {
     case jobResults
     case jobDelete
     
-    public var withPrependingSlash: String {
+    public var withLeadingSlash: String {
         return "/\(self.rawValue)"
     }
 }

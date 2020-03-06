@@ -43,7 +43,7 @@ class QueueClientTests: XCTestCase {
     }
     
     func testReturningEmptyQueue() throws {
-        try prepareServer(RESTMethod.getBucket.withPrependingSlash) { request -> HttpResponse in
+        try prepareServer(RESTMethod.getBucket.withLeadingSlash) { request -> HttpResponse in
             let data: Data = (try? JSONEncoder().encode(DequeueBucketResponse.queueIsEmpty)) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
@@ -74,7 +74,7 @@ class QueueClientTests: XCTestCase {
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
             testType: .uiTest
         )
-        try prepareServer(RESTMethod.getBucket.withPrependingSlash) { request -> HttpResponse in
+        try prepareServer(RESTMethod.getBucket.withLeadingSlash) { request -> HttpResponse in
             let data: Data = (try? JSONEncoder().encode(DequeueBucketResponse.bucketDequeued(bucket: bucket))) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
@@ -91,7 +91,7 @@ class QueueClientTests: XCTestCase {
     }
     
     func testCheckAgainLater() throws {
-        try prepareServer(RESTMethod.getBucket.withPrependingSlash) { request -> HttpResponse in
+        try prepareServer(RESTMethod.getBucket.withLeadingSlash) { request -> HttpResponse in
             let data: Data = (try? JSONEncoder().encode(DequeueBucketResponse.checkAgainLater(checkAfter: 10.0))) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
@@ -107,7 +107,7 @@ class QueueClientTests: XCTestCase {
     }
     
     func test___when_queue_is_closed___requests_throw_correct_error() throws {
-        try prepareServer(RESTMethod.getBucket.withPrependingSlash) { request -> HttpResponse in
+        try prepareServer(RESTMethod.getBucket.withLeadingSlash) { request -> HttpResponse in
             XCTFail("Endpoint should not be called")
             return .internalServerError
         }
@@ -137,7 +137,7 @@ class QueueClientTests: XCTestCase {
             .add(testEntry: TestEntryFixtures.testEntry())
             .testEntryConfigurations()
         
-        try prepareServer(RESTMethod.scheduleTests.withPrependingSlash) { request -> HttpResponse in
+        try prepareServer(RESTMethod.scheduleTests.withLeadingSlash) { request -> HttpResponse in
             let requestData = Data(request.body)
             guard let body = try? JSONDecoder().decode(ScheduleTestsRequest.self, from: requestData) else {
                 XCTFail("Queue client request has unexpected type")
@@ -179,7 +179,7 @@ class QueueClientTests: XCTestCase {
                 RunningQueueStateFixtures.runningQueueState()
             )
         )
-        try prepareServer(RESTMethod.jobState.withPrependingSlash) { request -> HttpResponse in
+        try prepareServer(RESTMethod.jobState.withLeadingSlash) { request -> HttpResponse in
             let data: Data = (try? JSONEncoder().encode(JobStateResponse(jobState: jobState))) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }
@@ -196,7 +196,7 @@ class QueueClientTests: XCTestCase {
     
     func test___deleting_job() throws {
         let jobId: JobId = "job_id"
-        try prepareServer(RESTMethod.jobDelete.withPrependingSlash) { request -> HttpResponse in
+        try prepareServer(RESTMethod.jobDelete.withLeadingSlash) { request -> HttpResponse in
             let data: Data = (try? JSONEncoder().encode(JobDeleteResponse(jobId: jobId))) ?? Data()
             return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
         }

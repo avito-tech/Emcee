@@ -24,47 +24,47 @@ public final class QueueHTTPRESTServer {
         versionHandler: RESTEndpointOf<F1, F2>
     ) {
         httpRestServer.setHandler(
-            pathWithSlash: RESTMethod.bucketResult.withPrependingSlash,
+            pathWithSlash: RESTMethod.bucketResult.withLeadingSlash,
             handler: bucketResultHandler,
             requestIndicatesActivity: true
         )
         httpRestServer.setHandler(
-            pathWithSlash: RESTMethod.getBucket.withPrependingSlash,
+            pathWithSlash: RESTMethod.getBucket.withLeadingSlash,
             handler: dequeueBucketRequestHandler,
             requestIndicatesActivity: false
         )
         httpRestServer.setHandler(
-            pathWithSlash: RESTMethod.jobDelete.withPrependingSlash,
+            pathWithSlash: RESTMethod.jobDelete.withLeadingSlash,
             handler: jobDeleteHandler,
             requestIndicatesActivity: true
         )
         httpRestServer.setHandler(
-            pathWithSlash: RESTMethod.jobResults.withPrependingSlash,
+            pathWithSlash: RESTMethod.jobResults.withLeadingSlash,
             handler: jobResultsHandler,
             requestIndicatesActivity: true
         )
         httpRestServer.setHandler(
-            pathWithSlash: RESTMethod.jobState.withPrependingSlash,
+            pathWithSlash: RESTMethod.jobState.withLeadingSlash,
             handler: jobStateHandler,
             requestIndicatesActivity: false
         )
         httpRestServer.setHandler(
-            pathWithSlash: RESTMethod.queueVersion.withPrependingSlash,
+            pathWithSlash: RESTMethod.queueVersion.withLeadingSlash,
             handler: versionHandler,
             requestIndicatesActivity: false
         )
         httpRestServer.setHandler(
-            pathWithSlash: RESTMethod.registerWorker.withPrependingSlash,
+            pathWithSlash: RESTMethod.registerWorker.withLeadingSlash,
             handler: registerWorkerHandler,
             requestIndicatesActivity: true
         )
         httpRestServer.setHandler(
-            pathWithSlash: RESTMethod.reportAlive.withPrependingSlash,
+            pathWithSlash: RESTMethod.reportAlive.withLeadingSlash,
             handler: reportAliveHandler,
             requestIndicatesActivity: false
         )
         httpRestServer.setHandler(
-            pathWithSlash: RESTMethod.scheduleTests.withPrependingSlash,
+            pathWithSlash: RESTMethod.scheduleTests.withLeadingSlash,
             handler: scheduleTestsHandler,
             requestIndicatesActivity: true
         )

@@ -14,7 +14,7 @@ public final class WorkerRESTServer {
         currentlyProcessingBucketsHandler: RESTEndpointOf<AI, AO>
     ) {
         httpRestServer.setHandler(
-            pathWithSlash: CurrentlyProcessingBuckets.path.withPrependedSlash,
+            pathWithSlash: CurrentlyProcessingBuckets.path.withLeadingSlash,
             handler: currentlyProcessingBucketsHandler,
             requestIndicatesActivity: false
         )
