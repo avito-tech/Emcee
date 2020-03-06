@@ -26,7 +26,7 @@ import Timer
 public final class DistWorker: SchedulerDelegate {
     private let bucketResultSender: BucketResultSender
     private let callbackQueue = DispatchQueue(label: "DistWorker.callbackQueue", qos: .default, attributes: .concurrent, autoreleaseFrequency: .inherit, target: nil)
-    private let currentlyBeingProcessedBucketsTracker = CurrentlyBeingProcessedBucketsTracker()
+    private let currentlyBeingProcessedBucketsTracker = DefaultCurrentlyBeingProcessedBucketsTracker()
     private let developerDirLocator: DeveloperDirLocator
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let pluginEventBusProvider: PluginEventBusProvider
@@ -194,43 +194,42 @@ public final class DistWorker: SchedulerDelegate {
     // MARK: - Callbacks
     
     private func nextBucketFetchResult() throws -> BucketFetchResult {
-        reportingAliveTimer?.pause()
-        defer { reportingAliveTimer?.resume() }
-        
-        let requestId = RequestId(value: UUID().uuidString)
-        let result = try queueClient.fetchBucket(
-            requestId: requestId,
-            workerId: workerId,
-            payloadSignature: try payloadSignature.dematerialize()
-        )
-        switch result {
-        case .queueIsEmpty:
-            Logger.debug("Server returned that queue is empty")
-            return .result(nil)
-        case .workerHasBeenBlocked:
-            Logger.error("Server has blocked this worker")
-            return .result(nil)
-        case .workerConsideredNotAlive:
-            Logger.error("Server considers this worker as not alive")
-            return .result(nil)
-        case .checkLater(let after):
-            Logger.debug("Server asked to wait for \(after) seconds and fetch next bucket again")
-            return .checkAgain(after: after)
-        case .bucket(let fetchedBucket):
-            Logger.debug("Received \(fetchedBucket.bucketId) for \(requestId)")
-            currentlyBeingProcessedBucketsTracker.didFetch(bucketId: fetchedBucket.bucketId)
-            syncQueue.sync {
-                requestIdForBucketId[fetchedBucket.bucketId] = requestId
-            }
-            return .result(
-                SchedulerBucket.from(
-                    bucket: fetchedBucket,
-                    testExecutionBehavior: TestExecutionBehavior(
-                        environment: fetchedBucket.testExecutionBehavior.environment,
-                        numberOfRetries: 0
+        return try currentlyBeingProcessedBucketsTracker.perform { tracker -> BucketFetchResult in
+            let requestId = RequestId(value: UUID().uuidString)
+            let result = try queueClient.fetchBucket(
+                requestId: requestId,
+                workerId: workerId,
+                payloadSignature: try payloadSignature.dematerialize()
+            )
+            switch result {
+            case .queueIsEmpty:
+                Logger.debug("Server returned that queue is empty")
+                return .result(nil)
+            case .workerHasBeenBlocked:
+                Logger.error("Server has blocked this worker")
+                return .result(nil)
+            case .workerConsideredNotAlive:
+                Logger.error("Server considers this worker as not alive")
+                return .result(nil)
+            case .checkLater(let after):
+                Logger.debug("Server asked to wait for \(after) seconds and fetch next bucket again")
+                return .checkAgain(after: after)
+            case .bucket(let fetchedBucket):
+                Logger.debug("Received \(fetchedBucket.bucketId) for \(requestId)")
+                tracker.willProcess(bucketId: fetchedBucket.bucketId)
+                syncQueue.sync {
+                    requestIdForBucketId[fetchedBucket.bucketId] = requestId
+                }
+                return .result(
+                    SchedulerBucket.from(
+                        bucket: fetchedBucket,
+                        testExecutionBehavior: TestExecutionBehavior(
+                            environment: fetchedBucket.testExecutionBehavior.environment,
+                            numberOfRetries: 0
+                        )
                     )
                 )
-            )
+            }
         }
     }
     
@@ -280,7 +279,7 @@ public final class DistWorker: SchedulerDelegate {
                 callbackQueue: callbackQueue,
                 completion: { [currentlyBeingProcessedBucketsTracker] (result: Either<BucketId, Error>) in
                     defer {
-                        currentlyBeingProcessedBucketsTracker.didSendResults(bucketId: testingResult.bucketId)
+                        currentlyBeingProcessedBucketsTracker.didProcess(bucketId: testingResult.bucketId)
                     }
                     
                     do {

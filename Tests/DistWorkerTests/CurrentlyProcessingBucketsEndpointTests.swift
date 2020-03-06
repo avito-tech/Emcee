@@ -7,19 +7,19 @@ import XCTest
 
 final class CurrentlyProcessingBucketsEndpointTests: XCTestCase {
     let bucketId = BucketId(value: "bucket")
-    let currentlyBeingProcessedBucketsTracker = CurrentlyBeingProcessedBucketsTracker()
+    let currentlyBeingProcessedBucketsTracker = DefaultCurrentlyBeingProcessedBucketsTracker()
     lazy var endpoint = CurrentlyProcessingBucketsEndpoint(
         currentlyBeingProcessedBucketsTracker: currentlyBeingProcessedBucketsTracker
     )
     
     func test() throws {
-        currentlyBeingProcessedBucketsTracker.didFetch(bucketId: bucketId)
+        currentlyBeingProcessedBucketsTracker.willProcess(bucketId: bucketId)
         XCTAssertEqual(
             try endpoint.handle(decodedPayload: VoidPayload()).bucketIds,
             [bucketId]
         )
         
-        currentlyBeingProcessedBucketsTracker.didSendResults(bucketId: bucketId)
+        currentlyBeingProcessedBucketsTracker.didProcess(bucketId: bucketId)
         XCTAssertEqual(
             try endpoint.handle(decodedPayload: VoidPayload()).bucketIds,
             []
