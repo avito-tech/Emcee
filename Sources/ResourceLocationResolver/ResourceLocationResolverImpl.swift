@@ -16,12 +16,12 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
     private let unarchiveQueue = DispatchQueue(label: "ResourceLocationResolverImpl.unarchiveQueue")
     
     public enum ValidationError: Error, CustomStringConvertible {
-        case unpackProcessError(zipPath: String)
+        case unpackProcessError(zipPath: String, error: Error)
         
         public var description: String {
             switch self {
-            case .unpackProcessError(let zipPath):
-                return "Unzip operation failed for archive at path: \(zipPath)"
+            case .unpackProcessError(let zipPath, let error):
+                return "Unzip operation failed for archive at path \(zipPath): \(error)"
             }
         }
     }
@@ -52,22 +52,32 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
         try unarchiveQueue.sync {
             try urlResource.whileLocked {
                 if !FileManager.default.fileExists(atPath: contentsUrl.path) {
-                    Logger.debug("Will unzip '\(zipUrl)' into '\(contentsUrl)'")
+                    let temporaryContentsUrl = zipUrl.deletingLastPathComponent().appendingPathComponent(
+                        "zip_contents_\(UUID().uuidString)",
+                        isDirectory: true
+                    )
+                    
+                    Logger.debug("Will unzip '\(zipUrl)' into '\(temporaryContentsUrl)'")
                     
                     let processController = try DefaultProcessController(
                         subprocess: Subprocess(
-                            arguments: ["/usr/bin/unzip", "-qq", zipUrl.path, "-d", contentsUrl.path]
+                            arguments: ["/usr/bin/unzip", zipUrl.path, "-d", temporaryContentsUrl.path]
                         )
                     )
-                    processController.startAndListenUntilProcessDies()
-                    guard processController.processStatus() == .terminated(exitCode: 0) else {
+                    do {
+                        try processController.startAndWaitForSuccessfulTermination()
+                        Logger.debug("Moving '\(temporaryContentsUrl)' to '\(contentsUrl)'")
+                        try FileManager.default.moveItem(at: temporaryContentsUrl, to: contentsUrl)
+                    } catch {
+                        Logger.error("Failed to unzip file: \(error)")
                         do {
-                            Logger.debug("Removing downloaded file at \(url) because process \(processController.processName) finished unexpectedly: \(processController.processStatus())")
+                            Logger.debug("Removing downloaded file at \(url)")
                             try urlResource.deleteResource(url: url)
+                            try FileManager.default.removeItem(at: temporaryContentsUrl)
                         } catch {
                             Logger.error("Failed to delete corrupted cached contents for item at url \(url)")
                         }
-                        throw ValidationError.unpackProcessError(zipPath: zipUrl.path)
+                        throw ValidationError.unpackProcessError(zipPath: zipUrl.path, error: error)
                     }
                 }
                 
