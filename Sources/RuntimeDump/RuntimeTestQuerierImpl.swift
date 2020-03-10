@@ -197,13 +197,10 @@ public final class RuntimeTestQuerierImpl: RuntimeTestQuerier {
             key: OnDemandSimulatorPoolKey(
                 developerDir: configuration.developerDir,
                 testDestination: configuration.testDestination,
-                testRunnerTool: configuration.testRunnerTool,
                 simulatorControlTool: simulatorControlTool
             )
         )
-        return try simulatorPool.allocateSimulator(
-            simulatorOperationTimeouts: configuration.simulatorOperationTimeouts
-        )
+        return try simulatorPool.allocateSimulator(simulatorOperationTimeouts: configuration.simulatorOperationTimeouts)
     }
     
     private func requestedTestsNotAvailableInRuntime(

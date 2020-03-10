@@ -14,7 +14,6 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
     private let simulatorControllerProvider: SimulatorControllerProvider
     private let tempFolder: TemporaryFolder
     private let testDestination: TestDestination
-    private let testRunnerTool: TestRunnerTool
     private var controllers = [SimulatorController]()
     private let syncQueue = DispatchQueue(label: "DefaultSimulatorPool.syncQueue")
     
@@ -27,24 +26,20 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
         simulatorControlTool: SimulatorControlTool,
         simulatorControllerProvider: SimulatorControllerProvider,
         tempFolder: TemporaryFolder,
-        testDestination: TestDestination,
-        testRunnerTool: TestRunnerTool
+        testDestination: TestDestination
     ) throws {
         self.developerDir = developerDir
         self.simulatorControlTool = simulatorControlTool
         self.simulatorControllerProvider = simulatorControllerProvider
         self.tempFolder = tempFolder
         self.testDestination = testDestination
-        self.testRunnerTool = testRunnerTool
     }
     
     deinit {
         deleteSimulators()
     }
     
-    public func allocateSimulatorController(
-        simulatorOperationTimeouts: SimulatorOperationTimeouts
-    ) throws -> SimulatorController {
+    public func allocateSimulatorController() throws -> SimulatorController {
         return try syncQueue.sync {
             if let controller = controllers.popLast() {
                 Logger.verboseDebug("Allocated simulator: \(controller)")
@@ -54,8 +49,7 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
             let controller = try simulatorControllerProvider.createSimulatorController(
                 developerDir: developerDir,
                 simulatorControlTool: simulatorControlTool,
-                testDestination: testDestination,
-                testRunnerTool: testRunnerTool
+                testDestination: testDestination
             )
             Logger.verboseDebug("Allocated new simulator: \(controller)")
             controller.simulatorBecameBusy()

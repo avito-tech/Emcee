@@ -14,8 +14,7 @@ public final class FakeSimulatorControllerProvider: SimulatorControllerProvider 
     public func createSimulatorController(
         developerDir: DeveloperDir,
         simulatorControlTool: SimulatorControlTool,
-        testDestination: TestDestination,
-        testRunnerTool: TestRunnerTool
+        testDestination: TestDestination
     ) throws -> SimulatorController {
         return result(testDestination)
     }

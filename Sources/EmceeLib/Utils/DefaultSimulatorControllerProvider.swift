@@ -30,8 +30,7 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
     public func createSimulatorController(
         developerDir: DeveloperDir,
         simulatorControlTool: SimulatorControlTool,
-        testDestination: TestDestination,
-        testRunnerTool: TestRunnerTool
+        testDestination: TestDestination
     ) throws -> SimulatorController {
         return ActivityAwareSimulatorController(
             automaticShutdownTimePeriod: 3600,
@@ -42,8 +41,7 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
                 developerDirLocator: developerDirLocator,
                 simulatorStateMachine: SimulatorStateMachine(),
                 simulatorStateMachineActionExecutor: try simulatorStateMachineActionExecutorProvider.simulatorStateMachineActionExecutor(
-                    simulatorControlTool: simulatorControlTool,
-                    testRunnerTool: testRunnerTool
+                    simulatorControlTool: simulatorControlTool
                 ),
                 testDestination: testDestination
             )

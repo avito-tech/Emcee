@@ -20,23 +20,9 @@ final class SimulatorSetPathDeterminerTests: XCTestCase {
     }
     private let uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator()
     
-    func test___simulator_set_path_is_default_one___when_xcodebuild_is_used___because_xcodebuild_only_works_with_default_simulator_set() {
+    func test___simulator_is_created_inside_temp_folder() {
         let path = assertDoesNotThrow {
-            try provider.simulatorSetPathSuitableForTestRunnerTool(
-                testRunnerTool: .xcodebuild
-            )
-        }
-        XCTAssertEqual(
-            path,
-            SimulatorSetPathDeterminerPaths.defaultSimulatorSetPath
-        )
-    }
-    
-    func test___simulator_is_created_inside_temp_folder___when_fbxctest_is_used() {
-        let path = assertDoesNotThrow {
-            try provider.simulatorSetPathSuitableForTestRunnerTool(
-                testRunnerTool: .fbxctest(FbxctestLocationFixtures.fakeFbxctestLocation)
-            )
+            try provider.simulatorSetPathSuitableForTestRunnerTool()
         }
         XCTAssertEqual(
             path,

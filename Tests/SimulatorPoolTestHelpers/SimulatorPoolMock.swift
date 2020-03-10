@@ -6,15 +6,14 @@ import ModelsTestHelpers
 import PathLib
 import SimulatorPoolModels
 import TemporaryStuff
+import RunnerModels
 
 public final class SimulatorPoolMock: SimulatorPool {
     public var freedSimulatorContoller: SimulatorController?
     
     public init() {}
     
-    public func allocateSimulatorController(
-        simulatorOperationTimeouts: SimulatorOperationTimeouts
-    ) throws -> SimulatorController {
+    public func allocateSimulatorController() throws -> SimulatorController {
         let controller = FakeSimulatorController(
             simulator: SimulatorFixture.simulator(),
             simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,

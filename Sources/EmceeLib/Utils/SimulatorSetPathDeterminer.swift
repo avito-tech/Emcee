@@ -4,9 +4,7 @@ import PathLib
 import RunnerModels
 
 public protocol SimulatorSetPathDeterminer {
-    func simulatorSetPathSuitableForTestRunnerTool(
-        testRunnerTool: TestRunnerTool
-    ) throws -> AbsolutePath
+    func simulatorSetPathSuitableForTestRunnerTool() throws -> AbsolutePath
 }
 
 public enum SimulatorSetPathDeterminerPaths {

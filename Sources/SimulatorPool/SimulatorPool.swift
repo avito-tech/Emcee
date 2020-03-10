@@ -7,6 +7,7 @@ import Models
 import ResourceLocationResolver
 import SimulatorPoolModels
 import TemporaryStuff
+import RunnerModels
 
 /**
  * Every 'borrow' must have a corresponding 'free' call, otherwise the next borrow will throw an error.
@@ -14,9 +15,7 @@ import TemporaryStuff
  * to borrow and free the simulators.
  */
 public protocol SimulatorPool {
-    func allocateSimulatorController(
-        simulatorOperationTimeouts: SimulatorOperationTimeouts
-    ) throws -> SimulatorController
+    func allocateSimulatorController() throws -> SimulatorController
     func free(simulatorController: SimulatorController)
     func deleteSimulators()
     func shutdownSimulators()

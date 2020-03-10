@@ -20,16 +20,9 @@ public final class SimulatorSetPathDeterminerImpl: SimulatorSetPathDeterminer {
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
-    public func simulatorSetPathSuitableForTestRunnerTool(
-        testRunnerTool: TestRunnerTool
-    ) throws -> AbsolutePath {
-        switch testRunnerTool {
-        case .fbxctest:
-            return try temporaryFolder.pathByCreatingDirectories(
-                components: [simulatorContainerFolderName, uniqueIdentifierGenerator.generate()]
-            )
-        case .xcodebuild:
-            return SimulatorSetPathDeterminerPaths.defaultSimulatorSetPath
-        }
+    public func simulatorSetPathSuitableForTestRunnerTool() throws -> AbsolutePath {
+        return try temporaryFolder.pathByCreatingDirectories(
+            components: [simulatorContainerFolderName, uniqueIdentifierGenerator.generate()]
+        )
     }
 }

@@ -7,7 +7,6 @@ public protocol SimulatorControllerProvider {
     func createSimulatorController(
         developerDir: DeveloperDir,
         simulatorControlTool: SimulatorControlTool,
-        testDestination: TestDestination,
-        testRunnerTool: TestRunnerTool
+        testDestination: TestDestination
     ) throws -> SimulatorController
 }

@@ -1,5 +1,6 @@
 import Logging
 import SimulatorPoolModels
+import RunnerModels
 
 public final class AllocatedSimulator {
     public let simulator: Simulator
@@ -15,12 +16,8 @@ public final class AllocatedSimulator {
 }
 
 extension SimulatorPool {
-    public func allocateSimulator(
-        simulatorOperationTimeouts: SimulatorOperationTimeouts
-    ) throws -> AllocatedSimulator {
-        let simulatorController = try self.allocateSimulatorController(
-            simulatorOperationTimeouts: simulatorOperationTimeouts
-        )
+    public func allocateSimulator(simulatorOperationTimeouts: SimulatorOperationTimeouts) throws -> AllocatedSimulator {
+        let simulatorController = try self.allocateSimulatorController()
         simulatorController.apply(simulatorOperationTimeouts: simulatorOperationTimeouts)
 
         do {

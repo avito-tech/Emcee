@@ -5,8 +5,5 @@ import SimulatorPool
 import SimulatorPoolModels
 
 public protocol SimulatorStateMachineActionExecutorProvider {
-    func simulatorStateMachineActionExecutor(
-        simulatorControlTool: SimulatorControlTool,
-        testRunnerTool: TestRunnerTool
-    ) throws -> SimulatorStateMachineActionExecutor
+    func simulatorStateMachineActionExecutor(simulatorControlTool: SimulatorControlTool) throws -> SimulatorStateMachineActionExecutor
 }

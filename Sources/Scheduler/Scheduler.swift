@@ -164,14 +164,11 @@ public final class Scheduler {
             key: OnDemandSimulatorPoolKey(
                 developerDir: bucket.developerDir,
                 testDestination: bucket.testDestination,
-                testRunnerTool: bucket.testRunnerTool,
                 simulatorControlTool: bucket.simulatorControlTool
             )
         )
 
-        let allocatedSimulator = try simulatorPool.allocateSimulator(
-            simulatorOperationTimeouts: bucket.simulatorOperationTimeouts
-        )
+        let allocatedSimulator = try simulatorPool.allocateSimulator(simulatorOperationTimeouts: bucket.simulatorOperationTimeouts)
         defer { allocatedSimulator.releaseSimulator() }
             
         let runner = Runner(

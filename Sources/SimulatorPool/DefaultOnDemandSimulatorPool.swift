@@ -3,6 +3,7 @@ import Foundation
 import Logging
 import Models
 import ResourceLocationResolver
+import RunnerModels
 import TemporaryStuff
 
 public class DefaultOnDemandSimulatorPool: OnDemandSimulatorPool {
@@ -37,8 +38,7 @@ public class DefaultOnDemandSimulatorPool: OnDemandSimulatorPool {
                     simulatorControlTool: key.simulatorControlTool,
                     simulatorControllerProvider: simulatorControllerProvider,
                     tempFolder: tempFolder,
-                    testDestination: key.testDestination,
-                    testRunnerTool: key.testRunnerTool
+                    testDestination: key.testDestination
                 )
                 pools[key] = pool
                 Logger.verboseDebug("Created SimulatorPool for key \(key)")

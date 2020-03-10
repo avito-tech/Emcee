@@ -6,13 +6,13 @@ import RunnerModels
 import TestHelpers
 
 public final class FakeSimulatorSetPathDeterminer: SimulatorSetPathDeterminer {
-    public var provider: (TestRunnerTool) throws -> AbsolutePath
+    public var provider: () throws -> AbsolutePath
     
-    public init(provider: @escaping (TestRunnerTool) throws -> AbsolutePath = { throw ErrorForTestingPurposes(text: "Error getting simulator set path for test tool \($0)") }) {
+    public init(provider: @escaping () throws -> AbsolutePath = { throw ErrorForTestingPurposes(text: "Error getting simulator set path for test tool") }) {
         self.provider = provider
     }
     
-    public func simulatorSetPathSuitableForTestRunnerTool(testRunnerTool: TestRunnerTool) throws -> AbsolutePath {
-        return try provider(testRunnerTool)
+    public func simulatorSetPathSuitableForTestRunnerTool() throws -> AbsolutePath {
+        return try provider()
     }
 }

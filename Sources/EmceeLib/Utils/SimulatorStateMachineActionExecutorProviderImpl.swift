@@ -25,13 +25,8 @@ public final class SimulatorStateMachineActionExecutorProviderImpl: SimulatorSta
         self.simulatorSetPathDeterminer = simulatorSetPathDeterminer
     }
     
-    public func simulatorStateMachineActionExecutor(
-        simulatorControlTool: SimulatorControlTool,
-        testRunnerTool: TestRunnerTool
-    ) throws -> SimulatorStateMachineActionExecutor {
-        let simulatorSetPath = try simulatorSetPathDeterminer.simulatorSetPathSuitableForTestRunnerTool(
-            testRunnerTool: testRunnerTool
-        )
+    public func simulatorStateMachineActionExecutor(simulatorControlTool: SimulatorControlTool) throws -> SimulatorStateMachineActionExecutor {
+        let simulatorSetPath = try simulatorSetPathDeterminer.simulatorSetPathSuitableForTestRunnerTool()
         
         switch simulatorControlTool {
         case .fbsimctl(let fbsimctlLocation):

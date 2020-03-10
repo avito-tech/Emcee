@@ -11,9 +11,7 @@ final class SimulatorPoolConvenienceTests: XCTestCase {
     
     func test__simulator_contoller_frees__upon_release() throws {
         let pool = SimulatorPoolMock()
-        let allocatedSimulator = try pool.allocateSimulator(
-            simulatorOperationTimeouts: simulatorOperationTimeouts
-        )
+        let allocatedSimulator = try pool.allocateSimulator(simulatorOperationTimeouts: simulatorOperationTimeouts)
         allocatedSimulator.releaseSimulator()
         
         guard let fakeSimulatorController = pool.freedSimulatorContoller as? FakeSimulatorController else {

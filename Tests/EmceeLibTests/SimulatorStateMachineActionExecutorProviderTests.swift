@@ -18,14 +18,11 @@ final class SimulatorStateMachineActionExecutorProviderTests: XCTestCase {
         let provider = SimulatorStateMachineActionExecutorProviderImpl(
             processControllerProvider: fakeProcessControllerProvider,
             resourceLocationResolver: FakeResourceLocationResolver.throwing(),
-            simulatorSetPathDeterminer: FakeSimulatorSetPathDeterminer(provider: { _ in self.tempFolder.absolutePath })
+            simulatorSetPathDeterminer: FakeSimulatorSetPathDeterminer(provider: { self.tempFolder.absolutePath })
         )
         
         assertDoesNotThrow {
-            let executor = try provider.simulatorStateMachineActionExecutor(
-                simulatorControlTool: .simctl,
-                testRunnerTool: .xcodebuild
-            )
+            let executor = try provider.simulatorStateMachineActionExecutor(simulatorControlTool: .simctl)
             XCTAssert(executor is SimctlBasedSimulatorStateMachineActionExecutor)
         }
     }
@@ -34,13 +31,12 @@ final class SimulatorStateMachineActionExecutorProviderTests: XCTestCase {
         let provider = SimulatorStateMachineActionExecutorProviderImpl(
             processControllerProvider: fakeProcessControllerProvider,
             resourceLocationResolver: FakeResourceLocationResolver.throwing(),
-            simulatorSetPathDeterminer: FakeSimulatorSetPathDeterminer(provider: { _ in self.tempFolder.absolutePath })
+            simulatorSetPathDeterminer: FakeSimulatorSetPathDeterminer(provider: { self.tempFolder.absolutePath })
         )
         
         assertDoesNotThrow {
             let executor = try provider.simulatorStateMachineActionExecutor(
-                simulatorControlTool: .fbsimctl(FbsimcrlLocationFixtures.fakeFbsimctlLocation),
-                testRunnerTool: .xcodebuild
+                simulatorControlTool: .fbsimctl(FbsimcrlLocationFixtures.fakeFbsimctlLocation)
             )
             XCTAssert(executor is FbsimctlBasedSimulatorStateMachineActionExecutor)
         }
