@@ -61,6 +61,8 @@ public final class RemoteWorkersStarter {
             )
             
             deployQueue.async { [tempFolder] in
+                Logger.debug("Deploying to \(destination)")
+                
                 let launchdDeployableItem = DeployableItem(
                     name: "launchd_plist",
                     files: [

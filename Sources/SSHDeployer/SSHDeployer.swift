@@ -106,12 +106,12 @@ public final class SSHDeployer: Deployer {
                 remotePackagePath: remotePackagePath,
                 remoteDeploymentPath: remoteDeploymentPath
             )
-            
-            try invokeCommands(
-                sshClient: sshClient,
-                destination: destination
-            )
         }
+        
+        try invokeCommands(
+            sshClient: sshClient,
+            destination: destination
+        )
         
         SSHDeployer.log(destination, "Finished deploying")
     }
