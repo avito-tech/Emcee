@@ -1,6 +1,5 @@
 import Foundation
 import Models
-import Version
 
 public enum QueueVersionResponse: Codable, Equatable {
     case queueVersion(Version)

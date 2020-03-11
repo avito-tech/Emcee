@@ -8,7 +8,6 @@ import Models
 import PathLib
 import Sentry
 import TemporaryStuff
-import Version
 
 public final class LoggingSetup {
     private init() {}
@@ -34,20 +33,21 @@ public final class LoggingSetup {
         Logger.always("$ scp \(NSUserName())@\(LocalHostDeterminer.currentHostAddress):\(detailedLogPath.absolutePath) /tmp/\(filename).log && open /tmp/\(filename).log")
     }
     
-    public static func setupAnalytics(analyticsConfiguration: AnalyticsConfiguration) throws {
+    public static func setupAnalytics(analyticsConfiguration: AnalyticsConfiguration, emceeVersion: Version) throws {
         if let sentryConfiguration = analyticsConfiguration.sentryConfiguration {
-            try setupSentry(sentryConfiguration: sentryConfiguration)
+            try setupSentry(emceeVersion: emceeVersion, sentryConfiguration: sentryConfiguration)
         }
         if let graphiteConfiguration = analyticsConfiguration.graphiteConfiguration {
             try setupGraphite(graphiteConfiguration: graphiteConfiguration)
         }
     }
     
-    private static func setupSentry(sentryConfiguration: SentryConfiguration) throws {
+    private static func setupSentry(emceeVersion: Version, sentryConfiguration: SentryConfiguration) throws {
         let loggerHandler = AggregatedLoggerHandler(
             handlers: [
                 GlobalLoggerConfig.loggerHandler,
                 try createSentryLoggerHandler(
+                    emceeVersion: emceeVersion,
                     sentryConfiguration: sentryConfiguration,
                     verbosity: .error
                 )
@@ -100,16 +100,16 @@ public final class LoggingSetup {
     }
     
     private static func createSentryLoggerHandler(
+        emceeVersion: Version,
         sentryConfiguration: SentryConfiguration,
         verbosity: Verbosity
         ) throws -> LoggerHandler
     {
         let dsn = try DSN.create(dsnUrl: sentryConfiguration.dsn)
-        let binaryVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
         return SentryLoggerHandler(
             dsn: dsn,
             hostname: LocalHostDeterminer.currentHostAddress,
-            release: try binaryVersionProvider.version().value,
+            release: emceeVersion.value,
             sentryEventDateFormatter: SentryDateFormatterFactory.createDateFormatter(),
             urlSession: URLSession.shared,
             verbosity: verbosity

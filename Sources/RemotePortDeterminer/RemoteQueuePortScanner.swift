@@ -5,7 +5,6 @@ import Logging
 import Models
 import QueueClient
 import RequestSender
-import Version
 
 public final class RemoteQueuePortScanner: RemotePortDeterminer {
     private let host: String

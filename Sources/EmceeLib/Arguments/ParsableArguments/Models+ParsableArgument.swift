@@ -36,3 +36,9 @@ extension JobId: ParsableArgument {
         self.init(value: argumentValue)
     }
 }
+
+extension Version: ParsableArgument {
+    public convenience init(argumentValue: String) throws {
+        self.init(value: argumentValue)
+    }
+}

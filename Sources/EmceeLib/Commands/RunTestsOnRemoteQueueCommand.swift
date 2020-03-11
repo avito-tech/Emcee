@@ -27,12 +27,12 @@ import SynchronousWaiter
 import TemporaryStuff
 import TestArgFile
 import UniqueIdentifierGenerator
-import Version
 
 public final class RunTestsOnRemoteQueueCommand: Command {
     public let name = "runTestsOnRemoteQueue"
     public let description = "Starts queue server on remote machine if needed and runs tests on the remote queue. Waits for resuls to come back."
     public let arguments: Arguments = [
+        ArgumentDescriptions.emceeVersion.asRequired,
         ArgumentDescriptions.junit.asOptional,
         ArgumentDescriptions.queueServerDestination.asRequired,
         ArgumentDescriptions.queueServerRunConfigurationLocation.asRequired,
@@ -40,12 +40,11 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         ArgumentDescriptions.tempFolder.asRequired,
         ArgumentDescriptions.testArgFile.asRequired,
         ArgumentDescriptions.trace.asOptional,
-        ArgumentDescriptions.remoteCacheConfig.asOptional,
+        ArgumentDescriptions.remoteCacheConfig.asOptional
     ]
     
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
-    private let localQueueVersionProvider: VersionProvider
     private let pluginEventBusProvider: PluginEventBusProvider
     private let processControllerProvider: ProcessControllerProvider
     private let requestSenderProvider: RequestSenderProvider
@@ -56,7 +55,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     public init(
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
-        localQueueVersionProvider: VersionProvider,
         pluginEventBusProvider: PluginEventBusProvider,
         processControllerProvider: ProcessControllerProvider,
         requestSenderProvider: RequestSenderProvider,
@@ -66,7 +64,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
-        self.localQueueVersionProvider = localQueueVersionProvider
         self.pluginEventBusProvider = pluginEventBusProvider
         self.processControllerProvider = processControllerProvider
         self.requestSenderProvider = requestSenderProvider
@@ -87,6 +84,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         
         let queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerRunConfigurationLocation.name)
         let runId: JobId = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.runId.name)
+        let emceeVersion: Version = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name)
         
         let tempFolder = try TemporaryFolder(containerPath: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.tempFolder.name))
         let testArgFile = try ArgumentsReader.testArgFile(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testArgFile.name))
@@ -96,6 +94,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         )
 
         let runningQueueServerAddress = try detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
+            emceeVersion: emceeVersion,
             queueServerDestination: queueServerDestination,
             queueServerRunConfigurationLocation: queueServerRunConfigurationLocation,
             runId: runId,
@@ -117,14 +116,15 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     }
     
     private func detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
+        emceeVersion: Version,
         queueServerDestination: DeploymentDestination,
         queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation,
         runId: JobId,
         tempFolder: TemporaryFolder
     ) throws -> SocketAddress {
-        Logger.info("Searching for queue server on '\(queueServerDestination.host)' with queue version \(try localQueueVersionProvider.version())")
+        Logger.info("Searching for queue server on '\(queueServerDestination.host)' with queue version \(emceeVersion)")
         let remoteQueueDetector = RemoteQueueDetector(
-            localQueueClientVersionProvider: localQueueVersionProvider,
+            emceeVersion: emceeVersion,
             remotePortDeterminer: RemoteQueuePortScanner(
                 host: queueServerDestination.host,
                 portRange: Ports.defaultQueuePortRange,
@@ -144,8 +144,8 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         Logger.info("No running queue server has been found. Will deploy and start remote queue.")
         let remoteQueueStarter = RemoteQueueStarter(
             deploymentId: runId.value,
-            emceeVersionProvider: localQueueVersionProvider,
             deploymentDestination: queueServerDestination,
+            emceeVersion: emceeVersion,
             queueServerRunConfigurationLocation: queueServerRunConfigurationLocation,
             tempFolder: tempFolder
         )

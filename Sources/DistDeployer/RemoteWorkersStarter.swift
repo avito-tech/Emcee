@@ -4,36 +4,34 @@ import Logging
 import Models
 import PathLib
 import TemporaryStuff
-import Version
 
 /// Starts the remote workers on the given destinations that will poll jobs from the given queue
 public final class RemoteWorkersStarter {
-    private let emceeVersionProvider: VersionProvider
     private let deploymentDestinations: [DeploymentDestination]
     private let tempFolder: TemporaryFolder
 
     public init(
-        emceeVersionProvider: VersionProvider,
         deploymentDestinations: [DeploymentDestination],
         tempFolder: TemporaryFolder
     ) {
-        self.emceeVersionProvider = emceeVersionProvider
         self.deploymentDestinations = deploymentDestinations
         self.tempFolder = tempFolder
     }
     
     public func deployAndStartWorkers(
         deployQueue: DispatchQueue,
+        emceeVersion: Version,
         queueAddress: SocketAddress
     ) throws {
         let deployablesGenerator = DeployablesGenerator(
-            emceeVersionProvider: emceeVersionProvider,
+            emceeVersion: emceeVersion,
             remoteEmceeBinaryName: "EmceeWorker"
         )
         try deployAndStartWorkers(
             deployQueue: deployQueue,
             deployableItems: try deployablesGenerator.deployables(),
             emceeBinaryDeployableItem: try deployablesGenerator.runnerTool(),
+            emceeVersion: emceeVersion,
             queueAddress: queueAddress
         )
     }
@@ -42,14 +40,13 @@ public final class RemoteWorkersStarter {
         deployQueue: DispatchQueue,
         deployableItems: [DeployableItem],
         emceeBinaryDeployableItem: DeployableItem,
+        emceeVersion: Version,
         queueAddress: SocketAddress
     ) throws {
-        let emceeVersion = try emceeVersionProvider.version().value
-        
         for destination in deploymentDestinations {
             let launchdPlist = RemoteWorkerLaunchdPlist(
-                deploymentId: emceeVersion,
                 deploymentDestination: destination,
+                emceeVersion: emceeVersion,
                 executableDeployableItem: emceeBinaryDeployableItem,
                 queueAddress: queueAddress
             )
@@ -78,7 +75,7 @@ public final class RemoteWorkersStarter {
                 )
                 
                 let deployer = DistDeployer(
-                    deploymentId: emceeVersion,
+                    deploymentId: emceeVersion.value,
                     deploymentDestinations: [destination],
                     deployableItems: deployableItems + [launchdDeployableItem],
                     deployableCommands: [

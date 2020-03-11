@@ -7,7 +7,6 @@ import RESTMethods
 import RequestSender
 import ScheduleStrategy
 import SynchronousWaiter
-import Version
 
 public final class SynchronousQueueClient: QueueClientDelegate {
     public enum BucketFetchResult: Equatable {

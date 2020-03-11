@@ -344,8 +344,7 @@ let package = Package(
                 "PathLib",
                 "SSHDeployer",
                 "TemporaryStuff",
-                "TypedResourceLocation",
-                "Version",
+                "TypedResourceLocation"
             ]
         ),
         .testTarget(
@@ -477,7 +476,6 @@ let package = Package(
                 "TypedResourceLocation",
                 "URLResource",
                 "UniqueIdentifierGenerator",
-                "Version",
                 "fbxctest",
             ]
         ),
@@ -601,23 +599,6 @@ let package = Package(
             ]
         ),
         .target(
-            // MARK: FileHasher
-            name: "FileHasher",
-            dependencies: [
-                "AtomicModels",
-                "Extensions",
-                "Models"
-            ]
-        ),
-        .testTarget(
-            // MARK: FileHasherTests
-            name: "FileHasherTests",
-            dependencies: [
-                "FileHasher",
-                "TemporaryStuff"
-            ]
-        ),
-        .target(
             // MARK: FileLock
             name: "FileLock",
             dependencies: [
@@ -711,7 +692,6 @@ let package = Package(
                 "SynchronousWaiter",
                 "TemporaryStuff",
                 "UniqueIdentifierGenerator",
-                "Version",
             ]
         ),
         .testTarget(
@@ -727,8 +707,6 @@ let package = Package(
                 "RemotePortDeterminer",
                 "RemotePortDeterminerTestHelpers",
                 "TemporaryStuff",
-                "Version",
-                "VersionTestHelpers",
             ]
         ),
         .target(
@@ -752,8 +730,7 @@ let package = Package(
                 "Metrics",
                 "PathLib",
                 "Sentry",
-                "TemporaryStuff",
-                "Version"
+                "TemporaryStuff"
             ]
         ),
         .testTarget(
@@ -939,8 +916,7 @@ let package = Package(
                 "RESTMethods",
                 "RequestSender",
                 "ScheduleStrategy",
-                "SynchronousWaiter",
-                "Version",
+                "SynchronousWaiter"
             ]
         ),
         .testTarget(
@@ -1002,7 +978,6 @@ let package = Package(
                 "DateProvider",
                 "DistWorkerModels",
                 "Extensions",
-                "FileHasher",
                 "LocalHostDeterminer",
                 "Logging",
                 "Metrics",
@@ -1018,7 +993,6 @@ let package = Package(
                 "SynchronousWaiter",
                 "Timer",
                 "UniqueIdentifierGenerator",
-                "Version",
                 "WorkerAlivenessProvider",
             ]
         ),
@@ -1050,7 +1024,6 @@ let package = Package(
                 "Deployer",
                 "DistWorkerModels",
                 "DistWorkerModelsTestHelpers",
-                "FileHasher",
                 "Models",
                 "ModelsTestHelpers",
                 "QueueClient",
@@ -1069,9 +1042,8 @@ let package = Package(
                 "TemporaryStuff",
                 "TestHelpers",
                 "UniqueIdentifierGeneratorTestHelpers",
-                "VersionTestHelpers",
                 "WorkerAlivenessProvider",
-                "WorkerAlivenessProviderTestHelpers",
+                "WorkerAlivenessProviderTestHelpers"
             ]
         ),
         .target(
@@ -1080,8 +1052,7 @@ let package = Package(
             dependencies: [
                 "AtomicModels",
                 "QueueClient",
-                "RequestSender",
-                "Version"
+                "RequestSender"
             ]
         ),
         .target(
@@ -1109,8 +1080,7 @@ let package = Package(
                 "DistDeployer",
                 "Models",
                 "RemotePortDeterminer",
-                "SSHDeployer",
-                "Version"
+                "SSHDeployer"
             ]
         ),
         .testTarget(
@@ -1118,8 +1088,7 @@ let package = Package(
             name: "RemoteQueueTests",
             dependencies: [
                 "RemotePortDeterminerTestHelpers",
-                "RemoteQueue",
-                "VersionTestHelpers"
+                "RemoteQueue"
             ]
         ),
         .target(
@@ -1225,8 +1194,7 @@ let package = Package(
                 "Models",
                 "QueueModels",
                 "RequestSender",
-                "ScheduleStrategy",
-                "Version",
+                "ScheduleStrategy"
             ]
         ),
         .target(
@@ -1670,31 +1638,6 @@ let package = Package(
                 "TemporaryStuff",
                 "TestHelpers",
                 "URLResource",
-            ]
-        ),
-        .target(
-            // MARK: Version
-            name: "Version",
-            dependencies: [
-                "FileHasher"
-            ]
-        ),
-        .target(
-            // MARK: VersionTestHelpers
-            name: "VersionTestHelpers",
-            dependencies: [
-                "Version"
-            ],
-            path: "Tests/VersionTestHelpers"
-        ),
-        .testTarget(
-            // MARK: VersionTests
-            name: "VersionTests",
-            dependencies: [
-                "Extensions",
-                "FileHasher",
-                "TemporaryStuff",
-                "Version"
             ]
         ),
         .target(

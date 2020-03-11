@@ -9,8 +9,8 @@ import XCTest
 
 final class RemoteWorkerLaunchdPlistTests: XCTestCase {
     let launchdPlist = RemoteWorkerLaunchdPlist(
-        deploymentId: "deploymentId",
         deploymentDestination: DeploymentDestinationFixtures().buildDeploymentDestination(),
+        emceeVersion: "emceeVersion",
         executableDeployableItem: DeployableItem(
             name: "emcee",
             files: [DeployableFile(source: AbsolutePath("local_file"), destination: RelativePath("remote_filename"))]
@@ -28,8 +28,10 @@ final class RemoteWorkerLaunchdPlistTests: XCTestCase {
         XCTAssertEqual(
             decodedDict["ProgramArguments"] as? Array,
             [
-                "/Users/username/path/deploymentId/emcee/remote_filename",
+                "/Users/username/path/emceeVersion/emcee/remote_filename",
                 "distWork",
+                "--emcee-version",
+                "emceeVersion",
                 "--queue-server",
                 "queue.host:24",
                 "--worker-id",
@@ -38,7 +40,7 @@ final class RemoteWorkerLaunchdPlistTests: XCTestCase {
         )
         XCTAssertEqual(
             decodedDict["WorkingDirectory"] as? String,
-            "/Users/username/path/deploymentId/emcee"
+            "/Users/username/path/emceeVersion/emcee"
         )
         XCTAssertEqual(
             decodedDict["Disabled"] as? Bool,
@@ -54,7 +56,7 @@ final class RemoteWorkerLaunchdPlistTests: XCTestCase {
         )
         XCTAssertEqual(
             decodedDict["Label"] as? String,
-            "ru.avito.emcee.worker.deploymentId"
+            "ru.avito.emcee.worker.emceeVersion"
         )
     }
 }

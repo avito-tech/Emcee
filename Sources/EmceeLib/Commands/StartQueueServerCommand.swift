@@ -19,29 +19,26 @@ import ResourceLocationResolver
 import ScheduleStrategy
 import TemporaryStuff
 import UniqueIdentifierGenerator
-import Version
 
 public final class StartQueueServerCommand: Command {
     public let name = "startLocalQueueServer"
     public let description = "Starts queue server on local machine. This mode waits for jobs to be scheduled via REST API."
     public let arguments: Arguments = [
+        ArgumentDescriptions.emceeVersion.asRequired,
         ArgumentDescriptions.queueServerRunConfigurationLocation.asRequired
     ]
-    
-    private let localQueueVersionProvider: VersionProvider
+
     private let requestSenderProvider: RequestSenderProvider
     private let payloadSignature: PayloadSignature
     private let resourceLocationResolver: ResourceLocationResolver
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
 
     public init(
-        localQueueVersionProvider: VersionProvider,
         requestSenderProvider: RequestSenderProvider,
         payloadSignature: PayloadSignature,
         resourceLocationResolver: ResourceLocationResolver,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
-        self.localQueueVersionProvider = localQueueVersionProvider
         self.requestSenderProvider = requestSenderProvider
         self.payloadSignature = payloadSignature
         self.resourceLocationResolver = resourceLocationResolver
@@ -49,20 +46,23 @@ public final class StartQueueServerCommand: Command {
     }
     
     public func run(payload: CommandPayload) throws {
+        let emceeVersion: Version = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name)
         let queueServerRunConfiguration = try ArgumentsReader.queueServerRunConfiguration(
             location: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerRunConfigurationLocation.name),
             resourceLocationResolver: resourceLocationResolver
         )
         
-        try LoggingSetup.setupAnalytics(analyticsConfiguration: queueServerRunConfiguration.analyticsConfiguration)
+        try LoggingSetup.setupAnalytics(analyticsConfiguration: queueServerRunConfiguration.analyticsConfiguration, emceeVersion: emceeVersion)
         
         try startQueueServer(
+            emceeVersion: emceeVersion,
             queueServerRunConfiguration: queueServerRunConfiguration,
             workerDestinations: queueServerRunConfiguration.workerDeploymentDestinations
         )
     }
     
     private func startQueueServer(
+        emceeVersion: Version,
         queueServerRunConfiguration: QueueServerRunConfiguration,
         workerDestinations: [DeploymentDestination]
     ) throws {
@@ -78,12 +78,12 @@ public final class StartQueueServerCommand: Command {
             ),
             checkAgainTimeInterval: queueServerRunConfiguration.checkAgainTimeInterval,
             dateProvider: SystemDateProvider(),
+            emceeVersion: emceeVersion,
             localPortDeterminer: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange),
             payloadSignature: payloadSignature,
             queueServerLock: AutomaticTerminationControllerAwareQueueServerLock(
                 automaticTerminationController: automaticTerminationController
             ),
-            queueVersionProvider: localQueueVersionProvider,
             reportAliveInterval: queueServerRunConfiguration.reportAliveInterval,
             requestSenderProvider: requestSenderProvider,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
@@ -105,7 +105,6 @@ public final class StartQueueServerCommand: Command {
             queueServerTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy,
             pollPeriod: pollPeriod,
             newWorkerRegistrationTimeAllowance: 360.0,
-            versionProvider: localQueueVersionProvider,
             remotePortDeterminer: RemoteQueuePortScanner(
                 host: LocalHostDeterminer.currentHostAddress,
                 portRange: Ports.defaultQueuePortRange,
@@ -114,7 +113,7 @@ public final class StartQueueServerCommand: Command {
             temporaryFolder: try TemporaryFolder(),
             workerDestinations: workerDestinations
         )
-        try localQueueServerRunner.start()
+        try localQueueServerRunner.start(emceeVersion: emceeVersion)
     }
     
     private func createWorkerConfigurations(

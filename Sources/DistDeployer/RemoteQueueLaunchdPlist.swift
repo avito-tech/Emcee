@@ -10,6 +10,8 @@ public final class RemoteQueueLaunchdPlist {
     private let deploymentId: String
     /// Deployment destination where queue should start
     private let deploymentDestination: DeploymentDestination
+    /// Emcee binary version
+    private let emceeVersion: Version
     /// Queue server executable
     private let queueServerBinaryDeployableItem: DeployableItem
     /// A JSON file location that contains QueueServerRunConfiguration for queue server
@@ -19,10 +21,12 @@ public final class RemoteQueueLaunchdPlist {
         deploymentId: String,
         deploymentDestination: DeploymentDestination,
         emceeDeployableItem: DeployableItem,
+        emceeVersion: Version,
         queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation
     ) {
         self.deploymentId = deploymentId
         self.deploymentDestination = deploymentDestination
+        self.emceeVersion = emceeVersion
         self.queueServerBinaryDeployableItem = emceeDeployableItem
         self.queueServerRunConfigurationLocation = queueServerRunConfigurationLocation
     }
@@ -49,6 +53,7 @@ public final class RemoteQueueLaunchdPlist {
                 label: jobLabel,
                 programArguments: [
                     remoteQueueServerBinaryPath.pathString, "startLocalQueueServer",
+                    "--emcee-version", emceeVersion.value,
                     "--queue-server-run-configuration-location", queueServerRunConfigurationLocation.resourceLocation.stringValue
                 ],
                 environmentVariables: [:],

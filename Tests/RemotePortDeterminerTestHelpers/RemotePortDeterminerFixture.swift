@@ -1,6 +1,6 @@
 import Foundation
 import RemotePortDeterminer
-import Version
+import Models
 
 public final class RemotePortDeterminerFixture: RemotePortDeterminer {
     private var result = [Int: Version]()

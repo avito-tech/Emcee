@@ -4,7 +4,6 @@ import QueueClient
 import RESTMethods
 import RequestSender
 import RequestSenderTestHelpers
-import Version
 import XCTest
 
 final class QueueServerVersionFetcherTests: XCTestCase {

@@ -6,7 +6,6 @@ import RESTMethods
 import RequestSender
 import RequestSenderTestHelpers
 import Swifter
-import Version
 import XCTest
 
 final class RemoteQueuePortScannerTests: XCTestCase {

@@ -13,7 +13,6 @@ import QueueServer
 import RequestSender
 import ScheduleStrategy
 import UniqueIdentifierGeneratorTestHelpers
-import VersionTestHelpers
 import XCTest
 import RequestSenderTestHelpers
 import TestHelpers
@@ -29,7 +28,6 @@ final class QueueServerTests: XCTestCase {
     /// https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?&page=1
     private let localPortDeterminer = LocalPortDeterminer(portRange: 49152...65535)
     private let bucketSplitInfo = BucketSplitInfoFixtures.bucketSplitInfoFixture()
-    private let queueVersionProvider = VersionProviderFixture().buildVersionProvider()
     private let payloadSignature = PayloadSignature(value: "expectedPayloadSignature")
 
     private let fixedBucketId: BucketId = "fixedBucketId"
@@ -46,10 +44,10 @@ final class QueueServerTests: XCTestCase {
             bucketSplitInfo: bucketSplitInfo,
             checkAgainTimeInterval: .infinity,
             dateProvider: DateProviderFixture(),
+            emceeVersion: "emceeVersion",
             localPortDeterminer: localPortDeterminer,
             payloadSignature: payloadSignature,
             queueServerLock: NeverLockableQueueServerLock(),
-            queueVersionProvider: queueVersionProvider,
             reportAliveInterval: .infinity,
             requestSenderProvider: DefaultRequestSenderProvider(),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
@@ -83,10 +81,10 @@ final class QueueServerTests: XCTestCase {
             bucketSplitInfo: bucketSplitInfo,
             checkAgainTimeInterval: .infinity,
             dateProvider: DateProviderFixture(),
+            emceeVersion: "emceeVersion",
             localPortDeterminer: localPortDeterminer,
             payloadSignature: payloadSignature,
             queueServerLock: NeverLockableQueueServerLock(),
-            queueVersionProvider: queueVersionProvider,
             reportAliveInterval: .infinity,
             requestSenderProvider: DefaultRequestSenderProvider(),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,

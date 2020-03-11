@@ -1,24 +1,24 @@
 import Foundation
 import RemotePortDeterminer
-import Version
+import Models
 
 public final class RemoteQueueDetector {
-    private let localQueueClientVersionProvider: VersionProvider
+    private let emceeVersion: Version
     private let remotePortDeterminer: RemotePortDeterminer
 
     public init(
-        localQueueClientVersionProvider: VersionProvider,
+        emceeVersion: Version,
         remotePortDeterminer: RemotePortDeterminer)
     {
-        self.localQueueClientVersionProvider = localQueueClientVersionProvider
+        self.emceeVersion = emceeVersion
         self.remotePortDeterminer = remotePortDeterminer
     }
     
     public func findSuitableRemoteRunningQueuePorts(timeout: TimeInterval) throws -> Set<Int> {
-        let localVersion = try localQueueClientVersionProvider.version()
+
         let availableQueues = remotePortDeterminer.queryPortAndQueueServerVersion(timeout: timeout)
         let ports = availableQueues
-            .filter { keyValue -> Bool in keyValue.value == localVersion }
+            .filter { keyValue -> Bool in keyValue.value == emceeVersion }
             .map { $0.key }
         return Set(ports)
     }

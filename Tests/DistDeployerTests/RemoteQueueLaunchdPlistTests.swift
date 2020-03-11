@@ -9,6 +9,7 @@ import XCTest
 
 final class RemoteQueueLaunchdPlistTests: XCTestCase {
     let remoteConfigUrl = URL(string: "http://example.com/file.zip#config.json")!
+    let emceeVersion: Version = "emceeVersion"
     lazy var launchdPlist = RemoteQueueLaunchdPlist(
         deploymentId: "deploymentId",
         deploymentDestination: DeploymentDestinationFixtures().buildDeploymentDestination(),
@@ -21,6 +22,7 @@ final class RemoteQueueLaunchdPlistTests: XCTestCase {
                 )
             ]
         ),
+        emceeVersion: emceeVersion,
         queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation(.remoteUrl(remoteConfigUrl))
     )
     
@@ -36,6 +38,7 @@ final class RemoteQueueLaunchdPlistTests: XCTestCase {
             [
                 "/Users/username/path/deploymentId/emcee/remote_filename",
                 "startLocalQueueServer",
+                "--emcee-version", emceeVersion.value,
                 "--queue-server-run-configuration-location", remoteConfigUrl.absoluteString
             ]
         )

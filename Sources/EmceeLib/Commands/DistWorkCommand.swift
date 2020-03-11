@@ -21,6 +21,7 @@ public final class DistWorkCommand: Command {
     public let name = "distWork"
     public let description = "Takes jobs from a dist runner queue and performs them"
     public var arguments: Arguments = [
+        ArgumentDescriptions.emceeVersion.asRequired,
         ArgumentDescriptions.queueServer.asRequired,
         ArgumentDescriptions.workerId.asRequired
     ]
@@ -54,6 +55,7 @@ public final class DistWorkCommand: Command {
     public func run(payload: CommandPayload) throws {
         let queueServerAddress: SocketAddress = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServer.name)
         let workerId: WorkerId = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.workerId.name)
+        let emceeVersion: Version = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name)
         let temporaryFolder = try createScopedTemporaryFolder()
 
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
@@ -72,7 +74,7 @@ public final class DistWorkCommand: Command {
             workerId: workerId
         )
         
-        try startWorker(distWorker: distWorker)
+        try startWorker(distWorker: distWorker, emceeVersion: emceeVersion)
     }
     
     private func createDistWorker(
@@ -106,12 +108,12 @@ public final class DistWorkCommand: Command {
         )
     }
         
-    private func startWorker(distWorker: DistWorker) throws {
+    private func startWorker(distWorker: DistWorker, emceeVersion: Version) throws {
         var isWorking = true
         
         try distWorker.start(
             didFetchAnalyticsConfiguration: { analyticsConfiguration in
-                try LoggingSetup.setupAnalytics(analyticsConfiguration: analyticsConfiguration)
+                try LoggingSetup.setupAnalytics(analyticsConfiguration: analyticsConfiguration, emceeVersion: emceeVersion)
             },
             completion: {
                 isWorking = false

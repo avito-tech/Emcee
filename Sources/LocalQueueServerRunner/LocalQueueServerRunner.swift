@@ -16,7 +16,6 @@ import ScheduleStrategy
 import SynchronousWaiter
 import TemporaryStuff
 import UniqueIdentifierGenerator
-import Version
 
 public final class LocalQueueServerRunner {
     private let queueServer: QueueServer
@@ -25,7 +24,6 @@ public final class LocalQueueServerRunner {
     private let queueServerTerminationPolicy: AutomaticTerminationPolicy
     private let pollPeriod: TimeInterval
     private let newWorkerRegistrationTimeAllowance: TimeInterval
-    private let versionProvider: VersionProvider
     private let remotePortDeterminer: RemotePortDeterminer
     private let temporaryFolder: TemporaryFolder
     private let workerDestinations: [DeploymentDestination]
@@ -39,7 +37,6 @@ public final class LocalQueueServerRunner {
         queueServerTerminationPolicy: AutomaticTerminationPolicy,
         pollPeriod: TimeInterval,
         newWorkerRegistrationTimeAllowance: TimeInterval,
-        versionProvider: VersionProvider,
         remotePortDeterminer: RemotePortDeterminer,
         temporaryFolder: TemporaryFolder,
         workerDestinations: [DeploymentDestination]
@@ -50,15 +47,15 @@ public final class LocalQueueServerRunner {
         self.queueServerTerminationPolicy = queueServerTerminationPolicy
         self.pollPeriod = pollPeriod
         self.newWorkerRegistrationTimeAllowance = newWorkerRegistrationTimeAllowance
-        self.versionProvider = versionProvider
         self.remotePortDeterminer = remotePortDeterminer
         self.temporaryFolder = temporaryFolder
         self.workerDestinations = workerDestinations
     }
     
-    public func start() throws {
+    public func start(emceeVersion: Version) throws {
         try startWorkers(
-            port: try startQueueServer()
+            emceeVersion: emceeVersion,
+            port: try startQueueServer(emceeVersion: emceeVersion)
         )
         
         try queueServerTerminationWaiter.waitForWorkerToAppear(
@@ -75,12 +72,10 @@ public final class LocalQueueServerRunner {
         )
     }
     
-    private func startQueueServer() throws -> Int {
-        let version = try versionProvider.version()
-        
-        let lockToStartQueueServer = try FileLock.named("emcee_starting_queue_server_\(version)")
+    private func startQueueServer(emceeVersion: Version) throws -> Int {
+        let lockToStartQueueServer = try FileLock.named("emcee_starting_queue_server_\(emceeVersion.value)")
         return try lockToStartQueueServer.whileLocked {
-            try ensureQueueWithMatchingVersionIsNotRunning(version: version)
+            try ensureQueueWithMatchingVersionIsNotRunning(version: emceeVersion)
             return try queueServer.start()
         }
     }
@@ -95,16 +90,16 @@ public final class LocalQueueServerRunner {
         }
     }
     
-    private func startWorkers(port: Int) throws {
+    private func startWorkers(emceeVersion: Version, port: Int) throws {
         Logger.info("Deploying and starting workers in background")
         
         let remoteWorkersStarter = RemoteWorkersStarter(
-            emceeVersionProvider: versionProvider,
             deploymentDestinations: workerDestinations,
             tempFolder: temporaryFolder
         )
         try remoteWorkersStarter.deployAndStartWorkers(
             deployQueue: deployQueue,
+            emceeVersion: emceeVersion,
             queueAddress: SocketAddress(host: LocalHostDeterminer.currentHostAddress, port: port)
         )
         deployQueue.async(flags: .barrier) {

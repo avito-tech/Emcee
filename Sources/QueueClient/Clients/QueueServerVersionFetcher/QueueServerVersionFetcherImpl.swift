@@ -3,7 +3,6 @@ import Foundation
 import Models
 import RESTMethods
 import RequestSender
-import Version
 
 public final class QueueServerVersionFetcherImpl: QueueServerVersionFetcher {
     private let requestSender: RequestSender

@@ -1,5 +1,5 @@
 import Foundation
-import Version
+import Models
 
 public enum LocalQueueServerError: Error, CustomStringConvertible {
     case sameVersionQueueIsAlreadyRunning(port: Int, version: Version)

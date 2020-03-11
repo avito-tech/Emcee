@@ -9,8 +9,6 @@ import RemotePortDeterminer
 import RemotePortDeterminerTestHelpers
 import ScheduleStrategy
 import TemporaryStuff
-import Version
-import VersionTestHelpers
 import XCTest
 
 final class LocalQueueServerRunnerTests: XCTestCase {
@@ -21,7 +19,6 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         pollInterval: 0.1,
         queueServerTerminationPolicy: AutomaticTerminationPolicy.stayAlive
     )
-    private let versionProvider = VersionProviderFixture()
     private let remotePortDeterminer = RemotePortDeterminerFixture(result: [:])
     private lazy var runner = LocalQueueServerRunner(
         queueServer: queueServer,
@@ -30,7 +27,6 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         queueServerTerminationPolicy: AutomaticTerminationPolicy.stayAlive,
         pollPeriod: 0.1,
         newWorkerRegistrationTimeAllowance: 60.0,
-        versionProvider: versionProvider,
         remotePortDeterminer: remotePortDeterminer,
         temporaryFolder: try! TemporaryFolder(),
         workerDestinations: []
@@ -46,7 +42,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         queueServer.isDepleted = true
         
         runnerQueue.async {
-            _ = try? self.runner.start()
+            _ = try? self.runner.start(emceeVersion: "emceeVersion")
             expectation.fulfill()
         }
         
@@ -62,7 +58,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         queueServer.ongoingJobIds = [JobId(value: "jobid")]
         
         runnerQueue.async {
-            _ = try? self.runner.start()
+            _ = try? self.runner.start(emceeVersion: "emceeVersion")
             expectation.fulfill()
         }
         
@@ -78,7 +74,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         queueServer.ongoingJobIds = [JobId(value: "jobid")]
         
         runnerQueue.async {
-            _ = try? self.runner.start()
+            _ = try? self.runner.start(emceeVersion: "emceeVersion")
             expectation.fulfill()
         }
         
@@ -89,7 +85,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         let expectation = self.expectation(description: "runner should stop when queue has no alive workers")
         
         runnerQueue.async {
-            _ = try? self.runner.start()
+            _ = try? self.runner.start(emceeVersion: "emceeVersion")
             expectation.fulfill()
         }
         
@@ -105,7 +101,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         queueServer.isDepleted = true
         
         runnerQueue.async {
-            _ = try? self.runner.start()
+            _ = try? self.runner.start(emceeVersion: "emceeVersion")
             expectation.fulfill()
         }
         
@@ -122,7 +118,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         let expectation = self.expectation(description: "runner should stop when automatic termination controller allows and after queue has been depleted")
         
         runnerQueue.async {
-            _ = try? self.runner.start()
+            _ = try? self.runner.start(emceeVersion: "emceeVersion")
             expectation.fulfill()
         }
         
@@ -141,7 +137,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         let expectation = self.expectation(description: "runner should stop when automatic termination controller allows and after queue has no jobs left")
         
         runnerQueue.async {
-            _ = try? self.runner.start()
+            _ = try? self.runner.start(emceeVersion: "emceeVersion")
             expectation.fulfill()
         }
         
@@ -161,7 +157,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         queueServer.ongoingJobIds = []
 
         runnerQueue.async {
-            _ = try? self.runner.start()
+            _ = try? self.runner.start(emceeVersion: "emceeVersion")
             expectation.fulfill()
         }
 
@@ -173,8 +169,9 @@ final class LocalQueueServerRunnerTests: XCTestCase {
     }
     
     func test___queue_server_runner_fails_to_start___if_queue_with_same_version_is_already_running() throws {
-        remotePortDeterminer.set(port: 1234, version: try versionProvider.version())
+        let emceeVersion: Version = "emceeVersion"
+        remotePortDeterminer.set(port: 1234, version: emceeVersion)
         
-        XCTAssertThrowsError(try runner.start())
+        XCTAssertThrowsError(try runner.start(emceeVersion: emceeVersion))
     }
 }

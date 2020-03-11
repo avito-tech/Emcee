@@ -3,32 +3,31 @@ import Foundation
 import Models
 import PathLib
 import TemporaryStuff
-import Version
 
 public final class RemoteQueueStarter {
     private let deploymentId: String
-    private let emceeVersionProvider: VersionProvider
     private let deploymentDestination: DeploymentDestination
+    private let emceeVersion: Version
     private let queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation
     private let tempFolder: TemporaryFolder
 
     public init(
         deploymentId: String,
-        emceeVersionProvider: VersionProvider,
         deploymentDestination: DeploymentDestination,
+        emceeVersion: Version,
         queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation,
         tempFolder: TemporaryFolder
     ) {
         self.deploymentId = deploymentId
-        self.emceeVersionProvider = emceeVersionProvider
         self.deploymentDestination = deploymentDestination
+        self.emceeVersion = emceeVersion
         self.queueServerRunConfigurationLocation = queueServerRunConfigurationLocation
         self.tempFolder = tempFolder
     }
     
     public func deployAndStart(deployQueue: DispatchQueue) throws {
         let deployablesGenerator = DeployablesGenerator(
-            emceeVersionProvider: emceeVersionProvider,
+            emceeVersion: emceeVersion,
             remoteEmceeBinaryName: "EmceeQueueServer"
         )
         try deploy(
@@ -48,6 +47,7 @@ public final class RemoteQueueStarter {
             deploymentId: deploymentId,
             deploymentDestination: deploymentDestination,
             emceeDeployableItem: emceeBinaryDeployableItem,
+            emceeVersion: emceeVersion,
             queueServerRunConfigurationLocation: queueServerRunConfigurationLocation
         )
         let launchdPlistDeployableItem = DeployableItem(

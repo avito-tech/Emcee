@@ -1,20 +1,15 @@
 import Foundation
 import RemoteQueue
 import RemotePortDeterminerTestHelpers
-import Version
-import VersionTestHelpers
 import XCTest
+import Models
 
 final class RemoteQueueDetectorTests: XCTestCase {
-    let localQueueVersionProvider = VersionProviderFixture()
-        .with(predefinedVersion: "local_version")
-        .buildVersionProvider()
-    
     func test___when_no_queues_running___returns_empty_result() {
         let remotePortDeterminer = RemotePortDeterminerFixture().build()
         
         let detector = RemoteQueueDetector(
-            localQueueClientVersionProvider: localQueueVersionProvider,
+            emceeVersion: "local_version",
             remotePortDeterminer: remotePortDeterminer
         )
         
@@ -29,7 +24,7 @@ final class RemoteQueueDetectorTests: XCTestCase {
             .build()
         
         let detector = RemoteQueueDetector(
-            localQueueClientVersionProvider: localQueueVersionProvider,
+            emceeVersion: "local_version",
             remotePortDeterminer: remotePortDeterminer
         )
         
@@ -47,7 +42,7 @@ final class RemoteQueueDetectorTests: XCTestCase {
             .build()
         
         let detector = RemoteQueueDetector(
-            localQueueClientVersionProvider: localQueueVersionProvider,
+            emceeVersion: "local_version",
             remotePortDeterminer: remotePortDeterminer
         )
         

@@ -1,5 +1,5 @@
 import Foundation
-import Version
+import Models
 
 public protocol RemotePortDeterminer {
     func queryPortAndQueueServerVersion(timeout: TimeInterval) -> [Int: Version]

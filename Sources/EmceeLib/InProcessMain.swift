@@ -16,7 +16,6 @@ import ResourceLocationResolver
 import RuntimeDump
 import URLResource
 import UniqueIdentifierGenerator
-import Version
 
 public final class InProcessMain {
     public init() {}
@@ -33,7 +32,6 @@ public final class InProcessMain {
     private func runCommands() throws {
         let dateProvider = SystemDateProvider()
         let developerDirLocator = DefaultDeveloperDirLocator()
-        let localQueueVersionProvider = FileHashVersionProvider(url: ProcessInfo.processInfo.executableUrl)
         let requestSenderProvider = DefaultRequestSenderProvider()
         let runtimeDumpRemoteCacheProvider = DefaultRuntimeDumpRemoteCacheProvider(senderProvider: requestSenderProvider)
         let resourceLocationResolver = ResourceLocationResolverImpl(
@@ -71,7 +69,6 @@ public final class InProcessMain {
                 RunTestsOnRemoteQueueCommand(
                     dateProvider: dateProvider,
                     developerDirLocator: developerDirLocator,
-                    localQueueVersionProvider: localQueueVersionProvider,
                     pluginEventBusProvider: pluginEventBusProvider,
                     processControllerProvider: processControllerProvider,
                     requestSenderProvider: requestSenderProvider,
@@ -80,7 +77,6 @@ public final class InProcessMain {
                     runtimeDumpRemoteCacheProvider: runtimeDumpRemoteCacheProvider
                 ),
                 StartQueueServerCommand(
-                    localQueueVersionProvider: localQueueVersionProvider,
                     requestSenderProvider: requestSenderProvider,
                     payloadSignature: PayloadSignature(value: UUID().uuidString),
                     resourceLocationResolver: resourceLocationResolver,

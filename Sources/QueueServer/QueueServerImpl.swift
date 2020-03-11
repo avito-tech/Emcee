@@ -16,7 +16,6 @@ import ScheduleStrategy
 import Swifter
 import SynchronousWaiter
 import UniqueIdentifierGenerator
-import Version
 import WorkerAlivenessProvider
 
 public final class QueueServerImpl: QueueServer {
@@ -42,10 +41,10 @@ public final class QueueServerImpl: QueueServer {
         bucketSplitInfo: BucketSplitInfo,
         checkAgainTimeInterval: TimeInterval,
         dateProvider: DateProvider,
+        emceeVersion: Version,
         localPortDeterminer: LocalPortDeterminer,
         payloadSignature: PayloadSignature,
         queueServerLock: QueueServerLock,
-        queueVersionProvider: VersionProvider,
         reportAliveInterval: TimeInterval,
         requestSenderProvider: RequestSenderProvider,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
@@ -125,8 +124,8 @@ public final class QueueServerImpl: QueueServer {
             workerAlivenessProvider: workerAlivenessProvider
         )
         self.queueServerVersionHandler = QueueServerVersionEndpoint(
-            queueServerLock: queueServerLock,
-            versionProvider: queueVersionProvider
+            emceeVersion: emceeVersion,
+            queueServerLock: queueServerLock
         )
         self.jobResultsEndpoint = JobResultsEndpoint(
             jobResultsProvider: balancingBucketQueue

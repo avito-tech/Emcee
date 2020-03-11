@@ -20,7 +20,6 @@ import RequestSender
 import ResultsCollector
 import ScheduleStrategy
 import UniqueIdentifierGeneratorTestHelpers
-import Version
 import WorkerAlivenessProvider
 import WorkerAlivenessProviderTestHelpers
 import XCTest

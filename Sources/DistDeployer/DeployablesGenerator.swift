@@ -3,14 +3,13 @@ import Extensions
 import Foundation
 import Models
 import PathLib
-import Version
 
 final class DeployablesGenerator {
-    private let emceeVersionProvider: VersionProvider
+    private let emceeVersion: Version
     private let remoteEmceeBinaryName: String
 
-    public init(emceeVersionProvider: VersionProvider, remoteEmceeBinaryName: String) {
-        self.emceeVersionProvider = emceeVersionProvider
+    public init(emceeVersion: Version, remoteEmceeBinaryName: String) {
+        self.emceeVersion = emceeVersion
         self.remoteEmceeBinaryName = remoteEmceeBinaryName
     }
     
@@ -24,7 +23,7 @@ final class DeployablesGenerator {
             files: [
                 DeployableFile(
                     source: AbsolutePath(ProcessInfo.processInfo.executablePath),
-                    destination: RelativePath(remoteEmceeBinaryName + "_" + (try emceeVersionProvider.version().value))
+                    destination: RelativePath(remoteEmceeBinaryName + "_" + emceeVersion.value)
                 )
             ]
         )

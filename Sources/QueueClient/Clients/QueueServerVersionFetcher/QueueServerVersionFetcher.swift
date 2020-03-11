@@ -1,7 +1,6 @@
 import Dispatch
 import Foundation
 import Models
-import Version
 
 public protocol QueueServerVersionFetcher {
     func fetchQueueServerVersion(
