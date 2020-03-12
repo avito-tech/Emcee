@@ -29,7 +29,7 @@ class RuntimeDumpRemoteCacheTests: XCTestCase {
         )
 
         XCTAssertEqual(requestSender.credentials, Credentials(username: "username", password: "password"))
-        guard let request = requestSender.request as? RentimeDumpRemoteCacheStoreRequest else {
+        guard let request = requestSender.request as? RuntimeDumpRemoteCacheStoreRequest else {
             XCTFail("Wrong request type: \(String(describing: requestSender.request))")
             return
         }

@@ -52,7 +52,7 @@ class DefaultRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
     }
 
     func store(tests: TestsInRuntimeDump, xcTestBundleLocation: TestBundleLocation) throws {
-        let request = RentimeDumpRemoteCacheStoreRequest(
+        let request = RuntimeDumpRemoteCacheStoreRequest(
             httpMethod: config.storeHttpMethod,
             pathWithLeadingSlash: try pathToRemoteFile(xcTestBundleLocation),
             payload: tests

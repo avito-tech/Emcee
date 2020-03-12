@@ -5,9 +5,8 @@ import PathLib
 
 public final class SimulatorVideoRecorder {
     public enum CodecType: String {
-        case mp4
         case h264
-        case fmp4
+        case hevc
     }
     
     private let simulatorUuid: UDID
@@ -32,7 +31,7 @@ public final class SimulatorVideoRecorder {
                     "io",
                     simulatorUuid.value,
                     "recordVideo",
-                    "--type=\(codecType.rawValue)",
+                    "--codec=\(codecType.rawValue)",
                     outputPath
                 ]
             )

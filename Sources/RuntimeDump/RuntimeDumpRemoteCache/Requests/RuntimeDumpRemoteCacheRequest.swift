@@ -1,7 +1,7 @@
 import RequestSender
 import Models
 
-class RentimeDumpRemoteCacheStoreRequest: NetworkRequest {
+class RuntimeDumpRemoteCacheStoreRequest: NetworkRequest {
     typealias Response = VoidPayload
 
     public let httpMethod: HTTPMethod
