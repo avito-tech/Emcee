@@ -49,6 +49,7 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
             let controller = try simulatorControllerProvider.createSimulatorController(
                 developerDir: developerDir,
                 simulatorControlTool: simulatorControlTool,
+                temporaryFolder: tempFolder,
                 testDestination: testDestination
             )
             Logger.verboseDebug("Allocated new simulator: \(controller)")

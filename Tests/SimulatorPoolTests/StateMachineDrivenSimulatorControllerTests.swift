@@ -20,10 +20,12 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
     private let expectedUdid = UDID(value: "some_UDID")
     
     func test___if_create_throws___boot_fails() {
-        let controller = createController(
-            create: { throw ErrorForTestingPurposes(text: "Expected error") },
-            timeouts: createTimeouts()
-        )
+        let controller = assertDoesNotThrow {
+            try createController(
+                create: { throw ErrorForTestingPurposes(text: "Expected error") },
+                timeouts: createTimeouts()
+            )
+        }
         
         assertThrows {
             _ = try controller.bootedSimulator()
@@ -31,10 +33,12 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
     }
     
     func test___if_boot_throws___boot_fails() {
-        let controller = createController(
-            boot: { throw ErrorForTestingPurposes(text: "Expected error") },
-            timeouts: createTimeouts()
-        )
+        let controller = assertDoesNotThrow {
+            try createController(
+                boot: { throw ErrorForTestingPurposes(text: "Expected error") },
+                timeouts: createTimeouts()
+            )
+        }
         
         assertThrows {
             _ = try controller.bootedSimulator()
@@ -42,10 +46,12 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
     }
     
     func test___if_delete_throws___delete_fails() {
-        let controller = createController(
-            delete: { throw ErrorForTestingPurposes(text: "Expected error") },
-            timeouts: createTimeouts()
-        )
+        let controller = assertDoesNotThrow {
+            try createController(
+                delete: { throw ErrorForTestingPurposes(text: "Expected error") },
+                timeouts: createTimeouts()
+            )
+        }
         
         assertDoesNotThrow {
             _ = try controller.bootedSimulator()
@@ -56,10 +62,12 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
     }
     
     func test___if_shutdown_throws___shutdown_fails() {
-        let controller = createController(
-            shutdown: { throw ErrorForTestingPurposes(text: "Expected error") },
-            timeouts: createTimeouts()
-        )
+        let controller = assertDoesNotThrow {
+            try createController(
+                shutdown: { throw ErrorForTestingPurposes(text: "Expected error") },
+                timeouts: createTimeouts()
+            )
+        }
         
         assertDoesNotThrow {
             _ = try controller.bootedSimulator()
@@ -70,50 +78,56 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
     }
     
     func test___create_gets_expected_arguments() {
-        let controller = createController(
-            additionalBootAttempts: 0,
-            actionExecutor: FakeSimulatorStateMachineActionExecutor(
-                create: { (environment, testDestination, timeout) -> Simulator in
-                    XCTAssertEqual(environment["DEVELOPER_DIR"], self.expectedDeveloperDirPath.pathString)
-                    XCTAssertEqual(testDestination, self.expectedTestDestination)
-                    XCTAssertEqual(timeout, self.expectedTimeout)
-                    
-                    return self.createSimulator(environment: environment, testDestination: testDestination, timeout: timeout)
-                }
-            ),
-            developerDirLocator: FakeDeveloperDirLocator(result: expectedDeveloperDirPath),
-            timeouts: createTimeouts(create: expectedTimeout)
-        )
+        let controller = assertDoesNotThrow {
+            try createController(
+                additionalBootAttempts: 0,
+                actionExecutor: FakeSimulatorStateMachineActionExecutor(
+                    create: { (environment, testDestination, timeout) -> Simulator in
+                        XCTAssertEqual(environment["DEVELOPER_DIR"], self.expectedDeveloperDirPath.pathString)
+                        XCTAssertEqual(testDestination, self.expectedTestDestination)
+                        XCTAssertEqual(timeout, self.expectedTimeout)
+                        
+                        return self.createSimulator(environment: environment, testDestination: testDestination, timeout: timeout)
+                    }
+                ),
+                developerDirLocator: FakeDeveloperDirLocator(result: expectedDeveloperDirPath),
+                timeouts: createTimeouts(create: expectedTimeout)
+            )
+        }
         assertDoesNotThrow {
             _ = try controller.bootedSimulator()
         }
     }
     
     func test___boot_gets_expected_arguments() {
-        let controller = createController(
-            additionalBootAttempts: 0,
-            actionExecutor: FakeSimulatorStateMachineActionExecutor(
-                create: createSimulator,
-                boot: validateArguments
-            ),
-            developerDirLocator: FakeDeveloperDirLocator(result: expectedDeveloperDirPath),
-            timeouts: createTimeouts(boot: expectedTimeout)
-        )
+        let controller = assertDoesNotThrow {
+            try createController(
+                additionalBootAttempts: 0,
+                actionExecutor: FakeSimulatorStateMachineActionExecutor(
+                    create: createSimulator,
+                    boot: validateArguments
+                ),
+                developerDirLocator: FakeDeveloperDirLocator(result: expectedDeveloperDirPath),
+                timeouts: createTimeouts(boot: expectedTimeout)
+            )
+        }
         assertDoesNotThrow {
             _ = try controller.bootedSimulator()
         }
     }
     
     func test___delete_gets_expected_arguments() {
-        let controller = createController(
-            additionalBootAttempts: 0,
-            actionExecutor: FakeSimulatorStateMachineActionExecutor(
-                create: createSimulator,
-                delete: validateArguments
-            ),
-            developerDirLocator: FakeDeveloperDirLocator(result: expectedDeveloperDirPath),
-            timeouts: createTimeouts(delete: expectedTimeout)
-        )
+        let controller = assertDoesNotThrow {
+            try createController(
+                additionalBootAttempts: 0,
+                actionExecutor: FakeSimulatorStateMachineActionExecutor(
+                    create: createSimulator,
+                    delete: validateArguments
+                ),
+                developerDirLocator: FakeDeveloperDirLocator(result: expectedDeveloperDirPath),
+                timeouts: createTimeouts(delete: expectedTimeout)
+            )
+        }
         
         assertDoesNotThrow {
             _ = try controller.bootedSimulator()
@@ -124,15 +138,17 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
     }
     
     func test___shutdown_gets_expected_arguments() {
-        let controller = createController(
-            additionalBootAttempts: 0,
-            actionExecutor: FakeSimulatorStateMachineActionExecutor(
-                create: createSimulator,
-                shutdown: validateArguments
-            ),
-            developerDirLocator: FakeDeveloperDirLocator(result: expectedDeveloperDirPath),
-            timeouts: createTimeouts(shutdown: expectedTimeout)
-        )
+        let controller = assertDoesNotThrow {
+            try createController(
+                additionalBootAttempts: 0,
+                actionExecutor: FakeSimulatorStateMachineActionExecutor(
+                    create: createSimulator,
+                    shutdown: validateArguments
+                ),
+                developerDirLocator: FakeDeveloperDirLocator(result: expectedDeveloperDirPath),
+                timeouts: createTimeouts(shutdown: expectedTimeout)
+            )
+        }
         
         assertDoesNotThrow {
             _ = try controller.bootedSimulator()
@@ -147,13 +163,15 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
         let additionalBootAttempts: UInt = 4
         let expectedNumberOfPerformedAttempts = additionalBootAttempts + 1
         
-        let controller = createController(
-            additionalBootAttempts: additionalBootAttempts,
-            boot: {
-                numberOfPerformedAttempts += 1
-                throw ErrorForTestingPurposes(text: "Expected error")
-            }
-        )
+        let controller = assertDoesNotThrow {
+            try createController(
+                additionalBootAttempts: additionalBootAttempts,
+                boot: {
+                    numberOfPerformedAttempts += 1
+                    throw ErrorForTestingPurposes(text: "Expected error")
+                }
+            )
+        }
         
         assertThrows {
             _ = try controller.bootedSimulator()
@@ -186,11 +204,11 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
             shutdown: .infinity,
             automaticSimulatorShutdown: .infinity
         )
-    ) -> StateMachineDrivenSimulatorController {
+    ) throws -> StateMachineDrivenSimulatorController {
         let tempFolder = assertDoesNotThrow {
             try TemporaryFolder()
         }
-        return createController(
+        return try createController(
             additionalBootAttempts: additionalBootAttempts,
             actionExecutor: FakeSimulatorStateMachineActionExecutor(
                 create: { environment, testDestination, timeout in
@@ -211,7 +229,7 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
         actionExecutor: SimulatorStateMachineActionExecutor,
         developerDirLocator: DeveloperDirLocator,
         timeouts: SimulatorOperationTimeouts
-    ) -> StateMachineDrivenSimulatorController {
+    ) throws -> StateMachineDrivenSimulatorController {
         let controller = StateMachineDrivenSimulatorController(
             additionalBootAttempts: additionalBootAttempts,
             bootQueue: DispatchQueue(label: "serial"),
@@ -219,6 +237,7 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
             developerDirLocator: developerDirLocator,
             simulatorStateMachine: SimulatorStateMachine(),
             simulatorStateMachineActionExecutor: actionExecutor,
+            temporaryFolder: try TemporaryFolder(),
             testDestination: expectedTestDestination,
             waiter: NoOpWaiter()
         )

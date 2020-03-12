@@ -30,6 +30,7 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
     public func createSimulatorController(
         developerDir: DeveloperDir,
         simulatorControlTool: SimulatorControlTool,
+        temporaryFolder: TemporaryFolder,
         testDestination: TestDestination
     ) throws -> SimulatorController {
         return ActivityAwareSimulatorController(
@@ -43,6 +44,7 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
                 simulatorStateMachineActionExecutor: try simulatorStateMachineActionExecutorProvider.simulatorStateMachineActionExecutor(
                     simulatorControlTool: simulatorControlTool
                 ),
+                temporaryFolder: temporaryFolder,
                 testDestination: testDestination
             )
         )

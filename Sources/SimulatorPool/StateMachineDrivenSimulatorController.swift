@@ -6,6 +6,7 @@ import Models
 import PathLib
 import SimulatorPoolModels
 import SynchronousWaiter
+import TemporaryStuff
 
 public final class StateMachineDrivenSimulatorController: SimulatorController, CustomStringConvertible {
     private let additionalBootAttempts: UInt
@@ -17,6 +18,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     )
     private let simulatorStateMachine: SimulatorStateMachine
     private let simulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor
+    private let temporaryFolder: TemporaryFolder
     private let testDestination: TestDestination
     private let waiter: Waiter
     private var currentSimulatorState = SimulatorStateMachine.State.absent
@@ -29,6 +31,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
         developerDirLocator: DeveloperDirLocator,
         simulatorStateMachine: SimulatorStateMachine,
         simulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor,
+        temporaryFolder: TemporaryFolder,
         testDestination: TestDestination,
         waiter: Waiter = SynchronousWaiter()
     ) {
@@ -38,6 +41,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
         self.developerDirLocator = developerDirLocator
         self.simulatorStateMachine = simulatorStateMachine
         self.simulatorStateMachineActionExecutor = simulatorStateMachineActionExecutor
+        self.temporaryFolder = temporaryFolder
         self.testDestination = testDestination
         self.waiter = waiter
     }
@@ -208,8 +212,12 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     // MARK: - Envrironment
     
     private func environment() throws -> [String: String] {
+        let temporaryPathComponents = ["fbsimctl_working_dir", UUID().uuidString, "fbsimctl_tmp"]
+        let tmpdir = try temporaryFolder.pathByCreatingDirectories(components: temporaryPathComponents).pathString
+        
         return [
-            "DEVELOPER_DIR": try developerDirLocator.path(developerDir: developerDir).pathString
+            "DEVELOPER_DIR": try developerDirLocator.path(developerDir: developerDir).pathString,
+            "TMPDIR": tmpdir
         ]
     }
     
