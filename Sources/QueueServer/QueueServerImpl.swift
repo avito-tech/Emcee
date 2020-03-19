@@ -55,6 +55,7 @@ public final class QueueServerImpl: QueueServer {
         
         self.workerAlivenessProvider = WorkerAlivenessProviderImpl(
             dateProvider: dateProvider,
+            knownWorkerIds: workerConfigurations.workerIds,
             reportAliveInterval: reportAliveInterval,
             additionalTimeToPerformWorkerIsAliveReport: 30.0
         )

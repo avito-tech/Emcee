@@ -15,4 +15,8 @@ public final class WorkerConfigurations {
     public func workerConfiguration(workerId: WorkerId) -> WorkerConfiguration? {
         return queue.sync { workerIdToRunConfiguration[workerId] }
     }
+    
+    public var workerIds: Set<WorkerId> {
+        return Set(workerIdToRunConfiguration.keys)
+    }
 }

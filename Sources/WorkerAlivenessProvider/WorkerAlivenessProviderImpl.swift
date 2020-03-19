@@ -7,6 +7,8 @@ import Models
 public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     private let syncQueue = DispatchQueue(label: "ru.avito.emcee.workerAlivenessProvider.syncQueue")
     private let dateProvider: DateProvider
+    /// a set of workers that are expected to have the aliveness statuses
+    private let knownWorkerIds: Set<WorkerId>
     private var workerAliveReportTimestamps = [WorkerId: Date]()
     private let workerBucketIdsBeingProcessed = WorkerCurrentlyProcessingBucketsTracker()
     private var blockedWorkers = Set<WorkerId>()
@@ -15,10 +17,12 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
 
     public init(
         dateProvider: DateProvider,
+        knownWorkerIds: Set<WorkerId>,
         reportAliveInterval: TimeInterval,
         additionalTimeToPerformWorkerIsAliveReport: TimeInterval
     ) {
         self.dateProvider = dateProvider
+        self.knownWorkerIds = knownWorkerIds
         self.maximumNotReportingDuration = reportAliveInterval + additionalTimeToPerformWorkerIsAliveReport
     }
     
@@ -68,7 +72,7 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     }
     
     private func onSyncQueue_workerAliveness() -> [WorkerId: WorkerAliveness] {
-        let uniqueWorkerIds = Set<WorkerId>(workerAliveReportTimestamps.keys).union(blockedWorkers)
+        let uniqueWorkerIds = Set<WorkerId>(workerAliveReportTimestamps.keys).union(blockedWorkers).union(knownWorkerIds)
         
         var workerAliveness = [WorkerId: WorkerAliveness]()
         let currentDate = Date()

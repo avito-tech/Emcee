@@ -1,5 +1,6 @@
 import DateProviderTestHelpers
 import Foundation
+import Models
 import WorkerAlivenessProvider
 import WorkerAlivenessProviderTestHelpers
 import XCTest
@@ -68,6 +69,21 @@ final class WorkerAlivenessProviderTests: XCTestCase {
         tracker.didRegisterWorker(workerId: "worker")
         tracker.blockWorker(workerId: "worker")
         XCTAssertFalse(tracker.hasAnyAliveWorker)
+    }
+    
+    func test___aliveness_for_not_registered_workers() {
+        let tracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults(
+            knownWorkerIds: [WorkerId(value: "worker")]
+        )
+        XCTAssertEqual(
+            tracker.workerAliveness,
+            [
+                WorkerId(value: "worker"): WorkerAliveness(
+                    status: .notRegistered,
+                    bucketIdsBeingProcessed: []
+                )
+            ]
+        )
     }
     
     let fixedDate = Date()
