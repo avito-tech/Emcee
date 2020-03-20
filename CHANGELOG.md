@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2020-03-20
+
+- Emcee now allows you to control automatic simulator deletion by setting `simulatorOperationTimeouts.automaticSimulatorDelete` in test arg file to a positive value in seconds. Deletion happens only after simulator is shut down, e.g. automatically. When it is needed again, it will be recreated and booted. Deleting simulators allows to free up disk space. Example:
+
+```json
+{
+    "simulatorOperationTimeouts": {
+        "create": 30,
+        "boot": 180,
+        "shutdown": 20,
+        "delete": 20,
+        "automaticSimulatorShutdown": 600,
+        "automaticSimulatorDelete": 600
+    }
+}
+```
+
+Confguration above defines the following behaviour:
+
+- When simulator becomes and stays idle, shut it down after 600 seconds.
+- If simulator still unused after 600 seconds after shutting it down, delete it.
+
 ## 2020-02-19
 
 - `toolResources` field in test arg file has gone. Inline `simulatorControlTool` and `testRunnerTool` values in test arg file instead of wrapping them in `toolResources`.

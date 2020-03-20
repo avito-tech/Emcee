@@ -4,15 +4,27 @@ import Logging
 import SimulatorPoolModels
 
 public final class ActivityAwareSimulatorController: SimulatorController {
-    private var automaticTerminationControllerFactory: AutomaticTerminationControllerFactory
+    private var automaticShutdownTerminationControllerFactory: AutomaticTerminationControllerFactory
     private var automaticShutdownController: AutomaticTerminationController?
+    
+    private var automaticDeletionTerminationControllerFactory: AutomaticTerminationControllerFactory
+    private var automaticDeletionController: AutomaticTerminationController?
+    
     private let delegate: SimulatorController
-
+    
+    /// - Parameters:
+    ///   - automaticDeleteTimePeriod: Time after which simulator will be automatically deleted. Timer will start after simulator is shutdown.
+    ///   - automaticShutdownTimePeriod: Time after which simulator will be automatically shutdown. Timer will start after simulator becomes idle.
+    ///   - delegate: Simulator controller to manipulate
     public init(
+        automaticDeleteTimePeriod: TimeInterval,
         automaticShutdownTimePeriod: TimeInterval,
         delegate: SimulatorController
     ) {
-        automaticTerminationControllerFactory = ActivityAwareSimulatorController.automaticTerminationController(
+        automaticDeletionTerminationControllerFactory = ActivityAwareSimulatorController.automaticTerminationController(
+            period: automaticDeleteTimePeriod
+        )
+        automaticShutdownTerminationControllerFactory = ActivityAwareSimulatorController.automaticTerminationController(
             period: automaticShutdownTimePeriod
         )
         self.delegate = delegate
@@ -27,7 +39,10 @@ public final class ActivityAwareSimulatorController: SimulatorController {
     public func apply(simulatorOperationTimeouts: SimulatorOperationTimeouts) {
         delegate.apply(simulatorOperationTimeouts: simulatorOperationTimeouts)
         
-        automaticTerminationControllerFactory = ActivityAwareSimulatorController.automaticTerminationController(
+        automaticDeletionTerminationControllerFactory = ActivityAwareSimulatorController.automaticTerminationController(
+            period: simulatorOperationTimeouts.automaticSimulatorDelete
+        )
+        automaticShutdownTerminationControllerFactory = ActivityAwareSimulatorController.automaticTerminationController(
             period: simulatorOperationTimeouts.automaticSimulatorShutdown
         )
     }
@@ -37,17 +52,18 @@ public final class ActivityAwareSimulatorController: SimulatorController {
     }
     
     public func deleteSimulator() throws {
-        cancelAutomaticShutdown()
+        cancelAutomaticOperations()
         try delegate.deleteSimulator()
     }
     
     public func shutdownSimulator() throws {
         cancelAutomaticShutdown()
         try delegate.shutdownSimulator()
+        scheduleAutomaticDeletion()
     }
     
     public func simulatorBecameBusy() {
-        cancelAutomaticShutdown()
+        cancelAutomaticOperations()
         delegate.simulatorBecameBusy()
     }
     
@@ -56,13 +72,15 @@ public final class ActivityAwareSimulatorController: SimulatorController {
         delegate.simulatorBecameIdle()
     }
     
+    // MARK: - Scheduling Automatic Operations
+    
     private func scheduleAutomaticShutdown() {
         guard automaticShutdownController == nil else {
             Logger.debug("Automatic shutdown of \(delegate) has already been scheduled")
             return
         }
         
-        automaticShutdownController = automaticTerminationControllerFactory.createAutomaticTerminationController()
+        automaticShutdownController = automaticShutdownTerminationControllerFactory.createAutomaticTerminationController()
         automaticShutdownController?.startTracking()
         automaticShutdownController?.add { [weak self] in
             guard let strongSelf = self else { return }
@@ -72,12 +90,44 @@ public final class ActivityAwareSimulatorController: SimulatorController {
         Logger.debug("Scheduled automatic shutdown of \(delegate)")
     }
     
+    private func scheduleAutomaticDeletion() {
+        guard automaticDeletionController == nil else {
+            Logger.debug("Automatic deletion of \(delegate) has already been scheduled")
+            return
+        }
+        
+        automaticDeletionController = automaticDeletionTerminationControllerFactory.createAutomaticTerminationController()
+        automaticDeletionController?.startTracking()
+        automaticDeletionController?.add { [weak self] in
+            guard let strongSelf = self else { return }
+            Logger.debug("Performing automatic deletion of \(strongSelf.delegate)")
+            try? strongSelf.deleteSimulator()
+        }
+        Logger.debug("Scheduled automatic deletion of \(delegate)")
+    }
+    
+    // MARK: - Cancelling Automatic Operations
+    
+    private func cancelAutomaticOperations() {
+        cancelAutomaticShutdown()
+        cancelAutomaticDelete()
+    }
+    
     private func cancelAutomaticShutdown() {
         if automaticShutdownController == nil {
             Logger.debug("Automatic shutdown of \(delegate) has already been cancelled")
         } else {
             automaticShutdownController = nil
             Logger.debug("Cancelled automatic shutdown of \(delegate)")
+        }
+    }
+    
+    private func cancelAutomaticDelete() {
+        if automaticDeletionController == nil {
+            Logger.debug("Automatic deletion of \(delegate) has already been cancelled")
+        } else {
+            automaticDeletionController = nil
+            Logger.debug("Cancelled automatic deletion of \(delegate)")
         }
     }
 }

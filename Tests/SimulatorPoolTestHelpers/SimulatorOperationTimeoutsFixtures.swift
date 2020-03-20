@@ -7,19 +7,22 @@ public final class SimulatorOperationTimeoutsFixture {
     public var delete: TimeInterval
     public var shutdown: TimeInterval
     public var automaticSimulatorShutdown: TimeInterval
+    public var automaticSimulatorDelete: TimeInterval
 
     public init(
         create: TimeInterval = 42,
         boot: TimeInterval = 43,
         delete: TimeInterval = 44,
         shutdown: TimeInterval = 45,
-        automaticSimulatorShutdown: TimeInterval = 46
+        automaticSimulatorShutdown: TimeInterval = 46,
+        automaticSimulatorDelete: TimeInterval = 47
     ) {
         self.create = create
         self.boot = boot
         self.delete = delete
         self.shutdown = shutdown
         self.automaticSimulatorShutdown = automaticSimulatorShutdown
+        self.automaticSimulatorDelete = automaticSimulatorDelete
     }
     
     public func simulatorOperationTimeouts() -> SimulatorOperationTimeouts {
@@ -28,7 +31,8 @@ public final class SimulatorOperationTimeoutsFixture {
             boot: boot,
             delete: delete,
             shutdown: shutdown,
-            automaticSimulatorShutdown: automaticSimulatorShutdown
+            automaticSimulatorShutdown: automaticSimulatorShutdown,
+            automaticSimulatorDelete: automaticSimulatorDelete
         )
     }
 }

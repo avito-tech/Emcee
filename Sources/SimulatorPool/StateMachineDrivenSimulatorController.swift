@@ -14,7 +14,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     private let developerDir: DeveloperDir
     private let developerDirLocator: DeveloperDirLocator
     private let simulatorOperationTimeouts = AtomicValue<SimulatorOperationTimeouts>(
-        SimulatorOperationTimeouts(create: 30, boot: 180, delete: 20, shutdown: 20, automaticSimulatorShutdown: 3600)
+        SimulatorOperationTimeouts(create: 30, boot: 180, delete: 20, shutdown: 20, automaticSimulatorShutdown: 3600, automaticSimulatorDelete: 7200)
     )
     private let simulatorStateMachine: SimulatorStateMachine
     private let simulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor

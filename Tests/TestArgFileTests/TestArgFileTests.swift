@@ -45,7 +45,8 @@ final class TestArgFileTests: XCTestCase {
                     "boot": 51,
                     "delete": 52,
                     "shutdown": 53,
-                    "automaticSimulatorShutdown": 54
+                    "automaticSimulatorShutdown": 54,
+                    "automaticSimulatorDelete": 55
                 },
                 "simulatorSettings": {
                     "simulatorLocalizationSettings": {
@@ -90,7 +91,8 @@ final class TestArgFileTests: XCTestCase {
                     boot: 51,
                     delete: 52,
                     shutdown: 53,
-                    automaticSimulatorShutdown: 54
+                    automaticSimulatorShutdown: 54,
+                    automaticSimulatorDelete: 55
                 ),
                 simulatorSettings: SimulatorSettings(
                     simulatorLocalizationSettings: SimulatorLocalizationSettingsFixture().simulatorLocalizationSettings(),

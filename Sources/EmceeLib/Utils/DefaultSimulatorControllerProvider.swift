@@ -34,6 +34,7 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
         testDestination: TestDestination
     ) throws -> SimulatorController {
         return ActivityAwareSimulatorController(
+            automaticDeleteTimePeriod: 3600,
             automaticShutdownTimePeriod: 3600,
             delegate: StateMachineDrivenSimulatorController(
                 additionalBootAttempts: additionalBootAttempts,

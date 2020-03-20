@@ -202,7 +202,8 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
             boot: .infinity,
             delete: .infinity,
             shutdown: .infinity,
-            automaticSimulatorShutdown: .infinity
+            automaticSimulatorShutdown: .infinity,
+            automaticSimulatorDelete: .infinity
         )
     ) throws -> StateMachineDrivenSimulatorController {
         let tempFolder = assertDoesNotThrow {
@@ -250,14 +251,16 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
         boot: TimeInterval = .infinity,
         delete: TimeInterval = .infinity,
         shutdown: TimeInterval = .infinity,
-        automaticSimulatorShutdown: TimeInterval = .infinity
+        automaticSimulatorShutdown: TimeInterval = .infinity,
+        automaticSimulatorDelete: TimeInterval = .infinity
     ) -> SimulatorOperationTimeouts {
         return SimulatorOperationTimeouts(
             create: create,
             boot: boot,
             delete: delete,
             shutdown: shutdown,
-            automaticSimulatorShutdown: automaticSimulatorShutdown
+            automaticSimulatorShutdown: automaticSimulatorShutdown,
+            automaticSimulatorDelete: automaticSimulatorDelete
         )
     }
     

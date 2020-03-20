@@ -7,7 +7,7 @@ import SimulatorPoolTestHelpers
 import SynchronousWaiter
 
 final class SimulatorPoolConvenienceTests: XCTestCase {
-    private let simulatorOperationTimeouts = SimulatorOperationTimeouts(create: 1, boot: 2, delete: 3, shutdown: 4, automaticSimulatorShutdown: 5)
+    private let simulatorOperationTimeouts = SimulatorOperationTimeouts(create: 1, boot: 2, delete: 3, shutdown: 4, automaticSimulatorShutdown: 5, automaticSimulatorDelete: 6)
     
     func test__simulator_contoller_frees__upon_release() throws {
         let pool = SimulatorPoolMock()

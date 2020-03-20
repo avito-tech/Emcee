@@ -12,6 +12,7 @@ public final class FakeSimulatorController: SimulatorController {
     public var didCallShutdown = false
     public var isBusy = false
     public var onShutdown: () -> () = {}
+    public var onDelete: () -> () = {}
     public var simulatorOperationTimeouts: SimulatorOperationTimeouts?
     
     public init(simulator: Simulator, simulatorControlTool: SimulatorControlTool, developerDir: DeveloperDir) {
@@ -30,6 +31,7 @@ public final class FakeSimulatorController: SimulatorController {
     
     public func deleteSimulator() throws {
         didCallDelete = true
+        onDelete()
     }
     
     public func shutdownSimulator() throws {
