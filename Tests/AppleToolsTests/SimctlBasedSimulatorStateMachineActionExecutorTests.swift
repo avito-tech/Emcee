@@ -5,6 +5,7 @@ import Models
 import ModelsTestHelpers
 import ProcessController
 import ProcessControllerTestHelpers
+import SimulatorPoolModels
 import TemporaryStuff
 import XCTest
 
@@ -14,6 +15,11 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
     private lazy var pathToSimulator = assertDoesNotThrow {
         try tempFolder.pathByCreatingDirectories(components: [udid.value])
     }
+    private lazy var simulator = Simulator(
+        testDestination: TestDestinationFixtures.testDestination,
+        udid: udid,
+        path: pathToSimulator
+    )
     
     func test___when_simctl_finished_with_non_zero_code___create_throws() {
         let executor = SimctlBasedSimulatorStateMachineActionExecutor(
@@ -150,8 +156,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         assertDoesNotThrow {
             try executor.performBootSimulatorAction(
                 environment: [:],
-                path: pathToSimulator,
-                simulatorUuid: udid,
+                simulator: Simulator(testDestination: TestDestinationFixtures.testDestination, udid: udid, path: pathToSimulator),
                 timeout: 10
             )
         }
@@ -170,8 +175,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         assertThrows {
             try executor.performBootSimulatorAction(
                 environment: [:],
-                path: pathToSimulator,
-                simulatorUuid: udid,
+                simulator: simulator,
                 timeout: 10
             )
         }
@@ -199,8 +203,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         assertDoesNotThrow {
             try executor.performShutdownSimulatorAction(
                 environment: [:],
-                path: pathToSimulator,
-                simulatorUuid: udid,
+                simulator: simulator,
                 timeout: 10
             )
         }
@@ -219,8 +222,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         assertThrows {
             try executor.performShutdownSimulatorAction(
                 environment: [:],
-                path: pathToSimulator,
-                simulatorUuid: udid,
+                simulator: simulator,
                 timeout: 10
             )
         }
@@ -248,8 +250,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         assertDoesNotThrow {
             try executor.performDeleteSimulatorAction(
                 environment: [:],
-                path: pathToSimulator,
-                simulatorUuid: udid,
+                simulator: simulator,
                 timeout: 10
             )
         }
@@ -268,8 +269,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         assertThrows {
             try executor.performDeleteSimulatorAction(
                 environment: [:],
-                path: pathToSimulator,
-                simulatorUuid: udid,
+                simulator: simulator,
                 timeout: 10
             )
         }

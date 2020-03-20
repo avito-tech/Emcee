@@ -130,8 +130,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
         let performBoot = {
             try self.simulatorStateMachineActionExecutor.performBootSimulatorAction(
                 environment: try self.environment(),
-                path: simulator.path,
-                simulatorUuid: simulator.udid,
+                simulator: simulator,
                 timeout: self.simulatorOperationTimeouts.currentValue().boot
             )
         }
@@ -162,8 +161,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
         
         try simulatorStateMachineActionExecutor.performShutdownSimulatorAction(
             environment: try environment(),
-            path: simulator.path,
-            simulatorUuid: simulator.udid,
+            simulator: simulator,
             timeout: simulatorOperationTimeouts.currentValue().shutdown
         )
     }
@@ -173,8 +171,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
         
         try simulatorStateMachineActionExecutor.performDeleteSimulatorAction(
             environment: try environment(),
-            path: simulator.path,
-            simulatorUuid: simulator.udid,
+            simulator: simulator,
             timeout: simulatorOperationTimeouts.currentValue().delete
         )
         

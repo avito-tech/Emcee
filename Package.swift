@@ -1424,6 +1424,7 @@ let package = Package(
                 "DeveloperDirLocator",
                 "Extensions",
                 "Logging",
+                "Metrics",
                 "Models",
                 "ProcessController",
                 "ResourceLocationResolver",

@@ -68,16 +68,15 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
     
     public func performBootSimulatorAction(
         environment: [String : String],
-        path: AbsolutePath,
-        simulatorUuid: UDID,
+        simulator: Simulator,
         timeout: TimeInterval
     ) throws {
         let processController = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
                 arguments: [
                     fbsimctlArg,
-                    "--json", "--set", path.removingLastComponent,
-                    simulatorUuid.value, "boot",
+                    "--json", "--set", simulator.simulatorSetPath,
+                    simulator.udid.value, "boot",
                     "--locale", "ru_US",
                     "--direct-launch", "--", "listen"
                 ],
@@ -100,8 +99,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
     
     public func performShutdownSimulatorAction(
         environment: [String : String],
-        path: AbsolutePath,
-        simulatorUuid: UDID,
+        simulator: Simulator,
         timeout: TimeInterval
     ) throws {
         if let simulatorKeepAliveProcessController = simulatorKeepAliveProcessController {
@@ -114,8 +112,8 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun",
-                    "simctl", "--set", path.removingLastComponent,
-                    "shutdown", simulatorUuid.value
+                    "simctl", "--set", simulator.simulatorSetPath,
+                    "shutdown", simulator.udid.value
                 ],
                 environment: environment,
                 silenceBehavior: SilenceBehavior(
@@ -129,8 +127,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
     
     public func performDeleteSimulatorAction(
         environment: [String : String],
-        path: AbsolutePath,
-        simulatorUuid: UDID,
+        simulator: Simulator,
         timeout: TimeInterval
     ) throws {
         if let simulatorKeepAliveProcessController = simulatorKeepAliveProcessController {
@@ -139,13 +136,11 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
         }
         simulatorKeepAliveProcessController = nil
         
-        let simulatorSetPath = path.removingLastComponent
-        
         let controller = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
                 arguments: [
                     fbsimctlArg,
-                    "--json", "--set", simulatorSetPath,
+                    "--json", "--set", simulator.simulatorSetPath,
                     "--simulators", "delete"
                 ],
                 environment: environment,
@@ -157,7 +152,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
         )
         controller.startAndListenUntilProcessDies()
         
-        try deleteSimulatorSetContainer(simulatorSetPath: simulatorSetPath)
+        try deleteSimulatorSetContainer(simulatorSetPath: simulator.simulatorSetPath)
     }
     
     private func deleteSimulatorSetContainer(

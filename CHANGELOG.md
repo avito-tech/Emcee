@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## 2020-03-20
 
+- New Graphite metric allows you to track durations of simulator operations like creating, booting, shutting down, and deleting.
+
+`simulator.action.duration.[create|boot|shutdown|delete].<worker_hostname>.<device_type>.<runtime>.[success|failure].reserved.reserved.reserved.reserved` 
+
 - Emcee now allows you to control automatic simulator deletion by setting `simulatorOperationTimeouts.automaticSimulatorDelete` in test arg file to a positive value in seconds. Deletion happens only after simulator is shut down, e.g. automatically. When it is needed again, it will be recreated and booted. Deleting simulators allows to free up disk space. Example:
 
 ```json

@@ -72,16 +72,15 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
     
     public func performBootSimulatorAction(
         environment: [String: String],
-        path: AbsolutePath,
-        simulatorUuid: UDID,
+        simulator: Simulator,
         timeout: TimeInterval
     ) throws {
         let processController = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun", "simctl",
-                    "--set", path.removingLastComponent,
-                    "bootstatus", simulatorUuid.value,
+                    "--set", simulator.simulatorSetPath,
+                    "bootstatus", simulator.udid.value,
                     "-bd"
                 ],
                 environment: environment,
@@ -96,16 +95,15 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
     
     public func performShutdownSimulatorAction(
         environment: [String: String],
-        path: AbsolutePath,
-        simulatorUuid: UDID,
+        simulator: Simulator,
         timeout: TimeInterval
     ) throws {
         let shutdownController = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun", "simctl",
-                    "--set", path.removingLastComponent,
-                    "shutdown", simulatorUuid.value
+                    "--set", simulator.simulatorSetPath,
+                    "shutdown", simulator.udid.value
                 ],
                 environment: environment,
                 silenceBehavior: SilenceBehavior(
@@ -119,16 +117,15 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
     
     public func performDeleteSimulatorAction(
         environment: [String: String],
-        path: AbsolutePath,
-        simulatorUuid: UDID,
+        simulator: Simulator,
         timeout: TimeInterval
     ) throws {
         let deleteController = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun", "simctl",
-                    "--set", path.removingLastComponent,
-                    "delete", simulatorUuid.value
+                    "--set", simulator.simulatorSetPath,
+                    "delete", simulator.udid.value
                 ],
                 environment: environment,
                 silenceBehavior: SilenceBehavior(

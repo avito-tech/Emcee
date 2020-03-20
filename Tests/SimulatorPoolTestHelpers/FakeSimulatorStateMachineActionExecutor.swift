@@ -26,15 +26,15 @@ public final class FakeSimulatorStateMachineActionExecutor: SimulatorStateMachin
         return try create(environment, testDestination, timeout)
     }
     
-    public func performBootSimulatorAction(environment: [String : String], path: AbsolutePath, simulatorUuid: UDID, timeout: TimeInterval) throws {
-        try boot(environment, path, simulatorUuid, timeout)
+    public func performBootSimulatorAction(environment: [String : String], simulator: Simulator, timeout: TimeInterval) throws {
+        try boot(environment, simulator.path, simulator.udid, timeout)
     }
     
-    public func performShutdownSimulatorAction(environment: [String : String], path: AbsolutePath, simulatorUuid: UDID, timeout: TimeInterval) throws {
-        try shutdown(environment, path, simulatorUuid, timeout)
+    public func performShutdownSimulatorAction(environment: [String : String], simulator: Simulator, timeout: TimeInterval) throws {
+        try shutdown(environment, simulator.path, simulator.udid, timeout)
     }
     
-    public func performDeleteSimulatorAction(environment: [String : String], path: AbsolutePath, simulatorUuid: UDID, timeout: TimeInterval) throws {
-        try delete(environment, path, simulatorUuid, timeout)
+    public func performDeleteSimulatorAction(environment: [String : String], simulator: Simulator, timeout: TimeInterval) throws {
+        try delete(environment, simulator.path, simulator.udid, timeout)
     }
 }

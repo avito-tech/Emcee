@@ -3,7 +3,7 @@ import Extensions
 import Models
 import PathLib
 
-public class Simulator: Hashable, CustomStringConvertible {
+public struct Simulator: Hashable, CustomStringConvertible {
     public let testDestination: TestDestination
     public let udid: UDID
     public let path: AbsolutePath
@@ -24,17 +24,5 @@ public class Simulator: Hashable, CustomStringConvertible {
     
     public var simulatorSetPath: AbsolutePath {
         return path.removingLastComponent
-    }
-
-    public static func == (left: Simulator, right: Simulator) -> Bool {
-        return left.testDestination == right.testDestination
-            && left.udid == right.udid
-            && left.path == right.path
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(testDestination)
-        hasher.combine(udid)
-        hasher.combine(path)
     }
 }
