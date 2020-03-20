@@ -15,6 +15,7 @@ import ResourceLocationResolver
 import RuntimeDump
 import ScheduleStrategy
 import Scheduler
+import SignalHandling
 import SimulatorPool
 import TemporaryStuff
 import UniqueIdentifierGenerator
@@ -75,6 +76,11 @@ public final class DumpRuntimeTestsCommand: Command {
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
+        
+        SignalHandling.addSignalHandler(signals: [.term, .int]) { signal in
+            Logger.debug("Got signal: \(signal)")
+            onDemandSimulatorPool.deleteSimulators()
+        }
         
         let dumpedTests: [[RuntimeTestEntry]] = try testArgFile.entries.map { testArgFileEntry -> [RuntimeTestEntry] in
             let configuration = RuntimeDumpConfiguration(

@@ -186,7 +186,7 @@ public final class DistWorker: SchedulerDelegate {
         try scheduler.run()
     }
     
-    private func cleanUpAndStop() {
+    public func cleanUpAndStop() {
         queueClient.close()
         reportingAliveTimer?.stop()
     }

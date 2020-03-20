@@ -12,6 +12,7 @@ import ProcessController
 import QueueClient
 import RequestSender
 import ResourceLocationResolver
+import SignalHandling
 import SimulatorPool
 import SynchronousWaiter
 import TemporaryStuff
@@ -74,6 +75,12 @@ public final class DistWorkCommand: Command {
             workerId: workerId
         )
         
+        SignalHandling.addSignalHandler(signals: [.term, .int]) { signal in
+            Logger.debug("Got signal: \(signal)")
+            distWorker.cleanUpAndStop()
+            onDemandSimulatorPool.deleteSimulators()
+        }
+        
         try startWorker(distWorker: distWorker, emceeVersion: emceeVersion)
     }
     
@@ -119,6 +126,11 @@ public final class DistWorkCommand: Command {
                 isWorking = false
             }
         )
+        
+        SignalHandling.addSignalHandler(signals: [.term, .int]) { signal in
+            Logger.debug("Got signal: \(signal)")
+            isWorking = false
+        }
         
         try SynchronousWaiter().waitWhile { isWorking }
     }
