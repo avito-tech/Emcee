@@ -42,37 +42,40 @@ public final class WorkerAlivenessPoller {
     }
     
     private func performPoll() {
-        let queue = DispatchQueue(label: "pollqueue", qos: .userInteractive, attributes: .concurrent)
-        Logger.debug("Polling workers for currently processing buckets")
+        let queue = DispatchQueue(label: "pollqueue")
+        
+        let group = DispatchGroup()
         
         for (workerId, socketAddress) in workerDetailsHolder.knownAddresses {
-            queue.async { [pollInterval] in
-                let sender = self.requestSenderProvider.requestSender(
-                    socketAddress: socketAddress
-                )
-                Logger.debug("Polling \(workerId) for currently processing buckets")
-                sender.sendRequestWithCallback(
-                    request: CurrentlyProcessingBucketsNetworkRequest(
-                        timeout: pollInterval / 2.0
-                    ),
-                    callbackQueue: queue,
-                    callback: { [weak self] (response: Either<CurrentlyProcessingBucketsResponse, RequestSenderError>) in
-                        guard let strongSelf = self else { return }
-                        do {
-                            let currentlyProcessingBucketsResponse = try response.dematerialize()
-                            strongSelf.workerAlivenessProvider.set(
-                                bucketIdsBeingProcessed: Set(currentlyProcessingBucketsResponse.bucketIds),
-                                workerId: workerId
-                            )
-                        } catch {
-                            Logger.error("Failed to obtain currently processing buckets for \(workerId): \(error)")
-                        }
+            group.enter()
+            
+            let sender = self.requestSenderProvider.requestSender(
+                socketAddress: socketAddress
+            )
+            Logger.debug("Polling \(workerId) for currently processing buckets")
+            sender.sendRequestWithCallback(
+                request: CurrentlyProcessingBucketsNetworkRequest(
+                    timeout: pollInterval / 2.0
+                ),
+                callbackQueue: queue,
+                callback: { [weak self] (response: Either<CurrentlyProcessingBucketsResponse, RequestSenderError>) in
+                    defer { group.leave() }
+                    
+                    guard let strongSelf = self else { return }
+                    do {
+                        let currentlyProcessingBucketsResponse = try response.dematerialize()
+                        strongSelf.workerAlivenessProvider.set(
+                            bucketIdsBeingProcessed: Set(currentlyProcessingBucketsResponse.bucketIds),
+                            workerId: workerId
+                        )
+                    } catch {
+                        Logger.error("Failed to obtain currently processing buckets for \(workerId): \(error)")
                     }
-                )
-            }
+                }
+            )
         }
-        queue.sync(flags: .barrier) {
-            Logger.debug("Finished polling workers for currently processing buckets")
-        }
+        
+        group.wait()
+        Logger.debug("Finished polling workers for currently processing buckets")
     }
 }
