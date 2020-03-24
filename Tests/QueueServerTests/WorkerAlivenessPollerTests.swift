@@ -1,3 +1,4 @@
+import AtomicModels
 import DistWorkerModels
 import Foundation
 import Models
@@ -5,6 +6,8 @@ import QueueServer
 import QueueServerTestHelpers
 import RequestSender
 import RequestSenderTestHelpers
+import Swifter
+import SynchronousWaiter
 import WorkerAlivenessProvider
 import WorkerAlivenessProviderTestHelpers
 import XCTest
@@ -107,6 +110,38 @@ final class WorkerAlivenessPollerTests: XCTestCase {
         poller.startPolling()
         
         wait(for: [requestSenderHasBeenUsedToQueryWorker1, requestSenderHasBeenUsedToQueryWorker2], timeout: 15)
+    }
+    
+    func test___querying_load_of_workers() {
+        let numberOfWorkers = 256
+        let numberOfProcessedRequests = AtomicValue<Int>(0)
+        
+        let server = HttpServer()
+        assertDoesNotThrow { try server.start(0) }
+        let port = assertDoesNotThrow { try server.port() }
+        
+        for i in 0 ..< numberOfWorkers {
+            workerDetailsHolder.update(
+                workerId: WorkerId(value: "worker__\(i)"),
+                restAddress: SocketAddress(host: "localhost", port: port)
+            )
+            server[CurrentlyProcessingBuckets.path.withLeadingSlash] = { request in
+                numberOfProcessedRequests.withExclusiveAccess { $0 += 1 }
+                return HttpResponse.json(response: CurrentlyProcessingBucketsResponse(bucketIds: []))
+            }
+        }
+        
+        let poller = createWorkerAlivenessPoller(
+            requestSenderProvider: DefaultRequestSenderProvider()
+        )
+        defer { poller.stopPolling() }
+        poller.startPolling()
+        
+        assertDoesNotThrow {
+            try SynchronousWaiter().waitWhile(pollPeriod: 0.3, timeout: Timeout(description: "requests have been processed", value: 20)) {
+                numberOfProcessedRequests.currentValue() < numberOfWorkers
+            }
+        }
     }
     
     private func createWorkerAlivenessPoller(

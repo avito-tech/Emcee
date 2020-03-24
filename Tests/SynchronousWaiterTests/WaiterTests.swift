@@ -1,5 +1,4 @@
 import Foundation
-import Models
 import SynchronousWaiter
 import TestHelpers
 import XCTest

@@ -1015,6 +1015,7 @@ let package = Package(
             // MARK: QueueServerTests
             name: "QueueServerTests",
             dependencies: [
+                "AtomicModels",
                 "AutomaticTermination",
                 "AutomaticTerminationTestHelpers",
                 "BalancingBucketQueue",
@@ -1039,6 +1040,8 @@ let package = Package(
                 "ResourceLocationResolver",
                 "ResultsCollector",
                 "ScheduleStrategy",
+                "Swifter",
+                "SynchronousWaiter",
                 "TemporaryStuff",
                 "TestHelpers",
                 "UniqueIdentifierGeneratorTestHelpers",
@@ -1517,6 +1520,7 @@ let package = Package(
             // MARK: SynchronousWaiterTests
             name: "SynchronousWaiterTests",
             dependencies: [
+                "Models",
                 "SynchronousWaiter",
                 "TestHelpers",
             ]
