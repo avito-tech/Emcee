@@ -1,6 +1,6 @@
 import Foundation
 
-public final class SocketAddress: Codable, CustomStringConvertible, Hashable {
+public struct SocketAddress: Codable, CustomStringConvertible, Hashable {
     public let host: String
     public let port: Int
     
@@ -50,14 +50,5 @@ public final class SocketAddress: Codable, CustomStringConvertible, Hashable {
     
     public var description: String {
         return asString
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(host)
-        hasher.combine(port)
-    }
-    
-    public static func == (left: SocketAddress, right: SocketAddress) -> Bool {
-        return left.host == right.host && left.port == right.port
     }
 }

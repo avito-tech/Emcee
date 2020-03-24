@@ -13,7 +13,7 @@ extension TypedResourceLocation: ParsableArgument {
 }
 
 extension SocketAddress: ParsableArgument {
-    public convenience init(argumentValue: String) throws {
+    public init(argumentValue: String) throws {
         let parsedAddress = try SocketAddress.from(string: argumentValue)
         self.init(host: parsedAddress.host, port: parsedAddress.port)
     }

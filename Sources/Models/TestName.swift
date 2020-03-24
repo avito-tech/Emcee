@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents a test name in a format "ClassName/testMethodName".
-public final class TestName: CustomStringConvertible, Codable, Hashable {
+public struct TestName: CustomStringConvertible, Codable, Hashable {
     public let className: String
     public let methodName: String
 
@@ -64,16 +64,6 @@ public final class TestName: CustomStringConvertible, Codable, Hashable {
             throw TestNameError.unableToExctractClassAndMethodNames(stringValue: stringValue)
         }
         return TestName(className: className, methodName: methodName)
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(className)
-        hasher.combine(methodName)
-    }
-
-    public static func == (left: TestName, right: TestName) -> Bool {
-        return left.className == right.className
-            && left.methodName == right.methodName
     }
 }
 

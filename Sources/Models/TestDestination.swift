@@ -1,10 +1,7 @@
 import Foundation
 
 public struct TestDestination: Hashable, CustomStringConvertible, Codable {
-    /// Device type
     public let deviceType: String
-    
-    /// Runtime version
     public let runtime: String
 
     public init(

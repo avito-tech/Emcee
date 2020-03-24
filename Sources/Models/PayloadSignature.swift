@@ -1,6 +1,6 @@
 import Foundation
 
-public final class PayloadSignature: Codable, Hashable, CustomStringConvertible {
+public struct PayloadSignature: Codable, Hashable, CustomStringConvertible {
     public let value: String
 
     public init(value: String) {
@@ -9,14 +9,6 @@ public final class PayloadSignature: Codable, Hashable, CustomStringConvertible 
 
     public var description: String {
         return value
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(value)
-    }
-
-    public static func == (left: PayloadSignature, right: PayloadSignature) -> Bool {
-        return left.value == right.value
     }
 
     public init(from decoder: Decoder) throws {
