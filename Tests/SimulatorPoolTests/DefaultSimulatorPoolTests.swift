@@ -43,28 +43,4 @@ class DefaultSimulatorPoolTests: XCTestCase {
         
         XCTAssertFalse(controller.isBusy)
     }
-
-    func testUsingFromQueue() throws {
-        let numberOfThreads = 4
-        let queue = OperationQueue()
-        queue.maxConcurrentOperationCount = Int(numberOfThreads)
-        
-        for _ in 0...999 {
-            queue.addOperation {
-                let simulator = self.assertDoesNotThrow {
-                    try self.pool.allocateSimulatorController()
-                }
-                let duration = TimeInterval(Float(arc4random()) / Float(UINT32_MAX) * 0.05)
-                Thread.sleep(forTimeInterval: duration)
-                self.pool.free(simulatorController: simulator)
-            }
-        }
-        
-        queue.waitUntilAllOperationsAreFinished()
-        
-        XCTAssertEqual(
-            pool.numberExistingOfControllers(),
-            numberOfThreads
-        )
-    }
 }
