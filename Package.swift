@@ -728,9 +728,10 @@ let package = Package(
                 "LocalHostDeterminer",
                 "Logging",
                 "Metrics",
+                "Models",
                 "PathLib",
                 "Sentry",
-                "TemporaryStuff"
+                "TemporaryStuff",
             ]
         ),
         .testTarget(
