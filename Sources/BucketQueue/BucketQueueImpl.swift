@@ -69,8 +69,6 @@ final class BucketQueueImpl: BucketQueue {
     
     public func dequeueBucket(requestId: RequestId, workerId: WorkerId) -> DequeueResult {
         switch workerAlivenessProvider.alivenessForWorker(workerId: workerId).status {
-        case .blocked:
-            return .workerIsBlocked
         case .silent, .notRegistered:
             return .workerIsNotAlive
         case .alive:
@@ -179,8 +177,6 @@ final class BucketQueueImpl: BucketQueue {
                        return nil
                     }
                     stuckReason = .bucketLost
-                case .blocked:
-                    stuckReason = .workerIsBlocked
                 case .silent(let lastAlivenessResponseTimestamp):
                     stuckReason = .workerIsSilent(since: lastAlivenessResponseTimestamp)
                 }

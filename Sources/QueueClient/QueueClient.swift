@@ -158,8 +158,6 @@ public final class QueueClient {
             delegate?.queueClientQueueIsEmpty(self)
         case .workerIsNotAlive:
             delegate?.queueClientWorkerConsideredNotAlive(self)
-        case .workerIsBlocked:
-            delegate?.queueClientWorkerHasBeenBlocked(self)
         }
     }
     

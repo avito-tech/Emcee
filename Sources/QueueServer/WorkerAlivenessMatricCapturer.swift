@@ -46,7 +46,6 @@ private extension WorkerAliveness.Status {
     var metricComponentName: String {
         switch self {
         case .alive: return "alive"
-        case .blocked: return "blocked"
         case .notRegistered: return "notRegistered"
         case .silent: return "silent"
         }

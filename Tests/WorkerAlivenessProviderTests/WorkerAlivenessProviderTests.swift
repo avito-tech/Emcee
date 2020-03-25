@@ -43,32 +43,10 @@ final class WorkerAlivenessProviderTests: XCTestCase {
         XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").bucketIdsBeingProcessed, ["bucketid"])
     }
     
-    func test__blocked_workers() {
-        let tracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
-        tracker.didRegisterWorker(workerId: "worker")
-        tracker.blockWorker(workerId: "worker")
-        XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").status, .blocked)
-    }
-    
-    func test___if_worker_blocked___aliveness_does_not_include_buckets_being_processed() {
-        let tracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
-        tracker.didRegisterWorker(workerId: "worker")
-        tracker.set(bucketIdsBeingProcessed: ["bucketid"], workerId: "worker")
-        tracker.blockWorker(workerId: "worker")
-        XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").bucketIdsBeingProcessed, [])
-    }
-    
     func test__availability_of_workers() {
         let tracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
         tracker.didRegisterWorker(workerId: "worker")
         XCTAssertTrue(tracker.hasAnyAliveWorker)
-    }
-    
-    func test__availability_of_workers__after_blocking_last_worker() {
-        let tracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
-        tracker.didRegisterWorker(workerId: "worker")
-        tracker.blockWorker(workerId: "worker")
-        XCTAssertFalse(tracker.hasAnyAliveWorker)
     }
     
     func test___aliveness_for_not_registered_workers() {

@@ -51,7 +51,6 @@ private extension StuckBucket.Reason {
     var metricParameterName: String {
         switch self {
         case .workerIsSilent: return "workerIsSilent"
-        case .workerIsBlocked: return "workerIsBlocked"
         case .bucketLost: return "bucketLost"
         }
     }

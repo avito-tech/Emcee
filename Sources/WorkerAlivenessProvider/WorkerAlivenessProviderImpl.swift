@@ -11,7 +11,6 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     private let knownWorkerIds: Set<WorkerId>
     private var workerAliveReportTimestamps = [WorkerId: Date]()
     private let workerBucketIdsBeingProcessed = WorkerCurrentlyProcessingBucketsTracker()
-    private var blockedWorkers = Set<WorkerId>()
     /// allow worker some additinal time to perform a "i'm alive" report, e.g. to compensate a network latency
     private let maximumNotReportingDuration: TimeInterval
 
@@ -34,10 +33,8 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     
     public func set(bucketIdsBeingProcessed: Set<BucketId>, workerId: WorkerId) {
         syncQueue.sync {
-            if !blockedWorkers.contains(workerId) {
-                onSyncQueue_markWorkerAsAlive(workerId: workerId)
-                workerBucketIdsBeingProcessed.set(bucketIdsBeingProcessed: bucketIdsBeingProcessed, byWorkerId: workerId)
-            }
+            onSyncQueue_markWorkerAsAlive(workerId: workerId)
+            workerBucketIdsBeingProcessed.set(bucketIdsBeingProcessed: bucketIdsBeingProcessed, byWorkerId: workerId)
         }
     }
     
@@ -46,18 +43,7 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
            onSyncQueue_markWorkerAsAlive(workerId: workerId)
         }
     }
-    
-    public func blockWorker(workerId: WorkerId) {
-        syncQueue.sync {
-            _ = blockedWorkers.insert(workerId)
-            workerBucketIdsBeingProcessed.resetBucketIdsBeingProcessedBy(workerId: workerId)
-            Logger.warning("Blocked worker: \(workerId)")
-            
-            let workerAliveness = onSyncQueue_workerAliveness()
-            Logger.debug("Alive workers: \(workerAliveness.filter { $0.value.status == .alive }), blocked workers: \(workerAliveness.filter { $0.value.status == .blocked })")
-        }
-    }
-    
+        
     public var workerAliveness: [WorkerId: WorkerAliveness] {
         return syncQueue.sync {
             onSyncQueue_workerAliveness()
@@ -71,7 +57,7 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     }
     
     private func onSyncQueue_workerAliveness() -> [WorkerId: WorkerAliveness] {
-        let uniqueWorkerIds = Set<WorkerId>(workerAliveReportTimestamps.keys).union(blockedWorkers).union(knownWorkerIds)
+        let uniqueWorkerIds = Set<WorkerId>(workerAliveReportTimestamps.keys).union(knownWorkerIds)
         
         var workerAliveness = [WorkerId: WorkerAliveness]()
         let currentDate = Date()
@@ -84,9 +70,6 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     private func onSyncQueue_alivenessForWorker(workerId: WorkerId, currentDate: Date) -> WorkerAliveness {
         guard let latestAliveDate = workerAliveReportTimestamps[workerId] else {
             return WorkerAliveness(status: .notRegistered, bucketIdsBeingProcessed: [])
-        }
-        if blockedWorkers.contains(workerId) {
-            return WorkerAliveness(status: .blocked, bucketIdsBeingProcessed: [])
         }
         
         let bucketIdsBeingProcessed = workerBucketIdsBeingProcessed.bucketIdsBeingProcessedBy(workerId: workerId)

@@ -5,7 +5,6 @@ public struct WorkerAliveness: Equatable, CustomStringConvertible {
     public enum Status: Equatable, CustomStringConvertible {
         case alive
         case silent(lastAlivenessResponseTimestamp: Date)
-        case blocked
         case notRegistered
         
         public var description: String {
@@ -14,8 +13,6 @@ public struct WorkerAliveness: Equatable, CustomStringConvertible {
                 return "alive"
             case .silent(let lastAlivenessResponseTimestamp):
                 return "silent since \(lastAlivenessResponseTimestamp)"
-            case .blocked:
-                return "blocked"
             case .notRegistered:
                 return "not registered"
             }

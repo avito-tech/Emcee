@@ -113,18 +113,7 @@ final class BucketQueueTests: XCTestCase {
             XCTFail("Expected dequeueResult == .checkAgainLater, got: \(dequeueResult)")
         }
     }
-    
-    func test__reponse_workerBlocked__when_worker_is_blocked() {
-        alivenessTrackerWithAlwaysAliveResults.blockWorker(workerId: workerId)
-        let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults)
         
-        let bucket = BucketFixtures.createBucket(testEntries: [])
-        bucketQueue.enqueue(buckets: [bucket])
-        
-        let dequeueResult = bucketQueue.dequeueBucket(requestId: requestId, workerId: workerId)
-        XCTAssertEqual(dequeueResult, .workerIsBlocked)
-    }
-    
     func test__reponse_workerIsNotAlive__when_worker_is_not_alive() {
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults)
         let dequeueResult = bucketQueue.dequeueBucket(
@@ -230,22 +219,7 @@ final class BucketQueueTests: XCTestCase {
             [StuckBucket(reason: .workerIsSilent(since: silentSince), bucket: bucket, workerId: workerId, requestId: requestId)]
         )
     }
-    
-    func test__when_worker_is_blocked__its_dequeued_buckets_removed() {
-        let bucket = BucketFixtures.createBucket(testEntries: [])
         
-        let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults)
-        bucketQueue.enqueue(buckets: [bucket])
-        _ = bucketQueue.dequeueBucket(requestId: requestId, workerId: workerId)
-        
-        alivenessTrackerWithAlwaysAliveResults.blockWorker(workerId: workerId)
-        let stuckBuckets = bucketQueue.reenqueueStuckBuckets()
-        XCTAssertEqual(
-            stuckBuckets,
-            [StuckBucket(reason: .workerIsBlocked, bucket: bucket, workerId: workerId, requestId: requestId)]
-        )
-    }
-    
     func test___when_worker_loses_bucket___it_is_removed_as_stuck() {
         let bucket = BucketFixtures.createBucket(testEntries: [])
         

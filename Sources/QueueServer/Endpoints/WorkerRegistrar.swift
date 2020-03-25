@@ -14,15 +14,12 @@ public final class WorkerRegistrar: RESTEndpoint {
     
     public enum WorkerRegistrarError: Swift.Error, CustomStringConvertible {
         case missingWorkerConfiguration(workerId: WorkerId)
-        case workerIsBlocked(workerId: WorkerId)
         case workerIsAlreadyRegistered(workerId: WorkerId)
         
         public var description: String {
             switch self {
             case .missingWorkerConfiguration(let workerId):
                 return "Missing worker configuration for \(workerId)"
-            case .workerIsBlocked(let workerId):
-                return "Can't register \(workerId) because it has been blocked"
             case .workerIsAlreadyRegistered(let workerId):
                 return "Can't register \(workerId) because it is already registered"
             }
@@ -57,8 +54,6 @@ public final class WorkerRegistrar: RESTEndpoint {
             return .workerRegisterSuccess(workerConfiguration: workerConfiguration)
         case .alive:
             throw WorkerRegistrarError.workerIsAlreadyRegistered(workerId: decodedPayload.workerId)
-        case .blocked:
-            throw WorkerRegistrarError.workerIsBlocked(workerId: decodedPayload.workerId)
         }
     }
 }

@@ -13,7 +13,6 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         case bucket(Bucket)
         case queueIsEmpty
         case checkLater(TimeInterval)
-        case workerHasBeenBlocked
         case workerConsideredNotAlive
     }
     
@@ -158,10 +157,6 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     
     public func queueClientWorkerConsideredNotAlive(_ sender: QueueClient) {
         bucketFetchResult = Either.success(.workerConsideredNotAlive)
-    }
-    
-    public func queueClientWorkerHasBeenBlocked(_ sender: QueueClient) {
-        bucketFetchResult = Either.success(.workerHasBeenBlocked)
     }
     
     public func queueClient(_ sender: QueueClient, fetchBucketLaterAfter after: TimeInterval) {

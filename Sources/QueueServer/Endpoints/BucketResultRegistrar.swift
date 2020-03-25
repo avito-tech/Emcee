@@ -24,16 +24,11 @@ public final class BucketResultRegistrar: PayloadSignatureVerifyingRESTEndpoint 
     }
 
     public func handle(verifiedPayload: BucketResultPayload) throws -> BucketResultAcceptResponse {
-        do {
-            let acceptResult = try bucketResultAccepter.accept(
-                testingResult: verifiedPayload.testingResult,
-                requestId: verifiedPayload.requestId,
-                workerId: verifiedPayload.workerId
-            )
-            return .bucketResultAccepted(bucketId: acceptResult.dequeuedBucket.enqueuedBucket.bucket.bucketId)
-        } catch {
-            workerAlivenessProvider.blockWorker(workerId: verifiedPayload.workerId)
-            throw error
-        }
+        let acceptResult = try bucketResultAccepter.accept(
+            testingResult: verifiedPayload.testingResult,
+            requestId: verifiedPayload.requestId,
+            workerId: verifiedPayload.workerId
+        )
+        return .bucketResultAccepted(bucketId: acceptResult.dequeuedBucket.enqueuedBucket.bucket.bucketId)
     }
 }

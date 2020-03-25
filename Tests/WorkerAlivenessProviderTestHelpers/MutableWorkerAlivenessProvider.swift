@@ -17,11 +17,7 @@ public final class MutableWorkerAlivenessProvider: WorkerAlivenessProvider {
         bucketIdByWorkerId.append(key: workerId, element: bucketId)
         workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: Set(bucketIdByWorkerId[workerId]))
     }
-    
-    public func blockWorker(workerId: WorkerId) {
-        workerAliveness[workerId] = WorkerAliveness(status: .blocked, bucketIdsBeingProcessed: [])
-    }
-    
+        
     public func didRegisterWorker(workerId: WorkerId) {
         bucketIdByWorkerId[workerId] = []
         workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [])

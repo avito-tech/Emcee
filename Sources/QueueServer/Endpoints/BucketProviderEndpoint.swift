@@ -38,8 +38,6 @@ public final class BucketProviderEndpoint: PayloadSignatureVerifyingRESTEndpoint
             return .bucketDequeued(bucket: dequeuedBucket.enqueuedBucket.bucket)
         case .workerIsNotAlive:
             return .workerIsNotAlive
-        case .workerIsBlocked:
-            return .workerIsBlocked
         }
     }
 }

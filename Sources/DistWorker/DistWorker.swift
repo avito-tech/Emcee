@@ -169,9 +169,6 @@ public final class DistWorker: SchedulerDelegate {
             case .queueIsEmpty:
                 Logger.debug("Server returned that queue is empty")
                 return .result(nil)
-            case .workerHasBeenBlocked:
-                Logger.error("Server has blocked this worker")
-                return .result(nil)
             case .workerConsideredNotAlive:
                 Logger.error("Server considers this worker as not alive")
                 return .result(nil)

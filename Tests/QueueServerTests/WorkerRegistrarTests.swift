@@ -43,21 +43,6 @@ final class WorkerRegistrarTests: XCTestCase {
         XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId).status, .alive)
     }
     
-    func test___registration_for_blocked_worker__throws() throws {
-        let registrar = createRegistrar()
-        alivenessTracker.didRegisterWorker(workerId: workerId)
-        alivenessTracker.blockWorker(workerId: workerId)
-        
-        assertThrows {
-            _ = try registrar.handle(
-                decodedPayload: RegisterWorkerPayload(
-                    workerId: workerId,
-                    workerRestAddress: SocketAddress(host: "host", port: 0)
-                )
-            )
-        }
-    }
-    
     func test_successful_registration() throws {
         let registrar = createRegistrar()
         
