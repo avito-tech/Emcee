@@ -17,9 +17,6 @@ public struct QueueServerRunConfiguration: Decodable {
     /// Defines when queue server will terminate itself.
     public let queueServerTerminationPolicy: AutomaticTerminationPolicy
     
-    /// Period of time when workers should report their aliveness
-    public let reportAliveInterval: TimeInterval
-    
     public let workerDeploymentDestinations: [DeploymentDestination]
 
     public init(
@@ -27,14 +24,12 @@ public struct QueueServerRunConfiguration: Decodable {
         checkAgainTimeInterval: TimeInterval,
         deploymentDestinationConfigurations: [DestinationConfiguration],
         queueServerTerminationPolicy: AutomaticTerminationPolicy,
-        reportAliveInterval: TimeInterval,
         workerDeploymentDestinations: [DeploymentDestination]
     ) {
         self.analyticsConfiguration = analyticsConfiguration
         self.checkAgainTimeInterval = checkAgainTimeInterval
         self.deploymentDestinationConfigurations = deploymentDestinationConfigurations
         self.queueServerTerminationPolicy = queueServerTerminationPolicy
-        self.reportAliveInterval = reportAliveInterval
         self.workerDeploymentDestinations = workerDeploymentDestinations
     }
     
@@ -45,8 +40,7 @@ public struct QueueServerRunConfiguration: Decodable {
         return WorkerConfiguration(
             analyticsConfiguration: analyticsConfiguration,
             numberOfSimulators: deploymentDestinationConfiguration.numberOfSimulators,
-            payloadSignature: payloadSignature,
-            reportAliveInterval: reportAliveInterval
+            payloadSignature: payloadSignature
         )
     }
 }

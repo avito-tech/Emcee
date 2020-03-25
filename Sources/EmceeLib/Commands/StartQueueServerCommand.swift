@@ -84,7 +84,6 @@ public final class StartQueueServerCommand: Command {
             queueServerLock: AutomaticTerminationControllerAwareQueueServerLock(
                 automaticTerminationController: automaticTerminationController
             ),
-            reportAliveInterval: queueServerRunConfiguration.reportAliveInterval,
             requestSenderProvider: requestSenderProvider,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessPolicy: .workersStayAliveWhenQueueIsDepleted,

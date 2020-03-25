@@ -92,7 +92,6 @@ public final class DistWorkCommand: Command {
     ) -> DistWorker {
         let requestSender = requestSenderProvider.requestSender(socketAddress: queueServerAddress)
         
-        let reportAliveSender = ReportAliveSenderImpl(requestSender: requestSender)
         let workerRegisterer = WorkerRegistererImpl(requestSender: requestSender)
         let bucketResultSender = BucketResultSenderImpl(requestSender: requestSender)
         
@@ -102,7 +101,6 @@ public final class DistWorkCommand: Command {
             onDemandSimulatorPool: onDemandSimulatorPool,
             pluginEventBusProvider: pluginEventBusProvider,
             queueClient: SynchronousQueueClient(queueServerAddress: queueServerAddress),
-            reportAliveSender: reportAliveSender,
             resourceLocationResolver: resourceLocationResolver,
             temporaryFolder: temporaryFolder,
             testRunnerProvider: DefaultTestRunnerProvider(

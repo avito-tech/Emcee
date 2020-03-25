@@ -1179,6 +1179,7 @@ let package = Package(
                 "ResourceLocationResolver",
                 "Swifter",
                 "TemporaryStuff",
+                "TestHelpers",
                 "URLResource",
             ]
         ),

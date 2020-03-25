@@ -30,7 +30,6 @@ public final class QueueServerImpl: QueueServer {
     private let scheduleTestsHandler: ScheduleTestsEndpoint
     private let stuckBucketsPoller: StuckBucketsPoller
     private let testsEnqueuer: TestsEnqueuer
-    private let workerAlivenessEndpoint: WorkerAlivenessEndpoint
     private let workerAlivenessMatricCapturer: WorkerAlivenessMatricCapturer
     private let workerAlivenessPoller: WorkerAlivenessPoller
     private let workerAlivenessProvider: WorkerAlivenessProvider
@@ -45,22 +44,21 @@ public final class QueueServerImpl: QueueServer {
         localPortDeterminer: LocalPortDeterminer,
         payloadSignature: PayloadSignature,
         queueServerLock: QueueServerLock,
-        reportAliveInterval: TimeInterval,
         requestSenderProvider: RequestSenderProvider,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         workerAlivenessPolicy: WorkerAlivenessPolicy,
         workerConfigurations: WorkerConfigurations
     ) {
+        let alivenessPollingInterval: TimeInterval = 20
         let workerDetailsHolder = WorkerDetailsHolderImpl()
         
         self.workerAlivenessProvider = WorkerAlivenessProviderImpl(
             dateProvider: dateProvider,
             knownWorkerIds: workerConfigurations.workerIds,
-            reportAliveInterval: reportAliveInterval,
-            additionalTimeToPerformWorkerIsAliveReport: 30.0
+            maximumNotReportingDuration: alivenessPollingInterval * 2 + 10
         )
         self.workerAlivenessPoller = WorkerAlivenessPoller(
-            pollInterval: 20,
+            pollInterval: alivenessPollingInterval,
             requestSenderProvider: requestSenderProvider,
             workerAlivenessProvider: workerAlivenessProvider,
             workerDetailsHolder: workerDetailsHolder
@@ -94,10 +92,6 @@ public final class QueueServerImpl: QueueServer {
         self.scheduleTestsHandler = ScheduleTestsEndpoint(
             testsEnqueuer: testsEnqueuer,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
-        )
-        self.workerAlivenessEndpoint = WorkerAlivenessEndpoint(
-            workerAlivenessProvider: workerAlivenessProvider,
-            expectedPayloadSignature: payloadSignature
         )
         self.workerRegistrar = WorkerRegistrar(
             workerAlivenessProvider: workerAlivenessProvider,
@@ -151,7 +145,6 @@ public final class QueueServerImpl: QueueServer {
             jobResultsHandler: RESTEndpointOf(actualHandler: jobResultsEndpoint),
             jobStateHandler: RESTEndpointOf(actualHandler: jobStateEndpoint),
             registerWorkerHandler: RESTEndpointOf(actualHandler: workerRegistrar),
-            reportAliveHandler: RESTEndpointOf(actualHandler: workerAlivenessEndpoint),
             scheduleTestsHandler: RESTEndpointOf(actualHandler: scheduleTestsHandler),
             versionHandler: RESTEndpointOf(actualHandler: queueServerVersionHandler)
         )

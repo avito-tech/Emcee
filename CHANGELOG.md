@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2020-03-25
+
+Workers no longer issue `reportAlive` requests to a queue. Queue now polls its workers instead and tracks their aliveness using REST.
+
 ## 2020-03-20
 
 - New Graphite metric allows you to track durations of simulator operations like creating, booting, shutting down, and deleting.

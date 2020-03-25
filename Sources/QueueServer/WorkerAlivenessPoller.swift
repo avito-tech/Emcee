@@ -55,7 +55,7 @@ public final class WorkerAlivenessPoller {
             Logger.debug("Polling \(workerId) for currently processing buckets")
             sender.sendRequestWithCallback(
                 request: CurrentlyProcessingBucketsNetworkRequest(
-                    timeout: pollInterval / 2.0
+                    timeout: pollInterval
                 ),
                 callbackQueue: queue,
                 callback: { [weak self] (response: Either<CurrentlyProcessingBucketsResponse, RequestSenderError>) in

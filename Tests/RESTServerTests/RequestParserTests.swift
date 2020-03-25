@@ -76,9 +76,9 @@ final class RequestParserTests: XCTestCase {
     func test___parse___returns_correct_httpResponse_with_object_returned_from_responseProducer___if_request_is_correct() {
         let parser = RequestParser(decoder: decoder)
         
-        let expectedResponse = ReportAliveResponse.aliveReportAccepted
+        let expectedResponse = ["a": "b"]
         
-        let httpResponse = parser.parse(request: defaultRequestForThisTest) { (decodedObject: TypeThatMatchesDefaultRequest) -> (ReportAliveResponse) in
+        let httpResponse = parser.parse(request: defaultRequestForThisTest) { (decodedObject: TypeThatMatchesDefaultRequest) -> ([String: String]) in
             return expectedResponse
         }
         
@@ -91,7 +91,7 @@ final class RequestParserTests: XCTestCase {
             let writable = HttpResponseWritable()
             XCTAssertNoThrow(try writer?(writable))
             do {
-                let writtenObject = try decoder.decode(ReportAliveResponse.self, from: writable.data)
+                let writtenObject = try decoder.decode([String: String].self, from: writable.data)
                 XCTAssertEqual(writtenObject, expectedResponse)
             } catch {
                 XCTFail("Unexpected error: \(error)")

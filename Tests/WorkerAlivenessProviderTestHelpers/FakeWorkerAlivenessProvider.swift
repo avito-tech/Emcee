@@ -12,8 +12,7 @@ public final class WorkerAlivenessProviderFixtures {
         return WorkerAlivenessProviderImpl(
             dateProvider: dateProvider,
             knownWorkerIds: knownWorkerIds,
-            reportAliveInterval: .infinity,
-            additionalTimeToPerformWorkerIsAliveReport: .infinity
+            maximumNotReportingDuration: .infinity
         )
     }
     
@@ -23,8 +22,7 @@ public final class WorkerAlivenessProviderFixtures {
         return WorkerAlivenessProviderImpl(
             dateProvider: dateProvider,
             knownWorkerIds: [],
-            reportAliveInterval: 0.0,
-            additionalTimeToPerformWorkerIsAliveReport: 0.0
+            maximumNotReportingDuration: 0.0
         )
     }
 }

@@ -18,12 +18,11 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     public init(
         dateProvider: DateProvider,
         knownWorkerIds: Set<WorkerId>,
-        reportAliveInterval: TimeInterval,
-        additionalTimeToPerformWorkerIsAliveReport: TimeInterval
+        maximumNotReportingDuration: TimeInterval
     ) {
         self.dateProvider = dateProvider
         self.knownWorkerIds = knownWorkerIds
-        self.maximumNotReportingDuration = reportAliveInterval + additionalTimeToPerformWorkerIsAliveReport
+        self.maximumNotReportingDuration = maximumNotReportingDuration
     }
     
     public func didDequeueBucket(bucketId: BucketId, workerId: WorkerId) {

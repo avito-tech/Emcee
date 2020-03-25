@@ -63,7 +63,6 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             jobResultsHandler: stubbedHandler,
             jobStateHandler: stubbedHandler,
             registerWorkerHandler: RESTEndpointOf(actualHandler: workerRegistrar),
-            reportAliveHandler: stubbedHandler,
             scheduleTestsHandler: stubbedHandler,
             versionHandler: stubbedHandler
         )
@@ -126,7 +125,6 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             jobResultsHandler: stubbedHandler,
             jobStateHandler: stubbedHandler,
             registerWorkerHandler: stubbedHandler,
-            reportAliveHandler: stubbedHandler,
             scheduleTestsHandler: stubbedHandler,
             versionHandler: stubbedHandler
         )
@@ -166,7 +164,6 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             jobResultsHandler: stubbedHandler,
             jobStateHandler: stubbedHandler,
             registerWorkerHandler: stubbedHandler,
-            reportAliveHandler: stubbedHandler,
             scheduleTestsHandler: stubbedHandler,
             versionHandler: stubbedHandler
         )
@@ -198,57 +195,6 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         )
     }
     
-    func test__ReportAliveHandler() throws {
-        let alivenessTracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
-        
-        restServer.setHandler(
-            bucketResultHandler: stubbedHandler,
-            dequeueBucketRequestHandler: stubbedHandler,
-            jobDeleteHandler: stubbedHandler,
-            jobResultsHandler: stubbedHandler,
-            jobStateHandler: stubbedHandler,
-            registerWorkerHandler: stubbedHandler,
-            reportAliveHandler: RESTEndpointOf(
-                actualHandler: WorkerAlivenessEndpoint(
-                    workerAlivenessProvider: alivenessTracker,
-                    expectedPayloadSignature: expectedPayloadSignature
-                )
-            ),
-            scheduleTestsHandler: stubbedHandler,
-            versionHandler: stubbedHandler
-        )
-        
-        let reportAlivenessSender = ReportAliveSenderImpl(
-            requestSender: DefaultRequestSenderProvider().requestSender(
-                socketAddress: queueServerAddress(port: try restServer.start())
-            )
-        )
-        
-        let resultHasBeenProcessedExpectation = expectation(description: "Report alive sender completion handler invoked")
-        
-        reportAlivenessSender.reportAlive(
-            bucketIdsBeingProcessedProvider: Set(),
-            workerId: workerId,
-            payloadSignature: expectedPayloadSignature,
-            callbackQueue: callbackQueue
-        ) { (result: Either<ReportAliveResponse, Error>) in
-            XCTAssertEqual(
-                try? result.dematerialize(),
-                .aliveReportAccepted
-            )
-            resultHasBeenProcessedExpectation.fulfill()
-        }
-        
-        wait(for: [resultHasBeenProcessedExpectation], timeout: 10)
-        
-        XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId).status, .alive)
-        
-        XCTAssertFalse(
-            automaticTerminationController.indicatedActivityFinished,
-            "Should not indicate activity to automatic termination controller"
-        )
-    }
-    
     func test__QueueServerVersion() throws {
         let versionHandler = FakeRESTEndpoint<QueueVersionPayload, QueueVersionResponse>(QueueVersionResponse.queueVersion("abc"))
         
@@ -259,7 +205,6 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             jobResultsHandler: stubbedHandler,
             jobStateHandler: stubbedHandler,
             registerWorkerHandler: stubbedHandler,
-            reportAliveHandler: stubbedHandler,
             scheduleTestsHandler: stubbedHandler,
             versionHandler: RESTEndpointOf(actualHandler: versionHandler)
         )
@@ -314,7 +259,6 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             jobResultsHandler: stubbedHandler,
             jobStateHandler: stubbedHandler,
             registerWorkerHandler: stubbedHandler,
-            reportAliveHandler: stubbedHandler,
             scheduleTestsHandler: RESTEndpointOf(actualHandler: scheduleTestsEndpoint),
             versionHandler: stubbedHandler
         )
@@ -360,7 +304,6 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             jobResultsHandler: stubbedHandler,
             jobStateHandler: RESTEndpointOf(actualHandler: jobStateHandler),
             registerWorkerHandler: stubbedHandler,
-            reportAliveHandler: stubbedHandler,
             scheduleTestsHandler: stubbedHandler,
             versionHandler: stubbedHandler
         )
@@ -390,7 +333,6 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             jobResultsHandler: RESTEndpointOf(actualHandler: jobResultsHandler),
             jobStateHandler: stubbedHandler,
             registerWorkerHandler: stubbedHandler,
-            reportAliveHandler: stubbedHandler,
             scheduleTestsHandler: stubbedHandler,
             versionHandler: stubbedHandler
         )
@@ -418,7 +360,6 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             jobResultsHandler: stubbedHandler,
             jobStateHandler: stubbedHandler,
             registerWorkerHandler: stubbedHandler,
-            reportAliveHandler: stubbedHandler,
             scheduleTestsHandler: stubbedHandler,
             versionHandler: stubbedHandler
         )

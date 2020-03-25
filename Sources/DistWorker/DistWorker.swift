@@ -25,13 +25,12 @@ import Timer
 
 public final class DistWorker: SchedulerDelegate {
     private let bucketResultSender: BucketResultSender
-    private let callbackQueue = DispatchQueue(label: "DistWorker.callbackQueue", qos: .default, attributes: .concurrent, autoreleaseFrequency: .inherit, target: nil)
+    private let callbackQueue = DispatchQueue(label: "DistWorker.callbackQueue", qos: .default, attributes: .concurrent)
     private let currentlyBeingProcessedBucketsTracker = DefaultCurrentlyBeingProcessedBucketsTracker()
     private let developerDirLocator: DeveloperDirLocator
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let pluginEventBusProvider: PluginEventBusProvider
     private let queueClient: SynchronousQueueClient
-    private let reportAliveSender: ReportAliveSender
     private let resourceLocationResolver: ResourceLocationResolver
     private let syncQueue = DispatchQueue(label: "DistWorker.syncQueue")
     private let temporaryFolder: TemporaryFolder
@@ -40,7 +39,6 @@ public final class DistWorker: SchedulerDelegate {
     private let workerRESTServer: WorkerRESTServer
     private let workerRegisterer: WorkerRegisterer
     private var payloadSignature = Either<PayloadSignature, DistWorkerError>.error(DistWorkerError.missingPayloadSignature)
-    private var reportingAliveTimer: DispatchBasedTimer?
     private var requestIdForBucketId = [BucketId: RequestId]()
     
     private enum BucketFetchResult: Equatable {
@@ -54,7 +52,6 @@ public final class DistWorker: SchedulerDelegate {
         onDemandSimulatorPool: OnDemandSimulatorPool,
         pluginEventBusProvider: PluginEventBusProvider,
         queueClient: SynchronousQueueClient,
-        reportAliveSender: ReportAliveSender,
         resourceLocationResolver: ResourceLocationResolver,
         temporaryFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider,
@@ -66,7 +63,6 @@ public final class DistWorker: SchedulerDelegate {
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.pluginEventBusProvider = pluginEventBusProvider
         self.queueClient = queueClient
-        self.reportAliveSender = reportAliveSender
         self.resourceLocationResolver = resourceLocationResolver
         self.temporaryFolder = temporaryFolder
         self.testRunnerProvider = testRunnerProvider
@@ -114,8 +110,6 @@ public final class DistWorker: SchedulerDelegate {
                 
                 try didFetchAnalyticsConfiguration(workerConfiguration.analyticsConfiguration)
                 
-                strongSelf.startReportingWorkerIsAlive(interval: workerConfiguration.reportAliveInterval)
-                
                 _ = try strongSelf.runTests(
                     workerConfiguration: workerConfiguration,
                     onDemandSimulatorPool: strongSelf.onDemandSimulatorPool
@@ -127,35 +121,6 @@ public final class DistWorker: SchedulerDelegate {
             } catch {
                 Logger.error("Caught unexpected error: \(error)")
                 completion()
-            }
-        }
-        
-    }
-    
-    private func startReportingWorkerIsAlive(interval: TimeInterval) {
-        reportingAliveTimer = DispatchBasedTimer.startedTimer(
-            repeating: .milliseconds(Int(interval * 1000.0)),
-            leeway: .seconds(1)) { [weak self] _ in
-                guard let strongSelf = self else { return }
-                do {
-                    try strongSelf.reportAliveness()
-                } catch {
-                    Logger.error("Failed to report aliveness: \(error)")
-                }
-        }
-    }
-    
-    private func reportAliveness() throws {
-        reportAliveSender.reportAlive(
-            bucketIdsBeingProcessedProvider: currentlyBeingProcessedBucketsTracker.bucketIdsBeingProcessed,
-            workerId: workerId,
-            payloadSignature: try payloadSignature.dematerialize(),
-            callbackQueue: callbackQueue
-        ) { (result: Either<ReportAliveResponse, Error>) in
-            do {
-                _ = try result.dematerialize()
-            } catch {
-                Logger.error("Report aliveness error: \(error)")
             }
         }
     }
@@ -188,7 +153,6 @@ public final class DistWorker: SchedulerDelegate {
     
     public func cleanUpAndStop() {
         queueClient.close()
-        reportingAliveTimer?.stop()
     }
     
     // MARK: - Callbacks

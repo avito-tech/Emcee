@@ -10,7 +10,6 @@ public final class WorkerConfigurationFixtures {
             sentryConfiguration: nil
         ),
         numberOfSimulators: 2,
-        payloadSignature: PayloadSignature(value: "payloadSignature"),
-        reportAliveInterval: 42
+        payloadSignature: PayloadSignature(value: "payloadSignature")
     )
 }
