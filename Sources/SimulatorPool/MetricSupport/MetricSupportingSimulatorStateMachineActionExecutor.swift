@@ -6,7 +6,7 @@ import PathLib
 import SimulatorPoolModels
 
 public final class MetricSupportingSimulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor {
-    private let delegate: SimulatorStateMachineActionExecutor
+    let delegate: SimulatorStateMachineActionExecutor
     
     public init(delegate: SimulatorStateMachineActionExecutor) {
         self.delegate = delegate
