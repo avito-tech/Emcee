@@ -26,12 +26,18 @@ extension WorkerId: ParsableArgument {
 }
 
 extension Priority: ParsableArgument {
-    public convenience init(argumentValue: String) throws {
+    public init(argumentValue: String) throws {
         try self.init(intValue: try UInt(argumentValue: argumentValue))
     }
 }
 
 extension JobId: ParsableArgument {
+    public convenience init(argumentValue: String) throws {
+        self.init(value: argumentValue)
+    }
+}
+
+extension JobGroupId: ParsableArgument {
     public convenience init(argumentValue: String) throws {
         self.init(value: argumentValue)
     }

@@ -154,6 +154,7 @@ let package = Package(
             name: "BalancingBucketQueue",
             dependencies: [
                 "BucketQueue",
+                "CountedSet",
                 "DateProvider",
                 "Logging",
                 "Models",
@@ -166,11 +167,19 @@ let package = Package(
             name: "BalancingBucketQueueTests",
             dependencies: [
                 "BalancingBucketQueue",
+                "BucketQueue",
                 "BucketQueueTestHelpers",
+                "BuildArtifacts",
+                "BuildArtifactsTestHelpers",
+                "DateProviderTestHelpers",
+                "Models",
+                "ModelsTestHelpers",
                 "QueueModels",
                 "QueueModelsTestHelpers",
                 "ResultsCollector",
+                "TestHelpers",
                 "UniqueIdentifierGenerator",
+                "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessProvider",
                 "WorkerAlivenessProviderTestHelpers",
             ]

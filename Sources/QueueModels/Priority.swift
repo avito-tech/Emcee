@@ -1,11 +1,17 @@
 import Foundation
 
-public final class Priority: Comparable, Hashable, Codable, CustomStringConvertible {
+public struct Priority: Comparable, Hashable, Codable, CustomStringConvertible, ExpressibleByIntegerLiteral {
     public let intValue: UInt
 
     public init(intValue: UInt) throws {
         try Priority.validate(intValue: intValue)
         self.intValue = intValue
+    }
+    
+    public typealias IntegerLiteralType = UInt
+    
+    public init(integerLiteral value: UInt) {
+        self.intValue = value
     }
     
     private static let maximumIntValue: UInt = 999
@@ -25,20 +31,12 @@ public final class Priority: Comparable, Hashable, Codable, CustomStringConverti
         self.intValue = intValue
     }
     
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(intValue)
-    }
-    
     public var description: String {
         return "\(intValue) priority"
     }
     
     public static func < (left: Priority, right: Priority) -> Bool {
         return left.intValue < right.intValue
-    }
-    
-    public static func == (left: Priority, right: Priority) -> Bool {
-        return left.intValue == right.intValue
     }
     
     private static func validate(intValue: UInt) throws {

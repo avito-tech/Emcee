@@ -1,4 +1,5 @@
 import BucketQueue
+import CountedSet
 import DateProvider
 import Dispatch
 import Foundation
@@ -8,10 +9,11 @@ import QueueModels
 import ResultsCollector
 
 final class BalancingBucketQueueImpl: BalancingBucketQueue {
-    private let syncQueue = DispatchQueue(label: "ru.avito.emcee.BalancingBucketQueueImpl.syncQueue")
+    private let syncQueue = DispatchQueue(label: "BalancingBucketQueueImpl.syncQueue")
     private let bucketQueueFactory: BucketQueueFactory
     private let nothingToDequeueBehavior: NothingToDequeueBehavior
     
+    private var runningJobGroups_onSyncQueue = CountedSet<JobGroup>()
     private var runningJobQueues_onSyncQueue = [JobQueue]()
     private var deletedJobQueues_onSyncQueue = [JobQueue]()
     
@@ -25,7 +27,7 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
     
     func delete(jobId: JobId) throws {
         return try syncQueue.sync {
-            let jobQueuesToDelete = runningJobQueues_onSyncQueue.filter { $0.prioritizedJob.jobId == jobId }
+            let jobQueuesToDelete = runningJobQueues_onSyncQueue.filter { $0.job.jobId == jobId }
             guard !jobQueuesToDelete.isEmpty else {
                 throw BalancingBucketQueueError.noQueue(jobId: jobId)
             }
@@ -33,29 +35,34 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
                 jobQueue.bucketQueue.removeAllEnqueuedBuckets()
             }
             deletedJobQueues_onSyncQueue.append(contentsOf: jobQueuesToDelete)
-            runningJobQueues_onSyncQueue.removeAll(where: { $0.prioritizedJob.jobId == jobId })
+            runningJobQueues_onSyncQueue.removeAll(where: { $0.job.jobId == jobId })
+            deleteJobGroupsThatNoLongerPresent_onSyncQueue(deletedJobQueues: jobQueuesToDelete)
         }
     }
     
     var ongoingJobIds: Set<JobId> {
         let jobIds = syncQueue.sync {
-            runningJobQueues_onSyncQueue.map { $0.prioritizedJob.jobId }
+            runningJobQueues_onSyncQueue.map { $0.job.jobId }
         }
         return Set(jobIds)
+    }
+    
+    var ongoingJobGroupIds: Set<JobGroupId> {
+        return syncQueue.sync { Set(runningJobGroups_onSyncQueue.map { $0.jobGroupId }) }
     }
     
     func state(jobId: JobId) throws -> JobState {
         return try syncQueue.sync {
             if let existingJobQueue = runningJobQueue_onSyncQueue(jobId: jobId) {
                 return JobState(
-                    jobId: existingJobQueue.prioritizedJob.jobId,
+                    jobId: existingJobQueue.job.jobId,
                     queueState: QueueState.running(existingJobQueue.bucketQueue.runningQueueState)
                 )
             }
             
             if let deletedJobQueue = deletedJobQueue_onSyncQueue(jobId: jobId) {
                 return JobState(
-                    jobId: deletedJobQueue.prioritizedJob.jobId,
+                    jobId: deletedJobQueue.job.jobId,
                     queueState: QueueState.deleted
                 )
             }
@@ -179,11 +186,11 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
     }
 
     private func runningJobQueue_onSyncQueue(jobId: JobId) -> JobQueue? {
-        return runningJobQueues_onSyncQueue.first(where: { jobQueue -> Bool in jobQueue.prioritizedJob.jobId == jobId })
+        return runningJobQueues_onSyncQueue.first(where: { jobQueue -> Bool in jobQueue.job.jobId == jobId })
     }
     
     private func deletedJobQueue_onSyncQueue(jobId: JobId) -> JobQueue? {
-        return deletedJobQueues_onSyncQueue.first(where: { jobQueue -> Bool in jobQueue.prioritizedJob.jobId == jobId })
+        return deletedJobQueues_onSyncQueue.first(where: { jobQueue -> Bool in jobQueue.job.jobId == jobId })
     }
     
     // MARK: Adding new jobs
@@ -191,9 +198,12 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
     private func addNewBucketQueue_onSyncQueue(bucketQueue: BucketQueue, prioritizedJob: PrioritizedJob) {
         addJobQueue_onSyncQueue(
             jobQueue: JobQueue(
-                prioritizedJob: prioritizedJob,
-                creationTime: Date(),
                 bucketQueue: bucketQueue,
+                job: Job(creationTime: Date(), jobId: prioritizedJob.jobId, priority: prioritizedJob.jobPriority),
+                jobGroup: fetchOrCreateJobGroup_onSyncQueue(
+                    jobGroupId: prioritizedJob.jobGroupId,
+                    jobGroupPriority: prioritizedJob.jobGroupPriority
+                ),
                 resultsCollector: ResultsCollector()
             )
         )
@@ -201,7 +211,30 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
 
     private func addJobQueue_onSyncQueue(jobQueue: JobQueue) {
         runningJobQueues_onSyncQueue.append(jobQueue)
-        runningJobQueues_onSyncQueue.sort { $0.hasPreeminence(overJobQueue: $1) }
-        deletedJobQueues_onSyncQueue.removeAll(where: { $0.prioritizedJob == jobQueue.prioritizedJob })
+        runningJobQueues_onSyncQueue.sort { $0.executionOrder(relativeTo: $1) == .before }
+        deletedJobQueues_onSyncQueue.removeAll(where: { $0.job.jobId == jobQueue.job.jobId })
+    }
+    
+    // MARK: Managing Job Groups
+    
+    private func fetchOrCreateJobGroup_onSyncQueue(jobGroupId: JobGroupId, jobGroupPriority: Priority) -> JobGroup {
+        let matchingJobGroups = runningJobGroups_onSyncQueue.filter { $0.jobGroupId == jobGroupId && $0.priority == jobGroupPriority }
+        if let matchingJobGroup = matchingJobGroups.first {
+            runningJobGroups_onSyncQueue.update(with: matchingJobGroup)
+            return matchingJobGroup
+        }
+        let jobGroup = JobGroup(
+            creationTime: Date(),
+            jobGroupId: jobGroupId,
+            priority: jobGroupPriority
+        )
+        runningJobGroups_onSyncQueue.update(with: jobGroup)
+        return jobGroup
+    }
+    
+    private func deleteJobGroupsThatNoLongerPresent_onSyncQueue(deletedJobQueues: [JobQueue]) {
+        for deletedJobQueue in deletedJobQueues {
+            runningJobGroups_onSyncQueue.remove(deletedJobQueue.jobGroup)
+        }
     }
 }

@@ -8,57 +8,67 @@ import ResultsCollector
 import XCTest
 
 final class JobQueueTests: XCTestCase {
+    private let commonJobGroup = createJobGroup()
+    
     func test___high_priority_queue_should_have_preeminence_over_lower_priority_queue() {
-        let highestPriorityJobQueue = JobQueue(
-            prioritizedJob: PrioritizedJob(jobId: "job1", priority: .highest),
-            creationTime: Date(timeIntervalSince1970: 100),
-            bucketQueue: FakeBucketQueue(),
-            resultsCollector: ResultsCollector()
+        let highestPriorityJobQueue = createJobQueue(
+            job: createJob(priority: .highest),
+            jobGroup: commonJobGroup
         )
-        let lowestPriorityJobQueue = JobQueue(
-            prioritizedJob: PrioritizedJob(jobId: "job2", priority: .lowest),
-            creationTime: Date(timeIntervalSince1970: 100),
-            bucketQueue: FakeBucketQueue(),
-            resultsCollector: ResultsCollector()
+        let lowestPriorityJobQueue = createJobQueue(
+            job: createJob(priority: .lowest),
+            jobGroup: commonJobGroup
         )
-        XCTAssertTrue(
-            highestPriorityJobQueue.hasPreeminence(overJobQueue: lowestPriorityJobQueue)
+        
+        XCTAssertEqual(
+            highestPriorityJobQueue.executionOrder(relativeTo: lowestPriorityJobQueue),
+            .before
         )
     }
     
     func test___earlier_created_queue_should_have_preeminence_over_later_created_queue() {
-        let earlierCreatedJobQueue = JobQueue(
-            prioritizedJob: PrioritizedJob(jobId: "job1", priority: .medium),
-            creationTime: Date(timeIntervalSince1970: 100),
-            bucketQueue: FakeBucketQueue(),
-            resultsCollector: ResultsCollector()
+        let earlierCreatedJobQueue = createJobQueue(
+            job: createJob(creationTime: Date(timeIntervalSince1970: 100))
         )
-        let laterCreatedJobQueue = JobQueue(
-            prioritizedJob: PrioritizedJob(jobId: "job2", priority: .medium),
-            creationTime: Date(timeIntervalSince1970: 200),
-            bucketQueue: FakeBucketQueue(),
-            resultsCollector: ResultsCollector()
+        let laterCreatedJobQueue = createJobQueue(
+            job: createJob(creationTime: Date(timeIntervalSince1970: 200))
         )
-        XCTAssertTrue(
-            earlierCreatedJobQueue.hasPreeminence(overJobQueue: laterCreatedJobQueue)
+
+        XCTAssertEqual(
+            earlierCreatedJobQueue.executionOrder(relativeTo: laterCreatedJobQueue),
+            .before
         )
     }
     
     func test___later_created_queue_with_higher_priority_should_have_preeminence_over_earlier_created_queue_with_lower_priority() {
-        let highestPriorityLaterCreatedJobQueue = JobQueue(
-            prioritizedJob: PrioritizedJob(jobId: "job1", priority: .highest),
-            creationTime: Date(timeIntervalSince1970: 500),
-            bucketQueue: FakeBucketQueue(),
-            resultsCollector: ResultsCollector()
+        let highestPriorityLaterCreatedJobQueue = createJobQueue(
+            job: createJob(creationTime: Date(timeIntervalSince1970: 500), priority: .highest),
+            jobGroup: commonJobGroup
         )
-        let lowestPriorityEarlierCreatedJobQueue = JobQueue(
-            prioritizedJob: PrioritizedJob(jobId: "job2", priority: .lowest),
-            creationTime: Date(timeIntervalSince1970: 100),
-            bucketQueue: FakeBucketQueue(),
-            resultsCollector: ResultsCollector()
+        let lowestPriorityEarlierCreatedJobQueue = createJobQueue(
+            job: createJob(creationTime: Date(timeIntervalSince1970: 100), priority: .lowest),
+            jobGroup: commonJobGroup
         )
-        XCTAssertTrue(
-            highestPriorityLaterCreatedJobQueue.hasPreeminence(overJobQueue: lowestPriorityEarlierCreatedJobQueue)
+
+        XCTAssertEqual(
+            highestPriorityLaterCreatedJobQueue.executionOrder(relativeTo: lowestPriorityEarlierCreatedJobQueue),
+            .before
+        )
+    }
+    
+    func test___earlier_created_group_has_preeminence_over_later_created_group() {
+        let jobQueue1 = createJobQueue(
+            job: createJob(creationTime: Date(timeIntervalSince1970: 500)),
+            jobGroup: createJobGroup(creationTime: Date(timeIntervalSince1970: 100))
+        )
+        let jobQueue2 = createJobQueue(
+            job: createJob(creationTime: Date(timeIntervalSince1970: 100)),
+            jobGroup: createJobGroup(creationTime: Date(timeIntervalSince1970: 500))
+        )
+        
+        XCTAssertEqual(
+            jobQueue1.executionOrder(relativeTo: jobQueue2),
+            .before
         )
     }
 }

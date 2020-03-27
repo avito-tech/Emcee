@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2020-03-30
+
+Support for grouping jobs. 
+`runTestsOnRemoteQueue` command now supports optional `--job-group-id` and `--job-group-priority` flags. When provided, Emcee will arrange test queue with respect to groups and priorities, like it does so for jobs which also have priorities.
+Jobs will be arranged inside their groups. If these arguments are missing, a random group will be created, and priority defined in test arg file will be used for that group.
+This feature is useful for combining multiple jobs into a single logical group, e.g. if you run different jobs on a single pull request. This will provide a hint to Emcee to execute tests from that group as continuosly as possible, speeding up the whole test run from that group.
+If group is empty, Emcee will swift to jobs from other groups to utilize the resources.
+
 ## 2020-03-25
 
 Workers no longer issue `reportAlive` requests to a queue. Queue now polls its workers instead and tracks their aliveness using REST.

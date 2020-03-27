@@ -33,14 +33,16 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     public let description = "Starts queue server on remote machine if needed and runs tests on the remote queue. Waits for resuls to come back."
     public let arguments: Arguments = [
         ArgumentDescriptions.emceeVersion.asRequired,
+        ArgumentDescriptions.jobGroupId.asOptional,
+        ArgumentDescriptions.jobGroupPriority.asOptional,
+        ArgumentDescriptions.jobId.asRequired,
         ArgumentDescriptions.junit.asOptional,
         ArgumentDescriptions.queueServerDestination.asRequired,
         ArgumentDescriptions.queueServerRunConfigurationLocation.asRequired,
-        ArgumentDescriptions.runId.asRequired,
+        ArgumentDescriptions.remoteCacheConfig.asOptional,
         ArgumentDescriptions.tempFolder.asRequired,
         ArgumentDescriptions.testArgFile.asRequired,
         ArgumentDescriptions.trace.asOptional,
-        ArgumentDescriptions.remoteCacheConfig.asOptional
     ]
     
     private let dateProvider: DateProvider
@@ -83,11 +85,13 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         ).elementAtIndex(0, "first and single queue server destination")
         
         let queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerRunConfigurationLocation.name)
-        let runId: JobId = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.runId.name)
+        let jobId: JobId = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.jobId.name)
+        let jobGroupId: JobGroupId = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.jobGroupId.name) ?? JobGroupId(value: jobId.value)
         let emceeVersion: Version = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name)
         
         let tempFolder = try TemporaryFolder(containerPath: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.tempFolder.name))
         let testArgFile = try ArgumentsReader.testArgFile(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testArgFile.name))
+        let jobGroupPriority: Priority = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.jobGroupPriority.name) ?? testArgFile.priority
 
         let remoteCacheConfig = try ArgumentsReader.remoteCacheConfig(
             try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.remoteCacheConfig.name)
@@ -97,12 +101,14 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             emceeVersion: emceeVersion,
             queueServerDestination: queueServerDestination,
             queueServerRunConfigurationLocation: queueServerRunConfigurationLocation,
-            runId: runId,
+            jobId: jobId,
             tempFolder: tempFolder
         )
         let jobResults = try runTestsOnRemotelyRunningQueue(
             queueServerAddress: runningQueueServerAddress,
-            runId: runId,
+            jobGroupId: jobGroupId,
+            jobGroupPriority: jobGroupPriority,
+            jobId: jobId,
             tempFolder: tempFolder,
             testArgFile: testArgFile,
             remoteCacheConfig: remoteCacheConfig
@@ -119,7 +125,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         emceeVersion: Version,
         queueServerDestination: DeploymentDestination,
         queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation,
-        runId: JobId,
+        jobId: JobId,
         tempFolder: TemporaryFolder
     ) throws -> SocketAddress {
         Logger.info("Searching for queue server on '\(queueServerDestination.host)' with queue version \(emceeVersion)")
@@ -143,7 +149,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         
         Logger.info("No running queue server has been found. Will deploy and start remote queue.")
         let remoteQueueStarter = RemoteQueueStarter(
-            deploymentId: runId.value,
+            deploymentId: jobId.value,
             deploymentDestination: queueServerDestination,
             emceeVersion: emceeVersion,
             queueServerRunConfigurationLocation: queueServerRunConfigurationLocation,
@@ -168,7 +174,9 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     
     private func runTestsOnRemotelyRunningQueue(
         queueServerAddress: SocketAddress,
-        runId: JobId,
+        jobGroupId: JobGroupId,
+        jobGroupPriority: Priority,
+        jobId: JobId,
         tempFolder: TemporaryFolder,
         testArgFile: TestArgFile,
         remoteCacheConfig: RuntimeDumpRemoteCacheConfig?
@@ -200,11 +208,11 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         let queueClient = SynchronousQueueClient(queueServerAddress: queueServerAddress)
         
         defer {
-            Logger.info("Will delete job \(runId)")
+            Logger.info("Will delete job \(jobId)")
             do {
-                _ = try queueClient.delete(jobId: runId)
+                _ = try queueClient.delete(jobId: jobId)
             } catch {
-                Logger.error("Failed to delete job \(runId): \(error)")
+                Logger.error("Failed to delete job \(jobId): \(error)")
             }
         }
 
@@ -224,12 +232,14 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             do {
                 _ = try queueClient.scheduleTests(
                     prioritizedJob: PrioritizedJob(
-                        jobId: runId,
-                        priority: testArgFile.priority
+                        jobGroupId: jobGroupId,
+                        jobGroupPriority: jobGroupPriority,
+                        jobId: jobId,
+                        jobPriority: testArgFile.priority
                     ),
                     scheduleStrategy: testArgFileEntry.scheduleStrategy,
                     testEntryConfigurations: testEntryConfigurations,
-                    requestId: RequestId(value: runId.value + "_" + UUID().uuidString)
+                    requestId: RequestId(value: jobId.value + "_" + UUID().uuidString)
                 )
             } catch {
                 Logger.error("Failed to schedule tests: \(error)")
@@ -240,15 +250,15 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         var caughtSignal = false
         SignalHandling.addSignalHandler(signals: [.int, .term]) { signal in
             Logger.info("Caught \(signal) signal")
-            Logger.info("Will delete job \(runId)")
-            _ = try? queueClient.delete(jobId: runId)
+            Logger.info("Will delete job \(jobId)")
+            _ = try? queueClient.delete(jobId: jobId)
             caughtSignal = true
         }
         
         Logger.info("Will now wait for job queue to deplete")
         try SynchronousWaiter().waitWhile(pollPeriod: 30.0, description: "Wait for job queue to deplete") {
             if caughtSignal { return false }
-            let jobState = try queueClient.jobState(jobId: runId)
+            let jobState = try queueClient.jobState(jobId: jobId)
             switch jobState.queueState {
             case .deleted:
                 return false
@@ -258,7 +268,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             }
         }
         Logger.info("Will now fetch job results")
-        return try queueClient.jobResults(jobId: runId)
+        return try queueClient.jobResults(jobId: jobId)
     }
     
     private func selectPort(ports: Set<Int>) throws -> Int {

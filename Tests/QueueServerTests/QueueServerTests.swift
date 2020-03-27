@@ -21,7 +21,7 @@ final class QueueServerTests: XCTestCase {
     private let workerConfigurations = WorkerConfigurations()
     private let workerId: WorkerId = "workerId"
     private let jobId: JobId = "jobId"
-    private lazy var prioritizedJob = PrioritizedJob(jobId: jobId, priority: .medium)
+    private lazy var prioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: jobId, jobPriority: .medium)
     private let automaticTerminationController = AutomaticTerminationControllerFactory(
         automaticTerminationPolicy: .stayAlive
     ).createAutomaticTerminationController()

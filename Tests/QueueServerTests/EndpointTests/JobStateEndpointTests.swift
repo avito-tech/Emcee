@@ -22,6 +22,8 @@ final class JobStateEndpointTests: XCTestCase, JobStateProvider {
         return [jobId]
     }
     
+    var ongoingJobGroupIds: Set<JobGroupId> { return [] }
+    
     func state(jobId: JobId) throws -> JobState {
         guard jobId == self.jobId else { throw Throwable() }
         return jobState

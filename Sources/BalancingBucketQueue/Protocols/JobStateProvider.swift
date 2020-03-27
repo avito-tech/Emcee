@@ -1,11 +1,10 @@
 import BucketQueue
-import Foundation
-import Models
 import QueueModels
 
 public protocol JobStateProvider {
     func state(jobId: JobId) throws -> JobState
     var ongoingJobIds: Set<JobId> { get }
+    var ongoingJobGroupIds: Set<JobGroupId> { get }
 }
 
 public extension JobStateProvider {

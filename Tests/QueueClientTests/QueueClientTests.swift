@@ -131,7 +131,7 @@ class QueueClientTests: XCTestCase {
     
     func test___scheduling_tests() throws {
         let serverHasProvidedResponseExpectation = expectation(description: "Server provided response")
-        let prioritizedJob = PrioritizedJob(jobId: "jobid", priority: .medium)
+        let prioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: "jobid", jobPriority: .medium)
         let requestId: RequestId = "requestId"
         let testEntryConfigurations = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry())

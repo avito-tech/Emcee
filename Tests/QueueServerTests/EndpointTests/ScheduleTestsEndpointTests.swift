@@ -72,7 +72,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         numberOfWorkers: 0
     )
     let jobId = JobId(value: "jobId")
-    lazy var prioritizedJob = PrioritizedJob(jobId: jobId, priority: .medium)
+    lazy var prioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: jobId, jobPriority: .medium)
     let requestId: RequestId = "requestId"
     let testEntryConfigurations = TestEntryConfigurationFixtures()
         .add(testEntry: TestEntryFixtures.testEntry())

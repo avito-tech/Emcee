@@ -9,6 +9,7 @@ import Models
 import ModelsTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
+import TestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessProvider
@@ -224,6 +225,33 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
     }
     
+    func test___dequeueing_bucket_with_job_groups_with_priority() {
+        workerAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [])
+
+        let bucket1 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class1")])
+        balancingQueue.enqueue(buckets: [bucket1], prioritizedJob: PrioritizedJob(jobGroupId: "group1", jobGroupPriority: .medium, jobId: "job1", jobPriority: .medium))
+        let bucket2 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class2")])
+        balancingQueue.enqueue(buckets: [bucket2], prioritizedJob: PrioritizedJob(jobGroupId: "group2", jobGroupPriority: .highest, jobId: "job2", jobPriority: .medium))
+
+        XCTAssertEqual(
+            balancingQueue.dequeueBucket(
+                requestId: requestId,
+                workerId: workerId
+            ),
+            .dequeuedBucket(
+                DequeuedBucket(
+                    enqueuedBucket: EnqueuedBucket(
+                        bucket: bucket2,
+                        enqueueTimestamp: dateProvider.currentDate(),
+                        uniqueIdentifier: uniqueIdentifierGenerator.generate()
+                    ),
+                    workerId: workerId,
+                    requestId: requestId
+                )
+            )
+        )
+    }
+    
     func test___repeately_dequeueing_bucket___provides_back_same_result() {
         workerAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [])
         
@@ -392,6 +420,49 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
     }
     
+    func test___ongoing_job_ids() {
+        balancingQueue.enqueue(buckets: [], prioritizedJob: prioritizedJob)
+        balancingQueue.enqueue(buckets: [], prioritizedJob: highlyPrioritizedJob)
+        
+        XCTAssertEqual(
+            balancingQueue.ongoingJobIds,
+            Set([highlyPrioritizedJob.jobId, prioritizedJob.jobId])
+        )
+    }
+    
+    func test___scheduling_job___appends_to_ongoing_job_groups() {
+        balancingQueue.enqueue(buckets: [], prioritizedJob: prioritizedJob)
+        
+        XCTAssertEqual(
+            balancingQueue.ongoingJobGroupIds,
+            [prioritizedJob.jobGroupId]
+        )
+    }
+    
+    func test___removing_not_last_job_in_group___keeps_group_in_ongoing_job_groups() {
+        balancingQueue.enqueue(buckets: [], prioritizedJob: prioritizedJob)
+        balancingQueue.enqueue(buckets: [], prioritizedJob: highlyPrioritizedJob)
+        assertDoesNotThrow {
+            try balancingQueue.delete(jobId: prioritizedJob.jobId)
+        }
+        
+        XCTAssertEqual(
+            balancingQueue.ongoingJobGroupIds,
+            [highlyPrioritizedJob.jobGroupId]
+        )
+    }
+    
+    func test___removing_last_job_in_group___removes_group_from_ongoing_job_groups() {
+        balancingQueue.enqueue(buckets: [], prioritizedJob: prioritizedJob)
+        assertDoesNotThrow {
+            try balancingQueue.delete(jobId: prioritizedJob.jobId)
+        }
+        
+        XCTAssertTrue(
+            balancingQueue.ongoingJobGroupIds.isEmpty
+        )
+    }
+    
     let dateProvider = DateProviderFixture()
     let uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator()
     let workerAlivenessProvider = MutableWorkerAlivenessProvider()
@@ -411,11 +482,11 @@ final class BalancingBucketQueueTests: XCTestCase {
     )
     lazy var balancingQueue = balancingBucketQueueFactory.create()
     let jobId: JobId = "jobId"
-    lazy var prioritizedJob = PrioritizedJob(jobId: jobId, priority: .medium)
+    lazy var prioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: jobId, jobPriority: .medium)
     let anotherJobId: JobId = "anotherJobId"
-    lazy var anotherPrioritizedJob = PrioritizedJob(jobId: anotherJobId, priority: .medium)
+    lazy var anotherPrioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: anotherJobId, jobPriority: .medium)
     let highlyPrioritizedJobId: JobId = "highPriorityJobId"
-    lazy var highlyPrioritizedJob = PrioritizedJob(jobId: highlyPrioritizedJobId, priority: .highest)
+    lazy var highlyPrioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: highlyPrioritizedJobId, jobPriority: .highest)
     let requestId: RequestId = "requestId"
     let workerId: WorkerId = "workerId"
     let anotherRequestId: RequestId = "anotherRequestId"

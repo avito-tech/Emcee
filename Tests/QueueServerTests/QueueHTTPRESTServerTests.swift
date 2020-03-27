@@ -40,7 +40,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
     let workerId: WorkerId = "worker"
     let requestId: RequestId = "requestId"
     let jobId: JobId = "JobId"
-    lazy var prioritizedJob = PrioritizedJob(jobId: jobId, priority: .medium)
+    lazy var prioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: jobId, jobPriority: .medium)
     let stubbedHandler = RESTEndpointOf(actualHandler: FakeRESTEndpoint<Int, Int>(0))
     let callbackQueue = DispatchQueue(label: "callbackQueue")
     
