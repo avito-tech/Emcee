@@ -4,8 +4,8 @@ import Foundation
 import Logging
 import Models
 import QueueModels
-import RuntimeDump
 import TestArgFile
+import TestDiscovery
 
 public final class TestEntryConfigurationGenerator {
     private let validatedEntries: [ValidatedTestEntry]
@@ -58,7 +58,7 @@ public final class TestEntryConfigurationGenerator {
             .filter { buildArtifacts == $0.buildArtifacts }
             .filter {
                 switch testToRun {
-                case .allProvidedByRuntimeDump:
+                case .allDiscoveredTests:
                     return true
                 case .testName(let testName):
                     return testName == $0.testName

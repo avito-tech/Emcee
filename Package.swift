@@ -35,9 +35,9 @@ let package = Package(
                 "QueueModels",
                 "ResourceLocation",
                 "RunnerModels",
-                "RuntimeDump",
                 "SimulatorPoolModels",
                 "TestArgFile",
+                "TestDiscovery",
                 "TypedResourceLocation",
             ]
         ),
@@ -503,10 +503,10 @@ let package = Package(
                 "ResourceLocationResolverTestHelpers",
                 "RunnerModels",
                 "RunnerTestHelpers",
-                "RuntimeDump",
                 "SimulatorPoolTestHelpers",
                 "TemporaryStuff",
                 "TestArgFile",
+                "TestDiscovery",
                 "TestHelpers",
                 "UniqueIdentifierGeneratorTestHelpers",
             ]
@@ -1307,49 +1307,6 @@ let package = Package(
             ]
         ),
         .target(
-            // MARK: RuntimeDump
-            name: "RuntimeDump",
-            dependencies: [
-                "BuildArtifacts",
-                "DeveloperDirLocator",
-                "Extensions",
-                "Metrics",
-                "Models",
-                "PathLib",
-                "PluginManager",
-                "PluginSupport",
-                "RequestSender",
-                "Runner",
-                "RunnerModels",
-                "SimulatorPool",
-                "SimulatorPoolModels",
-                "SynchronousWaiter",
-                "TemporaryStuff",
-                "UniqueIdentifierGenerator",
-            ]
-        ),
-        .testTarget(
-            // MARK: RuntimeDumpTests
-            name: "RuntimeDumpTests",
-            dependencies: [
-                "BuildArtifacts",
-                "DeveloperDirLocatorTestHelpers",
-                "Models",
-                "ModelsTestHelpers",
-                "PathLib",
-                "ResourceLocation",
-                "ResourceLocationResolver",
-                "ResourceLocationResolverTestHelpers",
-                "RunnerTestHelpers",
-                "RuntimeDump",
-                "SimulatorPoolTestHelpers",
-                "TemporaryStuff",
-                "TestHelpers",
-                "UniqueIdentifierGenerator",
-                "UniqueIdentifierGeneratorTestHelpers",
-            ]
-        ),
-        .target(
             // MARK: Sentry
             name: "Sentry",
             dependencies: []
@@ -1375,12 +1332,12 @@ let package = Package(
                 "QueueModels",
                 "Runner",
                 "RunnerModels",
-                "RuntimeDump",
                 "ScheduleStrategy",
                 "SimulatorPool",
                 "SimulatorPoolModels",
                 "SynchronousWaiter",
                 "TemporaryStuff",
+                "TestDiscovery",
                 "UniqueIdentifierGenerator",
             ]
         ),
@@ -1578,6 +1535,49 @@ let package = Package(
                 "SimulatorPoolTestHelpers",
                 "TestArgFile",
                 "TestHelpers",
+            ]
+        ),
+        .target(
+            // MARK: TestDiscovery
+            name: "TestDiscovery",
+            dependencies: [
+                "BuildArtifacts",
+                "DeveloperDirLocator",
+                "Extensions",
+                "Metrics",
+                "Models",
+                "PathLib",
+                "PluginManager",
+                "PluginSupport",
+                "RequestSender",
+                "Runner",
+                "RunnerModels",
+                "SimulatorPool",
+                "SimulatorPoolModels",
+                "SynchronousWaiter",
+                "TemporaryStuff",
+                "UniqueIdentifierGenerator",
+            ]
+        ),
+        .testTarget(
+            // MARK: TestDiscoveryTests
+            name: "TestDiscoveryTests",
+            dependencies: [
+                "BuildArtifacts",
+                "DeveloperDirLocatorTestHelpers",
+                "Models",
+                "ModelsTestHelpers",
+                "PathLib",
+                "ResourceLocation",
+                "ResourceLocationResolver",
+                "ResourceLocationResolverTestHelpers",
+                "RunnerTestHelpers",
+                "SimulatorPoolTestHelpers",
+                "TemporaryStuff",
+                "TestDiscovery",
+                "TestHelpers",
+                "UniqueIdentifierGenerator",
+                "UniqueIdentifierGeneratorTestHelpers",
             ]
         ),
         .target(

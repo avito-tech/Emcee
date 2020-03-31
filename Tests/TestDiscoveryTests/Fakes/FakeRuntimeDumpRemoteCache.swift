@@ -1,11 +1,11 @@
 import BuildArtifacts
-import RuntimeDump
 import Models
+import TestDiscovery
 
 class FakeRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
-    var testsToReturn: TestsInRuntimeDump?
+    var testsToReturn: DiscoveredTests?
     var resultsXcTestBundleLocation: TestBundleLocation?
-    func results(xcTestBundleLocation: TestBundleLocation) throws -> TestsInRuntimeDump? {
+    func results(xcTestBundleLocation: TestBundleLocation) throws -> DiscoveredTests? {
         guard resultsXcTestBundleLocation == xcTestBundleLocation else {
             return nil
         }
@@ -13,9 +13,9 @@ class FakeRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
         return testsToReturn
     }
 
-    var storedTests: TestsInRuntimeDump?
+    var storedTests: DiscoveredTests?
     var storedXcTestBundleLocation: TestBundleLocation?
-    func store(tests: TestsInRuntimeDump, xcTestBundleLocation: TestBundleLocation) {
+    func store(tests: DiscoveredTests, xcTestBundleLocation: TestBundleLocation) {
         self.storedTests  = tests
         self.storedXcTestBundleLocation = xcTestBundleLocation
     }

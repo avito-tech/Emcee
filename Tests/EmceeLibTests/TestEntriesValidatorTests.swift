@@ -4,13 +4,13 @@ import EmceeLib
 import Models
 import ModelsTestHelpers
 import RunnerTestHelpers
-import RuntimeDump
 import SimulatorPoolTestHelpers
 import TestArgFile
+import TestDiscovery
 import XCTest
 
 final class TestEntriesValidatorTests: XCTestCase {
-    let runtimeTestQuerier = RuntimeTestQuerierMock()
+    let testDiscoveryQuerier = TestDiscoveryQuerierMock()
 
     func test__pass_arguments_to_querier() throws {
         let testArgFileEntry = try createTestEntry(testType: .uiTest)
@@ -18,11 +18,11 @@ final class TestEntriesValidatorTests: XCTestCase {
 
         _ = try validator.validatedTestEntries { _, _ in }
 
-        guard let querierConfiguration = runtimeTestQuerier.configuration else {
+        guard let querierConfiguration = testDiscoveryQuerier.configuration else {
             return XCTFail("configuration is unexpectedly nil")
         }
 
-        XCTAssertEqual(querierConfiguration.runtimeDumpMode, .logicTest(testArgFileEntry.simulatorControlTool))
+        XCTAssertEqual(querierConfiguration.testDiscoveryMode, .runtimeLogicTest(testArgFileEntry.simulatorControlTool))
         XCTAssertEqual(querierConfiguration.testRunnerTool, TestRunnerToolFixtures.fakeFbxctestTool)
         XCTAssertEqual(querierConfiguration.xcTestBundleLocation, testArgFileEntry.buildArtifacts.xcTestBundle.location)
         XCTAssertEqual(querierConfiguration.testDestination, testArgFileEntry.testDestination)
@@ -35,27 +35,27 @@ final class TestEntriesValidatorTests: XCTestCase {
 
         _ = try validator.validatedTestEntries { _, _ in }
 
-        guard let querierConfiguration = runtimeTestQuerier.configuration else {
+        guard let querierConfiguration = testDiscoveryQuerier.configuration else {
             return XCTFail("configuration is unexpectedly nil")
         }
-        XCTAssertEqual(querierConfiguration.runtimeDumpMode, .logicTest(uiTestEntry.simulatorControlTool))
+        XCTAssertEqual(querierConfiguration.testDiscoveryMode, .runtimeLogicTest(uiTestEntry.simulatorControlTool))
     }
 
     func test__pass_app_test_data__if_flag_is_true() throws {
-        let buildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts(runtimeDumpKind: .appTest)
+        let buildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts(testDiscoveryMode: .runtimeAppTest)
         let appTestEntry = try createTestEntry(testType: .appTest, buildArtifacts: buildArtifacts)
         let validator = createValidator(testArgFileEntries: [appTestEntry])
         let fakeBuildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
 
         _ = try validator.validatedTestEntries { _, _ in }
 
-        guard let querierConfiguration = runtimeTestQuerier.configuration else {
+        guard let querierConfiguration = testDiscoveryQuerier.configuration else {
             return XCTFail("configuration is unexpectedly nil")
         }
 
         XCTAssertEqual(
-            querierConfiguration.runtimeDumpMode,
-            .appTest(
+            querierConfiguration.testDiscoveryMode,
+            .runtimeAppTest(
                 RuntimeDumpApplicationTestSupport(
                     appBundle: fakeBuildArtifacts.appBundle!,
                     simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool
@@ -69,7 +69,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             testType: .appTest,
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(
                 appBundleLocation: nil,
-                runtimeDumpKind: .appTest
+                testDiscoveryMode: .runtimeAppTest
             )
         )
         let validator = createValidator(testArgFileEntries: [appTestEntry])
@@ -84,7 +84,7 @@ final class TestEntriesValidatorTests: XCTestCase {
 
         _ = try validator.validatedTestEntries { _, _ in }
 
-        XCTAssertEqual(runtimeTestQuerier.numberOfCalls, 2)
+        XCTAssertEqual(testDiscoveryQuerier.numberOfCalls, 2)
     }
 
     private func createValidator(
@@ -92,7 +92,7 @@ final class TestEntriesValidatorTests: XCTestCase {
     ) -> TestEntriesValidator {
         return TestEntriesValidator(
             testArgFileEntries: testArgFileEntries,
-            runtimeTestQuerier: self.runtimeTestQuerier
+            testDiscoveryQuerier: testDiscoveryQuerier
         )
     }
 

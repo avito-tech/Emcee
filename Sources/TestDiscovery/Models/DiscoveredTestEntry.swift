@@ -1,6 +1,6 @@
 import Foundation
 
-public struct RuntimeTestEntry: Codable, CustomStringConvertible, Equatable {
+public struct DiscoveredTestEntry: Codable, CustomStringConvertible, Equatable {
     public let className: String
     public let path: String
     public let testMethods: [String]
@@ -67,6 +67,6 @@ public struct RuntimeTestEntry: Codable, CustomStringConvertible, Equatable {
         
         let topLevelComponentsJoined = topLevelComponents.joined(separator: " / ")
         
-        return "(\(RuntimeTestEntry.self): \(topLevelComponentsJoined)"
+        return "(\(DiscoveredTestEntry.self): \(topLevelComponentsJoined)"
     }
 }

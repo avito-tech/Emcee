@@ -28,13 +28,13 @@ class DefaultRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
         self.waiter = waiter
     }
 
-    func results(xcTestBundleLocation: TestBundleLocation) throws -> TestsInRuntimeDump? {
+    func results(xcTestBundleLocation: TestBundleLocation) throws -> DiscoveredTests? {
         let request = RuntimeDumpRemoteCacheResultRequest(
             httpMethod: config.obtainHttpMethod,
             pathWithLeadingSlash: try pathToRemoteFile(xcTestBundleLocation)
         )
 
-        var queryResult: Either<TestsInRuntimeDump, RequestSenderError>?
+        var queryResult: Either<DiscoveredTests, RequestSenderError>?
 
         sender.sendRequestWithCallback(
             request: request,
@@ -51,7 +51,7 @@ class DefaultRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
         )
     }
 
-    func store(tests: TestsInRuntimeDump, xcTestBundleLocation: TestBundleLocation) throws {
+    func store(tests: DiscoveredTests, xcTestBundleLocation: TestBundleLocation) throws {
         let request = RuntimeDumpRemoteCacheStoreRequest(
             httpMethod: config.storeHttpMethod,
             pathWithLeadingSlash: try pathToRemoteFile(xcTestBundleLocation),

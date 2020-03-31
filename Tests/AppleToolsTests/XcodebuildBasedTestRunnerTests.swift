@@ -79,7 +79,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         runner: RunnerAppLocation(.localFilePath(runnerAppPath.pathString)),
         xcTestBundle: XcTestBundle(
             location: TestBundleLocation(.localFilePath(testBundlePath.pathString)),
-            runtimeDumpKind: .logicTest
+            testDiscoveryMode: .runtimeLogicTest
         ),
         additionalApplicationBundles: [
             AdditionalAppBundleLocation(.localFilePath(additionalAppPath.pathString)),

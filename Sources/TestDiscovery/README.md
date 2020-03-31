@@ -1,8 +1,10 @@
-# Runtime Dump
+# Test Discovery
 
-Runtime dump of the existing tests is a very flexible mechanism for validating and filtering the tests that you'd like to run.
-Avito Runner supports runtime dump as a separate command, it uses it while running tests in order to validate the set of passed tests against
-the existing tests in the test bundle in order to prevent the execution of the non-existent tests and fail gracefully with an error.
+Test discovery of tests in test bundle is a very flexible mechanism for collecting, validating, and filtering the tests that you'd like to run.
+Emcee it uses test discovery to validate the set of passed tests against the existing tests in the test bundle in order to prevent the execution
+of the non-existent tests and fail gracefully with an error.
+
+Currently test discovery requires a runtime integation. When executed properly, test bundle runtime would detect that and dump all available tests into a specific location using specific format. This feature is called runtime dump.
 
 ## Supporting Runtime Dump
 

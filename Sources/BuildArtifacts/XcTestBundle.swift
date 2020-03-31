@@ -1,48 +1,39 @@
-public final class XcTestBundle: Codable, Hashable, CustomStringConvertible {
+public struct XcTestBundle: Codable, Hashable, CustomStringConvertible {
     public let location: TestBundleLocation
-    public let runtimeDumpKind: XcTestBundleRuntimeDumpMode
+    public let testDiscoveryMode: XcTestBundleTestDiscoveryMode
 
     public init(
         location: TestBundleLocation,
-        runtimeDumpKind: XcTestBundleRuntimeDumpMode
+        testDiscoveryMode: XcTestBundleTestDiscoveryMode
     ) {
         self.location = location
-        self.runtimeDumpKind = runtimeDumpKind
+        self.testDiscoveryMode = testDiscoveryMode
     }
 
     private enum CodingKeys: CodingKey {
         case location
-        case runtimeDumpKind
+        case testDiscoveryMode
     }
 
     public init(from decoder: Decoder) throws {
         // Try fallback value first
         if let fallbackLocation = try? decoder.singleValueContainer().decode(TestBundleLocation.self) {
             self.location = fallbackLocation
-            self.runtimeDumpKind = .logicTest
+            self.testDiscoveryMode = .runtimeLogicTest
         } else {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             self.location = try container.decode(TestBundleLocation.self, forKey: .location)
-            self.runtimeDumpKind = try container.decode(XcTestBundleRuntimeDumpMode.self, forKey: .runtimeDumpKind)
+            self.testDiscoveryMode = try container.decode(XcTestBundleTestDiscoveryMode.self, forKey: .testDiscoveryMode)
         }
     }
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(location, forKey: .location)
-        try container.encode(runtimeDumpKind, forKey: .runtimeDumpKind)
+        try container.encode(testDiscoveryMode, forKey: .testDiscoveryMode)
     }
 
     public var description: String {
-        return "<\((type(of: self))) location: \(String(describing: location)), runtimeDumpKind: \(String(describing: runtimeDumpKind))>"
-    }
-
-    public static func == (lhs: XcTestBundle, rhs: XcTestBundle) -> Bool {
-        return lhs.location == rhs.location && lhs.runtimeDumpKind == rhs.runtimeDumpKind
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(location)
-        hasher.combine(runtimeDumpKind)
+        return "<\(type(of: self)) location: \(location), testDiscoveryMode: \(testDiscoveryMode)>"
     }
 }

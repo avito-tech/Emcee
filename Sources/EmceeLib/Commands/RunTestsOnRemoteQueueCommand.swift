@@ -20,12 +20,12 @@ import RemotePortDeterminer
 import RemoteQueue
 import RequestSender
 import ResourceLocationResolver
-import RuntimeDump
 import SignalHandling
 import SimulatorPool
 import SynchronousWaiter
 import TemporaryStuff
 import TestArgFile
+import TestDiscovery
 import UniqueIdentifierGenerator
 
 public final class RunTestsOnRemoteQueueCommand: Command {
@@ -189,7 +189,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
-        let runtimeTestQuerier = RuntimeTestQuerierImpl(
+        let testDiscoveryQuerier = TestDiscoveryQuerierImpl(
             developerDirLocator: developerDirLocator,
             numberOfAttemptsToPerformRuntimeDump: 5,
             onDemandSimulatorPool: onDemandSimulatorPool,
@@ -218,7 +218,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
 
         let testEntriesValidator = TestEntriesValidator(
             testArgFileEntries: testArgFile.entries,
-            runtimeTestQuerier: runtimeTestQuerier
+            testDiscoveryQuerier: testDiscoveryQuerier
         )
         
         _ = try testEntriesValidator.validatedTestEntries { testArgFileEntry, validatedTestEntry in

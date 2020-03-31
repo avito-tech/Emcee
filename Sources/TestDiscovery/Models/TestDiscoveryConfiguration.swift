@@ -5,10 +5,10 @@ import PluginSupport
 import RunnerModels
 import SimulatorPoolModels
 
-public struct RuntimeDumpConfiguration {
+public struct TestDiscoveryConfiguration {
     public let developerDir: DeveloperDir
     public let pluginLocations: Set<PluginLocation>
-    public let runtimeDumpMode: RuntimeDumpMode
+    public let testDiscoveryMode: TestDiscoveryMode
     public let simulatorOperationTimeouts: SimulatorOperationTimeouts
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
@@ -21,7 +21,7 @@ public struct RuntimeDumpConfiguration {
     public init(
         developerDir: DeveloperDir,
         pluginLocations: Set<PluginLocation>,
-        runtimeDumpMode: RuntimeDumpMode,
+        testDiscoveryMode: TestDiscoveryMode,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
@@ -33,7 +33,7 @@ public struct RuntimeDumpConfiguration {
     ) {
         self.developerDir = developerDir
         self.pluginLocations = pluginLocations
-        self.runtimeDumpMode = runtimeDumpMode
+        self.testDiscoveryMode = testDiscoveryMode
         self.simulatorOperationTimeouts = simulatorOperationTimeouts
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination

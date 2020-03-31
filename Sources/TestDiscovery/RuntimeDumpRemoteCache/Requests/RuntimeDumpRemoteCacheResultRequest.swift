@@ -1,20 +1,18 @@
 import RequestSender
 import Models
 
-class RuntimeDumpRemoteCacheStoreRequest: NetworkRequest {
-    typealias Response = VoidPayload
+class RuntimeDumpRemoteCacheResultRequest: NetworkRequest {
+    typealias Response = DiscoveredTests
 
     public let httpMethod: HTTPMethod
     public let pathWithLeadingSlash: String
-    public let payload: TestsInRuntimeDump?
+    public let payload: VoidPayload? = nil
 
     public init(
         httpMethod: HTTPMethod,
-        pathWithLeadingSlash: String,
-        payload: TestsInRuntimeDump
+        pathWithLeadingSlash: String
     ) {
         self.httpMethod = httpMethod
         self.pathWithLeadingSlash = pathWithLeadingSlash
-        self.payload = payload
     }
 }

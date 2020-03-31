@@ -1,23 +1,23 @@
 import EventBus
-import Models
-import RuntimeDump
-import SimulatorPool
 import Logging
+import Models
 import ResourceLocationResolver
+import SimulatorPool
 import TemporaryStuff
 import TestArgFile
+import TestDiscovery
 
 public final class TestEntriesValidator {
     private let testArgFileEntries: [TestArgFile.Entry]
-    private let runtimeTestQuerier: RuntimeTestQuerier
+    private let testDiscoveryQuerier: TestDiscoveryQuerier
     private let transformer = TestToRunIntoTestEntryTransformer()
 
     public init(
         testArgFileEntries: [TestArgFile.Entry],
-        runtimeTestQuerier: RuntimeTestQuerier
+        testDiscoveryQuerier: TestDiscoveryQuerier
     ) {
         self.testArgFileEntries = testArgFileEntries
-        self.runtimeTestQuerier = runtimeTestQuerier
+        self.testDiscoveryQuerier = testDiscoveryQuerier
     }
     
     public func validatedTestEntries(
@@ -37,10 +37,10 @@ public final class TestEntriesValidator {
     private func validatedTestEntries(
         testArgFileEntry: TestArgFile.Entry
     ) throws -> [ValidatedTestEntry] {
-        let runtimeDumpConfiguration = RuntimeDumpConfiguration(
+        let configuration = TestDiscoveryConfiguration(
             developerDir: testArgFileEntry.developerDir,
             pluginLocations: testArgFileEntry.pluginLocations,
-            runtimeDumpMode: try RuntimeDumpModeDeterminer.runtimeDumpMode(
+            testDiscoveryMode: try TestDiscoveryModeDeterminer.testDiscoveryMode(
                 testArgFileEntry: testArgFileEntry
             ),
             simulatorOperationTimeouts: testArgFileEntry.simulatorOperationTimeouts,
@@ -57,10 +57,10 @@ public final class TestEntriesValidator {
         )
 
         return try transformer.transform(
-            runtimeQueryResult: try runtimeTestQuerier.queryRuntime(
-                configuration: runtimeDumpConfiguration
-            ),
-            buildArtifacts: testArgFileEntry.buildArtifacts
+            buildArtifacts: testArgFileEntry.buildArtifacts,
+            testDiscoveryResult: try testDiscoveryQuerier.query(
+                configuration: configuration
+            )
         )
     }
 }

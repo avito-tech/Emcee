@@ -1,16 +1,16 @@
-@testable import RuntimeDump
+@testable import TestDiscovery
 import Models
 
-final class RuntimeTestQuerierMock: RuntimeTestQuerier {
+final class TestDiscoveryQuerierMock: TestDiscoveryQuerier {
     var numberOfCalls = 0
-    var configuration: RuntimeDumpConfiguration?
-    func queryRuntime(configuration: RuntimeDumpConfiguration) throws -> RuntimeQueryResult {
+    var configuration: TestDiscoveryConfiguration?
+    func query(configuration: TestDiscoveryConfiguration) throws -> TestDiscoveryResult {
         numberOfCalls += 1
         self.configuration = configuration
         
-        return RuntimeQueryResult(
-            unavailableTestsToRun: [],
-            testsInRuntimeDump: TestsInRuntimeDump(tests: [])
+        return TestDiscoveryResult(
+            discoveredTests: DiscoveredTests(tests: []),
+            unavailableTestsToRun: []
         )
     }
 }

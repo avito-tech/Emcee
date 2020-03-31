@@ -5,7 +5,7 @@ import Models
 public final class BuildArtifactsFixtures {
     public static func fakeEmptyBuildArtifacts(
         appBundleLocation: String? = "",
-        runtimeDumpKind: XcTestBundleRuntimeDumpMode = .logicTest
+        testDiscoveryMode: XcTestBundleTestDiscoveryMode = .runtimeLogicTest
     ) -> BuildArtifacts {
         let appBundle = appBundleLocation != nil ? AppBundleLocation(.localFilePath(appBundleLocation!)) : nil
         return BuildArtifacts(
@@ -13,7 +13,7 @@ public final class BuildArtifactsFixtures {
             runner: RunnerAppLocation(.localFilePath("")),
             xcTestBundle: XcTestBundle(
                 location: TestBundleLocation(.localFilePath("")),
-                runtimeDumpKind: runtimeDumpKind
+                testDiscoveryMode: testDiscoveryMode
             ),
             additionalApplicationBundles: []
         )
@@ -24,14 +24,14 @@ public final class BuildArtifactsFixtures {
         runner: String?,
         xcTestBundle: String,
         additionalApplicationBundles: [String],
-        runtimeDumpKind: XcTestBundleRuntimeDumpMode = .logicTest
+        testDiscoveryMode: XcTestBundleTestDiscoveryMode = .runtimeLogicTest
     ) -> BuildArtifacts {
         return BuildArtifacts(
             appBundle: appBundle != nil ? AppBundleLocation(.localFilePath(appBundle!)) : nil,
             runner: runner != nil ? RunnerAppLocation(.localFilePath(runner!)) : nil,
             xcTestBundle: XcTestBundle(
                 location: TestBundleLocation(.localFilePath(xcTestBundle)),
-                runtimeDumpKind: runtimeDumpKind
+                testDiscoveryMode: testDiscoveryMode
             ),
             additionalApplicationBundles: additionalApplicationBundles.map { AdditionalAppBundleLocation(.localFilePath($0)) }
         )

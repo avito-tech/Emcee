@@ -6,8 +6,8 @@ public enum TestToRun: Codable, CustomStringConvertible, Hashable {
     /// A single test described by string in format: `ClassName/testMethod`
     case testName(TestName)
     
-    /// Run all tests provided by runtime dump
-    case allProvidedByRuntimeDump
+    /// Run all tests provided by test discovery mechanism
+    case allDiscoveredTests
     
     private enum CodingKeys: String, CodingKey {
         case predicateType
@@ -16,15 +16,15 @@ public enum TestToRun: Codable, CustomStringConvertible, Hashable {
     
     private enum PredicateType: String, Codable {
         case singleTestName
-        case allProvidedByRuntimeDump
+        case allDiscoveredTests
     }
     
     public var description: String {
         switch self {
         case .testName(let testName):
             return "(\(TestToRun.self) '\(testName))'"
-        case .allProvidedByRuntimeDump:
-            return "(\(TestToRun.self) all provided by runtime dump)"
+        case .allDiscoveredTests:
+            return "(\(TestToRun.self) all discovered tests)"
         }
     }
     
@@ -33,8 +33,8 @@ public enum TestToRun: Codable, CustomStringConvertible, Hashable {
         let predicateType = try container.decode(PredicateType.self, forKey: .predicateType)
         
         switch predicateType {
-        case .allProvidedByRuntimeDump:
-            self = .allProvidedByRuntimeDump
+        case .allDiscoveredTests:
+            self = .allDiscoveredTests
         case .singleTestName:
             self = .testName(try container.decode(TestName.self, forKey: .testName))
         }
@@ -44,8 +44,8 @@ public enum TestToRun: Codable, CustomStringConvertible, Hashable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         switch self {
-        case .allProvidedByRuntimeDump:
-            try container.encode(PredicateType.allProvidedByRuntimeDump, forKey: .predicateType)
+        case .allDiscoveredTests:
+            try container.encode(PredicateType.allDiscoveredTests, forKey: .predicateType)
         case .testName(let testName):
             try container.encode(PredicateType.singleTestName, forKey: .predicateType)
             try container.encode(testName, forKey: .testName)

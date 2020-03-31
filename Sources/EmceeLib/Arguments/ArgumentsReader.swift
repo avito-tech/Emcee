@@ -4,8 +4,8 @@ import Foundation
 import LocalQueueServerRunner
 import Models
 import ResourceLocationResolver
-import RuntimeDump
 import TestArgFile
+import TestDiscovery
 
 final class ArgumentsReader {
     private init() {}

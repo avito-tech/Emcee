@@ -1,10 +1,10 @@
 import BuildArtifacts
 import Foundation
 import Models
-import RuntimeDump
 import TestArgFile
+import TestDiscovery
 
-public enum RuntimeDumpModeInputValidationError: Error, CustomStringConvertible {
+public enum TestDicoveryModeInputValidationError: Error, CustomStringConvertible {
     case missingAppBundleToPerformApplicationTestRuntimeDump(XcTestBundle)
     public var description: String {
         switch self {
@@ -14,16 +14,16 @@ public enum RuntimeDumpModeInputValidationError: Error, CustomStringConvertible 
     }
 }
 
-public final class RuntimeDumpModeDeterminer {
-    public static func runtimeDumpMode(testArgFileEntry: TestArgFile.Entry) throws -> RuntimeDumpMode {
-        switch testArgFileEntry.buildArtifacts.xcTestBundle.runtimeDumpKind {
-        case .logicTest:
-            return .logicTest(testArgFileEntry.simulatorControlTool)
-        case .appTest:
+public final class TestDiscoveryModeDeterminer {
+    public static func testDiscoveryMode(testArgFileEntry: TestArgFile.Entry) throws -> TestDiscoveryMode {
+        switch testArgFileEntry.buildArtifacts.xcTestBundle.testDiscoveryMode {
+        case .runtimeLogicTest:
+            return .runtimeLogicTest(testArgFileEntry.simulatorControlTool)
+        case .runtimeAppTest:
             guard let appLocation = testArgFileEntry.buildArtifacts.appBundle else {
-                throw RuntimeDumpModeInputValidationError.missingAppBundleToPerformApplicationTestRuntimeDump(testArgFileEntry.buildArtifacts.xcTestBundle)
+                throw TestDicoveryModeInputValidationError.missingAppBundleToPerformApplicationTestRuntimeDump(testArgFileEntry.buildArtifacts.xcTestBundle)
             }
-            return .appTest(
+            return .runtimeAppTest(
                 RuntimeDumpApplicationTestSupport(
                     appBundle: appLocation,
                     simulatorControlTool: testArgFileEntry.simulatorControlTool

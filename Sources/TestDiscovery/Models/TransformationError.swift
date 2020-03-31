@@ -8,9 +8,9 @@ public enum TransformationError: Error, CustomStringConvertible {
     public var description: String {
         switch self {
         case .someTestsAreMissingInRuntime(let testsToRun):
-            return "Error: some tests are missing in runtime: \(testsToRun)"
+            return "Some tests are missing: \(testsToRun)"
         case .noMatchFor(let testName):
-            return "Unexpected error: Unable to find runtime test match for \(testName)"
+            return "Unable to find test match for \(testName)"
         }
     }
 }

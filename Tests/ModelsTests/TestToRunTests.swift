@@ -17,9 +17,9 @@ final class TestToRunTests: XCTestCase {
     }
     
     func test__parsing_all_tests_provided_by_runtime_dump() {
-        let json = "{\"test\": {\"predicateType\": \"allProvidedByRuntimeDump\"}}"
+        let json = "{\"test\": {\"predicateType\": \"allDiscoveredTests\"}}"
         
-        let expected = ["test": TestToRun.allProvidedByRuntimeDump]
+        let expected = ["test": TestToRun.allDiscoveredTests]
         
         XCTAssertEqual(
             try decoder.decode([String: TestToRun].self, from: data(json)),

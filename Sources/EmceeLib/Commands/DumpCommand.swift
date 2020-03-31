@@ -12,17 +12,17 @@ import PathLib
 import PluginManager
 import ProcessController
 import ResourceLocationResolver
-import RuntimeDump
 import ScheduleStrategy
 import Scheduler
 import SignalHandling
 import SimulatorPool
 import TemporaryStuff
+import TestDiscovery
 import UniqueIdentifierGenerator
 
-public final class DumpRuntimeTestsCommand: Command {
+public final class DumpCommand: Command {
     public let name = "dump"
-    public let description = "Dumps all available runtime tests into JSON file"
+    public let description = "Performs test discovery and dumps information about discovered tests into JSON file"
     public let arguments: Arguments = [
         ArgumentDescriptions.output.asRequired,
         ArgumentDescriptions.tempFolder.asRequired,
@@ -82,11 +82,11 @@ public final class DumpRuntimeTestsCommand: Command {
             onDemandSimulatorPool.deleteSimulators()
         }
         
-        let dumpedTests: [[RuntimeTestEntry]] = try testArgFile.entries.map { testArgFileEntry -> [RuntimeTestEntry] in
-            let configuration = RuntimeDumpConfiguration(
+        let dumpedTests: [[DiscoveredTestEntry]] = try testArgFile.entries.map { testArgFileEntry -> [DiscoveredTestEntry] in
+            let configuration = TestDiscoveryConfiguration(
                 developerDir: testArgFileEntry.developerDir,
                 pluginLocations: testArgFileEntry.pluginLocations,
-                runtimeDumpMode: try RuntimeDumpModeDeterminer.runtimeDumpMode(testArgFileEntry: testArgFileEntry),
+                testDiscoveryMode: try TestDiscoveryModeDeterminer.testDiscoveryMode(testArgFileEntry: testArgFileEntry),
                 simulatorOperationTimeouts: testArgFileEntry.simulatorOperationTimeouts,
                 simulatorSettings: testArgFileEntry.simulatorSettings,
                 testDestination: testArgFileEntry.testDestination,
@@ -100,7 +100,7 @@ public final class DumpRuntimeTestsCommand: Command {
                 xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location
             )
 
-            let runtimeTestQuerier = RuntimeTestQuerierImpl(
+            let testDiscoveryQuerier = TestDiscoveryQuerierImpl(
                 developerDirLocator: developerDirLocator,
                 numberOfAttemptsToPerformRuntimeDump: testArgFileEntry.numberOfRetries,
                 onDemandSimulatorPool: onDemandSimulatorPool,
@@ -116,9 +116,9 @@ public final class DumpRuntimeTestsCommand: Command {
                 remoteCache: runtimeDumpRemoteCacheProvider.remoteCache(config: remoteCacheConfig)
             )
             
-            let result = try runtimeTestQuerier.queryRuntime(configuration: configuration)
-            Logger.debug("Test bundle \(testArgFileEntry.buildArtifacts.xcTestBundle) contains \(result.testsInRuntimeDump.tests.count) tests")
-            return result.testsInRuntimeDump.tests
+            let result = try testDiscoveryQuerier.query(configuration: configuration)
+            Logger.debug("Test bundle \(testArgFileEntry.buildArtifacts.xcTestBundle) contains \(result.discoveredTests.tests.count) tests")
+            return result.discoveredTests.tests
         }
         
         let encodedResult = try encoder.encode(dumpedTests)

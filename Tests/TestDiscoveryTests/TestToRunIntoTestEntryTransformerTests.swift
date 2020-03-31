@@ -1,9 +1,9 @@
+@testable import TestDiscovery
 import BuildArtifacts
 import BuildArtifactsTestHelpers
 import Foundation
 import Models
 import ModelsTestHelpers
-@testable import RuntimeDump
 import XCTest
 
 final class TestToRunIntoTestEntryTransformerTests: XCTestCase {
@@ -11,16 +11,18 @@ final class TestToRunIntoTestEntryTransformerTests: XCTestCase {
     private let transformer = TestToRunIntoTestEntryTransformer()
 
     func test__transforming_concrete_test_names() throws {
-        let queryResult = RuntimeQueryResult(
-            unavailableTestsToRun: [],
-            testsInRuntimeDump: TestsInRuntimeDump(tests: [
-                RuntimeTestEntryFixtures.entry(className: "class", testMethods: ["test1", "test2", "test3"])
-            ])
+        let queryResult = TestDiscoveryResult(
+            discoveredTests: DiscoveredTests(
+                tests: [
+                    DiscoveredTestEntryFixtures.entry(className: "class", testMethods: ["test1", "test2", "test3"])
+                ]
+            ),
+            unavailableTestsToRun: []
         )
         
         let transformationResult = try transformer.transform(
-            runtimeQueryResult: queryResult,
-            buildArtifacts: fakeBuildArtifacts
+            buildArtifacts: fakeBuildArtifacts,
+            testDiscoveryResult: queryResult
         )
         
         let expectedTestNames = [
@@ -46,15 +48,17 @@ final class TestToRunIntoTestEntryTransformerTests: XCTestCase {
     func test__with_missing_tests() throws {
         let missingTest = TestToRun.testName(TestName(className: "Class", methodName: "test404"))
         
-        let queryResult = RuntimeQueryResult(
+        let testDiscoveryResult = TestDiscoveryResult(
+            discoveredTests: DiscoveredTests(
+                tests: [
+                    DiscoveredTestEntryFixtures.entry()
+                ]
+            ),
             unavailableTestsToRun: [
                 missingTest
-            ],
-            testsInRuntimeDump: TestsInRuntimeDump(tests: [
-                RuntimeTestEntryFixtures.entry()
-            ])
+            ]
         )
         
-        XCTAssertThrowsError(_ = try transformer.transform(runtimeQueryResult: queryResult, buildArtifacts: fakeBuildArtifacts))
+        XCTAssertThrowsError(_ = try transformer.transform(buildArtifacts: fakeBuildArtifacts, testDiscoveryResult: testDiscoveryResult))
     }
 }

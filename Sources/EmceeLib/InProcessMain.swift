@@ -13,7 +13,7 @@ import PluginManager
 import ProcessController
 import RequestSender
 import ResourceLocationResolver
-import RuntimeDump
+import TestDiscovery
 import URLResource
 import UniqueIdentifierGenerator
 
@@ -57,7 +57,7 @@ public final class InProcessMain {
                     resourceLocationResolver: resourceLocationResolver,
                     uniqueIdentifierGenerator: uniqueIdentifierGenerator
                 ),
-                DumpRuntimeTestsCommand(
+                DumpCommand(
                     dateProvider: dateProvider,
                     developerDirLocator: developerDirLocator,
                     pluginEventBusProvider: pluginEventBusProvider,

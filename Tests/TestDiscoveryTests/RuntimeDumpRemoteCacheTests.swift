@@ -1,4 +1,4 @@
-@testable import RuntimeDump
+@testable import TestDiscovery
 import BuildArtifacts
 import Models
 import PathLib
@@ -21,10 +21,10 @@ class RuntimeDumpRemoteCacheTests: XCTestCase {
     func test__store() throws {
         let xcTestBundleLocation = TestBundleLocation(ResourceLocation.localFilePath("xcTestBundleLocation"))
         let expectedPath = "/pathToRemoteStorage/a74c1c98661e4c27fc3e569f40c74feaf4775d1b77c4a82928364728ab6c23b0.json"
-        let queryResult = RuntimeQueryResultFixtures.queryResult()
+        let queryResult = TestDiscoveryResultFixtures.queryResult()
 
         try cache.store(
-            tests: queryResult.testsInRuntimeDump,
+            tests: queryResult.discoveredTests,
             xcTestBundleLocation: xcTestBundleLocation
         )
 
@@ -36,13 +36,13 @@ class RuntimeDumpRemoteCacheTests: XCTestCase {
 
         XCTAssertEqual(request.httpMethod, HTTPMethod.post)
         XCTAssertEqual(request.pathWithLeadingSlash, expectedPath)
-        XCTAssertEqual(request.payload, queryResult.testsInRuntimeDump)
+        XCTAssertEqual(request.payload, queryResult.discoveredTests)
     }
 
     func test__results__success_request() {
         let xcTestBundleLocation = TestBundleLocation(ResourceLocation.localFilePath("xcTestBundleLocation"))
         let expectedPath = "/pathToRemoteStorage/a74c1c98661e4c27fc3e569f40c74feaf4775d1b77c4a82928364728ab6c23b0.json"
-        let senderResult = RuntimeQueryResultFixtures.queryResult().testsInRuntimeDump
+        let senderResult = TestDiscoveryResultFixtures.queryResult().discoveredTests
         requestSender.result = senderResult
         
         let result = try? cache.results(xcTestBundleLocation: xcTestBundleLocation)

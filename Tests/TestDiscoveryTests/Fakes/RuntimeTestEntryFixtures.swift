@@ -1,11 +1,11 @@
-import RuntimeDump
+import TestDiscovery
 
-class RuntimeTestEntryFixtures {
+class DiscoveredTestEntryFixtures {
     static func entry(
         className: String = "Class",
         testMethods: [String] = ["testMethod"]
-    ) -> RuntimeTestEntry {
-        return RuntimeTestEntry(
+    ) -> DiscoveredTestEntry {
+        return DiscoveredTestEntry(
             className: className,
             path: "",
             testMethods: testMethods,

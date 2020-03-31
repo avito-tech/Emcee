@@ -6,9 +6,9 @@ import Models
 import ModelsTestHelpers
 import QueueModelsTestHelpers
 import RunnerTestHelpers
-import RuntimeDump
 import SimulatorPoolTestHelpers
 import TestArgFile
+import TestDiscovery
 import XCTest
 
 final class TestEntryConfigurationGeneratorTests: XCTestCase {
@@ -132,7 +132,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .uiTest,
-                testsToRun: [.allProvidedByRuntimeDump]
+                testsToRun: [.allDiscoveredTests]
             )
         )
         

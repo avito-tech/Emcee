@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2020-03-31
+
+Runtime dump feature has been renamed to test discovery. `RuntimeDump` module is now called `TestDiscovery`. APIs have been renamed as well. 
+`xctestBundle` object in build artifacts now has `testDiscoveryMode` field instead of `runtimeDumpMode`, and the supported values are `runtimeLogicTest` and `runtimeAppTest`.
+`testsToRun` value for running all abailable tests has been renamed from `allProvidedByRuntimeDump` to `allDiscoveredTests`.
+
+
 ## 2020-03-30
 
 Support for grouping jobs. 

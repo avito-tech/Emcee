@@ -28,10 +28,9 @@ final class TestArgFileTests: XCTestCase {
                     "runner": "/runner",
                     "xcTestBundle": {
                         "location": "/xcTestBundle",
-                        "runtimeDumpKind": "appTest"
+                        "testDiscoveryMode": "runtimeAppTest"
                     },
-                    "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"],
-                    "needHostAppToDumpTests": true
+                    "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"]
                 },
                 "testRunnerTool": {"toolType": "fbxctest", "fbxctestLocation": "http://example.com/fbxctest.zip"},
                 "simulatorControlTool": {"toolType": "fbsimctl", "location": "http://example.com/fbsimctl.zip"},
@@ -114,14 +113,14 @@ final class TestArgFileTests: XCTestCase {
         appBundle: String? = "/appBundle",
         runner: String? = "/runner",
         additionalApplicationBundles: [String] = ["/additionalApp1", "/additionalApp2"],
-        runtimeDumpKind: XcTestBundleRuntimeDumpMode = .appTest
+        testDiscoveryMode: XcTestBundleTestDiscoveryMode = .runtimeAppTest
     ) -> BuildArtifacts {
         return BuildArtifactsFixtures.withLocalPaths(
             appBundle: appBundle,
             runner: runner,
             xcTestBundle: "/xcTestBundle",
             additionalApplicationBundles: additionalApplicationBundles,
-            runtimeDumpKind: runtimeDumpKind
+            testDiscoveryMode: testDiscoveryMode
         )
     }
 }
