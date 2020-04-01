@@ -57,7 +57,7 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
             action: .shutdown,
             testDestination: simulator.testDestination,
             work: {
-                try performShutdownSimulatorAction(
+                try delegate.performShutdownSimulatorAction(
                     environment: environment,
                     simulator: simulator,
                     timeout: timeout
@@ -75,7 +75,7 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
             action: .delete,
             testDestination: simulator.testDestination,
             work: {
-                try performDeleteSimulatorAction(
+                try delegate.performDeleteSimulatorAction(
                     environment: environment,
                     simulator: simulator,
                     timeout: timeout
