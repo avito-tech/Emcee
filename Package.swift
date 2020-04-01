@@ -160,6 +160,7 @@ let package = Package(
                 "DateProvider",
                 "Logging",
                 "Models",
+                "QueueCommunication",
                 "QueueModels",
             ],
             path: "Sources/BalancingBucketQueue"
@@ -742,6 +743,7 @@ let package = Package(
                 "Models",
                 "PortDeterminer",
                 "ProcessController",
+                "QueueCommunication",
                 "QueueServer",
                 "RemotePortDeterminer",
                 "RequestSender",
@@ -1028,6 +1030,16 @@ let package = Package(
                 "SynchronousWaiter",
             ],
             path: "Tests/QueueClientTests"
+        ),
+        .target(
+            // MARK: QueueCommunication
+            name: "QueueCommunication",
+            dependencies: [
+                "Logging",
+                "Models",
+                "RESTMethods",
+                "RequestSender"
+            ]
         ),
         .target(
             // MARK: QueueModels

@@ -7,6 +7,7 @@ import DateProviderTestHelpers
 import Foundation
 import Models
 import ModelsTestHelpers
+import QueueCommunication
 import QueueModels
 import QueueModelsTestHelpers
 import TestHelpers
@@ -519,7 +520,8 @@ final class BalancingBucketQueueTests: XCTestCase {
     )
     lazy var balancingBucketQueueFactory = BalancingBucketQueueFactory(
         bucketQueueFactory: bucketQueueFactory,
-        nothingToDequeueBehavior: NothingToDequeueBehaviorCheckLater(checkAfter: checkAgainTimeInterval)
+        nothingToDequeueBehavior: NothingToDequeueBehaviorCheckLater(checkAfter: checkAgainTimeInterval),
+        workerPermissionProvider: FakeWorkerPermissionProvider()
     )
     lazy var balancingQueue = balancingBucketQueueFactory.create()
     let jobId: JobId = "jobId"
