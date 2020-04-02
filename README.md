@@ -23,7 +23,7 @@ To start exploring code open `Package.swift` in Xcode 11 or execute `make open` 
 
 # Contributing
 
-We are happy to accept your pull requests. If something does not work for you, please let us know by submitting an issue. Reads the docs and suggest improvements to them as well!
+We are happy to accept your pull requests. If something does not work for you, please let us know by submitting an issue. Read the docs and suggest improvements to them as well!
 
 General commands that help you with a development workflow:
 
