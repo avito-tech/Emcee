@@ -1564,6 +1564,7 @@ let package = Package(
             name: "TestDiscoveryTests",
             dependencies: [
                 "BuildArtifacts",
+                "DeveloperDirLocator",
                 "DeveloperDirLocatorTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
