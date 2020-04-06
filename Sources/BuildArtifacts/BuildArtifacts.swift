@@ -57,15 +57,6 @@ public struct BuildArtifacts: Codable, Hashable, CustomStringConvertible {
         }
     }
     
-    public static func onlyWithXctestBundle(xcTestBundle: XcTestBundle) -> BuildArtifacts {
-        return BuildArtifacts(
-            appBundle: nil,
-            runner: nil,
-            xcTestBundle: xcTestBundle,
-            additionalApplicationBundles: []
-        )
-    }
-    
     public var description: String {
         var result: [String] = []
         if let appBundle = appBundle {

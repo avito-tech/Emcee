@@ -23,7 +23,6 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     private let pluginEventBusProvider: PluginEventBusProvider
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TemporaryFolder
-    private let testEntryToQueryRuntimeDump: TestEntry
     private let testRunnerProvider: TestRunnerProvider
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let remoteCache: RuntimeDumpRemoteCache
@@ -35,7 +34,6 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver,
         tempFolder: TemporaryFolder,
-        testEntryToQueryRuntimeDump: TestEntry = TestEntry(testName: TestName(className: "NonExistingTest", methodName: "fakeTest"), tags: [], caseId: nil),
         testRunnerProvider: TestRunnerProvider,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         remoteCache: RuntimeDumpRemoteCache
@@ -46,7 +44,6 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
         self.tempFolder = tempFolder
-        self.testEntryToQueryRuntimeDump = testEntryToQueryRuntimeDump
         self.testRunnerProvider = testRunnerProvider
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.remoteCache = remoteCache
@@ -76,57 +73,21 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         }
 
         Logger.debug("No cached runtime dump entries found for bundle: \(configuration.xcTestBundleLocation)")
-        let dumpedTests =  try runRetrying(times: numberOfAttemptsToPerformRuntimeDump) {
-            try discoveredTests(configuration: configuration)
-        }
+        let dumpedTests = try discoveredTests(configuration: configuration)
 
         try? remoteCache.store(tests: dumpedTests, xcTestBundleLocation: configuration.xcTestBundleLocation)
         return dumpedTests
     }
 
-    private func runRetrying<T>(times: UInt, _ work: () throws -> T) rethrows -> T {
-        for retryIndex in 0 ..< times {
-            do {
-                return try work()
-            } catch {
-                Logger.error("Failed to get runtime dump, error: \(error)")
-                SynchronousWaiter().wait(timeout: TimeInterval(retryIndex) * 2.0, description: "Pause between runtime dump retries")
-            }
-        }
-        return try work()
-    }
     
-    private func discoveredTests(configuration: TestDiscoveryConfiguration) throws -> DiscoveredTests {
-        let runtimeEntriesJSONPath = tempFolder.pathWith(components: [uniqueIdentifierGenerator.generate()])
-        Logger.debug("Will dump runtime tests into file: \(runtimeEntriesJSONPath)")
-
-        let allocatedSimulator = try simulatorForTestDiscovery(configuration: configuration)
-        defer { allocatedSimulator.releaseSimulator() }
-
-        let runnerConfiguration = buildRunnerConfiguration(
-            configuration: configuration,
-            runtimeEntriesJSONPath: runtimeEntriesJSONPath
-        )
-        let runner = Runner(
-            configuration: runnerConfiguration,
-            developerDirLocator: developerDirLocator,
-            pluginEventBusProvider: pluginEventBusProvider,
-            resourceLocationResolver: resourceLocationResolver,
-            tempFolder: tempFolder,
-            testRunnerProvider: testRunnerProvider
-        )
-        let runnerRunResult = try runner.runOnce(
-            entriesToRun: [testEntryToQueryRuntimeDump],
-            developerDir: configuration.developerDir,
-            simulator: allocatedSimulator.simulator
-        )
+    private func discoveredTests(
+        configuration: TestDiscoveryConfiguration
+    ) throws -> DiscoveredTests {
+        let internalTestDiscoverer = createSpecificTestDiscoverer(configuration: configuration)
         
-        guard let data = try? Data(contentsOf: runtimeEntriesJSONPath.fileUrl),
-            let foundTestEntries = try? JSONDecoder().decode([DiscoveredTestEntry].self, from: data)
-            else {
-                runnerRunResult.dumpStandardStreams()
-                throw TestExplorationError.fileNotFound(runtimeEntriesJSONPath)
-        }
+        let foundTestEntries: [DiscoveredTestEntry] = try internalTestDiscoverer.discoverTestEntries(
+            configuration: configuration
+        )
         
         let allTests = foundTestEntries.flatMap { $0.testMethods }
         reportStats(
@@ -136,71 +97,6 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         )
         
         return DiscoveredTests(tests: foundTestEntries)
-    }
-
-    private func buildRunnerConfiguration(
-        configuration: TestDiscoveryConfiguration,
-        runtimeEntriesJSONPath: AbsolutePath
-    ) -> RunnerConfiguration {
-        let environment = self.environment(configuration: configuration, runtimeEntriesJSONPath: runtimeEntriesJSONPath)
-
-        switch configuration.testDiscoveryMode {
-        case .runtimeLogicTest:
-            return RunnerConfiguration(
-                buildArtifacts: BuildArtifacts.onlyWithXctestBundle(
-                    xcTestBundle: XcTestBundle(
-                        location: configuration.xcTestBundleLocation,
-                        testDiscoveryMode: .runtimeLogicTest
-                    )
-                ),
-                environment: environment,
-                pluginLocations: configuration.pluginLocations,
-                simulatorSettings: configuration.simulatorSettings,
-                testRunnerTool: configuration.testRunnerTool,
-                testTimeoutConfiguration: configuration.testTimeoutConfiguration,
-                testType: .logicTest
-            )
-        case .runtimeAppTest(let runtimeDumpApplicationTestSupport):
-            return RunnerConfiguration(
-                buildArtifacts: BuildArtifacts(
-                    appBundle: runtimeDumpApplicationTestSupport.appBundle,
-                    runner: nil,
-                    xcTestBundle: XcTestBundle(
-                        location: configuration.xcTestBundleLocation,
-                        testDiscoveryMode: .runtimeAppTest
-                    ),
-                    additionalApplicationBundles: []
-                ),
-                environment: environment,
-                pluginLocations: configuration.pluginLocations,
-                simulatorSettings: configuration.simulatorSettings,
-                testRunnerTool: configuration.testRunnerTool,
-                testTimeoutConfiguration: configuration.testTimeoutConfiguration,
-                testType: .appTest
-            )
-        }
-    }
-
-    private func simulatorForTestDiscovery(
-        configuration: TestDiscoveryConfiguration
-    ) throws -> AllocatedSimulator {
-        let simulatorControlTool: SimulatorControlTool
-        
-        switch configuration.testDiscoveryMode {
-        case .runtimeLogicTest(let tool):
-            simulatorControlTool = tool
-        case .runtimeAppTest(let runtimeDumpApplicationTestSupport):
-            simulatorControlTool = runtimeDumpApplicationTestSupport.simulatorControlTool
-        }
-        
-        let simulatorPool = try onDemandSimulatorPool.pool(
-            key: OnDemandSimulatorPoolKey(
-                developerDir: configuration.developerDir,
-                testDestination: configuration.testDestination,
-                simulatorControlTool: simulatorControlTool
-            )
-        )
-        return try simulatorPool.allocateSimulator(simulatorOperationTimeouts: configuration.simulatorOperationTimeouts)
     }
     
     private func requestedTestsNotAvailable(
@@ -242,12 +138,78 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         )
     }
     
-    private func environment(
-        configuration: TestDiscoveryConfiguration,
-        runtimeEntriesJSONPath: AbsolutePath
-    ) -> [String: String] {
-        var environment = configuration.testExecutionBehavior.environment
-        environment["EMCEE_RUNTIME_TESTS_EXPORT_PATH"] = runtimeEntriesJSONPath.pathString
-        return environment
+    private func createSpecificTestDiscoverer(
+        configuration: TestDiscoveryConfiguration
+    ) -> SpecificTestDiscoverer {
+        switch configuration.testDiscoveryMode {
+        case .runtimeLogicTest(let simulatorControlTool):
+            return createRuntimeDumpBasedTestDiscoverer(
+                buildArtifacts: .onlyWithXctestBundle(
+                    xcTestBundle: XcTestBundle(
+                        location: configuration.xcTestBundleLocation,
+                        testDiscoveryMode: .runtimeLogicTest
+                    )
+                ),
+                simulatorControlTool: simulatorControlTool,
+                testType: .logicTest
+            )
+        case .runtimeAppTest(let runtimeDumpApplicationTestSupport):
+            return createRuntimeDumpBasedTestDiscoverer(
+                buildArtifacts: .with(
+                    appBundle: runtimeDumpApplicationTestSupport.appBundle,
+                    xcTestBundle: XcTestBundle(
+                        location: configuration.xcTestBundleLocation,
+                        testDiscoveryMode: .runtimeAppTest
+                    )
+                ),
+                simulatorControlTool: runtimeDumpApplicationTestSupport.simulatorControlTool,
+                testType: .appTest
+            )
+        }
+    }
+    
+    private func createRuntimeDumpBasedTestDiscoverer(
+        buildArtifacts: BuildArtifacts,
+        simulatorControlTool: SimulatorControlTool,
+        testType: TestType
+    ) -> RuntimeDumpTestDiscoverer {
+        RuntimeDumpTestDiscoverer(
+            buildArtifacts: buildArtifacts,
+            developerDirLocator: developerDirLocator,
+            numberOfAttemptsToPerformRuntimeDump: numberOfAttemptsToPerformRuntimeDump,
+            onDemandSimulatorPool: onDemandSimulatorPool,
+            pluginEventBusProvider: pluginEventBusProvider,
+            resourceLocationResolver: resourceLocationResolver,
+            simulatorControlTool: simulatorControlTool,
+            tempFolder: tempFolder,
+            testRunnerProvider: testRunnerProvider,
+            testType: testType,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+        )
+    }
+}
+
+private extension BuildArtifacts {
+    static func onlyWithXctestBundle(
+        xcTestBundle: XcTestBundle
+    ) -> BuildArtifacts {
+        BuildArtifacts(
+            appBundle: nil,
+            runner: nil,
+            xcTestBundle: xcTestBundle,
+            additionalApplicationBundles: []
+        )
+    }
+    
+    static func with(
+        appBundle: AppBundleLocation,
+        xcTestBundle: XcTestBundle
+    ) -> BuildArtifacts {
+        BuildArtifacts(
+            appBundle: appBundle,
+            runner: nil,
+            xcTestBundle: xcTestBundle,
+            additionalApplicationBundles: []
+        )
     }
 }
