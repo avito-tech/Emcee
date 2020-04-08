@@ -186,20 +186,6 @@ public final class XcTestRunFileArgument: SubprocessArgument {
         )
     }
     
-    private enum ProductModuleNameError: Error, CustomStringConvertible {
-        case failedToReadPlistContents(path: AbsolutePath, contents: Any)
-        case noValueCFBundleName(path: AbsolutePath)
-        
-        var description: String {
-            switch self {
-            case .failedToReadPlistContents(let path, let contents):
-                return "Unexpected contents of plist at \(path): \(contents)"
-            case .noValueCFBundleName(let path):
-                return "Plist at \(path) does not have a value for CFBundleName key"
-            }
-        }
-    }
-    
     private func testTargetProductModuleName(
         resolvableXcTestBundle: ResolvableResourceLocation
     ) throws -> String {
@@ -212,10 +198,10 @@ public final class XcTestRunFileArgument: SubprocessArgument {
             format: nil
         )
         guard let plistDict = plistContents as? NSDictionary else {
-            throw ProductModuleNameError.failedToReadPlistContents(path: plistPath, contents: plistContents)
+            throw InfoPlistError.failedToReadPlistContents(path: plistPath, contents: plistContents)
         }
         guard let bundleName = plistDict["CFBundleName"] as? String else {
-            throw ProductModuleNameError.noValueCFBundleName(path: plistPath)
+            throw InfoPlistError.noValueCFBundleName(path: plistPath)
         }
         return bundleName
     }

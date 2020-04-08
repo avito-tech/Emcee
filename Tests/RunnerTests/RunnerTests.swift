@@ -14,14 +14,15 @@ import RunnerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import TemporaryStuff
+import TestHelpers
 import XCTest
 
 public final class RunnerTests: XCTestCase {
     let testEntry = TestEntryFixtures.testEntry()
     let noOpPluginEventBusProvider = NoOoPluginEventBusProvider()
-    let resolver = FakeResourceLocationResolver.resolvingToTempFolder()
+    lazy var resolver = FakeResourceLocationResolver.resolvingTo(path: tempFolder.absolutePath)
     let testRunnerProvider = FakeTestRunnerProvider()
-    var tempFolder = try! TemporaryFolder()
+    lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     
     func test___running_test_without_output_to_stream___provides_test_did_not_run_results() throws {
         testRunnerProvider.predefinedFakeTestRunner.disableTestStartedTestRunnerStreamEvents()

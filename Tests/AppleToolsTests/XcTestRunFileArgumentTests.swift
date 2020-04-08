@@ -7,9 +7,12 @@ import ModelsTestHelpers
 import QueueModelsTestHelpers
 import ResourceLocationResolverTestHelpers
 import TemporaryStuff
+import TestHelpers
 import XCTest
 
 final class XcTestRunFileArgumentTests: XCTestCase {
+    private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
+    
     func test___apptest_requires_app_bundle() throws {
         let arg = XcTestRunFileArgument(
             buildArtifacts: BuildArtifactsFixtures.withLocalPaths(
@@ -20,13 +23,13 @@ final class XcTestRunFileArgumentTests: XCTestCase {
             ),
             developerDirLocator: FakeDeveloperDirLocator(),
             entriesToRun: [],
-            resourceLocationResolver: FakeResourceLocationResolver.resolvingToTempFolder(),
-            temporaryFolder: try TemporaryFolder(),
+            resourceLocationResolver: FakeResourceLocationResolver.resolvingTo(path: tempFolder.absolutePath),
+            temporaryFolder: tempFolder,
             testContext: TestContextFixtures().testContext,
             testType: .appTest
         )
         
-        XCTAssertThrowsError(try arg.stringValue())
+        assertThrows { _ = try arg.stringValue() }
     }
     
     func test___uitest_requires_app_bundle() throws {
@@ -39,13 +42,13 @@ final class XcTestRunFileArgumentTests: XCTestCase {
             ),
             developerDirLocator: FakeDeveloperDirLocator(),
             entriesToRun: [],
-            resourceLocationResolver: FakeResourceLocationResolver.resolvingToTempFolder(),
-            temporaryFolder: try TemporaryFolder(),
+            resourceLocationResolver: FakeResourceLocationResolver.resolvingTo(path: tempFolder.absolutePath),
+            temporaryFolder: tempFolder,
             testContext: TestContextFixtures().testContext,
             testType: .uiTest
         )
         
-        XCTAssertThrowsError(try arg.stringValue())
+        assertThrows { _ = try arg.stringValue() }
     }
     
     func test___uitest_requires_runner_app_bundle() throws {
@@ -58,12 +61,12 @@ final class XcTestRunFileArgumentTests: XCTestCase {
             ),
             developerDirLocator: FakeDeveloperDirLocator(),
             entriesToRun: [],
-            resourceLocationResolver: FakeResourceLocationResolver.resolvingToTempFolder(),
-            temporaryFolder: try TemporaryFolder(),
+            resourceLocationResolver: FakeResourceLocationResolver.resolvingTo(path: tempFolder.absolutePath),
+            temporaryFolder: tempFolder,
             testContext: TestContextFixtures().testContext,
             testType: .uiTest
         )
         
-        XCTAssertThrowsError(try arg.stringValue())
+        assertThrows { _ = try arg.stringValue() }
     }
 }

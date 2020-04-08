@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import PathLib
 import ResourceLocation
 import ResourceLocationResolver
 
@@ -8,19 +9,21 @@ public final class FakeResourceLocationResolver: ResourceLocationResolver {
     public var resolveError: Error?
     
     public struct SomeError: Error, CustomStringConvertible {
-        public let description = "some error happened"
+        public let description = "FakeResourceLocationResolver is set to throw an error on resolve, so this error has been thrown"
         public init() {}
     }
     
     public static func throwing() -> FakeResourceLocationResolver {
-        let resolver = resolvingToTempFolder()
+        let resolver = resolvingTo(path: AbsolutePath.root)
         resolver.throwOnResolve()
         return resolver
     }
     
-    public static func resolvingToTempFolder() -> FakeResourceLocationResolver {
+    public static func resolvingTo(
+        path: AbsolutePath
+    ) -> FakeResourceLocationResolver {
         return FakeResourceLocationResolver(
-            resolvingResult: .directlyAccessibleFile(path: NSTemporaryDirectory())
+            resolvingResult: .directlyAccessibleFile(path: path.pathString)
         )
     }
 

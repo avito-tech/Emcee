@@ -7,6 +7,7 @@ import Metrics
 import Models
 import PathLib
 import PluginManager
+import ProcessController
 import ResourceLocationResolver
 import Runner
 import RunnerModels
@@ -21,6 +22,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     private let numberOfAttemptsToPerformRuntimeDump: UInt
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let pluginEventBusProvider: PluginEventBusProvider
+    private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
@@ -32,6 +34,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         numberOfAttemptsToPerformRuntimeDump: UInt,
         onDemandSimulatorPool: OnDemandSimulatorPool,
         pluginEventBusProvider: PluginEventBusProvider,
+        processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver,
         tempFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider,
@@ -42,11 +45,12 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         self.numberOfAttemptsToPerformRuntimeDump = max(numberOfAttemptsToPerformRuntimeDump, 1)
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.pluginEventBusProvider = pluginEventBusProvider
+        self.processControllerProvider = processControllerProvider
+        self.remoteCache = remoteCache
         self.resourceLocationResolver = resourceLocationResolver
         self.tempFolder = tempFolder
         self.testRunnerProvider = testRunnerProvider
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
-        self.remoteCache = remoteCache
     }
     
     public func query(configuration: TestDiscoveryConfiguration) throws -> TestDiscoveryResult {
@@ -142,6 +146,14 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         configuration: TestDiscoveryConfiguration
     ) -> SpecificTestDiscoverer {
         switch configuration.testDiscoveryMode {
+        case .parseFunctionSymbols:
+            return ParseFunctionSymbolsTestDiscoverer(
+                developerDirLocator: developerDirLocator,
+                processControllerProvider: processControllerProvider,
+                resourceLocationResolver: resourceLocationResolver,
+                tempFolder: tempFolder,
+                uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            )
         case .runtimeLogicTest(let simulatorControlTool):
             return createRuntimeDumpBasedTestDiscoverer(
                 buildArtifacts: .onlyWithXctestBundle(

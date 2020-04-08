@@ -22,17 +22,25 @@ final class DemanglerTests: XCTestCase {
         )
     }
     
-    func test1() {
+    func test___demangle_test_name() {
         XCTAssertEqual(
             try swiftDemangler.demangle(string: "_$s022MainPage_Unit_Default_C5Tests017CommercialServiceE0C024disabled_test_commercialG50CompletionCalledImmediately_whenLoadingIsImmediateyyF"),
             "MainPage_Unit_Default_UnitTests.CommercialServiceTests.disabled_test_commercialServiceCompletionCalledImmediately_whenLoadingIsImmediate() -> ()"
         )
     }
     
-    func test() {
+    func test___demangle_swift_generated_stuff() {
         XCTAssertEqual(
             try swiftDemangler.demangle(string: "_$s022MainPage_Unit_Default_C5Tests0ab5FeedsE0C04testabf26_unboxesCorrectly_withManyF0yyFSSyKXEfu11_TA"),
             "partial apply forwarder for implicit closure #13 () throws -> Swift.String in MainPage_Unit_Default_UnitTests.MainPageFeedsTests.testMainPageFeeds_unboxesCorrectly_withManyFeeds() -> ()"
         )
+    }
+    
+    func test___demanging_with_unexisting_dylib___throws() {
+        assertThrows {
+            _ = try LibSwiftDemangler(
+                libswiftDemanglePath: AbsolutePath(components: [UUID().uuidString, UUID().uuidString])
+            )
+        }
     }
 }

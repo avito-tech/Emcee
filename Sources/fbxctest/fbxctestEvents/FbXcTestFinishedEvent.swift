@@ -1,4 +1,5 @@
 import Foundation
+import Runner
 
 public final class FbXcTestFinishedEvent: CustomStringConvertible, CommonTestFields, Codable {
     public let event: FbXcTestEventName = .testFinished
@@ -38,7 +39,7 @@ public final class FbXcTestFinishedEvent: CustomStringConvertible, CommonTestFie
     }
     
     public var testClassName: String {
-        return FbXcTestEventClassNameParser.className(moduledClassName: className)
+        return TestNameParser.className(moduledClassName: className)
     }
     
     public var testMethodName: String {
@@ -46,7 +47,7 @@ public final class FbXcTestFinishedEvent: CustomStringConvertible, CommonTestFie
     }
     
     public var testModuleName: String {
-        return FbXcTestEventClassNameParser.moduleName(moduledClassName: className)
+        return TestNameParser.moduleName(moduledClassName: className)
     }
     
     public var description: String {

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2020-04-08
+
+Test discovery now allows to discover tests by parsing and demangling output of `nm` against xctest bundle. This speeds up test discovery, but less flexible and more error prone. This might be useful for unit test bundles for example.
+Emcee may discover unrelated test names in this case, as well as miss some, e.g. ones generated during runtime, so use carefully. Runtime dump integration is not required for this test discovery mode.
+To use it, pass `parseFunctionSymbols` value to `testDiscoveryMode` field of `xctestBundle` object in build artifacts in test arg file.   
+
 ## 2020-03-31
 
 Runtime dump feature has been renamed to test discovery. `RuntimeDump` module is now called `TestDiscovery`. APIs have been renamed as well. 

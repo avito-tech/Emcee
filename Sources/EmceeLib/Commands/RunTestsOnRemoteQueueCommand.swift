@@ -194,6 +194,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             numberOfAttemptsToPerformRuntimeDump: 5,
             onDemandSimulatorPool: onDemandSimulatorPool,
             pluginEventBusProvider: pluginEventBusProvider,
+            processControllerProvider: processControllerProvider,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
             testRunnerProvider: DefaultTestRunnerProvider(

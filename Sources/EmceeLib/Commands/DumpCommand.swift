@@ -105,6 +105,7 @@ public final class DumpCommand: Command {
                 numberOfAttemptsToPerformRuntimeDump: testArgFileEntry.numberOfRetries,
                 onDemandSimulatorPool: onDemandSimulatorPool,
                 pluginEventBusProvider: pluginEventBusProvider,
+                processControllerProvider: processControllerProvider,
                 resourceLocationResolver: resourceLocationResolver,
                 tempFolder: tempFolder,
                 testRunnerProvider: DefaultTestRunnerProvider(

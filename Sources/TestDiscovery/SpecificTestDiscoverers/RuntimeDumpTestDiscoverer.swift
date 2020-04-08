@@ -14,7 +14,7 @@ import SynchronousWaiter
 import TemporaryStuff
 import UniqueIdentifierGenerator
 
-public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
+final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let buildArtifacts: BuildArtifacts
     private let developerDirLocator: DeveloperDirLocator
     private let numberOfAttemptsToPerformRuntimeDump: UInt
@@ -28,7 +28,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let testType: TestType
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     
-    public init(
+    init(
         buildArtifacts: BuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
         numberOfAttemptsToPerformRuntimeDump: UInt,
@@ -56,7 +56,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
-    public func discoverTestEntries(
+    func discoverTestEntries(
         configuration: TestDiscoveryConfiguration
     ) throws -> [DiscoveredTestEntry] {        
         let runtimeEntriesJSONPath = tempFolder.pathWith(components: [uniqueIdentifierGenerator.generate()])
