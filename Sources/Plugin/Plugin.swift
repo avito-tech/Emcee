@@ -1,5 +1,7 @@
+import DateProvider
 import Dispatch
 import EventBus
+import FileSystem
 import Foundation
 import JSONStream
 import Logging
@@ -16,13 +18,16 @@ public final class Plugin {
     private let jsonStreamToEventBusAdapter: JSONStreamToEventBusAdapter
     private var jsonStreamHasFinished = false
     private let eventReceiver: EventReceiver
+    private let loggingSetup = LoggingSetup(
+        fileSystem: LocalFileSystem(fileManager: FileManager())
+    )
     
     /// Creates a Plugin class that can be used to broadcast the PluginEvents from the main process
     /// into the provided EventBus.
     /// - Parameters:
     ///     - eventBus:             The event bus which will receive the events from the main process
     public init(eventBus: EventBus) throws {
-        try LoggingSetup.setupLogging(stderrVerbosity: Verbosity.info)
+        try loggingSetup.setupLogging(stderrVerbosity: Verbosity.info)
         
         self.eventBus = eventBus
         self.jsonStreamToEventBusAdapter = JSONStreamToEventBusAdapter(eventBus: eventBus)
@@ -41,7 +46,7 @@ public final class Plugin {
         try? SynchronousWaiter().waitWhile(description: "Wait for JSON stream to finish") {
             return jsonStreamHasFinished == false
         }
-        LoggingSetup.tearDown()
+        loggingSetup.tearDown(timeout: 10)
     }
     
     private func automaticallyInterruptOnTearDown() {

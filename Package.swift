@@ -456,6 +456,7 @@ let package = Package(
                 "DistWorker",
                 "DistWorkerModels",
                 "FileCache",
+                "FileSystem",
                 "JunitReporting",
                 "LaunchdUtils",
                 "LocalQueueServerRunner",
@@ -621,6 +622,23 @@ let package = Package(
             ]
         ),
         .target(
+            // MARK: FileSystem
+            name: "FileSystem",
+            dependencies: [
+                "PathLib",
+            ]
+        ),
+        .testTarget(
+            // MARK: FileSystemTests
+            name: "FileSystemTests",
+            dependencies: [
+                "FileSystem",
+                "PathLib",
+                "TemporaryStuff",
+                "TestHelpers",
+            ]
+        ),
+        .target(
             // MARK: LocalHostDeterminer
             name: "LocalHostDeterminer",
             dependencies: [
@@ -732,6 +750,8 @@ let package = Package(
             name: "LoggingSetup",
             dependencies: [
                 "Ansi",
+                "DateProvider",
+                "FileSystem",
                 "GraphiteClient",
                 "IO",
                 "LocalHostDeterminer",
@@ -808,7 +828,9 @@ let package = Package(
             // MARK: Plugin
             name: "Plugin",
             dependencies: [
+                "DateProvider",
                 "EventBus",
+                "FileSystem",
                 "JSONStream",
                 "Logging",
                 "LoggingSetup",
@@ -1594,11 +1616,13 @@ let package = Package(
             // MARK: TestingPlugin
             name: "TestingPlugin",
             dependencies: [
+                "DateProvider",
                 "Extensions",
-                "Models",
+                "FileSystem",
                 "Logging",
                 "LoggingSetup",
-                "Plugin"
+                "Models",
+                "Plugin",
             ]
         ),
         .target(

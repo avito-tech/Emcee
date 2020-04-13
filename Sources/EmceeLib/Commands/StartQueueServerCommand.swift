@@ -52,7 +52,7 @@ public final class StartQueueServerCommand: Command {
             resourceLocationResolver: resourceLocationResolver
         )
         
-        try LoggingSetup.setupAnalytics(analyticsConfiguration: queueServerRunConfiguration.analyticsConfiguration, emceeVersion: emceeVersion)
+        try AnalyticsSetup.setupAnalytics(analyticsConfiguration: queueServerRunConfiguration.analyticsConfiguration, emceeVersion: emceeVersion)
         
         try startQueueServer(
             emceeVersion: emceeVersion,

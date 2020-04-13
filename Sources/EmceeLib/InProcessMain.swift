@@ -3,6 +3,7 @@ import DateProvider
 import DeveloperDirLocator
 import Extensions
 import FileCache
+import FileSystem
 import Foundation
 import LocalHostDeterminer
 import Logging
@@ -21,16 +22,25 @@ public final class InProcessMain {
     public init() {}
     
     public func run() throws {
-        try! LoggingSetup.setupLogging(stderrVerbosity: Verbosity.info)
-        defer { LoggingSetup.tearDown() }
+        let fileSystem = LocalFileSystem(fileManager: FileManager())
+        let dateProvider = SystemDateProvider()
+        
+        let cacheElementTimeToLive = TimeUnit.hours(1)
+        let logsTimeToLive = TimeUnit.days(30)
+        
+        let loggingSetup = LoggingSetup(
+            fileSystem: fileSystem
+        )
+        try loggingSetup.setupLogging(stderrVerbosity: Verbosity.info)
+        try loggingSetup.cleanUpLogs(olderThan: dateProvider.currentDate().addingTimeInterval(-logsTimeToLive.timeInterval))
+        
+        defer {
+            loggingSetup.tearDown(timeout: 10)
+            AnalyticsSetup.tearDown(timeout: 10)
+        }
         
         Logger.info("Arguments: \(ProcessInfo.processInfo.arguments)")
         
-        try runCommands()
-    }
-
-    private func runCommands() throws {
-        let dateProvider = SystemDateProvider()
         let developerDirLocator = DefaultDeveloperDirLocator()
         let requestSenderProvider = DefaultRequestSenderProvider()
         let runtimeDumpRemoteCacheProvider = DefaultRuntimeDumpRemoteCacheProvider(senderProvider: requestSenderProvider)
@@ -38,7 +48,8 @@ public final class InProcessMain {
             urlResource: URLResource(
                 fileCache: try FileCache.fileCacheInDefaultLocation(),
                 urlSession: URLSession.shared
-            )
+            ),
+            cacheElementTimeToLive: cacheElementTimeToLive.timeInterval
         )
         let pluginEventBusProvider: PluginEventBusProvider = PluginEventBusProviderImpl(
             resourceLocationResolver: resourceLocationResolver

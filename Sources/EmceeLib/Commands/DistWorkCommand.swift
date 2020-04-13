@@ -118,7 +118,7 @@ public final class DistWorkCommand: Command {
         
         try distWorker.start(
             didFetchAnalyticsConfiguration: { analyticsConfiguration in
-                try LoggingSetup.setupAnalytics(analyticsConfiguration: analyticsConfiguration, emceeVersion: emceeVersion)
+                try AnalyticsSetup.setupAnalytics(analyticsConfiguration: analyticsConfiguration, emceeVersion: emceeVersion)
             },
             completion: {
                 isWorking = false

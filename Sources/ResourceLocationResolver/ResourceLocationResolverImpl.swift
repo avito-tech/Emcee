@@ -13,6 +13,7 @@ import URLResource
 public final class ResourceLocationResolverImpl: ResourceLocationResolver {
     private let urlResource: URLResource
     private let cacheAccessCount = AtomicValue<Int>(0)
+    private let cacheElementTimeToLive: TimeInterval
     private let unarchiveQueue = DispatchQueue(label: "ResourceLocationResolverImpl.unarchiveQueue")
     
     public enum ValidationError: Error, CustomStringConvertible {
@@ -26,8 +27,9 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
         }
     }
     
-    public init(urlResource: URLResource) {
+    public init(urlResource: URLResource, cacheElementTimeToLive: TimeInterval) {
         self.urlResource = urlResource
+        self.cacheElementTimeToLive = cacheElementTimeToLive
     }
     
     public func resolvePath(resourceLocation: ResourceLocation) throws -> ResolvingResult {
@@ -102,7 +104,6 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
     
     private func evictOldCache() {
         let evictionRegularity = 10
-        let cacheElementTimeToLive: TimeInterval = 1 * 3600
         
         cacheAccessCount.withExclusiveAccess { (counter: inout Int) in
             let evictBarrierDate = Date().addingTimeInterval(-cacheElementTimeToLive)

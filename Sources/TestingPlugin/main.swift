@@ -1,4 +1,6 @@
+import DateProvider
 import EventBus
+import FileSystem
 import Foundation
 import Logging
 import LoggingSetup
@@ -40,7 +42,14 @@ class Listener: DefaultBusListener {
 }
 
 func main() throws -> Int32 {
-    try LoggingSetup.setupLogging(stderrVerbosity: Verbosity.info)
+    let loggingSetup = LoggingSetup(
+        fileSystem: LocalFileSystem(fileManager: FileManager())
+    )
+    
+    try loggingSetup.setupLogging(stderrVerbosity: Verbosity.info)
+    defer {
+        loggingSetup.tearDown(timeout: 10)
+    }
 
     Logger.debug("Started plugin")
     
