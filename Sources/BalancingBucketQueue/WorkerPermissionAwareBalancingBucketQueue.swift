@@ -53,6 +53,10 @@ public final class WorkerPermissionAwareBalancingBucketQueue: BalancingBucketQue
     public var ongoingJobIds: Set<JobId> {
         balancingBucketQueue.ongoingJobIds
     }
+    
+    public var ongoingJobGroupIds: Set<JobGroupId> {
+        balancingBucketQueue.ongoingJobGroupIds
+    }
 
     public var runningQueueState: RunningQueueState {
         balancingBucketQueue.runningQueueState

@@ -64,6 +64,10 @@ class FakeBalancingBucketQueue: BalancingBucketQueue {
     var ongoingJobIds: Set<JobId> {
         return Set()
     }
+    
+    var ongoingJobGroupIds: Set<JobGroupId> {
+        return Set()
+    }
 
     var runningQueueState: RunningQueueState {
         RunningQueueState(enqueuedBucketCount: 0, dequeuedBucketCount: 0)
