@@ -496,6 +496,8 @@ let package = Package(
                 "BuildArtifacts",
                 "BuildArtifactsTestHelpers",
                 "EmceeLib",
+                "FileSystem",
+                "FileSystemTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
                 "ProcessControllerTestHelpers",
@@ -504,6 +506,7 @@ let package = Package(
                 "ResourceLocationResolverTestHelpers",
                 "RunnerModels",
                 "RunnerTestHelpers",
+                "SimulatorPoolModels",
                 "SimulatorPoolTestHelpers",
                 "TemporaryStuff",
                 "TestArgFile",
@@ -627,6 +630,15 @@ let package = Package(
             dependencies: [
                 "PathLib",
             ]
+        ),
+        .target(
+            // MARK: FileSystemTestHelpers
+            name: "FileSystemTestHelpers",
+            dependencies: [
+                "FileSystem",
+                "PathLib",
+            ],
+            path: "Tests/FileSystemTestHelpers"
         ),
         .testTarget(
             // MARK: FileSystemTests

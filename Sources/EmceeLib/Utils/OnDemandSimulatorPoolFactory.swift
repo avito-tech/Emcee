@@ -1,4 +1,5 @@
 import DeveloperDirLocator
+import FileSystem
 import Foundation
 import ProcessController
 import ResourceLocationResolver
@@ -10,6 +11,7 @@ import UniqueIdentifierGenerator
 public final class OnDemandSimulatorPoolFactory {
     public static func create(
         developerDirLocator: DeveloperDirLocator,
+        fileSystem: FileSystem,
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver,
         simulatorBootQueue: DispatchQueue = DispatchQueue(label: "SimulatorBootQueue"),
@@ -26,6 +28,7 @@ public final class OnDemandSimulatorPoolFactory {
                     processControllerProvider: processControllerProvider,
                     resourceLocationResolver: resourceLocationResolver,
                     simulatorSetPathDeterminer: SimulatorSetPathDeterminerImpl(
+                        fileSystem: fileSystem,
                         temporaryFolder: tempFolder,
                         uniqueIdentifierGenerator: uniqueIdentifierGenerator
                     )

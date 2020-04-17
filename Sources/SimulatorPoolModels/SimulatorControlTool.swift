@@ -1,7 +1,41 @@
 import Foundation
 import ResourceLocation
 
-public enum SimulatorControlTool: Codable, CustomStringConvertible, Hashable {
+public struct SimulatorControlTool: Codable, CustomStringConvertible, Hashable {
+    public let location: SimulatorLocation
+    public let tool: SimCtlTool
+    
+    public init(
+        location: SimulatorLocation,
+        tool: SimCtlTool
+    ) {
+        self.location = location
+        self.tool = tool
+    }
+    
+    public var description: String {
+        return "<\(type(of: self)) tool: \(tool) location: \(location)>"
+    }
+}
+
+public enum SimulatorLocation: String, Codable, CustomStringConvertible, Hashable {
+    /// Allows to create a private simulators in Emcee's temporary folder. Currently only supported by `fbxctest` runner. `xcodebuild` cannot locate these simulators yet.
+    case insideEmceeTempFolder
+    
+    /// Default location used by simctl and Xcode: `~/Library/Developer/CoreSimulator/Devices`
+    case insideUserLibrary
+    
+    public var description: String {
+        switch self {
+        case .insideEmceeTempFolder:
+            return "<\(type(of: self)) inside temp folder>"
+        case .insideUserLibrary:
+            return "<\(type(of: self)) inside default location>"
+        }
+    }
+}
+
+public enum SimCtlTool: Codable, CustomStringConvertible, Hashable {
     /// Use provided fbsimctl binary
     case fbsimctl(FbsimctlLocation)
 

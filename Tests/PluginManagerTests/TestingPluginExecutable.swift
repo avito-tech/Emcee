@@ -17,8 +17,7 @@ final class TestingPluginExecutable {
             arguments: [
                 "build",
                 "--package-path", swiftPackagePath,
-                "-Xswiftc", "-target", "-Xswiftc", "x86_64-apple-macosx10.13",
-                "--static-swift-stdlib", "--product", "testing_plugin"
+                "--product", "testing_plugin"
             ])
         process.waitUntilExit()
         let location = swiftPackagePath.appending(pathComponents: [".build", "debug", "testing_plugin"])

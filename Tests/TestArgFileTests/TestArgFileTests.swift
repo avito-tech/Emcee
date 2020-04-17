@@ -33,7 +33,13 @@ final class TestArgFileTests: XCTestCase {
                     "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"]
                 },
                 "testRunnerTool": {"toolType": "fbxctest", "fbxctestLocation": "http://example.com/fbxctest.zip"},
-                "simulatorControlTool": {"toolType": "fbsimctl", "location": "http://example.com/fbsimctl.zip"},
+                "simulatorControlTool": {
+                    "location": "insideUserLibrary",
+                    "tool": {
+                        "toolType": "fbsimctl",
+                        "location": "http://example.com/fbsimctl.zip"
+                    }
+                },
                 "developerDir": {"kind": "current"},
                 "pluginLocations": [
                     "http://example.com/plugin.zip#sample.emceeplugin"
@@ -84,7 +90,10 @@ final class TestArgFileTests: XCTestCase {
                     PluginLocation(.remoteUrl(URL(string: "http://example.com/plugin.zip#sample.emceeplugin")!))
                 ],
                 scheduleStrategy: .unsplit,
-                simulatorControlTool: .fbsimctl(FbsimctlLocation(.remoteUrl(URL(string: "http://example.com/fbsimctl.zip")!))),
+                simulatorControlTool: SimulatorControlTool(
+                    location: .insideUserLibrary,
+                    tool: .fbsimctl(FbsimctlLocation(.remoteUrl(URL(string: "http://example.com/fbsimctl.zip")!)))
+                ),
                 simulatorOperationTimeouts: SimulatorOperationTimeouts(
                     create: 50,
                     boot: 51,

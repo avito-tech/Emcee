@@ -223,7 +223,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
         return TestDiscoveryConfiguration(
             developerDir: DeveloperDir.current,
             pluginLocations: [],
-            testDiscoveryMode: .runtimeLogicTest(applicationTestSupport?.simulatorControlTool ?? .simctl),
+            testDiscoveryMode: .runtimeLogicTest(applicationTestSupport?.simulatorControlTool ?? SimulatorControlToolFixtures.fakeFbsimctlTool),
             simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: TestDestinationFixtures.testDestination,

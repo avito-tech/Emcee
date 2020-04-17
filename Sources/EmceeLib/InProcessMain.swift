@@ -62,6 +62,7 @@ public final class InProcessMain {
                 DistWorkCommand(
                     dateProvider: dateProvider,
                     developerDirLocator: developerDirLocator,
+                    fileSystem: fileSystem,
                     pluginEventBusProvider: pluginEventBusProvider,
                     processControllerProvider: processControllerProvider,
                     requestSenderProvider: requestSenderProvider,
@@ -71,6 +72,7 @@ public final class InProcessMain {
                 DumpCommand(
                     dateProvider: dateProvider,
                     developerDirLocator: developerDirLocator,
+                    fileSystem: fileSystem,
                     pluginEventBusProvider: pluginEventBusProvider,
                     processControllerProvider: processControllerProvider,
                     resourceLocationResolver: resourceLocationResolver,
@@ -80,6 +82,7 @@ public final class InProcessMain {
                 RunTestsOnRemoteQueueCommand(
                     dateProvider: dateProvider,
                     developerDirLocator: developerDirLocator,
+                    fileSystem: fileSystem,
                     pluginEventBusProvider: pluginEventBusProvider,
                     processControllerProvider: processControllerProvider,
                     requestSenderProvider: requestSenderProvider,

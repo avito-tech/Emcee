@@ -24,7 +24,6 @@ public struct TestArgFile: Codable {
         public let testTimeoutConfiguration: TestTimeoutConfiguration
         public let testType: TestType
         public let testsToRun: [TestToRun]
-
         
         public init(
             buildArtifacts: BuildArtifacts,

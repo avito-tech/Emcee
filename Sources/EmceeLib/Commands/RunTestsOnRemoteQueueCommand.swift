@@ -5,6 +5,7 @@ import Deployer
 import DeveloperDirLocator
 import DistDeployer
 import Extensions
+import FileSystem
 import Foundation
 import Logging
 import LoggingSetup
@@ -47,6 +48,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
+    private let fileSystem: FileSystem
     private let pluginEventBusProvider: PluginEventBusProvider
     private let processControllerProvider: ProcessControllerProvider
     private let requestSenderProvider: RequestSenderProvider
@@ -57,6 +59,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     public init(
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
+        fileSystem: FileSystem,
         pluginEventBusProvider: PluginEventBusProvider,
         processControllerProvider: ProcessControllerProvider,
         requestSenderProvider: RequestSenderProvider,
@@ -66,6 +69,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
+        self.fileSystem = fileSystem
         self.pluginEventBusProvider = pluginEventBusProvider
         self.processControllerProvider = processControllerProvider
         self.requestSenderProvider = requestSenderProvider
@@ -183,6 +187,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     ) throws -> JobResults {
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
             developerDirLocator: developerDirLocator,
+            fileSystem: fileSystem,
             processControllerProvider: processControllerProvider,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,

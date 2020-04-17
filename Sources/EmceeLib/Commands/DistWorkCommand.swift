@@ -2,6 +2,7 @@ import ArgLib
 import DateProvider
 import DeveloperDirLocator
 import DistWorker
+import FileSystem
 import Foundation
 import Logging
 import LoggingSetup
@@ -29,6 +30,7 @@ public final class DistWorkCommand: Command {
     
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
+    private let fileSystem: FileSystem
     private let processControllerProvider: ProcessControllerProvider
     private let pluginEventBusProvider: PluginEventBusProvider
     private let requestSenderProvider: RequestSenderProvider
@@ -38,6 +40,7 @@ public final class DistWorkCommand: Command {
     public init(
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
+        fileSystem: FileSystem,
         pluginEventBusProvider: PluginEventBusProvider,
         processControllerProvider: ProcessControllerProvider,
         requestSenderProvider: RequestSenderProvider,
@@ -46,6 +49,7 @@ public final class DistWorkCommand: Command {
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
+        self.fileSystem = fileSystem
         self.pluginEventBusProvider = pluginEventBusProvider
         self.processControllerProvider = processControllerProvider
         self.requestSenderProvider = requestSenderProvider
@@ -61,6 +65,7 @@ public final class DistWorkCommand: Command {
 
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
             developerDirLocator: developerDirLocator,
+            fileSystem: fileSystem,
             processControllerProvider: processControllerProvider,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: temporaryFolder,

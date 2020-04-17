@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2020-04-17
+
+Test arg file now allows you to specify where simulators should be created. `simulatorControlTool` field has been updated to include new spec. Example:
+
+```json
+    ...
+    "simulatorControlTool": {
+        "location": "insideEmceeTempFolder",
+        "tool": {
+            "toolType": "fbsimctl", "location": "http://example.com/fbsimctl.zip"
+        }
+    }
+    ...
+```
+
+Previously Emcee always used its temporary folder as a place for simulators (matches `"location": "insideEmceeTempFolder"`). 
+Now you can pass `"location": "insideUserLibrary"` instead. This setting will make Emcee create simulators inside default location allowing Xcode, `xcodebuild` and `simctl` to discover them.  
+
 ## 2020-04-08
 
 Test discovery now allows to discover tests by parsing and demangling output of `nm` against xctest bundle. This speeds up test discovery, but less flexible and more error prone. This might be useful for unit test bundles for example.
@@ -12,7 +30,7 @@ To use it, pass `parseFunctionSymbols` value to `testDiscoveryMode` field of `xc
 
 Runtime dump feature has been renamed to test discovery. `RuntimeDump` module is now called `TestDiscovery`. APIs have been renamed as well. 
 `xctestBundle` object in build artifacts now has `testDiscoveryMode` field instead of `runtimeDumpMode`, and the supported values are `runtimeLogicTest` and `runtimeAppTest`.
-`testsToRun` value for running all abailable tests has been renamed from `allProvidedByRuntimeDump` to `allDiscoveredTests`.
+`testsToRun` value for running all available tests has been renamed from `allProvidedByRuntimeDump` to `allDiscoveredTests`.
 
 
 ## 2020-03-30

@@ -8,6 +8,10 @@ import XCTest
 final class SimulatorControlToolTests: XCTestCase {
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
+    private let simulatorControlTool = SimulatorControlTool(
+        location: .insideUserLibrary,
+        tool: .simctl
+    )
 
     override func setUp() {
         encoder.outputFormatting = [.sortedKeys]
@@ -17,7 +21,17 @@ final class SimulatorControlToolTests: XCTestCase {
         XCTAssertEqual(
             try decoder.decode(
                 [String: SimulatorControlTool].self,
-                from: "{\"value\": {\"toolType\": \"fbsimctl\", \"location\": \"\(SimulatorControlToolFixtures.fakeFbsimctlUrl)\"}}".data(using: .utf8)!
+                from: """
+                {
+                    "value": {
+                        "tool": {
+                            "toolType": "fbsimctl",
+                            "location": "\(SimulatorControlToolFixtures.fakeFbsimctlUrl.absoluteString)"
+                        },
+                        "location": "insideEmceeTempFolder"
+                    }
+                }
+                """.data(using: .utf8)!
             ),
             ["value": SimulatorControlToolFixtures.fakeFbsimctlTool]
         )
@@ -30,8 +44,8 @@ final class SimulatorControlToolTests: XCTestCase {
         )
         
         XCTAssertEqual(
-            try encoder.encode(["value": SimulatorControlToolFixtures.fakeFbsimctlTool]),
-            "{\"value\":{\"location\":\"\(expectedStringValue)\",\"toolType\":\"fbsimctl\"}}".data(using: .utf8)
+            String(data: try encoder.encode(["value": SimulatorControlToolFixtures.fakeFbsimctlTool]), encoding: .utf8),
+            "{\"value\":{\"location\":\"insideEmceeTempFolder\",\"tool\":{\"location\":\"\(expectedStringValue)\",\"toolType\":\"fbsimctl\"}}}"
         )
     }
 
@@ -39,16 +53,25 @@ final class SimulatorControlToolTests: XCTestCase {
         XCTAssertEqual(
             try decoder.decode(
                 [String: SimulatorControlTool].self,
-                from: "{\"value\": {\"toolType\": \"simctl\"}}".data(using: .utf8)!
+                from: """
+                {
+                    "value": {
+                        "location": "insideUserLibrary",
+                        "tool": {
+                            "toolType": "simctl"
+                        }
+                    }
+                }
+                """.data(using: .utf8)!
             ),
-            ["value": SimulatorControlTool.simctl]
+            ["value": simulatorControlTool]
         )
     }
 
     func test_encoding_simctl() {
         XCTAssertEqual(
-            try encoder.encode(["value": SimulatorControlTool.simctl]),
-            "{\"value\":{\"toolType\":\"simctl\"}}".data(using: .utf8)
+            String(data: try encoder.encode(["value": simulatorControlTool]), encoding: .utf8),
+            "{\"value\":{\"location\":\"insideUserLibrary\",\"tool\":{\"toolType\":\"simctl\"}}}"
         )
     }
 }

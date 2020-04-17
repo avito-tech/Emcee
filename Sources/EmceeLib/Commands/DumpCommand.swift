@@ -4,6 +4,7 @@ import DateProvider
 import DeveloperDirLocator
 import EventBus
 import Extensions
+import FileSystem
 import Foundation
 import JunitReporting
 import Logging
@@ -33,6 +34,7 @@ public final class DumpCommand: Command {
     private let encoder = JSONEncoder.pretty()
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
+    private let fileSystem: FileSystem
     private let pluginEventBusProvider: PluginEventBusProvider
     private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
@@ -42,6 +44,7 @@ public final class DumpCommand: Command {
     public init(
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
+        fileSystem: FileSystem,
         pluginEventBusProvider: PluginEventBusProvider,
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver,
@@ -51,6 +54,7 @@ public final class DumpCommand: Command {
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
+        self.fileSystem = fileSystem
         self.pluginEventBusProvider = pluginEventBusProvider
         self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
@@ -70,6 +74,7 @@ public final class DumpCommand: Command {
         
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
             developerDirLocator: developerDirLocator,
+            fileSystem: fileSystem,
             processControllerProvider: processControllerProvider,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
