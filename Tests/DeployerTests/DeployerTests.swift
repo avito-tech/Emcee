@@ -30,7 +30,6 @@ class DeployerTests: XCTestCase {
             deployableCommands: [],
             destinations: [
                 DeploymentDestination(
-                    identifier: "id",
                     host: "localhost",
                     port: 32,
                     username: "user",
@@ -75,7 +74,6 @@ class DeployerTests: XCTestCase {
                 deployableCommands: [],
                 destinations: [
                     DeploymentDestination(
-                        identifier: "id",
                         host: "localhost",
                         port: 32,
                         username: "user",

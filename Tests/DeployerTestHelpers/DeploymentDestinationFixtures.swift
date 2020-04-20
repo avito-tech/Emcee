@@ -4,7 +4,6 @@ import Models
 
 public final class DeploymentDestinationFixtures {
     
-    public var identifier: String? = nil
     public var host: String = "localhost"
     public var port: Int32 = 42
     public var username: String = "username"
@@ -12,11 +11,6 @@ public final class DeploymentDestinationFixtures {
     public var remoteDeploymentPath: String = "/Users/username/path"
     
     public init() {}
-    
-    public func with(identifier: String?) -> DeploymentDestinationFixtures {
-        self.identifier = identifier
-        return self
-    }
     
     public func with(host: String) -> DeploymentDestinationFixtures {
         self.host = host
@@ -45,7 +39,6 @@ public final class DeploymentDestinationFixtures {
     
     public func buildDeploymentDestination() -> DeploymentDestination {
         return DeploymentDestination(
-            identifier: identifier,
             host: host,
             port: port,
             username: username,

@@ -21,7 +21,6 @@ class SSHDeployerTests: XCTestCase {
                 DeployableFile(source: AbsolutePath(#file), destination: RelativePath(components: ["remote", "file.swift"]))
             ])
         let destination = DeploymentDestination(
-            identifier: "id",
             host: "host",
             port: 1034,
             username: "user",

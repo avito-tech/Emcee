@@ -38,6 +38,7 @@ public final class QueueServerImpl: QueueServer {
     private let workerAlivenessPoller: WorkerAlivenessPoller
     private let workerAlivenessProvider: WorkerAlivenessProvider
     private let workerRegistrar: WorkerRegistrar
+    private let workersToUtilizeEndpoint: WorkersToUtilizeEndpoint
     
     public init(
         automaticTerminationController: AutomaticTerminationController,
@@ -147,6 +148,7 @@ public final class QueueServerImpl: QueueServer {
             reportInterval: .seconds(30),
             workerAlivenessProvider: workerAlivenessProvider
         )
+        self.workersToUtilizeEndpoint = WorkersToUtilizeEndpoint()
     }
     
     public func start() throws -> Int {
@@ -160,6 +162,7 @@ public final class QueueServerImpl: QueueServer {
         httpRestServer.add(handler: RESTEndpointOf(queueServerVersionHandler))
         httpRestServer.add(handler: RESTEndpointOf(scheduleTestsHandler))
         httpRestServer.add(handler: RESTEndpointOf(workerRegistrar))
+        httpRestServer.add(handler: RESTEndpointOf(workersToUtilizeEndpoint))
 
         stuckBucketsPoller.startTrackingStuckBuckets()
         workerAlivenessMatricCapturer.start()
