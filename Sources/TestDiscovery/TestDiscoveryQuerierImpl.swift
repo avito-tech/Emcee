@@ -154,6 +154,15 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
                 tempFolder: tempFolder,
                 uniqueIdentifierGenerator: uniqueIdentifierGenerator
             )
+        case .runtimeExecutableLaunch(let appBundleLocation):
+            return ExecutableTestDiscoverer(
+                appBundleLocation: appBundleLocation,
+                developerDirLocator: developerDirLocator,
+                resourceLocationResolver: resourceLocationResolver,
+                processControllerProvider: processControllerProvider,
+                tempFolder: tempFolder,
+                uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            )
         case .runtimeLogicTest(let simulatorControlTool):
             return createRuntimeDumpBasedTestDiscoverer(
                 buildArtifacts: .onlyWithXctestBundle(
