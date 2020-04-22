@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2020-04-22
+
+A new test discovery mode `runtimeExecutableLaunch`  is added. The new test discovery mode is similar to `runtimeLogicTest` but instead of loading your xctest bundle in the xctest process of a simulator, it uses your app executable to load the xctest bundle and perform a dump. Such discovery mode is useful for xctest bundles that rely on bundle_loader symbols to be present in the runtime and thus cannot be loaded in an improper executable. 
+To implement the new discovery mode you should check for the presence of the `EMCEE_RUNTIME_TESTS_EXPORT_PATH` environment variable in the `main` function of your app. In case it is present you should perform a `Bundle.load()` on the bundle specified by the `EMCEE_XCTEST_BUNDLE_PATH`. After the xctest bundle is loaded you should search for your tests and output them to the `EMCEE_RUNTIME_TESTS_EXPORT_PATH`. 
+
 ## 2020-04-17
 
 Test arg file now allows you to specify where simulators should be created. `simulatorControlTool` field has been updated to include new spec. Example:
