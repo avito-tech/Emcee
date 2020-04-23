@@ -26,12 +26,20 @@ function clean() {
 
 function build() {
 	install_deps
-	DEVELOPER_DIR="$DEVELOPER_DIR" swift build
+	DEVELOPER_DIR="$DEVELOPER_DIR" \
+	LDFLAGS="-L/usr/local/opt/openssl@1.1/lib" \
+	CPPFLAGS="-I/usr/local/opt/openssl@1.1/include" \
+	PKG_CONFIG_PATH="/usr/local/opt/openssl@1.1/lib/pkgconfig" \
+	swift build
 }
 
 function run_tests_parallel() {
 	install_deps
-	DEVELOPER_DIR="$DEVELOPER_DIR" swift test --parallel
+	DEVELOPER_DIR="$DEVELOPER_DIR" \
+	LDFLAGS="-L/usr/local/opt/openssl@1.1/lib" \
+	CPPFLAGS="-I/usr/local/opt/openssl@1.1/include" \
+	PKG_CONFIG_PATH="/usr/local/opt/openssl@1.1/lib/pkgconfig" \
+	swift test --parallel
 }
 
 case "$1" in
