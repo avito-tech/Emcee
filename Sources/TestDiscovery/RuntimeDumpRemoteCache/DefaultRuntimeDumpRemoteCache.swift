@@ -16,7 +16,7 @@ class DefaultRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
         qos: .default,
         attributes: .concurrent,
         autoreleaseFrequency: .inherit,
-        target: nil
+        target: .global(qos: .userInitiated)
     )
 
     init(

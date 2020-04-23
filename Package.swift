@@ -177,6 +177,7 @@ let package = Package(
                 "DateProviderTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
+                "QueueCommunication",
                 "QueueModels",
                 "QueueModelsTestHelpers",
                 "TestHelpers",
@@ -501,10 +502,10 @@ let package = Package(
                 "PortDeterminer",
                 "ProcessController",
                 "QueueClient",
+                "QueueCommunication",
                 "QueueModels",
                 "QueueServer",
                 "RemotePortDeterminer",
-                "RemoteQueue",
                 "RequestSender",
                 "ResourceLocation",
                 "ResourceLocationResolver",
@@ -743,7 +744,6 @@ let package = Package(
                 "Models",
                 "PortDeterminer",
                 "ProcessController",
-                "QueueCommunication",
                 "QueueServer",
                 "RemotePortDeterminer",
                 "RequestSender",
@@ -1035,11 +1035,29 @@ let package = Package(
             // MARK: QueueCommunication
             name: "QueueCommunication",
             dependencies: [
+                "Deployer",
+                "LocalHostDeterminer",
                 "Logging",
                 "Models",
                 "RESTMethods",
-                "RequestSender"
-            ]
+                "RemotePortDeterminer",
+                "RequestSender",
+            ],
+            path: "Sources/QueueCommunication"
+        ),
+        .testTarget(
+            // MARK: QueueCommunicationTests
+            name: "QueueCommunicationTests",
+            dependencies: [
+                "Models",
+                "QueueCommunication",
+                "RESTMethods",
+                "RemotePortDeterminer",
+                "RemotePortDeterminerTestHelpers",
+                "RequestSenderTestHelpers",
+                "TestHelpers",
+            ],
+            path: "Tests/QueueCommunicationTests"
         ),
         .target(
             // MARK: QueueModels
@@ -1088,6 +1106,7 @@ let package = Package(
                 "BalancingBucketQueue",
                 "BucketQueue",
                 "DateProvider",
+                "Deployer",
                 "DistWorkerModels",
                 "EventBus",
                 "Extensions",
@@ -1096,6 +1115,7 @@ let package = Package(
                 "Metrics",
                 "Models",
                 "PortDeterminer",
+                "QueueCommunication",
                 "QueueModels",
                 "RESTInterfaces",
                 "RESTMethods",
@@ -1132,6 +1152,7 @@ let package = Package(
                 "BucketQueue",
                 "BucketQueueTestHelpers",
                 "DateProviderTestHelpers",
+                "DeployerTestHelpers",
                 "DistWorkerModels",
                 "DistWorkerModelsTestHelpers",
                 "Extensions",
@@ -1168,6 +1189,7 @@ let package = Package(
             // MARK: RESTMethods
             name: "RESTMethods",
             dependencies: [
+                "Deployer",
                 "DistWorkerModels",
                 "Models",
                 "QueueModels",
@@ -1240,25 +1262,6 @@ let package = Package(
                 "Swifter",
             ],
             path: "Tests/RemotePortDeterminerTests"
-        ),
-        .target(
-            // MARK: RemoteQueue
-            name: "RemoteQueue",
-            dependencies: [
-                "Models",
-                "RemotePortDeterminer",
-            ],
-            path: "Sources/RemoteQueue"
-        ),
-        .testTarget(
-            // MARK: RemoteQueueTests
-            name: "RemoteQueueTests",
-            dependencies: [
-                "Models",
-                "RemotePortDeterminerTestHelpers",
-                "RemoteQueue",
-            ],
-            path: "Tests/RemoteQueueTests"
         ),
         .target(
             // MARK: RequestSender

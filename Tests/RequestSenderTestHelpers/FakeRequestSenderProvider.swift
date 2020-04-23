@@ -13,7 +13,9 @@ public final class FakeRequestSenderProvider: RequestSenderProvider {
         self.generator = generator
     }
     
+    public var recievedSocketAddress: SocketAddress?
     public func requestSender(socketAddress: SocketAddress) -> RequestSender {
+        recievedSocketAddress = socketAddress
         return generator(socketAddress)
     }
 }

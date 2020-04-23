@@ -15,10 +15,10 @@ import PluginManager
 import PortDeterminer
 import ProcessController
 import QueueClient
+import QueueCommunication
 import QueueModels
 import QueueServer
 import RemotePortDeterminer
-import RemoteQueue
 import RequestSender
 import ResourceLocationResolver
 import SignalHandling
@@ -133,7 +133,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         tempFolder: TemporaryFolder
     ) throws -> SocketAddress {
         Logger.info("Searching for queue server on '\(queueServerDestination.host)' with queue version \(emceeVersion)")
-        let remoteQueueDetector = RemoteQueueDetector(
+        let remoteQueueDetector = DefaultRemoteQueueDetector(
             emceeVersion: emceeVersion,
             remotePortDeterminer: RemoteQueuePortScanner(
                 host: queueServerDestination.host,
@@ -141,7 +141,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
                 requestSenderProvider: requestSenderProvider
             )
         )
-        var suitablePorts = try remoteQueueDetector.findSuitableRemoteRunningQueuePorts(timeout: 10.0)
+        var suitablePorts = try remoteQueueDetector.findSuitableRemoteRunningQueuePorts(timeout: 10)
         if !suitablePorts.isEmpty {
             let socketAddress = SocketAddress(
                 host: queueServerDestination.host,
@@ -165,7 +165,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         try remoteQueueStarter.deployAndStart(deployQueue: deployQueue)
         
         try SynchronousWaiter().waitWhile(pollPeriod: 1.0, timeout: 30.0, description: "Wait for remote queue to start") {
-            suitablePorts = try remoteQueueDetector.findSuitableRemoteRunningQueuePorts(timeout: 10.0)
+            suitablePorts = try remoteQueueDetector.findSuitableRemoteRunningQueuePorts(timeout: 10)
             return suitablePorts.isEmpty
         }
         
