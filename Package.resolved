@@ -29,15 +29,6 @@
         }
       },
       {
-        "package": "CSSH",
-        "repositoryURL": "https://github.com/jakeheis/CSSH",
-        "state": {
-          "branch": null,
-          "revision": "579a20508ab598f78713a60fed95706efd06bbcb",
-          "version": "1.0.3"
-        }
-      },
-      {
         "package": "GraphiteClient",
         "repositoryURL": "https://github.com/avito-tech/GraphiteClient.git",
         "state": {
@@ -60,8 +51,8 @@
         "repositoryURL": "https://github.com/jakeheis/Shout.git",
         "state": {
           "branch": null,
-          "revision": "2ee35de0411c2e74700dc4bf4b57bf7dc1de2e84",
-          "version": "0.5.1"
+          "revision": "dbb02940a3a96c2f126079891589902a562d0e8d",
+          "version": "0.5.4"
         }
       },
       {

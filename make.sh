@@ -2,11 +2,23 @@
 
 cd "$(dirname "$0")"
 
-set -x
+set -xueo pipefail
 
 function install_deps() {
 	brew ls --versions pkg-config > /dev/null || brew install pkg-config
 	brew ls --versions libssh2 > /dev/null || brew install libssh2
+ 
+    if [[ ! -h $(brew --prefix)/lib/pkgconfig/openssl.pc ]]; then
+        ln -s $(brew --prefix)/opt/openssl@1.1/lib/pkgconfig/openssl.pc $(brew --prefix)/lib/pkgconfig/openssl.pc
+    fi
+    
+    if [[ ! -h $(brew --prefix)/lib/pkgconfig/libssl.pc ]]; then
+        ln -s $(brew --prefix)/opt/openssl@1.1/lib/pkgconfig/libssl.pc $(brew --prefix)/lib/pkgconfig/libssl.pc
+    fi
+    
+    if [[ ! -h $(brew --prefix)/lib/pkgconfig/libcrypto.pc ]]; then
+        ln -s $(brew --prefix)/opt/openssl@1.1/lib/pkgconfig/libcrypto.pc $(brew --prefix)/lib/pkgconfig/libcrypto.pc
+    fi
 }
 
 function open_xcodeproj() {
@@ -16,7 +28,7 @@ function open_xcodeproj() {
 
 function generate_xcodeproj() {
 	install_deps
-	DEVELOPER_DIR="$DEVELOPER_DIR" swift package generate-xcodeproj --enable-code-coverage
+	swift package generate-xcodeproj --enable-code-coverage
 }
 
 function clean() {
@@ -26,19 +38,11 @@ function clean() {
 
 function build() {
 	install_deps
-	DEVELOPER_DIR="$DEVELOPER_DIR" \
-	LDFLAGS="-L/usr/local/opt/openssl@1.1/lib" \
-	CPPFLAGS="-I/usr/local/opt/openssl@1.1/include" \
-	PKG_CONFIG_PATH="/usr/local/opt/openssl@1.1/lib/pkgconfig" \
 	swift build
 }
 
 function run_tests_parallel() {
 	install_deps
-	DEVELOPER_DIR="$DEVELOPER_DIR" \
-	LDFLAGS="-L/usr/local/opt/openssl@1.1/lib" \
-	CPPFLAGS="-I/usr/local/opt/openssl@1.1/include" \
-	PKG_CONFIG_PATH="/usr/local/opt/openssl@1.1/lib/pkgconfig" \
 	swift test --parallel
 }
 
