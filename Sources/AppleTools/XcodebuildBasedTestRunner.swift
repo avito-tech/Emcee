@@ -49,7 +49,6 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                     ),
                     "-xctestrun", XcTestRunFileArgument(
                         buildArtifacts: buildArtifacts,
-                        developerDirLocator: developerDirLocator,
                         entriesToRun: entriesToRun,
                         resourceLocationResolver: resourceLocationResolver,
                         temporaryFolder: temporaryFolder,
@@ -86,7 +85,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
             }
         }
         
-        try processController.startAndWaitForSuccessfulTermination()
+        processController.startAndListenUntilProcessDies()
         return processController.subprocess.standardStreamsCaptureConfig
     }
 }

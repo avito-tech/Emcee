@@ -1,5 +1,4 @@
 import BuildArtifacts
-import DeveloperDirLocator
 import Foundation
 import Logging
 import Models
@@ -9,11 +8,9 @@ import ResourceLocation
 import ResourceLocationResolver
 import Runner
 import TemporaryStuff
-import XcTestRun
 
 public final class XcTestRunFileArgument: SubprocessArgument {
     private let buildArtifacts: BuildArtifacts
-    private let developerDirLocator: DeveloperDirLocator
     private let entriesToRun: [TestEntry]
     private let resourceLocationResolver: ResourceLocationResolver
     private let temporaryFolder: TemporaryFolder
@@ -22,7 +19,6 @@ public final class XcTestRunFileArgument: SubprocessArgument {
 
     public init(
         buildArtifacts: BuildArtifacts,
-        developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         resourceLocationResolver: ResourceLocationResolver,
         temporaryFolder: TemporaryFolder,
@@ -30,7 +26,6 @@ public final class XcTestRunFileArgument: SubprocessArgument {
         testType: TestType
     ) {
         self.buildArtifacts = buildArtifacts
-        self.developerDirLocator = developerDirLocator
         self.entriesToRun = entriesToRun
         self.resourceLocationResolver = resourceLocationResolver
         self.temporaryFolder = temporaryFolder
@@ -61,7 +56,6 @@ public final class XcTestRunFileArgument: SubprocessArgument {
             )
         case .logicTest:
             return try xcTestRunForLogicTesting(
-                developerDirPath: try developerDirLocator.path(developerDir: testContext.developerDir),
                 resolvableXcTestBundle: resolvableXcTestBundle
             )
         case .appTest:
@@ -72,24 +66,28 @@ public final class XcTestRunFileArgument: SubprocessArgument {
     }
 
     private func xcTestRunForLogicTesting(
-        developerDirPath: AbsolutePath,
         resolvableXcTestBundle: ResolvableResourceLocation
     ) throws -> XcTestRun {
-        let testHostPath = developerDirPath.appending(
-            components: ["Platforms", "iPhoneSimulator.platform", "Developer", "Library", "Xcode", "Agents", "xctest"]
-        )
+        let testBundlePath = try resolvableXcTestBundle.resolve().directlyAccessibleResourcePath()
+        let testHostPath = "__PLATFORMS__/iPhoneSimulator.platform/Developer/Library/Xcode/Agents/xctest"
+        
         let xctestSpecificEnvironment = [
             "DYLD_INSERT_LIBRARIES": "__PLATFORMS__/iPhoneSimulator.platform/Developer/usr/lib/libXCTestBundleInject.dylib",
-            "XCInjectBundleInto": testHostPath.pathString
+            "XCInjectBundleInto": testHostPath,
         ]
-
+        let testTargetProductModuleName = try self.testTargetProductModuleName(
+            xcTestBundlePath: testBundlePath
+        )
+        
         return XcTestRun(
-            testTargetName: "StubTargetName",
+            testTargetName: testTargetProductModuleName,
             bundleIdentifiersForCrashReportEmphasis: [],
-            dependentProductPaths: [],
-            testBundlePath: try resolvableXcTestBundle.resolve().directlyAccessibleResourcePath(),
-            testHostPath: testHostPath.pathString,
-            testHostBundleIdentifier: "StubBundleId",
+            dependentProductPaths: [
+                testBundlePath,
+            ],
+            testBundlePath: testBundlePath,
+            testHostPath: testHostPath,
+            testHostBundleIdentifier: "com.apple.dt.xctest.tool",
             uiTargetAppPath: nil,
             environmentVariables: testContext.environment,
             commandLineArguments: [],
@@ -102,9 +100,7 @@ public final class XcTestRunFileArgument: SubprocessArgument {
             isUITestBundle: false,
             isAppHostedTestBundle: false,
             isXCTRunnerHostedTestBundle: false,
-            testTargetProductModuleName: try testTargetProductModuleName(
-                resolvableXcTestBundle: resolvableXcTestBundle
-            )
+            testTargetProductModuleName: testTargetProductModuleName
         )
     }
 
@@ -115,12 +111,19 @@ public final class XcTestRunFileArgument: SubprocessArgument {
             throw RunnerError.noAppBundleDefinedForUiOrApplicationTesting
         }
         let hostAppPath = try resourceLocationResolver.resolvable(resourceLocation: representableAppBundle.resourceLocation).resolve().directlyAccessibleResourcePath()
-
+        let testBundlePath = try resolvableXcTestBundle.resolve().directlyAccessibleResourcePath()
+        let testTargetProductModuleName = try self.testTargetProductModuleName(
+            xcTestBundlePath: testBundlePath
+        )
+        
         return XcTestRun(
-            testTargetName: "StubTargetName",
+            testTargetName: testTargetProductModuleName,
             bundleIdentifiersForCrashReportEmphasis: [],
-            dependentProductPaths: [],
-            testBundlePath: try resolvableXcTestBundle.resolve().directlyAccessibleResourcePath(),
+            dependentProductPaths: [
+                hostAppPath,
+                testBundlePath,
+            ],
+            testBundlePath: testBundlePath,
             testHostPath: hostAppPath,
             testHostBundleIdentifier: "StubBundleId",
             uiTargetAppPath: nil,
@@ -135,9 +138,7 @@ public final class XcTestRunFileArgument: SubprocessArgument {
             isUITestBundle: false,
             isAppHostedTestBundle: true,
             isXCTRunnerHostedTestBundle: false,
-            testTargetProductModuleName: try testTargetProductModuleName(
-                resolvableXcTestBundle: resolvableXcTestBundle
-            )
+            testTargetProductModuleName: testTargetProductModuleName
         )
     }
 
@@ -153,16 +154,19 @@ public final class XcTestRunFileArgument: SubprocessArgument {
         
         let uiTargetAppPath = try resourceLocationResolver.resolvable(resourceLocation: representableAppBundle.resourceLocation).resolve().directlyAccessibleResourcePath()
         let hostAppPath = try resourceLocationResolver.resolvable(resourceLocation: representableRunnerBundle.resourceLocation).resolve().directlyAccessibleResourcePath()
-
-        let dependentProductPaths: [String] = try buildArtifacts.additionalApplicationBundles.map {
+        let testBundlePath = try resolvableXcTestBundle.resolve().directlyAccessibleResourcePath()
+        let additionalApplicationBundlePaths: [String] = try buildArtifacts.additionalApplicationBundles.map {
             try resourceLocationResolver.resolvable(resourceLocation: $0.resourceLocation).resolve().directlyAccessibleResourcePath()
-        } + [uiTargetAppPath]
+        }
+        let testTargetProductModuleName = try self.testTargetProductModuleName(
+            xcTestBundlePath: testBundlePath
+        )
 
         return XcTestRun(
-            testTargetName: "StubTargetName",
+            testTargetName: testTargetProductModuleName,
             bundleIdentifiersForCrashReportEmphasis: [],
-            dependentProductPaths: dependentProductPaths,
-            testBundlePath: try resolvableXcTestBundle.resolve().directlyAccessibleResourcePath(),
+            dependentProductPaths: [uiTargetAppPath, testBundlePath, hostAppPath] + additionalApplicationBundlePaths,
+            testBundlePath: testBundlePath,
             testHostPath: hostAppPath,
             testHostBundleIdentifier: "StubBundleId",
             uiTargetAppPath: uiTargetAppPath,
@@ -180,17 +184,14 @@ public final class XcTestRunFileArgument: SubprocessArgument {
             isUITestBundle: true,
             isAppHostedTestBundle: false,
             isXCTRunnerHostedTestBundle: true,
-            testTargetProductModuleName: try testTargetProductModuleName(
-                resolvableXcTestBundle: resolvableXcTestBundle
-            )
+            testTargetProductModuleName: testTargetProductModuleName
         )
     }
     
     private func testTargetProductModuleName(
-        resolvableXcTestBundle: ResolvableResourceLocation
+        xcTestBundlePath: String
     ) throws -> String {
-        let resolveResult = try resolvableXcTestBundle.resolve()
-        let pathToBundle = AbsolutePath(try resolveResult.directlyAccessibleResourcePath())
+        let pathToBundle = AbsolutePath(xcTestBundlePath)
         let plistPath = pathToBundle.appending(component: "Info.plist")
         let plistContents = try PropertyListSerialization.propertyList(
             from: Data(contentsOf: plistPath.fileUrl, options: .mappedIfSafe),
@@ -203,6 +204,12 @@ public final class XcTestRunFileArgument: SubprocessArgument {
         guard let bundleName = plistDict["CFBundleName"] as? String else {
             throw InfoPlistError.noValueCFBundleName(path: plistPath)
         }
-        return bundleName
+        return suitableModuleName(name: bundleName)
+    }
+    
+    private func suitableModuleName(name: String) -> String {
+        return name
+            .replacingOccurrences(of: ".", with: "_")
+            .replacingOccurrences(of: "-", with: "_")
     }
 }

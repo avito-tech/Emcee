@@ -82,7 +82,6 @@ let package = Package(
                 "SimulatorPool",
                 "SimulatorPoolModels",
                 "TemporaryStuff",
-                "XcTestRun",
             ]
         ),
         .testTarget(
@@ -1729,18 +1728,5 @@ let package = Package(
                 "WorkerAlivenessProviderTestHelpers"
             ]
         ),
-        .target(
-            // MARK: XcTestRun
-            name: "XcTestRun",
-            dependencies: [
-            ]
-        ),
-        .testTarget(
-            // MARK: XcTestRunTests
-            name: "XcTestRunTests",
-            dependencies: [
-                "XcTestRun"
-            ]
-        )
     ]
 )

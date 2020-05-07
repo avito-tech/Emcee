@@ -1,9 +1,9 @@
+import AppleTools
 import Foundation
-import XcTestRun
 import XCTest
 
 final class XcTestRunPlistTests: XCTestCase {
-    func test() throws {
+    func test___creating() throws {
         let testRun = XcTestRun(
             testTargetName: "TestTargetName",
             bundleIdentifiersForCrashReportEmphasis: [
@@ -119,6 +119,46 @@ final class XcTestRunPlistTests: XCTestCase {
         XCTAssertEqual(
             string.components(separatedBy: .whitespacesAndNewlines).joined(),
             expectedString.components(separatedBy: .whitespacesAndNewlines).joined()
+        )
+    }
+    
+    func test___reading() throws {
+        let testRun = XcTestRun(
+            testTargetName: "TestTargetName",
+            bundleIdentifiersForCrashReportEmphasis: [
+                "bundle.id.for.crash.report.1",
+                "bundle.id.for.crash.report.2"
+            ],
+            dependentProductPaths: [
+                "/path/1",
+                "/path/2"
+            ],
+            testBundlePath: "/test/bundle/path",
+            testHostPath: "/test/host/path",
+            testHostBundleIdentifier: "test.host.bundle.id",
+            uiTargetAppPath: "ui.target.app.path",
+            environmentVariables: ["ENV": "VALUE"],
+            commandLineArguments: ["cli", "args"],
+            uiTargetAppEnvironmentVariables: ["UI_TARGET_APP_ENV": "VAL"],
+            uiTargetAppCommandLineArguments: ["cli", "ui", "args"],
+            uiTargetAppMainThreadCheckerEnabled: false,
+            skipTestIdentifiers: ["tests", "to", "skip"],
+            onlyTestIdentifiers: ["tests", "to", "run"],
+            testingEnvironmentVariables: ["TESTING_ENV": "VAL"],
+            isUITestBundle: true,
+            isAppHostedTestBundle: false,
+            isXCTRunnerHostedTestBundle: true,
+            testTargetProductModuleName: "TestModuleName"
+        )
+        let plist = XcTestRunPlist(xcTestRun: testRun)
+        
+        let parsedPlist = try XcTestRunPlist.readPlist(
+            data: try plist.createPlistData()
+        )
+        
+        XCTAssertEqual(
+            testRun,
+            parsedPlist.xcTestRun
         )
     }
 }

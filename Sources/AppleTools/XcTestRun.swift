@@ -1,6 +1,6 @@
 import Foundation
 
-public final class XcTestRun {
+public struct XcTestRun: Equatable {
 
     /// Xcode tests target name. This could be any possilbe value in case if this is unknown.
     public let testTargetName: String
@@ -64,6 +64,7 @@ public final class XcTestRun {
     public let isXCTRunnerHostedTestBundle: Bool
     
     /// The module name of this test target, as specified by the target's `PRODUCT_MODULE_NAME` build setting in Xcode.
+    /// `.` and `-` symbols usually are replaced with `_`, e.g. `Some.SDK` becomes `Some_SDK`.
     public let testTargetProductModuleName: String
 
     public init(

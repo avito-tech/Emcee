@@ -31,6 +31,24 @@ public enum Either<Left, Right>: CustomStringConvertible {
     public var isRight: Bool {
         return !isLeft
     }
+    
+    public var left: Left? {
+        switch self {
+        case .left(let value):
+            return value
+        case .right:
+            return nil
+        }
+    }
+    
+    public var right: Right? {
+        switch self {
+        case .right(let value):
+            return value
+        case .left:
+            return nil
+        }
+    }
 }
 
 public extension Either where Right: Error {

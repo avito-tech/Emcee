@@ -48,4 +48,16 @@ class EitherTests: XCTestCase {
         let decoded = try JSONDecoder().decode(Either<String, SomeError>.self, from: data)
         XCTAssertEqual(decoded, expected)
     }
+    
+    func test___left() {
+        let either = Either<String, Bool>.left("hello")
+        XCTAssertEqual(either.left, "hello")
+        XCTAssertNil(either.right)
+    }
+    
+    func test___right() {
+        let either = Either<String, Bool>.right(true)
+        XCTAssertEqual(either.right, true)
+        XCTAssertNil(either.left)
+    }
 }
