@@ -241,23 +241,21 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         }
         
         guard testRunnerStream.accumulatedData.count == 2 else {
-            return XCTFail("Unexpected number of events in test stream")
+            failTest("Unexpected number of events in test stream")
         }
         
         XCTAssertEqual(
-            testRunnerStream.accumulatedData[0],
-            Either.left(TestName(className: "TestClassName", methodName: "testMethodName"))
+            testRunnerStream.castTo(TestName.self, index: 0),
+            TestName(className: "TestClassName", methodName: "testMethodName")
         )
         XCTAssertEqual(
-            testRunnerStream.accumulatedData[1],
-            Either.right(
-                TestStoppedEvent(
-                    testName: TestName(className: "TestClassName", methodName: "testMethodName"),
-                    result: .failure,
-                    testDuration: 42.0,
-                    testExceptions: [],
-                    testStartTimestamp: dateProvider.currentDate().addingTimeInterval(-42.0).timeIntervalSince1970
-                )
+            testRunnerStream.castTo(TestStoppedEvent.self, index: 1),
+            TestStoppedEvent(
+                testName: TestName(className: "TestClassName", methodName: "testMethodName"),
+                result: .failure,
+                testDuration: 42.0,
+                testExceptions: [],
+                testStartTimestamp: dateProvider.currentDate().addingTimeInterval(-42.0).timeIntervalSince1970
             )
         )
     }

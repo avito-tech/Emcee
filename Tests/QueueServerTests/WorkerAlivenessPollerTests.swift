@@ -24,7 +24,7 @@ final class WorkerAlivenessPollerTests: XCTestCase {
         
         let requestSenderHasBeenUsedToQueryWorker1 = XCTestExpectation(description: "\(worker1) has been queried")
         
-        let requestSenderProvider = FakeRequestSenderProvider { [worker1, bucketId1] socketAddress -> RequestSender in
+        let requestSenderProvider = FakeRequestSenderProvider { [bucketId1] socketAddress -> RequestSender in
             XCTAssertEqual(socketAddress, SocketAddress(host: "host1", port: 42))
             
             let requestSender = FakeRequestSender()
@@ -91,7 +91,7 @@ final class WorkerAlivenessPollerTests: XCTestCase {
         let requestSenderHasBeenUsedToQueryWorker1 = XCTestExpectation(description: "\(worker1) has been queried")
         let requestSenderHasBeenUsedToQueryWorker2 = XCTestExpectation(description: "\(worker2) has been queried")
         
-        let requestSenderProvider = FakeRequestSenderProvider { [worker1, worker2] socketAddress -> RequestSender in
+        let requestSenderProvider = FakeRequestSenderProvider { socketAddress -> RequestSender in
             let requestSender = FakeRequestSender()
             requestSender.requestCompleted = { _ in
                 if socketAddress == SocketAddress(host: "host1", port: 42) {

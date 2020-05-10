@@ -4,16 +4,24 @@ import Runner
 import RunnerModels
 
 public final class AccumulatingTestRunnerStream: TestRunnerStream {
-    public var accumulatedData = [Either<TestName, TestStoppedEvent>]()
+    public var accumulatedData = [Any]()
 
     public init() {}
     
     public func testStarted(testName: TestName) {
-        accumulatedData.append(Either.left(testName))
+        accumulatedData.append(testName)
+    }
+    
+    public func caughtException(testException: TestException) {
+        accumulatedData.append(testException)
     }
     
     public func testStopped(testStoppedEvent: TestStoppedEvent) {
-        accumulatedData.append(Either.right(testStoppedEvent))
+        accumulatedData.append(testStoppedEvent)
+    }
+    
+    public func castTo<T>(_ type: T.Type, index: Int) -> T? {
+        return accumulatedData[index] as? T
     }
 }
 

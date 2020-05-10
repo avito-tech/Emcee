@@ -117,6 +117,7 @@ public final class Runner {
         }
 
         var collectedTestStoppedEvents = [TestStoppedEvent]()
+        var collectedTestExceptions = [TestException]()
         
         let testContext = try createTestContext(
             developerDir: developerDir,
@@ -140,6 +141,7 @@ public final class Runner {
             testContext: testContext,
             testRunnerStream: TestRunnerStreamWrapper(
                 onTestStarted: { [weak self] testName in
+                    collectedTestExceptions = []
                     self?.testStarted(
                         entriesToRun: entriesToRun,
                         eventBus: eventBus,
@@ -147,7 +149,11 @@ public final class Runner {
                         testName: testName
                     )
                 },
+                onTestException: { testException in
+                    collectedTestExceptions.append(testException)
+                },
                 onTestStopped: { [weak self] testStoppedEvent in
+                    let testStoppedEvent = testStoppedEvent.byMergingTestExceptions(testExceptions: collectedTestExceptions)
                     collectedTestStoppedEvents.append(testStoppedEvent)
                     self?.testStopped(
                         entriesToRun: entriesToRun,
@@ -155,6 +161,7 @@ public final class Runner {
                         testContext: testContext,
                         testStoppedEvent: testStoppedEvent
                     )
+                    collectedTestExceptions = []
                 }
             )
         )
@@ -432,6 +439,20 @@ public final class Runner {
                 testMethodName: testStoppedEvent.testName.methodName,
                 duration: testStoppedEvent.testDuration
             )
+        )
+    }
+}
+
+private extension TestStoppedEvent {
+    func byMergingTestExceptions(
+        testExceptions: [TestException]
+    ) -> TestStoppedEvent {
+        return TestStoppedEvent(
+            testName: testName,
+            result: result,
+            testDuration: testDuration,
+            testExceptions: testExceptions + self.testExceptions,
+            testStartTimestamp: testStartTimestamp
         )
     }
 }

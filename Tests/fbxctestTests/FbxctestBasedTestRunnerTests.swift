@@ -59,6 +59,8 @@ final class FbxctestBasedTestRunnerTests: XCTestCase, TestRunnerStream {
     
     func testStarted(testName: TestName) {}
     
+    func caughtException(testException: TestException) {}
+    
     func testStopped(testStoppedEvent: TestStoppedEvent) {}
 }
 
