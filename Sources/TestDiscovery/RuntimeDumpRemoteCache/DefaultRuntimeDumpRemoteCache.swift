@@ -1,3 +1,4 @@
+import AtomicModels
 import BuildArtifacts
 import Foundation
 import Logging
@@ -58,12 +59,19 @@ class DefaultRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
             payload: tests
         )
 
+        let didFinishRequest = AtomicValue(false)
+        
         sender.sendRequestWithCallback(
             request: request,
             credentials: config.credentials,
             callbackQueue: callbackQueue
         ) { (result: Either<VoidPayload, RequestSenderError>) in
             Logger.verboseDebug("Stored runtime query with result: \(result)")
+            didFinishRequest.set(true)
+        }
+        
+        try waiter.waitWhile(timeout: 20.0, description: "Runtime Dump Remote Cache Store") { () -> Bool in
+            didFinishRequest.currentValue() == false
         }
     }
 

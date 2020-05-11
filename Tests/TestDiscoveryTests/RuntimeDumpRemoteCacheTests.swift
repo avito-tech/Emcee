@@ -23,6 +23,7 @@ class RuntimeDumpRemoteCacheTests: XCTestCase {
         let expectedPath = "/pathToRemoteStorage/a74c1c98661e4c27fc3e569f40c74feaf4775d1b77c4a82928364728ab6c23b0.json"
         let queryResult = TestDiscoveryResultFixtures.queryResult()
 
+        requestSender.result = VoidPayload()
         try cache.store(
             tests: queryResult.discoveredTests,
             xcTestBundleLocation: xcTestBundleLocation

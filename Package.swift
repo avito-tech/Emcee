@@ -1577,6 +1577,7 @@ let package = Package(
             name: "TestDiscovery",
             dependencies: [
                 "AppleTools",
+                "AtomicModels",
                 "BuildArtifacts",
                 "DeveloperDirLocator",
                 "Extensions",
