@@ -26,4 +26,12 @@ public final class DefaultFilePropertiesContainer: FilePropertiesContainer {
         }
         return value
     }
+    
+    public func isExecutable() throws -> Bool {
+        let values = try path.fileUrl.resourceValues(forKeys: [.isExecutableKey])
+        guard let value = values.isExecutable else {
+            throw DefaultFilePropertiesContainerError.emptyValue(path, .isExecutableKey)
+        }
+        return value
+    }
 }

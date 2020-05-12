@@ -12,6 +12,7 @@ import LoggingSetup
 import Models
 import PluginManager
 import PortDeterminer
+import ProcessController
 import QueueServer
 import RemotePortDeterminer
 import RequestSender
@@ -30,17 +31,20 @@ public final class StartQueueServerCommand: Command {
 
     private let requestSenderProvider: RequestSenderProvider
     private let payloadSignature: PayloadSignature
+    private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
 
     public init(
         requestSenderProvider: RequestSenderProvider,
         payloadSignature: PayloadSignature,
+        processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
         self.requestSenderProvider = requestSenderProvider
         self.payloadSignature = payloadSignature
+        self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
@@ -98,18 +102,20 @@ public final class StartQueueServerCommand: Command {
         )
         
         let localQueueServerRunner = LocalQueueServerRunner(
-            queueServer: queueServer,
             automaticTerminationController: automaticTerminationController,
-            queueServerTerminationWaiter: queueServerTerminationWaiter,
-            queueServerTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy,
-            pollPeriod: pollPeriod,
             newWorkerRegistrationTimeAllowance: 360.0,
+            pollPeriod: pollPeriod,
+            processControllerProvider: processControllerProvider,
+            queueServer: queueServer,
+            queueServerTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy,
+            queueServerTerminationWaiter: queueServerTerminationWaiter,
             remotePortDeterminer: RemoteQueuePortScanner(
                 host: LocalHostDeterminer.currentHostAddress,
                 portRange: Ports.defaultQueuePortRange,
                 requestSenderProvider: requestSenderProvider
             ),
             temporaryFolder: try TemporaryFolder(),
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerDestinations: workerDestinations
         )
         try localQueueServerRunner.start(emceeVersion: emceeVersion)

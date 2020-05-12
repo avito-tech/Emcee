@@ -14,6 +14,7 @@ public final class PluginManager: EventStream {
     public static let pluginExecutableName = "Plugin"
     private let encoder = JSONEncoder.pretty()
     private let pluginLocations: Set<PluginLocation>
+    private let processControllerProvider: ProcessControllerProvider
     private var processControllers = [ProcessController]()
     private let resourceLocationResolver: ResourceLocationResolver
     private let eventDistributor: EventDistributor
@@ -22,9 +23,11 @@ public final class PluginManager: EventStream {
     private let sessionId = UUID()
     
     public init(
+        processControllerProvider: ProcessControllerProvider,
         pluginLocations: Set<PluginLocation>,
         resourceLocationResolver: ResourceLocationResolver)
     {
+        self.processControllerProvider = processControllerProvider
         self.pluginLocations = pluginLocations
         self.resourceLocationResolver = resourceLocationResolver
         self.eventDistributor = EventDistributor()
@@ -85,7 +88,7 @@ public final class PluginManager: EventStream {
             let pluginExecutable = bundlePath.appending(component: PluginManager.pluginExecutableName)
             let pluginIdentifier = try pluginExecutable.pathString.avito_sha256Hash()
             eventDistributor.add(pluginIdentifier: pluginIdentifier)
-            let controller = try DefaultProcessController(
+            let controller = try processControllerProvider.createProcessController(
                 subprocess: Subprocess(
                     arguments: [pluginExecutable],
                     environment: environmentForLaunchingPlugin(
@@ -94,7 +97,7 @@ public final class PluginManager: EventStream {
                     )
                 )
             )
-            controller.start()
+            try controller.start()
             processControllers.append(controller)
         }
         

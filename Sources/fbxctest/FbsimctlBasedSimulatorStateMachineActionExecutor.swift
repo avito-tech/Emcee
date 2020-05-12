@@ -122,7 +122,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
                 )
             )
         )
-        shutdownController.startAndListenUntilProcessDies()
+        try shutdownController.startAndListenUntilProcessDies()
     }
     
     public func performDeleteSimulatorAction(
@@ -150,7 +150,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
                 )
             )
         )
-        controller.startAndListenUntilProcessDies()
+        try controller.startAndListenUntilProcessDies()
         
         try deleteSimulatorSetContainer(simulatorSetPath: simulator.simulatorSetPath)
     }

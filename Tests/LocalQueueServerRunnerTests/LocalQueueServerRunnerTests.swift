@@ -2,6 +2,7 @@ import AutomaticTermination
 import AutomaticTerminationTestHelpers
 import LocalQueueServerRunner
 import Models
+import ProcessControllerTestHelpers
 import QueueModels
 import QueueServer
 import QueueServerTestHelpers
@@ -9,6 +10,8 @@ import RemotePortDeterminer
 import RemotePortDeterminerTestHelpers
 import ScheduleStrategy
 import TemporaryStuff
+import TestHelpers
+import UniqueIdentifierGenerator
 import XCTest
 
 final class LocalQueueServerRunnerTests: XCTestCase {
@@ -21,14 +24,16 @@ final class LocalQueueServerRunnerTests: XCTestCase {
     )
     private let remotePortDeterminer = RemotePortDeterminerFixture(result: [:])
     private lazy var runner = LocalQueueServerRunner(
-        queueServer: queueServer,
         automaticTerminationController: automaticTerminationController,
-        queueServerTerminationWaiter: queueServerTerminationWaiter,
-        queueServerTerminationPolicy: AutomaticTerminationPolicy.stayAlive,
-        pollPeriod: 0.1,
         newWorkerRegistrationTimeAllowance: 60.0,
+        pollPeriod: 0.1,
+        processControllerProvider: FakeProcessControllerProvider(),
+        queueServer: queueServer,
+        queueServerTerminationPolicy: AutomaticTerminationPolicy.stayAlive,
+        queueServerTerminationWaiter: queueServerTerminationWaiter,
         remotePortDeterminer: remotePortDeterminer,
-        temporaryFolder: try! TemporaryFolder(),
+        temporaryFolder: assertDoesNotThrow { try TemporaryFolder() },
+        uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator(),
         workerDestinations: []
     )
     

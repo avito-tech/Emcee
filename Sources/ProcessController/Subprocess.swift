@@ -1,7 +1,7 @@
 import Foundation
 import PathLib
 
-public class Subprocess: CustomStringConvertible {    
+public class Subprocess: CustomStringConvertible {
     public let arguments: [SubprocessArgument]
     public let environment: [String: String]
     public let silenceBehavior: SilenceBehavior

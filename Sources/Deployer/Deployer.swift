@@ -2,40 +2,36 @@ import Foundation
 import Logging
 import Models
 import PathLib
+import ProcessController
 import TemporaryStuff
+import UniqueIdentifierGenerator
 
 /** Basic class that defines a logic for deploying a number of DeployableItems. */
 open class Deployer {
-    /**
-     * Some unique id.
-     * Allows to avoid a conflict when you deploy the same (or similar) deployables.
-     * Used as an identifier for a container.
-     */
     public let deploymentId: String
-    /** All deployables that must be deployed. */
     public let deployables: [DeployableItem]
-    /** Commands that must be invoked after deploy finishes. */
     public let deployableCommands: [DeployableCommand]
-    /** All destinations. */
     public let destinations: [DeploymentDestination]
-    /** Used for storing temporary files. */
-    private let temporaryDirectory: TemporaryFolder
+    private let processControllerProvider: ProcessControllerProvider
+    private let temporaryFolder: TemporaryFolder
+    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
 
     public init(
         deploymentId: String,
         deployables: [DeployableItem],
         deployableCommands: [DeployableCommand],
         destinations: [DeploymentDestination],
-        cleanUpAutomatically: Bool = true
+        processControllerProvider: ProcessControllerProvider,
+        temporaryFolder: TemporaryFolder,
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) throws {
         self.deploymentId = deploymentId
         self.deployables = deployables
         self.deployableCommands = deployableCommands
         self.destinations = destinations
-        temporaryDirectory = try TemporaryFolder(
-            prefix: "ru.avito.Deployer",
-            deleteOnDealloc: cleanUpAutomatically
-        )
+        self.processControllerProvider = processControllerProvider
+        self.temporaryFolder = temporaryFolder
+        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
     /** Deploys all the deployable items and invokes deployment commands. */
@@ -54,7 +50,7 @@ open class Deployer {
         let syncQueue = DispatchQueue(label: "ru.avito.Deployer.syncQueue")
         var deployablesFailedToPrepare = [DeployableItem]()
         var pathToDeployable = [AbsolutePath: DeployableItem]()
-        let packager = Packager()
+        let packager = Packager(processControllerProvider: processControllerProvider)
         
         let queue = DispatchQueue(
             label: "ru.avito.Deployer",
@@ -68,7 +64,10 @@ open class Deployer {
             queue.async {
                 do {
                     Logger.debug("Preparing deployable '\(deployable.name)'...")
-                    let path = try packager.preparePackage(deployable: deployable, packageFolder: self.temporaryDirectory)
+                    let path = try packager.preparePackage(
+                        deployable: deployable,
+                        packageFolder: try self.temporaryFolder.pathByCreatingDirectories(components: [self.uniqueIdentifierGenerator.generate()])
+                    )
                     Logger.debug("'\(deployable.name)' package path: \(path)")
                     syncQueue.sync { pathToDeployable[path] = deployable }
                 } catch {

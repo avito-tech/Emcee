@@ -156,8 +156,10 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             deploymentId: jobId.value,
             deploymentDestination: queueServerDestination,
             emceeVersion: emceeVersion,
+            processControllerProvider: processControllerProvider,
             queueServerRunConfigurationLocation: queueServerRunConfigurationLocation,
-            tempFolder: tempFolder
+            tempFolder: tempFolder,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         let deployQueue = DispatchQueue(label: "RunTestsOnRemoteQueueCommand.deployQueue", attributes: .concurrent)
         try remoteQueueStarter.deployAndStart(deployQueue: deployQueue)

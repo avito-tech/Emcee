@@ -1,12 +1,18 @@
 import EventBus
 import Foundation
+import ProcessController
 import ResourceLocationResolver
 import PluginSupport
 
 public final class PluginEventBusProviderImpl: PluginEventBusProvider {
+    private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
     
-    public init(resourceLocationResolver: ResourceLocationResolver) {
+    public init(
+        processControllerProvider: ProcessControllerProvider,
+        resourceLocationResolver: ResourceLocationResolver
+    ) {
+        self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
     }
     
@@ -26,6 +32,7 @@ public final class PluginEventBusProviderImpl: PluginEventBusProvider {
         pluginLocations: Set<PluginLocation>
     ) throws {
         let pluginManager = PluginManager(
+            processControllerProvider: processControllerProvider,
             pluginLocations: pluginLocations,
             resourceLocationResolver: resourceLocationResolver
         )

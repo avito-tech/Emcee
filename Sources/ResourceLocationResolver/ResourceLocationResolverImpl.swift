@@ -14,6 +14,7 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
     private let urlResource: URLResource
     private let cacheAccessCount = AtomicValue<Int>(0)
     private let cacheElementTimeToLive: TimeInterval
+    private let processControllerProvider: ProcessControllerProvider
     private let unarchiveQueue = DispatchQueue(label: "ResourceLocationResolverImpl.unarchiveQueue")
     
     public enum ValidationError: Error, CustomStringConvertible {
@@ -27,9 +28,14 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
         }
     }
     
-    public init(urlResource: URLResource, cacheElementTimeToLive: TimeInterval) {
+    public init(
+        urlResource: URLResource,
+        cacheElementTimeToLive: TimeInterval,
+        processControllerProvider: ProcessControllerProvider
+    ) {
         self.urlResource = urlResource
         self.cacheElementTimeToLive = cacheElementTimeToLive
+        self.processControllerProvider = processControllerProvider
     }
     
     public func resolvePath(resourceLocation: ResourceLocation) throws -> ResolvingResult {
@@ -61,7 +67,7 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
                     
                     Logger.debug("Will unzip '\(zipUrl)' into '\(temporaryContentsUrl)'")
                     
-                    let processController = try DefaultProcessController(
+                    let processController = try processControllerProvider.createProcessController(
                         subprocess: Subprocess(
                             arguments: ["/usr/bin/unzip", zipUrl.path, "-d", temporaryContentsUrl.path]
                         )

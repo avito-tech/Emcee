@@ -2,6 +2,7 @@ import BuildArtifactsTestHelpers
 import DeveloperDirLocatorTestHelpers
 import Models
 import ModelsTestHelpers
+import ProcessControllerTestHelpers
 import ResourceLocationResolverTestHelpers
 import Runner
 import RunnerModels
@@ -14,6 +15,7 @@ import fbxctest
 final class FbxctestBasedTestRunnerTests: XCTestCase, TestRunnerStream {
     let runner = FbxctestBasedTestRunner(
         fbxctestLocation: FbxctestLocationFixtures.fakeFbxctestLocation,
+        processControllerProvider: FakeProcessControllerProvider(),
         resourceLocationResolver: FakeResourceLocationResolver.throwing()
     )
     let testTimeoutConfiguration = TestTimeoutConfiguration(

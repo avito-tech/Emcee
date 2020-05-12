@@ -1,8 +1,10 @@
 import FileCache
 import Foundation
+import FileSystem
 import Logging
 import Models
 import PathLib
+import ProcessController
 import ResourceLocation
 import ResourceLocationResolver
 import Swifter
@@ -182,16 +184,24 @@ final class ResourceLocationResolverTests: XCTestCase {
     
     var urlSession = URLSession.shared
     let fakeSession = FakeURLSession()
-    lazy var resolver = ResourceLocationResolverImpl(urlResource: urlResource, cacheElementTimeToLive: 0)
-    lazy var serverFolder = try! tempFolder.pathByCreatingDirectories(components: ["server"])
-    let tempFolder = try! TemporaryFolder()
-    lazy var fileCache = try! FileCache(cachesUrl: tempFolder.absolutePath.fileUrl)
+    lazy var resolver = ResourceLocationResolverImpl(
+        urlResource: urlResource,
+        cacheElementTimeToLive: 0,
+        processControllerProvider: DefaultProcessControllerProvider(
+            fileSystem: LocalFileSystem(
+                fileManager: .default
+            )
+        )
+    )
+    lazy var serverFolder = assertDoesNotThrow { try tempFolder.pathByCreatingDirectories(components: ["server"]) }
+    lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
+    lazy var fileCache = assertDoesNotThrow { try FileCache(cachesUrl: tempFolder.absolutePath.fileUrl) }
     lazy var urlResource = URLResource(fileCache: fileCache, urlSession: urlSession)
-    lazy var smallFile = try! createFile(name: "example", size: 4096)
+    lazy var smallFile = assertDoesNotThrow { try createFile(name: "example", size: 4096) }
     lazy var smallZipFile = self.zipFile(toPath: serverFolder.appending(component: "example.zip"), fromPath: smallFile)
-    lazy var largeFile = try! createFile(name: "example", size: 12000000)
+    lazy var largeFile = assertDoesNotThrow { try createFile(name: "example", size: 12000000) }
     lazy var largeZipFile = self.zipFile(toPath: serverFolder.appending(component: "example.zip"), fromPath: largeFile)
-    lazy var corruptedZipFile = try! createFile(name: "corrupted", size: 1234)
+    lazy var corruptedZipFile = assertDoesNotThrow { try createFile(name: "corrupted", size: 1234) }
     let operationQueue = OperationQueue()
     let maximumConcurrentOperations = 10
     

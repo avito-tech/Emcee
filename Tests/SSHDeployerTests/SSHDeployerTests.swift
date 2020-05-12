@@ -3,9 +3,16 @@
 import Foundation
 import Models
 import PathLib
+import ProcessControllerTestHelpers
+import TemporaryStuff
+import TestHelpers
+import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 class SSHDeployerTests: XCTestCase {
+    private let uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: "fixed")
+    private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
+    
     func testForInputCorrectness() throws {
         let deploymentId = UUID().uuidString
         let deployableWithSingleFile = DeployableItem(
@@ -31,7 +38,10 @@ class SSHDeployerTests: XCTestCase {
                     .item(deployableWithSingleFile, relativePath: "remote/file.swift")
                 ]
             ],
-            destinations: [destination]
+            destinations: [destination],
+            processControllerProvider: FakeProcessControllerProvider(),
+            temporaryFolder: tempFolder,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         let queue = DispatchQueue(label: "queue")
         try deployer.deploy(deployQueue: queue)
@@ -59,13 +69,11 @@ class SSHDeployerTests: XCTestCase {
         
         XCTAssertEqual(client.uploadCommands.count, 1)
         let uploadCommand = client.uploadCommands[0]
-        // the key is not tested as it is a privately located file on local machine
-        // we can only test that file exists
-        var isDirectory: ObjCBool = false
-        XCTAssertTrue(
-            FileManager.default.fileExists(atPath: Array(uploadCommand.keys)[0].path, isDirectory: &isDirectory)
+        
+        XCTAssertEqual(
+            Array(uploadCommand.keys),
+            [tempFolder.pathWith(components: ["fixed", "deployable_name.zip"]).fileUrl]
         )
-        XCTAssertFalse(isDirectory.boolValue)
         XCTAssertEqual(
             Array(uploadCommand.values),
             ["/some/remote/container/\(deploymentId)/deployable_name/_package.zip"])

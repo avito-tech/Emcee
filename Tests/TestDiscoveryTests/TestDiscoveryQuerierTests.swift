@@ -6,6 +6,7 @@ import Models
 import ModelsTestHelpers
 import PluginManagerTestHelpers
 import ProcessController
+import ProcessControllerTestHelpers
 import ResourceLocation
 import ResourceLocationResolver
 import ResourceLocationResolverTestHelpers
@@ -206,7 +207,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             numberOfAttemptsToPerformRuntimeDump: 1,
             onDemandSimulatorPool: simulatorPool,
             pluginEventBusProvider: NoOoPluginEventBusProvider(),
-            processControllerProvider: DefaultProcessControllerProvider(),
+            processControllerProvider: FakeProcessControllerProvider(),
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,

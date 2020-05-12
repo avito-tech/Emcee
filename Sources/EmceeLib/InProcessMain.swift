@@ -41,7 +41,12 @@ public final class InProcessMain {
         
         Logger.info("Arguments: \(ProcessInfo.processInfo.arguments)")
         
-        let developerDirLocator = DefaultDeveloperDirLocator()
+        let processControllerProvider = DefaultProcessControllerProvider(
+            fileSystem: fileSystem
+        )
+        let developerDirLocator = DefaultDeveloperDirLocator(
+            processControllerProvider: processControllerProvider
+        )
         let requestSenderProvider = DefaultRequestSenderProvider()
         let runtimeDumpRemoteCacheProvider = DefaultRuntimeDumpRemoteCacheProvider(senderProvider: requestSenderProvider)
         let resourceLocationResolver = ResourceLocationResolverImpl(
@@ -49,12 +54,13 @@ public final class InProcessMain {
                 fileCache: try FileCache.fileCacheInDefaultLocation(),
                 urlSession: URLSession.shared
             ),
-            cacheElementTimeToLive: cacheElementTimeToLive.timeInterval
+            cacheElementTimeToLive: cacheElementTimeToLive.timeInterval,
+            processControllerProvider: processControllerProvider
         )
         let pluginEventBusProvider: PluginEventBusProvider = PluginEventBusProviderImpl(
+            processControllerProvider: processControllerProvider,
             resourceLocationResolver: resourceLocationResolver
         )
-        let processControllerProvider = DefaultProcessControllerProvider()
         let uniqueIdentifierGenerator = UuidBasedUniqueIdentifierGenerator()
         
         let commandInvoker = CommandInvoker(
@@ -93,6 +99,7 @@ public final class InProcessMain {
                 StartQueueServerCommand(
                     requestSenderProvider: requestSenderProvider,
                     payloadSignature: PayloadSignature(value: UUID().uuidString),
+                    processControllerProvider: processControllerProvider,
                     resourceLocationResolver: resourceLocationResolver,
                     uniqueIdentifierGenerator: uniqueIdentifierGenerator
                 ),

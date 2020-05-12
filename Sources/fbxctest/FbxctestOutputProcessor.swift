@@ -17,17 +17,17 @@ public final class FbxctestOutputProcessor {
     private static let logDateStampLength = NSLogLikeLogEntryTextFormatter.logDateFormatter.string(from: Date()).count
 
     public init(
-        subprocess: Subprocess,
         singleTestMaximumDuration: TimeInterval,
         onTestStarted: @escaping ((TestName) -> ()),
-        onTestStopped: @escaping ((TestStoppedEvent) -> ())
+        onTestStopped: @escaping ((TestStoppedEvent) -> ()),
+        processController: ProcessController
     ) throws {
         self.singleTestMaximumDuration = singleTestMaximumDuration
         self.eventsListener = FbXcTestEventsListener(onTestStarted: onTestStarted, onTestStopped: onTestStopped)
-        self.processController = try DefaultProcessController(subprocess: subprocess)
+        self.processController = processController
     }
     
-    public func processOutputAndWaitForProcessTermination() {
+    public func processOutputAndWaitForProcessTermination() throws {
         processController.onSilence { [weak self] sender, unsubscriber in
             guard let strongSelf = self else { return unsubscriber() }
             strongSelf.eventsListener.timeoutDueToSilence()
@@ -41,7 +41,7 @@ public final class FbxctestOutputProcessor {
             strongSelf.processController(sender, newStderrData: data)
         }
         
-        processController.start()
+        try processController.start()
         startMonitoringForHangs()
         processController.waitForProcessToDie()
     }

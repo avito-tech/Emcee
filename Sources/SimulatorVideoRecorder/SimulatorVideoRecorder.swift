@@ -9,10 +9,16 @@ public final class SimulatorVideoRecorder {
         case hevc
     }
     
+    private let processControllerProvider: ProcessControllerProvider
     private let simulatorUuid: UDID
     private let simulatorSetPath: AbsolutePath
 
-    public init(simulatorUuid: UDID, simulatorSetPath: AbsolutePath) {
+    public init(
+        processControllerProvider: ProcessControllerProvider,
+        simulatorUuid: UDID,
+        simulatorSetPath: AbsolutePath
+    ) {
+        self.processControllerProvider = processControllerProvider
         self.simulatorUuid = simulatorUuid
         self.simulatorSetPath = simulatorSetPath
     }
@@ -21,7 +27,7 @@ public final class SimulatorVideoRecorder {
         codecType: CodecType,
         outputPath: AbsolutePath
     ) throws -> CancellableRecording {
-        let processController = try DefaultProcessController(
+        let processController = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun",
@@ -36,7 +42,7 @@ public final class SimulatorVideoRecorder {
                 ]
             )
         )
-        processController.start()
+        try processController.start()
 
         return CancellableRecordingImpl(
             outputPath: outputPath,

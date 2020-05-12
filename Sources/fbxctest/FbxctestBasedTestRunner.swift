@@ -12,15 +12,18 @@ import SimulatorPoolModels
 import TemporaryStuff
 
 public final class FbxctestBasedTestRunner: TestRunner {
-    private let fbxctestLocation: FbxctestLocation
-    private let resourceLocationResolver: ResourceLocationResolver
     private let encoder = JSONEncoder()
+    private let fbxctestLocation: FbxctestLocation
+    private let processControllerProvider: ProcessControllerProvider
+    private let resourceLocationResolver: ResourceLocationResolver
     
     public init(
         fbxctestLocation: FbxctestLocation,
+        processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver
     ) {
         self.fbxctestLocation = fbxctestLocation
+        self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
     }
     
@@ -66,31 +69,33 @@ public final class FbxctestBasedTestRunner: TestRunner {
         defer { cleanUp(fbxctestWorkingDirectory: fbxctestWorkingDirectory) }
         
         let fbxctestOutputProcessor = try FbxctestOutputProcessor(
-            subprocess: Subprocess(
-                arguments: try fbxctestArguments(
-                    buildArtifacts: buildArtifacts,
-                    entriesToRun: entriesToRun,
-                    fbxctestLocation: fbxctestLocation,
-                    fbxctestWorkingDirectory: fbxctestWorkingDirectory,
-                    simulator: simulator,
-                    simulatorSettings: simulatorSettings,
-                    testDestination: testContext.testDestination,
-                    testType: testType
-                ),
-                environment: fbxctestEnvironment(
-                    testContext: testContext,
-                    fbxctestTempFolder: fbxctestTempFolder
-                ),
-                silenceBehavior: SilenceBehavior(
-                    automaticAction: .interruptAndForceKill,
-                    allowedSilenceDuration: testTimeoutConfiguration.testRunnerMaximumSilenceDuration
-                )
-            ),
             singleTestMaximumDuration: testTimeoutConfiguration.singleTestMaximumDuration,
             onTestStarted: { testName in testRunnerStream.testStarted(testName: testName) },
-            onTestStopped: { testStoppedEvent in testRunnerStream.testStopped(testStoppedEvent: testStoppedEvent) }
+            onTestStopped: { testStoppedEvent in testRunnerStream.testStopped(testStoppedEvent: testStoppedEvent) },
+            processController: try processControllerProvider.createProcessController(
+                subprocess: Subprocess(
+                    arguments: try fbxctestArguments(
+                        buildArtifacts: buildArtifacts,
+                        entriesToRun: entriesToRun,
+                        fbxctestLocation: fbxctestLocation,
+                        fbxctestWorkingDirectory: fbxctestWorkingDirectory,
+                        simulator: simulator,
+                        simulatorSettings: simulatorSettings,
+                        testDestination: testContext.testDestination,
+                        testType: testType
+                    ),
+                    environment: fbxctestEnvironment(
+                        testContext: testContext,
+                        fbxctestTempFolder: fbxctestTempFolder
+                    ),
+                    silenceBehavior: SilenceBehavior(
+                        automaticAction: .interruptAndForceKill,
+                        allowedSilenceDuration: testTimeoutConfiguration.testRunnerMaximumSilenceDuration
+                    )
+                )
+            )
         )
-        fbxctestOutputProcessor.processOutputAndWaitForProcessTermination()
+        try fbxctestOutputProcessor.processOutputAndWaitForProcessTermination()
         return fbxctestOutputProcessor.subprocess.standardStreamsCaptureConfig
     }
     

@@ -292,7 +292,8 @@ let package = Package(
                 "Models",
                 "PathLib",
                 "ProcessController",
-                "TemporaryStuff"
+                "TemporaryStuff",
+                "UniqueIdentifierGenerator",
             ]
         ),
         .target(
@@ -311,8 +312,11 @@ let package = Package(
                 "Deployer",
                 "Extensions",
                 "PathLib",
+                "ProcessController",
+                "ProcessControllerTestHelpers",
                 "TemporaryStuff",
                 "TestHelpers",
+                "UniqueIdentifierGeneratorTestHelpers",
             ]
         ),
         .target(
@@ -342,7 +346,9 @@ let package = Package(
                 "Models",
                 "PathLib",
                 "ProcessController",
-                "TemporaryStuff"
+                "ProcessControllerTestHelpers",
+                "TestHelpers",
+                "TemporaryStuff",
             ]
         ),
         .target(
@@ -354,9 +360,11 @@ let package = Package(
                 "Logging",
                 "Models",
                 "PathLib",
+                "ProcessController",
                 "SSHDeployer",
                 "TemporaryStuff",
-                "TypedResourceLocation"
+                "TypedResourceLocation",
+                "UniqueIdentifierGenerator",
             ]
         ),
         .testTarget(
@@ -727,6 +735,7 @@ let package = Package(
                 "LoggingSetup",
                 "Models",
                 "PortDeterminer",
+                "ProcessController",
                 "QueueServer",
                 "RemotePortDeterminer",
                 "RequestSender",
@@ -890,14 +899,18 @@ let package = Package(
             name: "PluginManagerTests",
             dependencies: [
                 "EventBus",
+                "FileSystem",
                 "Models",
                 "ModelsTestHelpers",
                 "PluginManager",
                 "PluginSupport",
+                "ProcessController",
+                "ProcessControllerTestHelpers",
                 "ResourceLocation",
                 "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
                 "TemporaryStuff",
+                "TestHelpers",
             ]
         ),
         .target(
@@ -929,6 +942,7 @@ let package = Package(
             name: "ProcessController",
             dependencies: [
                 "Extensions",
+                "FileSystem",
                 "Logging",
                 "PathLib",
                 "Timer",
@@ -947,10 +961,13 @@ let package = Package(
             name: "ProcessControllerTests",
             dependencies: [
                 "Extensions",
+                "FileSystem",
                 "PathLib",
                 "ProcessController",
+                "ProcessControllerTestHelpers",
                 "TemporaryStuff",
                 "TestHelpers",
+                "UniqueIdentifierGenerator",
             ]
         ),
         .target(
@@ -1222,7 +1239,9 @@ let package = Package(
             name: "ResourceLocationResolverTests",
             dependencies: [
                 "FileCache",
+                "FileSystem",
                 "PathLib",
+                "ProcessController",
                 "ResourceLocation",
                 "ResourceLocationResolver",
                 "Swifter",
@@ -1505,7 +1524,10 @@ let package = Package(
                 "Logging",
                 "Models",
                 "PathLib",
-                "Shout"
+                "ProcessController",
+                "Shout",
+                "TemporaryStuff",
+                "UniqueIdentifierGenerator",
             ]
         ),
         .testTarget(
@@ -1513,7 +1535,11 @@ let package = Package(
             name: "SSHDeployerTests",
             dependencies: [
                 "PathLib",
-                "SSHDeployer"
+                "ProcessControllerTestHelpers",
+                "SSHDeployer",
+                "TemporaryStuff",
+                "TestHelpers",
+                "UniqueIdentifierGeneratorTestHelpers",
             ]
         ),
         .target(
@@ -1611,6 +1637,7 @@ let package = Package(
                 "BuildArtifactsTestHelpers",
                 "DeveloperDirLocator",
                 "DeveloperDirLocatorTestHelpers",
+                "FileSystem",
                 "Models",
                 "ModelsTestHelpers",
                 "PathLib",

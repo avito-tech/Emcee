@@ -4,9 +4,14 @@ import PathLib
 import ProcessController
 
 public final class DefaultDeveloperDirLocator: DeveloperDirLocator {
+    private let processControllerProvider: ProcessControllerProvider
     private let xcodeAppContainerPath: AbsolutePath
     
-    public init(xcodeAppContainerPath: AbsolutePath = AbsolutePath("/Applications/")) {
+    public init(
+        processControllerProvider: ProcessControllerProvider,
+        xcodeAppContainerPath: AbsolutePath = AbsolutePath("/Applications/")
+    ) {
+        self.processControllerProvider = processControllerProvider
         self.xcodeAppContainerPath = xcodeAppContainerPath
     }
     
@@ -23,8 +28,10 @@ public final class DefaultDeveloperDirLocator: DeveloperDirLocator {
     }
     
     private func xcodeSelectProvidedDeveloperDir() throws -> AbsolutePath {
-        let processController = try DefaultProcessController(subprocess: Subprocess(arguments: ["/usr/bin/xcode-select", "-p"]))
-        processController.startAndListenUntilProcessDies()
+        let processController = try processControllerProvider.createProcessController(
+            subprocess: Subprocess(arguments: ["/usr/bin/xcode-select", "-p"])
+        )
+        try processController.startAndListenUntilProcessDies()
         let path = try String(contentsOf: processController.subprocess.standardStreamsCaptureConfig.stdoutContentsFile.fileUrl)
         return AbsolutePath(path.trimmingCharacters(in: .whitespacesAndNewlines))
     }

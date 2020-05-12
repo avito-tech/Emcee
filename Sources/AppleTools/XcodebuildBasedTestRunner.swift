@@ -85,7 +85,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
             }
         }
         
-        processController.startAndListenUntilProcessDies()
+        try processController.startAndListenUntilProcessDies()
         return processController.subprocess.standardStreamsCaptureConfig
     }
 }

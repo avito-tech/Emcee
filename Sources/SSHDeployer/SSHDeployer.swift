@@ -5,6 +5,9 @@ import Foundation
 import Logging
 import Models
 import PathLib
+import ProcessController
+import TemporaryStuff
+import UniqueIdentifierGenerator
 
 public final class SSHDeployer: Deployer {
     
@@ -15,14 +18,21 @@ public final class SSHDeployer: Deployer {
         deploymentId: String,
         deployables: [DeployableItem],
         deployableCommands: [DeployableCommand],
-        destinations: [DeploymentDestination]
+        destinations: [DeploymentDestination],
+        processControllerProvider: ProcessControllerProvider,
+        temporaryFolder: TemporaryFolder,
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) throws {
         self.sshClientType = sshClientType
         try super.init(
             deploymentId: deploymentId,
             deployables: deployables,
             deployableCommands: deployableCommands,
-            destinations: destinations)
+            destinations: destinations,
+            processControllerProvider: processControllerProvider,
+            temporaryFolder: temporaryFolder,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+        )
     }
     
     override public func deployToDestinations(

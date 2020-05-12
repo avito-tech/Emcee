@@ -2,12 +2,18 @@
 import Foundation
 import Models
 import PathLib
+import ProcessController
+import ProcessControllerTestHelpers
+import TemporaryStuff
+import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 class DeployerTests: XCTestCase {
-    
-    let deployableFile = DeployableFile(
-        source: AbsolutePath(#file),
+    private let uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: "fixed")
+    lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
+    lazy var deployableFileSource = assertDoesNotThrow { try tempFolder.createFile(filename: "file") }
+    lazy var deployableFile = DeployableFile(
+        source: deployableFileSource,
         destination: RelativePath("remote/file.swift")
     )
     let queue = DispatchQueue(label: "queue")
@@ -29,13 +35,23 @@ class DeployerTests: XCTestCase {
                     port: 32,
                     username: "user",
                     password: "pass",
-                    remoteDeploymentPath: "/remote/path")
-            ])
+                    remoteDeploymentPath: "/remote/path"
+                )
+            ],
+            processControllerProvider: FakeProcessControllerProvider { subprocess -> ProcessController in
+                XCTAssertEqual(
+                    try subprocess.arguments.map { try $0.stringValue() },
+                    ["/usr/bin/zip", self.tempFolder.pathWith(components: ["fixed", "simple_file"]).pathString, "-r", "."]
+                )
+                return FakeProcessController(subprocess: subprocess)
+            },
+            temporaryFolder: tempFolder,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+        )
         try deployer.deploy(deployQueue: queue)
         XCTAssertEqual(deployer.pathsAskedToBeDeployed.count, 1)
         
         deployer.pathsAskedToBeDeployed.forEach { path, deployable in
-            XCTAssertTrue(FileManager.default.fileExists(atPath: path.pathString))
             XCTAssertEqual(deployable.name, "simple_file")
             XCTAssertEqual(
                 deployable.files,
@@ -66,7 +82,10 @@ class DeployerTests: XCTestCase {
                         password: "pass",
                         remoteDeploymentPath: "/remote/path")
                 ],
-                cleanUpAutomatically: true)
+                processControllerProvider: FakeProcessControllerProvider(),
+                temporaryFolder: self.tempFolder,
+                uniqueIdentifierGenerator: self.uniqueIdentifierGenerator
+            )
             try deployer.deploy(deployQueue: self.queue)
             paths = Array(deployer.pathsAskedToBeDeployed.keys)
         }

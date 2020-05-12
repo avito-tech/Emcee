@@ -3,19 +3,27 @@ import Foundation
 import Logging
 import Models
 import PathLib
+import ProcessController
 import TemporaryStuff
+import UniqueIdentifierGenerator
 
 /// Starts the remote workers on the given destinations that will poll jobs from the given queue
 public final class RemoteWorkersStarter {
     private let deploymentDestinations: [DeploymentDestination]
+    private let processControllerProvider: ProcessControllerProvider
     private let tempFolder: TemporaryFolder
+    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
 
     public init(
         deploymentDestinations: [DeploymentDestination],
-        tempFolder: TemporaryFolder
+        processControllerProvider: ProcessControllerProvider,
+        tempFolder: TemporaryFolder,
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
         self.deploymentDestinations = deploymentDestinations
+        self.processControllerProvider = processControllerProvider
         self.tempFolder = tempFolder
+        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
     public func deployAndStartWorkers(
@@ -57,7 +65,7 @@ public final class RemoteWorkersStarter {
                 contents: try launchdPlist.plistData()
             )
             
-            deployQueue.async { [tempFolder] in
+            deployQueue.async { [processControllerProvider, tempFolder, uniqueIdentifierGenerator] in
                 Logger.debug("Deploying to \(destination)")
                 
                 let launchdDeployableItem = DeployableItem(
@@ -85,7 +93,9 @@ public final class RemoteWorkersStarter {
                         ],
                         launchctlDeployableCommands.forceLoadInBackgroundCommand()
                     ],
-                    tempFolder: tempFolder
+                    processControllerProvider: processControllerProvider,
+                    tempFolder: tempFolder,
+                    uniqueIdentifierGenerator: uniqueIdentifierGenerator
                 )
                 
                 do {

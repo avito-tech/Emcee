@@ -21,4 +21,24 @@ final class DefaultFilePropertiesContainerTests: XCTestCase {
             _ = try properties.modificationDate()
         }
     }
+    
+    func test___is_executable___when_not_executable() throws {
+        try FileManager().setAttributes(
+            [.posixPermissions: 700],
+            ofItemAtPath: temporaryFile.absolutePath.pathString
+        )
+        
+        let properties = DefaultFilePropertiesContainer(path: temporaryFile.absolutePath)
+        XCTAssertFalse(try properties.isExecutable())
+    }
+    
+    func test___is_executable___when_executable() throws {
+        try FileManager().setAttributes(
+            [.posixPermissions: 707],
+            ofItemAtPath: temporaryFile.absolutePath.pathString
+        )
+        
+        let properties = DefaultFilePropertiesContainer(path: temporaryFile.absolutePath)
+        XCTAssertTrue(try properties.isExecutable())
+    }
 }

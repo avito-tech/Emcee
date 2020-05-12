@@ -28,6 +28,7 @@ public final class DefaultTestRunnerProvider: TestRunnerProvider {
         case .fbxctest(let fbxctestLocation):
             return FbxctestBasedTestRunner(
                 fbxctestLocation: fbxctestLocation,
+                processControllerProvider: processControllerProvider,
                 resourceLocationResolver: resourceLocationResolver
             )
         case .xcodebuild:

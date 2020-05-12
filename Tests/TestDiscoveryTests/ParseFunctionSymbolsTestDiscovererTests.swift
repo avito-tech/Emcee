@@ -2,6 +2,7 @@
 import BuildArtifacts
 import DeveloperDirLocator
 import Foundation
+import FileSystem
 import Models
 import ModelsTestHelpers
 import ProcessController
@@ -51,7 +52,13 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
         }
         
         return ParseFunctionSymbolsTestDiscoverer(
-            developerDirLocator: DefaultDeveloperDirLocator(),
+            developerDirLocator: DefaultDeveloperDirLocator(
+                processControllerProvider: DefaultProcessControllerProvider(
+                    fileSystem: LocalFileSystem(
+                        fileManager: .default
+                    )
+                )
+            ),
             processControllerProvider: FakeProcessControllerProvider(creator: { subprocess -> ProcessController in
                 XCTAssertEqual(
                     try subprocess.arguments.map { try $0.stringValue() },

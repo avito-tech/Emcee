@@ -3,21 +3,33 @@ import Foundation
 import Models
 import PathLib
 import ProcessController
+import ProcessControllerTestHelpers
+import TestHelpers
 import TemporaryStuff
 import XCTest
 
 final class DefaultDeveloperDirLocatorTests: XCTestCase {
-    func test___current_developer_dir() throws {
-        let processController = try DefaultProcessController(subprocess: Subprocess(arguments: ["/usr/bin/xcode-select", "-p"]))
-        processController.startAndListenUntilProcessDies()
-        let expectedPath = AbsolutePath(
-            try String(
-                contentsOf: processController.subprocess.standardStreamsCaptureConfig.stdoutContentsFile.fileUrl
-            ).trimmingCharacters(in: .whitespacesAndNewlines)
-        )
+    let currentDeveloperDirPath = AbsolutePath("/expected/path/to/developer/dir")
+    
+    lazy var processControllerProvider = FakeProcessControllerProvider { subprocess -> ProcessController in
         XCTAssertEqual(
-            try DefaultDeveloperDirLocator().path(developerDir: .current),
-            expectedPath
+            try subprocess.arguments.map { try $0.stringValue() },
+            ["/usr/bin/xcode-select", "-p"]
+        )
+        self.assertDoesNotThrow {
+            try self.currentDeveloperDirPath.pathString.write(
+                to: subprocess.standardStreamsCaptureConfig.stdoutContentsFile.fileUrl,
+                atomically: true,
+                encoding: .utf8
+            )
+        }
+        return FakeProcessController(subprocess: subprocess)
+    }
+    
+    func test___current_developer_dir() throws {
+        XCTAssertEqual(
+            try DefaultDeveloperDirLocator(processControllerProvider: processControllerProvider).path(developerDir: .current),
+            currentDeveloperDirPath
         )
     }
     
@@ -26,7 +38,10 @@ final class DefaultDeveloperDirLocatorTests: XCTestCase {
         try tempFolder.createFile(components: ["Xcode1021.app", "Contents"], filename: "Info.plist", contents: try plistData(bundleVersion: "10.2.1"))
         try tempFolder.createFile(components: ["Xcode101.app", "Contents"], filename: "Info.plist", contents: try plistData(bundleVersion: "10.1"))
         
-        let result = try DefaultDeveloperDirLocator(xcodeAppContainerPath: tempFolder.absolutePath).path(developerDir: .useXcode(CFBundleShortVersionString: "10.1"))
+        let result = try DefaultDeveloperDirLocator(
+            processControllerProvider: processControllerProvider,
+            xcodeAppContainerPath: tempFolder.absolutePath
+        ).path(developerDir: .useXcode(CFBundleShortVersionString: "10.1"))
         XCTAssertEqual(
             result,
             tempFolder.pathWith(components: ["Xcode101.app", "Contents", "Developer"])

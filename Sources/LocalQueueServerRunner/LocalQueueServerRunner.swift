@@ -9,6 +9,7 @@ import LocalHostDeterminer
 import Logging
 import Models
 import PortDeterminer
+import ProcessController
 import QueueServer
 import RemotePortDeterminer
 import RequestSender
@@ -18,37 +19,42 @@ import TemporaryStuff
 import UniqueIdentifierGenerator
 
 public final class LocalQueueServerRunner {
-    private let queueServer: QueueServer
     private let automaticTerminationController: AutomaticTerminationController
-    private let queueServerTerminationWaiter: QueueServerTerminationWaiter
-    private let queueServerTerminationPolicy: AutomaticTerminationPolicy
-    private let pollPeriod: TimeInterval
+    private let deployQueue = DispatchQueue(label: "LocalQueueServerRunner.deployQueue", attributes: .concurrent)
     private let newWorkerRegistrationTimeAllowance: TimeInterval
+    private let pollPeriod: TimeInterval
+    private let processControllerProvider: ProcessControllerProvider
+    private let queueServer: QueueServer
+    private let queueServerTerminationPolicy: AutomaticTerminationPolicy
+    private let queueServerTerminationWaiter: QueueServerTerminationWaiter
     private let remotePortDeterminer: RemotePortDeterminer
     private let temporaryFolder: TemporaryFolder
+    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let workerDestinations: [DeploymentDestination]
-    private let deployQueue = DispatchQueue(label: "LocalQueueServerRunner.deployQueue", attributes: .concurrent)
-    
 
     public init(
-        queueServer: QueueServer,
         automaticTerminationController: AutomaticTerminationController,
-        queueServerTerminationWaiter: QueueServerTerminationWaiter,
-        queueServerTerminationPolicy: AutomaticTerminationPolicy,
-        pollPeriod: TimeInterval,
         newWorkerRegistrationTimeAllowance: TimeInterval,
+        pollPeriod: TimeInterval,
+        processControllerProvider: ProcessControllerProvider,
+        queueServer: QueueServer,
+        queueServerTerminationPolicy: AutomaticTerminationPolicy,
+        queueServerTerminationWaiter: QueueServerTerminationWaiter,
         remotePortDeterminer: RemotePortDeterminer,
         temporaryFolder: TemporaryFolder,
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         workerDestinations: [DeploymentDestination]
     ) {
-        self.queueServer = queueServer
         self.automaticTerminationController = automaticTerminationController
-        self.queueServerTerminationWaiter = queueServerTerminationWaiter
-        self.queueServerTerminationPolicy = queueServerTerminationPolicy
-        self.pollPeriod = pollPeriod
         self.newWorkerRegistrationTimeAllowance = newWorkerRegistrationTimeAllowance
+        self.pollPeriod = pollPeriod
+        self.processControllerProvider = processControllerProvider
+        self.queueServer = queueServer
+        self.queueServerTerminationPolicy = queueServerTerminationPolicy
+        self.queueServerTerminationWaiter = queueServerTerminationWaiter
         self.remotePortDeterminer = remotePortDeterminer
         self.temporaryFolder = temporaryFolder
+        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.workerDestinations = workerDestinations
     }
     
@@ -95,7 +101,9 @@ public final class LocalQueueServerRunner {
         
         let remoteWorkersStarter = RemoteWorkersStarter(
             deploymentDestinations: workerDestinations,
-            tempFolder: temporaryFolder
+            processControllerProvider: processControllerProvider,
+            tempFolder: temporaryFolder,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         try remoteWorkersStarter.deployAndStartWorkers(
             deployQueue: deployQueue,

@@ -1,5 +1,6 @@
 import Dispatch
 import Extensions
+import FileSystem
 import Foundation
 import Logging
 import PathLib
@@ -25,6 +26,7 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
     private var didStartProcess = false
     public private(set) var processId: Int32 = 0
     public weak var delegate: ProcessControllerDelegate?
+    private let fileSystem: FileSystem
     
     private final class ListenerWrapper<T> {
         let uuid: UUID
@@ -36,11 +38,16 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         }
     }
     
-    public init(subprocess: Subprocess) throws {
+    public init(
+        fileSystem: FileSystem,
+        subprocess: Subprocess
+    ) throws {
         self.subprocess = subprocess
+        self.fileSystem = fileSystem
         let arguments = try subprocess.arguments.map { try $0.stringValue() }
         processName = arguments.elementAtIndex(0, "First element is path to executable").lastPathComponent
         process = try DefaultProcessController.createProcess(
+            fileSystem: fileSystem,
             arguments: arguments,
             environment: subprocess.environment,
             processStdinPipe: processStdinPipe,
@@ -50,13 +57,22 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
     }
     
     private static func createProcess(
+        fileSystem: FileSystem,
         arguments: [String],
         environment: [String: String],
         processStdinPipe: Pipe,
         workingDirectory: AbsolutePath
     ) throws -> Process {
+        let pathToExecutable = AbsolutePath(arguments.elementAtIndex(0, "Path to executable"))
+        
+        let executableProperties = fileSystem.properties(forFileAtPath: pathToExecutable)
+        
+        guard try executableProperties.isExecutable() else {
+            throw ProcessControllerError.fileIsNotExecutable(path: pathToExecutable)
+        }
+        
         let process = Process()
-        process.launchPath = arguments.elementAtIndex(0, "Path to executable")
+        process.launchPath = pathToExecutable.pathString
         process.arguments = Array(arguments.dropFirst())
         process.environment = environment
         process.standardInput = processStdinPipe

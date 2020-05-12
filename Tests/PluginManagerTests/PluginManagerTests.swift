@@ -1,17 +1,21 @@
 import EventBus
+import FileSystem
 import Models
 import ModelsTestHelpers
 import PathLib
 import PluginManager
 import PluginSupport
+import ProcessController
+import ProcessControllerTestHelpers
 import ResourceLocation
 import ResourceLocationResolverTestHelpers
 import TemporaryStuff
+import TestHelpers
 import XCTest
 
 final class PluginManagerTests: XCTestCase {
     var testingPluginExecutablePath = TestingPluginExecutable.testingPluginPath!
-    var tempFolder = try! TemporaryFolder(deleteOnDealloc: true)
+    lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder(deleteOnDealloc: true) }
     lazy var resolver = FakeResourceLocationResolver(
         resolvingResult: ResolvingResult.directlyAccessibleFile(path: tempFolder.absolutePath.pathString)
     )
@@ -31,6 +35,7 @@ final class PluginManagerTests: XCTestCase {
         )
         
         let manager = PluginManager(
+            processControllerProvider: FakeProcessControllerProvider(),
             pluginLocations: [
                 PluginLocation(.localFilePath(pluginBundlePath.pathString))
             ],
@@ -46,6 +51,7 @@ final class PluginManagerTests: XCTestCase {
             toPath: executablePath.pathString
         )
         let manager = PluginManager(
+            processControllerProvider: FakeProcessControllerProvider(),
             pluginLocations: [
                 PluginLocation(.localFilePath(executablePath.pathString))
             ],
@@ -70,6 +76,7 @@ final class PluginManagerTests: XCTestCase {
         )
         
         let manager = PluginManager(
+            processControllerProvider: DefaultProcessControllerProvider(fileSystem: LocalFileSystem(fileManager: FileManager())),
             pluginLocations: [
                 PluginLocation(.localFilePath(pluginBundlePath.pathString))
             ],

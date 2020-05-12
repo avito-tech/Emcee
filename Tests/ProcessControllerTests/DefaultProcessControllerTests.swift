@@ -1,4 +1,5 @@
 import Extensions
+import FileSystem
 import Foundation
 import PathLib
 import ProcessController
@@ -7,14 +8,22 @@ import TestHelpers
 import XCTest
 
 final class DefaultProcessControllerTests: XCTestCase {
+    private let fileSystem = LocalFileSystem(fileManager: FileManager.default)
+    
     func testStartingSimpleSubprocess() throws {
-        let controller = try DefaultProcessController(subprocess: Subprocess(arguments: ["/usr/bin/env"]))
-        controller.startAndListenUntilProcessDies()
+        let controller = try DefaultProcessController(
+            fileSystem: fileSystem,
+            subprocess: Subprocess(
+                arguments: ["/usr/bin/env"]
+            )
+        )
+        try controller.startAndListenUntilProcessDies()
         XCTAssertEqual(controller.processStatus(), .terminated(exitCode: 0))
     }
     
     func disable_flaky_testSilence() throws {
         let controller = try DefaultProcessController(
+            fileSystem: fileSystem,
             subprocess: Subprocess(
                 arguments: ["/bin/sleep", "10"],
                 silenceBehavior: SilenceBehavior(
@@ -25,13 +34,14 @@ final class DefaultProcessControllerTests: XCTestCase {
         )
         let delegate = FakeDelegate()
         controller.delegate = delegate
-        controller.startAndListenUntilProcessDies()
+        try controller.startAndListenUntilProcessDies()
         
         XCTAssertEqual(delegate.noActivityDetected, true)
     }
     
     func test___termination_status_is_running___when_process_is_running() throws {
         let controller = try DefaultProcessController(
+            fileSystem: fileSystem,
             subprocess: Subprocess(
                 arguments: ["/bin/sleep", "10"]
             )
@@ -42,16 +52,42 @@ final class DefaultProcessControllerTests: XCTestCase {
     
     func test___termination_status_is_not_started___when_process_has_not_yet_started() throws {
         let controller = try DefaultProcessController(
+            fileSystem: fileSystem,
             subprocess: Subprocess(
-                arguments: ["/bin/env"]
+                arguments: ["/usr/bin/env"]
             )
         )
         XCTAssertEqual(controller.processStatus(), .notStarted)
     }
     
+    func test___process_cannot_be_started___when_file_does_not_exist() {
+        assertThrows {
+            _ = try DefaultProcessController(
+                fileSystem: fileSystem,
+                subprocess: Subprocess(
+                    arguments: ["/bin/non/existing/file/\(ProcessInfo.processInfo.globallyUniqueString)"]
+                )
+            )
+        }
+    }
+    
+    func test___process_cannot_be_started___when_file_is_not_executable() {
+        let tempFile = assertDoesNotThrow { try TemporaryFile() }
+        
+        assertThrows {
+            _ = try DefaultProcessController(
+                fileSystem: fileSystem,
+                subprocess: Subprocess(
+                    arguments: [tempFile]
+                )
+            )
+        }
+    }
+    
     func test___successful_termination___does_not_throw() throws {
         let controller = assertDoesNotThrow {
             try DefaultProcessController(
+                fileSystem: fileSystem,
                 subprocess: Subprocess(
                     arguments: ["/usr/bin/env"]
                 )
@@ -68,6 +104,7 @@ final class DefaultProcessControllerTests: XCTestCase {
         let argument = "/\(UUID().uuidString)"
         let controller = assertDoesNotThrow {
             try DefaultProcessController(
+                fileSystem: fileSystem,
                 subprocess: Subprocess(
                     arguments: ["/bin/ls", argument],
                     standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
@@ -76,7 +113,7 @@ final class DefaultProcessControllerTests: XCTestCase {
                 )
             )
         }
-        controller.startAndListenUntilProcessDies()
+        try controller.startAndListenUntilProcessDies()
         
         assertThrows {
             try controller.startAndWaitForSuccessfulTermination()
@@ -85,6 +122,7 @@ final class DefaultProcessControllerTests: XCTestCase {
     
     func test___no_automatic_action() throws {
         let controller = try DefaultProcessController(
+            fileSystem: fileSystem,
             subprocess: Subprocess(
                 arguments: ["/bin/sleep", "0.01"],
                 silenceBehavior: SilenceBehavior(
@@ -93,7 +131,7 @@ final class DefaultProcessControllerTests: XCTestCase {
                 )
             )
         )
-        controller.startAndListenUntilProcessDies()
+        try controller.startAndListenUntilProcessDies()
         XCTAssertEqual(controller.processStatus(), .terminated(exitCode: 0))
     }
     
@@ -101,6 +139,7 @@ final class DefaultProcessControllerTests: XCTestCase {
         let handlerCalledExpectation = expectation(description: "silence handler has been called")
         
         let controller = try DefaultProcessController(
+            fileSystem: fileSystem,
             subprocess: Subprocess(
                 arguments: ["/bin/sleep", "999"],
                 silenceBehavior: SilenceBehavior(
@@ -112,13 +151,14 @@ final class DefaultProcessControllerTests: XCTestCase {
                 )
             )
         )
-        controller.startAndListenUntilProcessDies()
+        try controller.startAndListenUntilProcessDies()
         
         wait(for: [handlerCalledExpectation], timeout: 5.0)
     }
     
     func test___automatic_interrupt_silence_handler() throws {
         let controller = try DefaultProcessController(
+            fileSystem: fileSystem,
             subprocess: Subprocess(
                 arguments: ["/bin/sleep", "999"],
                 silenceBehavior: SilenceBehavior(
@@ -127,12 +167,13 @@ final class DefaultProcessControllerTests: XCTestCase {
                 )
             )
         )
-        controller.startAndListenUntilProcessDies()
+        try controller.startAndListenUntilProcessDies()
         XCTAssertEqual(controller.processStatus(), .terminated(exitCode: SIGINT))
     }
     
     func test___automatic_terminate_silence_handler() throws {
         let controller = try DefaultProcessController(
+            fileSystem: fileSystem,
             subprocess: Subprocess(
                 arguments: ["/bin/sleep", "999"],
                 silenceBehavior: SilenceBehavior(
@@ -141,12 +182,13 @@ final class DefaultProcessControllerTests: XCTestCase {
                 )
             )
         )
-        controller.startAndListenUntilProcessDies()
+        try controller.startAndListenUntilProcessDies()
         XCTAssertEqual(controller.processStatus(), .terminated(exitCode: SIGTERM))
     }
     
     func testWhenSubprocessFinishesSilenceIsNotReported() throws {
         let controller = try DefaultProcessController(
+            fileSystem: fileSystem,
             subprocess: Subprocess(
                 arguments: ["/bin/sleep"],
                 silenceBehavior: SilenceBehavior(
@@ -157,7 +199,7 @@ final class DefaultProcessControllerTests: XCTestCase {
         )
         let delegate = FakeDelegate()
         controller.delegate = delegate
-        controller.startAndListenUntilProcessDies()
+        try controller.startAndListenUntilProcessDies()
         
         XCTAssertEqual(delegate.noActivityDetected, false)
     }
@@ -166,12 +208,13 @@ final class DefaultProcessControllerTests: XCTestCase {
         let temporaryFolder = try TemporaryFolder()
         
         let controller = try DefaultProcessController(
+            fileSystem: fileSystem,
             subprocess: Subprocess(
                 arguments: ["/bin/pwd"],
                 workingDirectory: temporaryFolder.absolutePath
             )
         )
-        controller.startAndListenUntilProcessDies()
+        try controller.startAndListenUntilProcessDies()
         
         XCTAssertEqual(
             try String(contentsOfFile: controller.subprocess.standardStreamsCaptureConfig.stdoutContentsFile.pathString),
@@ -183,6 +226,7 @@ final class DefaultProcessControllerTests: XCTestCase {
         let tempFile = try TemporaryFile()
         
         let controller = try DefaultProcessController(
+            fileSystem: fileSystem,
             subprocess: Subprocess(
                 arguments: ["/bin/ls", "/"],
                 standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
@@ -190,7 +234,7 @@ final class DefaultProcessControllerTests: XCTestCase {
                 )
             )
         )
-        controller.startAndListenUntilProcessDies()
+        try controller.startAndListenUntilProcessDies()
         
         let data = try Data(contentsOf: URL(fileURLWithPath: tempFile.absolutePath.pathString))
         guard let string = String(data: data, encoding: .utf8) else {
@@ -205,6 +249,7 @@ final class DefaultProcessControllerTests: XCTestCase {
         
         let argument = "/\(UUID().uuidString)"
         let controller = try DefaultProcessController(
+            fileSystem: fileSystem,
             subprocess: Subprocess(
                 arguments: ["/bin/ls", argument],
                 standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
@@ -212,7 +257,7 @@ final class DefaultProcessControllerTests: XCTestCase {
                 )
             )
         )
-        controller.startAndListenUntilProcessDies()
+        try controller.startAndListenUntilProcessDies()
         
         let data = try Data(contentsOf: tempFile.absolutePath.fileUrl)
         guard let string = String(data: data, encoding: .utf8) else {
@@ -231,6 +276,7 @@ final class DefaultProcessControllerTests: XCTestCase {
         
         let argument = "/\(UUID().uuidString)"
         let controller = try DefaultProcessController(
+            fileSystem: fileSystem,
             subprocess: Subprocess(
                 arguments: ["/bin/ls", "/", argument],
                 standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
@@ -239,7 +285,7 @@ final class DefaultProcessControllerTests: XCTestCase {
                 )
             )
         )
-        controller.startAndListenUntilProcessDies()
+        try controller.startAndListenUntilProcessDies()
         
         let stdoutData = try Data(contentsOf: stdoutFile.absolutePath.fileUrl)
         guard let stdoutString = String(data: stdoutData, encoding: .utf8) else {
@@ -259,6 +305,7 @@ final class DefaultProcessControllerTests: XCTestCase {
     
     func test___stdout_listener() throws {
         let controller = try DefaultProcessController(
+            fileSystem: fileSystem,
             subprocess: Subprocess(
                 arguments: ["/bin/ls", "/bin/ls"]
             )
@@ -266,7 +313,7 @@ final class DefaultProcessControllerTests: XCTestCase {
         
         var stdoutData = Data()
         controller.onStdout { _, data, _ in stdoutData.append(contentsOf: data) }
-        controller.startAndListenUntilProcessDies()
+        try controller.startAndListenUntilProcessDies()
         
         guard let string = String(data: stdoutData, encoding: .utf8) else {
             return XCTFail("Unable to get stdout string")
@@ -278,6 +325,7 @@ final class DefaultProcessControllerTests: XCTestCase {
         let argument = UUID().uuidString + UUID().uuidString
         
         let controller = try DefaultProcessController(
+            fileSystem: fileSystem,
             subprocess: Subprocess(
                 arguments: ["/bin/ls", "/bin/" + argument]
             )
@@ -285,7 +333,7 @@ final class DefaultProcessControllerTests: XCTestCase {
         
         var stderrData = Data()
         controller.onStderr { _, data, _ in stderrData.append(contentsOf: data) }
-        controller.startAndListenUntilProcessDies()
+        try controller.startAndListenUntilProcessDies()
         
         guard let string = String(data: stderrData, encoding: .utf8) else {
             return XCTFail("Unable to get stdout string")
@@ -295,6 +343,7 @@ final class DefaultProcessControllerTests: XCTestCase {
     
     func test___silence_listener() throws {
         let controller = try DefaultProcessController(
+            fileSystem: fileSystem,
             subprocess: Subprocess(
                 arguments: ["/bin/sleep", "10"],
                 silenceBehavior: SilenceBehavior(
@@ -310,13 +359,14 @@ final class DefaultProcessControllerTests: XCTestCase {
             sender.interruptAndForceKillIfNeeded()
             listenerCalled.fulfill()
         }
-        controller.startAndListenUntilProcessDies()
+        try controller.startAndListenUntilProcessDies()
         
         wait(for: [listenerCalled], timeout: 10)
     }
     
     func test___cancelling_stdout_listener___does_not_invoke_cancelled_listener_anymore() throws {
         let controller = try DefaultProcessController(
+            fileSystem: fileSystem,
             subprocess: Subprocess(
                 arguments: ["/bin/sh", "-c", "echo aa; sleep 3; echo aa"]
             )
@@ -328,7 +378,7 @@ final class DefaultProcessControllerTests: XCTestCase {
             collectedData.append(contentsOf: data)
             unsubscriber()
         }
-        controller.startAndListenUntilProcessDies()
+        try controller.startAndListenUntilProcessDies()
         
         XCTAssertEqual(
             collectedData,
@@ -338,6 +388,7 @@ final class DefaultProcessControllerTests: XCTestCase {
     
     func test___cancelling_stderr_listener___does_not_invoke_cancelled_listener_anymore() throws {
         let controller = try DefaultProcessController(
+            fileSystem: fileSystem,
             subprocess: Subprocess(
                 arguments: ["/bin/sh", "-c", ">&2 echo aa; sleep 3; echo aa"]
             )
@@ -349,7 +400,7 @@ final class DefaultProcessControllerTests: XCTestCase {
             collectedData.append(contentsOf: data)
             unsubscriber()
         }
-        controller.startAndListenUntilProcessDies()
+        try controller.startAndListenUntilProcessDies()
         
         XCTAssertEqual(
             collectedData,
@@ -451,16 +502,18 @@ final class DefaultProcessControllerTests: XCTestCase {
         
         // precompile
         let compiler = try DefaultProcessController(
+            fileSystem: fileSystem,
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/swiftc",
                     "-emit-executable",
                     streamingSwiftTempFile,
                     "-o", compiledExecutable]))
-        compiler.startAndListenUntilProcessDies()
+        try compiler.startAndListenUntilProcessDies()
         
         // run the executable
         let controller = try DefaultProcessController(
+            fileSystem: fileSystem,
             subprocess: Subprocess(
                 arguments: [compiledExecutable],
                 silenceBehavior: SilenceBehavior(
