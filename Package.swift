@@ -308,7 +308,11 @@ let package = Package(
             // MARK: DeployerTests
             name: "DeployerTests",
             dependencies: [
-                "Deployer"
+                "Deployer",
+                "Extensions",
+                "PathLib",
+                "TemporaryStuff",
+                "TestHelpers",
             ]
         ),
         .target(
