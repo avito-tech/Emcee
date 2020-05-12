@@ -57,8 +57,22 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         singleTestMaximumDuration: 60,
         testRunnerMaximumSilenceDuration: 60
     )
-    private lazy var appBundlePath = tempFolder.absolutePath.appending(component: "appbundle.app")
+    private lazy var appBundlePath: AbsolutePath = assertDoesNotThrow {
+        let path = try tempFolder.pathByCreatingDirectories(components: ["appbundle.app"])
+        let data = try PropertyListSerialization.data(
+            fromPropertyList: ["CFBundleIdentifier": hostAppBundleId],
+            format: .xml,
+            options: 0
+        )
+        try tempFolder.createFile(
+            components: ["appbundle.app"],
+            filename: "Info.plist",
+            contents: data
+        )
+        return path
+    }
     private lazy var runnerAppPath = tempFolder.absolutePath.appending(component: "xctrunner.app")
+    private let hostAppBundleId = "host.app.bundle.id"
     private let testBundleName = "SomeTestProductName"
     private lazy var testBundlePath: AbsolutePath = {
         let testBundlePlistPath = assertDoesNotThrow {
@@ -152,6 +166,80 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 testRunnerStream: testRunnerStream,
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .logicTest
+            )
+        }
+        
+        wait(for: [argsValidatedExpectation], timeout: 15)
+    }
+    
+    func test___application_test_arguments() throws {
+        let argsValidatedExpectation = expectation(description: "Arguments have been validated")
+        
+        processControllerProvider.creator = { subprocess -> ProcessController in
+            XCTAssertEqual(
+                try subprocess.arguments.map { try $0.stringValue() },
+                [
+                    "/usr/bin/xcrun",
+                    "xcodebuild",
+                    "-destination", "platform=iOS Simulator,id=" + self.simulator.udid.value,
+                    "-xctestrun", try self.pathToXctestrunFile().pathString,
+                    "-parallel-testing-enabled", "NO",
+                    "test-without-building"
+                ]
+            )
+            
+            XCTAssertEqual(
+                try self.createdXcTestRun(),
+                XcTestRun(
+                    testTargetName: self.testBundleName,
+                    bundleIdentifiersForCrashReportEmphasis: [],
+                    dependentProductPaths: [
+                        self.appBundlePath.pathString,
+                        self.testBundlePath.pathString,
+                    ],
+                    testBundlePath: self.testBundlePath.pathString,
+                    testHostPath: self.appBundlePath.pathString,
+                    testHostBundleIdentifier: self.hostAppBundleId,
+                    uiTargetAppPath: nil,
+                    environmentVariables: [:],
+                    commandLineArguments: [],
+                    uiTargetAppEnvironmentVariables: [:],
+                    uiTargetAppCommandLineArguments: [],
+                    uiTargetAppMainThreadCheckerEnabled: false,
+                    skipTestIdentifiers: [],
+                    onlyTestIdentifiers: [TestEntryFixtures.testEntry().testName.stringValue],
+                    testingEnvironmentVariables: [
+                        "DYLD_INSERT_LIBRARIES": "__PLATFORMS__/iPhoneSimulator.platform/Developer/usr/lib/libXCTestBundleInject.dylib",
+                        "XCInjectBundleInto": self.appBundlePath.pathString,
+                    ],
+                    isUITestBundle: false,
+                    isAppHostedTestBundle: true,
+                    isXCTRunnerHostedTestBundle: false,
+                    testTargetProductModuleName: self.testBundleName
+                )
+            )
+            
+            argsValidatedExpectation.fulfill()
+            
+            let controller = FakeProcessController(subprocess: subprocess)
+            controller.overridedProcessStatus = .terminated(exitCode: 0)
+            return controller
+        }
+        
+        assertDoesNotThrow {
+            _ = try runner.run(
+                buildArtifacts: buildArtifacts,
+                developerDirLocator: developerDirLocator,
+                entriesToRun: [
+                    TestEntryFixtures.testEntry()
+                ],
+                simulator: simulator,
+                simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
+                temporaryFolder: tempFolder,
+                testContext: testContext,
+                testRunnerStream: testRunnerStream,
+                testTimeoutConfiguration: testTimeoutConfiguration,
+                testType: .appTest
             )
         }
         

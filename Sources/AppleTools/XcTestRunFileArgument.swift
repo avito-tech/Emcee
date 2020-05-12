@@ -16,6 +16,17 @@ public final class XcTestRunFileArgument: SubprocessArgument {
     private let temporaryFolder: TemporaryFolder
     private let testContext: TestContext
     private let testType: TestType
+        
+    public enum XcTestRunFileArgumentError: CustomStringConvertible, Error {
+        case cannotObtainBundleIdentifier(path: String)
+        
+        public var description: String {
+            switch self {
+            case .cannotObtainBundleIdentifier(let path):
+                return "Cannot obtain bundle id for bundle at path: '\(path)'"
+            }
+        }
+    }
 
     public init(
         buildArtifacts: BuildArtifacts,
@@ -115,7 +126,16 @@ public final class XcTestRunFileArgument: SubprocessArgument {
         let testTargetProductModuleName = try self.testTargetProductModuleName(
             xcTestBundlePath: testBundlePath
         )
+
+        guard let hostAppBundle = Bundle(path: hostAppPath), let hostAppBundleIdentifier = hostAppBundle.bundleIdentifier else {
+            throw XcTestRunFileArgumentError.cannotObtainBundleIdentifier(path: hostAppPath)
+        }
         
+        let xctestSpecificEnvironment = [
+            "DYLD_INSERT_LIBRARIES": "__PLATFORMS__/iPhoneSimulator.platform/Developer/usr/lib/libXCTestBundleInject.dylib",
+            "XCInjectBundleInto": hostAppPath,
+        ]
+
         return XcTestRun(
             testTargetName: testTargetProductModuleName,
             bundleIdentifiersForCrashReportEmphasis: [],
@@ -125,7 +145,7 @@ public final class XcTestRunFileArgument: SubprocessArgument {
             ],
             testBundlePath: testBundlePath,
             testHostPath: hostAppPath,
-            testHostBundleIdentifier: "StubBundleId",
+            testHostBundleIdentifier: hostAppBundleIdentifier,
             uiTargetAppPath: nil,
             environmentVariables: testContext.environment,
             commandLineArguments: [],
@@ -134,7 +154,7 @@ public final class XcTestRunFileArgument: SubprocessArgument {
             uiTargetAppMainThreadCheckerEnabled: false,
             skipTestIdentifiers: [],
             onlyTestIdentifiers: entriesToRun.map { $0.testName.stringValue },
-            testingEnvironmentVariables: [:],
+            testingEnvironmentVariables: xctestSpecificEnvironment.byMergingWith(testContext.environment),
             isUITestBundle: false,
             isAppHostedTestBundle: true,
             isXCTRunnerHostedTestBundle: false,
