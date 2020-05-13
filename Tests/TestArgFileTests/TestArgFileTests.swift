@@ -61,7 +61,8 @@ final class TestArgFileTests: XCTestCase {
                         "languages": ["ru-US", "en", "ru-RU"],
                         "addingEmojiKeybordHandled": true,
                         "enableKeyboardExpansion": true,
-                        "didShowInternationalInfoAlert": true
+                        "didShowInternationalInfoAlert": true,
+                        "didShowContinuousPathIntroduction": true
                     },
                     "watchdogSettings": {
                         "bundleIds": ["sample.app"],

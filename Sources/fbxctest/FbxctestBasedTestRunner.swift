@@ -151,7 +151,8 @@ public final class FbxctestBasedTestRunner: TestRunner {
                 languages: simulatorSettings.simulatorLocalizationSettings.languages,
                 addingEmojiKeybordHandled: simulatorSettings.simulatorLocalizationSettings.addingEmojiKeybordHandled,
                 enableKeyboardExpansion: simulatorSettings.simulatorLocalizationSettings.enableKeyboardExpansion,
-                didShowInternationalInfoAlert: simulatorSettings.simulatorLocalizationSettings.didShowInternationalInfoAlert
+                didShowInternationalInfoAlert: simulatorSettings.simulatorLocalizationSettings.didShowInternationalInfoAlert,
+                didShowContinuousPathIntroduction: simulatorSettings.simulatorLocalizationSettings.didShowContinuousPathIntroduction
             )
             let simulatorLocalizationFilePath = fbxctestWorkingDirectory.appending(component: "simulator_localization_settings.json")
             try encoder.encode(simulatorLocalizationFile).write(to: simulatorLocalizationFilePath.fileUrl)

@@ -8,6 +8,7 @@ public struct SimulatorLocalizationSettings: Codable, CustomStringConvertible, H
     public let addingEmojiKeybordHandled: Bool
     public let enableKeyboardExpansion: Bool
     public let didShowInternationalInfoAlert: Bool
+    public let didShowContinuousPathIntroduction: Bool
     
     public init(
         localeIdentifier: String,
@@ -16,7 +17,8 @@ public struct SimulatorLocalizationSettings: Codable, CustomStringConvertible, H
         languages: [String],
         addingEmojiKeybordHandled: Bool,
         enableKeyboardExpansion: Bool,
-        didShowInternationalInfoAlert: Bool
+        didShowInternationalInfoAlert: Bool,
+        didShowContinuousPathIntroduction: Bool
     ) {
         self.localeIdentifier = localeIdentifier
         self.keyboards = keyboards
@@ -25,9 +27,10 @@ public struct SimulatorLocalizationSettings: Codable, CustomStringConvertible, H
         self.addingEmojiKeybordHandled = addingEmojiKeybordHandled
         self.enableKeyboardExpansion = enableKeyboardExpansion
         self.didShowInternationalInfoAlert = didShowInternationalInfoAlert
+        self.didShowContinuousPathIntroduction = didShowContinuousPathIntroduction
     }
     
         public var description: String {
-            return "<\(type(of: self)) \(localeIdentifier), keyboards: \(keyboards), passcodeKeyboards: \(passcodeKeyboards), languages: \(languages), addingEmojiKeybordHandled \(addingEmojiKeybordHandled), enableKeyboardExpansion \(enableKeyboardExpansion), didShowInternationalInfoAlert \(didShowInternationalInfoAlert)>"
+            return "<\(type(of: self)) \(localeIdentifier), keyboards: \(keyboards), passcodeKeyboards: \(passcodeKeyboards), languages: \(languages), addingEmojiKeybordHandled \(addingEmojiKeybordHandled), enableKeyboardExpansion \(enableKeyboardExpansion), didShowInternationalInfoAlert \(didShowInternationalInfoAlert), didShowContinuousPathIntroduction \(didShowContinuousPathIntroduction)>"
     }
 }

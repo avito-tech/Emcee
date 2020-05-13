@@ -10,6 +10,7 @@ public final class SimulatorLocalizationSettingsFixture {
     public var addingEmojiKeybordHandled = true
     public var enableKeyboardExpansion = true
     public var didShowInternationalInfoAlert = true
+    public var didShowContinuousPathIntroduction = true
     
     public init() {}
     
@@ -21,7 +22,8 @@ public final class SimulatorLocalizationSettingsFixture {
             languages: languages,
             addingEmojiKeybordHandled: addingEmojiKeybordHandled,
             enableKeyboardExpansion: enableKeyboardExpansion,
-            didShowInternationalInfoAlert: didShowInternationalInfoAlert
+            didShowInternationalInfoAlert: didShowInternationalInfoAlert,
+            didShowContinuousPathIntroduction: didShowContinuousPathIntroduction
         )
     }
 }
