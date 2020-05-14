@@ -1,5 +1,6 @@
 import AutomaticTermination
 import AutomaticTerminationTestHelpers
+import BalancingBucketQueue
 import BucketQueue
 import BucketQueueTestHelpers
 import DistWorkerModels
@@ -17,7 +18,6 @@ import RESTMethods
 import RESTServer
 import RESTServerTestHelpers
 import RequestSender
-import ResultsCollector
 import ScheduleStrategy
 import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessProvider

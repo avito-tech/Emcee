@@ -4,7 +4,6 @@ import BucketQueueTestHelpers
 import Foundation
 import Models
 import QueueModels
-import ResultsCollector
 import XCTest
 
 final class JobQueueTests: XCTestCase {

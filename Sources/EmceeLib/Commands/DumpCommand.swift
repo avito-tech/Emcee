@@ -6,7 +6,6 @@ import EventBus
 import Extensions
 import FileSystem
 import Foundation
-import JunitReporting
 import Logging
 import Models
 import PathLib

@@ -1,7 +1,6 @@
 import BucketQueue
 import Foundation
 import QueueModels
-import ResultsCollector
 
 public struct JobQueue: DefinesExecutionOrder {
     public let bucketQueue: BucketQueue

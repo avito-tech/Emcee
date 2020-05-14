@@ -158,7 +158,6 @@ let package = Package(
                 "Logging",
                 "Models",
                 "QueueModels",
-                "ResultsCollector",
             ]
         ),
         .testTarget(
@@ -175,7 +174,6 @@ let package = Package(
                 "ModelsTestHelpers",
                 "QueueModels",
                 "QueueModelsTestHelpers",
-                "ResultsCollector",
                 "TestHelpers",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
@@ -253,21 +251,6 @@ let package = Package(
             dependencies: [
                 "Extensions",
                 "Models"
-            ]
-        ),
-        .target(
-            // MARK: CurrentlyBeingProcessedBucketsTracker
-            name: "CurrentlyBeingProcessedBucketsTracker",
-            dependencies: [
-                "CountedSet",
-                "Models"
-            ]
-        ),
-        .testTarget(
-            // MARK: CurrentlyBeingProcessedBucketsTrackerTests
-            name: "CurrentlyBeingProcessedBucketsTrackerTests",
-            dependencies: [
-                "CurrentlyBeingProcessedBucketsTracker"
             ]
         ),
         .target(
@@ -387,7 +370,7 @@ let package = Package(
             name: "DistWorker",
             dependencies: [
                 "AutomaticTermination",
-                "CurrentlyBeingProcessedBucketsTracker",
+                "CountedSet",
                 "DeveloperDirLocator",
                 "DistWorkerModels",
                 "Extensions",
@@ -438,7 +421,6 @@ let package = Package(
             name: "DistWorkerTests",
             dependencies: [
                 "BuildArtifactsTestHelpers",
-                "CurrentlyBeingProcessedBucketsTracker",
                 "DistWorker",
                 "ModelsTestHelpers",
                 "RequestSender",
@@ -1051,7 +1033,6 @@ let package = Package(
                 "RESTMethods",
                 "RESTServer",
                 "RequestSenderTestHelpers",
-                "ResultsCollector",
                 "ScheduleStrategy",
                 "Swifter",
                 "SynchronousWaiter",
@@ -1102,7 +1083,6 @@ let package = Package(
                 "RequestSender",
                 "RequestSenderTestHelpers",
                 "ResourceLocationResolver",
-                "ResultsCollector",
                 "ScheduleStrategy",
                 "Swifter",
                 "SynchronousWaiter",
@@ -1184,21 +1164,6 @@ let package = Package(
                 "RequestSender",
                 "RequestSenderTestHelpers",
                 "Swifter",
-            ]
-        ),
-        .target(
-            // MARK: ResultsCollector
-            name: "ResultsCollector",
-            dependencies: [
-                "Models"
-            ]
-        ),
-        .testTarget(
-            // MARK: ResultsCollectorTests
-            name: "ResultsCollectorTests",
-            dependencies: [
-                "ModelsTestHelpers",
-                "ResultsCollector"
             ]
         ),
         .target(

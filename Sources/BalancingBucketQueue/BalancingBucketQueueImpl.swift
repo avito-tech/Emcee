@@ -6,7 +6,6 @@ import Foundation
 import Logging
 import Models
 import QueueModels
-import ResultsCollector
 
 final class BalancingBucketQueueImpl: BalancingBucketQueue {
     private let syncQueue = DispatchQueue(label: "BalancingBucketQueueImpl.syncQueue")

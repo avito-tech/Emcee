@@ -1,10 +1,10 @@
+import BalancingBucketQueue
 import BucketQueueTestHelpers
 import Foundation
 import Models
 import ModelsTestHelpers
 import QueueServer
 import RESTMethods
-import ResultsCollector
 import WorkerAlivenessProviderTestHelpers
 import XCTest
 

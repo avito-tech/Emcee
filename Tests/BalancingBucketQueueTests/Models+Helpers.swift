@@ -4,7 +4,6 @@ import BucketQueueTestHelpers
 import Foundation
 import Models
 import QueueModels
-import ResultsCollector
 
 func createJob(
     creationTime: Date = Date(timeIntervalSince1970: 100),

@@ -2,7 +2,7 @@ import Foundation
 import Models
 
 public final class ResultsCollector {
-    private let queue = DispatchQueue(label: "ru.avito.emcee.ResultsCollector.queue")
+    private let queue = DispatchQueue(label: "ResultsCollector.queue")
     private var testingResults = [TestingResult]()
     
     public init() {}

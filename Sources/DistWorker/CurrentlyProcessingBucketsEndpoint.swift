@@ -1,4 +1,3 @@
-import CurrentlyBeingProcessedBucketsTracker
 import DistWorkerModels
 import Foundation
 import Logging

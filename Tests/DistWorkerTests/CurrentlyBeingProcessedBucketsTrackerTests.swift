@@ -1,4 +1,4 @@
-import CurrentlyBeingProcessedBucketsTracker
+import DistWorker
 import Foundation
 import Models
 import XCTest
