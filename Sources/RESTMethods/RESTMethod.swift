@@ -10,6 +10,7 @@ public enum RESTMethod: String {
     case jobState
     case jobResults
     case jobDelete
+    case disableWorker
     
     public var withLeadingSlash: String {
         return "/\(self.rawValue)"

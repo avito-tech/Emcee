@@ -64,5 +64,44 @@ final class WorkerAlivenessProviderTests: XCTestCase {
         )
     }
     
+    func test___disabling_worker___keeps_processing_buckets() {
+        let tracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults(
+            knownWorkerIds: [WorkerId(value: "worker")]
+        )
+        tracker.didRegisterWorker(workerId: "worker")
+        tracker.didDequeueBucket(bucketId: "bucketId", workerId: "worker")
+        tracker.disableWorker(workerId: "worker")
+        
+        XCTAssertEqual(
+            tracker.workerAliveness,
+            [
+                WorkerId(value: "worker"): WorkerAliveness(
+                    status: .disabled,
+                    bucketIdsBeingProcessed: ["bucketId"]
+                )
+            ]
+        )
+    }
+    
+    func test___enabling_worker___keeps_processing_buckets() {
+        let tracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults(
+            knownWorkerIds: [WorkerId(value: "worker")]
+        )
+        tracker.didRegisterWorker(workerId: "worker")
+        tracker.didDequeueBucket(bucketId: "bucketId", workerId: "worker")
+        tracker.disableWorker(workerId: "worker")
+        tracker.enableWorker(workerId: "worker")
+        
+        XCTAssertEqual(
+            tracker.workerAliveness,
+            [
+                WorkerId(value: "worker"): WorkerAliveness(
+                    status: .alive,
+                    bucketIdsBeingProcessed: ["bucketId"]
+                )
+            ]
+        )
+    }
+    
     let fixedDate = Date()
 }

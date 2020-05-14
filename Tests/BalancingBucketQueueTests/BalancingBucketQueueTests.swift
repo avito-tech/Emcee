@@ -420,6 +420,47 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
     }
     
+    func test___dequeueing_by_disabled_worker___provides_empty_result() throws {
+        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
+        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        
+        workerAlivenessProvider.disableWorker(workerId: workerId)
+        
+        XCTAssertEqual(
+            balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId),
+            DequeueResult.checkAgainLater(checkAfter: checkAgainTimeInterval)
+        )
+    }
+    
+    func test___dequeueing_by_reenabled_worker___provides_bucket() throws {
+        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
+        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        
+        workerAlivenessProvider.disableWorker(workerId: workerId)
+        
+        XCTAssertEqual(
+            balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId),
+            DequeueResult.checkAgainLater(checkAfter: checkAgainTimeInterval)
+        )
+        
+        workerAlivenessProvider.enableWorker(workerId: workerId)
+        
+        XCTAssertEqual(
+            balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId),
+            DequeueResult.dequeuedBucket(
+                DequeuedBucket(
+                    enqueuedBucket: EnqueuedBucket(
+                        bucket: bucket,
+                        enqueueTimestamp: dateProvider.currentDate(),
+                        uniqueIdentifier: uniqueIdentifierGenerator.generate()
+                    ),
+                    workerId: workerId,
+                    requestId: requestId
+                )
+            )
+        )
+    }
+    
     func test___ongoing_job_ids() {
         balancingQueue.enqueue(buckets: [], prioritizedJob: prioritizedJob)
         balancingQueue.enqueue(buckets: [], prioritizedJob: highlyPrioritizedJob)

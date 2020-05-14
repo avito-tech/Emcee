@@ -474,6 +474,7 @@ let package = Package(
             dependencies: [
                 "AppleTools",
                 "ArgLib",
+                "AtomicModels",
                 "AutomaticTermination",
                 "BucketQueue",
                 "BuildArtifacts",

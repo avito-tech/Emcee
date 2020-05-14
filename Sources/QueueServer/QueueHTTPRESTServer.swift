@@ -12,9 +12,10 @@ public final class QueueHTTPRESTServer {
         self.httpRestServer = httpRestServer
     }
     
-    public func setHandler<A1, A2, B1, B2, C1, C2, E1, E2, F1, F2, G1, G2, H1, H2, I1, I2>(
+    public func setHandler<A1, A2, B1, B2, C1, C2, D1, D2, E1, E2, F1, F2, G1, G2, H1, H2, I1, I2>(
         bucketResultHandler: RESTEndpointOf<C1, C2>,
         dequeueBucketRequestHandler: RESTEndpointOf<B1, B2>,
+        disableWorkerHandler: RESTEndpointOf<D1, D2>,
         jobDeleteHandler: RESTEndpointOf<I1, I2>,
         jobResultsHandler: RESTEndpointOf<H1, H2>,
         jobStateHandler: RESTEndpointOf<G1, G2>,
@@ -30,6 +31,11 @@ public final class QueueHTTPRESTServer {
         httpRestServer.setHandler(
             pathWithSlash: RESTMethod.getBucket.withLeadingSlash,
             handler: dequeueBucketRequestHandler,
+            requestIndicatesActivity: false
+        )
+        httpRestServer.setHandler(
+            pathWithSlash: RESTMethod.disableWorker.withLeadingSlash,
+            handler: disableWorkerHandler,
             requestIndicatesActivity: false
         )
         httpRestServer.setHandler(

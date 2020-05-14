@@ -48,6 +48,7 @@ private extension WorkerAliveness.Status {
         case .alive: return "alive"
         case .notRegistered: return "notRegistered"
         case .silent: return "silent"
+        case .disabled: return "disabled"
         }
     }
 }

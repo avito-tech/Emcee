@@ -7,8 +7,8 @@ import Models
 public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     private let syncQueue = DispatchQueue(label: "ru.avito.emcee.workerAlivenessProvider.syncQueue")
     private let dateProvider: DateProvider
-    /// a set of workers that are expected to have the aliveness statuses
     private let knownWorkerIds: Set<WorkerId>
+    private var disabledWorkerIds = Set<WorkerId>()
     private var workerAliveReportTimestamps = [WorkerId: Date]()
     private let workerBucketIdsBeingProcessed = WorkerCurrentlyProcessingBucketsTracker()
     /// allow worker some additinal time to perform a "i'm alive" report, e.g. to compensate a network latency
@@ -56,6 +56,18 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
         }
     }
     
+    public func enableWorker(workerId: WorkerId) {
+        syncQueue.sync {
+            _ = disabledWorkerIds.remove(workerId)
+        }
+    }
+    
+    public func disableWorker(workerId: WorkerId) {
+        syncQueue.sync {
+            _ = disabledWorkerIds.insert(workerId)
+        }
+    }
+    
     private func onSyncQueue_workerAliveness() -> [WorkerId: WorkerAliveness] {
         let uniqueWorkerIds = Set<WorkerId>(workerAliveReportTimestamps.keys).union(knownWorkerIds)
         
@@ -75,9 +87,19 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
         let bucketIdsBeingProcessed = workerBucketIdsBeingProcessed.bucketIdsBeingProcessedBy(workerId: workerId)
         let silenceDuration = currentDate.timeIntervalSince(latestAliveDate)
         if silenceDuration > maximumNotReportingDuration {
-            return WorkerAliveness(status: .silent(lastAlivenessResponseTimestamp: latestAliveDate), bucketIdsBeingProcessed: bucketIdsBeingProcessed)
+            return WorkerAliveness(
+                status: .silent(lastAlivenessResponseTimestamp: latestAliveDate),
+                bucketIdsBeingProcessed: bucketIdsBeingProcessed
+            )
+        } else if disabledWorkerIds.contains(workerId) {
+            return WorkerAliveness(
+                status: .disabled,
+                bucketIdsBeingProcessed: bucketIdsBeingProcessed)
         } else {
-            return WorkerAliveness(status: .alive, bucketIdsBeingProcessed: bucketIdsBeingProcessed)
+            return WorkerAliveness(
+                status: .alive,
+                bucketIdsBeingProcessed: bucketIdsBeingProcessed
+            )
         }
     }
     

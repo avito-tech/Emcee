@@ -52,7 +52,7 @@ public final class WorkerRegistrar: RESTEndpoint {
                 restAddress: decodedPayload.workerRestAddress
             )
             return .workerRegisterSuccess(workerConfiguration: workerConfiguration)
-        case .alive:
+        case .alive, .disabled:
             throw WorkerRegistrarError.workerIsAlreadyRegistered(workerId: decodedPayload.workerId)
         }
     }

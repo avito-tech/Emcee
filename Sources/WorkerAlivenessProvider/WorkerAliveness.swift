@@ -3,9 +3,17 @@ import Models
 
 public struct WorkerAliveness: Equatable, CustomStringConvertible {
     public enum Status: Equatable, CustomStringConvertible {
-        case alive
-        case silent(lastAlivenessResponseTimestamp: Date)
+        /// worker is yet to register with queue
         case notRegistered
+        
+        /// worker is alive and performing
+        case alive
+        
+        /// worker is not responding and considered silent
+        case silent(lastAlivenessResponseTimestamp: Date)
+        
+        /// worker has been disabled
+        case disabled
         
         public var description: String {
             switch self {
@@ -15,6 +23,8 @@ public struct WorkerAliveness: Equatable, CustomStringConvertible {
                 return "silent since \(lastAlivenessResponseTimestamp)"
             case .notRegistered:
                 return "not registered"
+            case .disabled:
+                return "disabled"
             }
         }
     }

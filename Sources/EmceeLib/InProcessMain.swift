@@ -103,6 +103,7 @@ public final class InProcessMain {
                     resourceLocationResolver: resourceLocationResolver,
                     uniqueIdentifierGenerator: uniqueIdentifierGenerator
                 ),
+                DisableWorkerCommand(),
             ],
             helpCommandType: .generateAutomatically
         )

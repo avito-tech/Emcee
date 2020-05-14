@@ -59,6 +59,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         restServer.setHandler(
             bucketResultHandler: stubbedHandler,
             dequeueBucketRequestHandler: stubbedHandler,
+            disableWorkerHandler: stubbedHandler,
             jobDeleteHandler: stubbedHandler,
             jobResultsHandler: stubbedHandler,
             jobStateHandler: stubbedHandler,
@@ -121,6 +122,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         restServer.setHandler(
             bucketResultHandler: stubbedHandler,
             dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: bucketProvider),
+            disableWorkerHandler: stubbedHandler,
             jobDeleteHandler: stubbedHandler,
             jobResultsHandler: stubbedHandler,
             jobStateHandler: stubbedHandler,
@@ -160,6 +162,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         restServer.setHandler(
             bucketResultHandler: RESTEndpointOf(actualHandler: resultHandler),
             dequeueBucketRequestHandler: stubbedHandler,
+            disableWorkerHandler: stubbedHandler,
             jobDeleteHandler: stubbedHandler,
             jobResultsHandler: stubbedHandler,
             jobStateHandler: stubbedHandler,
@@ -201,6 +204,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         restServer.setHandler(
             bucketResultHandler: stubbedHandler,
             dequeueBucketRequestHandler: stubbedHandler,
+            disableWorkerHandler: stubbedHandler,
             jobDeleteHandler: stubbedHandler,
             jobResultsHandler: stubbedHandler,
             jobStateHandler: stubbedHandler,
@@ -255,6 +259,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         restServer.setHandler(
             bucketResultHandler: stubbedHandler,
             dequeueBucketRequestHandler: stubbedHandler,
+            disableWorkerHandler: stubbedHandler,
             jobDeleteHandler: stubbedHandler,
             jobResultsHandler: stubbedHandler,
             jobStateHandler: stubbedHandler,
@@ -300,6 +305,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         restServer.setHandler(
             bucketResultHandler: stubbedHandler,
             dequeueBucketRequestHandler: stubbedHandler,
+            disableWorkerHandler: stubbedHandler,
             jobDeleteHandler: stubbedHandler,
             jobResultsHandler: stubbedHandler,
             jobStateHandler: RESTEndpointOf(actualHandler: jobStateHandler),
@@ -329,6 +335,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         restServer.setHandler(
             bucketResultHandler: stubbedHandler,
             dequeueBucketRequestHandler: stubbedHandler,
+            disableWorkerHandler: stubbedHandler,
             jobDeleteHandler: stubbedHandler,
             jobResultsHandler: RESTEndpointOf(actualHandler: jobResultsHandler),
             jobStateHandler: stubbedHandler,
@@ -356,6 +363,7 @@ final class QueueHTTPRESTServerTests: XCTestCase {
         restServer.setHandler(
             bucketResultHandler: stubbedHandler,
             dequeueBucketRequestHandler: stubbedHandler,
+            disableWorkerHandler: stubbedHandler,
             jobDeleteHandler: RESTEndpointOf(actualHandler: jobResultsHandler),
             jobResultsHandler: stubbedHandler,
             jobStateHandler: stubbedHandler,
@@ -373,6 +381,50 @@ final class QueueHTTPRESTServerTests: XCTestCase {
             automaticTerminationController.indicatedActivityFinished,
             "Should indicate activity to automatic termination controller"
         )
+    }
+    
+    func test___disabling_worker() throws {
+        let disableWorkerHandler = FakeRESTEndpoint<DisableWorkerPayload, WorkerDisabledResponse>(
+            WorkerDisabledResponse(workerId: workerId)
+        )
+        
+        restServer.setHandler(
+            bucketResultHandler: stubbedHandler,
+            dequeueBucketRequestHandler: stubbedHandler,
+            disableWorkerHandler: RESTEndpointOf(actualHandler: disableWorkerHandler),
+            jobDeleteHandler: stubbedHandler,
+            jobResultsHandler: stubbedHandler,
+            jobStateHandler: stubbedHandler,
+            registerWorkerHandler: stubbedHandler,
+            scheduleTestsHandler: stubbedHandler,
+            versionHandler: stubbedHandler
+        )
+        
+        let expectation = XCTestExpectation(description: "Finished processing callback")
+        
+        let workerDisabler = WorkerDisablerImpl(
+            requestSender: RequestSenderImpl(
+                urlSession: URLSession(configuration: .default),
+                queueServerAddress: queueServerAddress(port: try restServer.start())
+            )
+        )
+        workerDisabler.disableWorker(
+            workerId: workerId,
+            callbackQueue: callbackQueue,
+            completion: { result in
+                do {
+                    let disabledWorkerId = try result.dematerialize()
+                    XCTAssertEqual(
+                        disabledWorkerId,
+                        self.workerId
+                    )
+                } catch {
+                    self.failTest("Test failure: \(error)")
+                }
+                expectation.fulfill()
+            }
+        )
+        wait(for: [expectation], timeout: 15)
     }
     
     private func queueServerAddress(port: Int) -> SocketAddress {

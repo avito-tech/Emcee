@@ -73,6 +73,8 @@ final class BucketQueueImpl: BucketQueue {
             return .workerIsNotAlive
         case .alive:
             break
+        case .disabled:
+            return .checkAgainLater(checkAfter: checkAgainTimeInterval)
         }
 
         return queue.sync {
@@ -172,7 +174,7 @@ final class BucketQueueImpl: BucketQueue {
                 switch aliveness.status {
                 case .notRegistered:
                     Logger.fatal("Worker '\(dequeuedBucket.workerId)' is not registered, but stuck bucket has worker id of this worker. This is not expected, as we shouldn't dequeue bucket to non-registered workers.")
-                case .alive:
+                case .alive, .disabled:
                     if aliveness.bucketIdsBeingProcessed.contains(dequeuedBucket.enqueuedBucket.bucket.bucketId) {
                        return nil
                     }

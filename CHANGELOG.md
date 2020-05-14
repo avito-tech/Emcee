@@ -4,11 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## 2020-05-15
 
-`Package.swift` file is now generated. All `import` statements are parsed to do that. On CI, the check has been added to verify that `Package.swift` is commited correctly.
-
+- `Package.swift` file is now generated. All `import` statements are parsed to do that. On CI, the check has been added to verify that `Package.swift` is commited correctly.
 New `make gen` command will generate both `Package.swift` and Xcode project.
-
 Test helper targets are detected by `TestHelper` suffix in their names. These targets are kept as normal ones (not `.testTarget()`).
+
+- New command `disableWorker --queue-server host:1234 --worker-id some.worker.id` allows to disable worker from load. Queue will not provide any buckets for execution to disabled worker. Useful for performing some maintenance and etc. Enabling worker feature is TBD. 
 
 ## 2020-04-22
 
