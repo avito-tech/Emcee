@@ -93,6 +93,15 @@ func generatePackageSwift(raplacementForTargets: [String]) throws {
         of: "<__TARGETS__>",
         with: raplacementForTargets.map { "        \($0)" }.joined(separator: "\n")
     )
+    
+    if ProcessInfo.processInfo.environment["ON_CI"] != nil {
+        log("Checking for Package.swift consistency")
+        let existingContents = try String(contentsOf: URL(fileURLWithPath: "Package.swift"))
+        if existingContents != templateContents {
+            fatalError("ON_CI is set, and Package.swift differs. Please update and commit Package.swift!")
+        }
+    }
+    
     log("Saving Package.swift")
     try templateContents.write(to: URL(fileURLWithPath: "Package.swift"), atomically: true, encoding: .utf8)
 }

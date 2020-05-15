@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2020-05-15
+
+`Package.swift` file is now generated. All `import` statements are parsed to do that. On CI, the check has been added to verify that `Package.swift` is commited correctly.
+
+New `make gen` command will generate both `Package.swift` and Xcode project.
+
 ## 2020-04-22
 
 A new test discovery mode `runtimeExecutableLaunch`  is added. The new test discovery mode is similar to `runtimeLogicTest` but instead of loading your xctest bundle in the xctest process of a simulator, it uses your app executable to load the xctest bundle and perform a dump. Such discovery mode is useful for xctest bundles that rely on bundle_loader symbols to be present in the runtime and thus cannot be loaded in an improper executable. 
