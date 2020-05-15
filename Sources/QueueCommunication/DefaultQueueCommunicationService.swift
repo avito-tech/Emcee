@@ -1,7 +1,6 @@
 import Deployer
 import Dispatch
 import Foundation
-import LocalHostDeterminer
 import Logging
 import Models
 import RequestSender
@@ -19,7 +18,7 @@ public enum QueueCommunicationServiceError: Error, CustomStringConvertible {
     }
 }
 
-class DefaultQueueCommunicationService: QueueCommunicationService {    
+public class DefaultQueueCommunicationService: QueueCommunicationService {    
     private let requestSenderProvider: RequestSenderProvider
     private let remoteQueueDetector: RemoteQueueDetector
     private let requestTimeout: TimeInterval
@@ -30,7 +29,7 @@ class DefaultQueueCommunicationService: QueueCommunicationService {
         target: .global(qos: .userInitiated)
     )
     
-    init(
+    public init(
         requestTimeout: TimeInterval,
         socketHost: String,
         requestSenderProvider: RequestSenderProvider,
@@ -42,7 +41,7 @@ class DefaultQueueCommunicationService: QueueCommunicationService {
         self.remoteQueueDetector = remoteQueueDetector
     }
     
-    func workersToUtilize(
+    public func workersToUtilize(
         deployments: [DeploymentDestination],
         completion: @escaping (Either<Set<WorkerId>, Error>) -> ()
     ) {

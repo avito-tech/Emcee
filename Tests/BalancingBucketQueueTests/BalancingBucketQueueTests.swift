@@ -8,6 +8,7 @@ import Foundation
 import Models
 import ModelsTestHelpers
 import QueueCommunication
+import QueueCommunicationTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
 import TestHelpers

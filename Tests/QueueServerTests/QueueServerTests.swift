@@ -6,6 +6,7 @@ import Foundation
 import Models
 import ModelsTestHelpers
 import PortDeterminer
+import QueueCommunicationTestHelpers
 import QueueClient
 import QueueModels
 import QueueModelsTestHelpers
@@ -51,7 +52,8 @@ final class QueueServerTests: XCTestCase {
             requestSenderProvider: DefaultRequestSenderProvider(),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
-            workerConfigurations: workerConfigurations
+            workerConfigurations: workerConfigurations,
+            workerPermissionProvider: FakeWorkerPermissionProvider()
         )
         XCTAssertThrowsError(try server.queueResults(jobId: jobId))
     }
@@ -87,7 +89,8 @@ final class QueueServerTests: XCTestCase {
             requestSenderProvider: DefaultRequestSenderProvider(),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
-            workerConfigurations: workerConfigurations
+            workerConfigurations: workerConfigurations,
+            workerPermissionProvider: FakeWorkerPermissionProvider()
         )
         server.schedule(
             bucketSplitter: ScheduleStrategyType.individual.bucketSplitter(

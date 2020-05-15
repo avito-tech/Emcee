@@ -3,6 +3,7 @@ import AutomaticTerminationTestHelpers
 import LocalQueueServerRunner
 import Models
 import ProcessControllerTestHelpers
+import QueueCommunicationTestHelpers
 import QueueModels
 import QueueServer
 import QueueServerTestHelpers
@@ -23,6 +24,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         queueServerTerminationPolicy: AutomaticTerminationPolicy.stayAlive
     )
     private let remotePortDeterminer = RemotePortDeterminerFixture(result: [:])
+    private let workerUtilizationStatusPoller = FakeWorkerUtilizationStatusPoller()
     private lazy var runner = LocalQueueServerRunner(
         automaticTerminationController: automaticTerminationController,
         newWorkerRegistrationTimeAllowance: 60.0,
@@ -34,7 +36,8 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         remotePortDeterminer: remotePortDeterminer,
         temporaryFolder: assertDoesNotThrow { try TemporaryFolder() },
         uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator(),
-        workerDestinations: []
+        workerDestinations: [],
+        workerUtilizationStatusPoller: workerUtilizationStatusPoller
     )
     
     let runnerQueue = DispatchQueue(label: "runner queue")
@@ -178,5 +181,20 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         remotePortDeterminer.set(port: 1234, version: emceeVersion)
         
         XCTAssertThrowsError(try runner.start(emceeVersion: emceeVersion))
+    }
+    
+    func test___start_polling_called___upon_runner_start() throws {
+        let expectation = self.expectation(description: "runner started")
+        expectation.isInverted = true
+        
+        queueServer.isDepleted = true
+        
+        runnerQueue.async {
+            _ = try? self.runner.start(emceeVersion: "emceeVersion")
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 1.0)
+        XCTAssertTrue(self.workerUtilizationStatusPoller.startPollingCalled)
     }
 }

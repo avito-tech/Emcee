@@ -13,6 +13,7 @@ import Models
 import PluginManager
 import PortDeterminer
 import ProcessController
+import QueueCommunication
 import QueueServer
 import RemotePortDeterminer
 import RequestSender
@@ -75,6 +76,27 @@ public final class StartQueueServerCommand: Command {
         let automaticTerminationController = AutomaticTerminationControllerFactory(
             automaticTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy
         ).createAutomaticTerminationController()
+        
+        let socketHost = LocalHostDeterminer.currentHostAddress
+        let remotePortDeterminer = RemoteQueuePortScanner(
+            host: socketHost,
+            portRange: Ports.defaultQueuePortRange,
+            requestSenderProvider: requestSenderProvider
+        )
+        let queueCommunicationService = DefaultQueueCommunicationService(
+            requestTimeout: 10,
+            socketHost: socketHost,
+            requestSenderProvider: requestSenderProvider,
+            remoteQueueDetector: DefaultRemoteQueueDetector(
+                emceeVersion: emceeVersion,
+                remotePortDeterminer: remotePortDeterminer
+            )
+        )
+        let workerUtilizationStatusPoller = DefaultWorkerUtilizationStatusPoller(
+            defaultDeployments: workerDestinations,
+            communicationService: queueCommunicationService
+        )
+        
         let queueServer = QueueServerImpl(
             automaticTerminationController: automaticTerminationController,
             bucketSplitInfo: BucketSplitInfo(
@@ -93,7 +115,8 @@ public final class StartQueueServerCommand: Command {
             workerAlivenessPolicy: .workersStayAliveWhenQueueIsDepleted,
             workerConfigurations: createWorkerConfigurations(
                 queueServerRunConfiguration: queueServerRunConfiguration
-            )
+            ),
+            workerPermissionProvider: workerUtilizationStatusPoller
         )
         let pollPeriod: TimeInterval = 5.0
         let queueServerTerminationWaiter = QueueServerTerminationWaiterImpl(
@@ -109,14 +132,11 @@ public final class StartQueueServerCommand: Command {
             queueServer: queueServer,
             queueServerTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy,
             queueServerTerminationWaiter: queueServerTerminationWaiter,
-            remotePortDeterminer: RemoteQueuePortScanner(
-                host: LocalHostDeterminer.currentHostAddress,
-                portRange: Ports.defaultQueuePortRange,
-                requestSenderProvider: requestSenderProvider
-            ),
+            remotePortDeterminer: remotePortDeterminer,
             temporaryFolder: try TemporaryFolder(),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
-            workerDestinations: workerDestinations
+            workerDestinations: workerDestinations,
+            workerUtilizationStatusPoller: workerUtilizationStatusPoller
         )
         try localQueueServerRunner.start(emceeVersion: emceeVersion)
     }

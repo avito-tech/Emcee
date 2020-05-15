@@ -178,6 +178,7 @@ let package = Package(
                 "Models",
                 "ModelsTestHelpers",
                 "QueueCommunication",
+                "QueueCommunicationTestHelpers",
                 "QueueModels",
                 "QueueModelsTestHelpers",
                 "TestHelpers",
@@ -744,6 +745,7 @@ let package = Package(
                 "Models",
                 "PortDeterminer",
                 "ProcessController",
+                "QueueCommunication",
                 "QueueServer",
                 "RemotePortDeterminer",
                 "RequestSender",
@@ -763,6 +765,7 @@ let package = Package(
                 "LocalQueueServerRunner",
                 "Models",
                 "ProcessControllerTestHelpers",
+                "QueueCommunicationTestHelpers",
                 "QueueModels",
                 "QueueServer",
                 "QueueServerTestHelpers",
@@ -1035,22 +1038,37 @@ let package = Package(
             // MARK: QueueCommunication
             name: "QueueCommunication",
             dependencies: [
+                "AtomicModels",
                 "Deployer",
-                "LocalHostDeterminer",
                 "Logging",
                 "Models",
                 "RESTMethods",
                 "RemotePortDeterminer",
                 "RequestSender",
+                "Timer",
             ],
             path: "Sources/QueueCommunication"
+        ),
+        .target(
+            // MARK: QueueCommunicationTestHelpers
+            name: "QueueCommunicationTestHelpers",
+            dependencies: [
+                "Deployer",
+                "Models",
+                "QueueCommunication",
+                "TestHelpers",
+            ],
+            path: "Tests/QueueCommunicationTestHelpers"
         ),
         .testTarget(
             // MARK: QueueCommunicationTests
             name: "QueueCommunicationTests",
             dependencies: [
+                "Deployer",
+                "DeployerTestHelpers",
                 "Models",
                 "QueueCommunication",
+                "QueueCommunicationTestHelpers",
                 "RESTMethods",
                 "RemotePortDeterminer",
                 "RemotePortDeterminerTestHelpers",
@@ -1160,6 +1178,7 @@ let package = Package(
                 "ModelsTestHelpers",
                 "PortDeterminer",
                 "QueueClient",
+                "QueueCommunicationTestHelpers",
                 "QueueModels",
                 "QueueModelsTestHelpers",
                 "QueueServer",

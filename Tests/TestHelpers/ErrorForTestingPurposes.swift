@@ -7,6 +7,10 @@ public struct ErrorForTestingPurposes: Error, CustomStringConvertible {
         self.text = text
     }
     
+    public init() {
+        self.text = "Error for testing purposes"
+    }
+    
     public var description: String {
         return "\(type(of: self)) \(text)"
     }

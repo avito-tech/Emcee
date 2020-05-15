@@ -52,7 +52,8 @@ public final class QueueServerImpl: QueueServer {
         requestSenderProvider: RequestSenderProvider,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         workerAlivenessPolicy: WorkerAlivenessPolicy,
-        workerConfigurations: WorkerConfigurations
+        workerConfigurations: WorkerConfigurations,
+        workerPermissionProvider: WorkerPermissionProvider
     ) {
         self.httpRestServer = HTTPRESTServer(
             automaticTerminationController: automaticTerminationController,
@@ -87,7 +88,7 @@ public final class QueueServerImpl: QueueServer {
             nothingToDequeueBehavior: workerAlivenessPolicy.nothingToDequeueBehavior(
                 checkLaterInterval: checkAgainTimeInterval
             ),
-            workerPermissionProvider: DummyWorkerPermissionProvider()
+            workerPermissionProvider: workerPermissionProvider
         )
         self.balancingBucketQueue = balancingBucketQueueFactory.create()
         self.testsEnqueuer = TestsEnqueuer(

@@ -1,5 +1,6 @@
 import BalancingBucketQueue
 import QueueCommunication
+import QueueCommunicationTestHelpers
 import XCTest
 
 class WorkerPermissionAwareBalancingBucketQueueTests: XCTestCase {

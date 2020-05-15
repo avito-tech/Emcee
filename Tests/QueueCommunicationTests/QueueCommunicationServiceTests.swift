@@ -1,5 +1,6 @@
 @testable import QueueCommunication
 import Models
+import QueueCommunicationTestHelpers
 import RequestSenderTestHelpers
 import RESTMethods
 import XCTest

@@ -10,6 +10,7 @@ import Logging
 import Models
 import PortDeterminer
 import ProcessController
+import QueueCommunication
 import QueueServer
 import RemotePortDeterminer
 import RequestSender
@@ -31,6 +32,7 @@ public final class LocalQueueServerRunner {
     private let temporaryFolder: TemporaryFolder
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let workerDestinations: [DeploymentDestination]
+    private let workerUtilizationStatusPoller: WorkerUtilizationStatusPoller
 
     public init(
         automaticTerminationController: AutomaticTerminationController,
@@ -43,7 +45,8 @@ public final class LocalQueueServerRunner {
         remotePortDeterminer: RemotePortDeterminer,
         temporaryFolder: TemporaryFolder,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
-        workerDestinations: [DeploymentDestination]
+        workerDestinations: [DeploymentDestination],
+        workerUtilizationStatusPoller: WorkerUtilizationStatusPoller
     ) {
         self.automaticTerminationController = automaticTerminationController
         self.newWorkerRegistrationTimeAllowance = newWorkerRegistrationTimeAllowance
@@ -56,9 +59,12 @@ public final class LocalQueueServerRunner {
         self.temporaryFolder = temporaryFolder
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.workerDestinations = workerDestinations
+        self.workerUtilizationStatusPoller = workerUtilizationStatusPoller
     }
     
     public func start(emceeVersion: Version) throws {
+        workerUtilizationStatusPoller.startPolling()
+        
         try startWorkers(
             emceeVersion: emceeVersion,
             port: try startQueueServer(emceeVersion: emceeVersion)
