@@ -19,6 +19,8 @@ function install_deps() {
     if [[ ! -h $(brew --prefix)/lib/pkgconfig/libcrypto.pc ]]; then
         ln -s $(brew --prefix)/opt/openssl@1.1/lib/pkgconfig/libcrypto.pc $(brew --prefix)/lib/pkgconfig/libcrypto.pc
     fi
+    
+    swift "PackageGenerator.swift"
 }
 
 function open_xcodeproj() {

@@ -42,4 +42,4 @@ General commands that help you with a development workflow:
 Emcee depends heavily on [FBSimulatorControl](https://github.com/beefon/FBSimulatorControl) library, which is a set of APIs to work with iOS Simulator and iOS devices. 
 
 We have a [fork](https://github.com/beefon/FBSimulatorControl) which contains some extensions, so please check it out and 
-provide [the binaries](https://github.com/beefon/FBSimulatorControl/releases/tag/avito0.0.7) of the fbxctest and fbsimctl to the Emcee. 
+provide [the binaries](https://github.com/beefon/FBSimulatorControl/releases/tag/avito0.0.8) of the fbxctest and fbsimctl to the Emcee. 

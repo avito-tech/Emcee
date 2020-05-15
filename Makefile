@@ -1,6 +1,9 @@
 open: 
 	bash make.sh open
 
+gen: 
+	bash make.sh generate
+
 clean:
 	bash make.sh clean
 

@@ -8,16 +8,13 @@ let package = Package(
         .macOS(.v10_13),
     ],
     products: [
-        // MARK: - Products
         .executable(
-            // MARK: Emcee
             name: "Emcee",
             targets: [
                 "EmceeBinary",
             ]
         ),
         .library(
-            // MARK: EmceePlugin
             name: "EmceePlugin",
             targets: [
                 "Models",
@@ -26,7 +23,6 @@ let package = Package(
             ]
         ),
         .library(
-            // MARK: EmceeInterfaces
             name: "EmceeInterfaces",
             targets: [
                 "BuildArtifacts",
@@ -42,13 +38,11 @@ let package = Package(
             ]
         ),
         .executable(
-            // MARK: testing_plugin
             name: "testing_plugin",
             targets: ["TestingPlugin"]
         )
     ],
     dependencies: [
-        // MARK: - Dependencies
         .package(url: "https://github.com/0x7fs/CountedSet", .branch("master")),
         .package(url: "https://github.com/IBM-Swift/BlueSignals.git", .exact("1.0.16")),
         .package(url: "https://github.com/Weebly/OrderedSet", .exact("5.0.0")),
@@ -58,12 +52,12 @@ let package = Package(
         .package(url: "https://github.com/jakeheis/Shout.git", .exact("0.5.4"))
     ],
     targets: [
-        // MARK: - Targets
         .target(
             // MARK: Ansi
             name: "Ansi",
             dependencies: [
-            ]
+            ],
+            path: "Sources/Ansi"
         ),
         .target(
             // MARK: AppleTools
@@ -74,6 +68,7 @@ let package = Package(
                 "DeveloperDirLocator",
                 "Logging",
                 "Models",
+                "PathLib",
                 "ProcessController",
                 "ResourceLocation",
                 "ResourceLocationResolver",
@@ -82,17 +77,21 @@ let package = Package(
                 "SimulatorPool",
                 "SimulatorPoolModels",
                 "TemporaryStuff",
-            ]
+            ],
+            path: "Sources/AppleTools"
         ),
         .testTarget(
             // MARK: AppleToolsTests
             name: "AppleToolsTests",
             dependencies: [
                 "AppleTools",
+                "BuildArtifacts",
                 "BuildArtifactsTestHelpers",
                 "DateProvider",
                 "DateProviderTestHelpers",
+                "DeveloperDirLocator",
                 "DeveloperDirLocatorTestHelpers",
+                "FileCache",
                 "Models",
                 "ModelsTestHelpers",
                 "PathLib",
@@ -101,26 +100,32 @@ let package = Package(
                 "QueueModelsTestHelpers",
                 "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
+                "Runner",
+                "RunnerModels",
                 "RunnerTestHelpers",
                 "SimulatorPoolModels",
                 "SimulatorPoolTestHelpers",
                 "TemporaryStuff",
-            ]
+                "TestHelpers",
+                "URLResource",
+            ],
+            path: "Tests/AppleToolsTests"
         ),
         .target(
             // MARK: ArgLib
             name: "ArgLib",
             dependencies: [
-                "OrderedSet"
-            ]
+                "OrderedSet",
+            ],
+            path: "Sources/ArgLib"
         ),
         .testTarget(
             // MARK: ArgLibTests
             name: "ArgLibTests",
             dependencies: [
                 "ArgLib",
-                "OrderedSet"
-            ]
+            ],
+            path: "Tests/ArgLibTests"
         ),
         .target(
             // MARK: AutomaticTermination
@@ -128,14 +133,15 @@ let package = Package(
             dependencies: [
                 "DateProvider",
                 "Logging",
-                "Timer"
-            ]
+                "Timer",
+            ],
+            path: "Sources/AutomaticTermination"
         ),
-        .target(
+        .testTarget(
             // MARK: AutomaticTerminationTestHelpers
             name: "AutomaticTerminationTestHelpers",
             dependencies: [
-                "AutomaticTermination"
+                "AutomaticTermination",
             ],
             path: "Tests/AutomaticTerminationTestHelpers"
         ),
@@ -144,9 +150,9 @@ let package = Package(
             name: "AutomaticTerminationTests",
             dependencies: [
                 "AutomaticTermination",
-                "AutomaticTerminationTestHelpers",
-                "DateProvider"
-            ]
+                "DateProvider",
+            ],
+            path: "Tests/AutomaticTerminationTests"
         ),
         .target(
             // MARK: BalancingBucketQueue
@@ -158,7 +164,8 @@ let package = Package(
                 "Logging",
                 "Models",
                 "QueueModels",
-            ]
+            ],
+            path: "Sources/BalancingBucketQueue"
         ),
         .testTarget(
             // MARK: BalancingBucketQueueTests
@@ -179,7 +186,8 @@ let package = Package(
                 "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessProvider",
                 "WorkerAlivenessProviderTestHelpers",
-            ]
+            ],
+            path: "Tests/BalancingBucketQueueTests"
         ),
         .target(
             // MARK: BucketQueue
@@ -193,13 +201,15 @@ let package = Package(
                 "RunnerModels",
                 "UniqueIdentifierGenerator",
                 "WorkerAlivenessProvider",
-            ]
+            ],
+            path: "Sources/BucketQueue"
         ),
-        .target(
+        .testTarget(
             // MARK: BucketQueueTestHelpers
             name: "BucketQueueTestHelpers",
             dependencies: [
                 "BucketQueue",
+                "DateProvider",
                 "DateProviderTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
@@ -219,29 +229,31 @@ let package = Package(
                 "BucketQueueTestHelpers",
                 "DateProviderTestHelpers",
                 "DistWorkerModels",
+                "Models",
                 "ModelsTestHelpers",
                 "QueueModels",
                 "QueueModelsTestHelpers",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
+                "WorkerAlivenessProvider",
                 "WorkerAlivenessProviderTestHelpers",
-            ]
+            ],
+            path: "Tests/BucketQueueTests"
         ),
         .target(
             // MARK: BuildArtifacts
             name: "BuildArtifacts",
             dependencies: [
-                "Models",
                 "TypedResourceLocation",
-            ]
+            ],
+            path: "Sources/BuildArtifacts"
         ),
-        .target(
+        .testTarget(
             // MARK: BuildArtifactsTestHelpers
             name: "BuildArtifactsTestHelpers",
             dependencies: [
                 "BuildArtifacts",
                 "Models",
-                "ModelsTestHelpers",
             ],
             path: "Tests/BuildArtifactsTestHelpers"
         ),
@@ -250,19 +262,22 @@ let package = Package(
             name: "ChromeTracing",
             dependencies: [
                 "Extensions",
-                "Models"
-            ]
+                "Models",
+            ],
+            path: "Sources/ChromeTracing"
         ),
         .target(
             // MARK: DateProvider
             name: "DateProvider",
-            dependencies: []
+            dependencies: [
+            ],
+            path: "Sources/DateProvider"
         ),
-        .target(
+        .testTarget(
             // MARK: DateProviderTestHelpers
             name: "DateProviderTestHelpers",
             dependencies: [
-                "DateProvider"
+                "DateProvider",
             ],
             path: "Tests/DateProviderTestHelpers"
         ),
@@ -277,9 +292,10 @@ let package = Package(
                 "ProcessController",
                 "TemporaryStuff",
                 "UniqueIdentifierGenerator",
-            ]
+            ],
+            path: "Sources/Deployer"
         ),
-        .target(
+        .testTarget(
             // MARK: DeployerTestHelpers
             name: "DeployerTestHelpers",
             dependencies: [
@@ -294,13 +310,15 @@ let package = Package(
             dependencies: [
                 "Deployer",
                 "Extensions",
+                "Models",
                 "PathLib",
                 "ProcessController",
                 "ProcessControllerTestHelpers",
                 "TemporaryStuff",
                 "TestHelpers",
                 "UniqueIdentifierGeneratorTestHelpers",
-            ]
+            ],
+            path: "Tests/DeployerTests"
         ),
         .target(
             // MARK: DeveloperDirLocator
@@ -309,9 +327,10 @@ let package = Package(
                 "Models",
                 "PathLib",
                 "ProcessController",
-            ]
+            ],
+            path: "Sources/DeveloperDirLocator"
         ),
-        .target(
+        .testTarget(
             // MARK: DeveloperDirLocatorTestHelpers
             name: "DeveloperDirLocatorTestHelpers",
             dependencies: [
@@ -330,15 +349,17 @@ let package = Package(
                 "PathLib",
                 "ProcessController",
                 "ProcessControllerTestHelpers",
-                "TestHelpers",
                 "TemporaryStuff",
-            ]
+                "TestHelpers",
+            ],
+            path: "Tests/DeveloperDirLocatorTests"
         ),
         .target(
             // MARK: DistDeployer
             name: "DistDeployer",
             dependencies: [
                 "Deployer",
+                "Extensions",
                 "LaunchdUtils",
                 "Logging",
                 "Models",
@@ -348,7 +369,8 @@ let package = Package(
                 "TemporaryStuff",
                 "TypedResourceLocation",
                 "UniqueIdentifierGenerator",
-            ]
+            ],
+            path: "Sources/DistDeployer"
         ),
         .testTarget(
             // MARK: DistDeployerTests
@@ -363,7 +385,8 @@ let package = Package(
                 "PathLib",
                 "ResourceLocationResolver",
                 "TemporaryStuff",
-            ]
+            ],
+            path: "Tests/DistDeployerTests"
         ),
         .target(
             // MARK: DistWorker
@@ -373,10 +396,12 @@ let package = Package(
                 "CountedSet",
                 "DeveloperDirLocator",
                 "DistWorkerModels",
-                "Extensions",
+                "EventBus",
                 "LocalHostDeterminer",
                 "Logging",
+                "LoggingSetup",
                 "Models",
+                "PathLib",
                 "PluginManager",
                 "QueueClient",
                 "RESTMethods",
@@ -389,7 +414,8 @@ let package = Package(
                 "SynchronousWaiter",
                 "TemporaryStuff",
                 "Timer",
-            ]
+            ],
+            path: "Sources/DistWorker"
         ),
         .target(
             // MARK: DistWorkerModels
@@ -397,14 +423,16 @@ let package = Package(
             dependencies: [
                 "LoggingSetup",
                 "Models",
-            ]
+            ],
+            path: "Sources/DistWorkerModels"
         ),
-        .target(
+        .testTarget(
             // MARK: DistWorkerModelsTestHelpers
             name: "DistWorkerModelsTestHelpers",
             dependencies: [
                 "DistWorkerModels",
                 "LoggingSetup",
+                "Models",
             ],
             path: "Tests/DistWorkerModelsTestHelpers"
         ),
@@ -414,7 +442,8 @@ let package = Package(
             dependencies: [
                 "DistWorkerModels",
                 "DistWorkerModelsTestHelpers",
-            ]
+            ],
+            path: "Tests/DistWorkerModelsTests"
         ),
         .testTarget(
             // MARK: DistWorkerTests
@@ -422,19 +451,22 @@ let package = Package(
             dependencies: [
                 "BuildArtifactsTestHelpers",
                 "DistWorker",
+                "Models",
                 "ModelsTestHelpers",
                 "RequestSender",
                 "RunnerTestHelpers",
                 "Scheduler",
                 "SimulatorPoolTestHelpers",
-            ]
+            ],
+            path: "Tests/DistWorkerTests"
         ),
         .target(
             // MARK: EmceeBinary
             name: "EmceeBinary",
             dependencies: [
                 "EmceeLib",
-            ]
+            ],
+            path: "Sources/EmceeBinary"
         ),
         .target(
             // MARK: EmceeLib
@@ -442,17 +474,24 @@ let package = Package(
             dependencies: [
                 "AppleTools",
                 "ArgLib",
+                "AutomaticTermination",
+                "BucketQueue",
                 "BuildArtifacts",
                 "ChromeTracing",
+                "DateProvider",
                 "Deployer",
                 "DeveloperDirLocator",
+                "DistDeployer",
                 "DistWorker",
                 "DistWorkerModels",
+                "EventBus",
+                "Extensions",
                 "FileCache",
                 "FileSystem",
                 "JunitReporting",
-                "LaunchdUtils",
+                "LocalHostDeterminer",
                 "LocalQueueServerRunner",
+                "Logging",
                 "LoggingSetup",
                 "Metrics",
                 "Models",
@@ -463,29 +502,34 @@ let package = Package(
                 "QueueClient",
                 "QueueModels",
                 "QueueServer",
+                "RemotePortDeterminer",
                 "RemoteQueue",
                 "RequestSender",
                 "ResourceLocation",
                 "ResourceLocationResolver",
                 "Runner",
                 "RunnerModels",
-                "SSHDeployer",
                 "ScheduleStrategy",
                 "Scheduler",
-                "SimulatorPoolModels",
                 "SignalHandling",
+                "SimulatorPool",
+                "SimulatorPoolModels",
+                "SynchronousWaiter",
                 "TemporaryStuff",
                 "TestArgFile",
+                "TestDiscovery",
                 "TypedResourceLocation",
                 "URLResource",
                 "UniqueIdentifierGenerator",
                 "fbxctest",
-            ]
+            ],
+            path: "Sources/EmceeLib"
         ),
         .testTarget(
             // MARK: EmceeLibTests
             name: "EmceeLibTests",
             dependencies: [
+                "AppleTools",
                 "BuildArtifacts",
                 "BuildArtifactsTestHelpers",
                 "EmceeLib",
@@ -493,12 +537,13 @@ let package = Package(
                 "FileSystemTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
+                "PathLib",
                 "ProcessControllerTestHelpers",
                 "QueueModelsTestHelpers",
-                "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
                 "RunnerModels",
                 "RunnerTestHelpers",
+                "SimulatorPool",
                 "SimulatorPoolModels",
                 "SimulatorPoolTestHelpers",
                 "TemporaryStuff",
@@ -506,83 +551,45 @@ let package = Package(
                 "TestDiscovery",
                 "TestHelpers",
                 "UniqueIdentifierGeneratorTestHelpers",
-            ]
+                "fbxctest",
+            ],
+            path: "Tests/EmceeLibTests"
         ),
         .target(
             // MARK: EventBus
             name: "EventBus",
             dependencies: [
                 "Logging",
-                "Models"
-            ]
+                "Models",
+            ],
+            path: "Sources/EventBus"
         ),
         .testTarget(
             // MARK: EventBusTests
             name: "EventBusTests",
             dependencies: [
                 "EventBus",
+                "Models",
                 "ModelsTestHelpers",
-                "SynchronousWaiter"
-            ]
+                "SynchronousWaiter",
+            ],
+            path: "Tests/EventBusTests"
         ),
         .target(
             // MARK: Extensions
             name: "Extensions",
             dependencies: [
-            ]
+            ],
+            path: "Sources/Extensions"
         ),
         .testTarget(
             // MARK: ExtensionsTests
             name: "ExtensionsTests",
             dependencies: [
                 "Extensions",
-                "TemporaryStuff"
-            ]
-        ),
-        .target(
-            // MARK: fbxctest
-            name: "fbxctest",
-            dependencies: [
-                "Ansi",
-                "BuildArtifacts",
-                "DeveloperDirLocator",
-                "JSONStream",
-                "LocalHostDeterminer",
-                "Logging",
-                "Metrics",
-                "Models",
-                "ProcessController",
-                "Runner",
-                "RunnerModels",
-                "SimulatorPool",
-                "SimulatorPoolModels",
-                "SynchronousWaiter",
                 "TemporaryStuff",
-                "Timer",
-                "TypedResourceLocation",
-            ]
-        ),
-        .testTarget(
-            // MARK: fbxctestTests
-            name: "fbxctestTests",
-            dependencies: [
-                "BuildArtifacts",
-                "BuildArtifactsTestHelpers",
-                "DeveloperDirLocator",
-                "DeveloperDirLocatorTestHelpers",
-                "JSONStream",
-                "Models",
-                "ModelsTestHelpers",
-                "ProcessController",
-                "ProcessControllerTestHelpers",
-                "ResourceLocationResolverTestHelpers",
-                "Runner",
-                "RunnerModels",
-                "RunnerTestHelpers",
-                "SimulatorPoolTestHelpers",
-                "TemporaryStuff",
-                "fbxctest",
-            ]
+            ],
+            path: "Tests/ExtensionsTests"
         ),
         .target(
             // MARK: FileCache
@@ -592,7 +599,8 @@ let package = Package(
                 "FileLock",
                 "Models",
                 "UniqueIdentifierGenerator",
-            ]
+            ],
+            path: "Sources/FileCache"
         ),
         .testTarget(
             // MARK: FileCacheTests
@@ -601,30 +609,34 @@ let package = Package(
                 "FileCache",
                 "TemporaryStuff",
                 "UniqueIdentifierGenerator",
-                "UniqueIdentifierGeneratorTestHelpers"
-            ]
+                "UniqueIdentifierGeneratorTestHelpers",
+            ],
+            path: "Tests/FileCacheTests"
         ),
         .target(
             // MARK: FileLock
             name: "FileLock",
             dependencies: [
-            ]
+            ],
+            path: "Sources/FileLock"
         ),
         .testTarget(
             // MARK: FileLockTests
             name: "FileLockTests",
             dependencies: [
                 "FileLock",
-            ]
+            ],
+            path: "Tests/FileLockTests"
         ),
         .target(
             // MARK: FileSystem
             name: "FileSystem",
             dependencies: [
                 "PathLib",
-            ]
+            ],
+            path: "Sources/FileSystem"
         ),
-        .target(
+        .testTarget(
             // MARK: FileSystemTestHelpers
             name: "FileSystemTestHelpers",
             dependencies: [
@@ -641,66 +653,77 @@ let package = Package(
                 "PathLib",
                 "TemporaryStuff",
                 "TestHelpers",
-            ]
-        ),
-        .target(
-            // MARK: LocalHostDeterminer
-            name: "LocalHostDeterminer",
-            dependencies: [
-                "Logging"
-            ]
+            ],
+            path: "Tests/FileSystemTests"
         ),
         .target(
             // MARK: JSONStream
             name: "JSONStream",
-            dependencies: []
+            dependencies: [
+            ],
+            path: "Sources/JSONStream"
         ),
         .testTarget(
             // MARK: JSONStreamTests
             name: "JSONStreamTests",
             dependencies: [
-                "JSONStream"
-            ]
+                "JSONStream",
+            ],
+            path: "Tests/JSONStreamTests"
         ),
         .target(
             // MARK: JunitReporting
             name: "JunitReporting",
             dependencies: [
-            ]
+            ],
+            path: "Sources/JunitReporting"
         ),
         .testTarget(
             // MARK: JunitReportingTests
             name: "JunitReportingTests",
             dependencies: [
                 "Extensions",
-                "JunitReporting"
-            ]
+                "JunitReporting",
+            ],
+            path: "Tests/JunitReportingTests"
         ),
         .target(
             // MARK: LaunchdUtils
             name: "LaunchdUtils",
             dependencies: [
-            ]
+            ],
+            path: "Sources/LaunchdUtils"
         ),
         .testTarget(
             // MARK: LaunchdUtilsTests
             name: "LaunchdUtilsTests",
             dependencies: [
-                "LaunchdUtils"
-            ]
+                "LaunchdUtils",
+            ],
+            path: "Tests/LaunchdUtilsTests"
         ),
         .target(
             // MARK: ListeningSemaphore
             name: "ListeningSemaphore",
             dependencies: [
-            ]
+            ],
+            path: "Sources/ListeningSemaphore"
         ),
         .testTarget(
             // MARK: ListeningSemaphoreTests
             name: "ListeningSemaphoreTests",
             dependencies: [
-                "ListeningSemaphore"
-            ]
+                "ListeningSemaphore",
+            ],
+            path: "Tests/ListeningSemaphoreTests"
+        ),
+        .target(
+            // MARK: LocalHostDeterminer
+            name: "LocalHostDeterminer",
+            dependencies: [
+                "Logging",
+            ],
+            path: "Sources/LocalHostDeterminer"
         ),
         .target(
             // MARK: LocalQueueServerRunner
@@ -711,6 +734,7 @@ let package = Package(
                 "Deployer",
                 "DistDeployer",
                 "DistWorkerModels",
+                "EventBus",
                 "FileLock",
                 "LocalHostDeterminer",
                 "Logging",
@@ -725,7 +749,8 @@ let package = Package(
                 "SynchronousWaiter",
                 "TemporaryStuff",
                 "UniqueIdentifierGenerator",
-            ]
+            ],
+            path: "Sources/LocalQueueServerRunner"
         ),
         .testTarget(
             // MARK: LocalQueueServerRunnerTests
@@ -734,13 +759,19 @@ let package = Package(
                 "AutomaticTermination",
                 "AutomaticTerminationTestHelpers",
                 "LocalQueueServerRunner",
+                "Models",
+                "ProcessControllerTestHelpers",
                 "QueueModels",
                 "QueueServer",
                 "QueueServerTestHelpers",
                 "RemotePortDeterminer",
                 "RemotePortDeterminerTestHelpers",
+                "ScheduleStrategy",
                 "TemporaryStuff",
-            ]
+                "TestHelpers",
+                "UniqueIdentifierGenerator",
+            ],
+            path: "Tests/LocalQueueServerRunnerTests"
         ),
         .target(
             // MARK: Logging
@@ -748,15 +779,15 @@ let package = Package(
             dependencies: [
                 "Ansi",
                 "AtomicModels",
-                "Extensions"
-            ]
+                "Extensions",
+            ],
+            path: "Sources/Logging"
         ),
         .target(
             // MARK: LoggingSetup
             name: "LoggingSetup",
             dependencies: [
                 "Ansi",
-                "DateProvider",
                 "FileSystem",
                 "GraphiteClient",
                 "IO",
@@ -767,43 +798,47 @@ let package = Package(
                 "PathLib",
                 "Sentry",
                 "TemporaryStuff",
-            ]
+            ],
+            path: "Sources/LoggingSetup"
         ),
         .testTarget(
             // MARK: LoggingTests
             name: "LoggingTests",
             dependencies: [
+                "Ansi",
                 "Logging",
-                "TemporaryStuff"
-            ]
+                "TemporaryStuff",
+            ],
+            path: "Tests/LoggingTests"
         ),
         .target(
             // MARK: Metrics
             name: "Metrics",
-            dependencies: []
+            dependencies: [
+            ],
+            path: "Sources/Metrics"
         ),
         .testTarget(
             // MARK: MetricsTests
             name: "MetricsTests",
             dependencies: [
-                "Metrics"
-            ]
+                "Metrics",
+            ],
+            path: "Tests/MetricsTests"
         ),
         .target(
             // MARK: Models
             name: "Models",
             dependencies: [
-                "Extensions",
-                "ResourceLocation",
-                "TypedResourceLocation",
-            ]
+            ],
+            path: "Sources/Models"
         ),
-        .target(
+        .testTarget(
             // MARK: ModelsTestHelpers
             name: "ModelsTestHelpers",
             dependencies: [
                 "Models",
-                "ScheduleStrategy"
+                "ScheduleStrategy",
             ],
             path: "Tests/ModelsTestHelpers"
         ),
@@ -813,22 +848,23 @@ let package = Package(
             dependencies: [
                 "Models",
                 "ModelsTestHelpers",
-                "TestHelpers",
-                "TemporaryStuff",
-            ]
+            ],
+            path: "Tests/ModelsTests"
         ),
         .target(
             // MARK: PathLib
             name: "PathLib",
             dependencies: [
-            ]
+            ],
+            path: "Sources/PathLib"
         ),
         .testTarget(
             // MARK: PathLibTests
             name: "PathLibTests",
             dependencies: [
-                "PathLib"
-            ]
+                "PathLib",
+            ],
+            path: "Tests/PathLibTests"
         ),
         .target(
             // MARK: Plugin
@@ -842,18 +878,17 @@ let package = Package(
                 "LoggingSetup",
                 "Models",
                 "PluginSupport",
-                "ResourceLocationResolver",
-                "SimulatorVideoRecorder",
                 "Starscream",
                 "SynchronousWaiter",
-                "TestsWorkingDirectorySupport",
-            ]
+            ],
+            path: "Sources/Plugin"
         ),
         .target(
             // MARK: PluginManager
             name: "PluginManager",
             dependencies: [
                 "EventBus",
+                "Extensions",
                 "LocalHostDeterminer",
                 "Logging",
                 "Models",
@@ -863,9 +898,10 @@ let package = Package(
                 "ResourceLocationResolver",
                 "Swifter",
                 "SynchronousWaiter",
-            ]
+            ],
+            path: "Sources/PluginManager"
         ),
-        .target(
+        .testTarget(
             // MARK: PluginManagerTestHelpers
             name: "PluginManagerTestHelpers",
             dependencies: [
@@ -884,40 +920,43 @@ let package = Package(
                 "FileSystem",
                 "Models",
                 "ModelsTestHelpers",
+                "PathLib",
                 "PluginManager",
                 "PluginSupport",
                 "ProcessController",
                 "ProcessControllerTestHelpers",
                 "ResourceLocation",
-                "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
                 "TemporaryStuff",
                 "TestHelpers",
-            ]
+            ],
+            path: "Tests/PluginManagerTests"
         ),
         .target(
             // MARK: PluginSupport
             name: "PluginSupport",
             dependencies: [
-                "Models",
                 "TypedResourceLocation",
-            ]
+            ],
+            path: "Sources/PluginSupport"
         ),
         .target(
             // MARK: PortDeterminer
             name: "PortDeterminer",
             dependencies: [
                 "Logging",
-                "Swifter"
-            ]
+                "Swifter",
+            ],
+            path: "Sources/PortDeterminer"
         ),
         .testTarget(
             // MARK: PortDeterminerTests
             name: "PortDeterminerTests",
             dependencies: [
                 "PortDeterminer",
-                "Swifter"
-            ]
+                "Swifter",
+            ],
+            path: "Tests/PortDeterminerTests"
         ),
         .target(
             // MARK: ProcessController
@@ -928,15 +967,17 @@ let package = Package(
                 "Logging",
                 "PathLib",
                 "Timer",
-            ]
+            ],
+            path: "Sources/ProcessController"
         ),
-        .target(
-            //MARK: ProcessControllerTestHelpers
+        .testTarget(
+            // MARK: ProcessControllerTestHelpers
             name: "ProcessControllerTestHelpers",
             dependencies: [
                 "ProcessController",
+                "SynchronousWaiter",
             ],
-            path: "Tests/ProcessControllerTestHelpers/"
+            path: "Tests/ProcessControllerTestHelpers"
         ),
         .testTarget(
             // MARK: ProcessControllerTests
@@ -946,24 +987,26 @@ let package = Package(
                 "FileSystem",
                 "PathLib",
                 "ProcessController",
-                "ProcessControllerTestHelpers",
                 "TemporaryStuff",
                 "TestHelpers",
-                "UniqueIdentifierGenerator",
-            ]
+            ],
+            path: "Tests/ProcessControllerTests"
         ),
         .target(
             // MARK: QueueClient
             name: "QueueClient",
             dependencies: [
                 "DistWorkerModels",
+                "Extensions",
                 "Logging",
                 "Models",
+                "QueueModels",
                 "RESTMethods",
                 "RequestSender",
                 "ScheduleStrategy",
-                "SynchronousWaiter"
-            ]
+                "SynchronousWaiter",
+            ],
+            path: "Sources/QueueClient"
         ),
         .testTarget(
             // MARK: QueueClientTests
@@ -974,17 +1017,18 @@ let package = Package(
                 "DistWorkerModelsTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
-                "PortDeterminer",
                 "QueueClient",
                 "QueueModels",
                 "QueueModelsTestHelpers",
-                "QueueServer",
                 "RESTMethods",
+                "RequestSender",
+                "RequestSenderTestHelpers",
                 "RunnerTestHelpers",
                 "SimulatorPoolTestHelpers",
                 "Swifter",
                 "SynchronousWaiter",
-            ]
+            ],
+            path: "Tests/QueueClientTests"
         ),
         .target(
             // MARK: QueueModels
@@ -996,9 +1040,10 @@ let package = Package(
                 "PluginSupport",
                 "RunnerModels",
                 "SimulatorPoolModels",
-            ]
+            ],
+            path: "Sources/QueueModels"
         ),
-        .target(
+        .testTarget(
             // MARK: QueueModelsTestHelpers
             name: "QueueModelsTestHelpers",
             dependencies: [
@@ -1006,12 +1051,22 @@ let package = Package(
                 "BuildArtifactsTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
+                "PluginSupport",
                 "QueueModels",
+                "RunnerModels",
                 "RunnerTestHelpers",
                 "SimulatorPoolModels",
                 "SimulatorPoolTestHelpers",
             ],
             path: "Tests/QueueModelsTestHelpers"
+        ),
+        .testTarget(
+            // MARK: QueueModelsTests
+            name: "QueueModelsTests",
+            dependencies: [
+                "QueueModels",
+            ],
+            path: "Tests/QueueModelsTests"
         ),
         .target(
             // MARK: QueueServer
@@ -1023,6 +1078,7 @@ let package = Package(
                 "BucketQueue",
                 "DateProvider",
                 "DistWorkerModels",
+                "EventBus",
                 "Extensions",
                 "LocalHostDeterminer",
                 "Logging",
@@ -1032,27 +1088,24 @@ let package = Package(
                 "QueueModels",
                 "RESTMethods",
                 "RESTServer",
-                "RequestSenderTestHelpers",
+                "RequestSender",
                 "ScheduleStrategy",
                 "Swifter",
                 "SynchronousWaiter",
                 "Timer",
                 "UniqueIdentifierGenerator",
                 "WorkerAlivenessProvider",
-            ]
+            ],
+            path: "Sources/QueueServer"
         ),
         .testTarget(
-            // MARK: QueueModelsTests
-            name: "QueueModelsTests",
-            dependencies: [
-                "QueueModels",
-            ]
-        ),
-        .target(
             // MARK: QueueServerTestHelpers
             name: "QueueServerTestHelpers",
             dependencies: [
-                "QueueServer"
+                "Models",
+                "QueueModels",
+                "QueueServer",
+                "ScheduleStrategy",
             ],
             path: "Tests/QueueServerTestHelpers"
         ),
@@ -1067,11 +1120,13 @@ let package = Package(
                 "BucketQueue",
                 "BucketQueueTestHelpers",
                 "DateProviderTestHelpers",
-                "Deployer",
                 "DistWorkerModels",
                 "DistWorkerModelsTestHelpers",
+                "EventBus",
+                "Extensions",
                 "Models",
                 "ModelsTestHelpers",
+                "PortDeterminer",
                 "QueueClient",
                 "QueueModels",
                 "QueueModelsTestHelpers",
@@ -1082,146 +1137,15 @@ let package = Package(
                 "RESTServerTestHelpers",
                 "RequestSender",
                 "RequestSenderTestHelpers",
-                "ResourceLocationResolver",
                 "ScheduleStrategy",
                 "Swifter",
                 "SynchronousWaiter",
-                "TemporaryStuff",
                 "TestHelpers",
                 "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessProvider",
-                "WorkerAlivenessProviderTestHelpers"
-            ]
-        ),
-        .target(
-            // MARK: RemotePortDeterminer
-            name: "RemotePortDeterminer",
-            dependencies: [
-                "AtomicModels",
-                "QueueClient",
-                "RequestSender"
-            ]
-        ),
-        .target(
-            // MARK: RemotePortDeterminerTestHelpers
-            name: "RemotePortDeterminerTestHelpers",
-            dependencies: [
-                "RemotePortDeterminer"
+                "WorkerAlivenessProviderTestHelpers",
             ],
-            path: "Tests/RemotePortDeterminerTestHelpers"
-        ),
-        .testTarget(
-            // MARK: RemotePortDeterminerTests
-            name: "RemotePortDeterminerTests",
-            dependencies: [
-                "PortDeterminer",
-                "RemotePortDeterminer",
-                "RequestSender",
-                "RequestSenderTestHelpers"
-            ]
-        ),
-        .target(
-            // MARK: RemoteQueue
-            name: "RemoteQueue",
-            dependencies: [
-                "DistDeployer",
-                "Models",
-                "RemotePortDeterminer",
-                "SSHDeployer"
-            ]
-        ),
-        .testTarget(
-            // MARK: RemoteQueueTests
-            name: "RemoteQueueTests",
-            dependencies: [
-                "RemotePortDeterminerTestHelpers",
-                "RemoteQueue"
-            ]
-        ),
-        .target(
-            // MARK: RequestSender
-            name: "RequestSender",
-            dependencies: [
-                "Extensions",
-                "Logging",
-                "Models"
-            ]
-        ),
-        .target(
-            // MARK: RequestSenderTestHelpers
-            name: "RequestSenderTestHelpers",
-            dependencies: [
-                "RequestSender"
-            ],
-            path: "Tests/RequestSenderTestHelpers"
-        ),
-        .testTarget(
-            // MARK: RequestSenderTests
-            name: "RequestSenderTests",
-            dependencies: [
-                "Models",
-                "ModelsTestHelpers",
-                "RequestSender",
-                "RequestSenderTestHelpers",
-                "Swifter",
-            ]
-        ),
-        .target(
-            // MARK: ResourceLocation
-            name: "ResourceLocation",
-            dependencies: [
-            ]
-        ),
-        .target(
-            // MARK: ResourceLocationResolver
-            name: "ResourceLocationResolver",
-            dependencies: [
-                "AtomicModels",
-                "Extensions",
-                "FileCache",
-                "Models",
-                "ProcessController",
-                "ResourceLocation",
-                "SynchronousWaiter",
-                "TypedResourceLocation",
-                "URLResource",
-            ]
-        ),
-        .target(
-            // MARK: ResourceLocationResolverTestHelpers
-            name: "ResourceLocationResolverTestHelpers",
-            dependencies: [
-                "Models",
-                "PathLib",
-                "ResourceLocation",
-                "ResourceLocationResolver",
-                "TemporaryStuff",
-            ],
-            path: "Tests/ResourceLocationResolverTestHelpers"
-        ),
-        .testTarget(
-            // MARK: ResourceLocationResolverTests
-            name: "ResourceLocationResolverTests",
-            dependencies: [
-                "FileCache",
-                "FileSystem",
-                "PathLib",
-                "ProcessController",
-                "ResourceLocation",
-                "ResourceLocationResolver",
-                "Swifter",
-                "TemporaryStuff",
-                "TestHelpers",
-                "URLResource",
-            ]
-        ),
-        .testTarget(
-            // MARK: ResourceLocationTests
-            name: "ResourceLocationTests",
-            dependencies: [
-                "ResourceLocation",
-                "TemporaryStuff",
-            ]
+            path: "Tests/QueueServerTests"
         ),
         .target(
             // MARK: RESTMethods
@@ -1231,8 +1155,9 @@ let package = Package(
                 "Models",
                 "QueueModels",
                 "RequestSender",
-                "ScheduleStrategy"
-            ]
+                "ScheduleStrategy",
+            ],
+            path: "Sources/RESTMethods"
         ),
         .target(
             // MARK: RESTServer
@@ -1244,9 +1169,11 @@ let package = Package(
                 "Models",
                 "RESTMethods",
                 "Swifter",
-            ]
+            ],
+            path: "Sources/RESTServer"
         ),
-        .target(
+        .testTarget(
+            // MARK: RESTServerTestHelpers
             name: "RESTServerTestHelpers",
             dependencies: [
                 "RESTServer",
@@ -1254,12 +1181,165 @@ let package = Package(
             path: "Tests/RESTServerTestHelpers"
         ),
         .testTarget(
+            // MARK: RESTServerTests
             name: "RESTServerTests",
             dependencies: [
+                "Models",
                 "RESTMethods",
                 "RESTServer",
                 "Swifter",
-            ]
+            ],
+            path: "Tests/RESTServerTests"
+        ),
+        .target(
+            // MARK: RemotePortDeterminer
+            name: "RemotePortDeterminer",
+            dependencies: [
+                "AtomicModels",
+                "Logging",
+                "Models",
+                "QueueClient",
+                "RequestSender",
+            ],
+            path: "Sources/RemotePortDeterminer"
+        ),
+        .testTarget(
+            // MARK: RemotePortDeterminerTestHelpers
+            name: "RemotePortDeterminerTestHelpers",
+            dependencies: [
+                "Models",
+                "RemotePortDeterminer",
+            ],
+            path: "Tests/RemotePortDeterminerTestHelpers"
+        ),
+        .testTarget(
+            // MARK: RemotePortDeterminerTests
+            name: "RemotePortDeterminerTests",
+            dependencies: [
+                "Models",
+                "PortDeterminer",
+                "RESTMethods",
+                "RemotePortDeterminer",
+                "RequestSender",
+                "RequestSenderTestHelpers",
+                "Swifter",
+            ],
+            path: "Tests/RemotePortDeterminerTests"
+        ),
+        .target(
+            // MARK: RemoteQueue
+            name: "RemoteQueue",
+            dependencies: [
+                "Models",
+                "RemotePortDeterminer",
+            ],
+            path: "Sources/RemoteQueue"
+        ),
+        .testTarget(
+            // MARK: RemoteQueueTests
+            name: "RemoteQueueTests",
+            dependencies: [
+                "Models",
+                "RemotePortDeterminerTestHelpers",
+                "RemoteQueue",
+            ],
+            path: "Tests/RemoteQueueTests"
+        ),
+        .target(
+            // MARK: RequestSender
+            name: "RequestSender",
+            dependencies: [
+                "Extensions",
+                "Logging",
+                "Models",
+            ],
+            path: "Sources/RequestSender"
+        ),
+        .testTarget(
+            // MARK: RequestSenderTestHelpers
+            name: "RequestSenderTestHelpers",
+            dependencies: [
+                "Models",
+                "RequestSender",
+            ],
+            path: "Tests/RequestSenderTestHelpers"
+        ),
+        .testTarget(
+            // MARK: RequestSenderTests
+            name: "RequestSenderTests",
+            dependencies: [
+                "Extensions",
+                "Models",
+                "ModelsTestHelpers",
+                "RequestSender",
+                "RequestSenderTestHelpers",
+                "Swifter",
+            ],
+            path: "Tests/RequestSenderTests"
+        ),
+        .target(
+            // MARK: ResourceLocation
+            name: "ResourceLocation",
+            dependencies: [
+            ],
+            path: "Sources/ResourceLocation"
+        ),
+        .target(
+            // MARK: ResourceLocationResolver
+            name: "ResourceLocationResolver",
+            dependencies: [
+                "AtomicModels",
+                "Extensions",
+                "FileCache",
+                "Logging",
+                "Models",
+                "ProcessController",
+                "ResourceLocation",
+                "SynchronousWaiter",
+                "TypedResourceLocation",
+                "URLResource",
+            ],
+            path: "Sources/ResourceLocationResolver"
+        ),
+        .testTarget(
+            // MARK: ResourceLocationResolverTestHelpers
+            name: "ResourceLocationResolverTestHelpers",
+            dependencies: [
+                "Models",
+                "PathLib",
+                "ResourceLocation",
+                "ResourceLocationResolver",
+            ],
+            path: "Tests/ResourceLocationResolverTestHelpers"
+        ),
+        .testTarget(
+            // MARK: ResourceLocationResolverTests
+            name: "ResourceLocationResolverTests",
+            dependencies: [
+                "FileCache",
+                "FileSystem",
+                "Logging",
+                "Models",
+                "PathLib",
+                "ProcessController",
+                "ResourceLocation",
+                "ResourceLocationResolver",
+                "Swifter",
+                "SynchronousWaiter",
+                "TemporaryStuff",
+                "TestHelpers",
+                "URLResource",
+            ],
+            path: "Tests/ResourceLocationResolverTests"
+        ),
+        .testTarget(
+            // MARK: ResourceLocationTests
+            name: "ResourceLocationTests",
+            dependencies: [
+                "ResourceLocation",
+                "TemporaryStuff",
+            ],
+            path: "Tests/ResourceLocationTests"
         ),
         .target(
             // MARK: Runner
@@ -1268,17 +1348,21 @@ let package = Package(
                 "BuildArtifacts",
                 "DeveloperDirLocator",
                 "EventBus",
+                "Extensions",
                 "LocalHostDeterminer",
                 "Logging",
+                "Metrics",
                 "Models",
                 "PathLib",
                 "PluginManager",
-                "PluginSupport",
+                "ProcessController",
+                "ResourceLocationResolver",
                 "RunnerModels",
                 "SimulatorPoolModels",
                 "TemporaryStuff",
                 "TestsWorkingDirectorySupport",
-            ]
+            ],
+            path: "Sources/Runner"
         ),
         .target(
             // MARK: RunnerModels
@@ -1288,19 +1372,21 @@ let package = Package(
                 "Models",
                 "PluginSupport",
                 "SimulatorPoolModels",
-            ]
+                "TypedResourceLocation",
+            ],
+            path: "Sources/RunnerModels"
         ),
-        .target(
+        .testTarget(
             // MARK: RunnerTestHelpers
             name: "RunnerTestHelpers",
             dependencies: [
                 "BuildArtifacts",
+                "DeveloperDirLocator",
                 "Models",
+                "ProcessController",
                 "Runner",
                 "RunnerModels",
-                "ProcessController",
                 "SimulatorPoolModels",
-                "SimulatorPoolTestHelpers",
                 "TemporaryStuff",
             ],
             path: "Tests/RunnerTestHelpers"
@@ -1312,57 +1398,53 @@ let package = Package(
                 "BuildArtifacts",
                 "BuildArtifactsTestHelpers",
                 "DeveloperDirLocatorTestHelpers",
+                "EventBus",
                 "Extensions",
-                "Metrics",
                 "Models",
                 "ModelsTestHelpers",
                 "PluginManagerTestHelpers",
-                "ProcessController",
-                "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
                 "Runner",
                 "RunnerModels",
                 "RunnerTestHelpers",
-                "ScheduleStrategy",
                 "SimulatorPoolModels",
                 "SimulatorPoolTestHelpers",
                 "TemporaryStuff",
-            ]
+                "TestHelpers",
+            ],
+            path: "Tests/RunnerTests"
         ),
         .target(
-            // MARK: Sentry
-            name: "Sentry",
-            dependencies: []
-        ),
-        .testTarget(
-            // MARK: SentryTests
-            name: "SentryTests",
+            // MARK: SSHDeployer
+            name: "SSHDeployer",
             dependencies: [
-                "Sentry"
-            ]
-        ),
-        .target(
-            // MARK: Scheduler
-            name: "Scheduler",
-            dependencies: [
-                "BuildArtifacts",
-                "DeveloperDirLocator",
-                "ListeningSemaphore",
-                "LocalHostDeterminer",
+                "Ansi",
+                "Deployer",
+                "Extensions",
                 "Logging",
                 "Models",
-                "PluginSupport",
-                "QueueModels",
-                "Runner",
-                "RunnerModels",
-                "ScheduleStrategy",
-                "SimulatorPool",
-                "SimulatorPoolModels",
-                "SynchronousWaiter",
+                "PathLib",
+                "ProcessController",
+                "Shout",
                 "TemporaryStuff",
-                "TestDiscovery",
                 "UniqueIdentifierGenerator",
-            ]
+            ],
+            path: "Sources/SSHDeployer"
+        ),
+        .testTarget(
+            // MARK: SSHDeployerTests
+            name: "SSHDeployerTests",
+            dependencies: [
+                "Deployer",
+                "Models",
+                "PathLib",
+                "ProcessControllerTestHelpers",
+                "SSHDeployer",
+                "TemporaryStuff",
+                "TestHelpers",
+                "UniqueIdentifierGeneratorTestHelpers",
+            ],
+            path: "Tests/SSHDeployerTests"
         ),
         .target(
             // MARK: ScheduleStrategy
@@ -1372,16 +1454,20 @@ let package = Package(
                 "Extensions",
                 "Logging",
                 "Models",
+                "PluginSupport",
                 "QueueModels",
                 "RunnerModels",
                 "SimulatorPoolModels",
                 "UniqueIdentifierGenerator",
-            ]
+            ],
+            path: "Sources/ScheduleStrategy"
         ),
         .testTarget(
             // MARK: ScheduleStrategyTests
             name: "ScheduleStrategyTests",
             dependencies: [
+                "BuildArtifacts",
+                "BuildArtifactsTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
                 "PluginSupport",
@@ -1392,40 +1478,88 @@ let package = Package(
                 "SimulatorPoolTestHelpers",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
-            ]
+            ],
+            path: "Tests/ScheduleStrategyTests"
+        ),
+        .target(
+            // MARK: Scheduler
+            name: "Scheduler",
+            dependencies: [
+                "BuildArtifacts",
+                "DeveloperDirLocator",
+                "EventBus",
+                "Extensions",
+                "ListeningSemaphore",
+                "LocalHostDeterminer",
+                "Logging",
+                "Models",
+                "PluginManager",
+                "PluginSupport",
+                "QueueModels",
+                "ResourceLocationResolver",
+                "Runner",
+                "RunnerModels",
+                "ScheduleStrategy",
+                "SimulatorPool",
+                "SimulatorPoolModels",
+                "SynchronousWaiter",
+                "TemporaryStuff",
+            ],
+            path: "Sources/Scheduler"
+        ),
+        .target(
+            // MARK: Sentry
+            name: "Sentry",
+            dependencies: [
+            ],
+            path: "Sources/Sentry"
+        ),
+        .testTarget(
+            // MARK: SentryTests
+            name: "SentryTests",
+            dependencies: [
+                "Sentry",
+            ],
+            path: "Tests/SentryTests"
         ),
         .target(
             // MARK: SignalHandling
             name: "SignalHandling",
             dependencies: [
                 "Models",
-                "Signals"
-            ]
+                "Signals",
+            ],
+            path: "Sources/SignalHandling"
         ),
         .testTarget(
             // MARK: SignalHandlingTests
             name: "SignalHandlingTests",
             dependencies: [
                 "SignalHandling",
-                "Signals"
-            ]
+                "Signals",
+            ],
+            path: "Tests/SignalHandlingTests"
         ),
         .target(
             // MARK: SimulatorPool
             name: "SimulatorPool",
             dependencies: [
+                "AtomicModels",
                 "AutomaticTermination",
                 "DeveloperDirLocator",
                 "Extensions",
+                "LocalHostDeterminer",
                 "Logging",
                 "Metrics",
                 "Models",
-                "ProcessController",
+                "PathLib",
                 "ResourceLocationResolver",
                 "RunnerModels",
                 "SimulatorPoolModels",
+                "SynchronousWaiter",
                 "TemporaryStuff",
-            ]
+            ],
+            path: "Sources/SimulatorPool"
         ),
         .target(
             // MARK: SimulatorPoolModels
@@ -1434,9 +1568,12 @@ let package = Package(
                 "Extensions",
                 "Models",
                 "PathLib",
-            ]
+                "ResourceLocation",
+                "TypedResourceLocation",
+            ],
+            path: "Sources/SimulatorPoolModels"
         ),
-        .target(
+        .testTarget(
             // MARK: SimulatorPoolTestHelpers
             name: "SimulatorPoolTestHelpers",
             dependencies: [
@@ -1456,6 +1593,7 @@ let package = Package(
             // MARK: SimulatorPoolTests
             name: "SimulatorPoolTests",
             dependencies: [
+                "DeveloperDirLocator",
                 "DeveloperDirLocatorTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
@@ -1467,7 +1605,8 @@ let package = Package(
                 "SynchronousWaiter",
                 "TemporaryStuff",
                 "TestHelpers",
-            ]
+            ],
+            path: "Tests/SimulatorPoolTests"
         ),
         .target(
             // MARK: SimulatorVideoRecorder
@@ -1477,66 +1616,42 @@ let package = Package(
                 "Models",
                 "PathLib",
                 "ProcessController",
-            ]
-        ),
-        .target(
-            // MARK: SSHDeployer
-            name: "SSHDeployer",
-            dependencies: [
-                "Ansi",
-                "Deployer",
-                "Extensions",
-                "Logging",
-                "Models",
-                "PathLib",
-                "ProcessController",
-                "Shout",
-                "TemporaryStuff",
-                "UniqueIdentifierGenerator",
-            ]
-        ),
-        .testTarget(
-            // MARK: SSHDeployerTests
-            name: "SSHDeployerTests",
-            dependencies: [
-                "PathLib",
-                "ProcessControllerTestHelpers",
-                "SSHDeployer",
-                "TemporaryStuff",
-                "TestHelpers",
-                "UniqueIdentifierGeneratorTestHelpers",
-            ]
+            ],
+            path: "Sources/SimulatorVideoRecorder"
         ),
         .target(
             // MARK: SynchronousWaiter
             name: "SynchronousWaiter",
             dependencies: [
                 "Logging",
-            ]
+            ],
+            path: "Sources/SynchronousWaiter"
         ),
         .testTarget(
             // MARK: SynchronousWaiterTests
             name: "SynchronousWaiterTests",
             dependencies: [
-                "Models",
                 "SynchronousWaiter",
                 "TestHelpers",
-            ]
+            ],
+            path: "Tests/SynchronousWaiterTests"
         ),
         .target(
             // MARK: TemporaryStuff
             name: "TemporaryStuff",
             dependencies: [
-                "PathLib"
-            ]
+                "PathLib",
+            ],
+            path: "Sources/TemporaryStuff"
         ),
         .testTarget(
             // MARK: TemporaryStuffTests
             name: "TemporaryStuffTests",
             dependencies: [
                 "PathLib",
-                "TemporaryStuff"
-            ]
+                "TemporaryStuff",
+            ],
+            path: "Tests/TemporaryStuffTests"
         ),
         .target(
             // MARK: TestArgFile
@@ -1544,11 +1659,13 @@ let package = Package(
             dependencies: [
                 "BuildArtifacts",
                 "Models",
+                "PluginSupport",
                 "QueueModels",
                 "RunnerModels",
                 "ScheduleStrategy",
                 "SimulatorPoolModels",
-            ]
+            ],
+            path: "Sources/TestArgFile"
         ),
         .testTarget(
             // MARK: TestArgFileTests
@@ -1565,7 +1682,8 @@ let package = Package(
                 "SimulatorPoolTestHelpers",
                 "TestArgFile",
                 "TestHelpers",
-            ]
+            ],
+            path: "Tests/TestArgFileTests"
         ),
         .target(
             // MARK: TestDiscovery
@@ -1592,22 +1710,29 @@ let package = Package(
                 "SynchronousWaiter",
                 "TemporaryStuff",
                 "UniqueIdentifierGenerator",
-            ]
+            ],
+            path: "Sources/TestDiscovery"
         ),
         .testTarget(
             // MARK: TestDiscoveryTests
             name: "TestDiscoveryTests",
             dependencies: [
+                "AppleTools",
                 "BuildArtifacts",
                 "BuildArtifactsTestHelpers",
                 "DeveloperDirLocator",
                 "DeveloperDirLocatorTestHelpers",
+                "FileCache",
                 "FileSystem",
+                "Logging",
                 "Models",
                 "ModelsTestHelpers",
                 "PathLib",
+                "PluginManagerTestHelpers",
                 "ProcessController",
                 "ProcessControllerTestHelpers",
+                "RequestSender",
+                "RequestSenderTestHelpers",
                 "ResourceLocation",
                 "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
@@ -1616,24 +1741,13 @@ let package = Package(
                 "TemporaryStuff",
                 "TestDiscovery",
                 "TestHelpers",
+                "URLResource",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
-            ]
+            ],
+            path: "Tests/TestDiscoveryTests"
         ),
-        .target(
-            // MARK: TestingPlugin
-            name: "TestingPlugin",
-            dependencies: [
-                "DateProvider",
-                "Extensions",
-                "FileSystem",
-                "Logging",
-                "LoggingSetup",
-                "Models",
-                "Plugin",
-            ]
-        ),
-        .target(
+        .testTarget(
             // MARK: TestHelpers
             name: "TestHelpers",
             dependencies: [
@@ -1641,39 +1755,57 @@ let package = Package(
             path: "Tests/TestHelpers"
         ),
         .target(
+            // MARK: TestRunner
+            name: "TestRunner",
+            dependencies: [
+            ],
+            path: "Sources/TestRunner"
+        ),
+        .target(
+            // MARK: TestingFakeFbxctest
+            name: "TestingFakeFbxctest",
+            dependencies: [
+                "Extensions",
+            ],
+            path: "Sources/TestingFakeFbxctest"
+        ),
+        .target(
+            // MARK: TestingPlugin
+            name: "TestingPlugin",
+            dependencies: [
+                "DateProvider",
+                "EventBus",
+                "FileSystem",
+                "Logging",
+                "LoggingSetup",
+                "Models",
+                "Plugin",
+            ],
+            path: "Sources/TestingPlugin"
+        ),
+        .target(
             // MARK: TestsWorkingDirectorySupport
             name: "TestsWorkingDirectorySupport",
             dependencies: [
                 "Models",
                 "PathLib",
-            ]
+            ],
+            path: "Sources/TestsWorkingDirectorySupport"
         ),
         .target(
             // MARK: Timer
             name: "Timer",
             dependencies: [
-            ]
+            ],
+            path: "Sources/Timer"
         ),
         .target(
             // MARK: TypedResourceLocation
             name: "TypedResourceLocation",
             dependencies: [
                 "ResourceLocation",
-            ]
-        ),
-        .target(
-            // MARK: UniqueIdentifierGenerator
-            name: "UniqueIdentifierGenerator",
-            dependencies: [
-            ]
-        ),
-        .target(
-            // MARK: UniqueIdentifierGeneratorTestHelpers
-            name: "UniqueIdentifierGeneratorTestHelpers",
-            dependencies: [
-                "UniqueIdentifierGenerator"
             ],
-            path: "Tests/UniqueIdentifierGeneratorTestHelpers"
+            path: "Sources/TypedResourceLocation"
         ),
         .target(
             // MARK: URLResource
@@ -1683,8 +1815,9 @@ let package = Package(
                 "FileCache",
                 "Logging",
                 "Models",
-                "SynchronousWaiter"
-            ]
+                "SynchronousWaiter",
+            ],
+            path: "Sources/URLResource"
         ),
         .testTarget(
             // MARK: URLResourceTests
@@ -1696,7 +1829,23 @@ let package = Package(
                 "TemporaryStuff",
                 "TestHelpers",
                 "URLResource",
-            ]
+            ],
+            path: "Tests/URLResourceTests"
+        ),
+        .target(
+            // MARK: UniqueIdentifierGenerator
+            name: "UniqueIdentifierGenerator",
+            dependencies: [
+            ],
+            path: "Sources/UniqueIdentifierGenerator"
+        ),
+        .testTarget(
+            // MARK: UniqueIdentifierGeneratorTestHelpers
+            name: "UniqueIdentifierGeneratorTestHelpers",
+            dependencies: [
+                "UniqueIdentifierGenerator",
+            ],
+            path: "Tests/UniqueIdentifierGeneratorTestHelpers"
         ),
         .target(
             // MARK: WorkerAlivenessProvider
@@ -1704,16 +1853,18 @@ let package = Package(
             dependencies: [
                 "DateProvider",
                 "Logging",
-                "Models"
-            ]
+                "Models",
+            ],
+            path: "Sources/WorkerAlivenessProvider"
         ),
-        .target(
+        .testTarget(
             // MARK: WorkerAlivenessProviderTestHelpers
             name: "WorkerAlivenessProviderTestHelpers",
             dependencies: [
                 "DateProvider",
                 "DateProviderTestHelpers",
-                "WorkerAlivenessProvider"
+                "Models",
+                "WorkerAlivenessProvider",
             ],
             path: "Tests/WorkerAlivenessProviderTestHelpers"
         ),
@@ -1721,9 +1872,58 @@ let package = Package(
             // MARK: WorkerAlivenessProviderTests
             name: "WorkerAlivenessProviderTests",
             dependencies: [
+                "DateProviderTestHelpers",
+                "Models",
                 "WorkerAlivenessProvider",
-                "WorkerAlivenessProviderTestHelpers"
-            ]
+                "WorkerAlivenessProviderTestHelpers",
+            ],
+            path: "Tests/WorkerAlivenessProviderTests"
+        ),
+        .target(
+            // MARK: fbxctest
+            name: "fbxctest",
+            dependencies: [
+                "Ansi",
+                "AtomicModels",
+                "BuildArtifacts",
+                "DeveloperDirLocator",
+                "JSONStream",
+                "LocalHostDeterminer",
+                "Logging",
+                "Models",
+                "PathLib",
+                "ProcessController",
+                "ResourceLocation",
+                "ResourceLocationResolver",
+                "Runner",
+                "RunnerModels",
+                "SimulatorPool",
+                "SimulatorPoolModels",
+                "TemporaryStuff",
+                "Timer",
+            ],
+            path: "Sources/fbxctest"
+        ),
+        .testTarget(
+            // MARK: fbxctestTests
+            name: "fbxctestTests",
+            dependencies: [
+                "BuildArtifactsTestHelpers",
+                "DeveloperDirLocatorTestHelpers",
+                "JSONStream",
+                "Models",
+                "ModelsTestHelpers",
+                "ProcessController",
+                "ProcessControllerTestHelpers",
+                "ResourceLocationResolverTestHelpers",
+                "Runner",
+                "RunnerModels",
+                "RunnerTestHelpers",
+                "SimulatorPoolTestHelpers",
+                "TemporaryStuff",
+                "fbxctest",
+            ],
+            path: "Tests/fbxctestTests"
         ),
     ]
 )
