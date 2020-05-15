@@ -78,10 +78,10 @@ func generate(at url: URL, isTestTarget: Bool) throws -> [ModuleDescription] {
         let path = moduleFolderUrl.path.dropFirst(moduleFolderUrl.deletingLastPathComponent().deletingLastPathComponent().path.count + 1)
         let dependencies = importedModuleNames.filter { !knownImportsToIgnore.contains($0) }.sorted()
         
-        let testHelper = FileManager().fileExists(atPath: moduleFolderUrl.appendingPathComponent("TESTHELPER").path)
+        let isTestHelper = moduleFolderUrl.path.hasSuffix("TestHelpers")
         
         result.append(
-            ModuleDescription(name: moduleName, deps: dependencies, path: String(path), isTest: isTestTarget && !testHelper)
+            ModuleDescription(name: moduleName, deps: dependencies, path: String(path), isTest: isTestTarget && !isTestHelper)
         )
     }
     
