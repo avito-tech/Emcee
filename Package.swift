@@ -137,7 +137,7 @@ let package = Package(
             ],
             path: "Sources/AutomaticTermination"
         ),
-        .testTarget(
+        .target(
             // MARK: AutomaticTerminationTestHelpers
             name: "AutomaticTerminationTestHelpers",
             dependencies: [
@@ -204,7 +204,7 @@ let package = Package(
             ],
             path: "Sources/BucketQueue"
         ),
-        .testTarget(
+        .target(
             // MARK: BucketQueueTestHelpers
             name: "BucketQueueTestHelpers",
             dependencies: [
@@ -248,7 +248,7 @@ let package = Package(
             ],
             path: "Sources/BuildArtifacts"
         ),
-        .testTarget(
+        .target(
             // MARK: BuildArtifactsTestHelpers
             name: "BuildArtifactsTestHelpers",
             dependencies: [
@@ -273,7 +273,7 @@ let package = Package(
             ],
             path: "Sources/DateProvider"
         ),
-        .testTarget(
+        .target(
             // MARK: DateProviderTestHelpers
             name: "DateProviderTestHelpers",
             dependencies: [
@@ -295,7 +295,7 @@ let package = Package(
             ],
             path: "Sources/Deployer"
         ),
-        .testTarget(
+        .target(
             // MARK: DeployerTestHelpers
             name: "DeployerTestHelpers",
             dependencies: [
@@ -330,7 +330,7 @@ let package = Package(
             ],
             path: "Sources/DeveloperDirLocator"
         ),
-        .testTarget(
+        .target(
             // MARK: DeveloperDirLocatorTestHelpers
             name: "DeveloperDirLocatorTestHelpers",
             dependencies: [
@@ -426,7 +426,7 @@ let package = Package(
             ],
             path: "Sources/DistWorkerModels"
         ),
-        .testTarget(
+        .target(
             // MARK: DistWorkerModelsTestHelpers
             name: "DistWorkerModelsTestHelpers",
             dependencies: [
@@ -636,7 +636,7 @@ let package = Package(
             ],
             path: "Sources/FileSystem"
         ),
-        .testTarget(
+        .target(
             // MARK: FileSystemTestHelpers
             name: "FileSystemTestHelpers",
             dependencies: [
@@ -833,7 +833,7 @@ let package = Package(
             ],
             path: "Sources/Models"
         ),
-        .testTarget(
+        .target(
             // MARK: ModelsTestHelpers
             name: "ModelsTestHelpers",
             dependencies: [
@@ -901,7 +901,7 @@ let package = Package(
             ],
             path: "Sources/PluginManager"
         ),
-        .testTarget(
+        .target(
             // MARK: PluginManagerTestHelpers
             name: "PluginManagerTestHelpers",
             dependencies: [
@@ -970,7 +970,7 @@ let package = Package(
             ],
             path: "Sources/ProcessController"
         ),
-        .testTarget(
+        .target(
             // MARK: ProcessControllerTestHelpers
             name: "ProcessControllerTestHelpers",
             dependencies: [
@@ -1043,7 +1043,7 @@ let package = Package(
             ],
             path: "Sources/QueueModels"
         ),
-        .testTarget(
+        .target(
             // MARK: QueueModelsTestHelpers
             name: "QueueModelsTestHelpers",
             dependencies: [
@@ -1098,7 +1098,7 @@ let package = Package(
             ],
             path: "Sources/QueueServer"
         ),
-        .testTarget(
+        .target(
             // MARK: QueueServerTestHelpers
             name: "QueueServerTestHelpers",
             dependencies: [
@@ -1172,7 +1172,7 @@ let package = Package(
             ],
             path: "Sources/RESTServer"
         ),
-        .testTarget(
+        .target(
             // MARK: RESTServerTestHelpers
             name: "RESTServerTestHelpers",
             dependencies: [
@@ -1203,7 +1203,7 @@ let package = Package(
             ],
             path: "Sources/RemotePortDeterminer"
         ),
-        .testTarget(
+        .target(
             // MARK: RemotePortDeterminerTestHelpers
             name: "RemotePortDeterminerTestHelpers",
             dependencies: [
@@ -1255,7 +1255,7 @@ let package = Package(
             ],
             path: "Sources/RequestSender"
         ),
-        .testTarget(
+        .target(
             // MARK: RequestSenderTestHelpers
             name: "RequestSenderTestHelpers",
             dependencies: [
@@ -1301,7 +1301,7 @@ let package = Package(
             ],
             path: "Sources/ResourceLocationResolver"
         ),
-        .testTarget(
+        .target(
             // MARK: ResourceLocationResolverTestHelpers
             name: "ResourceLocationResolverTestHelpers",
             dependencies: [
@@ -1376,7 +1376,7 @@ let package = Package(
             ],
             path: "Sources/RunnerModels"
         ),
-        .testTarget(
+        .target(
             // MARK: RunnerTestHelpers
             name: "RunnerTestHelpers",
             dependencies: [
@@ -1573,7 +1573,7 @@ let package = Package(
             ],
             path: "Sources/SimulatorPoolModels"
         ),
-        .testTarget(
+        .target(
             // MARK: SimulatorPoolTestHelpers
             name: "SimulatorPoolTestHelpers",
             dependencies: [
@@ -1747,7 +1747,7 @@ let package = Package(
             ],
             path: "Tests/TestDiscoveryTests"
         ),
-        .testTarget(
+        .target(
             // MARK: TestHelpers
             name: "TestHelpers",
             dependencies: [
@@ -1839,7 +1839,7 @@ let package = Package(
             ],
             path: "Sources/UniqueIdentifierGenerator"
         ),
-        .testTarget(
+        .target(
             // MARK: UniqueIdentifierGeneratorTestHelpers
             name: "UniqueIdentifierGeneratorTestHelpers",
             dependencies: [
@@ -1857,7 +1857,7 @@ let package = Package(
             ],
             path: "Sources/WorkerAlivenessProvider"
         ),
-        .testTarget(
+        .target(
             // MARK: WorkerAlivenessProviderTestHelpers
             name: "WorkerAlivenessProviderTestHelpers",
             dependencies: [
