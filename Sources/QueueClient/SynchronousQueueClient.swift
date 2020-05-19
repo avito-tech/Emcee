@@ -130,7 +130,9 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     
     private func runRetrying<T>(_ work: () throws -> T) rethrows -> T {
         for retryIndex in 0 ..< networkRequestRetryCount {
-            Logger.verboseDebug("Attempting to send request: #\(retryIndex + 1) of \(networkRequestRetryCount)")
+            if retryIndex > 0 {
+                Logger.verboseDebug("Attempting to send request: #\(retryIndex + 1) of \(networkRequestRetryCount)")
+            }
             do {
                 return try work()
             } catch {

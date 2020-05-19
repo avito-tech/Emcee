@@ -26,17 +26,17 @@ public final class BlockingURLResourceHandler: URLResourceHandler {
                     return nil
                 }
             },
-            description: "Contents of '\(remoteUrl)'"
+            description: "Download contents of '\(remoteUrl)'"
         )
     }
     
     public func resourceUrl(contentUrl: URL, forUrl url: URL) {
-        Logger.verboseDebug("Obtained contents for '\(url)' at local url: '\(contentUrl)'")
+        Logger.verboseDebug("Obtained contents for \(url) at local url \(contentUrl)")
         result.set(Either.success(contentUrl))
     }
     
     public func failedToGetContents(forUrl url: URL, error: Error) {
-        Logger.error("Failed to fetch contents for '\(url)': \(error)")
+        Logger.error("Failed to fetch contents for \(url): \(error)")
         result.set(Either.error(error))
     }
 }

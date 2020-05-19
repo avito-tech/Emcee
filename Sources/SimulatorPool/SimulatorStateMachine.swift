@@ -14,7 +14,7 @@ public final class SimulatorStateMachine {
         case booted
         
         public var description: String {
-            return "<\(type(of: self)) \(rawValue)>"
+            return rawValue
         }
     }
     
@@ -38,7 +38,7 @@ public final class SimulatorStateMachine {
         }
         
         public var description: String {
-            return "<\(type(of: self)) \(rawValue)>"
+            return rawValue
         }
     }
     

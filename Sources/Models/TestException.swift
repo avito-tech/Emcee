@@ -12,6 +12,6 @@ public struct TestException: Codable, CustomStringConvertible, Equatable {
     }
     
     public var description: String {
-        return "<\(type(of: self)) reason: \(reason), location: \(filePathInProject):\(lineNumber)>"
+        return "\(filePathInProject):\(lineNumber): \(reason)"
     }
 }

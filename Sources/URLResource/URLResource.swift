@@ -7,8 +7,8 @@ import Models
 public final class URLResource {
     private let fileCache: FileCache
     private let urlSession: URLSession
-    private let syncQueue = DispatchQueue(label: "ru.avito.emcee.URLResource.syncQueue")
-    private let handlerQueue = DispatchQueue(label: "ru.avito.emcee.URLResource.handlerQueue")
+    private let syncQueue = DispatchQueue(label: "URLResource.syncQueue")
+    private let handlerQueue = DispatchQueue(label: "URLResource.handlerQueue")
     private let handlersWrapper: HandlersWrapper
     
     public enum URLResourceError: Error, CustomStringConvertible {
@@ -38,7 +38,7 @@ public final class URLResource {
     }
     
     public func fetchResource(url: URL, handler: URLResourceHandler) {
-        let url = self.downloadUrl(resourceUrl: url)
+        let url = downloadUrl(resourceUrl: url)
         syncQueue.sync {
             if fileCache.contains(itemForURL: url) {
                 provideResourceImmediately_onSyncQueue(url: url, handler: handler)
@@ -56,7 +56,6 @@ public final class URLResource {
     
     private func provideResourceImmediately_onSyncQueue(url: URL, handler: URLResourceHandler) {
         do {
-            Logger.verboseDebug("Found already cached resource for url '\(url)'")
             let cacheUrl = try fileCache.urlForCachedContents(ofUrl: url)
             handlerQueue.async {
                 handler.resourceUrl(contentUrl: cacheUrl, forUrl: url)

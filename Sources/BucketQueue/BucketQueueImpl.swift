@@ -153,10 +153,6 @@ final class BucketQueueImpl: BucketQueue {
             
             dequeuedBuckets.remove(dequeuedBucket)
             Logger.debug("Accepted result for bucket '\(testingResult.bucketId)' from '\(workerId)', updated dequeued buckets count: \(dequeuedBuckets.count)")
-            for dequeuedBucket in dequeuedBuckets {
-                Logger.verboseDebug(" -- \(dequeuedBucket)")
-            }
-            
             return BucketQueueAcceptResult(
                 dequeuedBucket: dequeuedBucket,
                 testingResultToCollect: acceptResult.testingResult

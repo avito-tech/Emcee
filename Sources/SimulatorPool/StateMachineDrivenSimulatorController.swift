@@ -203,7 +203,8 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     }
     
     public var description: String {
-        return "<\(type(of: self)) \(testDestination) \(currentSimulatorState)>"
+        let udid = simulator?.udid ?? UDID(value: "UNKNOWN_UDID")
+        return "<\(type(of: self)) \(testDestination) \(udid) \(currentSimulatorState)>"
     }
     
     // MARK: - Envrironment

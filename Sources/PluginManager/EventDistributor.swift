@@ -22,21 +22,24 @@ public final class EventDistributor {
     private let queue = DispatchQueue(label: "ru.avito.emcee.EventDistributor.queue")
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
+    private let sessionId: UUID
     
-    public init() {}
+    public init(sessionId: UUID) {
+        self.sessionId = sessionId
+    }
     
     public func start() throws {
         try queue.sync {
-            Logger.verboseDebug("Starting web socket server")
+            Logger.verboseDebug("[\(sessionId)] Starting web socket server")
             server["/"] = websocket(text: nil, binary: onBinary, pong: nil, connected: nil, disconnected: nil)
             try server.start(0, forceIPv4: false, priority: .default)
         }
-        Logger.debug("Web socket server is available at: \(try webSocketAddress())")
+        Logger.debug("[\(sessionId)] Web socket server is available at: \(try webSocketAddress())")
     }
     
     public func stop() {
         queue.sync {
-            Logger.verboseDebug("Stopping web socket server")
+            Logger.verboseDebug("[\(sessionId)] Stopping web socket server")
             server.stop()
         }
     }
@@ -46,7 +49,7 @@ public final class EventDistributor {
     }
     
     public func waitForPluginsToConnect(timeout: TimeInterval) throws {
-        try SynchronousWaiter().waitWhile(pollPeriod: 0.5, timeout: timeout, description: "Waiting for \(pluginIdentifiers.count) plugins to connect") {
+        try SynchronousWaiter().waitWhile(pollPeriod: 0.5, timeout: timeout, description: "[\(sessionId)] Waiting for \(pluginIdentifiers.count) plugins to connect") {
             connectedPluginIdentifiers != pluginIdentifiers
         }
     }
@@ -87,13 +90,13 @@ public final class EventDistributor {
             acknowledgement = .error("Internal error: '\(error)'")
         }
         
-        Logger.verboseDebug("New connection from plugin with acknowledgement: '\(acknowledgement)'")
+        Logger.verboseDebug("[\(sessionId)] New connection from plugin with acknowledgement: '\(acknowledgement)'")
         
         do {
             let data = try encoder.encode(acknowledgement)
             session.writeBinary([UInt8](data))
         } catch {
-            Logger.error("Failed to send acknowledgement: \(error)")
+            Logger.error("[\(sessionId)] Failed to send acknowledgement: \(error)")
         }
     }
 }

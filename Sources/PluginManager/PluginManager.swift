@@ -25,12 +25,12 @@ public final class PluginManager: EventStream {
     public init(
         processControllerProvider: ProcessControllerProvider,
         pluginLocations: Set<PluginLocation>,
-        resourceLocationResolver: ResourceLocationResolver)
-    {
+        resourceLocationResolver: ResourceLocationResolver
+    ) {
         self.processControllerProvider = processControllerProvider
         self.pluginLocations = pluginLocations
         self.resourceLocationResolver = resourceLocationResolver
-        self.eventDistributor = EventDistributor()
+        self.eventDistributor = EventDistributor(sessionId: sessionId)
     }
     
     private static func pathsToPluginBundles(
@@ -101,7 +101,13 @@ public final class PluginManager: EventStream {
             processControllers.append(controller)
         }
         
-        try eventDistributor.waitForPluginsToConnect(timeout: pluginsConnectionTimeout)
+        do {
+            try eventDistributor.waitForPluginsToConnect(timeout: pluginsConnectionTimeout)
+        } catch {
+            Logger.error("[\(sessionId)] Failed to start plugins, will not tear down")
+            tearDown()
+            throw error
+        }
     }
     
     private func environmentForLaunchingPlugin(pluginSocket: String, pluginIdentifier: String) -> [String: String] {

@@ -3,7 +3,7 @@ import Foundation
 import Logging
 import SimulatorPoolModels
 
-public final class ActivityAwareSimulatorController: SimulatorController {
+public final class ActivityAwareSimulatorController: SimulatorController, CustomStringConvertible {
     private var automaticShutdownTerminationControllerFactory: AutomaticTerminationControllerFactory
     private var automaticShutdownController: AutomaticTerminationController?
     
@@ -70,6 +70,10 @@ public final class ActivityAwareSimulatorController: SimulatorController {
     public func simulatorBecameIdle() {
         scheduleAutomaticShutdown()
         delegate.simulatorBecameIdle()
+    }
+    
+    public var description: String {
+        return "\(type(of: self)) delegate: \(delegate)"
     }
     
     // MARK: - Scheduling Automatic Operations

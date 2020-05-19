@@ -1,7 +1,7 @@
 import DateProvider
 import Foundation
 
-internal final class AfterPeriodOfInactivityTerminationController: BaseAutomaticTerminationController {
+internal final class AfterPeriodOfInactivityTerminationController: BaseAutomaticTerminationController, CustomStringConvertible {
     private let inactivityInterval: TimeInterval
     
     public init(dateProvider: DateProvider, inactivityInterval: TimeInterval) {
@@ -11,5 +11,9 @@ internal final class AfterPeriodOfInactivityTerminationController: BaseAutomatic
     
     override var isTerminationAllowed: Bool {
         return dateProvider.currentDate() > lastActivityDate.addingTimeInterval(inactivityInterval)
+    }
+    
+    var description: String {
+        return "<AfterPeriodOfInactivity, \(isTerminationAllowed ? "termination allowed" : "termination not alowed")>"
     }
 }

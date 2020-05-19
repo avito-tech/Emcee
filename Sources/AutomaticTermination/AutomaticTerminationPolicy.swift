@@ -1,6 +1,6 @@
 import Foundation
 
-public enum AutomaticTerminationPolicy: Codable {
+public enum AutomaticTerminationPolicy: Codable, CustomStringConvertible {
     /// Will trigger termination after being idle for the given amout of time.
     case afterBeingIdle(period: TimeInterval)
     
@@ -14,6 +14,19 @@ public enum AutomaticTerminationPolicy: Codable {
         case .stayAlive:
             return .infinity
         }
+    }
+    
+    public var description: String {
+        var items = ["\(type(of: self))"]
+        
+        switch self {
+        case .afterBeingIdle(let period):
+            items += ["after being idle for \(period) sec"]
+        case .stayAlive:
+            items += ["staying alive infinitely"]
+        }
+        
+        return "<" + items.joined(separator: ", ") + ">"
     }
     
     private enum CodingKeys: String, CodingKey {

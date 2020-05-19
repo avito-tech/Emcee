@@ -18,7 +18,7 @@ final class NSLogLikeLogEntryTextFormatterTests: XCTestCase {
         
         XCTAssertEqual(
             text,
-            "[ALWAYS] \(expectedTimestamp) \(ProcessInfo.processInfo.processName)[\(ProcessInfo.processInfo.processIdentifier)] subproc[42]: message"
+            "[ALWAYS] \(expectedTimestamp) subproc[42]: message"
         )
     }
 }

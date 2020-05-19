@@ -93,9 +93,7 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
                 // We erase it and keep empty file, to make sure cache does not refetch it when we access cached item.
                 if FileManager.default.fileExists(atPath: zipUrl.path) {
                     let values = try zipUrl.resourceValues(forKeys: Set([.fileSizeKey]))
-                    if values.fileSize == 0 {
-                        Logger.debug("ZIP file at \(zipUrl.path) is already empty")
-                    } else {
+                    if values.fileSize != 0 {
                         Logger.debug("Will replace ZIP file at \(zipUrl.path) with empty contents")
                         let handle = try FileHandle(forWritingTo: zipUrl)
                         handle.truncateFile(atOffset: 0)

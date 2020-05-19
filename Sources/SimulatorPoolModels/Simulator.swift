@@ -14,12 +14,8 @@ public struct Simulator: Hashable, CustomStringConvertible {
         self.path = path
     }
     
-    public var identifier: String {
-        return "simulator_\(testDestination.deviceType.removingWhitespaces())_\(testDestination.runtime.removingWhitespaces())"
-    }
-    
     public var description: String {
-        return "Simulator \(testDestination.deviceType) \(testDestination.runtime) at \(path)"
+        return "Simulator \(udid) \(testDestination.deviceType) \(testDestination.runtime) at \(path)"
     }
     
     public var simulatorSetPath: AbsolutePath {

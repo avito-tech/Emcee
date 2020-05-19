@@ -33,7 +33,7 @@ public struct TestRunResult: Codable, CustomStringConvertible, Equatable {
         var result: [String] = ["\(type(of: self)) \(succeeded ? "succeeded" : "failed")"]
         result += ["duration \(duration) sec"]
         result += ["hostName \(hostName)"]
-        result += ["udid \(simulatorId)"]
+        result += ["\(simulatorId)"]
         if !exceptions.isEmpty {
             result += ["exceptions: \(exceptions)"]
         }
