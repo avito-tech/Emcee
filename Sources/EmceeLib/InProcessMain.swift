@@ -103,6 +103,9 @@ public final class InProcessMain {
                     resourceLocationResolver: resourceLocationResolver,
                     uniqueIdentifierGenerator: uniqueIdentifierGenerator
                 ),
+                EnableWorkerCommand(
+                    requestSenderProvider: requestSenderProvider
+                ),
                 DisableWorkerCommand(
                     requestSenderProvider: requestSenderProvider
                 ),

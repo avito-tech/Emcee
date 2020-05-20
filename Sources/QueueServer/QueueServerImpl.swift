@@ -24,6 +24,7 @@ public final class QueueServerImpl: QueueServer {
     private let bucketProvider: BucketProviderEndpoint
     private let bucketResultRegistrar: BucketResultRegistrar
     private let disableWorkerHandler: DisableWorkerEndpoint
+    private let enableWorkerHandler: EnableWorkerEndpoint
     private let httpRestServer: HTTPRESTServer
     private let jobDeleteEndpoint: JobDeleteEndpoint
     private let jobResultsEndpoint: JobResultsEndpoint
@@ -123,6 +124,10 @@ public final class QueueServerImpl: QueueServer {
             workerAlivenessProvider: workerAlivenessProvider,
             workerConfigurations: workerConfigurations
         )
+        self.enableWorkerHandler = EnableWorkerEndpoint(
+            workerAlivenessProvider: workerAlivenessProvider,
+            workerConfigurations: workerConfigurations
+        )
         self.queueServerVersionHandler = QueueServerVersionEndpoint(
             emceeVersion: emceeVersion,
             queueServerLock: queueServerLock
@@ -146,6 +151,7 @@ public final class QueueServerImpl: QueueServer {
         httpRestServer.add(handler: RESTEndpointOf(bucketProvider))
         httpRestServer.add(handler: RESTEndpointOf(bucketResultRegistrar))
         httpRestServer.add(handler: RESTEndpointOf(disableWorkerHandler))
+        httpRestServer.add(handler: RESTEndpointOf(enableWorkerHandler))
         httpRestServer.add(handler: RESTEndpointOf(jobDeleteEndpoint))
         httpRestServer.add(handler: RESTEndpointOf(jobResultsEndpoint))
         httpRestServer.add(handler: RESTEndpointOf(jobStateEndpoint))
