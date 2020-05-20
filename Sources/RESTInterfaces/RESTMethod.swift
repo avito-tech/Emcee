@@ -1,18 +1,19 @@
 import Foundation
 
-public enum RESTMethod: String {
+public enum RESTMethod: String, RESTPath {
     case bucketResult
+    case disableWorker
+    case enableWorker
     case getBucket
+    case jobDelete
+    case jobResults
+    case jobState
     case queueVersion
     case registerWorker
     case reportAlive
     case scheduleTests
-    case jobState
-    case jobResults
-    case jobDelete
-    case disableWorker
     
-    public var withLeadingSlash: String {
+    public var pathWithLeadingSlash: String {
         return "/\(self.rawValue)"
     }
 }

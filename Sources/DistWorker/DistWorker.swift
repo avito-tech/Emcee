@@ -27,6 +27,7 @@ public final class DistWorker: SchedulerDelegate {
     private let callbackQueue = DispatchQueue(label: "DistWorker.callbackQueue", qos: .default, attributes: .concurrent)
     private let currentlyBeingProcessedBucketsTracker = DefaultCurrentlyBeingProcessedBucketsTracker()
     private let developerDirLocator: DeveloperDirLocator
+    private let httpRestServer: HTTPRESTServer
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let pluginEventBusProvider: PluginEventBusProvider
     private let queueClient: SynchronousQueueClient
@@ -35,7 +36,6 @@ public final class DistWorker: SchedulerDelegate {
     private let temporaryFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
     private let workerId: WorkerId
-    private let workerRESTServer: WorkerRESTServer
     private let workerRegisterer: WorkerRegisterer
     private var payloadSignature = Either<PayloadSignature, DistWorkerError>.error(DistWorkerError.missingPayloadSignature)
     private var requestIdForBucketId = [BucketId: RequestId]()
@@ -67,11 +67,9 @@ public final class DistWorker: SchedulerDelegate {
         self.testRunnerProvider = testRunnerProvider
         self.workerId = workerId
         self.workerRegisterer = workerRegisterer
-        self.workerRESTServer = WorkerRESTServer(
-            httpRestServer: HTTPRESTServer(
-                automaticTerminationController: StayAliveTerminationController(),
-                portProvider: PortProviderWrapper(provider: { 0 })
-            )
+        self.httpRestServer = HTTPRESTServer(
+            automaticTerminationController: StayAliveTerminationController(),
+            portProvider: PortProviderWrapper(provider: { 0 })
         )
     }
     
@@ -79,19 +77,19 @@ public final class DistWorker: SchedulerDelegate {
         didFetchAnalyticsConfiguration: @escaping (AnalyticsConfiguration) throws -> (),
         completion: @escaping () -> ()
     ) throws {
-        workerRESTServer.setHandler(
-            currentlyProcessingBucketsHandler: RESTEndpointOf(
-                actualHandler: CurrentlyProcessingBucketsEndpoint(
+        httpRestServer.add(
+            handler: RESTEndpointOf(
+                CurrentlyProcessingBucketsEndpoint(
                     currentlyBeingProcessedBucketsTracker: currentlyBeingProcessedBucketsTracker
                 )
             )
         )
-        
+
         workerRegisterer.registerWithServer(
             workerId: workerId,
             workerRestAddress: SocketAddress(
                 host: LocalHostDeterminer.currentHostAddress,
-                port: try workerRESTServer.start()
+                port: try httpRestServer.start()
             ),
             callbackQueue: callbackQueue
         ) { [weak self] result in

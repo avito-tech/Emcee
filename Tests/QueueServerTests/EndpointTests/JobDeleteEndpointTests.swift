@@ -16,12 +16,21 @@ final class JobDeleteEndpointTests: XCTestCase, JobManipulator {
             throw Throwable()
         }
     }
+    
+    func test___indicates_activity() {
+        let endpoint = JobDeleteEndpoint(jobManipulator: self)
+        
+        XCTAssertTrue(
+            endpoint.requestIndicatesActivity,
+            "This endpoint should indicate activity because it modifies the queue state"
+        )
+    }
 
     func test___successful_deletion_of_job() throws {
         shouldThrow = false
         
         let endpoint = JobDeleteEndpoint(jobManipulator: self)
-        let response = try endpoint.handle(decodedPayload: JobDeleteRequest(jobId: jobId))
+        let response = try endpoint.handle(payload: JobDeleteRequest(jobId: jobId))
         XCTAssertEqual(response.jobId, jobId)
     }
     
@@ -29,7 +38,7 @@ final class JobDeleteEndpointTests: XCTestCase, JobManipulator {
         shouldThrow = true
         
         let endpoint = JobDeleteEndpoint(jobManipulator: self)
-        XCTAssertThrowsError(_ = try endpoint.handle(decodedPayload: JobDeleteRequest(jobId: jobId)))
+        XCTAssertThrowsError(_ = try endpoint.handle(payload: JobDeleteRequest(jobId: jobId)))
     }
 }
 

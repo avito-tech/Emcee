@@ -62,7 +62,7 @@ final class DefaultProcessControllerTests: XCTestCase {
     
     func test___process_cannot_be_started___when_file_does_not_exist() {
         assertThrows {
-            _ = try DefaultProcessController(
+            try DefaultProcessController(
                 fileSystem: fileSystem,
                 subprocess: Subprocess(
                     arguments: ["/bin/non/existing/file/\(ProcessInfo.processInfo.globallyUniqueString)"]
@@ -75,7 +75,7 @@ final class DefaultProcessControllerTests: XCTestCase {
         let tempFile = assertDoesNotThrow { try TemporaryFile() }
         
         assertThrows {
-            _ = try DefaultProcessController(
+            try DefaultProcessController(
                 fileSystem: fileSystem,
                 subprocess: Subprocess(
                     arguments: [tempFile]

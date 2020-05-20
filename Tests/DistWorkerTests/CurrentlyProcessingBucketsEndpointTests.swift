@@ -14,13 +14,13 @@ final class CurrentlyProcessingBucketsEndpointTests: XCTestCase {
     func test() throws {
         currentlyBeingProcessedBucketsTracker.willProcess(bucketId: bucketId)
         XCTAssertEqual(
-            try endpoint.handle(decodedPayload: VoidPayload()).bucketIds,
+            try endpoint.handle(payload: VoidPayload()).bucketIds,
             [bucketId]
         )
         
         currentlyBeingProcessedBucketsTracker.didProcess(bucketId: bucketId)
         XCTAssertEqual(
-            try endpoint.handle(decodedPayload: VoidPayload()).bucketIds,
+            try endpoint.handle(payload: VoidPayload()).bucketIds,
             []
         )
     }

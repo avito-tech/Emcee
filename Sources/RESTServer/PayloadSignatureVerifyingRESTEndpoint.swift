@@ -1,10 +1,11 @@
 import Foundation
 import Models
 import RESTMethods
+import RESTInterfaces
 
-public protocol PayloadSignatureVerifyingRESTEndpoint: RESTEndpoint where DecodedObjectType: SignedPayload {
+public protocol PayloadSignatureVerifyingRESTEndpoint: RESTEndpoint where PayloadType: SignedPayload {
     var expectedPayloadSignature: PayloadSignature { get }
-    func handle(verifiedPayload: DecodedObjectType) throws -> ResponseType
+    func handle(verifiedPayload: PayloadType) throws -> ResponseType
 }
 
 public struct PayloadSignatureMismatch: Error, CustomStringConvertible {
@@ -17,14 +18,14 @@ public struct PayloadSignatureMismatch: Error, CustomStringConvertible {
 }
 
 public extension PayloadSignatureVerifyingRESTEndpoint {
-    func handle(decodedPayload: DecodedObjectType) throws -> ResponseType {
-        guard expectedPayloadSignature == decodedPayload.payloadSignature else {
+    func handle(payload: PayloadType) throws -> ResponseType {
+        guard expectedPayloadSignature == payload.payloadSignature else {
             throw PayloadSignatureMismatch(
                 expectedPayloadSignature: expectedPayloadSignature,
-                actualPayloadSignature: decodedPayload.payloadSignature
+                actualPayloadSignature: payload.payloadSignature
             )
         }
-        return try handle(verifiedPayload: decodedPayload)
+        return try handle(verifiedPayload: payload)
     }
 }
 

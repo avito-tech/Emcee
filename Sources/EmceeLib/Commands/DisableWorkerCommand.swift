@@ -18,17 +18,19 @@ public final class DisableWorkerCommand: Command {
     ]
     
     private let callbackQueue = DispatchQueue(label: "DisableWorkerCommand.callbackQueue")
+    private let requestSenderProvider: RequestSenderProvider
     
-    public init() {}
+    public init(requestSenderProvider: RequestSenderProvider) {
+        self.requestSenderProvider = requestSenderProvider
+    }
     
     public func run(payload: CommandPayload) throws {
         let queueServerAddress: SocketAddress = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServer.name)
         let workerId: WorkerId = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.workerId.name)
         
         let workerDisabler = WorkerDisablerImpl(
-            requestSender: RequestSenderImpl(
-                urlSession: URLSession.shared,
-                queueServerAddress: queueServerAddress
+            requestSender: requestSenderProvider.requestSender(
+                socketAddress: queueServerAddress
             )
         )
         

@@ -404,6 +404,7 @@ let package = Package(
                 "PathLib",
                 "PluginManager",
                 "QueueClient",
+                "RESTInterfaces",
                 "RESTMethods",
                 "RESTServer",
                 "RequestSender",
@@ -423,6 +424,7 @@ let package = Package(
             dependencies: [
                 "LoggingSetup",
                 "Models",
+                "RESTInterfaces",
             ],
             path: "Sources/DistWorkerModels"
         ),
@@ -1002,6 +1004,7 @@ let package = Package(
                 "Logging",
                 "Models",
                 "QueueModels",
+                "RESTInterfaces",
                 "RESTMethods",
                 "RequestSender",
                 "ScheduleStrategy",
@@ -1021,6 +1024,7 @@ let package = Package(
                 "QueueClient",
                 "QueueModels",
                 "QueueModelsTestHelpers",
+                "RESTInterfaces",
                 "RESTMethods",
                 "RequestSender",
                 "RequestSenderTestHelpers",
@@ -1087,6 +1091,7 @@ let package = Package(
                 "Models",
                 "PortDeterminer",
                 "QueueModels",
+                "RESTInterfaces",
                 "RESTMethods",
                 "RESTServer",
                 "RequestSender",
@@ -1123,7 +1128,6 @@ let package = Package(
                 "DateProviderTestHelpers",
                 "DistWorkerModels",
                 "DistWorkerModelsTestHelpers",
-                "EventBus",
                 "Extensions",
                 "Models",
                 "ModelsTestHelpers",
@@ -1134,8 +1138,6 @@ let package = Package(
                 "QueueServer",
                 "QueueServerTestHelpers",
                 "RESTMethods",
-                "RESTServer",
-                "RESTServerTestHelpers",
                 "RequestSender",
                 "RequestSenderTestHelpers",
                 "ScheduleStrategy",
@@ -1149,12 +1151,21 @@ let package = Package(
             path: "Tests/QueueServerTests"
         ),
         .target(
+            // MARK: RESTInterfaces
+            name: "RESTInterfaces",
+            dependencies: [
+                "Models",
+            ],
+            path: "Sources/RESTInterfaces"
+        ),
+        .target(
             // MARK: RESTMethods
             name: "RESTMethods",
             dependencies: [
                 "DistWorkerModels",
                 "Models",
                 "QueueModels",
+                "RESTInterfaces",
                 "RequestSender",
                 "ScheduleStrategy",
             ],
@@ -1168,27 +1179,23 @@ let package = Package(
                 "Extensions",
                 "Logging",
                 "Models",
+                "RESTInterfaces",
                 "RESTMethods",
                 "Swifter",
             ],
             path: "Sources/RESTServer"
         ),
-        .target(
-            // MARK: RESTServerTestHelpers
-            name: "RESTServerTestHelpers",
-            dependencies: [
-                "RESTServer",
-            ],
-            path: "Tests/RESTServerTestHelpers"
-        ),
         .testTarget(
             // MARK: RESTServerTests
             name: "RESTServerTests",
             dependencies: [
+                "AutomaticTerminationTestHelpers",
                 "Models",
+                "RESTInterfaces",
                 "RESTMethods",
                 "RESTServer",
                 "Swifter",
+                "TestHelpers",
             ],
             path: "Tests/RESTServerTests"
         ),
@@ -1219,6 +1226,7 @@ let package = Package(
             dependencies: [
                 "Models",
                 "PortDeterminer",
+                "RESTInterfaces",
                 "RESTMethods",
                 "RemotePortDeterminer",
                 "RequestSender",

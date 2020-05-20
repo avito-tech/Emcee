@@ -19,6 +19,18 @@ final class BucketProviderTests: XCTestCase {
     )
     let alivenessTracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
     
+    func test___does_not_indicate_activity() {
+        let bucketQueue = FakeBucketQueue(fixedDequeueResult: .queueIsEmpty)
+        let bucketProvider = BucketProviderEndpoint(
+            dequeueableBucketSource: bucketQueue,
+            expectedPayloadSignature: expectedPayloadSignature
+        )
+        XCTAssertFalse(
+            bucketProvider.requestIndicatesActivity,
+            "This endpoint should not indicate activity: workers always fetch buckets, even if queue is empty. This should not prolong queue lifetime."
+        )
+    }
+    
     func test___reponse_is_empty_queue___if_queue_is_empty() throws {
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: .queueIsEmpty)
         let bucketProvider = BucketProviderEndpoint(
@@ -26,7 +38,7 @@ final class BucketProviderTests: XCTestCase {
             expectedPayloadSignature: expectedPayloadSignature
         )
         
-        let response = try bucketProvider.handle(decodedPayload: fetchRequest)
+        let response = try bucketProvider.handle(payload: fetchRequest)
         XCTAssertEqual(response, .queueIsEmpty)
     }
     
@@ -37,7 +49,7 @@ final class BucketProviderTests: XCTestCase {
             expectedPayloadSignature: expectedPayloadSignature
         )
         
-        let response = try bucketProvider.handle(decodedPayload: fetchRequest)
+        let response = try bucketProvider.handle(payload: fetchRequest)
         XCTAssertEqual(response, .checkAgainLater(checkAfter: 42))
     }
     
@@ -48,7 +60,7 @@ final class BucketProviderTests: XCTestCase {
             expectedPayloadSignature: expectedPayloadSignature
         )
         
-        let response = try bucketProvider.handle(decodedPayload: fetchRequest)
+        let response = try bucketProvider.handle(payload: fetchRequest)
         XCTAssertEqual(response, .workerIsNotAlive)
     }
     
@@ -68,7 +80,7 @@ final class BucketProviderTests: XCTestCase {
             expectedPayloadSignature: expectedPayloadSignature
         )
         
-        let response = try bucketProvider.handle(decodedPayload: fetchRequest)
+        let response = try bucketProvider.handle(payload: fetchRequest)
         XCTAssertEqual(response, DequeueBucketResponse.bucketDequeued(bucket: dequeuedBucket.enqueuedBucket.bucket))
     }
 
@@ -79,7 +91,7 @@ final class BucketProviderTests: XCTestCase {
         )
         XCTAssertThrowsError(
             try bucketProvider.handle(
-                decodedPayload: DequeueBucketPayload(
+                payload: DequeueBucketPayload(
                     workerId: "worker",
                     requestId: "request",
                     payloadSignature: PayloadSignature(value: UUID().uuidString)

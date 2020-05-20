@@ -40,7 +40,7 @@ final class ExecutableTestDiscovererTests: XCTestCase {
     
     func test___test_discovery___throws___when_runtime_is_not_found() {
         assertThrows {
-            _ = try createExecutableTestDiscoverer(
+            try createExecutableTestDiscoverer(
                 simctlResponse: simctResponse(runtimeName: "nonexistent runtime"),
                 executableResponse: executableResponse
             ).discoverTestEntries(
@@ -51,7 +51,7 @@ final class ExecutableTestDiscovererTests: XCTestCase {
     
     func test___test_discovery___throws___when_output_file_format_is_incorrect() {
         assertThrows {
-            _ = try createExecutableTestDiscoverer(
+            try createExecutableTestDiscoverer(
                 simctlResponse: simctResponse(runtimeName: "iOS 12.0"),
                 executableResponse: """
                 [

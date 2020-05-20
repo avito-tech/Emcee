@@ -1,22 +1,28 @@
 import Foundation
+import RESTInterfaces
 
 public final class RESTEndpointOf<RequestType: Decodable, ReturnType: Encodable>: RESTEndpoint {
-    public typealias DecodedObjectType = RequestType
+    public typealias PayloadType = RequestType
     public typealias ResponseType = ReturnType
     
     private let internalHandler: (RequestType) throws -> ReturnType
+    public let path: RESTPath
+    public let requestIndicatesActivity: Bool
     
     public init<EndpointType: RESTEndpoint>(
-        actualHandler: EndpointType) where
-        EndpointType.DecodedObjectType == RequestType,
+        _ actualHandler: EndpointType
+    ) where EndpointType.PayloadType == RequestType,
         EndpointType.ResponseType == ReturnType
     {
+        path = actualHandler.path
+        requestIndicatesActivity = actualHandler.requestIndicatesActivity
+        
         internalHandler = { (request: RequestType) throws -> ReturnType in
-            try actualHandler.handle(decodedPayload: request)
+            try actualHandler.handle(payload: request)
         }
     }
     
-    public func handle(decodedPayload: RequestType) throws -> ReturnType {
-        return try internalHandler(decodedPayload)
+    public func handle(payload: RequestType) throws -> ReturnType {
+        return try internalHandler(payload)
     }
 }

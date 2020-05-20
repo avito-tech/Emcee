@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import RESTInterfaces
 
 public final class BucketResultPayload: Codable, SignedPayload {
     public let workerId: WorkerId

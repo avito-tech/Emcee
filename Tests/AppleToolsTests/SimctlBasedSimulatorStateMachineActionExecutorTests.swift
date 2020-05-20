@@ -31,7 +31,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
             simulatorSetPath: tempFolder.absolutePath
         )
         assertThrows {
-            _ = try executor.performCreateSimulatorAction(
+            try executor.performCreateSimulatorAction(
                 environment: [:],
                 testDestination: TestDestinationFixtures.testDestination,
                 timeout: 60
@@ -59,7 +59,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         )
         
         assertThrows {
-            _ = try executor.performCreateSimulatorAction(
+            try executor.performCreateSimulatorAction(
                 environment: [:],
                 testDestination: TestDestinationFixtures.testDestination,
                 timeout: 60
@@ -125,7 +125,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         )
         
         assertThrows {
-            _ = try executor.performCreateSimulatorAction(
+            try executor.performCreateSimulatorAction(
                 environment: [:],
                 testDestination: assertDoesNotThrow { try TestDestination(deviceType: "iPhone SE", runtime: "11.3") },
                 timeout: 60

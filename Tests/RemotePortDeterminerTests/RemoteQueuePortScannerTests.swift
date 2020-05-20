@@ -2,6 +2,7 @@ import Foundation
 import Models
 import PortDeterminer
 import RemotePortDeterminer
+import RESTInterfaces
 import RESTMethods
 import RequestSender
 import RequestSenderTestHelpers
@@ -24,7 +25,7 @@ final class RemoteQueuePortScannerTests: XCTestCase {
     func test___scanning_ports_with_queue___returns_port_to_version_result() throws {
         let expectedVersion = Version(value: "version")
         let server = HttpServer()
-        server[RESTMethod.queueVersion.withLeadingSlash] = { request in
+        server[RESTMethod.queueVersion.pathWithLeadingSlash] = { request in
             let data = try! JSONEncoder().encode(QueueVersionResponse.queueVersion(expectedVersion))
             return .raw(200, "OK", ["Content-Type": "application/json"]) {
                 try! $0.write(data)

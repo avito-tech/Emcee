@@ -1,17 +1,20 @@
 import BucketQueue
 import Foundation
 import Models
+import RESTInterfaces
 import RESTMethods
 import RESTServer
 import WorkerAlivenessProvider
 
 public final class BucketResultRegistrar: PayloadSignatureVerifyingRESTEndpoint {
-    public typealias DecodedObjectType = BucketResultPayload
+    public typealias PayloadType = BucketResultPayload
     public typealias ResponseType = BucketResultAcceptResponse
 
     private let bucketResultAccepter: BucketResultAccepter
     public let expectedPayloadSignature: PayloadSignature
     private let workerAlivenessProvider: WorkerAlivenessProvider
+    public let path: RESTPath = RESTMethod.bucketResult
+    public let requestIndicatesActivity = true
 
     public init(
         bucketResultAccepter: BucketResultAccepter,

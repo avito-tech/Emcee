@@ -168,11 +168,11 @@ final class ResourceLocationResolverTests: XCTestCase {
         let remoteUrl = URL(string: "http://localhost:\(serverAndPort.port)/url")!
         
         assertThrows {
-            _ = try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl))
+            try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl))
         }
         
         assertThrows {
-            _ = try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl))
+            try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl))
         }
         
         XCTAssertEqual(

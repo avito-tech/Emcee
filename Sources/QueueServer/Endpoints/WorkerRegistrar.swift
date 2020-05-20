@@ -3,6 +3,7 @@ import DistWorkerModels
 import Foundation
 import Logging
 import Models
+import RESTInterfaces
 import RESTMethods
 import RESTServer
 import WorkerAlivenessProvider
@@ -11,6 +12,8 @@ public final class WorkerRegistrar: RESTEndpoint {
     private let workerAlivenessProvider: WorkerAlivenessProvider
     private let workerConfigurations: WorkerConfigurations
     private let workerDetailsHolder: WorkerDetailsHolder
+    public let path: RESTPath = RESTMethod.registerWorker
+    public let requestIndicatesActivity = true
     
     public enum WorkerRegistrarError: Swift.Error, CustomStringConvertible {
         case missingWorkerConfiguration(workerId: WorkerId)
@@ -36,24 +39,24 @@ public final class WorkerRegistrar: RESTEndpoint {
         self.workerDetailsHolder = workerDetailsHolder
     }
     
-    public func handle(decodedPayload: RegisterWorkerPayload) throws -> RegisterWorkerResponse {
-        guard let workerConfiguration = workerConfigurations.workerConfiguration(workerId: decodedPayload.workerId) else {
-            throw WorkerRegistrarError.missingWorkerConfiguration(workerId: decodedPayload.workerId)
+    public func handle(payload: RegisterWorkerPayload) throws -> RegisterWorkerResponse {
+        guard let workerConfiguration = workerConfigurations.workerConfiguration(workerId: payload.workerId) else {
+            throw WorkerRegistrarError.missingWorkerConfiguration(workerId: payload.workerId)
         }
-        Logger.debug("Registration request from worker with id: \(decodedPayload.workerId)")
+        Logger.debug("Registration request from worker with id: \(payload.workerId)")
         
-        let workerAliveness = workerAlivenessProvider.alivenessForWorker(workerId: decodedPayload.workerId)
+        let workerAliveness = workerAlivenessProvider.alivenessForWorker(workerId: payload.workerId)
         switch workerAliveness.status {
         case .notRegistered, .silent:
-            workerAlivenessProvider.didRegisterWorker(workerId: decodedPayload.workerId)
-            Logger.debug("Worker \(decodedPayload.workerId) has acceptable status")
+            workerAlivenessProvider.didRegisterWorker(workerId: payload.workerId)
+            Logger.debug("Worker \(payload.workerId) has acceptable status")
             workerDetailsHolder.update(
-                workerId: decodedPayload.workerId,
-                restAddress: decodedPayload.workerRestAddress
+                workerId: payload.workerId,
+                restAddress: payload.workerRestAddress
             )
             return .workerRegisterSuccess(workerConfiguration: workerConfiguration)
         case .alive, .disabled:
-            throw WorkerRegistrarError.workerIsAlreadyRegistered(workerId: decodedPayload.workerId)
+            throw WorkerRegistrarError.workerIsAlreadyRegistered(workerId: payload.workerId)
         }
     }
 }

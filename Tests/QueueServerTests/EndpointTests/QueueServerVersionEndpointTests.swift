@@ -11,7 +11,7 @@ final class QueueServerVersionEndpointTests: XCTestCase {
             emceeVersion: "version",
             queueServerLock: NeverLockableQueueServerLock()
         )
-        let actualResult = try endpoint.handle(decodedPayload: QueueVersionPayload())
+        let actualResult = try endpoint.handle(payload: QueueVersionPayload())
         XCTAssertEqual(QueueVersionResponse.queueVersion("version"), actualResult)
     }
     
@@ -20,8 +20,20 @@ final class QueueServerVersionEndpointTests: XCTestCase {
             emceeVersion: "version",
             queueServerLock: AlwaysLockedQueueServerLock()
         )
-        let actualResult = try endpoint.handle(decodedPayload: QueueVersionPayload())
+        let actualResult = try endpoint.handle(payload: QueueVersionPayload())
         XCTAssertEqual(QueueVersionResponse.queueVersion("not_discoverable_version"), actualResult)
+    }
+    
+    func test___does_not_indicate_activity() {
+        let endpoint = QueueServerVersionEndpoint(
+            emceeVersion: "version",
+            queueServerLock: NeverLockableQueueServerLock()
+        )
+        
+        XCTAssertFalse(
+            endpoint.requestIndicatesActivity,
+            "This endpoint should not indicate activity because queue server version is being checked for various discovery purposes"
+        )
     }
 }
 

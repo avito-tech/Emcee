@@ -9,6 +9,7 @@ import Logging
 import Models
 import PortDeterminer
 import QueueModels
+import RESTInterfaces
 import RESTMethods
 import RESTServer
 import RequestSender
@@ -23,11 +24,11 @@ public final class QueueServerImpl: QueueServer {
     private let bucketProvider: BucketProviderEndpoint
     private let bucketResultRegistrar: BucketResultRegistrar
     private let disableWorkerHandler: DisableWorkerEndpoint
+    private let httpRestServer: HTTPRESTServer
+    private let jobDeleteEndpoint: JobDeleteEndpoint
     private let jobResultsEndpoint: JobResultsEndpoint
     private let jobStateEndpoint: JobStateEndpoint
-    private let jobDeleteEndpoint: JobDeleteEndpoint
     private let queueServerVersionHandler: QueueServerVersionEndpoint
-    private let restServer: QueueHTTPRESTServer
     private let scheduleTestsHandler: ScheduleTestsEndpoint
     private let stuckBucketsPoller: StuckBucketsPoller
     private let testsEnqueuer: TestsEnqueuer
@@ -50,6 +51,11 @@ public final class QueueServerImpl: QueueServer {
         workerAlivenessPolicy: WorkerAlivenessPolicy,
         workerConfigurations: WorkerConfigurations
     ) {
+        self.httpRestServer = HTTPRESTServer(
+            automaticTerminationController: automaticTerminationController,
+            portProvider: localPortDeterminer
+        )
+        
         let alivenessPollingInterval: TimeInterval = 20
         let workerDetailsHolder = WorkerDetailsHolderImpl()
         
@@ -80,12 +86,6 @@ public final class QueueServerImpl: QueueServer {
             )
         )
         self.balancingBucketQueue = balancingBucketQueueFactory.create()
-        self.restServer = QueueHTTPRESTServer(
-            httpRestServer: HTTPRESTServer(
-                automaticTerminationController: automaticTerminationController,
-                portProvider: localPortDeterminer
-            )
-        )
         self.testsEnqueuer = TestsEnqueuer(
             bucketSplitInfo: bucketSplitInfo,
             enqueueableBucketReceptor: balancingBucketQueue
@@ -143,23 +143,21 @@ public final class QueueServerImpl: QueueServer {
     }
     
     public func start() throws -> Int {
-        restServer.setHandler(
-            bucketResultHandler: RESTEndpointOf(actualHandler: bucketResultRegistrar),
-            dequeueBucketRequestHandler: RESTEndpointOf(actualHandler: bucketProvider),
-            disableWorkerHandler: RESTEndpointOf(actualHandler: disableWorkerHandler),
-            jobDeleteHandler: RESTEndpointOf(actualHandler: jobDeleteEndpoint),
-            jobResultsHandler: RESTEndpointOf(actualHandler: jobResultsEndpoint),
-            jobStateHandler: RESTEndpointOf(actualHandler: jobStateEndpoint),
-            registerWorkerHandler: RESTEndpointOf(actualHandler: workerRegistrar),
-            scheduleTestsHandler: RESTEndpointOf(actualHandler: scheduleTestsHandler),
-            versionHandler: RESTEndpointOf(actualHandler: queueServerVersionHandler)
-        )
+        httpRestServer.add(handler: RESTEndpointOf(bucketProvider))
+        httpRestServer.add(handler: RESTEndpointOf(bucketResultRegistrar))
+        httpRestServer.add(handler: RESTEndpointOf(disableWorkerHandler))
+        httpRestServer.add(handler: RESTEndpointOf(jobDeleteEndpoint))
+        httpRestServer.add(handler: RESTEndpointOf(jobResultsEndpoint))
+        httpRestServer.add(handler: RESTEndpointOf(jobStateEndpoint))
+        httpRestServer.add(handler: RESTEndpointOf(queueServerVersionHandler))
+        httpRestServer.add(handler: RESTEndpointOf(scheduleTestsHandler))
+        httpRestServer.add(handler: RESTEndpointOf(workerRegistrar))
 
         stuckBucketsPoller.startTrackingStuckBuckets()
         workerAlivenessMatricCapturer.start()
         workerAlivenessPoller.startPolling()
         
-        let port = try restServer.start()
+        let port = try httpRestServer.start()
         Logger.info("Started queue server on port \(port)")
         return port
     }

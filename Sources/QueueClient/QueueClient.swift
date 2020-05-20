@@ -4,6 +4,7 @@ import Foundation
 import Logging
 import Models
 import QueueModels
+import RESTInterfaces
 import RESTMethods
 import RequestSender
 import ScheduleStrategy
@@ -139,7 +140,7 @@ public final class QueueClient {
         components.scheme = "http"
         components.host = queueServerAddress.host
         components.port = queueServerAddress.port
-        components.path = restMethod.withLeadingSlash
+        components.path = restMethod.pathWithLeadingSlash
         guard let url = components.url else {
             Logger.fatal("Unable to convert components to url: \(components)")
         }

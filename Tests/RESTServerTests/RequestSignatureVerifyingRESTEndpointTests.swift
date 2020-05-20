@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import RESTInterfaces
 import RESTMethods
 import RESTServer
 import XCTest
@@ -17,7 +18,7 @@ class PayloadSignatureVerifyingRESTEndpointTests: XCTestCase {
             payloadSignature: expectedPayloadSignature
         )
         XCTAssertEqual(
-            try endpoint.handle(decodedPayload: payload),
+            try endpoint.handle(payload: payload),
             "good"
         )
     }
@@ -31,7 +32,7 @@ class PayloadSignatureVerifyingRESTEndpointTests: XCTestCase {
             payloadSignature: unexpectedPayloadSignature
         )
         XCTAssertThrowsError(
-            try endpoint.handle(decodedPayload: payload)
+            try endpoint.handle(payload: payload)
         )
     }
 }
@@ -45,10 +46,12 @@ class FakeSignedPayload: SignedPayload, Codable {
 }
 
 class FakeVerifyingEndpoint: PayloadSignatureVerifyingRESTEndpoint {
-    typealias DecodedObjectType = FakeSignedPayload
+    typealias PayloadType = FakeSignedPayload
     typealias ResponseType = String
 
     let expectedPayloadSignature: PayloadSignature
+    let path: RESTPath = FakeRESTPath()
+    let requestIndicatesActivity = false
     let response: String
 
     init(expectedPayloadSignature: PayloadSignature, response: String) {

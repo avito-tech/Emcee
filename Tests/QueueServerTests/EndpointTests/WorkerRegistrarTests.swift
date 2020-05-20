@@ -34,7 +34,7 @@ final class WorkerRegistrarTests: XCTestCase {
         
         XCTAssertEqual(
             try registrar.handle(
-                decodedPayload: RegisterWorkerPayload(
+                payload: RegisterWorkerPayload(
                     workerId: workerId,
                     workerRestAddress: SocketAddress(host: "host", port: 0)
                 )
@@ -47,7 +47,7 @@ final class WorkerRegistrarTests: XCTestCase {
         let registrar = createRegistrar()
         
         let response = try registrar.handle(
-            decodedPayload: RegisterWorkerPayload(
+            payload: RegisterWorkerPayload(
                 workerId: workerId,
                 workerRestAddress: SocketAddress(host: "host", port: 0)
             )
@@ -62,8 +62,8 @@ final class WorkerRegistrarTests: XCTestCase {
         let registrar = createRegistrar()
         
         assertThrows {
-            _ = try registrar.handle(
-                decodedPayload: RegisterWorkerPayload(
+            try registrar.handle(
+                payload: RegisterWorkerPayload(
                     workerId: "unknown",
                     workerRestAddress: SocketAddress(host: "host", port: 0)
                 )

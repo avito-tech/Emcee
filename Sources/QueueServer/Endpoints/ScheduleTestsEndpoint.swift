@@ -2,6 +2,7 @@ import BalancingBucketQueue
 import Dispatch
 import Foundation
 import Models
+import RESTInterfaces
 import RESTMethods
 import RESTServer
 import UniqueIdentifierGenerator
@@ -12,7 +13,9 @@ public final class ScheduleTestsEndpoint: RESTEndpoint {
     private let queue = DispatchQueue(label: "ru.avito.emcee.ScheduleTestsEndpoint.queue")
     private let cleanUpAfter = DispatchTimeInterval.seconds(5 * 60)
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
-
+    public let path: RESTPath = RESTMethod.scheduleTests
+    public let requestIndicatesActivity = true
+    
     public init(
         testsEnqueuer: TestsEnqueuer,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
@@ -21,22 +24,22 @@ public final class ScheduleTestsEndpoint: RESTEndpoint {
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
-    public func handle(decodedPayload: ScheduleTestsRequest) throws -> ScheduleTestsResponse {
+    public func handle(payload: ScheduleTestsRequest) throws -> ScheduleTestsResponse {
         return queue.sync {
-            if !enqueuedTestRequestIds.contains(decodedPayload.requestId) {
-                enqueuedTestRequestIds.insert(decodedPayload.requestId)
+            if !enqueuedTestRequestIds.contains(payload.requestId) {
+                enqueuedTestRequestIds.insert(payload.requestId)
                 
                 testsEnqueuer.enqueue(
-                    bucketSplitter: decodedPayload.scheduleStrategy.bucketSplitter(
+                    bucketSplitter: payload.scheduleStrategy.bucketSplitter(
                         uniqueIdentifierGenerator: uniqueIdentifierGenerator
                     ),
-                    testEntryConfigurations: decodedPayload.testEntryConfigurations,
-                    prioritizedJob: decodedPayload.prioritizedJob
+                    testEntryConfigurations: payload.testEntryConfigurations,
+                    prioritizedJob: payload.prioritizedJob
                 )
                 
-                scheduleRemoval(requestId: decodedPayload.requestId)
+                scheduleRemoval(requestId: payload.requestId)
             }
-            return .scheduledTests(requestId: decodedPayload.requestId)
+            return .scheduledTests(requestId: payload.requestId)
         }
     }
     

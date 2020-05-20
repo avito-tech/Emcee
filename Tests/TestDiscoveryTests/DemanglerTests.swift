@@ -43,7 +43,7 @@ final class DemanglerTests: XCTestCase {
     
     func test___demanging_with_unexisting_dylib___throws() {
         assertThrows {
-            _ = try LibSwiftDemangler(
+            try LibSwiftDemangler(
                 libswiftDemanglePath: AbsolutePath(components: [UUID().uuidString, UUID().uuidString])
             )
         }

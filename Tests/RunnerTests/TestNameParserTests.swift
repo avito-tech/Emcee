@@ -15,10 +15,10 @@ final class TestNameParserTests: XCTestCase {
     
     func test___invalid_components() {
         assertThrows {
-            _ = try TestNameParser.components(moduledTestName: "A.B")
+            try TestNameParser.components(moduledTestName: "A.B")
         }
         assertThrows {
-            _ = try TestNameParser.components(moduledTestName: "A")
+            try TestNameParser.components(moduledTestName: "A")
         }
     }
     

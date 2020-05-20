@@ -1,10 +1,11 @@
+import RESTInterfaces
 import RequestSender
 
 public final class BucketResultRequest: NetworkRequest {
     public typealias Response = BucketResultAcceptResponse
 
     public let httpMethod = HTTPMethod.post
-    public let pathWithLeadingSlash = RESTMethod.bucketResult.withLeadingSlash
+    public let pathWithLeadingSlash = RESTMethod.bucketResult.pathWithLeadingSlash
 
     public let payload: BucketResultPayload?
     public init(payload: BucketResultPayload) {

@@ -18,17 +18,16 @@ public final class HTTPRESTServer {
         self.portProvider = portProvider
     }
 
-    public func setHandler<Request, Response>(
-        pathWithSlash: String,
-        handler: RESTEndpointOf<Request, Response>,
-        requestIndicatesActivity: Bool
+    public func add<Request, Response>(
+        handler: RESTEndpointOf<Request, Response>
     ) {
-        server[pathWithSlash] = processRequest(endpoint: handler, indicateActivity: requestIndicatesActivity)
+        server[handler.path.pathWithLeadingSlash] = processRequest(
+            endpoint: handler
+        )
     }
 
     private func processRequest<T, R>(
-        endpoint: RESTEndpointOf<T, R>,
-        indicateActivity: Bool
+        endpoint: RESTEndpointOf<T, R>
     ) -> ((HttpRequest) -> HttpResponse) {
         return { [weak self] (httpRequest: HttpRequest) -> HttpResponse in
             guard let strongSelf = self else {
@@ -37,12 +36,12 @@ public final class HTTPRESTServer {
             }
             Logger.verboseDebug("Processing request to \(httpRequest.path)")
             
-            if indicateActivity {
+            if endpoint.requestIndicatesActivity {
                 strongSelf.automaticTerminationController.indicateActivityFinished()
             }
             
-            return strongSelf.requestParser.parse(request: httpRequest) { decodedObject in
-                try endpoint.handle(decodedPayload: decodedObject)
+            return strongSelf.requestParser.parse(request: httpRequest) { decodedPayload in
+                try endpoint.handle(payload: decodedPayload)
             }
         }
     }
@@ -50,6 +49,9 @@ public final class HTTPRESTServer {
     public func start() throws -> Int {
         let port = try portProvider.localPort()
         try server.start(in_port_t(port), forceIPv4: false, priority: .default)
-        return try server.port()
+        
+        let actualPort = try server.port()
+        Logger.debug("Started REST server on \(actualPort) port")
+        return actualPort
     }
 }

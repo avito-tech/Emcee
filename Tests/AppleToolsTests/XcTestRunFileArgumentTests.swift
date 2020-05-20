@@ -28,7 +28,7 @@ final class XcTestRunFileArgumentTests: XCTestCase {
             testType: .appTest
         )
         
-        assertThrows { _ = try arg.stringValue() }
+        assertThrows { try arg.stringValue() }
     }
     
     func test___uitest_requires_app_bundle() throws {
@@ -46,7 +46,7 @@ final class XcTestRunFileArgumentTests: XCTestCase {
             testType: .uiTest
         )
         
-        assertThrows { _ = try arg.stringValue() }
+        assertThrows { try arg.stringValue() }
     }
     
     func test___uitest_requires_runner_app_bundle() throws {
@@ -64,6 +64,6 @@ final class XcTestRunFileArgumentTests: XCTestCase {
             testType: .uiTest
         )
         
-        assertThrows { _ = try arg.stringValue() }
+        assertThrows { try arg.stringValue() }
     }
 }

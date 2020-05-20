@@ -28,11 +28,11 @@ final class TestName_XcodebuildTests: XCTestCase {
     }
     
     func test___parsing_invalid_string() throws {
-        assertThrows { _ = try TestName.parseObjCTestName(string: "-[TestClassName_testMethodName]") }
-        assertThrows { _ = try TestName.parseObjCTestName(string: "TestClassName testMethodName") }
-        assertThrows { _ = try TestName.parseObjCTestName(string: "-[ModuleName. testMethodName]") }
-        assertThrows { _ = try TestName.parseObjCTestName(string: "-[.TestClassName testMethodName]") }
-        assertThrows { _ = try TestName.parseObjCTestName(string: "-[]") }
-        assertThrows { _ = try TestName.parseObjCTestName(string: "-[A.B.C test]") }
+        assertThrows { try TestName.parseObjCTestName(string: "-[TestClassName_testMethodName]") }
+        assertThrows { try TestName.parseObjCTestName(string: "TestClassName testMethodName") }
+        assertThrows { try TestName.parseObjCTestName(string: "-[ModuleName. testMethodName]") }
+        assertThrows { try TestName.parseObjCTestName(string: "-[.TestClassName testMethodName]") }
+        assertThrows { try TestName.parseObjCTestName(string: "-[]") }
+        assertThrows { try TestName.parseObjCTestName(string: "-[A.B.C test]") }
     }
 }

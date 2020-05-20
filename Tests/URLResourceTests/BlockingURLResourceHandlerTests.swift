@@ -37,7 +37,7 @@ final class BlockingURLResourceHandlerTests: XCTestCase {
 
         runnerQueue.async {
             self.assertThrows {
-                _ = try handler.wait(
+                try handler.wait(
                     limit: 60,
                     remoteUrl: self.remoteUrl
                 )

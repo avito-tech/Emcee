@@ -30,7 +30,7 @@ final class BucketResultRegistrarTests: XCTestCase {
             testingResult: testingResult,
             payloadSignature: expectedPayloadSignature
         )
-        XCTAssertNoThrow(try registrar.handle(decodedPayload: request))
+        XCTAssertNoThrow(try registrar.handle(payload: request))
         
         XCTAssertEqual(bucketQueue.acceptedResults, [testingResult])
     }
@@ -52,7 +52,7 @@ final class BucketResultRegistrarTests: XCTestCase {
             testingResult: testingResult,
             payloadSignature: expectedPayloadSignature
         )
-        XCTAssertThrowsError(try registrar.handle(decodedPayload: request))
+        XCTAssertThrowsError(try registrar.handle(payload: request))
         
         XCTAssertEqual(bucketQueue.acceptedResults, [])
     }
@@ -70,7 +70,7 @@ final class BucketResultRegistrarTests: XCTestCase {
 
         XCTAssertThrowsError(
             try registrar.handle(
-                decodedPayload: BucketResultPayload(
+                payload: BucketResultPayload(
                     workerId: "worker",
                     requestId: "request",
                     testingResult: testingResult,

@@ -28,7 +28,7 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
         }
         
         assertThrows {
-            _ = try controller.bootedSimulator()
+            try controller.bootedSimulator()
         }
     }
     
@@ -41,7 +41,7 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
         }
         
         assertThrows {
-            _ = try controller.bootedSimulator()
+            try controller.bootedSimulator()
         }
     }
     
@@ -174,7 +174,7 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
         }
         
         assertThrows {
-            _ = try controller.bootedSimulator()
+            try controller.bootedSimulator()
         }
         XCTAssertEqual(numberOfPerformedAttempts, expectedNumberOfPerformedAttempts)
     }

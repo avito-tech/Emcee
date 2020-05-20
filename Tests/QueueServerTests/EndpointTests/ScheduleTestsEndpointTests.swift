@@ -11,12 +11,8 @@ import XCTest
 
 final class ScheduleTestsEndpointTests: XCTestCase {
     func test___scheduling_tests() throws {
-        let endpoint = ScheduleTestsEndpoint(
-            testsEnqueuer: testsEnqueuer,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
-        )
         let response = try endpoint.handle(
-            decodedPayload: ScheduleTestsRequest(
+            payload: ScheduleTestsRequest(
                 requestId: requestId,
                 prioritizedJob: prioritizedJob,
                 scheduleStrategy: .individual,
@@ -38,13 +34,9 @@ final class ScheduleTestsEndpointTests: XCTestCase {
     }
     
     func test___scheduling_tests_with_same_request_id___does_not_schedule_multiple_times() throws {
-        let endpoint = ScheduleTestsEndpoint(
-            testsEnqueuer: testsEnqueuer,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
-        )
         for _ in 0 ... 10 {
             _ = try endpoint.handle(
-                decodedPayload: ScheduleTestsRequest(
+                payload: ScheduleTestsRequest(
                     requestId: requestId,
                     prioritizedJob: prioritizedJob,
                     scheduleStrategy: .individual,
@@ -63,7 +55,18 @@ final class ScheduleTestsEndpointTests: XCTestCase {
             ]
         )
     }
+    
+    func test___indicates_activity() {
+        XCTAssertTrue(
+            endpoint.requestIndicatesActivity,
+            "This endpoint should indicate activity because it means queue is being used by the user to add tests for execution"
+        )
+    }
 
+    lazy var endpoint = ScheduleTestsEndpoint(
+        testsEnqueuer: testsEnqueuer,
+        uniqueIdentifierGenerator: uniqueIdentifierGenerator
+    )
     private let fixedBucketId: BucketId = "fixedBucketId"
     private lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(
         value: fixedBucketId.value

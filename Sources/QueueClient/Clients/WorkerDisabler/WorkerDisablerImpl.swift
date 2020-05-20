@@ -29,25 +29,4 @@ public final class WorkerDisablerImpl: WorkerDisabler {
             }
         )
     }
-    
-    public func fetchQueueServerVersion(
-        callbackQueue: DispatchQueue,
-        completion: @escaping (Either<Version, Error>) -> Void
-    ) {
-        requestSender.sendRequestWithCallback(
-            request: QueueVersionRequest(),
-            callbackQueue: callbackQueue,
-            callback: { (result: Either<QueueVersionResponse, RequestSenderError>) in
-                do {
-                    let response = try result.dematerialize()
-                    switch response {
-                    case .queueVersion(let version):
-                        completion(Either.success(version))
-                    }
-                } catch {
-                    completion(Either.error(error))
-                }
-            }
-        )
-    }
 }

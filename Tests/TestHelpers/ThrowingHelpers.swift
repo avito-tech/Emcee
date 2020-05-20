@@ -12,21 +12,19 @@ public extension XCTestCase {
             do {
                 return try work()
             } catch {
-                let explanation = message(error)
-                XCTFail(explanation, file: file, line: line)
-                fatalError(explanation, file: file, line: line)
+                failTest(message(error), file: file, line: line)
             }
         }
     }
     
-    func assertThrows(
+    func assertThrows<T>(
         file: StaticString = #file,
         line: UInt = #line,
-        work: () throws -> ()
+        work: () throws -> (T)
     ) {
         do {
-            try work()
-            XCTFail("Expected to throw an error, but no error has been thrown", file: file, line: line)
+            _ = try work()
+            failTest("Expected to throw an error, but no error has been thrown", file: file, line: line)
         } catch {
             return
         }

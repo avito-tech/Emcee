@@ -17,13 +17,20 @@ final class DisableWorkerEndpointTests: XCTestCase {
         workerAlivenessProvider: workerAlivenessProvider,
         workerConfigurations: workerConfigurations
     )
+    
+    func test___does_not_indicate_activity() {
+        XCTAssertFalse(
+            endpoint.requestIndicatesActivity,
+            "This endpoint should not indicate activity. Asking queue to disable worker should not prolong its lifetime."
+        )
+    }
         
     func test___disabling_existing_worker() {
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         
         assertDoesNotThrow {
-            let response = try endpoint.handle(decodedPayload: DisableWorkerPayload(workerId: workerId))
+            let response = try endpoint.handle(payload: DisableWorkerPayload(workerId: workerId))
             XCTAssertEqual(response.workerId, workerId)
         }
         
@@ -35,7 +42,7 @@ final class DisableWorkerEndpointTests: XCTestCase {
     
     func test___disabling_non_existing_worker___throws() {
         assertThrows {
-            _ = try endpoint.handle(decodedPayload: DisableWorkerPayload(workerId: "random_id"))
+            try endpoint.handle(payload: DisableWorkerPayload(workerId: "random_id"))
         }
     }
     
@@ -45,7 +52,7 @@ final class DisableWorkerEndpointTests: XCTestCase {
         workerAlivenessProvider.disableWorker(workerId: workerId)
         
         assertThrows {
-            _ = try endpoint.handle(decodedPayload: DisableWorkerPayload(workerId: "random_id"))
+            try endpoint.handle(payload: DisableWorkerPayload(workerId: workerId))
         }
     }
 }

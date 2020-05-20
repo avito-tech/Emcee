@@ -5,15 +5,18 @@ import EventBus
 import Foundation
 import Logging
 import Models
+import RESTInterfaces
 import RESTMethods
 import RESTServer
 
 public final class BucketProviderEndpoint: PayloadSignatureVerifyingRESTEndpoint {
-    public typealias DecodedObjectType = DequeueBucketPayload
+    public typealias PayloadType = DequeueBucketPayload
     public typealias ResponseType = DequeueBucketResponse
 
     private let dequeueableBucketSource: DequeueableBucketSource
     public let expectedPayloadSignature: PayloadSignature
+    public let path: RESTPath = RESTMethod.getBucket
+    public let requestIndicatesActivity = false
 
     public init(
         dequeueableBucketSource: DequeueableBucketSource,

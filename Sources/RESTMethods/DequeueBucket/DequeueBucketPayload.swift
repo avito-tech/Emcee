@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import RESTInterfaces
 
 public final class DequeueBucketPayload: Codable, SignedPayload {
     public let workerId: WorkerId

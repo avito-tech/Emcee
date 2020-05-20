@@ -7,7 +7,7 @@ public class CurrentlyProcessingBucketsNetworkRequest: NetworkRequest {
     public typealias Response = CurrentlyProcessingBucketsResponse
     
     public let httpMethod: HTTPMethod = .post
-    public let pathWithLeadingSlash: String = CurrentlyProcessingBuckets.path.withLeadingSlash
+    public let pathWithLeadingSlash: String = CurrentlyProcessingBuckets.path.pathWithLeadingSlash
     public let payload: VoidPayload? = VoidPayload()
     public let timeout: TimeInterval
 

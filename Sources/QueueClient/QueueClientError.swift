@@ -1,5 +1,5 @@
 import Foundation
-import RESTMethods
+import RESTInterfaces
 
 public enum QueueClientError: Error, CustomStringConvertible {
     case noData

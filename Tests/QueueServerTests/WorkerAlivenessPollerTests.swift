@@ -125,7 +125,7 @@ final class WorkerAlivenessPollerTests: XCTestCase {
                 workerId: WorkerId(value: "worker__\(i)"),
                 restAddress: SocketAddress(host: "localhost", port: port)
             )
-            server[CurrentlyProcessingBuckets.path.withLeadingSlash] = { request in
+            server[CurrentlyProcessingBuckets.path.pathWithLeadingSlash] = { request in
                 numberOfProcessedRequests.withExclusiveAccess { $0 += 1 }
                 return HttpResponse.json(response: CurrentlyProcessingBucketsResponse(bucketIds: []))
             }
