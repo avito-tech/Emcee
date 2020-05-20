@@ -1,4 +1,3 @@
-import Ansi
 import Foundation
 
 public final class SubprocessInfo: Equatable {
@@ -20,7 +19,6 @@ public final class LogEntry: Equatable {
     public let file: StaticString
     public let line: UInt
     public let message: String
-    public let color: ConsoleColor?
     public let subprocessInfo: SubprocessInfo?
     public let timestamp: Date
     public let verbosity: Verbosity
@@ -29,15 +27,13 @@ public final class LogEntry: Equatable {
         file: StaticString = #file,
         line: UInt = #line,
         message: String,
-        color: ConsoleColor? = nil,
         subprocessInfo: SubprocessInfo? = nil,
         timestamp: Date = Date(),
-        verbosity: Verbosity)
-    {
+        verbosity: Verbosity
+    ) {
         self.file = file
         self.line = line
         self.message = message
-        self.color = color
         self.subprocessInfo = subprocessInfo
         self.timestamp = timestamp
         self.verbosity = verbosity
@@ -47,7 +43,6 @@ public final class LogEntry: Equatable {
         return left.file.description == right.file.description
             && left.line == right.line
             && left.message == right.message
-            && left.color == right.color
             && left.subprocessInfo == right.subprocessInfo
             && left.timestamp == right.timestamp
             && left.verbosity == right.verbosity

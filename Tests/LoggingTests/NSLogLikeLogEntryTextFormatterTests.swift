@@ -1,4 +1,3 @@
-import Ansi
 import Foundation
 @testable import Logging
 import XCTest
@@ -7,7 +6,6 @@ final class NSLogLikeLogEntryTextFormatterTests: XCTestCase {
     func test() {
         let entry = LogEntry(
             message: "message",
-            color: ConsoleColor.boldYellow,
             subprocessInfo: SubprocessInfo(subprocessId: 42, subprocessName: "subproc"),
             timestamp: Date(timeIntervalSince1970: 42),
             verbosity: Verbosity.always

@@ -1,4 +1,3 @@
-import Ansi
 import Foundation
 
 public enum Verbosity: UInt, Comparable {
@@ -19,25 +18,6 @@ public enum Verbosity: UInt, Comparable {
     
     public static func < (left: Verbosity, right: Verbosity) -> Bool {
         return left.rawValue < right.rawValue
-    }
-    
-    public var color: ConsoleColor {
-        switch self {
-        case .verboseDebug:
-            return .none
-        case .debug:
-            return .none
-        case .info:
-            return .blue
-        case .warning:
-            return .yellow
-        case .error:
-            return .red
-        case .fatal:
-            return .boldRed
-        case .always:
-            return .none
-        }
     }
     
     public var stringCode: String {

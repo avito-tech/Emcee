@@ -1,4 +1,3 @@
-import Ansi
 import Foundation
 
 public final class Logger {
@@ -72,7 +71,6 @@ public final class Logger {
         _ verbosity: Verbosity,
         _ message: String,
         _ subprocessInfo: SubprocessInfo? = nil,
-        color: ConsoleColor? = nil,
         file: StaticString = #file,
         line: UInt = #line)
     {
@@ -80,7 +78,6 @@ public final class Logger {
             file: file,
             line: line,
             message: message,
-            color: color,
             subprocessInfo: subprocessInfo,
             timestamp: Date(),
             verbosity: verbosity

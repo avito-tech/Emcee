@@ -53,13 +53,6 @@ let package = Package(
     ],
     targets: [
         .target(
-            // MARK: Ansi
-            name: "Ansi",
-            dependencies: [
-            ],
-            path: "Sources/Ansi"
-        ),
-        .target(
             // MARK: AppleTools
             name: "AppleTools",
             dependencies: [
@@ -780,7 +773,6 @@ let package = Package(
             // MARK: Logging
             name: "Logging",
             dependencies: [
-                "Ansi",
                 "AtomicModels",
                 "Extensions",
             ],
@@ -790,7 +782,6 @@ let package = Package(
             // MARK: LoggingSetup
             name: "LoggingSetup",
             dependencies: [
-                "Ansi",
                 "FileSystem",
                 "GraphiteClient",
                 "IO",
@@ -808,7 +799,6 @@ let package = Package(
             // MARK: LoggingTests
             name: "LoggingTests",
             dependencies: [
-                "Ansi",
                 "Logging",
                 "TemporaryStuff",
             ],
@@ -1427,7 +1417,6 @@ let package = Package(
             // MARK: SSHDeployer
             name: "SSHDeployer",
             dependencies: [
-                "Ansi",
                 "Deployer",
                 "Extensions",
                 "Logging",
@@ -1892,7 +1881,6 @@ let package = Package(
             // MARK: fbxctest
             name: "fbxctest",
             dependencies: [
-                "Ansi",
                 "AtomicModels",
                 "BuildArtifacts",
                 "DeveloperDirLocator",

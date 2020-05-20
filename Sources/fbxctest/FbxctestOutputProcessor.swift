@@ -1,4 +1,3 @@
-import Ansi
 import Foundation
 import LocalHostDeterminer
 import Logging

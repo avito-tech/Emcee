@@ -51,10 +51,6 @@ public final class FbXcTestFinishedEvent: CustomStringConvertible, CommonTestFie
     }
     
     public var description: String {
-        return "Finished test \(testName), " +
-            (succeeded
-                ? "test passed".with(consoleColor: .boldGreen)
-                : "test failed".with(consoleColor: .boldRed)) +
-        ", \(Int(totalDuration)) sec"
+        return "Finished test \(testName), " + (succeeded ? "test passed" : "test failed") + ", \(Int(totalDuration)) sec"
     }
 }
