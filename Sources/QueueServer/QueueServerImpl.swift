@@ -34,6 +34,7 @@ public final class QueueServerImpl: QueueServer {
     private let scheduleTestsHandler: ScheduleTestsEndpoint
     private let stuckBucketsPoller: StuckBucketsPoller
     private let testsEnqueuer: TestsEnqueuer
+    private let toggleWorkersSharingEndpoint: ToggleWorkersSharingEndpoint
     private let workerAlivenessMatricCapturer: WorkerAlivenessMatricCapturer
     private let workerAlivenessPoller: WorkerAlivenessPoller
     private let workerAlivenessProvider: WorkerAlivenessProvider
@@ -53,7 +54,7 @@ public final class QueueServerImpl: QueueServer {
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         workerAlivenessPolicy: WorkerAlivenessPolicy,
         workerConfigurations: WorkerConfigurations,
-        workerPermissionProvider: WorkerPermissionProvider
+        workerUtilizationStatusPoller: WorkerUtilizationStatusPoller
     ) {
         self.httpRestServer = HTTPRESTServer(
             automaticTerminationController: automaticTerminationController,
@@ -88,7 +89,7 @@ public final class QueueServerImpl: QueueServer {
             nothingToDequeueBehavior: workerAlivenessPolicy.nothingToDequeueBehavior(
                 checkLaterInterval: checkAgainTimeInterval
             ),
-            workerPermissionProvider: workerPermissionProvider
+            workerPermissionProvider: workerUtilizationStatusPoller
         )
         self.balancingBucketQueue = balancingBucketQueueFactory.create()
         self.testsEnqueuer = TestsEnqueuer(
@@ -149,6 +150,7 @@ public final class QueueServerImpl: QueueServer {
             reportInterval: .seconds(30),
             workerAlivenessProvider: workerAlivenessProvider
         )
+        self.toggleWorkersSharingEndpoint = ToggleWorkersSharingEndpoint(poller: workerUtilizationStatusPoller)
         self.workersToUtilizeEndpoint = WorkersToUtilizeEndpoint()
     }
     
@@ -162,6 +164,7 @@ public final class QueueServerImpl: QueueServer {
         httpRestServer.add(handler: RESTEndpointOf(jobStateEndpoint))
         httpRestServer.add(handler: RESTEndpointOf(queueServerVersionHandler))
         httpRestServer.add(handler: RESTEndpointOf(scheduleTestsHandler))
+        httpRestServer.add(handler: RESTEndpointOf(toggleWorkersSharingEndpoint))
         httpRestServer.add(handler: RESTEndpointOf(workerRegistrar))
         httpRestServer.add(handler: RESTEndpointOf(workersToUtilizeEndpoint))
 

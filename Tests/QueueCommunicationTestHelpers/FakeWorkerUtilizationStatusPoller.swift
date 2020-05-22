@@ -9,6 +9,11 @@ public class FakeWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller {
         startPollingCalled = true
     }
     
+    public var stopPollingCalled = false
+    public func stopPollingAndRestoreDefaultConfig() {
+        stopPollingCalled = true
+    }    
+    
     public func utilizationPermissionForWorker(workerId: WorkerId) -> WorkerUtilizationPermission {
         return .allowedToUtilize
     }

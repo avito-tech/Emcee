@@ -25,6 +25,11 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
         }
     }
     
+    public func stopPollingAndRestoreDefaultConfig() {
+        pollingTrigger.stop()
+        self.workerIdsToUtilize = AtomicValue(Set(defaultDeployments.map { $0.workerId }))
+    }
+    
     private func fetchWorkersToUtilize() {
         communicationService.workersToUtilize(
             deployments: defaultDeployments,

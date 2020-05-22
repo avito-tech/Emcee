@@ -31,7 +31,7 @@ final class NumericParsableArgumentTests: XCTestCase {
     
     func test___number_parse_error_description_contains_type() {
         XCTAssertEqual(
-            NumberParseError<Int>(argumentValue: "string").description,
+            GenericParseError<Int>(argumentValue: "string").description,
             "Unable to convert 'string' into Int type"
         )
     }

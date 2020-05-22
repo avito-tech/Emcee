@@ -116,7 +116,7 @@ public final class StartQueueServerCommand: Command {
             workerConfigurations: createWorkerConfigurations(
                 queueServerRunConfiguration: queueServerRunConfiguration
             ),
-            workerPermissionProvider: workerUtilizationStatusPoller
+            workerUtilizationStatusPoller: workerUtilizationStatusPoller
         )
         let pollPeriod: TimeInterval = 5.0
         let queueServerTerminationWaiter = QueueServerTerminationWaiterImpl(

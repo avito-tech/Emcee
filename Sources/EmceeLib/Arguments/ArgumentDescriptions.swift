@@ -15,6 +15,7 @@ final class ArgumentDescriptions {
     static let queueServerDestination = doubleDashedDescription(dashlessName: "queue-server-destination", overview: "A JSON file with info about deployment destination which will be used to start remote queue server")
     static let queueServerRunConfigurationLocation = doubleDashedDescription(dashlessName: "queue-server-run-configuration-location", overview: "JSON file location which describes QueueServerRunConfiguration. Either /path/to/file.json, or http://example.com/file.zip#path/to/config.json")
     static let remoteCacheConfig = doubleDashedDescription(dashlessName: "remote-cache-config", overview: "JSON file with remote server settings")
+    static let setFeatureStatus = doubleDashedDescription(dashlessName: "set-feature-status", overview: "Enabled/Disabled")
     static let tempFolder = doubleDashedDescription(dashlessName: "temp-folder", overview: "Where to store temporary stuff, including simulator data")
     static let testArgFile = doubleDashedDescription(dashlessName: "test-arg-file", overview: "JSON file with test plan")
     static let trace = doubleDashedDescription(dashlessName: "trace", overview: "Path where the combined (for all test destinations) Chrome trace file should be created")

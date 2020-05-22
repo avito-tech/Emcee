@@ -109,6 +109,9 @@ public final class InProcessMain {
                 DisableWorkerCommand(
                     requestSenderProvider: requestSenderProvider
                 ),
+                ToggleWorkersSharingCommand(
+                    requestSenderProvider: requestSenderProvider
+                ),
             ],
             helpCommandType: .generateAutomatically
         )

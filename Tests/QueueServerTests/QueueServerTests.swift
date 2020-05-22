@@ -53,7 +53,7 @@ final class QueueServerTests: XCTestCase {
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
             workerConfigurations: workerConfigurations,
-            workerPermissionProvider: FakeWorkerPermissionProvider()
+            workerUtilizationStatusPoller: FakeWorkerUtilizationStatusPoller()
         )
         XCTAssertThrowsError(try server.queueResults(jobId: jobId))
     }
@@ -90,7 +90,7 @@ final class QueueServerTests: XCTestCase {
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
             workerConfigurations: workerConfigurations,
-            workerPermissionProvider: FakeWorkerPermissionProvider()
+            workerUtilizationStatusPoller: FakeWorkerUtilizationStatusPoller()
         )
         server.schedule(
             bucketSplitter: ScheduleStrategyType.individual.bucketSplitter(

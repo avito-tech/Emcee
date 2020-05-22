@@ -998,6 +998,7 @@ let package = Package(
             // MARK: QueueClient
             name: "QueueClient",
             dependencies: [
+                "AtomicModels",
                 "DistWorkerModels",
                 "Extensions",
                 "Logging",
@@ -1031,6 +1032,7 @@ let package = Package(
                 "SimulatorPoolTestHelpers",
                 "Swifter",
                 "SynchronousWaiter",
+                "TestHelpers",
             ],
             path: "Tests/QueueClientTests"
         ),
@@ -1170,7 +1172,6 @@ let package = Package(
                 "BucketQueue",
                 "BucketQueueTestHelpers",
                 "DateProviderTestHelpers",
-                "DeployerTestHelpers",
                 "DistWorkerModels",
                 "DistWorkerModelsTestHelpers",
                 "Extensions",
