@@ -107,6 +107,12 @@ public final class DistWorkCommand: Command {
             pluginEventBusProvider: pluginEventBusProvider,
             queueClient: SynchronousQueueClient(queueServerAddress: queueServerAddress),
             resourceLocationResolver: resourceLocationResolver,
+            simulatorSettingsModifier: SimulatorSettingsModifierImpl(
+                developerDirLocator: developerDirLocator,
+                processControllerProvider: processControllerProvider,
+                tempFolder: temporaryFolder,
+                uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            ),
             temporaryFolder: temporaryFolder,
             testRunnerProvider: DefaultTestRunnerProvider(
                 dateProvider: dateProvider,

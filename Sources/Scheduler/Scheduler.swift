@@ -2,11 +2,12 @@ import DeveloperDirLocator
 import Dispatch
 import Extensions
 import Foundation
-import LocalHostDeterminer
 import ListeningSemaphore
+import LocalHostDeterminer
 import Logging
 import Models
 import PluginManager
+import ProcessController
 import ResourceLocationResolver
 import Runner
 import RunnerModels
@@ -14,14 +15,16 @@ import ScheduleStrategy
 import SimulatorPool
 import SynchronousWaiter
 import TemporaryStuff
+import UniqueIdentifierGenerator
 
 public final class Scheduler {
     private let configuration: SchedulerConfiguration
     private let developerDirLocator: DeveloperDirLocator
-    private let queue = OperationQueue()
     private let pluginEventBusProvider: PluginEventBusProvider
+    private let queue = OperationQueue()
     private let resourceLocationResolver: ResourceLocationResolver
     private let resourceSemaphore: ListeningSemaphore<ResourceAmounts>
+    private let simulatorSettingsModifier: SimulatorSettingsModifier
     private let tempFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
     private weak var schedulerDelegate: SchedulerDelegate?
@@ -32,6 +35,7 @@ public final class Scheduler {
         pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver,
         schedulerDelegate: SchedulerDelegate?,
+        simulatorSettingsModifier: SimulatorSettingsModifier,
         tempFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider
     ) {
@@ -45,6 +49,7 @@ public final class Scheduler {
             )
         )
         self.schedulerDelegate = schedulerDelegate
+        self.simulatorSettingsModifier = simulatorSettingsModifier
         self.tempFolder = tempFolder
         self.testRunnerProvider = testRunnerProvider
     }
@@ -170,6 +175,12 @@ public final class Scheduler {
 
         let allocatedSimulator = try simulatorPool.allocateSimulator(simulatorOperationTimeouts: bucket.simulatorOperationTimeouts)
         defer { allocatedSimulator.releaseSimulator() }
+        
+        try simulatorSettingsModifier.apply(
+            developerDir: bucket.developerDir,
+            simulatorSettings: bucket.simulatorSettings,
+            toSimulator: allocatedSimulator.simulator
+        )
             
         let runner = Runner(
             configuration: RunnerConfiguration(

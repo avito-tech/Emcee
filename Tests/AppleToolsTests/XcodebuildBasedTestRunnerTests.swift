@@ -160,7 +160,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                     TestEntryFixtures.testEntry()
                 ],
                 simulator: simulator,
-                simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
                 temporaryFolder: tempFolder,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream,
@@ -234,7 +233,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                     TestEntryFixtures.testEntry()
                 ],
                 simulator: simulator,
-                simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
                 temporaryFolder: tempFolder,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream,
@@ -277,7 +275,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                     TestEntryFixtures.testEntry()
                 ],
                 simulator: simulator,
-                simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
                 temporaryFolder: tempFolder,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream,
@@ -319,7 +316,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                     TestEntryFixtures.testEntry()
                 ],
                 simulator: simulator,
-                simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
                 temporaryFolder: tempFolder,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream,

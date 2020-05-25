@@ -32,7 +32,6 @@ public final class FbxctestBasedTestRunner: TestRunner {
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         simulator: Simulator,
-        simulatorSettings: SimulatorSettings,
         temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
@@ -43,7 +42,6 @@ public final class FbxctestBasedTestRunner: TestRunner {
             buildArtifacts: buildArtifacts,
             entriesToRun: entriesToRun,
             simulator: simulator,
-            simulatorSettings: simulatorSettings,
             temporaryFolder: temporaryFolder,
             testContext: testContext,
             testRunnerStream: testRunnerStream,
@@ -56,7 +54,6 @@ public final class FbxctestBasedTestRunner: TestRunner {
         buildArtifacts: BuildArtifacts,
         entriesToRun: [TestEntry],
         simulator: Simulator,
-        simulatorSettings: SimulatorSettings,
         temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
@@ -80,7 +77,6 @@ public final class FbxctestBasedTestRunner: TestRunner {
                         fbxctestLocation: fbxctestLocation,
                         fbxctestWorkingDirectory: fbxctestWorkingDirectory,
                         simulator: simulator,
-                        simulatorSettings: simulatorSettings,
                         testDestination: testContext.testDestination,
                         testType: testType
                     ),
@@ -105,7 +101,6 @@ public final class FbxctestBasedTestRunner: TestRunner {
         fbxctestLocation: FbxctestLocation,
         fbxctestWorkingDirectory: AbsolutePath,
         simulator: Simulator,
-        simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testType: TestType
     ) throws -> [SubprocessArgument] {
@@ -148,32 +143,6 @@ public final class FbxctestBasedTestRunner: TestRunner {
                 resourceLocationResolver.resolvable(withRepresentable: representableAppBundle)
                 ] + resolvableAdditionalAppBundles).map { $0.asArgument() }
             arguments += [JoinedSubprocessArgument(components: components, separator: ":")]
-            
-            let simulatorLocalizationFile = FbxctestSimulatorLocalizationFile(
-                localeIdentifier: simulatorSettings.simulatorLocalizationSettings.localeIdentifier,
-                keyboards: simulatorSettings.simulatorLocalizationSettings.keyboards,
-                passcodeKeyboards: simulatorSettings.simulatorLocalizationSettings.passcodeKeyboards,
-                languages: simulatorSettings.simulatorLocalizationSettings.languages,
-                addingEmojiKeybordHandled: simulatorSettings.simulatorLocalizationSettings.addingEmojiKeybordHandled,
-                enableKeyboardExpansion: simulatorSettings.simulatorLocalizationSettings.enableKeyboardExpansion,
-                didShowInternationalInfoAlert: simulatorSettings.simulatorLocalizationSettings.didShowInternationalInfoAlert,
-                didShowContinuousPathIntroduction: simulatorSettings.simulatorLocalizationSettings.didShowContinuousPathIntroduction
-            )
-            let simulatorLocalizationFilePath = fbxctestWorkingDirectory.appending(component: "simulator_localization_settings.json")
-            try encoder.encode(simulatorLocalizationFile).write(to: simulatorLocalizationFilePath.fileUrl)
-            arguments += [
-                "-simulator-localization-settings", simulatorLocalizationFilePath
-            ]
-            
-            let watchdogFile = FbxctestWatchdogFile(
-                bundleIds: simulatorSettings.watchdogSettings.bundleIds,
-                timeout: simulatorSettings.watchdogSettings.timeout
-            )
-            let watchdogFilePath = fbxctestWorkingDirectory.appending(component: "watchdog_settings.json")
-            try encoder.encode(watchdogFile).write(to: watchdogFilePath.fileUrl)
-            arguments += [
-                "-watchdog-settings", watchdogFilePath
-            ]
         }
         
         arguments += entriesToRun.flatMap {

@@ -219,7 +219,6 @@ public final class Runner {
                 developerDirLocator: developerDirLocator,
                 entriesToRun: entriesToRun,
                 simulator: simulator,
-                simulatorSettings: configuration.simulatorSettings,
                 temporaryFolder: tempFolder,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream,

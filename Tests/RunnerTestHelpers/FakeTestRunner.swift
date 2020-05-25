@@ -12,7 +12,6 @@ public final class FakeTestRunner: TestRunner {
     public var buildArtifacts: BuildArtifacts?
     public var entriesToRun: [TestEntry]?
     public var errorToThrowOnRun: Error?
-    public var simulatorSettings: SimulatorSettings?
     public var testContext: TestContext?
     public var testRunnerStream: TestRunnerStream?
     public var testTimeoutConfiguration: TestTimeoutConfiguration?
@@ -73,7 +72,6 @@ public final class FakeTestRunner: TestRunner {
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         simulator: Simulator,
-        simulatorSettings: SimulatorSettings,
         temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
@@ -84,7 +82,6 @@ public final class FakeTestRunner: TestRunner {
 
         self.buildArtifacts = buildArtifacts
         self.entriesToRun = entriesToRun
-        self.simulatorSettings = simulatorSettings
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testContext = testContext
         self.testRunnerStream = testRunnerStream

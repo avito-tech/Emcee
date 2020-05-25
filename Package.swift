@@ -66,6 +66,7 @@ let package = Package(
                 "Logging",
                 "Models",
                 "PathLib",
+                "PlistLib",
                 "ProcessController",
                 "ResourceLocation",
                 "ResourceLocationResolver",
@@ -869,6 +870,22 @@ let package = Package(
             path: "Tests/PathLibTests"
         ),
         .target(
+            // MARK: PlistLib
+            name: "PlistLib",
+            dependencies: [
+            ],
+            path: "Sources/PlistLib"
+        ),
+        .testTarget(
+            // MARK: PlistLibTests
+            name: "PlistLibTests",
+            dependencies: [
+                "PlistLib",
+                "TestHelpers",
+            ],
+            path: "Tests/PlistLibTests"
+        ),
+        .target(
             // MARK: Plugin
             name: "Plugin",
             dependencies: [
@@ -1532,6 +1549,7 @@ let package = Package(
                 "Models",
                 "PluginManager",
                 "PluginSupport",
+                "ProcessController",
                 "QueueModels",
                 "ResourceLocationResolver",
                 "Runner",
@@ -1541,6 +1559,7 @@ let package = Package(
                 "SimulatorPoolModels",
                 "SynchronousWaiter",
                 "TemporaryStuff",
+                "UniqueIdentifierGenerator",
             ],
             path: "Sources/Scheduler"
         ),
@@ -1590,11 +1609,14 @@ let package = Package(
                 "Metrics",
                 "Models",
                 "PathLib",
+                "PlistLib",
+                "ProcessController",
                 "ResourceLocationResolver",
                 "RunnerModels",
                 "SimulatorPoolModels",
                 "SynchronousWaiter",
                 "TemporaryStuff",
+                "UniqueIdentifierGenerator",
             ],
             path: "Sources/SimulatorPool"
         ),
@@ -1635,6 +1657,9 @@ let package = Package(
                 "Models",
                 "ModelsTestHelpers",
                 "PathLib",
+                "PlistLib",
+                "ProcessController",
+                "ProcessControllerTestHelpers",
                 "ResourceLocationResolver",
                 "SimulatorPool",
                 "SimulatorPoolModels",
@@ -1642,6 +1667,8 @@ let package = Package(
                 "SynchronousWaiter",
                 "TemporaryStuff",
                 "TestHelpers",
+                "UniqueIdentifierGenerator",
+                "UniqueIdentifierGeneratorTestHelpers",
             ],
             path: "Tests/SimulatorPoolTests"
         ),

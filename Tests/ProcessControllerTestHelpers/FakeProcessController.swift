@@ -5,8 +5,9 @@ import SynchronousWaiter
 public final class FakeProcessController: ProcessController {
     public var subprocess: Subprocess
 
-    public init(subprocess: Subprocess) {
+    public init(subprocess: Subprocess, processStatus: ProcessStatus = .notStarted) {
         self.subprocess = subprocess
+        self.overridedProcessStatus = processStatus
     }
     
     public var processName: String {

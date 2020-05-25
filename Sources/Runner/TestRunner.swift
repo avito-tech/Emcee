@@ -12,7 +12,6 @@ public protocol TestRunner {
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         simulator: Simulator,
-        simulatorSettings: SimulatorSettings,
         temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,

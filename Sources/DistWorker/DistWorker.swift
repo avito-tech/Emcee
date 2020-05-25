@@ -32,6 +32,7 @@ public final class DistWorker: SchedulerDelegate {
     private let pluginEventBusProvider: PluginEventBusProvider
     private let queueClient: SynchronousQueueClient
     private let resourceLocationResolver: ResourceLocationResolver
+    private let simulatorSettingsModifier: SimulatorSettingsModifier
     private let syncQueue = DispatchQueue(label: "DistWorker.syncQueue")
     private let temporaryFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
@@ -52,6 +53,7 @@ public final class DistWorker: SchedulerDelegate {
         pluginEventBusProvider: PluginEventBusProvider,
         queueClient: SynchronousQueueClient,
         resourceLocationResolver: ResourceLocationResolver,
+        simulatorSettingsModifier: SimulatorSettingsModifier,
         temporaryFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider,
         workerId: WorkerId,
@@ -63,6 +65,7 @@ public final class DistWorker: SchedulerDelegate {
         self.pluginEventBusProvider = pluginEventBusProvider
         self.queueClient = queueClient
         self.resourceLocationResolver = resourceLocationResolver
+        self.simulatorSettingsModifier = simulatorSettingsModifier
         self.temporaryFolder = temporaryFolder
         self.testRunnerProvider = testRunnerProvider
         self.workerId = workerId
@@ -142,6 +145,7 @@ public final class DistWorker: SchedulerDelegate {
             pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,
             schedulerDelegate: self,
+            simulatorSettingsModifier: simulatorSettingsModifier,
             tempFolder: temporaryFolder,
             testRunnerProvider: testRunnerProvider
         )
