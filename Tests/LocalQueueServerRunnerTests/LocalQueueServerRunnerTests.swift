@@ -183,7 +183,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         XCTAssertThrowsError(try runner.start(emceeVersion: emceeVersion))
     }
     
-    func test___start_polling_called___upon_runner_start() throws {
+    func disabled_test___start_polling_called___upon_runner_start() throws {
         let expectation = self.expectation(description: "runner started")
         expectation.isInverted = true
         

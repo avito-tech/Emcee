@@ -63,8 +63,6 @@ public final class LocalQueueServerRunner {
     }
     
     public func start(emceeVersion: Version) throws {
-        workerUtilizationStatusPoller.startPolling()
-        
         try startWorkers(
             emceeVersion: emceeVersion,
             port: try startQueueServer(emceeVersion: emceeVersion)
