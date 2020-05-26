@@ -6,18 +6,6 @@ import Models
 import RequestSender
 import RESTMethods
 
-
-public enum QueueCommunicationServiceError: Error, CustomStringConvertible {
-    case serverError
-    
-    public var description: String {
-        switch self {
-        case .serverError:
-            return "Server error"
-        }
-    }
-}
-
 public class DefaultQueueCommunicationService: QueueCommunicationService {    
     private let requestSenderProvider: RequestSenderProvider
     private let remoteQueueDetector: RemoteQueueDetector
@@ -57,14 +45,14 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
                 request: WorkersToUtilizeRequest(deployments: deployments),
                 callbackQueue: callbackQueue,
                 callback: { (result: Either<WorkersToUtilizeResponse, RequestSenderError>) in
-                    guard let response = try? result.dematerialize() else {
-                        completion(Either.error(QueueCommunicationServiceError.serverError))
-                        return
-                    }
-
-                    switch response {
-                    case .workersToUtilize(workerIds: let workerIds):
-                        completion(Either.success(workerIds))
+                    do {
+                        let response = try result.dematerialize()
+                        switch response {
+                        case .workersToUtilize(workerIds: let workerIds):
+                            completion(.success(workerIds))
+                        }
+                    } catch {
+                        completion(.error(error))
                     }
                 }
             )

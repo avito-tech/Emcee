@@ -5,9 +5,9 @@ import QueueClient
 import RequestSender
 
 public final class ToggleWorkersSharingCommand: Command {
-    public let name = "disableWorkersSharing"
+    public let name = "toggleWorkersSharing"
     
-    public let description = "Disables queue workers sharing and makes queue use initial workers config"
+    public let description = "Changes state of queue workers sharing feature"
     
     public var arguments: Arguments = [
         ArgumentDescriptions.queueServer.asRequired,

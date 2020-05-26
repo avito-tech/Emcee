@@ -8,7 +8,7 @@ public enum RemoteQueueDetectorError: Error, CustomStringConvertible {
     public var description: String {
         switch self {
         case .noMasterQueueFound:
-            return "No master queue is found! May be no queues are running at all"
+            return "No master queue is found! Maybe no queues are running at all"
         }
     }
 }

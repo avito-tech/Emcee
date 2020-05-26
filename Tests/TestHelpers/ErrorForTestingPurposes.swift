@@ -3,12 +3,8 @@ import Foundation
 public struct ErrorForTestingPurposes: Error, CustomStringConvertible {
     public let text: String
 
-    public init(text: String) {
+    public init(text: String = "Error for testing purposes") {
         self.text = text
-    }
-    
-    public init() {
-        self.text = "Error for testing purposes"
     }
     
     public var description: String {
