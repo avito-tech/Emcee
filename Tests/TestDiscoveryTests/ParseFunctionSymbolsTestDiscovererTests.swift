@@ -98,7 +98,7 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
         simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
         testDestination: TestDestinationFixtures.testDestination,
         testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
-        testRunnerTool: .xcodebuild,
+        testRunnerTool: .xcodebuild(nil),
         testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
         testsToValidate: [],
         xcTestBundleLocation: testBundleLocation

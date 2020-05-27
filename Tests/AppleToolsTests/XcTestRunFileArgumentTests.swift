@@ -25,7 +25,8 @@ final class XcTestRunFileArgumentTests: XCTestCase {
             resourceLocationResolver: FakeResourceLocationResolver.resolvingTo(path: tempFolder.absolutePath),
             temporaryFolder: tempFolder,
             testContext: TestContextFixtures().testContext,
-            testType: .appTest
+            testType: .appTest,
+            testingEnvironment: XcTestRunTestingEnvironment()
         )
         
         assertThrows { try arg.stringValue() }
@@ -43,7 +44,8 @@ final class XcTestRunFileArgumentTests: XCTestCase {
             resourceLocationResolver: FakeResourceLocationResolver.resolvingTo(path: tempFolder.absolutePath),
             temporaryFolder: tempFolder,
             testContext: TestContextFixtures().testContext,
-            testType: .uiTest
+            testType: .uiTest,
+            testingEnvironment: XcTestRunTestingEnvironment()
         )
         
         assertThrows { try arg.stringValue() }
@@ -61,7 +63,8 @@ final class XcTestRunFileArgumentTests: XCTestCase {
             resourceLocationResolver: FakeResourceLocationResolver.resolvingTo(path: tempFolder.absolutePath),
             temporaryFolder: tempFolder,
             testContext: TestContextFixtures().testContext,
-            testType: .uiTest
+            testType: .uiTest,
+            testingEnvironment: XcTestRunTestingEnvironment()
         )
         
         assertThrows { try arg.stringValue() }

@@ -46,6 +46,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         testDestination: simulator.testDestination
     )
     private lazy var runner = XcodebuildBasedTestRunner(
+        xctestJsonLocation: nil,
         dateProvider: dateProvider,
         processControllerProvider: processControllerProvider,
         resourceLocationResolver: resourceLocationResolver
