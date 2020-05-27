@@ -9,11 +9,11 @@ import RunnerTestHelpers
 import TestHelpers
 import XCTest
 
-final class XcodebuildLogParserTests: XCTestCase {
+final class RegexLogParserTests: XCTestCase {
     private let dateProvider = DateProviderFixture(Date(timeIntervalSince1970: 100))
     private let accumulatingTestRunnerStream = AccumulatingTestRunnerStream()
     private lazy var parser = assertDoesNotThrow {
-        try XcodebuildLogParser(dateProvider: dateProvider)
+        try RegexLogParser(dateProvider: dateProvider)
     }
     
     func test___parsing_unrelated_string___produces_no_event() {

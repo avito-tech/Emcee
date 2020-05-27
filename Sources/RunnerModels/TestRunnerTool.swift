@@ -5,7 +5,7 @@ public enum TestRunnerTool: Codable, CustomStringConvertible, Hashable {
     case fbxctest(FbxctestLocation)
 
     /// Use `xcrun xcodebuild`
-    case xcodebuild
+    case xcodebuild(XCTestJsonLocation?)
     
     private enum ToolType: String, Codable {
         case fbxctest
@@ -15,14 +15,15 @@ public enum TestRunnerTool: Codable, CustomStringConvertible, Hashable {
     private enum CodingKeys: String, CodingKey {
         case toolType
         case fbxctestLocation
+        case xctestJsonLocation
     }
     
     public var description: String {
         switch self {
         case .fbxctest(let fbxctestLocation):
             return "fbxctest at: \(fbxctestLocation)"
-        case .xcodebuild:
-            return "xcrun xcodebuild"
+        case .xcodebuild(let xctestJsonLocation):
+            return "xcrun xcodebuild" + (xctestJsonLocation.map { " with XCTestJson at: \($0)" } ?? "")
         }
     }
     
@@ -34,7 +35,7 @@ public enum TestRunnerTool: Codable, CustomStringConvertible, Hashable {
         case .fbxctest:
             self = .fbxctest(try container.decode(FbxctestLocation.self, forKey: .fbxctestLocation))
         case .xcodebuild:
-            self = .xcodebuild
+            self = .xcodebuild(try container.decodeIfPresent(XCTestJsonLocation.self, forKey: .xctestJsonLocation))
         }
     }
     
@@ -44,8 +45,9 @@ public enum TestRunnerTool: Codable, CustomStringConvertible, Hashable {
         case .fbxctest(let location):
             try container.encode(ToolType.fbxctest, forKey: .toolType)
             try container.encode(location, forKey: .fbxctestLocation)
-        case .xcodebuild:
+        case .xcodebuild(let location):
             try container.encode(ToolType.xcodebuild, forKey: .toolType)
+            try container.encode(location, forKey: .xctestJsonLocation)
         }
     }
 }

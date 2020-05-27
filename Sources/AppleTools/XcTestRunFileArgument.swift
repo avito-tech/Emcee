@@ -16,6 +16,7 @@ public final class XcTestRunFileArgument: SubprocessArgument {
     private let temporaryFolder: TemporaryFolder
     private let testContext: TestContext
     private let testType: TestType
+    private let testingEnvironment: XcTestRunTestingEnvironment
         
     public enum XcTestRunFileArgumentError: CustomStringConvertible, Error {
         case cannotObtainBundleIdentifier(path: String)
@@ -34,7 +35,8 @@ public final class XcTestRunFileArgument: SubprocessArgument {
         resourceLocationResolver: ResourceLocationResolver,
         temporaryFolder: TemporaryFolder,
         testContext: TestContext,
-        testType: TestType
+        testType: TestType,
+        testingEnvironment: XcTestRunTestingEnvironment
     ) {
         self.buildArtifacts = buildArtifacts
         self.entriesToRun = entriesToRun
@@ -42,6 +44,7 @@ public final class XcTestRunFileArgument: SubprocessArgument {
         self.temporaryFolder = temporaryFolder
         self.testContext = testContext
         self.testType = testType
+        self.testingEnvironment = testingEnvironment
     }
 
     public func stringValue() throws -> String {
@@ -82,8 +85,9 @@ public final class XcTestRunFileArgument: SubprocessArgument {
         let testBundlePath = try resolvableXcTestBundle.resolve().directlyAccessibleResourcePath()
         let testHostPath = "__PLATFORMS__/iPhoneSimulator.platform/Developer/Library/Xcode/Agents/xctest"
         
+        let otherInsertedLibraries = self.testingEnvironment.insertedLibraries.reduce(into: "") { $0 += ":\($1)" }
         let xctestSpecificEnvironment = [
-            "DYLD_INSERT_LIBRARIES": "__PLATFORMS__/iPhoneSimulator.platform/Developer/usr/lib/libXCTestBundleInject.dylib",
+            "DYLD_INSERT_LIBRARIES": "__PLATFORMS__/iPhoneSimulator.platform/Developer/usr/lib/libXCTestBundleInject.dylib" + otherInsertedLibraries,
             "XCInjectBundleInto": testHostPath,
         ]
         let testTargetProductModuleName = try self.testTargetProductModuleName(
@@ -131,8 +135,9 @@ public final class XcTestRunFileArgument: SubprocessArgument {
             throw XcTestRunFileArgumentError.cannotObtainBundleIdentifier(path: hostAppPath)
         }
         
+        let otherInsertedLibraries = self.testingEnvironment.insertedLibraries.reduce(into: "") { $0 += ":\($1)" }
         let xctestSpecificEnvironment = [
-            "DYLD_INSERT_LIBRARIES": "__PLATFORMS__/iPhoneSimulator.platform/Developer/usr/lib/libXCTestBundleInject.dylib",
+            "DYLD_INSERT_LIBRARIES": "__PLATFORMS__/iPhoneSimulator.platform/Developer/usr/lib/libXCTestBundleInject.dylib" + otherInsertedLibraries,
             "XCInjectBundleInto": hostAppPath,
         ]
 
@@ -181,6 +186,14 @@ public final class XcTestRunFileArgument: SubprocessArgument {
         let testTargetProductModuleName = try self.testTargetProductModuleName(
             xcTestBundlePath: testBundlePath
         )
+        
+        var testingEnvironmentVariables = [
+            "DYLD_FRAMEWORK_PATH": "__PLATFORMS__/iPhoneOS.platform/Developer/Library/Frameworks",
+            "DYLD_LIBRARY_PATH": "__PLATFORMS__/iPhoneOS.platform/Developer/Library/Frameworks"
+        ]
+        if !testingEnvironment.insertedLibraries.isEmpty {
+            testingEnvironmentVariables["DYLD_INSERT_LIBRARIES"] = testingEnvironment.insertedLibraries.joined(separator: ":")
+        }
 
         return XcTestRun(
             testTargetName: testTargetProductModuleName,
@@ -197,10 +210,7 @@ public final class XcTestRunFileArgument: SubprocessArgument {
             uiTargetAppMainThreadCheckerEnabled: false,
             skipTestIdentifiers: [],
             onlyTestIdentifiers: entriesToRun.map { $0.testName.stringValue },
-            testingEnvironmentVariables: [
-                "DYLD_FRAMEWORK_PATH": "__PLATFORMS__/iPhoneOS.platform/Developer/Library/Frameworks",
-                "DYLD_LIBRARY_PATH": "__PLATFORMS__/iPhoneOS.platform/Developer/Library/Frameworks"
-            ],
+            testingEnvironmentVariables: testingEnvironmentVariables,
             isUITestBundle: true,
             isAppHostedTestBundle: false,
             isXCTRunnerHostedTestBundle: true,

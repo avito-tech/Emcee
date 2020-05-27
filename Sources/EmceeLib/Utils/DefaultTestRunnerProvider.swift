@@ -31,8 +31,9 @@ public final class DefaultTestRunnerProvider: TestRunnerProvider {
                 processControllerProvider: processControllerProvider,
                 resourceLocationResolver: resourceLocationResolver
             )
-        case .xcodebuild:
+        case .xcodebuild(let xctestJsonLocation):
             return XcodebuildBasedTestRunner(
+                xctestJsonLocation: xctestJsonLocation,
                 dateProvider: dateProvider,
                 processControllerProvider: processControllerProvider,
                 resourceLocationResolver: resourceLocationResolver

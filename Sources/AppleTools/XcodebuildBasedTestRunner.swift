@@ -7,19 +7,23 @@ import Models
 import ProcessController
 import ResourceLocationResolver
 import Runner
+import RunnerModels
 import SimulatorPoolModels
 import TemporaryStuff
 
 public final class XcodebuildBasedTestRunner: TestRunner {
+    private let xctestJsonLocation: XCTestJsonLocation?
     private let dateProvider: DateProvider
     private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
     
     public init(
+        xctestJsonLocation: XCTestJsonLocation?,
         dateProvider: DateProvider,
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver
     ) {
+        self.xctestJsonLocation = xctestJsonLocation
         self.dateProvider = dateProvider
         self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
@@ -36,7 +40,20 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testType: TestType
     ) throws -> StandardStreamsCaptureConfig {
-        let xcodebuildLogParser = try XcodebuildLogParser(dateProvider: dateProvider)
+        let xcodebuildLogParser: XcodebuildLogParser
+        let insertedLibraries: [String]
+        
+        if let xctestJsonLocation = xctestJsonLocation {
+            xcodebuildLogParser = XCTestJsonParser(dateProvider: dateProvider)
+            insertedLibraries = [
+                try resourceLocationResolver
+                    .resolvePath(resourceLocation: xctestJsonLocation.resourceLocation)
+                    .directlyAccessibleResourcePath()
+            ]
+        } else {
+            xcodebuildLogParser = try RegexLogParser(dateProvider: dateProvider)
+            insertedLibraries = []
+        }
         
         let processController = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
@@ -52,7 +69,10 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                         resourceLocationResolver: resourceLocationResolver,
                         temporaryFolder: temporaryFolder,
                         testContext: testContext,
-                        testType: testType
+                        testType: testType,
+                        testingEnvironment: XcTestRunTestingEnvironment(
+                            insertedLibraries: insertedLibraries
+                        )
                     ),
                     "-parallel-testing-enabled", "NO",
                     "test-without-building",

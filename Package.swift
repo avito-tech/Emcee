@@ -53,7 +53,7 @@ let package = Package(
         .package(url: "https://github.com/avito-tech/GraphiteClient.git", .exact("0.1.1")),
         .package(url: "https://github.com/daltoniam/Starscream.git", .exact("3.0.6")),
         .package(url: "https://github.com/httpswift/swifter.git", .exact("1.4.6")),
-        .package(url: "https://github.com/jakeheis/Shout.git", .exact("0.5.4"))
+        .package(url: "https://github.com/jakeheis/Shout.git", .exact("0.5.4")),
     ],
     targets: [
         .target(
@@ -75,6 +75,7 @@ let package = Package(
                 "SimulatorPool",
                 "SimulatorPoolModels",
                 "TemporaryStuff",
+                "XCTestJsonCodable",
             ],
             path: "Sources/AppleTools"
         ),
@@ -1951,6 +1952,13 @@ let package = Package(
                 "WorkerAlivenessProviderTestHelpers",
             ],
             path: "Tests/WorkerAlivenessProviderTests"
+        ),
+        .target(
+            // MARK: XCTestJsonCodable
+            name: "XCTestJsonCodable",
+            dependencies: [
+            ],
+            path: "Sources/XCTestJsonCodable"
         ),
         .target(
             // MARK: fbxctest
