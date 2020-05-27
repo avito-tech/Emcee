@@ -507,6 +507,7 @@ let package = Package(
                 "QueueCommunication",
                 "QueueModels",
                 "QueueServer",
+                "RESTMethods",
                 "RemotePortDeterminer",
                 "RequestSender",
                 "ResourceLocation",

@@ -17,7 +17,7 @@ class WorkersSharingTogglerTests: XCTestCase {
             try toggler.setSharingStatus(.enabled)
         }
         let request = requestSender.request as? ToggleWorkersSharingRequest
-        XCTAssertEqual(request?.payload, .enabled)
+        XCTAssertEqual(request?.payload?.status, .enabled)
     }
     
     func test___request_unsuccessful___throws() {
@@ -27,7 +27,7 @@ class WorkersSharingTogglerTests: XCTestCase {
             try toggler.setSharingStatus(.disabled)
         }
         let request = requestSender.request as? ToggleWorkersSharingRequest
-        XCTAssertEqual(request?.payload, .disabled)
+        XCTAssertEqual(request?.payload?.status, .disabled)
     }
     
     func test___request_timeout___throws() {

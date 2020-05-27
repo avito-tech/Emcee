@@ -20,8 +20,8 @@ public final class ToggleWorkersSharingEndpoint: RESTEndpoint {
         self.poller = poller
     }
     
-    public func handle(payload: WorkersSharingFeatureStatus) throws -> VoidPayload {
-        switch payload {
+    public func handle(payload: ToggleWorkersSharingPayload) throws -> VoidPayload {
+        switch payload.status {
         case .disabled:
             poller.stopPollingAndRestoreDefaultConfig()
         case .enabled:

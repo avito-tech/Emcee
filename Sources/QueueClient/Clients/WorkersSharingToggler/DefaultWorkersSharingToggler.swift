@@ -20,8 +20,8 @@ public class DefaultWorkersSharingToggler: WorkersSharingToggler {
         var requestResult: Either<VoidPayload, RequestSenderError>?
         
         requestSender.sendRequestWithCallback(
-           request: ToggleWorkersSharingRequest(payload: status),
-           callbackQueue: callbackQueue) { (result: Either<VoidPayload, RequestSenderError>)in
+            request: ToggleWorkersSharingRequest(payload: ToggleWorkersSharingPayload(status: status)),
+            callbackQueue: callbackQueue) { (result: Either<VoidPayload, RequestSenderError>)in
                 requestResult = result
         }
 

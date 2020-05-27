@@ -3,6 +3,7 @@ import Logging
 import Models
 import QueueClient
 import RequestSender
+import RESTMethods
 
 public final class ToggleWorkersSharingCommand: Command {
     public let name = "toggleWorkersSharing"

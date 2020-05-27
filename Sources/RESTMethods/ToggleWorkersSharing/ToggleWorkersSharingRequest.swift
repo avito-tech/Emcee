@@ -1,4 +1,3 @@
-import Models
 import RESTInterfaces
 import RequestSender
 
@@ -9,8 +8,8 @@ public struct ToggleWorkersSharingRequest: NetworkRequest {
     public let pathWithLeadingSlash = RESTMethod.toggleWorkersSharing.pathWithLeadingSlash
 
     
-    public let payload: WorkersSharingFeatureStatus?
-    public init(payload: WorkersSharingFeatureStatus) {
+    public let payload: ToggleWorkersSharingPayload?
+    public init(payload: ToggleWorkersSharingPayload) {
         self.payload = payload
     }
 }

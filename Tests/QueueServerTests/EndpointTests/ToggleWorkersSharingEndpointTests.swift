@@ -1,5 +1,6 @@
 import QueueCommunicationTestHelpers
 import QueueServer
+import RESTMethods
 import XCTest
 
 final class ToggleWorkersSharingEndpointTests: XCTestCase {
@@ -14,8 +15,8 @@ final class ToggleWorkersSharingEndpointTests: XCTestCase {
     }
         
     func test___toggle_on() {
-        assertDoesNotThrow {
-            try endpoint.handle(payload: .enabled)
+        _ = assertDoesNotThrow {
+            try endpoint.handle(payload: ToggleWorkersSharingPayload(status: .enabled))
         }
         
         XCTAssertTrue(poller.startPollingCalled)
@@ -23,8 +24,8 @@ final class ToggleWorkersSharingEndpointTests: XCTestCase {
     }
         
     func test___toggle_off() {
-        assertDoesNotThrow {
-            try endpoint.handle(payload: .disabled)
+        _ = assertDoesNotThrow {
+            try endpoint.handle(payload: ToggleWorkersSharingPayload(status: .disabled))
         }
         
         XCTAssertFalse(poller.startPollingCalled)
