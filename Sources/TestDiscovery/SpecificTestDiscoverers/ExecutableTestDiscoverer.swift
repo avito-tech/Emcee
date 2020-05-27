@@ -109,9 +109,7 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
                     "/usr/bin/xcrun",
                     "simctl", "list", "-j", "runtimes"
                 ],
-                environment: [
-                    "DEVELOPER_DIR": developerDirLocator.path(developerDir: developerDir).pathString
-                ]
+                environment: try developerDirLocator.suitableEnvironment(forDeveloperDir: developerDir)
             )
         )
         try controller.startAndWaitForSuccessfulTermination()

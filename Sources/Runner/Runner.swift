@@ -194,7 +194,7 @@ public final class Runner {
 
         var environment = configuration.environment
         environment[TestsWorkingDirectorySupport.envTestsWorkingDirectory] = testsWorkingDirectory.pathString
-        environment["DEVELOPER_DIR"] = try developerDirLocator.path(developerDir: developerDir).pathString
+        environment = try developerDirLocator.suitableEnvironment(forDeveloperDir: developerDir, byUpdatingEnvironment: environment)
 
         return TestContext(
             developerDir: developerDir,

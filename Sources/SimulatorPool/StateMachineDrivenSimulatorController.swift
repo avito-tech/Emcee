@@ -213,10 +213,10 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
         let temporaryPathComponents = ["fbsimctl_working_dir", UUID().uuidString, "fbsimctl_tmp"]
         let tmpdir = try temporaryFolder.pathByCreatingDirectories(components: temporaryPathComponents).pathString
         
-        return [
-            "DEVELOPER_DIR": try developerDirLocator.path(developerDir: developerDir).pathString,
-            "TMPDIR": tmpdir
-        ]
+        return try developerDirLocator.suitableEnvironment(
+            forDeveloperDir: developerDir,
+            byUpdatingEnvironment: ["TMPDIR": tmpdir]
+        )
     }
     
     // MARK: - Errors

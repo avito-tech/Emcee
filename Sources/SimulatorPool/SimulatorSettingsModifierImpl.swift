@@ -1,5 +1,6 @@
 import DeveloperDirLocator
 import Foundation
+import Logging
 import Models
 import PlistLib
 import ProcessController
@@ -30,7 +31,8 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
         simulatorSettings: SimulatorSettings,
         toSimulator simulator: Simulator
     ) throws {
-        let environment = ["DEVELOPER_DIR": try developerDirLocator.path(developerDir: developerDir).pathString]
+        let environment = try developerDirLocator.suitableEnvironment(forDeveloperDir: developerDir)
+        var didImportPlist = false
         
         let globalPreferencesPlist = Plist(
             rootPlistEntry: .dict([
@@ -42,7 +44,12 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
                 "AddingEmojiKeybordHandled": .bool(simulatorSettings.simulatorLocalizationSettings.addingEmojiKeybordHandled),
             ])
         )
-        try importDefaults(domain: ".GlobalPreferences.plist", plistToImport: globalPreferencesPlist, environment: environment, simulator: simulator)
+        didImportPlist = try didImportPlist || importDefaults(
+            domain: ".GlobalPreferences.plist",
+            plistToImport: globalPreferencesPlist,
+            environment: environment,
+            simulator: simulator
+        )
         
         let preferencesPlist = Plist(
             rootPlistEntry: .dict([
@@ -50,7 +57,12 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
                 "DidShowContinuousPathIntroduction": .bool(simulatorSettings.simulatorLocalizationSettings.didShowContinuousPathIntroduction),
             ])
         )
-        try importDefaults(domain: "com.apple.Preferences", plistToImport: preferencesPlist, environment: environment, simulator: simulator)
+        didImportPlist = try didImportPlist || importDefaults(
+            domain: "com.apple.Preferences",
+            plistToImport: preferencesPlist,
+            environment: environment,
+            simulator: simulator
+        )
         
         let springboardPlist = Plist(
             rootPlistEntry: .dict([
@@ -59,10 +71,17 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
                 })),
             ])
         )
-        try importDefaults(domain: "com.apple.springboard", plistToImport: springboardPlist, environment: environment, simulator: simulator)
+        didImportPlist = try didImportPlist || importDefaults(
+            domain: "com.apple.springboard",
+            plistToImport: springboardPlist,
+            environment: environment,
+            simulator: simulator
+        )
         
-        try kill(daemon: "com.apple.cfprefsd.xpc.daemon", environment: environment, simulator: simulator)
-        try kill(daemon: "com.apple.SpringBoard", environment: environment, simulator: simulator)
+        if didImportPlist {
+            try kill(daemon: "com.apple.cfprefsd.xpc.daemon", environment: environment, simulator: simulator)
+            try kill(daemon: "com.apple.SpringBoard", environment: environment, simulator: simulator)
+        }
     }
     
     func pathComponentsForStoringImportablePlists(udid: UDID, domain: String) -> [String] {
@@ -74,18 +93,47 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
         plistToImport: Plist,
         environment: [String: String],
         simulator: Simulator
-    ) throws {
-        let plistPath = try tempFolder.createFile(
+    ) throws -> Bool {
+        let uniqueId = uniqueIdentifierGenerator.generate()
+        let pathToPlistToImport = try tempFolder.createFile(
             components: pathComponentsForStoringImportablePlists(udid: simulator.udid, domain: domain),
-            filename: uniqueIdentifierGenerator.generate() + ".plist",
+            filename: uniqueId + "_new.plist",
             contents: try plistToImport.data(format: .xml)
         )
-        try processControllerProvider.createProcessController(
-            subprocess: Subprocess(
-                arguments: ["/usr/bin/xcrun", "simctl", "--set", simulator.simulatorSetPath, "spawn", simulator.udid.value, "defaults", "import", domain, plistPath.pathString],
-                environment: environment
+        
+        let currentPlistFilePath = tempFolder.pathWith(
+            components: pathComponentsForStoringImportablePlists(
+                udid: simulator.udid,
+                domain: domain
             )
-        ).startAndWaitForSuccessfulTermination()
+        ).appending(component: uniqueId + "_current.plist")
+        
+        try processControllerProvider.startAndWaitForSuccessfulTermination(
+            arguments: ["/usr/bin/xcrun", "simctl", "--set", simulator.simulatorSetPath, "spawn", simulator.udid.value, "defaults", "export", domain, currentPlistFilePath.pathString],
+            environment: environment
+        )
+        
+        let entriesInCurrentPlist: [String: PlistEntry]
+        do {
+            let currentPlist = try Plist.create(
+                fromData: try Data(contentsOf: currentPlistFilePath.fileUrl)
+            )
+            entriesInCurrentPlist = try currentPlist.root.plistEntry.optionalEntries(
+                forKeys: try plistToImport.root.plistEntry.allKeys()
+            )
+        } catch {
+            entriesInCurrentPlist = [:]
+        }
+        if try plistToImport.root.plistEntry.dictEntry() == entriesInCurrentPlist {
+            Logger.debug("Will not import plist for domain \(domain) of simulator \(simulator): current plist already has correct data")
+            return false
+        }
+        
+        try processControllerProvider.startAndWaitForSuccessfulTermination(
+            arguments: ["/usr/bin/xcrun", "simctl", "--set", simulator.simulatorSetPath, "spawn", simulator.udid.value, "defaults", "import", domain, pathToPlistToImport.pathString],
+            environment: environment
+        )
+        return true
     }
     
     private func kill(
@@ -93,9 +141,21 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
         environment: [String: String],
         simulator: Simulator
     ) throws {
-        try processControllerProvider.createProcessController(
+        try processControllerProvider.startAndWaitForSuccessfulTermination(
+            arguments: ["/usr/bin/xcrun", "simctl", "--set", simulator.simulatorSetPath, "spawn", simulator.udid.value, "launchctl", "kill", "SIGKILL", "system/" + daemon],
+            environment: environment
+        )
+    }
+}
+
+extension ProcessControllerProvider {
+    func startAndWaitForSuccessfulTermination(
+        arguments: [SubprocessArgument],
+        environment: [String: String]
+    ) throws {
+        try createProcessController(
             subprocess: Subprocess(
-                arguments: ["/usr/bin/xcrun", "simctl", "--set", simulator.simulatorSetPath, "spawn", simulator.udid.value, "launchctl", "kill", "SIGKILL", "system/" + daemon],
+                arguments: arguments,
                 environment: environment
             )
         ).startAndWaitForSuccessfulTermination()

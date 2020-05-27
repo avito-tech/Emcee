@@ -36,7 +36,7 @@ public extension PlistEntry {
     }
     
     /// Casts this entry to dict entry and extracts an expected value for a given key.
-    /// - Parameter key: The key which `PlistEntry` should be provided, is present.
+    /// - Parameter key: The key which `PlistEntry` should be provided, if present.
     /// - Throws: Error if this entry is not an dict plist entry, or if no value is present for the provided `key`.
     /// - Returns: `PlistEntry` for a given `key`.
     func entry(forKey key: String) throws -> PlistEntry {
@@ -44,6 +44,28 @@ public extension PlistEntry {
             throw PlistEntryError.noObjectForKey(entry: self, key: key)
         }
         return entry
+    }
+    
+    /// Casts this entry to dict entry and extracts the optional values for the given keys.
+    /// - Parameter keys: The keys which `PlistEntry` should be provided, if present.
+    /// - Throws: Error if this entry is not an dict plist entry.
+    /// - Returns: A map from key to its plist entry. If the entry is missing for some given key, no error will be thrown.
+    func optionalEntries(forKeys keys: [String]) throws -> [String: PlistEntry] {
+        try keys.reduce(into: [String: PlistEntry]()) { (result, key) in
+            if let entry = try optionalEntry(forKey: key) {
+                result[key] = entry
+            }
+        }
+    }
+    
+    /// Casts this entry to dict entry and extracts the required values for the given keys.
+    /// - Parameter keys: The keys which `PlistEntry` should be provided, if present.
+    /// - Throws: Error if this entry is not an dict plist entry, or if entry is missing for any provided key.
+    /// - Returns: A map from key to its plist entry. 
+    func entries(forKeys keys: [String]) throws -> [String: PlistEntry] {
+        try keys.reduce(into: [String: PlistEntry]()) { (result, key) in
+            result[key] = try entry(forKey: key)
+        }
     }
     
     /// Casts dict entry to a dict whose values are expected to have a single type

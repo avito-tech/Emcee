@@ -23,182 +23,66 @@ final class SimulatorSettingsModifierTests: XCTestCase {
     )
     
     func test___patching_global_preferences() throws {
-        let expectation = XCTestExpectation(description: "Subprocess validated")
-        
-        processControllerProvider.creator = { [simulator, simulatorSettings, tempFolder] subprocess -> ProcessController in
-            let args = try subprocess.arguments.map { try $0.stringValue() }
-            
-            if args.contains(where: { $0.contains(".GlobalPreferences.plist") }) {
-                defer { expectation.fulfill() }
-                
-                XCTAssertEqual(
-                    args.dropLast(),
-                    ["/usr/bin/xcrun", "simctl", "--set", tempFolder.absolutePath.pathString, "spawn", simulator.udid.value, "defaults", "import", ".GlobalPreferences.plist"]
-                )
-                
-                guard let pathToPlistToImport = args.last else { self.failTest("No path to plist") }
-                let plistToImport = try Plist.create(fromData: Data(contentsOf: URL(fileURLWithPath: pathToPlistToImport)))
-                let expectedPlistContents = Plist(
-                    rootPlistEntry: .dict([
-                        "AppleLocale": .string(simulatorSettings.simulatorLocalizationSettings.localeIdentifier),
-                        "AppleLanguages": .array(simulatorSettings.simulatorLocalizationSettings.languages.map { .string($0) }),
-                        "AppleKeyboards": .array(simulatorSettings.simulatorLocalizationSettings.keyboards.map { .string($0) }),
-                        "ApplePasscodeKeyboards": .array(simulatorSettings.simulatorLocalizationSettings.passcodeKeyboards.map { .string($0) }),
-                        "AppleKeyboardsExpanded": .number(simulatorSettings.simulatorLocalizationSettings.enableKeyboardExpansion ? 1 : 0),
-                        "AddingEmojiKeybordHandled": .bool(simulatorSettings.simulatorLocalizationSettings.addingEmojiKeybordHandled)
-                    ])
-                )
-                XCTAssertEqual(plistToImport.root, expectedPlistContents.root)
-            }
-            
-            return FakeProcessController(subprocess: subprocess, processStatus: .terminated(exitCode: 0))
-        }
+        addChecksForImportingPlist(
+            domain: ".GlobalPreferences.plist",
+            expectedPlistContentsAfterImportHappens: expectedGlobalPreferencesPlistContents
+        )
         
         try modifier.apply(
             developerDir: .current,
             simulatorSettings: simulatorSettings,
             toSimulator: simulator
         )
-        
-        wait(for: [expectation], timeout: 10)
     }
     
     func test___patching_preferences() throws {
-        let expectation = XCTestExpectation(description: "Subprocess validated")
-        
-        processControllerProvider.creator = { [simulator, simulatorSettings, tempFolder] subprocess -> ProcessController in
-            let args = try subprocess.arguments.map { try $0.stringValue() }
-            
-            if args.contains(where: { $0.contains("com.apple.Preferences") }) {
-                defer { expectation.fulfill() }
-                
-                XCTAssertEqual(
-                    args.dropLast(),
-                    ["/usr/bin/xcrun", "simctl", "--set", tempFolder.absolutePath.pathString, "spawn", simulator.udid.value, "defaults", "import", "com.apple.Preferences"]
-                )
-                
-                guard let pathToPlistToImport = args.last else { self.failTest("No path to plist") }
-                let plistToImport = try Plist.create(fromData: Data(contentsOf: URL(fileURLWithPath: pathToPlistToImport)))
-                let expectedPlistContents = Plist(
-                    rootPlistEntry: .dict([
-                        "UIKeyboardDidShowInternationalInfoIntroduction": .bool(simulatorSettings.simulatorLocalizationSettings.didShowInternationalInfoAlert),
-                        "DidShowContinuousPathIntroduction": .bool(simulatorSettings.simulatorLocalizationSettings.didShowContinuousPathIntroduction),
-                    ])
-                )
-                XCTAssertEqual(plistToImport.root, expectedPlistContents.root)
-            }
-            
-            return FakeProcessController(subprocess: subprocess, processStatus: .terminated(exitCode: 0))
-        }
-        
+        addChecksForImportingPlist(
+            domain: "com.apple.Preferences",
+            expectedPlistContentsAfterImportHappens: expectedPreferencesPlistContents
+        )
+
         try modifier.apply(
             developerDir: .current,
             simulatorSettings: simulatorSettings,
             toSimulator: simulator
         )
-        
-        wait(for: [expectation], timeout: 10)
     }
     
     func test___patching_stringboard() throws {
-        let expectation = XCTestExpectation(description: "Subprocess validated")
-        
-        processControllerProvider.creator = { [simulator, tempFolder] subprocess -> ProcessController in
-            let args = try subprocess.arguments.map { try $0.stringValue() }
-            
-            if args.contains(where: { $0.contains("com.apple.springboard") }) {
-                defer { expectation.fulfill() }
-                
-                XCTAssertEqual(
-                    args.dropLast(),
-                    ["/usr/bin/xcrun", "simctl", "--set", tempFolder.absolutePath.pathString, "spawn", simulator.udid.value, "defaults", "import", "com.apple.springboard"]
-                )
-                
-                guard let pathToPlistToImport = args.last else { self.failTest("No path to plist") }
-                let plistToImport = try Plist.create(fromData: Data(contentsOf: URL(fileURLWithPath: pathToPlistToImport)))
-                let expectedPlistContents = Plist(
-                    rootPlistEntry: .dict([
-                        "FBLaunchWatchdogExceptions": .dict([
-                            "bundle.id.1": .number(42),
-                            "bundle.id.2": .number(42),
-                        ]),
-                    ])
-                )
-                XCTAssertEqual(plistToImport.root, expectedPlistContents.root)
-            }
-            
-            return FakeProcessController(subprocess: subprocess, processStatus: .terminated(exitCode: 0))
-        }
+        addChecksForImportingPlist(
+            domain: "com.apple.springboard",
+            expectedPlistContentsAfterImportHappens: expectedSpringboardPlistContents
+        )
         
         try modifier.apply(
             developerDir: .current,
             simulatorSettings: simulatorSettings,
             toSimulator: simulator
         )
-        
-        wait(for: [expectation], timeout: 10)
     }
     
     func test___kills_prefs_daemon() throws {
-        let expectation = XCTestExpectation(description: "Subprocess validated")
-        
-        processControllerProvider.creator = { [simulator, tempFolder] subprocess -> ProcessController in
-            let args = try subprocess.arguments.map { try $0.stringValue() }
-            
-            if args.contains(where: { $0.contains("system/com.apple.cfprefsd.xpc.daemon") }) {
-                defer { expectation.fulfill() }
-                
-                XCTAssertEqual(
-                    args,
-                    ["/usr/bin/xcrun", "simctl", "--set", tempFolder.absolutePath.pathString, "spawn", simulator.udid.value, "launchctl", "kill", "SIGKILL", "system/com.apple.cfprefsd.xpc.daemon"]
-                )
-            }
-            
-            return FakeProcessController(subprocess: subprocess, processStatus: .terminated(exitCode: 0))
-        }
+        addChecksForKilling(daemon: "com.apple.cfprefsd.xpc.daemon")
         
         try modifier.apply(
             developerDir: .current,
             simulatorSettings: simulatorSettings,
             toSimulator: simulator
         )
-        
-        wait(for: [expectation], timeout: 10)
     }
     
     func test___kills_springboard_daemon() throws {
-        let expectation = XCTestExpectation(description: "Subprocess validated")
-        
-        processControllerProvider.creator = { [simulator, tempFolder] subprocess -> ProcessController in
-            let args = try subprocess.arguments.map { try $0.stringValue() }
-            
-            if args.contains(where: { $0.contains("system/com.apple.SpringBoard") }) {
-                defer { expectation.fulfill() }
-                
-                XCTAssertEqual(
-                    args,
-                    ["/usr/bin/xcrun", "simctl", "--set", tempFolder.absolutePath.pathString, "spawn", simulator.udid.value, "launchctl", "kill", "SIGKILL", "system/com.apple.SpringBoard"]
-                )
-            }
-            
-            return FakeProcessController(subprocess: subprocess, processStatus: .terminated(exitCode: 0))
-        }
+        addChecksForKilling(daemon: "com.apple.SpringBoard")
         
         try modifier.apply(
             developerDir: .current,
             simulatorSettings: simulatorSettings,
             toSimulator: simulator
         )
-        
-        wait(for: [expectation], timeout: 10)
     }
     
     func test___DEVELOPER_DIR_is_present_for_all_subprocess_invocations() throws {
-        let expectation = XCTestExpectation(description: "Subprocess validated")
-        
         processControllerProvider.creator = { [developerDirLocator] subprocess -> ProcessController in
-            defer { expectation.fulfill() }
-            
             XCTAssertEqual(
                 subprocess.environment["DEVELOPER_DIR"],
                 try developerDirLocator.path(developerDir: .current).pathString,
@@ -213,15 +97,50 @@ final class SimulatorSettingsModifierTests: XCTestCase {
             simulatorSettings: simulatorSettings,
             toSimulator: simulator
         )
-        
-        wait(for: [expectation], timeout: 10)
     }
     
-    func test___order_of_executions() throws {
-        var executedCommands = [String]()
+    func test___when_global_preferences_plist_has_correct_state___it_does_not_get_overwritten() throws {
+        addChecksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: expectedGlobalPreferencesPlistContents, domain: ".GlobalPreferences.plist")
+        
+        try modifier.apply(
+            developerDir: .current,
+            simulatorSettings: simulatorSettings,
+            toSimulator: simulator
+        )
+    }
+    
+    func test___when_preferences_plist_has_correct_state___it_does_not_get_overwritten() throws {
+        addChecksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: expectedPreferencesPlistContents, domain: "com.apple.Preferences")
+        
+        try modifier.apply(
+            developerDir: .current,
+            simulatorSettings: simulatorSettings,
+            toSimulator: simulator
+        )
+    }
+    
+    func test___when_springboard_plist_has_correct_state___it_does_not_get_overwritten() throws {
+        addChecksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: expectedSpringboardPlistContents, domain: "com.apple.SpringBoard")
+        
+        try modifier.apply(
+            developerDir: .current,
+            simulatorSettings: simulatorSettings,
+            toSimulator: simulator
+        )
+    }
+    
+    func test___when_plists_are_all_set___daemons_not_get_killed() throws {
+        let checks = [
+            checksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: expectedGlobalPreferencesPlistContents, domain: ".GlobalPreferences.plist"),
+            checksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: expectedPreferencesPlistContents, domain: "com.apple.Preferences"),
+            checksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: expectedSpringboardPlistContents, domain: "com.apple.springboard"),
+            checksForNotKilling(daemon: "com.apple.cfprefsd.xpc.daemon"),
+            checksForNotKilling(daemon: "com.apple.SpringBoard"),
+        ]
         
         processControllerProvider.creator = { subprocess -> ProcessController in
-            executedCommands.append(try subprocess.arguments.map { try $0.stringValue() }.joined(separator: " "))
+            let args = try subprocess.arguments.map { try $0.stringValue() }
+            try checks.forEach { try $0(args) }
             return FakeProcessController(subprocess: subprocess, processStatus: .terminated(exitCode: 0))
         }
         
@@ -230,30 +149,86 @@ final class SimulatorSettingsModifierTests: XCTestCase {
             simulatorSettings: simulatorSettings,
             toSimulator: simulator
         )
-        
-        let simulatorSetPath = tempFolder.absolutePath.pathString
-        
-        XCTAssertEqual(
-            executedCommands,
-            [
-                "/usr/bin/xcrun simctl --set \(simulatorSetPath) spawn sim_udid defaults import .GlobalPreferences.plist " +
-                    tempFolder.absolutePath.appending(
-                        components: modifier.pathComponentsForStoringImportablePlists(udid: "sim_udid", domain: ".GlobalPreferences.plist") + [plistFileName]
-                    ).pathString,
-                "/usr/bin/xcrun simctl --set \(simulatorSetPath) spawn sim_udid defaults import com.apple.Preferences " +
-                    tempFolder.absolutePath.appending(
-                        components: modifier.pathComponentsForStoringImportablePlists(udid: "sim_udid", domain: "com.apple.Preferences") + [plistFileName]
-                    ).pathString,
-                "/usr/bin/xcrun simctl --set \(simulatorSetPath) spawn sim_udid defaults import com.apple.springboard " +
-                    tempFolder.absolutePath.appending(
-                        components: modifier.pathComponentsForStoringImportablePlists(udid: "sim_udid", domain: "com.apple.springboard") + [plistFileName]
-                    ).pathString,
-                "/usr/bin/xcrun simctl --set \(simulatorSetPath) spawn sim_udid launchctl kill SIGKILL system/com.apple.cfprefsd.xpc.daemon",
-                "/usr/bin/xcrun simctl --set \(simulatorSetPath) spawn sim_udid launchctl kill SIGKILL system/com.apple.SpringBoard",
-            ]
-        )
     }
     
+    // MARK: - Helper Methods
+    
+    private func addChecksForKilling(daemon: String) {
+        processControllerProvider.creator = { [simulator, tempFolder] subprocess -> ProcessController in
+            let args = try subprocess.arguments.map { try $0.stringValue() }
+            
+            if args.contains("kill"), args.contains("system/" + daemon) {
+                XCTAssertEqual(
+                    args,
+                    ["/usr/bin/xcrun", "simctl", "--set", tempFolder.absolutePath.pathString, "spawn", simulator.udid.value, "launchctl", "kill", "SIGKILL", "system/" + daemon]
+                )
+            }
+            
+            return FakeProcessController(subprocess: subprocess, processStatus: .terminated(exitCode: 0))
+        }
+    }
+    
+    private func checksForNotKilling(daemon: String, file: StaticString = #file, line: UInt = #line) -> ([String]) -> () {
+        return { args in
+            if args.contains("kill"), args.contains("system/" + daemon) {
+                self.failTest("Daemon \(daemon) has been unexpectedly killed", file: file, line: line)
+            }
+        }
+    }
+    
+    private func checksWhenPlistIsAlreadyPresentImportDoesNotHappen(
+        plist: Plist,
+        domain: String,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) -> ([String]) throws -> () {
+        return { args in
+            if args.contains("export"), args.contains(domain) {
+                let pathToPlistToWriteTo = self.assertNotNil(file: file, line: line) { args.last }
+                try plist.data(format: .xml).write(to: URL(fileURLWithPath: pathToPlistToWriteTo))
+            }
+            
+            if args.contains("import"), args.contains(domain) {
+                self.failTest("Unexpected call to import plist for domain \(domain). This should not happen if plist has correct state.", file: file, line: line)
+            }
+        }
+    }
+    
+    private func addChecksForImportingPlist(
+        domain: String,
+        expectedPlistContentsAfterImportHappens: Plist,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        processControllerProvider.creator = { subprocess -> ProcessController in
+            let args = try subprocess.arguments.map { try $0.stringValue() }
+            
+            if args.contains("import"), args.contains(domain) {
+                XCTAssertEqual(
+                    args.dropLast(),
+                    ["/usr/bin/xcrun", "simctl", "--set", self.tempFolder.absolutePath.pathString, "spawn", self.simulator.udid.value, "defaults", "import", domain]
+                )
+                
+                let pathToPlistToImport = self.assertNotNil(file: file, line: line) { args.last }
+                let plistToImport = try Plist.create(fromData: Data(contentsOf: URL(fileURLWithPath: pathToPlistToImport)))
+                
+                XCTAssertEqual(plistToImport.root, expectedPlistContentsAfterImportHappens.root)
+            }
+            
+            return FakeProcessController(subprocess: subprocess, processStatus: .terminated(exitCode: 0))
+        }
+    }
+    
+    private func addChecksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: Plist, domain: String) {
+        let checks = self.checksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: plist, domain: domain)
+        
+        processControllerProvider.creator = { subprocess -> ProcessController in
+            let args = try subprocess.arguments.map { try $0.stringValue() }
+            try checks(args)
+            return FakeProcessController(subprocess: subprocess, processStatus: .terminated(exitCode: 0))
+        }
+    }
+
     // MARK: - Helper Variables
     
     lazy var developerDirLocator = FakeDeveloperDirLocator(result: self.tempFolder.absolutePath.appending(component: "Dev_Dir"))
@@ -282,4 +257,28 @@ final class SimulatorSettingsModifierTests: XCTestCase {
     lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: "random_value")
     lazy var plistFileName = uniqueIdentifierGenerator.value + ".plist"
+    lazy var expectedGlobalPreferencesPlistContents = Plist(
+        rootPlistEntry: .dict([
+            "AppleLocale": .string(simulatorSettings.simulatorLocalizationSettings.localeIdentifier),
+            "AppleLanguages": .array(simulatorSettings.simulatorLocalizationSettings.languages.map { .string($0) }),
+            "AppleKeyboards": .array(simulatorSettings.simulatorLocalizationSettings.keyboards.map { .string($0) }),
+            "ApplePasscodeKeyboards": .array(simulatorSettings.simulatorLocalizationSettings.passcodeKeyboards.map { .string($0) }),
+            "AppleKeyboardsExpanded": .number(simulatorSettings.simulatorLocalizationSettings.enableKeyboardExpansion ? 1 : 0),
+            "AddingEmojiKeybordHandled": .bool(simulatorSettings.simulatorLocalizationSettings.addingEmojiKeybordHandled)
+        ])
+    )
+    lazy var expectedPreferencesPlistContents = Plist(
+        rootPlistEntry: .dict([
+            "UIKeyboardDidShowInternationalInfoIntroduction": .bool(simulatorSettings.simulatorLocalizationSettings.didShowInternationalInfoAlert),
+            "DidShowContinuousPathIntroduction": .bool(simulatorSettings.simulatorLocalizationSettings.didShowContinuousPathIntroduction),
+        ])
+    )
+    lazy var expectedSpringboardPlistContents = Plist(
+        rootPlistEntry: .dict([
+            "FBLaunchWatchdogExceptions": .dict([
+                "bundle.id.1": .number(42),
+                "bundle.id.2": .number(42),
+            ]),
+        ])
+    )
 }

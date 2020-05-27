@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2020-05-27
+
+Emcee now patches some Simulator plist files right before executing tests. This allows to properly switch language and set other parameters, like keyboard and watchdog settings, without relying on `fbxctest` functionality, allowing to achieve the same Simulator environment while using `xcodebuild` as a test runner.
+Emcee will kill SpringBoard and cfprefsd if any plist changes in order to apply new Simulator settings, and will keep them running of Simulator settings do not change. Killing daemons to apply settings is a little faster than creating and booting a new Simulator instance.
+
 ## 2020-05-15
 
 - `Package.swift` file is now generated. All `import` statements are parsed to do that. On CI, the check has been added to verify that `Package.swift` is commited correctly.
