@@ -116,10 +116,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
                     "shutdown", simulator.udid.value
                 ],
                 environment: environment,
-                silenceBehavior: SilenceBehavior(
-                    automaticAction: .interruptAndForceKill,
-                    allowedSilenceDuration: timeout
-                )
+                automaticManagement: .sigintThenKillIfSilent(interval: timeout)
             )
         )
         try shutdownController.startAndListenUntilProcessDies()
@@ -144,10 +141,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
                     "--simulators", "delete"
                 ],
                 environment: environment,
-                silenceBehavior: SilenceBehavior(
-                    automaticAction: .interruptAndForceKill,
-                    allowedSilenceDuration: timeout
-                )
+                automaticManagement: .sigintThenKillIfSilent(interval: timeout)
             )
         )
         try controller.startAndListenUntilProcessDies()

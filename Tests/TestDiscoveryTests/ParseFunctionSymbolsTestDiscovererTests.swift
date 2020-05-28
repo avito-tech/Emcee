@@ -1,8 +1,9 @@
 @testable import TestDiscovery
 import BuildArtifacts
+import DateProvider
 import DeveloperDirLocator
-import Foundation
 import FileSystem
+import Foundation
 import Models
 import ModelsTestHelpers
 import ProcessController
@@ -54,6 +55,7 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
         return ParseFunctionSymbolsTestDiscoverer(
             developerDirLocator: DefaultDeveloperDirLocator(
                 processControllerProvider: DefaultProcessControllerProvider(
+                    dateProvider: SystemDateProvider(),
                     fileSystem: LocalFileSystem(
                         fileManager: .default
                     )

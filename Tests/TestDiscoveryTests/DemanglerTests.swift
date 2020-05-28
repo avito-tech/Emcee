@@ -1,3 +1,4 @@
+import DateProvider
 import DeveloperDirLocator
 import FileSystem
 import Foundation
@@ -9,7 +10,10 @@ import XCTest
 
 final class DemanglerTests: XCTestCase {
     lazy var developerDirLocator = DefaultDeveloperDirLocator(
-        processControllerProvider: DefaultProcessControllerProvider(fileSystem: LocalFileSystem(fileManager: .default))
+        processControllerProvider: DefaultProcessControllerProvider(
+            dateProvider: SystemDateProvider(),
+            fileSystem: LocalFileSystem(fileManager: .default)
+        )
     )
     lazy var developerDirPath = assertDoesNotThrow {
         try developerDirLocator.path(developerDir: .current) // WARNING: libswiftDemangle.dylib location may change

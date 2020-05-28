@@ -1,3 +1,4 @@
+import DateProvider
 import EventBus
 import FileSystem
 import Models
@@ -76,7 +77,12 @@ final class PluginManagerTests: XCTestCase {
         )
         
         let manager = PluginManager(
-            processControllerProvider: DefaultProcessControllerProvider(fileSystem: LocalFileSystem(fileManager: FileManager())),
+            processControllerProvider: DefaultProcessControllerProvider(
+                dateProvider: SystemDateProvider(),
+                fileSystem: LocalFileSystem(
+                    fileManager: FileManager()
+                )
+            ),
             pluginLocations: [
                 PluginLocation(.localFilePath(pluginBundlePath.pathString))
             ],

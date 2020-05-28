@@ -654,6 +654,7 @@ let package = Package(
             // MARK: FileSystemTests
             name: "FileSystemTests",
             dependencies: [
+                "DateProvider",
                 "FileSystem",
                 "PathLib",
                 "TemporaryStuff",
@@ -936,6 +937,7 @@ let package = Package(
             // MARK: PluginManagerTests
             name: "PluginManagerTests",
             dependencies: [
+                "DateProvider",
                 "EventBus",
                 "FileSystem",
                 "Models",
@@ -982,10 +984,13 @@ let package = Package(
             // MARK: ProcessController
             name: "ProcessController",
             dependencies: [
+                "AtomicModels",
+                "DateProvider",
                 "Extensions",
                 "FileSystem",
                 "Logging",
                 "PathLib",
+                "SignalHandling",
                 "Timer",
             ],
             path: "Sources/ProcessController"
@@ -1003,6 +1008,7 @@ let package = Package(
             // MARK: ProcessControllerTests
             name: "ProcessControllerTests",
             dependencies: [
+                "DateProvider",
                 "Extensions",
                 "FileSystem",
                 "PathLib",
@@ -1372,6 +1378,7 @@ let package = Package(
             // MARK: ResourceLocationResolverTests
             name: "ResourceLocationResolverTests",
             dependencies: [
+                "DateProvider",
                 "FileCache",
                 "FileSystem",
                 "Logging",
@@ -1785,6 +1792,7 @@ let package = Package(
                 "AppleTools",
                 "BuildArtifacts",
                 "BuildArtifactsTestHelpers",
+                "DateProvider",
                 "DeveloperDirLocator",
                 "DeveloperDirLocatorTestHelpers",
                 "FileCache",

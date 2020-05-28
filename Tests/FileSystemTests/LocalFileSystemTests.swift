@@ -1,3 +1,4 @@
+import DateProvider
 import FileSystem
 import Foundation
 import PathLib
@@ -6,6 +7,7 @@ import TestHelpers
 import XCTest
 
 final class LocalFileSystemTest: XCTestCase {
+    private lazy var dateProvider = SystemDateProvider()
     private lazy var fileSystem = LocalFileSystem(fileManager: fileManager)
     private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder(deleteOnDealloc: true) }
     private let fileManager = FileManager()

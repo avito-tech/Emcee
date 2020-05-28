@@ -84,10 +84,7 @@ public final class FbxctestBasedTestRunner: TestRunner {
                         testContext: testContext,
                         fbxctestTempFolder: fbxctestTempFolder
                     ),
-                    silenceBehavior: SilenceBehavior(
-                        automaticAction: .interruptAndForceKill,
-                        allowedSilenceDuration: testTimeoutConfiguration.testRunnerMaximumSilenceDuration
-                    )
+                    automaticManagement: .sigintThenKillIfSilent(interval: testTimeoutConfiguration.testRunnerMaximumSilenceDuration)
                 )
             )
         )

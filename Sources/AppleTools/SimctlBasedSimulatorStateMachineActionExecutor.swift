@@ -50,10 +50,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                     "com.apple.CoreSimulator.SimRuntime.iOS-" + testDestination.runtime.replacingOccurrences(of: ".", with: "-")
                 ],
                 environment: environment,
-                silenceBehavior: SilenceBehavior(
-                    automaticAction: .interruptAndForceKill,
-                    allowedSilenceDuration: timeout
-                )
+                automaticManagement: .sigintThenKillAfterRunningFor(interval: timeout)
             )
         )
         try controller.startAndWaitForSuccessfulTermination()
@@ -84,10 +81,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                     "-bd"
                 ],
                 environment: environment,
-                silenceBehavior: SilenceBehavior(
-                    automaticAction: .interruptAndForceKill,
-                    allowedSilenceDuration: timeout
-                )
+                automaticManagement: .sigintThenKillAfterRunningFor(interval: timeout)
             )
         )
         try processController.startAndWaitForSuccessfulTermination()
@@ -106,10 +100,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                     "shutdown", simulator.udid.value
                 ],
                 environment: environment,
-                silenceBehavior: SilenceBehavior(
-                    automaticAction: .interruptAndForceKill,
-                    allowedSilenceDuration: timeout
-                )
+                automaticManagement: .sigintThenKillAfterRunningFor(interval: timeout)
             )
         )
         try shutdownController.startAndWaitForSuccessfulTermination()
@@ -128,10 +119,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                     "delete", simulator.udid.value
                 ],
                 environment: environment,
-                silenceBehavior: SilenceBehavior(
-                    automaticAction: .interruptAndForceKill,
-                    allowedSilenceDuration: timeout
-                )
+                automaticManagement: .sigintThenKillAfterRunningFor(interval: timeout)
             )
         )
         try deleteController.startAndWaitForSuccessfulTermination()

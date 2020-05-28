@@ -42,6 +42,7 @@ public final class InProcessMain {
         Logger.info("Arguments: \(ProcessInfo.processInfo.arguments)")
         
         let processControllerProvider = DefaultProcessControllerProvider(
+            dateProvider: dateProvider,
             fileSystem: fileSystem
         )
         let developerDirLocator = DefaultDeveloperDirLocator(

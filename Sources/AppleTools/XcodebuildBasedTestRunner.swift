@@ -58,10 +58,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                     "test-without-building",
                 ],
                 environment: testContext.environment,
-                silenceBehavior: SilenceBehavior(
-                    automaticAction: .interruptAndForceKill,
-                    allowedSilenceDuration: testTimeoutConfiguration.testRunnerMaximumSilenceDuration
-                )
+                automaticManagement: .sigintThenKillIfSilent(interval: testTimeoutConfiguration.testRunnerMaximumSilenceDuration)
             )
         )
         

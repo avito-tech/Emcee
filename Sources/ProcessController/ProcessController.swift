@@ -9,16 +9,14 @@ public protocol ProcessController: class {
     func start() throws
     func waitForProcessToDie()
     func processStatus() -> ProcessStatus
+    func send(signal: Int32)
     
-    func writeToStdIn(data: Data) throws
     func terminateAndForceKillIfNeeded()
     func interruptAndForceKillIfNeeded()
     
-    func onStdout(listener: @escaping StdoutListener)
+    func onSignal(listener: @escaping SignalListener)
     func onStderr(listener: @escaping StderrListener)
-    func onSilence(listener: @escaping SilenceListener)
-    
-    var delegate: ProcessControllerDelegate? { get set }
+    func onStdout(listener: @escaping StdoutListener)
 }
 
 public enum ProcessTerminationError: Error, CustomStringConvertible {
@@ -52,5 +50,9 @@ public extension ProcessController {
         guard status == .terminated(exitCode: 0) else {
             throw ProcessTerminationError.unexpectedProcessStatus(name: processName, pid: processId, processStatus: status)
         }
+    }
+    
+    func forceKillProcess() {
+        send(signal: SIGKILL)
     }
 }

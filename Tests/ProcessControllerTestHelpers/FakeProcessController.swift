@@ -30,7 +30,11 @@ public final class FakeProcessController: ProcessController {
         return overridedProcessStatus
     }
     
-    public func writeToStdIn(data: Data) throws {}    
+    var signalsSent = [Int32]()
+    
+    public func send(signal: Int32) {
+        signalsSent.append(signal)
+    }
     
     public func terminateAndForceKillIfNeeded() {
         overridedProcessStatus = .terminated(exitCode: SIGTERM)
@@ -39,8 +43,6 @@ public final class FakeProcessController: ProcessController {
     public func interruptAndForceKillIfNeeded() {
         overridedProcessStatus = .terminated(exitCode: SIGINT)
     }
-    
-    public weak var delegate: ProcessControllerDelegate?
     
     // Stdout
     
@@ -68,13 +70,13 @@ public final class FakeProcessController: ProcessController {
     
     // Silence
     
-    public var silenceListeners = [SilenceListener]()
+    public var signalListeners = [SignalListener]()
     
-    public func onSilence(listener: @escaping SilenceListener) {
-        silenceListeners.append(listener)
+    public func onSignal(listener: @escaping SignalListener) {
+        signalListeners.append(listener)
     }
     
-    public func broadcastSilence() {
-        silenceListeners.forEach { $0(self, { }) }
+    public func broadcastSignal(_ signal: Int32) {
+        signalListeners.forEach { $0(self, signal, { }) }
     }
 }

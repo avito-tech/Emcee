@@ -1,3 +1,4 @@
+import DateProvider
 import Dispatch
 import Extensions
 import FileSystem
@@ -8,25 +9,22 @@ import Timer
 
 public final class DefaultProcessController: ProcessController, CustomStringConvertible {
     public let subprocess: Subprocess
-    private let process: Process
     public let processName: String
-    private var didInitiateKillOfProcess = false
-    private var lastDataTimestamp: TimeInterval = Date().timeIntervalSince1970
-    private let processTerminationQueue = DispatchQueue(label: "DefaultProcessController.processTerminationQueue")
-    private let stdinWriteQueue = DispatchQueue(label: "DefaultProcessController.stdinWriteQueue")
-    private var silenceTrackingTimer: DispatchBasedTimer?
-    private var stdinHandle: FileHandle?
-    private let processStdinPipe = Pipe()
-    private let openPipeFileHandleGroup = DispatchGroup()
-    private static let newLineCharacterData = Data([UInt8(10)])
-    private var stdoutListeners = [ListenerWrapper<StdoutListener>]()
-    private var stderrListeners = [ListenerWrapper<StderrListener>]()
-    private var silenceListeners = [ListenerWrapper<SilenceListener>]()
-    private let listenerQueue = DispatchQueue(label: "DefaultProcessController.listenerQueue")
-    private var didStartProcess = false
     public private(set) var processId: Int32 = 0
-    public weak var delegate: ProcessControllerDelegate?
+    
+    private let automaticManagementItemControllers: [AutomaticManagementItemController]
     private let fileSystem: FileSystem
+    let listenerQueue = DispatchQueue(label: "DefaultProcessController.listenerQueue")
+    private let openPipeFileHandleGroup = DispatchGroup()
+    private let process: Process
+    private let processTerminationQueue = DispatchQueue(label: "DefaultProcessController.processTerminationQueue")
+    private var automaticManagementTrackingTimer: DispatchBasedTimer?
+    
+    private var didInitiateKillOfProcess = false
+    private var didStartProcess = false
+    private var signalListeners = [ListenerWrapper<SignalListener>]()
+    private var stderrListeners = [ListenerWrapper<StderrListener>]()
+    private var stdoutListeners = [ListenerWrapper<StdoutListener>]()
     
     private final class ListenerWrapper<T> {
         let uuid: UUID
@@ -39,18 +37,23 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
     }
     
     public init(
+        dateProvider: DateProvider,
         fileSystem: FileSystem,
         subprocess: Subprocess
     ) throws {
         self.subprocess = subprocess
         self.fileSystem = fileSystem
+        
+        automaticManagementItemControllers = subprocess.automaticManagement.items.map { item in
+            AutomaticManagementItemController(dateProvider: dateProvider, item: item)
+        }
+        
         let arguments = try subprocess.arguments.map { try $0.stringValue() }
         processName = arguments.elementAtIndex(0, "First element is path to executable").lastPathComponent
         process = try DefaultProcessController.createProcess(
             fileSystem: fileSystem,
             arguments: arguments,
             environment: subprocess.environment,
-            processStdinPipe: processStdinPipe,
             workingDirectory: subprocess.workingDirectory
         )
         setUpProcessListening()
@@ -60,7 +63,6 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         fileSystem: FileSystem,
         arguments: [String],
         environment: [String: String],
-        processStdinPipe: Pipe,
         workingDirectory: AbsolutePath
     ) throws -> Process {
         let pathToExecutable = AbsolutePath(arguments.elementAtIndex(0, "Path to executable"))
@@ -75,7 +77,6 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         process.launchPath = pathToExecutable.pathString
         process.arguments = Array(arguments.dropFirst())
         process.environment = environment
-        process.standardInput = processStdinPipe
         process.currentDirectoryPath = workingDirectory.pathString
         try process.setStartsNewProcessGroup(false)
         return process
@@ -99,16 +100,11 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         process.launch()
         process.terminationHandler = { _ in
             OrphanProcessTracker().removeProcessFromCleanup(pid: self.processId, name: self.processName)
-            self.closeFileHandles()
         }
         processId = process.processIdentifier
         OrphanProcessTracker().storeProcessForCleanup(pid: processId, name: processName)
         Logger.debug("Started process \(processId)", subprocessInfo)
-        startMonitoringForHangs()
-        
-        onStdout { processController, data, _ in processController.delegate?.processController(processController, newStdoutData: data) }
-        onStderr { processController, data, _ in processController.delegate?.processController(processController, newStderrData: data) }
-        onSilence { processController, _ in processController.delegate?.processControllerDidNotReceiveAnyOutputWithinAllowedSilenceDuration(processController) }
+        startAutomaticManagement()
     }
     
     public func waitForProcessToDie() {
@@ -126,35 +122,33 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         return .terminated(exitCode: process.terminationStatus)
     }
     
-    public func writeToStdIn(data: Data) throws {
-        guard isProcessRunning else { throw StdinError.processIsNotRunning(self) }
-        let consumeWaiter = DispatchGroup()
-        consumeWaiter.enter()
-        
-        stdinWriteQueue.async {
-            self.processStdinPipe.fileHandleForWriting.write(data)
-            self.stdinHandle?.write(data)
-            if self.subprocess.silenceBehavior.allowedTimeToConsumeStdin > 0 {
-                consumeWaiter.leave()
+    public func send(signal: Int32) {
+        listenerQueue.async {
+            for listenerWrapper in self.signalListeners {
+                let unsubscriber: Unsubscribe = {
+                    self.listenerQueue.async {
+                        self.signalListeners.removeAll { $0.uuid == listenerWrapper.uuid }
+                    }
+                }
+                listenerWrapper.listener(self, signal, unsubscriber)
             }
-        }
-        
-        if consumeWaiter.wait(timeout: .now() + subprocess.silenceBehavior.allowedTimeToConsumeStdin) == .timedOut {
-            throw StdinError.didNotConsumeStdinInTime(self)
+            
+            Logger.debug("Signalling \(signal)", self.subprocessInfo)
+            kill(-self.processId, signal)
         }
     }
     
     public func terminateAndForceKillIfNeeded() {
         attemptToKillProcess { process in
             Logger.debug("Terminating the process", subprocessInfo)
-            process.terminate()
+            send(signal: SIGTERM)
         }
     }
     
     public func interruptAndForceKillIfNeeded() {
         attemptToKillProcess { process in
             Logger.debug("Interrupting the process", subprocessInfo)
-            process.interrupt()
+            send(signal: SIGINT)
         }
     }
     
@@ -166,8 +160,8 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         stderrListeners.append(ListenerWrapper(uuid: UUID(), listener: listener))
     }
     
-    public func onSilence(listener: @escaping SilenceListener) {
-        silenceListeners.append(ListenerWrapper(uuid: UUID(), listener: listener))
+    public func onSignal(listener: @escaping SignalListener) {
+        signalListeners.append(ListenerWrapper(uuid: UUID(), listener: listener))
     }
     
     private func attemptToKillProcess(killer: (Process) -> ()) {
@@ -184,67 +178,24 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
     private func forceKillProcess() {
         if isProcessRunning {
             Logger.warning("Failed to interrupt the process in time, terminating", subprocessInfo)
-            kill(-processId, SIGKILL)
+            send(signal: SIGKILL)
             
             stdoutListeners.removeAll()
             stderrListeners.removeAll()
-            silenceListeners.removeAll()
+            signalListeners.removeAll()
         }
     }
     
     // MARK: - Hang Monitoring
     
-    private func startMonitoringForHangs() {
-        guard subprocess.silenceBehavior.allowedSilenceDuration > 0 else {
-            Logger.debug("Will not track hangs as allowedSilenceDuration must be positive", subprocessInfo)
-            return
-        }
+    private func startAutomaticManagement() {
+        Logger.debug("Will start automatic process management", subprocessInfo)
         
-        Logger.debug("Will track silences with timeout \(subprocess.silenceBehavior.allowedSilenceDuration)", subprocessInfo)
-        
-        silenceTrackingTimer = DispatchBasedTimer.startedTimer(repeating: .seconds(1), leeway: .seconds(1)) { [weak self] timer in
-            guard let strongSelf = self else {
-                timer.stop()
-                return
-            }
-            if Date().timeIntervalSince1970 - strongSelf.lastDataTimestamp > strongSelf.subprocess.silenceBehavior.allowedSilenceDuration {
-                strongSelf.didDetectLongPeriodOfSilence()
-                timer.stop()
-            }
+        automaticManagementTrackingTimer = DispatchBasedTimer.startedTimer(repeating: .seconds(1), leeway: .seconds(1)) { [weak self] timer in
+            guard let strongSelf = self else { return timer.stop() }
+            
+            strongSelf.automaticManagementItemControllers.forEach { $0.fireEventIfNecessary(processController: strongSelf) }
         }
-    }
-    
-    private func didDetectLongPeriodOfSilence() {
-        silenceTrackingTimer?.stop()
-        silenceTrackingTimer = nil
-        Logger.error("Detected a long period of silence of \(processName)", subprocessInfo)
-        
-        listenerQueue.async {
-            for listenerWrapper in self.silenceListeners {
-                let unsubscriber: Unsubscribe = {
-                    self.listenerQueue.async {
-                        self.silenceListeners.removeAll { $0.uuid == listenerWrapper.uuid }
-                    }
-                }
-                listenerWrapper.listener(self, unsubscriber)
-            }
-        }
-        
-        switch subprocess.silenceBehavior.automaticAction {
-        case .noAutomaticAction:
-            break
-        case .terminateAndForceKill:
-            terminateAndForceKillIfNeeded()
-        case .interruptAndForceKill:
-            interruptAndForceKillIfNeeded()
-        case .handler(let handler):
-            handler(self)
-        }
-    }
-    
-    private func closeFileHandles() {
-        stdinHandle?.closeFile()
-        stdinHandle = nil
     }
     
     // MARK: - Processing Output
@@ -298,14 +249,6 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
                 self.openPipeFileHandleGroup.leave()
             }
         )
-        
-        if FileManager.default.createFile(atPath: subprocess.standardStreamsCaptureConfig.stdinContentsFile.pathString, contents: nil),
-            let stdinHandle = FileHandle(forWritingAtPath: subprocess.standardStreamsCaptureConfig.stdinContentsFile.pathString)
-        {
-            self.stdinHandle = stdinHandle
-        } else {
-            Logger.warning("Will not store stdin input at file, failed to open a file handle", subprocessInfo)
-        }
     }
     
     private func storeStdForProcess(
@@ -365,7 +308,9 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
     }
     
     private func didProcessDataFromProcess() {
-        lastDataTimestamp = Date().timeIntervalSince1970
+        for controller in automaticManagementItemControllers {
+            controller.processReportedActivity()
+        }
     }
 }
 

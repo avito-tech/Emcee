@@ -27,7 +27,7 @@ public final class FbxctestOutputProcessor {
     }
     
     public func processOutputAndWaitForProcessTermination() throws {
-        processController.onSilence { [weak self] sender, unsubscriber in
+        processController.onSignal { [weak self] sender, _, unsubscriber in
             guard let strongSelf = self else { return unsubscriber() }
             strongSelf.eventsListener.timeoutDueToSilence()
         }

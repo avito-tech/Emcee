@@ -1,6 +1,7 @@
+import DateProvider
 import FileCache
-import Foundation
 import FileSystem
+import Foundation
 import Logging
 import Models
 import PathLib
@@ -188,6 +189,7 @@ final class ResourceLocationResolverTests: XCTestCase {
         urlResource: urlResource,
         cacheElementTimeToLive: 0,
         processControllerProvider: DefaultProcessControllerProvider(
+            dateProvider: SystemDateProvider(),
             fileSystem: LocalFileSystem(
                 fileManager: .default
             )
