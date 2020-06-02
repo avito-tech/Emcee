@@ -89,7 +89,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
 
     private func perform(actions: [SimulatorStateMachine.Action]) throws {
         for action in actions {
-            Logger.debug("Performing action: \(action)")
+            Logger.debug("Simulator controller \(self) is performing action: \(action)")
             switch action {
             case .create:
                 simulator = try create()
@@ -102,6 +102,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
                 simulator = nil
             }
             currentSimulatorState = action.resultingState
+            Logger.debug("Simulator controller \(self) updated state to: \(currentSimulatorState)")
         }
     }
     
