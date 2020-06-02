@@ -2,7 +2,7 @@ import Foundation
 import SignalHandling
 import Logging
 
-public enum AutomaticManagementItem: CustomStringConvertible {
+public enum AutomaticManagementItem: CustomStringConvertible, Equatable {
     case signalWhenSilent(Signal, TimeInterval)
     case signalAfter(Signal, TimeInterval)
     
@@ -34,7 +34,7 @@ public enum AutomaticManagementItem: CustomStringConvertible {
     }
 }
 
-public final class AutomaticManagement: CustomStringConvertible {
+public struct AutomaticManagement: CustomStringConvertible, Equatable {
     public let items: [AutomaticManagementItem]
     
     public init(items: [AutomaticManagementItem]) {
@@ -60,8 +60,8 @@ public final class AutomaticManagement: CustomStringConvertible {
     public static func sigintThenKillIfSilent(interval: TimeInterval, killAfter: TimeInterval = 15) -> AutomaticManagement {
         AutomaticManagement(
             items: [
-                .signalAfter(.int, interval),
-                .signalAfter(.kill, interval + killAfter),
+                .signalWhenSilent(.int, interval),
+                .signalWhenSilent(.kill, interval + killAfter),
             ]
         )
     }
@@ -89,22 +89,6 @@ public final class AutomaticManagement: CustomStringConvertible {
             items: [
                 .signalAfter(.term, interval),
                 .signalAfter(.kill, interval + killAfter),
-            ]
-        )
-    }
-    
-    public static func send(
-        signal: Signal,
-        afterBeingSilentFor silenceDuration: TimeInterval,
-        runUpTo duration: TimeInterval,
-        killAfter: TimeInterval = 15
-    ) -> AutomaticManagement {
-        AutomaticManagement(
-            items: [
-                .signalWhenSilent(signal, silenceDuration),
-                .signalWhenSilent(.kill, silenceDuration + killAfter),
-                .signalAfter(signal, duration),
-                .signalWhenSilent(.kill, duration + killAfter),
             ]
         )
     }

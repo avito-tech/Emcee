@@ -1014,6 +1014,7 @@ let package = Package(
                 "FileSystem",
                 "PathLib",
                 "ProcessController",
+                "SignalHandling",
                 "TemporaryStuff",
                 "TestHelpers",
             ],
