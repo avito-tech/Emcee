@@ -4,6 +4,7 @@ import Foundation
 import Logging
 import Models
 import PathLib
+import PlistLib
 import SimulatorPoolModels
 import SynchronousWaiter
 import TemporaryStuff
@@ -11,6 +12,7 @@ import TemporaryStuff
 public final class StateMachineDrivenSimulatorController: SimulatorController, CustomStringConvertible {
     private let additionalBootAttempts: UInt
     private let bootQueue: DispatchQueue
+    private let coreSimulatorStateProvider: CoreSimulatorStateProvider
     private let developerDir: DeveloperDir
     private let developerDirLocator: DeveloperDirLocator
     private let simulatorOperationTimeouts = AtomicValue<SimulatorOperationTimeouts>(
@@ -21,12 +23,12 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     private let temporaryFolder: TemporaryFolder
     private let testDestination: TestDestination
     private let waiter: Waiter
-    private var currentSimulatorState = SimulatorStateMachine.State.absent
     private var simulator: Simulator?
 
     public init(
         additionalBootAttempts: UInt,
         bootQueue: DispatchQueue,
+        coreSimulatorStateProvider: CoreSimulatorStateProvider,
         developerDir: DeveloperDir,
         developerDirLocator: DeveloperDirLocator,
         simulatorStateMachine: SimulatorStateMachine,
@@ -37,6 +39,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     ) {
         self.additionalBootAttempts = additionalBootAttempts
         self.bootQueue = bootQueue
+        self.coreSimulatorStateProvider = coreSimulatorStateProvider
         self.developerDir = developerDir
         self.developerDirLocator = developerDirLocator
         self.simulatorStateMachine = simulatorStateMachine
@@ -78,6 +81,26 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     }
     
     // MARK: - State Switching
+    
+    private var currentSimulatorState: SimulatorStateMachine.State {
+        guard let simulator = simulator else {
+            return .absent
+        }
+        do {
+            let coreState = try coreSimulatorStateProvider.coreSimulatorState(simulator: simulator)
+            switch coreState {
+            case .booted, .booting:
+                return .booted
+            case .creating, .shutdown,.shuttingDown:
+                return .created
+            case .none:
+                return .absent
+            }
+        } catch {
+            Logger.warning("Failed to get state for simulator \(simulator): \(error). This error will be ignored. Absent state will be returned.")
+            return .absent
+        }
+    }
 
     private func attemptToSwitchState(targetStates: [SimulatorStateMachine.State]) throws {
         let actions = simulatorStateMachine.actionsToSwitchStates(
@@ -101,7 +124,6 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
                 try invokeEnsuringSimulatorIsPresent(delete)
                 simulator = nil
             }
-            currentSimulatorState = action.resultingState
             Logger.debug("Simulator controller \(self) updated state to: \(currentSimulatorState)")
         }
     }
@@ -127,6 +149,11 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     
     private func boot(simulator: Simulator) throws {
         Logger.verboseDebug("Booting simulator: \(simulator)")
+        
+        if currentSimulatorState == .booted {
+            Logger.debug("Simulator \(simulator) is already booted, will not boot")
+            return
+        }
         
         let performBoot = {
             try self.simulatorStateMachineActionExecutor.performBootSimulatorAction(
@@ -154,11 +181,15 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
                 }
             }
         }
-
     }
     
     private func shutdown(simulator: Simulator) throws {
         Logger.debug("Shutting down simulator \(simulator)")
+        
+        if currentSimulatorState == .created {
+            Logger.debug("Simulator \(simulator) is shot down")
+            return
+        }
         
         try simulatorStateMachineActionExecutor.performShutdownSimulatorAction(
             environment: try environment(),

@@ -39,6 +39,7 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
             delegate: StateMachineDrivenSimulatorController(
                 additionalBootAttempts: additionalBootAttempts,
                 bootQueue: simulatorBootQueue,
+                coreSimulatorStateProvider: DefaultCoreSimulatorStateProvider(),
                 developerDir: developerDir,
                 developerDirLocator: developerDirLocator,
                 simulatorStateMachine: SimulatorStateMachine(),

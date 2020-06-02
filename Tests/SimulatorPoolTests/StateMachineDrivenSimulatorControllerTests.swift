@@ -4,6 +4,7 @@ import Foundation
 import Models
 import ModelsTestHelpers
 import PathLib
+import PlistLib
 import SimulatorPool
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
@@ -18,6 +19,7 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
     private let expectedTestDestination = TestDestinationFixtures.testDestination
     private let expectedTimeout: TimeInterval = 42.0
     private let expectedUdid = UDID(value: "some_UDID")
+    private let coreSimulatorStateProvider = FakeCoreSimulatorStateProvider()
     
     func test___if_create_throws___boot_fails() {
         let controller = assertDoesNotThrow {
@@ -179,6 +181,41 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
         XCTAssertEqual(numberOfPerformedAttempts, expectedNumberOfPerformedAttempts)
     }
     
+    func test___when_delete_fails___but_actually_succeedes___consequent_shutdown_does_not_happen() throws {
+        let tempFolder = try TemporaryFolder()
+        
+        let actionExecutor = FakeSimulatorStateMachineActionExecutor(
+            create: { _, testDestination, _ -> Simulator in
+                self.coreSimulatorStateProvider.result = .left(.shutdown)
+                return Simulator(testDestination: testDestination, udid: UDID(value: "udid"), path: tempFolder.absolutePath)
+            },
+            boot: { _, _, _, _ in
+                self.coreSimulatorStateProvider.result = .left(.booted)
+            },
+            shutdown: { _, _, _, _ in
+                throw ErrorForTestingPurposes(text: "Even though shutdown throws an error, plist has an updated state, that is, consequent shutdown should not be performed")
+            }
+        )
+        
+        let controller = try createController(
+            additionalBootAttempts: 0,
+            actionExecutor: actionExecutor,
+            developerDirLocator: FakeDeveloperDirLocator(result: tempFolder.absolutePath),
+            timeouts: createTimeouts()
+        )
+        
+        assertDoesNotThrow { _ = try controller.bootedSimulator() }
+        
+        // shutdown fails
+        assertThrows { try controller.shutdownSimulator() }
+
+        // but actually simulator has been shot down
+        coreSimulatorStateProvider.result = .left(.shutdown)
+        
+        // consequent shutdown should not fail, it should be no-op
+        assertDoesNotThrow { try controller.shutdownSimulator() }
+    }
+    
     private func validateArguments(
         environment: [String: String],
         path: AbsolutePath,
@@ -214,11 +251,21 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
             actionExecutor: FakeSimulatorStateMachineActionExecutor(
                 create: { environment, testDestination, timeout in
                     try create()
+                    self.coreSimulatorStateProvider.result = .left(.shutdown)
                     return self.createSimulator(environment: environment, testDestination: testDestination, timeout: timeout)
                 },
-                boot: { _, _, _, _ in try boot() },
-                shutdown: { _, _, _, _ in try shutdown() },
-                delete: { _, _, _, _ in try delete() }
+                boot: { _, _, _, _ in
+                    try boot()
+                    self.coreSimulatorStateProvider.result = .left(.booted)
+                },
+                shutdown: { _, _, _, _ in
+                    try shutdown()
+                    self.coreSimulatorStateProvider.result = .left(.shutdown)
+                },
+                delete: { _, _, _, _ in
+                    try delete()
+                    self.coreSimulatorStateProvider.result = .left(nil)
+                }
             ),
             developerDirLocator: FakeDeveloperDirLocator(result: tempFolder.absolutePath),
             timeouts: timeouts
@@ -234,6 +281,7 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
         let controller = StateMachineDrivenSimulatorController(
             additionalBootAttempts: additionalBootAttempts,
             bootQueue: DispatchQueue(label: "serial"),
+            coreSimulatorStateProvider: coreSimulatorStateProvider,
             developerDir: .current,
             developerDirLocator: developerDirLocator,
             simulatorStateMachine: SimulatorStateMachine(),
