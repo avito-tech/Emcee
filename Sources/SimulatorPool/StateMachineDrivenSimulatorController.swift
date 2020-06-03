@@ -91,7 +91,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
             switch coreState {
             case .booted, .booting:
                 return .booted
-            case .creating, .shutdown,.shuttingDown:
+            case .creating, .shutdown, .shuttingDown:
                 return .created
             case .none:
                 return .absent

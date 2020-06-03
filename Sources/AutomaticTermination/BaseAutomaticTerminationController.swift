@@ -42,8 +42,8 @@ internal class BaseAutomaticTerminationController: AutomaticTerminationControlle
                 return
             }
             if strongSelf.isTerminationAllowed {
-                strongSelf.fireHandlers()
                 timer.stop()
+                strongSelf.fireHandlers()
             }
         }
     }
