@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="xctest" tests="1" failures="1">
+    <testsuite name="SomeTests" tests="1" failures="1">
+        <testcase classname="SomeTests" name="name" timestamp="1970-01-01T05:46:40+03:00" time="10.0" hostname="host.example.com">
+            <failure message="No test failure has been captured">Unknown:??</failure>
+        </testcase>
+    </testsuite>
+</testsuites>

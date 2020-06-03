@@ -44,4 +44,24 @@ class JunitTests: XCTestCase {
         XCTAssertFalse(xmlString.contains(stringWithControlCharacters))
         XCTAssertTrue(xmlString.contains("reason with -- chars"))
     }
+    
+    func test___report_with_failed_test_but_without_test_failures() throws {
+        let testCase = JunitTestCase(
+            className: "SomeTests",
+            name: "name",
+            timestamp: 10000,
+            time: 10,
+            hostname: "host.example.com",
+            isFailure: true,
+            failures: []
+        )
+        let generator = JunitGenerator(testCases: [testCase], timeZone: TimeZone(secondsFromGMT: 3 * 3600)!)
+        let xmlString = try generator.generateReport()
+        
+        let expectedXmlStringPath = #file.deletingLastPathComponent.appending(pathComponent: "failed_test_without_test_failures.xml")
+        let expectedXmlString = try String(contentsOfFile: expectedXmlStringPath)
+        
+        XCTAssertEqual(xmlString, expectedXmlString)
+
+    }
 }

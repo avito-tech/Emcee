@@ -88,11 +88,16 @@ public final class JunitGenerator {
                 testSuiteTestCount += 1
                 if testCase.isFailure {
                     testSuiteFailureCount += 1
-                    try testCase.failures.forEach { failure in
-                        let xmlFailure = XMLElement(name: "failure", stringValue: "\(failure.fileLine)")
-                        let message = failure.reason.components(separatedBy: CharacterSet.controlCharacters).joined(separator: "")
-                        try xmlFailure.addAttribute(withName: "message", stringValue: "\(message)")
-                        xmlTestCase.addChild(xmlFailure)
+                    if testCase.failures.isEmpty {
+                        xmlTestCase.addChild(
+                            try self.xmlFailure(
+                                JunitTestCaseFailure(reason: "No test failure has been captured", fileLine: "Unknown:??")
+                            )
+                        )
+                    } else {
+                        try testCase.failures.forEach { failure in
+                            xmlTestCase.addChild(try self.xmlFailure(failure))
+                        }
                     }
                 }
                 
@@ -114,6 +119,13 @@ public final class JunitGenerator {
         xml.version = "1.0"
         xml.characterEncoding = "UTF-8"
         return xml.xmlString(options: [.nodePrettyPrint]) + "\n"
+    }
+    
+    private func xmlFailure(_ failure: JunitTestCaseFailure) throws -> XMLElement {
+        let xmlFailure = XMLElement(name: "failure", stringValue: failure.fileLine)
+        let message = failure.reason.components(separatedBy: CharacterSet.controlCharacters).joined(separator: "")
+        try xmlFailure.addAttribute(withName: "message", stringValue: message)
+        return xmlFailure
     }
 }
 
