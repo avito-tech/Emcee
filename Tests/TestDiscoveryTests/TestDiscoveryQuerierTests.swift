@@ -1,5 +1,6 @@
 @testable import TestDiscovery
 import BuildArtifacts
+import DateProviderTestHelpers
 import DeveloperDirLocatorTestHelpers
 import Foundation
 import Models
@@ -203,6 +204,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
     
     private func testDiscoveryQuerier() -> TestDiscoveryQuerier {
         return TestDiscoveryQuerierImpl(
+            dateProvider: DateProviderFixture(),
             developerDirLocator: developerDirLocator,
             numberOfAttemptsToPerformRuntimeDump: 1,
             onDemandSimulatorPool: simulatorPool,

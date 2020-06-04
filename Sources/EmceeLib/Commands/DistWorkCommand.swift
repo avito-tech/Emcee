@@ -102,6 +102,7 @@ public final class DistWorkCommand: Command {
         
         return DistWorker(
             bucketResultSender: bucketResultSender,
+            dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             onDemandSimulatorPool: onDemandSimulatorPool,
             pluginEventBusProvider: pluginEventBusProvider,

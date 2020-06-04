@@ -1,4 +1,5 @@
 import AutomaticTermination
+import DateProvider
 import DeveloperDirLocator
 import Dispatch
 import DistWorkerModels
@@ -26,6 +27,7 @@ public final class DistWorker: SchedulerDelegate {
     private let bucketResultSender: BucketResultSender
     private let callbackQueue = DispatchQueue(label: "DistWorker.callbackQueue", qos: .default, attributes: .concurrent)
     private let currentlyBeingProcessedBucketsTracker = DefaultCurrentlyBeingProcessedBucketsTracker()
+    private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let httpRestServer: HTTPRESTServer
     private let onDemandSimulatorPool: OnDemandSimulatorPool
@@ -48,6 +50,7 @@ public final class DistWorker: SchedulerDelegate {
     
     public init(
         bucketResultSender: BucketResultSender,
+        dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         onDemandSimulatorPool: OnDemandSimulatorPool,
         pluginEventBusProvider: PluginEventBusProvider,
@@ -60,6 +63,7 @@ public final class DistWorker: SchedulerDelegate {
         workerRegisterer: WorkerRegisterer
     ) {
         self.bucketResultSender = bucketResultSender
+        self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.pluginEventBusProvider = pluginEventBusProvider
@@ -141,6 +145,7 @@ public final class DistWorker: SchedulerDelegate {
         
         let scheduler = Scheduler(
             configuration: schedulerCconfiguration,
+            dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,
@@ -218,7 +223,7 @@ public final class DistWorker: SchedulerDelegate {
         obtainedTestingResult testingResult: TestingResult,
         forBucket bucket: SchedulerBucket
     ) {
-        Logger.debug("Obtained testingResult: \(testingResult)")
+        Logger.debug("Obtained testing result for bucket \(bucket): \(testingResult)")
         didReceiveTestResult(testingResult: testingResult)
     }
     

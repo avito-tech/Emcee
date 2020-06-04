@@ -1,3 +1,5 @@
+import AtomicModels
+import DateProvider
 import DeveloperDirLocator
 import EventBus
 import Foundation
@@ -16,6 +18,7 @@ import TestsWorkingDirectorySupport
 
 public final class Runner {
     private let configuration: RunnerConfiguration
+    private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let pluginEventBusProvider: PluginEventBusProvider
     private let pluginTearDownQueue = OperationQueue()
@@ -25,6 +28,7 @@ public final class Runner {
     
     public init(
         configuration: RunnerConfiguration,
+        dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver,
@@ -32,6 +36,7 @@ public final class Runner {
         testRunnerProvider: TestRunnerProvider
     ) {
         self.configuration = configuration
+        self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
@@ -139,30 +144,33 @@ public final class Runner {
             entriesToRun: entriesToRun,
             simulator: simulator,
             testContext: testContext,
-            testRunnerStream: TestRunnerStreamWrapper(
-                onTestStarted: { [weak self] testName in
-                    collectedTestExceptions = []
-                    self?.testStarted(
-                        entriesToRun: entriesToRun,
-                        eventBus: eventBus,
-                        testContext: testContext,
-                        testName: testName
-                    )
-                },
-                onTestException: { testException in
-                    collectedTestExceptions.append(testException)
-                },
-                onTestStopped: { [weak self] testStoppedEvent in
-                    let testStoppedEvent = testStoppedEvent.byMergingTestExceptions(testExceptions: collectedTestExceptions)
-                    collectedTestStoppedEvents.append(testStoppedEvent)
-                    self?.testStopped(
-                        entriesToRun: entriesToRun,
-                        eventBus: eventBus,
-                        testContext: testContext,
-                        testStoppedEvent: testStoppedEvent
-                    )
-                    collectedTestExceptions = []
-                }
+            testRunnerStream: MetricReportingTestRunnerStream(
+                dateProvider: dateProvider,
+                delegate: TestRunnerStreamWrapper(
+                    onTestStarted: { [weak self] testName in
+                        collectedTestExceptions = []
+                        self?.testStarted(
+                            entriesToRun: entriesToRun,
+                            eventBus: eventBus,
+                            testContext: testContext,
+                            testName: testName
+                        )
+                    },
+                    onTestException: { testException in
+                        collectedTestExceptions.append(testException)
+                    },
+                    onTestStopped: { [weak self] testStoppedEvent in
+                        let testStoppedEvent = testStoppedEvent.byMergingTestExceptions(testExceptions: collectedTestExceptions)
+                        collectedTestStoppedEvents.append(testStoppedEvent)
+                        self?.testStopped(
+                            entriesToRun: entriesToRun,
+                            eventBus: eventBus,
+                            testContext: testContext,
+                            testStoppedEvent: testStoppedEvent
+                        )
+                        collectedTestExceptions = []
+                    }
+                )
             )
         )
         
@@ -398,14 +406,6 @@ public final class Runner {
         eventBus.post(
             event: .runnerEvent(.testStarted(testEntry: testEntry, testContext: testContext))
         )
-        
-        MetricRecorder.capture(
-            TestStartedMetric(
-                host: LocalHostDeterminer.currentHostAddress,
-                testClassName: testEntry.testName.className,
-                testMethodName: testEntry.testName.methodName
-            )
-        )
     }
     
     private func testStopped(
@@ -421,23 +421,6 @@ public final class Runner {
         
         eventBus.post(
             event: .runnerEvent(.testFinished(testEntry: testEntry, succeeded: testStoppedEvent.succeeded, testContext: testContext))
-        )
-        
-        MetricRecorder.capture(
-            TestFinishedMetric(
-                result: testStoppedEvent.result.rawValue,
-                host: LocalHostDeterminer.currentHostAddress,
-                testClassName: testStoppedEvent.testName.className,
-                testMethodName: testStoppedEvent.testName.methodName,
-                testsFinishedCount: 1
-            ),
-            TestDurationMetric(
-                result: testStoppedEvent.result.rawValue,
-                host: LocalHostDeterminer.currentHostAddress,
-                testClassName: testStoppedEvent.testName.className,
-                testMethodName: testStoppedEvent.testName.methodName,
-                duration: testStoppedEvent.testDuration
-            )
         )
     }
 }

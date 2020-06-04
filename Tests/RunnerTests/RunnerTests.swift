@@ -1,5 +1,6 @@
 import BuildArtifacts
 import BuildArtifactsTestHelpers
+import DateProviderTestHelpers
 import DeveloperDirLocatorTestHelpers
 import EventBus
 import Extensions
@@ -174,6 +175,7 @@ public final class RunnerTests: XCTestCase {
     private func runTestEntries(_ testEntries: [TestEntry]) throws -> RunnerRunResult {
         let runner = Runner(
             configuration: createRunnerConfig(),
+            dateProvider: DateProviderFixture(),
             developerDirLocator: FakeDeveloperDirLocator(result: tempFolder.absolutePath),
             pluginEventBusProvider: noOpPluginEventBusProvider,
             resourceLocationResolver: resolver,

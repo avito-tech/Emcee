@@ -1,5 +1,6 @@
 import Foundation
 import Metrics
+import MetricsTestHelpers
 import XCTest
 
 final class MetricHandlerTests: XCTestCase {

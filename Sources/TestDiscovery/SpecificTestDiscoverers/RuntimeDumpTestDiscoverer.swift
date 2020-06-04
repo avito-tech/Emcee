@@ -1,4 +1,5 @@
 import BuildArtifacts
+import DateProvider
 import DeveloperDirLocator
 import Foundation
 import Logging
@@ -16,6 +17,7 @@ import UniqueIdentifierGenerator
 
 final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let buildArtifacts: BuildArtifacts
+    private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let numberOfAttemptsToPerformRuntimeDump: UInt
     private let onDemandSimulatorPool: OnDemandSimulatorPool
@@ -30,6 +32,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     
     init(
         buildArtifacts: BuildArtifacts,
+        dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         numberOfAttemptsToPerformRuntimeDump: UInt,
         onDemandSimulatorPool: OnDemandSimulatorPool,
@@ -43,6 +46,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
         self.buildArtifacts = buildArtifacts
+        self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.numberOfAttemptsToPerformRuntimeDump = max(numberOfAttemptsToPerformRuntimeDump, 1)
         self.onDemandSimulatorPool = onDemandSimulatorPool
@@ -70,6 +74,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         )
         let runner = Runner(
             configuration: runnerConfiguration,
+            dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,

@@ -1,3 +1,4 @@
+import DateProvider
 import DeveloperDirLocator
 import Dispatch
 import Extensions
@@ -19,6 +20,7 @@ import UniqueIdentifierGenerator
 
 public final class Scheduler {
     private let configuration: SchedulerConfiguration
+    private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let pluginEventBusProvider: PluginEventBusProvider
     private let queue = OperationQueue()
@@ -31,6 +33,7 @@ public final class Scheduler {
     
     public init(
         configuration: SchedulerConfiguration,
+        dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver,
@@ -40,6 +43,7 @@ public final class Scheduler {
         testRunnerProvider: TestRunnerProvider
     ) {
         self.configuration = configuration
+        self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
@@ -194,6 +198,7 @@ public final class Scheduler {
                 testTimeoutConfiguration: bucket.testTimeoutConfiguration,
                 testType: bucket.testType
             ),
+            dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,

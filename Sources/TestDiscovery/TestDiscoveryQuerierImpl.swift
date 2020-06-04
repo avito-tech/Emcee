@@ -1,4 +1,5 @@
 import BuildArtifacts
+import DateProvider
 import DeveloperDirLocator
 import Extensions
 import Foundation
@@ -18,6 +19,7 @@ import TemporaryStuff
 import UniqueIdentifierGenerator
 
 public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
+    private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let numberOfAttemptsToPerformRuntimeDump: UInt
     private let onDemandSimulatorPool: OnDemandSimulatorPool
@@ -30,6 +32,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     private let remoteCache: RuntimeDumpRemoteCache
     
     public init(
+        dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         numberOfAttemptsToPerformRuntimeDump: UInt,
         onDemandSimulatorPool: OnDemandSimulatorPool,
@@ -41,6 +44,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         remoteCache: RuntimeDumpRemoteCache
     ) {
+        self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.numberOfAttemptsToPerformRuntimeDump = max(numberOfAttemptsToPerformRuntimeDump, 1)
         self.onDemandSimulatorPool = onDemandSimulatorPool
@@ -196,6 +200,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     ) -> RuntimeDumpTestDiscoverer {
         RuntimeDumpTestDiscoverer(
             buildArtifacts: buildArtifacts,
+            dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             numberOfAttemptsToPerformRuntimeDump: numberOfAttemptsToPerformRuntimeDump,
             onDemandSimulatorPool: onDemandSimulatorPool,

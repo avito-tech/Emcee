@@ -396,6 +396,7 @@ let package = Package(
             dependencies: [
                 "AutomaticTermination",
                 "CountedSet",
+                "DateProvider",
                 "DeveloperDirLocator",
                 "DistWorkerModels",
                 "EventBus",
@@ -824,11 +825,20 @@ let package = Package(
             ],
             path: "Sources/Metrics"
         ),
+        .target(
+            // MARK: MetricsTestHelpers
+            name: "MetricsTestHelpers",
+            dependencies: [
+                "Metrics",
+            ],
+            path: "Tests/MetricsTestHelpers"
+        ),
         .testTarget(
             // MARK: MetricsTests
             name: "MetricsTests",
             dependencies: [
                 "Metrics",
+                "MetricsTestHelpers",
             ],
             path: "Tests/MetricsTests"
         ),
@@ -1410,7 +1420,9 @@ let package = Package(
             // MARK: Runner
             name: "Runner",
             dependencies: [
+                "AtomicModels",
                 "BuildArtifacts",
+                "DateProvider",
                 "DeveloperDirLocator",
                 "EventBus",
                 "Extensions",
@@ -1425,6 +1437,7 @@ let package = Package(
                 "RunnerModels",
                 "SimulatorPoolModels",
                 "TemporaryStuff",
+                "TestRunner",
                 "TestsWorkingDirectorySupport",
             ],
             path: "Sources/Runner"
@@ -1462,9 +1475,12 @@ let package = Package(
             dependencies: [
                 "BuildArtifacts",
                 "BuildArtifactsTestHelpers",
+                "DateProviderTestHelpers",
                 "DeveloperDirLocatorTestHelpers",
                 "EventBus",
                 "Extensions",
+                "Metrics",
+                "MetricsTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
                 "PluginManagerTestHelpers",
@@ -1476,6 +1492,7 @@ let package = Package(
                 "SimulatorPoolTestHelpers",
                 "TemporaryStuff",
                 "TestHelpers",
+                "TestRunner",
             ],
             path: "Tests/RunnerTests"
         ),
@@ -1550,6 +1567,7 @@ let package = Package(
             name: "Scheduler",
             dependencies: [
                 "BuildArtifacts",
+                "DateProvider",
                 "DeveloperDirLocator",
                 "EventBus",
                 "Extensions",
@@ -1766,6 +1784,7 @@ let package = Package(
                 "AppleTools",
                 "AtomicModels",
                 "BuildArtifacts",
+                "DateProvider",
                 "DeveloperDirLocator",
                 "Extensions",
                 "Logging",
@@ -1795,6 +1814,7 @@ let package = Package(
                 "BuildArtifacts",
                 "BuildArtifactsTestHelpers",
                 "DateProvider",
+                "DateProviderTestHelpers",
                 "DeveloperDirLocator",
                 "DeveloperDirLocatorTestHelpers",
                 "FileCache",

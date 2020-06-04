@@ -197,6 +197,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
         let testDiscoveryQuerier = TestDiscoveryQuerierImpl(
+            dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             numberOfAttemptsToPerformRuntimeDump: 5,
             onDemandSimulatorPool: onDemandSimulatorPool,

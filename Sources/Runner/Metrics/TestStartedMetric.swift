@@ -5,8 +5,9 @@ public final class TestStartedMetric: Metric {
     public init(
         host: String,
         testClassName: String,
-        testMethodName: String)
-    {
+        testMethodName: String,
+        timestamp: Date
+    ) {
         super.init(
             fixedComponents: ["test", "started"],
             variableComponents: [
@@ -18,7 +19,7 @@ public final class TestStartedMetric: Metric {
                 Metric.reservedField
             ],
             value: 1,
-            timestamp: Date()
+            timestamp: timestamp
         )
     }
 }

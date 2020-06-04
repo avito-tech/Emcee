@@ -7,8 +7,9 @@ public final class TestFinishedMetric: Metric {
         host: String,
         testClassName: String,
         testMethodName: String,
-        testsFinishedCount: Int)
-    {
+        testsFinishedCount: Int,
+        timestamp: Date
+    ) {
         super.init(
             fixedComponents: ["test", "finished"],
             variableComponents: [
@@ -21,7 +22,7 @@ public final class TestFinishedMetric: Metric {
                 Metric.reservedField
             ],
             value: Double(testsFinishedCount),
-            timestamp: Date()
+            timestamp: timestamp
         )
     }
 }

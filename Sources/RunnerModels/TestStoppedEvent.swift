@@ -39,8 +39,8 @@ public final class TestStoppedEvent: Equatable, CustomStringConvertible {
     public static func == (left: TestStoppedEvent, right: TestStoppedEvent) -> Bool {
         return left.testName == right.testName
             && left.result == right.result
-            && (left.testDuration - right.testDuration) < 0.01
+            && fabs(left.testDuration - right.testDuration) < 0.01
             && left.testExceptions == right.testExceptions
-            && (left.testStartTimestamp - right.testStartTimestamp) < 0.01
+            && fabs(left.testStartTimestamp - right.testStartTimestamp) < 0.01
     }
 }
