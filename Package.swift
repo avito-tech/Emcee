@@ -1079,6 +1079,7 @@ let package = Package(
                 "AtomicModels",
                 "Deployer",
                 "Logging",
+                "Metrics",
                 "Models",
                 "RESTMethods",
                 "RemotePortDeterminer",
@@ -1104,6 +1105,8 @@ let package = Package(
             dependencies: [
                 "Deployer",
                 "DeployerTestHelpers",
+                "Metrics",
+                "MetricsTestHelpers",
                 "Models",
                 "QueueCommunication",
                 "QueueCommunicationTestHelpers",

@@ -1,5 +1,7 @@
 import Deployer
 import DeployerTestHelpers
+import Metrics
+import MetricsTestHelpers
 import Models
 import TestHelpers
 import QueueCommunication
@@ -104,8 +106,30 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
         XCTAssertEqual(poller.utilizationPermissionForWorker(workerId: "workerId3"), .allowedToUtilize)
     }
     
+    func test___poller_log_metric() {
+        let metricHandler = FakeMetricHandler()
+        GlobalMetricConfig.metricHandler = metricHandler
+        let expectedMetric1 = NumberOfWorkersToUtilizeMetric(emceeVersion: "emceeVersion", workersCount: 0)
+        let expectation = self.expectation(description: "workersToUtilize was called")
+        communicationService.completionHandler = { completion in
+            completion(.success([WorkerId(value: "workerId")]))
+            expectation.fulfill()
+        }
+        let expectedMetric2 = NumberOfWorkersToUtilizeMetric(emceeVersion: "emceeVersion", workersCount: 1)
+        let poller = buildPoller(deployments: [])
+
+        poller.startPolling()
+
+        wait(for: [expectation], timeout: 5)
+        let metricsEqual = metricHandler.metrics.elementsEqual(Set([expectedMetric1, expectedMetric2])) { (lhs, rhs) -> Bool in
+            lhs.testCompare(rhs)
+        }
+        XCTAssertTrue(metricsEqual)
+    }
+
     private func buildPoller(deployments: [DeploymentDestination]) -> DefaultWorkerUtilizationStatusPoller {
         DefaultWorkerUtilizationStatusPoller(
+            emceeVersion: "emceeVersion",
             defaultDeployments: deployments,
             communicationService: communicationService
         )
