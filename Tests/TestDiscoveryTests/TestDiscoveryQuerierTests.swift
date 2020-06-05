@@ -3,6 +3,7 @@ import BuildArtifacts
 import DateProviderTestHelpers
 import DeveloperDirLocatorTestHelpers
 import Foundation
+import FileSystemTestHelpers
 import Models
 import ModelsTestHelpers
 import PluginManagerTestHelpers
@@ -23,6 +24,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
     lazy var developerDirLocator = FakeDeveloperDirLocator(result: tempFolder.absolutePath)
     lazy var fixedValueUniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: dumpFilename)
     lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
+    lazy var fileSystem = FakeFileSystem(rootPath: tempFolder.absolutePath)
     let dumpFilename = UUID().uuidString
     let remoteCache = FakeRuntimeDumpRemoteCache()
     let resourceLocationResolver: ResourceLocationResolver = FakeResourceLocationResolver.throwing()
@@ -206,6 +208,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
         return TestDiscoveryQuerierImpl(
             dateProvider: DateProviderFixture(),
             developerDirLocator: developerDirLocator,
+            fileSystem: fileSystem,
             numberOfAttemptsToPerformRuntimeDump: 1,
             onDemandSimulatorPool: simulatorPool,
             pluginEventBusProvider: NoOoPluginEventBusProvider(),

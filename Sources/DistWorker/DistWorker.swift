@@ -5,6 +5,7 @@ import Dispatch
 import DistWorkerModels
 import EventBus
 import Foundation
+import FileSystem
 import LocalHostDeterminer
 import Logging
 import LoggingSetup
@@ -29,6 +30,7 @@ public final class DistWorker: SchedulerDelegate {
     private let currentlyBeingProcessedBucketsTracker = DefaultCurrentlyBeingProcessedBucketsTracker()
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
+    private let fileSystem: FileSystem
     private let httpRestServer: HTTPRESTServer
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let pluginEventBusProvider: PluginEventBusProvider
@@ -52,6 +54,7 @@ public final class DistWorker: SchedulerDelegate {
         bucketResultSender: BucketResultSender,
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
+        fileSystem: FileSystem,
         onDemandSimulatorPool: OnDemandSimulatorPool,
         pluginEventBusProvider: PluginEventBusProvider,
         queueClient: SynchronousQueueClient,
@@ -65,6 +68,7 @@ public final class DistWorker: SchedulerDelegate {
         self.bucketResultSender = bucketResultSender
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
+        self.fileSystem = fileSystem
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.pluginEventBusProvider = pluginEventBusProvider
         self.queueClient = queueClient
@@ -147,6 +151,7 @@ public final class DistWorker: SchedulerDelegate {
             configuration: schedulerCconfiguration,
             dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
+            fileSystem: fileSystem,
             pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,
             schedulerDelegate: self,

@@ -3,6 +3,7 @@ import DateProvider
 import DeveloperDirLocator
 import Extensions
 import Foundation
+import FileSystem
 import Logging
 import Metrics
 import Models
@@ -21,6 +22,7 @@ import UniqueIdentifierGenerator
 public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
+    private let fileSystem: FileSystem
     private let numberOfAttemptsToPerformRuntimeDump: UInt
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let pluginEventBusProvider: PluginEventBusProvider
@@ -34,6 +36,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     public init(
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
+        fileSystem: FileSystem,
         numberOfAttemptsToPerformRuntimeDump: UInt,
         onDemandSimulatorPool: OnDemandSimulatorPool,
         pluginEventBusProvider: PluginEventBusProvider,
@@ -46,6 +49,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
+        self.fileSystem = fileSystem
         self.numberOfAttemptsToPerformRuntimeDump = max(numberOfAttemptsToPerformRuntimeDump, 1)
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.pluginEventBusProvider = pluginEventBusProvider
@@ -202,6 +206,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             buildArtifacts: buildArtifacts,
             dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
+            fileSystem: fileSystem,
             numberOfAttemptsToPerformRuntimeDump: numberOfAttemptsToPerformRuntimeDump,
             onDemandSimulatorPool: onDemandSimulatorPool,
             pluginEventBusProvider: pluginEventBusProvider,

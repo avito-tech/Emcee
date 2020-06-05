@@ -2,6 +2,7 @@ import AtomicModels
 import DateProvider
 import DeveloperDirLocator
 import EventBus
+import FileSystem
 import Foundation
 import LocalHostDeterminer
 import Logging
@@ -20,6 +21,7 @@ public final class Runner {
     private let configuration: RunnerConfiguration
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
+    private let fileSystem: FileSystem
     private let pluginEventBusProvider: PluginEventBusProvider
     private let pluginTearDownQueue = OperationQueue()
     private let resourceLocationResolver: ResourceLocationResolver
@@ -30,6 +32,7 @@ public final class Runner {
         configuration: RunnerConfiguration,
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
+        fileSystem: FileSystem,
         pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver,
         tempFolder: TemporaryFolder,
@@ -38,6 +41,7 @@ public final class Runner {
         self.configuration = configuration
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
+        self.fileSystem = fileSystem
         self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
         self.tempFolder = tempFolder
@@ -138,41 +142,89 @@ public final class Runner {
         
         Logger.debug("Will run \(entriesToRun.count) tests on simulator \(simulator)")
         eventBus.post(event: .runnerEvent(.willRun(testEntries: entriesToRun, testContext: testContext)))
-
-        let standardStreamsCaptureConfig = runTestsViaTestRunner(
-            testRunner: try testRunnerProvider.testRunner(testRunnerTool: configuration.testRunnerTool),
-            entriesToRun: entriesToRun,
-            simulator: simulator,
-            testContext: testContext,
-            testRunnerStream: MetricReportingTestRunnerStream(
-                dateProvider: dateProvider,
-                delegate: TestRunnerStreamWrapper(
-                    onTestStarted: { [weak self] testName in
-                        collectedTestExceptions = []
-                        self?.testStarted(
-                            entriesToRun: entriesToRun,
-                            eventBus: eventBus,
-                            testContext: testContext,
-                            testName: testName
+        
+        let singleTestMaximumDuration = configuration.testTimeoutConfiguration.singleTestMaximumDuration
+        
+        let testRunner = try testRunnerProvider.testRunner(
+            testRunnerTool: configuration.testRunnerTool
+        )
+        
+        let testRunnerRunningInvocationContainer = AtomicValue<TestRunnerRunningInvocation?>(nil)
+        
+        let testRunnerStream = CompositeTestRunnerStream(
+            testRunnerStreams: [
+                EventBusReportingTestRunnerStream(
+                    entriesToRun: entriesToRun,
+                    eventBus: eventBus,
+                    testContext: testContext
+                ),
+                TestTimeoutTrackingTestRunnerSream(
+                    dateProvider: dateProvider,
+                    detectedLongRunningTest: { [dateProvider] testName, testStartedAt in
+                        Logger.debug("Detected long running test \(testName)")
+                        collectedTestStoppedEvents.append(
+                            TestStoppedEvent(
+                                testName: testName,
+                                result: .failure,
+                                testDuration: dateProvider.currentDate().timeIntervalSince(testStartedAt),
+                                testExceptions: [
+                                    TestException(
+                                        reason: "Test timeout. Test did not finish in time \(LoggableDuration(singleTestMaximumDuration))",
+                                        filePathInProject: #file,
+                                        lineNumber: #line
+                                    )
+                                ],
+                                testStartTimestamp: testStartedAt.timeIntervalSince1970
+                            )
                         )
+                        
+                        testRunnerRunningInvocationContainer.currentValue()?.cancel()
+                    },
+                    maximumTestDuration: singleTestMaximumDuration
+                ),
+                MetricReportingTestRunnerStream(
+                    dateProvider: dateProvider
+                ),
+                TestRunnerStreamWrapper(
+                    onTestStarted: { testName in
+                        collectedTestExceptions = []
                     },
                     onTestException: { testException in
                         collectedTestExceptions.append(testException)
                     },
-                    onTestStopped: { [weak self] testStoppedEvent in
+                    onTestStopped: { testStoppedEvent in
                         let testStoppedEvent = testStoppedEvent.byMergingTestExceptions(testExceptions: collectedTestExceptions)
                         collectedTestStoppedEvents.append(testStoppedEvent)
-                        self?.testStopped(
-                            entriesToRun: entriesToRun,
-                            eventBus: eventBus,
-                            testContext: testContext,
-                            testStoppedEvent: testStoppedEvent
-                        )
                         collectedTestExceptions = []
                     }
-                )
-            )
+                ),
+            ]
         )
+        
+        let testRunnerInvocation = runTestsViaTestRunner(
+            testRunner: testRunner,
+            entriesToRun: entriesToRun,
+            simulator: simulator,
+            testContext: testContext,
+            testRunnerStream: testRunnerStream
+        )
+        let runningInvocation = testRunnerInvocation.startExecutingTests()
+        testRunnerRunningInvocationContainer.set(runningInvocation)
+        
+        let runnerSilenceTracker = ProcessOutputSilenceTracker(
+            dateProvider: dateProvider,
+            fileSystem: fileSystem,
+            onSilence: { [configuration] in
+                Logger.debug("Test runner has been silent for too long (\(LoggableDuration(configuration.testTimeoutConfiguration.testRunnerMaximumSilenceDuration))), terminating tests")
+                runningInvocation.cancel()
+            },
+            silenceDuration: configuration.testTimeoutConfiguration.testRunnerMaximumSilenceDuration,
+            standardStreamsCaptureConfig: runningInvocation.output,
+            subprocessInfo: runningInvocation.subprocessInfo
+        )
+        runnerSilenceTracker.whileTracking {
+            runningInvocation.wait()
+        }
         
         let result = prepareResults(
             collectedTestStoppedEvents: collectedTestStoppedEvents,
@@ -188,7 +240,7 @@ public final class Runner {
         return RunnerRunResult(
             entriesToRun: entriesToRun,
             testEntryResults: result,
-            subprocessStandardStreamsCaptureConfig: standardStreamsCaptureConfig
+            subprocessStandardStreamsCaptureConfig: runningInvocation.output
         )
     }
     
@@ -219,10 +271,10 @@ public final class Runner {
         simulator: Simulator,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream
-    ) -> StandardStreamsCaptureConfig {
+    ) -> TestRunnerInvocation {
         cleanUpDeadCache(simulator: simulator)
         do {
-            return try testRunner.run(
+            return try testRunner.prepareTestRun(
                 buildArtifacts: configuration.buildArtifacts,
                 developerDirLocator: developerDirLocator,
                 entriesToRun: entriesToRun,
@@ -230,7 +282,6 @@ public final class Runner {
                 temporaryFolder: tempFolder,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream,
-                testTimeoutConfiguration: configuration.testTimeoutConfiguration,
                 testType: configuration.testType
             )
         } catch {
@@ -258,7 +309,7 @@ public final class Runner {
         runnerError: Error,
         entriesToRun: [TestEntry],
         testRunnerStream: TestRunnerStream
-    ) -> StandardStreamsCaptureConfig {
+    ) -> TestRunnerInvocation {
         for testEntry in entriesToRun {
             testRunnerStream.testStarted(testName: testEntry.testName)
             testRunnerStream.testStopped(
@@ -273,7 +324,7 @@ public final class Runner {
                 )
             )
         }
-        return StandardStreamsCaptureConfig()
+        return NoOpTestRunnerInvocation()
     }
     
     private func prepareResults(
@@ -383,46 +434,6 @@ public final class Runner {
             )
         )
     }
-    
-    private func testEntryToRun(entriesToRun: [TestEntry], testName: TestName) -> TestEntry? {
-        return entriesToRun.first(where: { (testEntry: TestEntry) -> Bool in
-            testEntry.testName == testName
-        })
-    }
-
-    // MARK: - Test Event Stream Handling
-
-    private func testStarted(
-        entriesToRun: [TestEntry],
-        eventBus: EventBus,
-        testContext: TestContext,
-        testName: TestName
-    ) {
-        guard let testEntry = testEntryToRun(entriesToRun: entriesToRun, testName: testName) else {
-            Logger.error("Can't find test entry for test \(testName)")
-            return
-        }
-        
-        eventBus.post(
-            event: .runnerEvent(.testStarted(testEntry: testEntry, testContext: testContext))
-        )
-    }
-    
-    private func testStopped(
-        entriesToRun: [TestEntry],
-        eventBus: EventBus,
-        testContext: TestContext,
-        testStoppedEvent: TestStoppedEvent
-    ) {
-        guard let testEntry = testEntryToRun(entriesToRun: entriesToRun, testName: testStoppedEvent.testName) else {
-            Logger.error("Can't find test entry for test \(testStoppedEvent.testName)")
-            return
-        }
-        
-        eventBus.post(
-            event: .runnerEvent(.testFinished(testEntry: testEntry, succeeded: testStoppedEvent.succeeded, testContext: testContext))
-        )
-    }
 }
 
 private extension TestStoppedEvent {
@@ -437,4 +448,18 @@ private extension TestStoppedEvent {
             testStartTimestamp: testStartTimestamp
         )
     }
+}
+
+private class NoOpTestRunnerInvocation: TestRunnerInvocation {
+    private class NoOpTestRunnerRunningInvocation: TestRunnerRunningInvocation {
+        init() {}
+        let output = StandardStreamsCaptureConfig()
+        let subprocessInfo = SubprocessInfo(subprocessId: 0, subprocessName: "no-op process")
+        func cancel() {}
+        func wait() {}
+    }
+    
+    init() {}
+    
+    func startExecutingTests() -> TestRunnerRunningInvocation { NoOpTestRunnerRunningInvocation() }
 }

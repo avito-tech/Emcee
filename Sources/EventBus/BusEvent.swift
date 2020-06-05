@@ -1,7 +1,7 @@
 import Foundation
 import Models
 
-public enum BusEvent: Codable {
+public enum BusEvent: Codable, Equatable {
     case runnerEvent(RunnerEvent)
     case tearDown
     

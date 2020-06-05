@@ -29,7 +29,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         self.resourceLocationResolver = resourceLocationResolver
     }
     
-    public func run(
+    public func prepareTestRun(
         buildArtifacts: BuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
@@ -37,9 +37,8 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
-        testTimeoutConfiguration: TestTimeoutConfiguration,
         testType: TestType
-    ) throws -> StandardStreamsCaptureConfig {
+    ) throws -> TestRunnerInvocation {
         let xcodebuildLogParser: XcodebuildLogParser
         let insertedLibraries: [String]
         
@@ -77,8 +76,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                     "-parallel-testing-enabled", "NO",
                     "test-without-building",
                 ],
-                environment: testContext.environment,
-                automaticManagement: .sigintThenKillIfSilent(interval: testTimeoutConfiguration.testRunnerMaximumSilenceDuration)
+                environment: testContext.environment
             )
         )
         
@@ -101,7 +99,6 @@ public final class XcodebuildBasedTestRunner: TestRunner {
             }
         }
         
-        try processController.startAndListenUntilProcessDies()
-        return processController.subprocess.standardStreamsCaptureConfig
+        return ProcessControllerWrappingTestRunnerInvocation(processController: processController)
     }
 }

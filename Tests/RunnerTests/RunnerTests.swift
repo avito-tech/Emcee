@@ -5,6 +5,7 @@ import DeveloperDirLocatorTestHelpers
 import EventBus
 import Extensions
 import Foundation
+import FileSystemTestHelpers
 import Models
 import ModelsTestHelpers
 import PluginManagerTestHelpers
@@ -24,6 +25,7 @@ public final class RunnerTests: XCTestCase {
     lazy var resolver = FakeResourceLocationResolver.resolvingTo(path: tempFolder.absolutePath)
     let testRunnerProvider = FakeTestRunnerProvider()
     lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
+    lazy var fileSystem = FakeFileSystem(rootPath: tempFolder.absolutePath)
     
     func test___running_test_without_output_to_stream___provides_test_did_not_run_results() throws {
         testRunnerProvider.predefinedFakeTestRunner.disableTestStartedTestRunnerStreamEvents()
@@ -177,6 +179,7 @@ public final class RunnerTests: XCTestCase {
             configuration: createRunnerConfig(),
             dateProvider: DateProviderFixture(),
             developerDirLocator: FakeDeveloperDirLocator(result: tempFolder.absolutePath),
+            fileSystem: fileSystem,
             pluginEventBusProvider: noOpPluginEventBusProvider,
             resourceLocationResolver: resolver,
             tempFolder: tempFolder,

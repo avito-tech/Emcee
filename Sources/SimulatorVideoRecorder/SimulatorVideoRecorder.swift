@@ -42,7 +42,7 @@ public final class SimulatorVideoRecorder {
                 ]
             )
         )
-        try processController.start()
+        processController.start()
 
         return CancellableRecordingImpl(
             outputPath: outputPath,

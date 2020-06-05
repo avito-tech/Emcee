@@ -1,6 +1,7 @@
 import BuildArtifacts
 import DateProvider
 import DeveloperDirLocator
+import FileSystem
 import Foundation
 import Logging
 import Models
@@ -19,6 +20,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let buildArtifacts: BuildArtifacts
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
+    private let fileSystem: FileSystem
     private let numberOfAttemptsToPerformRuntimeDump: UInt
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let pluginEventBusProvider: PluginEventBusProvider
@@ -34,6 +36,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         buildArtifacts: BuildArtifacts,
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
+        fileSystem: FileSystem,
         numberOfAttemptsToPerformRuntimeDump: UInt,
         onDemandSimulatorPool: OnDemandSimulatorPool,
         pluginEventBusProvider: PluginEventBusProvider,
@@ -48,6 +51,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         self.buildArtifacts = buildArtifacts
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
+        self.fileSystem = fileSystem
         self.numberOfAttemptsToPerformRuntimeDump = max(numberOfAttemptsToPerformRuntimeDump, 1)
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.pluginEventBusProvider = pluginEventBusProvider
@@ -76,6 +80,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             configuration: runnerConfiguration,
             dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
+            fileSystem: fileSystem,
             pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,

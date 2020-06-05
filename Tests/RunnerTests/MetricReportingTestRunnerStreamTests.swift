@@ -7,7 +7,6 @@ import ModelsTestHelpers
 import Runner
 import RunnerModels
 import RunnerTestHelpers
-import TestRunner
 import XCTest
 
 final class MetricReportingTestRunnerStreamTests: XCTestCase {
@@ -16,53 +15,13 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
     lazy var metricHandler = FakeMetricHandler()
     lazy var stream = MetricReportingTestRunnerStream(
         dateProvider: dateProvider,
-        delegate: delegateStream,
         host: host
     )
-    lazy var delegateStream = AccumulatingTestRunnerStream()
     
     override func setUp() {
         GlobalMetricConfig.metricHandler = metricHandler
     }
-    
-    func test___delegating_testStarted_event() {
-        let testName = TestName(className: "class", methodName: "test")
-        stream.testStarted(testName: testName)
-        
-        XCTAssertEqual(
-            delegateStream.castTo(TestName.self, index: 0),
-            testName
-        )
-    }
-    
-    func test___delegating_testStopped_event() {
-        let testStoppedEvent = TestStoppedEvent(
-            testName: TestName(className: "class", methodName: "test"),
-            result: .failure,
-            testDuration: 12,
-            testExceptions: [TestException(reason: "reason", filePathInProject: "file", lineNumber: 42)],
-            testStartTimestamp: 111
-        )
-        stream.testStopped(
-            testStoppedEvent: testStoppedEvent
-        )
-        
-        XCTAssertEqual(
-            delegateStream.castTo(TestStoppedEvent.self, index: 0),
-            testStoppedEvent
-        )
-    }
-    
-    func test___delegating_testException_event() {
-        let testException = TestException(reason: "reason", filePathInProject: "file", lineNumber: 42)
-        stream.caughtException(testException: testException)
-        
-        XCTAssertEqual(
-            delegateStream.castTo(TestException.self, index: 0),
-            testException
-        )
-    }
-    
+
     func test___reporting_test_started_metric() {
         let testName = TestName(className: "class", methodName: "test")
         stream.testStarted(testName: testName)

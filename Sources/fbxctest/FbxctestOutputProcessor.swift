@@ -7,30 +7,24 @@ import Runner
 import RunnerModels
 import Timer
 
-public final class FbxctestOutputProcessor {
+public final class FbxctestOutputProcessor: TestRunnerInvocation {
     private let processController: ProcessController
     private let eventsListener: FbXcTestEventsListener
-    private let singleTestMaximumDuration: TimeInterval
-    private var testHangTrackingTimer: DispatchBasedTimer?
     private let newLineByte = UInt8(10)
     private static let logDateStampLength = NSLogLikeLogEntryTextFormatter.logDateFormatter.string(from: Date()).count
 
     public init(
-        singleTestMaximumDuration: TimeInterval,
         onTestStarted: @escaping ((TestName) -> ()),
         onTestStopped: @escaping ((TestStoppedEvent) -> ()),
         processController: ProcessController
     ) throws {
-        self.singleTestMaximumDuration = singleTestMaximumDuration
         self.eventsListener = FbXcTestEventsListener(onTestStarted: onTestStarted, onTestStopped: onTestStopped)
         self.processController = processController
+        
+        setupOutputProcessing()
     }
     
-    public func processOutputAndWaitForProcessTermination() throws {
-        processController.onSignal { [weak self] sender, _, unsubscriber in
-            guard let strongSelf = self else { return unsubscriber() }
-            strongSelf.eventsListener.timeoutDueToSilence()
-        }
+    private func setupOutputProcessing() {
         processController.onStdout { [weak self] (sender, data, unsubscriber) in
             guard let strongSelf = self else { return unsubscriber() }
             strongSelf.processController(sender, newStdoutData: data)
@@ -39,41 +33,10 @@ public final class FbxctestOutputProcessor {
             guard let strongSelf = self else { return unsubscriber() }
             strongSelf.processController(sender, newStderrData: data)
         }
-        
-        try processController.start()
-        startMonitoringForHangs()
-        processController.waitForProcessToDie()
     }
     
-    public var subprocess: Subprocess {
-        return processController.subprocess
-    }
-    
-    // MARK: - Hang detection
-
-    private func startMonitoringForHangs() {
-        guard singleTestMaximumDuration > 0 else {
-            log_fbxctest("Can't track hangs as singleTestMaximumDuration must be positive, but it is \(singleTestMaximumDuration)")
-            return
-        }
-        
-        log_fbxctest("Will track long running tests with timeout \(singleTestMaximumDuration)")
-        
-        testHangTrackingTimer = DispatchBasedTimer.startedTimer(repeating: .seconds(1), leeway: .seconds(1)) { [weak self] _ in
-            guard let strongSelf = self else { return }
-            guard let lastTestStartedEvent = strongSelf.eventsListener.lastStartedButNotFinishedTestEventPair?.startEvent else { return }
-            if Date().timeIntervalSince1970 - lastTestStartedEvent.timestamp > strongSelf.singleTestMaximumDuration {
-                strongSelf.didDetectLongRunningTest()
-            }
-        }
-    }
-    
-    private func didDetectLongRunningTest() {
-        if let testStartedEvent = eventsListener.lastStartedButNotFinishedTestEventPair?.startEvent {
-            log_fbxctest("Detected a long running test: \(testStartedEvent.testName)")
-            eventsListener.longRunningTest()
-        }
-        processController.interruptAndForceKillIfNeeded()
+    public func startExecutingTests() -> TestRunnerRunningInvocation {
+        ProcessControllerWrappingTestRunnerInvocation(processController: processController)
     }
     
     // MARK: - stdout Processing

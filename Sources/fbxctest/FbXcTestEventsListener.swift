@@ -89,40 +89,6 @@ final class FbXcTestEventsListener {
         }
     }
     
-    func longRunningTest() {
-        guard let startEvent = lastStartedButNotFinishedTestEventPair?.startEvent else { return }
-        let timestamp = Date().timeIntervalSince1970
-        let failureEvent = FbXcTestFinishedEvent(
-            test: startEvent.test,
-            result: "long running test",
-            className: startEvent.testClassName,
-            methodName: startEvent.testMethodName,
-            totalDuration: timestamp - startEvent.timestamp,
-            exceptions: [FbXcTestExceptionEvent(reason: "Test timeout. Test did not finish in time.", filePathInProject: #file, lineNumber: #line)],
-            succeeded: false,
-            output: "",
-            logs: [],
-            timestamp: timestamp)
-        testFinished(failureEvent)
-    }
-    
-    func timeoutDueToSilence() {
-        guard let startEvent = lastStartedButNotFinishedTestEventPair?.startEvent else { return }
-        let timestamp = Date().timeIntervalSince1970
-        let failureEvent = FbXcTestFinishedEvent(
-            test: startEvent.test,
-            result: "timeout due to silence",
-            className: startEvent.testClassName,
-            methodName: startEvent.testMethodName,
-            totalDuration: timestamp - startEvent.timestamp,
-            exceptions: [FbXcTestExceptionEvent(reason: "Timeout due to silence", filePathInProject: #file, lineNumber: #line)],
-            succeeded: false,
-            output: "",
-            logs: [],
-            timestamp: timestamp)
-        testFinished(failureEvent)
-    }
-    
     var lastStartedButNotFinishedTestEventPair: FbXcTestEventPair? {
         if let pair = pairsController.lastPair, pair.finishEvent == nil {
             return pair

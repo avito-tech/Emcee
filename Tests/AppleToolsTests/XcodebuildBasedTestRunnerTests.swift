@@ -54,10 +54,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
     private lazy var developerDirLocator = FakeDeveloperDirLocator(
         result: tempFolder.absolutePath.appending(component: "xcode.app")
     )
-    private let testTimeoutConfiguration = TestTimeoutConfiguration(
-        singleTestMaximumDuration: 60,
-        testRunnerMaximumSilenceDuration: 60
-    )
     private lazy var appBundlePath: AbsolutePath = assertDoesNotThrow {
         let path = try tempFolder.pathByCreatingDirectories(components: ["appbundle.app"])
         let data = try PropertyListSerialization.data(
@@ -154,7 +150,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         }
         
         assertDoesNotThrow {
-            _ = try runner.run(
+            let invocation = try runner.prepareTestRun(
                 buildArtifacts: buildArtifacts,
                 developerDirLocator: developerDirLocator,
                 entriesToRun: [
@@ -164,9 +160,9 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 temporaryFolder: tempFolder,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream,
-                testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .logicTest
             )
+            invocation.startExecutingTests().wait()
         }
         
         wait(for: [argsValidatedExpectation], timeout: 15)
@@ -227,7 +223,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         }
         
         assertDoesNotThrow {
-            _ = try runner.run(
+            let invocation = try runner.prepareTestRun(
                 buildArtifacts: buildArtifacts,
                 developerDirLocator: developerDirLocator,
                 entriesToRun: [
@@ -237,9 +233,9 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 temporaryFolder: tempFolder,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream,
-                testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .appTest
             )
+            invocation.startExecutingTests().wait()
         }
         
         wait(for: [argsValidatedExpectation], timeout: 15)
@@ -269,7 +265,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         }
         
         assertDoesNotThrow {
-            _ = try runner.run(
+            let invocation = try runner.prepareTestRun(
                 buildArtifacts: buildArtifacts,
                 developerDirLocator: developerDirLocator,
                 entriesToRun: [
@@ -279,9 +275,9 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 temporaryFolder: tempFolder,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream,
-                testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .uiTest
             )
+            invocation.startExecutingTests().wait()
         }
         
         wait(for: [argsValidatedExpectation], timeout: 15)
@@ -310,7 +306,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         }
         
         assertDoesNotThrow {
-            _ = try runner.run(
+            let invocation = try runner.prepareTestRun(
                 buildArtifacts: buildArtifacts,
                 developerDirLocator: developerDirLocator,
                 entriesToRun: [
@@ -320,9 +316,9 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 temporaryFolder: tempFolder,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream,
-                testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .uiTest
             )
+            invocation.startExecutingTests().wait()
         }
         
         guard testRunnerStream.accumulatedData.count == 2 else {

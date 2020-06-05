@@ -400,6 +400,7 @@ let package = Package(
                 "DeveloperDirLocator",
                 "DistWorkerModels",
                 "EventBus",
+                "FileSystem",
                 "LocalHostDeterminer",
                 "Logging",
                 "LoggingSetup",
@@ -1430,6 +1431,7 @@ let package = Package(
                 "DeveloperDirLocator",
                 "EventBus",
                 "Extensions",
+                "FileSystem",
                 "LocalHostDeterminer",
                 "Logging",
                 "Metrics",
@@ -1441,8 +1443,8 @@ let package = Package(
                 "RunnerModels",
                 "SimulatorPoolModels",
                 "TemporaryStuff",
-                "TestRunner",
                 "TestsWorkingDirectorySupport",
+                "Timer",
             ],
             path: "Sources/Runner"
         ),
@@ -1464,6 +1466,7 @@ let package = Package(
             dependencies: [
                 "BuildArtifacts",
                 "DeveloperDirLocator",
+                "Logging",
                 "Models",
                 "ProcessController",
                 "Runner",
@@ -1483,11 +1486,16 @@ let package = Package(
                 "DeveloperDirLocatorTestHelpers",
                 "EventBus",
                 "Extensions",
+                "FileSystemTestHelpers",
+                "Logging",
                 "Metrics",
                 "MetricsTestHelpers",
                 "Models",
                 "ModelsTestHelpers",
+                "PathLib",
                 "PluginManagerTestHelpers",
+                "ProcessController",
+                "ProcessControllerTestHelpers",
                 "ResourceLocationResolverTestHelpers",
                 "Runner",
                 "RunnerModels",
@@ -1496,7 +1504,6 @@ let package = Package(
                 "SimulatorPoolTestHelpers",
                 "TemporaryStuff",
                 "TestHelpers",
-                "TestRunner",
             ],
             path: "Tests/RunnerTests"
         ),
@@ -1575,6 +1582,7 @@ let package = Package(
                 "DeveloperDirLocator",
                 "EventBus",
                 "Extensions",
+                "FileSystem",
                 "ListeningSemaphore",
                 "LocalHostDeterminer",
                 "Logging",
@@ -1791,6 +1799,7 @@ let package = Package(
                 "DateProvider",
                 "DeveloperDirLocator",
                 "Extensions",
+                "FileSystem",
                 "Logging",
                 "Metrics",
                 "Models",
@@ -1823,6 +1832,7 @@ let package = Package(
                 "DeveloperDirLocatorTestHelpers",
                 "FileCache",
                 "FileSystem",
+                "FileSystemTestHelpers",
                 "Logging",
                 "Models",
                 "ModelsTestHelpers",
@@ -1852,13 +1862,6 @@ let package = Package(
             dependencies: [
             ],
             path: "Tests/TestHelpers"
-        ),
-        .target(
-            // MARK: TestRunner
-            name: "TestRunner",
-            dependencies: [
-            ],
-            path: "Sources/TestRunner"
         ),
         .target(
             // MARK: TestingFakeFbxctest

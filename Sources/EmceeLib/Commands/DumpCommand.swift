@@ -107,6 +107,7 @@ public final class DumpCommand: Command {
             let testDiscoveryQuerier = TestDiscoveryQuerierImpl(
                 dateProvider: dateProvider,
                 developerDirLocator: developerDirLocator,
+                fileSystem: fileSystem,
                 numberOfAttemptsToPerformRuntimeDump: testArgFileEntry.numberOfRetries,
                 onDemandSimulatorPool: onDemandSimulatorPool,
                 pluginEventBusProvider: pluginEventBusProvider,

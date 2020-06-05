@@ -20,7 +20,7 @@ final class DefaultProcessControllerTests: XCTestCase {
                 arguments: ["/usr/bin/env"]
             )
         )
-        try controller.startAndListenUntilProcessDies()
+        controller.startAndListenUntilProcessDies()
         XCTAssertEqual(controller.processStatus(), .terminated(exitCode: 0))
     }
     
@@ -104,7 +104,7 @@ final class DefaultProcessControllerTests: XCTestCase {
                 )
             )
         }
-        try controller.startAndListenUntilProcessDies()
+        controller.startAndListenUntilProcessDies()
         
         assertThrows {
             try controller.startAndWaitForSuccessfulTermination()
@@ -119,7 +119,7 @@ final class DefaultProcessControllerTests: XCTestCase {
                 arguments: ["/bin/sleep", "0.01"]
             )
         )
-        try controller.startAndListenUntilProcessDies()
+        controller.startAndListenUntilProcessDies()
         XCTAssertEqual(controller.processStatus(), .terminated(exitCode: 0))
     }
         
@@ -132,7 +132,7 @@ final class DefaultProcessControllerTests: XCTestCase {
                 automaticManagement: .sigintThenKillIfSilent(interval: 0.00001)
             )
         )
-        try controller.startAndListenUntilProcessDies()
+        controller.startAndListenUntilProcessDies()
         XCTAssertEqual(controller.processStatus(), .terminated(exitCode: SIGINT))
     }
     
@@ -145,7 +145,7 @@ final class DefaultProcessControllerTests: XCTestCase {
                 automaticManagement: .sigtermThenKillIfSilent(interval: 0.00001)
             )
         )
-        try controller.startAndListenUntilProcessDies()
+        controller.startAndListenUntilProcessDies()
         XCTAssertEqual(controller.processStatus(), .terminated(exitCode: SIGTERM))
     }
     
@@ -162,7 +162,7 @@ final class DefaultProcessControllerTests: XCTestCase {
         controller.onSignal { _, _, _ in
             signalled = true
         }
-        try controller.startAndListenUntilProcessDies()
+        controller.startAndListenUntilProcessDies()
 
         XCTAssertFalse(signalled)
     }
@@ -178,7 +178,7 @@ final class DefaultProcessControllerTests: XCTestCase {
                 workingDirectory: temporaryFolder.absolutePath
             )
         )
-        try controller.startAndListenUntilProcessDies()
+        controller.startAndListenUntilProcessDies()
         
         XCTAssertEqual(
             try String(contentsOfFile: controller.subprocess.standardStreamsCaptureConfig.stdoutContentsFile.pathString),
@@ -199,7 +199,7 @@ final class DefaultProcessControllerTests: XCTestCase {
                 )
             )
         )
-        try controller.startAndListenUntilProcessDies()
+        controller.startAndListenUntilProcessDies()
         
         let data = try Data(contentsOf: URL(fileURLWithPath: tempFile.absolutePath.pathString))
         guard let string = String(data: data, encoding: .utf8) else {
@@ -223,7 +223,7 @@ final class DefaultProcessControllerTests: XCTestCase {
                 )
             )
         )
-        try controller.startAndListenUntilProcessDies()
+        controller.startAndListenUntilProcessDies()
         
         let data = try Data(contentsOf: tempFile.absolutePath.fileUrl)
         guard let string = String(data: data, encoding: .utf8) else {
@@ -252,7 +252,7 @@ final class DefaultProcessControllerTests: XCTestCase {
                 )
             )
         )
-        try controller.startAndListenUntilProcessDies()
+        controller.startAndListenUntilProcessDies()
         
         let stdoutData = try Data(contentsOf: stdoutFile.absolutePath.fileUrl)
         guard let stdoutString = String(data: stdoutData, encoding: .utf8) else {
@@ -275,13 +275,14 @@ final class DefaultProcessControllerTests: XCTestCase {
             dateProvider: dateProvider,
             fileSystem: fileSystem,
             subprocess: Subprocess(
-                arguments: ["/bin/ls", "/bin/ls"]
+                arguments: ["/bin/ls", "/bin/ls"],
+                environment: ["NSUnbufferedIO": "YES"]
             )
         )
         
         var stdoutData = Data()
         controller.onStdout { _, data, _ in stdoutData.append(contentsOf: data) }
-        try controller.startAndListenUntilProcessDies()
+        controller.startAndListenUntilProcessDies()
         
         guard let string = String(data: stdoutData, encoding: .utf8) else {
             return XCTFail("Unable to get stdout string")
@@ -302,7 +303,7 @@ final class DefaultProcessControllerTests: XCTestCase {
         
         var stderrData = Data()
         controller.onStderr { _, data, _ in stderrData.append(contentsOf: data) }
-        try controller.startAndListenUntilProcessDies()
+        controller.startAndListenUntilProcessDies()
         
         guard let string = String(data: stderrData, encoding: .utf8) else {
             return XCTFail("Unable to get stdout string")
@@ -415,7 +416,7 @@ final class DefaultProcessControllerTests: XCTestCase {
             collectedData.append(contentsOf: data)
             unsubscriber()
         }
-        try controller.startAndListenUntilProcessDies()
+        controller.startAndListenUntilProcessDies()
         
         XCTAssertEqual(
             collectedData,
@@ -438,7 +439,7 @@ final class DefaultProcessControllerTests: XCTestCase {
             collectedData.append(contentsOf: data)
             unsubscriber()
         }
-        try controller.startAndListenUntilProcessDies()
+        controller.startAndListenUntilProcessDies()
         
         XCTAssertEqual(
             collectedData,
@@ -476,7 +477,7 @@ final class DefaultProcessControllerTests: XCTestCase {
                     "-emit-executable",
                     streamingSwiftTempFile,
                     "-o", compiledExecutable]))
-        try compiler.startAndListenUntilProcessDies()
+        compiler.startAndListenUntilProcessDies()
         
         // run the executable
         let controller = try DefaultProcessController(

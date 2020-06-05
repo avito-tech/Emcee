@@ -27,7 +27,7 @@ public final class FbxctestBasedTestRunner: TestRunner {
         self.resourceLocationResolver = resourceLocationResolver
     }
     
-    public func run(
+    public func prepareTestRun(
         buildArtifacts: BuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
@@ -35,38 +35,14 @@ public final class FbxctestBasedTestRunner: TestRunner {
         temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
-        testTimeoutConfiguration: TestTimeoutConfiguration,
         testType: TestType
-    ) throws -> StandardStreamsCaptureConfig {
-        return try standardStreamsCaptureConfigOfFbxctestProcess(
-            buildArtifacts: buildArtifacts,
-            entriesToRun: entriesToRun,
-            simulator: simulator,
-            temporaryFolder: temporaryFolder,
-            testContext: testContext,
-            testRunnerStream: testRunnerStream,
-            testTimeoutConfiguration: testTimeoutConfiguration,
-            testType: testType
-        )
-    }
-    
-    private func standardStreamsCaptureConfigOfFbxctestProcess(
-        buildArtifacts: BuildArtifacts,
-        entriesToRun: [TestEntry],
-        simulator: Simulator,
-        temporaryFolder: TemporaryFolder,
-        testContext: TestContext,
-        testRunnerStream: TestRunnerStream,
-        testTimeoutConfiguration: TestTimeoutConfiguration,
-        testType: TestType
-    ) throws -> StandardStreamsCaptureConfig {
+    ) throws -> TestRunnerInvocation {
         let folderStack = try temporaryFolder.pathByCreatingDirectories(components: ["fbxctest_working_dir", UUID().uuidString, "fbxctest_tmp"])
         let fbxctestWorkingDirectory = folderStack.removingLastComponent
         let fbxctestTempFolder = folderStack
         defer { cleanUp(fbxctestWorkingDirectory: fbxctestWorkingDirectory) }
         
         let fbxctestOutputProcessor = try FbxctestOutputProcessor(
-            singleTestMaximumDuration: testTimeoutConfiguration.singleTestMaximumDuration,
             onTestStarted: { testName in testRunnerStream.testStarted(testName: testName) },
             onTestStopped: { testStoppedEvent in testRunnerStream.testStopped(testStoppedEvent: testStoppedEvent) },
             processController: try processControllerProvider.createProcessController(
@@ -83,15 +59,13 @@ public final class FbxctestBasedTestRunner: TestRunner {
                     environment: fbxctestEnvironment(
                         testContext: testContext,
                         fbxctestTempFolder: fbxctestTempFolder
-                    ),
-                    automaticManagement: .sigintThenKillIfSilent(interval: testTimeoutConfiguration.testRunnerMaximumSilenceDuration)
+                    )
                 )
             )
         )
-        try fbxctestOutputProcessor.processOutputAndWaitForProcessTermination()
-        return fbxctestOutputProcessor.subprocess.standardStreamsCaptureConfig
+        return fbxctestOutputProcessor
     }
-    
+
     private func fbxctestArguments(
         buildArtifacts: BuildArtifacts,
         entriesToRun: [TestEntry],

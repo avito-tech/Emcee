@@ -14,7 +14,6 @@ public final class FakeTestRunner: TestRunner {
     public var errorToThrowOnRun: Error?
     public var testContext: TestContext?
     public var testRunnerStream: TestRunnerStream?
-    public var testTimeoutConfiguration: TestTimeoutConfiguration?
     public var testType: TestType?
 
     public let runningQueue = DispatchQueue(label: "FakeTestRunner")
@@ -67,7 +66,8 @@ public final class FakeTestRunner: TestRunner {
 
     // - TestRunner Protocol
     public var isRunCalled = false
-    public func run(
+    
+    public func prepareTestRun(
         buildArtifacts: BuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
@@ -75,14 +75,12 @@ public final class FakeTestRunner: TestRunner {
         temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
-        testTimeoutConfiguration: TestTimeoutConfiguration,
         testType: TestType
-    ) throws -> StandardStreamsCaptureConfig {
+    ) throws -> TestRunnerInvocation {
         isRunCalled = true
 
         self.buildArtifacts = buildArtifacts
         self.entriesToRun = entriesToRun
-        self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testContext = testContext
         self.testRunnerStream = testRunnerStream
         self.testType = testType
@@ -122,7 +120,7 @@ public final class FakeTestRunner: TestRunner {
 
         group.wait()
 
-        return standardStreamsCaptureConfig
+        return FakeTestRunnerInvocation()
     }
 }
 

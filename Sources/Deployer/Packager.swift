@@ -45,7 +45,7 @@ public final class Packager {
                 workingDirectory: temporaryFolder.absolutePath
             )
         )
-        try controller.startAndListenUntilProcessDies()
+        controller.startAndListenUntilProcessDies()
         if archivePath.extension.isEmpty {
             return archivePath.appending(extension: "zip")
         } else {

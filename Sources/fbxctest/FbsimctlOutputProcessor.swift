@@ -34,7 +34,7 @@ public final class FbsimctlOutputProcessor: JSONReaderEventStream {
             guard let strongSelf = self else { return unsubscriber() }
             strongSelf.jsonStream.append(data: data)
         }
-        try processController.start()
+        processController.start()
         
         while shouldKeepWaitingForEvent(type: type, name: name) {
             guard Date().timeIntervalSinceReferenceDate - startTime < timeout else {

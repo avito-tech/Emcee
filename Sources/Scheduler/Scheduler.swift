@@ -2,6 +2,7 @@ import DateProvider
 import DeveloperDirLocator
 import Dispatch
 import Extensions
+import FileSystem
 import Foundation
 import ListeningSemaphore
 import LocalHostDeterminer
@@ -22,6 +23,7 @@ public final class Scheduler {
     private let configuration: SchedulerConfiguration
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
+    private let fileSystem: FileSystem
     private let pluginEventBusProvider: PluginEventBusProvider
     private let queue = OperationQueue()
     private let resourceLocationResolver: ResourceLocationResolver
@@ -35,6 +37,7 @@ public final class Scheduler {
         configuration: SchedulerConfiguration,
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
+        fileSystem: FileSystem,
         pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver,
         schedulerDelegate: SchedulerDelegate?,
@@ -45,6 +48,7 @@ public final class Scheduler {
         self.configuration = configuration
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
+        self.fileSystem = fileSystem
         self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
         self.resourceSemaphore = ListeningSemaphore(
@@ -200,6 +204,7 @@ public final class Scheduler {
             ),
             dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
+            fileSystem: fileSystem,
             pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,

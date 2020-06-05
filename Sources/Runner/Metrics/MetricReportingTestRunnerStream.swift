@@ -5,21 +5,17 @@ import LocalHostDeterminer
 import Metrics
 import Models
 import RunnerModels
-import TestRunner
 
 public final class MetricReportingTestRunnerStream: TestRunnerStream {
     private let dateProvider: DateProvider
-    private let delegate: TestRunnerStream
     private let host: String
     private let lastTestStoppedEventTimestamp = AtomicValue<Date?>(nil)
     
     public init(
         dateProvider: DateProvider,
-        delegate: TestRunnerStream,
         host: String = LocalHostDeterminer.currentHostAddress
     ) {
         self.dateProvider = dateProvider
-        self.delegate = delegate
         self.host = host
     }
     
@@ -43,8 +39,6 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
             )
             lastTestStoppedEventTimestamp.set(nil)
         }
-        
-        delegate.testStarted(testName: testName)
     }
     
     public func testStopped(testStoppedEvent: TestStoppedEvent) {
@@ -69,11 +63,7 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
         )
         
         lastTestStoppedEventTimestamp.set(dateProvider.currentDate())
-        
-        delegate.testStopped(testStoppedEvent: testStoppedEvent)
     }
     
-    public func caughtException(testException: TestException) {
-        delegate.caughtException(testException: testException)
-    }
+    public func caughtException(testException: TestException) {}
 }

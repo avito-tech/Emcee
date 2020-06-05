@@ -199,6 +199,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         let testDiscoveryQuerier = TestDiscoveryQuerierImpl(
             dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
+            fileSystem: fileSystem,
             numberOfAttemptsToPerformRuntimeDump: 5,
             onDemandSimulatorPool: onDemandSimulatorPool,
             pluginEventBusProvider: pluginEventBusProvider,

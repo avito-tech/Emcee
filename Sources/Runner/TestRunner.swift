@@ -1,13 +1,25 @@
 import BuildArtifacts
 import DeveloperDirLocator
 import Foundation
+import Logging
 import Models
 import ProcessController
 import SimulatorPoolModels
 import TemporaryStuff
 
+public protocol TestRunnerRunningInvocation {
+    var output: StandardStreamsCaptureConfig { get }
+    var subprocessInfo: SubprocessInfo { get }
+    func cancel()
+    func wait()
+}
+
+public protocol TestRunnerInvocation {
+    func startExecutingTests() -> TestRunnerRunningInvocation
+}
+
 public protocol TestRunner {
-    func run(
+    func prepareTestRun(
         buildArtifacts: BuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
@@ -15,8 +27,7 @@ public protocol TestRunner {
         temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
-        testTimeoutConfiguration: TestTimeoutConfiguration,
         testType: TestType
-    ) throws -> StandardStreamsCaptureConfig
+    ) throws -> TestRunnerInvocation
 }
 

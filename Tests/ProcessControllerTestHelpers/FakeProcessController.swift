@@ -18,7 +18,10 @@ public final class FakeProcessController: ProcessController {
         return 0
     }
     
-    public func start() {}
+    public var onStart: (FakeProcessController) -> () = { _ in }
+    public func start() {
+        onStart(self)
+    }
     
     public func waitForProcessToDie() {
         try? SynchronousWaiter().waitWhile { isProcessRunning }
@@ -30,17 +33,19 @@ public final class FakeProcessController: ProcessController {
         return overridedProcessStatus
     }
     
-    var signalsSent = [Int32]()
+    public var signalsSent = [Int32]()
     
     public func send(signal: Int32) {
         signalsSent.append(signal)
     }
     
     public func terminateAndForceKillIfNeeded() {
+        send(signal: SIGTERM)
         overridedProcessStatus = .terminated(exitCode: SIGTERM)
     }
     
     public func interruptAndForceKillIfNeeded() {
+        send(signal: SIGINT)
         overridedProcessStatus = .terminated(exitCode: SIGINT)
     }
     

@@ -119,7 +119,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
                 automaticManagement: .sigintThenKillIfSilent(interval: timeout)
             )
         )
-        try shutdownController.startAndListenUntilProcessDies()
+        shutdownController.startAndListenUntilProcessDies()
     }
     
     public func performDeleteSimulatorAction(
@@ -144,7 +144,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
                 automaticManagement: .sigintThenKillIfSilent(interval: timeout)
             )
         )
-        try controller.startAndListenUntilProcessDies()
+        controller.startAndListenUntilProcessDies()
         
         try deleteSimulatorSetContainer(simulatorSetPath: simulator.simulatorSetPath)
     }

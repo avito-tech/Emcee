@@ -104,6 +104,7 @@ public final class DistWorkCommand: Command {
             bucketResultSender: bucketResultSender,
             dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
+            fileSystem: fileSystem,
             onDemandSimulatorPool: onDemandSimulatorPool,
             pluginEventBusProvider: pluginEventBusProvider,
             queueClient: SynchronousQueueClient(queueServerAddress: queueServerAddress),
