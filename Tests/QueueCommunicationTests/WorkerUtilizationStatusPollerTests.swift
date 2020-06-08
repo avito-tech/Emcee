@@ -10,6 +10,11 @@ import XCTest
 
 class WorkerUtilizationStatusPollerTests: XCTestCase {
     private let communicationService = FakeQueueCommunicationService()
+    let metricHandler = FakeMetricHandler()
+    
+    override func setUp() {
+        GlobalMetricConfig.metricHandler = metricHandler
+    }
     
     func test___poller_uses_default_deployments___if_no_data_was_fetched() {
         let deployments = [
@@ -107,8 +112,6 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     }
     
     func test___poller_log_metric() {
-        let metricHandler = FakeMetricHandler()
-        GlobalMetricConfig.metricHandler = metricHandler
         let expectedMetric1 = NumberOfWorkersToUtilizeMetric(emceeVersion: "emceeVersion", workersCount: 0)
         let expectation = self.expectation(description: "workersToUtilize was called")
         communicationService.completionHandler = { completion in
