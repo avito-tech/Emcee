@@ -10,11 +10,6 @@ import XCTest
 
 class WorkerUtilizationStatusPollerTests: XCTestCase {
     private let communicationService = FakeQueueCommunicationService()
-    let metricHandler = FakeMetricHandler()
-    
-    override func setUp() {
-        GlobalMetricConfig.metricHandler = metricHandler
-    }
     
     func test___poller_uses_default_deployments___if_no_data_was_fetched() {
         let deployments = [
@@ -112,27 +107,36 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     }
     
     func test___poller_log_metric() {
-        let expectedMetric1 = NumberOfWorkersToUtilizeMetric(emceeVersion: "emceeVersion", workersCount: 0)
+        let expectedMetric1 = NumberOfWorkersToUtilizeMetric(emceeVersion: "emceeVersion", queueHost: "queueHost", workersCount: 0)
+        let metricHandler = FakeMetricHandler()
+        GlobalMetricConfig.metricHandler = metricHandler
         let expectation = self.expectation(description: "workersToUtilize was called")
         communicationService.completionHandler = { completion in
             completion(.success([WorkerId(value: "workerId")]))
             expectation.fulfill()
         }
-        let expectedMetric2 = NumberOfWorkersToUtilizeMetric(emceeVersion: "emceeVersion", workersCount: 1)
+        let expectedMetric2 = NumberOfWorkersToUtilizeMetric(emceeVersion: "emceeVersion", queueHost: "queueHost", workersCount: 1)
         let poller = buildPoller(deployments: [])
+        let expectedMetrics = Set([expectedMetric1, expectedMetric2])
 
         poller.startPolling()
 
         wait(for: [expectation], timeout: 5)
-        let metricsEqual = metricHandler.metrics.elementsEqual(Set([expectedMetric1, expectedMetric2])) { (lhs, rhs) -> Bool in
-            lhs.testCompare(rhs)
-        }
-        XCTAssertTrue(metricsEqual)
+
+        for expectedMetric in expectedMetrics {
+            let contains = metricHandler.metrics.contains { metric -> Bool in
+                expectedMetric.testCompare(metric)
+            }
+            if contains == false {
+                XCTFail("No metric \(expectedMetrics) found")
+            }
+        }    
     }
 
     private func buildPoller(deployments: [DeploymentDestination]) -> DefaultWorkerUtilizationStatusPoller {
         DefaultWorkerUtilizationStatusPoller(
             emceeVersion: "emceeVersion",
+            queueHost: "queueHost",
             defaultDeployments: deployments,
             communicationService: communicationService
         )

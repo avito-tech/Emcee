@@ -94,6 +94,7 @@ public final class StartQueueServerCommand: Command {
         )
         let workerUtilizationStatusPoller = DefaultWorkerUtilizationStatusPoller(
             emceeVersion: emceeVersion,
+            queueHost: socketHost,
             defaultDeployments: workerDestinations,
             communicationService: queueCommunicationService
         )

@@ -5,6 +5,7 @@ import Models
 public final class NumberOfWorkersToUtilizeMetric: Metric {
     public init(
         emceeVersion: Version,
+        queueHost: String,
         workersCount: Int
     ) {
         super.init(
@@ -16,7 +17,7 @@ public final class NumberOfWorkersToUtilizeMetric: Metric {
             ],
             variableComponents: [
                 emceeVersion.value,
-                Metric.reservedField,
+                queueHost,
                 Metric.reservedField,
                 Metric.reservedField,
                 Metric.reservedField,

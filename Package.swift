@@ -1078,6 +1078,7 @@ let package = Package(
             dependencies: [
                 "AtomicModels",
                 "Deployer",
+                "LocalHostDeterminer",
                 "Logging",
                 "Metrics",
                 "Models",

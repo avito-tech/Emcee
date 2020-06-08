@@ -1,5 +1,6 @@
 import AtomicModels
 import Deployer
+import LocalHostDeterminer
 import Logging
 import Metrics
 import Models
@@ -11,9 +12,11 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
     private var workerIdsToUtilize: AtomicValue<Set<WorkerId>>
     private let pollingTrigger = DispatchBasedTimer(repeating: .seconds(60), leeway: .seconds(10))
     private let emceeVersion: Version
+    private let queueHost: String
     
     public init(
         emceeVersion: Version,
+        queueHost: String,
         defaultDeployments: [DeploymentDestination],
         communicationService: QueueCommunicationService
     ) {
@@ -21,8 +24,9 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
         self.communicationService = communicationService
         self.workerIdsToUtilize = AtomicValue(Set(defaultDeployments.map { $0.workerId }))
         self.emceeVersion = emceeVersion
+        self.queueHost = queueHost
         MetricRecorder.capture(
-            NumberOfWorkersToUtilizeMetric(emceeVersion: emceeVersion, workersCount: defaultDeployments.count)
+            NumberOfWorkersToUtilizeMetric(emceeVersion: emceeVersion, queueHost: queueHost, workersCount: defaultDeployments.count)
         )
     }
     
@@ -36,7 +40,7 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
         pollingTrigger.stop()
         self.workerIdsToUtilize.set(Set(defaultDeployments.map { $0.workerId }))
         MetricRecorder.capture(
-            NumberOfWorkersToUtilizeMetric(emceeVersion: emceeVersion, workersCount: defaultDeployments.count)
+            NumberOfWorkersToUtilizeMetric(emceeVersion: emceeVersion, queueHost: queueHost, workersCount: defaultDeployments.count)
         )
     }
     
@@ -53,7 +57,11 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
                     Logger.debug("Fetched workerIds to utilize:\(workerIds)")
                     strongSelf.workerIdsToUtilize.set(workerIds)
                     MetricRecorder.capture(
-                        NumberOfWorkersToUtilizeMetric(emceeVersion: strongSelf.emceeVersion, workersCount: workerIds.count)
+                        NumberOfWorkersToUtilizeMetric(
+                            emceeVersion: strongSelf.emceeVersion,
+                            queueHost: strongSelf.queueHost,
+                            workersCount: workerIds.count
+                        )
                     )
                 } catch {
                     Logger.error(error.localizedDescription)
