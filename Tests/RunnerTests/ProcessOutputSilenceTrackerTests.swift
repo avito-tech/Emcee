@@ -15,8 +15,7 @@ final class ProcessOutputSilenceTrackerTests: XCTestCase {
     lazy var fileSystem = FakeFileSystem(rootPath: AbsolutePath(#file))
     lazy var standardStreamsCaptureConfig = StandardStreamsCaptureConfig(
         stdoutContentsFile: tempFolder.absolutePath.appending(component: "stdout.txt"),
-        stderrContentsFile: tempFolder.absolutePath.appending(component: "stderr.txt"),
-        stdinContentsFile: nil
+        stderrContentsFile: tempFolder.absolutePath.appending(component: "stderr.txt")
     )
     lazy var subprocessInfo = SubprocessInfo(subprocessId: 1234, subprocessName: "process_name")
     lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }

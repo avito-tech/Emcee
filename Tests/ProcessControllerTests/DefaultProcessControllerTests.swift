@@ -487,8 +487,7 @@ final class DefaultProcessControllerTests: XCTestCase {
                 arguments: [compiledExecutable],
                 standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
                     stdoutContentsFile: stdoutFile,
-                    stderrContentsFile: stderrFile,
-                    stdinContentsFile: stdinFile
+                    stderrContentsFile: stderrFile
                 )
             )
         )

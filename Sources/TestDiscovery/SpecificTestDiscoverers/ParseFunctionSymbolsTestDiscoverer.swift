@@ -49,8 +49,7 @@ final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
                 ],
                 standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
                     stdoutContentsFile: nmOutputPath.appending(component: "nm_stdout"),
-                    stderrContentsFile: nmOutputPath.appending(component: "nm_stderr"),
-                    stdinContentsFile: nmOutputPath.appending(component: "nm_stdin")
+                    stderrContentsFile: nmOutputPath.appending(component: "nm_stderr")
                 )
             )
         )
