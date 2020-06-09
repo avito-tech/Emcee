@@ -9,7 +9,7 @@ import ResourceLocationResolver
 import Runner
 import TemporaryStuff
 
-public final class XcTestRunFileArgument: SubprocessArgument {
+public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConvertible {
     private let buildArtifacts: BuildArtifacts
     private let entriesToRun: [TestEntry]
     private let resourceLocationResolver: ResourceLocationResolver
@@ -45,6 +45,10 @@ public final class XcTestRunFileArgument: SubprocessArgument {
         self.testContext = testContext
         self.testType = testType
         self.testingEnvironment = testingEnvironment
+    }
+    
+    public var description: String {
+        "<\(type(of: self)) tests: \(entriesToRun.map { $0.testName }), testType \(testType), environment \(testContext.environment)>"
     }
 
     public func stringValue() throws -> String {
