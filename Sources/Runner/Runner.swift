@@ -22,6 +22,7 @@ public final class Runner {
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let fileSystem: FileSystem
+    private let metricReportingTestRunnerStream: MetricReportingTestRunnerStream
     private let pluginEventBusProvider: PluginEventBusProvider
     private let pluginTearDownQueue = OperationQueue()
     private let resourceLocationResolver: ResourceLocationResolver
@@ -42,6 +43,10 @@ public final class Runner {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.fileSystem = fileSystem
+        self.metricReportingTestRunnerStream = MetricReportingTestRunnerStream(
+            dateProvider: dateProvider,
+            host: LocalHostDeterminer.currentHostAddress
+        )
         self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
         self.tempFolder = tempFolder
@@ -142,6 +147,7 @@ public final class Runner {
         
         Logger.debug("Will run \(entriesToRun.count) tests on simulator \(simulator)")
         eventBus.post(event: .runnerEvent(.willRun(testEntries: entriesToRun, testContext: testContext)))
+        metricReportingTestRunnerStream.willStartRunningTests()
         
         let singleTestMaximumDuration = configuration.testTimeoutConfiguration.singleTestMaximumDuration
         
@@ -182,9 +188,7 @@ public final class Runner {
                     },
                     maximumTestDuration: singleTestMaximumDuration
                 ),
-                MetricReportingTestRunnerStream(
-                    dateProvider: dateProvider
-                ),
+                metricReportingTestRunnerStream,
                 TestRunnerStreamWrapper(
                     onTestStarted: { testName in
                         collectedTestExceptions = []
@@ -233,6 +237,7 @@ public final class Runner {
         )
         
         eventBus.post(event: .runnerEvent(.didRun(results: result, testContext: testContext)))
+        metricReportingTestRunnerStream.didFinishRunningTests()
         
         Logger.debug("Attempted to run \(entriesToRun.count) tests on simulator \(simulator): \(entriesToRun)")
         Logger.debug("Did get \(result.count) results: \(result)")

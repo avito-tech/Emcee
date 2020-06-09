@@ -7,7 +7,6 @@ public final class TestFinishedMetric: Metric {
         host: String,
         testClassName: String,
         testMethodName: String,
-        testsFinishedCount: Int,
         timestamp: Date
     ) {
         super.init(
@@ -21,7 +20,7 @@ public final class TestFinishedMetric: Metric {
                 Metric.reservedField,
                 Metric.reservedField
             ],
-            value: Double(testsFinishedCount),
+            value: 1,
             timestamp: timestamp
         )
     }

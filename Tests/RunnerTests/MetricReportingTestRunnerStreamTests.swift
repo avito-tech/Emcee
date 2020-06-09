@@ -17,13 +17,21 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
         dateProvider: dateProvider,
         host: host
     )
+    lazy var testName = TestName(className: "class", methodName: "test")
+    lazy var testContext = TestContextFixtures().testContext
+    lazy var testStoppedEvent = TestStoppedEvent(
+        testName: testName,
+        result: .failure,
+        testDuration: 12,
+        testExceptions: [TestException(reason: "reason", filePathInProject: "file", lineNumber: 42)],
+        testStartTimestamp: 111
+    )
     
     override func setUp() {
         GlobalMetricConfig.metricHandler = metricHandler
     }
 
     func test___reporting_test_started_metric() {
-        let testName = TestName(className: "class", methodName: "test")
         stream.testStarted(testName: testName)
         
         XCTAssertEqual(
@@ -33,13 +41,6 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
     }
     
     func test___reporting_test_stopped_metric() {
-        let testStoppedEvent = TestStoppedEvent(
-            testName: TestName(className: "class", methodName: "test"),
-            result: .failure,
-            testDuration: 12,
-            testExceptions: [TestException(reason: "reason", filePathInProject: "file", lineNumber: 42)],
-            testStartTimestamp: 111
-        )
         stream.testStopped(
             testStoppedEvent: testStoppedEvent
         )
@@ -51,7 +52,6 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
                     host: host,
                     testClassName: testStoppedEvent.testName.className,
                     testMethodName: testStoppedEvent.testName.methodName,
-                    testsFinishedCount: 1,
                     timestamp: dateProvider.currentDate()
                 )
             )
@@ -59,13 +59,6 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
     }
     
     func test___reporting_test_duration_metric() {
-        let testStoppedEvent = TestStoppedEvent(
-            testName: TestName(className: "class", methodName: "test"),
-            result: .failure,
-            testDuration: 12,
-            testExceptions: [TestException(reason: "reason", filePathInProject: "file", lineNumber: 42)],
-            testStartTimestamp: 111
-        )
         stream.testStopped(
             testStoppedEvent: testStoppedEvent
         )
@@ -87,19 +80,12 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
     func test___reporting_time_between_tests_metric() {
         let timeBetweenStopOfPreviousTestAndStartOfNextTest: TimeInterval = 100
         
-        let testStoppedEvent = TestStoppedEvent(
-            testName: TestName(className: "class", methodName: "test"),
-            result: .failure,
-            testDuration: 12,
-            testExceptions: [TestException(reason: "reason", filePathInProject: "file", lineNumber: 42)],
-            testStartTimestamp: 111
-        )
+        
         stream.testStopped(
             testStoppedEvent: testStoppedEvent
         )
         
         dateProvider.result += timeBetweenStopOfPreviousTestAndStartOfNextTest
-        let testName = TestName(className: "class", methodName: "test")
         stream.testStarted(testName: testName)
         
         XCTAssertTrue(
@@ -110,6 +96,99 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
                     timestamp: dateProvider.currentDate()
                 )
             )
+        )
+    }
+    
+    func test___reports_preflight_metric___after_first_test_starts() {
+        stream.willStartRunningTests()
+        dateProvider.result += 100
+        stream.testStarted(testName: testName)
+        
+        XCTAssertEqual(
+            metricHandler.metrics,
+            [
+                TestPreflightMetric(
+                    host: host,
+                    duration: 100,
+                    timestamp: dateProvider.currentDate()
+                ),
+                TestStartedMetric(
+                    host: host,
+                    testClassName: testName.className,
+                    testMethodName: testName.methodName,
+                    timestamp: dateProvider.currentDate()
+                ),
+            ]
+        )
+    }
+    
+    func test___reports_postflight_metric___after_last_test_finishes() {
+        stream.testStarted(testName: testName)
+        stream.testStopped(testStoppedEvent: testStoppedEvent)
+        dateProvider.result += 100
+        stream.didFinishRunningTests()
+        
+        XCTAssert(
+            metricHandler.metrics.contains(
+                TestPostflightMetric(
+                    host: host,
+                    duration: 100,
+                    timestamp: dateProvider.currentDate()
+                )
+            )
+        )
+    }
+    
+    func test___complex_metric_reporting() {
+        stream.willStartRunningTests()
+        dateProvider.result += 25
+        
+        let testStartedAt = dateProvider.currentDate()
+        stream.testStarted(testName: testName)
+        dateProvider.result += 25
+        
+        let testStoppedAt = dateProvider.currentDate()
+        stream.testStopped(testStoppedEvent: testStoppedEvent)
+        dateProvider.result += 25
+        
+        let bucketFinishedAt = dateProvider.currentDate()
+        stream.didFinishRunningTests()
+        
+        XCTAssertEqual(
+            metricHandler.metrics,
+            [
+                TestPreflightMetric(
+                    host: host,
+                    duration: 25,
+                    timestamp: testStartedAt
+                ),
+                TestStartedMetric(
+                    host: host,
+                    testClassName: testName.className,
+                    testMethodName: testName.methodName,
+                    timestamp: testStartedAt
+                ),
+                TestFinishedMetric(
+                    result: testStoppedEvent.result.rawValue,
+                    host: host,
+                    testClassName: testStoppedEvent.testName.className,
+                    testMethodName: testStoppedEvent.testName.methodName,
+                    timestamp: testStoppedAt
+                ),
+                TestDurationMetric(
+                    result: testStoppedEvent.result.rawValue,
+                    host: host,
+                    testClassName: testStoppedEvent.testName.className,
+                    testMethodName: testStoppedEvent.testName.methodName,
+                    duration: testStoppedEvent.testDuration,
+                    timestamp: testStoppedAt
+                ),
+                TestPostflightMetric(
+                    host: host,
+                    duration: 25,
+                    timestamp: bucketFinishedAt
+                )
+            ]
         )
     }
 }

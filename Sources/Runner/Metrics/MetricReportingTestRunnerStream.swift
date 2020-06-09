@@ -9,17 +9,35 @@ import RunnerModels
 public final class MetricReportingTestRunnerStream: TestRunnerStream {
     private let dateProvider: DateProvider
     private let host: String
+    private let willRunEventTimestamp = AtomicValue<Date?>(nil)
     private let lastTestStoppedEventTimestamp = AtomicValue<Date?>(nil)
     
     public init(
         dateProvider: DateProvider,
-        host: String = LocalHostDeterminer.currentHostAddress
+        host: String
     ) {
         self.dateProvider = dateProvider
         self.host = host
     }
     
+    public func willStartRunningTests() {
+        willRunEventTimestamp.set(dateProvider.currentDate())
+    }
+    
     public func testStarted(testName: TestName) {
+        willRunEventTimestamp.withExclusiveAccess { value in
+            if let willRunEventTimestamp = value {
+                MetricRecorder.capture(
+                    TestPreflightMetric(
+                        host: host,
+                        duration: dateProvider.currentDate().timeIntervalSince(willRunEventTimestamp),
+                        timestamp: dateProvider.currentDate()
+                    )
+                )
+                value = nil
+            }
+        }
+        
         MetricRecorder.capture(
             TestStartedMetric(
                 host: host,
@@ -49,7 +67,6 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
                 host: host,
                 testClassName: testStoppedEvent.testName.className,
                 testMethodName: testStoppedEvent.testName.methodName,
-                testsFinishedCount: 1,
                 timestamp: dateProvider.currentDate()
             ),
             TestDurationMetric(
@@ -66,4 +83,19 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
     }
     
     public func caughtException(testException: TestException) {}
+    
+    public func didFinishRunningTests() {
+        lastTestStoppedEventTimestamp.withExclusiveAccess { value in
+            if let lastTestStoppedEventTimestamp = value {
+                MetricRecorder.capture(
+                    TestPostflightMetric(
+                        host: host,
+                        duration: dateProvider.currentDate().timeIntervalSince(lastTestStoppedEventTimestamp),
+                        timestamp: dateProvider.currentDate()
+                    )
+                )
+            }
+            value = nil
+        }
+    }
 }
