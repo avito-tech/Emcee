@@ -51,8 +51,8 @@ public final class ProcessOutputSilenceTracker {
     private func verifyProcessOutputsAnyData() {
         do {
             let currentDate = dateProvider.currentDate()
-            let stdoutMtime = try fileSystem.properties(forFileAtPath: standardStreamsCaptureConfig.stdoutContentsFile).modificationDate()
-            let stderrMtime = try fileSystem.properties(forFileAtPath: standardStreamsCaptureConfig.stderrContentsFile).modificationDate()
+            let stdoutMtime = try fileSystem.properties(forFileAtPath: standardStreamsCaptureConfig.stdoutOutputPath()).modificationDate()
+            let stderrMtime = try fileSystem.properties(forFileAtPath: standardStreamsCaptureConfig.stderrOutputPath()).modificationDate()
             
             if currentDate.timeIntervalSince(stdoutMtime) > silenceDuration,
                 currentDate.timeIntervalSince(stderrMtime) > silenceDuration {

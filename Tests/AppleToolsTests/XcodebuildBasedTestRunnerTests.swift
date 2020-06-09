@@ -27,7 +27,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
     private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     private let testRunnerStream = AccumulatingTestRunnerStream()
     private let dateProvider = DateProviderFixture(Date(timeIntervalSince1970: 100500))
-    private let processControllerProvider = FakeProcessControllerProvider()
+    private lazy var processControllerProvider = FakeProcessControllerProvider(tempFolder: tempFolder)
     private let resourceLocationResolver = FakeResourceLocationResolver(
         resolvingResult: .directlyAccessibleFile(path: "")
     )

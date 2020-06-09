@@ -99,7 +99,7 @@ final class DefaultProcessControllerTests: XCTestCase {
                 subprocess: Subprocess(
                     arguments: ["/bin/ls", argument],
                     standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
-                        stderrContentsFile: tempFile.absolutePath
+                        stderrPath: tempFile.absolutePath
                     )
                 )
             )
@@ -181,7 +181,7 @@ final class DefaultProcessControllerTests: XCTestCase {
         controller.startAndListenUntilProcessDies()
         
         XCTAssertEqual(
-            try String(contentsOfFile: controller.subprocess.standardStreamsCaptureConfig.stdoutContentsFile.pathString),
+            try String(contentsOfFile: controller.subprocess.standardStreamsCaptureConfig.stdoutOutputPath().pathString),
             temporaryFolder.absolutePath.pathString + "\n"
         )
     }
@@ -195,7 +195,7 @@ final class DefaultProcessControllerTests: XCTestCase {
             subprocess: Subprocess(
                 arguments: ["/bin/ls", "/"],
                 standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
-                    stdoutContentsFile: tempFile.absolutePath
+                    stdoutPath: tempFile.absolutePath
                 )
             )
         )
@@ -219,7 +219,7 @@ final class DefaultProcessControllerTests: XCTestCase {
             subprocess: Subprocess(
                 arguments: ["/bin/ls", argument],
                 standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
-                    stderrContentsFile: tempFile.absolutePath
+                    stderrPath: tempFile.absolutePath
                 )
             )
         )
@@ -247,8 +247,8 @@ final class DefaultProcessControllerTests: XCTestCase {
             subprocess: Subprocess(
                 arguments: ["/bin/ls", "/", argument],
                 standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
-                    stdoutContentsFile: stdoutFile.absolutePath,
-                    stderrContentsFile: stderrFile.absolutePath
+                    stdoutPath: stdoutFile.absolutePath,
+                    stderrPath: stderrFile.absolutePath
                 )
             )
         )
@@ -486,8 +486,8 @@ final class DefaultProcessControllerTests: XCTestCase {
             subprocess: Subprocess(
                 arguments: [compiledExecutable],
                 standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
-                    stdoutContentsFile: stdoutFile,
-                    stderrContentsFile: stderrFile
+                    stdoutPath: stdoutFile,
+                    stderrPath: stderrFile
                 )
             )
         )

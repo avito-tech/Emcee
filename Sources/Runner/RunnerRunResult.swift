@@ -24,8 +24,8 @@ public final class RunnerRunResult {
     public func dumpStandardStreams() {
         guard let subprocessStandardStreamsCaptureConfig = subprocessStandardStreamsCaptureConfig else { return }
         
-        printTail(filePath: subprocessStandardStreamsCaptureConfig.stdoutContentsFile)
-        printTail(filePath: subprocessStandardStreamsCaptureConfig.stderrContentsFile)
+        try? printTail(filePath: subprocessStandardStreamsCaptureConfig.stdoutOutputPath())
+        try? printTail(filePath: subprocessStandardStreamsCaptureConfig.stderrOutputPath())
     }
     
     private func printTail(filePath: AbsolutePath) {

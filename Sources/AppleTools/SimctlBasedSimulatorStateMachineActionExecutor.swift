@@ -55,7 +55,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
         )
         try controller.startAndWaitForSuccessfulTermination()
         
-        let createdUdid = try String(contentsOf: controller.subprocess.standardStreamsCaptureConfig.stdoutContentsFile.fileUrl, encoding: .utf8).trimmingCharacters(in: .whitespacesAndNewlines)
+        let createdUdid = try String(contentsOf: controller.subprocess.standardStreamsCaptureConfig.stdoutOutputPath().fileUrl, encoding: .utf8).trimmingCharacters(in: .whitespacesAndNewlines)
         guard !createdUdid.isEmpty else { throw SimctlUdidParseError.emptyUdid }
         
         let udid = UDID(value: createdUdid)

@@ -212,7 +212,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             numberOfAttemptsToPerformRuntimeDump: 1,
             onDemandSimulatorPool: simulatorPool,
             pluginEventBusProvider: NoOoPluginEventBusProvider(),
-            processControllerProvider: FakeProcessControllerProvider(),
+            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder),
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,

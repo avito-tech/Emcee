@@ -1001,6 +1001,7 @@ let package = Package(
                 "Extensions",
                 "FileSystem",
                 "Logging",
+                "LoggingSetup",
                 "PathLib",
                 "SignalHandling",
                 "Timer",
@@ -1013,6 +1014,7 @@ let package = Package(
             dependencies: [
                 "ProcessController",
                 "SynchronousWaiter",
+                "TemporaryStuff",
             ],
             path: "Tests/ProcessControllerTestHelpers"
         ),
@@ -2029,6 +2031,7 @@ let package = Package(
                 "RunnerTestHelpers",
                 "SimulatorPoolTestHelpers",
                 "TemporaryStuff",
+                "TestHelpers",
                 "fbxctest",
             ],
             path: "Tests/fbxctestTests"

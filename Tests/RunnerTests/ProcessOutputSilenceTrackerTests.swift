@@ -14,8 +14,8 @@ final class ProcessOutputSilenceTrackerTests: XCTestCase {
     lazy var expectation = XCTestExpectation()
     lazy var fileSystem = FakeFileSystem(rootPath: AbsolutePath(#file))
     lazy var standardStreamsCaptureConfig = StandardStreamsCaptureConfig(
-        stdoutContentsFile: tempFolder.absolutePath.appending(component: "stdout.txt"),
-        stderrContentsFile: tempFolder.absolutePath.appending(component: "stderr.txt")
+        stdoutPath: tempFolder.absolutePath.appending(component: "stdout.txt"),
+        stderrPath: tempFolder.absolutePath.appending(component: "stderr.txt")
     )
     lazy var subprocessInfo = SubprocessInfo(subprocessId: 1234, subprocessName: "process_name")
     lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
@@ -43,8 +43,8 @@ final class ProcessOutputSilenceTrackerTests: XCTestCase {
         }
     }
     
-    func test___when_process_outputs_to_stdout___silence_not_triggered() {
-        pathMtimes[standardStreamsCaptureConfig.stdoutContentsFile] = dateProvider.currentDate()
+    func test___when_process_outputs_to_stdout___silence_not_triggered() throws {
+        pathMtimes[try standardStreamsCaptureConfig.stdoutOutputPath()] = dateProvider.currentDate()
         expectation.isInverted = true
         
         tracker.startTracking()
@@ -52,8 +52,8 @@ final class ProcessOutputSilenceTrackerTests: XCTestCase {
         wait(for: [expectation], timeout: 5.0)
     }
     
-    func test___when_process_outputs_to_stderr___silence_not_triggered() {
-        pathMtimes[standardStreamsCaptureConfig.stderrContentsFile] = dateProvider.currentDate()
+    func test___when_process_outputs_to_stderr___silence_not_triggered() throws {
+        pathMtimes[try standardStreamsCaptureConfig.stderrOutputPath()] = dateProvider.currentDate()
         expectation.isInverted = true
 
         tracker.startTracking()
@@ -67,9 +67,9 @@ final class ProcessOutputSilenceTrackerTests: XCTestCase {
         wait(for: [expectation], timeout: 5.0)
     }
     
-    func test___when_process_becomes_silent___it_reports_silence() {
-        pathMtimes[standardStreamsCaptureConfig.stdoutContentsFile] = dateProvider.currentDate()
-        pathMtimes[standardStreamsCaptureConfig.stderrContentsFile] = dateProvider.currentDate()
+    func test___when_process_becomes_silent___it_reports_silence() throws {
+        pathMtimes[try standardStreamsCaptureConfig.stdoutOutputPath()] = dateProvider.currentDate()
+        pathMtimes[try standardStreamsCaptureConfig.stderrOutputPath()] = dateProvider.currentDate()
         
         tracker.startTracking()
         
@@ -80,11 +80,11 @@ final class ProcessOutputSilenceTrackerTests: XCTestCase {
         wait(for: [expectation], timeout: 5.0)
     }
     
-    func test___when_stop_is_called___it_does_not_report_silence() {
+    func test___when_stop_is_called___it_does_not_report_silence() throws {
         expectation.isInverted = true
         
-        pathMtimes[standardStreamsCaptureConfig.stdoutContentsFile] = dateProvider.currentDate()
-        pathMtimes[standardStreamsCaptureConfig.stderrContentsFile] = dateProvider.currentDate()
+        pathMtimes[try standardStreamsCaptureConfig.stdoutOutputPath()] = dateProvider.currentDate()
+        pathMtimes[try standardStreamsCaptureConfig.stderrOutputPath()] = dateProvider.currentDate()
         
         tracker.startTracking()
         tracker.stopTracking()

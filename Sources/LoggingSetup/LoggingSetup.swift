@@ -46,10 +46,9 @@ public final class LoggingSetup {
     
     public func cleanUpLogs(olderThan date: Date) throws {
         Logger.debug("Will clean up old log files")
-        let emceeLogsFolder = try self.emceeLogsFolder()
-        let logsEnumerator = fileSystem.contentEnumerator(forPath: emceeLogsFolder)
+        let logsEnumerator = fileSystem.contentEnumerator(forPath: try fileSystem.emceeLogsFolder())
         try logsEnumerator.each { (path: AbsolutePath) in
-            guard path.lastComponent.hasPrefix(logFilePrefix) && path.extension == logFileExtension else { return }
+            guard path.extension == logFileExtension else { return }
             let modificationDate = try fileSystem.properties(forFileAtPath: path).modificationDate()
             if modificationDate < date {
                 do {
@@ -92,18 +91,7 @@ public final class LoggingSetup {
         )
     }
     
-    private func emceeLogsFolder() throws -> AbsolutePath {
-        let libraryPath = try fileSystem.commonlyUsedPathsProvider.library(inDomain: .user, create: false)
-        return libraryPath.appending(components: ["Logs", "ru.avito.emcee.logs"])
-    }
-    
     private func logsContainerFolder() throws -> AbsolutePath {
-        let emceeLogsFolder = try self.emceeLogsFolder()
-        try fileSystem.createDirectory(atPath: emceeLogsFolder, withIntermediateDirectories: true)
-        
-        let container = emceeLogsFolder.appending(component: ProcessInfo.processInfo.processName)
-        try fileSystem.createDirectory(atPath: container, withIntermediateDirectories: true)
-        
-        return container
+        try fileSystem.folderForStoringLogs(processName: ProcessInfo.processInfo.processName)
     }
 }

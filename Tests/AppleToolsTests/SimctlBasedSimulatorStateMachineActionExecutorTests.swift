@@ -23,7 +23,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
     
     func test___when_simctl_finished_with_non_zero_code___create_throws() {
         let executor = SimctlBasedSimulatorStateMachineActionExecutor(
-            processControllerProvider: FakeProcessControllerProvider { subprocess in
+            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder) { subprocess in
                 let controller = FakeProcessController(subprocess: subprocess)
                 controller.overridedProcessStatus = ProcessStatus.terminated(exitCode: 1)
                 return controller
@@ -41,7 +41,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
     
     func test___when_simctl_does_not_return_udid___create_throws() {
         let executor = SimctlBasedSimulatorStateMachineActionExecutor(
-            processControllerProvider: FakeProcessControllerProvider { subprocess in
+            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder) { subprocess in
                 let controller = FakeProcessController(subprocess: subprocess)
                 controller.overridedProcessStatus = ProcessStatus.terminated(exitCode: 0)
                 
@@ -50,7 +50,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
                 controller.subprocess = Subprocess(
                     arguments: subprocess.arguments,
                     standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
-                        stdoutContentsFile: pathToStdout
+                        stdoutPath: pathToStdout
                     )
                 )
                 return controller
@@ -71,7 +71,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         let expectedUdid = UUID().uuidString
         
         let executor = SimctlBasedSimulatorStateMachineActionExecutor(
-            processControllerProvider: FakeProcessControllerProvider { subprocess in
+            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder) { subprocess in
                 let controller = FakeProcessController(subprocess: subprocess)
                 controller.overridedProcessStatus = ProcessStatus.terminated(exitCode: 0)
                 
@@ -83,7 +83,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
                 controller.subprocess = Subprocess(
                     arguments: subprocess.arguments,
                     standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
-                        stdoutContentsFile: pathToStdout
+                        stdoutPath: pathToStdout
                     )
                 )
                 return controller
@@ -105,7 +105,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
     
     func test___create_simulator_simctl_args() {
         let executor = SimctlBasedSimulatorStateMachineActionExecutor(
-            processControllerProvider: FakeProcessControllerProvider { subprocess in
+            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder) { subprocess in
                 XCTAssertEqual(
                     try subprocess.arguments.map { try $0.stringValue() },
                     [
@@ -135,7 +135,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
     
     func test___boot_simulator_simctl_args() {
         let executor = SimctlBasedSimulatorStateMachineActionExecutor(
-            processControllerProvider: FakeProcessControllerProvider { subprocess in
+            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder) { subprocess in
                 XCTAssertEqual(
                     try subprocess.arguments.map { try $0.stringValue() },
                     [
@@ -164,7 +164,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
     
     func test___boot_simulator_throws___if_simctl_fails() {
         let executor = SimctlBasedSimulatorStateMachineActionExecutor(
-            processControllerProvider: FakeProcessControllerProvider { subprocess in
+            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder) { subprocess in
                 let controller = FakeProcessController(subprocess: subprocess)
                 controller.overridedProcessStatus = ProcessStatus.terminated(exitCode: 1)
                 return controller
@@ -183,7 +183,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
     
     func test___shutdown_simulator_simctl_args() {
         let executor = SimctlBasedSimulatorStateMachineActionExecutor(
-            processControllerProvider: FakeProcessControllerProvider { subprocess in
+            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder) { subprocess in
                 XCTAssertEqual(
                     try subprocess.arguments.map { try $0.stringValue() },
                     [
@@ -211,7 +211,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
     
     func test___shutdown_simulator_throws___if_simctl_fails() {
         let executor = SimctlBasedSimulatorStateMachineActionExecutor(
-            processControllerProvider: FakeProcessControllerProvider { subprocess in
+            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder) { subprocess in
                 let controller = FakeProcessController(subprocess: subprocess)
                 controller.overridedProcessStatus = ProcessStatus.terminated(exitCode: 1)
                 return controller
@@ -230,7 +230,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
     
     func test___delete_simulator_simctl_args() {
         let executor = SimctlBasedSimulatorStateMachineActionExecutor(
-            processControllerProvider: FakeProcessControllerProvider { subprocess in
+            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder) { subprocess in
                 XCTAssertEqual(
                     try subprocess.arguments.map { try $0.stringValue() },
                     [
@@ -258,7 +258,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
     
     func test___delete_simulator_throws___if_simctl_fails() {
         let executor = SimctlBasedSimulatorStateMachineActionExecutor(
-            processControllerProvider: FakeProcessControllerProvider { subprocess in
+            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder) { subprocess in
                 let controller = FakeProcessController(subprocess: subprocess)
                 controller.overridedProcessStatus = ProcessStatus.terminated(exitCode: 1)
                 return controller

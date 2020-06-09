@@ -2,19 +2,51 @@ import Foundation
 import PathLib
 
 public final class StandardStreamsCaptureConfig: CustomStringConvertible {
-    public let stdoutContentsFile: AbsolutePath
-    public let stderrContentsFile: AbsolutePath
+    private let stdoutPath: AbsolutePath?
+    private let stderrPath: AbsolutePath?
 
     public init(
-        stdoutContentsFile: AbsolutePath? = nil,
-        stderrContentsFile: AbsolutePath? = nil
+        stdoutPath: AbsolutePath? = nil,
+        stderrPath: AbsolutePath? = nil
     ) {
-        let uuid = UUID().uuidString
-        self.stdoutContentsFile = stdoutContentsFile ?? AbsolutePath(NSTemporaryDirectory()).appending(component: "\(uuid)_stdout.log")
-        self.stderrContentsFile = stderrContentsFile ?? AbsolutePath(NSTemporaryDirectory()).appending(component: "\(uuid)_stderr.log")
+        self.stdoutPath = stdoutPath
+        self.stderrPath = stderrPath
     }
     
     public var description: String {
-        return "<stdout: \(stdoutContentsFile), stderr: \(stderrContentsFile)>"
+        return "<stdout: \(String(describing: stdoutPath)), stderr: \(String(describing: stderrPath))>"
+    }
+    
+    public enum PathIsNotSetError: Error, CustomStringConvertible {
+        case stdoutPathNotSet
+        case stderrPathNotSet
+        
+        public var description: String {
+            switch self {
+            case .stderrPathNotSet:
+                return "Stderr file path for output is not set. Use config from running process instance."
+            case .stdoutPathNotSet:
+                return "Stdout file path for output is not set. Use config from running process instance."
+            }
+        }
+    }
+    
+    public func stdoutOutputPath() throws -> AbsolutePath {
+        guard let path = stdoutPath else { throw PathIsNotSetError.stdoutPathNotSet }
+        return path
+    }
+    
+    public func stderrOutputPath() throws -> AbsolutePath {
+        guard let path = stderrPath else { throw PathIsNotSetError.stderrPathNotSet }
+        return path
+    }
+}
+
+extension StandardStreamsCaptureConfig {
+    func byRedefiningIfNotSet(stdoutOutputPath: AbsolutePath, stderrOutputPath: AbsolutePath) -> StandardStreamsCaptureConfig {
+        StandardStreamsCaptureConfig(
+            stdoutPath: stdoutPath ?? stdoutOutputPath,
+            stderrPath: stderrPath ?? stderrOutputPath
+        )
     }
 }

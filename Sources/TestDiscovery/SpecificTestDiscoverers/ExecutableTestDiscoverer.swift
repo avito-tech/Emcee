@@ -116,7 +116,7 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
         
         let runtimes = try JSONDecoder().decode(
             SimulatorRuntimes.self,
-            from: Data(contentsOf: controller.subprocess.standardStreamsCaptureConfig.stdoutContentsFile.fileUrl)
+            from: Data(contentsOf: controller.subprocess.standardStreamsCaptureConfig.stdoutOutputPath().fileUrl)
         )
         
         guard let runtime = runtimes.runtimes.first(

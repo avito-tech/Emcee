@@ -16,9 +16,10 @@ import ResourceLocationResolver
 import ResourceLocationResolverTestHelpers
 import SimulatorPoolTestHelpers
 import TemporaryStuff
+import TestHelpers
+import URLResource
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
-import URLResource
 import XCTest
 
 final class ExecutableTestDiscovererTests: XCTestCase {
@@ -172,13 +173,13 @@ final class ExecutableTestDiscovererTests: XCTestCase {
             resourceLocationResolver: FakeResourceLocationResolver.resolvingTo(
                 path: AbsolutePath(testBundleLocation.resourceLocation.stringValue)
             ),
-            processControllerProvider: FakeProcessControllerProvider(creator: { subprocess in
+            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder, creator: { subprocess in
                 onSubprocessCreate?(subprocess)
                 
                 let arguments = try subprocess.arguments.map { try $0.stringValue() }
                 if arguments.contains("simctl") {
                     try simctlResponse.write(
-                        to: subprocess.standardStreamsCaptureConfig.stdoutContentsFile.fileUrl,
+                        to: subprocess.standardStreamsCaptureConfig.stdoutOutputPath().fileUrl,
                         atomically: true,
                         encoding: .utf8
                     )
@@ -194,7 +195,7 @@ final class ExecutableTestDiscovererTests: XCTestCase {
                 processController.overridedProcessStatus = .terminated(exitCode: 0)
                 return processController
             }),
-            tempFolder: assertDoesNotThrow { try TemporaryFolder() },
+            tempFolder: tempFolder,
             uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator()
         )
     }
@@ -222,4 +223,5 @@ final class ExecutableTestDiscovererTests: XCTestCase {
         testsToValidate: [],
         xcTestBundleLocation: testBundleLocation
     )
+    private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
 }

@@ -61,7 +61,7 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
                     )
                 )
             ),
-            processControllerProvider: FakeProcessControllerProvider(creator: { subprocess -> ProcessController in
+            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder, creator: { subprocess -> ProcessController in
                 XCTAssertEqual(
                     try subprocess.arguments.map { try $0.stringValue() },
                     ["/usr/bin/nm", "-j", "-U", self.testBundlePathInTempFolder.appending(component: self.executableInsideTestBundle).pathString]
@@ -69,8 +69,8 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
                 
                 self.assertDoesNotThrow {
                     _ = try self.tempFolder.createFile(
-                        components: subprocess.standardStreamsCaptureConfig.stdoutContentsFile.removingLastComponent.relativePath(anchorPath: self.tempFolder.absolutePath).components,
-                        filename: subprocess.standardStreamsCaptureConfig.stdoutContentsFile.lastComponent,
+                        components: subprocess.standardStreamsCaptureConfig.stdoutOutputPath().removingLastComponent.relativePath(anchorPath: self.tempFolder.absolutePath).components,
+                        filename: subprocess.standardStreamsCaptureConfig.stdoutOutputPath().lastComponent,
                         contents: nmOutputData
                     )
                 }

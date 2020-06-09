@@ -9,13 +9,15 @@ import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolTestHelpers
 import TemporaryStuff
+import TestHelpers
 import XCTest
 import fbxctest
 
 final class FbxctestBasedTestRunnerTests: XCTestCase, TestRunnerStream {
-    let runner = FbxctestBasedTestRunner(
+    private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
+    private lazy var runner = FbxctestBasedTestRunner(
         fbxctestLocation: FbxctestLocationFixtures.fakeFbxctestLocation,
-        processControllerProvider: FakeProcessControllerProvider(),
+        processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder),
         resourceLocationResolver: FakeResourceLocationResolver.throwing()
     )
     

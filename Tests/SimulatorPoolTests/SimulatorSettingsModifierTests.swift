@@ -232,7 +232,7 @@ final class SimulatorSettingsModifierTests: XCTestCase {
     // MARK: - Helper Variables
     
     lazy var developerDirLocator = FakeDeveloperDirLocator(result: self.tempFolder.absolutePath.appending(component: "Dev_Dir"))
-    lazy var processControllerProvider = FakeProcessControllerProvider()
+    lazy var processControllerProvider = FakeProcessControllerProvider(tempFolder: tempFolder)
     lazy var simulator = Simulator(
         testDestination: TestDestinationFixtures.testDestination,
         udid: UDID(value: "sim_udid"),

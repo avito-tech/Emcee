@@ -37,7 +37,7 @@ class DeployerTests: XCTestCase {
                     remoteDeploymentPath: "/remote/path"
                 )
             ],
-            processControllerProvider: FakeProcessControllerProvider { subprocess -> ProcessController in
+            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder) { subprocess -> ProcessController in
                 XCTAssertEqual(
                     try subprocess.arguments.map { try $0.stringValue() },
                     ["/usr/bin/zip", self.tempFolder.pathWith(components: ["fixed", "simple_file"]).pathString, "-r", "."]
@@ -80,7 +80,7 @@ class DeployerTests: XCTestCase {
                         password: "pass",
                         remoteDeploymentPath: "/remote/path")
                 ],
-                processControllerProvider: FakeProcessControllerProvider(),
+                processControllerProvider: FakeProcessControllerProvider(tempFolder: self.tempFolder),
                 temporaryFolder: self.tempFolder,
                 uniqueIdentifierGenerator: self.uniqueIdentifierGenerator
             )

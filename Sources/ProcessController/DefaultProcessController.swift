@@ -4,6 +4,7 @@ import Extensions
 import FileSystem
 import Foundation
 import Logging
+import LoggingSetup
 import PathLib
 import Timer
 
@@ -41,9 +42,6 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         fileSystem: FileSystem,
         subprocess: Subprocess
     ) throws {
-        self.subprocess = subprocess
-        self.fileSystem = fileSystem
-        
         automaticManagementItemControllers = subprocess.automaticManagement.items.map { item in
             AutomaticManagementItemController(dateProvider: dateProvider, item: item)
         }
@@ -56,7 +54,18 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
             environment: subprocess.environment,
             workingDirectory: subprocess.workingDirectory
         )
-        setUpProcessListening()
+        
+        let logFolder = try fileSystem.folderForStoringLogs(processName: processName)
+        let uniqueString = ProcessInfo.processInfo.globallyUniqueString
+        self.subprocess = subprocess.byRedefiningOutput {
+            $0.byRedefiningIfNotSet(
+                stdoutOutputPath: logFolder.appending(component: uniqueString + "_stdout.log"),
+                stderrOutputPath: logFolder.appending(component: uniqueString + "_stderr.log")
+            )
+        }
+        self.fileSystem = fileSystem
+        
+        try setUpProcessListening()
     }
     
     private static func createProcess(
@@ -219,9 +228,9 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         }
     }
     
-    private func setUpProcessListening() {
+    private func setUpProcessListening() throws {
         storeStdForProcess(
-            path: subprocess.standardStreamsCaptureConfig.stdoutContentsFile,
+            path: try subprocess.standardStreamsCaptureConfig.stdoutOutputPath(),
             onError: { message in
                 Logger.warning("Will not store stdout output: \(message)", subprocessInfo)
             },
@@ -236,7 +245,7 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         )
         
         storeStdForProcess(
-            path: subprocess.standardStreamsCaptureConfig.stderrContentsFile,
+            path: try subprocess.standardStreamsCaptureConfig.stderrOutputPath(),
             onError: { message in
                 Logger.warning("Will not store stderr output: \(message)", subprocessInfo)
             },

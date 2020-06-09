@@ -32,7 +32,7 @@ public final class DefaultDeveloperDirLocator: DeveloperDirLocator {
             subprocess: Subprocess(arguments: ["/usr/bin/xcode-select", "-p"])
         )
         processController.startAndListenUntilProcessDies()
-        let path = try String(contentsOf: processController.subprocess.standardStreamsCaptureConfig.stdoutContentsFile.fileUrl)
+        let path = try String(contentsOf: processController.subprocess.standardStreamsCaptureConfig.stdoutOutputPath().fileUrl)
         return AbsolutePath(path.trimmingCharacters(in: .whitespacesAndNewlines))
     }
     

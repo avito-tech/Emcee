@@ -48,8 +48,8 @@ final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
                     try testBinaryPath(xcTestBundleLocation: configuration.xcTestBundleLocation)
                 ],
                 standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
-                    stdoutContentsFile: nmOutputPath.appending(component: "nm_stdout"),
-                    stderrContentsFile: nmOutputPath.appending(component: "nm_stderr")
+                    stdoutPath: nmOutputPath.appending(component: "nm_stdout"),
+                    stderrPath: nmOutputPath.appending(component: "nm_stderr")
                 )
             )
         )
@@ -57,7 +57,7 @@ final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
         
         return try convert(
             developerDir: configuration.developerDir,
-            nmOutput: nmProcess.subprocess.standardStreamsCaptureConfig.stdoutContentsFile
+            nmOutput: nmProcess.subprocess.standardStreamsCaptureConfig.stdoutOutputPath()
         )
     }
     

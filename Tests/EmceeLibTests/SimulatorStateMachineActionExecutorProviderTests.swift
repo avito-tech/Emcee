@@ -14,7 +14,7 @@ import fbxctest
 
 final class SimulatorStateMachineActionExecutorProviderTests: XCTestCase {
     private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
-    private let fakeProcessControllerProvider = FakeProcessControllerProvider()
+    private lazy var fakeProcessControllerProvider = FakeProcessControllerProvider(tempFolder: tempFolder)
     private lazy var provider = SimulatorStateMachineActionExecutorProviderImpl(
         processControllerProvider: fakeProcessControllerProvider,
         resourceLocationResolver: FakeResourceLocationResolver.throwing(),

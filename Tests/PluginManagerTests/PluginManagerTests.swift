@@ -36,7 +36,7 @@ final class PluginManagerTests: XCTestCase {
         )
         
         let manager = PluginManager(
-            processControllerProvider: FakeProcessControllerProvider(),
+            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder),
             pluginLocations: [
                 PluginLocation(.localFilePath(pluginBundlePath.pathString))
             ],
@@ -52,7 +52,7 @@ final class PluginManagerTests: XCTestCase {
             toPath: executablePath.pathString
         )
         let manager = PluginManager(
-            processControllerProvider: FakeProcessControllerProvider(),
+            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder),
             pluginLocations: [
                 PluginLocation(.localFilePath(executablePath.pathString))
             ],
