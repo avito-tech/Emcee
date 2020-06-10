@@ -39,20 +39,20 @@ final class BucketQueueTests: XCTestCase {
     
     func test__if_buckets_enqueued__queue_is_not_depleted() {
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithImmediateTimeout)
-        bucketQueue.enqueue(buckets: [BucketFixtures.createBucket(testEntries: [])])
+        bucketQueue.enqueue(buckets: [BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])])
         XCTAssertFalse(bucketQueue.runningQueueState.isDepleted)
     }
     
     func test__if_buckets_dequeued__queue_is_not_depleted() {
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithImmediateTimeout)
-        bucketQueue.enqueue(buckets: [BucketFixtures.createBucket(testEntries: [])])
+        bucketQueue.enqueue(buckets: [BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])])
         _ = bucketQueue.dequeueBucket(requestId: requestId, workerId: workerId)
         
         XCTAssertFalse(bucketQueue.runningQueueState.isDepleted)
     }
     
     func test__when_all_results_accepted__queue_is_depleted() {
-        let bucket = BucketFixtures.createBucket(testEntries: [])
+        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults)
         bucketQueue.enqueue(buckets: [bucket])
         _ = bucketQueue.dequeueBucket(requestId: requestId, workerId: workerId)
@@ -67,7 +67,7 @@ final class BucketQueueTests: XCTestCase {
     }
     
     func test__reponse_dequeuedBucket__when_dequeueing_buckets() {
-        let bucket = BucketFixtures.createBucket(testEntries: [])
+        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(
             dateProvider: dateProvider,
@@ -99,7 +99,7 @@ final class BucketQueueTests: XCTestCase {
     }
     
     func test__reponse_checkAgainLater__when_queue_has_dequeued_buckets() {
-        let bucket = BucketFixtures.createBucket(testEntries: [])
+        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults)
         bucketQueue.enqueue(buckets: [bucket])
@@ -124,7 +124,7 @@ final class BucketQueueTests: XCTestCase {
     }
     
     func test__dequeueing_previously_dequeued_buckets() {
-        let bucket = BucketFixtures.createBucket(testEntries: [])
+        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(
             dateProvider: dateProvider,
@@ -201,7 +201,7 @@ final class BucketQueueTests: XCTestCase {
     }
     
     func test__when_worker_is_silent__its_dequeued_buckets_removed() {
-        let bucket = BucketFixtures.createBucket(testEntries: [])
+        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         let silentSince = Date()
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: mutableAlivenessProvider)
@@ -221,7 +221,7 @@ final class BucketQueueTests: XCTestCase {
     }
         
     func test___when_worker_loses_bucket___it_is_removed_as_stuck() {
-        let bucket = BucketFixtures.createBucket(testEntries: [])
+        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults)
         
@@ -241,7 +241,7 @@ final class BucketQueueTests: XCTestCase {
     }
     
     func test___when_bucket_is_dequeued___aliveness_tracker_is_updated_with_its_id() {
-        let bucket = BucketFixtures.createBucket(testEntries: [])
+        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: alivenessTrackerWithAlwaysAliveResults)
         
@@ -278,8 +278,8 @@ final class BucketQueueTests: XCTestCase {
         bucketQueue.removeAllEnqueuedBuckets()
         
         XCTAssertEqual(
-            bucketQueue.runningQueueState,
-            RunningQueueState(enqueuedBucketCount: 0, dequeuedBucketCount: 1),
+            bucketQueue.runningQueueState.enqueuedTests,
+            [],
             "After cleaning enqueued buckets, state should indicate there is 0 enqueued buckets left"
         )
     }
@@ -292,8 +292,8 @@ final class BucketQueueTests: XCTestCase {
         bucketQueue.enqueue(buckets: [bucket, bucket])
         
         XCTAssertEqual(
-            bucketQueue.runningQueueState.enqueuedBucketCount,
-            2,
+            bucketQueue.runningQueueState.enqueuedTests,
+            bucket.testEntries.map { $0.testName } + bucket.testEntries.map { $0.testName },
             "Enqueuing the same bucket multiple times should be reflected in the queue state"
         )
     }
@@ -318,8 +318,8 @@ final class BucketQueueTests: XCTestCase {
             "Dequeued bucket must match enqueued bucket"
         )
         XCTAssertEqual(
-            bucketQueue.runningQueueState.enqueuedBucketCount,
-            1,
+            bucketQueue.runningQueueState.enqueuedTests,
+            bucket.testEntries.map { $0.testName },
             "Dequeueing one of the similar buckets should correctly update queue state"
         )
     }

@@ -30,8 +30,8 @@ public class FakeBucketQueue: BucketQueue {
     
     public var runningQueueState: RunningQueueState {
         return RunningQueueState(
-            enqueuedBucketCount: 0,
-            dequeuedBucketCount: 0
+            enqueuedTests: [],
+            dequeuedTests: [:]
         )
     }
     

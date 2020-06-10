@@ -55,9 +55,17 @@ final class BucketQueueImpl: BucketQueue {
     }
 
     private var runningQueueState_onSyncQueue: RunningQueueState {
+        var dequeuedTests = MapWithCollection<WorkerId, TestName>()
+        for dequeuedBucket in dequeuedBuckets {
+            dequeuedTests.append(
+                key: dequeuedBucket.workerId,
+                elements: dequeuedBucket.enqueuedBucket.bucket.testEntries.map { $0.testName }
+            )
+        }
+        
         return RunningQueueState(
-            enqueuedBucketCount: enqueuedBuckets.count,
-            dequeuedBucketCount: dequeuedBuckets.count
+            enqueuedTests: enqueuedBuckets.flatMap { $0.bucket.testEntries.map { $0.testName } },
+            dequeuedTests: dequeuedTests
         )
     }
     
@@ -88,7 +96,7 @@ final class BucketQueueImpl: BucketQueue {
             if runningQueueState_onSyncQueue.isDepleted {
                 return .queueIsEmpty
             }
-            if runningQueueState_onSyncQueue.enqueuedBucketCount == 0 {
+            if runningQueueState_onSyncQueue.enqueuedTests.isEmpty {
                 return .checkAgainLater(checkAfter: checkAgainTimeInterval)
             }
             

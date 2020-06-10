@@ -1,24 +1,23 @@
 import Foundation
+import Models
 
-public final class RunningQueueState: Equatable, CustomStringConvertible, Codable {
-    public let enqueuedBucketCount: Int
-    public let dequeuedBucketCount: Int
+public struct RunningQueueState: Equatable, CustomStringConvertible, Codable {
+    public let enqueuedTests: [TestName]
+    public let dequeuedTests: MapWithCollection<WorkerId, TestName>
     
-    public init(enqueuedBucketCount: Int, dequeuedBucketCount: Int) {
-        self.enqueuedBucketCount = enqueuedBucketCount
-        self.dequeuedBucketCount = dequeuedBucketCount
+    public init(
+        enqueuedTests: [TestName],
+        dequeuedTests: MapWithCollection<WorkerId, TestName>
+    ) {
+        self.enqueuedTests = enqueuedTests
+        self.dequeuedTests = dequeuedTests
     }
     
     public var isDepleted: Bool {
-        return enqueuedBucketCount == 0 && dequeuedBucketCount == 0
-    }
-    
-    public static func ==(left: RunningQueueState, right: RunningQueueState) -> Bool {
-        return left.enqueuedBucketCount == right.enqueuedBucketCount &&
-            left.dequeuedBucketCount == right.dequeuedBucketCount
+        return enqueuedTests.isEmpty && dequeuedTests.isEmpty
     }
     
     public var description: String {
-        return "<\(type(of: self)): enqueued: \(enqueuedBucketCount), dequeued: \(dequeuedBucketCount)>"
+        return "<\(type(of: self)): enqueued: \(enqueuedTests.count), dequeued: \(dequeuedTests.flattenValues.count)>"
     }
 }

@@ -38,8 +38,8 @@ final class BalancingBucketQueueTests: XCTestCase {
                 jobId: jobId,
                 queueState: QueueState.running(
                     RunningQueueState(
-                        enqueuedBucketCount: 1,
-                        dequeuedBucketCount: 0
+                        enqueuedTests: bucket.testEntries.map { $0.testName },
+                        dequeuedTests: [:]
                     )
                 )
             )
@@ -57,8 +57,8 @@ final class BalancingBucketQueueTests: XCTestCase {
                 jobId: jobId,
                 queueState: QueueState.running(
                     RunningQueueState(
-                        enqueuedBucketCount: 2,
-                        dequeuedBucketCount: 0
+                        enqueuedTests: bucket.testEntries.map { $0.testName } + bucket.testEntries.map { $0.testName },
+                        dequeuedTests: [:]
                     )
                 )
             )
@@ -163,8 +163,8 @@ final class BalancingBucketQueueTests: XCTestCase {
                 jobId: jobId,
                 queueState: QueueState.running(
                     RunningQueueState(
-                        enqueuedBucketCount: 0,
-                        dequeuedBucketCount: 1
+                        enqueuedTests: [],
+                        dequeuedTests: [workerId: bucket1.testEntries.map { $0.testName }]
                     )
                 )
             )
@@ -192,8 +192,8 @@ final class BalancingBucketQueueTests: XCTestCase {
                 jobId: anotherJobId,
                 queueState: QueueState.running(
                     RunningQueueState(
-                        enqueuedBucketCount: 0, 
-                        dequeuedBucketCount: 1
+                        enqueuedTests: [],
+                        dequeuedTests: [workerId: bucket2.testEntries.map { $0.testName }]
                     )
                 )
             )

@@ -171,9 +171,14 @@ final class BalancingBucketQueueImpl: BalancingBucketQueue {
     var runningQueueState: RunningQueueState {
         return syncQueue.sync {
             let states = runningJobQueues_onSyncQueue.map { $0.bucketQueue.runningQueueState }
+            var dequeuedTests = MapWithCollection<WorkerId, TestName>()
+            for state in states {
+                dequeuedTests.extend(state.dequeuedTests)
+            }
+            
             return RunningQueueState(
-                enqueuedBucketCount: states.map { $0.enqueuedBucketCount }.reduce(0, +),
-                dequeuedBucketCount: states.map { $0.dequeuedBucketCount }.reduce(0, +)
+                enqueuedTests: states.flatMap { $0.enqueuedTests },
+                dequeuedTests: dequeuedTests
             )
         }
     }

@@ -70,7 +70,7 @@ class FakeBalancingBucketQueue: BalancingBucketQueue {
     }
 
     var runningQueueState: RunningQueueState {
-        RunningQueueState(enqueuedBucketCount: 0, dequeuedBucketCount: 0)
+        RunningQueueState(enqueuedTests: [], dequeuedTests: [:])
     }
 
     func reenqueueStuckBuckets() -> [StuckBucket] {

@@ -12,11 +12,11 @@ public final class QueueStateMetricGatherer {
         let queueMetrics = [
             QueueStateEnqueuedBucketsMetric(
                 queueHost: queueHost,
-                numberOfEnqueuedBuckets: runningQueueState.enqueuedBucketCount
+                numberOfEnqueuedBuckets: runningQueueState.enqueuedTests.count
             ),
             QueueStateDequeuedBucketsMetric(
                 queueHost: queueHost,
-                numberOfDequeuedBuckets: runningQueueState.dequeuedBucketCount
+                numberOfDequeuedBuckets: runningQueueState.dequeuedTests.count
             ),
             JobCountMetric(queueHost: queueHost, jobCount: jobStates.count)
         ]
@@ -25,12 +25,12 @@ public final class QueueStateMetricGatherer {
                 JobStateEnqueuedBucketsMetric(
                     queueHost: queueHost,
                     jobId: jobState.jobId.value,
-                    numberOfEnqueuedBuckets: runningQueueState.enqueuedBucketCount
+                    numberOfEnqueuedBuckets: runningQueueState.enqueuedTests.count
                 ),
                 JobStateDequeuedBucketsMetric(
                     queueHost: queueHost,
                     jobId: jobState.jobId.value,
-                    numberOfDequeuedBuckets: runningQueueState.dequeuedBucketCount
+                    numberOfDequeuedBuckets: runningQueueState.dequeuedTests.count
                 )
             ]
         }
