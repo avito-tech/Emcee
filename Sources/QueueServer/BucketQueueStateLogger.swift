@@ -14,7 +14,7 @@ public final class BucketQueueStateLogger {
         
         for workerId in Array(dequeuedTests.keys).sorted() {
             if let testsOnWorker = dequeuedTests[workerId] {
-                Logger.info("\(workerId) is executing \(testsOnWorker.map { $0.stringValue }.sorted().joined(separator: ", "))")
+                Logger.info("\(workerId.value) is executing \(testsOnWorker.map { $0.stringValue }.sorted().joined(separator: ", "))")
             }
         }
 
