@@ -15,8 +15,10 @@ public protocol ProcessController: class {
     func interruptAndForceKillIfNeeded()
     
     func onSignal(listener: @escaping SignalListener)
+    func onStart(listener: @escaping StartListener)
     func onStderr(listener: @escaping StderrListener)
     func onStdout(listener: @escaping StdoutListener)
+    func onTermination(listener: @escaping TerminationListener)
 }
 
 public enum ProcessTerminationError: Error, CustomStringConvertible {

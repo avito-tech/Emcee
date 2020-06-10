@@ -8,6 +8,7 @@ import Foundation
 import FileSystemTestHelpers
 import Models
 import ModelsTestHelpers
+import Logging
 import PluginManagerTestHelpers
 import ResourceLocationResolverTestHelpers
 import Runner
@@ -15,17 +16,21 @@ import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
+import SynchronousWaiter
 import TemporaryStuff
 import TestHelpers
 import XCTest
 
 public final class RunnerTests: XCTestCase {
-    let testEntry = TestEntryFixtures.testEntry()
-    let noOpPluginEventBusProvider = NoOoPluginEventBusProvider()
+    lazy var testEntry = TestEntryFixtures.testEntry()
+    lazy var noOpPluginEventBusProvider = NoOoPluginEventBusProvider()
+    lazy var testTimeout: TimeInterval = 3
+    lazy var impactQueue = DispatchQueue(label: "impact queue")
     lazy var resolver = FakeResourceLocationResolver.resolvingTo(path: tempFolder.absolutePath)
-    let testRunnerProvider = FakeTestRunnerProvider()
+    lazy var testRunnerProvider = FakeTestRunnerProvider(tempFolder: tempFolder)
     lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     lazy var fileSystem = FakeFileSystem(rootPath: tempFolder.absolutePath)
+    lazy var dateProvider = DateProviderFixture(Date(timeIntervalSince1970: 100))
     
     func test___running_test_without_output_to_stream___provides_test_did_not_run_results() throws {
         testRunnerProvider.predefinedFakeTestRunner.disableTestStartedTestRunnerStreamEvents()
@@ -36,19 +41,19 @@ public final class RunnerTests: XCTestCase {
         XCTAssertEqual(runnerResults.testEntryResults.count, 1)
 
         guard runnerResults.testEntryResults.count == 1, let testResult = runnerResults.testEntryResults.first else {
-            return XCTFail("Unexpected number of test results")
+            failTest("Unexpected number of test results")
         }
 
         XCTAssertFalse(testResult.succeeded)
         XCTAssertEqual(testResult.testEntry, testEntry)
-        XCTAssertEqual(testResult.testRunResults[0].exceptions[0].reason, RunnerConstants.testDidNotRun.rawValue)
+        XCTAssertEqual(testResult.testRunResults[0].exceptions.first, RunnerConstants.testDidNotRun.testException)
     }
 
     func test___running_test_with_successful_result___provides_successful_results() throws {
         let runnerResults = try runTestEntries([testEntry])
 
         guard runnerResults.testEntryResults.count == 1, let testResult = runnerResults.testEntryResults.first else {
-            return XCTFail("Unexpected number of test results")
+            failTest("Unexpected number of test results")
         }
 
         XCTAssertTrue(testResult.succeeded)
@@ -61,20 +66,20 @@ public final class RunnerTests: XCTestCase {
         let runnerResults = try runTestEntries([testEntry])
 
         guard runnerResults.testEntryResults.count == 1, let testResult = runnerResults.testEntryResults.first else {
-            return XCTFail("Unexpected number of test results")
+            failTest("Unexpected number of test results")
         }
 
         XCTAssertFalse(testResult.succeeded)
         XCTAssertEqual(testResult.testEntry, testEntry)
     }
 
-    func test___running_test_with_lost_result___provides_successful_results() throws {
+    func test___running_test_with_lost_result___provides_test_failed_results() throws {
         testRunnerProvider.predefinedFakeTestRunner.onExecuteTest = { _ in .lost }
 
         let runnerResults = try runTestEntries([testEntry])
 
         guard runnerResults.testEntryResults.count == 1, let testResult = runnerResults.testEntryResults.first else {
-            return XCTFail("Unexpected number of test results")
+            failTest("Unexpected number of test results")
         }
 
         XCTAssertFalse(testResult.succeeded)
@@ -124,12 +129,12 @@ public final class RunnerTests: XCTestCase {
         XCTAssertEqual(numberOfAttemptsToRunTest, 2)
 
         guard runnerResults.testEntryResults.count == 1, let testResult = runnerResults.testEntryResults.first else {
-            return XCTFail("Unexpected number of test results")
+            failTest("Unexpected number of test results")
         }
 
         XCTAssertFalse(testResult.succeeded)
         XCTAssertEqual(testResult.testEntry, testEntry)
-        XCTAssertEqual(testResult.testRunResults[0].exceptions[0].reason, RunnerConstants.testDidNotRun.rawValue)
+        XCTAssertEqual(testResult.testRunResults[0].exceptions.first, RunnerConstants.testDidNotRun.testException)
     }
 
     func test___running_test_and_reviving_after_test_stopped_event_loss___provides_back_correct_result() throws {
@@ -150,7 +155,7 @@ public final class RunnerTests: XCTestCase {
         let runnerResults = try runTestEntries([testEntry])
 
         guard runnerResults.testEntryResults.count == 1, let testResult = runnerResults.testEntryResults.first else {
-            return XCTFail("Unexpected number of test results")
+            failTest("Unexpected number of test results")
         }
 
         XCTAssertTrue(testResult.succeeded)
@@ -169,21 +174,52 @@ public final class RunnerTests: XCTestCase {
         XCTAssertFalse(testResult.succeeded)
         XCTAssertEqual(testResult.testEntry, testEntry)
         XCTAssertEqual(
-            testResult.testRunResults[0].exceptions[0].reason,
-            RunnerConstants.failedToStartTestRunner.rawValue + ": \(FakeTestRunner.SomeError())"
+            testResult.testRunResults[0].exceptions.first,
+            RunnerConstants.failedToStartTestRunner(FakeTestRunner.SomeError()).testException
+        )
+    }
+    
+    func test___if_test_timeout___test_timeout_reason_reported() throws {
+        testTimeout = 1
+        testRunnerProvider.predefinedFakeTestRunner.disableTestStoppedTestRunnerStreamEvents()
+        testRunnerProvider.predefinedFakeTestRunner.onExecuteTest = { _ in
+            SynchronousWaiter().wait(
+                timeout: self.testTimeout + 3.0,
+                description: "Artificial wait to imitate test timeout"
+            )
+            return .failure
+        }
+        
+        impactQueue.asyncAfter(deadline: .now() + 1.0) {
+            self.dateProvider.result += self.testTimeout + 1
+        }
+        
+        let runnerResults = try runTestEntries([testEntry])
+        
+        guard runnerResults.testEntryResults.count == 1, let testEntryResult = runnerResults.testEntryResults.first else {
+            failTest("Unexpected number of results")
+        }
+        guard testEntryResult.testRunResults.count == 1, let testRunResult = testEntryResult.testRunResults.first else {
+            failTest("Unexpected number of results")
+        }
+        XCTAssertFalse(testRunResult.succeeded)
+        XCTAssertEqual(
+            testRunResult.exceptions.first,
+            RunnerConstants.testTimeout(testTimeout).testException
         )
     }
     
     private func runTestEntries(_ testEntries: [TestEntry]) throws -> RunnerRunResult {
         let runner = Runner(
             configuration: createRunnerConfig(),
-            dateProvider: DateProviderFixture(),
+            dateProvider: dateProvider,
             developerDirLocator: FakeDeveloperDirLocator(result: tempFolder.absolutePath),
             fileSystem: fileSystem,
             pluginEventBusProvider: noOpPluginEventBusProvider,
             resourceLocationResolver: resolver,
             tempFolder: tempFolder,
-            testRunnerProvider: testRunnerProvider
+            testRunnerProvider: testRunnerProvider,
+            testTimeoutCheckInterval: .milliseconds(100)
         )
         return try runner.run(
             entries: testEntries,
@@ -204,7 +240,7 @@ public final class RunnerTests: XCTestCase {
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
             testTimeoutConfiguration: TestTimeoutConfiguration(
-                singleTestMaximumDuration: 5,
+                singleTestMaximumDuration: testTimeout,
                 testRunnerMaximumSilenceDuration: 0
             ),
             testType: .logicTest

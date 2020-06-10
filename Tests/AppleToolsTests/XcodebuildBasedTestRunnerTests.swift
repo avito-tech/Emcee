@@ -341,6 +341,46 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         )
     }
     
+    func test___open_stream_called___when_test_runner_starts() throws {
+        testRunnerStream.streamIsOpen = false
+        
+        let invocation = try runner.prepareTestRun(
+            buildArtifacts: buildArtifacts,
+            developerDirLocator: developerDirLocator,
+            entriesToRun: [
+                TestEntryFixtures.testEntry()
+            ],
+            simulator: simulator,
+            temporaryFolder: tempFolder,
+            testContext: testContext,
+            testRunnerStream: testRunnerStream,
+            testType: .logicTest
+        )
+        _ = invocation.startExecutingTests()
+        
+        XCTAssertTrue(testRunnerStream.streamIsOpen)
+    }
+    
+    func test___close_stream_called___when_test_runner_cancelled() throws {
+        testRunnerStream.streamIsOpen = true
+        
+        let invocation = try runner.prepareTestRun(
+            buildArtifacts: buildArtifacts,
+            developerDirLocator: developerDirLocator,
+            entriesToRun: [
+                TestEntryFixtures.testEntry()
+            ],
+            simulator: simulator,
+            temporaryFolder: tempFolder,
+            testContext: testContext,
+            testRunnerStream: testRunnerStream,
+            testType: .logicTest
+        )
+        invocation.startExecutingTests().cancel()
+        
+        XCTAssertFalse(testRunnerStream.streamIsOpen)
+    }
+    
     private func pathToXctestrunFile() throws -> AbsolutePath {
         let path = self.tempFolder.pathWith(components: ["xctestrun"])
         let contents = try FileManager.default.contentsOfDirectory(atPath: path.pathString)

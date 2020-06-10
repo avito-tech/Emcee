@@ -28,6 +28,7 @@ public final class Runner {
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
+    private let testTimeoutCheckInterval: DispatchTimeInterval
     
     public init(
         configuration: RunnerConfiguration,
@@ -37,7 +38,8 @@ public final class Runner {
         pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver,
         tempFolder: TemporaryFolder,
-        testRunnerProvider: TestRunnerProvider
+        testRunnerProvider: TestRunnerProvider,
+        testTimeoutCheckInterval: DispatchTimeInterval = .seconds(1)
     ) {
         self.configuration = configuration
         self.dateProvider = dateProvider
@@ -51,6 +53,7 @@ public final class Runner {
         self.resourceLocationResolver = resourceLocationResolver
         self.tempFolder = tempFolder
         self.testRunnerProvider = testRunnerProvider
+        self.testTimeoutCheckInterval = testTimeoutCheckInterval
     }
     
     /** Runs the given tests, attempting to restart the runner in case of crash. */
@@ -146,8 +149,6 @@ public final class Runner {
         }
         
         Logger.debug("Will run \(entriesToRun.count) tests on simulator \(simulator)")
-        eventBus.post(event: .runnerEvent(.willRun(testEntries: entriesToRun, testContext: testContext)))
-        metricReportingTestRunnerStream.willStartRunningTests()
         
         let singleTestMaximumDuration = configuration.testTimeoutConfiguration.singleTestMaximumDuration
         
@@ -162,7 +163,14 @@ public final class Runner {
                 EventBusReportingTestRunnerStream(
                     entriesToRun: entriesToRun,
                     eventBus: eventBus,
-                    testContext: testContext
+                    testContext: testContext,
+                    resultsProvider: {
+                        Runner.prepareResults(
+                            collectedTestStoppedEvents: collectedTestStoppedEvents,
+                            requestedEntriesToRun: entriesToRun,
+                            simulatorId: simulator.udid
+                        )
+                    }
                 ),
                 TestTimeoutTrackingTestRunnerSream(
                     dateProvider: dateProvider,
@@ -174,11 +182,7 @@ public final class Runner {
                                 result: .failure,
                                 testDuration: dateProvider.currentDate().timeIntervalSince(testStartedAt),
                                 testExceptions: [
-                                    TestException(
-                                        reason: "Test timeout. Test did not finish in time \(LoggableDuration(singleTestMaximumDuration))",
-                                        filePathInProject: #file,
-                                        lineNumber: #line
-                                    )
+                                    RunnerConstants.testTimeout(singleTestMaximumDuration).testException
                                 ],
                                 testStartTimestamp: testStartedAt.timeIntervalSince1970
                             )
@@ -186,20 +190,30 @@ public final class Runner {
                         
                         testRunnerRunningInvocationContainer.currentValue()?.cancel()
                     },
-                    maximumTestDuration: singleTestMaximumDuration
+                    maximumTestDuration: singleTestMaximumDuration,
+                    pollPeriod: testTimeoutCheckInterval
                 ),
                 metricReportingTestRunnerStream,
                 TestRunnerStreamWrapper(
+                    onOpenStream: {
+                        Logger.debug("Test Runner \(testRunner) started executing tests")
+                    },
                     onTestStarted: { testName in
                         collectedTestExceptions = []
+                        Logger.debug("Test started: \(testName)")
                     },
                     onTestException: { testException in
                         collectedTestExceptions.append(testException)
+                        Logger.debug("Caught test exception: \(testException)")
                     },
                     onTestStopped: { testStoppedEvent in
                         let testStoppedEvent = testStoppedEvent.byMergingTestExceptions(testExceptions: collectedTestExceptions)
                         collectedTestStoppedEvents.append(testStoppedEvent)
                         collectedTestExceptions = []
+                        Logger.debug("Test stopped: \(testStoppedEvent.testName), \(testStoppedEvent.result)")
+                    },
+                    onCloseStream: {
+                        Logger.debug("Test Runner \(testRunner) finished executing tests")
                     }
                 ),
             ]
@@ -230,14 +244,11 @@ public final class Runner {
             runningInvocation.wait()
         }
         
-        let result = prepareResults(
+        let result = Runner.prepareResults(
             collectedTestStoppedEvents: collectedTestStoppedEvents,
             requestedEntriesToRun: entriesToRun,
             simulatorId: simulator.udid
         )
-        
-        eventBus.post(event: .runnerEvent(.didRun(results: result, testContext: testContext)))
-        metricReportingTestRunnerStream.didFinishRunningTests()
         
         Logger.debug("Attempted to run \(entriesToRun.count) tests on simulator \(simulator): \(entriesToRun)")
         Logger.debug("Did get \(result.count) results: \(result)")
@@ -323,16 +334,16 @@ public final class Runner {
                     result: .lost,
                     testDuration: 0,
                     testExceptions: [
-                        TestException(reason: RunnerConstants.failedToStartTestRunner.rawValue + ": \(runnerError)", filePathInProject: #file, lineNumber: #line)
+                        RunnerConstants.failedToStartTestRunner(runnerError).testException
                     ],
-                    testStartTimestamp: Date().timeIntervalSince1970
+                    testStartTimestamp: dateProvider.currentDate().timeIntervalSince1970
                 )
             )
         }
         return NoOpTestRunnerInvocation()
     }
     
-    private func prepareResults(
+    private static func prepareResults(
         collectedTestStoppedEvents: [TestStoppedEvent],
         requestedEntriesToRun: [TestEntry],
         simulatorId: UDID
@@ -346,7 +357,7 @@ public final class Runner {
         }
     }
     
-    private func prepareResult(
+    private static func prepareResult(
         requestedEntryToRun: TestEntry,
         simulatorId: UDID,
         collectedTestStoppedEvents: [TestStoppedEvent]
@@ -362,7 +373,7 @@ public final class Runner {
         )
     }
     
-    private func testEntryResultForFinishedTest(
+    private static func testEntryResultForFinishedTest(
         simulatorId: UDID,
         testEntry: TestEntry,
         testStoppedEvents: [TestStoppedEvent]
@@ -385,7 +396,7 @@ public final class Runner {
         )
     }
     
-    private func testStoppedEvents(
+    private static func testStoppedEvents(
         testName: TestName,
         collectedTestStoppedEvents: [TestStoppedEvent]
     ) -> [TestStoppedEvent] {
@@ -426,14 +437,10 @@ public final class Runner {
             testRunResult: TestRunResult(
                 succeeded: false,
                 exceptions: [
-                    TestException(
-                        reason: RunnerConstants.testDidNotRun.rawValue,
-                        filePathInProject: #file,
-                        lineNumber: #line
-                    )
+                    RunnerConstants.testDidNotRun.testException
                 ],
                 duration: 0,
-                startTime: Date().timeIntervalSince1970,
+                startTime: dateProvider.currentDate().timeIntervalSince1970,
                 hostName: LocalHostDeterminer.currentHostAddress,
                 simulatorId: simulatorId
             )

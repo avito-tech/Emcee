@@ -311,6 +311,46 @@ final class DefaultProcessControllerTests: XCTestCase {
         XCTAssertEqual(string, "ls: /bin/\(argument): No such file or directory\n")
     }
     
+    func test___start_listener() throws {
+        let argument = UUID().uuidString + UUID().uuidString
+        
+        let controller = try DefaultProcessController(
+            dateProvider: dateProvider,
+            fileSystem: fileSystem,
+            subprocess: Subprocess(
+                arguments: ["/bin/ls", "/bin/" + argument]
+            )
+        )
+        
+        let handlerInvoked = XCTestExpectation(description: "Start handler has been invoked")
+        controller.onStart { _, _ in
+            handlerInvoked.fulfill()
+        }
+        controller.startAndListenUntilProcessDies()
+        
+        wait(for: [handlerInvoked], timeout: 10)
+    }
+    
+    func test___termination_listener() throws {
+        let argument = UUID().uuidString + UUID().uuidString
+        
+        let controller = try DefaultProcessController(
+            dateProvider: dateProvider,
+            fileSystem: fileSystem,
+            subprocess: Subprocess(
+                arguments: ["/bin/ls", "/bin/" + argument]
+            )
+        )
+        
+        let handlerInvoked = XCTestExpectation(description: "Termination handler has been invoked")
+        controller.onTermination { _, _ in
+            handlerInvoked.fulfill()
+        }
+        controller.startAndListenUntilProcessDies()
+        
+        wait(for: [handlerInvoked], timeout: 10)
+    }
+    
     func test___sigterm_is_sent___when_silent() throws {
         let controller = try DefaultProcessController(
             dateProvider: dateProvider,

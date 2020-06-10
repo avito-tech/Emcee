@@ -9,14 +9,9 @@ import SimulatorPoolModels
 import TemporaryStuff
 
 public final class FakeTestRunner: TestRunner {
-    public var buildArtifacts: BuildArtifacts?
     public var entriesToRun: [TestEntry]?
     public var errorToThrowOnRun: Error?
-    public var testContext: TestContext?
-    public var testRunnerStream: TestRunnerStream?
-    public var testType: TestType?
-
-    public let runningQueue = DispatchQueue(label: "FakeTestRunner")
+    private let tempFolder: TemporaryFolder
 
     public var standardStreamsCaptureConfig = StandardStreamsCaptureConfig()
     
@@ -25,8 +20,9 @@ public final class FakeTestRunner: TestRunner {
         public init() {}
     }
     
-    public init() {}
-    
+    public init(tempFolder: TemporaryFolder) {
+        self.tempFolder = tempFolder
+    }
 
     // Configuration
 
@@ -43,6 +39,10 @@ public final class FakeTestRunner: TestRunner {
             )
         }
     }
+    
+    public var onStreamOpen: (TestRunnerStream) -> () = {
+        $0.openStream()
+    }
 
     public var onTestStarted: (TestName, TestRunnerStream) -> () =
         FakeTestRunner.testStartedHandlerForNormalEventStreaming()
@@ -51,6 +51,10 @@ public final class FakeTestRunner: TestRunner {
 
     public var onTestStopped: (TestStoppedEvent, TestRunnerStream) -> () =
         FakeTestRunner.testStoppedHandlerForNormalEventStreaming()
+    
+    public var onStreamClose: (TestRunnerStream) -> () = {
+        $0.closeStream()
+    }
 
     public func disableTestStartedTestRunnerStreamEvents() {
         onTestStarted = { _, _ in }
@@ -79,48 +83,20 @@ public final class FakeTestRunner: TestRunner {
     ) throws -> TestRunnerInvocation {
         isRunCalled = true
 
-        self.buildArtifacts = buildArtifacts
         self.entriesToRun = entriesToRun
-        self.testContext = testContext
-        self.testRunnerStream = testRunnerStream
-        self.testType = testType
         
         if let errorToThrowOnRun = errorToThrowOnRun {
             throw errorToThrowOnRun
         }
-
-        let group = DispatchGroup()
-
-        for testEntry in entriesToRun {
-            group.enter()
-
-            runningQueue.async {
-                let testStartTimestamp = Date()
-                self.onTestStarted(testEntry.testName, testRunnerStream)
-
-                self.runningQueue.async {
-                    let testResult = self.onExecuteTest(testEntry.testName)
-
-                    self.runningQueue.async {
-                        let testStoppedEvent = TestStoppedEvent(
-                            testName: testEntry.testName,
-                            result: testResult,
-                            testDuration: Date().timeIntervalSince(testStartTimestamp),
-                            testExceptions: [],
-                            testStartTimestamp: testStartTimestamp.timeIntervalSince1970
-                        )
-
-                        self.onTestStopped(testStoppedEvent, testRunnerStream)
-
-                        group.leave()
-                    }
-                }
-            }
-        }
-
-        group.wait()
-
-        return FakeTestRunnerInvocation()
+        
+        return FakeTestRunnerInvocation(
+            entriesToRun: entriesToRun,
+            testRunnerStream: testRunnerStream,
+            testResultProvider: onExecuteTest,
+            onTestStarted: onTestStarted,
+            onTestStopped: onTestStopped,
+            tempFolder: tempFolder
+        )
     }
 }
 

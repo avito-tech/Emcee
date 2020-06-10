@@ -20,7 +20,7 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
         self.host = host
     }
     
-    public func willStartRunningTests() {
+    public func openStream() {
         willRunEventTimestamp.set(dateProvider.currentDate())
     }
     
@@ -60,7 +60,6 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
     }
     
     public func testStopped(testStoppedEvent: TestStoppedEvent) {
-        
         MetricRecorder.capture(
             TestFinishedMetric(
                 result: testStoppedEvent.result.rawValue,
@@ -84,7 +83,7 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
     
     public func caughtException(testException: TestException) {}
     
-    public func didFinishRunningTests() {
+    public func closeStream() {
         lastTestStoppedEventTimestamp.withExclusiveAccess { value in
             if let lastTestStoppedEventTimestamp = value {
                 MetricRecorder.capture(

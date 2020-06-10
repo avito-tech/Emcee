@@ -9,18 +9,25 @@ public final class EventBusReportingTestRunnerStream: TestRunnerStream {
     private let entriesToRun: [TestEntry]
     private let eventBus: EventBus
     private let testContext: TestContext
+    private let resultsProvider: () -> [TestEntryResult]
     
     public init(
         entriesToRun: [TestEntry],
         eventBus: EventBus,
-        testContext: TestContext
+        testContext: TestContext,
+        resultsProvider: @escaping () -> [TestEntryResult]
     ) {
         self.entriesToRun = entriesToRun
         self.eventBus = eventBus
         self.testContext = testContext
+        self.resultsProvider = resultsProvider
     }
     
-    public func caughtException(testException: TestException) {}
+    public func openStream() {
+        eventBus.post(
+            event: .runnerEvent(.willRun(testEntries: entriesToRun, testContext: testContext))
+        )
+    }
     
     public func testStarted(testName: TestName) {
         guard let testEntry = testEntryFor(testName: testName) else {
@@ -32,6 +39,8 @@ public final class EventBusReportingTestRunnerStream: TestRunnerStream {
         )
     }
     
+    public func caughtException(testException: TestException) {}
+    
     public func testStopped(testStoppedEvent: TestStoppedEvent) {
         guard let testEntry = testEntryFor(testName: testStoppedEvent.testName) else {
             return Logger.warning("Can't find test entry for test \(testStoppedEvent.testName)")
@@ -39,6 +48,12 @@ public final class EventBusReportingTestRunnerStream: TestRunnerStream {
         
         eventBus.post(
             event: .runnerEvent(.testFinished(testEntry: testEntry, succeeded: testStoppedEvent.succeeded, testContext: testContext))
+        )
+    }
+    
+    public func closeStream() {
+        eventBus.post(
+            event: .runnerEvent(.didRun(results: resultsProvider(), testContext: testContext))
         )
     }
     

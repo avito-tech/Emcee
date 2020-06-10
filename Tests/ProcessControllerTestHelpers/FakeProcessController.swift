@@ -18,9 +18,10 @@ public final class FakeProcessController: ProcessController {
         return 0
     }
     
-    public var onStart: (FakeProcessController) -> () = { _ in }
     public func start() {
-        onStart(self)
+        for listener in startListeners {
+            listener(self, {})
+        }
     }
     
     public func waitForProcessToDie() {
@@ -37,6 +38,10 @@ public final class FakeProcessController: ProcessController {
     
     public func send(signal: Int32) {
         signalsSent.append(signal)
+        
+        for listener in terminationListeners {
+            listener(self, {})
+        }
     }
     
     public func terminateAndForceKillIfNeeded() {
@@ -47,6 +52,12 @@ public final class FakeProcessController: ProcessController {
     public func interruptAndForceKillIfNeeded() {
         send(signal: SIGINT)
         overridedProcessStatus = .terminated(exitCode: SIGINT)
+    }
+    
+    public var startListeners = [StartListener]()
+    
+    public func onStart(listener: @escaping StartListener) {
+        startListeners.append(listener)
     }
     
     // Stdout
@@ -83,5 +94,11 @@ public final class FakeProcessController: ProcessController {
     
     public func broadcastSignal(_ signal: Int32) {
         signalListeners.forEach { $0(self, signal, { }) }
+    }
+    
+    public var terminationListeners = [TerminationListener]()
+    
+    public func onTermination(listener: @escaping TerminationListener) {
+        terminationListeners.append(listener)
     }
 }

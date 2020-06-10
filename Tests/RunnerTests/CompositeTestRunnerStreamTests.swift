@@ -12,6 +12,18 @@ final class CompositeTestRunnerStreamTests: XCTestCase {
     ]
     lazy var stream = CompositeTestRunnerStream(testRunnerStreams: testRunnerStreams)
     
+    func test___delegating_stream_open() {
+        for delegateStream in testRunnerStreams {
+            delegateStream.streamIsOpen = false
+        }
+        
+        stream.openStream()
+        
+        for delegateStream in testRunnerStreams {
+            XCTAssertTrue(delegateStream.streamIsOpen)
+        }
+    }
+    
     func test___delegating_test_started() {
         stream.testStarted(testName: testName)
         
@@ -33,6 +45,18 @@ final class CompositeTestRunnerStreamTests: XCTestCase {
         
         for delegateStream in testRunnerStreams {
             XCTAssertEqual(delegateStream.castTo(TestStoppedEvent.self, index: 0), testStoppedEvent)
+        }
+    }
+    
+    func test___delegating_stream_close() {
+        for delegateStream in testRunnerStreams {
+            delegateStream.streamIsOpen = true
+        }
+        
+        stream.closeStream()
+        
+        for delegateStream in testRunnerStreams {
+            XCTAssertFalse(delegateStream.streamIsOpen)
         }
     }
     

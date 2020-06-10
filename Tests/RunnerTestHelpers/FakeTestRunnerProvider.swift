@@ -1,13 +1,17 @@
 import Runner
 import Models
 import RunnerModels
+import TemporaryStuff
 
 public final class FakeTestRunnerProvider: TestRunnerProvider {
-    public var predefinedFakeTestRunner = FakeTestRunner()
-    public var predefinedTestRunner: TestRunner
+    public lazy var predefinedFakeTestRunner = FakeTestRunner(
+        tempFolder: tempFolder
+    )
+    public lazy var predefinedTestRunner: TestRunner = predefinedFakeTestRunner
+    private let tempFolder: TemporaryFolder
 
-    public init() {
-        predefinedTestRunner = predefinedFakeTestRunner
+    public init(tempFolder: TemporaryFolder) {
+        self.tempFolder = tempFolder
     }
 
     public func testRunner(testRunnerTool: TestRunnerTool) throws -> TestRunner {

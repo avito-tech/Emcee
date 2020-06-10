@@ -80,6 +80,9 @@ public final class XcodebuildBasedTestRunner: TestRunner {
             )
         )
         
+        processController.onStart { sender, _ in
+            testRunnerStream.openStream()
+        }
         processController.onStdout { sender, data, unsubscribe in
             let stopOnFailure = {
                 unsubscribe()
@@ -87,16 +90,18 @@ public final class XcodebuildBasedTestRunner: TestRunner {
             }
             
             guard let string = String(data: data, encoding: .utf8) else {
-                Logger.warning("Can't obtain string from xcodebuild stdout \(data.count) bytes")
+                Logger.error("Can't obtain string from xcodebuild stdout \(data.count) bytes")
                 return stopOnFailure()
             }
             
             do {
                 try xcodebuildLogParser.parse(string: string, testRunnerStream: testRunnerStream)
             } catch {
-                Logger.error("Failed to parse xcodebuild output: \(error)")
-                return stopOnFailure()
+                Logger.warning("Failed to parse xcodebuild output: \(error). This error will be ignored.")
             }
+        }
+        processController.onTermination { _, _ in
+            testRunnerStream.closeStream()
         }
         
         return ProcessControllerWrappingTestRunnerInvocation(processController: processController)

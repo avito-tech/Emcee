@@ -10,6 +10,10 @@ public final class CompositeTestRunnerStream: TestRunnerStream {
         self.testRunnerStreams = testRunnerStreams
     }
     
+    public func openStream() {
+        testRunnerStreams.forEach { $0.openStream() }
+    }
+    
     public func caughtException(testException: TestException) {
         testRunnerStreams.forEach { $0.caughtException(testException: testException) }
     }
@@ -20,5 +24,9 @@ public final class CompositeTestRunnerStream: TestRunnerStream {
     
     public func testStopped(testStoppedEvent: TestStoppedEvent) {
         testRunnerStreams.forEach { $0.testStopped(testStoppedEvent: testStoppedEvent) }
+    }
+    
+    public func closeStream() {
+        testRunnerStreams.forEach { $0.closeStream() }
     }
 }

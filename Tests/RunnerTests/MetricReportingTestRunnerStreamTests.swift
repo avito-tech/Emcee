@@ -100,7 +100,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
     }
     
     func test___reports_preflight_metric___after_first_test_starts() {
-        stream.willStartRunningTests()
+        stream.openStream()
         dateProvider.result += 100
         stream.testStarted(testName: testName)
         
@@ -126,7 +126,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
         stream.testStarted(testName: testName)
         stream.testStopped(testStoppedEvent: testStoppedEvent)
         dateProvider.result += 100
-        stream.didFinishRunningTests()
+        stream.closeStream()
         
         XCTAssert(
             metricHandler.metrics.contains(
@@ -140,7 +140,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
     }
     
     func test___complex_metric_reporting() {
-        stream.willStartRunningTests()
+        stream.openStream()
         dateProvider.result += 25
         
         let testStartedAt = dateProvider.currentDate()
@@ -152,7 +152,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
         dateProvider.result += 25
         
         let bucketFinishedAt = dateProvider.currentDate()
-        stream.didFinishRunningTests()
+        stream.closeStream()
         
         XCTAssertEqual(
             metricHandler.metrics,

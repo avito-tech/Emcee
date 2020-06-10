@@ -14,17 +14,16 @@ public final class FbxctestOutputProcessor: TestRunnerInvocation {
     private static let logDateStampLength = NSLogLikeLogEntryTextFormatter.logDateFormatter.string(from: Date()).count
 
     public init(
+        onStreamOpen: @escaping () -> (),
         onTestStarted: @escaping ((TestName) -> ()),
         onTestStopped: @escaping ((TestStoppedEvent) -> ()),
+        onStreamClose: @escaping () -> (),
         processController: ProcessController
     ) throws {
         self.eventsListener = FbXcTestEventsListener(onTestStarted: onTestStarted, onTestStopped: onTestStopped)
         self.processController = processController
         
-        setupOutputProcessing()
-    }
-    
-    private func setupOutputProcessing() {
+        processController.onStart { _, _ in onStreamOpen() }
         processController.onStdout { [weak self] (sender, data, unsubscriber) in
             guard let strongSelf = self else { return unsubscriber() }
             strongSelf.processController(sender, newStdoutData: data)
@@ -33,10 +32,13 @@ public final class FbxctestOutputProcessor: TestRunnerInvocation {
             guard let strongSelf = self else { return unsubscriber() }
             strongSelf.processController(sender, newStderrData: data)
         }
+        processController.onTermination { _, _ in onStreamClose() }
     }
     
     public func startExecutingTests() -> TestRunnerRunningInvocation {
-        ProcessControllerWrappingTestRunnerInvocation(processController: processController)
+        processController.start()
+        
+        return ProcessControllerWrappingTestRunnerInvocation(processController: processController)
     }
     
     // MARK: - stdout Processing

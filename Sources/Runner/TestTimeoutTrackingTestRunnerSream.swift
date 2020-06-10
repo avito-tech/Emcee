@@ -16,26 +16,35 @@ public final class TestTimeoutTrackingTestRunnerSream: TestRunnerStream {
     private let detectedLongRunningTest: (TestName, Date) -> ()
     private let lastStartedTestInfo = AtomicValue<LastStartedTestInfo?>(nil)
     private let maximumTestDuration: TimeInterval
+    private let pollPeriod: DispatchTimeInterval
     private var testHangTrackingTimer: DispatchBasedTimer?
     
     public init(
         dateProvider: DateProvider,
         detectedLongRunningTest: @escaping (TestName, Date) -> (),
-        maximumTestDuration: TimeInterval
+        maximumTestDuration: TimeInterval,
+        pollPeriod: DispatchTimeInterval
     ) {
         self.dateProvider = dateProvider
         self.detectedLongRunningTest = detectedLongRunningTest
         self.maximumTestDuration = maximumTestDuration
+        self.pollPeriod = pollPeriod
     }
     
-    public func caughtException(testException: TestException) {}
-    
+    public func openStream() {}
+        
     public func testStarted(testName: TestName) {
         startMonitoringForHangs(testName: testName)
     }
     
+    public func caughtException(testException: TestException) {}
+    
     public func testStopped(testStoppedEvent: TestStoppedEvent) {
         stopMonitoringForHangs(testStoppedEvent: testStoppedEvent)
+    }
+    
+    public func closeStream() {
+        stopTimer()
     }
     
     private func startMonitoringForHangs(testName: TestName) {
@@ -43,7 +52,7 @@ public final class TestTimeoutTrackingTestRunnerSream: TestRunnerStream {
             LastStartedTestInfo(testName: testName, testStartedAt: dateProvider.currentDate())
         )
         
-        testHangTrackingTimer = DispatchBasedTimer.startedTimer(repeating: .seconds(1), leeway: .seconds(1)) { [weak self] timer in
+        testHangTrackingTimer = DispatchBasedTimer.startedTimer(repeating: pollPeriod, leeway: pollPeriod) { [weak self] timer in
             guard let strongSelf = self else { return timer.stop() }
             guard let lastStartedTestInfo = strongSelf.lastStartedTestInfo.currentValue() else { return timer.stop() }
             
@@ -57,11 +66,7 @@ public final class TestTimeoutTrackingTestRunnerSream: TestRunnerStream {
     }
     
     private func stopMonitoringForHangs(testStoppedEvent: TestStoppedEvent) {
-        lastStartedTestInfo.set(nil)
-        
-        testHangTrackingTimer?.stop()
-        testHangTrackingTimer = nil
-        
+        stopTimer()
         Logger.debug("Stopped monitoring duration of test \(testStoppedEvent.testName), test finished with result \(testStoppedEvent.result)")
     }
     
@@ -69,5 +74,11 @@ public final class TestTimeoutTrackingTestRunnerSream: TestRunnerStream {
         Logger.warning("Detected a long running test: \(lastStartedTestInfo.testName) was running for more than \(LoggableDuration(maximumTestDuration)), test started at: \(LoggableDate(lastStartedTestInfo.testStartedAt))")
         
         detectedLongRunningTest(lastStartedTestInfo.testName, lastStartedTestInfo.testStartedAt)
+    }
+    
+    private func stopTimer() {
+        lastStartedTestInfo.set(nil)
+        testHangTrackingTimer?.stop()
+        testHangTrackingTimer = nil
     }
 }

@@ -13,8 +13,8 @@ final class ProcessControllerWrappingTestRunnerInvocationTests: XCTestCase {
     )
     
     func test___starting_test_invocation___executes_process() {
-        processController.onStart = { sender in
-            sender.overridedProcessStatus = .stillRunning
+        processController.onStart { [weak self] _, _ in
+            self?.processController.overridedProcessStatus = .stillRunning
         }
         _ = testRunnerInvocation.startExecutingTests()
         XCTAssertTrue(processController.isProcessRunning)

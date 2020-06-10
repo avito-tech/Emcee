@@ -29,7 +29,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
     let remoteCache = FakeRuntimeDumpRemoteCache()
     let resourceLocationResolver: ResourceLocationResolver = FakeResourceLocationResolver.throwing()
     let simulatorPool = FakeOnDemandSimulatorPool()
-    let testRunnerProvider = FakeTestRunnerProvider()
+    lazy var testRunnerProvider = FakeTestRunnerProvider(tempFolder: tempFolder)
     
     func test__getting_available_tests__without_application_test_support() throws {
         let runtimeTestEntries = [

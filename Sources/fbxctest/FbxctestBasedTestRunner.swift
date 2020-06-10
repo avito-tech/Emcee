@@ -43,8 +43,10 @@ public final class FbxctestBasedTestRunner: TestRunner {
         defer { cleanUp(fbxctestWorkingDirectory: fbxctestWorkingDirectory) }
         
         let fbxctestOutputProcessor = try FbxctestOutputProcessor(
+            onStreamOpen: testRunnerStream.openStream,
             onTestStarted: { testName in testRunnerStream.testStarted(testName: testName) },
             onTestStopped: { testStoppedEvent in testRunnerStream.testStopped(testStoppedEvent: testStoppedEvent) },
+            onStreamClose: testRunnerStream.closeStream,
             processController: try processControllerProvider.createProcessController(
                 subprocess: Subprocess(
                     arguments: try fbxctestArguments(

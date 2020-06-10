@@ -13,7 +13,7 @@ import TestHelpers
 import XCTest
 import fbxctest
 
-final class FbxctestBasedTestRunnerTests: XCTestCase, TestRunnerStream {
+final class FbxctestBasedTestRunnerTests: XCTestCase {
     private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     private lazy var runner = FbxctestBasedTestRunner(
         fbxctestLocation: FbxctestLocationFixtures.fakeFbxctestLocation,
@@ -31,7 +31,7 @@ final class FbxctestBasedTestRunnerTests: XCTestCase, TestRunnerStream {
                 simulator: SimulatorFixture.simulator(),
                 temporaryFolder: temporaryFolder,
                 testContext: TestContextFixtures().testContext,
-                testRunnerStream: self,
+                testRunnerStream: AccumulatingTestRunnerStream(),
                 testType: .uiTest
             )
         )
@@ -47,16 +47,10 @@ final class FbxctestBasedTestRunnerTests: XCTestCase, TestRunnerStream {
                 simulator: SimulatorFixture.simulator(),
                 temporaryFolder: temporaryFolder,
                 testContext: TestContextFixtures().testContext,
-                testRunnerStream: self,
+                testRunnerStream: AccumulatingTestRunnerStream(),
                 testType: .uiTest
             )
         )
     }
-    
-    func testStarted(testName: TestName) {}
-    
-    func caughtException(testException: TestException) {}
-    
-    func testStopped(testStoppedEvent: TestStoppedEvent) {}
 }
 

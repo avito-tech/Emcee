@@ -1504,6 +1504,7 @@ let package = Package(
                 "RunnerTestHelpers",
                 "SimulatorPoolModels",
                 "SimulatorPoolTestHelpers",
+                "SynchronousWaiter",
                 "TemporaryStuff",
                 "TestHelpers",
             ],

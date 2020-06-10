@@ -24,8 +24,10 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
     private var didInitiateKillOfProcess = false
     private var didStartProcess = false
     private var signalListeners = [ListenerWrapper<SignalListener>]()
+    private var startListeners = [ListenerWrapper<StartListener>]()
     private var stderrListeners = [ListenerWrapper<StderrListener>]()
     private var stdoutListeners = [ListenerWrapper<StdoutListener>]()
+    private var terminationListeners = [ListenerWrapper<TerminationListener>]()
     
     private final class ListenerWrapper<T> {
         let uuid: UUID
@@ -109,11 +111,23 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         process.launch()
         process.terminationHandler = { _ in
             OrphanProcessTracker().removeProcessFromCleanup(pid: self.processId, name: self.processName)
+            self.processTerminated()
         }
         processId = process.processIdentifier
         OrphanProcessTracker().storeProcessForCleanup(pid: processId, name: processName)
         Logger.debug("Started process \(processId)", subprocessInfo)
         startAutomaticManagement()
+
+        listenerQueue.async {
+            for listenerWrapper in self.startListeners {
+                let unsubscriber: Unsubscribe = {
+                    self.listenerQueue.async {
+                        self.startListeners.removeAll { $0.uuid == listenerWrapper.uuid }
+                    }
+                }
+                listenerWrapper.listener(self, unsubscriber)
+            }
+        }
     }
     
     public func waitForProcessToDie() {
@@ -161,6 +175,10 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         }
     }
     
+    public func onStart(listener: @escaping StartListener) {
+        startListeners.append(ListenerWrapper(uuid: UUID(), listener: listener))
+    }
+    
     public func onStdout(listener: @escaping StdoutListener) {
         stdoutListeners.append(ListenerWrapper(uuid: UUID(), listener: listener))
     }
@@ -171,6 +189,10 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
     
     public func onSignal(listener: @escaping SignalListener) {
         signalListeners.append(ListenerWrapper(uuid: UUID(), listener: listener))
+    }
+    
+    public func onTermination(listener: @escaping TerminationListener) {
+        terminationListeners.append(ListenerWrapper(uuid: UUID(), listener: listener))
     }
     
     private func attemptToKillProcess(killer: (Process) -> ()) {
@@ -189,9 +211,25 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
             Logger.warning("Failed to interrupt the process in time, terminating", subprocessInfo)
             send(signal: SIGKILL)
             
-            stdoutListeners.removeAll()
-            stderrListeners.removeAll()
             signalListeners.removeAll()
+            startListeners.removeAll()
+            stderrListeners.removeAll()
+            stdoutListeners.removeAll()
+        }
+    }
+    
+    private func processTerminated() {
+        Logger.debug("Process terminated", subprocessInfo)
+        
+        listenerQueue.async {
+            for listenerWrapper in self.terminationListeners {
+                let unsubscriber: Unsubscribe = {
+                    self.listenerQueue.async {
+                        self.signalListeners.removeAll { $0.uuid == listenerWrapper.uuid }
+                    }
+                }
+                listenerWrapper.listener(self, unsubscriber)
+            }
         }
     }
     

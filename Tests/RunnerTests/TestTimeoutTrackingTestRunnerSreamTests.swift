@@ -18,7 +18,8 @@ final class TestTimeoutTrackingTestRunnerSreamTests: XCTestCase {
             detectedLongRunningTest: { _, _ in
                 timeoutCallInvoked.fulfill()
             },
-            maximumTestDuration: 5
+            maximumTestDuration: 5,
+            pollPeriod: .milliseconds(100)
         )
         
         stream.testStarted(testName: testName)
@@ -27,20 +28,43 @@ final class TestTimeoutTrackingTestRunnerSreamTests: XCTestCase {
         wait(for: [timeoutCallInvoked], timeout: 5)
     }
     
-    func test___test_hang_test___invokes_timeout_call() {
-        let timeoutCallInvoked = XCTestExpectation(description: "Test timeout detected")
+    func test___test_hang_test___invokes_timeout_call_only_once() {
+        let timeoutCallInvoked = XCTestExpectation(description: "Test timeout detected only once")
+        timeoutCallInvoked.isInverted = true
+        timeoutCallInvoked.expectedFulfillmentCount = 2
         
         let stream = TestTimeoutTrackingTestRunnerSream(
             dateProvider: dateProvider,
             detectedLongRunningTest: { _, _ in
                 timeoutCallInvoked.fulfill()
             },
-            maximumTestDuration: 5
+            maximumTestDuration: 1,
+            pollPeriod: .milliseconds(100)
         )
         
         stream.testStarted(testName: testName)
         dateProvider.result += 100
         
-        wait(for: [timeoutCallInvoked], timeout: 15)
+        wait(for: [timeoutCallInvoked], timeout: 5)
+    }
+    
+    func test___test_hang_test_is_not_invoked___when_stream_closes() {
+        let timeoutCallInvoked = XCTestExpectation(description: "Test timeout shouldn't be called when stream closes")
+        timeoutCallInvoked.isInverted = true
+        
+        let stream = TestTimeoutTrackingTestRunnerSream(
+            dateProvider: dateProvider,
+            detectedLongRunningTest: { _, _ in
+                timeoutCallInvoked.fulfill()
+            },
+            maximumTestDuration: 1,
+            pollPeriod: .milliseconds(100)
+        )
+        
+        stream.testStarted(testName: testName)
+        dateProvider.result += 100
+        stream.closeStream()
+        
+        wait(for: [timeoutCallInvoked], timeout: 5)
     }
 }

@@ -84,11 +84,50 @@ final class EventBusReportingTestRunnerStreamTests: XCTestCase {
         wait(for: [expectation], timeout: 5)
     }
     
+    func test___stream_open___delivers_will_run() {
+        let eventStream = BlockBasedEventStream { [testEntry, testContext, expectation] event in
+            XCTAssertEqual(
+                event,
+                .runnerEvent(.willRun(testEntries: [testEntry], testContext: testContext))
+            )
+            expectation.fulfill()
+        }
+        eventBus.add(stream: eventStream)
+        
+        testStream.openStream()
+        
+        wait(for: [expectation], timeout: 10)
+    }
+    
+    func test___stream_close___delivers_did_run() {
+        let eventStream = BlockBasedEventStream { [testEntryResult, testContext, expectation] event in
+            XCTAssertEqual(
+                event,
+                .runnerEvent(.didRun(results: [testEntryResult], testContext: testContext))
+            )
+            expectation.fulfill()
+        }
+        eventBus.add(stream: eventStream)
+        
+        testStream.closeStream()
+        
+        wait(for: [expectation], timeout: 10)
+    }
+    
     lazy var eventBus = EventBus()
     lazy var expectation = XCTestExpectation(description: "event bus delivered expected event")
     lazy var testContext = TestContextFixtures().testContext
     lazy var testEntry = TestEntryFixtures.testEntry()
+    lazy var testEntryResult = TestEntryResult.withResult(testEntry: testEntry, testRunResult: testRunResult)
     lazy var testException = TestException(reason: "", filePathInProject: "", lineNumber: 0)
+    lazy var testRunResult = TestRunResult(
+        succeeded: true,
+        exceptions: [testException],
+        duration: 5,
+        startTime: 5,
+        hostName: "host",
+        simulatorId: UDID(value: "UDID")
+    )
     lazy var testStoppedEvent = TestStoppedEvent(
         testName: testEntry.testName,
         result: .failure,
@@ -99,7 +138,11 @@ final class EventBusReportingTestRunnerStreamTests: XCTestCase {
     lazy var testStream = EventBusReportingTestRunnerStream(
         entriesToRun: [testEntry],
         eventBus: eventBus,
-        testContext: testContext
+        testContext: testContext,
+        resultsProvider: { [weak self] in
+            guard let strongSelf = self else { return [] }
+            return [strongSelf.testEntryResult]
+        }
     )
     lazy var unknownTestName = TestName(className: "UnknownClass", methodName: "test")
 }
