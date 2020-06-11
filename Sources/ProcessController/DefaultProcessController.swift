@@ -133,6 +133,7 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
     public func waitForProcessToDie() {
         process.waitUntilExit()
         openPipeFileHandleGroup.wait()
+        listenerQueue.sync(flags: .barrier) {}
     }
     
     public func processStatus() -> ProcessStatus {
