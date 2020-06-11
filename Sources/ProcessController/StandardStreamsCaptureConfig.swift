@@ -14,7 +14,9 @@ public final class StandardStreamsCaptureConfig: CustomStringConvertible {
     }
     
     public var description: String {
-        return "<stdout: \(String(describing: stdoutPath)), stderr: \(String(describing: stderrPath))>"
+        let stdout = stdoutPath?.pathString ?? "null"
+        let stderr = stderrPath?.pathString ?? "null"
+        return "<stdout: \(stdout), stderr: \(stderr)>"
     }
     
     public enum PathIsNotSetError: Error, CustomStringConvertible {
