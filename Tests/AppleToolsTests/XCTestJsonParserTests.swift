@@ -103,7 +103,7 @@ final class XCTesttJsonParserTests: XCTestCase {
             try parser.parse(
                 string:
                 """
-                {"endTest":{"result":"failure","className":"Tests","failures":[{"line":100,"file":"\\/path\\/to\\/source_file.swift","reason":"XCTAssertEqual failed: (\\"24\\") is not equal to (\\"42\\")"}],"methodName":"test","totalDuration":1}}
+                {"testFailure": {"line":100,"file":"\\/path\\/to\\/source_file.swift","reason":"XCTAssertEqual failed: (\\"24\\") is not equal to (\\"42\\")"}}
                 """,
                 testRunnerStream: accumulatingTestRunnerStream
             )
@@ -114,22 +114,11 @@ final class XCTesttJsonParserTests: XCTestCase {
         }
         
         XCTAssertEqual(
-            accumulatingTestRunnerStream.castTo(TestStoppedEvent.self, index: 0),
-            TestStoppedEvent(
-                testName: TestName(
-                    className: "Tests",
-                    methodName: "test"
-                ),
-                result: .failure,
-                testDuration: 1,
-                testExceptions: [
-                    TestException(
-                        reason: "XCTAssertEqual failed: (\"24\") is not equal to (\"42\")",
-                        filePathInProject: "/path/to/source_file.swift",
-                        lineNumber: 100
-                    )
-                ],
-                testStartTimestamp: 99
+            accumulatingTestRunnerStream.castTo(TestException.self, index: 0),
+            TestException(
+                reason: "XCTAssertEqual failed: (\"24\") is not equal to (\"42\")",
+                filePathInProject: "/path/to/source_file.swift",
+                lineNumber: 100
             )
         )
     }

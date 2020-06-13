@@ -34,6 +34,14 @@ public final class XCTestJsonParser: XcodebuildLogParser {
                             methodName: startEvent.methodName
                         )
                     )
+                case .testFailure(let event):
+                    testRunnerStream.caughtException(
+                        testException: TestException(
+                            reason: event.reason,
+                            filePathInProject: event.file,
+                            lineNumber: Int32(event.line)
+                        )
+                    )
                 case .endTest(let endEvent):
                     let result: TestStoppedEvent.Result
                     switch endEvent.result {
@@ -50,13 +58,7 @@ public final class XCTestJsonParser: XcodebuildLogParser {
                             ),
                             result: result,
                             testDuration: endEvent.totalDuration,
-                            testExceptions: endEvent.failures.map { failure in
-                                TestException(
-                                    reason: failure.reason,
-                                    filePathInProject: failure.file,
-                                    lineNumber: Int32(failure.line)
-                                )
-                            },
+                            testExceptions: [],
                             testStartTimestamp: dateProvider.currentDate().timeIntervalSince1970 - endEvent.totalDuration
                         )
                     )

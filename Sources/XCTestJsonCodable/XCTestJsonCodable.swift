@@ -1,9 +1,11 @@
 public enum XCTestJsonEvent: Codable, Equatable {
     case beginTest(XCTestStartEvent)
+    case testFailure(XCTestFailureEvent)
     case endTest(XCTestEndEvent)
     
     public enum CodingKeys: String, CodingKey {
         case beginTest
+        case testFailure
         case endTest
     }
     
@@ -14,6 +16,8 @@ public enum XCTestJsonEvent: Codable, Equatable {
         switch container.allKeys {
         case [.beginTest]:
             self = try .beginTest(container.decode(XCTestStartEvent.self, forKey: .beginTest))
+        case [.testFailure]:
+            self = try .testFailure(container.decode(XCTestFailureEvent.self, forKey: .testFailure))
         case [.endTest]:
             self = try .endTest(container.decode(XCTestEndEvent.self, forKey: .endTest))
         default:
@@ -26,6 +30,8 @@ public enum XCTestJsonEvent: Codable, Equatable {
         switch self {
         case let .beginTest(testStart):
             try container.encode(testStart, forKey: .beginTest)
+        case let .testFailure(testFailure):
+            try container.encode(testFailure, forKey: .testFailure)
         case let .endTest(testEnd):
             try container.encode(testEnd, forKey: .endTest)
         }
@@ -65,19 +71,16 @@ public struct XCTestEndEvent: Codable, Equatable {
     public let methodName: String
     public let result: Result
     public let totalDuration: Double
-    public let failures: [XCTestFailureEvent]
     
     public init(
         className: String,
         methodName: String,
         result: XCTestEndEvent.Result,
-        totalDuration: Double,
-        failures: [XCTestFailureEvent]
+        totalDuration: Double
     ) {
         self.className = className
         self.methodName = methodName
         self.result = result
         self.totalDuration = totalDuration
-        self.failures = failures
     }
 }
