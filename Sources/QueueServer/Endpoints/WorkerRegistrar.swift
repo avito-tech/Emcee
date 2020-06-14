@@ -46,17 +46,15 @@ public final class WorkerRegistrar: RESTEndpoint {
         Logger.debug("Registration request from worker with id: \(payload.workerId)")
         
         let workerAliveness = workerAlivenessProvider.alivenessForWorker(workerId: payload.workerId)
-        switch workerAliveness.status {
-        case .notRegistered, .silent:
-            workerAlivenessProvider.didRegisterWorker(workerId: payload.workerId)
-            Logger.debug("Worker \(payload.workerId) has acceptable status")
-            workerDetailsHolder.update(
-                workerId: payload.workerId,
-                restAddress: payload.workerRestAddress
-            )
-            return .workerRegisterSuccess(workerConfiguration: workerConfiguration)
-        case .alive, .disabled:
+        guard !workerAliveness.registered || workerAliveness.silent else {
             throw WorkerRegistrarError.workerIsAlreadyRegistered(workerId: payload.workerId)
         }
+        workerAlivenessProvider.didRegisterWorker(workerId: payload.workerId)
+        Logger.debug("Worker \(payload.workerId) has acceptable status")
+        workerDetailsHolder.update(
+            workerId: payload.workerId,
+            restAddress: payload.workerRestAddress
+        )
+        return .workerRegisterSuccess(workerConfiguration: workerConfiguration)
     }
 }

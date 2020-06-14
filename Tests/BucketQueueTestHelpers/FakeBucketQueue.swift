@@ -20,7 +20,7 @@ public class FakeBucketQueue: BucketQueue {
     public init(
         throwsOnAccept: Bool = false,
         fixedStuckBuckets: [StuckBucket] = [],
-        fixedDequeueResult: DequeueResult = .workerIsNotAlive
+        fixedDequeueResult: DequeueResult = .workerIsNotRegistered
         )
     {
         self.throwsOnAccept = throwsOnAccept

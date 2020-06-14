@@ -39,8 +39,8 @@ public final class BucketProviderEndpoint: PayloadSignatureVerifyingRESTEndpoint
             return .checkAgainLater(checkAfter: checkAfter)
         case .dequeuedBucket(let dequeuedBucket):
             return .bucketDequeued(bucket: dequeuedBucket.enqueuedBucket.bucket)
-        case .workerIsNotAlive:
-            return .workerIsNotAlive
+        case .workerIsNotRegistered:
+            return .workerIsNotRegistered
         }
     }
 }

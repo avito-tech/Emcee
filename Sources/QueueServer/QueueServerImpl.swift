@@ -41,8 +41,8 @@ public final class QueueServerImpl: QueueServer {
     private let workerAlivenessPoller: WorkerAlivenessPoller
     private let workerAlivenessProvider: WorkerAlivenessProvider
     private let workerRegistrar: WorkerRegistrar
+    private let workerStatusEndpoint: WorkerStatusEndpoint
     private let workersToUtilizeEndpoint: WorkersToUtilizeEndpoint
-    
     
     public init(
         automaticTerminationController: AutomaticTerminationController,
@@ -136,6 +136,9 @@ public final class QueueServerImpl: QueueServer {
             workerAlivenessProvider: workerAlivenessProvider,
             workerConfigurations: workerConfigurations
         )
+        self.workerStatusEndpoint = WorkerStatusEndpoint(
+            workerAlivenessProvider: workerAlivenessProvider
+        )
         self.queueServerVersionHandler = QueueServerVersionEndpoint(
             emceeVersion: emceeVersion,
             queueServerLock: queueServerLock
@@ -173,6 +176,7 @@ public final class QueueServerImpl: QueueServer {
         httpRestServer.add(handler: RESTEndpointOf(scheduleTestsHandler))
         httpRestServer.add(handler: RESTEndpointOf(toggleWorkersSharingEndpoint))
         httpRestServer.add(handler: RESTEndpointOf(workerRegistrar))
+        httpRestServer.add(handler: RESTEndpointOf(workerStatusEndpoint))
         httpRestServer.add(handler: RESTEndpointOf(workersToUtilizeEndpoint))
 
         stuckBucketsPoller.startTrackingStuckBuckets()

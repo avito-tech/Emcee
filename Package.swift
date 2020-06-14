@@ -23,6 +23,16 @@ let package = Package(
             ]
         ),
         .library(
+            name: "EmceeCommunications",
+            targets: [
+                "PortDeterminer",
+                "QueueClient",
+                "QueueCommunication",
+                "RemotePortDeterminer",
+                "RequestSender",
+            ]
+        ),
+        .library(
             name: "EmceeInterfaces",
             targets: [
                 "BuildArtifacts",
@@ -39,6 +49,7 @@ let package = Package(
                 "TestArgFile",
                 "TestDiscovery",
                 "TypedResourceLocation",
+                "WorkerAlivenessModels",
             ]
         ),
         .executable(
@@ -188,7 +199,6 @@ let package = Package(
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessProvider",
-                "WorkerAlivenessProviderTestHelpers",
             ],
             path: "Tests/BalancingBucketQueueTests"
         ),
@@ -239,7 +249,6 @@ let package = Package(
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessProvider",
-                "WorkerAlivenessProviderTestHelpers",
             ],
             path: "Tests/BucketQueueTests"
         ),
@@ -1060,6 +1069,7 @@ let package = Package(
                 "RequestSender",
                 "ScheduleStrategy",
                 "SynchronousWaiter",
+                "WorkerAlivenessModels",
             ],
             path: "Sources/QueueClient"
         ),
@@ -1084,6 +1094,7 @@ let package = Package(
                 "Swifter",
                 "SynchronousWaiter",
                 "TestHelpers",
+                "WorkerAlivenessModels",
             ],
             path: "Tests/QueueClientTests"
         ),
@@ -1205,6 +1216,7 @@ let package = Package(
                 "SynchronousWaiter",
                 "Timer",
                 "UniqueIdentifierGenerator",
+                "WorkerAlivenessModels",
                 "WorkerAlivenessProvider",
             ],
             path: "Sources/QueueServer"
@@ -1253,8 +1265,8 @@ let package = Package(
                 "SynchronousWaiter",
                 "TestHelpers",
                 "UniqueIdentifierGeneratorTestHelpers",
+                "WorkerAlivenessModels",
                 "WorkerAlivenessProvider",
-                "WorkerAlivenessProviderTestHelpers",
             ],
             path: "Tests/QueueServerTests"
         ),
@@ -1277,6 +1289,7 @@ let package = Package(
                 "RESTInterfaces",
                 "RequestSender",
                 "ScheduleStrategy",
+                "WorkerAlivenessModels",
             ],
             path: "Sources/RESTMethods"
         ),
@@ -1978,30 +1991,30 @@ let package = Package(
             path: "Tests/UniqueIdentifierGeneratorTestHelpers"
         ),
         .target(
+            // MARK: WorkerAlivenessModels
+            name: "WorkerAlivenessModels",
+            dependencies: [
+                "Models",
+            ],
+            path: "Sources/WorkerAlivenessModels"
+        ),
+        .target(
             // MARK: WorkerAlivenessProvider
             name: "WorkerAlivenessProvider",
             dependencies: [
                 "Logging",
                 "Models",
+                "WorkerAlivenessModels",
             ],
             path: "Sources/WorkerAlivenessProvider"
-        ),
-        .target(
-            // MARK: WorkerAlivenessProviderTestHelpers
-            name: "WorkerAlivenessProviderTestHelpers",
-            dependencies: [
-                "Models",
-                "WorkerAlivenessProvider",
-            ],
-            path: "Tests/WorkerAlivenessProviderTestHelpers"
         ),
         .testTarget(
             // MARK: WorkerAlivenessProviderTests
             name: "WorkerAlivenessProviderTests",
             dependencies: [
                 "Models",
+                "WorkerAlivenessModels",
                 "WorkerAlivenessProvider",
-                "WorkerAlivenessProviderTestHelpers",
             ],
             path: "Tests/WorkerAlivenessProviderTests"
         ),

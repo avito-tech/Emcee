@@ -10,7 +10,7 @@ class FakeQueueClientDelegate: QueueClientDelegate {
         case queueIsEmpty
         case checkAfter(TimeInterval)
         case bucket(Bucket)
-        case workerConsideredNotAlive
+        case workerNotRegistered
         case didScheduleTests(RequestId)
         case fetchedJobState(JobState)
         case fecthedJobResults(JobResults)
@@ -27,8 +27,8 @@ class FakeQueueClientDelegate: QueueClientDelegate {
         responses.append(ServerResponse.queueIsEmpty)
     }
     
-    func queueClientWorkerConsideredNotAlive(_ sender: QueueClient) {
-        responses.append(ServerResponse.workerConsideredNotAlive)
+    func queueClientWorkerNotRegistered(_ sender: QueueClient) {
+        responses.append(ServerResponse.workerNotRegistered)
     }
     
     func queueClient(_ sender: QueueClient, fetchBucketLaterAfter after: TimeInterval) {

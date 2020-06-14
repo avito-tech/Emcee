@@ -157,8 +157,8 @@ public final class QueueClient {
             delegate?.queueClient(self, fetchBucketLaterAfter: checkAfter)
         case .queueIsEmpty:
             delegate?.queueClientQueueIsEmpty(self)
-        case .workerIsNotAlive:
-            delegate?.queueClientWorkerConsideredNotAlive(self)
+        case .workerIsNotRegistered:
+            delegate?.queueClientWorkerNotRegistered(self)
         }
     }
     

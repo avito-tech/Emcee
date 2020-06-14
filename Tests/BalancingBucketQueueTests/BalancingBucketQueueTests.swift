@@ -15,7 +15,6 @@ import TestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessProvider
-import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class BalancingBucketQueueTests: XCTestCase {
@@ -109,7 +108,9 @@ final class BalancingBucketQueueTests: XCTestCase {
     }
     
     func test___dequeueing_bucket___after_enqueueing_it() {
-        workerAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [])
+        workerAlivenessProvider.didRegisterWorker(workerId: workerId)
+        workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
+        
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         
@@ -133,7 +134,8 @@ final class BalancingBucketQueueTests: XCTestCase {
     }
     
     func test___dequeueing_bucket_from_another_job___after_first_job_queue_has_all_buckets_dequeued() {
-        workerAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [])
+        workerAlivenessProvider.didRegisterWorker(workerId: workerId)
+        workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
         let bucket1 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class1")])
         balancingQueue.enqueue(buckets: [bucket1], prioritizedJob: prioritizedJob)
@@ -201,7 +203,8 @@ final class BalancingBucketQueueTests: XCTestCase {
     }
     
     func test___dequeueing_bucket_from_job_with_priority() {
-        workerAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [])
+        workerAlivenessProvider.didRegisterWorker(workerId: workerId)
+        workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
         let bucket1 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class1")])
         balancingQueue.enqueue(buckets: [bucket1], prioritizedJob: prioritizedJob)
@@ -228,7 +231,8 @@ final class BalancingBucketQueueTests: XCTestCase {
     }
     
     func test___dequeueing_bucket_with_job_groups_with_priority() {
-        workerAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [])
+        workerAlivenessProvider.didRegisterWorker(workerId: workerId)
+        workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
 
         let bucket1 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class1")])
         balancingQueue.enqueue(buckets: [bucket1], prioritizedJob: PrioritizedJob(jobGroupId: "group1", jobGroupPriority: .medium, jobId: "job1", jobPriority: .medium))
@@ -255,7 +259,8 @@ final class BalancingBucketQueueTests: XCTestCase {
     }
     
     func test___repeately_dequeueing_bucket___provides_back_same_result() {
-        workerAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [])
+        workerAlivenessProvider.didRegisterWorker(workerId: workerId)
+        workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
@@ -283,7 +288,8 @@ final class BalancingBucketQueueTests: XCTestCase {
     }
     
     func test___reenqueueing_stuck_buckets___works_for_all_bucket_queues() {
-        workerAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [])
+        workerAlivenessProvider.didRegisterWorker(workerId: workerId)
+        workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
         let bucket1 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class1")])
         balancingQueue.enqueue(buckets: [bucket1], prioritizedJob: prioritizedJob)
@@ -293,7 +299,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         balancingQueue.enqueue(buckets: [bucket2], prioritizedJob: anotherPrioritizedJob)
         _ = balancingQueue.dequeueBucket(requestId: anotherRequestId, workerId: workerId)
         
-        workerAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [])
+        workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
         XCTAssertEqual(
             balancingQueue.reenqueueStuckBuckets(),
@@ -306,7 +312,9 @@ final class BalancingBucketQueueTests: XCTestCase {
     }
 
     func test___getting_results_for_job_with_no_results___provides_back_empty_results() throws {
-        workerAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [])
+        workerAlivenessProvider.didRegisterWorker(workerId: workerId)
+        workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
+        
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         
@@ -314,7 +322,8 @@ final class BalancingBucketQueueTests: XCTestCase {
     }
     
     func test___accepting_results___provides_back_results_for_job() throws {
-        workerAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [])
+        workerAlivenessProvider.didRegisterWorker(workerId: workerId)
+        workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
         let testEntry = TestEntryFixtures.testEntry(className: "class1")
         let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
@@ -345,7 +354,8 @@ final class BalancingBucketQueueTests: XCTestCase {
     }
     
     func test___accepting_results_for_deleted_job___does_not_throw() throws {
-        workerAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [])
+        workerAlivenessProvider.didRegisterWorker(workerId: workerId)
+        workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
         let testEntry = TestEntryFixtures.testEntry(className: "class1")
         let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
@@ -376,7 +386,8 @@ final class BalancingBucketQueueTests: XCTestCase {
     }
     
     func test___accepting_results_for_wrong_request_id___throws() throws {
-        workerAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [])
+        workerAlivenessProvider.didRegisterWorker(workerId: workerId)
+        workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
@@ -392,7 +403,8 @@ final class BalancingBucketQueueTests: XCTestCase {
     }
     
     func test___accepting_results_for_wrong_worker_id___throws() throws {
-        workerAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [])
+        workerAlivenessProvider.didRegisterWorker(workerId: workerId)
+        workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
@@ -407,18 +419,13 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
     }
     
-    func test___dequeueing_by_silent_worker___when_buckets_enqueued___provides_silent_response() throws {
-        workerAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(
-            status: .silent,
-            bucketIdsBeingProcessed: []
-        )
-        
+    func test___dequeueing_by_not_registered_worker___provides_not_registered_response() throws {
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         
         XCTAssertEqual(
             balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId),
-            DequeueResult.workerIsNotAlive
+            DequeueResult.workerIsNotRegistered
         )
     }
     
@@ -426,6 +433,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         
+        workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         workerAlivenessProvider.disableWorker(workerId: workerId)
         
         XCTAssertEqual(
@@ -438,6 +446,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         
+        workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         workerAlivenessProvider.disableWorker(workerId: workerId)
         
         XCTAssertEqual(
@@ -506,10 +515,15 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
     }
     
-    let dateProvider = DateProviderFixture()
-    let uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator()
-    let workerAlivenessProvider = MutableWorkerAlivenessProvider()
-    let checkAgainTimeInterval: TimeInterval = 42
+    lazy var anotherJobId: JobId = "anotherJobId"
+    lazy var anotherPrioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: anotherJobId, jobPriority: .medium)
+    lazy var anotherRequestId: RequestId = "anotherRequestId"
+    lazy var balancingBucketQueueFactory = BalancingBucketQueueFactory(
+        bucketQueueFactory: bucketQueueFactory,
+        nothingToDequeueBehavior: NothingToDequeueBehaviorCheckLater(checkAfter: checkAgainTimeInterval),
+        workerPermissionProvider: FakeWorkerPermissionProvider()
+    )
+    lazy var balancingQueue = balancingBucketQueueFactory.create()
     lazy var bucketQueueFactory = BucketQueueFactory(
         checkAgainTimeInterval: checkAgainTimeInterval,
         dateProvider: dateProvider,
@@ -519,19 +533,14 @@ final class BalancingBucketQueueTests: XCTestCase {
         uniqueIdentifierGenerator: uniqueIdentifierGenerator,
         workerAlivenessProvider: workerAlivenessProvider
     )
-    lazy var balancingBucketQueueFactory = BalancingBucketQueueFactory(
-        bucketQueueFactory: bucketQueueFactory,
-        nothingToDequeueBehavior: NothingToDequeueBehaviorCheckLater(checkAfter: checkAgainTimeInterval),
-        workerPermissionProvider: FakeWorkerPermissionProvider()
-    )
-    lazy var balancingQueue = balancingBucketQueueFactory.create()
-    let jobId: JobId = "jobId"
-    lazy var prioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: jobId, jobPriority: .medium)
-    let anotherJobId: JobId = "anotherJobId"
-    lazy var anotherPrioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: anotherJobId, jobPriority: .medium)
-    let highlyPrioritizedJobId: JobId = "highPriorityJobId"
+    lazy var checkAgainTimeInterval: TimeInterval = 42
+    lazy var dateProvider = DateProviderFixture()
     lazy var highlyPrioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: highlyPrioritizedJobId, jobPriority: .highest)
-    let requestId: RequestId = "requestId"
-    let workerId: WorkerId = "workerId"
-    let anotherRequestId: RequestId = "anotherRequestId"
+    lazy var highlyPrioritizedJobId: JobId = "highPriorityJobId"
+    lazy var jobId: JobId = "jobId"
+    lazy var prioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: jobId, jobPriority: .medium)
+    lazy var requestId: RequestId = "requestId"
+    lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator()
+    lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(knownWorkerIds: [workerId])
+    lazy var workerId: WorkerId = "workerId"
 }

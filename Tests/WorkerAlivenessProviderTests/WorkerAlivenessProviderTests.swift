@@ -1,21 +1,21 @@
 import Foundation
 import Models
+import WorkerAlivenessModels
 import WorkerAlivenessProvider
-import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class WorkerAlivenessProviderTests: XCTestCase {
     func test__when_worker_registers__it_is_alive() {
         let tracker = WorkerAlivenessProviderImpl(knownWorkerIds: [])
         tracker.didRegisterWorker(workerId: "worker")
-        XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").status, .alive)
+        XCTAssertTrue(tracker.alivenessForWorker(workerId: "worker").alive)
     }
     
     func test__when_worker_registers__it_has_no_buckets_being_processed() {
         let tracker = WorkerAlivenessProviderImpl(knownWorkerIds: [])
-        XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").status, .notRegistered)
+        XCTAssertFalse(tracker.alivenessForWorker(workerId: "worker").registered)
         tracker.didRegisterWorker(workerId: "worker")
-        XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").status, .alive)
+        XCTAssertTrue(tracker.alivenessForWorker(workerId: "worker").alive)
         XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").bucketIdsBeingProcessed, [])
     }
     
@@ -28,10 +28,10 @@ final class WorkerAlivenessProviderTests: XCTestCase {
     
     func test__when_worker_is_silent__tracker_returns_silent() {
         let tracker = WorkerAlivenessProviderImpl(knownWorkerIds: ["worker"])
-        XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").status, .notRegistered)
+        XCTAssertFalse(tracker.alivenessForWorker(workerId: "worker").registered)
         tracker.didRegisterWorker(workerId: "worker")
         tracker.setWorkerIsSilent(workerId: "worker")
-        XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").status, .silent)
+        XCTAssertTrue(tracker.alivenessForWorker(workerId: "worker").silent)
         XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").bucketIdsBeingProcessed, [])
     }
     
@@ -40,7 +40,7 @@ final class WorkerAlivenessProviderTests: XCTestCase {
         tracker.didRegisterWorker(workerId: "worker")
         tracker.set(bucketIdsBeingProcessed: ["bucketid"], workerId: "worker")
         tracker.setWorkerIsSilent(workerId: "worker")
-        XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").status, .silent)
+        XCTAssertTrue(tracker.alivenessForWorker(workerId: "worker").silent)
         XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").bucketIdsBeingProcessed, ["bucketid"])
     }
     
@@ -58,8 +58,10 @@ final class WorkerAlivenessProviderTests: XCTestCase {
             tracker.workerAliveness,
             [
                 WorkerId(value: "worker"): WorkerAliveness(
-                    status: .notRegistered,
-                    bucketIdsBeingProcessed: []
+                    registered: false,
+                    bucketIdsBeingProcessed: [],
+                    disabled: false,
+                    silent: false
                 )
             ]
         )
@@ -77,8 +79,10 @@ final class WorkerAlivenessProviderTests: XCTestCase {
             tracker.workerAliveness,
             [
                 WorkerId(value: "worker"): WorkerAliveness(
-                    status: .disabled,
-                    bucketIdsBeingProcessed: ["bucketId"]
+                    registered: true,
+                    bucketIdsBeingProcessed: ["bucketId"],
+                    disabled: true,
+                    silent: false
                 )
             ]
         )
@@ -97,12 +101,12 @@ final class WorkerAlivenessProviderTests: XCTestCase {
             tracker.workerAliveness,
             [
                 WorkerId(value: "worker"): WorkerAliveness(
-                    status: .alive,
-                    bucketIdsBeingProcessed: ["bucketId"]
+                    registered: true,
+                    bucketIdsBeingProcessed: ["bucketId"],
+                    disabled: false,
+                    silent: false
                 )
             ]
         )
     }
-    
-    let fixedDate = Date()
 }

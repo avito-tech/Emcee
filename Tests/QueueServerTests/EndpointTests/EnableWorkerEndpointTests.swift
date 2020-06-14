@@ -5,8 +5,8 @@ import Models
 import QueueServer
 import RESTMethods
 import TestHelpers
+import WorkerAlivenessModels
 import WorkerAlivenessProvider
-import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class EnableWorkerEndpointTests: XCTestCase {
@@ -37,7 +37,7 @@ final class EnableWorkerEndpointTests: XCTestCase {
         
         XCTAssertEqual(
             workerAlivenessProvider.alivenessForWorker(workerId: workerId),
-            WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [])
+            WorkerAliveness(registered: true, bucketIdsBeingProcessed: [], disabled: false, silent: false)
         )
     }
     

@@ -10,24 +10,20 @@ import QueueModelsTestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessProvider
-import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class BucketQueueTests: XCTestCase {
-    let workerConfigurations = WorkerConfigurations()
-    
-    let workerId: WorkerId = "worker_id"
-    let requestId: RequestId = "request_id"
+    lazy var dateProvider = DateProviderFixture()
+    lazy var requestId: RequestId = "request_id"
+    lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator()
     lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(knownWorkerIds: [workerId])
-    let mutableAlivenessProvider = MutableWorkerAlivenessProvider()
-    let dateProvider = DateProviderFixture()
-    let uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator()
+    lazy var workerConfigurations = WorkerConfigurations()
+    lazy var workerId: WorkerId = "worker_id"
     
     override func setUp() {
         continueAfterFailure = false
         
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
-        mutableAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: [])
     }
     
     func test__whenQueueIsCreated__it_is_depleted() {
@@ -112,13 +108,16 @@ final class BucketQueueTests: XCTestCase {
         }
     }
         
-    func test__reponse_workerIsNotAlive__when_worker_is_not_alive() {
+    func test__dequeue_marks_worker_as_alive() {
+        workerAlivenessProvider.setWorkerIsSilent(workerId: workerId)
+        
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: workerAlivenessProvider)
-        let dequeueResult = bucketQueue.dequeueBucket(
+        _ = bucketQueue.dequeueBucket(
             requestId: requestId,
-            workerId: WorkerId(value: UUID().uuidString)
+            workerId: workerId
         )
-        XCTAssertEqual(dequeueResult, .workerIsNotAlive)
+        
+        XCTAssertFalse(workerAlivenessProvider.isWorkerSilent(workerId: workerId))
     }
     
     func test__dequeueing_previously_dequeued_buckets() {
@@ -201,14 +200,11 @@ final class BucketQueueTests: XCTestCase {
     func test__when_worker_is_silent__its_dequeued_buckets_removed() {
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         
-        let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: mutableAlivenessProvider)
+        let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: workerAlivenessProvider)
         bucketQueue.enqueue(buckets: [bucket])
         _ = bucketQueue.dequeueBucket(requestId: requestId, workerId: workerId)
         
-        mutableAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(
-            status: .silent,
-            bucketIdsBeingProcessed: []
-        )
+        workerAlivenessProvider.setWorkerIsSilent(workerId: workerId)
         
         let stuckBuckets = bucketQueue.reenqueueStuckBuckets()
         XCTAssertEqual(

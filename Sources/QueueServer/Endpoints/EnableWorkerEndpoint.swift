@@ -15,13 +15,10 @@ public final class EnableWorkerEndpoint: RESTEndpoint {
     public let requestIndicatesActivity = false
     
     public enum EnableWorkerError: Swift.Error, CustomStringConvertible {
-        case missingWorkerConfiguration(workerId: WorkerId)
         case workerIsAlreadyEnabled(workerId: WorkerId)
         
         public var description: String {
             switch self {
-            case .missingWorkerConfiguration(let workerId):
-                return "Missing worker configuration for \(workerId)"
             case .workerIsAlreadyEnabled(let workerId):
                 return "Can't disable \(workerId) because it is already enabled"
             }
@@ -38,11 +35,11 @@ public final class EnableWorkerEndpoint: RESTEndpoint {
     
     public func handle(payload: EnableWorkerPayload) throws -> WorkerEnabledResponse {
         guard workerConfigurations.workerConfiguration(workerId: payload.workerId) != nil else {
-            throw EnableWorkerError.missingWorkerConfiguration(workerId: payload.workerId)
+            throw WorkerConfigurationError.missingWorkerConfiguration(workerId: payload.workerId)
         }
         Logger.debug("Request to enable worker with id: \(payload.workerId)")
         
-        guard workerAlivenessProvider.alivenessForWorker(workerId: payload.workerId).status == .disabled else {
+        guard workerAlivenessProvider.alivenessForWorker(workerId: payload.workerId).disabled else {
             throw EnableWorkerError.workerIsAlreadyEnabled(workerId: payload.workerId)
         }
         workerAlivenessProvider.enableWorker(workerId: payload.workerId)

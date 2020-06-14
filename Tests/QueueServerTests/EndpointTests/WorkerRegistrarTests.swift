@@ -7,7 +7,6 @@ import QueueServer
 import RESTMethods
 import TestHelpers
 import WorkerAlivenessProvider
-import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class WorkerRegistrarTests: XCTestCase {
@@ -30,7 +29,7 @@ final class WorkerRegistrarTests: XCTestCase {
     
     func test_registration_for_known_worker() throws {
         let registrar = createRegistrar()
-        XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId).status, .notRegistered)
+        XCTAssertFalse(alivenessTracker.alivenessForWorker(workerId: workerId).registered)
         
         XCTAssertEqual(
             try registrar.handle(
@@ -40,7 +39,8 @@ final class WorkerRegistrarTests: XCTestCase {
                 )
             ),
             .workerRegisterSuccess(workerConfiguration: WorkerConfigurationFixtures.workerConfiguration))
-        XCTAssertEqual(alivenessTracker.alivenessForWorker(workerId: workerId).status, .alive)
+        XCTAssertTrue(alivenessTracker.alivenessForWorker(workerId: workerId).registered)
+        XCTAssertTrue(alivenessTracker.alivenessForWorker(workerId: workerId).alive)
     }
     
     func test_successful_registration() throws {

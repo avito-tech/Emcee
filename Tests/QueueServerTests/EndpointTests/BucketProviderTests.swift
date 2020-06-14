@@ -7,7 +7,6 @@ import QueueModelsTestHelpers
 import QueueServer
 import RESTMethods
 import WorkerAlivenessProvider
-import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class BucketProviderTests: XCTestCase {
@@ -53,15 +52,15 @@ final class BucketProviderTests: XCTestCase {
         XCTAssertEqual(response, .checkAgainLater(checkAfter: 42))
     }
     
-    func test___reponse_is_worker_not_alive___if_worker_is_not_alive() throws {
-        let bucketQueue = FakeBucketQueue(fixedDequeueResult: .workerIsNotAlive)
+    func test___reponse_is_worker_not_registered___if_worker_is_not_registered() throws {
+        let bucketQueue = FakeBucketQueue(fixedDequeueResult: .workerIsNotRegistered)
         let bucketProvider = BucketProviderEndpoint(
             dequeueableBucketSource: bucketQueue,
             expectedPayloadSignature: expectedPayloadSignature
         )
         
         let response = try bucketProvider.handle(payload: fetchRequest)
-        XCTAssertEqual(response, .workerIsNotAlive)
+        XCTAssertEqual(response, .workerIsNotRegistered)
     }
     
     func test___reponse_has_dequeued_bucket___if_queue_has_enqueued_buckets() throws {

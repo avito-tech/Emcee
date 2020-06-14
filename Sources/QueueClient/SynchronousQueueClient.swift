@@ -13,7 +13,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         case bucket(Bucket)
         case queueIsEmpty
         case checkLater(TimeInterval)
-        case workerConsideredNotAlive
+        case workerNotRegistered
     }
     
     private let queueClient: QueueClient
@@ -157,8 +157,8 @@ public final class SynchronousQueueClient: QueueClientDelegate {
         bucketFetchResult = Either.success(.queueIsEmpty)
     }
     
-    public func queueClientWorkerConsideredNotAlive(_ sender: QueueClient) {
-        bucketFetchResult = Either.success(.workerConsideredNotAlive)
+    public func queueClientWorkerNotRegistered(_ sender: QueueClient) {
+        bucketFetchResult = Either.success(.workerNotRegistered)
     }
     
     public func queueClient(_ sender: QueueClient, fetchBucketLaterAfter after: TimeInterval) {

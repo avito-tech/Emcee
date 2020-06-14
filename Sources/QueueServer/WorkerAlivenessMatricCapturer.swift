@@ -2,6 +2,7 @@ import Foundation
 import Metrics
 import Models
 import Timer
+import WorkerAlivenessModels
 import WorkerAlivenessProvider
 
 public final class WorkerAlivenessMatricCapturer {
@@ -35,20 +36,21 @@ public final class WorkerAlivenessMatricCapturer {
         let metrics: [WorkerStatusMetric] = aliveness.map {
             WorkerStatusMetric(
                 workerId: $0.key.value,
-                status: $0.value.status.metricComponentName
+                status: $0.value.metricComponentName
             )
         }
         MetricRecorder.capture(metrics)
     }
 }
 
-private extension WorkerAliveness.Status {
+private extension WorkerAliveness {
     var metricComponentName: String {
-        switch self {
-        case .alive: return "alive"
-        case .notRegistered: return "notRegistered"
-        case .silent: return "silent"
-        case .disabled: return "disabled"
+        if !registered { return "notRegistered" }
+        if disabled { return "disabled" }
+        if silent {
+            return "silent"
+        } else {
+            return "alive"
         }
     }
 }

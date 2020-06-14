@@ -14,6 +14,7 @@ public enum RESTMethod: String, RESTPath {
     case reportAlive
     case scheduleTests
     case toggleWorkersSharing
+    case workerStatus
     case workersToUtilize
     
     public var pathWithLeadingSlash: String {

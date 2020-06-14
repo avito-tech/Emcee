@@ -8,18 +8,19 @@ import RequestSender
 import RequestSenderTestHelpers
 import Swifter
 import SynchronousWaiter
+import WorkerAlivenessModels
 import WorkerAlivenessProvider
-import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class WorkerAlivenessPollerTests: XCTestCase {
-    let workerAlivenessProvider = MutableWorkerAlivenessProvider()
-    let workerDetailsHolder = WorkerDetailsHolderImpl()
-    let worker1 = WorkerId("worker1")
-    let worker2 = WorkerId("worker2")
-    let bucketId1 = BucketId(value: "bucketId1")
+    lazy var bucketId1 = BucketId(value: "bucketId1")
+    lazy var worker1 = WorkerId("worker1")
+    lazy var worker2 = WorkerId("worker2")
+    lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(knownWorkerIds: [worker1, worker2])
+    lazy var workerDetailsHolder = WorkerDetailsHolderImpl()
     
     func test___querying_worker_state___updates_worker_aliveness_provider() {
+        workerAlivenessProvider.didRegisterWorker(workerId: worker1)
         workerDetailsHolder.update(workerId: worker1, restAddress: SocketAddress(host: "host1", port: 42))
         
         let requestSenderHasBeenUsedToQueryWorker1 = XCTestExpectation(description: "\(worker1) has been queried")
@@ -44,7 +45,7 @@ final class WorkerAlivenessPollerTests: XCTestCase {
         
         XCTAssertEqual(
             workerAlivenessProvider.alivenessForWorker(workerId: worker1),
-            WorkerAliveness(status: .notRegistered, bucketIdsBeingProcessed: [])
+            WorkerAliveness(registered: true, bucketIdsBeingProcessed: [], disabled: false, silent: false)
         )
         
         let poller = createWorkerAlivenessPoller(requestSenderProvider: requestSenderProvider)
@@ -55,19 +56,21 @@ final class WorkerAlivenessPollerTests: XCTestCase {
         
         XCTAssertEqual(
             workerAlivenessProvider.alivenessForWorker(workerId: worker1),
-            WorkerAliveness(status: .alive, bucketIdsBeingProcessed: Set([bucketId1]))
+            WorkerAliveness(registered: true, bucketIdsBeingProcessed: [bucketId1], disabled: false, silent: false)
         )
     }
     
     func test___when_worker_does_not_respond_in_time___aliveness_not_updated() {
+        workerAlivenessProvider.didRegisterWorker(workerId: worker1)
+        workerAlivenessProvider.didRegisterWorker(workerId: worker2)
         workerDetailsHolder.update(workerId: worker1, restAddress: SocketAddress(host: "host1", port: 0))
         
         let requestSenderHasBeenUsedToQueryWorker1 = XCTestExpectation(description: "\(worker1) has been queried")
         
         let requestSenderProvider = FakeRequestSenderProvider { socketAddress -> RequestSender in
             let requestSender = FakeRequestSender()
-            requestSender.requestCompleted = {
-                _ in requestSenderHasBeenUsedToQueryWorker1.fulfill()
+            requestSender.requestCompleted = { _ in
+                requestSenderHasBeenUsedToQueryWorker1.fulfill()
             }
             return requestSender
         }
@@ -79,8 +82,12 @@ final class WorkerAlivenessPollerTests: XCTestCase {
         wait(for: [requestSenderHasBeenUsedToQueryWorker1], timeout: 15)
         
         XCTAssertEqual(
-            workerAlivenessProvider.workerAliveness,
-            [:]
+            workerAlivenessProvider.alivenessForWorker(workerId: worker1),
+            WorkerAliveness(registered: true, bucketIdsBeingProcessed: [], disabled: false, silent: false)
+        )
+        XCTAssertEqual(
+            workerAlivenessProvider.alivenessForWorker(workerId: worker2),
+            WorkerAliveness(registered: true, bucketIdsBeingProcessed: [], disabled: false, silent: false)
         )
     }
     

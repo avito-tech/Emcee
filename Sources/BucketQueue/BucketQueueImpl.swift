@@ -76,12 +76,13 @@ final class BucketQueueImpl: BucketQueue {
     }
     
     public func dequeueBucket(requestId: RequestId, workerId: WorkerId) -> DequeueResult {
-        switch workerAlivenessProvider.alivenessForWorker(workerId: workerId).status {
-        case .silent, .notRegistered:
-            return .workerIsNotAlive
-        case .alive:
-            break
-        case .disabled:
+        workerAlivenessProvider.willDequeueBucket(workerId: workerId)
+        
+        guard workerAlivenessProvider.isWorkerRegistered(workerId: workerId) else {
+            return .workerIsNotRegistered
+        }
+        
+        guard workerAlivenessProvider.isWorkerEnabled(workerId: workerId) else {
             return .checkAgainLater(checkAfter: checkAgainTimeInterval)
         }
 
@@ -174,18 +175,22 @@ final class BucketQueueImpl: BucketQueue {
             let allDequeuedBuckets = dequeuedBuckets
             let stuckBuckets: [StuckBucket] = allDequeuedBuckets.compactMap { dequeuedBucket in
                 let aliveness = workerAlivenessProvider.alivenessForWorker(workerId: dequeuedBucket.workerId)
-                let stuckReason: StuckBucket.Reason
-                switch aliveness.status {
-                case .notRegistered:
+                if !aliveness.registered {
                     Logger.fatal("Worker '\(dequeuedBucket.workerId)' is not registered, but stuck bucket has worker id of this worker. This is not expected, as we shouldn't dequeue bucket to non-registered workers.")
-                case .alive, .disabled:
+                }
+                
+                let stuckReason: StuckBucket.Reason
+                if aliveness.disabled || aliveness.alive {
                     if aliveness.bucketIdsBeingProcessed.contains(dequeuedBucket.enqueuedBucket.bucket.bucketId) {
                        return nil
                     }
                     stuckReason = .bucketLost
-                case .silent:
+                } else if aliveness.silent {
                     stuckReason = .workerIsSilent
+                } else {
+                    return nil
                 }
+                
                 dequeuedBuckets.remove(dequeuedBucket)
                 return StuckBucket(
                     reason: stuckReason,

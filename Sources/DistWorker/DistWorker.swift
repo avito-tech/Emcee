@@ -180,8 +180,8 @@ public final class DistWorker: SchedulerDelegate {
             case .queueIsEmpty:
                 Logger.debug("Server returned that queue is empty")
                 return .result(nil)
-            case .workerConsideredNotAlive:
-                Logger.error("Server considers this worker as not alive")
+            case .workerNotRegistered:
+                Logger.error("Server considers this worker as not registered")
                 return .result(nil)
             case .checkLater(let after):
                 Logger.debug("Server asked to wait for \(after) seconds and fetch next bucket again")

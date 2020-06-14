@@ -23,6 +23,16 @@ let package = Package(
             ]
         ),
         .library(
+            name: "EmceeCommunications",
+            targets: [
+                "PortDeterminer",
+                "QueueClient",
+                "QueueCommunication",
+                "RemotePortDeterminer",
+                "RequestSender",
+            ]
+        ),
+        .library(
             name: "EmceeInterfaces",
             targets: [
                 "BuildArtifacts",
@@ -39,6 +49,7 @@ let package = Package(
                 "TestArgFile",
                 "TestDiscovery",
                 "TypedResourceLocation",
+                "WorkerAlivenessModels",
             ]
         ),
         .executable(

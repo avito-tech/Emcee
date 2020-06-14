@@ -2,16 +2,12 @@ import Dispatch
 import Foundation
 import Logging
 import Models
+import WorkerAlivenessModels
 
 public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
-    private enum InternalStatus {
-        case notRegistered
-        case registered
-    }
-    
     private let syncQueue = DispatchQueue(label: "ru.avito.emcee.workerAlivenessProvider.syncQueue")
     private let knownWorkerIds: Set<WorkerId>
-    private var workerStatuses = [WorkerId: InternalStatus]()
+    private var registeredWorkerIds = Set<WorkerId>()
     private var disabledWorkerIds = Set<WorkerId>()
     private var silentWorkerIds = Set<WorkerId>()
     private let workerBucketIdsBeingProcessed = WorkerCurrentlyProcessingBucketsTracker()
@@ -20,8 +16,11 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
         knownWorkerIds: Set<WorkerId>
     ) {
         self.knownWorkerIds = knownWorkerIds
-        for workerId in knownWorkerIds {
-            workerStatuses[workerId] = .notRegistered
+    }
+    
+    public func willDequeueBucket(workerId: WorkerId) {
+        syncQueue.sync {
+            onSyncQueue_markWorkerAsAlive(workerId: workerId)
         }
     }
     
@@ -39,9 +38,21 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
         }
     }
     
+    public func bucketIdsBeingProcessed(workerId: WorkerId) -> Set<BucketId> {
+        syncQueue.sync {
+            workerBucketIdsBeingProcessed.bucketIdsBeingProcessedBy(workerId: workerId)
+        }
+    }
+    
+    public func isWorkerRegistered(workerId: WorkerId) -> Bool {
+        syncQueue.sync {
+            registeredWorkerIds.contains(workerId)
+        }
+    }
+    
     public func didRegisterWorker(workerId: WorkerId) {
         syncQueue.sync {
-            workerStatuses[workerId] = .registered
+            registeredWorkerIds.insert(workerId)
             onSyncQueue_markWorkerAsAlive(workerId: workerId)
         }
     }
@@ -76,9 +87,21 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
         }
     }
     
+    public func isWorkerEnabled(workerId: WorkerId) -> Bool {
+        syncQueue.sync {
+            !disabledWorkerIds.contains(workerId)
+        }
+    }
+    
     public func setWorkerIsSilent(workerId: WorkerId) {
         syncQueue.sync {
             onSyncQueue_markWorkerAsSilent(workerId: workerId)
+        }
+    }
+    
+    public func isWorkerSilent(workerId: WorkerId) -> Bool {
+        syncQueue.sync {
+            silentWorkerIds.contains(workerId)
         }
     }
     
@@ -105,36 +128,13 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     }
     
     private func onSyncQueue_alivenessForWorker(workerId: WorkerId) -> WorkerAliveness {
-        guard let internalStatus = workerStatuses[workerId] else {
-            return WorkerAliveness(status: .notRegistered, bucketIdsBeingProcessed: [])
-        }
-        
-        switch internalStatus {
-        case .notRegistered:
-            return WorkerAliveness(
-                status: .notRegistered,
-                bucketIdsBeingProcessed: []
-            )
-        case .registered:
-            let bucketIdsBeingProcessed = workerBucketIdsBeingProcessed.bucketIdsBeingProcessedBy(
+        WorkerAliveness(
+            registered: registeredWorkerIds.contains(workerId),
+            bucketIdsBeingProcessed: workerBucketIdsBeingProcessed.bucketIdsBeingProcessedBy(
                 workerId: workerId
-            )
-            
-            if disabledWorkerIds.contains(workerId) {
-                return WorkerAliveness(
-                    status: .disabled,
-                    bucketIdsBeingProcessed: bucketIdsBeingProcessed)
-            } else if silentWorkerIds.contains(workerId) {
-                return WorkerAliveness(
-                    status: .silent,
-                    bucketIdsBeingProcessed: bucketIdsBeingProcessed
-                )
-            } else {
-                return WorkerAliveness(
-                    status: .alive,
-                    bucketIdsBeingProcessed: bucketIdsBeingProcessed
-                )
-            }
-        }
+            ),
+            disabled: disabledWorkerIds.contains(workerId),
+            silent: silentWorkerIds.contains(workerId)
+        )
     }
 }

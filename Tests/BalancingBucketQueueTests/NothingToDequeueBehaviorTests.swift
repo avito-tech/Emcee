@@ -26,8 +26,8 @@ final class NothingToDequeueBehaviorTests: XCTestCase {
             .queueIsEmpty
         )
         XCTAssertEqual(
-            behavior.dequeueResultWhenNoBucketsToDequeueAvaiable(dequeueResults:[.workerIsNotAlive, .workerIsNotAlive]),
-            .workerIsNotAlive
+            behavior.dequeueResultWhenNoBucketsToDequeueAvaiable(dequeueResults:[.workerIsNotRegistered, .workerIsNotRegistered]),
+            .workerIsNotRegistered
         )
         XCTAssertEqual(
             behavior.dequeueResultWhenNoBucketsToDequeueAvaiable(dequeueResults:[.checkAgainLater(checkAfter: .infinity), .checkAgainLater(checkAfter: 0)]),

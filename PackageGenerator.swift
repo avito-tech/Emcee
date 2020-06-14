@@ -100,7 +100,8 @@ func generatePackageSwift(raplacementForTargets: [String]) throws {
         log("Checking for Package.swift consistency")
         let existingContents = try String(contentsOf: URL(fileURLWithPath: "Package.swift"))
         if existingContents != templateContents {
-            fatalError("ON_CI is set, and Package.swift differs. Please update and commit Package.swift!")
+            print("\(#file):\(#line): ON_CI is set, and Package.swift differs. Please update and commit Package.swift!")
+            exit(1)
         }
     }
     

@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import WorkerAlivenessModels
 
 public protocol WorkerAlivenessProvider: class {
     /// Returns immediate snapshot of all worker aliveness statuses.
@@ -7,25 +8,28 @@ public protocol WorkerAlivenessProvider: class {
     
     func alivenessForWorker(workerId: WorkerId) -> WorkerAliveness
     
+    func willDequeueBucket(workerId: WorkerId)
     func set(bucketIdsBeingProcessed: Set<BucketId>, workerId: WorkerId)
     func didDequeueBucket(bucketId: BucketId, workerId: WorkerId)
+    func bucketIdsBeingProcessed(workerId: WorkerId) -> Set<BucketId>
     
+    func isWorkerRegistered(workerId: WorkerId) -> Bool
     func didRegisterWorker(workerId: WorkerId)
     
     func enableWorker(workerId: WorkerId)
     func disableWorker(workerId: WorkerId)
+    func isWorkerEnabled(workerId: WorkerId) -> Bool
     
     func setWorkerIsSilent(workerId: WorkerId)
+    func isWorkerSilent(workerId: WorkerId) -> Bool
 }
 
 public extension WorkerAlivenessProvider {
     var hasAnyAliveWorker: Bool {
-        return workerAliveness.contains { _, value in
-            value.status == .alive
-        }
+        !aliveWorkerIds.isEmpty
     }
     
     var aliveWorkerIds: [WorkerId] {
-        return workerAliveness.filter { $0.value.status == .alive }.map { $0.key }
+        return workerAliveness.filter { $0.value.silent == false }.map { $0.key }
     }
 }
