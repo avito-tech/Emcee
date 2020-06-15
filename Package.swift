@@ -60,6 +60,7 @@ let package = Package(
             // MARK: AppleTools
             name: "AppleTools",
             dependencies: [
+                "AtomicModels",
                 "BuildArtifacts",
                 "DateProvider",
                 "DeveloperDirLocator",
