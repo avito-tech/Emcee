@@ -1,19 +1,26 @@
 import Deployer
 import Models
+import QueueCommunication
 import RESTInterfaces
 import RESTMethods
 import RESTServer
 
 public final class WorkersToUtilizeEndpoint: RESTEndpoint {
-    public var path: RESTPath = RESTMethod.workersToUtilize
-    
+    public let path: RESTPath = RESTMethod.workersToUtilize
     public let requestIndicatesActivity = false
     
-    public init() { }
+    private let service: WorkersToUtilizeService
     
-    public func handle(payload: [DeploymentDestination]) throws -> WorkersToUtilizeResponse {
+    public init(service: WorkersToUtilizeService) {
+        self.service = service
+    }
+    
+    public func handle(payload: WorkersToUtilizePayload) throws -> WorkersToUtilizeResponse {
         return .workersToUtilize(
-            workerIds: Set(payload.map { $0.workerId })
+            workerIds: Set(service.workersToUtilize(
+                deployments: payload.deployments,
+                version: payload.version
+            ))
         )
     }
 }

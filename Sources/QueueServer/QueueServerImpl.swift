@@ -43,6 +43,7 @@ public final class QueueServerImpl: QueueServer {
     private let workerRegistrar: WorkerRegistrar
     private let workersToUtilizeEndpoint: WorkersToUtilizeEndpoint
     
+    
     public init(
         automaticTerminationController: AutomaticTerminationController,
         bucketSplitInfo: BucketSplitInfo,
@@ -153,9 +154,9 @@ public final class QueueServerImpl: QueueServer {
             reportInterval: .seconds(30),
             workerAlivenessProvider: workerAlivenessProvider
         )
-        self.toggleWorkersSharingEndpoint = ToggleWorkersSharingEndpoint(poller: workerUtilizationStatusPoller)
-        self.workersToUtilizeEndpoint = WorkersToUtilizeEndpoint()
+        self.workersToUtilizeEndpoint = WorkersToUtilizeEndpoint(service: DefaultWorkersToUtilizeService())
         self.deploymentDestinationsHandler = DeploymentDestinationsEndpoint(destinations: deploymentDestinations)
+        self.toggleWorkersSharingEndpoint = ToggleWorkersSharingEndpoint(poller: workerUtilizationStatusPoller)
     }
     
     public func start() throws -> Int {
@@ -179,6 +180,7 @@ public final class QueueServerImpl: QueueServer {
         
         let port = try httpRestServer.start()
         Logger.info("Started queue server on port \(port)")
+        
         return port
     }
     

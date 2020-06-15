@@ -6,11 +6,12 @@ import Models
 import RequestSender
 import RESTMethods
 
-public class DefaultQueueCommunicationService: QueueCommunicationService {    
+public class DefaultQueueCommunicationService: QueueCommunicationService {
     private let requestSenderProvider: RequestSenderProvider
     private let remoteQueueDetector: RemoteQueueDetector
     private let requestTimeout: TimeInterval
     private let socketHost: String
+    private let version: Version
     private let callbackQueue = DispatchQueue(
         label: "RuntimeDumpRemoteCache.callbackQueue",
         qos: .default,
@@ -18,15 +19,17 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
     )
     
     public init(
+        remoteQueueDetector: RemoteQueueDetector,
+        requestSenderProvider: RequestSenderProvider,
         requestTimeout: TimeInterval,
         socketHost: String,
-        requestSenderProvider: RequestSenderProvider,
-        remoteQueueDetector: RemoteQueueDetector
+        version: Version
     ) {
+        self.remoteQueueDetector = remoteQueueDetector
+        self.requestSenderProvider = requestSenderProvider
         self.requestTimeout = requestTimeout
         self.socketHost = socketHost
-        self.requestSenderProvider = requestSenderProvider
-        self.remoteQueueDetector = remoteQueueDetector
+        self.version = version
     }
     
     public func workersToUtilize(
@@ -41,8 +44,9 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
                 socketAddress: SocketAddress(host: socketHost, port: masterPort)
             )
 
+            let payload = WorkersToUtilizePayload(deployments: deployments, version: version)
             requestSender.sendRequestWithCallback(
-                request: WorkersToUtilizeRequest(deployments: deployments),
+                request: WorkersToUtilizeRequest(payload: payload),
                 callbackQueue: callbackQueue,
                 callback: { (result: Either<WorkersToUtilizeResponse, RequestSenderError>) in
                     do {

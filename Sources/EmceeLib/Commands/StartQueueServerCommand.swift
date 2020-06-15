@@ -84,13 +84,14 @@ public final class StartQueueServerCommand: Command {
             requestSenderProvider: requestSenderProvider
         )
         let queueCommunicationService = DefaultQueueCommunicationService(
-            requestTimeout: 10,
-            socketHost: socketHost,
-            requestSenderProvider: requestSenderProvider,
             remoteQueueDetector: DefaultRemoteQueueDetector(
                 emceeVersion: emceeVersion,
                 remotePortDeterminer: remotePortDeterminer
-            )
+            ),
+            requestSenderProvider: requestSenderProvider,
+            requestTimeout: 10,
+            socketHost: socketHost,
+            version: emceeVersion
         )
         let workerUtilizationStatusPoller = DefaultWorkerUtilizationStatusPoller(
             emceeVersion: emceeVersion,

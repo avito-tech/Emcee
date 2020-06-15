@@ -9,8 +9,8 @@ public final class WorkersToUtilizeRequest: NetworkRequest {
     public let httpMethod = HTTPMethod.post
     public let pathWithLeadingSlash = RESTMethod.workersToUtilize.pathWithLeadingSlash
 
-    public let payload: [DeploymentDestination]?
-    public init(deployments: [DeploymentDestination]) {
-        self.payload = deployments
+    public let payload: WorkersToUtilizePayload?
+    public init(payload: WorkersToUtilizePayload) {
+        self.payload = payload
     }
 }

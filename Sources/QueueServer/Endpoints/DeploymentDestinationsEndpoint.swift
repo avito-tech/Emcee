@@ -6,7 +6,7 @@ import RESTMethods
 import RESTServer
 
 public final class DeploymentDestinationsEndpoint: RESTEndpoint {
-    public var path: RESTPath = RESTMethod.deploymentDestinations
+    public let path: RESTPath = RESTMethod.deploymentDestinations
     
     public let requestIndicatesActivity = false
     
