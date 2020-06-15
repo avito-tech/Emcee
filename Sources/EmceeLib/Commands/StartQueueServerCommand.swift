@@ -106,6 +106,7 @@ public final class StartQueueServerCommand: Command {
             ),
             checkAgainTimeInterval: queueServerRunConfiguration.checkAgainTimeInterval,
             dateProvider: SystemDateProvider(),
+            deploymentDestinations: workerDestinations,
             emceeVersion: emceeVersion,
             localPortDeterminer: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange),
             payloadSignature: payloadSignature,

@@ -6,4 +6,9 @@ public protocol QueueCommunicationService {
         deployments: [DeploymentDestination],
         completion: @escaping (Either<Set<WorkerId>, Error>) -> ()
     )
+    
+    func deploymentDestinations(
+        port: Int,
+        completion: @escaping (Either<[DeploymentDestination], Error>) -> ()
+    )
 }

@@ -48,7 +48,7 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
                     do {
                         let response = try result.dematerialize()
                         switch response {
-                        case .workersToUtilize(workerIds: let workerIds):
+                        case .workersToUtilize(let workerIds):
                             completion(.success(workerIds))
                         }
                     } catch {
@@ -59,6 +59,29 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
         } catch {
             Logger.error("Failed to find master queue port: \(error)")
             return completion(Either.error(error))
+        }
+    }
+    
+    public func deploymentDestinations(
+        port: Int,
+        completion: @escaping (Either<[DeploymentDestination], Error>) -> ()
+    ) {
+        let requestSender = requestSenderProvider.requestSender(
+            socketAddress: SocketAddress(host: socketHost, port: port)
+        )
+        
+        requestSender.sendRequestWithCallback(
+            request: DeploymentDestinationsRequest(),
+            callbackQueue: callbackQueue) { (result: Either<DeploymentDestinationsResponse, RequestSenderError>) in
+                do {
+                    let response = try result.dematerialize()
+                    switch response {
+                    case .deploymentDestinations(let destinations):
+                        completion(.success(destinations))
+                    }
+                } catch {
+                    completion(.error(error))
+                }
         }
     }
 }

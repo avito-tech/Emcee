@@ -7,7 +7,7 @@ import RESTServer
 public final class WorkersToUtilizeEndpoint: RESTEndpoint {
     public var path: RESTPath = RESTMethod.workersToUtilize
     
-    public var requestIndicatesActivity = false
+    public let requestIndicatesActivity = false
     
     public init() { }
     

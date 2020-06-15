@@ -2,6 +2,7 @@ import AutomaticTermination
 import BalancingBucketQueue
 import BucketQueue
 import DateProvider
+import Deployer
 import DistWorkerModels
 import Extensions
 import Foundation
@@ -24,6 +25,7 @@ public final class QueueServerImpl: QueueServer {
     private let balancingBucketQueue: BalancingBucketQueue
     private let bucketProvider: BucketProviderEndpoint
     private let bucketResultRegistrar: BucketResultRegistrar
+    private let deploymentDestinationsHandler: DeploymentDestinationsEndpoint
     private let disableWorkerHandler: DisableWorkerEndpoint
     private let enableWorkerHandler: EnableWorkerEndpoint
     private let httpRestServer: HTTPRESTServer
@@ -46,6 +48,7 @@ public final class QueueServerImpl: QueueServer {
         bucketSplitInfo: BucketSplitInfo,
         checkAgainTimeInterval: TimeInterval,
         dateProvider: DateProvider,
+        deploymentDestinations: [DeploymentDestination],
         emceeVersion: Version,
         localPortDeterminer: LocalPortDeterminer,
         payloadSignature: PayloadSignature,
@@ -152,11 +155,13 @@ public final class QueueServerImpl: QueueServer {
         )
         self.toggleWorkersSharingEndpoint = ToggleWorkersSharingEndpoint(poller: workerUtilizationStatusPoller)
         self.workersToUtilizeEndpoint = WorkersToUtilizeEndpoint()
+        self.deploymentDestinationsHandler = DeploymentDestinationsEndpoint(destinations: deploymentDestinations)
     }
     
     public func start() throws -> Int {
         httpRestServer.add(handler: RESTEndpointOf(bucketProvider))
         httpRestServer.add(handler: RESTEndpointOf(bucketResultRegistrar))
+        httpRestServer.add(handler: RESTEndpointOf(deploymentDestinationsHandler))
         httpRestServer.add(handler: RESTEndpointOf(disableWorkerHandler))
         httpRestServer.add(handler: RESTEndpointOf(enableWorkerHandler))
         httpRestServer.add(handler: RESTEndpointOf(jobDeleteEndpoint))

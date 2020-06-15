@@ -10,7 +10,7 @@ public final class CurrentlyProcessingBucketsEndpoint: RESTEndpoint {
     public typealias PayloadType = VoidPayload
     public typealias ResponseType = CurrentlyProcessingBucketsResponse
     public let path: RESTPath = CurrentlyProcessingBuckets.path
-    public var requestIndicatesActivity = false
+    public let requestIndicatesActivity = false
     
     private let currentlyBeingProcessedBucketsTracker: CurrentlyBeingProcessedBucketsTracker
 

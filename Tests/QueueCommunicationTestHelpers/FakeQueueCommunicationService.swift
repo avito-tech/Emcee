@@ -16,4 +16,11 @@ public class FakeQueueCommunicationService: QueueCommunicationService {
     ) {
         completionHandler(completion)
     }
+    
+    public func deploymentDestinations(
+        port: Int,
+        completion: @escaping (Either<[DeploymentDestination], Error>) -> ())
+    {
+        completion(.success([]))
+    }
 }

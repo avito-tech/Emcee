@@ -1215,6 +1215,7 @@ let package = Package(
                 "BucketQueue",
                 "BucketQueueTestHelpers",
                 "DateProviderTestHelpers",
+                "DeployerTestHelpers",
                 "DistWorkerModels",
                 "DistWorkerModelsTestHelpers",
                 "Extensions",
