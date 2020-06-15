@@ -40,8 +40,6 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
         let jobStates = jobStateProvider.allJobStates
         let runningQueueState = queueStateProvider.runningQueueState
         
-        BucketQueueStateLogger(runningQueueState: runningQueueState).logQueueSize()
-        
         let queueStateMetrics = QueueStateMetricGatherer.metrics(
             jobStates: jobStates,
             runningQueueState: runningQueueState

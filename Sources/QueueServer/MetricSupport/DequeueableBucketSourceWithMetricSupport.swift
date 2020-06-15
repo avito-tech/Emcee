@@ -43,7 +43,6 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
     ) {
         let jobStates = jobStateProvider.allJobStates
         let runningQueueState = queueStateProvider.runningQueueState
-        BucketQueueStateLogger(runningQueueState: runningQueueState).logQueueSize()
         
         let queueStateMetrics = QueueStateMetricGatherer.metrics(
             jobStates: jobStates,

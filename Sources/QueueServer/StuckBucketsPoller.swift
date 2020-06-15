@@ -37,7 +37,6 @@ public final class StuckBucketsPoller {
             Logger.warning("-- Bucket \(stuckBucket.bucket.bucketId) is stuck with worker '\(stuckBucket.workerId)': \(stuckBucket.reason)")
         }
         
-        BucketQueueStateLogger(runningQueueState: statefulStuckBucketsReenqueuer.runningQueueState).logQueueSize()
         MetricRecorder.capture(
             QueueStateMetricGatherer.metrics(
                 jobStates: statefulStuckBucketsReenqueuer.allJobStates,
