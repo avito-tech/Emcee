@@ -1,4 +1,5 @@
 import Foundation
+import Models
 import PortDeterminer
 import Swifter
 import XCTest
@@ -13,7 +14,7 @@ final class LocalPortDeterminerTests: XCTestCase {
         let server = busyServerWithPort()
         let port = server.port
         
-        let determiner = LocalPortDeterminer(portRange: port...port)
+        let determiner = LocalPortDeterminer(portRange: Models.Port(value: port)...Models.Port(value: port))
         XCTAssertThrowsError(_ = try determiner.availableLocalPort())
     }
     
@@ -31,8 +32,8 @@ final class LocalPortDeterminerTests: XCTestCase {
         let freePort = self.freePort()
         
         // this could be flaky, as we can't guarantee that we will have continuous port range
-        if server.port == freePort - 1 {
-            let determiner = LocalPortDeterminer(portRange: server.port...freePort)
+        if server.port == freePort.value - 1 {
+            let determiner = LocalPortDeterminer(portRange: Models.Port(value: server.port)...freePort)
             XCTAssertNoThrow(
                 XCTAssertEqual(try determiner.availableLocalPort(), freePort)
             )
@@ -49,7 +50,7 @@ final class LocalPortDeterminerTests: XCTestCase {
         return (server: httpServer, port: try! httpServer.port())
     }
     
-    private func freePort(file: StaticString = #file, line: UInt = #line) -> Int {
+    private func freePort(file: StaticString = #file, line: UInt = #line) -> Models.Port {
         let temporaryHttpServer = HttpServer()
         XCTAssertNoThrow(
             try temporaryHttpServer.start(0, forceIPv4: false, priority: .background),
@@ -58,6 +59,6 @@ final class LocalPortDeterminerTests: XCTestCase {
         )
         let port = try! temporaryHttpServer.port()
         temporaryHttpServer.stop()
-        return port
+        return Port(value: port)
     }
 }

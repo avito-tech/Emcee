@@ -82,7 +82,7 @@ public final class LocalQueueServerRunner {
         )
     }
     
-    private func startQueueServer(emceeVersion: Version) throws -> Int {
+    private func startQueueServer(emceeVersion: Version) throws -> Models.Port {
         let lockToStartQueueServer = try FileLock.named("emcee_starting_queue_server_\(emceeVersion.value)")
         return try lockToStartQueueServer.whileLocked {
             try ensureQueueWithMatchingVersionIsNotRunning(version: emceeVersion)
@@ -93,14 +93,14 @@ public final class LocalQueueServerRunner {
     private func ensureQueueWithMatchingVersionIsNotRunning(version: Version) throws {
         let portToQueueServerVersion = remotePortDeterminer.queryPortAndQueueServerVersion(timeout: 10)
         
-        try portToQueueServerVersion.forEach { (item: (key: Int, value: Version)) in
+        try portToQueueServerVersion.forEach { (item: (key: Models.Port, value: Version)) in
             if item.value == version {
                 throw LocalQueueServerError.sameVersionQueueIsAlreadyRunning(port: item.key, version: version)
             }
         }
     }
     
-    private func startWorkers(emceeVersion: Version, port: Int) throws {
+    private func startWorkers(emceeVersion: Version, port: Models.Port) throws {
         Logger.info("Deploying and starting workers in background")
         
         let remoteWorkersStarter = RemoteWorkersStarter(

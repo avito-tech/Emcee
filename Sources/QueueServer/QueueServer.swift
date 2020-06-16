@@ -3,7 +3,7 @@ import Models
 import QueueModels
 
 public protocol QueueServer {
-    func start() throws -> Int
+    func start() throws -> Port
     func schedule(
         bucketSplitter: BucketSplitter,
         testEntryConfigurations: [TestEntryConfiguration],

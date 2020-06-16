@@ -8,13 +8,13 @@ import RequestSender
 
 public final class RemoteQueuePortScanner: RemotePortDeterminer {
     private let host: String
-    private let portRange: ClosedRange<Int>
+    private let portRange: ClosedRange<Models.Port>
     private let requestSenderProvider: RequestSenderProvider
     private let workQueue = DispatchQueue(label: "RemoteQueuePortScanner.workQueue")
     
     public init(
         host: String,
-        portRange: ClosedRange<Int>,
+        portRange: ClosedRange<Models.Port>,
         requestSenderProvider: RequestSenderProvider
     ) {
         self.host = host
@@ -22,10 +22,10 @@ public final class RemoteQueuePortScanner: RemotePortDeterminer {
         self.requestSenderProvider = requestSenderProvider
     }
     
-    public func queryPortAndQueueServerVersion(timeout: TimeInterval) -> [Int: Version] {
+    public func queryPortAndQueueServerVersion(timeout: TimeInterval) -> [Models.Port: Version] {
         let group = DispatchGroup()
         
-        let portToVersion = AtomicValue<[Int: Version]>([:])
+        let portToVersion = AtomicValue<[Models.Port: Version]>([:])
         
         for port in portRange {
             group.enter()

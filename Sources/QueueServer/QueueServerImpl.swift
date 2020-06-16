@@ -157,7 +157,7 @@ public final class QueueServerImpl: QueueServer {
         self.toggleWorkersSharingEndpoint = ToggleWorkersSharingEndpoint(poller: workerUtilizationStatusPoller)
     }
     
-    public func start() throws -> Int {
+    public func start() throws -> Models.Port {
         httpRestServer.add(handler: RESTEndpointOf(bucketProvider))
         httpRestServer.add(handler: RESTEndpointOf(bucketResultRegistrar))
         httpRestServer.add(handler: RESTEndpointOf(deploymentDestinationsHandler))

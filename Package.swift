@@ -980,6 +980,7 @@ let package = Package(
             name: "PortDeterminer",
             dependencies: [
                 "Logging",
+                "Models",
                 "Swifter",
             ],
             path: "Sources/PortDeterminer"
@@ -988,6 +989,7 @@ let package = Package(
             // MARK: PortDeterminerTests
             name: "PortDeterminerTests",
             dependencies: [
+                "Models",
                 "PortDeterminer",
                 "Swifter",
             ],

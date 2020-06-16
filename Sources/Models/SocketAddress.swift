@@ -2,7 +2,7 @@ import Foundation
 
 public struct SocketAddress: Codable, CustomStringConvertible, Hashable {
     public let host: String
-    public let port: Int
+    public let port: Port
     
     public enum ParseError: Error, CustomStringConvertible {
         case unsupportedFormat(String)
@@ -15,7 +15,7 @@ public struct SocketAddress: Codable, CustomStringConvertible, Hashable {
         }
     }
 
-    public init(host: String, port: Int) {
+    public init(host: String, port: Port) {
         self.host = host
         self.port = port
     }
@@ -27,7 +27,7 @@ public struct SocketAddress: Codable, CustomStringConvertible, Hashable {
         }
         return SocketAddress(
             host: String(components[0]),
-            port: port
+            port: Port(value: port)
         )
     }
     
@@ -45,7 +45,7 @@ public struct SocketAddress: Codable, CustomStringConvertible, Hashable {
     }
     
     public var asString: String {
-        return "\(host):\(port)"
+        return "\(host):\(port.value)"
     }
     
     public var description: String {

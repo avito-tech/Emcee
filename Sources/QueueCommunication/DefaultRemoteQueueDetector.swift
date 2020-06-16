@@ -25,7 +25,7 @@ public final class DefaultRemoteQueueDetector: RemoteQueueDetector {
         self.remotePortDeterminer = remotePortDeterminer
     }
     
-    public func findSuitableRemoteRunningQueuePorts(timeout: TimeInterval) throws -> Set<Int> {
+    public func findSuitableRemoteRunningQueuePorts(timeout: TimeInterval) throws -> Set<Models.Port> {
         let availableQueues = remotePortDeterminer.queryPortAndQueueServerVersion(timeout: timeout)
         let ports = availableQueues
             .filter { keyValue -> Bool in keyValue.value == emceeVersion }
@@ -33,7 +33,7 @@ public final class DefaultRemoteQueueDetector: RemoteQueueDetector {
         return Set(ports)
     }
     
-    public func findMasterQueuePort(timeout: TimeInterval) throws -> Int {
+    public func findMasterQueuePort(timeout: TimeInterval) throws -> Models.Port {
         let availableQueues = remotePortDeterminer.queryPortAndQueueServerVersion(timeout: timeout)
     
         let sortedQueues = availableQueues

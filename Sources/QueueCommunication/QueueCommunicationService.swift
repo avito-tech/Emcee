@@ -8,7 +8,7 @@ public protocol QueueCommunicationService {
     )
     
     func deploymentDestinations(
-        port: Int,
+        port: Port,
         completion: @escaping (Either<[DeploymentDestination], Error>) -> ()
     )
 }

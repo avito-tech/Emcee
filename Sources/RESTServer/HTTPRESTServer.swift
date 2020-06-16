@@ -1,6 +1,7 @@
 import AutomaticTermination
 import Foundation
 import Logging
+import Models
 import RESTMethods
 import Swifter
 
@@ -46,12 +47,12 @@ public final class HTTPRESTServer {
         }
     }
     
-    public func start() throws -> Int {
+    public func start() throws -> Models.Port {
         let port = try portProvider.localPort()
-        try server.start(in_port_t(port), forceIPv4: false, priority: .default)
+        try server.start(in_port_t(port.value), forceIPv4: false, priority: .default)
         
         let actualPort = try server.port()
         Logger.debug("Started REST server on \(actualPort) port")
-        return actualPort
+        return Port(value: actualPort)
     }
 }

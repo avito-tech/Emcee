@@ -139,7 +139,7 @@ public final class QueueClient {
         var components = URLComponents()
         components.scheme = "http"
         components.host = queueServerAddress.host
-        components.port = queueServerAddress.port
+        components.port = queueServerAddress.port.value
         components.path = restMethod.pathWithLeadingSlash
         guard let url = components.url else {
             Logger.fatal("Unable to convert components to url: \(components)")

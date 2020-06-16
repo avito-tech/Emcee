@@ -67,7 +67,7 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
     }
     
     public func deploymentDestinations(
-        port: Int,
+        port: Models.Port,
         completion: @escaping (Either<[DeploymentDestination], Error>) -> ()
     ) {
         let requestSender = requestSenderProvider.requestSender(

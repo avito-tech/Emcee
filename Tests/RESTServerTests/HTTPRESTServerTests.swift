@@ -92,7 +92,7 @@ final class HTTPRESTServerTests: XCTestCase {
     }
     
     func startDataTask<T: Encodable>(
-        port: Int,
+        port: Models.Port,
         body: T,
         completion: @escaping (Data?, URLResponse?) -> ()
     ) -> (task: URLSessionDataTask, waiter: XCTestExpectation) {

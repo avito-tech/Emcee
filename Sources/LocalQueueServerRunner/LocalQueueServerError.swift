@@ -1,8 +1,7 @@
-import Foundation
 import Models
 
 public enum LocalQueueServerError: Error, CustomStringConvertible {
-    case sameVersionQueueIsAlreadyRunning(port: Int, version: Version)
+    case sameVersionQueueIsAlreadyRunning(port: Port, version: Version)
     
     public var description: String {
         switch self {

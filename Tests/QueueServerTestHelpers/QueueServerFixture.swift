@@ -11,7 +11,7 @@ public class QueueServerFixture: QueueServer {
     
     public init() {}
     
-    public func start() throws -> Int {
+    public func start() throws -> Port {
         return 1
     }
     

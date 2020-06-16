@@ -1,6 +1,6 @@
-import Foundation
+import Models
 
 public protocol PortProvider {
-    func localPort() throws -> Int
+    func localPort() throws -> Port
 }
 

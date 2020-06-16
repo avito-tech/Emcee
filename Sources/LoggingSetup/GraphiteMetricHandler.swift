@@ -21,7 +21,7 @@ public final class GraphiteMetricHandler: MetricHandler {
         outputStream = EasyOutputStream(
             outputStreamProvider: NetworkSocketOutputStreamProvider(
                 host: graphiteSocketAddress.host,
-                port: graphiteSocketAddress.port
+                port: graphiteSocketAddress.port.value
             ),
             errorHandler: { stream, error in
                 Logger.error("Graphite stream error: \(error)")

@@ -16,7 +16,7 @@ import XCTest
 class QueueClientTests: XCTestCase {
     
     private var server = HttpServer()
-    private var port: Int = 0
+    private var port: Models.Port = 0
     private let delegate = FakeQueueClientDelegate()
     private var queueClient: QueueClient!
     private let workerId = WorkerId(value: "workerId")
@@ -31,7 +31,7 @@ class QueueClientTests: XCTestCase {
         do {
             server[query] = response
             try server.start(0)
-            port = try server.port()
+            port = Models.Port(value: try server.port())
             queueClient = QueueClient(
                 queueServerAddress: SocketAddress(host: "127.0.0.1", port: port),
                 requestSenderProvider: DefaultRequestSenderProvider()

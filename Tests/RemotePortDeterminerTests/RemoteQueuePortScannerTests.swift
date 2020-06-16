@@ -32,7 +32,7 @@ final class RemoteQueuePortScannerTests: XCTestCase {
             }
         }
         try server.start(0, forceIPv4: false, priority: .default)
-        let port = try server.port()
+        let port = Port(value: try server.port())
         
         let scanner = RemoteQueuePortScanner(
             host: "localhost",

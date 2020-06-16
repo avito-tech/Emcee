@@ -123,7 +123,7 @@ final class WorkerAlivenessPollerTests: XCTestCase {
         for i in 0 ..< numberOfWorkers {
             workerDetailsHolder.update(
                 workerId: WorkerId(value: "worker__\(i)"),
-                restAddress: SocketAddress(host: "localhost", port: port)
+                restAddress: SocketAddress(host: "localhost", port: Port(value: port))
             )
             server[CurrentlyProcessingBuckets.path.pathWithLeadingSlash] = { request in
                 numberOfProcessedRequests.withExclusiveAccess { $0 += 1 }

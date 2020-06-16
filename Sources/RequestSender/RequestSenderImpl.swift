@@ -123,7 +123,7 @@ public final class RequestSenderImpl: RequestSender {
         var components = URLComponents()
         components.scheme = "http"
         components.host = queueServerAddress.host
-        components.port = queueServerAddress.port
+        components.port = queueServerAddress.port.value
         components.path = pathWithSlash
         guard let url = components.url else {
             throw RequestSenderError.unableToCreateUrl(components)

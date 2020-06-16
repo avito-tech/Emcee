@@ -281,7 +281,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         return try queueClient.jobResults(jobId: jobId)
     }
     
-    private func selectPort(ports: Set<Int>) throws -> Int {
+    private func selectPort(ports: Set<Models.Port>) throws -> Models.Port {
         enum PortScanningError: Error, CustomStringConvertible {
             case noQueuePortDetected
             
