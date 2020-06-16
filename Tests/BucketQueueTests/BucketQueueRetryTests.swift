@@ -164,7 +164,7 @@ final class BucketQueueRetryTests: XCTestCase {
     private let dateProvider = DateProviderFixture()
     
     private func bucketQueue(workerIds: [WorkerId]) -> BucketQueue {
-        let tracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
+        let tracker = WorkerAlivenessProviderImpl(knownWorkerIds: Set(workerIds))
         workerIds.forEach(tracker.didRegisterWorker)
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(

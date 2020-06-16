@@ -14,6 +14,8 @@ public protocol WorkerAlivenessProvider: class {
     
     func enableWorker(workerId: WorkerId)
     func disableWorker(workerId: WorkerId)
+    
+    func setWorkerIsSilent(workerId: WorkerId)
 }
 
 public extension WorkerAlivenessProvider {

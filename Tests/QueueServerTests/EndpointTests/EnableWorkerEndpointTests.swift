@@ -10,7 +10,7 @@ import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class EnableWorkerEndpointTests: XCTestCase {
-    lazy var workerAlivenessProvider = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
+    lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(knownWorkerIds: [workerId])
     lazy var workerConfigurations = WorkerConfigurations()
     lazy var workerId = WorkerId(value: "worker")
     lazy var endpoint = EnableWorkerEndpoint(

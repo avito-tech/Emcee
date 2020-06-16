@@ -5,14 +5,13 @@ import QueueModels
 
 public struct StuckBucket: Equatable {
     public enum Reason: Equatable, CustomStringConvertible {
-        case workerIsSilent(since: Date)
+        case workerIsSilent
         case bucketLost
         
         public var description: String {
             switch self {
-            case .workerIsSilent(let since):
-                let formatted = NSLogLikeLogEntryTextFormatter.logDateFormatter.string(from: since)
-                return "worker is silent since \(formatted)"
+            case .workerIsSilent:
+                return "worker is silent"
             case .bucketLost:
                 return "worker has been processing bucket but then switched to another bucket"
             }

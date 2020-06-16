@@ -183,8 +183,8 @@ final class BucketQueueImpl: BucketQueue {
                        return nil
                     }
                     stuckReason = .bucketLost
-                case .silent(let lastAlivenessResponseTimestamp):
-                    stuckReason = .workerIsSilent(since: lastAlivenessResponseTimestamp)
+                case .silent:
+                    stuckReason = .workerIsSilent
                 }
                 dequeuedBuckets.remove(dequeuedBucket)
                 return StuckBucket(

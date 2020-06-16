@@ -31,6 +31,14 @@ public final class MutableWorkerAlivenessProvider: WorkerAlivenessProvider {
         workerAliveness[workerId] = WorkerAliveness(status: .disabled, bucketIdsBeingProcessed: Set(bucketIdByWorkerId[workerId]))
     }
     
+    public func setWorkerIsAlive(workerId: WorkerId) {
+        workerAliveness[workerId] = WorkerAliveness(status: .alive, bucketIdsBeingProcessed: Set(bucketIdByWorkerId[workerId]))
+    }
+    
+    public func setWorkerIsSilent(workerId: WorkerId) {
+        workerAliveness[workerId] = WorkerAliveness(status: .silent, bucketIdsBeingProcessed: [])
+    }
+    
     public var workerAliveness = [WorkerId: WorkerAliveness]()
     
     public func alivenessForWorker(workerId: WorkerId) -> WorkerAliveness {

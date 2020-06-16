@@ -409,7 +409,7 @@ final class BalancingBucketQueueTests: XCTestCase {
     
     func test___dequeueing_by_silent_worker___when_buckets_enqueued___provides_silent_response() throws {
         workerAlivenessProvider.workerAliveness[workerId] = WorkerAliveness(
-            status: .silent(lastAlivenessResponseTimestamp: Date().addingTimeInterval(-100)),
+            status: .silent,
             bucketIdsBeingProcessed: []
         )
         

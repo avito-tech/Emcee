@@ -11,7 +11,7 @@ import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class WorkerRegistrarTests: XCTestCase {
-    let alivenessTracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
+    lazy var alivenessTracker = WorkerAlivenessProviderImpl(knownWorkerIds: [workerId])
     let workerConfigurations = WorkerConfigurations()
     let workerId: WorkerId = "worker_id"
     

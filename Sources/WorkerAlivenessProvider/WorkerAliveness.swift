@@ -10,7 +10,7 @@ public struct WorkerAliveness: Equatable, CustomStringConvertible {
         case alive
         
         /// worker is not responding and considered silent
-        case silent(lastAlivenessResponseTimestamp: Date)
+        case silent
         
         /// worker has been disabled
         case disabled
@@ -19,8 +19,8 @@ public struct WorkerAliveness: Equatable, CustomStringConvertible {
             switch self {
             case .alive:
                 return "alive"
-            case .silent(let lastAlivenessResponseTimestamp):
-                return "silent since \(lastAlivenessResponseTimestamp)"
+            case .silent:
+                return "silent"
             case .notRegistered:
                 return "not registered"
             case .disabled:

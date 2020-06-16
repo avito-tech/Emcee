@@ -1958,7 +1958,6 @@ let package = Package(
             // MARK: WorkerAlivenessProvider
             name: "WorkerAlivenessProvider",
             dependencies: [
-                "DateProvider",
                 "Logging",
                 "Models",
             ],
@@ -1968,8 +1967,6 @@ let package = Package(
             // MARK: WorkerAlivenessProviderTestHelpers
             name: "WorkerAlivenessProviderTestHelpers",
             dependencies: [
-                "DateProvider",
-                "DateProviderTestHelpers",
                 "Models",
                 "WorkerAlivenessProvider",
             ],
@@ -1979,7 +1976,6 @@ let package = Package(
             // MARK: WorkerAlivenessProviderTests
             name: "WorkerAlivenessProviderTests",
             dependencies: [
-                "DateProviderTestHelpers",
                 "Models",
                 "WorkerAlivenessProvider",
                 "WorkerAlivenessProviderTestHelpers",

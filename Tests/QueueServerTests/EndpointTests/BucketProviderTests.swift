@@ -11,13 +11,13 @@ import WorkerAlivenessProviderTestHelpers
 import XCTest
 
 final class BucketProviderTests: XCTestCase {
-    let expectedPayloadSignature = PayloadSignature(value: "expectedPayloadSignature")
+    lazy var expectedPayloadSignature = PayloadSignature(value: "expectedPayloadSignature")
     lazy var fetchRequest = DequeueBucketPayload(
         workerId: "worker",
         requestId: "request",
         payloadSignature: expectedPayloadSignature
     )
-    let alivenessTracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
+    lazy var alivenessTracker = WorkerAlivenessProviderImpl(knownWorkerIds: ["worker"])
     
     func test___does_not_indicate_activity() {
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: .queueIsEmpty)

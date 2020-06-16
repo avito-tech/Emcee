@@ -5,10 +5,11 @@ import Models
 import ModelsTestHelpers
 import QueueServer
 import RESTMethods
-import WorkerAlivenessProviderTestHelpers
+import WorkerAlivenessProvider
 import XCTest
 
 final class BucketResultRegistrarTests: XCTestCase {
+    lazy var alivenessTracker = WorkerAlivenessProviderImpl(knownWorkerIds: ["worker"])
     let expectedPayloadSignature = PayloadSignature(value: "expectedPayloadSignature")
     let testingResult = TestingResultFixtures()
         .with(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "method"))
@@ -21,7 +22,7 @@ final class BucketResultRegistrarTests: XCTestCase {
         let registrar = BucketResultRegistrar(
             bucketResultAccepter: bucketQueue,
             expectedPayloadSignature: expectedPayloadSignature,
-            workerAlivenessProvider: WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
+            workerAlivenessProvider: alivenessTracker
         )
         
         let request = BucketResultPayload(
@@ -36,7 +37,6 @@ final class BucketResultRegistrarTests: XCTestCase {
     }
     
     func test___results_collector_stays_unmodified___if_bucket_queue_does_not_accept_results() {
-        let alivenessTracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
         alivenessTracker.didRegisterWorker(workerId: "worker")
         let bucketQueue = FakeBucketQueue(throwsOnAccept: true)
         
@@ -58,7 +58,6 @@ final class BucketResultRegistrarTests: XCTestCase {
     }
 
     func test___throws___when_expected_request_signature_mismatch() {
-        let alivenessTracker = WorkerAlivenessProviderFixtures.alivenessTrackerWithAlwaysAliveResults()
         alivenessTracker.didRegisterWorker(workerId: "worker")
         let bucketQueue = FakeBucketQueue(throwsOnAccept: false)
 

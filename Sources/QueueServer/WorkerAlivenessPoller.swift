@@ -70,6 +70,9 @@ public final class WorkerAlivenessPoller {
                         )
                     } catch {
                         Logger.error("Failed to obtain currently processing buckets for \(workerId): \(error)")
+                        strongSelf.workerAlivenessProvider.setWorkerIsSilent(
+                            workerId: workerId
+                        )
                     }
                 }
             )

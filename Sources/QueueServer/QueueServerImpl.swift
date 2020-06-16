@@ -69,9 +69,7 @@ public final class QueueServerImpl: QueueServer {
         let workerDetailsHolder = WorkerDetailsHolderImpl()
         
         self.workerAlivenessProvider = WorkerAlivenessProviderImpl(
-            dateProvider: dateProvider,
-            knownWorkerIds: workerConfigurations.workerIds,
-            maximumNotReportingDuration: alivenessPollingInterval * 2 + 10
+            knownWorkerIds: workerConfigurations.workerIds
         )
         self.workerAlivenessPoller = WorkerAlivenessPoller(
             pollInterval: alivenessPollingInterval,
