@@ -45,17 +45,21 @@ public final class LoggingSetup {
     }
     
     public func cleanUpLogs(olderThan date: Date) throws {
+        let queue = DispatchQueue(label: "LoggingSetup.cleanupQueue", attributes: .concurrent)
+        
         Logger.debug("Will clean up old log files")
         let logsEnumerator = fileSystem.contentEnumerator(forPath: try fileSystem.emceeLogsFolder())
         try logsEnumerator.each { (path: AbsolutePath) in
             guard path.extension == logFileExtension else { return }
             let modificationDate = try fileSystem.properties(forFileAtPath: path).modificationDate()
             if modificationDate < date {
-                do {
-                    Logger.debug("Cleaning up log file: \(path)")
-                    try fileSystem.delete(fileAtPath: path)
-                } catch {
-                    Logger.error("Failed to remove old log file at \(path): \(error)")
+                queue.async { [fileSystem] in
+                    do {
+                        Logger.debug("Cleaning up log file: \(path)")
+                        try fileSystem.delete(fileAtPath: path)
+                    } catch {
+                        Logger.error("Failed to remove old log file at \(path): \(error)")
+                    }
                 }
             }
         }
