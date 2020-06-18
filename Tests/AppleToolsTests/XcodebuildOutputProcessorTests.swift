@@ -70,4 +70,29 @@ final class XcodebuildOutputProcessorTests: XCTestCase {
         xcodebuildOutputProcessor.newStdout(data: "close".data(using: .utf8)!)
         XCTAssertFalse(testRunnerStream.streamIsOpen)
     }
+    
+    func test___processing_partial_data_chunks() {
+        testRunnerStream.streamIsOpen = false
+        
+        xcodebuildLogParser.onEvent = { string, stream in
+            if string == "Проверка" {
+                stream.openStream()
+            }
+            if string == "close" {
+                stream.closeStream()
+            }
+        }
+        
+        xcodebuildOutputProcessor.newStdout(data: Data([0xD0, 0x9F, 0xD1]))
+        XCTAssertFalse(testRunnerStream.streamIsOpen)
+        xcodebuildOutputProcessor.newStdout(data: Data([0x80, 0xD0]))
+        XCTAssertFalse(testRunnerStream.streamIsOpen)
+        xcodebuildOutputProcessor.newStdout(data: Data([0xBE, 0xD0, 0xB2, 0xD0, 0xB5, 0xD1]))
+        XCTAssertFalse(testRunnerStream.streamIsOpen)
+        xcodebuildOutputProcessor.newStdout(data: Data([0x80, 0xD0, 0xBA, 0xD0, 0xB0]))
+        XCTAssertTrue(testRunnerStream.streamIsOpen)
+        
+        xcodebuildOutputProcessor.newStdout(data: "close".data(using: .utf8)!)
+        XCTAssertFalse(testRunnerStream.streamIsOpen)
+    }
 }
