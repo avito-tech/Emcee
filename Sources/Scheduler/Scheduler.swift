@@ -184,14 +184,12 @@ public final class Scheduler {
         let allocatedSimulator = try simulatorPool.allocateSimulator(simulatorOperationTimeouts: bucket.simulatorOperationTimeouts)
         defer { allocatedSimulator.releaseSimulator() }
         
-        if bucket.testExecutionBehavior.environment["EMCEE_PATCH_SIMULATOR_PLISTS"] == "true" {
-            try simulatorSettingsModifier.apply(
-                developerDir: bucket.developerDir,
-                simulatorSettings: bucket.simulatorSettings,
-                toSimulator: allocatedSimulator.simulator
-            )
-        }
-            
+        try simulatorSettingsModifier.apply(
+            developerDir: bucket.developerDir,
+            simulatorSettings: bucket.simulatorSettings,
+            toSimulator: allocatedSimulator.simulator
+        )
+        
         let runner = Runner(
             configuration: RunnerConfiguration(
                 buildArtifacts: bucket.buildArtifacts,
