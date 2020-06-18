@@ -46,7 +46,7 @@ public final class RunnerTests: XCTestCase {
 
         XCTAssertFalse(testResult.succeeded)
         XCTAssertEqual(testResult.testEntry, testEntry)
-        XCTAssertEqual(testResult.testRunResults[0].exceptions.first, RunnerConstants.testDidNotRun.testException)
+        XCTAssertEqual(testResult.testRunResults[0].exceptions.first, RunnerConstants.testDidNotRun(testEntry.testName).testException)
     }
 
     func test___running_test_with_successful_result___provides_successful_results() throws {
@@ -134,7 +134,7 @@ public final class RunnerTests: XCTestCase {
 
         XCTAssertFalse(testResult.succeeded)
         XCTAssertEqual(testResult.testEntry, testEntry)
-        XCTAssertEqual(testResult.testRunResults[0].exceptions.first, RunnerConstants.testDidNotRun.testException)
+        XCTAssertEqual(testResult.testRunResults[0].exceptions.first, RunnerConstants.testDidNotRun(testEntry.testName).testException)
     }
 
     func test___running_test_and_reviving_after_test_stopped_event_loss___provides_back_correct_result() throws {

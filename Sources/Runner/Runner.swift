@@ -437,7 +437,7 @@ public final class Runner {
             testRunResult: TestRunResult(
                 succeeded: false,
                 exceptions: [
-                    RunnerConstants.testDidNotRun.testException
+                    RunnerConstants.testDidNotRun(testEntry.testName).testException
                 ],
                 duration: 0,
                 startTime: dateProvider.currentDate().timeIntervalSince1970,

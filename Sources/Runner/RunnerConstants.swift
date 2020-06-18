@@ -4,7 +4,7 @@ import Models
 
 public enum RunnerConstants: CustomStringConvertible {
     /// Test failure reason that will be given back if test actually fails to start after all attempts to revive, even though test runner has started.
-    case testDidNotRun
+    case testDidNotRun(TestName)
     /// Test failure reason that will be given back if test runner fails to start for any reason.
     case failedToStartTestRunner(Error)
     /// Test timed out.
@@ -12,8 +12,8 @@ public enum RunnerConstants: CustomStringConvertible {
     
     public var description: String {
         switch self {
-        case .testDidNotRun:
-            return "Test did not start after all attempts to run it"
+        case .testDidNotRun(let testName):
+            return "Test \(testName) did not start after all attempts to run it"
         case .failedToStartTestRunner(let error):
             return "Test runner failed to start with error: \(error)"
         case .testTimeout(let duration):
