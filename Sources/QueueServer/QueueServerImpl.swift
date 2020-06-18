@@ -58,6 +58,7 @@ public final class QueueServerImpl: QueueServer {
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         workerAlivenessPolicy: WorkerAlivenessPolicy,
         workerConfigurations: WorkerConfigurations,
+        workersToUtilizeService: WorkersToUtilizeService,
         workerUtilizationStatusPoller: WorkerUtilizationStatusPoller
     ) {
         self.httpRestServer = HTTPRESTServer(
@@ -152,7 +153,9 @@ public final class QueueServerImpl: QueueServer {
             reportInterval: .seconds(30),
             workerAlivenessProvider: workerAlivenessProvider
         )
-        self.workersToUtilizeEndpoint = WorkersToUtilizeEndpoint(service: DefaultWorkersToUtilizeService())
+        self.workersToUtilizeEndpoint = WorkersToUtilizeEndpoint(
+            service: workersToUtilizeService
+        )
         self.deploymentDestinationsHandler = DeploymentDestinationsEndpoint(destinations: deploymentDestinations)
         self.toggleWorkersSharingEndpoint = ToggleWorkersSharingEndpoint(poller: workerUtilizationStatusPoller)
     }

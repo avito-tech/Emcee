@@ -9,7 +9,7 @@ import XCTest
 
 final class RemoteWorkerLaunchdPlistTests: XCTestCase {
     let launchdPlist = RemoteWorkerLaunchdPlist(
-        deploymentDestination: DeploymentDestinationFixtures().buildDeploymentDestination(),
+        deploymentDestination: DeploymentDestinationFixtures().build(),
         emceeVersion: "emceeVersion",
         executableDeployableItem: DeployableItem(
             name: "emcee",

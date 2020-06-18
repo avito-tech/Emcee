@@ -43,7 +43,7 @@ class QueueCommunicationServiceTests: XCTestCase {
             completionCalled.fulfill()
         }
         
-        XCTAssertEqual(requestSenderProvider.recievedSocketAddress, SocketAddress(host: "host", port: 1337))
+        XCTAssertEqual(requestSenderProvider.receivedSocketAddress, SocketAddress(host: "host", port: 1337))
         wait(for: [completionCalled], timeout: 10)
     }
     
@@ -65,7 +65,7 @@ class QueueCommunicationServiceTests: XCTestCase {
             completionCalled.fulfill()
         }
         
-        XCTAssertEqual(requestSenderProvider.recievedSocketAddress, SocketAddress(host: "host", port: 1337))
+        XCTAssertEqual(requestSenderProvider.receivedSocketAddress, SocketAddress(host: "host", port: 1337))
         wait(for: [completionCalled], timeout: 10)
     }
 }

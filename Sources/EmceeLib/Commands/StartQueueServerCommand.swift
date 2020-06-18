@@ -100,13 +100,22 @@ public final class StartQueueServerCommand: Command {
             communicationService: queueCommunicationService
         )
         
+        let dateProvider = SystemDateProvider()
+        
+        let workersToUtilizeService = DefaultWorkersToUtilizeService(
+            cache: DefaultWorkersMappingCache(cacheIvalidationTime: 300, dateProvider: dateProvider),
+            calculator: DefaultWorkersToUtilizeCalculator(),
+            communicationService: queueCommunicationService,
+            portDeterminer: remotePortDeterminer
+        )
+        
         let queueServer = QueueServerImpl(
             automaticTerminationController: automaticTerminationController,
             bucketSplitInfo: BucketSplitInfo(
                 numberOfWorkers: UInt(queueServerRunConfiguration.deploymentDestinationConfigurations.count)
             ),
             checkAgainTimeInterval: queueServerRunConfiguration.checkAgainTimeInterval,
-            dateProvider: SystemDateProvider(),
+            dateProvider: dateProvider,
             deploymentDestinations: workerDestinations,
             emceeVersion: emceeVersion,
             localPortDeterminer: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange),
@@ -120,6 +129,7 @@ public final class StartQueueServerCommand: Command {
             workerConfigurations: createWorkerConfigurations(
                 queueServerRunConfiguration: queueServerRunConfiguration
             ),
+            workersToUtilizeService: workersToUtilizeService,
             workerUtilizationStatusPoller: workerUtilizationStatusPoller
         )
         let pollPeriod: TimeInterval = 5.0

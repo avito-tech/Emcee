@@ -6,8 +6,8 @@ import XCTest
 class DeploymentDestinationsEndpointTests: XCTestCase {
     func test() {
         let expectedDestinations = [
-            DeploymentDestinationFixtures().with(host: "workerId1").buildDeploymentDestination(),
-            DeploymentDestinationFixtures().with(host: "workerId2").buildDeploymentDestination()
+            DeploymentDestinationFixtures().with(host: "workerId1").build(),
+            DeploymentDestinationFixtures().with(host: "workerId2").build()
         ]
         let endpoint = DeploymentDestinationsEndpoint(destinations: expectedDestinations)
         

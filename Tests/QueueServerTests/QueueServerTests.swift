@@ -11,6 +11,7 @@ import QueueClient
 import QueueModels
 import QueueModelsTestHelpers
 import QueueServer
+import RemotePortDeterminerTestHelpers
 import RequestSender
 import ScheduleStrategy
 import UniqueIdentifierGeneratorTestHelpers
@@ -54,6 +55,7 @@ final class QueueServerTests: XCTestCase {
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
             workerConfigurations: workerConfigurations,
+            workersToUtilizeService: FakeWorkersToUtilizeService(),
             workerUtilizationStatusPoller: FakeWorkerUtilizationStatusPoller()
         )
         XCTAssertThrowsError(try server.queueResults(jobId: jobId))
@@ -92,6 +94,7 @@ final class QueueServerTests: XCTestCase {
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
             workerConfigurations: workerConfigurations,
+            workersToUtilizeService: FakeWorkersToUtilizeService(),
             workerUtilizationStatusPoller: FakeWorkerUtilizationStatusPoller()
         )
         server.schedule(

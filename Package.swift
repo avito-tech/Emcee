@@ -1083,6 +1083,7 @@ let package = Package(
             name: "QueueCommunication",
             dependencies: [
                 "AtomicModels",
+                "DateProvider",
                 "Deployer",
                 "LocalHostDeterminer",
                 "Logging",
@@ -1100,6 +1101,7 @@ let package = Package(
             name: "QueueCommunicationTestHelpers",
             dependencies: [
                 "Deployer",
+                "DeployerTestHelpers",
                 "Models",
                 "QueueCommunication",
                 "TestHelpers",
@@ -1110,6 +1112,8 @@ let package = Package(
             // MARK: QueueCommunicationTests
             name: "QueueCommunicationTests",
             dependencies: [
+                "DateProvider",
+                "DateProviderTestHelpers",
                 "Deployer",
                 "DeployerTestHelpers",
                 "Metrics",
@@ -1232,6 +1236,7 @@ let package = Package(
                 "QueueServer",
                 "QueueServerTestHelpers",
                 "RESTMethods",
+                "RemotePortDeterminerTestHelpers",
                 "RequestSender",
                 "RequestSenderTestHelpers",
                 "ScheduleStrategy",

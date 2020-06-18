@@ -12,7 +12,7 @@ final class RemoteQueueLaunchdPlistTests: XCTestCase {
     let emceeVersion: Version = "emceeVersion"
     lazy var launchdPlist = RemoteQueueLaunchdPlist(
         deploymentId: "deploymentId",
-        deploymentDestination: DeploymentDestinationFixtures().buildDeploymentDestination(),
+        deploymentDestination: DeploymentDestinationFixtures().build(),
         emceeDeployableItem: DeployableItem(
             name: "emcee",
             files: [

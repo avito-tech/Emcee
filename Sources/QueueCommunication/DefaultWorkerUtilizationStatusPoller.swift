@@ -22,7 +22,7 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
     ) {
         self.defaultDeployments = defaultDeployments
         self.communicationService = communicationService
-        self.workerIdsToUtilize = AtomicValue(Set(defaultDeployments.map { $0.workerId }))
+        self.workerIdsToUtilize = AtomicValue(Set(defaultDeployments.workerIds()))
         self.emceeVersion = emceeVersion
         self.queueHost = queueHost
         MetricRecorder.capture(
@@ -38,7 +38,7 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
     
     public func stopPollingAndRestoreDefaultConfig() {
         pollingTrigger.stop()
-        self.workerIdsToUtilize.set(Set(defaultDeployments.map { $0.workerId }))
+        self.workerIdsToUtilize.set(Set(defaultDeployments.workerIds()))
         MetricRecorder.capture(
             NumberOfWorkersToUtilizeMetric(emceeVersion: emceeVersion, queueHost: queueHost, workersCount: defaultDeployments.count)
         )

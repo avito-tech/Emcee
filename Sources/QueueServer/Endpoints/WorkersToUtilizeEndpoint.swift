@@ -18,7 +18,7 @@ public final class WorkersToUtilizeEndpoint: RESTEndpoint {
     public func handle(payload: WorkersToUtilizePayload) throws -> WorkersToUtilizeResponse {
         return .workersToUtilize(
             workerIds: Set(service.workersToUtilize(
-                deployments: payload.deployments,
+                initialWorkers: payload.deployments.workerIds(),
                 version: payload.version
             ))
         )

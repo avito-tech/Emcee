@@ -37,7 +37,7 @@ public final class DeploymentDestinationFixtures {
         return self
     }
     
-    public func buildDeploymentDestination() -> DeploymentDestination {
+    public func build() -> DeploymentDestination {
         return DeploymentDestination(
             host: host,
             port: port,

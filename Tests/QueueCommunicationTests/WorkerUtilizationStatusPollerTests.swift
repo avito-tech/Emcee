@@ -13,8 +13,8 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     
     func test___poller_uses_default_deployments___if_no_data_was_fetched() {
         let deployments = [
-            DeploymentDestinationFixtures().with(host: "workerId1").buildDeploymentDestination(),
-            DeploymentDestinationFixtures().with(host: "workerId2").buildDeploymentDestination()
+            DeploymentDestinationFixtures().with(host: "workerId1").build(),
+            DeploymentDestinationFixtures().with(host: "workerId2").build()
         ]
         
         let poller = buildPoller(deployments: deployments)
@@ -26,8 +26,8 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     
     func test___poller_uses_fetched_worker_ids___if_workers_data_was_fetched() {
         let deployments = [
-            DeploymentDestinationFixtures().with(host: "workerId1").buildDeploymentDestination(),
-            DeploymentDestinationFixtures().with(host: "workerId2").buildDeploymentDestination()
+            DeploymentDestinationFixtures().with(host: "workerId1").build(),
+            DeploymentDestinationFixtures().with(host: "workerId2").build()
         ]
         let expectation = self.expectation(description: "workersToUtilize was called")
         communicationService.completionHandler = { completion in
@@ -46,8 +46,8 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     
     func test___poller_uses_default_deployments___fetch_error_occured() {
         let deployments = [
-            DeploymentDestinationFixtures().with(host: "workerId1").buildDeploymentDestination(),
-            DeploymentDestinationFixtures().with(host: "workerId2").buildDeploymentDestination()
+            DeploymentDestinationFixtures().with(host: "workerId1").build(),
+            DeploymentDestinationFixtures().with(host: "workerId2").build()
         ]
         let expectation = self.expectation(description: "workersToUtilize was called")
         communicationService.completionHandler = { completion in
@@ -66,8 +66,8 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     
     func test___poller_uses_default_worker_ids___if_workers_data_was_fetched_and_reset_was_called() {
         let deployments = [
-            DeploymentDestinationFixtures().with(host: "workerId1").buildDeploymentDestination(),
-            DeploymentDestinationFixtures().with(host: "workerId2").buildDeploymentDestination()
+            DeploymentDestinationFixtures().with(host: "workerId1").build(),
+            DeploymentDestinationFixtures().with(host: "workerId2").build()
         ]
         let expectation = self.expectation(description: "workersToUtilize was called")
         communicationService.completionHandler = { completion in
@@ -87,8 +87,8 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     
     func test___poller_starts_again___if_reset_was_called() {
         let deployments = [
-            DeploymentDestinationFixtures().with(host: "workerId1").buildDeploymentDestination(),
-            DeploymentDestinationFixtures().with(host: "workerId2").buildDeploymentDestination()
+            DeploymentDestinationFixtures().with(host: "workerId1").build(),
+            DeploymentDestinationFixtures().with(host: "workerId2").build()
         ]
         let expectation = self.expectation(description: "workersToUtilize was called")
         communicationService.completionHandler = { completion in

@@ -1,8 +1,16 @@
 import Deployer
+import DeployerTestHelpers
+import Dispatch
 import Models
 import QueueCommunication
 
 public class FakeQueueCommunicationService: QueueCommunicationService {
+    private let callbackQueue = DispatchQueue(
+        label: "FakeQueueCommunicationService.callbackQueue",
+        qos: .default,
+        target: .global(qos: .userInitiated)
+    )
+    
     public init() { }
     
     public typealias CompletionType = (Either<Set<WorkerId>, Error>) -> ()
@@ -17,10 +25,23 @@ public class FakeQueueCommunicationService: QueueCommunicationService {
         completionHandler(completion)
     }
     
+    public var deploymentDestinationsCallPorts = [Port]()
+    public var workersPerPort: [Port: [WorkerId]] = [:]
+    public var deploymentDestinationsAsync = false
     public func deploymentDestinations(
         port: Port,
         completion: @escaping (Either<[DeploymentDestination], Error>) -> ())
     {
-        completion(.success([]))
+        deploymentDestinationsCallPorts.append(port)
+        
+        let deployents = (workersPerPort[port] ?? []).map { DeploymentDestinationFixtures().with(host: $0.value).build() }
+        
+        if deploymentDestinationsAsync {
+            callbackQueue.asyncAfter(deadline: .now() + 1) {
+                completion(.success(deployents))
+            }
+        } else {
+            completion(.success(deployents))
+        }        
     }
 }
