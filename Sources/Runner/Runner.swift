@@ -175,7 +175,7 @@ public final class Runner {
                 TestTimeoutTrackingTestRunnerSream(
                     dateProvider: dateProvider,
                     detectedLongRunningTest: { [dateProvider] testName, testStartedAt in
-                        Logger.debug("Detected long running test \(testName)")
+                        Logger.debug("Detected long running test \(testName)", testRunnerRunningInvocationContainer.currentValue()?.subprocessInfo)
                         collectedTestStoppedEvents.append(
                             TestStoppedEvent(
                                 testName: testName,
@@ -196,24 +196,24 @@ public final class Runner {
                 metricReportingTestRunnerStream,
                 TestRunnerStreamWrapper(
                     onOpenStream: {
-                        Logger.debug("Test Runner \(testRunner) started executing tests")
+                        Logger.debug("Started executing tests", testRunnerRunningInvocationContainer.currentValue()?.subprocessInfo)
                     },
                     onTestStarted: { testName in
                         collectedTestExceptions = []
-                        Logger.debug("Test started: \(testName)")
+                        Logger.debug("Test started: \(testName)", testRunnerRunningInvocationContainer.currentValue()?.subprocessInfo)
                     },
                     onTestException: { testException in
                         collectedTestExceptions.append(testException)
-                        Logger.debug("Caught test exception: \(testException)")
+                        Logger.debug("Caught test exception: \(testException)", testRunnerRunningInvocationContainer.currentValue()?.subprocessInfo)
                     },
                     onTestStopped: { testStoppedEvent in
                         let testStoppedEvent = testStoppedEvent.byMergingTestExceptions(testExceptions: collectedTestExceptions)
                         collectedTestStoppedEvents.append(testStoppedEvent)
                         collectedTestExceptions = []
-                        Logger.debug("Test stopped: \(testStoppedEvent.testName), \(testStoppedEvent.result)")
+                        Logger.debug("Test stopped: \(testStoppedEvent.testName), \(testStoppedEvent.result)", testRunnerRunningInvocationContainer.currentValue()?.subprocessInfo)
                     },
                     onCloseStream: {
-                        Logger.debug("Test Runner \(testRunner) finished executing tests")
+                        Logger.debug("Finished executing tests", testRunnerRunningInvocationContainer.currentValue()?.subprocessInfo)
                     }
                 ),
             ]
@@ -233,7 +233,7 @@ public final class Runner {
             dateProvider: dateProvider,
             fileSystem: fileSystem,
             onSilence: { [configuration] in
-                Logger.debug("Test runner has been silent for too long (\(LoggableDuration(configuration.testTimeoutConfiguration.testRunnerMaximumSilenceDuration))), terminating tests")
+                Logger.debug("Test runner has been silent for too long (\(LoggableDuration(configuration.testTimeoutConfiguration.testRunnerMaximumSilenceDuration))), terminating tests", runningInvocation.subprocessInfo)
                 runningInvocation.cancel()
             },
             silenceDuration: configuration.testTimeoutConfiguration.testRunnerMaximumSilenceDuration,
@@ -250,8 +250,8 @@ public final class Runner {
             simulatorId: simulator.udid
         )
         
-        Logger.debug("Attempted to run \(entriesToRun.count) tests on simulator \(simulator): \(entriesToRun)")
-        Logger.debug("Did get \(result.count) results: \(result)")
+        Logger.debug("Attempted to run \(entriesToRun.count) tests on simulator \(simulator): \(entriesToRun)", runningInvocation.subprocessInfo)
+        Logger.debug("Did get \(result.count) results: \(result)", runningInvocation.subprocessInfo)
         
         return RunnerRunResult(
             entriesToRun: entriesToRun,
