@@ -133,7 +133,6 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
     public func waitForProcessToDie() {
         process.waitUntilExit()
         openPipeFileHandleGroup.wait()
-        listenerQueue.sync(flags: .barrier) {}
     }
     
     public func processStatus() -> ProcessStatus {
@@ -279,7 +278,9 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
             },
             onNewData: didReceiveStdout,
             onEndOfData: {
-                self.openPipeFileHandleGroup.leave()
+                self.listenerQueue.async {
+                    self.openPipeFileHandleGroup.leave()
+                }
             }
         )
         
@@ -294,7 +295,9 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
             },
             onNewData: didReceiveStderr,
             onEndOfData: {
-                self.openPipeFileHandleGroup.leave()
+                self.listenerQueue.async {
+                    self.openPipeFileHandleGroup.leave()
+                }
             }
         )
     }
