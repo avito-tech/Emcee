@@ -32,6 +32,7 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
     
     public func startPolling() {
         pollingTrigger.start { [weak self] timer in
+            Logger.debug("Fetching workers to utilize")
             self?.fetchWorkersToUtilize()
         }
     }
@@ -64,7 +65,7 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
                         )
                     )
                 } catch {
-                    Logger.error(error.localizedDescription)
+                    Logger.error("Error in fetching workers to utilze: \(error.localizedDescription)")
                 }
         })
     }

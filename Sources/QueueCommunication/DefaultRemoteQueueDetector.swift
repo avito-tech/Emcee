@@ -1,6 +1,7 @@
 import Foundation
-import RemotePortDeterminer
+import Logging
 import Models
+import RemotePortDeterminer
 
 public enum RemoteQueueDetectorError: Error, CustomStringConvertible {
     case noMasterQueueFound
@@ -41,10 +42,11 @@ public final class DefaultRemoteQueueDetector: RemoteQueueDetector {
                 left.value > right.value
             }
         
-        guard let masterPort = sortedQueues.first?.key else {
+        guard let masterQueue = sortedQueues.first else {
             throw RemoteQueueDetectorError.noMasterQueueFound
         }
         
-        return masterPort
+        Logger.debug("Found master queue with version \(masterQueue.value) at port \(masterQueue.key)")
+        return masterQueue.key
     }
 }

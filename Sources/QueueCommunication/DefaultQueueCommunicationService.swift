@@ -36,9 +36,9 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
         deployments: [DeploymentDestination],
         completion: @escaping (Either<Set<WorkerId>, Error>) -> ()
     ) {
+        Logger.debug("Making request for workers to utilize. Version: \(version), deployments: \(deployments) ")
         do {
             let masterPort = try remoteQueueDetector.findMasterQueuePort(timeout: requestTimeout)
-            Logger.debug("Found master queue port: \(masterPort)")
 
             let requestSender = requestSenderProvider.requestSender(
                 socketAddress: SocketAddress(host: socketHost, port: masterPort)
