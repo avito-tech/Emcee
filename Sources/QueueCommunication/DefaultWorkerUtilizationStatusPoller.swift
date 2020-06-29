@@ -31,6 +31,7 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
     }
     
     public func startPolling() {
+        Logger.debug("Starting polling workers to utilize")
         pollingTrigger.start { [weak self] timer in
             Logger.debug("Fetching workers to utilize")
             self?.fetchWorkersToUtilize()
@@ -38,6 +39,7 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
     }
     
     public func stopPollingAndRestoreDefaultConfig() {
+        Logger.debug("Stopping polling workers to utilize")
         pollingTrigger.stop()
         self.workerIdsToUtilize.set(Set(defaultDeployments.workerIds()))
         MetricRecorder.capture(
@@ -55,7 +57,7 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
                 
                 do {
                     let workerIds = try result.dematerialize()
-                    Logger.debug("Fetched workerIds to utilize:\(workerIds)")
+                    Logger.debug("Fetched workerIds to utilize: \(workerIds)")
                     strongSelf.workerIdsToUtilize.set(workerIds)
                     MetricRecorder.capture(
                         NumberOfWorkersToUtilizeMetric(
@@ -65,7 +67,7 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
                         )
                     )
                 } catch {
-                    Logger.error("Error in fetching workers to utilze: \(error.localizedDescription)")
+                    Logger.error("Failed to fetch workers to utilize: \(error)")
                 }
         })
     }
