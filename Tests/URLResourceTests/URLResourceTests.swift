@@ -1,15 +1,19 @@
 import FileCache
+import FileSystem
 import Swifter
 import TemporaryStuff
+import TestHelpers
 import URLResource
 import XCTest
 
 final class URLResourceTests: XCTestCase {
-    let tempFolder = try! TemporaryFolder(deleteOnDealloc: true)
-    var server = HttpServer()
-    var serverPort = 0
+    lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
+    lazy var server = HttpServer()
+    lazy var serverPort = 0
     lazy var url = URL(string: "http://localhost:\(serverPort)/get/")!
-    lazy var fileCache = try! FileCache(cachesUrl: URL(fileURLWithPath: tempFolder.absolutePath.pathString))
+    lazy var fileCache = assertDoesNotThrow {
+        try FileCache(cachesContainer: tempFolder.absolutePath, fileSystem: LocalFileSystem())
+    }
     lazy var resource = URLResource(fileCache: fileCache, urlSession: URLSession.shared)
     
     private func setServerHandler(handler: @escaping () -> (HttpResponse)) throws {
@@ -31,9 +35,9 @@ final class URLResourceTests: XCTestCase {
             url: url,
             handler: handler
         )
-        let contentUrl = try handler.wait(limit: 5, remoteUrl: url)
+        let contentPath = try handler.wait(limit: 5, remoteUrl: url)
         
-        XCTAssertEqual(try String(contentsOf: contentUrl), expectedContents)
+        XCTAssertEqual(try String(contentsOf: contentPath.fileUrl), expectedContents)
     }
     
     func testWithUnavailableResource() throws {
@@ -92,10 +96,10 @@ final class URLResourceTests: XCTestCase {
             url: url,
             handler: handler
         )
-        let contentUrl = try handler.wait(limit: 5, remoteUrl: url)
+        let contentPath = try handler.wait(limit: 5, remoteUrl: url)
         
-        XCTAssertTrue(FileManager.default.fileExists(atPath: contentUrl.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: contentPath.pathString))
         try resource.deleteResource(url: url)
-        XCTAssertFalse(FileManager.default.fileExists(atPath: contentUrl.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: contentPath.pathString))
     }
 }

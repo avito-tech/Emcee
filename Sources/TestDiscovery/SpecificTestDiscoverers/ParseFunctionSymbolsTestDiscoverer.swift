@@ -64,11 +64,9 @@ final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
     private func testBinaryPath(
         xcTestBundleLocation: TestBundleLocation
     ) throws -> AbsolutePath {
-        let resourcePath = AbsolutePath(
-            try resourceLocationResolver.resolvable(
-                resourceLocation: xcTestBundleLocation.resourceLocation
-            ).resolve().directlyAccessibleResourcePath()
-        )
+        let resourcePath = try resourceLocationResolver.resolvable(
+            resourceLocation: xcTestBundleLocation.resourceLocation
+        ).resolve().directlyAccessibleResourcePath()
         
         let absolutePlistPath = resourcePath.appending(component: "Info.plist")
         let plistContents = try PropertyListSerialization.propertyList(

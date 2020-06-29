@@ -56,9 +56,7 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
             developerDirLocator: DefaultDeveloperDirLocator(
                 processControllerProvider: DefaultProcessControllerProvider(
                     dateProvider: SystemDateProvider(),
-                    fileSystem: LocalFileSystem(
-                        fileManager: .default
-                    )
+                    fileSystem: LocalFileSystem()
                 )
             ),
             processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder, creator: { subprocess -> ProcessController in

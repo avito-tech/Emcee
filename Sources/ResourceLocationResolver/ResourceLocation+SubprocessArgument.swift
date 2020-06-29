@@ -1,6 +1,7 @@
 import Extensions
 import Foundation
 import Models
+import PathLib
 import ProcessController
 import ResourceLocation
 
@@ -9,7 +10,7 @@ private class ResolvableResourceLocationArg: SubprocessArgument, CustomStringCon
     private let implicitFilenameInArchive: String?
     
     enum ArgError: Error, CustomStringConvertible {
-        case cannotResolve(ResolvableResourceLocation, containerPath: String)
+        case cannotResolve(ResolvableResourceLocation, containerPath: AbsolutePath)
         
         var description: String {
             switch self {
@@ -34,12 +35,12 @@ private class ResolvableResourceLocationArg: SubprocessArgument, CustomStringCon
         let result = try resolvableResourceLocation.resolve()
         switch result {
         case .directlyAccessibleFile(let path):
-            return path
+            return try path.stringValue()
         case .contentsOfArchive(let containerPath, let filenameInArchive):
             if let filenameInArchive = filenameInArchive {
-                return containerPath.appending(pathComponent: filenameInArchive)
+                return try containerPath.appending(component: filenameInArchive).stringValue()
             } else if let implicitFilenameInArchive = implicitFilenameInArchive {
-                return containerPath.appending(pathComponent: implicitFilenameInArchive)
+                return try containerPath.appending(component: implicitFilenameInArchive).stringValue()
             } else {
                 throw ArgError.cannotResolve(resolvableResourceLocation, containerPath: containerPath)
             }

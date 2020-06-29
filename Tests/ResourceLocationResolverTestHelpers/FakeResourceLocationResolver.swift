@@ -23,7 +23,7 @@ public final class FakeResourceLocationResolver: ResourceLocationResolver {
         path: AbsolutePath
     ) -> FakeResourceLocationResolver {
         return FakeResourceLocationResolver(
-            resolvingResult: .directlyAccessibleFile(path: path.pathString)
+            resolvingResult: .directlyAccessibleFile(path: path)
         )
     }
 
@@ -46,7 +46,7 @@ public final class FakeResourceLocationResolver: ResourceLocationResolver {
         }
         switch resourceLocation {
         case .localFilePath(let path):
-            return ResolvingResult.directlyAccessibleFile(path: path)
+            return ResolvingResult.directlyAccessibleFile(path: AbsolutePath(path))
         case .remoteUrl:
             return resolvingResult
         }

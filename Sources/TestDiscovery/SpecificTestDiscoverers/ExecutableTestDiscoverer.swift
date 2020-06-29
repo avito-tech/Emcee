@@ -13,7 +13,7 @@ import UniqueIdentifierGenerator
 final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
     
     enum Errors: Error, CustomStringConvertible {
-        case bundleExecutableNotFound(path: String)
+        case bundleExecutableNotFound(path: AbsolutePath)
         case runtimeRootNotFound(testDestination: TestDestination)
         
         var description: String {
@@ -64,7 +64,7 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
             resourceLocation: appBundleLocation.resourceLocation
         ).resolve().directlyAccessibleResourcePath()
         
-        guard let executablePath = Bundle(path: appBundlePath)?.executablePath else {
+        guard let executablePath = Bundle(path: appBundlePath.pathString)?.executablePath else {
             throw Errors.bundleExecutableNotFound(path: appBundlePath)
         }
         
@@ -84,7 +84,7 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
                         components: [uniqueIdentifierGenerator.generate()]
                     ).pathString,
                     "EMCEE_RUNTIME_TESTS_EXPORT_PATH": runtimeEntriesJSONPath.pathString,
-                    "EMCEE_XCTEST_BUNDLE_PATH": loadableBundlePath
+                    "EMCEE_XCTEST_BUNDLE_PATH": loadableBundlePath.pathString,
                 ].merging(
                     configuration.testExecutionBehavior.environment,
                     uniquingKeysWith: { (_, new) in new }

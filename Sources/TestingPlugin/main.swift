@@ -43,7 +43,7 @@ class Listener: DefaultBusListener {
 
 func main() throws -> Int32 {
     let loggingSetup = LoggingSetup(
-        fileSystem: LocalFileSystem(fileManager: FileManager())
+        fileSystem: LocalFileSystem()
     )
     
     try loggingSetup.setupLogging(stderrVerbosity: Verbosity.info)

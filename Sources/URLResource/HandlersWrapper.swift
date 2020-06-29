@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import PathLib
 
 public final class HandlersWrapper: URLResourceHandler {
     private var handlers = MapWithCollection<URL, URLResourceHandler>()
@@ -18,9 +19,9 @@ public final class HandlersWrapper: URLResourceHandler {
         handlers.removeValue(forKey: url)
     }
     
-    public func resourceUrl(contentUrl: URL, forUrl url: URL) {
+    public func resource(path: AbsolutePath, forUrl url: URL) {
         forEachHandler(collection: handlers[url]) { handler in
-            handler.resourceUrl(contentUrl: contentUrl, forUrl: url)
+            handler.resource(path: path, forUrl: url)
         }
     }
     

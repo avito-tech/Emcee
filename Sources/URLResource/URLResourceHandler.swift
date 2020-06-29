@@ -1,6 +1,7 @@
 import Foundation
+import PathLib
 
 public protocol URLResourceHandler {
-    func resourceUrl(contentUrl: URL, forUrl url: URL)
+    func resource(path: AbsolutePath, forUrl url: URL)
     func failedToGetContents(forUrl url: URL, error: Error)
 }

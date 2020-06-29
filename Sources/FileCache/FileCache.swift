@@ -1,19 +1,22 @@
 import Extensions
 import FileLock
+import FileSystem
 import Foundation
 import Models
+import PathLib
 import UniqueIdentifierGenerator
 
 public final class FileCache {
-    private let cachesUrl: URL
+    private let cachesContainer: AbsolutePath
     private let nameKeyer: NameKeyer
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
-    private let fileManager = FileManager()
+    private let fileSystem: FileSystem
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
     private let cacheLock: FileLock
     
     public static let evictingStatePrefix = "evicting"
+    public static let defaultCacheContainerName = "ru.avito.Runner.cache"
     
     private struct CachedItemInfo: Codable {
         let fileName: String
@@ -25,32 +28,35 @@ public final class FileCache {
         case move
     }
     
-    public static func fileCacheInDefaultLocation() throws -> FileCache {
-        let cacheContainer = try FileManager.default.url(
-            for: .cachesDirectory,
-            in: .userDomainMask,
-            appropriateFor: nil,
+    public static func fileCacheInDefaultLocation(fileSystem: FileSystem) throws -> FileCache {
+        let cacheContainer = try fileSystem.commonlyUsedPathsProvider.caches(
+            inDomain: .user,
             create: true
         )
-        let url = cacheContainer.appendingPathComponent("ru.avito.Runner.cache", isDirectory: true)
-        return try FileCache(cachesUrl: url)
+        
+        return try FileCache(
+            cachesContainer: cacheContainer.appending(component: FileCache.defaultCacheContainerName),
+            fileSystem: fileSystem
+        )
     }
     
     public init(
-        cachesUrl: URL,
+        cachesContainer: AbsolutePath,
+        fileSystem: FileSystem,
         nameHasher: NameKeyer = SHA256NameKeyer(),
         uniqueIdentifierGenerator: UniqueIdentifierGenerator = UuidBasedUniqueIdentifierGenerator()
     ) throws {
-        self.cachesUrl = cachesUrl
+        self.cachesContainer = cachesContainer
+        self.fileSystem = fileSystem
         self.nameKeyer = nameHasher
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         
-        if !fileManager.fileExists(atPath: cachesUrl.path) {
-            try fileManager.createDirectory(at: cachesUrl, withIntermediateDirectories: true)
+        if try !fileSystem.properties(forFileAtPath: cachesContainer).exists() {
+            try fileSystem.createDirectory(atPath: cachesContainer, withIntermediateDirectories: true)
         }
         
-        let lockFilePath = cachesUrl.appendingPathComponent("emcee_cache.lock", isDirectory: false)
-        self.cacheLock = try FileLock(lockFilePath: lockFilePath.path)
+        let lockFilePath = cachesContainer.appending(component: "emcee_cache.lock")
+        self.cacheLock = try FileLock(lockFilePath: lockFilePath.pathString)
     }
     
     // MARK: - Public API
@@ -58,8 +64,8 @@ public final class FileCache {
     public func contains(itemWithName name: String) -> Bool {
         do {
             return try whileLocked {
-                let fileUrl = try url(forItemWithName: name)
-                return fileManager.fileExists(atPath: fileUrl.path)
+                let filePath = try path(forItemWithName: name)
+                return try fileSystem.properties(forFileAtPath: filePath).exists()
             }
         } catch {
             return false
@@ -68,30 +74,30 @@ public final class FileCache {
     
     public func remove(itemWithName name: String) throws {
         try whileLocked {
-            let container = try containerUrl(forItemWithName: name)
-            try safelyEvict(itemUrl: container)
+            let container = try containerPath(forItemWithName: name)
+            try safelyEvict(itemPath: container)
         }
     }
     
-    public func store(itemAtURL itemUrl: URL, underName name: String, operation: Operation) throws {
+    public func store(itemAtPath itemPath: AbsolutePath, underName name: String, operation: Operation) throws {
         try whileLocked {
             if contains(itemWithName: name) {
                 try remove(itemWithName: name)
             }
             
-            let container = try containerUrl(forItemWithName: name)
-            let filename = itemUrl.lastPathComponent
+            let container = try containerPath(forItemWithName: name)
+            let filename = itemPath.lastComponent
             
             switch operation {
             case .copy:
-                try fileManager.copyItem(
-                    at: itemUrl,
-                    to: container.appendingPathComponent(filename, isDirectory: false)
+                try fileSystem.copy(
+                    source: itemPath,
+                    destination: container.appending(component: filename)
                 )
             case .move:
-                try fileManager.moveItem(
-                    at: itemUrl,
-                    to: container.appendingPathComponent(filename, isDirectory: false)
+                try fileSystem.move(
+                    source: itemPath,
+                    destination: container.appending(component: filename)
                 )
             }
             
@@ -100,98 +106,91 @@ public final class FileCache {
         }
     }
     
-    public func url(forItemWithName name: String) throws -> URL {
+    public func path(forItemWithName name: String) throws -> AbsolutePath {
         return try whileLocked {
             let itemInfo = try cachedItemInfo(forItemWithName: name)
-            let container = try containerUrl(forItemWithName: name)
+            let container = try containerPath(forItemWithName: name)
             
             let updatedItemInfo = CachedItemInfo(fileName: itemInfo.fileName, timestamp: Date().timeIntervalSince1970)
             try store(cachedItemInfo: updatedItemInfo, forItemWithName: name)
             
-            return container.appendingPathComponent(itemInfo.fileName, isDirectory: false)
+            return container.appending(component: itemInfo.fileName)
         }
     }
     
     @discardableResult
-    public func cleanUpItems(olderThan date: Date) throws -> [URL] {
+    public func cleanUpItems(olderThan date: Date) throws -> [AbsolutePath] {
         return try whileLocked {
             let allStoredCachedItemInfos = try self.allStoredCachedItemInfos()
-            let evictables = allStoredCachedItemInfos.filter { (key: URL, value: CachedItemInfo) -> Bool in
+            let evictables = allStoredCachedItemInfos.filter { (key: AbsolutePath, value: CachedItemInfo) -> Bool in
                 value.timestamp < date.timeIntervalSince1970
             }
-            try evictables.forEach { (key: URL, value: CachedItemInfo) in
-                try safelyEvict(itemUrl: key)
+            try evictables.forEach { (key: AbsolutePath, value: CachedItemInfo) in
+                try safelyEvict(itemPath: key)
             }
-            return [URL](evictables.keys)
+            return [AbsolutePath](evictables.keys)
         }
     }
     
     // MARK: - Internals
     
-    private func allStoredCachedItemInfos() throws -> [URL: CachedItemInfo] {
-        var cachedItemInfos = [URL: CachedItemInfo]()
+    private func allStoredCachedItemInfos() throws -> [AbsolutePath: CachedItemInfo] {
+        var cachedItemInfos = [AbsolutePath: CachedItemInfo]()
         
-        let topLevelElements = try fileManager.contentsOfDirectory(
-            at: cachesUrl,
-            includingPropertiesForKeys: [.isDirectoryKey],
-            options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants]
-        )
-        
-        for element in topLevelElements {
-            if try element.resourceValues(forKeys: [.isDirectoryKey]).isDirectory == false {
-                continue
+        let enumerator = fileSystem.contentEnumerator(forPath: cachesContainer, style: .shallow)
+        try enumerator.each { element in
+            if try !fileSystem.properties(forFileAtPath: element).isDirectory() {
+                return
             }
-            let expectedCachedItemUrl = element
-                .appendingPathComponent(element.lastPathComponent, isDirectory: false)
-                .appendingPathExtension("json")
-            if fileManager.fileExists(atPath: expectedCachedItemUrl.path) {
-                cachedItemInfos[element] = try cachedItemInfo(url: expectedCachedItemUrl)
+            
+            let expectedCachedItemPath = element.appending(component: element.lastComponent).appending(extension: "json")
+            if try fileSystem.properties(forFileAtPath: expectedCachedItemPath).exists() {
+                cachedItemInfos[element] = try cachedItemInfo(path: expectedCachedItemPath)
             }
         }
         
         return cachedItemInfos
     }
     
-    private func containerUrl(forItemWithName name: String) throws -> URL {
+    private func containerPath(forItemWithName name: String) throws -> AbsolutePath {
         let key = try nameKeyer.key(forName: name)
-        let containerUrl = cachesUrl.appendingPathComponent(key, isDirectory: true)
-        if !fileManager.fileExists(atPath: containerUrl.path) {
-            try fileManager.createDirectory(at: containerUrl, withIntermediateDirectories: true)
+        let containerPath = cachesContainer.appending(component: key)
+        if try !fileSystem.properties(forFileAtPath: containerPath).exists() {
+            try fileSystem.createDirectory(atPath: containerPath, withIntermediateDirectories: true)
         }
-        return containerUrl
+        return containerPath
     }
     
-    private func cachedItemInfoFileUrl(forItemWithName name: String) throws -> URL {
+    private func cachedItemInfoPath(forItemWithName name: String) throws -> AbsolutePath {
         let key = try nameKeyer.key(forName: name)
-        let container = try containerUrl(forItemWithName: name)
-        return container.appendingPathComponent(key, isDirectory: false).appendingPathExtension("json")
+        let container = try containerPath(forItemWithName: name)
+        return container.appending(component: key).appending(extension: "json")
     }
     
     private func cachedItemInfo(forItemWithName name: String) throws -> CachedItemInfo {
-        let infoFileUrl = try cachedItemInfoFileUrl(forItemWithName: name)
-        return try cachedItemInfo(url: infoFileUrl)
+        return try cachedItemInfo(path: try cachedItemInfoPath(forItemWithName: name))
     }
     
-    private func cachedItemInfo(url: URL) throws -> CachedItemInfo {
-        let data = try Data(contentsOf: url)
+    private func cachedItemInfo(path: AbsolutePath) throws -> CachedItemInfo {
+        let data = try Data(contentsOf: path.fileUrl)
         return try decoder.decode(CachedItemInfo.self, from: data)
     }
     
     private func store(cachedItemInfo: CachedItemInfo, forItemWithName name: String) throws {
         let data = try encoder.encode(cachedItemInfo)
-        try data.write(to: try cachedItemInfoFileUrl(forItemWithName: name), options: .atomicWrite)
+        try data.write(to: try cachedItemInfoPath(forItemWithName: name).fileUrl, options: .atomicWrite)
     }
     
-    private func safelyEvict(itemUrl: URL) throws {
-        let evictableItemUrl = itemUrl
-            .deletingLastPathComponent()
-            .appendingPathComponent([FileCache.evictingStatePrefix, uniqueIdentifierGenerator.generate(), itemUrl.lastPathComponent].joined(separator: "_"))
-        try fileManager.moveItem(
-            at: itemUrl,
-            to: evictableItemUrl
+    private func safelyEvict(itemPath: AbsolutePath) throws {
+        let evictableItemPath = itemPath
+            .removingLastComponent
+            .appending(component: [FileCache.evictingStatePrefix, uniqueIdentifierGenerator.generate(), itemPath.lastComponent].joined(separator: "_"))
+        try fileSystem.move(
+            source: itemPath,
+            destination: evictableItemPath
         )
-        try fileManager.removeItem(
-            at: evictableItemUrl
+        try fileSystem.delete(
+            fileAtPath: evictableItemPath
         )
     }
     

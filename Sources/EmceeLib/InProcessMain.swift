@@ -22,7 +22,7 @@ public final class InProcessMain {
     public init() {}
     
     public func run() throws {
-        let fileSystem = LocalFileSystem(fileManager: FileManager())
+        let fileSystem = LocalFileSystem()
         let dateProvider = SystemDateProvider()
         
         let cacheElementTimeToLive = TimeUnit.hours(1)
@@ -51,8 +51,11 @@ public final class InProcessMain {
         let requestSenderProvider = DefaultRequestSenderProvider()
         let runtimeDumpRemoteCacheProvider = DefaultRuntimeDumpRemoteCacheProvider(senderProvider: requestSenderProvider)
         let resourceLocationResolver = ResourceLocationResolverImpl(
+            fileSystem: fileSystem,
             urlResource: URLResource(
-                fileCache: try FileCache.fileCacheInDefaultLocation(),
+                fileCache: try FileCache.fileCacheInDefaultLocation(
+                    fileSystem: fileSystem
+                ),
                 urlSession: URLSession.shared
             ),
             cacheElementTimeToLive: cacheElementTimeToLive.timeInterval,

@@ -1,5 +1,6 @@
 import Dispatch
 import Foundation
+import PathLib
 import SynchronousWaiter
 import TestHelpers
 import URLResource
@@ -10,7 +11,7 @@ final class BlockingURLResourceHandlerTests: XCTestCase {
     private let runnerQueue = DispatchQueue(label: "runnerQueue", attributes: .concurrent)
     private let impactQueue = DispatchQueue(label: "impactQueue")
     private let remoteUrl = URL(string: "http://example.com")!
-    private let resultingUrl = URL(string: "http://result.com")!
+    private let resultingPath = AbsolutePath("/tmp/result/path")
 
     func test___provides_back_result() {
         let handler = BlockingURLResourceHandler(waiter: waiter)
@@ -22,11 +23,11 @@ final class BlockingURLResourceHandlerTests: XCTestCase {
                     remoteUrl: self.remoteUrl
                 )
             }
-            XCTAssertEqual(result, self.resultingUrl)
+            XCTAssertEqual(result, self.resultingPath)
         }
 
         impactQueue.async {
-            handler.resourceUrl(contentUrl: self.resultingUrl, forUrl: self.remoteUrl)
+            handler.resource(path: self.resultingPath, forUrl: self.remoteUrl)
         }
 
         runnerQueue.sync(flags: .barrier, execute: {})

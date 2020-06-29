@@ -47,7 +47,7 @@ final class ArgumentsReader {
     ) throws -> QueueServerRunConfiguration {
         let resolvingResult = try resourceLocationResolver.resolvePath(resourceLocation: location.resourceLocation)
         return try decodeModelsFromFile(
-            try resolvingResult.directlyAccessibleResourcePath(),
+            try resolvingResult.directlyAccessibleResourcePath().pathString,
             jsonDecoder: decoderWithSnakeCaseSupport
         )
     }

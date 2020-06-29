@@ -1,4 +1,5 @@
 import Foundation
+import PathLib
 
 public extension FileCache {
     private func itemNameForUrl(_ url: URL) -> String {
@@ -9,12 +10,12 @@ public extension FileCache {
         return self.contains(itemWithName: itemNameForUrl(url))
     }
     
-    func urlForCachedContents(ofUrl url: URL) throws -> URL {
-        return try self.url(forItemWithName: itemNameForUrl(url))
+    func pathForCachedContents(ofUrl url: URL) throws -> AbsolutePath {
+        return try path(forItemWithName: itemNameForUrl(url))
     }
     
-    func store(contentsUrl: URL, ofUrl url: URL, operation: Operation) throws {
-        try self.store(itemAtURL: contentsUrl, underName: itemNameForUrl(url), operation: operation)
+    func store(contentsPath: AbsolutePath, ofUrl url: URL, operation: Operation) throws {
+        try self.store(itemAtPath: contentsPath, underName: itemNameForUrl(url), operation: operation)
     }
     
     func delete(itemForURL url: URL) throws {

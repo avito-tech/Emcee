@@ -3,12 +3,13 @@ import Dispatch
 import Foundation
 import Logging
 import Models
+import PathLib
 import SynchronousWaiter
 
 public final class BlockingURLResourceHandler: URLResourceHandler {
     
     private let waiter: Waiter
-    private let result: AtomicValue<Either<URL, Error>?> = AtomicValue(nil)
+    private let result: AtomicValue<Either<AbsolutePath, Error>?> = AtomicValue(nil)
 
     public init(
         waiter: Waiter = SynchronousWaiter()
@@ -16,7 +17,7 @@ public final class BlockingURLResourceHandler: URLResourceHandler {
         self.waiter = waiter
     }
     
-    public func wait(limit: TimeInterval, remoteUrl: URL) throws -> URL {
+    public func wait(limit: TimeInterval, remoteUrl: URL) throws -> AbsolutePath {
         return try waiter.waitForUnwrap(
             timeout: limit,
             valueProvider: {
@@ -30,9 +31,9 @@ public final class BlockingURLResourceHandler: URLResourceHandler {
         )
     }
     
-    public func resourceUrl(contentUrl: URL, forUrl url: URL) {
-        Logger.verboseDebug("Obtained contents for \(url) at local url \(contentUrl)")
-        result.set(Either.success(contentUrl))
+    public func resource(path: AbsolutePath, forUrl url: URL) {
+        Logger.verboseDebug("Obtained contents for \(url) at \(path)")
+        result.set(Either.success(path))
     }
     
     public func failedToGetContents(forUrl url: URL, error: Error) {

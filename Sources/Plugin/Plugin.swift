@@ -19,7 +19,7 @@ public final class Plugin {
     private var jsonStreamHasFinished = false
     private let eventReceiver: EventReceiver
     private let loggingSetup = LoggingSetup(
-        fileSystem: LocalFileSystem(fileManager: FileManager())
+        fileSystem: LocalFileSystem()
     )
     
     /// Creates a Plugin class that can be used to broadcast the PluginEvents from the main process

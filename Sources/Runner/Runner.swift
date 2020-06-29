@@ -142,6 +142,7 @@ public final class Runner {
         )
         
         let eventBus = try pluginEventBusProvider.createEventBus(
+            fileSystem: fileSystem,
             pluginLocations: configuration.pluginLocations
         )
         defer {

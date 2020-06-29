@@ -606,7 +606,9 @@ let package = Package(
             dependencies: [
                 "Extensions",
                 "FileLock",
+                "FileSystem",
                 "Models",
+                "PathLib",
                 "UniqueIdentifierGenerator",
             ],
             path: "Sources/FileCache"
@@ -616,7 +618,10 @@ let package = Package(
             name: "FileCacheTests",
             dependencies: [
                 "FileCache",
+                "FileSystem",
+                "PathLib",
                 "TemporaryStuff",
+                "TestHelpers",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
             ],
@@ -923,6 +928,7 @@ let package = Package(
             dependencies: [
                 "EventBus",
                 "Extensions",
+                "FileSystem",
                 "LocalHostDeterminer",
                 "Logging",
                 "Models",
@@ -940,6 +946,7 @@ let package = Package(
             name: "PluginManagerTestHelpers",
             dependencies: [
                 "EventBus",
+                "FileSystem",
                 "Models",
                 "PluginManager",
                 "PluginSupport",
@@ -1371,6 +1378,7 @@ let package = Package(
             // MARK: ResourceLocation
             name: "ResourceLocation",
             dependencies: [
+                "PathLib",
             ],
             path: "Sources/ResourceLocation"
         ),
@@ -1381,8 +1389,10 @@ let package = Package(
                 "AtomicModels",
                 "Extensions",
                 "FileCache",
+                "FileSystem",
                 "Logging",
                 "Models",
+                "PathLib",
                 "ProcessController",
                 "ResourceLocation",
                 "SynchronousWaiter",
@@ -1929,6 +1939,7 @@ let package = Package(
                 "FileCache",
                 "Logging",
                 "Models",
+                "PathLib",
                 "SynchronousWaiter",
             ],
             path: "Sources/URLResource"
@@ -1938,6 +1949,8 @@ let package = Package(
             name: "URLResourceTests",
             dependencies: [
                 "FileCache",
+                "FileSystem",
+                "PathLib",
                 "Swifter",
                 "SynchronousWaiter",
                 "TemporaryStuff",

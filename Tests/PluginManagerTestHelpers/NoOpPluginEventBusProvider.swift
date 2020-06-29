@@ -1,4 +1,5 @@
 import EventBus
+import FileSystem
 import Foundation
 import Models
 import PluginManager
@@ -10,7 +11,7 @@ public final class NoOoPluginEventBusProvider: PluginEventBusProvider {
     public var eventBus = EventBus()
     public var eventBusRequests = 0
     
-    public func createEventBus(pluginLocations: Set<PluginLocation>) throws -> EventBus {
+    public func createEventBus(fileSystem: FileSystem, pluginLocations: Set<PluginLocation>) throws -> EventBus {
         eventBusRequests += 1
         return eventBus
     }

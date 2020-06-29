@@ -2,17 +2,18 @@ import Foundation
 import PathLib
 
 public final class LocalFileSystem: FileSystem {
-    private let fileManager: FileManager
+    private let fileManager = FileManager()
     
-    public init(fileManager: FileManager) {
-        self.fileManager = fileManager
-    }
+    public init() {}
     
-    public func contentEnumerator(forPath path: AbsolutePath) -> FileSystemEnumerator {
-        return DefaultFileSystemEnumerator(
-            fileManager: fileManager,
-            path: path
-        )
+    public func contentEnumerator(forPath path: AbsolutePath, style: ContentEnumerationStyle) -> FileSystemEnumerator {
+        switch style {
+        case .deep:
+            return DeepFileSystemEnumerator(fileManager: fileManager, path: path)
+        case .shallow:
+            return ShallowFileSystemEnumerator(fileManager: fileManager, path: path)
+        }
+        
     }
     
     public func createDirectory(atPath path: AbsolutePath, withIntermediateDirectories: Bool) throws {
@@ -20,6 +21,14 @@ public final class LocalFileSystem: FileSystem {
             atPath: path.pathString,
             withIntermediateDirectories: withIntermediateDirectories
         )
+    }
+    
+    public func copy(source: AbsolutePath, destination: AbsolutePath) throws {
+        try fileManager.copyItem(at: source.fileUrl, to: destination.fileUrl)
+    }
+    
+    public func move(source: AbsolutePath, destination: AbsolutePath) throws {
+        try fileManager.moveItem(at: source.fileUrl, to: destination.fileUrl)
     }
     
     public func delete(fileAtPath path: AbsolutePath) throws {

@@ -1,5 +1,6 @@
 import EventBus
 import Extensions
+import FileSystem
 import Foundation
 import Logging
 import Models
@@ -10,47 +11,49 @@ import ResourceLocationResolver
 import SynchronousWaiter
 
 public final class PluginManager: EventStream {
+    private let encoder = JSONEncoder.pretty()
+    private let eventDistributor: EventDistributor
+    private let fileSystem: FileSystem
+    private let pluginLocations: Set<PluginLocation>
+    private let pluginsConnectionTimeout: TimeInterval = 30.0
+    private let processControllerProvider: ProcessControllerProvider
+    private let resourceLocationResolver: ResourceLocationResolver
+    private let sessionId = UUID()
+    private let tearDownAllowance: TimeInterval = 60.0
+    private var processControllers = [ProcessController]()
+    
     public static let pluginBundleExtension = "emceeplugin"
     public static let pluginExecutableName = "Plugin"
-    private let encoder = JSONEncoder.pretty()
-    private let pluginLocations: Set<PluginLocation>
-    private let processControllerProvider: ProcessControllerProvider
-    private var processControllers = [ProcessController]()
-    private let resourceLocationResolver: ResourceLocationResolver
-    private let eventDistributor: EventDistributor
-    private let pluginsConnectionTimeout: TimeInterval = 30.0
-    private let tearDownAllowance: TimeInterval = 60.0
-    private let sessionId = UUID()
     
     public init(
-        processControllerProvider: ProcessControllerProvider,
+        fileSystem: FileSystem,
         pluginLocations: Set<PluginLocation>,
+        processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver
     ) {
-        self.processControllerProvider = processControllerProvider
-        self.pluginLocations = pluginLocations
-        self.resourceLocationResolver = resourceLocationResolver
+        self.fileSystem = fileSystem
         self.eventDistributor = EventDistributor(sessionId: sessionId)
+        self.pluginLocations = pluginLocations
+        self.processControllerProvider = processControllerProvider
+        self.resourceLocationResolver = resourceLocationResolver
     }
     
-    private static func pathsToPluginBundles(
-        pluginLocations: Set<PluginLocation>,
-        resourceLocationResolver: ResourceLocationResolver
-    ) throws -> [AbsolutePath] {
+    private func pathsToPluginBundles() throws -> [AbsolutePath] {
         var paths = [AbsolutePath]()
         for location in pluginLocations {
             let resolvableLocation = resourceLocationResolver.resolvable(withRepresentable: location)
             
-            let validatePathToPluginBundle: (String) throws -> () = { path in
-                guard path.lastPathComponent.pathExtension == PluginManager.pluginBundleExtension else {
-                    throw ValidationError.unexpectedExtension(location, actual: path.lastPathComponent.pathExtension, expected: PluginManager.pluginBundleExtension)
+            let validatePathToPluginBundle: (AbsolutePath) throws -> () = { path in
+                guard path.lastComponent.pathExtension == PluginManager.pluginBundleExtension else {
+                    throw ValidationError.unexpectedExtension(location, actual: path.lastComponent.pathExtension, expected: PluginManager.pluginBundleExtension)
                 }
-                let executablePath = path.appending(pathComponent: PluginManager.pluginExecutableName)
-                var isDir: ObjCBool = false
-                guard FileManager.default.fileExists(atPath: executablePath, isDirectory: &isDir), isDir.boolValue == false else {
+                let executablePath = path.appending(component: PluginManager.pluginExecutableName)
+                
+                guard try self.fileSystem.properties(forFileAtPath: executablePath).isExecutable() else {
                     throw ValidationError.noExecutableFound(location, expectedLocation: executablePath)
                 }
-                paths.append(AbsolutePath(path))
+                
+                paths.append(path)
             }
             
             switch try resolvableLocation.resolve() {
@@ -58,13 +61,19 @@ public final class PluginManager: EventStream {
                 try validatePathToPluginBundle(path)
             case .contentsOfArchive(let containerPath, let concretePluginName):
                 if let concretePluginName = concretePluginName {
-                    var path = containerPath.appending(pathComponent: concretePluginName)
-                    if path.lastPathComponent.pathExtension != PluginManager.pluginBundleExtension {
-                        path = path + "." + PluginManager.pluginBundleExtension
+                    var path = containerPath.appending(component: concretePluginName)
+                    if path.lastComponent.pathExtension != PluginManager.pluginBundleExtension {
+                        path = path.appending(extension: PluginManager.pluginBundleExtension)
                     }
                     try validatePathToPluginBundle(path)
                 } else {
-                    let availablePlugins = try FileManager.default.findFiles(path: containerPath, pathExtension: PluginManager.pluginBundleExtension)
+                    var availablePlugins = [AbsolutePath]()
+                    try fileSystem.contentEnumerator(forPath: containerPath, style: .shallow).each { path in
+                        if path.extension == PluginManager.pluginBundleExtension {
+                            availablePlugins.append(path)
+                        }
+                    }
+                    
                     guard !availablePlugins.isEmpty else { throw ValidationError.noPluginsFound(location) }
                     for path in availablePlugins {
                         try validatePathToPluginBundle(path)
@@ -79,9 +88,7 @@ public final class PluginManager: EventStream {
         try eventDistributor.start()
         let pluginSocket = try eventDistributor.webSocketAddress()
         
-        let pluginBundles = try PluginManager.pathsToPluginBundles(
-            pluginLocations: pluginLocations,
-            resourceLocationResolver: resourceLocationResolver)
+        let pluginBundles = try pathsToPluginBundles()
         
         for bundlePath in pluginBundles {
             Logger.debug("[\(sessionId)] Starting plugin at '\(bundlePath)'")

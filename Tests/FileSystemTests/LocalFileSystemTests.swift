@@ -8,13 +8,13 @@ import XCTest
 
 final class LocalFileSystemTest: XCTestCase {
     private lazy var dateProvider = SystemDateProvider()
-    private lazy var fileSystem = LocalFileSystem(fileManager: fileManager)
+    private lazy var fileManager = FileManager()
+    private lazy var fileSystem = LocalFileSystem()
     private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder(deleteOnDealloc: true) }
-    private let fileManager = FileManager()
     
     func test__enumeration() throws {
         let expectedPaths = try createTestDataForEnumeration(tempFolder: tempFolder)
-        let enumerator = fileSystem.contentEnumerator(forPath: tempFolder.absolutePath)
+        let enumerator = fileSystem.contentEnumerator(forPath: tempFolder.absolutePath, style: .deep)
         
         var paths = Set<AbsolutePath>()
         try enumerator.each { (path: AbsolutePath) in

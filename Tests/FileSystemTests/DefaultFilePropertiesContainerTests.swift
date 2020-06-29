@@ -41,4 +41,30 @@ final class DefaultFilePropertiesContainerTests: XCTestCase {
         let properties = DefaultFilePropertiesContainer(path: temporaryFile.absolutePath)
         XCTAssertTrue(try properties.isExecutable())
     }
+    
+    func test___exists___when_exists() throws {
+        let properties = DefaultFilePropertiesContainer(path: temporaryFile.absolutePath)
+        XCTAssertTrue(try properties.exists())
+    }
+    
+    func test___not_exists___when_not_exists() throws {
+        let properties = DefaultFilePropertiesContainer(path: temporaryFile.absolutePath.appending(component: "nonexisting"))
+        XCTAssertFalse(try properties.exists())
+    }
+    
+    func test___is_directory___for_directory() throws {
+        let properties = DefaultFilePropertiesContainer(path: temporaryFile.absolutePath.removingLastComponent)
+        XCTAssertTrue(try properties.isDirectory())
+    }
+    
+    func test___is_not_directory___for_non_directories() throws {
+        let properties = DefaultFilePropertiesContainer(path: temporaryFile.absolutePath)
+        XCTAssertFalse(try properties.isDirectory())
+    }
+    
+    func test___size() throws {
+        temporaryFile.fileHandleForWriting.write(Data([0x00, 0x01, 0x02]))
+        let properties = DefaultFilePropertiesContainer(path: temporaryFile.absolutePath)
+        XCTAssertEqual(try properties.size(), 3)
+    }
 }

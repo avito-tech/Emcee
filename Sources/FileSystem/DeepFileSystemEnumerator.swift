@@ -1,7 +1,7 @@
 import Foundation
 import PathLib
 
-public final class DefaultFileSystemEnumerator: FileSystemEnumerator {
+public final class DeepFileSystemEnumerator: FileSystemEnumerator {
     private let path: AbsolutePath
     private let fileManager: FileManager
     

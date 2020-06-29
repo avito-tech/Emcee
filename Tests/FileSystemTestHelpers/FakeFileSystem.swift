@@ -13,11 +13,19 @@ public class FakeFileSystem: FileSystem {
     public var fakeCommonlyUsedPathsProvider: FakeCommonlyUsedPathsProvider
     public var commonlyUsedPathsProvider: CommonlyUsedPathsProvider { fakeCommonlyUsedPathsProvider }
     
-    public func contentEnumerator(forPath path: AbsolutePath) -> FileSystemEnumerator {
+    public func contentEnumerator(forPath path: AbsolutePath, style: ContentEnumerationStyle) -> FileSystemEnumerator {
         return FakeFileSystemEnumerator(path: path)
     }
     
     public func createDirectory(atPath: AbsolutePath, withIntermediateDirectories: Bool) throws {
+        
+    }
+    
+    public func copy(source: AbsolutePath, destination: AbsolutePath) throws {
+        
+    }
+    
+    public func move(source: AbsolutePath, destination: AbsolutePath) throws {
         
     }
     

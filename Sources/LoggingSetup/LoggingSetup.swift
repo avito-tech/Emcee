@@ -48,7 +48,7 @@ public final class LoggingSetup {
         let queue = DispatchQueue(label: "LoggingSetup.cleanupQueue", attributes: .concurrent)
         
         Logger.debug("Will clean up old log files")
-        let logsEnumerator = fileSystem.contentEnumerator(forPath: try fileSystem.emceeLogsFolder())
+        let logsEnumerator = fileSystem.contentEnumerator(forPath: try fileSystem.emceeLogsFolder(), style: .deep)
         try logsEnumerator.each { (path: AbsolutePath) in
             guard path.extension == logFileExtension else { return }
             let modificationDate = try fileSystem.properties(forFileAtPath: path).modificationDate()

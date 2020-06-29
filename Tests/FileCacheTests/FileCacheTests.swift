@@ -1,41 +1,44 @@
 import FileCache
+import FileSystem
 import Foundation
+import PathLib
 import TemporaryStuff
+import TestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class FileCacheTests: XCTestCase {
-    var tempFolder: TemporaryFolder!
-    
-    override func setUp() {
-        continueAfterFailure = false
-        XCTAssertNoThrow(
-            tempFolder = try TemporaryFolder(deleteOnDealloc: true)
+    private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
+    private lazy var fileManager = FileManager()
+    private lazy var fileSystem = LocalFileSystem()
+    private lazy var cache = assertDoesNotThrow {
+        try FileCache(
+            cachesContainer: tempFolder.absolutePath,
+            fileSystem: fileSystem
         )
     }
     
-    override func tearDown() {
-        tempFolder = nil
+    override func setUp() {
+        continueAfterFailure = false
     }
     
     func test__creating_cache___when_cache_path_does_not_exists() {
         XCTAssertNoThrow(
-            _ = try FileCache(cachesUrl: tempFolder.absolutePath.appending(component: "subfolder").fileUrl)
+            _ = try FileCache(cachesContainer: tempFolder.absolutePath.appending(component: "subfolder"), fileSystem: fileSystem)
         )
     }
     
     func test__storing_with_copy_operation() throws {
-        let cache = try FileCache(cachesUrl: tempFolder.absolutePath.fileUrl)
         XCTAssertFalse(cache.contains(itemWithName: "item"))
         
-        XCTAssertNoThrow(try cache.store(itemAtURL: URL(fileURLWithPath: #file), underName: "item", operation: .copy))
-        let cacheUrl = try cache.url(forItemWithName: "item")
+        XCTAssertNoThrow(try cache.store(itemAtPath: AbsolutePath(#file), underName: "item", operation: .copy))
+        let cacheUrl = try cache.path(forItemWithName: "item")
         XCTAssertTrue(cache.contains(itemWithName: "item"))
-        XCTAssertEqual(cacheUrl.lastPathComponent, URL(fileURLWithPath: #file).lastPathComponent)
+        XCTAssertEqual(cacheUrl.lastComponent, URL(fileURLWithPath: #file).lastPathComponent)
         
         let expectedContents = try String(contentsOfFile: #file)
-        let actualContents = try String(contentsOfFile: cacheUrl.path)
+        let actualContents = try String(contentsOfFile: cacheUrl.pathString)
         XCTAssertEqual(expectedContents, actualContents)
         
         XCTAssertNoThrow(try cache.remove(itemWithName: "item"))
@@ -43,8 +46,6 @@ final class FileCacheTests: XCTestCase {
     }
     
     func test__storing_with_move_operation() throws {
-        let cache = try FileCache(cachesUrl: tempFolder.absolutePath.fileUrl)
-        
         let fileToStore = try tempFolder.createFile(
             components: [],
             filename: "source.swift",
@@ -52,17 +53,15 @@ final class FileCacheTests: XCTestCase {
         )
         
         XCTAssertNoThrow(
-            try cache.store(itemAtURL: fileToStore.fileUrl, underName: "item", operation: .move)
+            try cache.store(itemAtPath: fileToStore, underName: "item", operation: .move)
         )
         XCTAssertTrue(cache.contains(itemWithName: "item"))
         
-        XCTAssertFalse(FileManager.default.fileExists(atPath: fileToStore.pathString))
+        XCTAssertFalse(fileManager.fileExists(atPath: fileToStore.pathString))
     }
     
     func testEvicting() throws {
-        let cache = try FileCache(cachesUrl: tempFolder.absolutePath.fileUrl)
-        
-        try cache.store(itemAtURL: URL(fileURLWithPath: #file), underName: "item", operation: .copy)
+        try cache.store(itemAtPath: AbsolutePath(#file), underName: "item", operation: .copy)
         XCTAssertTrue(cache.contains(itemWithName: "item"))
         
         try cache.cleanUpItems(olderThan: Date.distantFuture)
@@ -71,28 +70,29 @@ final class FileCacheTests: XCTestCase {
     
     func test__evicting_busy_items___moves_them_to_evicting_state() throws {
         let cache = try FileCache(
-            cachesUrl: tempFolder.absolutePath.fileUrl,
+            cachesContainer: tempFolder.absolutePath,
+            fileSystem: fileSystem,
             uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(value: "someid")
         )
         
-        try cache.store(itemAtURL: URL(fileURLWithPath: #file), underName: "item", operation: .copy)
-        let pathToBusyFile = try cache.url(forItemWithName: "item")
+        try cache.store(itemAtPath: AbsolutePath(#file), underName: "item", operation: .copy)
+        let pathToBusyFile = try cache.path(forItemWithName: "item")
         let expectedEvictingContainerPath = tempFolder.pathWith(
             components: [
                 [
                     "evicting",
                     "someid",
-                    pathToBusyFile.deletingLastPathComponent().lastPathComponent
+                    pathToBusyFile.removingLastComponent.lastComponent
                 ].joined(separator: "_")
             ]
         )
         
-        try FileManager.default.setAttributes([.immutable: true], ofItemAtPath: pathToBusyFile.path)
+        try fileManager.setAttributes([.immutable: true], ofItemAtPath: pathToBusyFile.pathString)
         defer {
             do {
                 let expectedPath = expectedEvictingContainerPath
                     .appending(component: (#file as NSString).lastPathComponent)
-                try FileManager.default.setAttributes([.immutable: false], ofItemAtPath: expectedPath.pathString)
+                try fileManager.setAttributes([.immutable: false], ofItemAtPath: expectedPath.pathString)
             } catch {
                 print(error)
             }
@@ -103,7 +103,7 @@ final class FileCacheTests: XCTestCase {
             "Should throw as file is locked above"
         )
         
-        let tempFolderContents = try FileManager.default.contentsOfDirectory(
+        let tempFolderContents = try fileManager.contentsOfDirectory(
             atPath: tempFolder.absolutePath.pathString
             ).filter { $0.hasPrefix(FileCache.evictingStatePrefix) }
         

@@ -19,7 +19,7 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
     private let testingEnvironment: XcTestRunTestingEnvironment
         
     public enum XcTestRunFileArgumentError: CustomStringConvertible, Error {
-        case cannotObtainBundleIdentifier(path: String)
+        case cannotObtainBundleIdentifier(path: AbsolutePath)
         
         public var description: String {
             switch self {
@@ -105,9 +105,9 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
             testTargetName: testTargetProductModuleName,
             bundleIdentifiersForCrashReportEmphasis: [],
             dependentProductPaths: [
-                testBundlePath,
+                testBundlePath.pathString,
             ],
-            testBundlePath: testBundlePath,
+            testBundlePath: testBundlePath.pathString,
             testHostPath: testHostPath,
             testHostBundleIdentifier: "com.apple.dt.xctest.tool",
             uiTargetAppPath: nil,
@@ -138,7 +138,7 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
             xcTestBundlePath: testBundlePath
         )
 
-        guard let hostAppBundle = Bundle(path: hostAppPath), let hostAppBundleIdentifier = hostAppBundle.bundleIdentifier else {
+        guard let hostAppBundle = Bundle(path: hostAppPath.pathString), let hostAppBundleIdentifier = hostAppBundle.bundleIdentifier else {
             throw XcTestRunFileArgumentError.cannotObtainBundleIdentifier(path: hostAppPath)
         }
         
@@ -148,18 +148,18 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
             
         let xctestSpecificEnvironment = [
             "DYLD_INSERT_LIBRARIES": insertedLibraries.joined(separator: ":"),
-            "XCInjectBundleInto": hostAppPath,
+            "XCInjectBundleInto": hostAppPath.pathString,
         ]
 
         return XcTestRun(
             testTargetName: testTargetProductModuleName,
             bundleIdentifiersForCrashReportEmphasis: [],
             dependentProductPaths: [
-                hostAppPath,
-                testBundlePath,
+                hostAppPath.pathString,
+                testBundlePath.pathString,
             ],
-            testBundlePath: testBundlePath,
-            testHostPath: hostAppPath,
+            testBundlePath: testBundlePath.pathString,
+            testHostPath: hostAppPath.pathString,
             testHostBundleIdentifier: hostAppBundleIdentifier,
             uiTargetAppPath: nil,
             environmentVariables: testContext.environment,
@@ -190,7 +190,7 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
         let uiTargetAppPath = try resourceLocationResolver.resolvable(resourceLocation: representableAppBundle.resourceLocation).resolve().directlyAccessibleResourcePath()
         let hostAppPath = try resourceLocationResolver.resolvable(resourceLocation: representableRunnerBundle.resourceLocation).resolve().directlyAccessibleResourcePath()
         let testBundlePath = try resolvableXcTestBundle.resolve().directlyAccessibleResourcePath()
-        let additionalApplicationBundlePaths: [String] = try buildArtifacts.additionalApplicationBundles.map {
+        let additionalApplicationBundlePaths: [AbsolutePath] = try buildArtifacts.additionalApplicationBundles.map {
             try resourceLocationResolver.resolvable(resourceLocation: $0.resourceLocation).resolve().directlyAccessibleResourcePath()
         }
         let testTargetProductModuleName = try self.testTargetProductModuleName(
@@ -208,11 +208,11 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
         return XcTestRun(
             testTargetName: testTargetProductModuleName,
             bundleIdentifiersForCrashReportEmphasis: [],
-            dependentProductPaths: [uiTargetAppPath, testBundlePath, hostAppPath] + additionalApplicationBundlePaths,
-            testBundlePath: testBundlePath,
-            testHostPath: hostAppPath,
+            dependentProductPaths: ([uiTargetAppPath, testBundlePath, hostAppPath] + additionalApplicationBundlePaths).map { $0.pathString },
+            testBundlePath: testBundlePath.pathString,
+            testHostPath: hostAppPath.pathString,
             testHostBundleIdentifier: "StubBundleId",
-            uiTargetAppPath: uiTargetAppPath,
+            uiTargetAppPath: uiTargetAppPath.pathString,
             environmentVariables: testContext.environment,
             commandLineArguments: [],
             uiTargetAppEnvironmentVariables: testContext.environment,
@@ -229,10 +229,9 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
     }
     
     private func testTargetProductModuleName(
-        xcTestBundlePath: String
+        xcTestBundlePath: AbsolutePath
     ) throws -> String {
-        let pathToBundle = AbsolutePath(xcTestBundlePath)
-        let plistPath = pathToBundle.appending(component: "Info.plist")
+        let plistPath = xcTestBundlePath.appending(component: "Info.plist")
         let plistContents = try PropertyListSerialization.propertyList(
             from: Data(contentsOf: plistPath.fileUrl, options: .mappedIfSafe),
             options: [],

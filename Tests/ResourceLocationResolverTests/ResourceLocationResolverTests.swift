@@ -24,7 +24,7 @@ final class ResourceLocationResolverTests: XCTestCase {
         
         switch result {
         case .directlyAccessibleFile(let actualPath):
-            XCTAssertEqual(expectedPath.pathString, actualPath)
+            XCTAssertEqual(expectedPath, actualPath)
         case .contentsOfArchive:
             XCTFail("Unexpected result")
         }
@@ -37,7 +37,7 @@ final class ResourceLocationResolverTests: XCTestCase {
         
         switch result {
         case .directlyAccessibleFile(let actualPath):
-            XCTAssertEqual(expectedPath.pathString, actualPath)
+            XCTAssertEqual(expectedPath, actualPath)
         case .contentsOfArchive:
             XCTFail("Unexpected result")
         }
@@ -57,7 +57,7 @@ final class ResourceLocationResolverTests: XCTestCase {
             XCTAssertTrue(
                 compareFiles(
                     path1: smallFile,
-                    path2: AbsolutePath(containerPath).appending(component: filenameInArchive ?? "")
+                    path2: containerPath.appending(component: filenameInArchive ?? "")
                 )
             )
         }
@@ -79,7 +79,7 @@ final class ResourceLocationResolverTests: XCTestCase {
             XCTAssertTrue(
                 compareFiles(
                     path1: smallFile,
-                    path2: AbsolutePath(containerPath).appending(component: "example")
+                    path2: containerPath.appending(component: "example")
                 )
             )
         }
@@ -92,9 +92,9 @@ final class ResourceLocationResolverTests: XCTestCase {
         let remoteUrl = URL(string: "http://localhost:\(server.port)/contents/example.zip")!
         
         _ = try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl))
-        let localCacheUrl = try fileCache.urlForCachedContents(ofUrl: remoteUrl)
+        let localCachePath = try fileCache.pathForCachedContents(ofUrl: remoteUrl)
         
-        let attributes = try FileManager.default.attributesOfItem(atPath: localCacheUrl.path)
+        let attributes = try FileManager.default.attributesOfItem(atPath: localCachePath.pathString)
         guard let size = attributes[.size] as? NSNumber else {
             return XCTFail("Size of file is not available, but file is expected to be present on disk")
         }
@@ -117,7 +117,7 @@ final class ResourceLocationResolverTests: XCTestCase {
                         XCTAssertTrue(
                             self.compareFiles(
                                 path1: self.largeFile,
-                                path2: AbsolutePath(containerPath).appending(component: "example")
+                                path2: containerPath.appending(component: "example")
                             )
                         )
                     }
@@ -186,18 +186,23 @@ final class ResourceLocationResolverTests: XCTestCase {
     var urlSession = URLSession.shared
     let fakeSession = FakeURLSession()
     lazy var resolver = ResourceLocationResolverImpl(
+        fileSystem: fileSystem,
         urlResource: urlResource,
         cacheElementTimeToLive: 0,
         processControllerProvider: DefaultProcessControllerProvider(
             dateProvider: SystemDateProvider(),
-            fileSystem: LocalFileSystem(
-                fileManager: .default
-            )
+            fileSystem: fileSystem
         )
     )
+    lazy var fileSystem = LocalFileSystem()
     lazy var serverFolder = assertDoesNotThrow { try tempFolder.pathByCreatingDirectories(components: ["server"]) }
     lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
-    lazy var fileCache = assertDoesNotThrow { try FileCache(cachesUrl: tempFolder.absolutePath.fileUrl) }
+    lazy var fileCache = assertDoesNotThrow {
+        try FileCache(
+            cachesContainer: tempFolder.absolutePath,
+            fileSystem: fileSystem
+        )
+    }
     lazy var urlResource = URLResource(fileCache: fileCache, urlSession: urlSession)
     lazy var smallFile = assertDoesNotThrow { try createFile(name: "example", size: 4096) }
     lazy var smallZipFile = self.zipFile(toPath: serverFolder.appending(component: "example.zip"), fromPath: smallFile)

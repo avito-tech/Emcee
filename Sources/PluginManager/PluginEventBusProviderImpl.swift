@@ -1,8 +1,9 @@
 import EventBus
+import FileSystem
 import Foundation
+import PluginSupport
 import ProcessController
 import ResourceLocationResolver
-import PluginSupport
 
 public final class PluginEventBusProviderImpl: PluginEventBusProvider {
     private let processControllerProvider: ProcessControllerProvider
@@ -17,10 +18,12 @@ public final class PluginEventBusProviderImpl: PluginEventBusProvider {
     }
     
     public func createEventBus(
+        fileSystem: FileSystem,
         pluginLocations: Set<PluginLocation>
     ) throws -> EventBus {
         let eventBus = EventBus()
         try startPluginManager(
+            fileSystem: fileSystem,
             eventBus: eventBus,
             pluginLocations: pluginLocations
         )
@@ -28,12 +31,14 @@ public final class PluginEventBusProviderImpl: PluginEventBusProvider {
     }
     
     private func startPluginManager(
+        fileSystem: FileSystem,
         eventBus: EventBus,
         pluginLocations: Set<PluginLocation>
     ) throws {
         let pluginManager = PluginManager(
-            processControllerProvider: processControllerProvider,
+            fileSystem: fileSystem,
             pluginLocations: pluginLocations,
+            processControllerProvider: processControllerProvider,
             resourceLocationResolver: resourceLocationResolver
         )
         try pluginManager.startPlugins()

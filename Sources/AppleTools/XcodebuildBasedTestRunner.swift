@@ -47,7 +47,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
             insertedLibraries = [
                 try resourceLocationResolver
                     .resolvePath(resourceLocation: xctestJsonLocation.resourceLocation)
-                    .directlyAccessibleResourcePath()
+                    .directlyAccessibleResourcePath().pathString
             ]
         } else {
             xcodebuildLogParser = try RegexLogParser(dateProvider: dateProvider)

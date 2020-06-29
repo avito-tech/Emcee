@@ -18,8 +18,9 @@ final class PluginManagerTests: XCTestCase {
     var testingPluginExecutablePath = TestingPluginExecutable.testingPluginPath!
     lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder(deleteOnDealloc: true) }
     lazy var resolver = FakeResourceLocationResolver(
-        resolvingResult: ResolvingResult.directlyAccessibleFile(path: tempFolder.absolutePath.pathString)
+        resolvingResult: ResolvingResult.directlyAccessibleFile(path: tempFolder.absolutePath)
     )
+    lazy var fileSystem = LocalFileSystem()
     
     func testStartingPluginWithinBundleButWithWrongExecutableNameFails() throws {
         let pluginBundlePath = tempFolder.absolutePath.appending(component: "MyPlugin." + PluginManager.pluginBundleExtension)
@@ -32,14 +33,15 @@ final class PluginManagerTests: XCTestCase {
         )
         
         resolver.resolveWithResult(
-            resolvingResult: .directlyAccessibleFile(path: pluginBundlePath.pathString)
+            resolvingResult: .directlyAccessibleFile(path: pluginBundlePath)
         )
         
         let manager = PluginManager(
-            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder),
+            fileSystem: fileSystem,
             pluginLocations: [
                 PluginLocation(.localFilePath(pluginBundlePath.pathString))
             ],
+            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder),
             resourceLocationResolver: resolver
         )
         XCTAssertThrowsError(try manager.startPlugins())
@@ -52,10 +54,11 @@ final class PluginManagerTests: XCTestCase {
             toPath: executablePath.pathString
         )
         let manager = PluginManager(
-            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder),
+            fileSystem: fileSystem,
             pluginLocations: [
                 PluginLocation(.localFilePath(executablePath.pathString))
             ],
+            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder),
             resourceLocationResolver: resolver
         )
         XCTAssertThrowsError(try manager.startPlugins())
@@ -73,19 +76,18 @@ final class PluginManagerTests: XCTestCase {
         )
     
         resolver.resolveWithResult(
-            resolvingResult: .directlyAccessibleFile(path: pluginBundlePath.pathString)
+            resolvingResult: .directlyAccessibleFile(path: pluginBundlePath)
         )
         
         let manager = PluginManager(
-            processControllerProvider: DefaultProcessControllerProvider(
-                dateProvider: SystemDateProvider(),
-                fileSystem: LocalFileSystem(
-                    fileManager: FileManager()
-                )
-            ),
+            fileSystem: fileSystem,
             pluginLocations: [
                 PluginLocation(.localFilePath(pluginBundlePath.pathString))
             ],
+            processControllerProvider: DefaultProcessControllerProvider(
+                dateProvider: SystemDateProvider(),
+                fileSystem: fileSystem
+            ),
             resourceLocationResolver: resolver
         )
         try manager.startPlugins()

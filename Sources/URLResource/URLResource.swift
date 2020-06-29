@@ -3,6 +3,7 @@ import FileCache
 import Foundation
 import Logging
 import Models
+import PathLib
 
 public final class URLResource {
     private let fileCache: FileCache
@@ -56,9 +57,9 @@ public final class URLResource {
     
     private func provideResourceImmediately_onSyncQueue(url: URL, handler: URLResourceHandler) {
         do {
-            let cacheUrl = try fileCache.urlForCachedContents(ofUrl: url)
+            let path = try fileCache.pathForCachedContents(ofUrl: url)
             handlerQueue.async {
-                handler.resourceUrl(contentUrl: cacheUrl, forUrl: url)
+                handler.resource(path: path, forUrl: url)
             }
         } catch {
             handlerQueue.async {
@@ -113,10 +114,10 @@ public final class URLResource {
                     timeToDownload: timeToDownload
                 )
                 
-                try fileCache.store(contentsUrl: localUrl, ofUrl: url, operation: .move)
-                let cachedUrl = try fileCache.urlForCachedContents(ofUrl: url)
+                try fileCache.store(contentsPath: AbsolutePath(localUrl), ofUrl: url, operation: .move)
+                let path = try fileCache.pathForCachedContents(ofUrl: url)
                 Logger.debug("Stored resource for '\(url)' in file cache")
-                handlersWrapper.resourceUrl(contentUrl: cachedUrl, forUrl: url)
+                handlersWrapper.resource(path: path, forUrl: url)
             } catch {
                 handlersWrapper.failedToGetContents(forUrl: url, error: error)
             }
@@ -150,7 +151,7 @@ public final class URLResource {
         return components?.url ?? resourceUrl
     }
     
-    public func evictResources(olderThan date: Date) throws -> [URL] {
+    public func evictResources(olderThan date: Date) throws -> [AbsolutePath] {
         return try fileCache.cleanUpItems(olderThan: date)
     }
     

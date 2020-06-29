@@ -10,7 +10,7 @@ import XCTest
 
 final class DefaultProcessControllerTests: XCTestCase {
     private let dateProvider = SystemDateProvider()
-    private let fileSystem = LocalFileSystem(fileManager: FileManager.default)
+    private let fileSystem = LocalFileSystem()
     
     func testStartingSimpleSubprocess() throws {
         let controller = try DefaultProcessController(

@@ -2,15 +2,18 @@ import AtomicModels
 import Dispatch
 import Extensions
 import FileCache
+import FileSystem
 import Foundation
 import Logging
 import Models
+import PathLib
 import ProcessController
 import ResourceLocation
 import SynchronousWaiter
 import URLResource
 
 public final class ResourceLocationResolverImpl: ResourceLocationResolver {
+    private let fileSystem: FileSystem
     private let urlResource: URLResource
     private let cacheAccessCount = AtomicValue<Int>(0)
     private let cacheElementTimeToLive: TimeInterval
@@ -18,7 +21,7 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
     private let unarchiveQueue = DispatchQueue(label: "ResourceLocationResolverImpl.unarchiveQueue")
     
     public enum ValidationError: Error, CustomStringConvertible {
-        case unpackProcessError(zipPath: String, error: Error)
+        case unpackProcessError(zipPath: AbsolutePath, error: Error)
         
         public var description: String {
             switch self {
@@ -29,10 +32,12 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
     }
     
     public init(
+        fileSystem: FileSystem,
         urlResource: URLResource,
         cacheElementTimeToLive: TimeInterval,
         processControllerProvider: ProcessControllerProvider
     ) {
+        self.fileSystem = fileSystem
         self.urlResource = urlResource
         self.cacheElementTimeToLive = cacheElementTimeToLive
         self.processControllerProvider = processControllerProvider
@@ -41,69 +46,65 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
     public func resolvePath(resourceLocation: ResourceLocation) throws -> ResolvingResult {
         switch resourceLocation {
         case .localFilePath(let path):
-            return .directlyAccessibleFile(path: path)
+            return .directlyAccessibleFile(path: AbsolutePath(path))
         case .remoteUrl(let url):
-            let path = try cachedContentsOfUrl(url).path
+            let path = try cachedContentsOfUrl(url)
             let filenameInArchive = url.fragment
             return .contentsOfArchive(containerPath: path, filenameInArchive: filenameInArchive)
         }
     }
     
-    private func cachedContentsOfUrl(_ url: URL) throws -> URL {
+    private func cachedContentsOfUrl(_ url: URL) throws -> AbsolutePath {
         evictOldCache()
         
         let handler = BlockingURLResourceHandler()
         urlResource.fetchResource(url: url, handler: handler)
-        let zipUrl = try handler.wait(limit: 120, remoteUrl: url)
+        let zipFilePath = try handler.wait(limit: 120, remoteUrl: url)
         
-        let contentsUrl = zipUrl.deletingLastPathComponent().appendingPathComponent("zip_contents", isDirectory: true)
+        let contentsPath = zipFilePath.removingLastComponent.appending(component: "zip_contents")
         try unarchiveQueue.sync {
             try urlResource.whileLocked {
-                if !FileManager.default.fileExists(atPath: contentsUrl.path) {
-                    let temporaryContentsUrl = zipUrl.deletingLastPathComponent().appendingPathComponent(
-                        "zip_contents_\(UUID().uuidString)",
-                        isDirectory: true
+                if try !fileSystem.properties(forFileAtPath: contentsPath).exists() {
+                    let temporaryContentsPath = zipFilePath.removingLastComponent.appending(
+                        component: "zip_contents_\(UUID().uuidString)"
                     )
                     
-                    Logger.debug("Will unzip '\(zipUrl)' into '\(temporaryContentsUrl)'")
+                    Logger.debug("Will unzip '\(zipFilePath)' into '\(temporaryContentsPath)'")
                     
                     let processController = try processControllerProvider.createProcessController(
                         subprocess: Subprocess(
-                            arguments: ["/usr/bin/unzip", zipUrl.path, "-d", temporaryContentsUrl.path]
+                            arguments: ["/usr/bin/unzip", zipFilePath, "-d", temporaryContentsPath]
                         )
                     )
                     do {
                         try processController.startAndWaitForSuccessfulTermination()
-                        Logger.debug("Moving '\(temporaryContentsUrl)' to '\(contentsUrl)'")
-                        try FileManager.default.moveItem(at: temporaryContentsUrl, to: contentsUrl)
+                        Logger.debug("Moving '\(temporaryContentsPath)' to '\(contentsPath)'")
+                        try fileSystem.move(source: temporaryContentsPath, destination: contentsPath)
                     } catch {
                         Logger.error("Failed to unzip file: \(error)")
                         do {
                             Logger.debug("Removing downloaded file at \(url)")
                             try urlResource.deleteResource(url: url)
-                            try FileManager.default.removeItem(at: temporaryContentsUrl)
+                            try fileSystem.delete(fileAtPath: temporaryContentsPath)
                         } catch {
                             Logger.error("Failed to delete corrupted cached contents for item at url \(url)")
                         }
-                        throw ValidationError.unpackProcessError(zipPath: zipUrl.path, error: error)
+                        throw ValidationError.unpackProcessError(zipPath: zipFilePath, error: error)
                     }
                 }
                 
                 // Once we unzip the contents, we don't want to keep zip file on disk since its contents is available under zip_contents.
                 // We erase it and keep empty file, to make sure cache does not refetch it when we access cached item.
-                if FileManager.default.fileExists(atPath: zipUrl.path) {
-                    let values = try zipUrl.resourceValues(forKeys: Set([.fileSizeKey]))
-                    if values.fileSize != 0 {
-                        Logger.debug("Will replace ZIP file at \(zipUrl.path) with empty contents")
-                        let handle = try FileHandle(forWritingTo: zipUrl)
-                        handle.truncateFile(atOffset: 0)
-                        handle.closeFile()
-                        Logger.debug("ZIP file at \(zipUrl.path) now has empty contents")
-                    }
+                if let zipFileSize = try? fileSystem.properties(forFileAtPath: zipFilePath).size(), zipFileSize != 0 {
+                    Logger.debug("Will replace ZIP file at \(zipFilePath) with empty contents")
+                    let handle = try FileHandle(forWritingTo: zipFilePath.fileUrl)
+                    handle.truncateFile(atOffset: 0)
+                    handle.closeFile()
+                    Logger.debug("ZIP file at \(zipFilePath) now has empty contents")
                 }
             }
         }
-        return contentsUrl
+        return contentsPath
     }
     
     private func evictOldCache() {

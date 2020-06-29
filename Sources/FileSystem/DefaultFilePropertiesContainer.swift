@@ -3,6 +3,7 @@ import PathLib
 
 public final class DefaultFilePropertiesContainer: FilePropertiesContainer {
     private let path: AbsolutePath
+    private let fileManager = FileManager()
     
     public init(path: AbsolutePath) {
         self.path = path
@@ -31,6 +32,26 @@ public final class DefaultFilePropertiesContainer: FilePropertiesContainer {
         let values = try path.fileUrl.resourceValues(forKeys: [.isExecutableKey])
         guard let value = values.isExecutable else {
             throw DefaultFilePropertiesContainerError.emptyValue(path, .isExecutableKey)
+        }
+        return value
+    }
+    
+    public func exists() throws -> Bool {
+        fileManager.fileExists(atPath: path.pathString)
+    }
+    
+    public func isDirectory() throws -> Bool {
+        let values = try path.fileUrl.resourceValues(forKeys: [.isDirectoryKey])
+        guard let value = values.isDirectory else {
+            throw DefaultFilePropertiesContainerError.emptyValue(path, .isDirectoryKey)
+        }
+        return value
+    }
+    
+    public func size() throws -> Int {
+        let values = try path.fileUrl.resourceValues(forKeys: [.fileSizeKey])
+        guard let value = values.fileSize else {
+            throw DefaultFilePropertiesContainerError.emptyValue(path, .fileSizeKey)
         }
         return value
     }

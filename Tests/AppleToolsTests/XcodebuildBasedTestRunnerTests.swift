@@ -28,8 +28,8 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
     private let testRunnerStream = AccumulatingTestRunnerStream()
     private let dateProvider = DateProviderFixture(Date(timeIntervalSince1970: 100500))
     private lazy var processControllerProvider = FakeProcessControllerProvider(tempFolder: tempFolder)
-    private let resourceLocationResolver = FakeResourceLocationResolver(
-        resolvingResult: .directlyAccessibleFile(path: "")
+    private lazy var resourceLocationResolver = FakeResourceLocationResolver(
+        resolvingResult: .directlyAccessibleFile(path: tempFolder.absolutePath)
     )
     private lazy var simulator = Simulator(
         testDestination: TestDestinationFixtures.testDestination,
