@@ -21,6 +21,9 @@ public class FakeFilePropertiesContainer: FilePropertiesContainer {
     public var directory = false
     public func isDirectory() throws -> Bool { directory }
     
+    public var regularFile = true
+    public func isRegularFile() throws -> Bool { regularFile }
+    
     public var fileSize = 0
     public func size() throws -> Int { fileSize }
 }

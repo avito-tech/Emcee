@@ -48,6 +48,14 @@ public final class DefaultFilePropertiesContainer: FilePropertiesContainer {
         return value
     }
     
+    public func isRegularFile() throws -> Bool {
+        let values = try path.fileUrl.resourceValues(forKeys: [.isRegularFileKey])
+        guard let value = values.isRegularFile else {
+            throw DefaultFilePropertiesContainerError.emptyValue(path, .isRegularFileKey)
+        }
+        return value
+    }
+    
     public func size() throws -> Int {
         let values = try path.fileUrl.resourceValues(forKeys: [.fileSizeKey])
         guard let value = values.fileSize else {

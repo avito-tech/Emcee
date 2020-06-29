@@ -185,12 +185,14 @@ final class ResourceLocationResolverTests: XCTestCase {
     
     var urlSession = URLSession.shared
     let fakeSession = FakeURLSession()
+    let dateProvider = SystemDateProvider()
     lazy var resolver = ResourceLocationResolverImpl(
         fileSystem: fileSystem,
         urlResource: urlResource,
         cacheElementTimeToLive: 0,
+        maximumCacheSize: 0,
         processControllerProvider: DefaultProcessControllerProvider(
-            dateProvider: SystemDateProvider(),
+            dateProvider: dateProvider,
             fileSystem: fileSystem
         )
     )
@@ -200,6 +202,7 @@ final class ResourceLocationResolverTests: XCTestCase {
     lazy var fileCache = assertDoesNotThrow {
         try FileCache(
             cachesContainer: tempFolder.absolutePath,
+            dateProvider: dateProvider,
             fileSystem: fileSystem
         )
     }

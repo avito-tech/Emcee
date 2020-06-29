@@ -17,6 +17,7 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
     private let urlResource: URLResource
     private let cacheAccessCount = AtomicValue<Int>(0)
     private let cacheElementTimeToLive: TimeInterval
+    private let maximumCacheSize: Int
     private let processControllerProvider: ProcessControllerProvider
     private let unarchiveQueue = DispatchQueue(label: "ResourceLocationResolverImpl.unarchiveQueue")
     
@@ -35,11 +36,13 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
         fileSystem: FileSystem,
         urlResource: URLResource,
         cacheElementTimeToLive: TimeInterval,
+        maximumCacheSize: Int,
         processControllerProvider: ProcessControllerProvider
     ) {
         self.fileSystem = fileSystem
         self.urlResource = urlResource
         self.cacheElementTimeToLive = cacheElementTimeToLive
+        self.maximumCacheSize = maximumCacheSize
         self.processControllerProvider = processControllerProvider
     }
     
@@ -115,11 +118,16 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
             
             if counter % evictionRegularity == 0 {
                 counter = 1
-                let evictedEntryURLs = (try? urlResource.evictResources(olderThan: evictBarrierDate)) ?? []
-                let formattedEvictBarrierDate = NSLogLikeLogEntryTextFormatter.logDateFormatter.string(from: evictBarrierDate)
-                Logger.debug("Evicted \(evictedEntryURLs.count) cached items older than: \(formattedEvictBarrierDate)")
-                for url in evictedEntryURLs {
-                    Logger.debug("-- evicted \(url)")
+                var evictedEntryPaths = (try? urlResource.evictResources(olderThan: evictBarrierDate)) ?? []
+                Logger.debug("Evicted \(evictedEntryPaths.count) cached items older than: \(LoggableDate(evictBarrierDate))")
+                for path in evictedEntryPaths {
+                    Logger.debug("-- evicted \(path)")
+                }
+                
+                evictedEntryPaths = (try? urlResource.evictResources(toFitSize: maximumCacheSize)) ?? []
+                Logger.debug("Evicted \(evictedEntryPaths.count) cached items to limit cache size to \(maximumCacheSize) bytes")
+                for path in evictedEntryPaths {
+                    Logger.debug("-- evicted \(path)")
                 }
             } else {
                 counter = counter + 1

@@ -26,6 +26,7 @@ public final class InProcessMain {
         let dateProvider = SystemDateProvider()
         
         let cacheElementTimeToLive = TimeUnit.hours(1)
+        let cacheMaximumSize = 20 * 1024 * 1024 * 1024
         let logsTimeToLive = TimeUnit.days(30)
         
         let loggingSetup = LoggingSetup(
@@ -54,11 +55,13 @@ public final class InProcessMain {
             fileSystem: fileSystem,
             urlResource: URLResource(
                 fileCache: try FileCache.fileCacheInDefaultLocation(
+                    dateProvider: dateProvider,
                     fileSystem: fileSystem
                 ),
                 urlSession: URLSession.shared
             ),
             cacheElementTimeToLive: cacheElementTimeToLive.timeInterval,
+            maximumCacheSize: cacheMaximumSize,
             processControllerProvider: processControllerProvider
         )
         let pluginEventBusProvider: PluginEventBusProvider = PluginEventBusProviderImpl(

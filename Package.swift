@@ -604,6 +604,7 @@ let package = Package(
             // MARK: FileCache
             name: "FileCache",
             dependencies: [
+                "DateProvider",
                 "Extensions",
                 "FileLock",
                 "FileSystem",
@@ -617,6 +618,7 @@ let package = Package(
             // MARK: FileCacheTests
             name: "FileCacheTests",
             dependencies: [
+                "DateProvider",
                 "FileCache",
                 "FileSystem",
                 "PathLib",
@@ -1948,6 +1950,7 @@ let package = Package(
             // MARK: URLResourceTests
             name: "URLResourceTests",
             dependencies: [
+                "DateProviderTestHelpers",
                 "FileCache",
                 "FileSystem",
                 "PathLib",

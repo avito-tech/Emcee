@@ -5,5 +5,6 @@ public protocol FilePropertiesContainer {
     func isExecutable() throws -> Bool
     func exists() throws -> Bool
     func isDirectory() throws -> Bool
+    func isRegularFile() throws -> Bool
     func size() throws -> Int
 }

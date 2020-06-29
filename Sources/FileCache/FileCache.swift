@@ -1,3 +1,4 @@
+import DateProvider
 import Extensions
 import FileLock
 import FileSystem
@@ -8,6 +9,7 @@ import UniqueIdentifierGenerator
 
 public final class FileCache {
     private let cachesContainer: AbsolutePath
+    private let dateProvider: DateProvider
     private let nameKeyer: NameKeyer
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let fileSystem: FileSystem
@@ -28,7 +30,10 @@ public final class FileCache {
         case move
     }
     
-    public static func fileCacheInDefaultLocation(fileSystem: FileSystem) throws -> FileCache {
+    public static func fileCacheInDefaultLocation(
+        dateProvider: DateProvider,
+        fileSystem: FileSystem
+    ) throws -> FileCache {
         let cacheContainer = try fileSystem.commonlyUsedPathsProvider.caches(
             inDomain: .user,
             create: true
@@ -36,17 +41,20 @@ public final class FileCache {
         
         return try FileCache(
             cachesContainer: cacheContainer.appending(component: FileCache.defaultCacheContainerName),
+            dateProvider: dateProvider,
             fileSystem: fileSystem
         )
     }
     
     public init(
         cachesContainer: AbsolutePath,
+        dateProvider: DateProvider,
         fileSystem: FileSystem,
         nameHasher: NameKeyer = SHA256NameKeyer(),
         uniqueIdentifierGenerator: UniqueIdentifierGenerator = UuidBasedUniqueIdentifierGenerator()
     ) throws {
         self.cachesContainer = cachesContainer
+        self.dateProvider = dateProvider
         self.fileSystem = fileSystem
         self.nameKeyer = nameHasher
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
@@ -101,7 +109,7 @@ public final class FileCache {
                 )
             }
             
-            let itemInfo = CachedItemInfo(fileName: filename, timestamp: Date().timeIntervalSince1970)
+            let itemInfo = CachedItemInfo(fileName: filename, timestamp: dateProvider.currentDate().timeIntervalSince1970)
             try store(cachedItemInfo: itemInfo, forItemWithName: name)
         }
     }
@@ -111,7 +119,7 @@ public final class FileCache {
             let itemInfo = try cachedItemInfo(forItemWithName: name)
             let container = try containerPath(forItemWithName: name)
             
-            let updatedItemInfo = CachedItemInfo(fileName: itemInfo.fileName, timestamp: Date().timeIntervalSince1970)
+            let updatedItemInfo = CachedItemInfo(fileName: itemInfo.fileName, timestamp: dateProvider.currentDate().timeIntervalSince1970)
             try store(cachedItemInfo: updatedItemInfo, forItemWithName: name)
             
             return container.appending(component: itemInfo.fileName)
@@ -129,6 +137,42 @@ public final class FileCache {
                 try safelyEvict(itemPath: key)
             }
             return [AbsolutePath](evictables.keys)
+        }
+    }
+    
+    @discardableResult
+    public func cleanUpItemsToFitToSize(sizeInBytes: Int) throws -> [AbsolutePath] {
+        return try whileLocked {
+            let allStoredCachedItemInfos = try self.allStoredCachedItemInfos().sorted(by: { (left, right) -> Bool in
+                left.value.timestamp < right.value.timestamp
+            })
+            
+            var cachedItemInfosSizes = [(path: AbsolutePath, size: Int)]()
+            try allStoredCachedItemInfos.forEach {
+                var totalSize = 0
+                try fileSystem.contentEnumerator(forPath: $0.key, style: .deep).each { subpath in
+                    let properties = fileSystem.properties(forFileAtPath: subpath)
+                    if try properties.isRegularFile() {
+                        totalSize += try properties.size()
+                    }
+                }
+                cachedItemInfosSizes.append((path: $0.key, size: totalSize))
+            }
+            
+            let totalSizeOfCachedItems: ([(path: AbsolutePath, size: Int)]) -> Int = {
+                $0.reduce(into: 0, { $0 += $1.size })
+            }
+            
+            var evictedPaths = [AbsolutePath]()
+            
+            while totalSizeOfCachedItems(cachedItemInfosSizes) > sizeInBytes {
+                guard !cachedItemInfosSizes.isEmpty else { break }
+                let itemToEvict = cachedItemInfosSizes.removeFirst()
+                try safelyEvict(itemPath: itemToEvict.path)
+                evictedPaths.append(itemToEvict.path)
+            }
+            
+            return evictedPaths
         }
     }
     

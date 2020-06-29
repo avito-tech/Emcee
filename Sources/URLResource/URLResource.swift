@@ -155,6 +155,10 @@ public final class URLResource {
         return try fileCache.cleanUpItems(olderThan: date)
     }
     
+    public func evictResources(toFitSize bytes: Int) throws -> [AbsolutePath] {
+        return try fileCache.cleanUpItemsToFitToSize(sizeInBytes: bytes)
+    }
+    
     public func whileLocked<T>(work: () throws -> (T)) throws -> T {
         return try fileCache.whileLocked(work: work)
     }
