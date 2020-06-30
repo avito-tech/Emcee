@@ -1,4 +1,5 @@
 import Deployer
+import Logging
 import Models
 import QueueCommunication
 import RESTInterfaces
@@ -16,6 +17,7 @@ public final class WorkersToUtilizeEndpoint: RESTEndpoint {
     }
     
     public func handle(payload: WorkersToUtilizePayload) throws -> WorkersToUtilizeResponse {
+        Logger.debug("Received workers to utilize payload: \(payload)")
         return .workersToUtilize(
             workerIds: Set(service.workersToUtilize(
                 initialWorkers: payload.deployments.workerIds(),

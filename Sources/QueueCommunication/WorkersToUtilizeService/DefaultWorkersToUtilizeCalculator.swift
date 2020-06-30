@@ -8,7 +8,7 @@ public class DefaultWorkersToUtilizeCalculator: WorkersToUtilizeCalculator {
     public init() { }
     
     public func disjointWorkers(mapping: WorkersPerVersion) -> WorkersPerVersion {
-        Logger.info("Recieved workers to disjoing: \(mapping)")
+        Logger.info("Received workers to disjoint: \(mapping)")
         let calculatedMapping = calculateMapping(clusters: splitDestinationsToClusters(mapping: mapping))
         Logger.info("Disjoint workers: \(calculatedMapping)")
         return calculatedMapping

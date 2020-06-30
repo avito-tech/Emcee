@@ -24,6 +24,8 @@ public class DefaultWorkersToUtilizeService: WorkersToUtilizeService {
     }
     
     public func workersToUtilize(initialWorkers: [WorkerId], version: Version) -> [WorkerId] {
+        Logger.debug("Preparing workers to utilize for version \(version) with initial workers \(initialWorkers)")
+        
         if let cachedWorkers = cache.cachedMapping()?[version] {
             Logger.info("Use cached workers to utilize: \(cachedWorkers) for version: \(version)")
             return cachedWorkers
