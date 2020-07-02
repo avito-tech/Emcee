@@ -3,6 +3,7 @@ import Models
 import QueueClient
 import RESTMethods
 import RequestSenderTestHelpers
+import TestHelpers
 import XCTest
 
 final class WorkerDisablerTests: XCTestCase {
@@ -14,6 +15,13 @@ final class WorkerDisablerTests: XCTestCase {
             result: WorkerDisabledResponse(workerId: workerId),
             requestSenderError: nil
         )
+        
+        requestSender.validateRequest = { sender in
+            guard let request = sender.request as? DisableWorkerRequest else {
+                self.failTest("Unexpected request")
+            }
+            XCTAssertEqual(request.payload?.workerId, self.workerId)
+        }
         
         let disabler = WorkerDisablerImpl(
             requestSender: requestSender

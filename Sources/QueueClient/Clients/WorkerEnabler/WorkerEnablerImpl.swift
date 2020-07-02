@@ -17,9 +17,9 @@ public final class WorkerEnablerImpl: WorkerEnabler {
         completion: @escaping (Either<WorkerId, Error>) -> ()
     ) {
         requestSender.sendRequestWithCallback(
-            request: DisableWorkerRequest(payload: DisableWorkerPayload(workerId: workerId)),
+            request: EnableWorkerRequest(payload: EnableWorkerPayload(workerId: workerId)),
             callbackQueue: callbackQueue,
-            callback: { (result: Either<WorkerDisabledResponse, RequestSenderError>) in
+            callback: { (result: Either<WorkerEnabledResponse, RequestSenderError>) in
                 do {
                     let response = try result.dematerialize()
                     completion(.success(response.workerId))
