@@ -48,10 +48,8 @@ public class DefaultOnDemandSimulatorPool: OnDemandSimulatorPool {
     }
     
     public func enumeratePools(iterator: (OnDemandSimulatorPoolKey, SimulatorPool) -> ()) {
-        syncQueue.sync {
-            for (key, value) in pools {
-                iterator(key, value)
-            }
+        for (key, value) in syncQueue.sync(execute: { pools }) {
+            iterator(key, value)
         }
     }
 }
