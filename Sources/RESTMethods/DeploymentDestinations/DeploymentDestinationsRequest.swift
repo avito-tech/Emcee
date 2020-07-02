@@ -9,6 +9,6 @@ public final class DeploymentDestinationsRequest: NetworkRequest {
     public let httpMethod = HTTPMethod.post
     public let pathWithLeadingSlash = RESTMethod.deploymentDestinations.pathWithLeadingSlash
 
-    public let payload: VoidPayload? = nil
+    public let payload: VoidPayload? = VoidPayload()
     public init() { }
 }
