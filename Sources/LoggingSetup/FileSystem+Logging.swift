@@ -8,6 +8,14 @@ public extension FileSystem {
         return libraryPath.appending(components: ["Logs", "ru.avito.emcee.logs"])
     }
     
+    func emceeLogsCleanUpMarkerFile() throws -> AbsolutePath {
+        let path = try emceeLogsFolder().appending(component: "logs_cleanup_marker")
+        if try !properties(forFileAtPath: path).exists() {
+            try createFile(atPath: path, data: nil)
+        }
+        return path
+    }
+    
     func folderForStoringLogs(processName: String) throws -> AbsolutePath {
         let container = try emceeLogsFolder().appending(component: processName)
         try createDirectory(atPath: container, withIntermediateDirectories: true)

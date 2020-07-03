@@ -1,3 +1,4 @@
+import DateProvider
 import Dispatch
 import FileSystem
 import Foundation
@@ -10,13 +11,17 @@ import Sentry
 import TemporaryStuff
 
 public final class LoggingSetup {
+    private let dateProvider: DateProvider
     private let fileSystem: FileSystem
-    private let logFilePrefix = "pid_"
     private let logFileExtension = "log"
+    private let logFilePrefix = "pid_"
+    private let logFilesCleanUpRegularity: TimeInterval = 10800
     
     public init(
+        dateProvider: DateProvider,
         fileSystem: FileSystem
     ) {
+        self.dateProvider = dateProvider
         self.fileSystem = fileSystem
     }
     
@@ -45,21 +50,28 @@ public final class LoggingSetup {
     }
     
     public func cleanUpLogs(olderThan date: Date) throws {
-        let queue = DispatchQueue(label: "LoggingSetup.cleanupQueue", attributes: .concurrent)
+        let emceeLogsCleanUpMarkerFileProperties = fileSystem.properties(
+            forFileAtPath: try fileSystem.emceeLogsCleanUpMarkerFile()
+        )
+        guard dateProvider.currentDate().timeIntervalSince(
+            try emceeLogsCleanUpMarkerFileProperties.modificationDate()
+        ) > logFilesCleanUpRegularity else {
+            return Logger.debug("Skipping log clean up since last clean up happened recently")
+        }
         
-        Logger.debug("Will clean up old log files")
+        Logger.info("Cleaning up old log files")
+        try emceeLogsCleanUpMarkerFileProperties.touch()
+        
         let logsEnumerator = fileSystem.contentEnumerator(forPath: try fileSystem.emceeLogsFolder(), style: .deep)
         try logsEnumerator.each { (path: AbsolutePath) in
             guard path.extension == logFileExtension else { return }
             let modificationDate = try fileSystem.properties(forFileAtPath: path).modificationDate()
             if modificationDate < date {
-                queue.async { [fileSystem] in
-                    do {
-                        Logger.debug("Cleaning up log file: \(path)")
-                        try fileSystem.delete(fileAtPath: path)
-                    } catch {
-                        Logger.error("Failed to remove old log file at \(path): \(error)")
-                    }
+                do {
+                    Logger.debug("Cleaning up log file: \(path)")
+                    try fileSystem.delete(fileAtPath: path)
+                } catch {
+                    Logger.error("Failed to remove old log file at \(path): \(error)")
                 }
             }
         }

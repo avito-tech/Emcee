@@ -11,6 +11,7 @@ public class FakeFilePropertiesContainer: FilePropertiesContainer {
     
     public var mdate = Date(timeIntervalSince1970: 500)
     public func modificationDate() throws -> Date { mdate }
+    public func set(modificationDate: Date) throws { mdate = modificationDate }
     
     public var executable = false
     public func isExecutable() throws -> Bool { executable }

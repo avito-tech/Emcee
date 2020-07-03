@@ -4,6 +4,10 @@ import PathLib
 public final class LocalFileSystem: FileSystem {
     private let fileManager = FileManager()
     
+    private enum LocalFileSystemError: Error {
+        case failedToCreateFile(AbsolutePath)
+    }
+    
     public init() {}
     
     public func contentEnumerator(forPath path: AbsolutePath, style: ContentEnumerationStyle) -> FileSystemEnumerator {
@@ -21,6 +25,12 @@ public final class LocalFileSystem: FileSystem {
             atPath: path.pathString,
             withIntermediateDirectories: withIntermediateDirectories
         )
+    }
+    
+    public func createFile(atPath path: AbsolutePath, data: Data?) throws {
+        if !fileManager.createFile(atPath: path.pathString, contents: data) {
+            throw LocalFileSystemError.failedToCreateFile(path)
+        }
     }
     
     public func copy(source: AbsolutePath, destination: AbsolutePath) throws {

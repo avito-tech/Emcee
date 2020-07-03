@@ -43,6 +43,7 @@ class Listener: DefaultBusListener {
 
 func main() throws -> Int32 {
     let loggingSetup = LoggingSetup(
+        dateProvider: SystemDateProvider(),
         fileSystem: LocalFileSystem()
     )
     

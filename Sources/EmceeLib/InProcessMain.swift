@@ -27,9 +27,10 @@ public final class InProcessMain {
         
         let cacheElementTimeToLive = TimeUnit.hours(1)
         let cacheMaximumSize = 20 * 1024 * 1024 * 1024
-        let logsTimeToLive = TimeUnit.days(30)
+        let logsTimeToLive = TimeUnit.days(14)
         
         let loggingSetup = LoggingSetup(
+            dateProvider: dateProvider,
             fileSystem: fileSystem
         )
         try loggingSetup.setupLogging(stderrVerbosity: Verbosity.info)

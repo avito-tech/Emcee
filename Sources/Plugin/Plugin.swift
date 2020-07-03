@@ -12,13 +12,14 @@ import SynchronousWaiter
 /// Allows the plugin to track `PluginEvent`s from the main process using the provided `EventBus`.
 public final class Plugin {
     private let eventBus: EventBus
-    private let jsonReaderQueue = DispatchQueue(label: "ru.avito.Plugin.jsonReaderQueue")
-    private let stdinReadQueue = DispatchQueue(label: "ru.avito.Plugin.stdinReadQueue")
+    private let jsonReaderQueue = DispatchQueue(label: "Plugin.jsonReaderQueue")
+    private let stdinReadQueue = DispatchQueue(label: "Plugin.stdinReadQueue")
     private let jsonInputStream = BlockingArrayBasedJSONStream()
     private let jsonStreamToEventBusAdapter: JSONStreamToEventBusAdapter
     private var jsonStreamHasFinished = false
     private let eventReceiver: EventReceiver
     private let loggingSetup = LoggingSetup(
+        dateProvider: SystemDateProvider(),
         fileSystem: LocalFileSystem()
     )
     

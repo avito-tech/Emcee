@@ -28,6 +28,13 @@ public final class DefaultFilePropertiesContainer: FilePropertiesContainer {
         return value
     }
     
+    public func set(modificationDate: Date) throws {
+        var values = URLResourceValues()
+        values.contentModificationDate = modificationDate
+        var url = path.fileUrl
+        try url.setResourceValues(values)
+    }
+    
     public func isExecutable() throws -> Bool {
         let values = try path.fileUrl.resourceValues(forKeys: [.isExecutableKey])
         guard let value = values.isExecutable else {

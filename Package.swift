@@ -814,6 +814,7 @@ let package = Package(
             // MARK: LoggingSetup
             name: "LoggingSetup",
             dependencies: [
+                "DateProvider",
                 "FileSystem",
                 "GraphiteClient",
                 "IO",

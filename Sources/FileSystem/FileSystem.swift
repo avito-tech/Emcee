@@ -10,6 +10,7 @@ public protocol FileSystem {
     func contentEnumerator(forPath: AbsolutePath, style: ContentEnumerationStyle) -> FileSystemEnumerator
     
     func createDirectory(atPath: AbsolutePath, withIntermediateDirectories: Bool) throws
+    func createFile(atPath: AbsolutePath, data: Data?) throws
     
     func copy(source: AbsolutePath, destination: AbsolutePath) throws
     func move(source: AbsolutePath, destination: AbsolutePath) throws

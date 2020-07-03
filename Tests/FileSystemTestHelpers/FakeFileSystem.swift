@@ -21,6 +21,10 @@ public class FakeFileSystem: FileSystem {
         
     }
     
+    public func createFile(atPath: AbsolutePath, data: Data?) throws {
+        
+    }
+    
     public func copy(source: AbsolutePath, destination: AbsolutePath) throws {
         
     }

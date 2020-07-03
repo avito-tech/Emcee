@@ -15,6 +15,17 @@ final class DefaultFilePropertiesContainerTests: XCTestCase {
         )
     }
     
+    func test___setting_modificationDate() throws {
+        let date = Date(timeIntervalSince1970: 1000)
+        
+        try filePropertiesContainer.set(modificationDate: date)
+        
+        XCTAssertEqual(
+            try temporaryFile.absolutePath.fileUrl.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate,
+            date
+        )
+    }
+    
     func test___properties_for_nonexisting_file() {
         let properties = DefaultFilePropertiesContainer(path: temporaryFile.absolutePath.appending(component: "nonexisting"))
         assertThrows {
