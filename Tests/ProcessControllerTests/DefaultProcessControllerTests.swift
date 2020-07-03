@@ -402,7 +402,7 @@ final class DefaultProcessControllerTests: XCTestCase {
             dateProvider: dateProvider,
             fileSystem: fileSystem,
             subprocess: Subprocess(
-                arguments: ["/usr/bin/yes"],
+                arguments: ["/bin/sleep", "99"],
                 automaticManagement: .sigintThenKillAfterRunningFor(interval: 1)
             )
         )
@@ -424,7 +424,7 @@ final class DefaultProcessControllerTests: XCTestCase {
             dateProvider: dateProvider,
             fileSystem: fileSystem,
             subprocess: Subprocess(
-                arguments: ["/usr/bin/yes"],
+                arguments: ["/bin/sleep", "99"],
                 automaticManagement: .sigtermThenKillAfterRunningFor(interval: 1)
             )
         )
