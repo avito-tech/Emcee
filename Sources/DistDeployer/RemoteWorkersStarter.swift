@@ -58,7 +58,7 @@ public final class RemoteWorkersStarter {
                 executableDeployableItem: emceeBinaryDeployableItem,
                 queueAddress: queueAddress
             )
-            let launchdPlistTargetPath = "launchd_\(destination.workerId).plist"
+            let launchdPlistTargetPath = "launchd_\(destination.workerId.value).plist"
             
             let filePath = try tempFolder.createFile(
                 filename: launchdPlistTargetPath,
