@@ -11,7 +11,7 @@ public final class LibSwiftDemangler: Demangler {
     enum DemangleError: Error, CustomStringConvertible {
         case dlopenFailed(path: AbsolutePath)
         case dlsymFailed(symbol: String)
-        case bufferOverflow(maxSize: Int, actualSize: Int)
+        case bufferOverflow(maxSize: Int, actualSize: Int, input: String)
         
         var description: String {
             switch self {
@@ -19,8 +19,8 @@ public final class LibSwiftDemangler: Demangler {
                 return "Unable to load dylib at path: \(path)"
             case .dlsymFailed(let symbol):
                 return "Unable to locate symbol: \(symbol)"
-            case .bufferOverflow(let maxSize, let actualSize):
-                return "Unable to demangle into buffer, maximum size of buffer is \(maxSize), but requested size is: \(actualSize)"
+            case .bufferOverflow(let maxSize, let actualSize, let input):
+                return "Unable to demangle into buffer, maximum size of buffer is \(maxSize), but requested size is: \(actualSize), input string: \(input)"
             }
         }
     }
@@ -41,14 +41,14 @@ public final class LibSwiftDemangler: Demangler {
         internalDemangleFunction = unsafeBitCast(address, to: SwiftDemangleFunction.self)
     }
     
-    private let kBufferSize = 1024
+    private let kBufferSize = 10240
 
     public func demangle(string: String) throws -> String? {
         let formattedString = removingExcessLeadingUnderscores(fromString: string)
         let outputString = UnsafeMutablePointer<CChar>.allocate(capacity: kBufferSize)
         let resultSize = internalDemangleFunction(formattedString, outputString, kBufferSize)
         if resultSize > kBufferSize {
-            throw DemangleError.bufferOverflow(maxSize: kBufferSize, actualSize: resultSize)
+            throw DemangleError.bufferOverflow(maxSize: kBufferSize, actualSize: resultSize, input: string)
         }
 
         return String(cString: outputString, encoding: .utf8)
