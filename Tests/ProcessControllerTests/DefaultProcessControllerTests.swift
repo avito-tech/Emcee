@@ -351,6 +351,25 @@ final class DefaultProcessControllerTests: XCTestCase {
         wait(for: [handlerInvoked], timeout: 10)
     }
     
+    func test___callers_waits_for_process_to_die___all_termination_handlers_invoked_before_returning() throws {
+        let expectation = XCTestExpectation(description: "Termination handler has finished")
+        
+        let controller = try DefaultProcessController(
+            dateProvider: dateProvider,
+            fileSystem: fileSystem,
+            subprocess: Subprocess(
+                arguments: ["/usr/bin/env"]
+            )
+        )
+        controller.onTermination { _, _ in
+            Thread.sleep(forTimeInterval: 5)
+            expectation.fulfill()
+        }
+        
+        controller.startAndListenUntilProcessDies()
+        wait(for: [expectation], timeout: 0)
+    }
+    
     func test___sigterm_is_sent___when_silent() throws {
         let controller = try DefaultProcessController(
             dateProvider: dateProvider,

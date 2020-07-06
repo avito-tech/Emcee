@@ -18,6 +18,7 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
     let listenerQueue = DispatchQueue(label: "DefaultProcessController.listenerQueue")
     private let openPipeFileHandleGroup = DispatchGroup()
     private let process: Process
+    private let processTerminationHandlerGroup = DispatchGroup()
     private let processTerminationQueue = DispatchQueue(label: "DefaultProcessController.processTerminationQueue")
     private var automaticManagementTrackingTimer: DispatchBasedTimer?
     
@@ -109,6 +110,7 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
         didStartProcess = true
         Logger.debug("Starting subprocess: \(subprocess)", subprocessInfo)
         process.launch()
+        processTerminationHandlerGroup.enter()
         process.terminationHandler = { _ in
             OrphanProcessTracker().removeProcessFromCleanup(pid: self.processId, name: self.processName)
             self.processTerminated()
@@ -133,6 +135,7 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
     public func waitForProcessToDie() {
         process.waitUntilExit()
         openPipeFileHandleGroup.wait()
+        processTerminationHandlerGroup.wait()
     }
     
     public func processStatus() -> ProcessStatus {
@@ -230,6 +233,10 @@ public final class DefaultProcessController: ProcessController, CustomStringConv
                 }
                 listenerWrapper.listener(self, unsubscriber)
             }
+        }
+        
+        listenerQueue.async(flags: .barrier) {
+            self.processTerminationHandlerGroup.leave()
         }
     }
     
