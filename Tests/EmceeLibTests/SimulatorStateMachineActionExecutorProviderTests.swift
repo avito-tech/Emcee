@@ -1,7 +1,9 @@
 @testable import SimulatorPool
 import AppleTools
+import DateProviderTestHelpers
 import EmceeLib
 import Foundation
+import Models
 import ModelsTestHelpers
 import ProcessControllerTestHelpers
 import ResourceLocationResolverTestHelpers
@@ -16,9 +18,11 @@ final class SimulatorStateMachineActionExecutorProviderTests: XCTestCase {
     private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     private lazy var fakeProcessControllerProvider = FakeProcessControllerProvider(tempFolder: tempFolder)
     private lazy var provider = SimulatorStateMachineActionExecutorProviderImpl(
+        dateProvider: DateProviderFixture(),
         processControllerProvider: fakeProcessControllerProvider,
         resourceLocationResolver: FakeResourceLocationResolver.throwing(),
-        simulatorSetPathDeterminer: FakeSimulatorSetPathDeterminer(provider: { _ in self.tempFolder.absolutePath })
+        simulatorSetPathDeterminer: FakeSimulatorSetPathDeterminer(provider: { _ in self.tempFolder.absolutePath }),
+        version: Version(value: "version")
     )
     
     func test___simctl() {

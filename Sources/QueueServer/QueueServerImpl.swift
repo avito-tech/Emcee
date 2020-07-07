@@ -37,7 +37,7 @@ public final class QueueServerImpl: QueueServer {
     private let stuckBucketsPoller: StuckBucketsPoller
     private let testsEnqueuer: TestsEnqueuer
     private let toggleWorkersSharingEndpoint: ToggleWorkersSharingEndpoint
-    private let workerAlivenessMatricCapturer: WorkerAlivenessMatricCapturer
+    private let workerAlivenessMetricCapturer: WorkerAlivenessMetricCapturer
     private let workerAlivenessPoller: WorkerAlivenessPoller
     private let workerAlivenessProvider: WorkerAlivenessProvider
     private let workerRegistrar: WorkerRegistrar
@@ -97,7 +97,9 @@ public final class QueueServerImpl: QueueServer {
         self.balancingBucketQueue = balancingBucketQueueFactory.create()
         self.testsEnqueuer = TestsEnqueuer(
             bucketSplitInfo: bucketSplitInfo,
-            enqueueableBucketReceptor: balancingBucketQueue
+            dateProvider: dateProvider,
+            enqueueableBucketReceptor: balancingBucketQueue,
+            version: emceeVersion
         )
         self.scheduleTestsHandler = ScheduleTestsEndpoint(
             testsEnqueuer: testsEnqueuer,
@@ -109,21 +111,27 @@ public final class QueueServerImpl: QueueServer {
             workerDetailsHolder: workerDetailsHolder
         )
         self.stuckBucketsPoller = StuckBucketsPoller(
-            statefulStuckBucketsReenqueuer: balancingBucketQueue
+            dateProvider: dateProvider,
+            statefulStuckBucketsReenqueuer: balancingBucketQueue,
+            version: emceeVersion
         )
         self.bucketProvider = BucketProviderEndpoint(
             dequeueableBucketSource: DequeueableBucketSourceWithMetricSupport(
+                dateProvider: dateProvider,
                 dequeueableBucketSource: balancingBucketQueue,
                 jobStateProvider: balancingBucketQueue,
-                queueStateProvider: balancingBucketQueue
+                queueStateProvider: balancingBucketQueue,
+                version: emceeVersion
             ),
             expectedPayloadSignature: payloadSignature
         )
         self.bucketResultRegistrar = BucketResultRegistrar(
             bucketResultAccepter: BucketResultAccepterWithMetricSupport(
                 bucketResultAccepter: balancingBucketQueue,
+                dateProvider: dateProvider,
                 jobStateProvider: balancingBucketQueue,
-                queueStateProvider: balancingBucketQueue
+                queueStateProvider: balancingBucketQueue,
+                version: emceeVersion
             ),
             expectedPayloadSignature: payloadSignature,
             workerAlivenessProvider: workerAlivenessProvider
@@ -152,8 +160,10 @@ public final class QueueServerImpl: QueueServer {
         self.jobDeleteEndpoint = JobDeleteEndpoint(
             jobManipulator: balancingBucketQueue
         )
-        self.workerAlivenessMatricCapturer = WorkerAlivenessMatricCapturer(
+        self.workerAlivenessMetricCapturer = WorkerAlivenessMetricCapturer(
+            dateProvider: dateProvider,
             reportInterval: .seconds(30),
+            version: emceeVersion,
             workerAlivenessProvider: workerAlivenessProvider
         )
         self.workersToUtilizeEndpoint = WorkersToUtilizeEndpoint(
@@ -180,7 +190,7 @@ public final class QueueServerImpl: QueueServer {
         httpRestServer.add(handler: RESTEndpointOf(workersToUtilizeEndpoint))
 
         stuckBucketsPoller.startTrackingStuckBuckets()
-        workerAlivenessMatricCapturer.start()
+        workerAlivenessMetricCapturer.start()
         workerAlivenessPoller.startPolling()
         
         let port = try httpRestServer.start()

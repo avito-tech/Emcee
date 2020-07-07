@@ -25,11 +25,12 @@ final class TestDiscoveryQuerierTests: XCTestCase {
     lazy var fixedValueUniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: dumpFilename)
     lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     lazy var fileSystem = FakeFileSystem(rootPath: tempFolder.absolutePath)
-    let dumpFilename = UUID().uuidString
-    let remoteCache = FakeRuntimeDumpRemoteCache()
-    let resourceLocationResolver: ResourceLocationResolver = FakeResourceLocationResolver.throwing()
-    let simulatorPool = FakeOnDemandSimulatorPool()
+    lazy var dumpFilename = UUID().uuidString
+    lazy var remoteCache = FakeRuntimeDumpRemoteCache()
+    lazy var resourceLocationResolver: ResourceLocationResolver = FakeResourceLocationResolver.throwing()
+    lazy var simulatorPool = FakeOnDemandSimulatorPool()
     lazy var testRunnerProvider = FakeTestRunnerProvider(tempFolder: tempFolder)
+    lazy var version = Version(value: "version")
     
     func test__getting_available_tests__without_application_test_support() throws {
         let runtimeTestEntries = [
@@ -213,11 +214,12 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             onDemandSimulatorPool: simulatorPool,
             pluginEventBusProvider: NoOoPluginEventBusProvider(),
             processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder),
+            remoteCache: remoteCache,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,
             uniqueIdentifierGenerator: fixedValueUniqueIdentifierGenerator,
-            remoteCache: remoteCache
+            version: version
         )
     }
     

@@ -2,27 +2,26 @@ import Foundation
 import Metrics
 import Models
 
-public final class JobCountMetric: Metric {
+public final class WorkerStatusMetric: Metric {
     public init(
-        queueHost: String, 
-        jobCount: Int,
+        workerId: WorkerId,
+        status: String,
         version: Version,
         timestamp: Date
     ) {
         super.init(
             fixedComponents: [
                 "queue",
-                "jobs",
-                "count"
+                "worker",
+                "status",
             ],
             variableComponents: [
-                queueHost,
+                workerId.value,
+                status,
                 version.value,
                 Metric.reservedField,
-                Metric.reservedField,
-                Metric.reservedField
             ],
-            value: Double(jobCount),
+            value: 1.0,
             timestamp: timestamp
         )
     }

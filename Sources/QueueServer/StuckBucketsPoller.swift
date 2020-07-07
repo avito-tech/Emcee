@@ -1,5 +1,6 @@
 import BalancingBucketQueue
 import BucketQueue
+import DateProvider
 import Foundation
 import Logging
 import Metrics
@@ -8,11 +9,19 @@ import ScheduleStrategy
 import Timer
 
 public final class StuckBucketsPoller {
+    private let dateProvider: DateProvider
     private let statefulStuckBucketsReenqueuer: StuckBucketsReenqueuer & JobStateProvider & RunningQueueStateProvider
     private let stuckBucketsTrigger = DispatchBasedTimer(repeating: .seconds(1), leeway: .seconds(5))
+    private let version: Version
     
-    public init(statefulStuckBucketsReenqueuer: StuckBucketsReenqueuer & JobStateProvider & RunningQueueStateProvider) {
+    public init(
+        dateProvider: DateProvider,
+        statefulStuckBucketsReenqueuer: StuckBucketsReenqueuer & JobStateProvider & RunningQueueStateProvider,
+        version: Version
+    ) {
+        self.dateProvider = dateProvider
         self.statefulStuckBucketsReenqueuer = statefulStuckBucketsReenqueuer
+        self.version = version
     }
     
     public func startTrackingStuckBuckets() {
@@ -28,7 +37,13 @@ public final class StuckBucketsPoller {
         guard !stuckBuckets.isEmpty else { return }
         
         let stuckBucketMetrics: [StuckBucketsMetric] = stuckBuckets.map {
-            return StuckBucketsMetric(count: 1, host: $0.workerId, reason: $0.reason.metricParameterName)
+            StuckBucketsMetric(
+                count: 1,
+                host: $0.workerId,
+                reason: $0.reason.metricParameterName,
+                version: version,
+                timestamp: dateProvider.currentDate()
+            )
         }
         MetricRecorder.capture(stuckBucketMetrics)
         
@@ -37,8 +52,13 @@ public final class StuckBucketsPoller {
             Logger.warning("-- Bucket \(stuckBucket.bucket.bucketId) is stuck with worker '\(stuckBucket.workerId)': \(stuckBucket.reason)")
         }
         
+        let queueStateMetricGatherer = QueueStateMetricGatherer(
+            dateProvider: dateProvider,
+            version: version
+        )
+        
         MetricRecorder.capture(
-            QueueStateMetricGatherer.metrics(
+            queueStateMetricGatherer.metrics(
                 jobStates: statefulStuckBucketsReenqueuer.allJobStates,
                 runningQueueState: statefulStuckBucketsReenqueuer.runningQueueState
             )

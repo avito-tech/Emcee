@@ -1,7 +1,9 @@
+import DateProvider
 import Foundation
 import LocalHostDeterminer
 import Logging
 import Metrics
+import Models
 import RunnerModels
 import SimulatorPoolModels
 
@@ -19,14 +21,20 @@ public final class AllocatedSimulator {
 }
 
 public extension SimulatorPool {
-    func allocateSimulator(simulatorOperationTimeouts: SimulatorOperationTimeouts) throws -> AllocatedSimulator {
+    func allocateSimulator(
+        dateProvider: DateProvider,
+        simulatorOperationTimeouts: SimulatorOperationTimeouts,
+        version: Version
+    ) throws -> AllocatedSimulator {
         try TimeMeasurer.measure(
             result: { workSuccessful, duration in
                 MetricRecorder.capture(
                     SimulatorAllocationDurationMetric(
                         host: LocalHostDeterminer.currentHostAddress,
                         duration: duration,
-                        allocatedSuccessfully: workSuccessful
+                        allocatedSuccessfully: workSuccessful,
+                        version: version,
+                        timestamp: dateProvider.currentDate()
                     )
                 )
             }

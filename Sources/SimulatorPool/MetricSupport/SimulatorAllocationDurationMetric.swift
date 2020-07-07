@@ -1,11 +1,14 @@
 import Foundation
 import Metrics
+import Models
 
 public final class SimulatorAllocationDurationMetric: Metric {
     public init(
         host: String,
         duration: Double,
-        allocatedSuccessfully: Bool
+        allocatedSuccessfully: Bool,
+        version: Version,
+        timestamp: Date
     ) {
         super.init(
             fixedComponents: [
@@ -16,13 +19,13 @@ public final class SimulatorAllocationDurationMetric: Metric {
             variableComponents: [
                 host,
                 allocatedSuccessfully ? "success" : "failure",
-                Metric.reservedField,
+                version.value,
                 Metric.reservedField,
                 Metric.reservedField,
                 Metric.reservedField,
             ],
             value: duration,
-            timestamp: Date()
+            timestamp: timestamp
         )
     }
 }

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2020-07-07
+
+- Emcee now includes its version in all reported metrics. The first `reserved` field is replaced with a version.
+
+- `dump` command now requires to provide `--emcee-version` value.
+
+## 2020-07-06
+
+- Worker sharing feature is enabled by default. It allows to upgrade Emcee queue and share workers, without overloading them by jobs from multiple queues.
+
 ## 2020-05-27
 
 Emcee now patches some Simulator plist files right before executing tests. This allows to properly switch language and set other parameters, like keyboard and watchdog settings, without relying on `fbxctest` functionality, allowing to achieve the same Simulator environment while using `xcodebuild` as a test runner.

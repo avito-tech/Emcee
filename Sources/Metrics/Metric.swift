@@ -21,12 +21,12 @@ open class Metric: CustomStringConvertible, Hashable {
     /// - Parameter value: The value for the parametrized metric.
     /// - Parameter timestamp: The timestamp when the metric has been captured.
     public init(
-        fixedComponents: [String],
+        fixedComponents: [StaticString],
         variableComponents: [String],
         value: Double,
         timestamp: Date)
     {
-        self.components = (fixedComponents + variableComponents).map { $0.suitableForMetric }
+        self.components = (fixedComponents.map { $0.description } + variableComponents).map { $0.suitableForMetric }
         self.value = value
         self.timestamp = timestamp
     }

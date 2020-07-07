@@ -31,6 +31,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let testRunnerProvider: TestRunnerProvider
     private let testType: TestType
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
+    private let version: Version
     
     init(
         buildArtifacts: BuildArtifacts,
@@ -46,7 +47,8 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         testEntryToQueryRuntimeDump: TestEntry = TestEntry(testName: TestName(className: "NonExistingTest", methodName: "fakeTest"), tags: [], caseId: nil),
         testRunnerProvider: TestRunnerProvider,
         testType: TestType,
-        uniqueIdentifierGenerator: UniqueIdentifierGenerator
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator,
+        version: Version
     ) {
         self.buildArtifacts = buildArtifacts
         self.dateProvider = dateProvider
@@ -62,6 +64,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         self.testRunnerProvider = testRunnerProvider
         self.testType = testType
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
+        self.version = version
     }
     
     func discoverTestEntries(
@@ -84,7 +87,8 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
-            testRunnerProvider: testRunnerProvider
+            testRunnerProvider: testRunnerProvider,
+            version: version
         )
         
         return try runRetrying(times: numberOfAttemptsToPerformRuntimeDump) {
@@ -155,7 +159,9 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             )
         )
         return try simulatorPool.allocateSimulator(
-            simulatorOperationTimeouts: configuration.simulatorOperationTimeouts
+            dateProvider: dateProvider,
+            simulatorOperationTimeouts: configuration.simulatorOperationTimeouts,
+            version: version
         )
     }
     

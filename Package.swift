@@ -550,6 +550,7 @@ let package = Package(
                 "AppleTools",
                 "BuildArtifacts",
                 "BuildArtifactsTestHelpers",
+                "DateProviderTestHelpers",
                 "EmceeLib",
                 "FileSystem",
                 "FileSystemTestHelpers",
@@ -1680,6 +1681,7 @@ let package = Package(
             dependencies: [
                 "AtomicModels",
                 "AutomaticTermination",
+                "DateProvider",
                 "DeveloperDirLocator",
                 "Extensions",
                 "LocalHostDeterminer",
@@ -1730,6 +1732,7 @@ let package = Package(
             // MARK: SimulatorPoolTests
             name: "SimulatorPoolTests",
             dependencies: [
+                "DateProviderTestHelpers",
                 "DeveloperDirLocator",
                 "DeveloperDirLocatorTestHelpers",
                 "Models",

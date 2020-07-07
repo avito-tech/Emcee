@@ -40,6 +40,7 @@ public final class DistWorker: SchedulerDelegate {
     private let syncQueue = DispatchQueue(label: "DistWorker.syncQueue")
     private let temporaryFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
+    private let version: Version
     private let workerId: WorkerId
     private let workerRegisterer: WorkerRegisterer
     private var payloadSignature = Either<PayloadSignature, DistWorkerError>.error(DistWorkerError.missingPayloadSignature)
@@ -62,6 +63,7 @@ public final class DistWorker: SchedulerDelegate {
         simulatorSettingsModifier: SimulatorSettingsModifier,
         temporaryFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider,
+        version: Version,
         workerId: WorkerId,
         workerRegisterer: WorkerRegisterer
     ) {
@@ -76,6 +78,7 @@ public final class DistWorker: SchedulerDelegate {
         self.simulatorSettingsModifier = simulatorSettingsModifier
         self.temporaryFolder = temporaryFolder
         self.testRunnerProvider = testRunnerProvider
+        self.version = version
         self.workerId = workerId
         self.workerRegisterer = workerRegisterer
         self.httpRestServer = HTTPRESTServer(
@@ -157,7 +160,8 @@ public final class DistWorker: SchedulerDelegate {
             schedulerDelegate: self,
             simulatorSettingsModifier: simulatorSettingsModifier,
             tempFolder: temporaryFolder,
-            testRunnerProvider: testRunnerProvider
+            testRunnerProvider: testRunnerProvider,
+            version: version
         )
         try scheduler.run()
     }

@@ -1,3 +1,4 @@
+import DateProvider
 import Foundation
 import Metrics
 import Models
@@ -5,24 +6,31 @@ import Timer
 import WorkerAlivenessModels
 import WorkerAlivenessProvider
 
-public final class WorkerAlivenessMatricCapturer {
+public final class WorkerAlivenessMetricCapturer {
+    private let dateProvider: DateProvider
     private let timer: DispatchBasedTimer
+    private let version: Version
     private let workerAlivenessProvider: WorkerAlivenessProvider
 
     public init(
+        dateProvider: DateProvider,
         reportInterval: DispatchTimeInterval,
+        version: Version,
         workerAlivenessProvider: WorkerAlivenessProvider
     ) {
+        self.dateProvider = dateProvider
         self.timer = DispatchBasedTimer(repeating: reportInterval, leeway: .seconds(1))
+        self.version = version
         self.workerAlivenessProvider = workerAlivenessProvider
     }
     
     public func start() {
-        timer.start { [weak workerAlivenessProvider] timer in
-            guard let aliveness = workerAlivenessProvider?.workerAliveness else {
+        timer.start { [weak self] timer in
+            guard let strongSelf = self else {
                 return timer.stop()
             }
-            WorkerAlivenessMatricCapturer.captureMetrics(aliveness: aliveness)
+            let aliveness = strongSelf.workerAlivenessProvider.workerAliveness
+            strongSelf.captureMetrics(aliveness: aliveness)
         }
     }
     
@@ -30,13 +38,15 @@ public final class WorkerAlivenessMatricCapturer {
         timer.stop()
     }
     
-    private static func captureMetrics(
+    private func captureMetrics(
         aliveness: [WorkerId: WorkerAliveness]
     ) {
         let metrics: [WorkerStatusMetric] = aliveness.map {
             WorkerStatusMetric(
-                workerId: $0.key.value,
-                status: $0.value.metricComponentName
+                workerId: $0.key,
+                status: $0.value.metricComponentName,
+                version: version,
+                timestamp: dateProvider.currentDate()
             )
         }
         MetricRecorder.capture(metrics)
@@ -52,25 +62,5 @@ private extension WorkerAliveness {
         } else {
             return "alive"
         }
-    }
-}
-
-public final class WorkerStatusMetric: Metric {
-    public init(workerId: String, status: String) {
-        super.init(
-            fixedComponents: [
-                "queue",
-                "worker",
-                "status",
-            ],
-            variableComponents: [
-                workerId,
-                status,
-                Metric.reservedField,
-                Metric.reservedField,
-            ],
-            value: 1.0,
-            timestamp: Date()
-        )
     }
 }

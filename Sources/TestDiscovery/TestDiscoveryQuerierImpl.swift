@@ -27,11 +27,12 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let pluginEventBusProvider: PluginEventBusProvider
     private let processControllerProvider: ProcessControllerProvider
+    private let remoteCache: RuntimeDumpRemoteCache
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
-    private let remoteCache: RuntimeDumpRemoteCache
+    private let version: Version
     
     public init(
         dateProvider: DateProvider,
@@ -41,11 +42,12 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         onDemandSimulatorPool: OnDemandSimulatorPool,
         pluginEventBusProvider: PluginEventBusProvider,
         processControllerProvider: ProcessControllerProvider,
+        remoteCache: RuntimeDumpRemoteCache,
         resourceLocationResolver: ResourceLocationResolver,
         tempFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
-        remoteCache: RuntimeDumpRemoteCache
+        version: Version
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
@@ -59,6 +61,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         self.tempFolder = tempFolder
         self.testRunnerProvider = testRunnerProvider
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
+        self.version = version
     }
     
     public func query(configuration: TestDiscoveryConfiguration) throws -> TestDiscoveryResult {
@@ -145,8 +148,18 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         let testBundleName = configuration.xcTestBundleLocation.resourceLocation.stringValue.lastPathComponent
         Logger.info("Runtime dump of \(configuration.xcTestBundleLocation.resourceLocation): bundle has \(testCaseCount) XCTestCases, \(testCount) tests")
         MetricRecorder.capture(
-            RuntimeDumpTestCountMetric(testBundleName: testBundleName, numberOfTests: testCount),
-            RuntimeDumpTestCaseCountMetric(testBundleName: testBundleName, numberOfTestCases: testCaseCount)
+            RuntimeDumpTestCountMetric(
+                testBundleName: testBundleName,
+                numberOfTests: testCount,
+                version: version,
+                timestamp: dateProvider.currentDate()
+            ),
+            RuntimeDumpTestCaseCountMetric(
+                testBundleName: testBundleName,
+                numberOfTestCases: testCaseCount,
+                version: version,
+                timestamp: dateProvider.currentDate()
+            )
         )
     }
     
@@ -215,7 +228,8 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,
             testType: testType,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+            version: version
         )
     }
 }

@@ -5,9 +5,10 @@ import Models
 public final class TimeToStartTestMetric: Metric {
     public init(
         testEntry: TestEntry,
-        timeToStartTest: TimeInterval
-        )
-    {
+        timeToStartTest: TimeInterval,
+        version: Version,
+        timestamp: Date
+    ) {
         super.init(
             fixedComponents: [
                 "tests",
@@ -16,13 +17,13 @@ public final class TimeToStartTestMetric: Metric {
             variableComponents: [
                 testEntry.testName.className,
                 testEntry.testName.methodName,
-                Metric.reservedField,
+                version.value,
                 Metric.reservedField,
                 Metric.reservedField,
                 Metric.reservedField
             ],
             value: timeToStartTest,
-            timestamp: Date()
+            timestamp: timestamp
         )
     }
 }

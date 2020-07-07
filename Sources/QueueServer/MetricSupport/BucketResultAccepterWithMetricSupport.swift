@@ -1,22 +1,29 @@
 import BalancingBucketQueue
 import BucketQueue
+import DateProvider
 import Foundation
 import Metrics
 import Models
 
 public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
     private let bucketResultAccepter: BucketResultAccepter
+    private let dateProvider: DateProvider
     private let jobStateProvider: JobStateProvider
     private let queueStateProvider: RunningQueueStateProvider
+    private let version: Version
 
     public init(
         bucketResultAccepter: BucketResultAccepter,
+        dateProvider: DateProvider,
         jobStateProvider: JobStateProvider,
-        queueStateProvider: RunningQueueStateProvider
+        queueStateProvider: RunningQueueStateProvider,
+        version: Version
     ) {
         self.bucketResultAccepter = bucketResultAccepter
+        self.dateProvider = dateProvider
         self.jobStateProvider = jobStateProvider
         self.queueStateProvider = queueStateProvider
+        self.version = version
     }
     
     public func accept(
@@ -39,8 +46,12 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
     private func sendMetrics(acceptResult: BucketQueueAcceptResult) {
         let jobStates = jobStateProvider.allJobStates
         let runningQueueState = queueStateProvider.runningQueueState
+        let queueStateMetricGatherer = QueueStateMetricGatherer(
+            dateProvider: dateProvider,
+            version: version
+        )
         
-        let queueStateMetrics = QueueStateMetricGatherer.metrics(
+        let queueStateMetrics = queueStateMetricGatherer.metrics(
             jobStates: jobStates,
             runningQueueState: runningQueueState
         )
@@ -51,7 +62,9 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
                 let timeToStart = testStartedAt.timeIntervalSince(acceptResult.dequeuedBucket.enqueuedBucket.enqueueTimestamp)
                 return TimeToStartTestMetric(
                     testEntry: testEntryResult.testEntry,
-                    timeToStartTest: timeToStart
+                    timeToStartTest: timeToStart,
+                    version: version,
+                    timestamp: dateProvider.currentDate()
                 )
             }
         }

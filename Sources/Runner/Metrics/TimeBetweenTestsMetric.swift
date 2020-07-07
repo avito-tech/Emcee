@@ -1,10 +1,12 @@
 import Foundation
 import Metrics
+import Models
 
 public final class TimeBetweenTestsMetric: Metric {
     public init(
         host: String,
         duration: Double,
+        version: Version,
         timestamp: Date
     ) {
         super.init(
@@ -15,7 +17,7 @@ public final class TimeBetweenTestsMetric: Metric {
             ],
             variableComponents: [
                 host,
-                Metric.reservedField,
+                version.value,
                 Metric.reservedField,
                 Metric.reservedField,
                 Metric.reservedField,

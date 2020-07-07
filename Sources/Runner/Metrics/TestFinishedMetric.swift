@@ -1,5 +1,6 @@
 import Foundation
 import Metrics
+import Models
 
 public final class TestFinishedMetric: Metric {
     public init(
@@ -7,6 +8,7 @@ public final class TestFinishedMetric: Metric {
         host: String,
         testClassName: String,
         testMethodName: String,
+        version: Version,
         timestamp: Date
     ) {
         super.init(
@@ -16,7 +18,7 @@ public final class TestFinishedMetric: Metric {
                 host,
                 testClassName,
                 testMethodName,
-                Metric.reservedField,
+                version.value,
                 Metric.reservedField,
                 Metric.reservedField
             ],

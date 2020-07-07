@@ -1,4 +1,5 @@
 import AppleTools
+import DateProvider
 import Foundation
 import Models
 import PathLib
@@ -11,18 +12,24 @@ import TemporaryStuff
 import fbxctest
 
 public final class SimulatorStateMachineActionExecutorProviderImpl: SimulatorStateMachineActionExecutorProvider {
+    private let dateProvider: DateProvider
     private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
     private let simulatorSetPathDeterminer: SimulatorSetPathDeterminer
+    private let version: Version
 
     public init(
+        dateProvider: DateProvider,
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver,
-        simulatorSetPathDeterminer: SimulatorSetPathDeterminer
+        simulatorSetPathDeterminer: SimulatorSetPathDeterminer,
+        version: Version
     ) {
+        self.dateProvider = dateProvider
         self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
         self.simulatorSetPathDeterminer = simulatorSetPathDeterminer
+        self.version = version
     }
     
     public func simulatorStateMachineActionExecutor(
@@ -49,7 +56,9 @@ public final class SimulatorStateMachineActionExecutorProviderImpl: SimulatorSta
         }
         
         return MetricSupportingSimulatorStateMachineActionExecutor(
-            delegate: simulatorStateMachineActionExecutor
+            dateProvider: dateProvider,
+            delegate: simulatorStateMachineActionExecutor,
+            version: version
         )
     }
 }

@@ -1,3 +1,4 @@
+import DateProvider
 import BalancingBucketQueue
 import BucketQueue
 import Foundation
@@ -5,19 +6,24 @@ import Metrics
 import Models
 
 public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSource {
+    private let dateProvider: DateProvider
     private let dequeueableBucketSource: DequeueableBucketSource
     private let jobStateProvider: JobStateProvider
     private let queueStateProvider: RunningQueueStateProvider
+    private let version: Version
 
     public init(
+        dateProvider: DateProvider,
         dequeueableBucketSource: DequeueableBucketSource,
         jobStateProvider: JobStateProvider,
-        queueStateProvider: RunningQueueStateProvider
-        )
-    {
+        queueStateProvider: RunningQueueStateProvider,
+        version: Version
+    ) {
+        self.dateProvider = dateProvider
         self.dequeueableBucketSource = dequeueableBucketSource
         self.jobStateProvider = jobStateProvider
         self.queueStateProvider = queueStateProvider
+        self.version = version
     }
     
     public func previouslyDequeuedBucket(requestId: RequestId, workerId: WorkerId) -> DequeuedBucket? {
@@ -43,15 +49,30 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
     ) {
         let jobStates = jobStateProvider.allJobStates
         let runningQueueState = queueStateProvider.runningQueueState
+        let queueStateMetricGatherer = QueueStateMetricGatherer(dateProvider: dateProvider, version: version)
         
-        let queueStateMetrics = QueueStateMetricGatherer.metrics(
+        let queueStateMetrics = queueStateMetricGatherer.metrics(
             jobStates: jobStates,
             runningQueueState: runningQueueState
         )
         let bucketAndTestMetrics = [
-            DequeueBucketsMetric(workerId: workerId, numberOfBuckets: 1),
-            DequeueTestsMetric(workerId: workerId, numberOfTests: dequeuedBucket.enqueuedBucket.bucket.testEntries.count),
-            TimeToDequeueBucket(timeInterval: Date().timeIntervalSince(dequeuedBucket.enqueuedBucket.enqueueTimestamp))
+            DequeueBucketsMetric(
+                workerId: workerId,
+                version: version,
+                numberOfBuckets: 1,
+                timestamp: dateProvider.currentDate()
+            ),
+            DequeueTestsMetric(
+                workerId: workerId,
+                version: version,
+                numberOfTests: dequeuedBucket.enqueuedBucket.bucket.testEntries.count,
+                timestamp: dateProvider.currentDate()
+            ),
+            TimeToDequeueBucket(
+                timeInterval: Date().timeIntervalSince(dequeuedBucket.enqueuedBucket.enqueueTimestamp),
+                version: version,
+                timestamp: dateProvider.currentDate()
+            )
         ]
         MetricRecorder.capture(queueStateMetrics + bucketAndTestMetrics)
     }

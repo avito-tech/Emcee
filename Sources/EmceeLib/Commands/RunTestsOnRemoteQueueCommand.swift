@@ -109,13 +109,14 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             tempFolder: tempFolder
         )
         let jobResults = try runTestsOnRemotelyRunningQueue(
-            queueServerAddress: runningQueueServerAddress,
             jobGroupId: jobGroupId,
             jobGroupPriority: jobGroupPriority,
             jobId: jobId,
+            queueServerAddress: runningQueueServerAddress,
+            remoteCacheConfig: remoteCacheConfig,
             tempFolder: tempFolder,
             testArgFile: testArgFile,
-            remoteCacheConfig: remoteCacheConfig
+            version: emceeVersion
         )
         let resultOutputGenerator = ResultingOutputGenerator(
             testingResults: jobResults.testingResults,
@@ -179,21 +180,24 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     }
     
     private func runTestsOnRemotelyRunningQueue(
-        queueServerAddress: SocketAddress,
         jobGroupId: JobGroupId,
         jobGroupPriority: Priority,
         jobId: JobId,
+        queueServerAddress: SocketAddress,
+        remoteCacheConfig: RuntimeDumpRemoteCacheConfig?,
         tempFolder: TemporaryFolder,
         testArgFile: TestArgFile,
-        remoteCacheConfig: RuntimeDumpRemoteCacheConfig?
+        version: Version
     ) throws -> JobResults {
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
+            dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
             processControllerProvider: processControllerProvider,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+            version: version
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
         let testDiscoveryQuerier = TestDiscoveryQuerierImpl(
@@ -204,6 +208,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             onDemandSimulatorPool: onDemandSimulatorPool,
             pluginEventBusProvider: pluginEventBusProvider,
             processControllerProvider: processControllerProvider,
+            remoteCache: runtimeDumpRemoteCacheProvider.remoteCache(config: remoteCacheConfig),
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
             testRunnerProvider: DefaultTestRunnerProvider(
@@ -212,7 +217,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
                 resourceLocationResolver: resourceLocationResolver
             ),
             uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator(),
-            remoteCache: runtimeDumpRemoteCacheProvider.remoteCache(config: remoteCacheConfig)
+            version: version
         )
         
         let queueClient = SynchronousQueueClient(queueServerAddress: queueServerAddress)

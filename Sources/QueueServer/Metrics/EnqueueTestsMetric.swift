@@ -1,9 +1,14 @@
 import Foundation
 import Metrics
+import Models
 
 /// Indicates an event when you enqueue some tests
 public final class EnqueueTestsMetric: Metric {
-    public init(numberOfTests: Int) {
+    public init(
+        numberOfTests: Int,
+        version: Version,
+        timestamp: Date
+    ) {
         super.init(
             fixedComponents: [
                 "queue",
@@ -11,13 +16,13 @@ public final class EnqueueTestsMetric: Metric {
                 "enqueue"
             ],
             variableComponents: [
-                Metric.reservedField,
+                version.value,
                 Metric.reservedField,
                 Metric.reservedField,
                 Metric.reservedField
             ],
             value: Double(numberOfTests),
-            timestamp: Date()
+            timestamp: timestamp
         )
     }
 }

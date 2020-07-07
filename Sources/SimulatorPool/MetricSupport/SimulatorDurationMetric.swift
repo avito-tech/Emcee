@@ -15,7 +15,9 @@ public final class SimulatorDurationMetric: Metric {
         host: String,
         testDestination: TestDestination,
         isSuccessful: Bool,
-        duration: Double
+        duration: Double,
+        version: Version,
+        timestamp: Date
     ) {
         super.init(
             fixedComponents: [
@@ -29,13 +31,13 @@ public final class SimulatorDurationMetric: Metric {
                 testDestination.deviceType,
                 testDestination.runtime,
                 isSuccessful ? "success" : "failure",
-                Metric.reservedField,
+                version.value,
                 Metric.reservedField,
                 Metric.reservedField,
                 Metric.reservedField,
             ],
             value: duration,
-            timestamp: Date()
+            timestamp: timestamp
         )
     }
 }

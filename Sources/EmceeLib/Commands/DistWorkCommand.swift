@@ -64,12 +64,14 @@ public final class DistWorkCommand: Command {
         let temporaryFolder = try createScopedTemporaryFolder()
 
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
+            dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
             processControllerProvider: processControllerProvider,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: temporaryFolder,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+            version: emceeVersion
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
 
@@ -77,6 +79,7 @@ public final class DistWorkCommand: Command {
             onDemandSimulatorPool: onDemandSimulatorPool,
             queueServerAddress: queueServerAddress,
             temporaryFolder: temporaryFolder,
+            version: emceeVersion,
             workerId: workerId
         )
         
@@ -93,6 +96,7 @@ public final class DistWorkCommand: Command {
         onDemandSimulatorPool: OnDemandSimulatorPool,
         queueServerAddress: SocketAddress,
         temporaryFolder: TemporaryFolder,
+        version: Version,
         workerId: WorkerId
     ) -> DistWorker {
         let requestSender = requestSenderProvider.requestSender(socketAddress: queueServerAddress)
@@ -121,6 +125,7 @@ public final class DistWorkCommand: Command {
                 processControllerProvider: processControllerProvider,
                 resourceLocationResolver: resourceLocationResolver
             ),
+            version: version,
             workerId: workerId,
             workerRegisterer: workerRegisterer
         )

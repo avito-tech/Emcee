@@ -1,3 +1,4 @@
+import DateProviderTestHelpers
 import Foundation
 import Models
 import ModelsTestHelpers
@@ -83,7 +84,9 @@ final class ScheduleTestsEndpointTests: XCTestCase {
     let enqueueableBucketReceptor = FakeEnqueueableBucketReceptor()
     lazy var testsEnqueuer = TestsEnqueuer(
         bucketSplitInfo: bucketSplitInfo,
-        enqueueableBucketReceptor: enqueueableBucketReceptor
+        dateProvider: DateProviderFixture(),
+        enqueueableBucketReceptor: enqueueableBucketReceptor,
+        version: Version(value: "version")
     )
     
 }

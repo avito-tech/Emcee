@@ -31,6 +31,7 @@ public final class Scheduler {
     private let simulatorSettingsModifier: SimulatorSettingsModifier
     private let tempFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
+    private let version: Version
     private weak var schedulerDelegate: SchedulerDelegate?
     
     public init(
@@ -43,7 +44,8 @@ public final class Scheduler {
         schedulerDelegate: SchedulerDelegate?,
         simulatorSettingsModifier: SimulatorSettingsModifier,
         tempFolder: TemporaryFolder,
-        testRunnerProvider: TestRunnerProvider
+        testRunnerProvider: TestRunnerProvider,
+        version: Version
     ) {
         self.configuration = configuration
         self.dateProvider = dateProvider
@@ -60,6 +62,7 @@ public final class Scheduler {
         self.simulatorSettingsModifier = simulatorSettingsModifier
         self.tempFolder = tempFolder
         self.testRunnerProvider = testRunnerProvider
+        self.version = version
     }
     
     public func run() throws {
@@ -181,7 +184,11 @@ public final class Scheduler {
             )
         )
 
-        let allocatedSimulator = try simulatorPool.allocateSimulator(simulatorOperationTimeouts: bucket.simulatorOperationTimeouts)
+        let allocatedSimulator = try simulatorPool.allocateSimulator(
+            dateProvider: dateProvider,
+            simulatorOperationTimeouts: bucket.simulatorOperationTimeouts,
+            version: version
+        )
         defer { allocatedSimulator.releaseSimulator() }
         
         try simulatorSettingsModifier.apply(
@@ -206,7 +213,8 @@ public final class Scheduler {
             pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
-            testRunnerProvider: testRunnerProvider
+            testRunnerProvider: testRunnerProvider,
+            version: version
         )
 
         let runnerResult = try runner.run(

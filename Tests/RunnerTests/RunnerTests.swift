@@ -219,7 +219,8 @@ public final class RunnerTests: XCTestCase {
             resourceLocationResolver: resolver,
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,
-            testTimeoutCheckInterval: .milliseconds(100)
+            testTimeoutCheckInterval: .milliseconds(100),
+            version: Version(value: "version")
         )
         return try runner.run(
             entries: testEntries,

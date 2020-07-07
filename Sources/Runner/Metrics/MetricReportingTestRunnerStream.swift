@@ -9,15 +9,18 @@ import RunnerModels
 public final class MetricReportingTestRunnerStream: TestRunnerStream {
     private let dateProvider: DateProvider
     private let host: String
-    private let willRunEventTimestamp = AtomicValue<Date?>(nil)
     private let lastTestStoppedEventTimestamp = AtomicValue<Date?>(nil)
+    private let version: Version
+    private let willRunEventTimestamp = AtomicValue<Date?>(nil)
     
     public init(
         dateProvider: DateProvider,
-        host: String
+        host: String,
+        version: Version
     ) {
         self.dateProvider = dateProvider
         self.host = host
+        self.version = version
     }
     
     public func openStream() {
@@ -31,6 +34,7 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
                     TestPreflightMetric(
                         host: host,
                         duration: dateProvider.currentDate().timeIntervalSince(willRunEventTimestamp),
+                        version: version,
                         timestamp: dateProvider.currentDate()
                     )
                 )
@@ -43,6 +47,7 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
                 host: host,
                 testClassName: testName.className,
                 testMethodName: testName.methodName,
+                version: version,
                 timestamp: dateProvider.currentDate()
             )
         )
@@ -52,6 +57,7 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
                 TimeBetweenTestsMetric(
                     host: host,
                     duration: dateProvider.currentDate().timeIntervalSince(timestamp),
+                    version: version,
                     timestamp: dateProvider.currentDate()
                 )
             )
@@ -66,6 +72,7 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
                 host: host,
                 testClassName: testStoppedEvent.testName.className,
                 testMethodName: testStoppedEvent.testName.methodName,
+                version: version,
                 timestamp: dateProvider.currentDate()
             ),
             TestDurationMetric(
@@ -74,6 +81,7 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
                 testClassName: testStoppedEvent.testName.className,
                 testMethodName: testStoppedEvent.testName.methodName,
                 duration: testStoppedEvent.testDuration,
+                version: version,
                 timestamp: dateProvider.currentDate()
             )
         )
@@ -90,6 +98,7 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
                     TestPostflightMetric(
                         host: host,
                         duration: dateProvider.currentDate().timeIntervalSince(lastTestStoppedEventTimestamp),
+                        version: version,
                         timestamp: dateProvider.currentDate()
                     )
                 )

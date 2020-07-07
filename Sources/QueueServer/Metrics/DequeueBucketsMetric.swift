@@ -3,7 +3,12 @@ import Metrics
 import Models
 
 public final class DequeueBucketsMetric: Metric {
-    public init(workerId: WorkerId, numberOfBuckets: Int) {
+    public init(
+        workerId: WorkerId,
+        version: Version,
+        numberOfBuckets: Int,
+        timestamp: Date
+    ) {
         super.init(
             fixedComponents: [
                 "queue",
@@ -12,13 +17,13 @@ public final class DequeueBucketsMetric: Metric {
             ],
             variableComponents: [
                 workerId.value,
-                Metric.reservedField,
+                version.value,
                 Metric.reservedField,
                 Metric.reservedField,
                 Metric.reservedField
             ],
             value: Double(numberOfBuckets),
-            timestamp: Date()
+            timestamp: timestamp
         )
     }
 }

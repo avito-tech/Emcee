@@ -1,3 +1,4 @@
+import DateProvider
 import Foundation
 import LocalHostDeterminer
 import Metrics
@@ -7,9 +8,17 @@ import SimulatorPoolModels
 
 public final class MetricSupportingSimulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor {
     let delegate: SimulatorStateMachineActionExecutor
+    private let dateProvider: DateProvider
+    private let version: Version
     
-    public init(delegate: SimulatorStateMachineActionExecutor) {
+    public init(
+        dateProvider: DateProvider,
+        delegate: SimulatorStateMachineActionExecutor,
+        version: Version
+    ) {
+        self.dateProvider = dateProvider
         self.delegate = delegate
+        self.version = version
     }
     
     public func performCreateSimulatorAction(
@@ -103,7 +112,9 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
                 host: LocalHostDeterminer.currentHostAddress,
                 testDestination: testDestination,
                 isSuccessful: result.isSuccess,
-                duration: Date().timeIntervalSince(startTime)
+                duration: dateProvider.currentDate().timeIntervalSince(startTime),
+                version: version,
+                timestamp: dateProvider.currentDate()
             )
         )
         

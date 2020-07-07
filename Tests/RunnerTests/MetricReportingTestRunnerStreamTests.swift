@@ -15,7 +15,8 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
     lazy var metricHandler = FakeMetricHandler()
     lazy var stream = MetricReportingTestRunnerStream(
         dateProvider: dateProvider,
-        host: host
+        host: host,
+        version: version
     )
     lazy var testName = TestName(className: "class", methodName: "test")
     lazy var testContext = TestContextFixtures().testContext
@@ -26,6 +27,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
         testExceptions: [TestException(reason: "reason", filePathInProject: "file", lineNumber: 42)],
         testStartTimestamp: 111
     )
+    lazy var version = Version(value: "version")
     
     override func setUp() {
         GlobalMetricConfig.metricHandler = metricHandler
@@ -36,7 +38,15 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
         
         XCTAssertEqual(
             metricHandler.metrics,
-            [TestStartedMetric(host: host, testClassName: testName.className, testMethodName: testName.methodName, timestamp: dateProvider.currentDate())]
+            [
+                TestStartedMetric(
+                    host: host,
+                    testClassName: testName.className,
+                    testMethodName: testName.methodName,
+                    version: version,
+                    timestamp: dateProvider.currentDate()
+                )
+            ]
         )
     }
     
@@ -52,6 +62,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
                     host: host,
                     testClassName: testStoppedEvent.testName.className,
                     testMethodName: testStoppedEvent.testName.methodName,
+                    version: version,
                     timestamp: dateProvider.currentDate()
                 )
             )
@@ -71,6 +82,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
                     testClassName: testStoppedEvent.testName.className,
                     testMethodName: testStoppedEvent.testName.methodName,
                     duration: testStoppedEvent.testDuration,
+                    version: version,
                     timestamp: dateProvider.currentDate()
                 )
             )
@@ -93,6 +105,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
                 TimeBetweenTestsMetric(
                     host: host,
                     duration: timeBetweenStopOfPreviousTestAndStartOfNextTest,
+                    version: version,
                     timestamp: dateProvider.currentDate()
                 )
             )
@@ -110,12 +123,14 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
                 TestPreflightMetric(
                     host: host,
                     duration: 100,
+                    version: version,
                     timestamp: dateProvider.currentDate()
                 ),
                 TestStartedMetric(
                     host: host,
                     testClassName: testName.className,
                     testMethodName: testName.methodName,
+                    version: version,
                     timestamp: dateProvider.currentDate()
                 ),
             ]
@@ -133,6 +148,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
                 TestPostflightMetric(
                     host: host,
                     duration: 100,
+                    version: version,
                     timestamp: dateProvider.currentDate()
                 )
             )
@@ -160,12 +176,14 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
                 TestPreflightMetric(
                     host: host,
                     duration: 25,
+                    version: version,
                     timestamp: testStartedAt
                 ),
                 TestStartedMetric(
                     host: host,
                     testClassName: testName.className,
                     testMethodName: testName.methodName,
+                    version: version,
                     timestamp: testStartedAt
                 ),
                 TestFinishedMetric(
@@ -173,6 +191,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
                     host: host,
                     testClassName: testStoppedEvent.testName.className,
                     testMethodName: testStoppedEvent.testName.methodName,
+                    version: version,
                     timestamp: testStoppedAt
                 ),
                 TestDurationMetric(
@@ -181,13 +200,15 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
                     testClassName: testStoppedEvent.testName.className,
                     testMethodName: testStoppedEvent.testName.methodName,
                     duration: testStoppedEvent.testDuration,
+                    version: version,
                     timestamp: testStoppedAt
                 ),
                 TestPostflightMetric(
                     host: host,
                     duration: 25,
+                    version: version,
                     timestamp: bucketFinishedAt
-                )
+                ),
             ]
         )
     }

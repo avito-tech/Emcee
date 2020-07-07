@@ -24,6 +24,7 @@ public final class DumpCommand: Command {
     public let name = "dump"
     public let description = "Performs test discovery and dumps information about discovered tests into JSON file"
     public let arguments: Arguments = [
+        ArgumentDescriptions.emceeVersion.asRequired,
         ArgumentDescriptions.output.asRequired,
         ArgumentDescriptions.tempFolder.asRequired,
         ArgumentDescriptions.testArgFile.asRequired,
@@ -70,14 +71,17 @@ public final class DumpCommand: Command {
             containerPath: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.tempFolder.name)
         )
         let outputPath: AbsolutePath = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.output.name)
+        let emceeVersion: Version = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name)
         
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
+            dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
             processControllerProvider: processControllerProvider,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+            version: emceeVersion
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
         
@@ -112,6 +116,7 @@ public final class DumpCommand: Command {
                 onDemandSimulatorPool: onDemandSimulatorPool,
                 pluginEventBusProvider: pluginEventBusProvider,
                 processControllerProvider: processControllerProvider,
+                remoteCache: runtimeDumpRemoteCacheProvider.remoteCache(config: remoteCacheConfig),
                 resourceLocationResolver: resourceLocationResolver,
                 tempFolder: tempFolder,
                 testRunnerProvider: DefaultTestRunnerProvider(
@@ -120,7 +125,7 @@ public final class DumpCommand: Command {
                     resourceLocationResolver: resourceLocationResolver
                 ),
                 uniqueIdentifierGenerator: uniqueIdentifierGenerator,
-                remoteCache: runtimeDumpRemoteCacheProvider.remoteCache(config: remoteCacheConfig)
+                version: emceeVersion
             )
             
             let result = try testDiscoveryQuerier.query(configuration: configuration)
