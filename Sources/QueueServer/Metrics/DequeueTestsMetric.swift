@@ -6,6 +6,7 @@ public final class DequeueTestsMetric: Metric {
     public init(
         workerId: WorkerId,
         version: Version,
+        queueHost: String,
         numberOfTests: Int,
         timestamp: Date
     ) {
@@ -18,7 +19,7 @@ public final class DequeueTestsMetric: Metric {
             variableComponents: [
                 workerId.value,
                 version.value,
-                Metric.reservedField,
+                queueHost,
                 Metric.reservedField,
                 Metric.reservedField
             ],

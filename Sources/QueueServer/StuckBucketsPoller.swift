@@ -2,6 +2,7 @@ import BalancingBucketQueue
 import BucketQueue
 import DateProvider
 import Foundation
+import LocalHostDeterminer
 import Logging
 import Metrics
 import Models
@@ -38,10 +39,11 @@ public final class StuckBucketsPoller {
         
         let stuckBucketMetrics: [StuckBucketsMetric] = stuckBuckets.map {
             StuckBucketsMetric(
-                count: 1,
-                host: $0.workerId,
+                workerId: $0.workerId,
                 reason: $0.reason.metricParameterName,
                 version: version,
+                queueHost: LocalHostDeterminer.currentHostAddress,
+                count: 1,
                 timestamp: dateProvider.currentDate()
             )
         }

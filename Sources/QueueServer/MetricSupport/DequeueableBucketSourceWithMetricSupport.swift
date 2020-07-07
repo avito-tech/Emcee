@@ -1,7 +1,8 @@
-import DateProvider
 import BalancingBucketQueue
 import BucketQueue
+import DateProvider
 import Foundation
+import LocalHostDeterminer
 import Metrics
 import Models
 
@@ -59,18 +60,21 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
             DequeueBucketsMetric(
                 workerId: workerId,
                 version: version,
+                queueHost: LocalHostDeterminer.currentHostAddress,
                 numberOfBuckets: 1,
                 timestamp: dateProvider.currentDate()
             ),
             DequeueTestsMetric(
                 workerId: workerId,
                 version: version,
+                queueHost: LocalHostDeterminer.currentHostAddress,
                 numberOfTests: dequeuedBucket.enqueuedBucket.bucket.testEntries.count,
                 timestamp: dateProvider.currentDate()
             ),
-            TimeToDequeueBucket(
-                timeInterval: Date().timeIntervalSince(dequeuedBucket.enqueuedBucket.enqueueTimestamp),
+            TimeToDequeueBucketMetric(
                 version: version,
+                queueHost: LocalHostDeterminer.currentHostAddress,
+                timeInterval: Date().timeIntervalSince(dequeuedBucket.enqueuedBucket.enqueueTimestamp),
                 timestamp: dateProvider.currentDate()
             )
         ]

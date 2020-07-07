@@ -1,5 +1,6 @@
 import DateProvider
 import Foundation
+import LocalHostDeterminer
 import Metrics
 import Models
 import Timer
@@ -46,6 +47,7 @@ public final class WorkerAlivenessMetricCapturer {
                 workerId: $0.key,
                 status: $0.value.metricComponentName,
                 version: version,
+                queueHost: LocalHostDeterminer.currentHostAddress,
                 timestamp: dateProvider.currentDate()
             )
         }

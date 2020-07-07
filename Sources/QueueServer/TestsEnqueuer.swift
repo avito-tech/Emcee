@@ -1,6 +1,7 @@
 import BalancingBucketQueue
 import DateProvider
 import Foundation
+import LocalHostDeterminer
 import Logging
 import Metrics
 import Models
@@ -38,13 +39,15 @@ public final class TestsEnqueuer {
         
         MetricRecorder.capture(
             EnqueueTestsMetric(
-                numberOfTests: testEntryConfigurations.count,
                 version: version,
+                queueHost: LocalHostDeterminer.currentHostAddress,
+                numberOfTests: testEntryConfigurations.count,
                 timestamp: dateProvider.currentDate()
             ),
             EnqueueBucketsMetric(
-                numberOfBuckets: buckets.count,
                 version: version,
+                queueHost: LocalHostDeterminer.currentHostAddress,
+                numberOfBuckets: buckets.count,
                 timestamp: dateProvider.currentDate()
             )
         )

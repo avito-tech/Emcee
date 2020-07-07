@@ -2,6 +2,7 @@ import BalancingBucketQueue
 import BucketQueue
 import DateProvider
 import Foundation
+import LocalHostDeterminer
 import Metrics
 import Models
 
@@ -62,8 +63,9 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
                 let timeToStart = testStartedAt.timeIntervalSince(acceptResult.dequeuedBucket.enqueuedBucket.enqueueTimestamp)
                 return TimeToStartTestMetric(
                     testEntry: testEntryResult.testEntry,
-                    timeToStartTest: timeToStart,
                     version: version,
+                    queueHost: LocalHostDeterminer.currentHostAddress,
+                    timeToStartTest: timeToStart,
                     timestamp: dateProvider.currentDate()
                 )
             }

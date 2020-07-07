@@ -7,6 +7,7 @@ public final class WorkerStatusMetric: Metric {
         workerId: WorkerId,
         status: String,
         version: Version,
+        queueHost: String,
         timestamp: Date
     ) {
         super.init(
@@ -19,7 +20,7 @@ public final class WorkerStatusMetric: Metric {
                 workerId.value,
                 status,
                 version.value,
-                Metric.reservedField,
+                queueHost,
             ],
             value: 1.0,
             timestamp: timestamp

@@ -37,8 +37,8 @@ public final class QueueStateMetricGatherer {
             ),
             JobCountMetric(
                 queueHost: queueHost,
-                jobCount: jobStates.count,
                 version: version,
+                jobCount: jobStates.count,
                 timestamp: dateProvider.currentDate()
             )
         ]

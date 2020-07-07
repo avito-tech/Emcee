@@ -4,8 +4,9 @@ import Models
 
 public final class EnqueueBucketsMetric: Metric {
     public init(
-        numberOfBuckets: Int,
         version: Version,
+        queueHost: String,
+        numberOfBuckets: Int,
         timestamp: Date
     ) {
         super.init(
@@ -16,7 +17,7 @@ public final class EnqueueBucketsMetric: Metric {
             ],
             variableComponents: [
                 version.value,
-                Metric.reservedField,
+                queueHost,
                 Metric.reservedField,
                 Metric.reservedField
             ],

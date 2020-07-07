@@ -6,6 +6,7 @@ public final class DequeueBucketsMetric: Metric {
     public init(
         workerId: WorkerId,
         version: Version,
+        queueHost: String,
         numberOfBuckets: Int,
         timestamp: Date
     ) {
@@ -18,7 +19,7 @@ public final class DequeueBucketsMetric: Metric {
             variableComponents: [
                 workerId.value,
                 version.value,
-                Metric.reservedField,
+                queueHost,
                 Metric.reservedField,
                 Metric.reservedField
             ],

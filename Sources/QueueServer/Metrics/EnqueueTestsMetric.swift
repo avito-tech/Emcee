@@ -5,8 +5,9 @@ import Models
 /// Indicates an event when you enqueue some tests
 public final class EnqueueTestsMetric: Metric {
     public init(
-        numberOfTests: Int,
         version: Version,
+        queueHost: String,
+        numberOfTests: Int,
         timestamp: Date
     ) {
         super.init(
@@ -17,7 +18,7 @@ public final class EnqueueTestsMetric: Metric {
             ],
             variableComponents: [
                 version.value,
-                Metric.reservedField,
+                queueHost,
                 Metric.reservedField,
                 Metric.reservedField
             ],

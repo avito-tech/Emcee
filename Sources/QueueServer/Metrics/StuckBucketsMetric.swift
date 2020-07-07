@@ -4,10 +4,11 @@ import Models
 
 public final class StuckBucketsMetric: Metric {
     public init(
-        count: Int,
-        host: WorkerId,
+        workerId: WorkerId,
         reason: String,
         version: Version,
+        queueHost: String,
+        count: Int,
         timestamp: Date
     ) {
         super.init(
@@ -18,9 +19,9 @@ public final class StuckBucketsMetric: Metric {
             ],
             variableComponents: [
                 reason,
-                host.value,
+                workerId.value,
                 version.value,
-                Metric.reservedField,
+                queueHost,
                 Metric.reservedField,
                 Metric.reservedField
             ],

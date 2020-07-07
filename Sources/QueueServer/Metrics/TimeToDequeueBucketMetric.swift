@@ -2,10 +2,11 @@ import Foundation
 import Metrics
 import Models
 
-public final class TimeToDequeueBucket: Metric {
+public final class TimeToDequeueBucketMetric: Metric {
     public init(
-        timeInterval: TimeInterval,
         version: Version,
+        queueHost: String,
+        timeInterval: TimeInterval,
         timestamp: Date
     ) {
         super.init(
@@ -16,7 +17,7 @@ public final class TimeToDequeueBucket: Metric {
             ],
             variableComponents: [
                 version.value,
-                Metric.reservedField,
+                queueHost,
                 Metric.reservedField,
                 Metric.reservedField
             ],

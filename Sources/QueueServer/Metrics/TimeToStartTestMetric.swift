@@ -5,8 +5,9 @@ import Models
 public final class TimeToStartTestMetric: Metric {
     public init(
         testEntry: TestEntry,
-        timeToStartTest: TimeInterval,
         version: Version,
+        queueHost: String,
+        timeToStartTest: TimeInterval,
         timestamp: Date
     ) {
         super.init(
@@ -18,7 +19,7 @@ public final class TimeToStartTestMetric: Metric {
                 testEntry.testName.className,
                 testEntry.testName.methodName,
                 version.value,
-                Metric.reservedField,
+                queueHost,
                 Metric.reservedField,
                 Metric.reservedField
             ],

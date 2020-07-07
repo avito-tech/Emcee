@@ -5,8 +5,8 @@ import Models
 public final class JobCountMetric: Metric {
     public init(
         queueHost: String, 
-        jobCount: Int,
         version: Version,
+        jobCount: Int,
         timestamp: Date
     ) {
         super.init(
