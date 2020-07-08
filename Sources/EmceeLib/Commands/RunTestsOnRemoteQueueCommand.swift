@@ -4,6 +4,7 @@ import DateProvider
 import Deployer
 import DeveloperDirLocator
 import DistDeployer
+import EmceeVersion
 import Extensions
 import FileSystem
 import Foundation
@@ -33,7 +34,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     public let name = "runTestsOnRemoteQueue"
     public let description = "Starts queue server on remote machine if needed and runs tests on the remote queue. Waits for resuls to come back."
     public let arguments: Arguments = [
-        ArgumentDescriptions.emceeVersion.asRequired,
+        ArgumentDescriptions.emceeVersion.asOptional,
         ArgumentDescriptions.jobGroupId.asOptional,
         ArgumentDescriptions.jobGroupPriority.asOptional,
         ArgumentDescriptions.jobId.asRequired,
@@ -91,7 +92,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         let queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerRunConfigurationLocation.name)
         let jobId: JobId = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.jobId.name)
         let jobGroupId: JobGroupId = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.jobGroupId.name) ?? JobGroupId(value: jobId.value)
-        let emceeVersion: Version = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name)
+        let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
         
         let tempFolder = try TemporaryFolder(containerPath: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.tempFolder.name))
         let testArgFile = try ArgumentsReader.testArgFile(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testArgFile.name))

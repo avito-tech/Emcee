@@ -3,6 +3,7 @@ import AutomaticTermination
 import DateProvider
 import Deployer
 import DistWorkerModels
+import EmceeVersion
 import Extensions
 import Foundation
 import LocalHostDeterminer
@@ -26,7 +27,7 @@ public final class StartQueueServerCommand: Command {
     public let name = "startLocalQueueServer"
     public let description = "Starts queue server on local machine. This mode waits for jobs to be scheduled via REST API."
     public let arguments: Arguments = [
-        ArgumentDescriptions.emceeVersion.asRequired,
+        ArgumentDescriptions.emceeVersion.asOptional,
         ArgumentDescriptions.queueServerRunConfigurationLocation.asRequired
     ]
 
@@ -51,7 +52,7 @@ public final class StartQueueServerCommand: Command {
     }
     
     public func run(payload: CommandPayload) throws {
-        let emceeVersion: Version = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name)
+        let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
         let queueServerRunConfiguration = try ArgumentsReader.queueServerRunConfiguration(
             location: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerRunConfigurationLocation.name),
             resourceLocationResolver: resourceLocationResolver

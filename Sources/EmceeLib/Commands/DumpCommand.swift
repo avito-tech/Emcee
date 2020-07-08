@@ -2,7 +2,7 @@ import ArgLib
 import ChromeTracing
 import DateProvider
 import DeveloperDirLocator
-import EventBus
+import EmceeVersion
 import Extensions
 import FileSystem
 import Foundation
@@ -24,7 +24,7 @@ public final class DumpCommand: Command {
     public let name = "dump"
     public let description = "Performs test discovery and dumps information about discovered tests into JSON file"
     public let arguments: Arguments = [
-        ArgumentDescriptions.emceeVersion.asRequired,
+        ArgumentDescriptions.emceeVersion.asOptional,
         ArgumentDescriptions.output.asRequired,
         ArgumentDescriptions.tempFolder.asRequired,
         ArgumentDescriptions.testArgFile.asRequired,
@@ -71,7 +71,7 @@ public final class DumpCommand: Command {
             containerPath: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.tempFolder.name)
         )
         let outputPath: AbsolutePath = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.output.name)
-        let emceeVersion: Version = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name)
+        let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
         
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
             dateProvider: dateProvider,

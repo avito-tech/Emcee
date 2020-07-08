@@ -3,7 +3,7 @@ import Foundation
 import Models
 
 final class ArgumentDescriptions {
-    static let emceeVersion = doubleDashedDescription(dashlessName: "emcee-version", overview: "Version of Emcee binary")
+    static let emceeVersion = doubleDashedDescription(dashlessName: "emcee-version", overview: "Explicit version of Emcee binary")
     static let jobGroupId = doubleDashedDescription(dashlessName: "job-group-id", overview: "Unique job group id that groups various jobs into a single group")
     static let jobGroupPriority = doubleDashedDescription(dashlessName: "job-group-priority", overview: "Priority of the job group")
     static let jobId = doubleDashedDescription(dashlessName: "job-id", overview: "Unique job id, usually a random string, e.g. UUID")

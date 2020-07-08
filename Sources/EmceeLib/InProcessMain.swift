@@ -120,6 +120,7 @@ public final class InProcessMain {
                 ToggleWorkersSharingCommand(
                     requestSenderProvider: requestSenderProvider
                 ),
+                VersionCommand(),
             ],
             helpCommandType: .generateAutomatically
         )

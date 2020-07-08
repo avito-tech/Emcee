@@ -36,6 +36,7 @@ let package = Package(
             name: "EmceeInterfaces",
             targets: [
                 "BuildArtifacts",
+                "EmceeVersion",
                 "FileSystem",
                 "Models",
                 "PathLib",
@@ -501,6 +502,7 @@ let package = Package(
                 "DistDeployer",
                 "DistWorker",
                 "DistWorkerModels",
+                "EmceeVersion",
                 "EventBus",
                 "Extensions",
                 "FileCache",
@@ -573,6 +575,14 @@ let package = Package(
                 "fbxctest",
             ],
             path: "Tests/EmceeLibTests"
+        ),
+        .target(
+            // MARK: EmceeVersion
+            name: "EmceeVersion",
+            dependencies: [
+                "Models",
+            ],
+            path: "Sources/EmceeVersion"
         ),
         .target(
             // MARK: EventBus

@@ -2,6 +2,7 @@ import ArgLib
 import DateProvider
 import DeveloperDirLocator
 import DistWorker
+import EmceeVersion
 import FileSystem
 import Foundation
 import Logging
@@ -23,7 +24,7 @@ public final class DistWorkCommand: Command {
     public let name = "distWork"
     public let description = "Takes jobs from a dist runner queue and performs them"
     public var arguments: Arguments = [
-        ArgumentDescriptions.emceeVersion.asRequired,
+        ArgumentDescriptions.emceeVersion.asOptional,
         ArgumentDescriptions.queueServer.asRequired,
         ArgumentDescriptions.workerId.asRequired
     ]
@@ -60,7 +61,7 @@ public final class DistWorkCommand: Command {
     public func run(payload: CommandPayload) throws {
         let queueServerAddress: SocketAddress = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServer.name)
         let workerId: WorkerId = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.workerId.name)
-        let emceeVersion: Version = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name)
+        let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
         let temporaryFolder = try createScopedTemporaryFolder()
 
         let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
