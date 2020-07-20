@@ -1,6 +1,7 @@
 import DistWorker
 import Foundation
 import Models
+import QueueModels
 import XCTest
 
 final class CurrentlyBeingProcessedBucketsTrackerTests: XCTestCase {

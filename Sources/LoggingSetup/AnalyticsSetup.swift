@@ -3,6 +3,7 @@ import LocalHostDeterminer
 import Logging
 import Metrics
 import Models
+import QueueModels
 import Sentry
 
 public final class AnalyticsSetup {

@@ -2,6 +2,7 @@ import BalancingBucketQueue
 import Dispatch
 import Foundation
 import Models
+import QueueModels
 import RESTInterfaces
 import RESTMethods
 import RESTServer

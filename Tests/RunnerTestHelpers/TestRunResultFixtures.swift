@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import RunnerModels
 
 public final class TestRunResultFixtures {
     public static func testRunResult(succeeded: Bool = true, timestamp: TimeInterval = 0) -> TestRunResult {

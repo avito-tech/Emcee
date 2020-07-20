@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import Types
 
 public struct RunningQueueState: Equatable, CustomStringConvertible, Codable {
     public let enqueuedTests: [TestName]

@@ -5,6 +5,7 @@ import Foundation
 import LocalHostDeterminer
 import Metrics
 import Models
+import QueueModels
 
 public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
     private let bucketResultAccepter: BucketResultAccepter

@@ -3,9 +3,10 @@ import DeployerTestHelpers
 import Metrics
 import MetricsTestHelpers
 import Models
-import TestHelpers
 import QueueCommunication
 import QueueCommunicationTestHelpers
+import QueueModels
+import TestHelpers
 import XCTest
 
 class WorkerUtilizationStatusPollerTests: XCTestCase {

@@ -3,6 +3,8 @@ import DeployerTestHelpers
 import Dispatch
 import Models
 import QueueCommunication
+import QueueModels
+import Types
 
 public class FakeQueueCommunicationService: QueueCommunicationService {
     private let callbackQueue = DispatchQueue(

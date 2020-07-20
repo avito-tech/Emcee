@@ -1,5 +1,5 @@
 import Foundation
-import Models
+import QueueModels
 
 public enum DistWorkerError: Error, CustomStringConvertible {
     case noRequestIdForBucketId(BucketId)

@@ -1,4 +1,5 @@
 import Foundation
+import Models
 
 public struct TestEntryResult: Codable, CustomStringConvertible, Equatable {
     public let testEntry: TestEntry

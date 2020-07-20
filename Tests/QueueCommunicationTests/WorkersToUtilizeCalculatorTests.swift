@@ -1,7 +1,7 @@
 import Models
 import QueueCommunication
+import QueueModels
 import XCTest
-
 
 class WorkersToUtilizeCalculatorTests: XCTestCase {
     private let calculator = DefaultWorkersToUtilizeCalculator()

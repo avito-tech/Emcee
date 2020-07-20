@@ -1,8 +1,8 @@
 import Deployer
 import Extensions
 import Foundation
-import Models
 import PathLib
+import QueueModels
 
 final class DeployablesGenerator {
     private let emceeVersion: Version

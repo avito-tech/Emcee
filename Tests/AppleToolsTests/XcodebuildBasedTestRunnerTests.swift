@@ -4,6 +4,7 @@ import DateProvider
 import DateProviderTestHelpers
 import DeveloperDirLocator
 import DeveloperDirLocatorTestHelpers
+import DeveloperDirModels
 import FileCache
 import Foundation
 import Models

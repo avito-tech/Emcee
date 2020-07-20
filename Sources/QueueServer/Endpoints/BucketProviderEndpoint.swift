@@ -5,6 +5,7 @@ import EventBus
 import Foundation
 import Logging
 import Models
+import QueueModels
 import RESTInterfaces
 import RESTMethods
 import RESTServer

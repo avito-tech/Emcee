@@ -1,4 +1,4 @@
-import Models
+import QueueModels
 
 public enum WorkerUtilizationPermission {
     case allowedToUtilize

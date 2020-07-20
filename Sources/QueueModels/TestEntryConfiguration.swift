@@ -1,9 +1,10 @@
 import BuildArtifacts
+import DeveloperDirModels
 import Foundation
 import Models
 import PluginSupport
-import SimulatorPoolModels
 import RunnerModels
+import SimulatorPoolModels
 
 public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable {
     public let buildArtifacts: BuildArtifacts

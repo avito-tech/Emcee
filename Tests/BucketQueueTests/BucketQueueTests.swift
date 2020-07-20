@@ -7,6 +7,7 @@ import Models
 import ModelsTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
+import RunnerModels
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessProvider

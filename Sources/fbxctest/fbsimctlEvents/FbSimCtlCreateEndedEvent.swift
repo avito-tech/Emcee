@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import SimulatorPoolModels
 
 public final class FbSimCtlCreateEndedEvent: FbSimCtlEventCommonFields, Decodable, Hashable, CustomStringConvertible {
     public let name: FbSimCtlEventName = .create

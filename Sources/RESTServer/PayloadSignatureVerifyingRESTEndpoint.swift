@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import QueueModels
 import RESTMethods
 import RESTInterfaces
 

@@ -1,5 +1,5 @@
-import Models
 import QueueCommunication
+import QueueModels
 
 public class FakeWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller {
     public init() { }

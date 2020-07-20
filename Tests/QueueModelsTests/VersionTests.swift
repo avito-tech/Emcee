@@ -1,4 +1,4 @@
-import Models
+import QueueModels
 import XCTest
 
 class VersionTests: XCTestCase {

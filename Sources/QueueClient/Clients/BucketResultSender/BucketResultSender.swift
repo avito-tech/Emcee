@@ -1,6 +1,8 @@
 import Dispatch
 import Foundation
 import Models
+import QueueModels
+import Types
 
 public protocol BucketResultSender {
     func send(

@@ -1,9 +1,11 @@
 import Dispatch
 import Models
 import QueueClient
+import QueueModels
 import RESTMethods
 import RequestSenderTestHelpers
 import TestHelpers
+import Types
 import XCTest
 
 final class WorkerEnablerTests: XCTestCase {

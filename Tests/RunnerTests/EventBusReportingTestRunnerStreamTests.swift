@@ -4,6 +4,8 @@ import Models
 import ModelsTestHelpers
 import Runner
 import RunnerModels
+import RunnerTestHelpers
+import SimulatorPoolModels
 import XCTest
 
 final class EventBusReportingTestRunnerStreamTests: XCTestCase {

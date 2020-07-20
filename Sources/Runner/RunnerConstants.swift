@@ -1,6 +1,7 @@
 import Foundation
 import Logging
 import Models
+import RunnerModels
 
 public enum RunnerConstants: CustomStringConvertible {
     /// Test failure reason that will be given back if test actually fails to start after all attempts to revive, even though test runner has started.

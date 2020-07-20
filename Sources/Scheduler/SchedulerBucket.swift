@@ -1,4 +1,5 @@
 import BuildArtifacts
+import DeveloperDirModels
 import Foundation
 import Models
 import PluginSupport

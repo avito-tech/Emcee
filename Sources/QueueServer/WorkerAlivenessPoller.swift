@@ -4,6 +4,7 @@ import Logging
 import Models
 import RequestSender
 import Timer
+import Types
 import WorkerAlivenessProvider
 
 public final class WorkerAlivenessPoller {

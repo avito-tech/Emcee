@@ -1,8 +1,9 @@
 import Foundation
+import Models
 import QueueCommunication
+import QueueModels
 import RemotePortDeterminerTestHelpers
 import XCTest
-import Models
 
 final class RemoteQueueDetectorTests: XCTestCase {
     func test___findSuitableRemoteRunningQueuePorts___when_no_queues_running___returns_empty_result() {

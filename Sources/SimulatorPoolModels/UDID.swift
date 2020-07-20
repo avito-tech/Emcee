@@ -1,4 +1,5 @@
 import Foundation
+import Types
 
 /// Unique Device Id - both for simulators and real devices
 ///

@@ -2,6 +2,7 @@ import Deployer
 import Foundation
 import LaunchdUtils
 import Models
+import QueueModels
 import SSHDeployer
 
 public final class RemoteWorkerLaunchdPlist {

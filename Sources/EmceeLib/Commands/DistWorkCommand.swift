@@ -12,6 +12,7 @@ import PathLib
 import PluginManager
 import ProcessController
 import QueueClient
+import QueueModels
 import RequestSender
 import ResourceLocationResolver
 import SignalHandling

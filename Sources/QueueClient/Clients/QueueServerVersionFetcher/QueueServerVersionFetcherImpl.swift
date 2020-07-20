@@ -1,8 +1,9 @@
 import Dispatch
 import Foundation
-import Models
+import QueueModels
 import RESTMethods
 import RequestSender
+import Types
 
 public final class QueueServerVersionFetcherImpl: QueueServerVersionFetcher {
     private let requestSender: RequestSender

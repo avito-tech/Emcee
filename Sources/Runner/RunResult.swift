@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import RunnerModels
 
 public final class RunResult {
     private var results = [TestEntry: [TestRunResult]]()

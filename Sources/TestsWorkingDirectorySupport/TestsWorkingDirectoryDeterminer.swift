@@ -1,6 +1,7 @@
 import Foundation
 import Models
 import PathLib
+import RunnerModels
 
 public final class TestsWorkingDirectoryDeterminer {
     private let testContext: TestContext

@@ -1,6 +1,8 @@
 import Deployer
 import Logging
 import Models
+import QueueModels
+import Types
 
 private typealias VersionClusters = MapWithCollection<[Version], WorkerId>
 

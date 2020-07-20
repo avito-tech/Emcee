@@ -7,6 +7,7 @@ import Logging
 import Models
 import PathLib
 import PluginManager
+import QueueModels
 import ResourceLocationResolver
 import Runner
 import RunnerModels

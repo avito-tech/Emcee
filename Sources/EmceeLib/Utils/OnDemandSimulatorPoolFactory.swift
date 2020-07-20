@@ -4,6 +4,7 @@ import FileSystem
 import Foundation
 import Models
 import ProcessController
+import QueueModels
 import ResourceLocationResolver
 import SimulatorPool
 import SimulatorPoolModels

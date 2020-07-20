@@ -2,6 +2,7 @@ import Foundation
 import Models
 import SimulatorPool
 import SimulatorPoolModels
+import Types
 
 public final class FakeCoreSimulatorStateProvider: CoreSimulatorStateProvider {
     public var result: Either<CoreSimulatorState?, Error>

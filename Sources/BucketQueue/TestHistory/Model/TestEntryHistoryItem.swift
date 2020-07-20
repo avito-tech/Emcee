@@ -1,4 +1,6 @@
 import Models
+import QueueModels
+import RunnerModels
 
 public final class TestEntryHistoryItem: Equatable {
     public let result: TestEntryResult

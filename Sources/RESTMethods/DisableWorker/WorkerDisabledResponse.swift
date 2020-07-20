@@ -1,6 +1,6 @@
 import DistWorkerModels
 import Foundation
-import Models
+import QueueModels
 
 public struct WorkerDisabledResponse: Codable, Equatable {
     public let workerId: WorkerId

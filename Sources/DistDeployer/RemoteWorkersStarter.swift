@@ -4,6 +4,7 @@ import Logging
 import Models
 import PathLib
 import ProcessController
+import QueueModels
 import TemporaryStuff
 import UniqueIdentifierGenerator
 

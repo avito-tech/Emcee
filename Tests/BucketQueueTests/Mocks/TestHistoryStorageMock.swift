@@ -1,7 +1,9 @@
-import Models
 import BucketQueue
 import BucketQueueTestHelpers
+import Models
 import ModelsTestHelpers
+import QueueModels
+import RunnerModels
 
 final class TestHistoryStorageMock: TestHistoryStorage {
     var historyByTest = [TestEntryHistoryId: TestEntryHistory]()

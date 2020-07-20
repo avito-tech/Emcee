@@ -1,5 +1,6 @@
 import AppleTools
 import DeveloperDirLocator
+import DeveloperDirModels
 import Foundation
 import Models
 import PathLib

@@ -1,10 +1,12 @@
 import BuildArtifacts
+import DeveloperDirModels
 import Foundation
 import Models
 import PluginSupport
 import QueueModels
 import RunnerModels
 import SimulatorPoolModels
+import Types
 
 final class GroupedTestEntryConfigurations {
     private let testEntryConfigurations: [TestEntryConfiguration]

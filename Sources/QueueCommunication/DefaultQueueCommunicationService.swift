@@ -3,8 +3,10 @@ import Dispatch
 import Foundation
 import Logging
 import Models
+import QueueModels
 import RequestSender
 import RESTMethods
+import Types
 
 public class DefaultQueueCommunicationService: QueueCommunicationService {
     private let requestSenderProvider: RequestSenderProvider

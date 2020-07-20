@@ -3,6 +3,8 @@ import BucketQueue
 import ModelsTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
+import RunnerModels
+import RunnerTestHelpers
 
 public final class TestEntryHistoryFixtures {
     public let testEntry: TestEntry

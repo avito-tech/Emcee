@@ -1,5 +1,5 @@
 import Foundation
-import Models
+import Types
 import XCTest
 
 class EitherTests: XCTestCase {

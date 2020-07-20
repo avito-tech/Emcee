@@ -4,6 +4,7 @@ import Models
 import RESTInterfaces
 import RESTServer
 import TestHelpers
+import Types
 import XCTest
 
 final class HTTPRESTServerTests: XCTestCase {

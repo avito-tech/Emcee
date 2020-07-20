@@ -1,7 +1,8 @@
 import Models
-import RemotePortDeterminerTestHelpers
 import QueueCommunication
 import QueueCommunicationTestHelpers
+import QueueModels
+import RemotePortDeterminerTestHelpers
 import XCTest
 
 class WorkersToUtilizeServiceTests: XCTestCase {

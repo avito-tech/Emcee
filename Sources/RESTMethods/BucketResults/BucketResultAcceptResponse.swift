@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import QueueModels
 
 public enum BucketResultAcceptResponse: Codable, Equatable {
     case bucketResultAccepted(bucketId: BucketId)

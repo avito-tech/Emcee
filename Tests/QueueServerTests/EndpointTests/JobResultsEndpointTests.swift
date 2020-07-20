@@ -1,10 +1,11 @@
 import BalancingBucketQueue
 import Foundation
 import Models
-import QueueModels
 import ModelsTestHelpers
+import QueueModels
 import QueueServer
 import RESTMethods
+import RunnerModels
 import XCTest
 
 final class JobResultsEndpointTests: XCTestCase, JobResultsProvider {

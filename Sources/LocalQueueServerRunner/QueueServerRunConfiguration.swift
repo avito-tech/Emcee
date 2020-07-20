@@ -4,6 +4,7 @@ import DistWorkerModels
 import Foundation
 import LoggingSetup
 import Models
+import QueueModels
 
 public struct QueueServerRunConfiguration: Decodable {
     public let analyticsConfiguration: AnalyticsConfiguration

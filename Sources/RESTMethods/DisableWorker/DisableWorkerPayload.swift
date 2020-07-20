@@ -1,5 +1,5 @@
 import Foundation
-import Models
+import QueueModels
 
 public final class DisableWorkerPayload: Codable {
     public let workerId: WorkerId

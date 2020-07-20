@@ -6,6 +6,7 @@ import Foundation
 import Models
 import ModelsTestHelpers
 import ProcessControllerTestHelpers
+import QueueModels
 import ResourceLocationResolverTestHelpers
 import RunnerTestHelpers
 import SimulatorPoolModels

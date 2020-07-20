@@ -5,6 +5,7 @@ import Logging
 import Models
 import PathLib
 import SynchronousWaiter
+import Types
 
 public final class BlockingURLResourceHandler: URLResourceHandler {
     

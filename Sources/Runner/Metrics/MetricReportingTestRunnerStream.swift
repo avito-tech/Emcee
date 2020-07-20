@@ -4,6 +4,7 @@ import Foundation
 import LocalHostDeterminer
 import Metrics
 import Models
+import QueueModels
 import RunnerModels
 
 public final class MetricReportingTestRunnerStream: TestRunnerStream {

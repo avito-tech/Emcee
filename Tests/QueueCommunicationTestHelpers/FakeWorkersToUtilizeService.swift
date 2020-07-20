@@ -1,5 +1,5 @@
-import Models
 import QueueCommunication
+import QueueModels
 
 public class FakeWorkersToUtilizeService: WorkersToUtilizeService {
     public init() { }

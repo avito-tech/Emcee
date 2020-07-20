@@ -1,11 +1,11 @@
 @testable import QueueCommunication
 import Models
 import QueueCommunicationTestHelpers
-import RequestSenderTestHelpers
+import QueueModels
 import RESTMethods
-import XCTest
-
 import RemotePortDeterminer
+import RequestSenderTestHelpers
+import XCTest
 
 class QueueCommunicationServiceTests: XCTestCase {
     let requestSender = FakeRequestSender()

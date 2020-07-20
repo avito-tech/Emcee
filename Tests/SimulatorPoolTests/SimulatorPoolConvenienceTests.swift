@@ -1,6 +1,7 @@
 import DateProviderTestHelpers
 import Models
 import ModelsTestHelpers
+import QueueModels
 import SimulatorPool
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers

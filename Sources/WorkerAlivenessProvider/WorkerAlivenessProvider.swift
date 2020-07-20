@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import QueueModels
 import WorkerAlivenessModels
 
 public protocol WorkerAlivenessProvider: class {

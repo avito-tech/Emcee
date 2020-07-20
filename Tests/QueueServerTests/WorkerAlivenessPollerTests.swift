@@ -2,6 +2,7 @@ import AtomicModels
 import DistWorkerModels
 import Foundation
 import Models
+import QueueModels
 import QueueServer
 import QueueServerTestHelpers
 import RequestSender

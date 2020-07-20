@@ -4,7 +4,9 @@ import Foundation
 import Logging
 import Models
 import QueueClient
+import QueueModels
 import RequestSender
+import Types
 
 public final class RemoteQueuePortScanner: RemotePortDeterminer {
     private let host: String

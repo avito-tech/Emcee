@@ -1,11 +1,12 @@
+import Extensions
 import Foundation
 import Models
-import RequestSender
-import Swifter
-import XCTest
 import ModelsTestHelpers
+import RequestSender
 import RequestSenderTestHelpers
-import Extensions
+import Swifter
+import Types
+import XCTest
 
 final class RequestSenderTests: XCTestCase {
     private let callbackQueue = DispatchQueue(label: "callbackQueue")

@@ -6,6 +6,8 @@ import Models
 import ModelsTestHelpers
 import QueueModelsTestHelpers
 import ResourceLocationResolverTestHelpers
+import RunnerModels
+import RunnerTestHelpers
 import TemporaryStuff
 import TestHelpers
 import XCTest

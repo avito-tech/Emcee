@@ -5,6 +5,7 @@ import Foundation
 import Models
 import ModelsTestHelpers
 import PathLib
+import QueueModels
 import XCTest
 
 final class RemoteQueueLaunchdPlistTests: XCTestCase {

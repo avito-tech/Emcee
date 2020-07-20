@@ -4,6 +4,7 @@ import LocalHostDeterminer
 import Logging
 import Metrics
 import Models
+import QueueModels
 import Timer
 
 public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller {

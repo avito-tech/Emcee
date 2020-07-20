@@ -4,6 +4,7 @@ import Foundation
 import Models
 import ModelsTestHelpers
 import QueueModelsTestHelpers
+import QueueModels
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 

@@ -1,6 +1,7 @@
 import Foundation
 import Models
 import RequestSender
+import Types
 
 public final class FakeRequestSender: RequestSender {
     

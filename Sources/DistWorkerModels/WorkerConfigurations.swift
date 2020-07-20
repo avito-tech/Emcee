@@ -1,6 +1,7 @@
 import Dispatch
 import Models
 import Foundation
+import QueueModels
 
 public final class WorkerConfigurations {
     private let queue = DispatchQueue(label: "WorkerConfigurations.queue")

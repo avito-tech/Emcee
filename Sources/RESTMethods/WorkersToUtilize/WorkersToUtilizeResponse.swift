@@ -1,6 +1,6 @@
 import DistWorkerModels
 import Foundation
-import Models
+import QueueModels
 
 public enum WorkersToUtilizeResponse: Codable, Equatable {
     case workersToUtilize(workerIds: Set<WorkerId>)

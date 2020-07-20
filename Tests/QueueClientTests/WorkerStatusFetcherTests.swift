@@ -1,8 +1,10 @@
 import Foundation
 import Models
 import QueueClient
+import QueueModels
 import RESTMethods
 import RequestSenderTestHelpers
+import Types
 import WorkerAlivenessModels
 import XCTest
 

@@ -5,6 +5,7 @@ import Foundation
 import LocalHostDeterminer
 import Metrics
 import Models
+import QueueModels
 
 public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSource {
     private let dateProvider: DateProvider

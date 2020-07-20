@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import QueueModels
 
 public enum ResultAcceptanceError: Error, CustomStringConvertible {
     case noDequeuedBucket(requestId: RequestId, workerId: WorkerId)

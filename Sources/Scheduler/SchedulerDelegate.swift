@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import QueueModels
 
 public protocol SchedulerDelegate: class {
     func scheduler(

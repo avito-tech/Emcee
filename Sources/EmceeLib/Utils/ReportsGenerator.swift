@@ -3,6 +3,7 @@ import Foundation
 import JunitReporting
 import Logging
 import Models
+import RunnerModels
 
 public final class ReportsGenerator {
     private let testingResult: CombinedTestingResults

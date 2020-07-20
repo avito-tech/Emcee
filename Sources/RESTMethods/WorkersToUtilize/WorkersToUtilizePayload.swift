@@ -1,5 +1,5 @@
 import Deployer
-import Models
+import QueueModels
 
 public class WorkersToUtilizePayload: Codable {
     public let deployments: [DeploymentDestination]

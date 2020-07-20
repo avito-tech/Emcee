@@ -1,5 +1,7 @@
 import Deployer
 import Models
+import QueueModels
+import Types
 
 public protocol QueueCommunicationService {
     func workersToUtilize(

@@ -1,6 +1,8 @@
 import Dispatch
 import DistWorkerModels
 import Models
+import QueueModels
+import Types
 
 public protocol WorkerRegisterer {
     func registerWithServer(

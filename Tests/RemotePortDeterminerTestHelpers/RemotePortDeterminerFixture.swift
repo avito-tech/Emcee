@@ -1,6 +1,7 @@
 import Foundation
 import RemotePortDeterminer
 import Models
+import QueueModels
 
 public final class RemotePortDeterminerFixture: RemotePortDeterminer {
     private var result = [Models.Port: Version]()

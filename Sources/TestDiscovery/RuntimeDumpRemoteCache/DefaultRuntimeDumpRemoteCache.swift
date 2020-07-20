@@ -6,6 +6,7 @@ import Models
 import PathLib
 import RequestSender
 import SynchronousWaiter
+import Types
 
 class DefaultRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
     private let sender: RequestSender

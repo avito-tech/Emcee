@@ -11,6 +11,8 @@ import QueueCommunication
 import QueueCommunicationTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
+import RunnerModels
+import RunnerTestHelpers
 import TestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers

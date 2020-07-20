@@ -1,5 +1,5 @@
 import Deployer
-import Models
+import QueueModels
 
 public typealias WorkersPerVersion = [Version: [WorkerId]]
 

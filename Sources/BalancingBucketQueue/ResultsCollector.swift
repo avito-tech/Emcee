@@ -1,5 +1,6 @@
 import Foundation
 import Models
+import QueueModels
 
 public final class ResultsCollector {
     private let queue = DispatchQueue(label: "ResultsCollector.queue")

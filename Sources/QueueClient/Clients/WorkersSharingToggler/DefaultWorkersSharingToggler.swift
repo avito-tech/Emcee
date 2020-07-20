@@ -5,6 +5,7 @@ import Models
 import RequestSender
 import RESTMethods
 import SynchronousWaiter
+import Types
 
 public class DefaultWorkersSharingToggler: WorkersSharingToggler {
     private let callbackQueue = DispatchQueue(label: "DisableWorkersSharingCommand.callbackQueue")

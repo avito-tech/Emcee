@@ -1,6 +1,6 @@
 import Foundation
 import Metrics
-import Models
+import QueueModels
 
 /// Indicates an event when you enqueue some tests
 public final class EnqueueTestsMetric: Metric {

@@ -1,6 +1,7 @@
 import Foundation
 import Models
 import PathLib
+import Types
 
 public final class HandlersWrapper: URLResourceHandler {
     private var handlers = MapWithCollection<URL, URLResourceHandler>()

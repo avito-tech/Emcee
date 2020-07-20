@@ -1,4 +1,6 @@
 import Models
+import QueueModels
+import RunnerModels
 
 public protocol TestHistoryStorage {
     func history(id: TestEntryHistoryId) -> TestEntryHistory

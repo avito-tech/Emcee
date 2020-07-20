@@ -1,6 +1,6 @@
 import DistWorkerModels
 import Foundation
-import Models
+import QueueModels
 import WorkerAlivenessModels
 
 public struct WorkerStatusResponse: Codable, Equatable {

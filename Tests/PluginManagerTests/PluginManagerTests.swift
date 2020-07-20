@@ -10,6 +10,7 @@ import ProcessController
 import ProcessControllerTestHelpers
 import ResourceLocation
 import ResourceLocationResolverTestHelpers
+import RunnerTestHelpers
 import TemporaryStuff
 import TestHelpers
 import XCTest

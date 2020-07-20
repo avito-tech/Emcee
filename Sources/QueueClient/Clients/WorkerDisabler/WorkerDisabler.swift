@@ -1,6 +1,7 @@
 import Dispatch
 import Foundation
-import Models
+import QueueModels
+import Types
 
 public protocol WorkerDisabler {
     func disableWorker(

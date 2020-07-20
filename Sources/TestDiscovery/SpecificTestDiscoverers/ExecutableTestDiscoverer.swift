@@ -1,6 +1,7 @@
 import AppleTools
 import BuildArtifacts
 import DeveloperDirLocator
+import DeveloperDirModels
 import Foundation
 import Logging
 import Models

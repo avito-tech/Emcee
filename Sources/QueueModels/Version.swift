@@ -1,3 +1,5 @@
+import Types
+
 public final class Version: NewStringType { }
 
 extension Array: Comparable where Element == Version {

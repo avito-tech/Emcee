@@ -2,6 +2,7 @@ import DistWorkerModels
 import DistWorkerModelsTestHelpers
 import Foundation
 import Models
+import QueueModels
 import QueueServer
 import RESTMethods
 import TestHelpers

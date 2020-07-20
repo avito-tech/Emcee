@@ -4,8 +4,8 @@ import DeveloperDirLocator
 import Dispatch
 import DistWorkerModels
 import EventBus
-import Foundation
 import FileSystem
+import Foundation
 import LocalHostDeterminer
 import Logging
 import LoggingSetup
@@ -13,6 +13,7 @@ import Models
 import PathLib
 import PluginManager
 import QueueClient
+import QueueModels
 import RESTMethods
 import RESTServer
 import RequestSender
@@ -23,6 +24,7 @@ import SimulatorPool
 import SynchronousWaiter
 import TemporaryStuff
 import Timer
+import Types
 
 public final class DistWorker: SchedulerDelegate {
     private let bucketResultSender: BucketResultSender

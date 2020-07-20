@@ -1,4 +1,5 @@
 @testable import SimulatorPool
+import DeveloperDirModels
 import Models
 import ModelsTestHelpers
 import ResourceLocationResolver

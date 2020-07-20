@@ -1,4 +1,4 @@
-import Models
+import QueueModels
 
 public extension Array where Element == DeploymentDestination {
     func workerIds() -> [WorkerId] {

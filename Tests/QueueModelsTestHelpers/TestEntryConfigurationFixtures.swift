@@ -1,5 +1,6 @@
 import BuildArtifacts
 import BuildArtifactsTestHelpers
+import DeveloperDirModels
 import Foundation
 import Models
 import ModelsTestHelpers

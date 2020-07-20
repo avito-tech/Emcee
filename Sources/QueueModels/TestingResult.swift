@@ -1,4 +1,6 @@
 import Foundation
+import Models
+import RunnerModels
 
 /// Represents the result of running a single Bucket.
 public struct TestingResult: Codable, Equatable {

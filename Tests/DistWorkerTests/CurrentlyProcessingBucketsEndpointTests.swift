@@ -1,6 +1,7 @@
 import DistWorker
 import Foundation
 import Models
+import QueueModels
 import RequestSender
 import XCTest
 

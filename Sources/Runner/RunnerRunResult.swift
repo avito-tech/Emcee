@@ -4,6 +4,7 @@ import Logging
 import Models
 import PathLib
 import ProcessController
+import RunnerModels
 
 public final class RunnerRunResult {
     public let entriesToRun: [TestEntry]

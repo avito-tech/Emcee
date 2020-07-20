@@ -4,6 +4,8 @@ import Foundation
 import Logging
 import Models
 import QueueModels
+import RunnerModels
+import Types
 import UniqueIdentifierGenerator
 import WorkerAlivenessProvider
 

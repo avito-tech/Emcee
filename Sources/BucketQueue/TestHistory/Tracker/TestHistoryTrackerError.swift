@@ -1,4 +1,4 @@
-import Models
+import QueueModels
 
 enum TestHistoryTrackerError: Error, CustomStringConvertible {
     case mismatchedBuckedIds(testingResultBucketId: BucketId, bucketId: BucketId)

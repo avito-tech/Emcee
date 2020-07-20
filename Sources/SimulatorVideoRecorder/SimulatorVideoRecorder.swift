@@ -1,7 +1,8 @@
 import Foundation
 import Models
-import ProcessController
 import PathLib
+import ProcessController
+import SimulatorPoolModels
 
 public final class SimulatorVideoRecorder {
     public enum CodecType: String {

@@ -1,4 +1,4 @@
-import Models
+import QueueModels
 
 public final class TestEntryHistory: Equatable {
     public let id: TestEntryHistoryId

@@ -2,6 +2,7 @@ import Dispatch
 import Foundation
 import Logging
 import Models
+import QueueModels
 import WorkerAlivenessModels
 
 public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {

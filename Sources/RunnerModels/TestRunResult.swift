@@ -1,4 +1,5 @@
 import Foundation
+import SimulatorPoolModels
 
 /// A result of a single test run.
 public struct TestRunResult: Codable, CustomStringConvertible, Equatable {

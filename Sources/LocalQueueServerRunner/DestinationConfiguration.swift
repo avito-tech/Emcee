@@ -1,4 +1,5 @@
 import Foundation
+import QueueModels
 
 public struct DestinationConfiguration: Decodable {
     /// This is an identifier of the DeploymentDestination

@@ -4,6 +4,7 @@ import Foundation
 import Logging
 import Models
 import ProcessController
+import RunnerModels
 import SimulatorPoolModels
 import TemporaryStuff
 

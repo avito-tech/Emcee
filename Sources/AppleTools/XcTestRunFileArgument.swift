@@ -7,6 +7,7 @@ import ProcessController
 import ResourceLocation
 import ResourceLocationResolver
 import Runner
+import RunnerModels
 import TemporaryStuff
 
 public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConvertible {

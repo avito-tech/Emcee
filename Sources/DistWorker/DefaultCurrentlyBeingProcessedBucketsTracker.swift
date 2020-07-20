@@ -1,7 +1,7 @@
 import CountedSet
 import Dispatch
 import Foundation
-import Models
+import QueueModels
 
 public final class DefaultCurrentlyBeingProcessedBucketsTracker: CurrentlyBeingProcessedBucketsTracker {
     private var bucketIds = CountedSet<BucketId>()

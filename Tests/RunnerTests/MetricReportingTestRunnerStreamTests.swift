@@ -4,6 +4,7 @@ import Metrics
 import MetricsTestHelpers
 import Models
 import ModelsTestHelpers
+import QueueModels
 import Runner
 import RunnerModels
 import RunnerTestHelpers

@@ -17,6 +17,14 @@ public struct TestDestination: Hashable, CustomStringConvertible, Codable {
     }
 
     private static func validateRuntime(_ runtime: String) throws -> String {
+        struct RuntimeVersionError: Error, CustomStringConvertible {
+            let version: String
+            
+            var description: String {
+                return "Invalid runtime version '\(version)'. Expected the runtime to be in format '10.3' or '10.3.1'"
+            }
+        }
+        
         // Apple APIs return "patchless" Simulator version. E.g. for 10.3.1 it returns iOS 10.3.
         // Thus, when we ask runtime to be 10.3.1, fbxctest can't locate 10.3.1 runtime inside predicate.
         // Interestingly, when we ask for iOS Simulator 10.3, SDK returns 10.3.1 anyway.
@@ -28,7 +36,7 @@ public struct TestDestination: Hashable, CustomStringConvertible, Codable {
         } else if versionComponents.count == 2 {
             return runtime
         } else {
-            throw RuntimeVersionError.invalidRuntime(runtime)
+            throw RuntimeVersionError(version: runtime)
         }
     }
 }

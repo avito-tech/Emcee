@@ -1,6 +1,7 @@
 import BucketQueue
 import Foundation
 import Models
+import QueueModels
 
 public final class FakeDequeueableBucketSource: DequeueableBucketSource {
     public var dequeueResult: DequeueResult

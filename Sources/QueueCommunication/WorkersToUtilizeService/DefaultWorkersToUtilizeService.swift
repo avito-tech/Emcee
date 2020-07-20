@@ -2,8 +2,8 @@ import Deployer
 import Foundation
 import Logging
 import Models
+import QueueModels
 import RemotePortDeterminer
-
 
 public class DefaultWorkersToUtilizeService: WorkersToUtilizeService {
     private let cache: WorkersMappingCache

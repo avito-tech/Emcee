@@ -1,6 +1,7 @@
 import Foundation
 import Logging
 import Models
+import QueueModels
 import RemotePortDeterminer
 
 public enum RemoteQueueDetectorError: Error, CustomStringConvertible {

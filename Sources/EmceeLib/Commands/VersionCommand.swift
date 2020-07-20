@@ -2,7 +2,7 @@ import ArgLib
 import EmceeVersion
 import Foundation
 import Logging
-import Models
+import QueueModels
 
 public final class VersionCommand: Command {
     public let name = "version"

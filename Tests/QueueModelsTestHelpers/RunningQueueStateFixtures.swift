@@ -1,6 +1,7 @@
 import Foundation
 import Models
 import QueueModels
+import Types
 
 public final class RunningQueueStateFixtures {
     public static func runningQueueState(

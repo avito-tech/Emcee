@@ -1,9 +1,11 @@
 import Foundation
 import Models
 import QueueClient
+import QueueModels
 import RESTMethods
 import RequestSender
 import RequestSenderTestHelpers
+import Types
 import XCTest
 
 final class QueueServerVersionFetcherTests: XCTestCase {

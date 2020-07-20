@@ -1,5 +1,5 @@
 import Foundation
-import Models
+import QueueModels
 
 public enum WorkerConfigurationError: Error, CustomStringConvertible {
     case missingWorkerConfiguration(workerId: WorkerId)

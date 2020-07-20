@@ -12,6 +12,7 @@ import Metrics
 import Models
 import PluginManager
 import ProcessController
+import QueueModels
 import RequestSender
 import ResourceLocationResolver
 import TestDiscovery

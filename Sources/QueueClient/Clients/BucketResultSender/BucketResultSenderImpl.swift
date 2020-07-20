@@ -1,8 +1,10 @@
 import Dispatch
 import Foundation
 import Models
+import QueueModels
 import RESTMethods
 import RequestSender
+import Types
 
 public final class BucketResultSenderImpl: BucketResultSender {
     private let requestSender: RequestSender

@@ -1,8 +1,9 @@
 import Dispatch
 import Foundation
-import Models
+import QueueModels
 import RESTMethods
 import RequestSender
+import Types
 import WorkerAlivenessModels
 
 public final class WorkerStatusFetcherImpl: WorkerStatusFetcher {

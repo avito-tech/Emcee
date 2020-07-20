@@ -4,8 +4,10 @@ import Foundation
 import Logging
 import Models
 import QueueClient
+import QueueModels
 import RequestSender
 import SynchronousWaiter
+import Types
 
 public final class DisableWorkerCommand: Command {
     public let name = "disableWorker"

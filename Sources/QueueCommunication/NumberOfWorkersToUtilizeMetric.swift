@@ -1,6 +1,6 @@
 import Foundation
 import Metrics
-import Models
+import QueueModels
 
 public final class NumberOfWorkersToUtilizeMetric: Metric {
     public init(

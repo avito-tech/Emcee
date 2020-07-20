@@ -4,6 +4,7 @@ import Foundation
 import Models
 import PathLib
 import ProcessController
+import QueueModels
 import ResourceLocationResolver
 import RunnerModels
 import SimulatorPool

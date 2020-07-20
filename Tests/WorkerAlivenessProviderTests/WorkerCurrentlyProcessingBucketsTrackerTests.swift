@@ -1,7 +1,8 @@
 import Foundation
+import Models
+import QueueModels
 import WorkerAlivenessProvider
 import XCTest
-import Models
 
 final class WorkerCurrentlyProcessingBucketsTrackerTests: XCTestCase {
     let workerId = WorkerId(value: "workerId")

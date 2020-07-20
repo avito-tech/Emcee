@@ -1,6 +1,7 @@
 import AtomicModels
 import DateProvider
 import DeveloperDirLocator
+import DeveloperDirModels
 import EventBus
 import FileSystem
 import Foundation
@@ -11,6 +12,7 @@ import Models
 import PathLib
 import PluginManager
 import ProcessController
+import QueueModels
 import ResourceLocationResolver
 import RunnerModels
 import SimulatorPoolModels
