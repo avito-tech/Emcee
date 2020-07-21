@@ -51,6 +51,7 @@ let package = Package(
                 "TestDiscovery",
                 "TypedResourceLocation",
                 "WorkerAlivenessModels",
+                "WorkerCapabilitiesModels",
             ]
         ),
         .executable(
@@ -401,6 +402,7 @@ let package = Package(
             // MARK: DistWorker
             name: "DistWorker",
             dependencies: [
+                "AtomicModels",
                 "AutomaticTermination",
                 "CountedSet",
                 "DateProvider",
@@ -430,6 +432,7 @@ let package = Package(
                 "Timer",
                 "Types",
                 "UniqueIdentifierGenerator",
+                "WorkerCapabilities",
             ],
             path: "Sources/DistWorker"
         ),
@@ -542,6 +545,8 @@ let package = Package(
                 "Types",
                 "URLResource",
                 "UniqueIdentifierGenerator",
+                "WorkerCapabilities",
+                "WorkerCapabilitiesModels",
                 "fbxctest",
             ],
             path: "Sources/EmceeLib"
@@ -1048,6 +1053,7 @@ let package = Package(
                 "SynchronousWaiter",
                 "Types",
                 "WorkerAlivenessModels",
+                "WorkerCapabilitiesModels",
             ],
             path: "Sources/QueueClient"
         ),
@@ -1281,6 +1287,7 @@ let package = Package(
                 "ScheduleStrategy",
                 "SocketModels",
                 "WorkerAlivenessModels",
+                "WorkerCapabilitiesModels",
             ],
             path: "Sources/RESTMethods"
         ),
@@ -1771,6 +1778,7 @@ let package = Package(
             // MARK: SynchronousWaiter
             name: "SynchronousWaiter",
             dependencies: [
+                "AtomicModels",
                 "Logging",
             ],
             path: "Sources/SynchronousWaiter"
@@ -1812,6 +1820,7 @@ let package = Package(
                 "RunnerModels",
                 "ScheduleStrategy",
                 "SimulatorPoolModels",
+                "WorkerCapabilitiesModels",
             ],
             path: "Sources/TestArgFile"
         ),
@@ -2042,6 +2051,40 @@ let package = Package(
                 "WorkerAlivenessProvider",
             ],
             path: "Tests/WorkerAlivenessProviderTests"
+        ),
+        .target(
+            // MARK: WorkerCapabilities
+            name: "WorkerCapabilities",
+            dependencies: [
+                "FileSystem",
+                "Logging",
+                "PathLib",
+                "PlistLib",
+                "WorkerCapabilitiesModels",
+            ],
+            path: "Sources/WorkerCapabilities"
+        ),
+        .target(
+            // MARK: WorkerCapabilitiesModels
+            name: "WorkerCapabilitiesModels",
+            dependencies: [
+                "Types",
+            ],
+            path: "Sources/WorkerCapabilitiesModels"
+        ),
+        .testTarget(
+            // MARK: WorkerCapabilitiesTests
+            name: "WorkerCapabilitiesTests",
+            dependencies: [
+                "FileSystem",
+                "FileSystemTestHelpers",
+                "PlistLib",
+                "TemporaryStuff",
+                "TestHelpers",
+                "WorkerCapabilities",
+                "WorkerCapabilitiesModels",
+            ],
+            path: "Tests/WorkerCapabilitiesTests"
         ),
         .target(
             // MARK: XCTestJsonCodable

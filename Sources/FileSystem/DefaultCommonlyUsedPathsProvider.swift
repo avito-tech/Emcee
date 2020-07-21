@@ -8,6 +8,17 @@ public final class DefaultCommonlyUsedPathsProvider: CommonlyUsedPathsProvider {
         self.fileManager = fileManager
     }
     
+    public func applications(inDomain domain: SearchDomain, create: Bool) throws -> AbsolutePath {
+        return AbsolutePath(
+            try fileManager.url(
+                for: .applicationDirectory,
+                in: domain.mask,
+                appropriateFor: nil,
+                create: create
+            )
+        )
+    }
+    
     public func caches(inDomain domain: SearchDomain, create: Bool) throws -> AbsolutePath {
         return AbsolutePath(
             try fileManager.url(

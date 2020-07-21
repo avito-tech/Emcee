@@ -59,7 +59,8 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .uiTest,
-                testsToRun: [.testName(argFileTestToRun1)]
+                testsToRun: [.testName(argFileTestToRun1)],
+                workerCapabilityRequirements: []
             )
         )
         
@@ -95,7 +96,8 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .uiTest,
-                testsToRun: [.testName(argFileTestToRun1), .testName(argFileTestToRun1)]
+                testsToRun: [.testName(argFileTestToRun1), .testName(argFileTestToRun1)],
+                workerCapabilityRequirements: []
             )
         )
         
@@ -133,7 +135,8 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .uiTest,
-                testsToRun: [.allDiscoveredTests]
+                testsToRun: [.allDiscoveredTests],
+                workerCapabilityRequirements: []
             )
         )
         

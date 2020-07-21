@@ -70,7 +70,8 @@ final class TestArgFileTests: XCTestCase {
                 "testTimeoutConfiguration": {
                     "singleTestMaximumDuration": 42,
                     "testRunnerMaximumSilenceDuration": 24
-                }
+                },
+                "workerCapabilityRequirements": []
             }
         """.data(using: .utf8)!
         
@@ -112,7 +113,8 @@ final class TestArgFileTests: XCTestCase {
                     testRunnerMaximumSilenceDuration: 24
                 ),
                 testType: .logicTest,
-                testsToRun: [.testName(TestName(className: "ClassName", methodName: "testMethod"))]
+                testsToRun: [.testName(TestName(className: "ClassName", methodName: "testMethod"))],
+                workerCapabilityRequirements: []
             )
         )
     }

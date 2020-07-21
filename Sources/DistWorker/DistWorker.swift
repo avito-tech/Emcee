@@ -1,3 +1,4 @@
+import AtomicModels
 import AutomaticTermination
 import DateProvider
 import DeveloperDirLocator
@@ -27,8 +28,10 @@ import TemporaryStuff
 import Timer
 import Types
 import UniqueIdentifierGenerator
+import WorkerCapabilities
 
 public final class DistWorker: SchedulerDelegate {
+    private let bucketFetcher: BucketFetcher
     private let bucketResultSender: BucketResultSender
     private let callbackQueue = DispatchQueue(label: "DistWorker.callbackQueue", qos: .default, attributes: .concurrent)
     private let currentlyBeingProcessedBucketsTracker = DefaultCurrentlyBeingProcessedBucketsTracker()
@@ -38,7 +41,6 @@ public final class DistWorker: SchedulerDelegate {
     private let httpRestServer: HTTPRESTServer
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let pluginEventBusProvider: PluginEventBusProvider
-    private let queueClient: SynchronousQueueClient
     private let resourceLocationResolver: ResourceLocationResolver
     private let simulatorSettingsModifier: SimulatorSettingsModifier
     private let syncQueue = DispatchQueue(label: "DistWorker.syncQueue")
@@ -46,52 +48,55 @@ public final class DistWorker: SchedulerDelegate {
     private let testRunnerProvider: TestRunnerProvider
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let version: Version
+    private let workerCapabilitiesProvider: WorkerCapabilitiesProvider
     private let workerId: WorkerId
     private let workerRegisterer: WorkerRegisterer
     private var payloadSignature = Either<PayloadSignature, DistWorkerError>.error(DistWorkerError.missingPayloadSignature)
     private var requestIdForBucketId = [BucketId: RequestId]()
     
-    private enum BucketFetchResult: Equatable {
+    private enum ReducedBucketFetchResult: Equatable {
         case result(SchedulerBucket?)
         case checkAgain(after: TimeInterval)
     }
     
     public init(
+        bucketFetcher: BucketFetcher,
         bucketResultSender: BucketResultSender,
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         fileSystem: FileSystem,
         onDemandSimulatorPool: OnDemandSimulatorPool,
         pluginEventBusProvider: PluginEventBusProvider,
-        queueClient: SynchronousQueueClient,
         resourceLocationResolver: ResourceLocationResolver,
         simulatorSettingsModifier: SimulatorSettingsModifier,
         temporaryFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         version: Version,
+        workerCapabilitiesProvider: WorkerCapabilitiesProvider,
         workerId: WorkerId,
         workerRegisterer: WorkerRegisterer
     ) {
+        self.bucketFetcher = bucketFetcher
         self.bucketResultSender = bucketResultSender
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.fileSystem = fileSystem
+        self.httpRestServer = HTTPRESTServer(
+            automaticTerminationController: StayAliveTerminationController(),
+            portProvider: PortProviderWrapper(provider: { 0 })
+        )
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.pluginEventBusProvider = pluginEventBusProvider
-        self.queueClient = queueClient
         self.resourceLocationResolver = resourceLocationResolver
         self.simulatorSettingsModifier = simulatorSettingsModifier
         self.temporaryFolder = temporaryFolder
         self.testRunnerProvider = testRunnerProvider
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.version = version
+        self.workerCapabilitiesProvider = workerCapabilitiesProvider
         self.workerId = workerId
         self.workerRegisterer = workerRegisterer
-        self.httpRestServer = HTTPRESTServer(
-            automaticTerminationController: StayAliveTerminationController(),
-            portProvider: PortProviderWrapper(provider: { 0 })
-        )
     }
     
     public func start(
@@ -173,20 +178,28 @@ public final class DistWorker: SchedulerDelegate {
         try scheduler.run()
     }
     
-    public func cleanUpAndStop() {
-        queueClient.close()
-    }
+    public func cleanUpAndStop() {}
     
     // MARK: - Callbacks
     
-    private func nextBucketFetchResult() throws -> BucketFetchResult {
-        return try currentlyBeingProcessedBucketsTracker.perform { tracker -> BucketFetchResult in
+    private func nextBucketFetchResult() throws -> ReducedBucketFetchResult {
+        return try currentlyBeingProcessedBucketsTracker.perform { tracker -> ReducedBucketFetchResult in
             let requestId = RequestId(value: uniqueIdentifierGenerator.generate())
-            let result = try queueClient.fetchBucket(
+            
+            let waiter = SynchronousWaiter()
+            
+            let callbackWaiter: CallbackHandler<Either<BucketFetchResult, Error>> = waiter.createCallbackWaiter()
+            
+            bucketFetcher.fetch(
+                payloadSignature: try payloadSignature.dematerialize(),
                 requestId: requestId,
+                workerCapabilities: workerCapabilitiesProvider.workerCapabilities(),
                 workerId: workerId,
-                payloadSignature: try payloadSignature.dematerialize()
-            )
+                callbackQueue: callbackQueue
+            ) { response in callbackWaiter.set(result: response) }
+            
+            let result = try callbackWaiter.wait(timeout: .infinity, description: "Fetch next bucket").dematerialize()
+
             switch result {
             case .queueIsEmpty:
                 Logger.debug("Server returned that queue is empty")

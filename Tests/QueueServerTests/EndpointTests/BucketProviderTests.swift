@@ -12,9 +12,10 @@ import XCTest
 final class BucketProviderTests: XCTestCase {
     lazy var expectedPayloadSignature = PayloadSignature(value: "expectedPayloadSignature")
     lazy var fetchRequest = DequeueBucketPayload(
-        workerId: "worker",
+        payloadSignature: expectedPayloadSignature,
         requestId: "request",
-        payloadSignature: expectedPayloadSignature
+        workerCapabilities: [],
+        workerId: "worker"
     )
     lazy var alivenessTracker = WorkerAlivenessProviderImpl(knownWorkerIds: ["worker"])
     
@@ -91,9 +92,10 @@ final class BucketProviderTests: XCTestCase {
         XCTAssertThrowsError(
             try bucketProvider.handle(
                 payload: DequeueBucketPayload(
-                    workerId: "worker",
+                    payloadSignature: PayloadSignature(value: UUID().uuidString),
                     requestId: "request",
-                    payloadSignature: PayloadSignature(value: UUID().uuidString)
+                    workerCapabilities: [],
+                    workerId: "worker"
                 )
             ),
             "When payload signature mismatches, bucket provider endpoind should throw"

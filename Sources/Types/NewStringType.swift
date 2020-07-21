@@ -4,6 +4,10 @@ open class NewStringType: ExpressibleByStringLiteral, Codable, Hashable, CustomS
     public typealias StringLiteralType = String
 
     public let value: String
+    
+    public convenience init(_ value: String) {
+        self.init(value: value)
+    }
 
     public init(value: String) {
         self.value = value

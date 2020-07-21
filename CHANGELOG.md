@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2020-07-23
+
+Test arg file entries now require `workerCapabilityRequirements` field to be present.
+
 ## 2020-07-07
 
 - Emcee now includes its version in all reported metrics. The first `reserved` field is replaced with a version.

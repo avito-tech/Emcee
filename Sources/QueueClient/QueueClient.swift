@@ -33,27 +33,6 @@ public final class QueueClient {
         isClosed = true
     }
     
-    /// Request id is a unique request identifier that could be used to retry bucket fetch in case if
-    /// request has failed. Server is expected to return the same bucket if request id + worker id pair
-    /// match for sequential requests.
-    /// Apple's guide on handling Handling "The network connection was lost" errors:
-    /// https://developer.apple.com/library/archive/qa/qa1941/_index.html
-    public func fetchBucket(
-        requestId: RequestId,
-        workerId: WorkerId,
-        payloadSignature: PayloadSignature
-    ) throws {
-        try sendRequest(
-            .getBucket,
-            payload: DequeueBucketPayload(
-                workerId: workerId,
-                requestId: requestId,
-                payloadSignature: payloadSignature
-            ),
-            completionHandler: handleFetchBucketResponse
-        )
-    }
-    
     public func scheduleTests(
         prioritizedJob: PrioritizedJob,
         scheduleStrategy: ScheduleStrategyType,
@@ -147,19 +126,6 @@ public final class QueueClient {
     }
     
     // MARK: - Response Handlers
-    
-    private func handleFetchBucketResponse(response: DequeueBucketResponse) {
-        switch response {
-        case .bucketDequeued(let bucket):
-            delegate?.queueClient(self, didFetchBucket: bucket)
-        case .checkAgainLater(let checkAfter):
-            delegate?.queueClient(self, fetchBucketLaterAfter: checkAfter)
-        case .queueIsEmpty:
-            delegate?.queueClientQueueIsEmpty(self)
-        case .workerIsNotRegistered:
-            delegate?.queueClientWorkerNotRegistered(self)
-        }
-    }
     
     private func handleScheduleTestsResponse(response: ScheduleTestsResponse) {
         switch response {

@@ -113,7 +113,6 @@ final class QueueServerTests: XCTestCase {
         let port = try server.start()
         
         let requestSender = RequestSenderFixtures.localhostRequestSender(port: port)
-        let client = synchronousQueueClient(port: port)
         
         let workerRegisterer = WorkerRegistererImpl(requestSender: requestSender)
         
@@ -144,13 +143,25 @@ final class QueueServerTests: XCTestCase {
             }
         }
         
-        let fetchResult = try client.fetchBucket(
-            requestId: "request",
-            workerId: workerId,
-            payloadSignature: payloadSignature
+        let bucketFetcher = BucketFetcherImpl(
+            requestSender: RequestSenderImpl(
+                urlSession: URLSession.shared,
+                queueServerAddress: queueServerAddress(port: port)
+            )
         )
-        XCTAssertEqual(fetchResult, SynchronousQueueClient.BucketFetchResult.bucket(bucket))
-
+        
+        try runSyncronously { [callbackQueue, workerId, payloadSignature] completion in
+            bucketFetcher.fetch(
+                payloadSignature: payloadSignature,
+                requestId: "request",
+                workerCapabilities: [],
+                workerId: workerId,
+                callbackQueue: callbackQueue
+            ) { _ in
+                completion(Void())
+            }
+        }
+        
         let resultSender = BucketResultSenderImpl(
             requestSender: RequestSenderImpl(
                 urlSession: URLSession.shared,

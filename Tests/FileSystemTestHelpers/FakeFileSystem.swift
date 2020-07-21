@@ -5,6 +5,7 @@ import PathLib
 public class FakeFileSystem: FileSystem {
     public init(rootPath: AbsolutePath) {
         self.fakeCommonlyUsedPathsProvider = FakeCommonlyUsedPathsProvider(
+            applicationsProvider: { _ in rootPath.appending(components: ["Applications"]) },
             cachesProvider: { _ in rootPath.appending(components: ["Library", "Caches"]) },
             libraryProvider: { _ in rootPath.appending(component: "Library") }
         )
@@ -13,8 +14,12 @@ public class FakeFileSystem: FileSystem {
     public var fakeCommonlyUsedPathsProvider: FakeCommonlyUsedPathsProvider
     public var commonlyUsedPathsProvider: CommonlyUsedPathsProvider { fakeCommonlyUsedPathsProvider }
     
+    public var fakeContentEnumerator: ((path: AbsolutePath, style: ContentEnumerationStyle)) -> FileSystemEnumerator = { args in
+        FakeFileSystemEnumerator(path: args.path)
+    }
+    
     public func contentEnumerator(forPath path: AbsolutePath, style: ContentEnumerationStyle) -> FileSystemEnumerator {
-        return FakeFileSystemEnumerator(path: path)
+        fakeContentEnumerator((path: path, style: style))
     }
     
     public func createDirectory(atPath: AbsolutePath, withIntermediateDirectories: Bool) throws {

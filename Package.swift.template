@@ -51,6 +51,7 @@ let package = Package(
                 "TestDiscovery",
                 "TypedResourceLocation",
                 "WorkerAlivenessModels",
+                "WorkerCapabilitiesModels",
             ]
         ),
         .executable(

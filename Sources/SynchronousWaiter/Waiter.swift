@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol Waiter {
+public protocol Waiter: class {
     typealias WaitCondition = () throws -> Bool
     
     func waitWhile(

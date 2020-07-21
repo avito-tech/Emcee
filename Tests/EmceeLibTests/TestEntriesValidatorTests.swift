@@ -114,7 +114,8 @@ final class TestEntriesValidatorTests: XCTestCase {
             testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
             testType: testType,
-            testsToRun: [.testName(TestName(className: "MyTest", methodName: "test"))]
+            testsToRun: [.testName(TestName(className: "MyTest", methodName: "test"))],
+            workerCapabilityRequirements: []
         )
     }
 }

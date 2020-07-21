@@ -9,6 +9,7 @@ public enum SearchDomain {
 }
 
 public protocol CommonlyUsedPathsProvider {
-    func library(inDomain: SearchDomain, create: Bool) throws -> AbsolutePath
+    func applications(inDomain: SearchDomain, create: Bool) throws -> AbsolutePath
     func caches(inDomain: SearchDomain, create: Bool) throws -> AbsolutePath
+    func library(inDomain: SearchDomain, create: Bool) throws -> AbsolutePath
 }

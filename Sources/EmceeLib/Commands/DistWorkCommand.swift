@@ -20,6 +20,8 @@ import SocketModels
 import SynchronousWaiter
 import TemporaryStuff
 import UniqueIdentifierGenerator
+import WorkerCapabilitiesModels
+import WorkerCapabilities
 
 public final class DistWorkCommand: Command {
     public let name = "distWork"
@@ -105,15 +107,16 @@ public final class DistWorkCommand: Command {
         
         let workerRegisterer = WorkerRegistererImpl(requestSender: requestSender)
         let bucketResultSender = BucketResultSenderImpl(requestSender: requestSender)
+        let bucketFetcher = BucketFetcherImpl(requestSender: requestSender)
         
         return DistWorker(
+            bucketFetcher: bucketFetcher,
             bucketResultSender: bucketResultSender,
             dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
             onDemandSimulatorPool: onDemandSimulatorPool,
             pluginEventBusProvider: pluginEventBusProvider,
-            queueClient: SynchronousQueueClient(queueServerAddress: queueServerAddress),
             resourceLocationResolver: resourceLocationResolver,
             simulatorSettingsModifier: SimulatorSettingsModifierImpl(
                 developerDirLocator: developerDirLocator,
@@ -129,6 +132,11 @@ public final class DistWorkCommand: Command {
             ),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             version: version,
+            workerCapabilitiesProvider: JoinedCapabilitiesProvider(
+                providers: [
+                    XcodeCapabilitiesProvider(fileSystem: fileSystem),
+                ]
+            ),
             workerId: workerId,
             workerRegisterer: workerRegisterer
         )

@@ -3,9 +3,10 @@ import DeveloperDirModels
 import Foundation
 import PluginSupport
 import QueueModels
+import RunnerModels
 import ScheduleStrategy
 import SimulatorPoolModels
-import RunnerModels
+import WorkerCapabilitiesModels
 
 /// Represents --test-arg-file file contents which describes test plan.
 public struct TestArgFile: Codable {
@@ -24,6 +25,7 @@ public struct TestArgFile: Codable {
         public let testTimeoutConfiguration: TestTimeoutConfiguration
         public let testType: TestType
         public let testsToRun: [TestToRun]
+        public let workerCapabilityRequirements: [WorkerCapabilityRequirement]
         
         public init(
             buildArtifacts: BuildArtifacts,
@@ -39,7 +41,8 @@ public struct TestArgFile: Codable {
             testRunnerTool: TestRunnerTool,
             testTimeoutConfiguration: TestTimeoutConfiguration,
             testType: TestType,
-            testsToRun: [TestToRun]
+            testsToRun: [TestToRun],
+            workerCapabilityRequirements: [WorkerCapabilityRequirement]
         ) {
             self.buildArtifacts = buildArtifacts
             self.developerDir = developerDir
@@ -55,6 +58,7 @@ public struct TestArgFile: Codable {
             self.testTimeoutConfiguration = testTimeoutConfiguration
             self.testType = testType
             self.testsToRun = testsToRun
+            self.workerCapabilityRequirements = workerCapabilityRequirements
         }
     }
     

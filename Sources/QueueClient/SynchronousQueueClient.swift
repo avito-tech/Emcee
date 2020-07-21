@@ -10,13 +10,6 @@ import SynchronousWaiter
 import Types
 
 public final class SynchronousQueueClient: QueueClientDelegate {
-    public enum BucketFetchResult: Equatable {
-        case bucket(Bucket)
-        case queueIsEmpty
-        case checkLater(TimeInterval)
-        case workerNotRegistered
-    }
-    
     private let queueClient: QueueClient
     private var bucketFetchResult: Either<BucketFetchResult, QueueClientError>?
     private var scheduleTestsResult: Either<RequestId, QueueClientError>?
@@ -46,19 +39,6 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     }
     
     // MARK: Public API
-    
-    public func fetchBucket(requestId: RequestId, workerId: WorkerId, payloadSignature: PayloadSignature) throws -> BucketFetchResult {
-        return try synchronize {
-            bucketFetchResult = nil
-            return try runRetrying {
-                try queueClient.fetchBucket(requestId: requestId, workerId: workerId, payloadSignature: payloadSignature)
-                try SynchronousWaiter().waitWhile(timeout: requestTimeout, description: "Wait bucket to return from server") {
-                    self.bucketFetchResult == nil
-                }
-                return try bucketFetchResult!.dematerialize()
-            }
-        }
-    }
     
     public func scheduleTests(
         prioritizedJob: PrioritizedJob,
@@ -147,27 +127,10 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     // MARK: - Queue Delegate
     
     public func queueClient(_ sender: QueueClient, didFailWithError error: QueueClientError) {
-        bucketFetchResult = Either.error(error)
         scheduleTestsResult = Either.error(error)
         jobResultsResult = Either.error(error)
         jobStateResult = Either.error(error)
         jobDeleteResult = Either.error(error)
-    }
-    
-    public func queueClientQueueIsEmpty(_ sender: QueueClient) {
-        bucketFetchResult = Either.success(.queueIsEmpty)
-    }
-    
-    public func queueClientWorkerNotRegistered(_ sender: QueueClient) {
-        bucketFetchResult = Either.success(.workerNotRegistered)
-    }
-    
-    public func queueClient(_ sender: QueueClient, fetchBucketLaterAfter after: TimeInterval) {
-        bucketFetchResult = Either.success(.checkLater(after))
-    }
-    
-    public func queueClient(_ sender: QueueClient, didFetchBucket bucket: Bucket) {
-        bucketFetchResult = Either.success(.bucket(bucket))
     }
 
     public func queueClientDidScheduleTests(_ sender: QueueClient, requestId: RequestId) {
