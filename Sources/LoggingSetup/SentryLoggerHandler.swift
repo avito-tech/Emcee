@@ -1,6 +1,5 @@
 import Foundation
 import Logging
-import Models
 import Sentry
 
 public final class SentryLoggerHandler: LoggerHandler {

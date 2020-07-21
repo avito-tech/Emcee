@@ -1,5 +1,4 @@
 import Foundation
-import Models
 import RunnerModels
 
 final class TestRunnerStreamWrapper: TestRunnerStream {

@@ -1,6 +1,5 @@
 import DeveloperDirModels
 import Foundation
-import Models
 import SimulatorPoolModels
 
 public struct TestContext: Codable, Hashable, CustomStringConvertible {

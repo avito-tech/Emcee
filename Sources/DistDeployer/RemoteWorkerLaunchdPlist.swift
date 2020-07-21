@@ -1,9 +1,9 @@
 import Deployer
 import Foundation
 import LaunchdUtils
-import Models
 import QueueModels
 import SSHDeployer
+import SocketModels
 
 public final class RemoteWorkerLaunchdPlist {
 

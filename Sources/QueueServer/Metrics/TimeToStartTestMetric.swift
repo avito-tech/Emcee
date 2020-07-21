@@ -1,7 +1,7 @@
 import Foundation
 import Metrics
-import Models
 import QueueModels
+import RunnerModels
 
 public final class TimeToStartTestMetric: Metric {
     public init(

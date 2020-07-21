@@ -1,6 +1,4 @@
 import Foundation
-import Extensions
-import Models
 import PathLib
 
 public struct Simulator: Hashable, CustomStringConvertible {

@@ -1,14 +1,14 @@
 import BuildArtifactsTestHelpers
-import Models
-import ModelsTestHelpers
 import QueueClient
 import QueueModels
 import QueueModelsTestHelpers
 import RESTInterfaces
 import RESTMethods
 import RequestSender
+import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolTestHelpers
+import SocketModels
 import Swifter
 import SynchronousWaiter
 import XCTest
@@ -16,7 +16,7 @@ import XCTest
 class QueueClientTests: XCTestCase {
     
     private var server = HttpServer()
-    private var port: Models.Port = 0
+    private var port: SocketModels.Port = 0
     private let delegate = FakeQueueClientDelegate()
     private var queueClient: QueueClient!
     private let workerId = WorkerId(value: "workerId")
@@ -31,7 +31,7 @@ class QueueClientTests: XCTestCase {
         do {
             server[query] = response
             try server.start(0)
-            port = Models.Port(value: try server.port())
+            port = SocketModels.Port(value: try server.port())
             queueClient = QueueClient(
                 queueServerAddress: SocketAddress(host: "127.0.0.1", port: port),
                 requestSenderProvider: DefaultRequestSenderProvider()

@@ -1,18 +1,18 @@
 import Darwin
 import Foundation
 import Logging
-import Models
+import SocketModels
 import Swifter
 
 public final class LocalPortDeterminer {
-    private let portRange: ClosedRange<Models.Port>
+    private let portRange: ClosedRange<SocketModels.Port>
     
-    public init(portRange: ClosedRange<Models.Port>) {
+    public init(portRange: ClosedRange<SocketModels.Port>) {
         self.portRange = portRange
     }
     
     public enum LocalPortDeterminerError: Error, CustomStringConvertible {
-        case noAvailablePorts(portRange: ClosedRange<Models.Port>)
+        case noAvailablePorts(portRange: ClosedRange<SocketModels.Port>)
         
         public var description: String {
             switch self {
@@ -22,7 +22,7 @@ public final class LocalPortDeterminer {
         }
     }
     
-    public func availableLocalPort() throws -> Models.Port {
+    public func availableLocalPort() throws -> SocketModels.Port {
         for port in portRange {
             Logger.debug("Checking availability of local port \(port)")
             if isPortAvailable(port: UInt16(port.value)) {

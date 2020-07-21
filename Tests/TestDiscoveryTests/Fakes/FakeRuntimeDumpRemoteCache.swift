@@ -1,5 +1,4 @@
 import BuildArtifacts
-import Models
 import TestDiscovery
 
 class FakeRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {

@@ -1,5 +1,4 @@
 import RequestSender
-import Models
 
 public class DefaultRuntimeDumpRemoteCacheProvider: RuntimeDumpRemoteCacheProvider {
     private let senderProvider: RequestSenderProvider

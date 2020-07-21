@@ -1,8 +1,8 @@
-import Models
 import QueueCommunication
 import QueueCommunicationTestHelpers
 import QueueModels
 import RemotePortDeterminerTestHelpers
+import SocketModels
 import XCTest
 
 class WorkersToUtilizeServiceTests: XCTestCase {
@@ -111,8 +111,8 @@ class WorkersToUtilizeServiceTests: XCTestCase {
     }
     
     private func buildService(
-        ports: [Models.Port: Version] = [:],
-        workersPerPort: [Models.Port: [WorkerId]] = [:]
+        ports: [SocketModels.Port: Version] = [:],
+        workersPerPort: [SocketModels.Port: [WorkerId]] = [:]
     ) -> WorkersToUtilizeService {
         return DefaultWorkersToUtilizeService(
             cache: cache,

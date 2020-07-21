@@ -1,6 +1,6 @@
+import Extensions
 import Foundation
 import XCTest
-@testable import Extensions
 
 class StringWhitespaceRemovingTests: XCTestCase {
     func test() {

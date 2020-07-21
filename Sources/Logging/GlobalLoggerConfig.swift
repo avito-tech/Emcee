@@ -1,4 +1,3 @@
-import Extensions
 import Foundation
 
 /// This logger handler will get all log entries. You must specify it prior any call to `Logger` methods,

@@ -1,7 +1,6 @@
 import DistWorkerModels
 import Foundation
 import Logging
-import Models
 import RequestSender
 import Timer
 import Types

@@ -1,6 +1,5 @@
 import DeveloperDirModels
 import Foundation
-import Models
 import SimulatorPool
 import SimulatorPoolModels
 

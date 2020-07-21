@@ -1,5 +1,5 @@
 import Foundation
-import Models
+import SocketModels
 import XCTest
 
 final class SocketAddressTests: XCTestCase {

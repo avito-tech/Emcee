@@ -1,7 +1,6 @@
 import AutomaticTermination
 import AutomaticTerminationTestHelpers
 import LocalQueueServerRunner
-import Models
 import ProcessControllerTestHelpers
 import QueueCommunicationTestHelpers
 import QueueModels

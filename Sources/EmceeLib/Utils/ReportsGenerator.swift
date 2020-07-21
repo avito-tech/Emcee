@@ -2,12 +2,13 @@ import ChromeTracing
 import Foundation
 import JunitReporting
 import Logging
-import Models
 import RunnerModels
+import TestArgFile
 
 public final class ReportsGenerator {
     private let testingResult: CombinedTestingResults
     private let reportOutput: ReportOutput
+    
     public init(testingResult: CombinedTestingResults, reportOutput: ReportOutput) {
         self.testingResult = testingResult
         self.reportOutput = reportOutput

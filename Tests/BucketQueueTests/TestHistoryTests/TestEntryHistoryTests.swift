@@ -1,8 +1,7 @@
 @testable import BucketQueue
 import BucketQueueTestHelpers
 import Foundation
-import Models
-import ModelsTestHelpers
+import RunnerTestHelpers
 import XCTest
 
 final class TestEntryHistoryTests: XCTestCase {

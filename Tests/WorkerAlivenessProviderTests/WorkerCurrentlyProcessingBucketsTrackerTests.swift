@@ -1,5 +1,4 @@
 import Foundation
-import Models
 import QueueModels
 import WorkerAlivenessProvider
 import XCTest

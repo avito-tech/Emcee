@@ -2,11 +2,10 @@ import BucketQueue
 import BucketQueueTestHelpers
 import DateProviderTestHelpers
 import Foundation
-import Models
-import ModelsTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
 import RunnerModels
+import RunnerTestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessProvider

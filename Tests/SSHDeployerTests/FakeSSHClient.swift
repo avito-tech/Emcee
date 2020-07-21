@@ -1,6 +1,5 @@
 import Foundation
 @testable import SSHDeployer
-import Models
 
 class FakeSSHClient: SSHClient {
     let host: String

@@ -1,4 +1,3 @@
-import Models
 import Foundation
 
 public protocol NetworkRequest {

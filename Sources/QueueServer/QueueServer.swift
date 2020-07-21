@@ -1,6 +1,6 @@
 import ScheduleStrategy
-import Models
 import QueueModels
+import SocketModels
 
 public protocol QueueServer {
     func start() throws -> Port

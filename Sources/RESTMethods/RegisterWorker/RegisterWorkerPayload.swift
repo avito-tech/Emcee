@@ -1,6 +1,6 @@
 import Foundation
-import Models
 import QueueModels
+import SocketModels
 
 public final class RegisterWorkerPayload: Codable {
     public let workerId: WorkerId

@@ -1,6 +1,5 @@
 import Deployer
 import Foundation
-import Models
 
 public final class DeploymentDestinationFixtures {
     

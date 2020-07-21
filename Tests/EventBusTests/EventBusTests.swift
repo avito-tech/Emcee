@@ -1,7 +1,5 @@
 import EventBus
 import Foundation
-import Models
-import ModelsTestHelpers
 import SynchronousWaiter
 import XCTest
 

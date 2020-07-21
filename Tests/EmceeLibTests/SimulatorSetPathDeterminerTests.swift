@@ -2,7 +2,6 @@ import EmceeLib
 import FileSystem
 import FileSystemTestHelpers
 import Foundation
-import ModelsTestHelpers
 import ResourceLocationResolverTestHelpers
 import RunnerTestHelpers
 import SimulatorPoolModels

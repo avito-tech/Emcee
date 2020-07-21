@@ -1,12 +1,11 @@
 @testable import SimulatorPool
 import DeveloperDirLocatorTestHelpers
 import Foundation
-import Models
-import ModelsTestHelpers
 import PlistLib
 import ProcessController
 import ProcessControllerTestHelpers
 import SimulatorPoolModels
+import SimulatorPoolTestHelpers
 import TemporaryStuff
 import TestHelpers
 import UniqueIdentifierGenerator

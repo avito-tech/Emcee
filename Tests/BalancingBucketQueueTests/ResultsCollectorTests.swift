@@ -1,9 +1,8 @@
 import BalancingBucketQueue
 import Foundation
-import Models
-import ModelsTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
+import RunnerTestHelpers
 import XCTest
 
 final class ResultsCollectorTests: XCTestCase {

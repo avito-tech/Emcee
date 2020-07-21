@@ -1,4 +1,3 @@
-import Models
 import QueueCommunication
 import QueueModels
 import XCTest

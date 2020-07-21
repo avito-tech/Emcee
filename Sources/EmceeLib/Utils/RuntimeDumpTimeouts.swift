@@ -1,5 +1,5 @@
 import Foundation
-import Models
+import RunnerModels
 
 public let testTimeoutConfigurationForRuntimeDump = TestTimeoutConfiguration(
     singleTestMaximumDuration: 20,

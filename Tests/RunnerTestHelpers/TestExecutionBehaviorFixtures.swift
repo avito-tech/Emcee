@@ -1,5 +1,5 @@
 import Foundation
-import Models
+import RunnerModels
 
 public final class TestExecutionBehaviorFixtures {
     public var environment = [String: String]()

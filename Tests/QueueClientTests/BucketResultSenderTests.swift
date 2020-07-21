@@ -1,6 +1,4 @@
 import Foundation
-import Models
-import ModelsTestHelpers
 import QueueClient
 import QueueModels
 import QueueModelsTestHelpers

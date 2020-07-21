@@ -1,7 +1,7 @@
 import Foundation
 import Logging
-import Models
 import QueueModels
+import TestArgFile
 
 public final class ResultingOutputGenerator {
     private let testingResults: [TestingResult]
@@ -46,7 +46,8 @@ public final class ResultingOutputGenerator {
     private func generateOutput(combinedTestingResults: CombinedTestingResults, reportOutput: ReportOutput) throws {
         let reportsGenerator = ReportsGenerator(
             testingResult: combinedTestingResults,
-            reportOutput: reportOutput)
+            reportOutput: reportOutput
+        )
         try reportsGenerator.prepareReports()
     }
 }

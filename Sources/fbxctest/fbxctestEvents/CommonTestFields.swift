@@ -1,5 +1,5 @@
 import Foundation
-import Models
+import RunnerModels
 
 public protocol CommonTestFields {
     var testModuleName: String { get }

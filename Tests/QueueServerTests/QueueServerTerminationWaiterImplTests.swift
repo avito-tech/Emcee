@@ -1,6 +1,5 @@
 import AutomaticTermination
 import AutomaticTerminationTestHelpers
-import Models
 import QueueServer
 import QueueServerTestHelpers
 import ScheduleStrategy

@@ -1,8 +1,8 @@
 import ArgLib
 import Foundation
-import Models
 import QueueModels
 import ResourceLocation
+import SocketModels
 import TypedResourceLocation
 
 extension TypedResourceLocation: ParsableArgument {

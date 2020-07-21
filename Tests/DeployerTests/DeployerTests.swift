@@ -1,6 +1,5 @@
 @testable import Deployer
 import Foundation
-import Models
 import PathLib
 import ProcessController
 import ProcessControllerTestHelpers

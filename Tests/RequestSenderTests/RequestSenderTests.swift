@@ -1,9 +1,7 @@
-import Extensions
 import Foundation
-import Models
-import ModelsTestHelpers
 import RequestSender
 import RequestSenderTestHelpers
+import SocketModels
 import Swifter
 import Types
 import XCTest
@@ -37,7 +35,7 @@ final class RequestSenderTests: XCTestCase {
         server["/"] = { _ in HttpResponse.ok(.json(["response": "baz"] as NSDictionary)) }
         startServer()
         
-        let sender = RequestSenderFixtures.localhostRequestSender(port: Port(value: try server.port()))
+        let sender = RequestSenderFixtures.localhostRequestSender(port: SocketModels.Port(value: try server.port()))
         
         let callbackCalled = expectation(description: "callback has been called")
         sender.sendRequestWithCallback(
@@ -66,7 +64,7 @@ final class RequestSenderTests: XCTestCase {
         }
         startServer()
 
-        let sender = RequestSenderFixtures.localhostRequestSender(port: Port(value: try server.port()))
+        let sender = RequestSenderFixtures.localhostRequestSender(port: SocketModels.Port(value: try server.port()))
 
         sender.sendRequestWithCallback(
             request: FakeNetworkRequest(httpMethod: httpMethod),
@@ -90,7 +88,7 @@ final class RequestSenderTests: XCTestCase {
         }
         startServer()
 
-        let sender = RequestSenderFixtures.localhostRequestSender(port: Port(value: try server.port()))
+        let sender = RequestSenderFixtures.localhostRequestSender(port: SocketModels.Port(value: try server.port()))
 
         sender.sendRequestWithCallback(
             request: FakeNetworkRequest(),
@@ -112,7 +110,7 @@ final class RequestSenderTests: XCTestCase {
         }
         startServer()
 
-        let sender = RequestSenderFixtures.localhostRequestSender(port: Port(value: try server.port()))
+        let sender = RequestSenderFixtures.localhostRequestSender(port: SocketModels.Port(value: try server.port()))
 
         sender.sendRequestWithCallback(
             request: FakeNetworkRequest(),
@@ -140,7 +138,7 @@ final class RequestSenderTests: XCTestCase {
         }
         startServer()
 
-        let sender = RequestSenderFixtures.localhostRequestSender(port: Port(value: try server.port()))
+        let sender = RequestSenderFixtures.localhostRequestSender(port: SocketModels.Port(value: try server.port()))
 
         sender.sendRequestWithCallback(
             request: FakeNetworkRequest(),
@@ -161,7 +159,7 @@ final class RequestSenderTests: XCTestCase {
         }
         startServer()
 
-        let sender = RequestSenderFixtures.localhostRequestSender(port: Port(value: try server.port()))
+        let sender = RequestSenderFixtures.localhostRequestSender(port: SocketModels.Port(value: try server.port()))
 
         sender.sendRequestWithCallback(
             request: FakeNetworkRequest(payload: nil),
@@ -177,7 +175,7 @@ final class RequestSenderTests: XCTestCase {
         }
         startServer()
 
-        let sender = RequestSenderFixtures.localhostRequestSender(port: Port(value: try server.port()))
+        let sender = RequestSenderFixtures.localhostRequestSender(port: SocketModels.Port(value: try server.port()))
 
         let callbackCalled = expectation(description: "callback has been called")
         sender.sendRequestWithCallback(

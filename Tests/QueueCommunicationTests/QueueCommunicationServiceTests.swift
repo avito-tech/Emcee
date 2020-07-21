@@ -1,10 +1,10 @@
 @testable import QueueCommunication
-import Models
 import QueueCommunicationTestHelpers
 import QueueModels
 import RESTMethods
 import RemotePortDeterminer
 import RequestSenderTestHelpers
+import SocketModels
 import XCTest
 
 class QueueCommunicationServiceTests: XCTestCase {

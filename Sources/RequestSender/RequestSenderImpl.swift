@@ -1,7 +1,6 @@
-import Extensions
 import Foundation
 import Logging
-import Models
+import SocketModels
 import Types
 
 public final class RequestSenderImpl: RequestSender {

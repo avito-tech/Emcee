@@ -1,7 +1,6 @@
 import RequestSender
 import AtomicModels
 import Foundation
-import Models
 import RequestSender
 import RESTMethods
 import SynchronousWaiter

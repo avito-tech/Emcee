@@ -1,10 +1,10 @@
 @testable import TestDiscovery
 import BuildArtifacts
-import Models
 import PathLib
 import RequestSender
 import RequestSenderTestHelpers
 import ResourceLocation
+import SocketModels
 import XCTest
 
 class RuntimeDumpRemoteCacheTests: XCTestCase {

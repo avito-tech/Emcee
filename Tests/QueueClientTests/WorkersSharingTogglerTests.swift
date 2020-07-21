@@ -1,4 +1,3 @@
-import Models
 import QueueClient
 import RequestSender
 import RequestSenderTestHelpers

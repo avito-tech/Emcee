@@ -1,5 +1,5 @@
 import Foundation
-import Models
+import TestArgFile
 
 public struct TestDiscoveryResult: Codable, Equatable, CustomStringConvertible {
     public let discoveredTests: DiscoveredTests

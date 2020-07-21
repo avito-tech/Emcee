@@ -1,5 +1,4 @@
 @testable import TestDiscovery
-import Models
 
 final class TestDiscoveryQuerierMock: TestDiscoveryQuerier {
     var numberOfCalls = 0

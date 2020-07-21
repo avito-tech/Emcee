@@ -1,9 +1,9 @@
 import Foundation
 import RequestSender
-import Models
+import SocketModels
 
 public final class RequestSenderFixtures {
-    public static func localhostRequestSender(port: Models.Port) -> RequestSender {
+    public static func localhostRequestSender(port: SocketModels.Port) -> RequestSender {
         return RequestSenderImpl(
             urlSession: URLSession(configuration: .default),
             queueServerAddress: SocketAddress(host: "localhost", port: port)

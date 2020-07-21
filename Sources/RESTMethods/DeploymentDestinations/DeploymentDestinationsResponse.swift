@@ -1,6 +1,5 @@
 import Deployer
 import Foundation
-import Models
 
 public enum DeploymentDestinationsResponse: Codable, Equatable {
     case deploymentDestinations(destinations: [DeploymentDestination])

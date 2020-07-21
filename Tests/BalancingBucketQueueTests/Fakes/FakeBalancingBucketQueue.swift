@@ -1,8 +1,6 @@
 import BalancingBucketQueue
 import BucketQueue
 import DateProviderTestHelpers
-import Models
-import ModelsTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
 import UniqueIdentifierGeneratorTestHelpers

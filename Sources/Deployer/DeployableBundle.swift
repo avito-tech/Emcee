@@ -1,5 +1,4 @@
 import Foundation
-import Extensions
 import PathLib
 
 public final class DeployableBundle: DeployableItem {

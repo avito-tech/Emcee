@@ -1,6 +1,5 @@
 import AtomicModels
 import Foundation
-import Models
 import RunnerModels
 
 public final class CompositeTestRunnerStream: TestRunnerStream {

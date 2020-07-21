@@ -1,8 +1,6 @@
 import DeveloperDirLocator
 import DeveloperDirLocatorTestHelpers
 import Foundation
-import Models
-import ModelsTestHelpers
 import PathLib
 import PlistLib
 import SimulatorPool

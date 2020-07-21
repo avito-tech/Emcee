@@ -1,5 +1,4 @@
 import Foundation
-import Models
 import QueueCommunication
 import QueueModels
 import RemotePortDeterminerTestHelpers

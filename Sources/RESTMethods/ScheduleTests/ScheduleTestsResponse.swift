@@ -1,5 +1,4 @@
 import Foundation
-import Models
 import QueueModels
 
 public enum ScheduleTestsResponse: Codable, Equatable {

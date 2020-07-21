@@ -1,5 +1,4 @@
 import Dispatch
-import Models
 import QueueClient
 import QueueModels
 import RESTMethods

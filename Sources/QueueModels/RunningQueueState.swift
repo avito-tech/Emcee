@@ -1,5 +1,5 @@
 import Foundation
-import Models
+import RunnerModels
 import Types
 
 public struct RunningQueueState: Equatable, CustomStringConvertible, Codable {

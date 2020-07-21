@@ -1,6 +1,5 @@
 import ChromeTracing
 import Foundation
-import Models
 import RunnerModels
 
 public final class ChromeTraceGenerator {

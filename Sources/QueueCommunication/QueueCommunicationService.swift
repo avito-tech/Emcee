@@ -1,6 +1,6 @@
 import Deployer
-import Models
 import QueueModels
+import SocketModels
 import Types
 
 public protocol QueueCommunicationService {
@@ -10,7 +10,7 @@ public protocol QueueCommunicationService {
     )
     
     func deploymentDestinations(
-        port: Port,
+        port: SocketModels.Port,
         completion: @escaping (Either<[DeploymentDestination], Error>) -> ()
     )
 }

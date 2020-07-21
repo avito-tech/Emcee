@@ -1,6 +1,5 @@
 import DistWorkerModels
 import Foundation
-import Models
 
 public enum RegisterWorkerResponse: Codable, Equatable {
     case workerRegisterSuccess(workerConfiguration: WorkerConfiguration)

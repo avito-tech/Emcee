@@ -1,6 +1,6 @@
 import Foundation
-import Models
 import QueueModels
+import SocketModels
 
 public protocol WorkerDetailsHolder {
     func update(workerId: WorkerId, restAddress: SocketAddress)

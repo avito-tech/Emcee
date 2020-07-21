@@ -7,7 +7,6 @@ import FileSystem
 import Foundation
 import Logging
 import LoggingSetup
-import Models
 import PathLib
 import PluginManager
 import ProcessController
@@ -17,6 +16,7 @@ import RequestSender
 import ResourceLocationResolver
 import SignalHandling
 import SimulatorPool
+import SocketModels
 import SynchronousWaiter
 import TemporaryStuff
 import UniqueIdentifierGenerator

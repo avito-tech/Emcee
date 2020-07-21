@@ -2,10 +2,10 @@ import ArgLib
 import AtomicModels
 import Foundation
 import Logging
-import Models
 import QueueClient
 import QueueModels
 import RequestSender
+import SocketModels
 import SynchronousWaiter
 import Types
 

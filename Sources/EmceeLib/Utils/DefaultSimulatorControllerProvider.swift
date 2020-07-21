@@ -2,7 +2,6 @@ import AppleTools
 import DeveloperDirLocator
 import DeveloperDirModels
 import Foundation
-import Models
 import PathLib
 import RunnerModels
 import SimulatorPool

@@ -1,13 +1,12 @@
 import DistWorkerModels
 import DistWorkerModelsTestHelpers
 import Foundation
-import Models
-import ModelsTestHelpers
 import QueueClient
 import QueueModels
 import RESTMethods
 import RequestSender
 import RequestSenderTestHelpers
+import SocketModels
 import Types
 import XCTest
 

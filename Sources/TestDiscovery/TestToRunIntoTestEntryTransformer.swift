@@ -1,6 +1,6 @@
 import BuildArtifacts
 import Foundation
-import Models
+import RunnerModels
 
 public final class TestToRunIntoTestEntryTransformer {
     public init() {}

@@ -1,6 +1,5 @@
 import EventBus
 import Foundation
-import Models
 import Runner
 import SimulatorPool
 

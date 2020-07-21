@@ -1,5 +1,4 @@
 import BucketQueue
-import Models
 import QueueCommunication
 import QueueModels
 

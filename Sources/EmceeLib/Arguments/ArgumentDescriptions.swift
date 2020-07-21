@@ -1,6 +1,5 @@
 import ArgLib
 import Foundation
-import Models
 
 final class ArgumentDescriptions {
     static let emceeVersion = doubleDashedDescription(dashlessName: "emcee-version", overview: "Explicit version of Emcee binary")

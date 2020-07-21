@@ -1,7 +1,7 @@
+import QueueModels
 import QueueServer
 import ScheduleStrategy
-import Models
-import QueueModels
+import SocketModels
 
 public class QueueServerFixture: QueueServer {
 

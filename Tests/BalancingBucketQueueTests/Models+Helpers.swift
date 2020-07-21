@@ -2,7 +2,6 @@ import BalancingBucketQueue
 import BucketQueue
 import BucketQueueTestHelpers
 import Foundation
-import Models
 import QueueModels
 
 func createJob(

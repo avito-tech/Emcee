@@ -2,7 +2,6 @@ import BucketQueue
 import BucketQueueTestHelpers
 @testable import BalancingBucketQueue
 import Foundation
-import Models
 import QueueModels
 import XCTest
 

@@ -1,7 +1,7 @@
 import EventBus
 import Logging
-import Models
 import ResourceLocationResolver
+import RunnerModels
 import SimulatorPool
 import TemporaryStuff
 import TestArgFile

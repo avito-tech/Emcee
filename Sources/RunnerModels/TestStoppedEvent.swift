@@ -1,5 +1,4 @@
 import Foundation
-import Models
 
 public final class TestStoppedEvent: Equatable, CustomStringConvertible {
     public enum Result: String, Equatable {

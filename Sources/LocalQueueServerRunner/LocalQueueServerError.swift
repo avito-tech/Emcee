@@ -1,5 +1,5 @@
-import Models
 import QueueModels
+import SocketModels
 
 public enum LocalQueueServerError: Error, CustomStringConvertible {
     case sameVersionQueueIsAlreadyRunning(port: Port, version: Version)

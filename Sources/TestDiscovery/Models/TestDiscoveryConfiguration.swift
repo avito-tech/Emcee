@@ -1,10 +1,10 @@
 import BuildArtifacts
 import DeveloperDirModels
 import Foundation
-import Models
 import PluginSupport
 import RunnerModels
 import SimulatorPoolModels
+import TestArgFile
 
 public struct TestDiscoveryConfiguration {
     public let developerDir: DeveloperDir

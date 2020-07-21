@@ -1,6 +1,5 @@
 import BuildArtifacts
 import Foundation
-import Models
 
 public final class BuildArtifactsFixtures {
     public static func fakeEmptyBuildArtifacts(

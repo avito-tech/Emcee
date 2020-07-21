@@ -1,7 +1,6 @@
 import BuildArtifactsTestHelpers
 import DistWorker
-import Models
-import ModelsTestHelpers
+import RunnerModels
 import RunnerTestHelpers
 import Scheduler
 import SimulatorPoolTestHelpers

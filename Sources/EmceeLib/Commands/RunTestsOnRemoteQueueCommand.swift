@@ -5,12 +5,10 @@ import Deployer
 import DeveloperDirLocator
 import DistDeployer
 import EmceeVersion
-import Extensions
 import FileSystem
 import Foundation
 import Logging
 import LoggingSetup
-import Models
 import PathLib
 import PluginManager
 import PortDeterminer
@@ -24,6 +22,7 @@ import RequestSender
 import ResourceLocationResolver
 import SignalHandling
 import SimulatorPool
+import SocketModels
 import SynchronousWaiter
 import TemporaryStuff
 import TestArgFile
@@ -139,7 +138,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             emceeVersion: emceeVersion,
             remotePortDeterminer: RemoteQueuePortScanner(
                 host: queueServerDestination.host,
-                portRange: Ports.defaultQueuePortRange,
+                portRange: EmceePorts.defaultQueuePortRange,
                 requestSenderProvider: requestSenderProvider
             )
         )
@@ -287,7 +286,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         return try queueClient.jobResults(jobId: jobId)
     }
     
-    private func selectPort(ports: Set<Models.Port>) throws -> Models.Port {
+    private func selectPort(ports: Set<SocketModels.Port>) throws -> SocketModels.Port {
         enum PortScanningError: Error, CustomStringConvertible {
             case noQueuePortDetected
             

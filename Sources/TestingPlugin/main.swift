@@ -4,7 +4,6 @@ import FileSystem
 import Foundation
 import Logging
 import LoggingSetup
-import Models
 import Plugin
 
 class Listener: DefaultBusListener {

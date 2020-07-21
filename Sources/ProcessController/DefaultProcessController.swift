@@ -1,6 +1,5 @@
 import DateProvider
 import Dispatch
-import Extensions
 import FileSystem
 import Foundation
 import Logging

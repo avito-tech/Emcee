@@ -1,8 +1,7 @@
 import Foundation
-import Models
-import ModelsTestHelpers
 import PathLib
 import RequestSender
+import SocketModels
 import TestDiscovery
 import TestHelpers
 import XCTest

@@ -17,7 +17,6 @@ let package = Package(
         .library(
             name: "EmceePlugin",
             targets: [
-                "Models",
                 "Logging",
                 "Plugin",
             ]
@@ -36,9 +35,9 @@ let package = Package(
             name: "EmceeInterfaces",
             targets: [
                 "BuildArtifacts",
+                "DeveloperDirModels",
                 "EmceeVersion",
                 "FileSystem",
-                "Models",
                 "PathLib",
                 "PluginSupport",
                 "QueueModels",
@@ -47,6 +46,7 @@ let package = Package(
                 "RunnerModels",
                 "SimulatorPoolModels",
                 "SimulatorVideoRecorder",
+                "SocketModels",
                 "TestArgFile",
                 "TestDiscovery",
                 "TypedResourceLocation",
@@ -77,7 +77,6 @@ let package = Package(
                 "DateProvider",
                 "DeveloperDirLocator",
                 "Logging",
-                "Models",
                 "PathLib",
                 "PlistLib",
                 "ProcessController",
@@ -105,8 +104,6 @@ let package = Package(
                 "DeveloperDirLocatorTestHelpers",
                 "DeveloperDirModels",
                 "FileCache",
-                "Models",
-                "ModelsTestHelpers",
                 "PathLib",
                 "ProcessController",
                 "ProcessControllerTestHelpers",
@@ -175,9 +172,9 @@ let package = Package(
                 "CountedSet",
                 "DateProvider",
                 "Logging",
-                "Models",
                 "QueueCommunication",
                 "QueueModels",
+                "RunnerModels",
                 "Types",
             ],
             path: "Sources/BalancingBucketQueue"
@@ -192,8 +189,6 @@ let package = Package(
                 "BuildArtifacts",
                 "BuildArtifactsTestHelpers",
                 "DateProviderTestHelpers",
-                "Models",
-                "ModelsTestHelpers",
                 "QueueCommunication",
                 "QueueCommunicationTestHelpers",
                 "QueueModels",
@@ -214,7 +209,6 @@ let package = Package(
                 "BuildArtifacts",
                 "DateProvider",
                 "Logging",
-                "Models",
                 "QueueModels",
                 "RunnerModels",
                 "Types",
@@ -230,8 +224,6 @@ let package = Package(
                 "BucketQueue",
                 "DateProvider",
                 "DateProviderTestHelpers",
-                "Models",
-                "ModelsTestHelpers",
                 "QueueModels",
                 "QueueModelsTestHelpers",
                 "RunnerModels",
@@ -250,11 +242,10 @@ let package = Package(
                 "BucketQueueTestHelpers",
                 "DateProviderTestHelpers",
                 "DistWorkerModels",
-                "Models",
-                "ModelsTestHelpers",
                 "QueueModels",
                 "QueueModelsTestHelpers",
                 "RunnerModels",
+                "RunnerTestHelpers",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessProvider",
@@ -274,7 +265,6 @@ let package = Package(
             name: "BuildArtifactsTestHelpers",
             dependencies: [
                 "BuildArtifacts",
-                "Models",
             ],
             path: "Tests/BuildArtifactsTestHelpers"
         ),
@@ -282,8 +272,6 @@ let package = Package(
             // MARK: ChromeTracing
             name: "ChromeTracing",
             dependencies: [
-                "Extensions",
-                "Models",
             ],
             path: "Sources/ChromeTracing"
         ),
@@ -306,9 +294,7 @@ let package = Package(
             // MARK: Deployer
             name: "Deployer",
             dependencies: [
-                "Extensions",
                 "Logging",
-                "Models",
                 "PathLib",
                 "ProcessController",
                 "QueueModels",
@@ -322,7 +308,6 @@ let package = Package(
             name: "DeployerTestHelpers",
             dependencies: [
                 "Deployer",
-                "Models",
             ],
             path: "Tests/DeployerTestHelpers"
         ),
@@ -331,8 +316,6 @@ let package = Package(
             name: "DeployerTests",
             dependencies: [
                 "Deployer",
-                "Extensions",
-                "Models",
                 "PathLib",
                 "ProcessController",
                 "ProcessControllerTestHelpers",
@@ -347,7 +330,6 @@ let package = Package(
             name: "DeveloperDirLocator",
             dependencies: [
                 "DeveloperDirModels",
-                "Models",
                 "PathLib",
                 "ProcessController",
             ],
@@ -359,7 +341,6 @@ let package = Package(
             dependencies: [
                 "DeveloperDirLocator",
                 "DeveloperDirModels",
-                "Models",
                 "PathLib",
             ],
             path: "Tests/DeveloperDirLocatorTestHelpers"
@@ -369,7 +350,6 @@ let package = Package(
             name: "DeveloperDirLocatorTests",
             dependencies: [
                 "DeveloperDirLocator",
-                "Models",
                 "PathLib",
                 "ProcessController",
                 "ProcessControllerTestHelpers",
@@ -390,14 +370,13 @@ let package = Package(
             name: "DistDeployer",
             dependencies: [
                 "Deployer",
-                "Extensions",
                 "LaunchdUtils",
                 "Logging",
-                "Models",
                 "PathLib",
                 "ProcessController",
                 "QueueModels",
                 "SSHDeployer",
+                "SocketModels",
                 "TemporaryStuff",
                 "TypedResourceLocation",
                 "UniqueIdentifierGenerator",
@@ -411,12 +390,10 @@ let package = Package(
                 "Deployer",
                 "DeployerTestHelpers",
                 "DistDeployer",
-                "Extensions",
-                "Models",
-                "ModelsTestHelpers",
                 "PathLib",
                 "QueueModels",
                 "ResourceLocationResolver",
+                "SocketModels",
                 "TemporaryStuff",
             ],
             path: "Tests/DistDeployerTests"
@@ -435,7 +412,6 @@ let package = Package(
                 "LocalHostDeterminer",
                 "Logging",
                 "LoggingSetup",
-                "Models",
                 "PathLib",
                 "PluginManager",
                 "QueueClient",
@@ -446,8 +422,10 @@ let package = Package(
                 "RequestSender",
                 "ResourceLocationResolver",
                 "Runner",
+                "RunnerModels",
                 "Scheduler",
                 "SimulatorPool",
+                "SocketModels",
                 "SynchronousWaiter",
                 "TemporaryStuff",
                 "Timer",
@@ -460,7 +438,6 @@ let package = Package(
             name: "DistWorkerModels",
             dependencies: [
                 "LoggingSetup",
-                "Models",
                 "QueueModels",
                 "RESTInterfaces",
             ],
@@ -472,7 +449,6 @@ let package = Package(
             dependencies: [
                 "DistWorkerModels",
                 "LoggingSetup",
-                "Models",
                 "QueueModels",
             ],
             path: "Tests/DistWorkerModelsTestHelpers"
@@ -492,10 +468,9 @@ let package = Package(
             dependencies: [
                 "BuildArtifactsTestHelpers",
                 "DistWorker",
-                "Models",
-                "ModelsTestHelpers",
                 "QueueModels",
                 "RequestSender",
+                "RunnerModels",
                 "RunnerTestHelpers",
                 "Scheduler",
                 "SimulatorPoolTestHelpers",
@@ -530,7 +505,6 @@ let package = Package(
                 "DistWorkerModels",
                 "EmceeVersion",
                 "EventBus",
-                "Extensions",
                 "FileCache",
                 "FileSystem",
                 "JunitReporting",
@@ -539,7 +513,6 @@ let package = Package(
                 "Logging",
                 "LoggingSetup",
                 "Metrics",
-                "Models",
                 "PathLib",
                 "PluginManager",
                 "PortDeterminer",
@@ -560,6 +533,7 @@ let package = Package(
                 "SignalHandling",
                 "SimulatorPool",
                 "SimulatorPoolModels",
+                "SocketModels",
                 "SynchronousWaiter",
                 "TemporaryStuff",
                 "TestArgFile",
@@ -583,8 +557,6 @@ let package = Package(
                 "EmceeLib",
                 "FileSystem",
                 "FileSystemTestHelpers",
-                "Models",
-                "ModelsTestHelpers",
                 "PathLib",
                 "ProcessControllerTestHelpers",
                 "QueueModels",
@@ -617,7 +589,6 @@ let package = Package(
             name: "EventBus",
             dependencies: [
                 "Logging",
-                "Models",
                 "RunnerModels",
             ],
             path: "Sources/EventBus"
@@ -627,8 +598,6 @@ let package = Package(
             name: "EventBusTests",
             dependencies: [
                 "EventBus",
-                "Models",
-                "ModelsTestHelpers",
                 "SynchronousWaiter",
             ],
             path: "Tests/EventBusTests"
@@ -657,7 +626,6 @@ let package = Package(
                 "Extensions",
                 "FileLock",
                 "FileSystem",
-                "Models",
                 "PathLib",
                 "UniqueIdentifierGenerator",
             ],
@@ -805,7 +773,6 @@ let package = Package(
                 "LocalHostDeterminer",
                 "Logging",
                 "LoggingSetup",
-                "Models",
                 "PortDeterminer",
                 "ProcessController",
                 "QueueCommunication",
@@ -814,6 +781,7 @@ let package = Package(
                 "RemotePortDeterminer",
                 "RequestSender",
                 "ScheduleStrategy",
+                "SocketModels",
                 "SynchronousWaiter",
                 "TemporaryStuff",
                 "UniqueIdentifierGenerator",
@@ -827,7 +795,6 @@ let package = Package(
                 "AutomaticTermination",
                 "AutomaticTerminationTestHelpers",
                 "LocalQueueServerRunner",
-                "Models",
                 "ProcessControllerTestHelpers",
                 "QueueCommunicationTestHelpers",
                 "QueueModels",
@@ -862,10 +829,10 @@ let package = Package(
                 "LocalHostDeterminer",
                 "Logging",
                 "Metrics",
-                "Models",
                 "PathLib",
                 "QueueModels",
                 "Sentry",
+                "SocketModels",
                 "TemporaryStuff",
             ],
             path: "Sources/LoggingSetup"
@@ -902,31 +869,6 @@ let package = Package(
                 "MetricsTestHelpers",
             ],
             path: "Tests/MetricsTests"
-        ),
-        .target(
-            // MARK: Models
-            name: "Models",
-            dependencies: [
-                "Types",
-            ],
-            path: "Sources/Models"
-        ),
-        .target(
-            // MARK: ModelsTestHelpers
-            name: "ModelsTestHelpers",
-            dependencies: [
-                "Models",
-                "ScheduleStrategy",
-            ],
-            path: "Tests/ModelsTestHelpers"
-        ),
-        .testTarget(
-            // MARK: ModelsTests
-            name: "ModelsTests",
-            dependencies: [
-                "Models",
-            ],
-            path: "Tests/ModelsTests"
         ),
         .target(
             // MARK: PathLib
@@ -969,7 +911,6 @@ let package = Package(
                 "JSONStream",
                 "Logging",
                 "LoggingSetup",
-                "Models",
                 "PluginSupport",
                 "Starscream",
                 "SynchronousWaiter",
@@ -981,11 +922,9 @@ let package = Package(
             name: "PluginManager",
             dependencies: [
                 "EventBus",
-                "Extensions",
                 "FileSystem",
                 "LocalHostDeterminer",
                 "Logging",
-                "Models",
                 "PathLib",
                 "PluginSupport",
                 "ProcessController",
@@ -1001,7 +940,6 @@ let package = Package(
             dependencies: [
                 "EventBus",
                 "FileSystem",
-                "Models",
                 "PluginManager",
                 "PluginSupport",
             ],
@@ -1014,8 +952,6 @@ let package = Package(
                 "DateProvider",
                 "EventBus",
                 "FileSystem",
-                "Models",
-                "ModelsTestHelpers",
                 "PathLib",
                 "PluginManager",
                 "PluginSupport",
@@ -1042,7 +978,7 @@ let package = Package(
             name: "PortDeterminer",
             dependencies: [
                 "Logging",
-                "Models",
+                "SocketModels",
                 "Swifter",
             ],
             path: "Sources/PortDeterminer"
@@ -1051,8 +987,8 @@ let package = Package(
             // MARK: PortDeterminerTests
             name: "PortDeterminerTests",
             dependencies: [
-                "Models",
                 "PortDeterminer",
+                "SocketModels",
                 "Swifter",
             ],
             path: "Tests/PortDeterminerTests"
@@ -1063,7 +999,6 @@ let package = Package(
             dependencies: [
                 "AtomicModels",
                 "DateProvider",
-                "Extensions",
                 "FileSystem",
                 "Logging",
                 "LoggingSetup",
@@ -1088,7 +1023,6 @@ let package = Package(
             name: "ProcessControllerTests",
             dependencies: [
                 "DateProvider",
-                "Extensions",
                 "FileSystem",
                 "PathLib",
                 "ProcessController",
@@ -1104,14 +1038,13 @@ let package = Package(
             dependencies: [
                 "AtomicModels",
                 "DistWorkerModels",
-                "Extensions",
                 "Logging",
-                "Models",
                 "QueueModels",
                 "RESTInterfaces",
                 "RESTMethods",
                 "RequestSender",
                 "ScheduleStrategy",
+                "SocketModels",
                 "SynchronousWaiter",
                 "Types",
                 "WorkerAlivenessModels",
@@ -1125,8 +1058,6 @@ let package = Package(
                 "BuildArtifactsTestHelpers",
                 "DistWorkerModels",
                 "DistWorkerModelsTestHelpers",
-                "Models",
-                "ModelsTestHelpers",
                 "QueueClient",
                 "QueueModels",
                 "QueueModelsTestHelpers",
@@ -1134,8 +1065,10 @@ let package = Package(
                 "RESTMethods",
                 "RequestSender",
                 "RequestSenderTestHelpers",
+                "RunnerModels",
                 "RunnerTestHelpers",
                 "SimulatorPoolTestHelpers",
+                "SocketModels",
                 "Swifter",
                 "SynchronousWaiter",
                 "TestHelpers",
@@ -1154,11 +1087,11 @@ let package = Package(
                 "LocalHostDeterminer",
                 "Logging",
                 "Metrics",
-                "Models",
                 "QueueModels",
                 "RESTMethods",
                 "RemotePortDeterminer",
                 "RequestSender",
+                "SocketModels",
                 "Timer",
                 "Types",
             ],
@@ -1170,9 +1103,9 @@ let package = Package(
             dependencies: [
                 "Deployer",
                 "DeployerTestHelpers",
-                "Models",
                 "QueueCommunication",
                 "QueueModels",
+                "SocketModels",
                 "TestHelpers",
                 "Types",
             ],
@@ -1188,7 +1121,6 @@ let package = Package(
                 "DeployerTestHelpers",
                 "Metrics",
                 "MetricsTestHelpers",
-                "Models",
                 "QueueCommunication",
                 "QueueCommunicationTestHelpers",
                 "QueueModels",
@@ -1196,6 +1128,7 @@ let package = Package(
                 "RemotePortDeterminer",
                 "RemotePortDeterminerTestHelpers",
                 "RequestSenderTestHelpers",
+                "SocketModels",
                 "TestHelpers",
             ],
             path: "Tests/QueueCommunicationTests"
@@ -1206,11 +1139,10 @@ let package = Package(
             dependencies: [
                 "BuildArtifacts",
                 "DeveloperDirModels",
-                "Extensions",
-                "Models",
                 "PluginSupport",
                 "RunnerModels",
                 "SimulatorPoolModels",
+                "SocketModels",
                 "Types",
             ],
             path: "Sources/QueueModels"
@@ -1222,8 +1154,6 @@ let package = Package(
                 "BuildArtifacts",
                 "BuildArtifactsTestHelpers",
                 "DeveloperDirModels",
-                "Models",
-                "ModelsTestHelpers",
                 "PluginSupport",
                 "QueueModels",
                 "RunnerModels",
@@ -1238,10 +1168,10 @@ let package = Package(
             // MARK: QueueModelsTests
             name: "QueueModelsTests",
             dependencies: [
-                "Models",
-                "ModelsTestHelpers",
                 "QueueModels",
                 "RunnerTestHelpers",
+                "SimulatorPoolModels",
+                "SimulatorPoolTestHelpers",
             ],
             path: "Tests/QueueModelsTests"
         ),
@@ -1257,11 +1187,9 @@ let package = Package(
                 "Deployer",
                 "DistWorkerModels",
                 "EventBus",
-                "Extensions",
                 "LocalHostDeterminer",
                 "Logging",
                 "Metrics",
-                "Models",
                 "PortDeterminer",
                 "QueueCommunication",
                 "QueueModels",
@@ -1269,7 +1197,9 @@ let package = Package(
                 "RESTMethods",
                 "RESTServer",
                 "RequestSender",
+                "RunnerModels",
                 "ScheduleStrategy",
+                "SocketModels",
                 "Swifter",
                 "SynchronousWaiter",
                 "Timer",
@@ -1284,10 +1214,10 @@ let package = Package(
             // MARK: QueueServerTestHelpers
             name: "QueueServerTestHelpers",
             dependencies: [
-                "Models",
                 "QueueModels",
                 "QueueServer",
                 "ScheduleStrategy",
+                "SocketModels",
             ],
             path: "Tests/QueueServerTestHelpers"
         ),
@@ -1305,9 +1235,6 @@ let package = Package(
                 "DeployerTestHelpers",
                 "DistWorkerModels",
                 "DistWorkerModelsTestHelpers",
-                "Extensions",
-                "Models",
-                "ModelsTestHelpers",
                 "PortDeterminer",
                 "QueueClient",
                 "QueueCommunicationTestHelpers",
@@ -1320,7 +1247,10 @@ let package = Package(
                 "RequestSender",
                 "RequestSenderTestHelpers",
                 "RunnerModels",
+                "RunnerTestHelpers",
                 "ScheduleStrategy",
+                "SimulatorPoolTestHelpers",
+                "SocketModels",
                 "Swifter",
                 "SynchronousWaiter",
                 "TestHelpers",
@@ -1345,11 +1275,11 @@ let package = Package(
             dependencies: [
                 "Deployer",
                 "DistWorkerModels",
-                "Models",
                 "QueueModels",
                 "RESTInterfaces",
                 "RequestSender",
                 "ScheduleStrategy",
+                "SocketModels",
                 "WorkerAlivenessModels",
             ],
             path: "Sources/RESTMethods"
@@ -1359,12 +1289,11 @@ let package = Package(
             name: "RESTServer",
             dependencies: [
                 "AutomaticTermination",
-                "Extensions",
                 "Logging",
-                "Models",
                 "QueueModels",
                 "RESTInterfaces",
                 "RESTMethods",
+                "SocketModels",
                 "Swifter",
             ],
             path: "Sources/RESTServer"
@@ -1374,11 +1303,11 @@ let package = Package(
             name: "RESTServerTests",
             dependencies: [
                 "AutomaticTerminationTestHelpers",
-                "Models",
                 "QueueModels",
                 "RESTInterfaces",
                 "RESTMethods",
                 "RESTServer",
+                "SocketModels",
                 "Swifter",
                 "TestHelpers",
                 "Types",
@@ -1391,10 +1320,10 @@ let package = Package(
             dependencies: [
                 "AtomicModels",
                 "Logging",
-                "Models",
                 "QueueClient",
                 "QueueModels",
                 "RequestSender",
+                "SocketModels",
                 "Types",
             ],
             path: "Sources/RemotePortDeterminer"
@@ -1403,9 +1332,9 @@ let package = Package(
             // MARK: RemotePortDeterminerTestHelpers
             name: "RemotePortDeterminerTestHelpers",
             dependencies: [
-                "Models",
                 "QueueModels",
                 "RemotePortDeterminer",
+                "SocketModels",
             ],
             path: "Tests/RemotePortDeterminerTestHelpers"
         ),
@@ -1413,7 +1342,6 @@ let package = Package(
             // MARK: RemotePortDeterminerTests
             name: "RemotePortDeterminerTests",
             dependencies: [
-                "Models",
                 "PortDeterminer",
                 "QueueModels",
                 "RESTInterfaces",
@@ -1421,6 +1349,7 @@ let package = Package(
                 "RemotePortDeterminer",
                 "RequestSender",
                 "RequestSenderTestHelpers",
+                "SocketModels",
                 "Swifter",
             ],
             path: "Tests/RemotePortDeterminerTests"
@@ -1429,9 +1358,8 @@ let package = Package(
             // MARK: RequestSender
             name: "RequestSender",
             dependencies: [
-                "Extensions",
                 "Logging",
-                "Models",
+                "SocketModels",
                 "Types",
             ],
             path: "Sources/RequestSender"
@@ -1440,8 +1368,8 @@ let package = Package(
             // MARK: RequestSenderTestHelpers
             name: "RequestSenderTestHelpers",
             dependencies: [
-                "Models",
                 "RequestSender",
+                "SocketModels",
                 "Types",
             ],
             path: "Tests/RequestSenderTestHelpers"
@@ -1450,11 +1378,9 @@ let package = Package(
             // MARK: RequestSenderTests
             name: "RequestSenderTests",
             dependencies: [
-                "Extensions",
-                "Models",
-                "ModelsTestHelpers",
                 "RequestSender",
                 "RequestSenderTestHelpers",
+                "SocketModels",
                 "Swifter",
                 "Types",
             ],
@@ -1473,11 +1399,9 @@ let package = Package(
             name: "ResourceLocationResolver",
             dependencies: [
                 "AtomicModels",
-                "Extensions",
                 "FileCache",
                 "FileSystem",
                 "Logging",
-                "Models",
                 "PathLib",
                 "ProcessController",
                 "ResourceLocation",
@@ -1491,7 +1415,6 @@ let package = Package(
             // MARK: ResourceLocationResolverTestHelpers
             name: "ResourceLocationResolverTestHelpers",
             dependencies: [
-                "Models",
                 "PathLib",
                 "ResourceLocation",
                 "ResourceLocationResolver",
@@ -1506,7 +1429,6 @@ let package = Package(
                 "FileCache",
                 "FileSystem",
                 "Logging",
-                "Models",
                 "PathLib",
                 "ProcessController",
                 "ResourceLocation",
@@ -1538,12 +1460,10 @@ let package = Package(
                 "DeveloperDirLocator",
                 "DeveloperDirModels",
                 "EventBus",
-                "Extensions",
                 "FileSystem",
                 "LocalHostDeterminer",
                 "Logging",
                 "Metrics",
-                "Models",
                 "PathLib",
                 "PluginManager",
                 "ProcessController",
@@ -1563,7 +1483,6 @@ let package = Package(
             dependencies: [
                 "BuildArtifacts",
                 "DeveloperDirModels",
-                "Models",
                 "PluginSupport",
                 "SimulatorPoolModels",
                 "TypedResourceLocation",
@@ -1578,12 +1497,11 @@ let package = Package(
                 "DeveloperDirLocator",
                 "DeveloperDirModels",
                 "Logging",
-                "Models",
-                "ModelsTestHelpers",
                 "ProcessController",
                 "Runner",
                 "RunnerModels",
                 "SimulatorPoolModels",
+                "SimulatorPoolTestHelpers",
                 "TemporaryStuff",
             ],
             path: "Tests/RunnerTestHelpers"
@@ -1597,13 +1515,10 @@ let package = Package(
                 "DateProviderTestHelpers",
                 "DeveloperDirLocatorTestHelpers",
                 "EventBus",
-                "Extensions",
                 "FileSystemTestHelpers",
                 "Logging",
                 "Metrics",
                 "MetricsTestHelpers",
-                "Models",
-                "ModelsTestHelpers",
                 "PathLib",
                 "PluginManagerTestHelpers",
                 "ProcessController",
@@ -1626,9 +1541,7 @@ let package = Package(
             name: "SSHDeployer",
             dependencies: [
                 "Deployer",
-                "Extensions",
                 "Logging",
-                "Models",
                 "PathLib",
                 "ProcessController",
                 "Shout",
@@ -1642,7 +1555,6 @@ let package = Package(
             name: "SSHDeployerTests",
             dependencies: [
                 "Deployer",
-                "Models",
                 "PathLib",
                 "ProcessControllerTestHelpers",
                 "SSHDeployer",
@@ -1658,9 +1570,7 @@ let package = Package(
             dependencies: [
                 "BuildArtifacts",
                 "DeveloperDirModels",
-                "Extensions",
                 "Logging",
-                "Models",
                 "PluginSupport",
                 "QueueModels",
                 "RunnerModels",
@@ -1676,14 +1586,15 @@ let package = Package(
             dependencies: [
                 "BuildArtifacts",
                 "BuildArtifactsTestHelpers",
-                "Models",
-                "ModelsTestHelpers",
                 "PluginSupport",
                 "QueueModels",
                 "QueueModelsTestHelpers",
+                "RunnerModels",
+                "RunnerTestHelpers",
                 "ScheduleStrategy",
                 "SimulatorPoolModels",
                 "SimulatorPoolTestHelpers",
+                "TestHelpers",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
             ],
@@ -1698,12 +1609,10 @@ let package = Package(
                 "DeveloperDirLocator",
                 "DeveloperDirModels",
                 "EventBus",
-                "Extensions",
                 "FileSystem",
                 "ListeningSemaphore",
                 "LocalHostDeterminer",
                 "Logging",
-                "Models",
                 "PluginManager",
                 "PluginSupport",
                 "ProcessController",
@@ -1739,7 +1648,6 @@ let package = Package(
             // MARK: SignalHandling
             name: "SignalHandling",
             dependencies: [
-                "Models",
                 "Signals",
                 "Types",
             ],
@@ -1763,11 +1671,9 @@ let package = Package(
                 "DateProvider",
                 "DeveloperDirLocator",
                 "DeveloperDirModels",
-                "Extensions",
                 "LocalHostDeterminer",
                 "Logging",
                 "Metrics",
-                "Models",
                 "PathLib",
                 "PlistLib",
                 "ProcessController",
@@ -1786,8 +1692,6 @@ let package = Package(
             // MARK: SimulatorPoolModels
             name: "SimulatorPoolModels",
             dependencies: [
-                "Extensions",
-                "Models",
                 "PathLib",
                 "ResourceLocation",
                 "TypedResourceLocation",
@@ -1802,8 +1706,6 @@ let package = Package(
                 "DeveloperDirLocator",
                 "DeveloperDirLocatorTestHelpers",
                 "DeveloperDirModels",
-                "Models",
-                "ModelsTestHelpers",
                 "PathLib",
                 "RunnerModels",
                 "SimulatorPool",
@@ -1821,8 +1723,6 @@ let package = Package(
                 "DeveloperDirLocator",
                 "DeveloperDirLocatorTestHelpers",
                 "DeveloperDirModels",
-                "Models",
-                "ModelsTestHelpers",
                 "PathLib",
                 "PlistLib",
                 "ProcessController",
@@ -1845,12 +1745,27 @@ let package = Package(
             name: "SimulatorVideoRecorder",
             dependencies: [
                 "Logging",
-                "Models",
                 "PathLib",
                 "ProcessController",
                 "SimulatorPoolModels",
             ],
             path: "Sources/SimulatorVideoRecorder"
+        ),
+        .target(
+            // MARK: SocketModels
+            name: "SocketModels",
+            dependencies: [
+                "Types",
+            ],
+            path: "Sources/SocketModels"
+        ),
+        .testTarget(
+            // MARK: SocketModelsTests
+            name: "SocketModelsTests",
+            dependencies: [
+                "SocketModels",
+            ],
+            path: "Tests/SocketModelsTests"
         ),
         .target(
             // MARK: SynchronousWaiter
@@ -1892,7 +1807,6 @@ let package = Package(
             dependencies: [
                 "BuildArtifacts",
                 "DeveloperDirModels",
-                "Models",
                 "PluginSupport",
                 "QueueModels",
                 "RunnerModels",
@@ -1907,8 +1821,6 @@ let package = Package(
             dependencies: [
                 "BuildArtifacts",
                 "BuildArtifactsTestHelpers",
-                "Models",
-                "ModelsTestHelpers",
                 "PluginSupport",
                 "RunnerModels",
                 "RunnerTestHelpers",
@@ -1929,11 +1841,9 @@ let package = Package(
                 "DateProvider",
                 "DeveloperDirLocator",
                 "DeveloperDirModels",
-                "Extensions",
                 "FileSystem",
                 "Logging",
                 "Metrics",
-                "Models",
                 "PathLib",
                 "PluginManager",
                 "PluginSupport",
@@ -1945,8 +1855,10 @@ let package = Package(
                 "RunnerModels",
                 "SimulatorPool",
                 "SimulatorPoolModels",
+                "SocketModels",
                 "SynchronousWaiter",
                 "TemporaryStuff",
+                "TestArgFile",
                 "Types",
                 "UniqueIdentifierGenerator",
             ],
@@ -1968,8 +1880,6 @@ let package = Package(
                 "FileSystem",
                 "FileSystemTestHelpers",
                 "Logging",
-                "Models",
-                "ModelsTestHelpers",
                 "PathLib",
                 "PluginManagerTestHelpers",
                 "ProcessController",
@@ -1980,9 +1890,12 @@ let package = Package(
                 "ResourceLocation",
                 "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
+                "RunnerModels",
                 "RunnerTestHelpers",
                 "SimulatorPoolTestHelpers",
+                "SocketModels",
                 "TemporaryStuff",
+                "TestArgFile",
                 "TestDiscovery",
                 "TestHelpers",
                 "URLResource",
@@ -2015,7 +1928,6 @@ let package = Package(
                 "FileSystem",
                 "Logging",
                 "LoggingSetup",
-                "Models",
                 "Plugin",
             ],
             path: "Sources/TestingPlugin"
@@ -2024,7 +1936,6 @@ let package = Package(
             // MARK: TestsWorkingDirectorySupport
             name: "TestsWorkingDirectorySupport",
             dependencies: [
-                "Models",
                 "PathLib",
                 "RunnerModels",
             ],
@@ -2067,7 +1978,6 @@ let package = Package(
                 "AtomicModels",
                 "FileCache",
                 "Logging",
-                "Models",
                 "PathLib",
                 "SynchronousWaiter",
                 "Types",
@@ -2118,7 +2028,6 @@ let package = Package(
             name: "WorkerAlivenessProvider",
             dependencies: [
                 "Logging",
-                "Models",
                 "QueueModels",
                 "WorkerAlivenessModels",
             ],
@@ -2128,7 +2037,6 @@ let package = Package(
             // MARK: WorkerAlivenessProviderTests
             name: "WorkerAlivenessProviderTests",
             dependencies: [
-                "Models",
                 "QueueModels",
                 "WorkerAlivenessModels",
                 "WorkerAlivenessProvider",
@@ -2152,7 +2060,6 @@ let package = Package(
                 "JSONStream",
                 "LocalHostDeterminer",
                 "Logging",
-                "Models",
                 "PathLib",
                 "ProcessController",
                 "ResourceLocation",
@@ -2173,8 +2080,6 @@ let package = Package(
                 "BuildArtifactsTestHelpers",
                 "DeveloperDirLocatorTestHelpers",
                 "JSONStream",
-                "Models",
-                "ModelsTestHelpers",
                 "ProcessController",
                 "ProcessControllerTestHelpers",
                 "ResourceLocationResolverTestHelpers",

@@ -1,5 +1,6 @@
 @testable import TestDiscovery
-import Models
+import RunnerModels
+import TestArgFile
 
 final class TestDiscoveryResultFixtures {
     static func queryResult() -> TestDiscoveryResult {

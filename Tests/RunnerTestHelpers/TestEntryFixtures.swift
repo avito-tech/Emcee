@@ -1,5 +1,5 @@
 import Foundation
-import Models
+import RunnerModels
 
 public final class TestEntryFixtures {
     public static func testEntry(

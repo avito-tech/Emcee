@@ -1,9 +1,9 @@
 import ArgLib
 import Logging
-import Models
 import QueueClient
-import RequestSender
 import RESTMethods
+import RequestSender
+import SocketModels
 
 public final class ToggleWorkersSharingCommand: Command {
     public let name = "toggleWorkersSharing"

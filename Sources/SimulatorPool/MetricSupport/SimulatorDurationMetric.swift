@@ -1,7 +1,7 @@
 import Foundation
 import Metrics
-import Models
 import QueueModels
+import SimulatorPoolModels
 
 public final class SimulatorDurationMetric: Metric {
     public enum Action: String {

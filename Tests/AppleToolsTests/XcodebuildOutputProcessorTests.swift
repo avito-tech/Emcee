@@ -1,6 +1,5 @@
 import AppleTools
 import Foundation
-import Models
 import RunnerTestHelpers
 import XCTest
 

@@ -2,7 +2,6 @@ import Dispatch
 import DistWorkerModels
 import Foundation
 import Logging
-import Models
 import QueueModels
 import RESTInterfaces
 import RESTMethods

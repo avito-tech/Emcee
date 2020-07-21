@@ -1,6 +1,6 @@
+@testable import JunitReporting
 import Extensions
 import Foundation
-@testable import JunitReporting
 import XCTest
 
 class JunitTests: XCTestCase {

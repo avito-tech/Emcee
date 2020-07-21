@@ -2,7 +2,6 @@ import AtomicModels
 import EventBus
 import Foundation
 import Logging
-import Models
 import RunnerModels
 
 public final class EventBusReportingTestRunnerStream: TestRunnerStream {

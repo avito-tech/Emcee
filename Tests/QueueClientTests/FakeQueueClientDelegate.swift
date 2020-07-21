@@ -1,8 +1,6 @@
 import Foundation
-import Models
 import QueueClient
 import QueueModels
-import Models
 
 class FakeQueueClientDelegate: QueueClientDelegate {
     enum ServerResponse {

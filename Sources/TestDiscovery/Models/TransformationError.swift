@@ -1,5 +1,6 @@
 import Foundation
-import Models
+import RunnerModels
+import TestArgFile
 
 public enum TransformationError: Error, CustomStringConvertible {
     case someTestsAreMissingInRuntime([TestToRun])

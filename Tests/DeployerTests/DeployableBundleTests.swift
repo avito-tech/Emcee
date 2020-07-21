@@ -1,5 +1,4 @@
 @testable import Deployer
-import Extensions
 import Foundation
 import PathLib
 import TemporaryStuff

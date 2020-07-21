@@ -2,21 +2,21 @@ import AtomicModels
 import Dispatch
 import Foundation
 import Logging
-import Models
 import QueueClient
 import QueueModels
 import RequestSender
+import SocketModels
 import Types
 
 public final class RemoteQueuePortScanner: RemotePortDeterminer {
     private let host: String
-    private let portRange: ClosedRange<Models.Port>
+    private let portRange: ClosedRange<SocketModels.Port>
     private let requestSenderProvider: RequestSenderProvider
     private let workQueue = DispatchQueue(label: "RemoteQueuePortScanner.workQueue")
     
     public init(
         host: String,
-        portRange: ClosedRange<Models.Port>,
+        portRange: ClosedRange<SocketModels.Port>,
         requestSenderProvider: RequestSenderProvider
     ) {
         self.host = host
@@ -24,10 +24,10 @@ public final class RemoteQueuePortScanner: RemotePortDeterminer {
         self.requestSenderProvider = requestSenderProvider
     }
     
-    public func queryPortAndQueueServerVersion(timeout: TimeInterval) -> [Models.Port: Version] {
+    public func queryPortAndQueueServerVersion(timeout: TimeInterval) -> [SocketModels.Port: Version] {
         let group = DispatchGroup()
         
-        let portToVersion = AtomicValue<[Models.Port: Version]>([:])
+        let portToVersion = AtomicValue<[SocketModels.Port: Version]>([:])
         
         for port in portRange {
             group.enter()

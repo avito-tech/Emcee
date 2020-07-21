@@ -1,8 +1,8 @@
 import AutomaticTerminationTestHelpers
 import Foundation
-import Models
 import RESTInterfaces
 import RESTServer
+import SocketModels
 import TestHelpers
 import Types
 import XCTest
@@ -93,7 +93,7 @@ final class HTTPRESTServerTests: XCTestCase {
     }
     
     func startDataTask<T: Encodable>(
-        port: Models.Port,
+        port: SocketModels.Port,
         body: T,
         completion: @escaping (Data?, URLResponse?) -> ()
     ) -> (task: URLSessionDataTask, waiter: XCTestExpectation) {

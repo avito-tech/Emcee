@@ -2,8 +2,8 @@
 import BuildArtifacts
 import BuildArtifactsTestHelpers
 import Foundation
-import Models
-import ModelsTestHelpers
+import TestArgFile
+import RunnerModels
 import XCTest
 
 final class TestToRunIntoTestEntryTransformerTests: XCTestCase {

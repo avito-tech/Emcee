@@ -2,7 +2,6 @@ import DateProvider
 import Foundation
 import LocalHostDeterminer
 import Metrics
-import Models
 import QueueModels
 
 public final class QueueStateMetricGatherer {

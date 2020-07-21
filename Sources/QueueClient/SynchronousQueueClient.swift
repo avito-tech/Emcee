@@ -1,11 +1,11 @@
 import Dispatch
 import Foundation
 import Logging
-import Models
 import QueueModels
 import RESTMethods
 import RequestSender
 import ScheduleStrategy
+import SocketModels
 import SynchronousWaiter
 import Types
 

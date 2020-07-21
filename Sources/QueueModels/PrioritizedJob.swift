@@ -1,5 +1,4 @@
 import Foundation
-import Models
 
 public struct PrioritizedJob: Hashable, Codable, CustomStringConvertible {    
     public let jobGroupId: JobGroupId

@@ -1,6 +1,5 @@
 import EmceeLib
 import Foundation
-import Models
 import PathLib
 import RunnerModels
 import SimulatorPoolModels

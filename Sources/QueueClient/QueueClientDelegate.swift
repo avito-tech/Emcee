@@ -1,5 +1,4 @@
 import Foundation
-import Models
 import QueueModels
 
 public protocol QueueClientDelegate: class {

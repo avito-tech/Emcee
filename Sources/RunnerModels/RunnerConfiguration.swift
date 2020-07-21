@@ -1,6 +1,5 @@
 import BuildArtifacts
 import Foundation
-import Models
 import PluginSupport
 import SimulatorPoolModels
 

@@ -1,9 +1,8 @@
 import Foundation
-import Models
-import ModelsTestHelpers
 import PlistLib
 import SimulatorPool
 import SimulatorPoolModels
+import SimulatorPoolTestHelpers
 import TemporaryStuff
 import TestHelpers
 import XCTest

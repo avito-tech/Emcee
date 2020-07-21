@@ -1,5 +1,4 @@
 import Foundation
-import Models
 import SimulatorPool
 import SimulatorPoolTestHelpers
 import XCTest

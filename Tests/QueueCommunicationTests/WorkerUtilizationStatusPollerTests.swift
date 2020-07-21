@@ -2,7 +2,6 @@ import Deployer
 import DeployerTestHelpers
 import Metrics
 import MetricsTestHelpers
-import Models
 import QueueCommunication
 import QueueCommunicationTestHelpers
 import QueueModels

@@ -1,4 +1,3 @@
-import Extensions
 import Foundation
 
 public final class NSLogLikeLogEntryTextFormatter: LogEntryTextFormatter {

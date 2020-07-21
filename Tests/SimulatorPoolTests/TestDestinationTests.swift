@@ -1,5 +1,5 @@
 import Foundation
-import Models
+import SimulatorPoolModels
 import XCTest
 
 final class TestDestinationTests: XCTestCase {

@@ -1,9 +1,9 @@
 import Deployer
 import DeployerTestHelpers
 import Dispatch
-import Models
 import QueueCommunication
 import QueueModels
+import SocketModels
 import Types
 
 public class FakeQueueCommunicationService: QueueCommunicationService {

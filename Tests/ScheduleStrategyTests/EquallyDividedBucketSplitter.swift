@@ -1,10 +1,9 @@
 import Foundation
 import Foundation
-import Models
-import ModelsTestHelpers
-import ScheduleStrategy
 import QueueModels
 import QueueModelsTestHelpers
+import RunnerTestHelpers
+import ScheduleStrategy
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
@@ -26,7 +25,8 @@ final class EquallyDividedBucketSplitterTests: XCTestCase {
         
         let actual = equallyDividedSplitter.split(
             inputs: testEntryConfigurations,
-            bucketSplitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture(numberOfWorkers: 2))
+            bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 2)
+        )
         
         XCTAssertEqual(actual, expected)
     }
@@ -36,7 +36,8 @@ final class EquallyDividedBucketSplitterTests: XCTestCase {
         
         let actual = equallyDividedSplitter.split(
             inputs: testEntryConfigurations,
-            bucketSplitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture(numberOfWorkers: UInt(testEntries.count)))
+            bucketSplitInfo: BucketSplitInfo(numberOfWorkers: UInt(testEntries.count))
+        )
         
         XCTAssertEqual(actual, expected)
     }

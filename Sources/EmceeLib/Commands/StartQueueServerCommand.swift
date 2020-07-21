@@ -4,13 +4,11 @@ import DateProvider
 import Deployer
 import DistWorkerModels
 import EmceeVersion
-import Extensions
 import Foundation
 import LocalHostDeterminer
 import LocalQueueServerRunner
 import Logging
 import LoggingSetup
-import Models
 import PluginManager
 import PortDeterminer
 import ProcessController
@@ -82,7 +80,7 @@ public final class StartQueueServerCommand: Command {
         let socketHost = LocalHostDeterminer.currentHostAddress
         let remotePortDeterminer = RemoteQueuePortScanner(
             host: socketHost,
-            portRange: Ports.defaultQueuePortRange,
+            portRange: EmceePorts.defaultQueuePortRange,
             requestSenderProvider: requestSenderProvider
         )
         let queueCommunicationService = DefaultQueueCommunicationService(
@@ -120,7 +118,7 @@ public final class StartQueueServerCommand: Command {
             dateProvider: dateProvider,
             deploymentDestinations: workerDestinations,
             emceeVersion: emceeVersion,
-            localPortDeterminer: LocalPortDeterminer(portRange: Ports.defaultQueuePortRange),
+            localPortDeterminer: LocalPortDeterminer(portRange: EmceePorts.defaultQueuePortRange),
             payloadSignature: payloadSignature,
             queueServerLock: AutomaticTerminationControllerAwareQueueServerLock(
                 automaticTerminationController: automaticTerminationController

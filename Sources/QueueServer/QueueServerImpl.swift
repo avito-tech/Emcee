@@ -4,10 +4,8 @@ import BucketQueue
 import DateProvider
 import Deployer
 import DistWorkerModels
-import Extensions
 import Foundation
 import Logging
-import Models
 import PortDeterminer
 import QueueCommunication
 import QueueModels
@@ -16,6 +14,7 @@ import RESTMethods
 import RESTServer
 import RequestSender
 import ScheduleStrategy
+import SocketModels
 import Swifter
 import SynchronousWaiter
 import UniqueIdentifierGenerator
@@ -173,7 +172,7 @@ public final class QueueServerImpl: QueueServer {
         self.toggleWorkersSharingEndpoint = ToggleWorkersSharingEndpoint(poller: workerUtilizationStatusPoller)
     }
     
-    public func start() throws -> Models.Port {
+    public func start() throws -> SocketModels.Port {
         httpRestServer.add(handler: RESTEndpointOf(bucketProvider))
         httpRestServer.add(handler: RESTEndpointOf(bucketResultRegistrar))
         httpRestServer.add(handler: RESTEndpointOf(deploymentDestinationsHandler))

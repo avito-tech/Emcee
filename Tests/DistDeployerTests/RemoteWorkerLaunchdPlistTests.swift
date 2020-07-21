@@ -2,9 +2,8 @@ import Deployer
 import DeployerTestHelpers
 import DistDeployer
 import Foundation
-import Models
-import ModelsTestHelpers
 import PathLib
+import SocketModels
 import XCTest
 
 final class RemoteWorkerLaunchdPlistTests: XCTestCase {

@@ -1,9 +1,9 @@
 import Foundation
-import Models
-import ModelsTestHelpers
 import QueueModels
 import RunnerModels
 import RunnerTestHelpers
+import SimulatorPoolModels
+import SimulatorPoolTestHelpers
 
 public final class TestingResultFixtures {
     public let unfilteredResults: [TestEntryResult]    

@@ -3,8 +3,6 @@ import DateProviderTestHelpers
 import DistWorkerModels
 import DistWorkerModelsTestHelpers
 import Foundation
-import Models
-import ModelsTestHelpers
 import PortDeterminer
 import QueueClient
 import QueueCommunicationTestHelpers
@@ -14,7 +12,9 @@ import QueueServer
 import RemotePortDeterminerTestHelpers
 import RequestSender
 import RequestSenderTestHelpers
+import RunnerTestHelpers
 import ScheduleStrategy
+import SocketModels
 import TestHelpers
 import Types
 import UniqueIdentifierGeneratorTestHelpers
@@ -30,7 +30,7 @@ final class QueueServerTests: XCTestCase {
     ).createAutomaticTerminationController()
     /// https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?&page=1
     private let localPortDeterminer = LocalPortDeterminer(portRange: 49152...65535)
-    private let bucketSplitInfo = BucketSplitInfoFixtures.bucketSplitInfoFixture()
+    private let bucketSplitInfo = BucketSplitInfo(numberOfWorkers: 1)
     private let payloadSignature = PayloadSignature(value: "expectedPayloadSignature")
 
     private let fixedBucketId: BucketId = "fixedBucketId"
@@ -185,11 +185,11 @@ final class QueueServerTests: XCTestCase {
         )
     }
     
-    private func synchronousQueueClient(port: Models.Port) -> SynchronousQueueClient {
+    private func synchronousQueueClient(port: SocketModels.Port) -> SynchronousQueueClient {
         return SynchronousQueueClient(queueServerAddress: queueServerAddress(port: port))
     }
     
-    private func queueServerAddress(port: Models.Port) -> SocketAddress {
+    private func queueServerAddress(port: SocketModels.Port) -> SocketAddress {
         return SocketAddress(host: "localhost", port: port)
     }
 }

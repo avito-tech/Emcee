@@ -1,5 +1,4 @@
 import RequestSender
-import Models
 
 class RuntimeDumpRemoteCacheStoreRequest: NetworkRequest {
     typealias Response = VoidPayload

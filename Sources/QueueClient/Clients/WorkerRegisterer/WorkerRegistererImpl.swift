@@ -1,9 +1,9 @@
 import Dispatch
 import DistWorkerModels
-import Models
 import QueueModels
 import RESTMethods
 import RequestSender
+import SocketModels
 import Types
 
 public final class WorkerRegistererImpl: WorkerRegisterer {

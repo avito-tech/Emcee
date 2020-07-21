@@ -3,12 +3,9 @@ import BuildArtifactsTestHelpers
 import DateProviderTestHelpers
 import DeveloperDirLocatorTestHelpers
 import EventBus
-import Extensions
 import FileSystemTestHelpers
 import Foundation
 import Logging
-import Models
-import ModelsTestHelpers
 import PluginManagerTestHelpers
 import QueueModels
 import ResourceLocationResolverTestHelpers

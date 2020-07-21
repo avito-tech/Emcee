@@ -2,7 +2,6 @@ import DeveloperDirLocator
 import Dispatch
 import Foundation
 import Logging
-import Models
 import PathLib
 import ProcessController
 import ResourceLocationResolver

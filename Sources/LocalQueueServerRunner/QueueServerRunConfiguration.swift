@@ -3,7 +3,6 @@ import Deployer
 import DistWorkerModels
 import Foundation
 import LoggingSetup
-import Models
 import QueueModels
 
 public struct QueueServerRunConfiguration: Decodable {

@@ -1,4 +1,6 @@
 import Foundation
+import RunnerModels
+import SimulatorPoolModels
 
 public struct TestDestinationConfiguration: Codable {
     public let testDestination: TestDestination

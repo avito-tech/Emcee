@@ -1,5 +1,4 @@
 import Foundation
-import Models
 import PortDeterminer
 import QueueModels
 import RESTInterfaces
@@ -7,6 +6,7 @@ import RESTMethods
 import RemotePortDeterminer
 import RequestSender
 import RequestSenderTestHelpers
+import SocketModels
 import Swifter
 import XCTest
 
@@ -33,7 +33,7 @@ final class RemoteQueuePortScannerTests: XCTestCase {
             }
         }
         try server.start(0, forceIPv4: false, priority: .default)
-        let port = Port(value: try server.port())
+        let port = SocketModels.Port(value: try server.port())
         
         let scanner = RemoteQueuePortScanner(
             host: "localhost",

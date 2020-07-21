@@ -1,7 +1,7 @@
 import AtomicModels
 import Foundation
-import Models
 import QueueModels
+import SocketModels
 
 public final class WorkerDetailsHolderImpl: WorkerDetailsHolder {
     private let storage = AtomicValue<[WorkerId: SocketAddress]>([:])

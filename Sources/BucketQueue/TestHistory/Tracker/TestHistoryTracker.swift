@@ -1,4 +1,3 @@
-import Models
 import QueueModels
 
 public protocol TestHistoryTracker {

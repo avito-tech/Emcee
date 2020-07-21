@@ -4,7 +4,6 @@ import DeveloperDirLocator
 import FileSystem
 import Foundation
 import Logging
-import Models
 import PathLib
 import PluginManager
 import QueueModels

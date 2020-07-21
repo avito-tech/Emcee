@@ -1,5 +1,4 @@
 import Foundation
-import Models
 import ResourceLocation
 import TypedResourceLocation
 

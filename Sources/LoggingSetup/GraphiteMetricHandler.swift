@@ -1,9 +1,9 @@
 import Foundation
 import GraphiteClient
+import IO
 import Logging
 import Metrics
-import Models
-import IO
+import SocketModels
 
 public final class GraphiteMetricHandler: MetricHandler {
     private let graphiteDomain: [String]

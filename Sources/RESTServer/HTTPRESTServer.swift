@@ -1,8 +1,8 @@
 import AutomaticTermination
 import Foundation
 import Logging
-import Models
 import RESTMethods
+import SocketModels
 import Swifter
 
 public final class HTTPRESTServer {
@@ -47,7 +47,7 @@ public final class HTTPRESTServer {
         }
     }
     
-    public func start() throws -> Models.Port {
+    public func start() throws -> SocketModels.Port {
         let port = try portProvider.localPort()
         try server.start(in_port_t(port.value), forceIPv4: false, priority: .default)
         

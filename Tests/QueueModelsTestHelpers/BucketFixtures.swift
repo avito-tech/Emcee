@@ -1,9 +1,8 @@
 import BuildArtifacts
 import BuildArtifactsTestHelpers
 import Foundation
-import Models
-import ModelsTestHelpers
 import QueueModels
+import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolTestHelpers
 

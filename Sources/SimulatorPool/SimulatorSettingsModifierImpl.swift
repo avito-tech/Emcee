@@ -2,7 +2,6 @@ import DeveloperDirLocator
 import DeveloperDirModels
 import Foundation
 import Logging
-import Models
 import PlistLib
 import ProcessController
 import SimulatorPoolModels

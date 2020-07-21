@@ -1,6 +1,6 @@
 import Foundation
-import Models
 import RequestSender
+import SocketModels
 
 public final class FakeRequestSenderProvider: RequestSenderProvider {
     public var generator: (SocketAddress) -> RequestSender

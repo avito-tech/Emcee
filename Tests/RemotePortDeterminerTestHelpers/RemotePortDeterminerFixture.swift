@@ -1,17 +1,17 @@
 import Foundation
-import RemotePortDeterminer
-import Models
 import QueueModels
+import RemotePortDeterminer
+import SocketModels
 
 public final class RemotePortDeterminerFixture: RemotePortDeterminer {
-    private var result = [Models.Port: Version]()
+    private var result = [SocketModels.Port: Version]()
 
-    public init(result: [Models.Port: Version] = [:]) {
+    public init(result: [SocketModels.Port: Version] = [:]) {
         self.result = result
     }
     
     @discardableResult
-    public func set(port: Models.Port, version: Version) -> RemotePortDeterminerFixture {
+    public func set(port: SocketModels.Port, version: Version) -> RemotePortDeterminerFixture {
         result.updateValue(version, forKey: port)
         return self
     }
@@ -20,7 +20,7 @@ public final class RemotePortDeterminerFixture: RemotePortDeterminer {
         return self
     }
     
-    public func queryPortAndQueueServerVersion(timeout: TimeInterval) -> [Models.Port: Version] {
+    public func queryPortAndQueueServerVersion(timeout: TimeInterval) -> [SocketModels.Port: Version] {
         return result
     }
 }

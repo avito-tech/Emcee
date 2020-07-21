@@ -1,7 +1,6 @@
 import EventBus
 import FileSystem
 import Foundation
-import Models
 import PluginManager
 import PluginSupport
 

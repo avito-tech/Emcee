@@ -1,15 +1,17 @@
 import Foundation
-import Models
-import ModelsTestHelpers
-import ScheduleStrategy
 import QueueModelsTestHelpers
+import RunnerTestHelpers
+import ScheduleStrategy
+import SimulatorPoolModels
+import SimulatorPoolTestHelpers
+import TestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class BucketSplitterTests: XCTestCase {
-    let testDestination1 = TestDestinationFixtures.testDestination
-    let testDestination2 = try! TestDestination(deviceType: "device2", runtime: "11.0")
+    lazy var testDestination1 = TestDestinationFixtures.testDestination
+    lazy var testDestination2 = assertDoesNotThrow { try TestDestination(deviceType: "device2", runtime: "11.0") }
     
     func test_splits_into_matrix_of_test_destination_by_test_entry() {
         let testEntryConfigurations =
@@ -35,7 +37,7 @@ final class BucketSplitterTests: XCTestCase {
         
         let buckets = splitter.generate(
             inputs: testEntryConfigurations,
-            splitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture()
+            splitInfo: BucketSplitInfo(numberOfWorkers: 1)
         )
         XCTAssertEqual(buckets.count, 2)
     }
@@ -56,7 +58,7 @@ final class BucketSplitterTests: XCTestCase {
 
         let buckets = splitter.generate(
             inputs: testEntryConfigurations,
-            splitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture()
+            splitInfo: BucketSplitInfo(numberOfWorkers: 1)
         )
         XCTAssertEqual(buckets.count, 4)
     }
@@ -87,7 +89,7 @@ final class BucketSplitterTests: XCTestCase {
 
         let buckets = splitter.generate(
             inputs: testEntryConfigurations,
-            splitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture()
+            splitInfo: BucketSplitInfo(numberOfWorkers: 1)
         )
         XCTAssertEqual(buckets.count, 3)
         XCTAssertEqual(buckets[0].testEntries, expectedBucketEntries)

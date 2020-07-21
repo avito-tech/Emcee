@@ -4,8 +4,8 @@ import DateProvider
 import Dispatch
 import Foundation
 import Logging
-import Models
 import QueueModels
+import RunnerModels
 import Types
 
 final class BalancingBucketQueueImpl: BalancingBucketQueue {

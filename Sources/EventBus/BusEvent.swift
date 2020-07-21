@@ -1,5 +1,4 @@
 import Foundation
-import Models
 
 public enum BusEvent: Codable, Equatable {
     case runnerEvent(RunnerEvent)

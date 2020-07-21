@@ -1,6 +1,6 @@
-import Models
-import RequestSender
 import PathLib
+import RequestSender
+import SocketModels
 
 public struct RuntimeDumpRemoteCacheConfig: Decodable, Equatable {
     public let credentials: Credentials

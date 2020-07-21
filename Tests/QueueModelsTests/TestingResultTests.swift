@@ -1,8 +1,8 @@
 import Foundation
-import Models
-import ModelsTestHelpers
 import QueueModels
 import RunnerTestHelpers
+import SimulatorPoolModels
+import SimulatorPoolTestHelpers
 import XCTest
 
 final class TestingResultTests: XCTestCase {

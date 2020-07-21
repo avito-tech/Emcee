@@ -1,5 +1,5 @@
 import Foundation
-import Models
+import SocketModels
 
 public struct GraphiteConfiguration: Codable, Equatable {
     public let socketAddress: SocketAddress

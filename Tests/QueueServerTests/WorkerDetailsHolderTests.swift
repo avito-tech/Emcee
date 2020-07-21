@@ -1,7 +1,7 @@
 import Foundation
-import Models
 import QueueModels
 import QueueServer
+import SocketModels
 import XCTest
 
 final class WorkerDetailsHolderTests: XCTestCase {

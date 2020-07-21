@@ -2,10 +2,10 @@ import Deployer
 import Dispatch
 import Foundation
 import Logging
-import Models
 import QueueModels
-import RequestSender
 import RESTMethods
+import RequestSender
+import SocketModels
 import Types
 
 public class DefaultQueueCommunicationService: QueueCommunicationService {
@@ -68,7 +68,7 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
     }
     
     public func deploymentDestinations(
-        port: Models.Port,
+        port: SocketModels.Port,
         completion: @escaping (Either<[DeploymentDestination], Error>) -> ()
     ) {
         let requestSender = requestSenderProvider.requestSender(

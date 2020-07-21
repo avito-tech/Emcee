@@ -1,13 +1,12 @@
 import Dispatch
-import Extensions
 import Foundation
 import Logging
-import Models
 import QueueModels
 import RESTInterfaces
 import RESTMethods
 import RequestSender
 import ScheduleStrategy
+import SocketModels
 
 public final class QueueClient {
     public weak var delegate: QueueClientDelegate?

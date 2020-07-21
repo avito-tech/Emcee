@@ -1,8 +1,6 @@
 @testable import SimulatorPool
 import DeveloperDirLocator
 import DeveloperDirLocatorTestHelpers
-import Models
-import ModelsTestHelpers
 import PathLib
 import SimulatorPoolModels
 import TemporaryStuff

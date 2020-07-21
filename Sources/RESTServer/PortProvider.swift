@@ -1,6 +1,6 @@
-import Models
+import SocketModels
 
 public protocol PortProvider {
-    func localPort() throws -> Port
+    func localPort() throws -> SocketModels.Port
 }
 

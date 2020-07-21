@@ -1,4 +1,5 @@
 import Foundation
+import RunnerModels
 
 /// An information about test that is requested and expected to be run.
 public enum TestToRun: Codable, CustomStringConvertible, Hashable {

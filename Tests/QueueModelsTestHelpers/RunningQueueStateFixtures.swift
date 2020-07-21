@@ -1,6 +1,6 @@
 import Foundation
-import Models
 import QueueModels
+import RunnerModels
 import Types
 
 public final class RunningQueueStateFixtures {

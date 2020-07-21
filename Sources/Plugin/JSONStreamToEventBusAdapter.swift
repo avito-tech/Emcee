@@ -2,7 +2,6 @@ import EventBus
 import Foundation
 import JSONStream
 import Logging
-import Models
 
 final class JSONStreamToEventBusAdapter: JSONReaderEventStream {
     private let eventBus: EventBus

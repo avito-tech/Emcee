@@ -2,13 +2,14 @@ import BuildArtifacts
 import BuildArtifactsTestHelpers
 import EmceeLib
 import Foundation
-import Models
-import ModelsTestHelpers
 import QueueModelsTestHelpers
+import RunnerModels
 import RunnerTestHelpers
+import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import TestArgFile
 import TestDiscovery
+import TestHelpers
 import XCTest
 
 final class TestEntryConfigurationGeneratorTests: XCTestCase {
@@ -21,8 +22,8 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
         xcTestBundle: "1",
         additionalApplicationBundles: ["1", "2"]
     )
-    let argFileDestination1 = try! TestDestination(deviceType: UUID().uuidString, runtime: "10.1")
-    let argFileDestination2 = try! TestDestination(deviceType: UUID().uuidString, runtime: "10.2")
+    lazy var argFileDestination1 = assertDoesNotThrow { try TestDestination(deviceType: UUID().uuidString, runtime: "10.1") }
+    lazy var argFileDestination2 = assertDoesNotThrow { try TestDestination(deviceType: UUID().uuidString, runtime: "10.2") }
     let simulatorSettings = SimulatorSettingsFixtures().simulatorSettings()
     let testTimeoutConfiguration = TestTimeoutConfiguration(singleTestMaximumDuration: 10, testRunnerMaximumSilenceDuration: 20)
 

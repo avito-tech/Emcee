@@ -1,7 +1,6 @@
 @testable import Deployer
 @testable import SSHDeployer
 import Foundation
-import Models
 import PathLib
 import ProcessControllerTestHelpers
 import TemporaryStuff

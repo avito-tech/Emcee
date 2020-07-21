@@ -1,7 +1,6 @@
 import Dispatch
 import Foundation
 import Logging
-import Models
 
 public final class EventBus {
     private var streams = [EventStream]()

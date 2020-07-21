@@ -1,12 +1,11 @@
 import BucketQueueTestHelpers
 import DateProviderTestHelpers
 import Foundation
-import Models
-import ModelsTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
 import QueueServer
 import RESTMethods
+import RunnerTestHelpers
 import ScheduleStrategy
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
@@ -18,7 +17,7 @@ final class TestsEnqueuerTests: XCTestCase {
     func test() {
         let bucketId = BucketId(value: UUID().uuidString)
         let testsEnqueuer = TestsEnqueuer(
-            bucketSplitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture(),
+            bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 1),
             dateProvider: DateProviderFixture(),
             enqueueableBucketReceptor: enqueueableBucketReceptor,
             version: Version(value: "version")

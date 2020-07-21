@@ -1,4 +1,3 @@
-import Models
 import QueueModels
 
 public final class TestHistoryTrackerAcceptResult {

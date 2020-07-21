@@ -1,8 +1,7 @@
 @testable import ScheduleStrategy
-import Models
-import ModelsTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
+import RunnerTestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
@@ -29,7 +28,7 @@ final class ProgressiveSplitterTests: XCTestCase {
     func test_progressive_splitter() {
         let result = progressiveSplitter.split(
             inputs: testEntryConfigurations,
-            bucketSplitInfo: BucketSplitInfoFixtures.bucketSplitInfoFixture()
+            bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 1)
         )
         
         XCTAssertEqual(result[0], Array(testEntryConfigurations[0..<4]))

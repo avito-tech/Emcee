@@ -4,10 +4,10 @@ import DeveloperDirLocator
 import DeveloperDirModels
 import Foundation
 import Logging
-import Models
 import PathLib
 import ProcessController
 import ResourceLocationResolver
+import SimulatorPoolModels
 import TemporaryStuff
 import UniqueIdentifierGenerator
 

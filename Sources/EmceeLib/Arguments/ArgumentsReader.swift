@@ -2,7 +2,6 @@ import Deployer
 import DistDeployer
 import Foundation
 import LocalQueueServerRunner
-import Models
 import ResourceLocationResolver
 import TestArgFile
 import TestDiscovery

@@ -1,5 +1,4 @@
 import Foundation
-import Models
 import PathLib
 import ResourceLocation
 import ResourceLocationResolver

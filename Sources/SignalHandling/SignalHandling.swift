@@ -1,6 +1,5 @@
 import Dispatch
 import Foundation
-import Models
 import Signals
 import Types
 

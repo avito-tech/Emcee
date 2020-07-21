@@ -2,7 +2,6 @@ import Dispatch
 import FileCache
 import Foundation
 import Logging
-import Models
 import PathLib
 
 public final class URLResource {

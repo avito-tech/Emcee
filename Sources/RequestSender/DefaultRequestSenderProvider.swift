@@ -1,5 +1,5 @@
 import Foundation
-import Models
+import SocketModels
 
 public final class DefaultRequestSenderProvider: RequestSenderProvider {
     public init() {

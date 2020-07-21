@@ -1,6 +1,5 @@
 import BucketQueue
 import Foundation
-import Models
 
 /// Allows to override dequeue result when no dequeueable buckets available.
 public protocol NothingToDequeueBehavior {

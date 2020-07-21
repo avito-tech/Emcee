@@ -1,7 +1,7 @@
 import Dispatch
 import DistWorkerModels
-import Models
 import QueueModels
+import SocketModels
 import Types
 
 public protocol WorkerRegisterer {

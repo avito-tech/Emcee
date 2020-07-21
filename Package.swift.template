@@ -17,7 +17,6 @@ let package = Package(
         .library(
             name: "EmceePlugin",
             targets: [
-                "Models",
                 "Logging",
                 "Plugin",
             ]
@@ -36,9 +35,9 @@ let package = Package(
             name: "EmceeInterfaces",
             targets: [
                 "BuildArtifacts",
+                "DeveloperDirModels",
                 "EmceeVersion",
                 "FileSystem",
-                "Models",
                 "PathLib",
                 "PluginSupport",
                 "QueueModels",
@@ -47,6 +46,7 @@ let package = Package(
                 "RunnerModels",
                 "SimulatorPoolModels",
                 "SimulatorVideoRecorder",
+                "SocketModels",
                 "TestArgFile",
                 "TestDiscovery",
                 "TypedResourceLocation",

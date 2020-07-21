@@ -1,9 +1,8 @@
 import DeveloperDirModels
 import Foundation
-import Models
-import ModelsTestHelpers
 import RunnerModels
 import SimulatorPoolModels
+import SimulatorPoolTestHelpers
 
 public final class TestContextFixtures {
     public var developerDir: DeveloperDir

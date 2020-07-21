@@ -2,7 +2,6 @@ import AtomicModels
 import Dispatch
 import Foundation
 import Logging
-import Models
 import PathLib
 import SynchronousWaiter
 import Types

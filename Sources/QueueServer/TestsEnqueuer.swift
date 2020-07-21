@@ -4,7 +4,6 @@ import Foundation
 import LocalHostDeterminer
 import Logging
 import Metrics
-import Models
 import QueueModels
 import ScheduleStrategy
 

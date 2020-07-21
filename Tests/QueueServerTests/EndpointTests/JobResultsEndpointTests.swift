@@ -1,11 +1,11 @@
 import BalancingBucketQueue
 import Foundation
-import Models
-import ModelsTestHelpers
 import QueueModels
 import QueueServer
 import RESTMethods
 import RunnerModels
+import RunnerTestHelpers
+import SimulatorPoolTestHelpers
 import XCTest
 
 final class JobResultsEndpointTests: XCTestCase, JobResultsProvider {
@@ -13,10 +13,11 @@ final class JobResultsEndpointTests: XCTestCase, JobResultsProvider {
     private let jobId: JobId = "jobid"
     private lazy var jobResults = JobResults(
         jobId: jobId,
-        testingResults: [TestingResult(
-            bucketId: "bucketid",
-            testDestination: TestDestinationFixtures.testDestination,
-            unfilteredResults: [TestEntryResult.lost(testEntry: TestEntryFixtures.testEntry())]
+        testingResults: [
+            TestingResult(
+                bucketId: "bucketid",
+                testDestination: TestDestinationFixtures.testDestination,
+                unfilteredResults: [TestEntryResult.lost(testEntry: TestEntryFixtures.testEntry())]
             )
         ]
     )

@@ -1,18 +1,18 @@
 import Foundation
-import Models
 import QueueCommunication
+import SocketModels
 import TestHelpers
 
 public class FakeRemoteQueueDetector: RemoteQueueDetector {
     public init() { }
     
-    public func findSuitableRemoteRunningQueuePorts(timeout: TimeInterval) throws -> Set<Models.Port> {
+    public func findSuitableRemoteRunningQueuePorts(timeout: TimeInterval) throws -> Set<SocketModels.Port> {
         return Set()
     }
     
     public var shoudThrow = false
-    public var masterPort: Models.Port = 0
-    public func findMasterQueuePort(timeout: TimeInterval) throws -> Models.Port {
+    public var masterPort: SocketModels.Port = 0
+    public func findMasterQueuePort(timeout: TimeInterval) throws -> SocketModels.Port {
         if shoudThrow {
             throw ErrorForTestingPurposes(text: "FindMasterQueuePort error")
         }

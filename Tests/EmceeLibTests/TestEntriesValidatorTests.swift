@@ -1,9 +1,9 @@
 import BuildArtifacts
 import BuildArtifactsTestHelpers
 import EmceeLib
-import Models
-import ModelsTestHelpers
+import RunnerModels
 import RunnerTestHelpers
+import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import TestArgFile
 import TestDiscovery

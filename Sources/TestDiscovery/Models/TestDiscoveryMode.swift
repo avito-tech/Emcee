@@ -1,6 +1,5 @@
 import BuildArtifacts
 import Foundation
-import Models
 import SimulatorPoolModels
 
 public enum TestDiscoveryMode: Hashable {
