@@ -11,17 +11,23 @@ import Timer
 
 public final class StuckBucketsPoller {
     private let dateProvider: DateProvider
-    private let statefulStuckBucketsReenqueuer: StuckBucketsReenqueuer & JobStateProvider & RunningQueueStateProvider
+    private let jobStateProvider: JobStateProvider
+    private let runningQueueStateProvider: RunningQueueStateProvider
+    private let stuckBucketsReenqueuer: StuckBucketsReenqueuer
     private let stuckBucketsTrigger = DispatchBasedTimer(repeating: .seconds(1), leeway: .seconds(5))
     private let version: Version
     
     public init(
         dateProvider: DateProvider,
-        statefulStuckBucketsReenqueuer: StuckBucketsReenqueuer & JobStateProvider & RunningQueueStateProvider,
+        jobStateProvider: JobStateProvider,
+        runningQueueStateProvider: RunningQueueStateProvider,
+        stuckBucketsReenqueuer: StuckBucketsReenqueuer,
         version: Version
     ) {
         self.dateProvider = dateProvider
-        self.statefulStuckBucketsReenqueuer = statefulStuckBucketsReenqueuer
+        self.jobStateProvider = jobStateProvider
+        self.runningQueueStateProvider = runningQueueStateProvider
+        self.stuckBucketsReenqueuer = stuckBucketsReenqueuer
         self.version = version
     }
     
@@ -33,7 +39,7 @@ public final class StuckBucketsPoller {
     
     /// internal for testing
     func processStuckBuckets() {
-        let stuckBuckets = statefulStuckBucketsReenqueuer.reenqueueStuckBuckets()
+        let stuckBuckets = stuckBucketsReenqueuer.reenqueueStuckBuckets()
         
         guard !stuckBuckets.isEmpty else { return }
         
@@ -61,8 +67,8 @@ public final class StuckBucketsPoller {
         
         MetricRecorder.capture(
             queueStateMetricGatherer.metrics(
-                jobStates: statefulStuckBucketsReenqueuer.allJobStates,
-                runningQueueState: statefulStuckBucketsReenqueuer.runningQueueState
+                jobStates: jobStateProvider.allJobStates,
+                runningQueueState: runningQueueStateProvider.runningQueueState
             )
         )
     }

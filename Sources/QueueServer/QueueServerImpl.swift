@@ -21,7 +21,6 @@ import UniqueIdentifierGenerator
 import WorkerAlivenessProvider
 
 public final class QueueServerImpl: QueueServer {
-    private let balancingBucketQueue: BalancingBucketQueue
     private let bucketProvider: BucketProviderEndpoint
     private let bucketResultRegistrar: BucketResultRegistrar
     private let deploymentDestinationsHandler: DeploymentDestinationsEndpoint
@@ -30,8 +29,11 @@ public final class QueueServerImpl: QueueServer {
     private let httpRestServer: HTTPRESTServer
     private let jobDeleteEndpoint: JobDeleteEndpoint
     private let jobResultsEndpoint: JobResultsEndpoint
+    private let jobResultsProvider: JobResultsProvider
     private let jobStateEndpoint: JobStateEndpoint
+    private let jobStateProvider: JobStateProvider
     private let queueServerVersionHandler: QueueServerVersionEndpoint
+    private let runningQueueStateProvider: RunningQueueStateProvider
     private let scheduleTestsHandler: ScheduleTestsEndpoint
     private let stuckBucketsPoller: StuckBucketsPoller
     private let testsEnqueuer: TestsEnqueuer
@@ -76,25 +78,53 @@ public final class QueueServerImpl: QueueServer {
             workerAlivenessProvider: workerAlivenessProvider,
             workerDetailsHolder: workerDetailsHolder
         )
-        let balancingBucketQueueFactory = BalancingBucketQueueFactory(
-            bucketQueueFactory: BucketQueueFactory(
-                checkAgainTimeInterval: checkAgainTimeInterval,
-                dateProvider: dateProvider,
-                testHistoryTracker: TestHistoryTrackerImpl(
-                    testHistoryStorage: TestHistoryStorageImpl(),
-                    uniqueIdentifierGenerator: uniqueIdentifierGenerator
-                ),
-                uniqueIdentifierGenerator: uniqueIdentifierGenerator,
-                workerAlivenessProvider: workerAlivenessProvider
+        
+        let bucketQueueFactory = BucketQueueFactory(
+            checkAgainTimeInterval: checkAgainTimeInterval,
+            dateProvider: dateProvider,
+            testHistoryTracker: TestHistoryTrackerImpl(
+                testHistoryStorage: TestHistoryStorageImpl(),
+                uniqueIdentifierGenerator: uniqueIdentifierGenerator
             ),
-            nothingToDequeueBehavior: NothingToDequeueBehaviorCheckLater(checkAfter: checkAgainTimeInterval),
-            workerPermissionProvider: workerUtilizationStatusPoller
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+            workerAlivenessProvider: workerAlivenessProvider
         )
-        self.balancingBucketQueue = balancingBucketQueueFactory.create()
+        let nothingToDequeueBehavior: NothingToDequeueBehavior = NothingToDequeueBehaviorCheckLater(
+            checkAfter: checkAgainTimeInterval
+        )
+        
+        let multipleQueuesContainer = MultipleQueuesContainer()
+        let jobManipulator: JobManipulator = MultipleQueuesJobManipulator(
+            multipleQueuesContainer: multipleQueuesContainer
+        )
+        self.jobStateProvider = MultipleQueuesJobStateProvider(
+            multipleQueuesContainer: multipleQueuesContainer
+        )
+        self.jobResultsProvider = MultipleQueuesJobResultsProvider(
+            multipleQueuesContainer: multipleQueuesContainer
+        )
+        let enqueueableBucketReceptor: EnqueueableBucketReceptor = MultipleQueuesEnqueueableBucketReceptor(
+            bucketQueueFactory: bucketQueueFactory,
+            multipleQueuesContainer: multipleQueuesContainer
+        )
+        let dequeueableBucketSource: DequeueableBucketSource = MultipleQueuesDequeueableBucketSource(
+            multipleQueuesContainer: multipleQueuesContainer,
+            nothingToDequeueBehavior: nothingToDequeueBehavior
+        )
+        let bucketResultAccepter: BucketResultAccepter = MultipleQueuesBucketResultAccepter(
+            multipleQueuesContainer: multipleQueuesContainer
+        )
+        let stuckBucketsReenqueuer: StuckBucketsReenqueuer = MultipleQueuesStuckBucketsReenqueuer(
+            multipleQueuesContainer: multipleQueuesContainer
+        )
+        self.runningQueueStateProvider = MultipleQueuesRunningQueueStateProvider(
+            multipleQueuesContainer: multipleQueuesContainer
+        )
+        
         self.testsEnqueuer = TestsEnqueuer(
             bucketSplitInfo: bucketSplitInfo,
             dateProvider: dateProvider,
-            enqueueableBucketReceptor: balancingBucketQueue,
+            enqueueableBucketReceptor: enqueueableBucketReceptor,
             version: emceeVersion
         )
         self.scheduleTestsHandler = ScheduleTestsEndpoint(
@@ -108,25 +138,27 @@ public final class QueueServerImpl: QueueServer {
         )
         self.stuckBucketsPoller = StuckBucketsPoller(
             dateProvider: dateProvider,
-            statefulStuckBucketsReenqueuer: balancingBucketQueue,
+            jobStateProvider: jobStateProvider,
+            runningQueueStateProvider: runningQueueStateProvider,
+            stuckBucketsReenqueuer: stuckBucketsReenqueuer,
             version: emceeVersion
         )
         self.bucketProvider = BucketProviderEndpoint(
             dequeueableBucketSource: DequeueableBucketSourceWithMetricSupport(
                 dateProvider: dateProvider,
-                dequeueableBucketSource: balancingBucketQueue,
-                jobStateProvider: balancingBucketQueue,
-                queueStateProvider: balancingBucketQueue,
+                dequeueableBucketSource: dequeueableBucketSource,
+                jobStateProvider: jobStateProvider,
+                queueStateProvider: runningQueueStateProvider,
                 version: emceeVersion
             ),
             expectedPayloadSignature: payloadSignature
         )
         self.bucketResultRegistrar = BucketResultRegistrar(
             bucketResultAccepter: BucketResultAccepterWithMetricSupport(
-                bucketResultAccepter: balancingBucketQueue,
+                bucketResultAccepter: bucketResultAccepter,
                 dateProvider: dateProvider,
-                jobStateProvider: balancingBucketQueue,
-                queueStateProvider: balancingBucketQueue,
+                jobStateProvider: jobStateProvider,
+                queueStateProvider: runningQueueStateProvider,
                 version: emceeVersion
             ),
             expectedPayloadSignature: payloadSignature,
@@ -148,13 +180,13 @@ public final class QueueServerImpl: QueueServer {
             queueServerLock: queueServerLock
         )
         self.jobResultsEndpoint = JobResultsEndpoint(
-            jobResultsProvider: balancingBucketQueue
+            jobResultsProvider: jobResultsProvider
         )
         self.jobStateEndpoint = JobStateEndpoint(
-            stateProvider: balancingBucketQueue
+            stateProvider: jobStateProvider
         )
         self.jobDeleteEndpoint = JobDeleteEndpoint(
-            jobManipulator: balancingBucketQueue
+            jobManipulator: jobManipulator
         )
         self.workerAlivenessMetricCapturer = WorkerAlivenessMetricCapturer(
             dateProvider: dateProvider,
@@ -208,7 +240,7 @@ public final class QueueServerImpl: QueueServer {
     }
     
     public var isDepleted: Bool {
-        return balancingBucketQueue.runningQueueState.isDepleted
+        return runningQueueStateProvider.runningQueueState.isDepleted
     }
     
     public var hasAnyAliveWorker: Bool {
@@ -216,10 +248,10 @@ public final class QueueServerImpl: QueueServer {
     }
     
     public var ongoingJobIds: Set<JobId> {
-        return balancingBucketQueue.ongoingJobIds
+        return jobStateProvider.ongoingJobIds
     }
     
     public func queueResults(jobId: JobId) throws -> JobResults {
-        return try balancingBucketQueue.results(jobId: jobId)
+        return try jobResultsProvider.results(jobId: jobId)
     }
 }
