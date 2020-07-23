@@ -2,8 +2,9 @@ import BuildArtifacts
 import DeveloperDirModels
 import Foundation
 import PluginSupport
-import SimulatorPoolModels
 import RunnerModels
+import SimulatorPoolModels
+import WorkerCapabilitiesModels
 
 public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStringConvertible {
     public let bucketId: BucketId
@@ -19,6 +20,7 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStr
     public let testRunnerTool: TestRunnerTool
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testType: TestType
+    public let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
 
     public init(
         bucketId: BucketId,
@@ -33,7 +35,8 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStr
         testExecutionBehavior: TestExecutionBehavior,
         testRunnerTool: TestRunnerTool,
         testTimeoutConfiguration: TestTimeoutConfiguration,
-        testType: TestType
+        testType: TestType,
+        workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
     ) {
         self.bucketId = bucketId
         self.buildArtifacts = buildArtifacts
@@ -48,6 +51,7 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStr
         self.testRunnerTool = testRunnerTool
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testType = testType
+        self.workerCapabilityRequirements = workerCapabilityRequirements
     }
     
     public var description: String {
@@ -55,6 +59,6 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStr
     }
     
     public var debugDescription: String {
-        return "<\((type(of: self))) \(bucketId) \(developerDir) \(testType) \(testDestination), \(simulatorControlTool), \(simulatorOperationTimeouts), \(testRunnerTool), \(buildArtifacts), \(pluginLocations), \(testEntries.debugDescription)>"
+        return "<\((type(of: self))) \(bucketId) \(developerDir) \(testType) \(testDestination), \(simulatorControlTool), \(simulatorOperationTimeouts), \(testRunnerTool), \(buildArtifacts), \(pluginLocations), \(workerCapabilityRequirements), \(testEntries.debugDescription)>"
     }
 }

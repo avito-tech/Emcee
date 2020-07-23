@@ -2,6 +2,7 @@ import BalancingBucketQueue
 import BucketQueueTestHelpers
 import QueueCommunication
 import QueueCommunicationTestHelpers
+import QueueServer
 import XCTest
 
 final class WorkerPermissionAwareDequeueableBucketSourceTests: XCTestCase {
@@ -19,7 +20,7 @@ final class WorkerPermissionAwareDequeueableBucketSourceTests: XCTestCase {
     func test___dequeueBucket_when_worker_is_allowed_to_utilize___use_internal_queue_value() {
         permissionProvider.permission = .allowedToUtilize
 
-        let result = bucketSource.dequeueBucket(requestId: "RequestId", workerId: "WorkerId")
+        let result = bucketSource.dequeueBucket(requestId: "RequestId", workerCapabilities: [], workerId: "WorkerId")
 
         XCTAssertEqual(result, .queueIsEmpty)
     }
@@ -27,7 +28,7 @@ final class WorkerPermissionAwareDequeueableBucketSourceTests: XCTestCase {
     func test___dequeueBucket_when_worker_is_not_allowed_to_utilize___use_nothing_to_deque_value() {
         permissionProvider.permission = .notAllowedToUtilize
 
-        let result = bucketSource.dequeueBucket(requestId: "RequestId", workerId: "WorkerId")
+        let result = bucketSource.dequeueBucket(requestId: "RequestId", workerCapabilities: [], workerId: "WorkerId")
 
         XCTAssertEqual(result, .checkAgainLater(checkAfter: 1337))
     }

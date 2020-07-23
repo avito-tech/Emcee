@@ -1,6 +1,7 @@
 import BucketQueue
 import Foundation
 import QueueModels
+import WorkerCapabilitiesModels
 
 public final class FakeDequeueableBucketSource: DequeueableBucketSource {
     public var dequeueResult: DequeueResult
@@ -11,7 +12,7 @@ public final class FakeDequeueableBucketSource: DequeueableBucketSource {
         self.previouslyDequeuedBucket = previouslyDequeuedBucket
     }
     
-    public func dequeueBucket(requestId: RequestId, workerId: WorkerId) -> DequeueResult {
+    public func dequeueBucket(requestId: RequestId, workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
         return dequeueResult
     }
     

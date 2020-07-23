@@ -57,7 +57,8 @@ public class BucketSplitter: Splitter, CustomStringConvertible {
                 testExecutionBehavior: entry.testExecutionBehavior,
                 testRunnerTool: entry.testRunnerTool,
                 testTimeoutConfiguration: entry.testTimeoutConfiguration,
-                testType: entry.testType
+                testType: entry.testType,
+                workerCapabilityRequirements: entry.workerCapabilityRequirements
             )
         }
     }

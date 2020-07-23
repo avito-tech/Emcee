@@ -5,6 +5,7 @@ import Foundation
 import LocalHostDeterminer
 import Metrics
 import QueueModels
+import WorkerCapabilitiesModels
 
 public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSource {
     private let dateProvider: DateProvider
@@ -31,8 +32,8 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
         return dequeueableBucketSource.previouslyDequeuedBucket(requestId: requestId, workerId: workerId)
     }
     
-    public func dequeueBucket(requestId: RequestId, workerId: WorkerId) -> DequeueResult {
-        let dequeueResult = dequeueableBucketSource.dequeueBucket(requestId: requestId, workerId: workerId)
+    public func dequeueBucket(requestId: RequestId, workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
+        let dequeueResult = dequeueableBucketSource.dequeueBucket(requestId: requestId, workerCapabilities: workerCapabilities, workerId: workerId)
         
         if case DequeueResult.dequeuedBucket(let dequeuedBucket) = dequeueResult {
             sendMetrics(

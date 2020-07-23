@@ -4,6 +4,7 @@ import Foundation
 import PluginSupport
 import RunnerModels
 import SimulatorPoolModels
+import WorkerCapabilitiesModels
 
 public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable {
     public let buildArtifacts: BuildArtifacts
@@ -18,6 +19,7 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
     public let testRunnerTool: TestRunnerTool
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testType: TestType
+    public let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
 
     public init(
         buildArtifacts: BuildArtifacts,
@@ -31,7 +33,8 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
         testExecutionBehavior: TestExecutionBehavior,
         testRunnerTool: TestRunnerTool,
         testTimeoutConfiguration: TestTimeoutConfiguration,
-        testType: TestType
+        testType: TestType,
+        workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
     ) {
         self.buildArtifacts = buildArtifacts
         self.developerDir = developerDir
@@ -45,9 +48,10 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
         self.testRunnerTool = testRunnerTool
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testType = testType
+        self.workerCapabilityRequirements = workerCapabilityRequirements
     }
     
     public var description: String {
-        return "<\(type(of: self)): \(testEntry) \(testType) \(testDestination) \(buildArtifacts) \(pluginLocations) \(simulatorSettings) \(testExecutionBehavior) \(testTimeoutConfiguration) \(simulatorControlTool) \(simulatorOperationTimeouts) \(testRunnerTool) \(developerDir)>"
+        return "<\(type(of: self)): \(testEntry) \(testType) \(testDestination) \(buildArtifacts) \(pluginLocations) \(simulatorSettings) \(testExecutionBehavior) \(testTimeoutConfiguration) \(simulatorControlTool) \(simulatorOperationTimeouts) \(testRunnerTool) \(developerDir) \(workerCapabilityRequirements)>"
     }
 }

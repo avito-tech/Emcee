@@ -89,7 +89,8 @@ public final class TestEntryConfigurationFixtures {
                 testExecutionBehavior: testExecutionBehavior,
                 testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
                 testTimeoutConfiguration: testTimeoutConfiguration,
-                testType: testType
+                testType: testType,
+                workerCapabilityRequirements: []
             )
         }
     }

@@ -2,6 +2,7 @@ import BucketQueue
 import Foundation
 import QueueModels
 import QueueModelsTestHelpers
+import WorkerCapabilitiesModels
 
 public class FakeBucketQueue: BucketQueue {
     
@@ -41,7 +42,7 @@ public class FakeBucketQueue: BucketQueue {
         return fixedPreviouslyDequeuedBucket
     }
     
-    public func dequeueBucket(requestId: RequestId, workerId: WorkerId) -> DequeueResult {
+    public func dequeueBucket(requestId: RequestId, workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
         return fixedDequeueResult
     }
     

@@ -1,6 +1,7 @@
 import BucketQueue
 import Foundation
 import QueueModels
+import WorkerCapabilitiesModels
 
 public final class BalancingBucketQueueImpl: BalancingBucketQueue {
     private let bucketQueueFactory: BucketQueueFactory
@@ -43,8 +44,8 @@ public final class BalancingBucketQueueImpl: BalancingBucketQueue {
         MultipleQueuesDequeueableBucketSource(multipleQueuesContainer: multipleQueuesContainer, nothingToDequeueBehavior: nothingToDequeueBehavior).previouslyDequeuedBucket(requestId: requestId, workerId: workerId)
     }
     
-    public func dequeueBucket(requestId: RequestId, workerId: WorkerId) -> DequeueResult {
-        MultipleQueuesDequeueableBucketSource(multipleQueuesContainer: multipleQueuesContainer, nothingToDequeueBehavior: nothingToDequeueBehavior).dequeueBucket(requestId: requestId, workerId: workerId)
+    public func dequeueBucket(requestId: RequestId, workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
+        MultipleQueuesDequeueableBucketSource(multipleQueuesContainer: multipleQueuesContainer, nothingToDequeueBehavior: nothingToDequeueBehavior).dequeueBucket(requestId: requestId, workerCapabilities: workerCapabilities, workerId: workerId)
     }
     
     public func accept(testingResult: TestingResult, requestId: RequestId, workerId: WorkerId) throws -> BucketQueueAcceptResult {

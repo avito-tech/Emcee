@@ -42,7 +42,8 @@ public final class TestEntryConfigurationGenerator {
                     ),
                     testRunnerTool: testArgFileEntry.testRunnerTool,
                     testTimeoutConfiguration: testArgFileEntry.testTimeoutConfiguration,
-                    testType: testArgFileEntry.testType
+                    testType: testArgFileEntry.testType,
+                    workerCapabilityRequirements: testArgFileEntry.workerCapabilityRequirements
                 )
             }
         }

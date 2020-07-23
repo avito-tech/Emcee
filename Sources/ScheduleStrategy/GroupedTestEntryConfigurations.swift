@@ -6,6 +6,7 @@ import QueueModels
 import RunnerModels
 import SimulatorPoolModels
 import Types
+import WorkerCapabilitiesModels
 
 final class GroupedTestEntryConfigurations {
     private let testEntryConfigurations: [TestEntryConfiguration]
@@ -27,6 +28,7 @@ final class GroupedTestEntryConfigurations {
             let testRunnerTool: TestRunnerTool
             let testTimeoutConfiguration: TestTimeoutConfiguration
             let testType: TestType
+            let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
         }
         
         var groups = MapWithCollection<Key, TestEntryConfiguration>()
@@ -43,7 +45,8 @@ final class GroupedTestEntryConfigurations {
                 testExecutionBehavior: testEntryConfiguration.testExecutionBehavior,
                 testRunnerTool: testEntryConfiguration.testRunnerTool,
                 testTimeoutConfiguration: testEntryConfiguration.testTimeoutConfiguration,
-                testType: testEntryConfiguration.testType
+                testType: testEntryConfiguration.testType,
+                workerCapabilityRequirements: testEntryConfiguration.workerCapabilityRequirements
             )
             
             groups.append(key: key, element: testEntryConfiguration)

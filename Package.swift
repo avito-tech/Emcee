@@ -172,10 +172,10 @@ let package = Package(
                 "BucketQueue",
                 "CountedSet",
                 "Logging",
-                "QueueCommunication",
                 "QueueModels",
                 "RunnerModels",
                 "Types",
+                "WorkerCapabilitiesModels",
             ],
             path: "Sources/BalancingBucketQueue"
         ),
@@ -214,6 +214,8 @@ let package = Package(
                 "Types",
                 "UniqueIdentifierGenerator",
                 "WorkerAlivenessProvider",
+                "WorkerCapabilities",
+                "WorkerCapabilitiesModels",
             ],
             path: "Sources/BucketQueue"
         ),
@@ -231,6 +233,7 @@ let package = Package(
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessProvider",
+                "WorkerCapabilitiesModels",
             ],
             path: "Tests/BucketQueueTestHelpers"
         ),
@@ -246,9 +249,11 @@ let package = Package(
                 "QueueModelsTestHelpers",
                 "RunnerModels",
                 "RunnerTestHelpers",
+                "TestHelpers",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessProvider",
+                "WorkerCapabilitiesModels",
             ],
             path: "Tests/BucketQueueTests"
         ),
@@ -1150,6 +1155,7 @@ let package = Package(
                 "SimulatorPoolModels",
                 "SocketModels",
                 "Types",
+                "WorkerCapabilitiesModels",
             ],
             path: "Sources/QueueModels"
         ),
@@ -1167,6 +1173,7 @@ let package = Package(
                 "SimulatorPoolModels",
                 "SimulatorPoolTestHelpers",
                 "Types",
+                "WorkerCapabilitiesModels",
             ],
             path: "Tests/QueueModelsTestHelpers"
         ),
@@ -1213,6 +1220,7 @@ let package = Package(
                 "UniqueIdentifierGenerator",
                 "WorkerAlivenessModels",
                 "WorkerAlivenessProvider",
+                "WorkerCapabilitiesModels",
             ],
             path: "Sources/QueueServer"
         ),
@@ -1243,6 +1251,7 @@ let package = Package(
                 "DistWorkerModelsTestHelpers",
                 "PortDeterminer",
                 "QueueClient",
+                "QueueCommunication",
                 "QueueCommunicationTestHelpers",
                 "QueueModels",
                 "QueueModelsTestHelpers",
@@ -1584,6 +1593,7 @@ let package = Package(
                 "SimulatorPoolModels",
                 "Types",
                 "UniqueIdentifierGenerator",
+                "WorkerCapabilitiesModels",
             ],
             path: "Sources/ScheduleStrategy"
         ),

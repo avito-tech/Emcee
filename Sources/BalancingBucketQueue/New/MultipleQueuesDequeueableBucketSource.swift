@@ -1,6 +1,7 @@
 import BucketQueue
 import Foundation
 import QueueModels
+import WorkerCapabilitiesModels
 
 public final class MultipleQueuesDequeueableBucketSource: DequeueableBucketSource {
     private let multipleQueuesContainer: MultipleQueuesContainer
@@ -14,7 +15,7 @@ public final class MultipleQueuesDequeueableBucketSource: DequeueableBucketSourc
         self.nothingToDequeueBehavior = nothingToDequeueBehavior
     }
     
-    public func dequeueBucket(requestId: RequestId, workerId: WorkerId) -> DequeueResult {
+    public func dequeueBucket(requestId: RequestId, workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
         multipleQueuesContainer.performWithExclusiveAccess {
             let bucketQueues = multipleQueuesContainer.allRunningJobQueues().map {
                 $0.bucketQueue
@@ -28,7 +29,7 @@ public final class MultipleQueuesDequeueableBucketSource: DequeueableBucketSourc
             
             var dequeueResults = [DequeueResult]()
             for queue in bucketQueues {
-                let dequeueResult = queue.dequeueBucket(requestId: requestId, workerId: workerId)
+                let dequeueResult = queue.dequeueBucket(requestId: requestId, workerCapabilities: workerCapabilities, workerId: workerId)
                 switch dequeueResult {
                 case .dequeuedBucket:
                     return dequeueResult

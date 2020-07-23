@@ -1,6 +1,6 @@
 import Foundation
 
-public struct WorkerCapabilityRequirement: Codable, Equatable {
+public struct WorkerCapabilityRequirement: Codable, Hashable {
     public let name: WorkerCapabilityName
     public let constraint: WorkerCapabilityConstraint
     

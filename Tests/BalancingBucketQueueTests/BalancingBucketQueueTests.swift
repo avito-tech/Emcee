@@ -102,7 +102,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         // we keep workers alive by asking them to poll
         // so when all queues are depleted, and somebody enqueues some tests, workers will pick them up
         XCTAssertEqual(
-            balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId),
+            balancingQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: workerId),
             .checkAgainLater(checkAfter: checkAgainTimeInterval)
         )
     }
@@ -117,6 +117,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         XCTAssertEqual(
             balancingQueue.dequeueBucket(
                 requestId: requestId,
+                workerCapabilities: [],
                 workerId: workerId
             ),
             .dequeuedBucket(
@@ -145,6 +146,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         XCTAssertEqual(
             balancingQueue.dequeueBucket(
                 requestId: requestId,
+                workerCapabilities: [],
                 workerId: workerId
             ),
             .dequeuedBucket(
@@ -174,6 +176,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         XCTAssertEqual(
             balancingQueue.dequeueBucket(
                 requestId: anotherRequestId,
+                workerCapabilities: [],
                 workerId: workerId
             ),
             .dequeuedBucket(
@@ -214,6 +217,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         XCTAssertEqual(
             balancingQueue.dequeueBucket(
                 requestId: requestId,
+                workerCapabilities: [],
                 workerId: workerId
             ),
             .dequeuedBucket(
@@ -242,6 +246,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         XCTAssertEqual(
             balancingQueue.dequeueBucket(
                 requestId: requestId,
+                workerCapabilities: [],
                 workerId: workerId
             ),
             .dequeuedBucket(
@@ -269,6 +274,7 @@ final class BalancingBucketQueueTests: XCTestCase {
             XCTAssertEqual(
                 balancingQueue.dequeueBucket(
                     requestId: requestId,
+                    workerCapabilities: [],
                     workerId: workerId
                 ),
                 .dequeuedBucket(
@@ -293,11 +299,11 @@ final class BalancingBucketQueueTests: XCTestCase {
         
         let bucket1 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class1")])
         balancingQueue.enqueue(buckets: [bucket1], prioritizedJob: prioritizedJob)
-        _ = balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId)
+        _ = balancingQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: workerId)
         
         let bucket2 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class2")])
         balancingQueue.enqueue(buckets: [bucket2], prioritizedJob: anotherPrioritizedJob)
-        _ = balancingQueue.dequeueBucket(requestId: anotherRequestId, workerId: workerId)
+        _ = balancingQueue.dequeueBucket(requestId: anotherRequestId, workerCapabilities: [], workerId: workerId)
         
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
@@ -328,7 +334,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         let testEntry = TestEntryFixtures.testEntry(className: "class1")
         let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
         balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
-        _ = balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId)
+        _ = balancingQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: workerId)
         
         let expectedTestingResult = TestingResultFixtures(
             bucketId: bucket.bucketId,
@@ -360,7 +366,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         let testEntry = TestEntryFixtures.testEntry(className: "class1")
         let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
         balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
-        _ = balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId)
+        _ = balancingQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: workerId)
         
         let expectedTestingResult = TestingResultFixtures(
             bucketId: bucket.bucketId,
@@ -391,7 +397,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
-        _ = balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId)
+        _ = balancingQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: workerId)
         
         XCTAssertThrowsError(
             _ = try balancingQueue.accept(
@@ -408,7 +414,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
-        _ = balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId)
+        _ = balancingQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: workerId)
         
         XCTAssertThrowsError(
             _ = try balancingQueue.accept(
@@ -424,7 +430,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         
         XCTAssertEqual(
-            balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId),
+            balancingQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: workerId),
             DequeueResult.workerIsNotRegistered
         )
     }
@@ -437,7 +443,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         workerAlivenessProvider.disableWorker(workerId: workerId)
         
         XCTAssertEqual(
-            balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId),
+            balancingQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: workerId),
             DequeueResult.checkAgainLater(checkAfter: checkAgainTimeInterval)
         )
     }
@@ -450,14 +456,14 @@ final class BalancingBucketQueueTests: XCTestCase {
         workerAlivenessProvider.disableWorker(workerId: workerId)
         
         XCTAssertEqual(
-            balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId),
+            balancingQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: workerId),
             DequeueResult.checkAgainLater(checkAfter: checkAgainTimeInterval)
         )
         
         workerAlivenessProvider.enableWorker(workerId: workerId)
         
         XCTAssertEqual(
-            balancingQueue.dequeueBucket(requestId: requestId, workerId: workerId),
+            balancingQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: workerId),
             DequeueResult.dequeuedBucket(
                 DequeuedBucket(
                     enqueuedBucket: EnqueuedBucket(

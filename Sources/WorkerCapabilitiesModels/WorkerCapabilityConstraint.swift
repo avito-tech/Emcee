@@ -1,6 +1,6 @@
 import Foundation
 
-public indirect enum WorkerCapabilityConstraint: Codable, Equatable {
+public indirect enum WorkerCapabilityConstraint: Codable, Hashable {
     case absent
     case equal(String)
     case lessThan(String)

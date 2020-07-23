@@ -7,6 +7,8 @@ import RunnerModels
 import Types
 import UniqueIdentifierGenerator
 import WorkerAlivenessProvider
+import WorkerCapabilities
+import WorkerCapabilitiesModels
 
 final class BucketQueueImpl: BucketQueue {
     private let dateProvider: DateProvider
@@ -17,6 +19,7 @@ final class BucketQueueImpl: BucketQueue {
     private let workerAlivenessProvider: WorkerAlivenessProvider
     private let checkAgainTimeInterval: TimeInterval
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
+    private let workerCapabilityConstraintResolver = WorkerCapabilityConstraintResolver()
     
     public init(
         checkAgainTimeInterval: TimeInterval,
@@ -76,7 +79,7 @@ final class BucketQueueImpl: BucketQueue {
         }
     }
     
-    public func dequeueBucket(requestId: RequestId, workerId: WorkerId) -> DequeueResult {
+    public func dequeueBucket(requestId: RequestId, workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
         workerAlivenessProvider.willDequeueBucket(workerId: workerId)
         
         guard workerAlivenessProvider.isWorkerRegistered(workerId: workerId) else {
@@ -109,6 +112,14 @@ final class BucketQueueImpl: BucketQueue {
             )
             
             if let enqueuedBucket = bucketToDequeueOrNil {
+                guard workerCapabilityConstraintResolver.requirementsSatisfied(
+                    requirements: enqueuedBucket.bucket.workerCapabilityRequirements,
+                    workerCapabilities: workerCapabilities
+                ) else {
+                    Logger.debug("capabilities \(workerCapabilities) of \(workerId) do not meet bucket requirements: \(enqueuedBucket.bucket.workerCapabilityRequirements)")
+                    return .checkAgainLater(checkAfter: checkAgainTimeInterval)
+                }
+                
                 return .dequeuedBucket(
                     dequeue_onSyncQueue(
                         enqueuedBucket: enqueuedBucket,
@@ -217,7 +228,8 @@ final class BucketQueueImpl: BucketQueue {
                         testExecutionBehavior: stuckBucket.bucket.testExecutionBehavior,
                         testRunnerTool: stuckBucket.bucket.testRunnerTool,
                         testTimeoutConfiguration: stuckBucket.bucket.testTimeoutConfiguration,
-                        testType: stuckBucket.bucket.testType
+                        testType: stuckBucket.bucket.testType,
+                        workerCapabilityRequirements: stuckBucket.bucket.workerCapabilityRequirements
                     )
                 }
             }

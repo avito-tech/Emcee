@@ -26,7 +26,7 @@ final class BucketQueueRetryTests: XCTestCase {
             try dequeueTestAndFail(bucketQueue: bucketQueue, workerId: failingWorker)
             
             // Then we give work to another worker
-            let dequeueResultForFailingWorker = bucketQueue.dequeueBucket(requestId: "1", workerId: failingWorker)
+            let dequeueResultForFailingWorker = bucketQueue.dequeueBucket(requestId: "1", workerCapabilities: [], workerId: failingWorker)
             if case .checkAgainLater = dequeueResultForFailingWorker {
                 // pass
             } else {
@@ -34,7 +34,7 @@ final class BucketQueueRetryTests: XCTestCase {
             }
             
             XCTAssertEqual(
-                bucketQueue.dequeueBucket(requestId: "2", workerId: anotherWorker),
+                bucketQueue.dequeueBucket(requestId: "2", workerCapabilities: [], workerId: anotherWorker),
                 DequeueResult.dequeuedBucket(
                     DequeuedBucket(
                         enqueuedBucket: EnqueuedBucket(
@@ -66,7 +66,7 @@ final class BucketQueueRetryTests: XCTestCase {
             // Then any of them can take work
             let anyWorker = firstWorker
             XCTAssertEqual(
-                bucketQueue.dequeueBucket(requestId: "other", workerId: anyWorker),
+                bucketQueue.dequeueBucket(requestId: "other", workerCapabilities: [], workerId: anyWorker),
                 DequeueResult.dequeuedBucket(
                     DequeuedBucket(
                         enqueuedBucket: EnqueuedBucket(
@@ -97,7 +97,7 @@ final class BucketQueueRetryTests: XCTestCase {
             // Then queue is empty
             let anyWorker = firstWorker
             XCTAssertEqual(
-                bucketQueue.dequeueBucket(requestId: "other", workerId: anyWorker),
+                bucketQueue.dequeueBucket(requestId: "other", workerCapabilities: [], workerId: anyWorker),
                 DequeueResult.queueIsEmpty
             )
         }
@@ -112,6 +112,7 @@ final class BucketQueueRetryTests: XCTestCase {
             let requestId = RequestId(value: UUID().uuidString)
             _ = bucketQueue.dequeueBucket(
                 requestId: requestId,
+                workerCapabilities: [],
                 workerId: failingWorker
             )
             
@@ -134,13 +135,13 @@ final class BucketQueueRetryTests: XCTestCase {
             )
             
             XCTAssertEqual(
-                bucketQueue.dequeueBucket(requestId: "request_1", workerId: failingWorker),
+                bucketQueue.dequeueBucket(requestId: "request_1", workerCapabilities: [], workerId: failingWorker),
                 DequeueResult.checkAgainLater(checkAfter: 30),
                 "Queue should not provide re-enqueued bucket back to a worker that lost a test previously"
             )
             
             XCTAssertEqual(
-                bucketQueue.dequeueBucket(requestId: "request_2", workerId: anotherWorker),
+                bucketQueue.dequeueBucket(requestId: "request_2", workerCapabilities: [], workerId: anotherWorker),
                 DequeueResult.dequeuedBucket(
                     DequeuedBucket(
                         enqueuedBucket: EnqueuedBucket(
@@ -184,6 +185,7 @@ final class BucketQueueRetryTests: XCTestCase {
         
         let dequeueResult = bucketQueue.dequeueBucket(
             requestId: requestId,
+            workerCapabilities: [],
             workerId: workerId
         )
 

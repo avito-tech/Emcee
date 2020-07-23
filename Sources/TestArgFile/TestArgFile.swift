@@ -25,7 +25,7 @@ public struct TestArgFile: Codable {
         public let testTimeoutConfiguration: TestTimeoutConfiguration
         public let testType: TestType
         public let testsToRun: [TestToRun]
-        public let workerCapabilityRequirements: [WorkerCapabilityRequirement]
+        public let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
         
         public init(
             buildArtifacts: BuildArtifacts,
@@ -42,7 +42,7 @@ public struct TestArgFile: Codable {
             testTimeoutConfiguration: TestTimeoutConfiguration,
             testType: TestType,
             testsToRun: [TestToRun],
-            workerCapabilityRequirements: [WorkerCapabilityRequirement]
+            workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
         ) {
             self.buildArtifacts = buildArtifacts
             self.developerDir = developerDir

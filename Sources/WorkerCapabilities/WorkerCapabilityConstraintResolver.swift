@@ -5,8 +5,8 @@ public final class WorkerCapabilityConstraintResolver {
     public init() {}
     
     public func requirementsSatisfied(
-        requirements: [WorkerCapabilityRequirement],
-        workerCapabilities: [WorkerCapability]
+        requirements: Set<WorkerCapabilityRequirement>,
+        workerCapabilities: Set<WorkerCapability>
     ) -> Bool {
         for requirement in requirements {
             let matchingCapabilities = matchingWorkerCapabilities(withName: requirement.name, workerCapabilities: workerCapabilities)
@@ -73,7 +73,7 @@ public final class WorkerCapabilityConstraintResolver {
     
     private func matchingWorkerCapabilities(
         withName name: WorkerCapabilityName,
-        workerCapabilities: [WorkerCapability]
+        workerCapabilities: Set<WorkerCapability>
     ) -> [WorkerCapability] {
         workerCapabilities.filter { $0.name == name }
     }
