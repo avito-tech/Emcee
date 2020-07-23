@@ -430,6 +430,7 @@ let package = Package(
                 "TemporaryStuff",
                 "Timer",
                 "Types",
+                "UniqueIdentifierGenerator",
             ],
             path: "Sources/DistWorker"
         ),

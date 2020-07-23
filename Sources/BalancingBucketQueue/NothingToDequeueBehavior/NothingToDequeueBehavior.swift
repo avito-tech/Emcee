@@ -18,22 +18,3 @@ public final class NothingToDequeueBehaviorCheckLater: NothingToDequeueBehavior 
         return .checkAgainLater(checkAfter: checkAfter)
     }
 }
-
-/// This behavior will let workers quit after all jobs will have their queues in depleted state.
-public final class NothingToDequeueBehaviorWaitForAllQueuesToDeplete: NothingToDequeueBehavior {
-    private let checkAfter: TimeInterval
-    
-    public init(checkAfter: TimeInterval) {
-        self.checkAfter = checkAfter
-    }
-    
-    public func dequeueResultWhenNoBucketsToDequeueAvaiable(dequeueResults: [DequeueResult]) -> DequeueResult {
-        let uniqueDequeueResults = Set<DequeueResult>(dequeueResults)
-        
-        if uniqueDequeueResults.count == 1, let singleResult = uniqueDequeueResults.first {
-            return singleResult
-        }
-        
-        return .checkAgainLater(checkAfter: checkAfter)
-    }
-}

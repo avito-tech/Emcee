@@ -55,7 +55,6 @@ public final class QueueServerImpl: QueueServer {
         queueServerLock: QueueServerLock,
         requestSenderProvider: RequestSenderProvider,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
-        workerAlivenessPolicy: WorkerAlivenessPolicy,
         workerConfigurations: WorkerConfigurations,
         workersToUtilizeService: WorkersToUtilizeService,
         workerUtilizationStatusPoller: WorkerUtilizationStatusPoller
@@ -88,9 +87,7 @@ public final class QueueServerImpl: QueueServer {
                 uniqueIdentifierGenerator: uniqueIdentifierGenerator,
                 workerAlivenessProvider: workerAlivenessProvider
             ),
-            nothingToDequeueBehavior: workerAlivenessPolicy.nothingToDequeueBehavior(
-                checkLaterInterval: checkAgainTimeInterval
-            ),
+            nothingToDequeueBehavior: NothingToDequeueBehaviorCheckLater(checkAfter: checkAgainTimeInterval),
             workerPermissionProvider: workerUtilizationStatusPoller
         )
         self.balancingBucketQueue = balancingBucketQueueFactory.create()

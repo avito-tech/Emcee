@@ -125,7 +125,6 @@ public final class StartQueueServerCommand: Command {
             ),
             requestSenderProvider: requestSenderProvider,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
-            workerAlivenessPolicy: .workersStayAliveWhenQueueIsDepleted,
             workerConfigurations: createWorkerConfigurations(
                 queueServerRunConfiguration: queueServerRunConfiguration
             ),

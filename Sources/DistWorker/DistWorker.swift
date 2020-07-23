@@ -26,6 +26,7 @@ import SynchronousWaiter
 import TemporaryStuff
 import Timer
 import Types
+import UniqueIdentifierGenerator
 
 public final class DistWorker: SchedulerDelegate {
     private let bucketResultSender: BucketResultSender
@@ -43,6 +44,7 @@ public final class DistWorker: SchedulerDelegate {
     private let syncQueue = DispatchQueue(label: "DistWorker.syncQueue")
     private let temporaryFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
+    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let version: Version
     private let workerId: WorkerId
     private let workerRegisterer: WorkerRegisterer
@@ -66,6 +68,7 @@ public final class DistWorker: SchedulerDelegate {
         simulatorSettingsModifier: SimulatorSettingsModifier,
         temporaryFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider,
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         version: Version,
         workerId: WorkerId,
         workerRegisterer: WorkerRegisterer
@@ -81,6 +84,7 @@ public final class DistWorker: SchedulerDelegate {
         self.simulatorSettingsModifier = simulatorSettingsModifier
         self.temporaryFolder = temporaryFolder
         self.testRunnerProvider = testRunnerProvider
+        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.version = version
         self.workerId = workerId
         self.workerRegisterer = workerRegisterer
@@ -177,7 +181,7 @@ public final class DistWorker: SchedulerDelegate {
     
     private func nextBucketFetchResult() throws -> BucketFetchResult {
         return try currentlyBeingProcessedBucketsTracker.perform { tracker -> BucketFetchResult in
-            let requestId = RequestId(value: UUID().uuidString)
+            let requestId = RequestId(value: uniqueIdentifierGenerator.generate())
             let result = try queueClient.fetchBucket(
                 requestId: requestId,
                 workerId: workerId,

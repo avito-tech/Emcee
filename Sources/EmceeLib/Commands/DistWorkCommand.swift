@@ -127,6 +127,7 @@ public final class DistWorkCommand: Command {
                 processControllerProvider: processControllerProvider,
                 resourceLocationResolver: resourceLocationResolver
             ),
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             version: version,
             workerId: workerId,
             workerRegisterer: workerRegisterer

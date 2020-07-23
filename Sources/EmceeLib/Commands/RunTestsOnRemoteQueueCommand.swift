@@ -254,7 +254,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
                     ),
                     scheduleStrategy: testArgFileEntry.scheduleStrategy,
                     testEntryConfigurations: testEntryConfigurations,
-                    requestId: RequestId(value: jobId.value + "_" + UUID().uuidString)
+                    requestId: RequestId(value: uniqueIdentifierGenerator.generate())
                 )
             } catch {
                 Logger.error("Failed to schedule tests: \(error)")

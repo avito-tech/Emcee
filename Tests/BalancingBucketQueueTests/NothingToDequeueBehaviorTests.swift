@@ -14,25 +14,5 @@ final class NothingToDequeueBehaviorTests: XCTestCase {
             .checkAgainLater(checkAfter: 42)
         )
     }
-    
-    func test___wait_for_queues_to_deplete_dequeue_behavior() {
-        let behavior = NothingToDequeueBehaviorWaitForAllQueuesToDeplete(checkAfter: 42)
-        XCTAssertEqual(
-            behavior.dequeueResultWhenNoBucketsToDequeueAvaiable(dequeueResults: [.queueIsEmpty, .checkAgainLater(checkAfter: .infinity)]),
-            .checkAgainLater(checkAfter: 42)
-        )
-        XCTAssertEqual(
-            behavior.dequeueResultWhenNoBucketsToDequeueAvaiable(dequeueResults:[.queueIsEmpty, .queueIsEmpty]),
-            .queueIsEmpty
-        )
-        XCTAssertEqual(
-            behavior.dequeueResultWhenNoBucketsToDequeueAvaiable(dequeueResults:[.workerIsNotRegistered, .workerIsNotRegistered]),
-            .workerIsNotRegistered
-        )
-        XCTAssertEqual(
-            behavior.dequeueResultWhenNoBucketsToDequeueAvaiable(dequeueResults:[.checkAgainLater(checkAfter: .infinity), .checkAgainLater(checkAfter: 0)]),
-            .checkAgainLater(checkAfter: 42)
-        )
-    }
 }
 

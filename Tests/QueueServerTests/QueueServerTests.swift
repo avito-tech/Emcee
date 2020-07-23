@@ -54,7 +54,6 @@ final class QueueServerTests: XCTestCase {
             queueServerLock: NeverLockableQueueServerLock(),
             requestSenderProvider: DefaultRequestSenderProvider(),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
-            workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
             workerConfigurations: workerConfigurations,
             workersToUtilizeService: FakeWorkersToUtilizeService(),
             workerUtilizationStatusPoller: FakeWorkerUtilizationStatusPoller()
@@ -93,7 +92,6 @@ final class QueueServerTests: XCTestCase {
             queueServerLock: NeverLockableQueueServerLock(),
             requestSenderProvider: DefaultRequestSenderProvider(),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
-            workerAlivenessPolicy: .workersTerminateWhenQueueIsDepleted,
             workerConfigurations: workerConfigurations,
             workersToUtilizeService: FakeWorkersToUtilizeService(),
             workerUtilizationStatusPoller: FakeWorkerUtilizationStatusPoller()
