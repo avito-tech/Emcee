@@ -170,7 +170,6 @@ let package = Package(
             dependencies: [
                 "BucketQueue",
                 "CountedSet",
-                "DateProvider",
                 "Logging",
                 "QueueCommunication",
                 "QueueModels",
