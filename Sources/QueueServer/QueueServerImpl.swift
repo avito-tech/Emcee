@@ -107,17 +107,28 @@ public final class QueueServerImpl: QueueServer {
             bucketQueueFactory: bucketQueueFactory,
             multipleQueuesContainer: multipleQueuesContainer
         )
-        let dequeueableBucketSource: DequeueableBucketSource = MultipleQueuesDequeueableBucketSource(
-            multipleQueuesContainer: multipleQueuesContainer,
-            nothingToDequeueBehavior: nothingToDequeueBehavior
+        self.runningQueueStateProvider = MultipleQueuesRunningQueueStateProvider(
+            multipleQueuesContainer: multipleQueuesContainer
+        )
+        
+        let dequeueableBucketSource: DequeueableBucketSource = DequeueableBucketSourceWithMetricSupport(
+            dateProvider: dateProvider,
+            dequeueableBucketSource: WorkerPermissionAwareDequeueableBucketSource(
+                dequeueableBucketSource: MultipleQueuesDequeueableBucketSource(
+                    multipleQueuesContainer: multipleQueuesContainer,
+                    nothingToDequeueBehavior: nothingToDequeueBehavior
+                ),
+                nothingToDequeueBehavior: nothingToDequeueBehavior,
+                workerPermissionProvider: workerUtilizationStatusPoller
+            ),
+            jobStateProvider: jobStateProvider,
+            queueStateProvider: runningQueueStateProvider,
+            version: emceeVersion
         )
         let bucketResultAccepter: BucketResultAccepter = MultipleQueuesBucketResultAccepter(
             multipleQueuesContainer: multipleQueuesContainer
         )
         let stuckBucketsReenqueuer: StuckBucketsReenqueuer = MultipleQueuesStuckBucketsReenqueuer(
-            multipleQueuesContainer: multipleQueuesContainer
-        )
-        self.runningQueueStateProvider = MultipleQueuesRunningQueueStateProvider(
             multipleQueuesContainer: multipleQueuesContainer
         )
         
@@ -144,13 +155,7 @@ public final class QueueServerImpl: QueueServer {
             version: emceeVersion
         )
         self.bucketProvider = BucketProviderEndpoint(
-            dequeueableBucketSource: DequeueableBucketSourceWithMetricSupport(
-                dateProvider: dateProvider,
-                dequeueableBucketSource: dequeueableBucketSource,
-                jobStateProvider: jobStateProvider,
-                queueStateProvider: runningQueueStateProvider,
-                version: emceeVersion
-            ),
+            dequeueableBucketSource: dequeueableBucketSource,
             expectedPayloadSignature: payloadSignature
         )
         self.bucketResultRegistrar = BucketResultRegistrar(

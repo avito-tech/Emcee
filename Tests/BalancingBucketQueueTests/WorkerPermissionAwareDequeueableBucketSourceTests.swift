@@ -1,24 +1,25 @@
 import BalancingBucketQueue
+import BucketQueueTestHelpers
 import QueueCommunication
 import QueueCommunicationTestHelpers
 import XCTest
 
-class WorkerPermissionAwareBalancingBucketQueueTests: XCTestCase {
+final class WorkerPermissionAwareDequeueableBucketSourceTests: XCTestCase {
     let permissionProvider = FakeWorkerPermissionProvider()
-    let queue = FakeBalancingBucketQueue()
     let behavior = NothingToDequeueBehaviorCheckLater(checkAfter: 1337)
-    lazy var facade = WorkerPermissionAwareBalancingBucketQueue(
-        workerPermissionProvider: permissionProvider,
-        balancingBucketQueue: queue,
-        nothingToDequeueBehavior: behavior
+    lazy var bucketSource = WorkerPermissionAwareDequeueableBucketSource(
+        dequeueableBucketSource: FakeDequeueableBucketSource(
+            dequeueResult: .queueIsEmpty,
+            previouslyDequeuedBucket: nil
+        ),
+        nothingToDequeueBehavior: behavior,
+        workerPermissionProvider: permissionProvider
     )
 
     func test___dequeueBucket_when_worker_is_allowed_to_utilize___use_internal_queue_value() {
         permissionProvider.permission = .allowedToUtilize
 
-        queue.dequeueBucketDequeueResult = .queueIsEmpty
-
-        let result = facade.dequeueBucket(requestId: "RequestId", workerId: "WorkerId")
+        let result = bucketSource.dequeueBucket(requestId: "RequestId", workerId: "WorkerId")
 
         XCTAssertEqual(result, .queueIsEmpty)
     }
@@ -26,9 +27,7 @@ class WorkerPermissionAwareBalancingBucketQueueTests: XCTestCase {
     func test___dequeueBucket_when_worker_is_not_allowed_to_utilize___use_nothing_to_deque_value() {
         permissionProvider.permission = .notAllowedToUtilize
 
-        queue.dequeueBucketDequeueResult = .queueIsEmpty
-
-        let result = facade.dequeueBucket(requestId: "RequestId", workerId: "WorkerId")
+        let result = bucketSource.dequeueBucket(requestId: "RequestId", workerId: "WorkerId")
 
         XCTAssertEqual(result, .checkAgainLater(checkAfter: 1337))
     }

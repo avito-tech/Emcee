@@ -518,12 +518,10 @@ final class BalancingBucketQueueTests: XCTestCase {
     lazy var anotherJobId: JobId = "anotherJobId"
     lazy var anotherPrioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: anotherJobId, jobPriority: .medium)
     lazy var anotherRequestId: RequestId = "anotherRequestId"
-    lazy var balancingBucketQueueFactory = BalancingBucketQueueFactory(
+    lazy var balancingQueue = BalancingBucketQueueImpl(
         bucketQueueFactory: bucketQueueFactory,
-        nothingToDequeueBehavior: NothingToDequeueBehaviorCheckLater(checkAfter: checkAgainTimeInterval),
-        workerPermissionProvider: FakeWorkerPermissionProvider()
+        nothingToDequeueBehavior: NothingToDequeueBehaviorCheckLater(checkAfter: checkAgainTimeInterval)
     )
-    lazy var balancingQueue = balancingBucketQueueFactory.create()
     lazy var bucketQueueFactory = BucketQueueFactory(
         checkAgainTimeInterval: checkAgainTimeInterval,
         dateProvider: dateProvider,
