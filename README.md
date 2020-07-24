@@ -1,3 +1,5 @@
+![Emcee Banner](https://raw.githubusercontent.com/avito-tech/Emcee/master/Resources/banner.png)
+
 Welcome to Emcee project, an ultimate solution for running iOS tests in parallel locally and across many Macs. 
 
 Emcee allows you to run UI tests on many physical machines, distributing the work and getting the results of the test run faster. Shared queue manages the order of test execution. Emcee workers execute tests and maintain lifecycle of their simulators automatically. Emcee can generate the Junit and trace reports to make you see how the test run behaved on different machines.
