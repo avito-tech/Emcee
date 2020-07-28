@@ -1,4 +1,4 @@
-![Emcee Banner](https://raw.githubusercontent.com/avito-tech/Emcee/master/Resources/banner.png)
+![Emcee Banner](https://raw.github.com/avito-tech/Emcee/master/Resources/banner.png)
 
 Welcome to Emcee project, an ultimate solution for running iOS tests in parallel locally and across many Macs. 
 
