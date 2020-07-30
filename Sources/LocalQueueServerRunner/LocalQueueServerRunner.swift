@@ -1,65 +1,55 @@
 import AutomaticTermination
-import DateProvider
-import Deployer
-import DistDeployer
-import EventBus
 import FileLock
 import Foundation
 import LocalHostDeterminer
 import Logging
-import PortDeterminer
-import ProcessController
 import QueueCommunication
 import QueueModels
 import QueueServer
 import RemotePortDeterminer
-import RequestSender
-import ScheduleStrategy
 import SocketModels
 import SynchronousWaiter
-import TemporaryStuff
-import UniqueIdentifierGenerator
 
 public final class LocalQueueServerRunner {
     private let automaticTerminationController: AutomaticTerminationController
-    private let deployQueue = DispatchQueue(label: "LocalQueueServerRunner.deployQueue", attributes: .concurrent)
+    private let deployQueue: DispatchQueue
     private let newWorkerRegistrationTimeAllowance: TimeInterval
     private let pollPeriod: TimeInterval
-    private let processControllerProvider: ProcessControllerProvider
     private let queueServer: QueueServer
     private let queueServerTerminationPolicy: AutomaticTerminationPolicy
     private let queueServerTerminationWaiter: QueueServerTerminationWaiter
     private let remotePortDeterminer: RemotePortDeterminer
-    private let temporaryFolder: TemporaryFolder
-    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
-    private let workerDestinations: [DeploymentDestination]
+    private let remoteWorkerStarterProvider: RemoteWorkerStarterProvider
+    private let workerIds: [WorkerId]
     private let workerUtilizationStatusPoller: WorkerUtilizationStatusPoller
+    
+    public static func queueServerAddress(port: SocketModels.Port) -> SocketAddress {
+        SocketAddress(host: LocalHostDeterminer.currentHostAddress, port: port)
+    }
 
     public init(
         automaticTerminationController: AutomaticTerminationController,
+        deployQueue: DispatchQueue,
         newWorkerRegistrationTimeAllowance: TimeInterval,
         pollPeriod: TimeInterval,
-        processControllerProvider: ProcessControllerProvider,
         queueServer: QueueServer,
         queueServerTerminationPolicy: AutomaticTerminationPolicy,
         queueServerTerminationWaiter: QueueServerTerminationWaiter,
         remotePortDeterminer: RemotePortDeterminer,
-        temporaryFolder: TemporaryFolder,
-        uniqueIdentifierGenerator: UniqueIdentifierGenerator,
-        workerDestinations: [DeploymentDestination],
+        remoteWorkerStarterProvider: RemoteWorkerStarterProvider,
+        workerIds: [WorkerId],
         workerUtilizationStatusPoller: WorkerUtilizationStatusPoller
     ) {
         self.automaticTerminationController = automaticTerminationController
+        self.deployQueue = deployQueue
         self.newWorkerRegistrationTimeAllowance = newWorkerRegistrationTimeAllowance
         self.pollPeriod = pollPeriod
-        self.processControllerProvider = processControllerProvider
         self.queueServer = queueServer
         self.queueServerTerminationPolicy = queueServerTerminationPolicy
         self.queueServerTerminationWaiter = queueServerTerminationWaiter
         self.remotePortDeterminer = remotePortDeterminer
-        self.temporaryFolder = temporaryFolder
-        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
-        self.workerDestinations = workerDestinations
+        self.remoteWorkerStarterProvider = remoteWorkerStarterProvider
+        self.workerIds = workerIds
         self.workerUtilizationStatusPoller = workerUtilizationStatusPoller
     }
     
@@ -106,18 +96,27 @@ public final class LocalQueueServerRunner {
     private func startWorkers(emceeVersion: Version, port: SocketModels.Port) throws {
         Logger.info("Deploying and starting workers in background")
         
-        let remoteWorkersStarter = RemoteWorkersStarter(
-            deploymentDestinations: workerDestinations,
-            processControllerProvider: processControllerProvider,
-            tempFolder: temporaryFolder,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
-        )
-        try remoteWorkersStarter.deployAndStartWorkers(
-            deployQueue: deployQueue,
-            emceeVersion: emceeVersion,
-            queueAddress: SocketAddress(host: LocalHostDeterminer.currentHostAddress, port: port)
-        )
-        deployQueue.async(flags: .barrier) {
+        let dispatchGroup = DispatchGroup()
+        
+        for workerId in workerIds {
+            dispatchGroup.enter()
+            
+            deployQueue.async {
+                do {
+                    let remoteWorkerStarter = try self.remoteWorkerStarterProvider.remoteWorkerStarter(
+                        workerId: workerId
+                    )
+                    try remoteWorkerStarter.deployAndStartWorker(
+                        queueAddress: LocalQueueServerRunner.queueServerAddress(port: port)
+                    )
+                } catch {
+                    Logger.error("Failed to deploy to \(workerId): \(error)")
+                }
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: deployQueue) {
             Logger.debug("Finished deploying workers")
         }
     }

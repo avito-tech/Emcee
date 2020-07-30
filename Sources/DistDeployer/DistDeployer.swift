@@ -10,7 +10,7 @@ import UniqueIdentifierGenerator
 final class DistDeployer {
 
     private let deploymentId: String
-    private let deploymentDestinations: [DeploymentDestination]
+    private let deploymentDestination: DeploymentDestination
     private let deployableItems: [DeployableItem]
     private let deployableCommands: [DeployableCommand]
     private let processControllerProvider: ProcessControllerProvider
@@ -19,7 +19,7 @@ final class DistDeployer {
     
     public init(
         deploymentId: String,
-        deploymentDestinations: [DeploymentDestination],
+        deploymentDestination: DeploymentDestination,
         deployableItems: [DeployableItem],
         deployableCommands: [DeployableCommand],
         processControllerProvider: ProcessControllerProvider,
@@ -27,7 +27,7 @@ final class DistDeployer {
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
         self.deploymentId = deploymentId
-        self.deploymentDestinations = deploymentDestinations
+        self.deploymentDestination = deploymentDestination
         self.deployableItems = deployableItems
         self.deployableCommands = deployableCommands
         self.processControllerProvider = processControllerProvider
@@ -35,17 +35,17 @@ final class DistDeployer {
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
-    public func deploy(deployQueue: DispatchQueue) throws {
+    public func deploy() throws {
         let deployer = try SSHDeployer(
             sshClientType: DefaultSSHClient.self,
             deploymentId: deploymentId,
             deployables: deployableItems,
             deployableCommands: deployableCommands,
-            destinations: deploymentDestinations,
+            destination: deploymentDestination,
             processControllerProvider: processControllerProvider,
             temporaryFolder: tempFolder,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
-        try deployer.deploy(deployQueue: deployQueue)
+        try deployer.deploy()
     }
 }

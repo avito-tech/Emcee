@@ -10,7 +10,7 @@ open class Deployer {
     public let deploymentId: String
     public let deployables: [DeployableItem]
     public let deployableCommands: [DeployableCommand]
-    public let destinations: [DeploymentDestination]
+    public let destination: DeploymentDestination
     private let processControllerProvider: ProcessControllerProvider
     private let temporaryFolder: TemporaryFolder
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
@@ -19,7 +19,7 @@ open class Deployer {
         deploymentId: String,
         deployables: [DeployableItem],
         deployableCommands: [DeployableCommand],
-        destinations: [DeploymentDestination],
+        destination: DeploymentDestination,
         processControllerProvider: ProcessControllerProvider,
         temporaryFolder: TemporaryFolder,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
@@ -27,16 +27,15 @@ open class Deployer {
         self.deploymentId = deploymentId
         self.deployables = deployables
         self.deployableCommands = deployableCommands
-        self.destinations = destinations
+        self.destination = destination
         self.processControllerProvider = processControllerProvider
         self.temporaryFolder = temporaryFolder
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
     /** Deploys all the deployable items and invokes deployment commands. */
-    public func deploy(deployQueue: DispatchQueue) throws {
-        try deployToDestinations(
-            deployQueue: deployQueue,
+    public func deploy() throws {
+        try deployToDestination(
             pathToDeployable: try prepareDeployables()
         )
     }
@@ -88,8 +87,7 @@ open class Deployer {
      * Subclasses should override this to perform their delivery logic.
      * @param   urlToDeployable   A map from local URL of package (zip) to a deployable item it represents.
      */
-    open func deployToDestinations(
-        deployQueue: DispatchQueue,
+    open func deployToDestination(
         pathToDeployable: [AbsolutePath: DeployableItem]
     ) throws {
         Logger.fatal("Deployer.deployToDestinations() must be overrided in subclass")

@@ -15,7 +15,7 @@ public final class SSHDeployer: Deployer {
         deploymentId: String,
         deployables: [DeployableItem],
         deployableCommands: [DeployableCommand],
-        destinations: [DeploymentDestination],
+        destination: DeploymentDestination,
         processControllerProvider: ProcessControllerProvider,
         temporaryFolder: TemporaryFolder,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
@@ -25,25 +25,20 @@ public final class SSHDeployer: Deployer {
             deploymentId: deploymentId,
             deployables: deployables,
             deployableCommands: deployableCommands,
-            destinations: destinations,
+            destination: destination,
             processControllerProvider: processControllerProvider,
             temporaryFolder: temporaryFolder,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
     }
     
-    override public func deployToDestinations(
-        deployQueue: DispatchQueue,
+    override public func deployToDestination(
         pathToDeployable: [AbsolutePath: DeployableItem]
     ) throws {
-        for destination in destinations {
-            deployQueue.async {
-                do {
-                    try self.deploy(destination: destination, pathToDeployable: pathToDeployable)
-                } catch let error {
-                    SSHDeployer.log(destination, "Failed to deploy to this destination with error: \(error)")
-                }
-            }
+        do {
+            try deploy(pathToDeployable: pathToDeployable)
+        } catch let error {
+            SSHDeployer.log(destination, "Failed to deploy to this destination with error: \(error)")
         }
     }
     
@@ -76,7 +71,6 @@ public final class SSHDeployer: Deployer {
     // MARK: - Private - Deploy
     
     private func deploy(
-        destination: DeploymentDestination,
         pathToDeployable: [AbsolutePath: DeployableItem]
     ) throws {
         SSHDeployer.log(destination, "Connecting")

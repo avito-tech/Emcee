@@ -27,19 +27,19 @@ final class LocalQueueServerRunnerTests: XCTestCase {
     private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     private lazy var runner = LocalQueueServerRunner(
         automaticTerminationController: automaticTerminationController,
+        deployQueue: deployQueue,
         newWorkerRegistrationTimeAllowance: 60.0,
         pollPeriod: 0.1,
-        processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder),
         queueServer: queueServer,
         queueServerTerminationPolicy: AutomaticTerminationPolicy.stayAlive,
         queueServerTerminationWaiter: queueServerTerminationWaiter,
         remotePortDeterminer: remotePortDeterminer,
-        temporaryFolder: tempFolder,
-        uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator(),
-        workerDestinations: [],
+        remoteWorkerStarterProvider: FakeRemoteWorkerStarterProvider(),
+        workerIds: [],
         workerUtilizationStatusPoller: workerUtilizationStatusPoller
     )
     
+    let deployQueue = DispatchQueue(label: "deploy queue")
     let runnerQueue = DispatchQueue(label: "runner queue")
     let impactQueue = DispatchQueue(label: "impact queue")
     

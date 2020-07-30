@@ -15,7 +15,6 @@ class DeployerTests: XCTestCase {
         source: deployableFileSource,
         destination: RelativePath("remote/file.swift")
     )
-    let queue = DispatchQueue(label: "queue")
     
     func testDeployer() throws {
         let deployableWithSingleFile = DeployableItem(
@@ -27,15 +26,13 @@ class DeployerTests: XCTestCase {
             deploymentId: "ID",
             deployables: [deployableWithSingleFile],
             deployableCommands: [],
-            destinations: [
-                DeploymentDestination(
-                    host: "localhost",
-                    port: 32,
-                    username: "user",
-                    password: "pass",
-                    remoteDeploymentPath: "/remote/path"
-                )
-            ],
+            destination: DeploymentDestination(
+                host: "localhost",
+                port: 32,
+                username: "user",
+                password: "pass",
+                remoteDeploymentPath: "/remote/path"
+            ),
             processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder) { subprocess -> ProcessController in
                 XCTAssertEqual(
                     try subprocess.arguments.map { try $0.stringValue() },
@@ -46,7 +43,7 @@ class DeployerTests: XCTestCase {
             temporaryFolder: tempFolder,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
-        try deployer.deploy(deployQueue: queue)
+        try deployer.deploy()
         XCTAssertEqual(deployer.pathsAskedToBeDeployed.count, 1)
         
         deployer.pathsAskedToBeDeployed.forEach { path, deployable in
@@ -71,19 +68,18 @@ class DeployerTests: XCTestCase {
                 deploymentId: "ID",
                 deployables: [deployableWithSingleFile],
                 deployableCommands: [],
-                destinations: [
-                    DeploymentDestination(
-                        host: "localhost",
-                        port: 32,
-                        username: "user",
-                        password: "pass",
-                        remoteDeploymentPath: "/remote/path")
-                ],
+                destination: DeploymentDestination(
+                    host: "localhost",
+                    port: 32,
+                    username: "user",
+                    password: "pass",
+                    remoteDeploymentPath: "/remote/path"
+                ),
                 processControllerProvider: FakeProcessControllerProvider(tempFolder: self.tempFolder),
                 temporaryFolder: self.tempFolder,
                 uniqueIdentifierGenerator: self.uniqueIdentifierGenerator
             )
-            try deployer.deploy(deployQueue: self.queue)
+            try deployer.deploy()
             paths = Array(deployer.pathsAskedToBeDeployed.keys)
         }
         try deployerWork()

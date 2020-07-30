@@ -30,6 +30,7 @@ public final class StartQueueServerCommand: Command {
         ArgumentDescriptions.queueServerRunConfigurationLocation.asRequired
     ]
 
+    private let deployQueue = DispatchQueue(label: "StartQueueServerCommand.deployQueue", attributes: .concurrent, target: .global(qos: .default))
     private let requestSenderProvider: RequestSenderProvider
     private let payloadSignature: PayloadSignature
     private let processControllerProvider: ProcessControllerProvider
@@ -109,6 +110,14 @@ public final class StartQueueServerCommand: Command {
             portDeterminer: remotePortDeterminer
         )
         
+        let remoteWorkerStarterProvider = DefaultRemoteWorkerStarterProvider(
+            emceeVersion: emceeVersion,
+            processControllerProvider: processControllerProvider,
+            tempFolder: try TemporaryFolder(),
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+            workerDeploymentDestinations: workerDestinations
+        )
+        
         let queueServer = QueueServerImpl(
             automaticTerminationController: automaticTerminationController,
             bucketSplitInfo: BucketSplitInfo(
@@ -139,16 +148,15 @@ public final class StartQueueServerCommand: Command {
         
         let localQueueServerRunner = LocalQueueServerRunner(
             automaticTerminationController: automaticTerminationController,
+            deployQueue: deployQueue,
             newWorkerRegistrationTimeAllowance: 360.0,
             pollPeriod: pollPeriod,
-            processControllerProvider: processControllerProvider,
             queueServer: queueServer,
             queueServerTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy,
             queueServerTerminationWaiter: queueServerTerminationWaiter,
             remotePortDeterminer: remotePortDeterminer,
-            temporaryFolder: try TemporaryFolder(),
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
-            workerDestinations: workerDestinations,
+            remoteWorkerStarterProvider: remoteWorkerStarterProvider,
+            workerIds: workerDestinations.map { $0.workerId },
             workerUtilizationStatusPoller: workerUtilizationStatusPoller
         )
         try localQueueServerRunner.start(emceeVersion: emceeVersion)

@@ -1,90 +1,89 @@
 import Deployer
 import Foundation
+import Logging
 import PathLib
 import ProcessController
 import QueueModels
+import SocketModels
 import TemporaryStuff
 import UniqueIdentifierGenerator
 
-public final class RemoteQueueStarter {
-    private let deploymentId: String
+public final class DefaultRemoteWorkersStarter: RemoteWorkerStarter {
     private let deploymentDestination: DeploymentDestination
     private let emceeVersion: Version
     private let processControllerProvider: ProcessControllerProvider
-    private let queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation
     private let tempFolder: TemporaryFolder
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
 
     public init(
-        deploymentId: String,
         deploymentDestination: DeploymentDestination,
         emceeVersion: Version,
         processControllerProvider: ProcessControllerProvider,
-        queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation,
         tempFolder: TemporaryFolder,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
-        self.deploymentId = deploymentId
         self.deploymentDestination = deploymentDestination
         self.emceeVersion = emceeVersion
         self.processControllerProvider = processControllerProvider
-        self.queueServerRunConfigurationLocation = queueServerRunConfigurationLocation
         self.tempFolder = tempFolder
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
-    public func deployAndStart() throws {
+    public func deployAndStartWorker(
+        queueAddress: SocketAddress
+    ) throws {
         let deployablesGenerator = DeployablesGenerator(
             emceeVersion: emceeVersion,
-            remoteEmceeBinaryName: "EmceeQueueServer"
+            remoteEmceeBinaryName: "EmceeWorker"
         )
-        try deploy(
-            deployableItems: try deployablesGenerator.deployables(),
-            emceeBinaryDeployableItem: try deployablesGenerator.runnerTool()
-        )
-    }
-    
-    private func deploy(
-        deployableItems: [DeployableItem],
-        emceeBinaryDeployableItem: DeployableItem
-    ) throws {
-        let launchdPlistTargetPath = "queue_server_launchd.plist"
-        let launchdPlist = RemoteQueueLaunchdPlist(
-            deploymentId: deploymentId,
+        let deployableItems = try deployablesGenerator.deployables()
+        let emceeBinaryDeployableItem = try deployablesGenerator.runnerTool()
+        
+        let launchdPlist = RemoteWorkerLaunchdPlist(
             deploymentDestination: deploymentDestination,
-            emceeDeployableItem: emceeBinaryDeployableItem,
             emceeVersion: emceeVersion,
-            queueServerRunConfigurationLocation: queueServerRunConfigurationLocation
+            executableDeployableItem: emceeBinaryDeployableItem,
+            queueAddress: queueAddress
         )
-        let launchdPlistDeployableItem = DeployableItem(
-            name: "queue_server_launchd_plist",
+        let launchdPlistTargetPath = "launchd_\(deploymentDestination.workerId.value).plist"
+        
+        let filePath = try tempFolder.createFile(
+            filename: launchdPlistTargetPath,
+            contents: try launchdPlist.plistData()
+        )
+        
+        Logger.debug("Deploying to \(deploymentDestination)")
+        
+        let launchdDeployableItem = DeployableItem(
+            name: "launchd_plist",
             files: [
                 DeployableFile(
-                    source: try tempFolder.createFile(
-                        filename: launchdPlistTargetPath,
-                        contents: try launchdPlist.plistData()
-                    ),
+                    source: filePath,
                     destination: RelativePath(launchdPlistTargetPath)
                 )
             ]
         )
         let launchctlDeployableCommands = LaunchctlDeployableCommands(
-            launchdPlistDeployableItem: launchdPlistDeployableItem,
+            launchdPlistDeployableItem: launchdDeployableItem,
             plistFilename: launchdPlistTargetPath
         )
-
+        
         let deployer = DistDeployer(
-            deploymentId: deploymentId,
+            deploymentId: emceeVersion.value,
             deploymentDestination: deploymentDestination,
-            deployableItems: deployableItems + [launchdPlistDeployableItem],
+            deployableItems: deployableItems + [launchdDeployableItem],
             deployableCommands: [
                 launchctlDeployableCommands.forceUnloadFromBackgroundCommand(),
+                [
+                    "sleep", "2"        // launchctl is async, so we have to wait :(
+                ],
                 launchctlDeployableCommands.forceLoadInBackgroundCommand()
             ],
             processControllerProvider: processControllerProvider,
             tempFolder: tempFolder,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
+        
         try deployer.deploy()
     }
 }
