@@ -7,14 +7,13 @@ import URLResource
 import XCTest
 
 final class BlockingURLResourceHandlerTests: XCTestCase {
-    private let waiter = SynchronousWaiter()
     private let runnerQueue = DispatchQueue(label: "runnerQueue", attributes: .concurrent)
     private let impactQueue = DispatchQueue(label: "impactQueue")
     private let remoteUrl = URL(string: "http://example.com")!
     private let resultingPath = AbsolutePath("/tmp/result/path")
 
     func test___provides_back_result() {
-        let handler = BlockingURLResourceHandler(waiter: waiter)
+        let handler = BlockingURLResourceHandler()
 
         runnerQueue.async {
             let result = self.assertDoesNotThrow {
@@ -34,7 +33,7 @@ final class BlockingURLResourceHandlerTests: XCTestCase {
     }
 
     func test___provides_back_error() {
-        let handler = BlockingURLResourceHandler(waiter: waiter)
+        let handler = BlockingURLResourceHandler()
 
         runnerQueue.async {
             self.assertThrows {

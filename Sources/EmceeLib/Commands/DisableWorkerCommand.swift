@@ -21,6 +21,7 @@ public final class DisableWorkerCommand: Command {
     
     private let callbackQueue = DispatchQueue(label: "DisableWorkerCommand.callbackQueue")
     private let requestSenderProvider: RequestSenderProvider
+    private let waiter = SynchronousWaiter()
     
     public init(requestSenderProvider: RequestSenderProvider) {
         self.requestSenderProvider = requestSenderProvider
@@ -36,22 +37,19 @@ public final class DisableWorkerCommand: Command {
             )
         )
         
-        let disabledWorkerId = AtomicValue<Either<WorkerId, Error>?>(nil)
+        let callbackWaiter: CallbackWaiter<Either<WorkerId, Error>> = waiter.createCallbackWaiter()
         
         workerDisabler.disableWorker(
             workerId: workerId,
             callbackQueue: callbackQueue
         ) { (result: Either<WorkerId, Error>) in
-            disabledWorkerId.set(result)
+            callbackWaiter.set(result: result)
         }
         
-        let queueResponse = try SynchronousWaiter().waitForUnwrap(
-            timeout: 15,
-            valueProvider: { disabledWorkerId.currentValue() },
-            description: "Performing request to the queue"
-        )
+        let disabledWorkerId = try callbackWaiter.wait(timeout: 15, description: "Request to disable \(workerId) on queue")
+        
         do {
-            Logger.always("Successfully disabled worker \(try queueResponse.dematerialize()) on queue \(queueServerAddress)")
+            Logger.always("Successfully disabled worker \(try disabledWorkerId.dematerialize()) on queue \(queueServerAddress)")
         } catch {
             Logger.error("Failed to disabled worker \(workerId) on queue \(queueServerAddress): \(error)")
         }

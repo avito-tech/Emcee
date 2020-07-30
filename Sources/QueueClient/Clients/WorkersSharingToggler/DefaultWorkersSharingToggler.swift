@@ -10,6 +10,7 @@ public class DefaultWorkersSharingToggler: WorkersSharingToggler {
     private let callbackQueue = DispatchQueue(label: "DisableWorkersSharingCommand.callbackQueue")
     private let timeout: TimeInterval
     private let requestSender: RequestSender
+    private let waiter = SynchronousWaiter()
     
     public init(timeout: TimeInterval, requestSender: RequestSender) {
         self.timeout = timeout
@@ -17,18 +18,17 @@ public class DefaultWorkersSharingToggler: WorkersSharingToggler {
     }
     
     public func setSharingStatus(_ status: WorkersSharingFeatureStatus) throws {
-        var requestResult: Either<VoidPayload, RequestSenderError>?
+        let callbackWaiter: CallbackWaiter<Error?> = waiter.createCallbackWaiter()
         
         requestSender.sendRequestWithCallback(
             request: ToggleWorkersSharingRequest(payload: ToggleWorkersSharingPayload(status: status)),
-            callbackQueue: callbackQueue) { (result: Either<VoidPayload, RequestSenderError>)in
-                requestResult = result
+            callbackQueue: callbackQueue
+        ) { (result: Either<VoidPayload, RequestSenderError>) in
+            callbackWaiter.set(result: result.right)
         }
-
-        _ = try SynchronousWaiter().waitForUnwrap(
-           timeout: timeout,
-           valueProvider: { try requestResult?.dematerialize() },
-           description: "Performing request to the queue"
-        )
+        
+        if let error = try callbackWaiter.wait(timeout: timeout, description: "Set worker sharing status to \(status) on queue") {
+            throw error
+        }
     }
 }

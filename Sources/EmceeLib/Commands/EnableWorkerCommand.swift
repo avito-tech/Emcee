@@ -21,6 +21,7 @@ public final class EnableWorkerCommand: Command {
     
     private let callbackQueue = DispatchQueue(label: "EnableWorkerCommand.callbackQueue")
     private let requestSenderProvider: RequestSenderProvider
+    private let waiter = SynchronousWaiter()
     
     public init(requestSenderProvider: RequestSenderProvider) {
         self.requestSenderProvider = requestSenderProvider
@@ -36,22 +37,18 @@ public final class EnableWorkerCommand: Command {
             )
         )
         
-        let enabledWorkerId = AtomicValue<Either<WorkerId, Error>?>(nil)
+        let callbackWaiter: CallbackWaiter<Either<WorkerId, Error>> = waiter.createCallbackWaiter()
         
         workerEnabler.enableWorker(
             workerId: workerId,
             callbackQueue: callbackQueue
         ) { (result: Either<WorkerId, Error>) in
-            enabledWorkerId.set(result)
+            callbackWaiter.set(result: result)
         }
         
-        let queueResponse = try SynchronousWaiter().waitForUnwrap(
-            timeout: 15,
-            valueProvider: { enabledWorkerId.currentValue() },
-            description: "Performing request to the queue"
-        )
+        let enabledWorkerId = try callbackWaiter.wait(timeout: 15, description: "Request to enable worker \(workerId) on queue")
         do {
-            Logger.always("Successfully enabled worker \(try queueResponse.dematerialize()) on queue \(queueServerAddress)")
+            Logger.always("Successfully enabled worker \(try enabledWorkerId.dematerialize()) on queue \(queueServerAddress)")
         } catch {
             Logger.error("Failed to enable worker \(workerId) on queue \(queueServerAddress): \(error)")
         }

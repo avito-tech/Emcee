@@ -22,7 +22,7 @@ public struct WaiterHasDiedBeforeValueWasSet: Error, CustomStringConvertible {
     }
 }
 
-public final class CallbackHandler<T> {
+public final class CallbackWaiter<T> {
     private let value = AtomicValue<T?>(nil)
     private weak var waiter: Waiter?
     
@@ -54,7 +54,7 @@ public final class CallbackHandler<T> {
 }
 
 public extension Waiter {
-    func createCallbackWaiter<T>() -> CallbackHandler<T> {
-        return CallbackHandler<T>(waiter: self)
+    func createCallbackWaiter<T>() -> CallbackWaiter<T> {
+        return CallbackWaiter<T>(waiter: self)
     }
 }

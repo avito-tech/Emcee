@@ -188,7 +188,7 @@ public final class DistWorker: SchedulerDelegate {
             
             let waiter = SynchronousWaiter()
             
-            let callbackWaiter: CallbackHandler<Either<BucketFetchResult, Error>> = waiter.createCallbackWaiter()
+            let callbackWaiter: CallbackWaiter<Either<BucketFetchResult, Error>> = waiter.createCallbackWaiter()
             
             bucketFetcher.fetch(
                 payloadSignature: try payloadSignature.dematerialize(),

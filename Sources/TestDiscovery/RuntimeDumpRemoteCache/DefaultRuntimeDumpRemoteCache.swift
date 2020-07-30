@@ -10,7 +10,7 @@ import Types
 class DefaultRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
     private let sender: RequestSender
     private let config: RuntimeDumpRemoteCacheConfig
-    private let waiter: Waiter
+    private let waiter: Waiter = SynchronousWaiter()
     private let callbackQueue = DispatchQueue(
         label: "RuntimeDumpRemoteCache.callbackQueue",
         qos: .default,
@@ -21,12 +21,10 @@ class DefaultRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
 
     init(
         config: RuntimeDumpRemoteCacheConfig,
-        sender: RequestSender,
-        waiter: Waiter = SynchronousWaiter()
+        sender: RequestSender
     ) {
         self.config = config
         self.sender = sender
-        self.waiter = waiter
     }
 
     func results(xcTestBundleLocation: TestBundleLocation) throws -> DiscoveredTests? {
@@ -34,22 +32,18 @@ class DefaultRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
             httpMethod: config.obtainHttpMethod,
             pathWithLeadingSlash: try pathToRemoteFile(xcTestBundleLocation)
         )
-
-        var queryResult: Either<DiscoveredTests, RequestSenderError>?
+        
+        let callbackWaiter: CallbackWaiter<Either<DiscoveredTests, RequestSenderError>> = waiter.createCallbackWaiter()
 
         sender.sendRequestWithCallback(
             request: request,
             credentials: config.credentials,
             callbackQueue: callbackQueue
         ) { result in
-            queryResult = result
+            callbackWaiter.set(result: result)
         }
 
-        return try waiter.waitForUnwrap(
-            timeout: 10,
-            valueProvider: { try queryResult?.dematerialize() },
-            description: "Cached query result"
-        )
+        return try callbackWaiter.wait(timeout: 10, description: "Fetch cached test discovery result").dematerialize()
     }
 
     func store(tests: DiscoveredTests, xcTestBundleLocation: TestBundleLocation) throws {
