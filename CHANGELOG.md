@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2020-07-31
+
+New `kickstart` command allows to (re-)start a given worker in case if it went south. Syntax:
+
+```shell
+
+$ Emcee kickstart --queue-server <queue address:port> --worker-id <worker id> --worker-id <another worker id>
+```
+
 ## 2020-07-23
 
 Test arg file entries now require `workerCapabilityRequirements` field to be present.

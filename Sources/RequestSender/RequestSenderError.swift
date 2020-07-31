@@ -9,7 +9,7 @@ public enum RequestSenderError: Error, CustomStringConvertible {
     case unableToCreateUrl(URLComponents)
     case cannotIssueRequest(Error)
     case credentialsNotUTF8
-    case badStatusCode(Int)
+    case badStatusCode(Int, body: Data?)
     
     public var description: String {
         switch self {
@@ -31,7 +31,10 @@ public enum RequestSenderError: Error, CustomStringConvertible {
             return "Failed to issue request: \(error)"
         case .credentialsNotUTF8:
             return "Use UTF8 ecnoding for request credentials"
-        case .badStatusCode(let code):
+        case .badStatusCode(let code, let body):
+            if let body = body, let bodyString = String(data: body, encoding: .utf8) {
+                return "Bad status code \(code), body: \(bodyString)"
+            }
             return "Bad status code: \(code)"
         }
     }

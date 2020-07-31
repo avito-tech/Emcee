@@ -192,7 +192,7 @@ final class RequestSenderTests: XCTestCase {
                     }
 
                     switch senderError {
-                    case .badStatusCode(let code):
+                    case .badStatusCode(let code, _):
                         XCTAssertEqual(code, 404)
                     default:
                         XCTFail("Wrong error type of \(error)")

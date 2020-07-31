@@ -55,4 +55,8 @@ public final class HTTPRESTServer {
         Logger.debug("Started REST server on \(actualPort) port")
         return Port(value: actualPort)
     }
+    
+    public func port() throws -> SocketModels.Port {
+        Port(value: try server.port())
+    }
 }

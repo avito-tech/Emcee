@@ -37,4 +37,8 @@ public final class ArgumentDescription: Hashable, CustomStringConvertible {
     public var asRequired: ArgumentDescription {
         return ArgumentDescription(name: name, overview: overview, multiple: multiple, optional: false)
     }
+    
+    public var asMultiple: ArgumentDescription {
+        return ArgumentDescription(name: name, overview: overview, multiple: true, optional: optional)
+    }
 }

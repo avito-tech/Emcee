@@ -97,7 +97,13 @@ public final class RequestSenderImpl: RequestSender {
 
             if let httpResponse = response as? HTTPURLResponse {
                 guard 200 ... 299 ~= httpResponse.statusCode else {
-                    callbackQueue.async { callback(.error(.badStatusCode(httpResponse.statusCode))) }
+                    callbackQueue.async {
+                        callback(
+                            .error(
+                                .badStatusCode(httpResponse.statusCode, body: data)
+                            )
+                        )
+                    }
                     return
                 }
             }

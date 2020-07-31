@@ -117,6 +117,7 @@ public final class StartQueueServerCommand: Command {
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerDeploymentDestinations: workerDestinations
         )
+        let queueServerPortProvider = SourcableQueueServerPortProvider()
         
         let queueServer = QueueServerImpl(
             automaticTerminationController: automaticTerminationController,
@@ -128,6 +129,10 @@ public final class StartQueueServerCommand: Command {
             deploymentDestinations: workerDestinations,
             emceeVersion: emceeVersion,
             localPortDeterminer: LocalPortDeterminer(portRange: EmceePorts.defaultQueuePortRange),
+            onDemandWorkerStarter: OnDemandWorkerStarterViaDeployer(
+                queueServerPortProvider: queueServerPortProvider,
+                remoteWorkerStarterProvider: remoteWorkerStarterProvider
+            ),
             payloadSignature: payloadSignature,
             queueServerLock: AutomaticTerminationControllerAwareQueueServerLock(
                 automaticTerminationController: automaticTerminationController
@@ -137,9 +142,11 @@ public final class StartQueueServerCommand: Command {
             workerConfigurations: createWorkerConfigurations(
                 queueServerRunConfiguration: queueServerRunConfiguration
             ),
-            workersToUtilizeService: workersToUtilizeService,
-            workerUtilizationStatusPoller: workerUtilizationStatusPoller
+            workerUtilizationStatusPoller: workerUtilizationStatusPoller,
+            workersToUtilizeService: workersToUtilizeService
         )
+        queueServerPortProvider.source = queueServer.queueServerPortProvider
+        
         let pollPeriod: TimeInterval = 5.0
         let queueServerTerminationWaiter = QueueServerTerminationWaiterImpl(
             pollInterval: pollPeriod,

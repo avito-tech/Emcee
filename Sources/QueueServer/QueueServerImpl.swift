@@ -32,6 +32,7 @@ public final class QueueServerImpl: QueueServer {
     private let jobResultsProvider: JobResultsProvider
     private let jobStateEndpoint: JobStateEndpoint
     private let jobStateProvider: JobStateProvider
+    private let kickstartWorkerEndpoint: KickstartWorkerEndpoint
     private let queueServerVersionHandler: QueueServerVersionEndpoint
     private let runningQueueStateProvider: RunningQueueStateProvider
     private let scheduleTestsHandler: ScheduleTestsEndpoint
@@ -53,13 +54,14 @@ public final class QueueServerImpl: QueueServer {
         deploymentDestinations: [DeploymentDestination],
         emceeVersion: Version,
         localPortDeterminer: LocalPortDeterminer,
+        onDemandWorkerStarter: OnDemandWorkerStarter,
         payloadSignature: PayloadSignature,
         queueServerLock: QueueServerLock,
         requestSenderProvider: RequestSenderProvider,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         workerConfigurations: WorkerConfigurations,
-        workersToUtilizeService: WorkersToUtilizeService,
-        workerUtilizationStatusPoller: WorkerUtilizationStatusPoller
+        workerUtilizationStatusPoller: WorkerUtilizationStatusPoller,
+        workersToUtilizeService: WorkersToUtilizeService
     ) {
         self.httpRestServer = HTTPRESTServer(
             automaticTerminationController: automaticTerminationController,
@@ -169,6 +171,11 @@ public final class QueueServerImpl: QueueServer {
             expectedPayloadSignature: payloadSignature,
             workerAlivenessProvider: workerAlivenessProvider
         )
+        self.kickstartWorkerEndpoint = KickstartWorkerEndpoint(
+            onDemandWorkerStarter: onDemandWorkerStarter,
+            workerAlivenessProvider: workerAlivenessProvider,
+            workerConfigurations: workerConfigurations
+        )
         self.disableWorkerHandler = DisableWorkerEndpoint(
             workerAlivenessProvider: workerAlivenessProvider,
             workerConfigurations: workerConfigurations
@@ -215,6 +222,7 @@ public final class QueueServerImpl: QueueServer {
         httpRestServer.add(handler: RESTEndpointOf(jobDeleteEndpoint))
         httpRestServer.add(handler: RESTEndpointOf(jobResultsEndpoint))
         httpRestServer.add(handler: RESTEndpointOf(jobStateEndpoint))
+        httpRestServer.add(handler: RESTEndpointOf(kickstartWorkerEndpoint))
         httpRestServer.add(handler: RESTEndpointOf(queueServerVersionHandler))
         httpRestServer.add(handler: RESTEndpointOf(scheduleTestsHandler))
         httpRestServer.add(handler: RESTEndpointOf(toggleWorkersSharingEndpoint))
@@ -259,4 +267,10 @@ public final class QueueServerImpl: QueueServer {
     public func queueResults(jobId: JobId) throws -> JobResults {
         return try jobResultsProvider.results(jobId: jobId)
     }
+    
+    public var queueServerPortProvider: QueueServerPortProvider {
+        httpRestServer
+    }
 }
+
+extension HTTPRESTServer: QueueServerPortProvider {}

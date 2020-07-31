@@ -50,13 +50,14 @@ final class QueueServerTests: XCTestCase {
             deploymentDestinations: [],
             emceeVersion: "emceeVersion",
             localPortDeterminer: localPortDeterminer,
+            onDemandWorkerStarter: FakeOnDemandWorkerStarter(),
             payloadSignature: payloadSignature,
             queueServerLock: NeverLockableQueueServerLock(),
             requestSenderProvider: DefaultRequestSenderProvider(),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerConfigurations: workerConfigurations,
-            workersToUtilizeService: FakeWorkersToUtilizeService(),
-            workerUtilizationStatusPoller: FakeWorkerUtilizationStatusPoller()
+            workerUtilizationStatusPoller: FakeWorkerUtilizationStatusPoller(),
+            workersToUtilizeService: FakeWorkersToUtilizeService()
         )
         XCTAssertThrowsError(try server.queueResults(jobId: jobId))
     }
@@ -88,13 +89,14 @@ final class QueueServerTests: XCTestCase {
             deploymentDestinations: [],
             emceeVersion: "emceeVersion",
             localPortDeterminer: localPortDeterminer,
+            onDemandWorkerStarter: FakeOnDemandWorkerStarter(),
             payloadSignature: payloadSignature,
             queueServerLock: NeverLockableQueueServerLock(),
             requestSenderProvider: DefaultRequestSenderProvider(),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerConfigurations: workerConfigurations,
-            workersToUtilizeService: FakeWorkersToUtilizeService(),
-            workerUtilizationStatusPoller: FakeWorkerUtilizationStatusPoller()
+            workerUtilizationStatusPoller: FakeWorkerUtilizationStatusPoller(),
+            workersToUtilizeService: FakeWorkersToUtilizeService()
         )
         server.schedule(
             bucketSplitter: ScheduleStrategyType.individual.bucketSplitter(
