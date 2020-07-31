@@ -1,5 +1,5 @@
+@testable import RequestSender
 import Foundation
-import RequestSender
 import RequestSenderTestHelpers
 import SocketModels
 import Swifter

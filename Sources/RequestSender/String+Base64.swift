@@ -1,4 +1,4 @@
-public extension String {
+extension String {
     enum Base64ConversionError: Error {
         case notUTF8Encoding
     }

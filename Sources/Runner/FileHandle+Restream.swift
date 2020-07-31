@@ -1,6 +1,6 @@
 import Foundation
 
-public extension FileHandle {
+extension FileHandle {
     func seekToOffsetFromEnd(offset: UInt64) {
         let eofOffset = seekToEndOfFile()
         let targetOffset = (offset > eofOffset) ? 0 : (eofOffset - offset)

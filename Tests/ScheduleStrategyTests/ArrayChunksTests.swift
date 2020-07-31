@@ -1,5 +1,5 @@
+@testable import ScheduleStrategy
 import XCTest
-@testable import Extensions
 
 class ArrayChunksTests: XCTestCase {
     func test_obviousExamples() {
