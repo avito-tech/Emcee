@@ -40,10 +40,10 @@ final class ArgumentsReader {
         return try decodeModelsFromFile(file, jsonDecoder: decoderWithSnakeCaseSupport)
     }
     
-    public static func queueServerRunConfiguration(
-        location: QueueServerRunConfigurationLocation,
+    public static func queueServerConfiguration(
+        location: QueueServerConfigurationLocation,
         resourceLocationResolver: ResourceLocationResolver
-    ) throws -> QueueServerRunConfiguration {
+    ) throws -> QueueServerConfiguration {
         let resolvingResult = try resourceLocationResolver.resolvePath(resourceLocation: location.resourceLocation)
         return try decodeModelsFromFile(
             try resolvingResult.directlyAccessibleResourcePath().pathString,

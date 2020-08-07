@@ -38,8 +38,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         ArgumentDescriptions.jobGroupPriority.asOptional,
         ArgumentDescriptions.jobId.asRequired,
         ArgumentDescriptions.junit.asOptional,
-        ArgumentDescriptions.queueServerDestination.asRequired,
-        ArgumentDescriptions.queueServerRunConfigurationLocation.asRequired,
+        ArgumentDescriptions.queueServerConfigurationLocation.asRequired,
         ArgumentDescriptions.remoteCacheConfig.asOptional,
         ArgumentDescriptions.tempFolder.asRequired,
         ArgumentDescriptions.testArgFile.asRequired,
@@ -83,12 +82,13 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             junit: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.junit.name),
             tracingReport: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.trace.name)
         )
-        
-        let queueServerDestination = try ArgumentsReader.deploymentDestinations(
-            try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerDestination.name)
-        ).elementAtIndex(0, "first and single queue server destination")
-        
-        let queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerRunConfigurationLocation.name)
+
+        let queueServerConfigurationLocation: QueueServerConfigurationLocation = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerConfigurationLocation.name)
+        let queueServerConfiguration = try ArgumentsReader.queueServerConfiguration(
+            location: queueServerConfigurationLocation,
+            resourceLocationResolver: resourceLocationResolver
+        )
+
         let jobId: JobId = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.jobId.name)
         let jobGroupId: JobGroupId = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.jobGroupId.name) ?? JobGroupId(value: jobId.value)
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
@@ -103,8 +103,8 @@ public final class RunTestsOnRemoteQueueCommand: Command {
 
         let runningQueueServerAddress = try detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
             emceeVersion: emceeVersion,
-            queueServerDestination: queueServerDestination,
-            queueServerRunConfigurationLocation: queueServerRunConfigurationLocation,
+            queueServerDeploymentDestination: queueServerConfiguration.queueServerDeploymentDestination,
+            queueServerConfigurationLocation: queueServerConfigurationLocation,
             jobId: jobId,
             tempFolder: tempFolder
         )
@@ -128,16 +128,16 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     
     private func detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
         emceeVersion: Version,
-        queueServerDestination: DeploymentDestination,
-        queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation,
+        queueServerDeploymentDestination: DeploymentDestination,
+        queueServerConfigurationLocation: QueueServerConfigurationLocation,
         jobId: JobId,
         tempFolder: TemporaryFolder
     ) throws -> SocketAddress {
-        Logger.info("Searching for queue server on '\(queueServerDestination.host)' with queue version \(emceeVersion)")
+        Logger.info("Searching for queue server on '\(queueServerDeploymentDestination.host)' with queue version \(emceeVersion)")
         let remoteQueueDetector = DefaultRemoteQueueDetector(
             emceeVersion: emceeVersion,
             remotePortDeterminer: RemoteQueuePortScanner(
-                host: queueServerDestination.host,
+                host: queueServerDeploymentDestination.host,
                 portRange: EmceePorts.defaultQueuePortRange,
                 requestSenderProvider: requestSenderProvider
             )
@@ -145,7 +145,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         var suitablePorts = try remoteQueueDetector.findSuitableRemoteRunningQueuePorts(timeout: 10)
         if !suitablePorts.isEmpty {
             let socketAddress = SocketAddress(
-                host: queueServerDestination.host,
+                host: queueServerDeploymentDestination.host,
                 port: try selectPort(ports: suitablePorts)
             )
             Logger.info("Found queue server at '\(socketAddress)'")
@@ -155,10 +155,10 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         Logger.info("No running queue server has been found. Will deploy and start remote queue.")
         let remoteQueueStarter = RemoteQueueStarter(
             deploymentId: jobId.value,
-            deploymentDestination: queueServerDestination,
+            deploymentDestination: queueServerDeploymentDestination,
             emceeVersion: emceeVersion,
             processControllerProvider: processControllerProvider,
-            queueServerRunConfigurationLocation: queueServerRunConfigurationLocation,
+            queueServerConfigurationLocation: queueServerConfigurationLocation,
             tempFolder: tempFolder,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
@@ -177,7 +177,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         }
         
         let queueServerAddress = SocketAddress(
-            host: queueServerDestination.host,
+            host: queueServerDeploymentDestination.host,
             port: try selectPort(ports: suitablePorts)
         )
         Logger.info("Found queue server at '\(queueServerAddress)'")

@@ -14,21 +14,21 @@ public final class RemoteQueueLaunchdPlist {
     private let emceeVersion: Version
     /// Queue server executable
     private let queueServerBinaryDeployableItem: DeployableItem
-    /// A JSON file location that contains QueueServerRunConfiguration for queue server
-    private let queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation
+    /// A JSON file location that contains QueueServerConfiguration for queue server
+    private let queueServerConfigurationLocation: QueueServerConfigurationLocation
 
     public init(
         deploymentId: String,
         deploymentDestination: DeploymentDestination,
         emceeDeployableItem: DeployableItem,
         emceeVersion: Version,
-        queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation
+        queueServerConfigurationLocation: QueueServerConfigurationLocation
     ) {
         self.deploymentId = deploymentId
         self.deploymentDestination = deploymentDestination
         self.emceeVersion = emceeVersion
         self.queueServerBinaryDeployableItem = emceeDeployableItem
-        self.queueServerRunConfigurationLocation = queueServerRunConfigurationLocation
+        self.queueServerConfigurationLocation = queueServerConfigurationLocation
     }
     
     public func plistData() throws -> Data {
@@ -54,7 +54,7 @@ public final class RemoteQueueLaunchdPlist {
                 programArguments: [
                     remoteQueueServerBinaryPath.pathString, "startLocalQueueServer",
                     "--emcee-version", emceeVersion.value,
-                    "--queue-server-run-configuration-location", queueServerRunConfigurationLocation.resourceLocation.stringValue
+                    "--queue-server-configuration-location", queueServerConfigurationLocation.resourceLocation.stringValue
                 ],
                 environmentVariables: [:],
                 workingDirectory: containerPath.pathString,

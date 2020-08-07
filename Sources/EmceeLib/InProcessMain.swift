@@ -104,6 +104,7 @@ public final class InProcessMain {
                     runtimeDumpRemoteCacheProvider: runtimeDumpRemoteCacheProvider
                 ),
                 StartQueueServerCommand(
+                    dateProvider: dateProvider,
                     requestSenderProvider: requestSenderProvider,
                     payloadSignature: PayloadSignature(value: UUID().uuidString),
                     processControllerProvider: processControllerProvider,

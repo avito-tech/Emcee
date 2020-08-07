@@ -5,41 +5,37 @@ import Foundation
 import LoggingSetup
 import QueueModels
 
-public struct QueueServerRunConfiguration: Decodable {
+public struct QueueServerConfiguration: Decodable {
     public let analyticsConfiguration: AnalyticsConfiguration
-
-    /// Delay after workers should ask for a next bucket when all jobs are depleted
     public let checkAgainTimeInterval: TimeInterval
-    
-    /// A list of additional per-destination configurations.
-    public let deploymentDestinationConfigurations: [DestinationConfiguration]
-    
-    /// Defines when queue server will terminate itself.
+    public let queueServerDeploymentDestination: DeploymentDestination
     public let queueServerTerminationPolicy: AutomaticTerminationPolicy
-    
     public let workerDeploymentDestinations: [DeploymentDestination]
+    public let workerSpecificConfigurations: [WorkerId: WorkerSpecificConfiguration]
 
     public init(
         analyticsConfiguration: AnalyticsConfiguration,
         checkAgainTimeInterval: TimeInterval,
-        deploymentDestinationConfigurations: [DestinationConfiguration],
+        queueServerDeploymentDestination: DeploymentDestination,
         queueServerTerminationPolicy: AutomaticTerminationPolicy,
-        workerDeploymentDestinations: [DeploymentDestination]
+        workerDeploymentDestinations: [DeploymentDestination],
+        workerSpecificConfigurations: [WorkerId: WorkerSpecificConfiguration]
     ) {
         self.analyticsConfiguration = analyticsConfiguration
         self.checkAgainTimeInterval = checkAgainTimeInterval
-        self.deploymentDestinationConfigurations = deploymentDestinationConfigurations
+        self.queueServerDeploymentDestination = queueServerDeploymentDestination
         self.queueServerTerminationPolicy = queueServerTerminationPolicy
         self.workerDeploymentDestinations = workerDeploymentDestinations
+        self.workerSpecificConfigurations = workerSpecificConfigurations
     }
     
     public func workerConfiguration(
-        deploymentDestinationConfiguration: DestinationConfiguration,
+        workerSpecificConfiguration: WorkerSpecificConfiguration,
         payloadSignature: PayloadSignature
     ) -> WorkerConfiguration {
         return WorkerConfiguration(
             analyticsConfiguration: analyticsConfiguration,
-            numberOfSimulators: deploymentDestinationConfiguration.numberOfSimulators,
+            numberOfSimulators: workerSpecificConfiguration.numberOfSimulators,
             payloadSignature: payloadSignature
         )
     }

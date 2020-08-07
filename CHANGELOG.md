@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2020-08-07
+
+- `QueueServerRunConfiguration` and everything related to it has been renamed to `QueueServerConfiguration`, including CLI argument `--queue-server-run-configuration` which was renamed to `--queue-server-configuration`.
+
+- `--queue-server-destination` argument was removed from `runTestsOnRemoteQueue` command. Queue server deployment destination is now provided via `QueueServerConfiguration.queueServerDeploymentDestination`. 
+
 ## 2020-07-31
 
 New `kickstart` command allows to (re-)start a given worker in case if it went south. Syntax:

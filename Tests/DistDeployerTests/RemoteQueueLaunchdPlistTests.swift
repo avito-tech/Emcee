@@ -22,7 +22,7 @@ final class RemoteQueueLaunchdPlistTests: XCTestCase {
             ]
         ),
         emceeVersion: emceeVersion,
-        queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation(.remoteUrl(remoteConfigUrl))
+        queueServerConfigurationLocation: QueueServerConfigurationLocation(.remoteUrl(remoteConfigUrl))
     )
     
     func test() throws {
@@ -38,7 +38,7 @@ final class RemoteQueueLaunchdPlistTests: XCTestCase {
                 "/Users/username/path/deploymentId/emcee/remote_filename",
                 "startLocalQueueServer",
                 "--emcee-version", emceeVersion.value,
-                "--queue-server-run-configuration-location", remoteConfigUrl.absoluteString
+                "--queue-server-configuration-location", remoteConfigUrl.absoluteString
             ]
         )
         XCTAssertEqual(

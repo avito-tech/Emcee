@@ -11,7 +11,7 @@ public final class RemoteQueueStarter {
     private let deploymentDestination: DeploymentDestination
     private let emceeVersion: Version
     private let processControllerProvider: ProcessControllerProvider
-    private let queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation
+    private let queueServerConfigurationLocation: QueueServerConfigurationLocation
     private let tempFolder: TemporaryFolder
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
 
@@ -20,7 +20,7 @@ public final class RemoteQueueStarter {
         deploymentDestination: DeploymentDestination,
         emceeVersion: Version,
         processControllerProvider: ProcessControllerProvider,
-        queueServerRunConfigurationLocation: QueueServerRunConfigurationLocation,
+        queueServerConfigurationLocation: QueueServerConfigurationLocation,
         tempFolder: TemporaryFolder,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
@@ -28,7 +28,7 @@ public final class RemoteQueueStarter {
         self.deploymentDestination = deploymentDestination
         self.emceeVersion = emceeVersion
         self.processControllerProvider = processControllerProvider
-        self.queueServerRunConfigurationLocation = queueServerRunConfigurationLocation
+        self.queueServerConfigurationLocation = queueServerConfigurationLocation
         self.tempFolder = tempFolder
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
@@ -54,7 +54,7 @@ public final class RemoteQueueStarter {
             deploymentDestination: deploymentDestination,
             emceeDeployableItem: emceeBinaryDeployableItem,
             emceeVersion: emceeVersion,
-            queueServerRunConfigurationLocation: queueServerRunConfigurationLocation
+            queueServerConfigurationLocation: queueServerConfigurationLocation
         )
         let launchdPlistDeployableItem = DeployableItem(
             name: "queue_server_launchd_plist",

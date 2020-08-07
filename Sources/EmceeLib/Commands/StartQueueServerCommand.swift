@@ -27,23 +27,26 @@ public final class StartQueueServerCommand: Command {
     public let description = "Starts queue server on local machine. This mode waits for jobs to be scheduled via REST API."
     public let arguments: Arguments = [
         ArgumentDescriptions.emceeVersion.asOptional,
-        ArgumentDescriptions.queueServerRunConfigurationLocation.asRequired
+        ArgumentDescriptions.queueServerConfigurationLocation.asRequired
     ]
 
+    private let dateProvider: DateProvider
     private let deployQueue = DispatchQueue(label: "StartQueueServerCommand.deployQueue", attributes: .concurrent, target: .global(qos: .default))
-    private let requestSenderProvider: RequestSenderProvider
     private let payloadSignature: PayloadSignature
     private let processControllerProvider: ProcessControllerProvider
+    private let requestSenderProvider: RequestSenderProvider
     private let resourceLocationResolver: ResourceLocationResolver
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
 
     public init(
+        dateProvider: DateProvider,
         requestSenderProvider: RequestSenderProvider,
         payloadSignature: PayloadSignature,
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
+        self.dateProvider = dateProvider
         self.requestSenderProvider = requestSenderProvider
         self.payloadSignature = payloadSignature
         self.processControllerProvider = processControllerProvider
@@ -53,29 +56,29 @@ public final class StartQueueServerCommand: Command {
     
     public func run(payload: CommandPayload) throws {
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
-        let queueServerRunConfiguration = try ArgumentsReader.queueServerRunConfiguration(
-            location: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerRunConfigurationLocation.name),
+        let queueServerConfiguration = try ArgumentsReader.queueServerConfiguration(
+            location: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerConfigurationLocation.name),
             resourceLocationResolver: resourceLocationResolver
         )
         
-        try AnalyticsSetup.setupAnalytics(analyticsConfiguration: queueServerRunConfiguration.analyticsConfiguration, emceeVersion: emceeVersion)
+        try AnalyticsSetup.setupAnalytics(analyticsConfiguration: queueServerConfiguration.analyticsConfiguration, emceeVersion: emceeVersion)
         
         try startQueueServer(
             emceeVersion: emceeVersion,
-            queueServerRunConfiguration: queueServerRunConfiguration,
-            workerDestinations: queueServerRunConfiguration.workerDeploymentDestinations
+            queueServerConfiguration: queueServerConfiguration,
+            workerDestinations: queueServerConfiguration.workerDeploymentDestinations
         )
     }
     
     private func startQueueServer(
         emceeVersion: Version,
-        queueServerRunConfiguration: QueueServerRunConfiguration,
+        queueServerConfiguration: QueueServerConfiguration,
         workerDestinations: [DeploymentDestination]
     ) throws {
         Logger.info("Generated payload signature: \(payloadSignature)")
         
         let automaticTerminationController = AutomaticTerminationControllerFactory(
-            automaticTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy
+            automaticTerminationPolicy: queueServerConfiguration.queueServerTerminationPolicy
         ).createAutomaticTerminationController()
         
         let socketHost = LocalHostDeterminer.currentHostAddress
@@ -101,8 +104,6 @@ public final class StartQueueServerCommand: Command {
             communicationService: queueCommunicationService
         )
         
-        let dateProvider = SystemDateProvider()
-        
         let workersToUtilizeService = DefaultWorkersToUtilizeService(
             cache: DefaultWorkersMappingCache(cacheIvalidationTime: 300, dateProvider: dateProvider),
             calculator: DefaultWorkersToUtilizeCalculator(),
@@ -122,9 +123,9 @@ public final class StartQueueServerCommand: Command {
         let queueServer = QueueServerImpl(
             automaticTerminationController: automaticTerminationController,
             bucketSplitInfo: BucketSplitInfo(
-                numberOfWorkers: UInt(queueServerRunConfiguration.deploymentDestinationConfigurations.count)
+                numberOfWorkers: UInt(queueServerConfiguration.workerSpecificConfigurations.count)
             ),
-            checkAgainTimeInterval: queueServerRunConfiguration.checkAgainTimeInterval,
+            checkAgainTimeInterval: queueServerConfiguration.checkAgainTimeInterval,
             dateProvider: dateProvider,
             deploymentDestinations: workerDestinations,
             emceeVersion: emceeVersion,
@@ -140,7 +141,7 @@ public final class StartQueueServerCommand: Command {
             requestSenderProvider: requestSenderProvider,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerConfigurations: createWorkerConfigurations(
-                queueServerRunConfiguration: queueServerRunConfiguration
+                queueServerConfiguration: queueServerConfiguration
             ),
             workerUtilizationStatusPoller: workerUtilizationStatusPoller,
             workersToUtilizeService: workersToUtilizeService
@@ -150,7 +151,7 @@ public final class StartQueueServerCommand: Command {
         let pollPeriod: TimeInterval = 5.0
         let queueServerTerminationWaiter = QueueServerTerminationWaiterImpl(
             pollInterval: pollPeriod,
-            queueServerTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy
+            queueServerTerminationPolicy: queueServerConfiguration.queueServerTerminationPolicy
         )
         
         let localQueueServerRunner = LocalQueueServerRunner(
@@ -159,7 +160,7 @@ public final class StartQueueServerCommand: Command {
             newWorkerRegistrationTimeAllowance: 360.0,
             pollPeriod: pollPeriod,
             queueServer: queueServer,
-            queueServerTerminationPolicy: queueServerRunConfiguration.queueServerTerminationPolicy,
+            queueServerTerminationPolicy: queueServerConfiguration.queueServerTerminationPolicy,
             queueServerTerminationWaiter: queueServerTerminationWaiter,
             remotePortDeterminer: remotePortDeterminer,
             remoteWorkerStarterProvider: remoteWorkerStarterProvider,
@@ -170,14 +171,14 @@ public final class StartQueueServerCommand: Command {
     }
     
     private func createWorkerConfigurations(
-        queueServerRunConfiguration: QueueServerRunConfiguration
+        queueServerConfiguration: QueueServerConfiguration
     ) -> WorkerConfigurations {
         let configurations = WorkerConfigurations()
-        for deploymentDestinationConfiguration in queueServerRunConfiguration.deploymentDestinationConfigurations {
+        for (workerId, workerSpecificConfiguration) in queueServerConfiguration.workerSpecificConfigurations {
             configurations.add(
-                workerId: deploymentDestinationConfiguration.destinationIdentifier,
-                configuration: queueServerRunConfiguration.workerConfiguration(
-                    deploymentDestinationConfiguration: deploymentDestinationConfiguration,
+                workerId: workerId,
+                configuration: queueServerConfiguration.workerConfiguration(
+                    workerSpecificConfiguration: workerSpecificConfiguration,
                     payloadSignature: payloadSignature
                 )
             )

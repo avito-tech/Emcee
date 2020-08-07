@@ -2,10 +2,6 @@ import Foundation
 import QueueModels
 
 public struct DeploymentDestination: Codable, CustomStringConvertible, Hashable {
-    /**
-     * Identifier can be used to apply additional configuration for this destination, see DestinationConfiguration
-     * If identifier is not specified explicitly, the host name will be used as an identifier.
-     */
     public let workerId: WorkerId
     public let host: String
     public let port: Int32
