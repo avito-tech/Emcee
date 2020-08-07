@@ -25,6 +25,8 @@ public indirect enum WorkerCapabilityConstraint: Codable, Hashable {
         .any([.equal(value), .greaterThan(value)])
     }
     
+    public static var present: WorkerCapabilityConstraint = .not(.absent)
+    
     private enum CodingKeys: String, CodingKey {
         case type
         case value
@@ -67,7 +69,7 @@ public indirect enum WorkerCapabilityConstraint: Codable, Hashable {
         case .absent:
             try container.encode(TypeId.missing, forKey: .type)
         case .equal(let value):
-            try container.encode(TypeId.missing, forKey: .type)
+            try container.encode(TypeId.equal, forKey: .type)
             try container.encode(value, forKey: .value)
         case .lessThan(let value):
             try container.encode(TypeId.lessThan, forKey: .type)
