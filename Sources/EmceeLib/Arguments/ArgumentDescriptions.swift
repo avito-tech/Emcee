@@ -3,9 +3,6 @@ import Foundation
 
 final class ArgumentDescriptions {
     static let emceeVersion = doubleDashedDescription(dashlessName: "emcee-version", overview: "Explicit version of Emcee binary")
-    static let jobGroupId = doubleDashedDescription(dashlessName: "job-group-id", overview: "Unique job group id that groups various jobs into a single group")
-    static let jobGroupPriority = doubleDashedDescription(dashlessName: "job-group-priority", overview: "Priority of the job group")
-    static let jobId = doubleDashedDescription(dashlessName: "job-id", overview: "Unique job id, usually a random string, e.g. UUID")
     static let junit = doubleDashedDescription(dashlessName: "junit", overview: "Path where the combined (for all test destinations) Junit report file should be created")
     static let output = doubleDashedDescription(dashlessName: "output", overview: "Path to file where to store the output")
     static let plugin = doubleDashedDescription(dashlessName: "plugin", overview: "URL to ZIP file with .emceeplugin bundle. Plugin bundle should contain an executable: MyPlugin.emceeplugin/Plugin", multiple: true)

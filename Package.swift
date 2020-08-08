@@ -1838,6 +1838,7 @@ let package = Package(
                 "BuildArtifacts",
                 "BuildArtifactsTestHelpers",
                 "PluginSupport",
+                "ResourceLocation",
                 "RunnerModels",
                 "RunnerTestHelpers",
                 "SimulatorPoolModels",

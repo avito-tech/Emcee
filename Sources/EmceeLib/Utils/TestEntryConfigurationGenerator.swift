@@ -8,11 +8,11 @@ import TestDiscovery
 
 public final class TestEntryConfigurationGenerator {
     private let validatedEntries: [ValidatedTestEntry]
-    private let testArgFileEntry: TestArgFile.Entry
+    private let testArgFileEntry: TestArgFileEntry
 
     public init(
         validatedEntries: [ValidatedTestEntry],
-        testArgFileEntry: TestArgFile.Entry
+        testArgFileEntry: TestArgFileEntry
     ) {
         self.validatedEntries = validatedEntries
         self.testArgFileEntry = testArgFileEntry

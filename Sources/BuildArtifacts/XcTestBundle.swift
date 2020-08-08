@@ -19,7 +19,7 @@ public struct XcTestBundle: Codable, Hashable, CustomStringConvertible {
         // Try fallback value first
         if let fallbackLocation = try? decoder.singleValueContainer().decode(TestBundleLocation.self) {
             self.location = fallbackLocation
-            self.testDiscoveryMode = .runtimeLogicTest
+            self.testDiscoveryMode = .parseFunctionSymbols
         } else {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             self.location = try container.decode(TestBundleLocation.self, forKey: .location)

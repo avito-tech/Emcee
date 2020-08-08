@@ -2,6 +2,46 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2020-08-08
+
+- Most of test arg file values are now optional. This is to make it more user friendly for OSS community. Example of valid yet runnable test arg file is:
+
+```json
+{
+    "jobId": "jobId",
+    "entries": [
+        {
+            "testsToRun": ["all"],
+            "testDestination": {"deviceType": "iPhone X", "runtime": "11.3"},
+            "testType": "uiTest",
+            "buildArtifacts": {
+                "appBundle": "http://example.com/App.zip#MyApp/MyApp.app",
+                "runner": "http://example.com/App.zip#Tests/UITests-Runner.app",
+                "xcTestBundle": "http://example.com/App.zip#Tests/UITests-Runner.app/PlugIns/UITests.xctest"
+            }
+        }
+    ]
+}
+```
+
+- Emcee now vaidates test arg file for common errors on launch before submitting job to a shared queue ("fail fast" techique):
+  
+  - If xcodebuild is selected with private simulators, Emcee will fail immediately.
+  - If any build artifact is missing, Emcee will fail immediately.
+
+Examples of such failures:
+
+```shell
+Test arg file has the following errors:
+Test arg file entry at index 0 has configuration error: xcodebuild is not compatible with provided simulator location (insideEmceeTempFolder). Use insideUserLibrary instead.
+Test arg file entry at index 1 has configuration error: Test type appTest requires appBundle to be provided
+```
+
+- New test arg file syntax for enumerating tests to be run:
+  
+  - `"testsToRun": ["all"]` is shorter eqivalent of `"testsToRun": [{"predicateType": "allDiscoveredTests"}]`
+  - `"testsToRun": ["Class/test"]` is shorter eqivalent of `"testsToRun": [{"predicateType": "singleTestName", "testName": "Class/test"}]`
+
 ## 2020-08-07
 
 - `QueueServerRunConfiguration` and everything related to it has been renamed to `QueueServerConfiguration`, including CLI argument `--queue-server-run-configuration` which was renamed to `--queue-server-configuration`.
@@ -13,7 +53,6 @@ All notable changes to this project will be documented in this file.
 New `kickstart` command allows to (re-)start a given worker in case if it went south. Syntax:
 
 ```shell
-
 $ Emcee kickstart --queue-server <queue address:port> --worker-id <worker id> --worker-id <another worker id>
 ```
 
@@ -39,8 +78,8 @@ Emcee will kill SpringBoard and cfprefsd if any plist changes in order to apply 
 ## 2020-05-15
 
 - `Package.swift` file is now generated. All `import` statements are parsed to do that. On CI, the check has been added to verify that `Package.swift` is commited correctly.
-New `make gen` command will generate both `Package.swift` and Xcode project.
-Test helper targets are detected by `TestHelper` suffix in their names. These targets are kept as normal ones (not `.testTarget()`).
+  New `make gen` command will generate both `Package.swift` and Xcode project.
+  Test helper targets are detected by `TestHelper` suffix in their names. These targets are kept as normal ones (not `.testTarget()`).
 
 - New command `disableWorker --queue-server host:1234 --worker-id some.worker.id` allows to disable worker from load. Queue will not provide any buckets for execution to disabled worker. Useful for performing some maintenance and etc. Enabling worker feature is TBD. 
 
@@ -78,7 +117,6 @@ To use it, pass `parseFunctionSymbols` value to `testDiscoveryMode` field of `xc
 Runtime dump feature has been renamed to test discovery. `RuntimeDump` module is now called `TestDiscovery`. APIs have been renamed as well. 
 `xctestBundle` object in build artifacts now has `testDiscoveryMode` field instead of `runtimeDumpMode`, and the supported values are `runtimeLogicTest` and `runtimeAppTest`.
 `testsToRun` value for running all available tests has been renamed from `allProvidedByRuntimeDump` to `allDiscoveredTests`.
-
 
 ## 2020-03-30
 
@@ -217,12 +255,13 @@ Confguration above defines the following behaviour:
 ### Changed
 
 - `environment` and `testType` fiels are required to be present in test arg file. 
-```json
+  
+  ```json
     ...
     "environment": {"ENV1": "VAL1", ...},
     "testType": "uiTest",  # supported values are "appTest", "logicTest", "uiTest"
     ...
-```
+  ```
 
 - Test arg file JSON entries is now expected to have `toolResources` field. This field describes the tools used to perform testing. This is an object with `testRunnerTool` and `simulatorControlTool`. Example:
 

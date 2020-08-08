@@ -2,7 +2,7 @@ import Foundation
 import RunnerModels
 import SimulatorPoolModels
 
-public struct TestDestinationConfiguration: Codable {
+public struct TestDestinationConfiguration: Codable, Equatable {
     public let testDestination: TestDestination
     public let reportOutput: ReportOutput
 

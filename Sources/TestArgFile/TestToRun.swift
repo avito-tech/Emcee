@@ -30,14 +30,24 @@ public enum TestToRun: Codable, CustomStringConvertible, Hashable {
     }
     
     public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let predicateType = try container.decode(PredicateType.self, forKey: .predicateType)
-        
-        switch predicateType {
-        case .allDiscoveredTests:
-            self = .allDiscoveredTests
-        case .singleTestName:
-            self = .testName(try container.decode(TestName.self, forKey: .testName))
+        do {
+            let container = try decoder.singleValueContainer()
+            let value = try container.decode(String.self)
+            if value == "all" {
+                self = .allDiscoveredTests
+            } else {
+                self = .testName(try TestName(from: decoder))
+            }
+        } catch {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            let predicateType = try container.decode(PredicateType.self, forKey: .predicateType)
+            
+            switch predicateType {
+            case .allDiscoveredTests:
+                self = .allDiscoveredTests
+            case .singleTestName:
+                self = .testName(try container.decode(TestName.self, forKey: .testName))
+            }
         }
     }
     

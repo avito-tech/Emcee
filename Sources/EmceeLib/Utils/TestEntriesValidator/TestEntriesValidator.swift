@@ -8,12 +8,12 @@ import TestArgFile
 import TestDiscovery
 
 public final class TestEntriesValidator {
-    private let testArgFileEntries: [TestArgFile.Entry]
+    private let testArgFileEntries: [TestArgFileEntry]
     private let testDiscoveryQuerier: TestDiscoveryQuerier
     private let transformer = TestToRunIntoTestEntryTransformer()
 
     public init(
-        testArgFileEntries: [TestArgFile.Entry],
+        testArgFileEntries: [TestArgFileEntry],
         testDiscoveryQuerier: TestDiscoveryQuerier
     ) {
         self.testArgFileEntries = testArgFileEntries
@@ -21,7 +21,7 @@ public final class TestEntriesValidator {
     }
     
     public func validatedTestEntries(
-        intermediateResult: (TestArgFile.Entry, [ValidatedTestEntry]) throws -> ()
+        intermediateResult: (TestArgFileEntry, [ValidatedTestEntry]) throws -> ()
     ) throws -> [ValidatedTestEntry] {
         var result = [ValidatedTestEntry]()
         
@@ -35,7 +35,7 @@ public final class TestEntriesValidator {
     }
 
     private func validatedTestEntries(
-        testArgFileEntry: TestArgFile.Entry
+        testArgFileEntry: TestArgFileEntry
     ) throws -> [ValidatedTestEntry] {
         let configuration = TestDiscoveryConfiguration(
             developerDir: testArgFileEntry.developerDir,

@@ -18,7 +18,7 @@ public enum TestDicoveryModeInputValidationError: Error, CustomStringConvertible
 }
 
 public final class TestDiscoveryModeDeterminer {
-    public static func testDiscoveryMode(testArgFileEntry: TestArgFile.Entry) throws -> TestDiscoveryMode {
+    public static func testDiscoveryMode(testArgFileEntry: TestArgFileEntry) throws -> TestDiscoveryMode {
         switch testArgFileEntry.buildArtifacts.xcTestBundle.testDiscoveryMode {
         case .parseFunctionSymbols:
             return .parseFunctionSymbols

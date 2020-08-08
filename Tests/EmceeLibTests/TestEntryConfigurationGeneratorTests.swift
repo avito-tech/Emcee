@@ -45,7 +45,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
     func test() {
         let generator = TestEntryConfigurationGenerator(
             validatedEntries: validatedEntries,
-            testArgFileEntry: TestArgFile.Entry(
+            testArgFileEntry: TestArgFileEntry(
                 buildArtifacts: buildArtifacts,
                 developerDir: .current,
                 environment: [:],
@@ -82,7 +82,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
     func test_repeated_items() {
         let generator = TestEntryConfigurationGenerator(
             validatedEntries: validatedEntries,
-            testArgFileEntry: TestArgFile.Entry(
+            testArgFileEntry: TestArgFileEntry(
                 buildArtifacts: buildArtifacts,
                 developerDir: .current,
                 environment: [:],
@@ -121,7 +121,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
     func test__all_available_tests() {
         let generator = TestEntryConfigurationGenerator(
             validatedEntries: validatedEntries,
-            testArgFileEntry: TestArgFile.Entry(
+            testArgFileEntry: TestArgFileEntry(
                 buildArtifacts: buildArtifacts,
                 developerDir: .current,
                 environment: [:],

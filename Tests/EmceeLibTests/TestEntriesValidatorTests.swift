@@ -88,7 +88,7 @@ final class TestEntriesValidatorTests: XCTestCase {
     }
 
     private func createValidator(
-        testArgFileEntries: [TestArgFile.Entry]
+        testArgFileEntries: [TestArgFileEntry]
     ) -> TestEntriesValidator {
         return TestEntriesValidator(
             testArgFileEntries: testArgFileEntries,
@@ -99,8 +99,8 @@ final class TestEntriesValidatorTests: XCTestCase {
     private func createTestEntry(
         testType: TestType,
         buildArtifacts: BuildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
-    ) throws -> TestArgFile.Entry {
-        return TestArgFile.Entry(
+    ) throws -> TestArgFileEntry {
+        return TestArgFileEntry(
             buildArtifacts: buildArtifacts,
             developerDir: .current,
             environment: [:],

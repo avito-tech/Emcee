@@ -1,6 +1,6 @@
 import Foundation
 
-public struct ReportOutput: Codable {
+public struct ReportOutput: Codable, Equatable {
     /// Absolute path where Junit report should be created. If nil, report won't be created.
     public let junit: String?
     

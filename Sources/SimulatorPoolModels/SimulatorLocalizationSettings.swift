@@ -30,7 +30,7 @@ public struct SimulatorLocalizationSettings: Codable, CustomStringConvertible, H
         self.didShowContinuousPathIntroduction = didShowContinuousPathIntroduction
     }
     
-        public var description: String {
-            return "<\(type(of: self)) \(localeIdentifier), keyboards: \(keyboards), passcodeKeyboards: \(passcodeKeyboards), languages: \(languages), addingEmojiKeybordHandled \(addingEmojiKeybordHandled), enableKeyboardExpansion \(enableKeyboardExpansion), didShowInternationalInfoAlert \(didShowInternationalInfoAlert), didShowContinuousPathIntroduction \(didShowContinuousPathIntroduction)>"
+    public var description: String {
+        return "<\(type(of: self)) \(localeIdentifier), keyboards: \(keyboards), passcodeKeyboards: \(passcodeKeyboards), languages: \(languages), addingEmojiKeybordHandled \(addingEmojiKeybordHandled), enableKeyboardExpansion \(enableKeyboardExpansion), didShowInternationalInfoAlert \(didShowInternationalInfoAlert), didShowContinuousPathIntroduction \(didShowContinuousPathIntroduction)>"
     }
 }
