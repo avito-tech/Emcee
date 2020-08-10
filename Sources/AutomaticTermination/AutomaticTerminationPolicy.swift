@@ -1,6 +1,6 @@
 import Foundation
 
-public enum AutomaticTerminationPolicy: Codable, CustomStringConvertible {
+public enum AutomaticTerminationPolicy: Codable, CustomStringConvertible, Equatable {
     /// Will trigger termination after being idle for the given amout of time.
     case afterBeingIdle(period: TimeInterval)
     

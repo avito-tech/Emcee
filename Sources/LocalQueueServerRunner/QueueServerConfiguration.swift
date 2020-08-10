@@ -29,6 +29,42 @@ public struct QueueServerConfiguration: Decodable {
         self.workerSpecificConfigurations = workerSpecificConfigurations
     }
     
+    private enum CodingKeys: String, CodingKey {
+        case analyticsConfiguration
+        case checkAgainTimeInterval
+        case queueServerDeploymentDestination
+        case queueServerTerminationPolicy
+        case workerDeploymentDestinations
+        case workerSpecificConfigurations
+    }
+     
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        let analyticsConfiguration = try container.decode(AnalyticsConfiguration.self, forKey: .analyticsConfiguration)
+        let checkAgainTimeInterval = try container.decode(TimeInterval.self, forKey: .checkAgainTimeInterval)
+        let queueServerDeploymentDestination = try container.decode(DeploymentDestination.self, forKey: .queueServerDeploymentDestination)
+        let queueServerTerminationPolicy = try container.decode(AutomaticTerminationPolicy.self, forKey: .queueServerTerminationPolicy)
+        let workerDeploymentDestinations = try container.decode([DeploymentDestination].self, forKey: .workerDeploymentDestinations)
+        let workerSpecificConfigurations = Dictionary(
+            uniqueKeysWithValues: try container.decode(
+                [String: WorkerSpecificConfiguration].self,
+                forKey: .workerSpecificConfigurations
+            ).map { key, value in
+                (WorkerId(key), value)
+            }
+        )
+        
+        self.init(
+            analyticsConfiguration: analyticsConfiguration,
+            checkAgainTimeInterval: checkAgainTimeInterval,
+            queueServerDeploymentDestination: queueServerDeploymentDestination,
+            queueServerTerminationPolicy: queueServerTerminationPolicy,
+            workerDeploymentDestinations: workerDeploymentDestinations,
+            workerSpecificConfigurations: workerSpecificConfigurations
+        )
+    }
+    
     public func workerConfiguration(
         workerSpecificConfiguration: WorkerSpecificConfiguration,
         payloadSignature: PayloadSignature

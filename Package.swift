@@ -799,8 +799,10 @@ let package = Package(
             dependencies: [
                 "AutomaticTermination",
                 "AutomaticTerminationTestHelpers",
+                "Deployer",
                 "DistDeployer",
                 "LocalQueueServerRunner",
+                "LoggingSetup",
                 "ProcessControllerTestHelpers",
                 "QueueCommunicationTestHelpers",
                 "QueueModels",
@@ -809,6 +811,7 @@ let package = Package(
                 "RemotePortDeterminer",
                 "RemotePortDeterminerTestHelpers",
                 "ScheduleStrategy",
+                "Sentry",
                 "SocketModels",
                 "TemporaryStuff",
                 "TestHelpers",
