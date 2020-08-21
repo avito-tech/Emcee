@@ -105,5 +105,18 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
             }
             value = nil
         }
+        
+        willRunEventTimestamp.withExclusiveAccess { value in
+            if let streamOpenEventTimestamp = value {
+                MetricRecorder.capture(
+                    UselessTestRunnerInvocationMetric(
+                        host: host,
+                        version: version,
+                        duration: dateProvider.currentDate().timeIntervalSince(streamOpenEventTimestamp),
+                        timestamp: dateProvider.currentDate()
+                    )
+                )
+            }
+        }
     }
 }

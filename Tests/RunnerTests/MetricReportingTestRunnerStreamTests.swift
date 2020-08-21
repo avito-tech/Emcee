@@ -154,6 +154,24 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
         )
     }
     
+    func test___reports_useless_runner_invocation_metric___when_stream_opens_and_closes___without_running_tests() {
+        stream.openStream()
+        dateProvider.result += 25
+        stream.closeStream()
+        
+        XCTAssertEqual(
+            metricHandler.metrics,
+            [
+                UselessTestRunnerInvocationMetric(
+                    host: host,
+                    version: version,
+                    duration: 25,
+                    timestamp: dateProvider.currentDate()
+                )
+            ]
+        )
+    }
+    
     func test___complex_metric_reporting() {
         stream.openStream()
         dateProvider.result += 25
