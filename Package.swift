@@ -1249,6 +1249,7 @@ let package = Package(
                 "DeployerTestHelpers",
                 "DistWorkerModels",
                 "DistWorkerModelsTestHelpers",
+                "Metrics",
                 "PortDeterminer",
                 "QueueClient",
                 "QueueCommunication",

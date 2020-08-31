@@ -6,13 +6,16 @@ import QueueModels
 
 public final class QueueStateMetricGatherer {
     private let dateProvider: DateProvider
+    private let queueHost: String
     private let version: Version
     
     public init(
         dateProvider: DateProvider,
+        queueHost: String = LocalHostDeterminer.currentHostAddress,
         version: Version
     ) {
         self.dateProvider = dateProvider
+        self.queueHost = queueHost
         self.version = version
     }
     
@@ -20,17 +23,28 @@ public final class QueueStateMetricGatherer {
         jobStates: [JobState],
         runningQueueState: RunningQueueState
     ) -> [Metric] {
-        let queueHost = LocalHostDeterminer.currentHostAddress
         let queueMetrics = [
-            QueueStateEnqueuedBucketsMetric(
+            QueueStateDequeuedBucketsMetric(
                 queueHost: queueHost,
-                numberOfEnqueuedBuckets: runningQueueState.enqueuedTests.count,
+                numberOfDequeuedBuckets: runningQueueState.dequeuedBucketCount,
                 version: version,
                 timestamp: dateProvider.currentDate()
             ),
-            QueueStateDequeuedBucketsMetric(
+            QueueStateDequeuedTestsMetric(
                 queueHost: queueHost,
-                numberOfDequeuedBuckets: runningQueueState.dequeuedTests.count,
+                numberOfDequeuedTests: runningQueueState.dequeuedTests.flattenValues.count,
+                version: version,
+                timestamp: dateProvider.currentDate()
+            ),
+            QueueStateEnqueuedBucketsMetric(
+                queueHost: queueHost,
+                numberOfEnqueuedBuckets: runningQueueState.enqueuedBucketCount,
+                version: version,
+                timestamp: dateProvider.currentDate()
+            ),
+            QueueStateEnqueuedTestsMetric(
+                queueHost: queueHost,
+                numberOfEnqueuedTests: runningQueueState.enqueuedTests.count,
                 version: version,
                 timestamp: dateProvider.currentDate()
             ),
@@ -42,22 +56,27 @@ public final class QueueStateMetricGatherer {
             )
         ]
         let jobMetrics = jobStates.flatMap { jobState -> [Metric] in
-            [
-                JobStateEnqueuedBucketsMetric(
-                    queueHost: queueHost,
-                    jobId: jobState.jobId.value,
-                    numberOfEnqueuedBuckets: runningQueueState.enqueuedTests.count,
-                    version: version,
-                    timestamp: dateProvider.currentDate()
-                ),
-                JobStateDequeuedBucketsMetric(
-                    queueHost: queueHost,
-                    jobId: jobState.jobId.value,
-                    numberOfDequeuedBuckets: runningQueueState.dequeuedTests.count,
-                    version: version,
-                    timestamp: dateProvider.currentDate()
-                )
-            ]
+            switch jobState.queueState {
+            case .deleted:
+                return []
+            case .running(let jobQueueState):
+                return [
+                    JobStateEnqueuedBucketsMetric(
+                        queueHost: queueHost,
+                        jobId: jobState.jobId.value,
+                        numberOfEnqueuedBuckets: jobQueueState.enqueuedBucketCount,
+                        version: version,
+                        timestamp: dateProvider.currentDate()
+                    ),
+                    JobStateDequeuedBucketsMetric(
+                        queueHost: queueHost,
+                        jobId: jobState.jobId.value,
+                        numberOfDequeuedBuckets: jobQueueState.dequeuedBucketCount,
+                        version: version,
+                        timestamp: dateProvider.currentDate()
+                    )
+                ]
+            }
         }
         return queueMetrics + jobMetrics
     }

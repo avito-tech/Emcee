@@ -3,14 +3,20 @@ import RunnerModels
 import Types
 
 public struct RunningQueueState: Equatable, CustomStringConvertible, Codable {
+    public let enqueuedBucketCount: Int
     public let enqueuedTests: [TestName]
+    public let dequeuedBucketCount: Int
     public let dequeuedTests: MapWithCollection<WorkerId, TestName>
     
     public init(
+        enqueuedBucketCount: Int,
         enqueuedTests: [TestName],
+        dequeuedBucketCount: Int,
         dequeuedTests: MapWithCollection<WorkerId, TestName>
     ) {
+        self.enqueuedBucketCount = enqueuedBucketCount
         self.enqueuedTests = enqueuedTests
+        self.dequeuedBucketCount = dequeuedBucketCount
         self.dequeuedTests = dequeuedTests
     }
     
@@ -19,6 +25,6 @@ public struct RunningQueueState: Equatable, CustomStringConvertible, Codable {
     }
     
     public var description: String {
-        return "<\(type(of: self)): enqueued: \(enqueuedTests.count), dequeued: \(dequeuedTests.flattenValues.count)>"
+        return "<\(type(of: self)): enqueued: \(enqueuedBucketCount) \(enqueuedTests.count), dequeued: \(dequeuedBucketCount) \(dequeuedTests.flattenValues.count)>"
     }
 }

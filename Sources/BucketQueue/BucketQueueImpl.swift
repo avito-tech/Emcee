@@ -68,7 +68,9 @@ final class BucketQueueImpl: BucketQueue {
         }
         
         return RunningQueueState(
+            enqueuedBucketCount: enqueuedBuckets.count,
             enqueuedTests: enqueuedBuckets.flatMap { $0.bucket.testEntries.map { $0.testName } },
+            dequeuedBucketCount: dequeuedBuckets.count,
             dequeuedTests: dequeuedTests
         )
     }

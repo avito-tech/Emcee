@@ -27,12 +27,12 @@ public class FakeBucketQueue: BucketQueue {
         self.fixedDequeueResult = fixedDequeueResult
     }
     
-    public var runningQueueState: RunningQueueState {
-        return RunningQueueState(
-            enqueuedTests: [],
-            dequeuedTests: [:]
-        )
-    }
+    public var runningQueueState = RunningQueueState(
+        enqueuedBucketCount: 0,
+        enqueuedTests: [],
+        dequeuedBucketCount: 0,
+        dequeuedTests: [:]
+    )
     
     public func enqueue(buckets: [Bucket]) {
         enqueuedBuckets.append(contentsOf: buckets)

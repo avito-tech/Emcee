@@ -21,7 +21,9 @@ public final class MultipleQueuesRunningQueueStateProvider: RunningQueueStatePro
         }
         
         return RunningQueueState(
+            enqueuedBucketCount: states.reduce(into: 0, { $0 += $1.enqueuedBucketCount }),
             enqueuedTests: states.flatMap { $0.enqueuedTests },
+            dequeuedBucketCount: states.reduce(into: 0, { $0 += $1.dequeuedBucketCount }),
             dequeuedTests: dequeuedTests
         )
     }
