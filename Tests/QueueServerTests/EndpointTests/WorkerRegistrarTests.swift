@@ -7,12 +7,14 @@ import RESTMethods
 import SocketModels
 import TestHelpers
 import WorkerAlivenessProvider
+import WorkerCapabilities
 import XCTest
 
 final class WorkerRegistrarTests: XCTestCase {
     lazy var alivenessTracker = WorkerAlivenessProviderImpl(knownWorkerIds: [workerId])
-    let workerConfigurations = WorkerConfigurations()
-    let workerId: WorkerId = "worker_id"
+    lazy var workerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()
+    lazy var workerConfigurations = WorkerConfigurations()
+    lazy var workerId: WorkerId = "worker_id"
     
     override func setUp() {
         super.setUp()
@@ -22,6 +24,7 @@ final class WorkerRegistrarTests: XCTestCase {
     private func createRegistrar() -> WorkerRegistrar {
         return WorkerRegistrar(
             workerAlivenessProvider: alivenessTracker,
+            workerCapabilitiesStorage: workerCapabilitiesStorage,
             workerConfigurations: workerConfigurations,
             workerDetailsHolder: WorkerDetailsHolderImpl()
         )
@@ -35,6 +38,7 @@ final class WorkerRegistrarTests: XCTestCase {
             try registrar.handle(
                 payload: RegisterWorkerPayload(
                     workerId: workerId,
+                    workerCapabilities: [],
                     workerRestAddress: SocketAddress(host: "host", port: 0)
                 )
             ),
@@ -49,6 +53,7 @@ final class WorkerRegistrarTests: XCTestCase {
         let response = try registrar.handle(
             payload: RegisterWorkerPayload(
                 workerId: workerId,
+                workerCapabilities: [],
                 workerRestAddress: SocketAddress(host: "host", port: 0)
             )
         )
@@ -65,6 +70,7 @@ final class WorkerRegistrarTests: XCTestCase {
             try registrar.handle(
                 payload: RegisterWorkerPayload(
                     workerId: "unknown",
+                    workerCapabilities: [],
                     workerRestAddress: SocketAddress(host: "host", port: 0)
                 )
             )

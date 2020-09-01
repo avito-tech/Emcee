@@ -9,7 +9,7 @@ public final class WorkerCapabilityConstraintResolver {
         workerCapabilities: Set<WorkerCapability>
     ) -> Bool {
         for requirement in requirements {
-            let matchingCapabilities = matchingWorkerCapabilities(withName: requirement.name, workerCapabilities: workerCapabilities)
+            let matchingCapabilities = matchingWorkerCapabilities(withName: requirement.capabilityName, workerCapabilities: workerCapabilities)
             
             if matchingCapabilities.isEmpty {
                 if !isConstraintSatisfied(requirement.constraint, workerCapability: nil) {

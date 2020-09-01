@@ -36,8 +36,8 @@ public final class BalancingBucketQueueImpl: BalancingBucketQueue {
         try MultipleQueuesJobResultsProvider(multipleQueuesContainer: multipleQueuesContainer).results(jobId: jobId)
     }
     
-    public func enqueue(buckets: [Bucket], prioritizedJob: PrioritizedJob) {
-        MultipleQueuesEnqueueableBucketReceptor(bucketQueueFactory: bucketQueueFactory, multipleQueuesContainer: multipleQueuesContainer).enqueue(buckets: buckets, prioritizedJob: prioritizedJob)
+    public func enqueue(buckets: [Bucket], prioritizedJob: PrioritizedJob) throws {
+        try MultipleQueuesEnqueueableBucketReceptor(bucketQueueFactory: bucketQueueFactory, multipleQueuesContainer: multipleQueuesContainer).enqueue(buckets: buckets, prioritizedJob: prioritizedJob)
     }
     
     public func previouslyDequeuedBucket(requestId: RequestId, workerId: WorkerId) -> DequeuedBucket? {

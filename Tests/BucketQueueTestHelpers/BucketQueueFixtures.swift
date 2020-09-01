@@ -6,6 +6,7 @@ import UniqueIdentifierGenerator
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessProvider
+import WorkerCapabilities
 
 public final class BucketQueueFixtures {
     public static let fixedGeneratorValue = UUID().uuidString
@@ -19,14 +20,17 @@ public final class BucketQueueFixtures {
         uniqueIdentifierGenerator: UniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(
             value: fixedGeneratorValue
         ),
-        workerAlivenessProvider: WorkerAlivenessProvider
+        workerAlivenessProvider: WorkerAlivenessProvider,
+        workerCapabilitiesStorage: WorkerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()
     ) -> BucketQueue {
         return BucketQueueFactory(
             checkAgainTimeInterval: checkAgainTimeInterval,
             dateProvider: dateProvider,
             testHistoryTracker: testHistoryTracker,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
-            workerAlivenessProvider: workerAlivenessProvider)
+            workerAlivenessProvider: workerAlivenessProvider,
+            workerCapabilitiesStorage: workerCapabilitiesStorage
+        )
             .createBucketQueue()
     }
 }

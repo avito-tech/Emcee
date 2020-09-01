@@ -15,9 +15,15 @@ import TestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessProvider
+import WorkerCapabilities
 import XCTest
 
 final class BalancingBucketQueueTests: XCTestCase {
+    
+    override func setUp() {
+        super.setUp()
+        workerAlivenessProvider.didRegisterWorker(workerId: workerId)
+    }
     
     func test___state_check_throws___when_no_queue_exists_for_job() {
         XCTAssertThrowsError(try balancingQueue.state(jobId: jobId))
@@ -27,9 +33,9 @@ final class BalancingBucketQueueTests: XCTestCase {
         XCTAssertThrowsError(try balancingQueue.results(jobId: jobId))
     }
     
-    func test___state_has_enqueued_buckets___after_enqueueing_buckets_for_job() {
+    func test___state_has_enqueued_buckets___after_enqueueing_buckets_for_job() throws {
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
-        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         
         XCTAssertEqual(
             try? balancingQueue.state(jobId: jobId),
@@ -47,10 +53,10 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
     }
     
-    func test___state_has_correct_enqueued_buckets___after_enqueueing_buckets_for_same_job() {
+    func test___state_has_correct_enqueued_buckets___after_enqueueing_buckets_for_same_job() throws {
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
-        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
-        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         
         XCTAssertEqual(
             try? balancingQueue.state(jobId: jobId),
@@ -68,15 +74,15 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
     }
     
-    func test___deleting_job() {
+    func test___deleting_job() throws {
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
-        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         XCTAssertNoThrow(try balancingQueue.delete(jobId: jobId))
     }
     
     func test___job_state_of_deleted_job() throws {
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
-        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         try balancingQueue.delete(jobId: jobId)
         XCTAssertEqual(
             try balancingQueue.state(jobId: jobId).queueState,
@@ -84,16 +90,16 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
     }
     
-    func test___repeated_deletion_of_job_throws() {
+    func test___repeated_deletion_of_job_throws() throws {
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
-        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         XCTAssertNoThrow(try balancingQueue.delete(jobId: jobId))
         XCTAssertThrowsError(try balancingQueue.delete(jobId: jobId))
     }
     
     func test___results_for_deleted_job_available() throws {
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
-        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         try balancingQueue.delete(jobId: jobId)
         XCTAssertNoThrow(_ = try balancingQueue.results(jobId: jobId))
     }
@@ -111,12 +117,12 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
     }
     
-    func test___dequeueing_bucket___after_enqueueing_it() {
+    func test___dequeueing_bucket___after_enqueueing_it() throws {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
-        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         
         XCTAssertEqual(
             balancingQueue.dequeueBucket(
@@ -138,14 +144,14 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
     }
     
-    func test___dequeueing_bucket_from_another_job___after_first_job_queue_has_all_buckets_dequeued() {
+    func test___dequeueing_bucket_from_another_job___after_first_job_queue_has_all_buckets_dequeued() throws {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
         let bucket1 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class1")])
-        balancingQueue.enqueue(buckets: [bucket1], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket1], prioritizedJob: prioritizedJob)
         let bucket2 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class2")])
-        balancingQueue.enqueue(buckets: [bucket2], prioritizedJob: anotherPrioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket2], prioritizedJob: anotherPrioritizedJob)
         
         XCTAssertEqual(
             balancingQueue.dequeueBucket(
@@ -213,14 +219,14 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
     }
     
-    func test___dequeueing_bucket_from_job_with_priority() {
+    func test___dequeueing_bucket_from_job_with_priority() throws {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
         let bucket1 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class1")])
-        balancingQueue.enqueue(buckets: [bucket1], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket1], prioritizedJob: prioritizedJob)
         let bucket2 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class2")])
-        balancingQueue.enqueue(buckets: [bucket2], prioritizedJob: highlyPrioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket2], prioritizedJob: highlyPrioritizedJob)
         
         XCTAssertEqual(
             balancingQueue.dequeueBucket(
@@ -242,14 +248,14 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
     }
     
-    func test___dequeueing_bucket_with_job_groups_with_priority() {
+    func test___dequeueing_bucket_with_job_groups_with_priority() throws {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
 
         let bucket1 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class1")])
-        balancingQueue.enqueue(buckets: [bucket1], prioritizedJob: PrioritizedJob(jobGroupId: "group1", jobGroupPriority: .medium, jobId: "job1", jobPriority: .medium))
+        try balancingQueue.enqueue(buckets: [bucket1], prioritizedJob: PrioritizedJob(jobGroupId: "group1", jobGroupPriority: .medium, jobId: "job1", jobPriority: .medium))
         let bucket2 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class2")])
-        balancingQueue.enqueue(buckets: [bucket2], prioritizedJob: PrioritizedJob(jobGroupId: "group2", jobGroupPriority: .highest, jobId: "job2", jobPriority: .medium))
+        try balancingQueue.enqueue(buckets: [bucket2], prioritizedJob: PrioritizedJob(jobGroupId: "group2", jobGroupPriority: .highest, jobId: "job2", jobPriority: .medium))
 
         XCTAssertEqual(
             balancingQueue.dequeueBucket(
@@ -271,12 +277,12 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
     }
     
-    func test___repeately_dequeueing_bucket___provides_back_same_result() {
+    func test___repeately_dequeueing_bucket___provides_back_same_result() throws {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
-        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         
         for _ in 0 ..< 10 {
             XCTAssertEqual(
@@ -301,16 +307,16 @@ final class BalancingBucketQueueTests: XCTestCase {
         }
     }
     
-    func test___reenqueueing_stuck_buckets___works_for_all_bucket_queues() {
+    func test___reenqueueing_stuck_buckets___works_for_all_bucket_queues() throws {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
         let bucket1 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class1")])
-        balancingQueue.enqueue(buckets: [bucket1], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket1], prioritizedJob: prioritizedJob)
         _ = balancingQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: workerId)
         
         let bucket2 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class2")])
-        balancingQueue.enqueue(buckets: [bucket2], prioritizedJob: anotherPrioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket2], prioritizedJob: anotherPrioritizedJob)
         _ = balancingQueue.dequeueBucket(requestId: anotherRequestId, workerCapabilities: [], workerId: workerId)
         
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
@@ -330,7 +336,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
-        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         
         XCTAssertEqual(try balancingQueue.results(jobId: jobId).testingResults, [])
     }
@@ -341,7 +347,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         
         let testEntry = TestEntryFixtures.testEntry(className: "class1")
         let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
-        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         _ = balancingQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: workerId)
         
         let expectedTestingResult = TestingResultFixtures(
@@ -373,7 +379,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         
         let testEntry = TestEntryFixtures.testEntry(className: "class1")
         let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
-        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         _ = balancingQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: workerId)
         
         let expectedTestingResult = TestingResultFixtures(
@@ -404,7 +410,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
-        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         _ = balancingQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: workerId)
         
         XCTAssertThrowsError(
@@ -421,7 +427,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
-        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         _ = balancingQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: workerId)
         
         XCTAssertThrowsError(
@@ -435,17 +441,17 @@ final class BalancingBucketQueueTests: XCTestCase {
     
     func test___dequeueing_by_not_registered_worker___provides_not_registered_response() throws {
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
-        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         
         XCTAssertEqual(
-            balancingQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: workerId),
+            balancingQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: "notRegisteredWorkerId"),
             DequeueResult.workerIsNotRegistered
         )
     }
     
     func test___dequeueing_by_disabled_worker___provides_empty_result() throws {
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
-        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         workerAlivenessProvider.disableWorker(workerId: workerId)
@@ -458,7 +464,7 @@ final class BalancingBucketQueueTests: XCTestCase {
     
     func test___dequeueing_by_reenabled_worker___provides_bucket() throws {
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
-        balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
         
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         workerAlivenessProvider.disableWorker(workerId: workerId)
@@ -486,9 +492,9 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
     }
     
-    func test___ongoing_job_ids() {
-        balancingQueue.enqueue(buckets: [], prioritizedJob: prioritizedJob)
-        balancingQueue.enqueue(buckets: [], prioritizedJob: highlyPrioritizedJob)
+    func test___ongoing_job_ids() throws {
+        try balancingQueue.enqueue(buckets: [], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [], prioritizedJob: highlyPrioritizedJob)
         
         XCTAssertEqual(
             balancingQueue.ongoingJobIds,
@@ -496,8 +502,8 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
     }
     
-    func test___scheduling_job___appends_to_ongoing_job_groups() {
-        balancingQueue.enqueue(buckets: [], prioritizedJob: prioritizedJob)
+    func test___scheduling_job___appends_to_ongoing_job_groups() throws {
+        try balancingQueue.enqueue(buckets: [], prioritizedJob: prioritizedJob)
         
         XCTAssertEqual(
             balancingQueue.ongoingJobGroupIds,
@@ -505,9 +511,9 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
     }
     
-    func test___removing_not_last_job_in_group___keeps_group_in_ongoing_job_groups() {
-        balancingQueue.enqueue(buckets: [], prioritizedJob: prioritizedJob)
-        balancingQueue.enqueue(buckets: [], prioritizedJob: highlyPrioritizedJob)
+    func test___removing_not_last_job_in_group___keeps_group_in_ongoing_job_groups() throws {
+        try balancingQueue.enqueue(buckets: [], prioritizedJob: prioritizedJob)
+        try balancingQueue.enqueue(buckets: [], prioritizedJob: highlyPrioritizedJob)
         assertDoesNotThrow {
             try balancingQueue.delete(jobId: prioritizedJob.jobId)
         }
@@ -518,8 +524,8 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
     }
     
-    func test___removing_last_job_in_group___removes_group_from_ongoing_job_groups() {
-        balancingQueue.enqueue(buckets: [], prioritizedJob: prioritizedJob)
+    func test___removing_last_job_in_group___removes_group_from_ongoing_job_groups() throws {
+        try balancingQueue.enqueue(buckets: [], prioritizedJob: prioritizedJob)
         assertDoesNotThrow {
             try balancingQueue.delete(jobId: prioritizedJob.jobId)
         }
@@ -543,7 +549,8 @@ final class BalancingBucketQueueTests: XCTestCase {
             uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator()
         ),
         uniqueIdentifierGenerator: uniqueIdentifierGenerator,
-        workerAlivenessProvider: workerAlivenessProvider
+        workerAlivenessProvider: workerAlivenessProvider,
+        workerCapabilitiesStorage: WorkerCapabilitiesStorageImpl()
     )
     lazy var checkAgainTimeInterval: TimeInterval = 42
     lazy var dateProvider = DateProviderFixture()

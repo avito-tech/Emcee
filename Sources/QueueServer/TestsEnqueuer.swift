@@ -29,12 +29,12 @@ public final class TestsEnqueuer {
         bucketSplitter: BucketSplitter,
         testEntryConfigurations: [TestEntryConfiguration],
         prioritizedJob: PrioritizedJob
-    ) {
+    ) throws {
         let buckets = bucketSplitter.generate(
             inputs: testEntryConfigurations,
             splitInfo: bucketSplitInfo
         )
-        enqueueableBucketReceptor.enqueue(buckets: buckets, prioritizedJob: prioritizedJob)
+        try enqueueableBucketReceptor.enqueue(buckets: buckets, prioritizedJob: prioritizedJob)
         
         MetricRecorder.capture(
             EnqueueTestsMetric(

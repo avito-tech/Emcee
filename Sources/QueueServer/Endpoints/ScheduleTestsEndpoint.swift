@@ -25,11 +25,11 @@ public final class ScheduleTestsEndpoint: RESTEndpoint {
     }
     
     public func handle(payload: ScheduleTestsRequest) throws -> ScheduleTestsResponse {
-        return queue.sync {
+        try queue.sync {
             if !enqueuedTestRequestIds.contains(payload.requestId) {
                 enqueuedTestRequestIds.insert(payload.requestId)
                 
-                testsEnqueuer.enqueue(
+                try testsEnqueuer.enqueue(
                     bucketSplitter: payload.scheduleStrategy.bucketSplitter(
                         uniqueIdentifierGenerator: uniqueIdentifierGenerator
                     ),

@@ -20,7 +20,7 @@ final class BucketQueueRetryTests: XCTestCase {
             // Given
             let bucketQueue = self.bucketQueue(workerIds: [failingWorker, anotherWorker])
             
-            bucketQueue.enqueue(buckets: [bucketWithTwoRetires])
+            try bucketQueue.enqueue(buckets: [bucketWithTwoRetires])
             
             // When worker fails
             try dequeueTestAndFail(bucketQueue: bucketQueue, workerId: failingWorker)
@@ -56,7 +56,7 @@ final class BucketQueueRetryTests: XCTestCase {
             let allWorkers = [firstWorker, secondWorker]
             let bucketQueue = self.bucketQueue(workerIds: allWorkers)
             
-            bucketQueue.enqueue(buckets: [bucketWithTwoRetires])
+            try bucketQueue.enqueue(buckets: [bucketWithTwoRetires])
             
             // When all workers fail
             try allWorkers.forEach { workerId in
@@ -87,7 +87,7 @@ final class BucketQueueRetryTests: XCTestCase {
             // Given
             let bucketQueue = self.bucketQueue(workerIds: [firstWorker, secondWorker])
             
-            bucketQueue.enqueue(buckets: [bucketWithTwoRetires])
+            try bucketQueue.enqueue(buckets: [bucketWithTwoRetires])
             
             // When retry limit is reached
             try [firstWorker, secondWorker, firstWorker].forEach { workerId in
@@ -107,7 +107,7 @@ final class BucketQueueRetryTests: XCTestCase {
         assertNoThrow {
             let bucketQueue = self.bucketQueue(workerIds: [failingWorker, anotherWorker])
             let bucket = bucketWithTwoRetires
-            bucketQueue.enqueue(buckets: [bucket])
+            try bucketQueue.enqueue(buckets: [bucket])
             
             let requestId = RequestId(value: UUID().uuidString)
             _ = bucketQueue.dequeueBucket(

@@ -18,6 +18,8 @@ import SocketModels
 import TestHelpers
 import Types
 import UniqueIdentifierGeneratorTestHelpers
+import WorkerAlivenessProvider
+import WorkerCapabilities
 import XCTest
 
 final class QueueServerTests: XCTestCase {
@@ -32,7 +34,10 @@ final class QueueServerTests: XCTestCase {
     private let localPortDeterminer = LocalPortDeterminer(portRange: 49152...65535)
     private let bucketSplitInfo = BucketSplitInfo(numberOfWorkers: 1)
     private let payloadSignature = PayloadSignature(value: "expectedPayloadSignature")
-
+    private lazy var workerAlivenessProvider: WorkerAlivenessProvider = WorkerAlivenessProviderImpl(
+        knownWorkerIds: workerConfigurations.workerIds
+    )
+    private lazy var workerCapabilitiesStorage: WorkerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()
     private let fixedBucketId: BucketId = "fixedBucketId"
     private lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(
         value: fixedBucketId.value
@@ -55,6 +60,8 @@ final class QueueServerTests: XCTestCase {
             queueServerLock: NeverLockableQueueServerLock(),
             requestSenderProvider: DefaultRequestSenderProvider(),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+            workerAlivenessProvider: workerAlivenessProvider,
+            workerCapabilitiesStorage: workerCapabilitiesStorage,
             workerConfigurations: workerConfigurations,
             workerUtilizationStatusPoller: FakeWorkerUtilizationStatusPoller(),
             workersToUtilizeService: FakeWorkersToUtilizeService()
@@ -78,6 +85,9 @@ final class QueueServerTests: XCTestCase {
             .testingResult()
         
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
+        workerAlivenessProvider.didRegisterWorker(workerId: workerId)
+        workerCapabilitiesStorage.set(workerCapabilities: [], forWorkerId: workerId)
+        
         let terminationController = AutomaticTerminationControllerFactory(
             automaticTerminationPolicy: .afterBeingIdle(period: 0.1)
         ).createAutomaticTerminationController()
@@ -94,11 +104,13 @@ final class QueueServerTests: XCTestCase {
             queueServerLock: NeverLockableQueueServerLock(),
             requestSenderProvider: DefaultRequestSenderProvider(),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+            workerAlivenessProvider: workerAlivenessProvider,
+            workerCapabilitiesStorage: workerCapabilitiesStorage,
             workerConfigurations: workerConfigurations,
             workerUtilizationStatusPoller: FakeWorkerUtilizationStatusPoller(),
             workersToUtilizeService: FakeWorkersToUtilizeService()
         )
-        server.schedule(
+        try server.schedule(
             bucketSplitter: ScheduleStrategyType.individual.bucketSplitter(
                 uniqueIdentifierGenerator: uniqueIdentifierGenerator
             ),
@@ -123,6 +135,7 @@ final class QueueServerTests: XCTestCase {
         _ = try runSyncronously { [callbackQueue, workerId] completion in
             workerRegisterer.registerWithServer(
                 workerId: workerId,
+                workerCapabilities: [],
                 workerRestAddress: SocketAddress(host: "host", port: 0),
                 callbackQueue: callbackQueue
             ) { _ in

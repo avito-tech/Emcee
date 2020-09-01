@@ -19,6 +19,7 @@ import Swifter
 import SynchronousWaiter
 import UniqueIdentifierGenerator
 import WorkerAlivenessProvider
+import WorkerCapabilities
 
 public final class QueueServerImpl: QueueServer {
     private let bucketProvider: BucketProviderEndpoint
@@ -59,6 +60,8 @@ public final class QueueServerImpl: QueueServer {
         queueServerLock: QueueServerLock,
         requestSenderProvider: RequestSenderProvider,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
+        workerAlivenessProvider: WorkerAlivenessProvider,
+        workerCapabilitiesStorage: WorkerCapabilitiesStorage,
         workerConfigurations: WorkerConfigurations,
         workerUtilizationStatusPoller: WorkerUtilizationStatusPoller,
         workersToUtilizeService: WorkersToUtilizeService
@@ -71,9 +74,7 @@ public final class QueueServerImpl: QueueServer {
         let alivenessPollingInterval: TimeInterval = 20
         let workerDetailsHolder = WorkerDetailsHolderImpl()
         
-        self.workerAlivenessProvider = WorkerAlivenessProviderImpl(
-            knownWorkerIds: workerConfigurations.workerIds
-        )
+        self.workerAlivenessProvider = workerAlivenessProvider
         self.workerAlivenessPoller = WorkerAlivenessPoller(
             pollInterval: alivenessPollingInterval,
             requestSenderProvider: requestSenderProvider,
@@ -89,7 +90,8 @@ public final class QueueServerImpl: QueueServer {
                 uniqueIdentifierGenerator: uniqueIdentifierGenerator
             ),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
-            workerAlivenessProvider: workerAlivenessProvider
+            workerAlivenessProvider: workerAlivenessProvider,
+            workerCapabilitiesStorage: workerCapabilitiesStorage
         )
         let nothingToDequeueBehavior: NothingToDequeueBehavior = NothingToDequeueBehaviorCheckLater(
             checkAfter: checkAgainTimeInterval
@@ -146,6 +148,7 @@ public final class QueueServerImpl: QueueServer {
         )
         self.workerRegistrar = WorkerRegistrar(
             workerAlivenessProvider: workerAlivenessProvider,
+            workerCapabilitiesStorage: workerCapabilitiesStorage,
             workerConfigurations: workerConfigurations,
             workerDetailsHolder: workerDetailsHolder
         )
@@ -244,8 +247,8 @@ public final class QueueServerImpl: QueueServer {
         bucketSplitter: BucketSplitter,
         testEntryConfigurations: [TestEntryConfiguration],
         prioritizedJob: PrioritizedJob
-    ) {
-        testsEnqueuer.enqueue(
+    ) throws {
+        try testsEnqueuer.enqueue(
             bucketSplitter: bucketSplitter,
             testEntryConfigurations: testEntryConfigurations,
             prioritizedJob: prioritizedJob

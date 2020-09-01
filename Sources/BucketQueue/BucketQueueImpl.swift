@@ -20,23 +20,27 @@ final class BucketQueueImpl: BucketQueue {
     private let checkAgainTimeInterval: TimeInterval
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let workerCapabilityConstraintResolver = WorkerCapabilityConstraintResolver()
+    private let workerCapabilitiesStorage: WorkerCapabilitiesStorage
     
     public init(
         checkAgainTimeInterval: TimeInterval,
         dateProvider: DateProvider,
         testHistoryTracker: TestHistoryTracker,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
-        workerAlivenessProvider: WorkerAlivenessProvider
-        )
-    {
+        workerAlivenessProvider: WorkerAlivenessProvider,
+        workerCapabilitiesStorage: WorkerCapabilitiesStorage
+    ) {
         self.checkAgainTimeInterval = checkAgainTimeInterval
         self.dateProvider = dateProvider
         self.testHistoryTracker = testHistoryTracker
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.workerAlivenessProvider = workerAlivenessProvider
+        self.workerCapabilitiesStorage = workerCapabilitiesStorage
     }
     
-    public func enqueue(buckets: [Bucket]) {
+    public func enqueue(buckets: [Bucket]) throws {
+        try validate(buckets: buckets)
+        
         queue.sync {
             self.enqueue_onSyncQueue(buckets: buckets)
         }
@@ -83,6 +87,7 @@ final class BucketQueueImpl: BucketQueue {
     
     public func dequeueBucket(requestId: RequestId, workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
         workerAlivenessProvider.willDequeueBucket(workerId: workerId)
+        workerCapabilitiesStorage.set(workerCapabilities: workerCapabilities, forWorkerId: workerId)
         
         guard workerAlivenessProvider.isWorkerRegistered(workerId: workerId) else {
             return .workerIsNotRegistered
@@ -318,6 +323,34 @@ final class BucketQueueImpl: BucketQueue {
                 workerId: workerId
             )
             enqueue_onSyncQueue(buckets: lostResult.bucketsToReenqueue)
+        }
+    }
+    
+    private func validate(buckets: [Bucket]) throws {
+        struct BucketValidationError: Error, CustomStringConvertible {
+            let buckets: [Bucket]
+            
+            var description: String {
+                buckets.map {
+                    "Bucket with \($0.bucketId) is not runnable because bucket requirements can't be met: \($0.workerCapabilityRequirements)"
+                }.joined(separator: "; ")
+            }
+        }
+        
+        let allWorkerCapabilities = workerAlivenessProvider.workerAliveness
+            .filter { $0.value.registered && $0.value.alive && $0.value.enabled }
+            .map { workerCapabilitiesStorage.workerCapabilities(forWorkerId: $0.key) }
+
+        let bucketsWithNotSatisifiedRequirements = buckets.filter { bucket -> Bool in
+            !allWorkerCapabilities.contains { workerCapabilities in
+                workerCapabilityConstraintResolver.requirementsSatisfied(
+                    requirements: bucket.workerCapabilityRequirements,
+                    workerCapabilities: workerCapabilities
+                )
+            }
+        }
+        if !bucketsWithNotSatisifiedRequirements.isEmpty {
+            throw BucketValidationError(buckets: bucketsWithNotSatisifiedRequirements)
         }
     }
 }

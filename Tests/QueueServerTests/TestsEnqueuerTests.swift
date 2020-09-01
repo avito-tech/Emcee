@@ -14,7 +14,7 @@ final class TestsEnqueuerTests: XCTestCase {
     let enqueueableBucketReceptor = FakeEnqueueableBucketReceptor()
     let prioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: "jobId", jobPriority: .medium)
     
-    func test() {
+    func test() throws {
         let bucketId = BucketId(value: UUID().uuidString)
         let testsEnqueuer = TestsEnqueuer(
             bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 1),
@@ -23,7 +23,7 @@ final class TestsEnqueuerTests: XCTestCase {
             version: Version(value: "version")
         )
         
-        testsEnqueuer.enqueue(
+        try testsEnqueuer.enqueue(
             bucketSplitter: ScheduleStrategyType.individual.bucketSplitter(
                 uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(value: bucketId.value)
             ),

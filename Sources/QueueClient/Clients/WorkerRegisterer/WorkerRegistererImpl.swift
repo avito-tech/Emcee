@@ -5,6 +5,7 @@ import RESTMethods
 import RequestSender
 import SocketModels
 import Types
+import WorkerCapabilitiesModels
 
 public final class WorkerRegistererImpl: WorkerRegisterer {
     private let requestSender: RequestSender
@@ -15,6 +16,7 @@ public final class WorkerRegistererImpl: WorkerRegisterer {
     
     public func registerWithServer(
         workerId: WorkerId,
+        workerCapabilities: Set<WorkerCapability>,
         workerRestAddress: SocketAddress,
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<WorkerConfiguration, Error>) -> Void
@@ -23,6 +25,7 @@ public final class WorkerRegistererImpl: WorkerRegisterer {
             request: RegisterWorkerRequest(
                 payload: RegisterWorkerPayload(
                     workerId: workerId,
+                    workerCapabilities: workerCapabilities,
                     workerRestAddress: workerRestAddress
                 )
             ),

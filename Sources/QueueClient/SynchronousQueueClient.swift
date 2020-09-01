@@ -11,7 +11,6 @@ import Types
 
 public final class SynchronousQueueClient: QueueClientDelegate {
     private let queueClient: QueueClient
-    private var bucketFetchResult: Either<BucketFetchResult, QueueClientError>?
     private var scheduleTestsResult: Either<RequestId, QueueClientError>?
     private var jobResultsResult: Either<JobResults, QueueClientError>?
     private var jobStateResult: Either<JobState, QueueClientError>?

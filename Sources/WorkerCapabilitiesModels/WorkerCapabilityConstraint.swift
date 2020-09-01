@@ -1,6 +1,6 @@
 import Foundation
 
-public indirect enum WorkerCapabilityConstraint: Codable, Hashable {
+public indirect enum WorkerCapabilityConstraint: Codable, Hashable, CustomStringConvertible {
     case absent
     case equal(String)
     case lessThan(String)
@@ -86,6 +86,25 @@ public indirect enum WorkerCapabilityConstraint: Codable, Hashable {
         case .any(let constraints):
             try container.encode(TypeId.any, forKey: .type)
             try container.encode(constraints, forKey: .value)
+        }
+    }
+    
+    public var description: String {
+        switch self {
+        case .absent:
+            return "absent"
+        case .equal(let value):
+            return "equal to \"\(value)\""
+        case .lessThan(let value):
+            return "less than \"\(value)\""
+        case .greaterThan(let value):
+            return "greater than \"\(value)\""
+        case .not(let constraint):
+            return "is not \(constraint)"
+        case .all(let constraints):
+            return constraints.map { "\($0)" }.joined(separator: " and ")
+        case .any(let constraints):
+            return constraints.map { "\($0)" }.joined(separator: " or ")
         }
     }
 }

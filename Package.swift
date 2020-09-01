@@ -199,6 +199,7 @@ let package = Package(
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessProvider",
+                "WorkerCapabilities",
             ],
             path: "Tests/BalancingBucketQueueTests"
         ),
@@ -233,6 +234,7 @@ let package = Package(
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessProvider",
+                "WorkerCapabilities",
                 "WorkerCapabilitiesModels",
             ],
             path: "Tests/BucketQueueTestHelpers"
@@ -253,6 +255,7 @@ let package = Package(
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessProvider",
+                "WorkerCapabilities",
                 "WorkerCapabilitiesModels",
             ],
             path: "Tests/BucketQueueTests"
@@ -550,6 +553,7 @@ let package = Package(
                 "Types",
                 "URLResource",
                 "UniqueIdentifierGenerator",
+                "WorkerAlivenessProvider",
                 "WorkerCapabilities",
                 "WorkerCapabilitiesModels",
                 "fbxctest",
@@ -1220,6 +1224,7 @@ let package = Package(
                 "UniqueIdentifierGenerator",
                 "WorkerAlivenessModels",
                 "WorkerAlivenessProvider",
+                "WorkerCapabilities",
                 "WorkerCapabilitiesModels",
             ],
             path: "Sources/QueueServer"
@@ -1274,6 +1279,7 @@ let package = Package(
                 "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessModels",
                 "WorkerAlivenessProvider",
+                "WorkerCapabilities",
             ],
             path: "Tests/QueueServerTests"
         ),
@@ -2068,10 +2074,13 @@ let package = Package(
             // MARK: WorkerCapabilities
             name: "WorkerCapabilities",
             dependencies: [
+                "AtomicModels",
                 "FileSystem",
                 "Logging",
                 "PathLib",
                 "PlistLib",
+                "QueueModels",
+                "Types",
                 "WorkerCapabilitiesModels",
             ],
             path: "Sources/WorkerCapabilities"

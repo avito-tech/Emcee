@@ -21,6 +21,8 @@ import ResourceLocationResolver
 import ScheduleStrategy
 import TemporaryStuff
 import UniqueIdentifierGenerator
+import WorkerAlivenessProvider
+import WorkerCapabilities
 
 public final class StartQueueServerCommand: Command {
     public let name = "startLocalQueueServer"
@@ -119,6 +121,9 @@ public final class StartQueueServerCommand: Command {
             workerDeploymentDestinations: workerDestinations
         )
         let queueServerPortProvider = SourcableQueueServerPortProvider()
+        let workerConfigurations = createWorkerConfigurations(
+            queueServerConfiguration: queueServerConfiguration
+        )
         
         let queueServer = QueueServerImpl(
             automaticTerminationController: automaticTerminationController,
@@ -140,9 +145,11 @@ public final class StartQueueServerCommand: Command {
             ),
             requestSenderProvider: requestSenderProvider,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
-            workerConfigurations: createWorkerConfigurations(
-                queueServerConfiguration: queueServerConfiguration
+            workerAlivenessProvider: WorkerAlivenessProviderImpl(
+                knownWorkerIds: workerConfigurations.workerIds
             ),
+            workerCapabilitiesStorage: WorkerCapabilitiesStorageImpl(),
+            workerConfigurations: workerConfigurations,
             workerUtilizationStatusPoller: workerUtilizationStatusPoller,
             workersToUtilizeService: workersToUtilizeService
         )

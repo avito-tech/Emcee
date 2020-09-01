@@ -113,6 +113,7 @@ public final class DistWorker: SchedulerDelegate {
 
         workerRegisterer.registerWithServer(
             workerId: workerId,
+            workerCapabilities: workerCapabilitiesProvider.workerCapabilities(),
             workerRestAddress: SocketAddress(
                 host: LocalHostDeterminer.currentHostAddress,
                 port: try httpRestServer.start()
@@ -138,7 +139,6 @@ public final class DistWorker: SchedulerDelegate {
                     onDemandSimulatorPool: strongSelf.onDemandSimulatorPool
                 )
                 Logger.verboseDebug("Dist worker has finished")
-                strongSelf.cleanUpAndStop()
                 
                 completion()
             } catch {
@@ -177,8 +177,6 @@ public final class DistWorker: SchedulerDelegate {
         )
         try scheduler.run()
     }
-    
-    public func cleanUpAndStop() {}
     
     // MARK: - Callbacks
     
@@ -294,7 +292,6 @@ public final class DistWorker: SchedulerDelegate {
             )
         } catch {
             Logger.error("Failed to send test run result for bucket \(testingResult.bucketId): \(error)")
-            cleanUpAndStop()
         }
     }
 }

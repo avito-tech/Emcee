@@ -7,9 +7,11 @@ import RESTInterfaces
 import RESTMethods
 import RESTServer
 import WorkerAlivenessProvider
+import WorkerCapabilities
 
 public final class WorkerRegistrar: RESTEndpoint {
     private let workerAlivenessProvider: WorkerAlivenessProvider
+    private let workerCapabilitiesStorage: WorkerCapabilitiesStorage
     private let workerConfigurations: WorkerConfigurations
     private let workerDetailsHolder: WorkerDetailsHolder
     public let path: RESTPath = RESTMethod.registerWorker
@@ -31,10 +33,12 @@ public final class WorkerRegistrar: RESTEndpoint {
     
     public init(
         workerAlivenessProvider: WorkerAlivenessProvider,
+        workerCapabilitiesStorage: WorkerCapabilitiesStorage,
         workerConfigurations: WorkerConfigurations,
         workerDetailsHolder: WorkerDetailsHolder
     ) {
         self.workerAlivenessProvider = workerAlivenessProvider
+        self.workerCapabilitiesStorage = workerCapabilitiesStorage
         self.workerConfigurations = workerConfigurations
         self.workerDetailsHolder = workerDetailsHolder
     }
@@ -44,6 +48,8 @@ public final class WorkerRegistrar: RESTEndpoint {
             throw WorkerRegistrarError.missingWorkerConfiguration(workerId: payload.workerId)
         }
         Logger.debug("Registration request from worker with id: \(payload.workerId)")
+        
+        workerCapabilitiesStorage.set(workerCapabilities: payload.workerCapabilities, forWorkerId: payload.workerId)
         
         let workerAliveness = workerAlivenessProvider.alivenessForWorker(workerId: payload.workerId)
         guard !workerAliveness.registered || workerAliveness.silent else {

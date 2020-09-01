@@ -14,8 +14,8 @@ public final class MultipleQueuesEnqueueableBucketReceptor: EnqueueableBucketRec
         self.multipleQueuesContainer = multipleQueuesContainer
     }
     
-    public func enqueue(buckets: [Bucket], prioritizedJob: PrioritizedJob) {
-        multipleQueuesContainer.performWithExclusiveAccess {
+    public func enqueue(buckets: [Bucket], prioritizedJob: PrioritizedJob) throws {
+        try multipleQueuesContainer.performWithExclusiveAccess {
             let bucketQueue: BucketQueue
             
             if let existingJobQueue = multipleQueuesContainer.runningJobQueues(jobId: prioritizedJob.jobId).first {
@@ -42,7 +42,7 @@ public final class MultipleQueuesEnqueueableBucketReceptor: EnqueueableBucketRec
                 )
                 multipleQueuesContainer.removeFromDeleted(jobId: prioritizedJob.jobId)
             }
-            bucketQueue.enqueue(buckets: buckets)
+            try bucketQueue.enqueue(buckets: buckets)
         }
     }
     

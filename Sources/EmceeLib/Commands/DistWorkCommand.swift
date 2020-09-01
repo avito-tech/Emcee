@@ -89,7 +89,6 @@ public final class DistWorkCommand: Command {
         
         SignalHandling.addSignalHandler(signals: [.term, .int]) { signal in
             Logger.debug("Got signal: \(signal)")
-            distWorker.cleanUpAndStop()
             onDemandSimulatorPool.deleteSimulators()
         }
         
