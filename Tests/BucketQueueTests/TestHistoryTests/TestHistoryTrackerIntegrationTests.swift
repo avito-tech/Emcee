@@ -14,7 +14,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
     private let fixedDate = Date()
     private let fixedIdentifier = "identifier"
     
-    private lazy var aliveWorkers = [failingWorkerId, notFailingWorkerId]
+    private lazy var workerIdsInWorkingCondition = [failingWorkerId, notFailingWorkerId]
     private lazy var bucketIdGenerator = FixedValueUniqueIdentifierGenerator(value: fixedIdentifier)
     
     private lazy var testHistoryTracker = TestHistoryTrackerFixtures.testHistoryTracker(
@@ -169,7 +169,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
             queue: [
                 EnqueuedBucket(bucket: bucketFixture, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier)
             ],
-            aliveWorkers: aliveWorkers
+            workerIdsInWorkingCondition: workerIdsInWorkingCondition
         )
         
         // Then
@@ -189,7 +189,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
             queue: [
                 EnqueuedBucket(bucket: bucketFixture, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier)
             ],
-            aliveWorkers: aliveWorkers
+            workerIdsInWorkingCondition: workerIdsInWorkingCondition
         )
         
         // Then
@@ -213,7 +213,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
                 EnqueuedBucket(bucket: bucketFixture, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier),
                 EnqueuedBucket(bucket: notFailedBucket, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier)
             ],
-            aliveWorkers: aliveWorkers
+            workerIdsInWorkingCondition: workerIdsInWorkingCondition
         )
         
         // Then
@@ -234,7 +234,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
             queue: [
                 EnqueuedBucket(bucket: bucketFixture, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier),
             ],
-            aliveWorkers: aliveWorkers
+            workerIdsInWorkingCondition: workerIdsInWorkingCondition
         )
         
         // Then
@@ -247,7 +247,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
             queue: [
                 EnqueuedBucket(bucket: bucketFixture, enqueueTimestamp: fixedDate, uniqueIdentifier: fixedIdentifier),
             ],
-            aliveWorkers: aliveWorkers
+            workerIdsInWorkingCondition: workerIdsInWorkingCondition
         )
         _ = try tracker.accept(
             testingResult: oneFailResultsFixtures.testingResult(),

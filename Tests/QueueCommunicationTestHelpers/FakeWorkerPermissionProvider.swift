@@ -1,4 +1,5 @@
 import QueueCommunication
+import QueueCommunicationModels
 import QueueModels
 
 public class FakeWorkerPermissionProvider: WorkerPermissionProvider {

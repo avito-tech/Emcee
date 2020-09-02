@@ -12,7 +12,8 @@ final class WorkerStatusFetcherTests: XCTestCase {
         registered: true,
         bucketIdsBeingProcessed: [],
         disabled: false,
-        silent: true
+        silent: true,
+        workerUtilizationPermission: .allowedToUtilize
     )
     private lazy var workerId = WorkerId(value: "worker")
     private lazy var callbackQueue = DispatchQueue(label: "callbackQueue")

@@ -1,6 +1,7 @@
 import DistWorkerModels
 import DistWorkerModelsTestHelpers
 import Foundation
+import QueueCommunicationTestHelpers
 import QueueModels
 import QueueServer
 import RESTMethods
@@ -11,7 +12,10 @@ import WorkerCapabilities
 import XCTest
 
 final class WorkerRegistrarTests: XCTestCase {
-    lazy var alivenessTracker = WorkerAlivenessProviderImpl(knownWorkerIds: [workerId])
+    lazy var alivenessTracker = WorkerAlivenessProviderImpl(
+        knownWorkerIds: [workerId],
+        workerPermissionProvider: FakeWorkerPermissionProvider()
+    )
     lazy var workerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()
     lazy var workerConfigurations = WorkerConfigurations()
     lazy var workerId: WorkerId = "worker_id"

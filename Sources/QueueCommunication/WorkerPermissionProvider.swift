@@ -1,9 +1,5 @@
 import QueueModels
-
-public enum WorkerUtilizationPermission {
-    case allowedToUtilize
-    case notAllowedToUtilize
-}
+import QueueCommunicationModels
 
 public protocol WorkerPermissionProvider {
     func utilizationPermissionForWorker(workerId: WorkerId) -> WorkerUtilizationPermission

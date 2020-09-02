@@ -35,7 +35,8 @@ final class QueueServerTests: XCTestCase {
     private let bucketSplitInfo = BucketSplitInfo(numberOfWorkers: 1)
     private let payloadSignature = PayloadSignature(value: "expectedPayloadSignature")
     private lazy var workerAlivenessProvider: WorkerAlivenessProvider = WorkerAlivenessProviderImpl(
-        knownWorkerIds: workerConfigurations.workerIds
+        knownWorkerIds: workerConfigurations.workerIds,
+        workerPermissionProvider: FakeWorkerPermissionProvider()
     )
     private lazy var workerCapabilitiesStorage: WorkerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()
     private let fixedBucketId: BucketId = "fixedBucketId"

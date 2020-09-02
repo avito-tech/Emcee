@@ -39,7 +39,7 @@ final class TestHistoryTests: XCTestCase {
         let bucketToDequeue = tracker.bucketToDequeue(
             workerId: "1",
             queue: [twoTestsBucket],
-            aliveWorkers: ["1", "2"]
+            workerIdsInWorkingCondition: ["1", "2"]
         )
         
         // Then
@@ -62,7 +62,7 @@ final class TestHistoryTests: XCTestCase {
         let bucketToDequeue = tracker.bucketToDequeue(
             workerId: "1",
             queue: [twoTestsBucket, otherBucket],
-            aliveWorkers: ["1", "2"]
+            workerIdsInWorkingCondition: ["1", "2"]
         )
         
         // Then

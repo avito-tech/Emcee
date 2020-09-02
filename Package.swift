@@ -247,6 +247,7 @@ let package = Package(
                 "BucketQueueTestHelpers",
                 "DateProviderTestHelpers",
                 "DistWorkerModels",
+                "QueueCommunicationTestHelpers",
                 "QueueModels",
                 "QueueModelsTestHelpers",
                 "RunnerModels",
@@ -1102,6 +1103,7 @@ let package = Package(
                 "LocalHostDeterminer",
                 "Logging",
                 "Metrics",
+                "QueueCommunicationModels",
                 "QueueModels",
                 "RESTMethods",
                 "RemotePortDeterminer",
@@ -1113,12 +1115,20 @@ let package = Package(
             path: "Sources/QueueCommunication"
         ),
         .target(
+            // MARK: QueueCommunicationModels
+            name: "QueueCommunicationModels",
+            dependencies: [
+            ],
+            path: "Sources/QueueCommunicationModels"
+        ),
+        .target(
             // MARK: QueueCommunicationTestHelpers
             name: "QueueCommunicationTestHelpers",
             dependencies: [
                 "Deployer",
                 "DeployerTestHelpers",
                 "QueueCommunication",
+                "QueueCommunicationModels",
                 "QueueModels",
                 "SocketModels",
                 "TestHelpers",
@@ -2046,6 +2056,7 @@ let package = Package(
             // MARK: WorkerAlivenessModels
             name: "WorkerAlivenessModels",
             dependencies: [
+                "QueueCommunicationModels",
                 "QueueModels",
             ],
             path: "Sources/WorkerAlivenessModels"
@@ -2055,6 +2066,8 @@ let package = Package(
             name: "WorkerAlivenessProvider",
             dependencies: [
                 "Logging",
+                "QueueCommunication",
+                "QueueCommunicationModels",
                 "QueueModels",
                 "WorkerAlivenessModels",
             ],
@@ -2064,6 +2077,7 @@ let package = Package(
             // MARK: WorkerAlivenessProviderTests
             name: "WorkerAlivenessProviderTests",
             dependencies: [
+                "QueueCommunicationTestHelpers",
                 "QueueModels",
                 "WorkerAlivenessModels",
                 "WorkerAlivenessProvider",

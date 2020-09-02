@@ -3,6 +3,7 @@ import BucketQueueTestHelpers
 import DateProviderTestHelpers
 import DistWorkerModels
 import Foundation
+import QueueCommunicationTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
 import RunnerModels
@@ -20,7 +21,10 @@ final class BucketQueueTests: XCTestCase {
     lazy var requestId: RequestId = "request_id"
     lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator()
     lazy var workerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()
-    lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(knownWorkerIds: [workerId, capableWorkerId])
+    lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(
+        knownWorkerIds: [workerId, capableWorkerId],
+        workerPermissionProvider: FakeWorkerPermissionProvider()
+    )
     lazy var workerConfigurations = WorkerConfigurations()
     lazy var workerId: WorkerId = "worker_id"
     let capableWorkerId: WorkerId = "capableWorkerId"
@@ -408,5 +412,26 @@ final class BucketQueueTests: XCTestCase {
         assertThrows {
             try bucketQueue.enqueue(buckets: [bucket])
         }
+    }
+    
+    func test___test_history_tracker_gets_worker_ids_in_working_condition() throws {
+        let testHistoryTracker = FakeTestHistoryTracker()
+        testHistoryTracker.validateWorkerIdsInWorkingCondition = { [weak self] workerIds in
+            XCTAssertEqual(
+                self?.workerAlivenessProvider.workerIdsInWorkingCondition,
+                workerIds,
+                "Bucket queue should user _complex_ condition to check worker state and use workers that are capable of executing tests, not only alive/enabled/whatever alone."
+            )
+        }
+        workerAlivenessProvider.disableWorker(workerId: workerId)
+        
+        let bucketQueue = BucketQueueFixtures.bucketQueue(
+            testHistoryTracker: testHistoryTracker,
+            workerAlivenessProvider: workerAlivenessProvider
+        )
+        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
+        try bucketQueue.enqueue(buckets: [bucket])
+        
+        _ = bucketQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: capableWorkerId)
     }
 }

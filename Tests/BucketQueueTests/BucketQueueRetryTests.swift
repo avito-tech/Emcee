@@ -2,6 +2,7 @@ import BucketQueue
 import BucketQueueTestHelpers
 import DateProviderTestHelpers
 import Foundation
+import QueueCommunicationTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
 import RunnerModels
@@ -165,7 +166,10 @@ final class BucketQueueRetryTests: XCTestCase {
     private let dateProvider = DateProviderFixture()
     
     private func bucketQueue(workerIds: [WorkerId]) -> BucketQueue {
-        let tracker = WorkerAlivenessProviderImpl(knownWorkerIds: Set(workerIds))
+        let tracker = WorkerAlivenessProviderImpl(
+            knownWorkerIds: Set(workerIds),
+            workerPermissionProvider: FakeWorkerPermissionProvider()
+        )
         workerIds.forEach(tracker.didRegisterWorker)
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(

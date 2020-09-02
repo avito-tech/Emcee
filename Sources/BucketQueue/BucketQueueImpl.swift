@@ -115,7 +115,7 @@ final class BucketQueueImpl: BucketQueue {
             let bucketToDequeueOrNil = testHistoryTracker.bucketToDequeue(
                 workerId: workerId,
                 queue: enqueuedBuckets,
-                aliveWorkers: workerAlivenessProvider.aliveWorkerIds
+                workerIdsInWorkingCondition: workerAlivenessProvider.workerIdsInWorkingCondition
             )
             
             if let enqueuedBucket = bucketToDequeueOrNil {
@@ -199,7 +199,7 @@ final class BucketQueueImpl: BucketQueue {
                 }
                 
                 let stuckReason: StuckBucket.Reason
-                if aliveness.disabled || aliveness.alive {
+                if aliveness.isInWorkingCondition {
                     if aliveness.bucketIdsBeingProcessed.contains(dequeuedBucket.enqueuedBucket.bucket.bucketId) {
                        return nil
                     }
@@ -338,7 +338,7 @@ final class BucketQueueImpl: BucketQueue {
         }
         
         let allWorkerCapabilities = workerAlivenessProvider.workerAliveness
-            .filter { $0.value.registered && $0.value.alive && $0.value.enabled }
+            .filter { $0.value.isInWorkingCondition }
             .map { workerCapabilitiesStorage.workerCapabilities(forWorkerId: $0.key) }
 
         let bucketsWithNotSatisifiedRequirements = buckets.filter { bucket -> Bool in

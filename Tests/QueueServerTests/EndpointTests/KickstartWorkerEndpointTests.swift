@@ -1,6 +1,7 @@
 import DistWorkerModels
 import DistWorkerModelsTestHelpers
 import Foundation
+import QueueCommunicationTestHelpers
 import QueueModels
 import QueueServer
 import RESTMethods
@@ -10,7 +11,10 @@ import WorkerAlivenessProvider
 import XCTest
 
 final class KickstartWorkerEndpointTests: XCTestCase {
-    lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(knownWorkerIds: [workerId])
+    lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(
+        knownWorkerIds: [workerId],
+        workerPermissionProvider: FakeWorkerPermissionProvider()
+    )
     lazy var workerConfigurations = WorkerConfigurations()
     lazy var workerId = WorkerId(value: "worker")
     lazy var onDemandWorkerStarter = FakeOnDemandWorkerStarter()

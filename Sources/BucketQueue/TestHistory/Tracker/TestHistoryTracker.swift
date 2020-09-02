@@ -4,7 +4,7 @@ public protocol TestHistoryTracker {
     func bucketToDequeue(
         workerId: WorkerId,
         queue: [EnqueuedBucket],
-        aliveWorkers: @autoclosure () -> [WorkerId]
+        workerIdsInWorkingCondition: @autoclosure () -> [WorkerId]
     ) -> EnqueuedBucket?
     
     func accept(

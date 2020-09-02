@@ -1,6 +1,7 @@
 import BucketQueue
 import BucketQueueTestHelpers
 import Foundation
+import QueueCommunicationTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
 import QueueServer
@@ -17,7 +18,10 @@ final class BucketProviderTests: XCTestCase {
         workerCapabilities: [],
         workerId: "worker"
     )
-    lazy var alivenessTracker = WorkerAlivenessProviderImpl(knownWorkerIds: ["worker"])
+    lazy var alivenessTracker = WorkerAlivenessProviderImpl(
+        knownWorkerIds: ["worker"],
+        workerPermissionProvider: FakeWorkerPermissionProvider()
+    )
     
     func test___does_not_indicate_activity() {
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: .queueIsEmpty)

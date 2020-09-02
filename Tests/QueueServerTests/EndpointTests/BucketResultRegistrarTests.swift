@@ -1,6 +1,7 @@
 import BalancingBucketQueue
 import BucketQueueTestHelpers
 import Foundation
+import QueueCommunicationTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
 import QueueServer
@@ -10,7 +11,10 @@ import WorkerAlivenessProvider
 import XCTest
 
 final class BucketResultRegistrarTests: XCTestCase {
-    lazy var alivenessTracker = WorkerAlivenessProviderImpl(knownWorkerIds: ["worker"])
+    lazy var alivenessTracker = WorkerAlivenessProviderImpl(
+        knownWorkerIds: ["worker"],
+        workerPermissionProvider: FakeWorkerPermissionProvider()
+    )
     let expectedPayloadSignature = PayloadSignature(value: "expectedPayloadSignature")
     let testingResult = TestingResultFixtures()
         .with(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "method"))

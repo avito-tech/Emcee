@@ -150,7 +150,8 @@ public final class StartQueueServerCommand: Command {
             requestSenderProvider: requestSenderProvider,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessProvider: WorkerAlivenessProviderImpl(
-                knownWorkerIds: workerConfigurations.workerIds
+                knownWorkerIds: workerConfigurations.workerIds,
+                workerPermissionProvider: workerUtilizationStatusPoller
             ),
             workerCapabilitiesStorage: WorkerCapabilitiesStorageImpl(),
             workerConfigurations: workerConfigurations,

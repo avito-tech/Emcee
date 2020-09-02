@@ -560,6 +560,9 @@ final class BalancingBucketQueueTests: XCTestCase {
     lazy var prioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: jobId, jobPriority: .medium)
     lazy var requestId: RequestId = "requestId"
     lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator()
-    lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(knownWorkerIds: [workerId])
+    lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(
+        knownWorkerIds: [workerId],
+        workerPermissionProvider: FakeWorkerPermissionProvider()
+    )
     lazy var workerId: WorkerId = "workerId"
 }

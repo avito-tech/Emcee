@@ -1,6 +1,8 @@
 import Dispatch
 import Foundation
 import Logging
+import QueueCommunication
+import QueueCommunicationModels
 import QueueModels
 import WorkerAlivenessModels
 
@@ -10,12 +12,15 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     private var registeredWorkerIds = Set<WorkerId>()
     private var disabledWorkerIds = Set<WorkerId>()
     private var silentWorkerIds = Set<WorkerId>()
+    private let workerPermissionProvider: WorkerPermissionProvider
     private let workerBucketIdsBeingProcessed = WorkerCurrentlyProcessingBucketsTracker()
 
     public init(
-        knownWorkerIds: Set<WorkerId>
+        knownWorkerIds: Set<WorkerId>,
+        workerPermissionProvider: WorkerPermissionProvider
     ) {
         self.knownWorkerIds = knownWorkerIds
+        self.workerPermissionProvider = workerPermissionProvider
     }
     
     public func willDequeueBucket(workerId: WorkerId) {
@@ -134,7 +139,10 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
                 workerId: workerId
             ),
             disabled: disabledWorkerIds.contains(workerId),
-            silent: silentWorkerIds.contains(workerId)
+            silent: silentWorkerIds.contains(workerId),
+            workerUtilizationPermission: workerPermissionProvider.utilizationPermissionForWorker(
+                workerId: workerId
+            )
         )
     }
 }

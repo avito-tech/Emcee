@@ -1,6 +1,7 @@
 import DistWorkerModels
 import DistWorkerModelsTestHelpers
 import Foundation
+import QueueCommunicationTestHelpers
 import QueueModels
 import QueueServer
 import RESTMethods
@@ -10,7 +11,10 @@ import WorkerAlivenessProvider
 import XCTest
 
 final class DisableWorkerEndpointTests: XCTestCase {
-    lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(knownWorkerIds: [workerId])
+    lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(
+        knownWorkerIds: [workerId],
+        workerPermissionProvider: FakeWorkerPermissionProvider()
+    )
     lazy var workerConfigurations = WorkerConfigurations()
     lazy var workerId = WorkerId(value: "worker")
     lazy var endpoint = DisableWorkerEndpoint(
@@ -36,7 +40,7 @@ final class DisableWorkerEndpointTests: XCTestCase {
         
         XCTAssertEqual(
             workerAlivenessProvider.alivenessForWorker(workerId: workerId),
-            WorkerAliveness(registered: true, bucketIdsBeingProcessed: [], disabled: true, silent: false)
+            WorkerAliveness(registered: true, bucketIdsBeingProcessed: [], disabled: true, silent: false, workerUtilizationPermission: .allowedToUtilize)
         )
     }
     

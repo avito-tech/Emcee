@@ -17,7 +17,7 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
     public func bucketToDequeue(
         workerId: WorkerId,
         queue: [EnqueuedBucket],
-        aliveWorkers: @autoclosure () -> [WorkerId]
+        workerIdsInWorkingCondition: @autoclosure () -> [WorkerId]
     ) -> EnqueuedBucket? {
         let bucketThatWasNotFailingOnWorkerOrNil = queue.first { enqueuedBucket in
             !bucketWasFailingOnWorker(bucket: enqueuedBucket.bucket, workerId: workerId)
@@ -26,12 +26,12 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         if let bucketToDequeue = bucketThatWasNotFailingOnWorkerOrNil {
             return bucketToDequeue
         } else {
-            let computedAliveWorkers = aliveWorkers()
+            let computedWorkerIdsInWorkingCondition = workerIdsInWorkingCondition()
             
             let bucketThatWasFailingOnEveryWorkerOrNil = queue.first { enqueuedBucket in
                 bucketWasFailingOnEveryWorker(
                     bucket: enqueuedBucket.bucket,
-                    aliveWorkers: computedAliveWorkers
+                    workerIdsInWorkingCondition: computedWorkerIdsInWorkingCondition
                 )
             }
             
@@ -139,10 +139,10 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
     
     private func bucketWasFailingOnEveryWorker(
         bucket: Bucket,
-        aliveWorkers: [WorkerId]
+        workerIdsInWorkingCondition: [WorkerId]
     ) -> Bool {
         let onEveryWorker: (TestEntryHistory) -> Bool = { testEntryHistory in
-            let everyWorkerFailed = aliveWorkers.allSatisfy { workerId in
+            let everyWorkerFailed = workerIdsInWorkingCondition.allSatisfy { workerId in
                 testEntryHistory.isFailingOnWorker(workerId: workerId)
             }
             return everyWorkerFailed

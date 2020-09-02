@@ -1,6 +1,7 @@
 import AtomicModels
 import DistWorkerModels
 import Foundation
+import QueueCommunicationTestHelpers
 import QueueModels
 import QueueServer
 import QueueServerTestHelpers
@@ -17,7 +18,10 @@ final class WorkerAlivenessPollerTests: XCTestCase {
     lazy var bucketId1 = BucketId(value: "bucketId1")
     lazy var worker1 = WorkerId("worker1")
     lazy var worker2 = WorkerId("worker2")
-    lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(knownWorkerIds: [worker1, worker2])
+    lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(
+        knownWorkerIds: [worker1, worker2],
+        workerPermissionProvider: FakeWorkerPermissionProvider()
+    )
     lazy var workerDetailsHolder = WorkerDetailsHolderImpl()
     
     func test___querying_worker_state___updates_worker_aliveness_provider() {
@@ -46,7 +50,7 @@ final class WorkerAlivenessPollerTests: XCTestCase {
         
         XCTAssertEqual(
             workerAlivenessProvider.alivenessForWorker(workerId: worker1),
-            WorkerAliveness(registered: true, bucketIdsBeingProcessed: [], disabled: false, silent: false)
+            WorkerAliveness(registered: true, bucketIdsBeingProcessed: [], disabled: false, silent: false, workerUtilizationPermission: .allowedToUtilize)
         )
         
         let poller = createWorkerAlivenessPoller(requestSenderProvider: requestSenderProvider)
@@ -57,7 +61,7 @@ final class WorkerAlivenessPollerTests: XCTestCase {
         
         XCTAssertEqual(
             workerAlivenessProvider.alivenessForWorker(workerId: worker1),
-            WorkerAliveness(registered: true, bucketIdsBeingProcessed: [bucketId1], disabled: false, silent: false)
+            WorkerAliveness(registered: true, bucketIdsBeingProcessed: [bucketId1], disabled: false, silent: false, workerUtilizationPermission: .allowedToUtilize)
         )
     }
     
@@ -84,11 +88,11 @@ final class WorkerAlivenessPollerTests: XCTestCase {
         
         XCTAssertEqual(
             workerAlivenessProvider.alivenessForWorker(workerId: worker1),
-            WorkerAliveness(registered: true, bucketIdsBeingProcessed: [], disabled: false, silent: false)
+            WorkerAliveness(registered: true, bucketIdsBeingProcessed: [], disabled: false, silent: false, workerUtilizationPermission: .allowedToUtilize)
         )
         XCTAssertEqual(
             workerAlivenessProvider.alivenessForWorker(workerId: worker2),
-            WorkerAliveness(registered: true, bucketIdsBeingProcessed: [], disabled: false, silent: false)
+            WorkerAliveness(registered: true, bucketIdsBeingProcessed: [], disabled: false, silent: false, workerUtilizationPermission: .allowedToUtilize)
         )
     }
     

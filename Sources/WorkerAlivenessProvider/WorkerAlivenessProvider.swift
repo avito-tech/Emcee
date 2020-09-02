@@ -26,10 +26,10 @@ public protocol WorkerAlivenessProvider: class {
 
 public extension WorkerAlivenessProvider {
     var hasAnyAliveWorker: Bool {
-        !aliveWorkerIds.isEmpty
+        !workerAliveness.filter { $0.value.silent == false }.map { $0.key }.isEmpty
     }
     
-    var aliveWorkerIds: [WorkerId] {
-        return workerAliveness.filter { $0.value.silent == false }.map { $0.key }
+    var workerIdsInWorkingCondition: [WorkerId] {
+        return workerAliveness.filter { $0.value.isInWorkingCondition }.map { $0.key }
     }
 }
