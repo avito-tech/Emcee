@@ -17,9 +17,8 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
     public func bucketToDequeue(
         workerId: WorkerId,
         queue: [EnqueuedBucket],
-        aliveWorkers: @autoclosure () -> [WorkerId])
-        -> EnqueuedBucket?
-    {
+        aliveWorkers: @autoclosure () -> [WorkerId]
+    ) -> EnqueuedBucket? {
         let bucketThatWasNotFailingOnWorkerOrNil = queue.first { enqueuedBucket in
             !bucketWasFailingOnWorker(bucket: enqueuedBucket.bucket, workerId: workerId)
         }
@@ -43,10 +42,8 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
     public func accept(
         testingResult: TestingResult,
         bucket: Bucket,
-        workerId: WorkerId)
-        throws
-        -> TestHistoryTrackerAcceptResult
-    {
+        workerId: WorkerId
+    ) throws -> TestHistoryTrackerAcceptResult {
         guard testingResult.bucketId == bucket.bucketId else {
             throw TestHistoryTrackerError.mismatchedBuckedIds(
                 testingResultBucketId: testingResult.bucketId,
@@ -129,9 +126,8 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
     
     private func bucketWasFailingOnWorker(
         bucket: Bucket,
-        workerId: WorkerId)
-        -> Bool
-    {
+        workerId: WorkerId
+    ) -> Bool {
         let onWorker: (TestEntryHistory) -> Bool = { testEntryHistory in
             testEntryHistory.isFailingOnWorker(workerId: workerId)
         }
@@ -143,9 +139,8 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
     
     private func bucketWasFailingOnEveryWorker(
         bucket: Bucket,
-        aliveWorkers: [WorkerId])
-        -> Bool
-    {
+        aliveWorkers: [WorkerId]
+    ) -> Bool {
         let onEveryWorker: (TestEntryHistory) -> Bool = { testEntryHistory in
             let everyWorkerFailed = aliveWorkers.allSatisfy { workerId in
                 testEntryHistory.isFailingOnWorker(workerId: workerId)
@@ -160,9 +155,8 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
     
     private func bucketWasFailing(
         bucket: Bucket,
-        whereItWasFailing: (TestEntryHistory) -> Bool)
-        -> Bool
-    {
+        whereItWasFailing: (TestEntryHistory) -> Bool
+    ) -> Bool {
         return bucket.testEntries.contains { testEntry in
             testEntryWasFailing(
                 testEntry: testEntry,
@@ -175,9 +169,8 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
     private func testEntryWasFailing(
         testEntry: TestEntry,
         bucket: Bucket,
-        whereItWasFailing: (TestEntryHistory) -> Bool)
-        -> Bool
-    {
+        whereItWasFailing: (TestEntryHistory) -> Bool
+    ) -> Bool {
         let testEntryHistoryId = TestEntryHistoryId(
             bucketId: bucket.bucketId,
             testEntry: testEntry
