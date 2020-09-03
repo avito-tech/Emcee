@@ -13,12 +13,16 @@ public final class AnalyticsSetup {
             try setupSentry(emceeVersion: emceeVersion, sentryConfiguration: sentryConfiguration)
         }
         if let graphiteConfiguration = analyticsConfiguration.graphiteConfiguration {
-            try setupGraphite(graphiteConfiguration: graphiteConfiguration)
+            try setupGraphite(configuration: graphiteConfiguration)
+        }
+        if let statsdConfiguration = analyticsConfiguration.statsdConfiguration {
+            try setupStatsd(configuration: statsdConfiguration)
         }
     }
     
     public static func tearDown(timeout: TimeInterval) {
-        GlobalMetricConfig.metricHandler.tearDown(timeout: timeout)
+        GlobalMetricConfig.graphiteMetricHandler.tearDown(timeout: timeout)
+        GlobalMetricConfig.statsdMetricHandler.tearDown(timeout: timeout)
     }
     
     private static func setupSentry(
@@ -38,9 +42,15 @@ public final class AnalyticsSetup {
         GlobalLoggerConfig.loggerHandler = loggerHandler
     }
 
-    private static func setupGraphite(graphiteConfiguration: GraphiteConfiguration) throws {
-        GlobalMetricConfig.metricHandler = try createGraphiteMetricHandler(
-            graphiteConfiguration: graphiteConfiguration
+    private static func setupGraphite(configuration: MetricConfiguration) throws {
+        GlobalMetricConfig.graphiteMetricHandler = try createGraphiteMetricHandler(
+            configuration: configuration
+        )
+    }
+    
+    private static func setupStatsd(configuration: MetricConfiguration) throws {
+        GlobalMetricConfig.statsdMetricHandler = try createStatsdMetricHandler(
+            configuration: configuration
         )
     }
     
@@ -61,11 +71,24 @@ public final class AnalyticsSetup {
     }
     
     private static func createGraphiteMetricHandler(
-        graphiteConfiguration: GraphiteConfiguration
-    ) throws -> MetricHandler {
-        return try GraphiteMetricHandler(
-            graphiteDomain: graphiteConfiguration.metricPrefix.components(separatedBy: "."),
-            graphiteSocketAddress: graphiteConfiguration.socketAddress
+        configuration: MetricConfiguration
+    ) throws -> GraphiteMetricHandler {
+        return try GraphiteMetricHandlerImpl(
+            graphiteDomain: configuration.metricPrefix.components(separatedBy: "."),
+            graphiteSocketAddress: configuration.socketAddress
         )
+    }
+    
+    private static func createStatsdMetricHandler(
+        configuration: MetricConfiguration
+    ) throws -> StatsdMetricHandler {
+        if #available(OSX 10.14, *) {
+            return try StatsdMetricHandlerImpl(
+                statsdDomain: configuration.metricPrefix.components(separatedBy: "."),
+                statsdSocketAddress: configuration.socketAddress
+            )
+        } else {
+            return NoOpMetricHandler()
+        }
     }
 }

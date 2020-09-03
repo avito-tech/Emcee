@@ -1,7 +1,7 @@
 import Foundation
 import Metrics
 
-public final class FakeMetricHandler: MetricHandler {
+public final class FakeMetricHandler<Metric> {
     public var metrics = [Metric]()
     
     public init() {}
@@ -16,3 +16,6 @@ public final class FakeMetricHandler: MetricHandler {
         tearDownTimeout = timeout
     }
 }
+
+extension FakeMetricHandler: GraphiteMetricHandler where Metric == GraphiteMetric {}
+extension FakeMetricHandler: StatsdMetricHandler where Metric == StatsdMetric {}

@@ -1,6 +1,8 @@
 import Foundation
 
-public final class NoOpMetricHandler: MetricHandler {
-    public func handle(metric: Metric) {}
+public final class NoOpMetricHandler: GraphiteMetricHandler, StatsdMetricHandler {
+    public init() {}
+    public func handle(metric: GraphiteMetric) {}
+    public func handle(metric: StatsdMetric) {}
     public func tearDown(timeout: TimeInterval) {}
 }
