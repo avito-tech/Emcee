@@ -3,7 +3,7 @@ import Metrics
 import QueueModels
 
 /// Indicates an event when you enqueue some tests
-public final class EnqueueTestsMetric: Metric {
+public final class EnqueueTestsMetric: GraphiteMetric {
     public init(
         version: Version,
         queueHost: String,
@@ -19,8 +19,8 @@ public final class EnqueueTestsMetric: Metric {
             variableComponents: [
                 version.value,
                 queueHost,
-                Metric.reservedField,
-                Metric.reservedField
+                GraphiteMetric.reservedField,
+                GraphiteMetric.reservedField
             ],
             value: Double(numberOfTests),
             timestamp: timestamp

@@ -2,7 +2,7 @@ import Foundation
 import Metrics
 import QueueModels
 
-public final class TestDurationMetric: Metric {
+public final class TestDurationMetric: GraphiteMetric {
     public init(
         result: String,
         host: String,
@@ -20,8 +20,8 @@ public final class TestDurationMetric: Metric {
                 testClassName,
                 testMethodName,
                 version.value,
-                Metric.reservedField,
-                Metric.reservedField
+                GraphiteMetric.reservedField,
+                GraphiteMetric.reservedField
             ],
             value: duration,
             timestamp: timestamp

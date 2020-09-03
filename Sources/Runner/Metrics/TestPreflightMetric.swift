@@ -2,7 +2,7 @@ import Foundation
 import Metrics
 import QueueModels
 
-public final class TestPreflightMetric: Metric {
+public final class TestPreflightMetric: GraphiteMetric {
     public init(
         host: String,
         duration: Double,
@@ -14,9 +14,9 @@ public final class TestPreflightMetric: Metric {
             variableComponents: [
                 host,
                 version.value,
-                Metric.reservedField,
-                Metric.reservedField,
-                Metric.reservedField,
+                GraphiteMetric.reservedField,
+                GraphiteMetric.reservedField,
+                GraphiteMetric.reservedField,
             ],
             value: duration,
             timestamp: timestamp

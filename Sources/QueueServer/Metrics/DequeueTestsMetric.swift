@@ -2,7 +2,7 @@ import Foundation
 import Metrics
 import QueueModels
 
-public final class DequeueTestsMetric: Metric {
+public final class DequeueTestsMetric: GraphiteMetric {
     public init(
         workerId: WorkerId,
         version: Version,
@@ -20,8 +20,8 @@ public final class DequeueTestsMetric: Metric {
                 workerId.value,
                 version.value,
                 queueHost,
-                Metric.reservedField,
-                Metric.reservedField
+                GraphiteMetric.reservedField,
+                GraphiteMetric.reservedField
             ],
             value: Double(numberOfTests),
             timestamp: timestamp

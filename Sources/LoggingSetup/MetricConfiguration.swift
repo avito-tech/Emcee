@@ -1,7 +1,7 @@
 import Foundation
 import SocketModels
 
-public struct GraphiteConfiguration: Codable, Equatable {
+public struct MetricConfiguration: Codable, Equatable {
     public let socketAddress: SocketAddress
     public let metricPrefix: String
 

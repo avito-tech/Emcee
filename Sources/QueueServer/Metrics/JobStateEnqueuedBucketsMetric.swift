@@ -2,7 +2,7 @@ import Foundation
 import Metrics
 import QueueModels
 
-public final class JobStateEnqueuedBucketsMetric: Metric {
+public final class JobStateEnqueuedBucketsMetric: GraphiteMetric {
     public init(
         queueHost: String,
         jobId: String,
@@ -21,9 +21,9 @@ public final class JobStateEnqueuedBucketsMetric: Metric {
                 queueHost,
                 jobId,
                 version.value,
-                Metric.reservedField,
-                Metric.reservedField,
-                Metric.reservedField
+                GraphiteMetric.reservedField,
+                GraphiteMetric.reservedField,
+                GraphiteMetric.reservedField
             ],
             value: Double(numberOfEnqueuedBuckets),
             timestamp: timestamp

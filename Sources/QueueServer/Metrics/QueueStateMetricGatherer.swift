@@ -22,7 +22,7 @@ public final class QueueStateMetricGatherer {
     public func metrics(
         jobStates: [JobState],
         runningQueueState: RunningQueueState
-    ) -> [Metric] {
+    ) -> [GraphiteMetric] {
         let queueMetrics = [
             QueueStateDequeuedBucketsMetric(
                 queueHost: queueHost,
@@ -55,7 +55,7 @@ public final class QueueStateMetricGatherer {
                 timestamp: dateProvider.currentDate()
             )
         ]
-        let jobMetrics = jobStates.flatMap { jobState -> [Metric] in
+        let jobMetrics = jobStates.flatMap { jobState -> [GraphiteMetric] in
             switch jobState.queueState {
             case .deleted:
                 return []

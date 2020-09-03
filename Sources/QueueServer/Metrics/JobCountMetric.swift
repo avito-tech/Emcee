@@ -2,7 +2,7 @@ import Foundation
 import Metrics
 import QueueModels
 
-public final class JobCountMetric: Metric {
+public final class JobCountMetric: GraphiteMetric {
     public init(
         queueHost: String, 
         version: Version,
@@ -18,9 +18,9 @@ public final class JobCountMetric: Metric {
             variableComponents: [
                 queueHost,
                 version.value,
-                Metric.reservedField,
-                Metric.reservedField,
-                Metric.reservedField
+                GraphiteMetric.reservedField,
+                GraphiteMetric.reservedField,
+                GraphiteMetric.reservedField
             ],
             value: Double(jobCount),
             timestamp: timestamp

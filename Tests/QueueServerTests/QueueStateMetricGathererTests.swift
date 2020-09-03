@@ -79,7 +79,7 @@ final class QueueStateMetricGathererTests: XCTestCase {
             )
         )
         
-        let expectedMetrics: [Metric] = [
+        let expectedMetrics: [GraphiteMetric] = [
             JobStateDequeuedBucketsMetric(queueHost: queueHost, jobId: jobState1.jobId.value, numberOfDequeuedBuckets: 0, version: version, timestamp: dateProvider.currentDate()),
             JobStateEnqueuedBucketsMetric(queueHost: queueHost, jobId: jobState1.jobId.value, numberOfEnqueuedBuckets: 1, version: version, timestamp: dateProvider.currentDate()),
             

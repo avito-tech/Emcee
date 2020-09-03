@@ -2,7 +2,7 @@ import Foundation
 import Metrics
 import QueueModels
 
-public final class WorkerStatusMetric: Metric {
+public final class WorkerStatusMetric: GraphiteMetric {
     public init(
         workerId: WorkerId,
         status: String,

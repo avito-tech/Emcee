@@ -2,7 +2,7 @@ import Foundation
 import Metrics
 import QueueModels
 
-public final class RuntimeDumpTestCaseCountMetric: Metric {
+public final class RuntimeDumpTestCaseCountMetric: GraphiteMetric {
     public init(
         testBundleName: String,
         numberOfTestCases: Int,
@@ -17,9 +17,9 @@ public final class RuntimeDumpTestCaseCountMetric: Metric {
             variableComponents: [
                 testBundleName,
                 version.value,
-                Metric.reservedField,
-                Metric.reservedField,
-                Metric.reservedField
+                GraphiteMetric.reservedField,
+                GraphiteMetric.reservedField,
+                GraphiteMetric.reservedField
             ],
             value: Double(numberOfTestCases),
             timestamp: timestamp

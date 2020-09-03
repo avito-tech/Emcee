@@ -3,7 +3,7 @@ import Metrics
 import QueueModels
 import SimulatorPoolModels
 
-public final class SimulatorDurationMetric: Metric {
+public final class SimulatorDurationMetric: GraphiteMetric {
     public enum Action: String {
         case create
         case boot
@@ -33,9 +33,9 @@ public final class SimulatorDurationMetric: Metric {
                 testDestination.runtime,
                 isSuccessful ? "success" : "failure",
                 version.value,
-                Metric.reservedField,
-                Metric.reservedField,
-                Metric.reservedField,
+                GraphiteMetric.reservedField,
+                GraphiteMetric.reservedField,
+                GraphiteMetric.reservedField,
             ],
             value: duration,
             timestamp: timestamp

@@ -5,7 +5,7 @@ import Logging
 import Metrics
 import SocketModels
 
-public final class GraphiteMetricHandler: MetricHandler {
+public final class GraphiteMetricHandlerImpl: GraphiteMetricHandler {
     private let graphiteDomain: [String]
     private let outputStream: EasyOutputStream
     private let graphiteClient: GraphiteClient
@@ -38,7 +38,7 @@ public final class GraphiteMetricHandler: MetricHandler {
         self.graphiteClient = GraphiteClient(easyOutputStream: outputStream)
     }
     
-    public func handle(metric: Metric) {
+    public func handle(metric: Metrics.GraphiteMetric) {
         do {
             try graphiteClient.send(
                 path: graphiteDomain + metric.components,

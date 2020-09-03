@@ -11,7 +11,7 @@ import XCTest
 final class MetricReportingTestRunnerStreamTests: XCTestCase {
     lazy var dateProvider = DateProviderFixture(Date(timeIntervalSinceReferenceDate: 12345))
     lazy var host = "host"
-    lazy var metricHandler = FakeMetricHandler()
+    lazy var metricHandler = FakeMetricHandler<GraphiteMetric>()
     lazy var stream = MetricReportingTestRunnerStream(
         dateProvider: dateProvider,
         host: host,
@@ -29,7 +29,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
     lazy var version = Version(value: "version")
     
     override func setUp() {
-        GlobalMetricConfig.metricHandler = metricHandler
+        GlobalMetricConfig.graphiteMetricHandler = metricHandler
     }
 
     func test___reporting_test_started_metric() {

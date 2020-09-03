@@ -2,7 +2,7 @@ import Foundation
 import Metrics
 import QueueModels
 
-public final class UselessTestRunnerInvocationMetric: Metric {
+public final class UselessTestRunnerInvocationMetric: GraphiteMetric {
     public init(
         host: String,
         version: Version,
@@ -17,10 +17,10 @@ public final class UselessTestRunnerInvocationMetric: Metric {
             variableComponents: [
                 host,
                 version.value,
-                Metric.reservedField,
-                Metric.reservedField,
-                Metric.reservedField,
-                Metric.reservedField,
+                GraphiteMetric.reservedField,
+                GraphiteMetric.reservedField,
+                GraphiteMetric.reservedField,
+                GraphiteMetric.reservedField,
             ],
             value: duration,
             timestamp: timestamp

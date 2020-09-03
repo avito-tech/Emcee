@@ -1,6 +1,6 @@
 import Foundation
 
-open class Metric: CustomStringConvertible, Hashable {
+open class GraphiteMetric: CustomStringConvertible, Hashable {
     /// Components that form a fully qualified name of a metric.
     public let components: [String]
     
@@ -35,7 +35,7 @@ open class Metric: CustomStringConvertible, Hashable {
         return "<\(type(of: self)) components=\(components), value=\(value), ts=\(timestamp)>"
     }
 
-    public static func ==(left: Metric, right: Metric) -> Bool {
+    public static func ==(left: GraphiteMetric, right: GraphiteMetric) -> Bool {
         return left.components == right.components
             && left.value == right.value
             && left.timestamp == right.timestamp

@@ -108,8 +108,8 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     
     func test___poller_log_metric() {
         let expectedMetric1 = NumberOfWorkersToUtilizeMetric(emceeVersion: "emceeVersion", queueHost: "queueHost", workersCount: 0)
-        let metricHandler = FakeMetricHandler()
-        GlobalMetricConfig.metricHandler = metricHandler
+        let metricHandler = FakeMetricHandler<GraphiteMetric>()
+        GlobalMetricConfig.graphiteMetricHandler = metricHandler
         let expectation = self.expectation(description: "workersToUtilize was called")
         communicationService.completionHandler = { completion in
             completion(.success([WorkerId(value: "workerId")]))

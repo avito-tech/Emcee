@@ -3,7 +3,7 @@ import Metrics
 import QueueModels
 import RunnerModels
 
-public final class TimeToStartTestMetric: Metric {
+public final class TimeToStartTestMetric: GraphiteMetric {
     public init(
         testEntry: TestEntry,
         version: Version,
@@ -21,8 +21,8 @@ public final class TimeToStartTestMetric: Metric {
                 testEntry.testName.methodName,
                 version.value,
                 queueHost,
-                Metric.reservedField,
-                Metric.reservedField
+                GraphiteMetric.reservedField,
+                GraphiteMetric.reservedField
             ],
             value: timeToStartTest,
             timestamp: timestamp

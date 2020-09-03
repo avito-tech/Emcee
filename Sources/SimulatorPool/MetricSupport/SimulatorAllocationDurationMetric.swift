@@ -2,7 +2,7 @@ import Foundation
 import Metrics
 import QueueModels
 
-public final class SimulatorAllocationDurationMetric: Metric {
+public final class SimulatorAllocationDurationMetric: GraphiteMetric {
     public init(
         host: String,
         duration: Double,
@@ -20,9 +20,9 @@ public final class SimulatorAllocationDurationMetric: Metric {
                 host,
                 allocatedSuccessfully ? "success" : "failure",
                 version.value,
-                Metric.reservedField,
-                Metric.reservedField,
-                Metric.reservedField,
+                GraphiteMetric.reservedField,
+                GraphiteMetric.reservedField,
+                GraphiteMetric.reservedField,
             ],
             value: duration,
             timestamp: timestamp

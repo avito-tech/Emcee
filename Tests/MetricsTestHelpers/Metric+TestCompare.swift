@@ -1,7 +1,7 @@
 import Metrics
 
-public extension Metric {
-    func testCompare(_ other: Metric) -> Bool {
+public extension GraphiteMetric {
+    func testCompare(_ other: GraphiteMetric) -> Bool {
         return self.components == other.components
             && self.value == other.value
     }
