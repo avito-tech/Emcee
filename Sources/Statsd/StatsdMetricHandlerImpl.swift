@@ -1,11 +1,9 @@
 import Foundation
 import IO
 import Logging
-import Metrics
 import SocketModels
 import Network
 
-@available(OSX 10.14, *)
 public final class StatsdMetricHandlerImpl: StatsdMetricHandler {
     struct InvalidPortValue: Error, CustomStringConvertible {
         let value: Int
@@ -16,7 +14,7 @@ public final class StatsdMetricHandlerImpl: StatsdMetricHandler {
     
     private let statsdDomain: [String]
     private let connection: NWConnection
-    private let queue = DispatchQueue(label: "ru.avito.emcee.StatsdMetricHandlerImpl.serialQueue")
+    private let queue = DispatchQueue(label: "StatsdMetricHandlerImpl.serialQueue")
     
     private var metricsBuffer: [StatsdMetric] = []
     
@@ -39,17 +37,17 @@ public final class StatsdMetricHandlerImpl: StatsdMetricHandler {
             guard let self = self else { return }
             switch state {
             case .setup:
-                Logger.info("Setting up statsd connection")
+                Logger.debug("Setting up statsd connection")
             case .waiting(let error):
-                Logger.warning("Statsd connection waiting: \(error.debugDescription)")
+                Logger.warning("Statsd connection waiting: \(error)")
             case .preparing:
-                Logger.info("Preparing statsd connection")
+                Logger.debug("Preparing statsd connection")
             case .ready:
-                Logger.info("Connected to statsd endpoint")
+                Logger.debug("Connected to statsd endpoint")
                 self.metricsBuffer.forEach(self.send)
                 self.metricsBuffer.removeAll()
             case .failed(let error):
-                Logger.error("Statsd connection failed: \(error.debugDescription)")
+                Logger.error("Statsd connection failed: \(error)")
                 self.connection.cancel()
             case .cancelled:
                 Logger.warning("Statsd connection was cancelled")
@@ -92,7 +90,7 @@ public final class StatsdMetricHandlerImpl: StatsdMetricHandler {
             content: Data(metric.build(domain: statsdDomain).utf8),
             completion: NWConnection.SendCompletion.contentProcessed {
                 if let error = $0 {
-                    Logger.error("Statsd metric send failed: \(error.debugDescription)")
+                    Logger.error("Statsd metric send failed: \(error)")
                 }
             }
         )

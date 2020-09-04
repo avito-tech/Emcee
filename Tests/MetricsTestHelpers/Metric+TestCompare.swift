@@ -1,3 +1,4 @@
+import Graphite
 import Metrics
 
 public extension GraphiteMetric {

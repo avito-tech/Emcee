@@ -1,5 +1,6 @@
 import DateProviderTestHelpers
 import Foundation
+import Graphite
 import Metrics
 import QueueModels
 import QueueServer

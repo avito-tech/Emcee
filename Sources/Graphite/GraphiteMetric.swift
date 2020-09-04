@@ -1,4 +1,5 @@
 import Foundation
+import MetricsUtils
 
 open class GraphiteMetric: CustomStringConvertible, Hashable {
     /// Components that form a fully qualified name of a metric.

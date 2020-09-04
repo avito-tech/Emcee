@@ -1,5 +1,6 @@
 import DateProvider
 import Foundation
+import Graphite
 import LocalHostDeterminer
 import Metrics
 import QueueModels

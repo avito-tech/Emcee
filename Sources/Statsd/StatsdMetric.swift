@@ -1,4 +1,5 @@
 import Foundation
+import MetricsUtils
 
 open class StatsdMetric: CustomStringConvertible, Hashable {
     public enum Value: Hashable {

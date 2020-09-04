@@ -706,6 +706,18 @@ let package = Package(
             path: "Tests/FileSystemTests"
         ),
         .target(
+            // MARK: Graphite
+            name: "Graphite",
+            dependencies: [
+                "GraphiteClient",
+                "IO",
+                "Logging",
+                "MetricsUtils",
+                "SocketModels",
+            ],
+            path: "Sources/Graphite"
+        ),
+        .target(
             // MARK: JSONStream
             name: "JSONStream",
             dependencies: [
@@ -839,8 +851,7 @@ let package = Package(
             dependencies: [
                 "DateProvider",
                 "FileSystem",
-                "GraphiteClient",
-                "IO",
+                "Graphite",
                 "LocalHostDeterminer",
                 "Logging",
                 "Metrics",
@@ -848,6 +859,7 @@ let package = Package(
                 "QueueModels",
                 "Sentry",
                 "SocketModels",
+                "Statsd",
                 "TemporaryStuff",
             ],
             path: "Sources/LoggingSetup"
@@ -865,6 +877,8 @@ let package = Package(
             // MARK: Metrics
             name: "Metrics",
             dependencies: [
+                "Graphite",
+                "Statsd",
             ],
             path: "Sources/Metrics"
         ),
@@ -872,7 +886,9 @@ let package = Package(
             // MARK: MetricsTestHelpers
             name: "MetricsTestHelpers",
             dependencies: [
+                "Graphite",
                 "Metrics",
+                "Statsd",
             ],
             path: "Tests/MetricsTestHelpers"
         ),
@@ -880,10 +896,21 @@ let package = Package(
             // MARK: MetricsTests
             name: "MetricsTests",
             dependencies: [
+                "Graphite",
                 "Metrics",
                 "MetricsTestHelpers",
+                "Statsd",
             ],
             path: "Tests/MetricsTests"
+        ),
+        .target(
+            // MARK: MetricsUtils
+            name: "MetricsUtils",
+            dependencies: [
+                "IO",
+                "Logging",
+            ],
+            path: "Sources/MetricsUtils"
         ),
         .target(
             // MARK: PathLib
@@ -1100,6 +1127,7 @@ let package = Package(
                 "AtomicModels",
                 "DateProvider",
                 "Deployer",
+                "Graphite",
                 "LocalHostDeterminer",
                 "Logging",
                 "Metrics",
@@ -1214,6 +1242,7 @@ let package = Package(
                 "Deployer",
                 "DistWorkerModels",
                 "EventBus",
+                "Graphite",
                 "LocalHostDeterminer",
                 "Logging",
                 "Metrics",
@@ -1494,6 +1523,7 @@ let package = Package(
                 "DeveloperDirModels",
                 "EventBus",
                 "FileSystem",
+                "Graphite",
                 "LocalHostDeterminer",
                 "Logging",
                 "Metrics",
@@ -1705,6 +1735,7 @@ let package = Package(
                 "DateProvider",
                 "DeveloperDirLocator",
                 "DeveloperDirModels",
+                "Graphite",
                 "LocalHostDeterminer",
                 "Logging",
                 "Metrics",
@@ -1802,6 +1833,26 @@ let package = Package(
             path: "Tests/SocketModelsTests"
         ),
         .target(
+            // MARK: Statsd
+            name: "Statsd",
+            dependencies: [
+                "IO",
+                "Logging",
+                "MetricsUtils",
+                "SocketModels",
+            ],
+            path: "Sources/Statsd"
+        ),
+        .testTarget(
+            // MARK: StatsdTests
+            name: "StatsdTests",
+            dependencies: [
+                "Metrics",
+                "Statsd",
+            ],
+            path: "Tests/StatsdTests"
+        ),
+        .target(
             // MARK: SynchronousWaiter
             name: "SynchronousWaiter",
             dependencies: [
@@ -1879,6 +1930,7 @@ let package = Package(
                 "DeveloperDirLocator",
                 "DeveloperDirModels",
                 "FileSystem",
+                "Graphite",
                 "Logging",
                 "Metrics",
                 "PathLib",

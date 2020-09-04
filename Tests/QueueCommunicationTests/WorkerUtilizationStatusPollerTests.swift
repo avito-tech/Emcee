@@ -1,5 +1,6 @@
 import Deployer
 import DeployerTestHelpers
+import Graphite
 import Metrics
 import MetricsTestHelpers
 import QueueCommunication

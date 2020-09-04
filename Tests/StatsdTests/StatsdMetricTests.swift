@@ -1,4 +1,5 @@
 import Metrics
+import Statsd
 import XCTest
 
 final class StatsdMetricTests: XCTestCase {

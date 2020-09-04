@@ -1,5 +1,7 @@
 import Foundation
+import Graphite
 import Metrics
+import Statsd
 
 public final class FakeMetricHandler<Metric> {
     public var metrics = [Metric]()

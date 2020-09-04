@@ -1,6 +1,8 @@
 import Foundation
+import Graphite
 import Metrics
 import MetricsTestHelpers
+import Statsd
 import XCTest
 
 final class MetricHandlerTests: XCTestCase {

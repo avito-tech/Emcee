@@ -12,6 +12,7 @@ let knownImportsToIgnore = [
     "Dispatch",
     "Foundation",
     "XCTest",
+    "Network"
 ]
 
 let jsonEncoder = JSONEncoder()

@@ -2,12 +2,12 @@ import Foundation
 import IO
 import Logging
 
-internal class StreamReopener {
+public class StreamReopener {
     private var lastStreamOpenEventTimestamp: TimeInterval = 0
     private var numberOfAttemptsToReopenStream = 0
     private let maximumAttemptsToReopenStream: Int
 
-    init(maximumAttemptsToReopenStream: Int) {
+    public init(maximumAttemptsToReopenStream: Int) {
         self.maximumAttemptsToReopenStream = maximumAttemptsToReopenStream
     }
     
@@ -22,11 +22,11 @@ internal class StreamReopener {
         return numberOfAttemptsToReopenStream < maximumAttemptsToReopenStream
     }
     
-    func streamHasBeenOpened() {
+    public func streamHasBeenOpened() {
         lastStreamOpenEventTimestamp = Date.timeIntervalSinceReferenceDate
     }
     
-    func attemptToReopenStream(stream: EasyOutputStream) {
+    public func attemptToReopenStream(stream: EasyOutputStream) {
         do {
             if shouldAttemptToReopenStream() {
                 stream.close()

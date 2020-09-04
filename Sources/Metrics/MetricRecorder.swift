@@ -1,4 +1,6 @@
 import Foundation
+import Graphite
+import Statsd
 
 public final class MetricRecorder {
     private init() {}

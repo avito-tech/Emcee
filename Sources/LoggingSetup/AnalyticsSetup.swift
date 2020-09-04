@@ -1,9 +1,11 @@
 import Foundation
+import Graphite
 import LocalHostDeterminer
 import Logging
 import Metrics
 import QueueModels
 import Sentry
+import Statsd
 
 public final class AnalyticsSetup {
     private init() {}
@@ -82,13 +84,9 @@ public final class AnalyticsSetup {
     private static func createStatsdMetricHandler(
         configuration: MetricConfiguration
     ) throws -> StatsdMetricHandler {
-        if #available(OSX 10.14, *) {
-            return try StatsdMetricHandlerImpl(
-                statsdDomain: configuration.metricPrefix.components(separatedBy: "."),
-                statsdSocketAddress: configuration.socketAddress
-            )
-        } else {
-            return NoOpMetricHandler()
-        }
+        return try StatsdMetricHandlerImpl(
+            statsdDomain: configuration.metricPrefix.components(separatedBy: "."),
+            statsdSocketAddress: configuration.socketAddress
+        )
     }
 }

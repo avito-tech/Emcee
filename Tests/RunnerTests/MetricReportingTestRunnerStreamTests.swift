@@ -2,6 +2,7 @@ import DateProviderTestHelpers
 import Foundation
 import Metrics
 import MetricsTestHelpers
+import Graphite
 import QueueModels
 import Runner
 import RunnerModels
