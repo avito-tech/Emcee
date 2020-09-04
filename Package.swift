@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "EmceeTestRunner",
     platforms: [
-        .macOS(.v10_13),
+        .macOS(.v10_14),
     ],
     products: [
         .executable(
