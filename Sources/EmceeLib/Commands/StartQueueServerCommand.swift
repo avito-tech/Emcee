@@ -33,7 +33,11 @@ public final class StartQueueServerCommand: Command {
     ]
 
     private let dateProvider: DateProvider
-    private let deployQueue = DispatchQueue(label: "StartQueueServerCommand.deployQueue", attributes: .concurrent, target: .global(qos: .default))
+    private let deployQueue = OperationQueue.create(
+        name: "StartQueueServerCommand.deployQueue",
+        maxConcurrentOperationCount: 20,
+        qualityOfService: .default
+    )
     private let payloadSignature: PayloadSignature
     private let processControllerProvider: ProcessControllerProvider
     private let requestSenderProvider: RequestSenderProvider
@@ -191,5 +195,19 @@ public final class StartQueueServerCommand: Command {
             )
         }
         return configurations
+    }
+}
+
+private extension OperationQueue {
+    static func create(
+        name: String,
+        maxConcurrentOperationCount: Int,
+        qualityOfService: QualityOfService
+    ) -> OperationQueue {
+        let queue = OperationQueue()
+        queue.name = name
+        queue.maxConcurrentOperationCount = maxConcurrentOperationCount
+        queue.qualityOfService = qualityOfService
+        return queue
     }
 }

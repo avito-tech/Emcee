@@ -39,7 +39,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         workerUtilizationStatusPoller: workerUtilizationStatusPoller
     )
     
-    let deployQueue = DispatchQueue(label: "deploy queue")
+    let deployQueue = OperationQueue()
     let runnerQueue = DispatchQueue(label: "runner queue")
     let impactQueue = DispatchQueue(label: "impact queue")
     

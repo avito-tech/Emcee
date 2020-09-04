@@ -12,7 +12,7 @@ import SynchronousWaiter
 
 public final class LocalQueueServerRunner {
     private let automaticTerminationController: AutomaticTerminationController
-    private let deployQueue: DispatchQueue
+    private let deployQueue: OperationQueue
     private let newWorkerRegistrationTimeAllowance: TimeInterval
     private let pollPeriod: TimeInterval
     private let queueServer: QueueServer
@@ -29,7 +29,7 @@ public final class LocalQueueServerRunner {
 
     public init(
         automaticTerminationController: AutomaticTerminationController,
-        deployQueue: DispatchQueue,
+        deployQueue: OperationQueue,
         newWorkerRegistrationTimeAllowance: TimeInterval,
         pollPeriod: TimeInterval,
         queueServer: QueueServer,
@@ -101,7 +101,7 @@ public final class LocalQueueServerRunner {
         for workerId in workerIds {
             dispatchGroup.enter()
             
-            deployQueue.async {
+            deployQueue.addOperation {
                 do {
                     let remoteWorkerStarter = try self.remoteWorkerStarterProvider.remoteWorkerStarter(
                         workerId: workerId
@@ -116,7 +116,7 @@ public final class LocalQueueServerRunner {
             }
         }
         
-        dispatchGroup.notify(queue: deployQueue) {
+        dispatchGroup.notify(queue: .global()) {
             Logger.debug("Finished deploying workers")
         }
     }
