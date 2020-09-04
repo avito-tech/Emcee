@@ -65,7 +65,7 @@ final class StatsdMetricHandlerImplTests: XCTestCase {
             )
             
             handler.handle(metric: metric())
-            client.update(state: .ready)
+            queue.async { client.update(state: .ready) }
             
             queue.sync {}
             XCTAssertEqual(
