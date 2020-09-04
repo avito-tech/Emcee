@@ -23,7 +23,7 @@ public final class BucketQueueFixtures {
         workerAlivenessProvider: WorkerAlivenessProvider,
         workerCapabilitiesStorage: WorkerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()
     ) -> BucketQueue {
-        return BucketQueueFactory(
+        return BucketQueueFactoryImpl(
             checkAgainTimeInterval: checkAgainTimeInterval,
             dateProvider: dateProvider,
             testHistoryTracker: testHistoryTracker,

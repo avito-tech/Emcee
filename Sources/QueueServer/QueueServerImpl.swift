@@ -82,7 +82,7 @@ public final class QueueServerImpl: QueueServer {
             workerDetailsHolder: workerDetailsHolder
         )
         
-        let bucketQueueFactory = BucketQueueFactory(
+        let bucketQueueFactory = BucketQueueFactoryImpl(
             checkAgainTimeInterval: checkAgainTimeInterval,
             dateProvider: dateProvider,
             testHistoryTracker: TestHistoryTrackerImpl(

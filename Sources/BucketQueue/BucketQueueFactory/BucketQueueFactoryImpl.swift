@@ -4,7 +4,7 @@ import UniqueIdentifierGenerator
 import WorkerAlivenessProvider
 import WorkerCapabilities
 
-public final class BucketQueueFactory {
+public final class BucketQueueFactoryImpl: BucketQueueFactory {
     private let checkAgainTimeInterval: TimeInterval
     private let dateProvider: DateProvider
     private let testHistoryTracker: TestHistoryTracker

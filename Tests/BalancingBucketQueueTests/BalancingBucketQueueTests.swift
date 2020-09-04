@@ -542,7 +542,7 @@ final class BalancingBucketQueueTests: XCTestCase {
         bucketQueueFactory: bucketQueueFactory,
         nothingToDequeueBehavior: NothingToDequeueBehaviorCheckLater(checkAfter: checkAgainTimeInterval)
     )
-    lazy var bucketQueueFactory = BucketQueueFactory(
+    lazy var bucketQueueFactory = BucketQueueFactoryImpl(
         checkAgainTimeInterval: checkAgainTimeInterval,
         dateProvider: dateProvider,
         testHistoryTracker: TestHistoryTrackerFixtures.testHistoryTracker(
