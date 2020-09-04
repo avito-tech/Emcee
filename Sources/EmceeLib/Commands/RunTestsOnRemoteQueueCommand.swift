@@ -1,5 +1,6 @@
 import ArgLib
 import BucketQueue
+import DI
 import DateProvider
 import Deployer
 import DeveloperDirLocator
@@ -42,37 +43,11 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         ArgumentDescriptions.trace.asOptional,
     ]
     
-    private let dateProvider: DateProvider
-    private let developerDirLocator: DeveloperDirLocator
-    private let fileSystem: FileSystem
-    private let pluginEventBusProvider: PluginEventBusProvider
-    private let processControllerProvider: ProcessControllerProvider
-    private let requestSenderProvider: RequestSenderProvider
-    private let resourceLocationResolver: ResourceLocationResolver
-    private let runtimeDumpRemoteCacheProvider: RuntimeDumpRemoteCacheProvider
+    private let di: DI
     private let testArgFileValidator = TestArgFileValidator()
-    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     
-    public init(
-        dateProvider: DateProvider,
-        developerDirLocator: DeveloperDirLocator,
-        fileSystem: FileSystem,
-        pluginEventBusProvider: PluginEventBusProvider,
-        processControllerProvider: ProcessControllerProvider,
-        requestSenderProvider: RequestSenderProvider,
-        resourceLocationResolver: ResourceLocationResolver,
-        uniqueIdentifierGenerator: UniqueIdentifierGenerator,
-        runtimeDumpRemoteCacheProvider: RuntimeDumpRemoteCacheProvider
-    ) {
-        self.dateProvider = dateProvider
-        self.developerDirLocator = developerDirLocator
-        self.fileSystem = fileSystem
-        self.pluginEventBusProvider = pluginEventBusProvider
-        self.processControllerProvider = processControllerProvider
-        self.requestSenderProvider = requestSenderProvider
-        self.resourceLocationResolver = resourceLocationResolver
-        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
-        self.runtimeDumpRemoteCacheProvider = runtimeDumpRemoteCacheProvider
+    public init(di: DI) {
+        self.di = di
     }
     
     public func run(payload: CommandPayload) throws {
@@ -84,7 +59,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         let queueServerConfigurationLocation: QueueServerConfigurationLocation = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerConfigurationLocation.name)
         let queueServerConfiguration = try ArgumentsReader.queueServerConfiguration(
             location: queueServerConfigurationLocation,
-            resourceLocationResolver: resourceLocationResolver
+            resourceLocationResolver: try di.get()
         )
 
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
@@ -131,7 +106,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             remotePortDeterminer: RemoteQueuePortScanner(
                 host: queueServerDeploymentDestination.host,
                 portRange: EmceePorts.defaultQueuePortRange,
-                requestSenderProvider: requestSenderProvider
+                requestSenderProvider: try di.get()
             )
         )
         var suitablePorts = try remoteQueueDetector.findSuitableRemoteRunningQueuePorts(timeout: 10)
@@ -149,10 +124,10 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             deploymentId: jobId.value,
             deploymentDestination: queueServerDeploymentDestination,
             emceeVersion: emceeVersion,
-            processControllerProvider: processControllerProvider,
+            processControllerProvider: try di.get(),
             queueServerConfigurationLocation: queueServerConfigurationLocation,
             tempFolder: tempFolder,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            uniqueIdentifierGenerator: try di.get()
         )
         let deployQueue = DispatchQueue(label: "RunTestsOnRemoteQueueCommand.deployQueue", attributes: .concurrent)
         deployQueue.async {
@@ -184,34 +159,28 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         testArgFile: TestArgFile,
         version: Version
     ) throws -> JobResults {
-        let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
-            dateProvider: dateProvider,
-            developerDirLocator: developerDirLocator,
-            fileSystem: fileSystem,
-            processControllerProvider: processControllerProvider,
-            resourceLocationResolver: resourceLocationResolver,
-            tempFolder: tempFolder,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+        let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
+            di: di,
             version: version
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
         let testDiscoveryQuerier = TestDiscoveryQuerierImpl(
-            dateProvider: dateProvider,
-            developerDirLocator: developerDirLocator,
-            fileSystem: fileSystem,
+            dateProvider: try di.get(),
+            developerDirLocator: try di.get(),
+            fileSystem: try di.get(),
             numberOfAttemptsToPerformRuntimeDump: 5,
             onDemandSimulatorPool: onDemandSimulatorPool,
-            pluginEventBusProvider: pluginEventBusProvider,
-            processControllerProvider: processControllerProvider,
-            remoteCache: runtimeDumpRemoteCacheProvider.remoteCache(config: remoteCacheConfig),
-            resourceLocationResolver: resourceLocationResolver,
+            pluginEventBusProvider: try di.get(),
+            processControllerProvider: try di.get(),
+            remoteCache: try di.get(RuntimeDumpRemoteCacheProvider.self).remoteCache(config: remoteCacheConfig),
+            resourceLocationResolver: try di.get(),
             tempFolder: tempFolder,
             testRunnerProvider: DefaultTestRunnerProvider(
-                dateProvider: dateProvider,
-                processControllerProvider: processControllerProvider,
-                resourceLocationResolver: resourceLocationResolver
+                dateProvider: try di.get(),
+                processControllerProvider: try di.get(),
+                resourceLocationResolver: try di.get()
             ),
-            uniqueIdentifierGenerator: UuidBasedUniqueIdentifierGenerator(),
+            uniqueIdentifierGenerator: try di.get(),
             version: version
         )
         
@@ -249,7 +218,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
                     ),
                     scheduleStrategy: testArgFileEntry.scheduleStrategy,
                     testEntryConfigurations: testEntryConfigurations,
-                    requestId: RequestId(value: uniqueIdentifierGenerator.generate())
+                    requestId: RequestId(try di.get(UniqueIdentifierGenerator.self).generate())
                 )
             } catch {
                 Logger.error("Failed to schedule tests: \(error)")

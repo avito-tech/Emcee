@@ -1,3 +1,4 @@
+import DI
 import DateProvider
 import DeveloperDirLocator
 import FileSystem
@@ -12,35 +13,29 @@ import UniqueIdentifierGenerator
 
 public final class OnDemandSimulatorPoolFactory {
     public static func create(
-        dateProvider: DateProvider,
-        developerDirLocator: DeveloperDirLocator,
-        fileSystem: FileSystem,
-        processControllerProvider: ProcessControllerProvider,
-        resourceLocationResolver: ResourceLocationResolver,
+        di: DI,
         simulatorBootQueue: DispatchQueue = DispatchQueue(label: "SimulatorBootQueue"),
-        tempFolder: TemporaryFolder,
-        uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         version: Version
-    ) -> OnDemandSimulatorPool {
-        return DefaultOnDemandSimulatorPool(
-            resourceLocationResolver: resourceLocationResolver,
+    ) throws -> OnDemandSimulatorPool {
+        DefaultOnDemandSimulatorPool(
+            resourceLocationResolver: try di.get(),
             simulatorControllerProvider: DefaultSimulatorControllerProvider(
                 additionalBootAttempts: 2,
-                developerDirLocator: developerDirLocator,
+                developerDirLocator: try di.get(),
                 simulatorBootQueue: simulatorBootQueue,
                 simulatorStateMachineActionExecutorProvider: SimulatorStateMachineActionExecutorProviderImpl(
-                    dateProvider: dateProvider,
-                    processControllerProvider: processControllerProvider,
-                    resourceLocationResolver: resourceLocationResolver,
+                    dateProvider: try di.get(),
+                    processControllerProvider: try di.get(),
+                    resourceLocationResolver: try di.get(),
                     simulatorSetPathDeterminer: SimulatorSetPathDeterminerImpl(
-                        fileSystem: fileSystem,
-                        temporaryFolder: tempFolder,
-                        uniqueIdentifierGenerator: uniqueIdentifierGenerator
+                        fileSystem: try di.get(),
+                        temporaryFolder: try di.get(),
+                        uniqueIdentifierGenerator: try di.get()
                     ),
                     version: version
                 )
             ),
-            tempFolder: tempFolder
+            tempFolder: try di.get()
         )
     }
 }

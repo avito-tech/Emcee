@@ -1,4 +1,5 @@
 import ArgLib
+import DI
 import Logging
 import QueueClient
 import RESTMethods
@@ -17,8 +18,8 @@ public final class ToggleWorkersSharingCommand: Command {
     
     private let requestSenderProvider: RequestSenderProvider
     
-    public init(requestSenderProvider: RequestSenderProvider) {
-        self.requestSenderProvider = requestSenderProvider
+    public init(di: DI) throws {
+        self.requestSenderProvider = try di.get()
     }
     
     public func run(payload: CommandPayload) throws {

@@ -44,7 +44,7 @@ public final class LoggingSetup {
         Logger.always("$ scp \(NSUserName())@\(LocalHostDeterminer.currentHostAddress):\(detailedLogPath.absolutePath) /tmp/\(filename).log && open /tmp/\(filename).log")
     }
     
-    public func tearDown(timeout: TimeInterval) {
+    public static func tearDown(timeout: TimeInterval) {
         GlobalLoggerConfig.loggerHandler.tearDownLogging(timeout: timeout)
     }
     

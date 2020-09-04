@@ -1,5 +1,6 @@
 import ArgLib
 import AtomicModels
+import DI
 import Foundation
 import Logging
 import QueueClient
@@ -23,8 +24,8 @@ public final class DisableWorkerCommand: Command {
     private let requestSenderProvider: RequestSenderProvider
     private let waiter = SynchronousWaiter()
     
-    public init(requestSenderProvider: RequestSenderProvider) {
-        self.requestSenderProvider = requestSenderProvider
+    public init(di: DI) throws {
+        self.requestSenderProvider = try di.get()
     }
     
     public func run(payload: CommandPayload) throws {

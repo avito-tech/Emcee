@@ -1,5 +1,6 @@
 import AtomicModels
 import AutomaticTermination
+import DI
 import DateProvider
 import DeveloperDirLocator
 import Dispatch
@@ -31,26 +32,13 @@ import UniqueIdentifierGenerator
 import WorkerCapabilities
 
 public final class DistWorker: SchedulerDelegate {
-    private let bucketFetcher: BucketFetcher
-    private let bucketResultSender: BucketResultSender
+    private let di: DI
     private let callbackQueue = DispatchQueue(label: "DistWorker.callbackQueue", qos: .default, attributes: .concurrent)
     private let currentlyBeingProcessedBucketsTracker = DefaultCurrentlyBeingProcessedBucketsTracker()
-    private let dateProvider: DateProvider
-    private let developerDirLocator: DeveloperDirLocator
-    private let fileSystem: FileSystem
     private let httpRestServer: HTTPRESTServer
-    private let onDemandSimulatorPool: OnDemandSimulatorPool
-    private let pluginEventBusProvider: PluginEventBusProvider
-    private let resourceLocationResolver: ResourceLocationResolver
-    private let simulatorSettingsModifier: SimulatorSettingsModifier
     private let syncQueue = DispatchQueue(label: "DistWorker.syncQueue")
-    private let temporaryFolder: TemporaryFolder
-    private let testRunnerProvider: TestRunnerProvider
-    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let version: Version
-    private let workerCapabilitiesProvider: WorkerCapabilitiesProvider
     private let workerId: WorkerId
-    private let workerRegisterer: WorkerRegisterer
     private var payloadSignature = Either<PayloadSignature, DistWorkerError>.error(DistWorkerError.missingPayloadSignature)
     private var requestIdForBucketId = [BucketId: RequestId]()
     
@@ -60,43 +48,17 @@ public final class DistWorker: SchedulerDelegate {
     }
     
     public init(
-        bucketFetcher: BucketFetcher,
-        bucketResultSender: BucketResultSender,
-        dateProvider: DateProvider,
-        developerDirLocator: DeveloperDirLocator,
-        fileSystem: FileSystem,
-        onDemandSimulatorPool: OnDemandSimulatorPool,
-        pluginEventBusProvider: PluginEventBusProvider,
-        resourceLocationResolver: ResourceLocationResolver,
-        simulatorSettingsModifier: SimulatorSettingsModifier,
-        temporaryFolder: TemporaryFolder,
-        testRunnerProvider: TestRunnerProvider,
-        uniqueIdentifierGenerator: UniqueIdentifierGenerator,
+        di: DI,
         version: Version,
-        workerCapabilitiesProvider: WorkerCapabilitiesProvider,
-        workerId: WorkerId,
-        workerRegisterer: WorkerRegisterer
+        workerId: WorkerId
     ) {
-        self.bucketFetcher = bucketFetcher
-        self.bucketResultSender = bucketResultSender
-        self.dateProvider = dateProvider
-        self.developerDirLocator = developerDirLocator
-        self.fileSystem = fileSystem
+        self.di = di
         self.httpRestServer = HTTPRESTServer(
             automaticTerminationController: StayAliveTerminationController(),
             portProvider: PortProviderWrapper(provider: { 0 })
         )
-        self.onDemandSimulatorPool = onDemandSimulatorPool
-        self.pluginEventBusProvider = pluginEventBusProvider
-        self.resourceLocationResolver = resourceLocationResolver
-        self.simulatorSettingsModifier = simulatorSettingsModifier
-        self.temporaryFolder = temporaryFolder
-        self.testRunnerProvider = testRunnerProvider
-        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.version = version
-        self.workerCapabilitiesProvider = workerCapabilitiesProvider
         self.workerId = workerId
-        self.workerRegisterer = workerRegisterer
     }
     
     public func start(
@@ -111,9 +73,9 @@ public final class DistWorker: SchedulerDelegate {
             )
         )
 
-        workerRegisterer.registerWithServer(
+        try di.get(WorkerRegisterer.self).registerWithServer(
             workerId: workerId,
-            workerCapabilities: workerCapabilitiesProvider.workerCapabilities(),
+            workerCapabilities: try di.get(WorkerCapabilitiesProvider.self).workerCapabilities(),
             workerRestAddress: SocketAddress(
                 host: LocalHostDeterminer.currentHostAddress,
                 port: try httpRestServer.start()
@@ -135,8 +97,7 @@ public final class DistWorker: SchedulerDelegate {
                 try didFetchAnalyticsConfiguration(workerConfiguration.analyticsConfiguration)
                 
                 _ = try strongSelf.runTests(
-                    workerConfiguration: workerConfiguration,
-                    onDemandSimulatorPool: strongSelf.onDemandSimulatorPool
+                    workerConfiguration: workerConfiguration
                 )
                 Logger.verboseDebug("Dist worker has finished")
                 
@@ -151,12 +112,10 @@ public final class DistWorker: SchedulerDelegate {
     // MARK: - Private Stuff
     
     private func runTests(
-        workerConfiguration: WorkerConfiguration,
-        onDemandSimulatorPool: OnDemandSimulatorPool
+        workerConfiguration: WorkerConfiguration
     ) throws {
         let schedulerCconfiguration = SchedulerConfiguration(
             numberOfSimulators: workerConfiguration.numberOfSimulators,
-            onDemandSimulatorPool: onDemandSimulatorPool,
             schedulerDataSource: DistRunSchedulerDataSource(
                 onNextBucketRequest: fetchNextBucket
             )
@@ -164,15 +123,8 @@ public final class DistWorker: SchedulerDelegate {
         
         let scheduler = Scheduler(
             configuration: schedulerCconfiguration,
-            dateProvider: dateProvider,
-            developerDirLocator: developerDirLocator,
-            fileSystem: fileSystem,
-            pluginEventBusProvider: pluginEventBusProvider,
-            resourceLocationResolver: resourceLocationResolver,
+            di: di,
             schedulerDelegate: self,
-            simulatorSettingsModifier: simulatorSettingsModifier,
-            tempFolder: temporaryFolder,
-            testRunnerProvider: testRunnerProvider,
             version: version
         )
         try scheduler.run()
@@ -182,16 +134,16 @@ public final class DistWorker: SchedulerDelegate {
     
     private func nextBucketFetchResult() throws -> ReducedBucketFetchResult {
         return try currentlyBeingProcessedBucketsTracker.perform { tracker -> ReducedBucketFetchResult in
-            let requestId = RequestId(value: uniqueIdentifierGenerator.generate())
+            let requestId = RequestId(value: try di.get(UniqueIdentifierGenerator.self).generate())
             
             let waiter = SynchronousWaiter()
             
             let callbackWaiter: CallbackWaiter<Either<BucketFetchResult, Error>> = waiter.createCallbackWaiter()
             
-            bucketFetcher.fetch(
+            try di.get(BucketFetcher.self).fetch(
                 payloadSignature: try payloadSignature.dematerialize(),
                 requestId: requestId,
-                workerCapabilities: workerCapabilitiesProvider.workerCapabilities(),
+                workerCapabilities: try di.get(WorkerCapabilitiesProvider.self).workerCapabilities(),
                 workerId: workerId,
                 callbackQueue: callbackQueue
             ) { response in callbackWaiter.set(result: response) }
@@ -265,7 +217,7 @@ public final class DistWorker: SchedulerDelegate {
                 return requestId
             }
             
-            bucketResultSender.send(
+            try di.get(BucketResultSender.self).send(
                 testingResult: testingResult,
                 requestId: requestId,
                 workerId: workerId,

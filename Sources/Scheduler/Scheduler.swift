@@ -1,3 +1,4 @@
+import DI
 import DateProvider
 import DeveloperDirLocator
 import Dispatch
@@ -20,48 +21,27 @@ import TemporaryStuff
 import UniqueIdentifierGenerator
 
 public final class Scheduler {
+    private let di: DI
     private let configuration: SchedulerConfiguration
-    private let dateProvider: DateProvider
-    private let developerDirLocator: DeveloperDirLocator
-    private let fileSystem: FileSystem
-    private let pluginEventBusProvider: PluginEventBusProvider
     private let queue = OperationQueue()
-    private let resourceLocationResolver: ResourceLocationResolver
     private let resourceSemaphore: ListeningSemaphore<ResourceAmounts>
-    private let simulatorSettingsModifier: SimulatorSettingsModifier
-    private let tempFolder: TemporaryFolder
-    private let testRunnerProvider: TestRunnerProvider
     private let version: Version
     private weak var schedulerDelegate: SchedulerDelegate?
     
     public init(
         configuration: SchedulerConfiguration,
-        dateProvider: DateProvider,
-        developerDirLocator: DeveloperDirLocator,
-        fileSystem: FileSystem,
-        pluginEventBusProvider: PluginEventBusProvider,
-        resourceLocationResolver: ResourceLocationResolver,
+        di: DI,
         schedulerDelegate: SchedulerDelegate?,
-        simulatorSettingsModifier: SimulatorSettingsModifier,
-        tempFolder: TemporaryFolder,
-        testRunnerProvider: TestRunnerProvider,
         version: Version
     ) {
         self.configuration = configuration
-        self.dateProvider = dateProvider
-        self.developerDirLocator = developerDirLocator
-        self.fileSystem = fileSystem
-        self.pluginEventBusProvider = pluginEventBusProvider
-        self.resourceLocationResolver = resourceLocationResolver
+        self.di = di
         self.resourceSemaphore = ListeningSemaphore(
             maximumValues: .of(
                 runningTests: Int(configuration.numberOfSimulators)
             )
         )
         self.schedulerDelegate = schedulerDelegate
-        self.simulatorSettingsModifier = simulatorSettingsModifier
-        self.tempFolder = tempFolder
-        self.testRunnerProvider = testRunnerProvider
         self.version = version
     }
     
@@ -176,7 +156,7 @@ public final class Scheduler {
     }
     
     private func runBucketOnce(bucket: SchedulerBucket, testsToRun: [TestEntry]) throws -> TestingResult {
-        let simulatorPool = try configuration.onDemandSimulatorPool.pool(
+        let simulatorPool = try di.get(OnDemandSimulatorPool.self).pool(
             key: OnDemandSimulatorPoolKey(
                 developerDir: bucket.developerDir,
                 testDestination: bucket.testDestination,
@@ -185,13 +165,13 @@ public final class Scheduler {
         )
 
         let allocatedSimulator = try simulatorPool.allocateSimulator(
-            dateProvider: dateProvider,
+            dateProvider: try di.get(),
             simulatorOperationTimeouts: bucket.simulatorOperationTimeouts,
             version: version
         )
         defer { allocatedSimulator.releaseSimulator() }
         
-        try simulatorSettingsModifier.apply(
+        try di.get(SimulatorSettingsModifier.self).apply(
             developerDir: bucket.developerDir,
             simulatorSettings: bucket.simulatorSettings,
             toSimulator: allocatedSimulator.simulator
@@ -207,13 +187,13 @@ public final class Scheduler {
                 testTimeoutConfiguration: bucket.testTimeoutConfiguration,
                 testType: bucket.testType
             ),
-            dateProvider: dateProvider,
-            developerDirLocator: developerDirLocator,
-            fileSystem: fileSystem,
-            pluginEventBusProvider: pluginEventBusProvider,
-            resourceLocationResolver: resourceLocationResolver,
-            tempFolder: tempFolder,
-            testRunnerProvider: testRunnerProvider,
+            dateProvider: try di.get(),
+            developerDirLocator: try di.get(),
+            fileSystem: try di.get(),
+            pluginEventBusProvider: try di.get(),
+            resourceLocationResolver: try di.get(),
+            tempFolder: try di.get(),
+            testRunnerProvider: try di.get(),
             version: version
         )
 

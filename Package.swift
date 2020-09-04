@@ -285,6 +285,23 @@ let package = Package(
             path: "Sources/ChromeTracing"
         ),
         .target(
+            // MARK: DI
+            name: "DI",
+            dependencies: [
+                "AtomicModels",
+            ],
+            path: "Sources/DI"
+        ),
+        .testTarget(
+            // MARK: DITests
+            name: "DITests",
+            dependencies: [
+                "DI",
+                "TestHelpers",
+            ],
+            path: "Tests/DITests"
+        ),
+        .target(
             // MARK: DateProvider
             name: "DateProvider",
             dependencies: [
@@ -414,6 +431,7 @@ let package = Package(
                 "AtomicModels",
                 "AutomaticTermination",
                 "CountedSet",
+                "DI",
                 "DateProvider",
                 "DeveloperDirLocator",
                 "DistWorkerModels",
@@ -508,6 +526,7 @@ let package = Package(
                 "BucketQueue",
                 "BuildArtifacts",
                 "ChromeTracing",
+                "DI",
                 "DateProvider",
                 "Deployer",
                 "DeveloperDirLocator",
@@ -1672,6 +1691,7 @@ let package = Package(
             name: "Scheduler",
             dependencies: [
                 "BuildArtifacts",
+                "DI",
                 "DateProvider",
                 "DeveloperDirLocator",
                 "DeveloperDirModels",

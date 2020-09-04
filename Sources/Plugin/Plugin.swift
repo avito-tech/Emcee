@@ -47,7 +47,7 @@ public final class Plugin {
         try? SynchronousWaiter().waitWhile(description: "Wait for JSON stream to finish") {
             return jsonStreamHasFinished == false
         }
-        loggingSetup.tearDown(timeout: 10)
+        LoggingSetup.tearDown(timeout: 10)
     }
     
     private func automaticallyInterruptOnTearDown() {

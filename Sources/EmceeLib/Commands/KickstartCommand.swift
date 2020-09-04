@@ -1,4 +1,5 @@
 import ArgLib
+import DI
 import EmceeVersion
 import Foundation
 import Logging
@@ -20,10 +21,8 @@ public final class KickstartCommand: Command {
     private let processingQueue = DispatchQueue(label: "KickstartCommand.processingQueue", attributes: .concurrent, target: DispatchQueue.global(qos: .default))
     private let requestSenderProvider: RequestSenderProvider
     
-    public init(
-        requestSenderProvider: RequestSenderProvider
-    ) {
-        self.requestSenderProvider = requestSenderProvider
+    public init(di: DI) throws {
+        self.requestSenderProvider = try di.get()
     }
     
     public func run(payload: CommandPayload) throws {

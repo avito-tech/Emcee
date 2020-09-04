@@ -1,4 +1,5 @@
 import ArgLib
+import DI
 import DateProvider
 import DeveloperDirLocator
 import DistWorker
@@ -14,6 +15,7 @@ import QueueClient
 import QueueModels
 import RequestSender
 import ResourceLocationResolver
+import Runner
 import SignalHandling
 import SimulatorPool
 import SocketModels
@@ -32,57 +34,35 @@ public final class DistWorkCommand: Command {
         ArgumentDescriptions.workerId.asRequired
     ]
     
-    private let dateProvider: DateProvider
-    private let developerDirLocator: DeveloperDirLocator
-    private let fileSystem: FileSystem
-    private let processControllerProvider: ProcessControllerProvider
-    private let pluginEventBusProvider: PluginEventBusProvider
-    private let requestSenderProvider: RequestSenderProvider
-    private let resourceLocationResolver: ResourceLocationResolver
-    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
+    private let di: DI
 
-    public init(
-        dateProvider: DateProvider,
-        developerDirLocator: DeveloperDirLocator,
-        fileSystem: FileSystem,
-        pluginEventBusProvider: PluginEventBusProvider,
-        processControllerProvider: ProcessControllerProvider,
-        requestSenderProvider: RequestSenderProvider,
-        resourceLocationResolver: ResourceLocationResolver,
-        uniqueIdentifierGenerator: UniqueIdentifierGenerator
-    ) {
-        self.dateProvider = dateProvider
-        self.developerDirLocator = developerDirLocator
-        self.fileSystem = fileSystem
-        self.pluginEventBusProvider = pluginEventBusProvider
-        self.processControllerProvider = processControllerProvider
-        self.requestSenderProvider = requestSenderProvider
-        self.resourceLocationResolver = resourceLocationResolver
-        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
+    public init(di: DI) {
+        self.di = di
     }
     
     public func run(payload: CommandPayload) throws {
         let queueServerAddress: SocketAddress = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServer.name)
         let workerId: WorkerId = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.workerId.name)
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
-        let temporaryFolder = try createScopedTemporaryFolder()
+        
+        di.set(
+            try createScopedTemporaryFolder(),
+            for: TemporaryFolder.self
+        )
 
-        let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
-            dateProvider: dateProvider,
-            developerDirLocator: developerDirLocator,
-            fileSystem: fileSystem,
-            processControllerProvider: processControllerProvider,
-            resourceLocationResolver: resourceLocationResolver,
-            tempFolder: temporaryFolder,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+        let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
+            di: di,
             version: emceeVersion
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
+        
+        di.set(
+            onDemandSimulatorPool,
+            for: OnDemandSimulatorPool.self
+        )
 
-        let distWorker = createDistWorker(
-            onDemandSimulatorPool: onDemandSimulatorPool,
+        let distWorker = try createDistWorker(
             queueServerAddress: queueServerAddress,
-            temporaryFolder: temporaryFolder,
             version: emceeVersion,
             workerId: workerId
         )
@@ -96,48 +76,46 @@ public final class DistWorkCommand: Command {
     }
     
     private func createDistWorker(
-        onDemandSimulatorPool: OnDemandSimulatorPool,
         queueServerAddress: SocketAddress,
-        temporaryFolder: TemporaryFolder,
         version: Version,
         workerId: WorkerId
-    ) -> DistWorker {
-        let requestSender = requestSenderProvider.requestSender(socketAddress: queueServerAddress)
+    ) throws -> DistWorker {
+        let requestSender = try di.get(RequestSenderProvider.self).requestSender(socketAddress: queueServerAddress)
         
-        let workerRegisterer = WorkerRegistererImpl(requestSender: requestSender)
-        let bucketResultSender = BucketResultSenderImpl(requestSender: requestSender)
-        let bucketFetcher = BucketFetcherImpl(requestSender: requestSender)
+        di.set(WorkerRegistererImpl(requestSender: requestSender), for: WorkerRegisterer.self)
+        di.set(BucketResultSenderImpl(requestSender: requestSender), for: BucketResultSender.self)
+        di.set(BucketFetcherImpl(requestSender: requestSender), for: BucketFetcher.self)
+        di.set(
+            DefaultTestRunnerProvider(
+                dateProvider: try di.get(),
+                processControllerProvider: try di.get(),
+                resourceLocationResolver: try di.get()
+            ),
+            for: TestRunnerProvider.self
+        )
         
-        return DistWorker(
-            bucketFetcher: bucketFetcher,
-            bucketResultSender: bucketResultSender,
-            dateProvider: dateProvider,
-            developerDirLocator: developerDirLocator,
-            fileSystem: fileSystem,
-            onDemandSimulatorPool: onDemandSimulatorPool,
-            pluginEventBusProvider: pluginEventBusProvider,
-            resourceLocationResolver: resourceLocationResolver,
-            simulatorSettingsModifier: SimulatorSettingsModifierImpl(
-                developerDirLocator: developerDirLocator,
-                processControllerProvider: processControllerProvider,
-                tempFolder: temporaryFolder,
-                uniqueIdentifierGenerator: uniqueIdentifierGenerator
+        di.set(
+            SimulatorSettingsModifierImpl(
+                developerDirLocator: try di.get(),
+                processControllerProvider: try di.get(),
+                tempFolder: try di.get(),
+                uniqueIdentifierGenerator: try di.get()
             ),
-            temporaryFolder: temporaryFolder,
-            testRunnerProvider: DefaultTestRunnerProvider(
-                dateProvider: dateProvider,
-                processControllerProvider: processControllerProvider,
-                resourceLocationResolver: resourceLocationResolver
-            ),
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
-            version: version,
-            workerCapabilitiesProvider: JoinedCapabilitiesProvider(
+            for: SimulatorSettingsModifier.self
+        )
+        di.set(
+            JoinedCapabilitiesProvider(
                 providers: [
-                    XcodeCapabilitiesProvider(fileSystem: fileSystem),
+                    XcodeCapabilitiesProvider(fileSystem: try di.get()),
                 ]
             ),
-            workerId: workerId,
-            workerRegisterer: workerRegisterer
+            for: WorkerCapabilitiesProvider.self
+        )
+        
+        return DistWorker(
+            di: di,
+            version: version,
+            workerId: workerId
         )
     }
         

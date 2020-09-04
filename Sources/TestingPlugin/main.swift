@@ -48,7 +48,7 @@ func main() throws -> Int32 {
     
     try loggingSetup.setupLogging(stderrVerbosity: Verbosity.info)
     defer {
-        loggingSetup.tearDown(timeout: 10)
+        LoggingSetup.tearDown(timeout: 10)
     }
 
     Logger.debug("Started plugin")

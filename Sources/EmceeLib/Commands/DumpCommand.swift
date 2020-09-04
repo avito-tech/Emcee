@@ -2,6 +2,7 @@ import ArgLib
 import ChromeTracing
 import DateProvider
 import DeveloperDirLocator
+import DI
 import EmceeVersion
 import FileSystem
 import Foundation
@@ -32,34 +33,10 @@ public final class DumpCommand: Command {
     ]
     
     private let encoder = JSONEncoder.pretty()
-    private let dateProvider: DateProvider
-    private let developerDirLocator: DeveloperDirLocator
-    private let fileSystem: FileSystem
-    private let pluginEventBusProvider: PluginEventBusProvider
-    private let processControllerProvider: ProcessControllerProvider
-    private let resourceLocationResolver: ResourceLocationResolver
-    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
-    private let runtimeDumpRemoteCacheProvider: RuntimeDumpRemoteCacheProvider
+    private let di: DI
     
-    public init(
-        dateProvider: DateProvider,
-        developerDirLocator: DeveloperDirLocator,
-        fileSystem: FileSystem,
-        pluginEventBusProvider: PluginEventBusProvider,
-        processControllerProvider: ProcessControllerProvider,
-        resourceLocationResolver: ResourceLocationResolver,
-        uniqueIdentifierGenerator: UniqueIdentifierGenerator,
-        runtimeDumpRemoteCacheProvider: RuntimeDumpRemoteCacheProvider
-
-    ) {
-        self.dateProvider = dateProvider
-        self.developerDirLocator = developerDirLocator
-        self.fileSystem = fileSystem
-        self.pluginEventBusProvider = pluginEventBusProvider
-        self.processControllerProvider = processControllerProvider
-        self.resourceLocationResolver = resourceLocationResolver
-        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
-        self.runtimeDumpRemoteCacheProvider = runtimeDumpRemoteCacheProvider
+    public init(di: DI) {
+        self.di = di
     }
 
     public func run(payload: CommandPayload) throws {
@@ -73,14 +50,8 @@ public final class DumpCommand: Command {
         let outputPath: AbsolutePath = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.output.name)
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
         
-        let onDemandSimulatorPool = OnDemandSimulatorPoolFactory.create(
-            dateProvider: dateProvider,
-            developerDirLocator: developerDirLocator,
-            fileSystem: fileSystem,
-            processControllerProvider: processControllerProvider,
-            resourceLocationResolver: resourceLocationResolver,
-            tempFolder: tempFolder,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+        let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
+            di: di,
             version: emceeVersion
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
@@ -109,22 +80,22 @@ public final class DumpCommand: Command {
             )
 
             let testDiscoveryQuerier = TestDiscoveryQuerierImpl(
-                dateProvider: dateProvider,
-                developerDirLocator: developerDirLocator,
-                fileSystem: fileSystem,
+                dateProvider: try di.get(),
+                developerDirLocator: try di.get(),
+                fileSystem: try di.get(),
                 numberOfAttemptsToPerformRuntimeDump: testArgFileEntry.numberOfRetries,
-                onDemandSimulatorPool: onDemandSimulatorPool,
-                pluginEventBusProvider: pluginEventBusProvider,
-                processControllerProvider: processControllerProvider,
-                remoteCache: runtimeDumpRemoteCacheProvider.remoteCache(config: remoteCacheConfig),
-                resourceLocationResolver: resourceLocationResolver,
+                onDemandSimulatorPool: try di.get(),
+                pluginEventBusProvider: try di.get(),
+                processControllerProvider: try di.get(),
+                remoteCache: try di.get(RuntimeDumpRemoteCacheProvider.self).remoteCache(config: remoteCacheConfig),
+                resourceLocationResolver: try di.get(),
                 tempFolder: tempFolder,
                 testRunnerProvider: DefaultTestRunnerProvider(
-                    dateProvider: dateProvider,
-                    processControllerProvider: processControllerProvider,
-                    resourceLocationResolver: resourceLocationResolver
+                    dateProvider: try di.get(),
+                    processControllerProvider: try di.get(),
+                    resourceLocationResolver: try di.get()
                 ),
-                uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+                uniqueIdentifierGenerator: try di.get(),
                 version: emceeVersion
             )
             
