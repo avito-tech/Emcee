@@ -86,7 +86,7 @@ public final class AnalyticsSetup {
     ) throws -> StatsdMetricHandler {
         return try StatsdMetricHandlerImpl(
             statsdDomain: configuration.metricPrefix.components(separatedBy: "."),
-            statsdSocketAddress: configuration.socketAddress
+            statsdClient: StatsdClientImpl(statsdSocketAddress: configuration.socketAddress)
         )
     }
 }

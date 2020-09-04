@@ -5,35 +5,22 @@ import SocketModels
 import Network
 
 public final class StatsdMetricHandlerImpl: StatsdMetricHandler {
-    struct InvalidPortValue: Error, CustomStringConvertible {
-        let value: Int
-        var description: String {
-            return "Invalid port value \(value)"
-        }
-    }
-    
     private let statsdDomain: [String]
-    private let connection: NWConnection
-    private let queue = DispatchQueue(label: "StatsdMetricHandlerImpl.serialQueue")
+    private let statsdClient: StatsdClient
+    private let serialQueue: DispatchQueue
     
     private var metricsBuffer: [StatsdMetric] = []
     
     public init(
         statsdDomain: [String],
-        statsdSocketAddress: SocketAddress
+        statsdClient: StatsdClient,
+        serialQueue: DispatchQueue = DispatchQueue(label: "StatsdMetricHandlerImpl.serialQueue")
     ) throws {
-        guard let port = NWEndpoint.Port(rawValue: UInt16(statsdSocketAddress.port.value)) else {
-            throw InvalidPortValue(value: statsdSocketAddress.port.value)
-        }
-        
         self.statsdDomain = statsdDomain
-        self.connection = NWConnection(
-            host: .name(statsdSocketAddress.host, nil),
-            port: port,
-            using: .udp
-        )
+        self.statsdClient = statsdClient
+        self.serialQueue = serialQueue
         
-        connection.stateUpdateHandler = { [weak self] state in
+        self.statsdClient.stateUpdateHandler = { [weak self] state in
             guard let self = self else { return }
             switch state {
             case .setup:
@@ -48,7 +35,7 @@ public final class StatsdMetricHandlerImpl: StatsdMetricHandler {
                 self.metricsBuffer.removeAll()
             case .failed(let error):
                 Logger.error("Statsd connection failed: \(error)")
-                self.connection.cancel()
+                self.statsdClient.cancel()
             case .cancelled:
                 Logger.warning("Statsd connection was cancelled")
                 if !self.metricsBuffer.isEmpty {
@@ -58,13 +45,13 @@ public final class StatsdMetricHandlerImpl: StatsdMetricHandler {
                 Logger.warning("Unknown statsd connection state: \(state)")
             }
         }
-        connection.start(queue: queue)
+        statsdClient.start(queue: serialQueue)
     }
     
     public func handle(metric: StatsdMetric) {
-        queue.async { [weak self] in
+        serialQueue.async { [weak self] in
             guard let self = self else { return }
-            let state = self.connection.state
+            let state = self.statsdClient.state
             switch state {
             case .cancelled, .failed:
                 Logger.warning("Statsd connection is \(state), metric \(metric) is dropped")
@@ -80,19 +67,14 @@ public final class StatsdMetricHandlerImpl: StatsdMetricHandler {
     }
     
     public func tearDown(timeout: TimeInterval) {
-        queue.async { [connection] in
-            connection.cancel()
+        serialQueue.async { [statsdClient] in
+            statsdClient.cancel()
         }
     }
     
     private func send(metric: StatsdMetric) {
-        connection.send(
-            content: Data(metric.build(domain: statsdDomain).utf8),
-            completion: NWConnection.SendCompletion.contentProcessed {
-                if let error = $0 {
-                    Logger.error("Statsd metric send failed: \(error)")
-                }
-            }
+        statsdClient.send(
+            content: Data(metric.build(domain: statsdDomain).utf8)
         )
     }
 }
