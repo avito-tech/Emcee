@@ -10,7 +10,7 @@ final class WorkerAlivenessProviderTests: XCTestCase {
         let tracker = WorkerAlivenessProviderImpl(
             knownWorkerIds: [], workerPermissionProvider: FakeWorkerPermissionProvider())
         tracker.didRegisterWorker(workerId: "worker")
-        XCTAssertTrue(tracker.alivenessForWorker(workerId: "worker").alive)
+        XCTAssertFalse(tracker.alivenessForWorker(workerId: "worker").silent)
     }
     
     func test__when_worker_registers__it_has_no_buckets_being_processed() {
@@ -20,7 +20,7 @@ final class WorkerAlivenessProviderTests: XCTestCase {
         )
         XCTAssertFalse(tracker.alivenessForWorker(workerId: "worker").registered)
         tracker.didRegisterWorker(workerId: "worker")
-        XCTAssertTrue(tracker.alivenessForWorker(workerId: "worker").alive)
+        XCTAssertFalse(tracker.alivenessForWorker(workerId: "worker").silent)
         XCTAssertEqual(tracker.alivenessForWorker(workerId: "worker").bucketIdsBeingProcessed, [])
     }
     

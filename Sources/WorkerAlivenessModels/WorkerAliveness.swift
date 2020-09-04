@@ -40,8 +40,3 @@ public struct WorkerAliveness: Codable, Equatable, CustomStringConvertible {
         return "\(registered ? "registered" : "not registered"), \(silent ? "silent" : "alive"), \(disabled ? "disabled" : "enabled"), \(workerUtilizationPermission == .allowedToUtilize ? "allowed to utilize" : "not utilizable"), processing bucket ids: \(bucketIdsBeingProcessed.sorted())"
     }
 }
-
-public extension WorkerAliveness {
-    var enabled: Bool { !disabled }
-    var alive: Bool { !silent }
-}

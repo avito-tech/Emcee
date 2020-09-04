@@ -39,7 +39,7 @@ public final class DisableWorkerEndpoint: RESTEndpoint {
         }
         Logger.debug("Request to disable worker with id: \(payload.workerId)")
         
-        guard workerAlivenessProvider.alivenessForWorker(workerId: payload.workerId).enabled else {
+        guard !workerAlivenessProvider.alivenessForWorker(workerId: payload.workerId).disabled else {
             throw DisableWorkerError.workerIsAlreadyDisabled(workerId: payload.workerId)
         }
         workerAlivenessProvider.disableWorker(workerId: payload.workerId)

@@ -48,7 +48,7 @@ final class WorkerRegistrarTests: XCTestCase {
             ),
             .workerRegisterSuccess(workerConfiguration: WorkerConfigurationFixtures.workerConfiguration))
         XCTAssertTrue(alivenessTracker.alivenessForWorker(workerId: workerId).registered)
-        XCTAssertTrue(alivenessTracker.alivenessForWorker(workerId: workerId).alive)
+        XCTAssertFalse(alivenessTracker.alivenessForWorker(workerId: workerId).silent)
     }
     
     func test_successful_registration() throws {
