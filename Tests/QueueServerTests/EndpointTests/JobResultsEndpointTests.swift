@@ -15,7 +15,6 @@ final class JobResultsEndpointTests: XCTestCase, JobResultsProvider {
         jobId: jobId,
         testingResults: [
             TestingResult(
-                bucketId: "bucketid",
                 testDestination: TestDestinationFixtures.testDestination,
                 unfilteredResults: [TestEntryResult.lost(testEntry: TestEntryFixtures.testEntry())]
             )

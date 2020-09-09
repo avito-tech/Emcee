@@ -103,7 +103,6 @@ public final class Scheduler {
         } catch {
             Logger.error("Failed to execute bucket \(bucket.bucketId): \(error)")
             return TestingResult(
-                bucketId: bucket.bucketId,
                 testDestination: bucket.testDestination,
                 unfilteredResults: bucket.testEntries.map { testEntry -> TestEntryResult in
                     TestEntryResult.withResult(
@@ -209,7 +208,6 @@ public final class Scheduler {
         }
         
         return TestingResult(
-            bucketId: bucket.bucketId,
             testDestination: bucket.testDestination,
             unfilteredResults: runnerResult.testEntryResults
         )

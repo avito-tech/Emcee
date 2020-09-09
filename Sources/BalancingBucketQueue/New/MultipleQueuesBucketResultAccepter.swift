@@ -32,7 +32,6 @@ public final class MultipleQueuesBucketResultAccepter: BucketResultAccepter {
             }
             
             throw BalancingBucketQueueError.noMatchingQueueFound(
-                testingResult: testingResult,
                 requestId: requestId,
                 workerId: workerId
             )

@@ -8,7 +8,6 @@ import XCTest
 final class TestingResultTests: XCTestCase {
     func testFilteringResults() throws {
         let result = TestingResult(
-            bucketId: "id",
             testDestination: TestDestinationFixtures.testDestination,
             unfilteredResults: [
                 .withResult(
@@ -30,7 +29,6 @@ final class TestingResultTests: XCTestCase {
     
     func testFilteringResultsWithMultipleRuns() throws {
         let result = TestingResult(
-            bucketId: "id",
             testDestination: TestDestinationFixtures.testDestination,
             unfilteredResults: [
                 .withResults(
@@ -53,7 +51,6 @@ final class TestingResultTests: XCTestCase {
         let testEntry2 = TestEntryFixtures.testEntry(className: "failure", methodName: "")
         
         let result1 = TestingResult(
-            bucketId: "id",
             testDestination: testDestination,
             unfilteredResults: [
                 .withResults(
@@ -64,7 +61,6 @@ final class TestingResultTests: XCTestCase {
                     ])
             ])
         let result2 = TestingResult(
-            bucketId: "id",
             testDestination: testDestination,
             unfilteredResults: [
                 .withResults(
@@ -75,7 +71,6 @@ final class TestingResultTests: XCTestCase {
                     ])
             ])
         let result3 = TestingResult(
-            bucketId: "id",
             testDestination: testDestination,
             unfilteredResults: [
                 .withResults(
@@ -87,7 +82,6 @@ final class TestingResultTests: XCTestCase {
         
         let merged = try TestingResult.byMerging(testingResults: [result1, result2, result3])
         
-        XCTAssertEqual(merged.bucketId, "id")
         XCTAssertEqual(merged.unfilteredResults.count, 2)
         
         XCTAssertEqual(merged.successfulTests.count, 1)
@@ -106,7 +100,6 @@ final class TestingResultTests: XCTestCase {
         let testEntry = TestEntryFixtures.testEntry(className: "success", methodName: "")
         
         let result1 = TestingResult(
-            bucketId: "id1",
             testDestination: testDestination1,
             unfilteredResults: [
                 .withResults(
@@ -117,7 +110,6 @@ final class TestingResultTests: XCTestCase {
                     ])
             ])
         let result2 = TestingResult(
-            bucketId: "id2",
             testDestination: testDestination2,
             unfilteredResults: [
                 .withResults(
@@ -132,7 +124,6 @@ final class TestingResultTests: XCTestCase {
     
     func testTreatingLostResultAsFailure() {
         let result = TestingResult(
-            bucketId: "id",
             testDestination: TestDestinationFixtures.testDestination,
             unfilteredResults: [
                 .lost(testEntry: TestEntryFixtures.testEntry(className: "lost", methodName: ""))

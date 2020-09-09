@@ -44,13 +44,6 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         bucket: Bucket,
         workerId: WorkerId
     ) throws -> TestHistoryTrackerAcceptResult {
-        guard testingResult.bucketId == bucket.bucketId else {
-            throw TestHistoryTrackerError.mismatchedBuckedIds(
-                testingResultBucketId: testingResult.bucketId,
-                bucketId: bucket.bucketId
-            )
-        }
-
         var resultsOfSuccessfulTests = [TestEntryResult]()
         var resultsOfFailedTests = [TestEntryResult]()
         var resultsOfTestsToRetry = [TestEntryResult]()
@@ -79,7 +72,6 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         }
         
         let testingResult = TestingResult(
-            bucketId: bucket.bucketId,
             testDestination: bucket.testDestination,
             unfilteredResults: resultsOfSuccessfulTests + resultsOfFailedTests
         )

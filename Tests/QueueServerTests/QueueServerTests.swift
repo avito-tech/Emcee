@@ -198,7 +198,7 @@ final class QueueServerTests: XCTestCase {
         
         XCTAssertEqual(
             try? response.dematerialize(),
-            testingResult.bucketId,
+            fixedBucketId,
             "Server is expected to return a bucket id of accepted testing result"
         )
         

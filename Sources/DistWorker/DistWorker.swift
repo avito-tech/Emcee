@@ -203,17 +203,17 @@ public final class DistWorker: SchedulerDelegate {
         forBucket bucket: SchedulerBucket
     ) {
         Logger.debug("Obtained testing result for bucket \(bucket): \(testingResult)")
-        didReceiveTestResult(testingResult: testingResult)
+        didReceiveTestResult(testingResult: testingResult, bucketId: bucket.bucketId)
     }
     
-    private func didReceiveTestResult(testingResult: TestingResult) {
+    private func didReceiveTestResult(testingResult: TestingResult, bucketId: BucketId) {
         do {
             let requestId: RequestId = try syncQueue.sync {
-                guard let requestId = requestIdForBucketId.removeValue(forKey: testingResult.bucketId) else {
-                    Logger.error("No requestId for bucket: \(testingResult.bucketId)")
-                    throw DistWorkerError.noRequestIdForBucketId(testingResult.bucketId)
+                guard let requestId = requestIdForBucketId.removeValue(forKey: bucketId) else {
+                    Logger.error("No requestId for bucket: \(bucketId)")
+                    throw DistWorkerError.noRequestIdForBucketId(bucketId)
                 }
-                Logger.verboseDebug("Found \(requestId) for bucket \(testingResult.bucketId)")
+                Logger.verboseDebug("Found \(requestId) for bucket \(bucketId)")
                 return requestId
             }
             
@@ -225,25 +225,25 @@ public final class DistWorker: SchedulerDelegate {
                 callbackQueue: callbackQueue,
                 completion: { [currentlyBeingProcessedBucketsTracker] (result: Either<BucketId, Error>) in
                     defer {
-                        currentlyBeingProcessedBucketsTracker.didProcess(bucketId: testingResult.bucketId)
+                        currentlyBeingProcessedBucketsTracker.didProcess(bucketId: bucketId)
                     }
                     
                     do {
                         let acceptedBucketId = try result.dematerialize()
-                        guard testingResult.bucketId == acceptedBucketId else {
+                        guard bucketId == acceptedBucketId else {
                             throw DistWorkerError.unexpectedAcceptedBucketId(
                                 actual: acceptedBucketId,
-                                expected: testingResult.bucketId
+                                expected: bucketId
                             )
                         }
-                        Logger.debug("Successfully sent test run result for bucket \(testingResult.bucketId)")
+                        Logger.debug("Successfully sent test run result for bucket \(bucketId)")
                     } catch {
-                        Logger.error("Server response for results of bucket \(testingResult.bucketId) has error: \(error)")
+                        Logger.error("Server response for results of bucket \(bucketId) has error: \(error)")
                     }
                 }
             )
         } catch {
-            Logger.error("Failed to send test run result for bucket \(testingResult.bucketId): \(error)")
+            Logger.error("Failed to send test run result for bucket \(bucketId): \(error)")
         }
     }
 }

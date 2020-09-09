@@ -43,7 +43,6 @@ public final class TestingResultFixtures {
     
     public func testingResult() -> TestingResult {
         return TestingResult(
-            bucketId: bucketId,
             testDestination: testDestination,
             unfilteredResults: unfilteredResults
         )

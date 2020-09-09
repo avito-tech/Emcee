@@ -4,8 +4,6 @@ import SimulatorPoolModels
 
 /// Represents the result of running a single Bucket.
 public struct TestingResult: Codable, Equatable {
-    /// A test bucket id for this testing result.
-    public let bucketId: BucketId
     
     /// A test destination used to run the tests.
     public let testDestination: TestDestination
@@ -24,11 +22,9 @@ public struct TestingResult: Codable, Equatable {
     }
 
     public init(
-        bucketId: BucketId,
         testDestination: TestDestination,
         unfilteredResults: [TestEntryResult])
     {
-        self.bucketId = bucketId
         self.testDestination = testDestination
         self.unfilteredResults = unfilteredResults
     }
@@ -36,14 +32,14 @@ public struct TestingResult: Codable, Equatable {
 
 public enum MergeError: Error, CustomStringConvertible {
     case nothingToMerge
-    case multipleBucketsFound([TestingResult], [BucketId])
+    case multipleBucketsFound([TestingResult], [TestDestination])
     
     public var description: String {
         switch self {
         case .nothingToMerge:
             return "Merge method has been called with empty array. At least a single \(type(of: TestingResult.self)) object must be provided."
-        case .multipleBucketsFound(let results, let bucketIds):
-            return "Failed to combine results (\(results)) as they have different bucket ids: (\(bucketIds))"
+        case .multipleBucketsFound(let results, let testDestinations):
+            return "Failed to combine results (\(results)) as they have different test destinations: \(testDestinations)"
         }
     }
 }
@@ -52,13 +48,9 @@ public extension TestingResult {
     
     static func byMerging(testingResults: [TestingResult]) throws -> TestingResult {
         guard testingResults.count > 0 else { throw MergeError.nothingToMerge }
-        let bucketIds = Set(testingResults.map { $0.bucketId })
         let testDestinations = Set(testingResults.map { $0.testDestination })
-        guard bucketIds.count == 1,
-            let bucketId = bucketIds.first,
-            let testDestination = testDestinations.first else
-        {
-            throw MergeError.multipleBucketsFound(testingResults, Array(bucketIds))
+        guard testDestinations.count == 1, let testDestination = testDestinations.first else {
+            throw MergeError.multipleBucketsFound(testingResults, Array(testDestinations))
         }
         
         var testEntryResults = [TestEntry: [TestRunResult]]()
@@ -76,8 +68,8 @@ public extension TestingResult {
             .withResults(testEntry: testEntry, testRunResults: runResults)
         }
         return TestingResult(
-            bucketId: bucketId,
             testDestination: testDestination,
-            unfilteredResults: mergedResults)
+            unfilteredResults: mergedResults
+        )
     }
 }

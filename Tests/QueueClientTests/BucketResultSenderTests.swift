@@ -14,7 +14,7 @@ final class BucketResultSenderTests: XCTestCase {
     func test___callback_with_result() throws {
         let sender = BucketResultSenderImpl(
             requestSender: FakeRequestSender(
-                result: BucketResultAcceptResponse.bucketResultAccepted(bucketId: testingResult.bucketId),
+                result: BucketResultAcceptResponse.bucketResultAccepted(bucketId: "bucket id"),
                 requestSenderError: nil
             )
         )
@@ -29,7 +29,7 @@ final class BucketResultSenderTests: XCTestCase {
             completion: { result in
                 XCTAssertEqual(
                     try? result.dematerialize(),
-                    self.testingResult.bucketId
+                    BucketId("bucket id")
                 )
                 callbackExpectation.fulfill()
             }

@@ -61,9 +61,9 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            bucketId: bucket.bucketId,
             testDestination: bucket.testDestination,
-            unfilteredResults: [])
+            unfilteredResults: []
+        )
         XCTAssertNoThrow(try bucketQueue.accept(testingResult: testingResult, requestId: requestId, workerId: workerId))
         
         XCTAssertTrue(bucketQueue.runningQueueState.isDepleted)
@@ -169,9 +169,9 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            bucketId: bucket.bucketId,
             testDestination: bucket.testDestination,
-            unfilteredResults: [TestEntryResult.lost(testEntry: testEntry)])
+            unfilteredResults: [TestEntryResult.lost(testEntry: testEntry)]
+        )
         XCTAssertNoThrow(try bucketQueue.accept(testingResult: testingResult, requestId: requestId, workerId: workerId))
     }
     
@@ -185,9 +185,9 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            bucketId: bucket.bucketId,
             testDestination: bucket.testDestination,
-            unfilteredResults: [ /* empty - misses testEntry */ ])
+            unfilteredResults: [ /* empty - misses testEntry */ ]
+        )
         XCTAssertThrowsError(try bucketQueue.accept(testingResult: testingResult, requestId: "wrong id", workerId: workerId))
     }
     
@@ -201,9 +201,9 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(requestId: requestId, workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            bucketId: bucket.bucketId,
             testDestination: bucket.testDestination,
-            unfilteredResults: [ /* empty - misses testEntry */ ])
+            unfilteredResults: [ /* empty - misses testEntry */ ]
+        )
         XCTAssertThrowsError(try bucketQueue.accept(testingResult: testingResult, requestId: requestId, workerId: "wrong id"))
     }
     

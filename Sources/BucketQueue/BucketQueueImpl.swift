@@ -151,8 +151,7 @@ final class BucketQueueImpl: BucketQueue {
         testingResult: TestingResult,
         requestId: RequestId,
         workerId: WorkerId
-        ) throws -> BucketQueueAcceptResult
-    {
+    ) throws -> BucketQueueAcceptResult {
         return try queue.sync {
             Logger.debug("Validating result from \(workerId) \(requestId): \(testingResult)")
             
@@ -180,7 +179,7 @@ final class BucketQueueImpl: BucketQueue {
             enqueue_onSyncQueue(buckets: acceptResult.bucketsToReenqueue)
             
             dequeuedBuckets.remove(dequeuedBucket)
-            Logger.debug("Accepted result for bucket '\(testingResult.bucketId)' from '\(workerId)', updated dequeued buckets count: \(dequeuedBuckets.count)")
+            Logger.debug("Accepted result for \(dequeuedBucket.enqueuedBucket.bucket.bucketId) from \(workerId), updated dequeued buckets count: \(dequeuedBuckets.count)")
             return BucketQueueAcceptResult(
                 dequeuedBucket: dequeuedBucket,
                 testingResultToCollect: acceptResult.testingResult
@@ -316,9 +315,9 @@ final class BucketQueueImpl: BucketQueue {
             Logger.debug("Test result from \(workerId) \(requestId) contains lost test entries: \(lostTestEntries)")
             let lostResult = try testHistoryTracker.accept(
                 testingResult: TestingResult(
-                    bucketId: bucket.bucketId,
                     testDestination: bucket.testDestination,
-                    unfilteredResults: lostTestEntries.map { TestEntryResult.lost(testEntry: $0) }),
+                    unfilteredResults: lostTestEntries.map { TestEntryResult.lost(testEntry: $0) }
+                ),
                 bucket: bucket,
                 workerId: workerId
             )
