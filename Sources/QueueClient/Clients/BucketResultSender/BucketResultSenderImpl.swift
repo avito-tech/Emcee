@@ -13,8 +13,8 @@ public final class BucketResultSenderImpl: BucketResultSender {
     }
     
     public func send(
+        bucketId: BucketId,
         testingResult: TestingResult,
-        requestId: RequestId,
         workerId: WorkerId,
         payloadSignature: PayloadSignature,
         callbackQueue: DispatchQueue,
@@ -22,8 +22,8 @@ public final class BucketResultSenderImpl: BucketResultSender {
     ) {
         let request = BucketResultRequest(
             payload: BucketResultPayload(
+                bucketId: bucketId,
                 workerId: workerId,
-                requestId: requestId,
                 testingResult: testingResult,
                 payloadSignature: payloadSignature
             )

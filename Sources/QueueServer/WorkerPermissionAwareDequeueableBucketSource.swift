@@ -19,15 +19,11 @@ public final class WorkerPermissionAwareDequeueableBucketSource: DequeueableBuck
         self.workerPermissionProvider = workerPermissionProvider
     }
 
-    public func dequeueBucket(requestId: RequestId, workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
+    public func dequeueBucket(workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
         guard workerPermissionProvider.utilizationPermissionForWorker(workerId: workerId) == .allowedToUtilize else {
             return nothingToDequeueBehavior.dequeueResultWhenNoBucketsToDequeueAvaiable(dequeueResults:[])
         }
 
-        return dequeueableBucketSource.dequeueBucket(requestId: requestId, workerCapabilities: workerCapabilities, workerId: workerId)
-    }
-
-    public func previouslyDequeuedBucket(requestId: RequestId, workerId: WorkerId) -> DequeuedBucket? {
-        return dequeueableBucketSource.previouslyDequeuedBucket(requestId: requestId, workerId: workerId)
+        return dequeueableBucketSource.dequeueBucket(workerCapabilities: workerCapabilities, workerId: workerId)
     }
 }

@@ -28,7 +28,6 @@ public final class BucketProviderEndpoint: PayloadSignatureVerifyingRESTEndpoint
     
     public func handle(verifiedPayload: DequeueBucketPayload) throws -> DequeueBucketResponse {
         let dequeueResult = dequeueableBucketSource.dequeueBucket(
-            requestId: verifiedPayload.requestId,
             workerCapabilities: verifiedPayload.workerCapabilities,
             workerId: verifiedPayload.workerId
         )

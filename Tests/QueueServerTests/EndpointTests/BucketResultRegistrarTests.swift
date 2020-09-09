@@ -31,8 +31,8 @@ final class BucketResultRegistrarTests: XCTestCase {
         )
         
         let request = BucketResultPayload(
+            bucketId: "bucket id",
             workerId: "worker",
-            requestId: "request",
             testingResult: testingResult,
             payloadSignature: expectedPayloadSignature
         )
@@ -52,8 +52,8 @@ final class BucketResultRegistrarTests: XCTestCase {
         )
         
         let request = BucketResultPayload(
+            bucketId: "bucket id",
             workerId: "worker",
-            requestId: "request",
             testingResult: testingResult,
             payloadSignature: expectedPayloadSignature
         )
@@ -75,8 +75,8 @@ final class BucketResultRegistrarTests: XCTestCase {
         XCTAssertThrowsError(
             try registrar.handle(
                 payload: BucketResultPayload(
+                    bucketId: "bucket id",
                     workerId: "worker",
-                    requestId: "request",
                     testingResult: testingResult,
                     payloadSignature: PayloadSignature(value: UUID().uuidString)
                 )

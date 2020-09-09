@@ -13,15 +13,13 @@ public class FakeBucketQueue: BucketQueue {
     public var acceptedResults = [TestingResult]()
     public let fixedStuckBuckets: [StuckBucket]
     public let fixedDequeueResult: DequeueResult
-    public var fixedPreviouslyDequeuedBucket: DequeuedBucket?
     public var removedAllEnqueuedBuckets = false
     
     public init(
         throwsOnAccept: Bool = false,
         fixedStuckBuckets: [StuckBucket] = [],
         fixedDequeueResult: DequeueResult = .workerIsNotRegistered
-        )
-    {
+    ) {
         self.throwsOnAccept = throwsOnAccept
         self.fixedStuckBuckets = fixedStuckBuckets
         self.fixedDequeueResult = fixedDequeueResult
@@ -38,11 +36,7 @@ public class FakeBucketQueue: BucketQueue {
         enqueuedBuckets.append(contentsOf: buckets)
     }
     
-    public func previouslyDequeuedBucket(requestId: RequestId, workerId: WorkerId) -> DequeuedBucket? {
-        return fixedPreviouslyDequeuedBucket
-    }
-    
-    public func dequeueBucket(requestId: RequestId, workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
+    public func dequeueBucket(workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
         return fixedDequeueResult
     }
     
@@ -50,7 +44,7 @@ public class FakeBucketQueue: BucketQueue {
         removedAllEnqueuedBuckets = true
     }
     
-    public func accept(testingResult: TestingResult, requestId: RequestId, workerId: WorkerId) throws -> BucketQueueAcceptResult {
+    public func accept(bucketId: BucketId, testingResult: TestingResult, workerId: WorkerId) throws -> BucketQueueAcceptResult {
         if throwsOnAccept {
             throw AcceptanceError()
         } else {
@@ -62,8 +56,7 @@ public class FakeBucketQueue: BucketQueue {
                         enqueueTimestamp: Date(),
                         uniqueIdentifier: UUID().uuidString
                     ),
-                    workerId: workerId,
-                    requestId: requestId
+                    workerId: workerId
                 ),
                 testingResultToCollect: testingResult
             )

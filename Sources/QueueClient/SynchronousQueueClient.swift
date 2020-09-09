@@ -11,7 +11,6 @@ import Types
 
 public final class SynchronousQueueClient: QueueClientDelegate {
     private let queueClient: QueueClient
-    private var scheduleTestsResult: Either<RequestId, QueueClientError>?
     private var jobResultsResult: Either<JobResults, QueueClientError>?
     private var jobStateResult: Either<JobState, QueueClientError>?
     private var jobDeleteResult: Either<JobId, QueueClientError>?
@@ -38,30 +37,6 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     }
     
     // MARK: Public API
-    
-    public func scheduleTests(
-        prioritizedJob: PrioritizedJob,
-        scheduleStrategy: ScheduleStrategyType,
-        testEntryConfigurations: [TestEntryConfiguration],
-        requestId: RequestId)
-        throws -> RequestId
-    {
-        return try synchronize {
-            scheduleTestsResult = nil
-            return try runRetrying {
-                try queueClient.scheduleTests(
-                    prioritizedJob: prioritizedJob,
-                    scheduleStrategy: scheduleStrategy,
-                    testEntryConfigurations: testEntryConfigurations,
-                    requestId: requestId
-                )
-                try SynchronousWaiter().waitWhile(timeout: requestTimeout, description: "Wait for tests to be scheduled") {
-                    self.scheduleTestsResult == nil
-                }
-                return try scheduleTestsResult!.dematerialize()
-            }
-        }
-    }
     
     public func jobResults(jobId: JobId) throws -> JobResults {
         return try synchronize {
@@ -126,16 +101,11 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     // MARK: - Queue Delegate
     
     public func queueClient(_ sender: QueueClient, didFailWithError error: QueueClientError) {
-        scheduleTestsResult = Either.error(error)
         jobResultsResult = Either.error(error)
         jobStateResult = Either.error(error)
         jobDeleteResult = Either.error(error)
     }
 
-    public func queueClientDidScheduleTests(_ sender: QueueClient, requestId: RequestId) {
-        scheduleTestsResult = Either.success(requestId)
-    }
-    
     public func queueClient(_ sender: QueueClient, didFetchJobState jobState: JobState) {
         jobStateResult = Either.success(jobState)
     }

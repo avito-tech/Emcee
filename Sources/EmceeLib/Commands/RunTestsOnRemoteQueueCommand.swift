@@ -28,6 +28,7 @@ import SynchronousWaiter
 import TemporaryStuff
 import TestArgFile
 import TestDiscovery
+import Types
 import UniqueIdentifierGenerator
 
 public final class RunTestsOnRemoteQueueCommand: Command {
@@ -208,18 +209,28 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             let testEntryConfigurations = testEntryConfigurationGenerator.createTestEntryConfigurations()
             Logger.info("Will schedule \(testEntryConfigurations.count) tests to queue server at \(queueServerAddress)")
             
+            let testScheduler = TestSchedulerImpl(
+                requestSender: try di.get(RequestSenderProvider.self).requestSender(socketAddress: queueServerAddress)
+            )
+            let callbackQueue = DispatchQueue(label: "callback")
+            let waiter = SynchronousWaiter()
+            let callbackWaiter: CallbackWaiter<Either<Void, Error>> = waiter.createCallbackWaiter()
+            testScheduler.scheduleTests(
+                prioritizedJob: PrioritizedJob(
+                    jobGroupId: testArgFile.jobGroupId,
+                    jobGroupPriority: testArgFile.jobGroupPriority,
+                    jobId: testArgFile.jobId,
+                    jobPriority: testArgFile.jobPriority
+                ),
+                scheduleStrategy: testArgFileEntry.scheduleStrategy,
+                testEntryConfigurations: testEntryConfigurations,
+                callbackQueue: callbackQueue,
+                completion: callbackWaiter.set
+            )
+            let scheduleResult = try callbackWaiter.wait(timeout: 20, description: "Schedule tests")
             do {
-                _ = try queueClient.scheduleTests(
-                    prioritizedJob: PrioritizedJob(
-                        jobGroupId: testArgFile.jobGroupId,
-                        jobGroupPriority: testArgFile.jobGroupPriority,
-                        jobId: testArgFile.jobId,
-                        jobPriority: testArgFile.jobPriority
-                    ),
-                    scheduleStrategy: testArgFileEntry.scheduleStrategy,
-                    testEntryConfigurations: testEntryConfigurations,
-                    requestId: RequestId(try di.get(UniqueIdentifierGenerator.self).generate())
-                )
+                _ = try scheduleResult.dematerialize()
+                Logger.debug("Successfully scheduled \(testEntryConfigurations.count) tests")
             } catch {
                 Logger.error("Failed to schedule tests: \(error)")
                 throw error

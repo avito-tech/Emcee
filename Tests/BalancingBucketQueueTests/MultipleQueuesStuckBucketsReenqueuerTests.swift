@@ -15,8 +15,7 @@ final class MultipleQueuesStuckBucketsReenqueuerTests: XCTestCase {
         let stuckBucket = StuckBucket(
             reason: .bucketLost,
             bucket: BucketFixtures.createBucket(),
-            workerId: "worker",
-            requestId: "request"
+            workerId: "worker"
         )
         let bucketQueue = FakeBucketQueue(fixedStuckBuckets: [stuckBucket])
         multipleQueuesContainer.add(runningJobQueue: createJobQueue(bucketQueue: bucketQueue))

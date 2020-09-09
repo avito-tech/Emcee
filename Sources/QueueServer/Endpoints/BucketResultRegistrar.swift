@@ -28,8 +28,8 @@ public final class BucketResultRegistrar: PayloadSignatureVerifyingRESTEndpoint 
 
     public func handle(verifiedPayload: BucketResultPayload) throws -> BucketResultAcceptResponse {
         let acceptResult = try bucketResultAccepter.accept(
+            bucketId: verifiedPayload.bucketId,
             testingResult: verifiedPayload.testingResult,
-            requestId: verifiedPayload.requestId,
             workerId: verifiedPayload.workerId
         )
         return .bucketResultAccepted(bucketId: acceptResult.dequeuedBucket.enqueuedBucket.bucket.bucketId)

@@ -1,22 +1,14 @@
-import Foundation
-import QueueModels
-import ScheduleStrategy
+import RESTInterfaces
+import RequestSender
 
-public struct ScheduleTestsRequest: Codable, Equatable {
-    public let requestId: RequestId
-    public let prioritizedJob: PrioritizedJob
-    public let scheduleStrategy: ScheduleStrategyType
-    public let testEntryConfigurations: [TestEntryConfiguration]
+public final class ScheduleTestsRequest: NetworkRequest {
+    public typealias Response = ScheduleTestsResponse
 
-    public init(
-        requestId: RequestId,
-        prioritizedJob: PrioritizedJob,
-        scheduleStrategy: ScheduleStrategyType,
-        testEntryConfigurations: [TestEntryConfiguration]
-    ) {
-        self.requestId = requestId
-        self.prioritizedJob = prioritizedJob
-        self.scheduleStrategy = scheduleStrategy
-        self.testEntryConfigurations = testEntryConfigurations
+    public let httpMethod = HTTPMethod.post
+    public let pathWithLeadingSlash = RESTMethod.scheduleTests.pathWithLeadingSlash
+
+    public let payload: ScheduleTestsPayload?
+    public init(payload: ScheduleTestsPayload) {
+        self.payload = payload
     }
 }

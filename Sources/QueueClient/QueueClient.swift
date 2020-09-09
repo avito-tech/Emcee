@@ -33,24 +33,6 @@ public final class QueueClient {
         isClosed = true
     }
     
-    public func scheduleTests(
-        prioritizedJob: PrioritizedJob,
-        scheduleStrategy: ScheduleStrategyType,
-        testEntryConfigurations: [TestEntryConfiguration],
-        requestId: RequestId
-    ) throws {
-        try sendRequest(
-            .scheduleTests,
-            payload: ScheduleTestsRequest(
-                requestId: requestId,
-                prioritizedJob: prioritizedJob,
-                scheduleStrategy: scheduleStrategy,
-                testEntryConfigurations: testEntryConfigurations
-            ),
-            completionHandler: handleScheduleTestsResponse
-        )
-    }
-    
     public func fetchJobResults(jobId: JobId) throws {
         try sendRequest(
             .jobResults,
@@ -126,13 +108,6 @@ public final class QueueClient {
     }
     
     // MARK: - Response Handlers
-    
-    private func handleScheduleTestsResponse(response: ScheduleTestsResponse) {
-        switch response {
-        case .scheduledTests(let requestId):
-            delegate?.queueClientDidScheduleTests(self, requestId: requestId)
-        }
-    }
     
     private func handleJobStateResponse(response: JobStateResponse) {
         delegate?.queueClient(self, didFetchJobState: response.jobState)

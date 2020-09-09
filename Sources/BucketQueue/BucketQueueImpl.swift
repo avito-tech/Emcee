@@ -78,14 +78,8 @@ final class BucketQueueImpl: BucketQueue {
             dequeuedTests: dequeuedTests
         )
     }
-    
-    func previouslyDequeuedBucket(requestId: RequestId, workerId: WorkerId) -> DequeuedBucket? {
-        return queue.sync {
-            previouslyDequeuedBucket_onSyncQueue(requestId: requestId, workerId: workerId)
-        }
-    }
-    
-    public func dequeueBucket(requestId: RequestId, workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
+        
+    public func dequeueBucket(workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
         workerAlivenessProvider.willDequeueBucket(workerId: workerId)
         workerCapabilitiesStorage.set(workerCapabilities: workerCapabilities, forWorkerId: workerId)
         
@@ -98,13 +92,6 @@ final class BucketQueueImpl: BucketQueue {
         }
 
         return queue.sync {
-            // There might me problems with connection between workers and queue and connection may be lost.
-            // If same worker tries to perform same request again, return same result.
-            if let previouslyDequeuedBucket = previouslyDequeuedBucket_onSyncQueue(requestId: requestId, workerId: workerId) {
-                Logger.debug("Provided previously dequeued bucket: \(previouslyDequeuedBucket)")
-                return .dequeuedBucket(previouslyDequeuedBucket)
-            }
-            
             if runningQueueState_onSyncQueue.isDepleted {
                 return .queueIsEmpty
             }
@@ -130,7 +117,6 @@ final class BucketQueueImpl: BucketQueue {
                 return .dequeuedBucket(
                     dequeue_onSyncQueue(
                         enqueuedBucket: enqueuedBucket,
-                        requestId: requestId,
                         workerId: workerId
                     )
                 )
@@ -148,17 +134,16 @@ final class BucketQueueImpl: BucketQueue {
     }
     
     public func accept(
+        bucketId: BucketId,
         testingResult: TestingResult,
-        requestId: RequestId,
         workerId: WorkerId
     ) throws -> BucketQueueAcceptResult {
         return try queue.sync {
-            Logger.debug("Validating result from \(workerId) \(requestId): \(testingResult)")
+            Logger.debug("Validating result for \(bucketId) from \(workerId): \(testingResult)")
             
-            guard let dequeuedBucket = previouslyDequeuedBucket_onSyncQueue(requestId: requestId, workerId: workerId) else {
-                Logger.error("No dequeued bucket for \(workerId)")
-                Logger.verboseDebug("Validation failed: no dequeued bucket for \(requestId) \(workerId)")
-                throw ResultAcceptanceError.noDequeuedBucket(requestId: requestId, workerId: workerId)
+            guard let dequeuedBucket = previouslyDequeuedBucket_onSyncQueue(bucketId: bucketId, workerId: workerId) else {
+                Logger.verboseDebug("Validation failed: no dequeued bucket for \(bucketId) \(workerId)")
+                throw ResultAcceptanceError.noDequeuedBucket(bucketId: bucketId, workerId: workerId)
             }
             
             let actualTestEntries = Set(testingResult.unfilteredResults.map { $0.testEntry })
@@ -167,8 +152,7 @@ final class BucketQueueImpl: BucketQueue {
                 expectedTestEntries: expectedTestEntries,
                 actualTestEntries: actualTestEntries,
                 bucket: dequeuedBucket.enqueuedBucket.bucket,
-                workerId: workerId,
-                requestId: requestId
+                workerId: workerId
             )
             
             let acceptResult = try testHistoryTracker.accept(
@@ -213,8 +197,7 @@ final class BucketQueueImpl: BucketQueue {
                 return StuckBucket(
                     reason: stuckReason,
                     bucket: dequeuedBucket.enqueuedBucket.bucket,
-                    workerId: dequeuedBucket.workerId,
-                    requestId: dequeuedBucket.requestId
+                    workerId: dequeuedBucket.workerId
                 )
             }
             
@@ -283,8 +266,8 @@ final class BucketQueueImpl: BucketQueue {
         self.enqueuedBuckets.insert(contentsOf: enqueuedBuckets, at: positionToInsert)
     }
     
-    private func dequeue_onSyncQueue(enqueuedBucket: EnqueuedBucket, requestId: RequestId, workerId: WorkerId) -> DequeuedBucket {
-        let dequeuedBucket = DequeuedBucket(enqueuedBucket: enqueuedBucket, workerId: workerId, requestId: requestId)
+    private func dequeue_onSyncQueue(enqueuedBucket: EnqueuedBucket, workerId: WorkerId) -> DequeuedBucket {
+        let dequeuedBucket = DequeuedBucket(enqueuedBucket: enqueuedBucket, workerId: workerId)
         
         enqueuedBuckets.removeAll(where: { $0 == enqueuedBucket })
         _ = dequeuedBuckets.insert(dequeuedBucket)
@@ -299,20 +282,19 @@ final class BucketQueueImpl: BucketQueue {
         return dequeuedBucket
     }
     
-    private func previouslyDequeuedBucket_onSyncQueue(requestId: RequestId, workerId: WorkerId) -> DequeuedBucket? {
-        return dequeuedBuckets.first { $0.requestId == requestId && $0.workerId == workerId }
+    private func previouslyDequeuedBucket_onSyncQueue(bucketId: BucketId, workerId: WorkerId) -> DequeuedBucket? {
+        return dequeuedBuckets.first { $0.enqueuedBucket.bucket.bucketId == bucketId && $0.workerId == workerId }
     }
     
     private func reenqueueLostResults_onSyncQueue(
         expectedTestEntries: Set<TestEntry>,
         actualTestEntries: Set<TestEntry>,
         bucket: Bucket,
-        workerId: WorkerId,
-        requestId: RequestId) throws
-    {
+        workerId: WorkerId
+    ) throws {
         let lostTestEntries = expectedTestEntries.subtracting(actualTestEntries)
         if !lostTestEntries.isEmpty {
-            Logger.debug("Test result from \(workerId) \(requestId) contains lost test entries: \(lostTestEntries)")
+            Logger.debug("Test result for \(bucket.bucketId) from \(workerId) contains lost test entries: \(lostTestEntries)")
             let lostResult = try testHistoryTracker.accept(
                 testingResult: TestingResult(
                     testDestination: bucket.testDestination,

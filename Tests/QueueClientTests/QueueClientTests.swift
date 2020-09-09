@@ -43,48 +43,6 @@ class QueueClientTests: XCTestCase {
         }
     }
     
-    func test___scheduling_tests() throws {
-        let serverHasProvidedResponseExpectation = expectation(description: "Server provided response")
-        let prioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: "jobid", jobPriority: .medium)
-        let requestId: RequestId = "requestId"
-        let testEntryConfigurations = TestEntryConfigurationFixtures()
-            .add(testEntry: TestEntryFixtures.testEntry())
-            .testEntryConfigurations()
-        
-        try prepareServer(RESTMethod.scheduleTests.pathWithLeadingSlash) { request -> HttpResponse in
-            let requestData = Data(request.body)
-            guard let body = try? JSONDecoder().decode(ScheduleTestsRequest.self, from: requestData) else {
-                XCTFail("Queue client request has unexpected type")
-                serverHasProvidedResponseExpectation.isInverted = true
-                serverHasProvidedResponseExpectation.fulfill()
-                return .internalServerError
-            }
-            XCTAssertEqual(
-                body,
-                ScheduleTestsRequest(
-                    requestId: requestId,
-                    prioritizedJob: prioritizedJob,
-                    scheduleStrategy: .individual,
-                    testEntryConfigurations: testEntryConfigurations
-                )
-            )
-            
-            let data: Data = (try? JSONEncoder().encode(ScheduleTestsResponse.scheduledTests(requestId: requestId))) ?? Data()
-            
-            defer { serverHasProvidedResponseExpectation.fulfill() }
-            return .raw(200, "OK", ["Content-Type": "application/json"]) { try $0.write(data) }
-        }
-        
-        try queueClient.scheduleTests(
-            prioritizedJob: prioritizedJob,
-            scheduleStrategy: .individual,
-            testEntryConfigurations: testEntryConfigurations,
-            requestId: requestId
-        )
-        
-        wait(for: [serverHasProvidedResponseExpectation], timeout: 10)
-    }
-    
     func test___job_state() throws {
         let jobId: JobId = "job_id"
         let jobState = JobState(

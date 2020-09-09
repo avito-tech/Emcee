@@ -5,7 +5,6 @@ import QueueModels
 class FakeQueueClientDelegate: QueueClientDelegate {
     enum ServerResponse {
         case error(QueueClientError)
-        case didScheduleTests(RequestId)
         case fetchedJobState(JobState)
         case fecthedJobResults(JobResults)
         case deletedJob(JobId)
@@ -16,11 +15,7 @@ class FakeQueueClientDelegate: QueueClientDelegate {
     func queueClient(_ sender: QueueClient, didFailWithError error: QueueClientError) {
         responses.append(ServerResponse.error(error))
     }
-    
-    func queueClientDidScheduleTests(_ sender: QueueClient, requestId: RequestId) {
-        responses.append(ServerResponse.didScheduleTests(requestId))
-    }
-    
+
     func queueClient(_ sender: QueueClient, didFetchJobState jobState: JobState) {
         responses.append(ServerResponse.fetchedJobState(jobState))
     }

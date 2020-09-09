@@ -3,7 +3,6 @@ import QueueModels
 
 public protocol QueueClientDelegate: class {
     func queueClient(_ sender: QueueClient, didFailWithError error: QueueClientError)
-    func queueClientDidScheduleTests(_ sender: QueueClient, requestId: RequestId)
     func queueClient(_ sender: QueueClient, didFetchJobState jobState: JobState)
     func queueClient(_ sender: QueueClient, didFetchJobResults jobResults: JobResults)
     func queueClient(_ sender: QueueClient, didDeleteJob jobId: JobId)

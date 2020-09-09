@@ -22,10 +22,8 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
     )
 
     private lazy var oneFailResultsFixtures = TestingResultFixtures()
-        .with(bucketId: bucketFixture.bucketId)
         .addingResult(success: false)
     private lazy var oneSuccessResultsFixtures = TestingResultFixtures()
-        .with(bucketId: bucketFixture.bucketId)
         .addingResult(success: true)
     private lazy var bucketFixture = BucketFixtures.createBucket(
         bucketId: BucketId(value: fixedIdentifier)
@@ -57,11 +55,10 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
             bucketId: BucketId(value: fixedIdentifier),
             numberOfRetries: 1
         )
-        let testingResultFixture = oneFailResultsFixtures.with(bucketId: testBucket.bucketId)
 
         // When
         let acceptResult = try testHistoryTracker.accept(
-            testingResult: testingResultFixture.testingResult(),
+            testingResult: oneFailResultsFixtures.testingResult(),
             bucket: testBucket,
             workerId: failingWorkerId
         )
@@ -75,9 +72,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         
         XCTAssertEqual(
             acceptResult.testingResult,
-            emptyResultsFixtures
-                .with(bucketId: testBucket.bucketId)
-                .testingResult(),
+            emptyResultsFixtures.testingResult(),
             "If test failed once and numberOfRetries > 0 then accepted testingResult will not contain results"
         )
     }
@@ -137,7 +132,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         
         // When
         let acceptResult = try testHistoryTracker.accept(
-            testingResult: oneFailResultsFixtures.with(bucketId: secondBucket.bucketId).testingResult(),
+            testingResult: oneFailResultsFixtures.testingResult(),
             bucket: BucketFixtures.createBucket(
                 bucketId: secondBucket.bucketId,
                 numberOfRetries: 1
@@ -158,7 +153,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         
         XCTAssertEqual(
             acceptResult.testingResult,
-            TestingResultFixtures().with(bucketId: secondBucket.bucketId).testingResult()
+            TestingResultFixtures().testingResult()
         )
     }
     

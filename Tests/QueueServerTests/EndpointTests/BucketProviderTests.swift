@@ -14,7 +14,6 @@ final class BucketProviderTests: XCTestCase {
     lazy var expectedPayloadSignature = PayloadSignature(value: "expectedPayloadSignature")
     lazy var fetchRequest = DequeueBucketPayload(
         payloadSignature: expectedPayloadSignature,
-        requestId: "request",
         workerCapabilities: [],
         workerId: "worker"
     )
@@ -76,8 +75,8 @@ final class BucketProviderTests: XCTestCase {
                 enqueueTimestamp: Date(),
                 uniqueIdentifier: "identifier"
             ),
-            workerId: "worker",
-            requestId: "request")
+            workerId: "worker"
+        )
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: .dequeuedBucket(dequeuedBucket))
         let bucketProvider = BucketProviderEndpoint(
             dequeueableBucketSource: bucketQueue,
@@ -97,7 +96,6 @@ final class BucketProviderTests: XCTestCase {
             try bucketProvider.handle(
                 payload: DequeueBucketPayload(
                     payloadSignature: PayloadSignature(value: UUID().uuidString),
-                    requestId: "request",
                     workerCapabilities: [],
                     workerId: "worker"
                 )

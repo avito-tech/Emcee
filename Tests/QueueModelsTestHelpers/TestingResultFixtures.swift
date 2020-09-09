@@ -10,7 +10,6 @@ public final class TestingResultFixtures {
     public let testEntry: TestEntry
     
     private let manuallyTestDestination: TestDestination?
-    private let bucketId: BucketId
     
     public var testDestination: TestDestination {
         if let manuallyTestDestination = manuallyTestDestination {
@@ -22,7 +21,6 @@ public final class TestingResultFixtures {
     
     public convenience init() {
         self.init(
-            bucketId: BucketId(value: UUID().uuidString),
             testEntry: TestEntryFixtures.testEntry(),
             manuallyTestDestination: nil,
             unfilteredResults: []
@@ -30,12 +28,10 @@ public final class TestingResultFixtures {
     }
     
     public init(
-        bucketId: BucketId,
         testEntry: TestEntry,
         manuallyTestDestination: TestDestination?,
         unfilteredResults: [TestEntryResult])
     {
-        self.bucketId = bucketId
         self.testEntry = testEntry
         self.manuallyTestDestination = manuallyTestDestination
         self.unfilteredResults = unfilteredResults
@@ -50,16 +46,6 @@ public final class TestingResultFixtures {
     
     public func with(testEntry: TestEntry) -> TestingResultFixtures {
         return TestingResultFixtures(
-            bucketId: bucketId,
-            testEntry: testEntry,
-            manuallyTestDestination: manuallyTestDestination,
-            unfilteredResults: unfilteredResults
-        )
-    }
-    
-    public func with(bucketId: BucketId) -> TestingResultFixtures {
-        return TestingResultFixtures(
-            bucketId: bucketId,
             testEntry: testEntry,
             manuallyTestDestination: manuallyTestDestination,
             unfilteredResults: unfilteredResults
@@ -68,7 +54,6 @@ public final class TestingResultFixtures {
     
     public func addingLostResult() -> TestingResultFixtures {
         return TestingResultFixtures(
-            bucketId: bucketId,
             testEntry: testEntry,
             manuallyTestDestination: manuallyTestDestination,
             unfilteredResults: unfilteredResults + [TestEntryResult.lost(testEntry: testEntry)]
@@ -82,7 +67,6 @@ public final class TestingResultFixtures {
         )
         
         return TestingResultFixtures(
-            bucketId: bucketId,
             testEntry: testEntry,
             manuallyTestDestination: manuallyTestDestination,
             unfilteredResults: unfilteredResults + [result]

@@ -2,13 +2,13 @@ import Foundation
 import QueueModels
 
 public enum BalancingBucketQueueError: Error, CustomStringConvertible {
-    case noMatchingQueueFound(requestId: RequestId, workerId: WorkerId)
+    case noMatchingQueueFound(bucketId: BucketId, workerId: WorkerId)
     case noQueue(jobId: JobId)
     
     public var description: String {
         switch self {
-        case .noMatchingQueueFound(let requestId, let workerId):
-            return "No matching queue found for \(requestId) from \(workerId)"
+        case .noMatchingQueueFound(let bucketId, let workerId):
+            return "Can't accept result for \(bucketId): no matching queue found for testing result from \(workerId)"
         case .noQueue(let jobId):
             return "Can't find queue for for \(jobId)"
         }

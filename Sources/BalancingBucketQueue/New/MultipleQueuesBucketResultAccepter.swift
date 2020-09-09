@@ -11,28 +11,28 @@ public final class MultipleQueuesBucketResultAccepter: BucketResultAccepter {
     }
     
     public func accept(
+        bucketId: BucketId,
         testingResult: TestingResult,
-        requestId: RequestId,
         workerId: WorkerId
     ) throws -> BucketQueueAcceptResult {
         try multipleQueuesContainer.performWithExclusiveAccess {
-            if let appropriateJobQueue = multipleQueuesContainer
-                .runningAndDeletedJobQueues()
-                .first(where: { jobQueue in
-                    jobQueue.bucketQueue.previouslyDequeuedBucket(requestId: requestId, workerId: workerId) != nil
-                }) {
-                Logger.debug("Found corresponding job queue for \(requestId) \(workerId)")
-                let result = try appropriateJobQueue.bucketQueue.accept(
-                    testingResult: testingResult,
-                    requestId: requestId,
-                    workerId: workerId
-                )
-                appropriateJobQueue.resultsCollector.append(testingResult: result.testingResultToCollect)
-                return result
+            let appropriateJobQueues = multipleQueuesContainer.runningAndDeletedJobQueues()
+            for jobQueue in appropriateJobQueues {
+                do {
+                    let result = try jobQueue.bucketQueue.accept(
+                        bucketId: bucketId,
+                        testingResult: testingResult,
+                        workerId: workerId
+                    )
+                    jobQueue.resultsCollector.append(testingResult: result.testingResultToCollect)
+                    return result
+                } catch {
+                    Logger.debug("Job \(jobQueue.job) is not associated with \(bucketId)")
+                }
             }
             
             throw BalancingBucketQueueError.noMatchingQueueFound(
-                requestId: requestId,
+                bucketId: bucketId,
                 workerId: workerId
             )
         }

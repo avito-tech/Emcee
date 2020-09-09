@@ -13,7 +13,6 @@ public protocol BucketFetcher {
     /// https://developer.apple.com/library/archive/qa/qa1941/_index.html
     func fetch(
         payloadSignature: PayloadSignature,
-        requestId: RequestId,
         workerCapabilities: Set<WorkerCapability>,
         workerId: WorkerId,
         callbackQueue: DispatchQueue,

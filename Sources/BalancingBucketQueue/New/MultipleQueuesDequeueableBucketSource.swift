@@ -15,21 +15,15 @@ public final class MultipleQueuesDequeueableBucketSource: DequeueableBucketSourc
         self.nothingToDequeueBehavior = nothingToDequeueBehavior
     }
     
-    public func dequeueBucket(requestId: RequestId, workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
+    public func dequeueBucket(workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
         multipleQueuesContainer.performWithExclusiveAccess {
             let bucketQueues = multipleQueuesContainer.allRunningJobQueues().map {
                 $0.bucketQueue
             }
             
-            if let previouslyDequeuedBucket = bucketQueues
-                .compactMap({ $0.previouslyDequeuedBucket(requestId: requestId, workerId: workerId) })
-                .first {
-                return .dequeuedBucket(previouslyDequeuedBucket)
-            }
-            
             var dequeueResults = [DequeueResult]()
             for queue in bucketQueues {
-                let dequeueResult = queue.dequeueBucket(requestId: requestId, workerCapabilities: workerCapabilities, workerId: workerId)
+                let dequeueResult = queue.dequeueBucket(workerCapabilities: workerCapabilities, workerId: workerId)
                 switch dequeueResult {
                 case .dequeuedBucket:
                     return dequeueResult
@@ -41,14 +35,6 @@ public final class MultipleQueuesDequeueableBucketSource: DequeueableBucketSourc
             }
             
             return nothingToDequeueBehavior.dequeueResultWhenNoBucketsToDequeueAvaiable(dequeueResults: dequeueResults)
-        }
-    }
-    
-    public func previouslyDequeuedBucket(requestId: RequestId, workerId: WorkerId) -> DequeuedBucket? {
-        multipleQueuesContainer.performWithExclusiveAccess {
-            multipleQueuesContainer.allRunningJobQueues()
-                .compactMap { $0.bucketQueue.previouslyDequeuedBucket(requestId: requestId, workerId: workerId) }
-                .first
         }
     }
 }

@@ -21,8 +21,8 @@ final class BucketResultSenderTests: XCTestCase {
         
         let callbackExpectation = expectation(description: "callback should be called")
         sender.send(
+            bucketId: "bucket id",
             testingResult: testingResult,
-            requestId: "request id",
             workerId: "worker id",
             payloadSignature: PayloadSignature(value: "signature"),
             callbackQueue: callbackQueue,
@@ -45,8 +45,8 @@ final class BucketResultSenderTests: XCTestCase {
         
         let callbackExpectation = expectation(description: "callback should be called")
         sender.send(
+            bucketId: "bucket id",
             testingResult: testingResult,
-            requestId: "request id",
             workerId: "worker id",
             payloadSignature: PayloadSignature(value: "signature"),
             callbackQueue: callbackQueue,

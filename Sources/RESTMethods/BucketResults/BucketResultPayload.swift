@@ -3,19 +3,19 @@ import QueueModels
 import RESTInterfaces
 
 public final class BucketResultPayload: Codable, SignedPayload {
+    public let bucketId: BucketId
     public let workerId: WorkerId
-    public let requestId: RequestId
     public let testingResult: TestingResult
     public let payloadSignature: PayloadSignature
     
     public init(
+        bucketId: BucketId,
         workerId: WorkerId,
-        requestId: RequestId,
         testingResult: TestingResult,
         payloadSignature: PayloadSignature
     ) {
+        self.bucketId = bucketId
         self.workerId = workerId
-        self.requestId = requestId
         self.testingResult = testingResult
         self.payloadSignature = payloadSignature
     }

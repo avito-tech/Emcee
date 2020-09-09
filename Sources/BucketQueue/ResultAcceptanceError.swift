@@ -2,12 +2,12 @@ import Foundation
 import QueueModels
 
 public enum ResultAcceptanceError: Error, CustomStringConvertible {
-    case noDequeuedBucket(requestId: RequestId, workerId: WorkerId)
+    case noDequeuedBucket(bucketId: BucketId, workerId: WorkerId)
     
     public var description: String {
         switch self {
-        case let .noDequeuedBucket(requestId, workerId):
-            return "Cannot accept bucket results with \(requestId) \(workerId). This request does not have corresponding dequeued bucket."
+        case let .noDequeuedBucket(bucketId, workerId):
+            return "Cannot accept bucket results with \(bucketId) from \(workerId). This worker was not associated with that bucket id."
         }
     }
 }

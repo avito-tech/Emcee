@@ -40,16 +40,12 @@ public final class BalancingBucketQueueImpl: BalancingBucketQueue {
         try MultipleQueuesEnqueueableBucketReceptor(bucketQueueFactory: bucketQueueFactory, multipleQueuesContainer: multipleQueuesContainer).enqueue(buckets: buckets, prioritizedJob: prioritizedJob)
     }
     
-    public func previouslyDequeuedBucket(requestId: RequestId, workerId: WorkerId) -> DequeuedBucket? {
-        MultipleQueuesDequeueableBucketSource(multipleQueuesContainer: multipleQueuesContainer, nothingToDequeueBehavior: nothingToDequeueBehavior).previouslyDequeuedBucket(requestId: requestId, workerId: workerId)
+    public func dequeueBucket(workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
+        MultipleQueuesDequeueableBucketSource(multipleQueuesContainer: multipleQueuesContainer, nothingToDequeueBehavior: nothingToDequeueBehavior).dequeueBucket(workerCapabilities: workerCapabilities, workerId: workerId)
     }
     
-    public func dequeueBucket(requestId: RequestId, workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
-        MultipleQueuesDequeueableBucketSource(multipleQueuesContainer: multipleQueuesContainer, nothingToDequeueBehavior: nothingToDequeueBehavior).dequeueBucket(requestId: requestId, workerCapabilities: workerCapabilities, workerId: workerId)
-    }
-    
-    public func accept(testingResult: TestingResult, requestId: RequestId, workerId: WorkerId) throws -> BucketQueueAcceptResult {
-        try MultipleQueuesBucketResultAccepter(multipleQueuesContainer: multipleQueuesContainer).accept(testingResult: testingResult, requestId: requestId, workerId: workerId)
+    public func accept(bucketId: BucketId, testingResult: TestingResult, workerId: WorkerId) throws -> BucketQueueAcceptResult {
+        try MultipleQueuesBucketResultAccepter(multipleQueuesContainer: multipleQueuesContainer).accept(bucketId: bucketId, testingResult: testingResult, workerId: workerId)
     }
     
     public func reenqueueStuckBuckets() -> [StuckBucket] {

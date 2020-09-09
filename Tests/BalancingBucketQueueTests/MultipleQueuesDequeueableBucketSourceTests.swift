@@ -15,7 +15,6 @@ final class MultipleQueuesDequeueableBucketSourceTests: XCTestCase {
     
     func test___nothing_to_dequeue() {
         let dequeueResult = multipleQueuesDequeueableBucketSource.dequeueBucket(
-            requestId: "request",
             workerCapabilities: [],
             workerId: "worker"
         )
@@ -33,69 +32,18 @@ final class MultipleQueuesDequeueableBucketSourceTests: XCTestCase {
                     enqueueTimestamp: Date(),
                     uniqueIdentifier: "id"
                 ),
-                workerId: "worker",
-                requestId: "request"
-            )
+                workerId: "worker"            )
         )
         
         let bucketQueue = FakeBucketQueue(fixedDequeueResult: expectedDequeueResult)
         multipleQueuesContainer.add(runningJobQueue: createJobQueue(bucketQueue: bucketQueue))
         
         let dequeueResult = multipleQueuesDequeueableBucketSource.dequeueBucket(
-            requestId: "request",
             workerCapabilities: [],
             workerId: "worker"
         )
         
         XCTAssertEqual(dequeueResult, expectedDequeueResult)
-    }
-    
-    func test___dequeueing_already_dequeued_bucket() {
-        let bucketQueue = FakeBucketQueue()
-        let dequeuedBucket = DequeuedBucket(
-            enqueuedBucket: EnqueuedBucket(
-                bucket: BucketFixtures.createBucket(),
-                enqueueTimestamp: Date(),
-                uniqueIdentifier: "id"
-            ),
-            workerId: "worker",
-            requestId: "request"
-        )
-        bucketQueue.fixedPreviouslyDequeuedBucket = dequeuedBucket
-        multipleQueuesContainer.add(runningJobQueue: createJobQueue(bucketQueue: bucketQueue))
-        
-        let dequeueResult = multipleQueuesDequeueableBucketSource.dequeueBucket(
-            requestId: "request",
-            workerCapabilities: [],
-            workerId: "worker"
-        )
-        
-        XCTAssertEqual(
-            dequeueResult,
-            .dequeuedBucket(dequeuedBucket)
-        )
-    }
-    
-    func test___querying_for_previously_dequeued() {
-        let bucketQueue = FakeBucketQueue()
-        bucketQueue.fixedPreviouslyDequeuedBucket = DequeuedBucket(
-            enqueuedBucket: EnqueuedBucket(
-                bucket: BucketFixtures.createBucket(),
-                enqueueTimestamp: Date(),
-                uniqueIdentifier: "id"
-            ),
-            workerId: "worker",
-            requestId: "request"
-        )
-        multipleQueuesContainer.add(runningJobQueue: createJobQueue(bucketQueue: bucketQueue))
-        
-        XCTAssertEqual(
-            multipleQueuesDequeueableBucketSource.previouslyDequeuedBucket(
-                requestId: "request",
-                workerId: "worker"
-            ),
-            bucketQueue.fixedPreviouslyDequeuedBucket
-        )
     }
 }
 

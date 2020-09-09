@@ -12,38 +12,14 @@ import XCTest
 final class ScheduleTestsEndpointTests: XCTestCase {
     func test___scheduling_tests() throws {
         let response = try endpoint.handle(
-            payload: ScheduleTestsRequest(
-                requestId: requestId,
+            payload: ScheduleTestsPayload(
                 prioritizedJob: prioritizedJob,
                 scheduleStrategy: .individual,
                 testEntryConfigurations: testEntryConfigurations
             )
         )
         
-        XCTAssertEqual(response, ScheduleTestsResponse.scheduledTests(requestId: requestId))
-        
-        XCTAssertEqual(
-            enqueueableBucketReceptor.enqueuedJobs[prioritizedJob],
-            [
-                BucketFixtures.createBucket(
-                    bucketId: fixedBucketId,
-                    testEntries: [TestEntryFixtures.testEntry()]
-                )
-            ]
-        )
-    }
-    
-    func test___scheduling_tests_with_same_request_id___does_not_schedule_multiple_times() throws {
-        for _ in 0 ... 10 {
-            _ = try endpoint.handle(
-                payload: ScheduleTestsRequest(
-                    requestId: requestId,
-                    prioritizedJob: prioritizedJob,
-                    scheduleStrategy: .individual,
-                    testEntryConfigurations: testEntryConfigurations
-                )
-            )
-        }
+        XCTAssertEqual(response, .scheduledTests)
         
         XCTAssertEqual(
             enqueueableBucketReceptor.enqueuedJobs[prioritizedJob],
@@ -76,7 +52,6 @@ final class ScheduleTestsEndpointTests: XCTestCase {
     )
     let jobId = JobId(value: "jobId")
     lazy var prioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: jobId, jobPriority: .medium)
-    let requestId: RequestId = "requestId"
     let testEntryConfigurations = TestEntryConfigurationFixtures()
         .add(testEntry: TestEntryFixtures.testEntry())
         .testEntryConfigurations()

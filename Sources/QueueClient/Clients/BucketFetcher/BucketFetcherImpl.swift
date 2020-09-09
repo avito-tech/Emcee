@@ -15,7 +15,6 @@ public final class BucketFetcherImpl: BucketFetcher {
     
     public func fetch(
         payloadSignature: PayloadSignature,
-        requestId: RequestId,
         workerCapabilities: Set<WorkerCapability>,
         workerId: WorkerId,
         callbackQueue: DispatchQueue,
@@ -24,7 +23,6 @@ public final class BucketFetcherImpl: BucketFetcher {
         let request = DequeueBucketRequest(
             payload: DequeueBucketPayload(
                 payloadSignature: payloadSignature,
-                requestId: requestId,
                 workerCapabilities: workerCapabilities,
                 workerId: workerId
             )

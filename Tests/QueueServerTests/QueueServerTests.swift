@@ -81,7 +81,6 @@ final class QueueServerTests: XCTestCase {
             .testEntryConfigurations()
         let testingResult = TestingResultFixtures()
             .with(testEntry: testEntry)
-            .with(bucketId: bucket.bucketId)
             .addingLostResult()
             .testingResult()
         
@@ -169,7 +168,6 @@ final class QueueServerTests: XCTestCase {
         try runSyncronously { [callbackQueue, workerId, payloadSignature] completion in
             bucketFetcher.fetch(
                 payloadSignature: payloadSignature,
-                requestId: "request",
                 workerCapabilities: [],
                 workerId: workerId,
                 callbackQueue: callbackQueue
@@ -187,8 +185,8 @@ final class QueueServerTests: XCTestCase {
         
         let response: Either<BucketId, Error> = try runSyncronously { [callbackQueue, workerId, payloadSignature] completion in
             resultSender.send(
+                bucketId: bucket.bucketId,
                 testingResult: testingResult,
-                requestId: "request",
                 workerId: workerId,
                 payloadSignature: payloadSignature,
                 callbackQueue: callbackQueue,

@@ -36,11 +36,9 @@ public final class DistWorker: SchedulerDelegate {
     private let callbackQueue = DispatchQueue(label: "DistWorker.callbackQueue", qos: .default, attributes: .concurrent)
     private let currentlyBeingProcessedBucketsTracker = DefaultCurrentlyBeingProcessedBucketsTracker()
     private let httpRestServer: HTTPRESTServer
-    private let syncQueue = DispatchQueue(label: "DistWorker.syncQueue")
     private let version: Version
     private let workerId: WorkerId
     private var payloadSignature = Either<PayloadSignature, DistWorkerError>.error(DistWorkerError.missingPayloadSignature)
-    private var requestIdForBucketId = [BucketId: RequestId]()
     
     private enum ReducedBucketFetchResult: Equatable {
         case result(SchedulerBucket?)
@@ -134,15 +132,12 @@ public final class DistWorker: SchedulerDelegate {
     
     private func nextBucketFetchResult() throws -> ReducedBucketFetchResult {
         return try currentlyBeingProcessedBucketsTracker.perform { tracker -> ReducedBucketFetchResult in
-            let requestId = RequestId(value: try di.get(UniqueIdentifierGenerator.self).generate())
-            
             let waiter = SynchronousWaiter()
             
             let callbackWaiter: CallbackWaiter<Either<BucketFetchResult, Error>> = waiter.createCallbackWaiter()
             
             try di.get(BucketFetcher.self).fetch(
                 payloadSignature: try payloadSignature.dematerialize(),
-                requestId: requestId,
                 workerCapabilities: try di.get(WorkerCapabilitiesProvider.self).workerCapabilities(),
                 workerId: workerId,
                 callbackQueue: callbackQueue
@@ -161,11 +156,8 @@ public final class DistWorker: SchedulerDelegate {
                 Logger.debug("Server asked to wait for \(after) seconds and fetch next bucket again")
                 return .checkAgain(after: after)
             case .bucket(let fetchedBucket):
-                Logger.debug("Received \(fetchedBucket.bucketId) for \(requestId)")
+                Logger.debug("Received \(fetchedBucket.bucketId)")
                 tracker.willProcess(bucketId: fetchedBucket.bucketId)
-                syncQueue.sync {
-                    requestIdForBucketId[fetchedBucket.bucketId] = requestId
-                }
                 return .result(
                     SchedulerBucket.from(
                         bucket: fetchedBucket,
@@ -202,24 +194,15 @@ public final class DistWorker: SchedulerDelegate {
         obtainedTestingResult testingResult: TestingResult,
         forBucket bucket: SchedulerBucket
     ) {
-        Logger.debug("Obtained testing result for bucket \(bucket): \(testingResult)")
+        Logger.debug("Obtained testing result for bucket \(bucket.bucketId): \(testingResult)")
         didReceiveTestResult(testingResult: testingResult, bucketId: bucket.bucketId)
     }
     
     private func didReceiveTestResult(testingResult: TestingResult, bucketId: BucketId) {
         do {
-            let requestId: RequestId = try syncQueue.sync {
-                guard let requestId = requestIdForBucketId.removeValue(forKey: bucketId) else {
-                    Logger.error("No requestId for bucket: \(bucketId)")
-                    throw DistWorkerError.noRequestIdForBucketId(bucketId)
-                }
-                Logger.verboseDebug("Found \(requestId) for bucket \(bucketId)")
-                return requestId
-            }
-            
             try di.get(BucketResultSender.self).send(
+                bucketId: bucketId,
                 testingResult: testingResult,
-                requestId: requestId,
                 workerId: workerId,
                 payloadSignature: try payloadSignature.dematerialize(),
                 callbackQueue: callbackQueue,
