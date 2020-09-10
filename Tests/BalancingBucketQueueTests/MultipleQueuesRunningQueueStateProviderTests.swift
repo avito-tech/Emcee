@@ -92,7 +92,7 @@ final class MultipleQueuesRunningQueueStateProviderTests: XCTestCase {
         runningQueueState: RunningQueueState,
         jobId: JobId
     ) -> JobQueue {
-        let bucketQueue = FakeBucketQueue(throwsOnAccept: false, fixedStuckBuckets: [], fixedDequeueResult: .queueIsEmpty)
+        let bucketQueue = FakeBucketQueue()
         bucketQueue.runningQueueState = runningQueueState
         
         return JobQueue(

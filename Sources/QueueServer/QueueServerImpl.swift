@@ -85,7 +85,6 @@ public final class QueueServerImpl: QueueServer {
         )
         
         let bucketQueueFactory = BucketQueueFactoryImpl(
-            checkAgainTimeInterval: checkAgainTimeInterval,
             dateProvider: dateProvider,
             testHistoryTracker: TestHistoryTrackerImpl(
                 testHistoryStorage: TestHistoryStorageImpl(),
@@ -94,9 +93,6 @@ public final class QueueServerImpl: QueueServer {
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessProvider: workerAlivenessProvider,
             workerCapabilitiesStorage: workerCapabilitiesStorage
-        )
-        let nothingToDequeueBehavior: NothingToDequeueBehavior = NothingToDequeueBehaviorCheckLater(
-            checkAfter: checkAgainTimeInterval
         )
         
         let multipleQueuesContainer = MultipleQueuesContainer()
@@ -121,10 +117,8 @@ public final class QueueServerImpl: QueueServer {
             dateProvider: dateProvider,
             dequeueableBucketSource: WorkerPermissionAwareDequeueableBucketSource(
                 dequeueableBucketSource: MultipleQueuesDequeueableBucketSource(
-                    multipleQueuesContainer: multipleQueuesContainer,
-                    nothingToDequeueBehavior: nothingToDequeueBehavior
+                    multipleQueuesContainer: multipleQueuesContainer
                 ),
-                nothingToDequeueBehavior: nothingToDequeueBehavior,
                 workerPermissionProvider: workerUtilizationStatusPoller
             ),
             jobStateProvider: jobStateProvider,
@@ -162,8 +156,11 @@ public final class QueueServerImpl: QueueServer {
             version: emceeVersion
         )
         self.bucketProvider = BucketProviderEndpoint(
+            checkAfter: checkAgainTimeInterval,
             dequeueableBucketSource: dequeueableBucketSource,
-            expectedPayloadSignature: payloadSignature
+            expectedPayloadSignature: payloadSignature,
+            workerAlivenessProvider: workerAlivenessProvider,
+            workerCapabilitiesStorage: workerCapabilitiesStorage
         )
         self.bucketResultRegistrar = BucketResultRegistrar(
             bucketResultAccepter: BucketResultAccepterWithMetricSupport(

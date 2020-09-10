@@ -8,6 +8,7 @@ import QueueModels
 import QueueModelsTestHelpers
 import RunnerModels
 import RunnerTestHelpers
+import TestHelpers
 import TestHistoryTestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
@@ -19,7 +20,7 @@ final class BucketQueueRetryTests: XCTestCase {
     private lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: fixedBucketId.value)
 
     func test___bucket_queue___gives_job_to_another_worker___if_worker_fails() {
-        assertNoThrow {
+        assertDoesNotThrow {
             // Given
             let bucketQueue = self.bucketQueue(workerIds: [failingWorker, anotherWorker])
             
@@ -29,24 +30,19 @@ final class BucketQueueRetryTests: XCTestCase {
             try dequeueTestAndFail(bucketQueue: bucketQueue, workerId: failingWorker)
             
             // Then we give work to another worker
-            let dequeueResultForFailingWorker = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: failingWorker)
-            if case .checkAgainLater = dequeueResultForFailingWorker {
-                // pass
-            } else {
-                XCTFail("Expected dequeueResult == .checkAgainLater, got: \(dequeueResultForFailingWorker)")
-            }
+            let dequeueBucketForFailingWorker = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: failingWorker)
+            
+            XCTAssertNil(dequeueBucketForFailingWorker)
             
             XCTAssertEqual(
                 bucketQueue.dequeueBucket(workerCapabilities: [], workerId: anotherWorker),
-                DequeueResult.dequeuedBucket(
-                    DequeuedBucket(
-                        enqueuedBucket: EnqueuedBucket(
-                            bucket: bucketWithTwoRetires,
-                            enqueueTimestamp: dateProvider.currentDate(),
-                            uniqueIdentifier: uniqueIdentifierGenerator.generate()
-                        ),
-                        workerId: anotherWorker
-                    )
+                DequeuedBucket(
+                    enqueuedBucket: EnqueuedBucket(
+                        bucket: bucketWithTwoRetires,
+                        enqueueTimestamp: dateProvider.currentDate(),
+                        uniqueIdentifier: uniqueIdentifierGenerator.generate()
+                    ),
+                    workerId: anotherWorker
                 )
             )
         }
@@ -69,15 +65,13 @@ final class BucketQueueRetryTests: XCTestCase {
             let anyWorker = firstWorker
             XCTAssertEqual(
                 bucketQueue.dequeueBucket(workerCapabilities: [], workerId: anyWorker),
-                DequeueResult.dequeuedBucket(
-                    DequeuedBucket(
-                        enqueuedBucket: EnqueuedBucket(
-                            bucket: bucketWithTwoRetires,
-                            enqueueTimestamp: dateProvider.currentDate(),
-                            uniqueIdentifier: uniqueIdentifierGenerator.generate()
-                        ),
-                        workerId: anyWorker
-                    )
+                DequeuedBucket(
+                    enqueuedBucket: EnqueuedBucket(
+                        bucket: bucketWithTwoRetires,
+                        enqueueTimestamp: dateProvider.currentDate(),
+                        uniqueIdentifier: uniqueIdentifierGenerator.generate()
+                    ),
+                    workerId: anyWorker
                 )
             )
         }
@@ -97,9 +91,8 @@ final class BucketQueueRetryTests: XCTestCase {
             
             // Then queue is empty
             let anyWorker = firstWorker
-            XCTAssertEqual(
-                bucketQueue.dequeueBucket(workerCapabilities: [], workerId: anyWorker),
-                DequeueResult.queueIsEmpty
+            XCTAssertNil(
+                bucketQueue.dequeueBucket(workerCapabilities: [], workerId: anyWorker)
             )
         }
     }
@@ -132,23 +125,20 @@ final class BucketQueueRetryTests: XCTestCase {
                 "Result to collect must not contain lost test"
             )
             
-            XCTAssertEqual(
+            XCTAssertNil(
                 bucketQueue.dequeueBucket(workerCapabilities: [], workerId: failingWorker),
-                DequeueResult.checkAgainLater(checkAfter: 30),
                 "Queue should not provide re-enqueued bucket back to a worker that lost a test previously"
             )
             
             XCTAssertEqual(
                 bucketQueue.dequeueBucket(workerCapabilities: [], workerId: anotherWorker),
-                DequeueResult.dequeuedBucket(
-                    DequeuedBucket(
-                        enqueuedBucket: EnqueuedBucket(
-                            bucket: bucket,
-                            enqueueTimestamp: dateProvider.currentDate(),
-                            uniqueIdentifier: uniqueIdentifierGenerator.generate()
-                        ),
-                        workerId: anotherWorker
-                    )
+                DequeuedBucket(
+                    enqueuedBucket: EnqueuedBucket(
+                        bucket: bucket,
+                        enqueueTimestamp: dateProvider.currentDate(),
+                        uniqueIdentifier: uniqueIdentifierGenerator.generate()
+                    ),
+                    workerId: anotherWorker
                 ),
                 "Queue should provide re-enqueued bucket to a worker that haven't attempted to execute the test previously"
             )
@@ -181,13 +171,11 @@ final class BucketQueueRetryTests: XCTestCase {
     }
     
     private func dequeueTestAndFail(bucketQueue: BucketQueue, workerId: WorkerId) throws {
-        let dequeueResult = bucketQueue.dequeueBucket(
+        guard let dequeuedBucket = bucketQueue.dequeueBucket(
             workerCapabilities: [],
             workerId: workerId
-        )
-
-        guard case DequeueResult.dequeuedBucket(let dequeuedBucket) = dequeueResult else {
-            return XCTFail("DequeueResult does not contain a bucket")
+        ) else {
+            failTest("Bucket is exected to be dequeued")
         }
 
         _ = try bucketQueue.accept(

@@ -20,7 +20,7 @@ import WorkerAlivenessProvider
 import WorkerCapabilities
 import XCTest
 
-final class BalancingBucketQueueTests: XCTestCase {
+final class BalancingBucketQueueIntegrationTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
@@ -113,9 +113,8 @@ final class BalancingBucketQueueTests: XCTestCase {
     func test___dequeueing_from_empty_qeueue___returns_check_after() {
         // we keep workers alive by asking them to poll
         // so when all queues are depleted, and somebody enqueues some tests, workers will pick them up
-        XCTAssertEqual(
-            balancingQueue.dequeueBucket(workerCapabilities: [], workerId: workerId),
-            .checkAgainLater(checkAfter: checkAgainTimeInterval)
+        XCTAssertNil(
+            balancingQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         )
     }
     
@@ -131,15 +130,13 @@ final class BalancingBucketQueueTests: XCTestCase {
                 workerCapabilities: [],
                 workerId: workerId
             ),
-            .dequeuedBucket(
-                DequeuedBucket(
-                    enqueuedBucket: EnqueuedBucket(
-                        bucket: bucket,
-                        enqueueTimestamp: dateProvider.currentDate(),
-                        uniqueIdentifier: uniqueIdentifierGenerator.generate()
-                    ),
-                    workerId: workerId
-                )
+            DequeuedBucket(
+                enqueuedBucket: EnqueuedBucket(
+                    bucket: bucket,
+                    enqueueTimestamp: dateProvider.currentDate(),
+                    uniqueIdentifier: uniqueIdentifierGenerator.generate()
+                ),
+                workerId: workerId
             )
         )
     }
@@ -158,15 +155,13 @@ final class BalancingBucketQueueTests: XCTestCase {
                 workerCapabilities: [],
                 workerId: workerId
             ),
-            .dequeuedBucket(
-                DequeuedBucket(
-                    enqueuedBucket: EnqueuedBucket(
-                        bucket: bucket1,
-                        enqueueTimestamp: dateProvider.currentDate(),
-                        uniqueIdentifier: uniqueIdentifierGenerator.generate()
-                    ),
-                    workerId: workerId
-                )
+            DequeuedBucket(
+                enqueuedBucket: EnqueuedBucket(
+                    bucket: bucket1,
+                    enqueueTimestamp: dateProvider.currentDate(),
+                    uniqueIdentifier: uniqueIdentifierGenerator.generate()
+                ),
+                workerId: workerId
             )
         )
         XCTAssertEqual(
@@ -188,15 +183,13 @@ final class BalancingBucketQueueTests: XCTestCase {
                 workerCapabilities: [],
                 workerId: workerId
             ),
-            .dequeuedBucket(
-                DequeuedBucket(
-                    enqueuedBucket: EnqueuedBucket(
-                        bucket: bucket2,
-                        enqueueTimestamp: dateProvider.currentDate(),
-                        uniqueIdentifier: uniqueIdentifierGenerator.generate()
-                    ),
-                    workerId: workerId
-                )
+            DequeuedBucket(
+                enqueuedBucket: EnqueuedBucket(
+                    bucket: bucket2,
+                    enqueueTimestamp: dateProvider.currentDate(),
+                    uniqueIdentifier: uniqueIdentifierGenerator.generate()
+                ),
+                workerId: workerId
             )
         )
         XCTAssertEqual(
@@ -229,15 +222,13 @@ final class BalancingBucketQueueTests: XCTestCase {
                 workerCapabilities: [],
                 workerId: workerId
             ),
-            .dequeuedBucket(
-                DequeuedBucket(
-                    enqueuedBucket: EnqueuedBucket(
-                        bucket: bucket2,
-                        enqueueTimestamp: dateProvider.currentDate(),
-                        uniqueIdentifier: uniqueIdentifierGenerator.generate()
-                    ),
-                    workerId: workerId
-                )
+            DequeuedBucket(
+                enqueuedBucket: EnqueuedBucket(
+                    bucket: bucket2,
+                    enqueueTimestamp: dateProvider.currentDate(),
+                    uniqueIdentifier: uniqueIdentifierGenerator.generate()
+                ),
+                workerId: workerId
             )
         )
     }
@@ -256,15 +247,13 @@ final class BalancingBucketQueueTests: XCTestCase {
                 workerCapabilities: [],
                 workerId: workerId
             ),
-            .dequeuedBucket(
-                DequeuedBucket(
-                    enqueuedBucket: EnqueuedBucket(
-                        bucket: bucket2,
-                        enqueueTimestamp: dateProvider.currentDate(),
-                        uniqueIdentifier: uniqueIdentifierGenerator.generate()
-                    ),
-                    workerId: workerId
-                )
+            DequeuedBucket(
+                enqueuedBucket: EnqueuedBucket(
+                    bucket: bucket2,
+                    enqueueTimestamp: dateProvider.currentDate(),
+                    uniqueIdentifier: uniqueIdentifierGenerator.generate()
+                ),
+                workerId: workerId
             )
         )
     }
@@ -399,58 +388,6 @@ final class BalancingBucketQueueTests: XCTestCase {
         )
     }
     
-    func test___dequeueing_by_not_registered_worker___provides_not_registered_response() throws {
-        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
-        try balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
-        
-        XCTAssertEqual(
-            balancingQueue.dequeueBucket(workerCapabilities: [], workerId: "notRegisteredWorkerId"),
-            DequeueResult.workerIsNotRegistered
-        )
-    }
-    
-    func test___dequeueing_by_disabled_worker___provides_empty_result() throws {
-        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
-        try balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
-        
-        workerAlivenessProvider.didRegisterWorker(workerId: workerId)
-        workerAlivenessProvider.disableWorker(workerId: workerId)
-        
-        XCTAssertEqual(
-            balancingQueue.dequeueBucket(workerCapabilities: [], workerId: workerId),
-            DequeueResult.checkAgainLater(checkAfter: checkAgainTimeInterval)
-        )
-    }
-    
-    func test___dequeueing_by_reenabled_worker___provides_bucket() throws {
-        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
-        try balancingQueue.enqueue(buckets: [bucket], prioritizedJob: prioritizedJob)
-        
-        workerAlivenessProvider.didRegisterWorker(workerId: workerId)
-        workerAlivenessProvider.disableWorker(workerId: workerId)
-        
-        XCTAssertEqual(
-            balancingQueue.dequeueBucket(workerCapabilities: [], workerId: workerId),
-            DequeueResult.checkAgainLater(checkAfter: checkAgainTimeInterval)
-        )
-        
-        workerAlivenessProvider.enableWorker(workerId: workerId)
-        
-        XCTAssertEqual(
-            balancingQueue.dequeueBucket(workerCapabilities: [], workerId: workerId),
-            DequeueResult.dequeuedBucket(
-                DequeuedBucket(
-                    enqueuedBucket: EnqueuedBucket(
-                        bucket: bucket,
-                        enqueueTimestamp: dateProvider.currentDate(),
-                        uniqueIdentifier: uniqueIdentifierGenerator.generate()
-                    ),
-                    workerId: workerId
-                )
-            )
-        )
-    }
-    
     func test___ongoing_job_ids() throws {
         try balancingQueue.enqueue(buckets: [], prioritizedJob: prioritizedJob)
         try balancingQueue.enqueue(buckets: [], prioritizedJob: highlyPrioritizedJob)
@@ -497,11 +434,9 @@ final class BalancingBucketQueueTests: XCTestCase {
     lazy var anotherJobId: JobId = "anotherJobId"
     lazy var anotherPrioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: anotherJobId, jobPriority: .medium)
     lazy var balancingQueue = BalancingBucketQueueImpl(
-        bucketQueueFactory: bucketQueueFactory,
-        nothingToDequeueBehavior: NothingToDequeueBehaviorCheckLater(checkAfter: checkAgainTimeInterval)
+        bucketQueueFactory: bucketQueueFactory
     )
     lazy var bucketQueueFactory = BucketQueueFactoryImpl(
-        checkAgainTimeInterval: checkAgainTimeInterval,
         dateProvider: dateProvider,
         testHistoryTracker: TestHistoryTrackerFixtures.testHistoryTracker(
             uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator()

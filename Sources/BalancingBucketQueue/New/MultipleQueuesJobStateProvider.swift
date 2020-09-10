@@ -32,8 +32,7 @@ public final class MultipleQueuesJobStateProvider: JobStateProvider {
                 )
             }
             
-            throw BalancingBucketQueueError.noQueue(jobId: jobId)
-
+            throw NoQueueForJobIdFoundError.noQueue(jobId: jobId) 
         }
     }
 }

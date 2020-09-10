@@ -6,7 +6,6 @@ import WorkerAlivenessProvider
 import WorkerCapabilities
 
 public final class BucketQueueFactoryImpl: BucketQueueFactory {
-    private let checkAgainTimeInterval: TimeInterval
     private let dateProvider: DateProvider
     private let testHistoryTracker: TestHistoryTracker
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
@@ -14,14 +13,12 @@ public final class BucketQueueFactoryImpl: BucketQueueFactory {
     private let workerCapabilitiesStorage: WorkerCapabilitiesStorage
 
     public init(
-        checkAgainTimeInterval: TimeInterval,
         dateProvider: DateProvider,
         testHistoryTracker: TestHistoryTracker,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         workerAlivenessProvider: WorkerAlivenessProvider,
         workerCapabilitiesStorage: WorkerCapabilitiesStorage
     ) {
-        self.checkAgainTimeInterval = checkAgainTimeInterval
         self.dateProvider = dateProvider
         self.testHistoryTracker = testHistoryTracker
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
@@ -31,7 +28,6 @@ public final class BucketQueueFactoryImpl: BucketQueueFactory {
     
     public func createBucketQueue() -> BucketQueue {
         return BucketQueueImpl(
-            checkAgainTimeInterval: checkAgainTimeInterval,
             dateProvider: dateProvider,
             testHistoryTracker: testHistoryTracker,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,

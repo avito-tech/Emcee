@@ -76,7 +76,7 @@ final class BucketQueueTests: XCTestCase {
         XCTAssertTrue(bucketQueue.runningQueueState.isDepleted)
     }
     
-    func test__reponse_dequeuedBucket__when_dequeueing_buckets() throws {
+    func test___dequeues_bucket___when_dequeueing_buckets_from_non_empty_queue() throws {
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(
@@ -85,44 +85,39 @@ final class BucketQueueTests: XCTestCase {
             workerAlivenessProvider: workerAlivenessProvider
         )
         try bucketQueue.enqueue(buckets: [bucket])
-        let dequeueResult = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
+        let dequeuedBucket = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         XCTAssertEqual(
-            dequeueResult,
-            .dequeuedBucket(
-                DequeuedBucket(
-                    enqueuedBucket: EnqueuedBucket(
-                        bucket: bucket,
-                        enqueueTimestamp: dateProvider.currentDate(),
-                        uniqueIdentifier: uniqueIdentifierGenerator.generate()
-                    ),
-                    workerId: workerId
-                )
+            dequeuedBucket,
+            DequeuedBucket(
+                enqueuedBucket: EnqueuedBucket(
+                    bucket: bucket,
+                    enqueueTimestamp: dateProvider.currentDate(),
+                    uniqueIdentifier: uniqueIdentifierGenerator.generate()
+                ),
+                workerId: workerId
             )
         )
     }
     
-    func test__reponse_queueIsEmpty__when_dequeueing_bucket_from_empty_queue() {
+    func test___reponse_is_nil___when_dequeueing_bucket_from_empty_queue() {
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: workerAlivenessProvider)
-        let dequeueResult = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
-        XCTAssertEqual(dequeueResult, .queueIsEmpty)
+        XCTAssertNil(
+            bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
+        )
     }
     
-    func test__reponse_checkAgainLater__when_queue_has_dequeued_buckets() throws {
+    func test___reponse_is_nil___when_queue_has_dequeued_buckets() throws {
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: workerAlivenessProvider)
         try bucketQueue.enqueue(buckets: [bucket])
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
-        let dequeueResult = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
-        
-        if case .checkAgainLater = dequeueResult {
-            // pass
-        } else {
-            XCTFail("Expected dequeueResult == .checkAgainLater, got: \(dequeueResult)")
-        }
+        XCTAssertNil(
+            bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
+        )
     }
-        
+    
     func test__dequeue_marks_worker_as_alive() {
         workerAlivenessProvider.setWorkerIsSilent(workerId: workerId)
         
@@ -304,9 +299,8 @@ final class BucketQueueTests: XCTestCase {
         let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
         
         try bucketQueue.enqueue(buckets: [bucket, bucket])
-        let dequeueResult = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
-        guard case DequeueResult.dequeuedBucket(let dequeuedBucket) = dequeueResult else {
-            return XCTFail("Unexpected dequeue result: \(dequeueResult)")
+        guard let dequeuedBucket = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId) else {
+            failTest("Unexpected dequeue result")
         }
         
         XCTAssertEqual(
@@ -337,10 +331,9 @@ final class BucketQueueTests: XCTestCase {
         
         try bucketQueue.enqueue(buckets: [bucket])
         
-        let dequeueResult = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
-        guard case DequeueResult.checkAgainLater = dequeueResult else {
-            failTest("Unexpected dequeue result: \(dequeueResult)")
-        }
+        XCTAssertNil(
+            bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
+        )
     }
     
     func test___when_worker_capabilities_meet_bucket_requirements___bucket_is_dequeued() throws {
@@ -359,10 +352,10 @@ final class BucketQueueTests: XCTestCase {
         
         try bucketQueue.enqueue(buckets: [bucket])
         
-        let dequeueResult = bucketQueue.dequeueBucket(workerCapabilities: [WorkerCapability(name: "capability", value: "1")], workerId: workerId)
-        guard case DequeueResult.dequeuedBucket = dequeueResult else {
-            failTest("Unexpected dequeue result: \(dequeueResult)")
-        }
+        XCTAssertEqual(
+            bucketQueue.dequeueBucket(workerCapabilities: [WorkerCapability(name: "capability", value: "1")], workerId: workerId)?.enqueuedBucket.bucket,
+            bucket
+        )
     }
     
     func test___when_worker_capabilities_change_and_meet_bucket_requirements___bucket_is_dequeued() throws {
@@ -381,15 +374,27 @@ final class BucketQueueTests: XCTestCase {
         
         try bucketQueue.enqueue(buckets: [bucket])
         
-        var dequeueResult = bucketQueue.dequeueBucket(workerCapabilities: [WorkerCapability(name: "capability", value: "wrong")], workerId: workerId)
-        guard case DequeueResult.checkAgainLater = dequeueResult else {
-            failTest("Unexpected dequeue result: \(dequeueResult)")
-        }
+        var dequeuedBucket = bucketQueue.dequeueBucket(workerCapabilities: [WorkerCapability(name: "capability", value: "wrong")], workerId: workerId)
+        XCTAssertNil(dequeuedBucket)
         
-        dequeueResult = bucketQueue.dequeueBucket(workerCapabilities: [WorkerCapability(name: "capability", value: "correct")], workerId: workerId)
-        guard case DequeueResult.dequeuedBucket = dequeueResult else {
-            failTest("Unexpected dequeue result: \(dequeueResult)")
-        }
+        dequeuedBucket = bucketQueue.dequeueBucket(workerCapabilities: [WorkerCapability(name: "capability", value: "correct")], workerId: workerId)
+        XCTAssertEqual(dequeuedBucket?.enqueuedBucket.bucket, bucket)
+    }
+    
+    func test___updates_worker_capabilities() {
+        workerCapabilitiesStorage.set(workerCapabilities: [], forWorkerId: workerId)
+        
+        let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: workerAlivenessProvider, workerCapabilitiesStorage: workerCapabilitiesStorage)
+        let capability = WorkerCapability(name: "name", value: "value")
+        _ = bucketQueue.dequeueBucket(
+            workerCapabilities: [capability],
+            workerId: workerId
+        )
+        
+        XCTAssertEqual(
+            workerCapabilitiesStorage.workerCapabilities(forWorkerId: workerId),
+            [capability]
+        )
     }
     
     func test___when_bucket_requirements_cannot_be_met_when_enqueuing____error_is_thrown() throws {

@@ -13,7 +13,6 @@ public final class BucketQueueFixtures {
     public static let fixedGeneratorValue = UUID().uuidString
 
     public static func bucketQueue(
-        checkAgainTimeInterval: TimeInterval = 30,
         dateProvider: DateProvider = DateProviderFixture(),
         testHistoryTracker: TestHistoryTracker = TestHistoryTrackerFixtures.testHistoryTracker(
             uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(value: fixedGeneratorValue)
@@ -25,7 +24,6 @@ public final class BucketQueueFixtures {
         workerCapabilitiesStorage: WorkerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()
     ) -> BucketQueue {
         return BucketQueueFactoryImpl(
-            checkAgainTimeInterval: checkAgainTimeInterval,
             dateProvider: dateProvider,
             testHistoryTracker: testHistoryTracker,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,

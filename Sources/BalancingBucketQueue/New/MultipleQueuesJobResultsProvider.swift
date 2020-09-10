@@ -15,7 +15,7 @@ public final class MultipleQueuesJobResultsProvider: JobResultsProvider {
                 return JobResults(jobId: jobId, testingResults: jobQueue.resultsCollector.collectedResults)
             }
             
-            throw BalancingBucketQueueError.noQueue(jobId: jobId)
+            throw NoQueueForJobIdFoundError.noQueue(jobId: jobId)
         }
     }
 }

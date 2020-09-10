@@ -12,7 +12,7 @@ public final class MultipleQueuesJobManipulator: JobManipulator {
         try multipleQueuesContainer.performWithExclusiveAccess {
             let jobQueuesToDelete = multipleQueuesContainer.runningJobQueues(jobId: jobId)
             guard !jobQueuesToDelete.isEmpty else {
-                throw BalancingBucketQueueError.noQueue(jobId: jobId)
+                throw NoQueueForJobIdFoundError.noQueue(jobId: jobId)
             }
             for jobQueue in jobQueuesToDelete {
                 jobQueue.bucketQueue.removeAllEnqueuedBuckets()

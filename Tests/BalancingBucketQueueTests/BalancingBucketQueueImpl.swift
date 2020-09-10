@@ -1,20 +1,18 @@
+import BalancingBucketQueue
 import BucketQueue
 import BucketQueueModels
 import Foundation
 import QueueModels
 import WorkerCapabilitiesModels
 
-public final class BalancingBucketQueueImpl: BalancingBucketQueue {
+public final class BalancingBucketQueueImpl {
     private let bucketQueueFactory: BucketQueueFactory
-    private let nothingToDequeueBehavior: NothingToDequeueBehavior
     private let multipleQueuesContainer = MultipleQueuesContainer()
     
     public init(
-        bucketQueueFactory: BucketQueueFactory,
-        nothingToDequeueBehavior: NothingToDequeueBehavior
+        bucketQueueFactory: BucketQueueFactory
     ) {
         self.bucketQueueFactory = bucketQueueFactory
-        self.nothingToDequeueBehavior = nothingToDequeueBehavior
     }
     
     public func delete(jobId: JobId) throws {
@@ -41,8 +39,8 @@ public final class BalancingBucketQueueImpl: BalancingBucketQueue {
         try MultipleQueuesEnqueueableBucketReceptor(bucketQueueFactory: bucketQueueFactory, multipleQueuesContainer: multipleQueuesContainer).enqueue(buckets: buckets, prioritizedJob: prioritizedJob)
     }
     
-    public func dequeueBucket(workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
-        MultipleQueuesDequeueableBucketSource(multipleQueuesContainer: multipleQueuesContainer, nothingToDequeueBehavior: nothingToDequeueBehavior).dequeueBucket(workerCapabilities: workerCapabilities, workerId: workerId)
+    public func dequeueBucket(workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeuedBucket? {
+        MultipleQueuesDequeueableBucketSource(multipleQueuesContainer: multipleQueuesContainer).dequeueBucket(workerCapabilities: workerCapabilities, workerId: workerId)
     }
     
     public func accept(bucketId: BucketId, testingResult: TestingResult, workerId: WorkerId) throws -> BucketQueueAcceptResult {

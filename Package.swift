@@ -203,6 +203,7 @@ let package = Package(
                 "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessProvider",
                 "WorkerCapabilities",
+                "WorkerCapabilitiesModels",
             ],
             path: "Tests/BalancingBucketQueueTests"
         ),
@@ -1361,6 +1362,7 @@ let package = Package(
                 "WorkerAlivenessModels",
                 "WorkerAlivenessProvider",
                 "WorkerCapabilities",
+                "WorkerCapabilitiesModels",
             ],
             path: "Tests/QueueServerTests"
         ),

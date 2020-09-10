@@ -140,12 +140,6 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
             let result = try callbackWaiter.wait(timeout: .infinity, description: "Fetch next bucket").dematerialize()
 
             switch result {
-            case .queueIsEmpty:
-                Logger.debug("Server returned that queue is empty")
-                return .result(nil)
-            case .workerNotRegistered:
-                Logger.error("Server considers this worker as not registered")
-                return .result(nil)
             case .checkLater(let after):
                 Logger.debug("Server asked to wait for \(after) seconds and fetch next bucket again")
                 return .checkAgain(after: after)

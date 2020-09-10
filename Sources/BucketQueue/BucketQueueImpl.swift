@@ -19,20 +19,17 @@ final class BucketQueueImpl: BucketQueue {
     private let testHistoryTracker: TestHistoryTracker
     private let queue = DispatchQueue(label: "ru.avito.emcee.BucketQueue.queue")
     private let workerAlivenessProvider: WorkerAlivenessProvider
-    private let checkAgainTimeInterval: TimeInterval
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let workerCapabilityConstraintResolver = WorkerCapabilityConstraintResolver()
     private let workerCapabilitiesStorage: WorkerCapabilitiesStorage
     
     public init(
-        checkAgainTimeInterval: TimeInterval,
         dateProvider: DateProvider,
         testHistoryTracker: TestHistoryTracker,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         workerAlivenessProvider: WorkerAlivenessProvider,
         workerCapabilitiesStorage: WorkerCapabilitiesStorage
     ) {
-        self.checkAgainTimeInterval = checkAgainTimeInterval
         self.dateProvider = dateProvider
         self.testHistoryTracker = testHistoryTracker
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
@@ -81,24 +78,16 @@ final class BucketQueueImpl: BucketQueue {
         )
     }
         
-    public func dequeueBucket(workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
+    public func dequeueBucket(workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeuedBucket? {
         workerAlivenessProvider.willDequeueBucket(workerId: workerId)
         workerCapabilitiesStorage.set(workerCapabilities: workerCapabilities, forWorkerId: workerId)
         
-        guard workerAlivenessProvider.isWorkerRegistered(workerId: workerId) else {
-            return .workerIsNotRegistered
-        }
-        
-        guard workerAlivenessProvider.isWorkerEnabled(workerId: workerId) else {
-            return .checkAgainLater(checkAfter: checkAgainTimeInterval)
-        }
-
         return queue.sync {
             if runningQueueState_onSyncQueue.isDepleted {
-                return .queueIsEmpty
+                return nil
             }
             if runningQueueState_onSyncQueue.enqueuedTests.isEmpty {
-                return .checkAgainLater(checkAfter: checkAgainTimeInterval)
+                return nil
             }
             
             let bucketToDequeueOrNil = testHistoryTracker.bucketToDequeue(
@@ -113,17 +102,15 @@ final class BucketQueueImpl: BucketQueue {
                     workerCapabilities: workerCapabilities
                 ) else {
                     Logger.debug("capabilities \(workerCapabilities) of \(workerId) do not meet bucket requirements: \(enqueuedBucket.bucket.workerCapabilityRequirements)")
-                    return .checkAgainLater(checkAfter: checkAgainTimeInterval)
+                    return nil
                 }
                 
-                return .dequeuedBucket(
-                    dequeue_onSyncQueue(
-                        enqueuedBucket: enqueuedBucket,
-                        workerId: workerId
-                    )
+                return dequeue_onSyncQueue(
+                    enqueuedBucket: enqueuedBucket,
+                    workerId: workerId
                 )
             } else {
-                return .checkAgainLater(checkAfter: checkAgainTimeInterval)
+                return nil
             }
         }
     }
@@ -179,10 +166,7 @@ final class BucketQueueImpl: BucketQueue {
             let allDequeuedBuckets = dequeuedBuckets
             let stuckBuckets: [StuckBucket] = allDequeuedBuckets.compactMap { dequeuedBucket in
                 let aliveness = workerAlivenessProvider.alivenessForWorker(workerId: dequeuedBucket.workerId)
-                if !aliveness.registered {
-                    Logger.fatal("Worker '\(dequeuedBucket.workerId)' is not registered, but stuck bucket has worker id of this worker. This is not expected, as we shouldn't dequeue bucket to non-registered workers.")
-                }
-                
+
                 let stuckReason: StuckBucket.Reason
                 if aliveness.isInWorkingCondition {
                     if aliveness.bucketIdsBeingProcessed.contains(dequeuedBucket.enqueuedBucket.bucket.bucketId) {

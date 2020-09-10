@@ -29,17 +29,16 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
         self.version = version
     }
     
-    public func dequeueBucket(workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
-        let dequeueResult = dequeueableBucketSource.dequeueBucket(workerCapabilities: workerCapabilities, workerId: workerId)
+    public func dequeueBucket(workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeuedBucket? {
+        let dequeuedBucket = dequeueableBucketSource.dequeueBucket(workerCapabilities: workerCapabilities, workerId: workerId)
         
-        if case DequeueResult.dequeuedBucket(let dequeuedBucket) = dequeueResult {
+        if let dequeuedBucket = dequeuedBucket {
             sendMetrics(
                 dequeuedBucket: dequeuedBucket,
                 workerId: workerId
             )
         }
-        
-        return dequeueResult
+        return dequeuedBucket
     }
     
     private func sendMetrics(

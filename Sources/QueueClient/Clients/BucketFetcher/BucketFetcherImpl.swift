@@ -37,10 +37,6 @@ public final class BucketFetcherImpl: BucketFetcher {
                     switch value {
                     case .bucketDequeued(let bucket):
                         completion(.success(.bucket(bucket)))
-                    case .queueIsEmpty:
-                        completion(.success(.queueIsEmpty))
-                    case .workerIsNotRegistered:
-                        completion(.success(.workerNotRegistered))
                     case .checkAgainLater(let checkAfter):
                         completion(.success(.checkLater(checkAfter)))
                     }

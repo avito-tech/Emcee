@@ -5,13 +5,13 @@ import QueueModels
 import WorkerCapabilitiesModels
 
 public final class FakeDequeueableBucketSource: DequeueableBucketSource {
-    public var dequeueResult: DequeueResult
+    public var dequeuedBucket: DequeuedBucket?
     
-    public init(dequeueResult: DequeueResult = .queueIsEmpty) {
-        self.dequeueResult = dequeueResult
+    public init(dequeuedBucket: DequeuedBucket? = nil) {
+        self.dequeuedBucket = dequeuedBucket
     }
     
-    public func dequeueBucket(workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeueResult {
-        return dequeueResult
+    public func dequeueBucket(workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeuedBucket? {
+        return dequeuedBucket
     }
 }
