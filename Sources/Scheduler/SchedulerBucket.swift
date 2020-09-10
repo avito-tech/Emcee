@@ -38,7 +38,7 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
         result.append("testRunnerTool: \(testRunnerTool)")
         result.append("testTimeoutConfiguration: \(testTimeoutConfiguration)")
         result.append("testType: \(testType)")
-        result.append("persistentMetricsJobId: \(persistentMetricsJobId ?? "missing metrics job id")")
+        result.append("persistentMetricsJobId: \(persistentMetricsJobId)")
         
         return "<\((type(of: self))) " + result.joined(separator: " ") + ">"
     }

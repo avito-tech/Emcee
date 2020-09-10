@@ -62,6 +62,6 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStr
     }
     
     public var debugDescription: String {
-        return "<\((type(of: self))) \(bucketId) \(developerDir) \(testType) \(testDestination), \(simulatorControlTool), \(simulatorOperationTimeouts), \(testRunnerTool), \(buildArtifacts), \(pluginLocations), \(workerCapabilityRequirements), \(persistentMetricsJobId ?? "missing metrics job id"), \(testEntries.debugDescription)>"
+        return "<\((type(of: self))) \(bucketId) \(developerDir) \(testType) \(testDestination), \(simulatorControlTool), \(simulatorOperationTimeouts), \(testRunnerTool), \(buildArtifacts), \(pluginLocations), \(workerCapabilityRequirements), \(persistentMetricsJobId), \(testEntries.debugDescription)>"
     }
 }
