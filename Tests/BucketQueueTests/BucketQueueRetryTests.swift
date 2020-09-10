@@ -1,4 +1,5 @@
 import BucketQueue
+import BucketQueueModels
 import BucketQueueTestHelpers
 import DateProviderTestHelpers
 import Foundation
@@ -7,6 +8,7 @@ import QueueModels
 import QueueModelsTestHelpers
 import RunnerModels
 import RunnerTestHelpers
+import TestHistoryTestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessProvider

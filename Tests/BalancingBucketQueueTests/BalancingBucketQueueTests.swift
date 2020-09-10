@@ -1,5 +1,6 @@
 import BalancingBucketQueue
 import BucketQueue
+import BucketQueueModels
 import BucketQueueTestHelpers
 import BuildArtifacts
 import BuildArtifactsTestHelpers
@@ -12,6 +13,7 @@ import QueueModelsTestHelpers
 import RunnerModels
 import RunnerTestHelpers
 import TestHelpers
+import TestHistoryTestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessProvider

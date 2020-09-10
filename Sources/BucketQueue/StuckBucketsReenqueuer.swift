@@ -1,3 +1,4 @@
+import BucketQueueModels
 import Foundation
 
 public protocol StuckBucketsReenqueuer {

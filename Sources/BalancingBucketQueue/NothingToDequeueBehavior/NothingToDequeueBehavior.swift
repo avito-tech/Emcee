@@ -1,4 +1,5 @@
 import BucketQueue
+import BucketQueueModels
 import Foundation
 
 /// Allows to override dequeue result when no dequeueable buckets available.

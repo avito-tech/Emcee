@@ -2,7 +2,8 @@ import BucketQueue
 import DateProvider
 import DateProviderTestHelpers
 import Foundation
-import UniqueIdentifierGenerator
+import TestHistoryTestHelpers
+import TestHistoryTracker
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessProvider

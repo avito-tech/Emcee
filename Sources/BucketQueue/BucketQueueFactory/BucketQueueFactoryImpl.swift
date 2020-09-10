@@ -1,5 +1,6 @@
 import DateProvider
 import Foundation
+import TestHistoryTracker
 import UniqueIdentifierGenerator
 import WorkerAlivenessProvider
 import WorkerCapabilities

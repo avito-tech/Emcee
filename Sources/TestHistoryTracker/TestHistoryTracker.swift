@@ -1,4 +1,6 @@
+import BucketQueueModels
 import QueueModels
+import TestHistoryModels
 
 public protocol TestHistoryTracker {
     func bucketToDequeue(

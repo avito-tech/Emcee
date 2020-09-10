@@ -1,4 +1,5 @@
 import BucketQueue
+import BucketQueueModels
 import BucketQueueTestHelpers
 import Foundation
 import QueueCommunicationTestHelpers

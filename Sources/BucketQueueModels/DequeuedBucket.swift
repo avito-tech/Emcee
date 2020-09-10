@@ -1,13 +1,6 @@
 import Foundation
 import QueueModels
 
-public enum DequeueResult: Hashable {
-    case queueIsEmpty
-    case checkAgainLater(checkAfter: TimeInterval)
-    case dequeuedBucket(DequeuedBucket)
-    case workerIsNotRegistered
-}
-
 public struct DequeuedBucket: CustomStringConvertible, Hashable {
     public let enqueuedBucket: EnqueuedBucket
     public let workerId: WorkerId

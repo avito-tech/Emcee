@@ -1,4 +1,5 @@
 import BucketQueue
+import BucketQueueModels
 import Foundation
 
 public final class MultipleQueuesStuckBucketsReenqueuer: StuckBucketsReenqueuer {

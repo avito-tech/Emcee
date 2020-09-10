@@ -1,5 +1,6 @@
 import QueueModels
 import RunnerModels
+import TestHistoryModels
 
 public protocol TestHistoryStorage {
     func history(id: TestEntryHistoryId) -> TestEntryHistory
@@ -8,8 +9,8 @@ public protocol TestHistoryStorage {
     func registerAttempt(
         id: TestEntryHistoryId,
         testEntryResult: TestEntryResult,
-        workerId: WorkerId)
-        -> TestEntryHistory
+        workerId: WorkerId
+    ) -> TestEntryHistory
     
     func registerReenqueuedBucketId(
         testEntryHistoryId: TestEntryHistoryId,

@@ -1,30 +1,32 @@
 import BucketQueue
-import BucketQueueTestHelpers
+import TestHistoryModels
+import TestHistoryStorage
 import QueueModels
 import RunnerModels
 import RunnerTestHelpers
 
-final class TestHistoryStorageMock: TestHistoryStorage {
-    var historyByTest = [TestEntryHistoryId: TestEntryHistory]()
+public final class TestHistoryStorageMock: TestHistoryStorage {
+    public init() {}
     
-    func set(id: TestEntryHistoryId, testEntryHistoryItems: [TestEntryHistoryItem]) {
+    public var historyByTest = [TestEntryHistoryId: TestEntryHistory]()
+    
+    public func set(id: TestEntryHistoryId, testEntryHistoryItems: [TestEntryHistoryItem]) {
         historyByTest[id] = TestEntryHistory(
             id: id,
             testEntryHistoryItems: testEntryHistoryItems
         )
     }
     
-    func history(id: TestEntryHistoryId) -> TestEntryHistory {
+    public func history(id: TestEntryHistoryId) -> TestEntryHistory {
         return historyByTest[id] ?? TestEntryHistory(id: id, testEntryHistoryItems: [])
     }
     
     // Registers attempt, returns updated history of test entry
-    func registerAttempt(
+    public func registerAttempt(
         id: TestEntryHistoryId,
         testEntryResult: TestEntryResult,
-        workerId: WorkerId)
-        -> TestEntryHistory
-    {
+        workerId: WorkerId
+    ) -> TestEntryHistory {
         // do nothing in mock
         let fixtures = TestEntryHistoryFixtures(testEntry: TestEntryFixtures.testEntry())
         return TestEntryHistory(
@@ -33,7 +35,7 @@ final class TestHistoryStorageMock: TestHistoryStorage {
         )
     }
     
-    func registerReenqueuedBucketId(testEntryHistoryId: TestEntryHistoryId, enqueuedBucketId: BucketId) {
+    public func registerReenqueuedBucketId(testEntryHistoryId: TestEntryHistoryId, enqueuedBucketId: BucketId) {
         // do nothing in mock
     }
 }

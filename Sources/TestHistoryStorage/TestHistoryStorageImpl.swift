@@ -1,5 +1,6 @@
 import QueueModels
 import RunnerModels
+import TestHistoryModels
 
 public final class TestHistoryStorageImpl: TestHistoryStorage {
     private var historyByTest = [TestEntryHistoryId: TestEntryHistory]()

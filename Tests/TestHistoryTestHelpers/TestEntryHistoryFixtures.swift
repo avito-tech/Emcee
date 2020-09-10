@@ -3,6 +3,7 @@ import QueueModels
 import QueueModelsTestHelpers
 import RunnerModels
 import RunnerTestHelpers
+import TestHistoryModels
 
 public final class TestEntryHistoryFixtures {
     public let testEntry: TestEntry

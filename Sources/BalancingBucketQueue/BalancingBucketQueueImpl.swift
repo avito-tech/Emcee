@@ -1,4 +1,5 @@
 import BucketQueue
+import BucketQueueModels
 import Foundation
 import QueueModels
 import WorkerCapabilitiesModels

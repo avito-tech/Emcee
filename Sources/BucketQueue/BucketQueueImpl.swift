@@ -1,9 +1,11 @@
+import BucketQueueModels
 import DateProvider
 import Dispatch
 import Foundation
 import Logging
 import QueueModels
 import RunnerModels
+import TestHistoryTracker
 import Types
 import UniqueIdentifierGenerator
 import WorkerAlivenessProvider

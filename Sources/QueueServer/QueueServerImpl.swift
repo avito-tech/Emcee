@@ -17,6 +17,8 @@ import ScheduleStrategy
 import SocketModels
 import Swifter
 import SynchronousWaiter
+import TestHistoryStorage
+import TestHistoryTracker
 import UniqueIdentifierGenerator
 import WorkerAlivenessProvider
 import WorkerCapabilities

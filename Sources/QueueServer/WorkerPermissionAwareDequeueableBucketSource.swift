@@ -1,5 +1,6 @@
 import BalancingBucketQueue
 import BucketQueue
+import BucketQueueModels
 import QueueCommunication
 import QueueModels
 import WorkerCapabilitiesModels

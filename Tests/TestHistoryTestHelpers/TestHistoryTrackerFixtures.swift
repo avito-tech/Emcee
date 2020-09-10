@@ -1,7 +1,9 @@
 import BucketQueue
+import Foundation
+import TestHistoryTracker
+import TestHistoryStorage
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
-import Foundation
 
 public final class TestHistoryTrackerFixtures {
     public static func testHistoryTracker(uniqueIdentifierGenerator: UniqueIdentifierGenerator) -> TestHistoryTracker {

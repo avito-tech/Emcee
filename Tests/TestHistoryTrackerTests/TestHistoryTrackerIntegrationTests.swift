@@ -1,9 +1,12 @@
 import BucketQueue
+import BucketQueueModels
 import BucketQueueTestHelpers
 import Foundation
 import QueueModels
 import QueueModelsTestHelpers
 import RunnerTestHelpers
+import TestHistoryTestHelpers
+import TestHistoryTracker
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 

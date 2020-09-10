@@ -1,8 +1,12 @@
 import BucketQueue
+import BucketQueueModels
 import Foundation
 import QueueModels
+import TestHistoryTracker
 
 public final class FakeTestHistoryTracker: TestHistoryTracker {
+    public init() {}
+    
     public func accept(
         testingResult: TestingResult,
         bucket: Bucket,

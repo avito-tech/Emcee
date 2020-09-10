@@ -170,6 +170,7 @@ let package = Package(
             name: "BalancingBucketQueue",
             dependencies: [
                 "BucketQueue",
+                "BucketQueueModels",
                 "CountedSet",
                 "Logging",
                 "QueueModels",
@@ -185,6 +186,7 @@ let package = Package(
             dependencies: [
                 "BalancingBucketQueue",
                 "BucketQueue",
+                "BucketQueueModels",
                 "BucketQueueTestHelpers",
                 "BuildArtifacts",
                 "BuildArtifactsTestHelpers",
@@ -196,6 +198,7 @@ let package = Package(
                 "RunnerModels",
                 "RunnerTestHelpers",
                 "TestHelpers",
+                "TestHistoryTestHelpers",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessProvider",
@@ -207,11 +210,13 @@ let package = Package(
             // MARK: BucketQueue
             name: "BucketQueue",
             dependencies: [
-                "BuildArtifacts",
+                "BucketQueueModels",
                 "DateProvider",
                 "Logging",
                 "QueueModels",
                 "RunnerModels",
+                "TestHistoryModels",
+                "TestHistoryTracker",
                 "Types",
                 "UniqueIdentifierGenerator",
                 "WorkerAlivenessProvider",
@@ -221,16 +226,26 @@ let package = Package(
             path: "Sources/BucketQueue"
         ),
         .target(
+            // MARK: BucketQueueModels
+            name: "BucketQueueModels",
+            dependencies: [
+                "Logging",
+                "QueueModels",
+            ],
+            path: "Sources/BucketQueueModels"
+        ),
+        .target(
             // MARK: BucketQueueTestHelpers
             name: "BucketQueueTestHelpers",
             dependencies: [
                 "BucketQueue",
+                "BucketQueueModels",
                 "DateProvider",
                 "DateProviderTestHelpers",
                 "QueueModels",
                 "QueueModelsTestHelpers",
-                "RunnerModels",
-                "RunnerTestHelpers",
+                "TestHistoryTestHelpers",
+                "TestHistoryTracker",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessProvider",
@@ -244,6 +259,7 @@ let package = Package(
             name: "BucketQueueTests",
             dependencies: [
                 "BucketQueue",
+                "BucketQueueModels",
                 "BucketQueueTestHelpers",
                 "DateProviderTestHelpers",
                 "DistWorkerModels",
@@ -253,6 +269,7 @@ let package = Package(
                 "RunnerModels",
                 "RunnerTestHelpers",
                 "TestHelpers",
+                "TestHistoryTestHelpers",
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
                 "WorkerAlivenessProvider",
@@ -1258,6 +1275,7 @@ let package = Package(
                 "AutomaticTermination",
                 "BalancingBucketQueue",
                 "BucketQueue",
+                "BucketQueueModels",
                 "DateProvider",
                 "Deployer",
                 "DistWorkerModels",
@@ -1278,6 +1296,8 @@ let package = Package(
                 "SocketModels",
                 "Swifter",
                 "SynchronousWaiter",
+                "TestHistoryStorage",
+                "TestHistoryTracker",
                 "Timer",
                 "Types",
                 "UniqueIdentifierGenerator",
@@ -1308,6 +1328,7 @@ let package = Package(
                 "AutomaticTerminationTestHelpers",
                 "BalancingBucketQueue",
                 "BucketQueue",
+                "BucketQueueModels",
                 "BucketQueueTestHelpers",
                 "DateProviderTestHelpers",
                 "DeployerTestHelpers",
@@ -2022,6 +2043,74 @@ let package = Package(
             dependencies: [
             ],
             path: "Tests/TestHelpers"
+        ),
+        .target(
+            // MARK: TestHistoryModels
+            name: "TestHistoryModels",
+            dependencies: [
+                "BuildArtifacts",
+                "QueueModels",
+                "RunnerModels",
+            ],
+            path: "Sources/TestHistoryModels"
+        ),
+        .target(
+            // MARK: TestHistoryStorage
+            name: "TestHistoryStorage",
+            dependencies: [
+                "QueueModels",
+                "RunnerModels",
+                "TestHistoryModels",
+            ],
+            path: "Sources/TestHistoryStorage"
+        ),
+        .target(
+            // MARK: TestHistoryTestHelpers
+            name: "TestHistoryTestHelpers",
+            dependencies: [
+                "BucketQueue",
+                "BucketQueueModels",
+                "QueueModels",
+                "QueueModelsTestHelpers",
+                "RunnerModels",
+                "RunnerTestHelpers",
+                "TestHistoryModels",
+                "TestHistoryStorage",
+                "TestHistoryTracker",
+                "UniqueIdentifierGenerator",
+                "UniqueIdentifierGeneratorTestHelpers",
+            ],
+            path: "Tests/TestHistoryTestHelpers"
+        ),
+        .target(
+            // MARK: TestHistoryTracker
+            name: "TestHistoryTracker",
+            dependencies: [
+                "BucketQueueModels",
+                "QueueModels",
+                "RunnerModels",
+                "TestHistoryModels",
+                "TestHistoryStorage",
+                "UniqueIdentifierGenerator",
+            ],
+            path: "Sources/TestHistoryTracker"
+        ),
+        .testTarget(
+            // MARK: TestHistoryTrackerTests
+            name: "TestHistoryTrackerTests",
+            dependencies: [
+                "BucketQueue",
+                "BucketQueueModels",
+                "BucketQueueTestHelpers",
+                "QueueModels",
+                "QueueModelsTestHelpers",
+                "RunnerTestHelpers",
+                "TestHistoryModels",
+                "TestHistoryTestHelpers",
+                "TestHistoryTracker",
+                "UniqueIdentifierGeneratorTestHelpers",
+            ],
+            path: "Tests/TestHistoryTrackerTests"
         ),
         .target(
             // MARK: TestingFakeFbxctest
