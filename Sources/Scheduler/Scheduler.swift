@@ -22,25 +22,26 @@ import UniqueIdentifierGenerator
 
 public final class Scheduler {
     private let di: DI
-    private let configuration: SchedulerConfiguration
     private let queue = OperationQueue()
     private let resourceSemaphore: ListeningSemaphore<ResourceAmounts>
     private let version: Version
+    private weak var schedulerDataSource: SchedulerDataSource?
     private weak var schedulerDelegate: SchedulerDelegate?
     
     public init(
-        configuration: SchedulerConfiguration,
         di: DI,
-        schedulerDelegate: SchedulerDelegate?,
+        numberOfSimulators: UInt,
+        schedulerDataSource: SchedulerDataSource,
+        schedulerDelegate: SchedulerDelegate,
         version: Version
     ) {
-        self.configuration = configuration
         self.di = di
         self.resourceSemaphore = ListeningSemaphore(
             maximumValues: .of(
-                runningTests: Int(configuration.numberOfSimulators)
+                runningTests: Int(numberOfSimulators)
             )
         )
+        self.schedulerDataSource = schedulerDataSource
         self.schedulerDelegate = schedulerDelegate
         self.version = version
     }
@@ -55,7 +56,7 @@ public final class Scheduler {
     // MARK: - Running on Queue
     
     private func startFetchingAndRunningTests() {
-        for _ in 0 ..< configuration.numberOfSimulators {
+        for _ in 0 ..< resourceSemaphore.availableResources.runningTests {
             fetchAndRunBucket()
         }
     }
@@ -65,7 +66,7 @@ public final class Scheduler {
             if self.resourceSemaphore.availableResources.runningTests == 0 {
                 return
             }
-            guard let bucket = self.configuration.schedulerDataSource.nextBucket() else {
+            guard let bucket = self.schedulerDataSource?.nextBucket() else {
                 Logger.debug("Data Source returned no bucket")
                 return
             }

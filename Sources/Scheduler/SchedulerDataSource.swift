@@ -1,5 +1,5 @@
 import Foundation
 
-public protocol SchedulerDataSource {
+public protocol SchedulerDataSource: class {
     func nextBucket() -> SchedulerBucket?
 }

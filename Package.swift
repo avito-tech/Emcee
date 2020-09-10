@@ -1716,7 +1716,6 @@ let package = Package(
                 "DateProvider",
                 "DeveloperDirLocator",
                 "DeveloperDirModels",
-                "EventBus",
                 "FileSystem",
                 "ListeningSemaphore",
                 "LocalHostDeterminer",
