@@ -22,7 +22,8 @@ final class DistRunSchedulerDataSourceTests: XCTestCase {
                 testExecutionBehavior: TestExecutionBehaviorFixtures(environment: ["a": "b"]).build(),
                 testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
                 testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
-                testType: .uiTest
+                testType: .uiTest,
+                persistentMetricsJobId: ""
             )
         }
         let dataSource = DistRunSchedulerDataSource(onNextBucketRequest: handler)

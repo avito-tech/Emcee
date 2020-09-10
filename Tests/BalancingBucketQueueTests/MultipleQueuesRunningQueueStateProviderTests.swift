@@ -99,7 +99,8 @@ final class MultipleQueuesRunningQueueStateProviderTests: XCTestCase {
             bucketQueue: bucketQueue,
             job: Job(creationTime: Date(), jobId: jobId, priority: .medium),
             jobGroup: JobGroup(creationTime: Date(), jobGroupId: JobGroupId("group_" + jobId.value), priority: .medium),
-            resultsCollector: ResultsCollector()
+            resultsCollector: ResultsCollector(),
+            persistentMetricsJobId: ""
         )
     }
 }

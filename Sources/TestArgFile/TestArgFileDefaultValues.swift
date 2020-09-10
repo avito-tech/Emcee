@@ -46,4 +46,5 @@ public enum TestArgFileDefaultValues {
         testRunnerMaximumSilenceDuration: 60
     )
     public static let workerCapabilityRequirements: Set<WorkerCapabilityRequirement> = []
+    public static let persistentMetricsJobId: String = "UnidentifiedJob"
 }

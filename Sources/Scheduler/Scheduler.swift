@@ -194,7 +194,8 @@ public final class Scheduler {
             resourceLocationResolver: try di.get(),
             tempFolder: try di.get(),
             testRunnerProvider: try di.get(),
-            version: version
+            version: version,
+            persistentMetricsJobId: bucket.persistentMetricsJobId
         )
 
         let runnerResult = try runner.run(

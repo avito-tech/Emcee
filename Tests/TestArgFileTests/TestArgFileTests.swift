@@ -30,7 +30,8 @@ final class TestArgFileTests: XCTestCase {
                 jobGroupPriority: 100,
                 jobId: "jobId",
                 jobPriority: 500,
-                testDestinationConfigurations: []
+                testDestinationConfigurations: [],
+                persistentMetricsJobId: ""
             )
         )
     }
@@ -55,7 +56,8 @@ final class TestArgFileTests: XCTestCase {
                 jobGroupPriority: TestArgFileDefaultValues.priority,
                 jobId: "jobId",
                 jobPriority: TestArgFileDefaultValues.priority,
-                testDestinationConfigurations: []
+                testDestinationConfigurations: [],
+                persistentMetricsJobId: ""
             )
         )
     }

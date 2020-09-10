@@ -9,6 +9,7 @@ public struct TestArgFile: Codable, Equatable {
     public let jobId: JobId
     public let jobPriority: Priority
     public let testDestinationConfigurations: [TestDestinationConfiguration]
+    public let persistentMetricsJobId: String
     
     public init(
         entries: [TestArgFileEntry],
@@ -16,7 +17,8 @@ public struct TestArgFile: Codable, Equatable {
         jobGroupPriority: Priority,
         jobId: JobId,
         jobPriority: Priority,
-        testDestinationConfigurations: [TestDestinationConfiguration]
+        testDestinationConfigurations: [TestDestinationConfiguration],
+        persistentMetricsJobId: String
     ) {
         self.entries = entries
         self.jobGroupId = jobGroupId
@@ -24,6 +26,7 @@ public struct TestArgFile: Codable, Equatable {
         self.jobId = jobId
         self.jobPriority = jobPriority
         self.testDestinationConfigurations = testDestinationConfigurations
+        self.persistentMetricsJobId = persistentMetricsJobId
     }
     
     public init(from decoder: Decoder) throws {
@@ -40,6 +43,7 @@ public struct TestArgFile: Codable, Equatable {
             jobPriority
         let testDestinationConfigurations = try container.decodeIfPresent([TestDestinationConfiguration].self, forKey: .testDestinationConfigurations) ??
             []
+        let persistentMetricsJobId = try container.decodeIfPresent(String.self, forKey: .persistentMetricsJobId) ?? TestArgFileDefaultValues.persistentMetricsJobId
         
         self.init(
             entries: entries,
@@ -47,7 +51,8 @@ public struct TestArgFile: Codable, Equatable {
             jobGroupPriority: jobGroupPriority,
             jobId: jobId,
             jobPriority: jobPriority,
-            testDestinationConfigurations: testDestinationConfigurations
+            testDestinationConfigurations: testDestinationConfigurations,
+            persistentMetricsJobId: persistentMetricsJobId
         )
     }
 }

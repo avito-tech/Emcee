@@ -76,7 +76,8 @@ public final class DumpCommand: Command {
                 testRunnerTool: testArgFileEntry.testRunnerTool,
                 testTimeoutConfiguration: testTimeoutConfigurationForRuntimeDump,
                 testsToValidate: testArgFileEntry.testsToRun,
-                xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location
+                xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location,
+                persistentMetricsJobId: testArgFile.persistentMetricsJobId
             )
 
             let testDiscoveryQuerier = TestDiscoveryQuerierImpl(

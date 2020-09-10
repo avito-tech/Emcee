@@ -204,7 +204,8 @@ final class BucketQueueImpl: BucketQueue {
                         testRunnerTool: stuckBucket.bucket.testRunnerTool,
                         testTimeoutConfiguration: stuckBucket.bucket.testTimeoutConfiguration,
                         testType: stuckBucket.bucket.testType,
-                        workerCapabilityRequirements: stuckBucket.bucket.workerCapabilityRequirements
+                        workerCapabilityRequirements: stuckBucket.bucket.workerCapabilityRequirements,
+                        persistentMetricsJobId: stuckBucket.bucket.persistentMetricsJobId
                     )
                 }
             }

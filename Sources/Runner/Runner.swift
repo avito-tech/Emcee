@@ -41,7 +41,8 @@ public final class Runner {
         tempFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider,
         testTimeoutCheckInterval: DispatchTimeInterval = .seconds(1),
-        version: Version
+        version: Version,
+        persistentMetricsJobId: String
     ) {
         self.configuration = configuration
         self.dateProvider = dateProvider
@@ -49,8 +50,9 @@ public final class Runner {
         self.fileSystem = fileSystem
         self.metricReportingTestRunnerStream = MetricReportingTestRunnerStream(
             dateProvider: dateProvider,
+            version: version,
             host: LocalHostDeterminer.currentHostAddress,
-            version: version
+            persistentMetricsJobId: persistentMetricsJobId
         )
         self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver

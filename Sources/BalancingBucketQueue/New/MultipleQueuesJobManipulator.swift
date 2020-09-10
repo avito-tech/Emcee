@@ -1,11 +1,18 @@
 import Foundation
 import QueueModels
+import Metrics
+import LocalHostDeterminer
 
 public final class MultipleQueuesJobManipulator: JobManipulator {
     private let multipleQueuesContainer: MultipleQueuesContainer
+    private let emceeVersion: Version
     
-    public init(multipleQueuesContainer: MultipleQueuesContainer) {
+    public init(
+        multipleQueuesContainer: MultipleQueuesContainer,
+        emceeVersion: Version
+    ) {
         self.multipleQueuesContainer = multipleQueuesContainer
+        self.emceeVersion = emceeVersion
     }
     
     public func delete(jobId: JobId) throws {
@@ -23,6 +30,15 @@ public final class MultipleQueuesJobManipulator: JobManipulator {
             
             for deletedJobQueue in jobQueuesToDelete {
                 multipleQueuesContainer.untrack(jobGroup: deletedJobQueue.jobGroup)
+            
+                MetricRecorder.capture(
+                    JobProcessingDuration(
+                        queueHost: LocalHostDeterminer.currentHostAddress,
+                        version: emceeVersion,
+                        persistentMetricsJobId: deletedJobQueue.persistentMetricsJobId,
+                        duration: deletedJobQueue.job.creationTime.timeIntervalSinceNow
+                    )
+                )
             }
         }
     }

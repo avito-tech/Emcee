@@ -8,19 +8,22 @@ import RunnerModels
 
 public final class MetricReportingTestRunnerStream: TestRunnerStream {
     private let dateProvider: DateProvider
-    private let host: String
-    private let lastTestStoppedEventTimestamp = AtomicValue<Date?>(nil)
     private let version: Version
+    private let host: String
+    private let persistentMetricsJobId: String
+    private let lastTestStoppedEventTimestamp = AtomicValue<Date?>(nil)
     private let willRunEventTimestamp = AtomicValue<Date?>(nil)
     
     public init(
         dateProvider: DateProvider,
+        version: Version,
         host: String,
-        version: Version
+        persistentMetricsJobId: String
     ) {
         self.dateProvider = dateProvider
         self.host = host
         self.version = version
+        self.persistentMetricsJobId = persistentMetricsJobId
     }
     
     public func openStream() {
@@ -75,7 +78,7 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
                 version: version,
                 timestamp: dateProvider.currentDate()
             ),
-            TestDurationMetric(
+            ConcreteTestDuration(
                 result: testStoppedEvent.result.rawValue,
                 host: host,
                 testClassName: testStoppedEvent.testName.className,
@@ -83,6 +86,15 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
                 duration: testStoppedEvent.testDuration,
                 version: version,
                 timestamp: dateProvider.currentDate()
+            )
+        )
+        MetricRecorder.capture(
+            AggregatedTestsDuration(
+                result: testStoppedEvent.result.rawValue,
+                host: host,
+                version: version,
+                persistentMetricsJobId: persistentMetricsJobId,
+                duration: testStoppedEvent.testDuration
             )
         )
         

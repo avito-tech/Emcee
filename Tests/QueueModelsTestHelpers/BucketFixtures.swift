@@ -28,7 +28,8 @@ public final class BucketFixtures {
             testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
             testType: TestType.uiTest,
-            workerCapabilityRequirements: workerCapabilityRequirements
+            workerCapabilityRequirements: workerCapabilityRequirements,
+            persistentMetricsJobId: ""
         )
     }
 }

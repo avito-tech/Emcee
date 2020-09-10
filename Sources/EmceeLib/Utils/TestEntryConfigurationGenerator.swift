@@ -9,13 +9,16 @@ import TestDiscovery
 public final class TestEntryConfigurationGenerator {
     private let validatedEntries: [ValidatedTestEntry]
     private let testArgFileEntry: TestArgFileEntry
+    private let persistentMetricsJobId: String
 
     public init(
         validatedEntries: [ValidatedTestEntry],
-        testArgFileEntry: TestArgFileEntry
+        testArgFileEntry: TestArgFileEntry,
+        persistentMetricsJobId: String
     ) {
         self.validatedEntries = validatedEntries
         self.testArgFileEntry = testArgFileEntry
+        self.persistentMetricsJobId = persistentMetricsJobId
     }
     
     public func createTestEntryConfigurations() -> [TestEntryConfiguration] {
@@ -43,7 +46,8 @@ public final class TestEntryConfigurationGenerator {
                     testRunnerTool: testArgFileEntry.testRunnerTool,
                     testTimeoutConfiguration: testArgFileEntry.testTimeoutConfiguration,
                     testType: testArgFileEntry.testType,
-                    workerCapabilityRequirements: testArgFileEntry.workerCapabilityRequirements
+                    workerCapabilityRequirements: testArgFileEntry.workerCapabilityRequirements,
+                    persistentMetricsJobId: persistentMetricsJobId
                 )
             }
         }

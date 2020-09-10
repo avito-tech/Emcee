@@ -69,6 +69,15 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
                 )
             }
         }
+        
         MetricRecorder.capture(testTimeToStartMetrics + queueStateMetrics)
+        MetricRecorder.capture(
+            BucketProcessingDuration(
+                queueHost: LocalHostDeterminer.currentHostAddress,
+                version: version,
+                persistentMetricsJobId: acceptResult.dequeuedBucket.enqueuedBucket.bucket.persistentMetricsJobId ,
+                duration: acceptResult.dequeuedBucket.enqueuedBucket.enqueueTimestamp.timeIntervalSinceNow
+            )
+        )
     }
 }

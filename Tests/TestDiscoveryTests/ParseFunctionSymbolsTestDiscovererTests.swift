@@ -99,6 +99,7 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
         testRunnerTool: .xcodebuild(nil),
         testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
         testsToValidate: [],
-        xcTestBundleLocation: testBundleLocation
+        xcTestBundleLocation: testBundleLocation,
+        persistentMetricsJobId: ""
     )
 }

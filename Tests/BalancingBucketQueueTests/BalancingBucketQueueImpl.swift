@@ -7,16 +7,19 @@ import WorkerCapabilitiesModels
 
 public final class BalancingBucketQueueImpl {
     private let bucketQueueFactory: BucketQueueFactory
+    private let emceeVersion: Version
     private let multipleQueuesContainer = MultipleQueuesContainer()
     
     public init(
-        bucketQueueFactory: BucketQueueFactory
+        bucketQueueFactory: BucketQueueFactory,
+        emceeVersion: Version
     ) {
         self.bucketQueueFactory = bucketQueueFactory
+        self.emceeVersion = emceeVersion
     }
     
     public func delete(jobId: JobId) throws {
-        try MultipleQueuesJobManipulator(multipleQueuesContainer: multipleQueuesContainer).delete(jobId: jobId)
+        try MultipleQueuesJobManipulator(multipleQueuesContainer: multipleQueuesContainer, emceeVersion: emceeVersion).delete(jobId: jobId)
     }
     
     public var ongoingJobIds: Set<JobId> {

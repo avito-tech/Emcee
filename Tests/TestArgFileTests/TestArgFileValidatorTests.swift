@@ -34,7 +34,8 @@ final class TestArgFileValidatorTests: XCTestCase {
             jobGroupPriority: 0,
             jobId: "",
             jobPriority: 0,
-            testDestinationConfigurations: []
+            testDestinationConfigurations: [],
+            persistentMetricsJobId: ""
         )
         
         assertDoesNotThrow {
@@ -67,7 +68,8 @@ final class TestArgFileValidatorTests: XCTestCase {
             jobGroupPriority: 0,
             jobId: "",
             jobPriority: 0,
-            testDestinationConfigurations: []
+            testDestinationConfigurations: [],
+            persistentMetricsJobId: ""
         )
         
         assertThrows {
@@ -100,7 +102,8 @@ final class TestArgFileValidatorTests: XCTestCase {
             jobGroupPriority: 0,
             jobId: "",
             jobPriority: 0,
-            testDestinationConfigurations: []
+            testDestinationConfigurations: [],
+            persistentMetricsJobId: ""
         )
         
         assertThrows {
@@ -133,7 +136,8 @@ final class TestArgFileValidatorTests: XCTestCase {
             jobGroupPriority: 0,
             jobId: "",
             jobPriority: 0,
-            testDestinationConfigurations: []
+            testDestinationConfigurations: [],
+            persistentMetricsJobId: ""
         )
         
         assertThrows {
@@ -166,7 +170,8 @@ final class TestArgFileValidatorTests: XCTestCase {
             jobGroupPriority: 0,
             jobId: "",
             jobPriority: 0,
-            testDestinationConfigurations: []
+            testDestinationConfigurations: [],
+            persistentMetricsJobId: ""
         )
         
         assertThrows {

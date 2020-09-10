@@ -21,6 +21,7 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStr
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testType: TestType
     public let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
+    public let persistentMetricsJobId: String
 
     public init(
         bucketId: BucketId,
@@ -36,7 +37,8 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStr
         testRunnerTool: TestRunnerTool,
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testType: TestType,
-        workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
+        workerCapabilityRequirements: Set<WorkerCapabilityRequirement>,
+        persistentMetricsJobId: String
     ) {
         self.bucketId = bucketId
         self.buildArtifacts = buildArtifacts
@@ -52,6 +54,7 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStr
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testType = testType
         self.workerCapabilityRequirements = workerCapabilityRequirements
+        self.persistentMetricsJobId = persistentMetricsJobId
     }
     
     public var description: String {
@@ -59,6 +62,6 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStr
     }
     
     public var debugDescription: String {
-        return "<\((type(of: self))) \(bucketId) \(developerDir) \(testType) \(testDestination), \(simulatorControlTool), \(simulatorOperationTimeouts), \(testRunnerTool), \(buildArtifacts), \(pluginLocations), \(workerCapabilityRequirements), \(testEntries.debugDescription)>"
+        return "<\((type(of: self))) \(bucketId) \(developerDir) \(testType) \(testDestination), \(simulatorControlTool), \(simulatorOperationTimeouts), \(testRunnerTool), \(buildArtifacts), \(pluginLocations), \(workerCapabilityRequirements), \(persistentMetricsJobId ?? "missing metrics job id"), \(testEntries.debugDescription)>"
     }
 }

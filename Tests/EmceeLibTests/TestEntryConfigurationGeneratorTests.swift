@@ -61,7 +61,8 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 testType: .uiTest,
                 testsToRun: [.testName(argFileTestToRun1)],
                 workerCapabilityRequirements: []
-            )
+            ),
+            persistentMetricsJobId: ""
         )
         
         let configurations = generator.createTestEntryConfigurations()
@@ -98,7 +99,8 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 testType: .uiTest,
                 testsToRun: [.testName(argFileTestToRun1), .testName(argFileTestToRun1)],
                 workerCapabilityRequirements: []
-            )
+            ),
+            persistentMetricsJobId: ""
         )
         
         let expectedTestEntryConfigurations =
@@ -137,7 +139,8 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 testType: .uiTest,
                 testsToRun: [.allDiscoveredTests],
                 workerCapabilityRequirements: []
-            )
+            ),
+            persistentMetricsJobId: ""
         )
         
         let expectedConfigurations = [

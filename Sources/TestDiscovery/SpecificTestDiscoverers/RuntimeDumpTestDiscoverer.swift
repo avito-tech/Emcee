@@ -69,7 +69,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     
     func discoverTestEntries(
         configuration: TestDiscoveryConfiguration
-    ) throws -> [DiscoveredTestEntry] {        
+    ) throws -> [DiscoveredTestEntry] {
         let runtimeEntriesJSONPath = tempFolder.pathWith(components: [uniqueIdentifierGenerator.generate()])
         Logger.debug("Will dump runtime tests into file: \(runtimeEntriesJSONPath)")
         
@@ -88,7 +88,8 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,
-            version: version
+            version: version,
+            persistentMetricsJobId: configuration.persistentMetricsJobId
         )
         
         return try runRetrying(times: numberOfAttemptsToPerformRuntimeDump) {

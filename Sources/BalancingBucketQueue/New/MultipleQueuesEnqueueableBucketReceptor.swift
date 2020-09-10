@@ -37,7 +37,8 @@ public final class MultipleQueuesEnqueueableBucketReceptor: EnqueueableBucketRec
                             jobGroupId: prioritizedJob.jobGroupId,
                             jobGroupPriority: prioritizedJob.jobGroupPriority
                         ),
-                        resultsCollector: ResultsCollector()
+                        resultsCollector: ResultsCollector(),
+                        persistentMetricsJobId: prioritizedJob.persistentMetricsJobId
                     )
                 )
                 multipleQueuesContainer.removeFromDeleted(jobId: prioritizedJob.jobId)

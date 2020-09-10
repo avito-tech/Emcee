@@ -244,7 +244,8 @@ final class TestDiscoveryQuerierTests: XCTestCase {
                 testRunnerMaximumSilenceDuration: 10
             ),
             testsToValidate: testsToValidate,
-            xcTestBundleLocation: xcTestBundleLocation
+            xcTestBundleLocation: xcTestBundleLocation,
+            persistentMetricsJobId: ""
         )
     }
 

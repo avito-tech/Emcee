@@ -15,8 +15,9 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
     lazy var metricHandler = FakeMetricHandler<GraphiteMetric>()
     lazy var stream = MetricReportingTestRunnerStream(
         dateProvider: dateProvider,
+        version: version,
         host: host,
-        version: version
+        persistentMetricsJobId: ""
     )
     lazy var testName = TestName(className: "class", methodName: "test")
     lazy var testContext = TestContextFixtures().testContext
@@ -76,7 +77,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
         
         XCTAssertTrue(
             metricHandler.metrics.contains(
-                TestDurationMetric(
+                ConcreteTestDuration(
                     result: testStoppedEvent.result.rawValue,
                     host: host,
                     testClassName: testStoppedEvent.testName.className,
@@ -212,7 +213,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
                     version: version,
                     timestamp: testStoppedAt
                 ),
-                TestDurationMetric(
+                ConcreteTestDuration(
                     result: testStoppedEvent.result.rawValue,
                     host: host,
                     testClassName: testStoppedEvent.testName.className,

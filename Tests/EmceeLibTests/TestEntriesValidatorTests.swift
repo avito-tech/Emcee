@@ -92,7 +92,8 @@ final class TestEntriesValidatorTests: XCTestCase {
     ) -> TestEntriesValidator {
         return TestEntriesValidator(
             testArgFileEntries: testArgFileEntries,
-            testDiscoveryQuerier: testDiscoveryQuerier
+            testDiscoveryQuerier: testDiscoveryQuerier,
+            persistentMetricsJobId: ""
         )
     }
 

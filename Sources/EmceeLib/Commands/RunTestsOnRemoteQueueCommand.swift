@@ -198,13 +198,15 @@ public final class RunTestsOnRemoteQueueCommand: Command {
 
         let testEntriesValidator = TestEntriesValidator(
             testArgFileEntries: testArgFile.entries,
-            testDiscoveryQuerier: testDiscoveryQuerier
+            testDiscoveryQuerier: testDiscoveryQuerier,
+            persistentMetricsJobId: testArgFile.persistentMetricsJobId
         )
         
         _ = try testEntriesValidator.validatedTestEntries { testArgFileEntry, validatedTestEntry in
             let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
                 validatedEntries: validatedTestEntry,
-                testArgFileEntry: testArgFileEntry
+                testArgFileEntry: testArgFileEntry,
+                persistentMetricsJobId: testArgFile.persistentMetricsJobId
             )
             let testEntryConfigurations = testEntryConfigurationGenerator.createTestEntryConfigurations()
             Logger.info("Will schedule \(testEntryConfigurations.count) tests to queue server at \(queueServerAddress)")
@@ -220,7 +222,8 @@ public final class RunTestsOnRemoteQueueCommand: Command {
                     jobGroupId: testArgFile.jobGroupId,
                     jobGroupPriority: testArgFile.jobGroupPriority,
                     jobId: testArgFile.jobId,
-                    jobPriority: testArgFile.jobPriority
+                    jobPriority: testArgFile.jobPriority,
+                    persistentMetricsJobId: testArgFile.persistentMetricsJobId
                 ),
                 scheduleStrategy: testArgFileEntry.scheduleStrategy,
                 testEntryConfigurations: testEntryConfigurations,

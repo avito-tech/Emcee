@@ -3,7 +3,7 @@ import Graphite
 import Metrics
 import QueueModels
 
-public final class TestDurationMetric: GraphiteMetric {
+public final class ConcreteTestDuration: GraphiteMetric {
     public init(
         result: String,
         host: String,

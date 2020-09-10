@@ -8,7 +8,8 @@ import XCTest
 final class MultipleQueuesJobManipulatorTests: XCTestCase {
     private lazy var container = MultipleQueuesContainer()
     private lazy var manipulator = MultipleQueuesJobManipulator(
-        multipleQueuesContainer: container
+        multipleQueuesContainer: container,
+        emceeVersion: Version(value: "version")
     )
     
     func test___deleting_non_existing_job___throws() {

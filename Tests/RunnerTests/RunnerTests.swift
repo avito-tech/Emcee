@@ -218,7 +218,8 @@ public final class RunnerTests: XCTestCase {
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,
             testTimeoutCheckInterval: .milliseconds(100),
-            version: Version(value: "version")
+            version: Version(value: "version"),
+            persistentMetricsJobId: ""
         )
         return try runner.run(
             entries: testEntries,

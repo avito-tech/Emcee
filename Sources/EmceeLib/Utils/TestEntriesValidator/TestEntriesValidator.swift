@@ -10,14 +10,17 @@ import TestDiscovery
 public final class TestEntriesValidator {
     private let testArgFileEntries: [TestArgFileEntry]
     private let testDiscoveryQuerier: TestDiscoveryQuerier
+    private let persistentMetricsJobId: String
     private let transformer = TestToRunIntoTestEntryTransformer()
 
     public init(
         testArgFileEntries: [TestArgFileEntry],
-        testDiscoveryQuerier: TestDiscoveryQuerier
+        testDiscoveryQuerier: TestDiscoveryQuerier,
+        persistentMetricsJobId: String
     ) {
         self.testArgFileEntries = testArgFileEntries
         self.testDiscoveryQuerier = testDiscoveryQuerier
+        self.persistentMetricsJobId = persistentMetricsJobId
     }
     
     public func validatedTestEntries(
@@ -53,7 +56,8 @@ public final class TestEntriesValidator {
             testRunnerTool: testArgFileEntry.testRunnerTool,
             testTimeoutConfiguration: testTimeoutConfigurationForRuntimeDump,
             testsToValidate: testArgFileEntry.testsToRun,
-            xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location
+            xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location,
+            persistentMetricsJobId: persistentMetricsJobId
         )
 
         return try transformer.transform(

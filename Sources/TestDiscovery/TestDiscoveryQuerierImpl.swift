@@ -9,6 +9,7 @@ import PathLib
 import PluginManager
 import ProcessController
 import QueueModels
+import LocalHostDeterminer
 import ResourceLocationResolver
 import Runner
 import RunnerModels
@@ -98,17 +99,33 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     private func discoveredTests(
         configuration: TestDiscoveryConfiguration
     ) throws -> DiscoveredTests {
+        let discoveryStartDate = Date()
         let internalTestDiscoverer = createSpecificTestDiscoverer(configuration: configuration)
         
-        let foundTestEntries: [DiscoveredTestEntry] = try internalTestDiscoverer.discoverTestEntries(
-            configuration: configuration
-        )
+        let foundTestEntries: [DiscoveredTestEntry]
+        do {
+            foundTestEntries = try internalTestDiscoverer.discoverTestEntries(
+                configuration: configuration
+            )
+        } catch {
+            reportDiscoveryDuration(
+                persistentMetricsJobId: configuration.persistentMetricsJobId,
+                startDate: discoveryStartDate,
+                isSuccessful: false
+            )
+            throw error
+        }
         
         let allTests = foundTestEntries.flatMap { $0.testMethods }
         reportStats(
             testCaseCount: foundTestEntries.count,
             testCount: allTests.count,
             configuration: configuration
+        )
+        reportDiscoveryDuration(
+            persistentMetricsJobId: configuration.persistentMetricsJobId,
+            startDate: discoveryStartDate,
+            isSuccessful: true
         )
         
         return DiscoveredTests(tests: foundTestEntries)
@@ -159,6 +176,18 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
                 numberOfTestCases: testCaseCount,
                 version: version,
                 timestamp: dateProvider.currentDate()
+            )
+        )
+    }
+    
+    private func reportDiscoveryDuration(persistentMetricsJobId: String, startDate: Date, isSuccessful: Bool) {
+        MetricRecorder.capture(
+            TestDiscoveryDuration(
+                host: LocalHostDeterminer.currentHostAddress,
+                version: version,
+                persistentMetricsJobId: persistentMetricsJobId,
+                isSuccessful: isSuccessful,
+                duration: startDate.timeIntervalSinceNow
             )
         )
     }

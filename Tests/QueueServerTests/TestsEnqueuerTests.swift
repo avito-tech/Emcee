@@ -12,7 +12,7 @@ import XCTest
 
 final class TestsEnqueuerTests: XCTestCase {
     let enqueueableBucketReceptor = FakeEnqueueableBucketReceptor()
-    let prioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: "jobId", jobPriority: .medium)
+    let prioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: "jobId", jobPriority: .medium, persistentMetricsJobId: "")
     
     func test() throws {
         let bucketId = BucketId(value: UUID().uuidString)
