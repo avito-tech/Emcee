@@ -71,18 +71,21 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         let remoteCacheConfig = try ArgumentsReader.remoteCacheConfig(
             try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.remoteCacheConfig.name)
         )
+        
+        di.set(
+            tempFolder,
+            for: TemporaryFolder.self
+        )
 
         let runningQueueServerAddress = try detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
             emceeVersion: emceeVersion,
             queueServerDeploymentDestination: queueServerConfiguration.queueServerDeploymentDestination,
             queueServerConfigurationLocation: queueServerConfigurationLocation,
-            jobId: testArgFile.jobId,
-            tempFolder: tempFolder
+            jobId: testArgFile.jobId
         )
         let jobResults = try runTestsOnRemotelyRunningQueue(
             queueServerAddress: runningQueueServerAddress,
             remoteCacheConfig: remoteCacheConfig,
-            tempFolder: tempFolder,
             testArgFile: testArgFile,
             version: emceeVersion
         )
@@ -98,8 +101,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         emceeVersion: Version,
         queueServerDeploymentDestination: DeploymentDestination,
         queueServerConfigurationLocation: QueueServerConfigurationLocation,
-        jobId: JobId,
-        tempFolder: TemporaryFolder
+        jobId: JobId
     ) throws -> SocketAddress {
         Logger.info("Searching for queue server on '\(queueServerDeploymentDestination.host)' with queue version \(emceeVersion)")
         let remoteQueueDetector = DefaultRemoteQueueDetector(
@@ -127,7 +129,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             emceeVersion: emceeVersion,
             processControllerProvider: try di.get(),
             queueServerConfigurationLocation: queueServerConfigurationLocation,
-            tempFolder: tempFolder,
+            tempFolder: try di.get(),
             uniqueIdentifierGenerator: try di.get()
         )
         let deployQueue = DispatchQueue(label: "RunTestsOnRemoteQueueCommand.deployQueue", attributes: .concurrent)
@@ -156,7 +158,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     private func runTestsOnRemotelyRunningQueue(
         queueServerAddress: SocketAddress,
         remoteCacheConfig: RuntimeDumpRemoteCacheConfig?,
-        tempFolder: TemporaryFolder,
         testArgFile: TestArgFile,
         version: Version
     ) throws -> JobResults {
@@ -175,7 +176,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             processControllerProvider: try di.get(),
             remoteCache: try di.get(RuntimeDumpRemoteCacheProvider.self).remoteCache(config: remoteCacheConfig),
             resourceLocationResolver: try di.get(),
-            tempFolder: tempFolder,
+            tempFolder: try di.get(),
             testRunnerProvider: DefaultTestRunnerProvider(
                 dateProvider: try di.get(),
                 processControllerProvider: try di.get(),

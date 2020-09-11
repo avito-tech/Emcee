@@ -50,6 +50,11 @@ public final class DumpCommand: Command {
         let outputPath: AbsolutePath = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.output.name)
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
         
+        di.set(
+            tempFolder,
+            for: TemporaryFolder.self
+        )
+        
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
             version: emceeVersion
@@ -90,7 +95,7 @@ public final class DumpCommand: Command {
                 processControllerProvider: try di.get(),
                 remoteCache: try di.get(RuntimeDumpRemoteCacheProvider.self).remoteCache(config: remoteCacheConfig),
                 resourceLocationResolver: try di.get(),
-                tempFolder: tempFolder,
+                tempFolder: try di.get(),
                 testRunnerProvider: DefaultTestRunnerProvider(
                     dateProvider: try di.get(),
                     processControllerProvider: try di.get(),
