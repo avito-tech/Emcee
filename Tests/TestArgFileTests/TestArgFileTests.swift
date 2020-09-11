@@ -14,7 +14,8 @@ final class TestArgFileTests: XCTestCase {
                 "jobGroupPriority": 100,
                 "jobId": "jobId",
                 "jobPriority": 500,
-                "testDestinationConfigurations": []
+                "testDestinationConfigurations": [],
+                "persistentMetricsJobId": "persistentMetricsJobId"
             }
         """.data(using: .utf8)!
         
@@ -31,7 +32,7 @@ final class TestArgFileTests: XCTestCase {
                 jobId: "jobId",
                 jobPriority: 500,
                 testDestinationConfigurations: [],
-                persistentMetricsJobId: ""
+                persistentMetricsJobId: "persistentMetricsJobId"
             )
         )
     }
@@ -57,7 +58,7 @@ final class TestArgFileTests: XCTestCase {
                 jobId: "jobId",
                 jobPriority: TestArgFileDefaultValues.priority,
                 testDestinationConfigurations: [],
-                persistentMetricsJobId: ""
+                persistentMetricsJobId: TestArgFileDefaultValues.persistentMetricsJobId
             )
         )
     }

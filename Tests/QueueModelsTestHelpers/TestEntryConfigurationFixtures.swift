@@ -22,7 +22,7 @@ public final class TestEntryConfigurationFixtures {
     public var testTimeoutConfiguration = TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0)
     public var testType = TestType.uiTest
     public var developerDir = DeveloperDir.current
-    public var persistentMetricsJobId: String = "persistentMetricsJobId"
+    public var persistentMetricsJobId: String = ""
     
     public init() {}
     
