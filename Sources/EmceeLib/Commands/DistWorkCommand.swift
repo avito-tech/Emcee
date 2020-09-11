@@ -45,10 +45,7 @@ public final class DistWorkCommand: Command {
         let workerId: WorkerId = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.workerId.name)
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
         
-        di.set(
-            try createScopedTemporaryFolder(),
-            for: TemporaryFolder.self
-        )
+        di.set(try createScopedTemporaryFolder(), for: TemporaryFolder.self)
 
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
@@ -56,10 +53,7 @@ public final class DistWorkCommand: Command {
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
         
-        di.set(
-            onDemandSimulatorPool,
-            for: OnDemandSimulatorPool.self
-        )
+        di.set(onDemandSimulatorPool, for: OnDemandSimulatorPool.self)
 
         let distWorker = try createDistWorker(
             queueServerAddress: queueServerAddress,

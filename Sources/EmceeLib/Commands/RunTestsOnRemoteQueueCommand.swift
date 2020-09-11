@@ -72,10 +72,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.remoteCacheConfig.name)
         )
         
-        di.set(
-            tempFolder,
-            for: TemporaryFolder.self
-        )
+        di.set(tempFolder, for: TemporaryFolder.self)
 
         let runningQueueServerAddress = try detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
             emceeVersion: emceeVersion,
@@ -166,12 +163,15 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             version: version
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
+        
+        di.set(onDemandSimulatorPool, for:OnDemandSimulatorPool.self)
+        
         let testDiscoveryQuerier = TestDiscoveryQuerierImpl(
             dateProvider: try di.get(),
             developerDirLocator: try di.get(),
             fileSystem: try di.get(),
             numberOfAttemptsToPerformRuntimeDump: 5,
-            onDemandSimulatorPool: onDemandSimulatorPool,
+            onDemandSimulatorPool: try di.get(),
             pluginEventBusProvider: try di.get(),
             processControllerProvider: try di.get(),
             remoteCache: try di.get(RuntimeDumpRemoteCacheProvider.self).remoteCache(config: remoteCacheConfig),

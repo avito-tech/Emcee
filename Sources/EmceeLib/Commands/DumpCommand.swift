@@ -49,17 +49,16 @@ public final class DumpCommand: Command {
         )
         let outputPath: AbsolutePath = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.output.name)
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
-        
-        di.set(
-            tempFolder,
-            for: TemporaryFolder.self
-        )
+
+        di.set(tempFolder, for: TemporaryFolder.self)
         
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
             version: emceeVersion
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
+        
+        di.set(onDemandSimulatorPool, for: OnDemandSimulatorPool.self)
         
         SignalHandling.addSignalHandler(signals: [.term, .int]) { signal in
             Logger.debug("Got signal: \(signal)")
