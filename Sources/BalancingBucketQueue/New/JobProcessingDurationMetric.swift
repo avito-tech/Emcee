@@ -3,7 +3,7 @@ import Metrics
 import QueueModels
 import Statsd
 
-public final class BucketProcessingDuration: StatsdMetric {
+public final class JobProcessingDurationMetric: StatsdMetric {
     public init(
         queueHost: String,
         version: Version,
@@ -11,7 +11,7 @@ public final class BucketProcessingDuration: StatsdMetric {
         duration: TimeInterval
     ) {
         super.init(
-            fixedComponents: ["bucket", "duration"],
+            fixedComponents: ["job", "duration"],
             variableComponents: [
                 queueHost,
                 version.value,

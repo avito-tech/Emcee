@@ -77,7 +77,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
         
         XCTAssertTrue(
             metricHandler.metrics.contains(
-                ConcreteTestDuration(
+                ConcreteTestDurationMetric(
                     result: testStoppedEvent.result.rawValue,
                     host: host,
                     testClassName: testStoppedEvent.testName.className,
@@ -213,7 +213,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
                     version: version,
                     timestamp: testStoppedAt
                 ),
-                ConcreteTestDuration(
+                ConcreteTestDurationMetric(
                     result: testStoppedEvent.result.rawValue,
                     host: host,
                     testClassName: testStoppedEvent.testName.className,

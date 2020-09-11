@@ -182,7 +182,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     
     private func reportDiscoveryDuration(persistentMetricsJobId: String, startDate: Date, isSuccessful: Bool) {
         MetricRecorder.capture(
-            TestDiscoveryDuration(
+            TestDiscoveryDurationMetric(
                 host: LocalHostDeterminer.currentHostAddress,
                 version: version,
                 persistentMetricsJobId: persistentMetricsJobId,

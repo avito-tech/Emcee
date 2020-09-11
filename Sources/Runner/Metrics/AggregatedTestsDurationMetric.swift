@@ -3,7 +3,7 @@ import Metrics
 import QueueModels
 import Statsd
 
-public final class AggregatedTestsDuration: StatsdMetric {
+public final class AggregatedTestsDurationMetric: StatsdMetric {
     public init(
         result: String,
         host: String,

@@ -78,7 +78,7 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
                 version: version,
                 timestamp: dateProvider.currentDate()
             ),
-            ConcreteTestDuration(
+            ConcreteTestDurationMetric(
                 result: testStoppedEvent.result.rawValue,
                 host: host,
                 testClassName: testStoppedEvent.testName.className,
@@ -89,7 +89,7 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
             )
         )
         MetricRecorder.capture(
-            AggregatedTestsDuration(
+            AggregatedTestsDurationMetric(
                 result: testStoppedEvent.result.rawValue,
                 host: host,
                 version: version,

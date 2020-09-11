@@ -32,7 +32,7 @@ public final class MultipleQueuesJobManipulator: JobManipulator {
                 multipleQueuesContainer.untrack(jobGroup: deletedJobQueue.jobGroup)
             
                 MetricRecorder.capture(
-                    JobProcessingDuration(
+                    JobProcessingDurationMetric(
                         queueHost: LocalHostDeterminer.currentHostAddress,
                         version: emceeVersion,
                         persistentMetricsJobId: deletedJobQueue.persistentMetricsJobId,

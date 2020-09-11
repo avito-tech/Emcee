@@ -72,7 +72,7 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
         
         MetricRecorder.capture(testTimeToStartMetrics + queueStateMetrics)
         MetricRecorder.capture(
-            BucketProcessingDuration(
+            BucketProcessingDurationMetric(
                 queueHost: LocalHostDeterminer.currentHostAddress,
                 version: version,
                 persistentMetricsJobId: acceptResult.dequeuedBucket.enqueuedBucket.bucket.persistentMetricsJobId ,
