@@ -8,6 +8,7 @@ import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
+import WorkerCapabilitiesModels
 
 public final class TestEntryConfigurationFixtures {
     public var buildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
@@ -23,6 +24,7 @@ public final class TestEntryConfigurationFixtures {
     public var testType = TestType.uiTest
     public var developerDir = DeveloperDir.current
     public var persistentMetricsJobId: String = ""
+    public var workerCapabilityRequirements: Set<WorkerCapabilityRequirement> = []
     
     public init() {}
     
@@ -76,6 +78,11 @@ public final class TestEntryConfigurationFixtures {
         return self
     }
     
+    public func with(workerCapabilityRequirements: [WorkerCapabilityRequirement]) -> Self {
+        self.workerCapabilityRequirements = Set(workerCapabilityRequirements)
+        return self
+    }
+    
     public func testEntryConfigurations() -> [TestEntryConfiguration] {
         return testEntries.map { testEntry in
             TestEntryConfiguration(
@@ -91,7 +98,7 @@ public final class TestEntryConfigurationFixtures {
                 testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: testType,
-                workerCapabilityRequirements: [],
+                workerCapabilityRequirements: workerCapabilityRequirements,
                 persistentMetricsJobId: persistentMetricsJobId
             )
         }

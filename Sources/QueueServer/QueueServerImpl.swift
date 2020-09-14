@@ -142,7 +142,10 @@ public final class QueueServerImpl: QueueServer {
         )
         self.scheduleTestsHandler = ScheduleTestsEndpoint(
             testsEnqueuer: testsEnqueuer,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+            waitForCapableWorkerTimeout: alivenessPollingInterval * 2,
+            workerAlivenessProvider: workerAlivenessProvider,
+            workerCapabilitiesStorage: workerCapabilitiesStorage
         )
         self.workerRegistrar = WorkerRegistrar(
             workerAlivenessProvider: workerAlivenessProvider,
