@@ -48,7 +48,11 @@ public final class LoggingSetup {
         GlobalLoggerConfig.loggerHandler.tearDownLogging(timeout: timeout)
     }
     
-    public func cleanUpLogs(olderThan date: Date) throws {
+    public func cleanUpLogs(
+        olderThan date: Date,
+        queue: OperationQueue,
+        completion: @escaping (Error?) -> ()
+    ) throws {
         let emceeLogsCleanUpMarkerFileProperties = fileSystem.properties(
             forFileAtPath: try fileSystem.emceeLogsCleanUpMarkerFile()
         )
@@ -62,16 +66,23 @@ public final class LoggingSetup {
         try emceeLogsCleanUpMarkerFileProperties.touch()
         
         let logsEnumerator = fileSystem.contentEnumerator(forPath: try fileSystem.emceeLogsFolder(), style: .deep)
-        try logsEnumerator.each { (path: AbsolutePath) in
-            guard path.extension == logFileExtension else { return }
-            let modificationDate = try fileSystem.properties(forFileAtPath: path).modificationDate()
-            if modificationDate < date {
-                do {
-                    Logger.debug("Cleaning up log file: \(path)")
-                    try fileSystem.delete(fileAtPath: path)
-                } catch {
-                    Logger.error("Failed to remove old log file at \(path): \(error)")
+
+        queue.addOperation {
+            do {
+                try logsEnumerator.each { (path: AbsolutePath) in
+                    guard path.extension == self.logFileExtension else { return }
+                    let modificationDate = try self.fileSystem.properties(forFileAtPath: path).modificationDate()
+                    if modificationDate < date {
+                        do {
+                            try self.fileSystem.delete(fileAtPath: path)
+                        } catch {
+                            Logger.error("Failed to remove old log file at \(path): \(error)")
+                        }
+                    }
                 }
+                completion(nil)
+            } catch {
+                completion(error)
             }
         }
     }

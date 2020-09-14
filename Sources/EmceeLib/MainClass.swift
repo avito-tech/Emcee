@@ -30,7 +30,6 @@ public final class Main {
             return 0
         } catch {
             Logger.error("\(error)")
-            print("Error occured: \(error)")
             return 1
         }
     }

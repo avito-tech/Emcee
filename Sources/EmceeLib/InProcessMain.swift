@@ -37,10 +37,12 @@ public final class InProcessMain {
         let cacheMaximumSize = 20 * 1024 * 1024 * 1024
         let logsTimeToLive = TimeUnit.days(14)
         
-        try setupLogging(di: di, logsTimeToLive: logsTimeToLive)
+        let logCleaningQueue = OperationQueue()
+        try setupLogging(di: di, logsTimeToLive: logsTimeToLive, queue: logCleaningQueue)
         
         defer {
             tearDown(timeout: 10)
+            logCleaningQueue.waitUntilAllOperationsAreFinished()
         }
         
         Logger.info("Arguments: \(ProcessInfo.processInfo.arguments)")
@@ -119,13 +121,23 @@ public final class InProcessMain {
         try commandInvoker.invokeSuitableCommand()
     }
     
-    private func setupLogging(di: DI, logsTimeToLive: TimeUnit) throws {
+    private func setupLogging(di: DI, logsTimeToLive: TimeUnit, queue: OperationQueue) throws {
         let loggingSetup = LoggingSetup(
             dateProvider: try di.get(),
             fileSystem: try di.get()
         )
         try loggingSetup.setupLogging(stderrVerbosity: Verbosity.info)
-        try loggingSetup.cleanUpLogs(olderThan: try di.get(DateProvider.self).currentDate().addingTimeInterval(-logsTimeToLive.timeInterval))
+        try loggingSetup.cleanUpLogs(
+            olderThan: try di.get(DateProvider.self).currentDate().addingTimeInterval(-logsTimeToLive.timeInterval),
+            queue: queue,
+            completion: { error in
+                if let error = error {
+                    Logger.error("Failed to clean up old logs: \(error)")
+                } else {
+                    Logger.info("Logs clean up complete")
+                }
+            }
+        )
     }
     
     private func tearDown(timeout: TimeInterval) {
