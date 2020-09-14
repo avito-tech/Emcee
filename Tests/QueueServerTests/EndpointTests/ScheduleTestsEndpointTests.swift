@@ -40,6 +40,22 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         )
     }
     
+    func test___scheduling_no_tests() throws {
+        workerAlivenessProvider.didRegisterWorker(workerId: workerId)
+        
+        let endpoint = createEndpoint(timeout: 0)
+        
+        let response = try endpoint.handle(
+            payload: ScheduleTestsPayload(
+                prioritizedJob: prioritizedJob,
+                scheduleStrategy: .individual,
+                testEntryConfigurations: []
+            )
+        )
+        
+        XCTAssertEqual(response, .scheduledTests)
+    }
+    
     func test___throws_without_worker_registration() {
         let endpoint = createEndpoint(timeout: 0)
         

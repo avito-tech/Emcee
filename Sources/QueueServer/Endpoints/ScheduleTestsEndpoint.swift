@@ -49,6 +49,8 @@ public final class ScheduleTestsEndpoint: RESTEndpoint {
     }
     
     private func waitForAnySuitableWorker(payload: ScheduleTestsPayload) throws {
+        guard !payload.testEntryConfigurations.isEmpty else { return }
+        
         do {
             try SynchronousWaiter().waitWhile(
                 timeout: waitForCapableWorkerTimeout,
