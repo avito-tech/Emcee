@@ -187,7 +187,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
                 version: version,
                 persistentMetricsJobId: persistentMetricsJobId,
                 isSuccessful: isSuccessful,
-                duration: -startDate.timeIntervalSinceNow
+                duration: dateProvider.currentDate().timeIntervalSince(startDate)
             )
         )
     }

@@ -76,7 +76,7 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
                 queueHost: LocalHostDeterminer.currentHostAddress,
                 version: version,
                 persistentMetricsJobId: acceptResult.dequeuedBucket.enqueuedBucket.bucket.persistentMetricsJobId ,
-                duration: -acceptResult.dequeuedBucket.enqueuedBucket.enqueueTimestamp.timeIntervalSinceNow
+                duration: dateProvider.currentDate().timeIntervalSince(acceptResult.dequeuedBucket.enqueuedBucket.enqueueTimestamp)
             )
         )
     }

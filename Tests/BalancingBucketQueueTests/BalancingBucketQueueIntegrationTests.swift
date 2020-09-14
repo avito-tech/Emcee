@@ -435,6 +435,7 @@ final class BalancingBucketQueueIntegrationTests: XCTestCase {
     lazy var anotherPrioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: anotherJobId, jobPriority: .medium, persistentMetricsJobId: "")
     lazy var balancingQueue = BalancingBucketQueueImpl(
         bucketQueueFactory: bucketQueueFactory,
+        dateProvider: dateProvider,
         emceeVersion: Version("version")
     )
     lazy var bucketQueueFactory = BucketQueueFactoryImpl(

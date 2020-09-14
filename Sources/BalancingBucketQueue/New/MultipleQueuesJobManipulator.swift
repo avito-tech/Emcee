@@ -1,16 +1,20 @@
+import DateProvider
 import Foundation
 import QueueModels
 import Metrics
 import LocalHostDeterminer
 
 public final class MultipleQueuesJobManipulator: JobManipulator {
+    private let dateProvider: DateProvider
     private let multipleQueuesContainer: MultipleQueuesContainer
     private let emceeVersion: Version
     
     public init(
+        dateProvider: DateProvider,
         multipleQueuesContainer: MultipleQueuesContainer,
         emceeVersion: Version
     ) {
+        self.dateProvider = dateProvider
         self.multipleQueuesContainer = multipleQueuesContainer
         self.emceeVersion = emceeVersion
     }
@@ -36,7 +40,7 @@ public final class MultipleQueuesJobManipulator: JobManipulator {
                         queueHost: LocalHostDeterminer.currentHostAddress,
                         version: emceeVersion,
                         persistentMetricsJobId: deletedJobQueue.persistentMetricsJobId,
-                        duration: -deletedJobQueue.job.creationTime.timeIntervalSinceNow
+                        duration: dateProvider.currentDate().timeIntervalSince(deletedJobQueue.job.creationTime)
                     )
                 )
             }

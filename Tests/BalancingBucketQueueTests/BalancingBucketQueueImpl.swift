@@ -1,25 +1,33 @@
 import BalancingBucketQueue
 import BucketQueue
 import BucketQueueModels
+import DateProvider
 import Foundation
 import QueueModels
 import WorkerCapabilitiesModels
 
 public final class BalancingBucketQueueImpl {
     private let bucketQueueFactory: BucketQueueFactory
+    private let dateProvider: DateProvider
     private let emceeVersion: Version
     private let multipleQueuesContainer = MultipleQueuesContainer()
     
     public init(
         bucketQueueFactory: BucketQueueFactory,
+        dateProvider: DateProvider,
         emceeVersion: Version
     ) {
         self.bucketQueueFactory = bucketQueueFactory
+        self.dateProvider = dateProvider
         self.emceeVersion = emceeVersion
     }
     
     public func delete(jobId: JobId) throws {
-        try MultipleQueuesJobManipulator(multipleQueuesContainer: multipleQueuesContainer, emceeVersion: emceeVersion).delete(jobId: jobId)
+        try MultipleQueuesJobManipulator(
+            dateProvider: dateProvider,
+            multipleQueuesContainer: multipleQueuesContainer,
+            emceeVersion: emceeVersion
+        ).delete(jobId: jobId)
     }
     
     public var ongoingJobIds: Set<JobId> {

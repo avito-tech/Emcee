@@ -97,6 +97,7 @@ public final class QueueServerImpl: QueueServer {
         
         let multipleQueuesContainer = MultipleQueuesContainer()
         let jobManipulator: JobManipulator = MultipleQueuesJobManipulator(
+            dateProvider: dateProvider,
             multipleQueuesContainer: multipleQueuesContainer,
             emceeVersion: emceeVersion
         )
