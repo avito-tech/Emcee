@@ -44,8 +44,10 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         ArgumentDescriptions.trace.asOptional,
     ]
     
+    private let callbackQueue = DispatchQueue(label: "RunTestsOnRemoteQueueCommand.callbackQueue")
     private let di: DI
     private let testArgFileValidator = TestArgFileValidator()
+    private let waiter = SynchronousWaiter()
     
     public init(di: DI) {
         self.di = di
@@ -119,26 +121,14 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             return socketAddress
         }
         
-        Logger.info("No running queue server has been found. Will deploy and start remote queue.")
-        let remoteQueueStarter = RemoteQueueStarter(
-            deploymentId: jobId.value,
-            deploymentDestination: queueServerDeploymentDestination,
+        try startNewInstanceOfRemoteQueueServer(
+            jobId: jobId,
+            queueServerDeploymentDestination: queueServerDeploymentDestination,
             emceeVersion: emceeVersion,
-            processControllerProvider: try di.get(),
-            queueServerConfigurationLocation: queueServerConfigurationLocation,
-            tempFolder: try di.get(),
-            uniqueIdentifierGenerator: try di.get()
+            queueServerConfigurationLocation: queueServerConfigurationLocation
         )
-        let deployQueue = DispatchQueue(label: "RunTestsOnRemoteQueueCommand.deployQueue", attributes: .concurrent)
-        deployQueue.async {
-            do {
-                try remoteQueueStarter.deployAndStart()
-            } catch {
-                Logger.error("Failed to deploy: \(error)")
-            }
-        }
         
-        try SynchronousWaiter().waitWhile(pollPeriod: 1.0, timeout: 30.0, description: "Wait for remote queue to start") {
+        try waiter.waitWhile(pollPeriod: 1.0, timeout: 30.0, description: "Wait for remote queue to start") {
             suitablePorts = try remoteQueueDetector.findSuitableRemoteRunningQueuePorts(timeout: 10)
             return suitablePorts.isEmpty
         }
@@ -150,6 +140,25 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         Logger.info("Found queue server at '\(queueServerAddress)'")
 
         return queueServerAddress
+    }
+    
+    private func startNewInstanceOfRemoteQueueServer(
+        jobId: JobId,
+        queueServerDeploymentDestination: DeploymentDestination,
+        emceeVersion: Version,
+        queueServerConfigurationLocation: QueueServerConfigurationLocation
+    ) throws {
+        Logger.info("No running queue server has been found. Will deploy and start remote queue.")
+        let remoteQueueStarter = RemoteQueueStarter(
+            deploymentId: jobId.value,
+            deploymentDestination: queueServerDeploymentDestination,
+            emceeVersion: emceeVersion,
+            processControllerProvider: try di.get(),
+            queueServerConfigurationLocation: queueServerConfigurationLocation,
+            tempFolder: try di.get(),
+            uniqueIdentifierGenerator: try di.get()
+        )
+        try remoteQueueStarter.deployAndStart()
     }
     
     private func runTestsOnRemotelyRunningQueue(
@@ -215,8 +224,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             let testScheduler = TestSchedulerImpl(
                 requestSender: try di.get(RequestSenderProvider.self).requestSender(socketAddress: queueServerAddress)
             )
-            let callbackQueue = DispatchQueue(label: "callback")
-            let waiter = SynchronousWaiter()
+            
             let callbackWaiter: CallbackWaiter<Either<Void, Error>> = waiter.createCallbackWaiter()
             testScheduler.scheduleTests(
                 prioritizedJob: PrioritizedJob(
@@ -231,14 +239,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
                 callbackQueue: callbackQueue,
                 completion: callbackWaiter.set
             )
-            let scheduleResult = try callbackWaiter.wait(timeout: 20, description: "Schedule tests")
-            do {
-                _ = try scheduleResult.dematerialize()
-                Logger.debug("Successfully scheduled \(testEntryConfigurations.count) tests")
-            } catch {
-                Logger.error("Failed to schedule tests: \(error)")
-                throw error
-            }
+            try callbackWaiter.wait(timeout: 60, description: "Schedule tests").dematerialize()
         }
         
         var caughtSignal = false
@@ -250,7 +251,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         }
         
         Logger.info("Will now wait for job queue to deplete")
-        try SynchronousWaiter().waitWhile(pollPeriod: 30.0, description: "Wait for job queue to deplete") {
+        try waiter.waitWhile(pollPeriod: 30.0, description: "Wait for job queue to deplete") {
             if caughtSignal { return false }
             let jobState = try queueClient.jobState(jobId: testArgFile.jobId)
             switch jobState.queueState {

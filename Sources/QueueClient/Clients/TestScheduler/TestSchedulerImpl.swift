@@ -1,5 +1,6 @@
 import Dispatch
 import Foundation
+import Logging
 import QueueModels
 import RESTMethods
 import RequestSender
@@ -20,6 +21,7 @@ public final class TestSchedulerImpl: TestScheduler {
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<Void, Error>) -> ()
     ) {
+        Logger.debug("Will schedule \(testEntryConfigurations.count) tests")
         requestSender.sendRequestWithCallback(
             request: ScheduleTestsRequest(
                 payload: ScheduleTestsPayload(
@@ -34,9 +36,11 @@ public final class TestSchedulerImpl: TestScheduler {
                 let response = try result.dematerialize()
                 switch response {
                 case .scheduledTests:
+                    Logger.debug("Successfully scheduled \(testEntryConfigurations.count) tests")
                     completion(.success(()))
                 }
             } catch {
+                Logger.error("Failed to schedule \(testEntryConfigurations.count) tests: \(error)")
                 completion(.error(error))
             }
         }
