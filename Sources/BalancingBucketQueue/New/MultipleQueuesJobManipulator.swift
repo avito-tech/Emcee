@@ -36,7 +36,7 @@ public final class MultipleQueuesJobManipulator: JobManipulator {
                         queueHost: LocalHostDeterminer.currentHostAddress,
                         version: emceeVersion,
                         persistentMetricsJobId: deletedJobQueue.persistentMetricsJobId,
-                        duration: deletedJobQueue.job.creationTime.timeIntervalSinceNow
+                        duration: -deletedJobQueue.job.creationTime.timeIntervalSinceNow
                     )
                 )
             }
