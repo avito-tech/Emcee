@@ -92,7 +92,7 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
     public var description: String {
         switch self {
         case .localFilePath(let path):
-            return "<\(path)"
+            return "\(path)"
         case .remoteUrl(let url):
             return "\(url)"
         }
