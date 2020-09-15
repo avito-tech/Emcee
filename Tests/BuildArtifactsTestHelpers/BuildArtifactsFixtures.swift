@@ -1,5 +1,6 @@
 import BuildArtifacts
 import Foundation
+import ResourceLocation
 
 public final class BuildArtifactsFixtures {
     public static func fakeEmptyBuildArtifacts(
@@ -33,6 +34,20 @@ public final class BuildArtifactsFixtures {
                 testDiscoveryMode: testDiscoveryMode
             ),
             additionalApplicationBundles: additionalApplicationBundles.map { AdditionalAppBundleLocation(.localFilePath($0)) }
+        )
+    }
+    
+    public static func with(
+        appBundle: ResourceLocation? = nil,
+        runner: ResourceLocation? = nil,
+        xcTestBundle: XcTestBundle,
+        additionalApplicationBundles: [ResourceLocation] = []
+    ) -> BuildArtifacts {
+        BuildArtifacts(
+            appBundle: AppBundleLocation(appBundle),
+            runner: RunnerAppLocation(runner),
+            xcTestBundle: xcTestBundle,
+            additionalApplicationBundles: additionalApplicationBundles.map { AdditionalAppBundleLocation($0) }
         )
     }
 }

@@ -4,7 +4,16 @@ import Foundation
 import Logging
 import PathLib
 
-public final class URLResource {
+public protocol URLResource {
+    func fetchResource(url: URL, handler: URLResourceHandler)
+    func deleteResource(url: URL) throws
+    
+    func evictResources(olderThan date: Date) throws -> [AbsolutePath]
+    func evictResources(toFitSize bytes: Int) throws -> [AbsolutePath]
+    func whileLocked<T>(work: () throws -> (T)) throws -> T
+}
+
+public final class URLResourceImpl: URLResource {
     private let fileCache: FileCache
     private let urlSession: URLSession
     private let syncQueue = DispatchQueue(label: "URLResource.syncQueue")

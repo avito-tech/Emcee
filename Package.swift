@@ -298,6 +298,7 @@ let package = Package(
             name: "BuildArtifactsTestHelpers",
             dependencies: [
                 "BuildArtifacts",
+                "ResourceLocation",
             ],
             path: "Tests/BuildArtifactsTestHelpers"
         ),
@@ -610,12 +611,14 @@ let package = Package(
             name: "EmceeLibTests",
             dependencies: [
                 "AppleTools",
+                "AtomicModels",
                 "BuildArtifacts",
                 "BuildArtifactsTestHelpers",
                 "DateProviderTestHelpers",
                 "EmceeLib",
                 "FileSystem",
                 "FileSystemTestHelpers",
+                "LoggingSetup",
                 "MetricsTestHelpers",
                 "PathLib",
                 "ProcessControllerTestHelpers",
@@ -631,6 +634,7 @@ let package = Package(
                 "TestArgFile",
                 "TestDiscovery",
                 "TestHelpers",
+                "URLResource",
                 "UniqueIdentifierGeneratorTestHelpers",
                 "fbxctest",
             ],

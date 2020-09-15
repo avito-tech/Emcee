@@ -187,18 +187,12 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             dateProvider: try di.get(),
             developerDirLocator: try di.get(),
             fileSystem: try di.get(),
-            numberOfAttemptsToPerformRuntimeDump: 5,
             onDemandSimulatorPool: try di.get(),
             pluginEventBusProvider: try di.get(),
             processControllerProvider: try di.get(),
-            remoteCache: try di.get(RuntimeDumpRemoteCacheProvider.self).remoteCache(config: remoteCacheConfig),
             resourceLocationResolver: try di.get(),
             tempFolder: try di.get(),
-            testRunnerProvider: DefaultTestRunnerProvider(
-                dateProvider: try di.get(),
-                processControllerProvider: try di.get(),
-                resourceLocationResolver: try di.get()
-            ),
+            testRunnerProvider: try di.get(),
             uniqueIdentifierGenerator: try di.get(),
             version: version,
             metricRecorder: metricRecorder
@@ -216,6 +210,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         }
 
         let testEntriesValidator = TestEntriesValidator(
+            remoteCache: try di.get(RuntimeDumpRemoteCacheProvider.self).remoteCache(config: remoteCacheConfig),
             testArgFileEntries: testArgFile.entries,
             testDiscoveryQuerier: testDiscoveryQuerier,
             persistentMetricsJobId: testArgFile.persistentMetricsJobId

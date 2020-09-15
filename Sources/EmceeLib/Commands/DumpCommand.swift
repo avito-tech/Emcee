@@ -1,4 +1,6 @@
 import ArgLib
+import AtomicModels
+import BuildArtifacts
 import ChromeTracing
 import DateProvider
 import DeveloperDirLocator
@@ -13,6 +15,7 @@ import PathLib
 import PluginManager
 import ProcessController
 import QueueModels
+import ResourceLocation
 import ResourceLocationResolver
 import RunnerModels
 import ScheduleStrategy
@@ -21,6 +24,7 @@ import SignalHandling
 import SimulatorPool
 import TemporaryStuff
 import TestDiscovery
+import URLResource
 import UniqueIdentifierGenerator
 
 public final class DumpCommand: Command {
@@ -34,8 +38,8 @@ public final class DumpCommand: Command {
         ArgumentDescriptions.remoteCacheConfig.asOptional,
     ]
     
-    private let encoder = JSONEncoder.pretty()
     private let di: DI
+    private let encoder = JSONEncoder.pretty()
     
     public init(di: DI) {
         self.di = di
@@ -74,53 +78,42 @@ public final class DumpCommand: Command {
             onDemandSimulatorPool.deleteSimulators()
         }
         
-        let dumpedTests: [[DiscoveredTestEntry]] = try testArgFile.entries.map { testArgFileEntry -> [DiscoveredTestEntry] in
-            let configuration = TestDiscoveryConfiguration(
-                developerDir: testArgFileEntry.developerDir,
-                pluginLocations: testArgFileEntry.pluginLocations,
-                testDiscoveryMode: try TestDiscoveryModeDeterminer.testDiscoveryMode(testArgFileEntry: testArgFileEntry),
-                simulatorOperationTimeouts: testArgFileEntry.simulatorOperationTimeouts,
-                simulatorSettings: testArgFileEntry.simulatorSettings,
-                testDestination: testArgFileEntry.testDestination,
-                testExecutionBehavior: TestExecutionBehavior(
-                    environment: testArgFileEntry.environment,
-                    numberOfRetries: testArgFileEntry.numberOfRetries
-                ),
-                testRunnerTool: testArgFileEntry.testRunnerTool,
-                testTimeoutConfiguration: testTimeoutConfigurationForRuntimeDump,
-                testsToValidate: testArgFileEntry.testsToRun,
-                xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location,
-                persistentMetricsJobId: testArgFile.persistentMetricsJobId
-            )
-
-            let testDiscoveryQuerier = TestDiscoveryQuerierImpl(
+        di.set(
+            TestDiscoveryQuerierImpl(
                 dateProvider: try di.get(),
                 developerDirLocator: try di.get(),
                 fileSystem: try di.get(),
-                numberOfAttemptsToPerformRuntimeDump: testArgFileEntry.numberOfRetries,
                 onDemandSimulatorPool: try di.get(),
                 pluginEventBusProvider: try di.get(),
                 processControllerProvider: try di.get(),
-                remoteCache: try di.get(RuntimeDumpRemoteCacheProvider.self).remoteCache(config: remoteCacheConfig),
                 resourceLocationResolver: try di.get(),
                 tempFolder: try di.get(),
-                testRunnerProvider: DefaultTestRunnerProvider(
-                    dateProvider: try di.get(),
-                    processControllerProvider: try di.get(),
-                    resourceLocationResolver: try di.get()
-                ),
+                testRunnerProvider: try di.get(),
                 uniqueIdentifierGenerator: try di.get(),
                 version: emceeVersion,
                 metricRecorder: metricRecorder
-            )
-            
-            let result = try testDiscoveryQuerier.query(configuration: configuration)
-            Logger.debug("Test bundle \(testArgFileEntry.buildArtifacts.xcTestBundle) contains \(result.discoveredTests.tests.count) tests")
-            return result.discoveredTests.tests
-        }
+            ),
+            for: TestDiscoveryQuerier.self
+        )
         
-        let encodedResult = try encoder.encode(dumpedTests)
-        try encodedResult.write(to: outputPath.fileUrl, options: [.atomic])
-        Logger.debug("Wrote run time tests dump to file \(outputPath)")
+        let discoverer = PipelinedTestDiscoverer(
+            runtimeDumpRemoteCacheProvider: try di.get(),
+            testDiscoveryQuerier: try di.get(),
+            urlResource: try di.get()
+        )
+        
+        let dumpedTests = try discoverer.performTestDiscovery(
+            testArgFile: testArgFile,
+            emceeVersion: emceeVersion,
+            remoteCacheConfig: remoteCacheConfig
+        )
+        
+        do {
+            let encodedResult = try encoder.encode(dumpedTests)
+            try encodedResult.write(to: outputPath.fileUrl, options: [.atomic])
+            Logger.debug("Wrote run time tests dump to file \(outputPath)")
+        } catch {
+            Logger.error("Failed to write output: \(error)")
+        }
     }
 }

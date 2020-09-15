@@ -205,7 +205,7 @@ final class ResourceLocationResolverTests: XCTestCase {
             fileSystem: fileSystem
         )
     }
-    lazy var urlResource = URLResource(fileCache: fileCache, urlSession: urlSession)
+    lazy var urlResource = URLResourceImpl(fileCache: fileCache, urlSession: urlSession)
     lazy var smallFile = assertDoesNotThrow { try createFile(name: "example", size: 4096) }
     lazy var smallZipFile = self.zipFile(toPath: serverFolder.appending(component: "example.zip"), fromPath: smallFile)
     lazy var largeFile = assertDoesNotThrow { try createFile(name: "example", size: 12000000) }

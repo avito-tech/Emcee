@@ -80,15 +80,25 @@ public final class InProcessMain {
         )
         
         di.set(
+            try FileCache.fileCacheInDefaultLocation(
+                dateProvider: try di.get(),
+                fileSystem: try di.get()
+            ),
+            for: FileCache.self
+        )
+        
+        di.set(
+            URLResourceImpl(
+                fileCache: try di.get(),
+                urlSession: URLSession.shared
+            ),
+            for: URLResource.self
+        )
+        
+        di.set(
             ResourceLocationResolverImpl(
                 fileSystem: try di.get(),
-                urlResource: URLResource(
-                    fileCache: try FileCache.fileCacheInDefaultLocation(
-                        dateProvider: try di.get(),
-                        fileSystem: try di.get()
-                    ),
-                    urlSession: URLSession.shared
-                ),
+                urlResource: try di.get(),
                 cacheElementTimeToLive: cacheElementTimeToLive.timeInterval,
                 maximumCacheSize: cacheMaximumSize,
                 processControllerProvider: try di.get()

@@ -100,6 +100,7 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
         testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
         testsToValidate: [],
         xcTestBundleLocation: testBundleLocation,
-        persistentMetricsJobId: ""
+        persistentMetricsJobId: "",
+        remoteCache: NoOpRuntimeDumpRemoteCache()
     )
 }

@@ -1,11 +1,13 @@
 import BuildArtifacts
 
-class NoOpRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
-    func results(xcTestBundleLocation: TestBundleLocation) -> DiscoveredTests? {
+public final class NoOpRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
+    public init() {}
+    
+    public func results(xcTestBundleLocation: TestBundleLocation) -> DiscoveredTests? {
         return nil
     }
 
-    func store(tests: DiscoveredTests, xcTestBundleLocation: TestBundleLocation) {
+    public func store(tests: DiscoveredTests, xcTestBundleLocation: TestBundleLocation) {
 
     }
 }

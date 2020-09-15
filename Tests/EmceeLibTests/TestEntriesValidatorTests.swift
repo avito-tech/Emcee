@@ -1,3 +1,4 @@
+@testable import TestDiscovery
 import BuildArtifacts
 import BuildArtifactsTestHelpers
 import EmceeLib
@@ -91,6 +92,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         testArgFileEntries: [TestArgFileEntry]
     ) -> TestEntriesValidator {
         return TestEntriesValidator(
+            remoteCache: NoOpRuntimeDumpRemoteCache(),
             testArgFileEntries: testArgFileEntries,
             testDiscoveryQuerier: testDiscoveryQuerier,
             persistentMetricsJobId: ""

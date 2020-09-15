@@ -24,11 +24,9 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let fileSystem: FileSystem
-    private let numberOfAttemptsToPerformRuntimeDump: UInt
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let pluginEventBusProvider: PluginEventBusProvider
     private let processControllerProvider: ProcessControllerProvider
-    private let remoteCache: RuntimeDumpRemoteCache
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
@@ -40,11 +38,9 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         fileSystem: FileSystem,
-        numberOfAttemptsToPerformRuntimeDump: UInt,
         onDemandSimulatorPool: OnDemandSimulatorPool,
         pluginEventBusProvider: PluginEventBusProvider,
         processControllerProvider: ProcessControllerProvider,
-        remoteCache: RuntimeDumpRemoteCache,
         resourceLocationResolver: ResourceLocationResolver,
         tempFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider,
@@ -55,11 +51,9 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.fileSystem = fileSystem
-        self.numberOfAttemptsToPerformRuntimeDump = max(numberOfAttemptsToPerformRuntimeDump, 1)
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.pluginEventBusProvider = pluginEventBusProvider
         self.processControllerProvider = processControllerProvider
-        self.remoteCache = remoteCache
         self.resourceLocationResolver = resourceLocationResolver
         self.tempFolder = tempFolder
         self.testRunnerProvider = testRunnerProvider
@@ -86,7 +80,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
 
     private func obtainDiscoveredTests(configuration: TestDiscoveryConfiguration) throws -> DiscoveredTests {
         Logger.debug("Trying to fetch cached runtime dump entries for bundle: \(configuration.xcTestBundleLocation)")
-        if let cachedRuntimeTests = try? remoteCache.results(xcTestBundleLocation: configuration.xcTestBundleLocation) {
+        if let cachedRuntimeTests = try? configuration.remoteCache.results(xcTestBundleLocation: configuration.xcTestBundleLocation) {
             Logger.debug("Fetched cached runtime dump entries for test bundle \(configuration.xcTestBundleLocation): \(cachedRuntimeTests)")
             return cachedRuntimeTests
         }
@@ -94,7 +88,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         Logger.debug("No cached runtime dump entries found for bundle: \(configuration.xcTestBundleLocation)")
         let dumpedTests = try discoveredTests(configuration: configuration)
 
-        try? remoteCache.store(tests: dumpedTests, xcTestBundleLocation: configuration.xcTestBundleLocation)
+        try? configuration.remoteCache.store(tests: dumpedTests, xcTestBundleLocation: configuration.xcTestBundleLocation)
         return dumpedTests
     }
 
@@ -252,7 +246,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
-            numberOfAttemptsToPerformRuntimeDump: numberOfAttemptsToPerformRuntimeDump,
+            numberOfAttemptsToPerformRuntimeDump: 3,
             onDemandSimulatorPool: onDemandSimulatorPool,
             pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,

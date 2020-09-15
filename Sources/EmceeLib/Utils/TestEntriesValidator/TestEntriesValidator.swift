@@ -8,16 +8,19 @@ import TestArgFile
 import TestDiscovery
 
 public final class TestEntriesValidator {
+    private let remoteCache: RuntimeDumpRemoteCache
     private let testArgFileEntries: [TestArgFileEntry]
     private let testDiscoveryQuerier: TestDiscoveryQuerier
     private let persistentMetricsJobId: String
     private let transformer = TestToRunIntoTestEntryTransformer()
 
     public init(
+        remoteCache: RuntimeDumpRemoteCache,
         testArgFileEntries: [TestArgFileEntry],
         testDiscoveryQuerier: TestDiscoveryQuerier,
         persistentMetricsJobId: String
     ) {
+        self.remoteCache = remoteCache
         self.testArgFileEntries = testArgFileEntries
         self.testDiscoveryQuerier = testDiscoveryQuerier
         self.persistentMetricsJobId = persistentMetricsJobId
@@ -57,7 +60,8 @@ public final class TestEntriesValidator {
             testTimeoutConfiguration: testTimeoutConfigurationForRuntimeDump,
             testsToValidate: testArgFileEntry.testsToRun,
             xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location,
-            persistentMetricsJobId: persistentMetricsJobId
+            persistentMetricsJobId: persistentMetricsJobId,
+            remoteCache: remoteCache
         )
 
         return try transformer.transform(

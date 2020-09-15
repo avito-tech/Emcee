@@ -19,6 +19,7 @@ public struct TestDiscoveryConfiguration {
     public let testsToValidate: [TestToRun]
     public let xcTestBundleLocation: TestBundleLocation
     public let persistentMetricsJobId: String
+    public let remoteCache: RuntimeDumpRemoteCache
 
     public init(
         developerDir: DeveloperDir,
@@ -32,7 +33,8 @@ public struct TestDiscoveryConfiguration {
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testsToValidate: [TestToRun],
         xcTestBundleLocation: TestBundleLocation,
-        persistentMetricsJobId: String
+        persistentMetricsJobId: String,
+        remoteCache: RuntimeDumpRemoteCache
     ) {
         self.developerDir = developerDir
         self.pluginLocations = pluginLocations
@@ -46,5 +48,6 @@ public struct TestDiscoveryConfiguration {
         self.testsToValidate = testsToValidate
         self.xcTestBundleLocation = xcTestBundleLocation
         self.persistentMetricsJobId = persistentMetricsJobId
+        self.remoteCache = remoteCache
     }
 }

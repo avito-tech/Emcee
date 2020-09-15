@@ -213,11 +213,9 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             dateProvider: DateProviderFixture(),
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
-            numberOfAttemptsToPerformRuntimeDump: 1,
             onDemandSimulatorPool: simulatorPool,
             pluginEventBusProvider: NoOoPluginEventBusProvider(),
             processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder),
-            remoteCache: remoteCache,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,
@@ -247,7 +245,8 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             ),
             testsToValidate: testsToValidate,
             xcTestBundleLocation: xcTestBundleLocation,
-            persistentMetricsJobId: ""
+            persistentMetricsJobId: "",
+            remoteCache: remoteCache
         )
     }
 
