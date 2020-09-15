@@ -163,7 +163,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     
     private func reportStats(testCaseCount: Int, testCount: Int, configuration: TestDiscoveryConfiguration) {
         let testBundleName = configuration.xcTestBundleLocation.resourceLocation.stringValue.lastPathComponent
-        Logger.info("Runtime dump of \(configuration.xcTestBundleLocation.resourceLocation): bundle has \(testCaseCount) XCTestCases, \(testCount) tests")
+        Logger.info("Test discovery in \(configuration.xcTestBundleLocation.resourceLocation): bundle has \(testCaseCount) XCTestCases, \(testCount) tests")
         MetricRecorder.capture(
             RuntimeDumpTestCountMetric(
                 testBundleName: testBundleName,
