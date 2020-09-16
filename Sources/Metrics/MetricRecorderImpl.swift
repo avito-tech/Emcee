@@ -44,9 +44,9 @@ public final class MetricRecorderImpl: MutableMetricRecorder {
     }
     
     public func tearDown(timeout: TimeInterval) {
-        queue.sync { [weak self] in
-            self?.graphiteMetricHandler.tearDown(timeout: timeout)
-            self?.statsdMetricHandler.tearDown(timeout: timeout)
+        queue.sync {
+            self.graphiteMetricHandler.tearDown(timeout: timeout)
+            self.statsdMetricHandler.tearDown(timeout: timeout)
         }
     }
 }

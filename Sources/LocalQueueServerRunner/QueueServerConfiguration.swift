@@ -6,36 +6,36 @@ import LoggingSetup
 import QueueModels
 
 public struct QueueServerConfiguration: Decodable {
+    public let analyticsConfiguration: AnalyticsConfiguration
     public let checkAgainTimeInterval: TimeInterval
     public let queueServerDeploymentDestination: DeploymentDestination
     public let queueServerTerminationPolicy: AutomaticTerminationPolicy
     public let workerDeploymentDestinations: [DeploymentDestination]
     public let workerSpecificConfigurations: [WorkerId: WorkerSpecificConfiguration]
-    public let analyticsConfiguration: AnalyticsConfiguration
 
     public init(
+        analyticsConfiguration: AnalyticsConfiguration,
         checkAgainTimeInterval: TimeInterval,
         queueServerDeploymentDestination: DeploymentDestination,
         queueServerTerminationPolicy: AutomaticTerminationPolicy,
         workerDeploymentDestinations: [DeploymentDestination],
-        workerSpecificConfigurations: [WorkerId: WorkerSpecificConfiguration],
-        analyticsConfiguration: AnalyticsConfiguration
+        workerSpecificConfigurations: [WorkerId: WorkerSpecificConfiguration]
     ) {
+        self.analyticsConfiguration = analyticsConfiguration
         self.checkAgainTimeInterval = checkAgainTimeInterval
         self.queueServerDeploymentDestination = queueServerDeploymentDestination
         self.queueServerTerminationPolicy = queueServerTerminationPolicy
         self.workerDeploymentDestinations = workerDeploymentDestinations
         self.workerSpecificConfigurations = workerSpecificConfigurations
-        self.analyticsConfiguration = analyticsConfiguration
     }
     
     private enum CodingKeys: String, CodingKey {
+        case analyticsConfiguration
         case checkAgainTimeInterval
         case queueServerDeploymentDestination
         case queueServerTerminationPolicy
         case workerDeploymentDestinations
         case workerSpecificConfigurations
-        case analyticsConfiguration
     }
      
     public init(from decoder: Decoder) throws {
@@ -55,14 +55,13 @@ public struct QueueServerConfiguration: Decodable {
             }
         )
         
-        
         self.init(
+            analyticsConfiguration: analyticsConfiguration,
             checkAgainTimeInterval: checkAgainTimeInterval,
             queueServerDeploymentDestination: queueServerDeploymentDestination,
             queueServerTerminationPolicy: queueServerTerminationPolicy,
             workerDeploymentDestinations: workerDeploymentDestinations,
-            workerSpecificConfigurations: workerSpecificConfigurations,
-            analyticsConfiguration: analyticsConfiguration
+            workerSpecificConfigurations: workerSpecificConfigurations
         )
     }
     

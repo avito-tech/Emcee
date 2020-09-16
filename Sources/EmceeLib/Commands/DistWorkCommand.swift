@@ -26,9 +26,6 @@ import UniqueIdentifierGenerator
 import WorkerCapabilitiesModels
 import WorkerCapabilities
 
-import Graphite
-import Statsd
-
 public final class DistWorkCommand: Command {
     public let name = "distWork"
     public let description = "Takes jobs from a dist runner queue and performs them"
@@ -37,8 +34,6 @@ public final class DistWorkCommand: Command {
         ArgumentDescriptions.queueServer.asRequired,
         ArgumentDescriptions.workerId.asRequired,
     ]
-    
-    private var metricRecorder: MetricRecorder?
     
     private let di: DI
 
@@ -53,11 +48,7 @@ public final class DistWorkCommand: Command {
         
         di.set(try createScopedTemporaryFolder(), for: TemporaryFolder.self)
         
-        let metricRecorder = MetricRecorderImpl(
-            graphiteMetricHandler: NoOpMetricHandler(),
-            statsdMetricHandler: NoOpMetricHandler()
-        )
-        self.metricRecorder = metricRecorder
+        let metricRecorder: MutableMetricRecorder = try di.get()
 
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
@@ -81,10 +72,6 @@ public final class DistWorkCommand: Command {
         }
         
         try startWorker(distWorker: distWorker, emceeVersion: emceeVersion, metricRecorder: metricRecorder)
-    }
-    
-    public func tearDown(timeout: TimeInterval) {
-        metricRecorder?.tearDown(timeout: timeout)
     }
     
     private func createDistWorker(
@@ -142,24 +129,7 @@ public final class DistWorkCommand: Command {
         
         try distWorker.start(
             didFetchAnalyticsConfiguration: { analyticsConfiguration in
-                if let graphiteConfiguration = analyticsConfiguration.graphiteConfiguration {
-                    try metricRecorder.setGraphiteMetric(
-                        handler: GraphiteMetricHandlerImpl(
-                            graphiteDomain: graphiteConfiguration.metricPrefix.components(separatedBy: "."),
-                            graphiteSocketAddress: graphiteConfiguration.socketAddress
-                        )
-                    )
-                }
-                
-                if let statsdConfiguration = analyticsConfiguration.statsdConfiguration {
-                    try metricRecorder.setStatsdMetric(
-                        handler: StatsdMetricHandlerImpl(
-                            statsdDomain: statsdConfiguration.metricPrefix.components(separatedBy: "."),
-                            statsdClient: StatsdClientImpl(statsdSocketAddress: statsdConfiguration.socketAddress)
-                        )
-                    )
-                }
-                
+                try metricRecorder.set(analyticsConfiguration: analyticsConfiguration)
                 if let sentryConfiguration = analyticsConfiguration.sentryConfiguration {
                     try AnalyticsSetup.setupSentry(sentryConfiguration: sentryConfiguration, emceeVersion: emceeVersion)
                 }

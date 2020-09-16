@@ -6,7 +6,6 @@ import DI
 import EmceeVersion
 import FileSystem
 import Foundation
-import Graphite
 import Logging
 import LoggingSetup
 import Metrics
@@ -35,8 +34,6 @@ public final class DumpCommand: Command {
         ArgumentDescriptions.remoteCacheConfig.asOptional,
     ]
     
-    private var metricRecorder: MetricRecorder?
-    
     private let encoder = JSONEncoder.pretty()
     private let di: DI
     
@@ -57,10 +54,8 @@ public final class DumpCommand: Command {
 
         di.set(tempFolder, for: TemporaryFolder.self)
         
-        let metricRecorder = try MetricRecorderImpl(
-            analyticsConfiguration: testArgFile.analyticsConfiguration
-        )
-        self.metricRecorder = metricRecorder
+        let metricRecorder: MutableMetricRecorder = try di.get()
+        try metricRecorder.set(analyticsConfiguration: testArgFile.analyticsConfiguration)
         
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
@@ -124,9 +119,5 @@ public final class DumpCommand: Command {
         let encodedResult = try encoder.encode(dumpedTests)
         try encodedResult.write(to: outputPath.fileUrl, options: [.atomic])
         Logger.debug("Wrote run time tests dump to file \(outputPath)")
-    }
-    
-    public func tearDown(timeout: TimeInterval) {
-        metricRecorder?.tearDown(timeout: timeout)
     }
 }

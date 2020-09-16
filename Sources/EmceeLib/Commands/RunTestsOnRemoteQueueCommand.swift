@@ -45,8 +45,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         ArgumentDescriptions.trace.asOptional,
     ]
     
-    private var metricRecorder: MetricRecorder?
-    
     private let callbackQueue = DispatchQueue(label: "RunTestsOnRemoteQueueCommand.callbackQueue")
     private let di: DI
     private let testArgFileValidator = TestArgFileValidator()
@@ -97,10 +95,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             testDestinationConfigurations: testArgFile.testDestinationConfigurations
         )
         try resultOutputGenerator.generateOutput()
-    }
-    
-    public func tearDown(timeout: TimeInterval) {
-        metricRecorder?.tearDown(timeout: timeout)
     }
     
     private func detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
@@ -174,10 +168,8 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         testArgFile: TestArgFile,
         version: Version
     ) throws -> JobResults {
-        let metricRecorder = try MetricRecorderImpl(
-            analyticsConfiguration: testArgFile.analyticsConfiguration
-        )
-        self.metricRecorder = metricRecorder
+        let metricRecorder: MutableMetricRecorder = try di.get()
+        try metricRecorder.set(analyticsConfiguration: testArgFile.analyticsConfiguration)
         
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,

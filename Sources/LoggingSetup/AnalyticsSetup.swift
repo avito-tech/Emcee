@@ -1,40 +1,8 @@
 import Foundation
-import Graphite
 import LocalHostDeterminer
 import Logging
-import Metrics
 import QueueModels
 import Sentry
-import Statsd
-
-extension MetricRecorderImpl {
-    public convenience init(analyticsConfiguration: AnalyticsConfiguration) throws {
-        let graphiteMetricHandler: GraphiteMetricHandler
-        if let graphiteConfiguration = analyticsConfiguration.graphiteConfiguration {
-            graphiteMetricHandler = try GraphiteMetricHandlerImpl(
-                graphiteDomain: graphiteConfiguration.metricPrefix.components(separatedBy: "."),
-                graphiteSocketAddress: graphiteConfiguration.socketAddress
-            )
-        } else {
-            graphiteMetricHandler = NoOpMetricHandler()
-        }
-        
-        let statsdMetricHandler: StatsdMetricHandler
-        if let statsdConfiguration = analyticsConfiguration.statsdConfiguration {
-            statsdMetricHandler = try StatsdMetricHandlerImpl(
-                statsdDomain: statsdConfiguration.metricPrefix.components(separatedBy: "."),
-                statsdClient: StatsdClientImpl(statsdSocketAddress: statsdConfiguration.socketAddress)
-            )
-        } else {
-            statsdMetricHandler = NoOpMetricHandler()
-        }
-        
-        self.init(
-            graphiteMetricHandler: graphiteMetricHandler,
-            statsdMetricHandler: statsdMetricHandler
-        )
-    }
-}
 
 public final class AnalyticsSetup {
     private init() {}

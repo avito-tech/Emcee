@@ -40,8 +40,6 @@ public final class StartQueueServerCommand: Command {
         qualityOfService: .default
     )
     
-    private var metricRecorder: MetricRecorder?
-    
     private let di: DI
 
     public init(di: DI) {
@@ -58,8 +56,8 @@ public final class StartQueueServerCommand: Command {
         if let sentryConfiguration = queueServerConfiguration.analyticsConfiguration.sentryConfiguration {
             try AnalyticsSetup.setupSentry(sentryConfiguration: sentryConfiguration, emceeVersion: emceeVersion)
         }
-        let metricRecorder = try MetricRecorderImpl(analyticsConfiguration: queueServerConfiguration.analyticsConfiguration)
-        self.metricRecorder = metricRecorder
+        let metricRecorder: MutableMetricRecorder = try di.get()
+        try metricRecorder.set(analyticsConfiguration: queueServerConfiguration.analyticsConfiguration)
         
         try startQueueServer(
             emceeVersion: emceeVersion,
@@ -67,10 +65,6 @@ public final class StartQueueServerCommand: Command {
             workerDestinations: queueServerConfiguration.workerDeploymentDestinations,
             metricRecorder: metricRecorder
         )
-    }
-    
-    public func tearDown(timeout: TimeInterval) {
-        metricRecorder?.tearDown(timeout: timeout)
     }
     
     private func startQueueServer(

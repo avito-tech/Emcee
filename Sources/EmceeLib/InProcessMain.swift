@@ -19,8 +19,6 @@ import URLResource
 import UniqueIdentifierGenerator
 
 public final class InProcessMain {
-    private var commands: [Command] = []
-    
     public init() {}
     
     public func run() throws {
@@ -35,6 +33,9 @@ public final class InProcessMain {
             for: DateProvider.self
         )
         
+        setupMetrics(di: di)
+        let metricRecorder: MetricRecorder = try di.get()
+        
         let cacheElementTimeToLive = TimeUnit.hours(1)
         let cacheMaximumSize = 20 * 1024 * 1024 * 1024
         let logsTimeToLive = TimeUnit.days(14)
@@ -43,7 +44,9 @@ public final class InProcessMain {
         try setupLogging(di: di, logsTimeToLive: logsTimeToLive, queue: logCleaningQueue)
         
         defer {
-            tearDown(timeout: 10)
+            let timeout: TimeInterval = 10
+            LoggingSetup.tearDown(timeout: timeout)
+            metricRecorder.tearDown(timeout: timeout)
             logCleaningQueue.waitUntilAllOperationsAreFinished()
         }
         
@@ -106,24 +109,36 @@ public final class InProcessMain {
             for: UniqueIdentifierGenerator.self
         )
         
-        let commands: [Command] = [
-            DistWorkCommand(di: di),
-            DumpCommand(di: di),
-            RunTestsOnRemoteQueueCommand(di: di),
-            StartQueueServerCommand(di: di),
-            try KickstartCommand(di: di),
-            try EnableWorkerCommand(di: di),
-            try DisableWorkerCommand(di: di),
-            try ToggleWorkersSharingCommand(di: di),
-            VersionCommand(),
-        ]
-        self.commands = commands
-        
         let commandInvoker = CommandInvoker(
-            commands: commands,
+            commands: [
+                DistWorkCommand(di: di),
+                DumpCommand(di: di),
+                RunTestsOnRemoteQueueCommand(di: di),
+                StartQueueServerCommand(di: di),
+                try KickstartCommand(di: di),
+                try EnableWorkerCommand(di: di),
+                try DisableWorkerCommand(di: di),
+                try ToggleWorkersSharingCommand(di: di),
+                VersionCommand(),
+            ],
             helpCommandType: .generateAutomatically
         )
         try commandInvoker.invokeSuitableCommand()
+    }
+    
+    private func setupMetrics(di: DI) {
+        let metricRecorder = MetricRecorderImpl(
+            graphiteMetricHandler: NoOpMetricHandler(),
+            statsdMetricHandler: NoOpMetricHandler()
+        )
+        di.set(
+            metricRecorder,
+            for: MutableMetricRecorder.self
+        )
+        di.set(
+            metricRecorder,
+            for: MetricRecorder.self
+        )
     }
     
     private func setupLogging(di: DI, logsTimeToLive: TimeUnit, queue: OperationQueue) throws {
@@ -143,10 +158,5 @@ public final class InProcessMain {
                 }
             }
         )
-    }
-    
-    private func tearDown(timeout: TimeInterval) {
-        LoggingSetup.tearDown(timeout: timeout)
-        commands.forEach { $0.tearDown(timeout: timeout) }
     }
 }
