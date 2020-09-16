@@ -56,6 +56,9 @@ public final class DumpCommand: Command {
         
         let metricRecorder: MutableMetricRecorder = try di.get()
         try metricRecorder.set(analyticsConfiguration: testArgFile.analyticsConfiguration)
+        if let sentryConfiguration = testArgFile.analyticsConfiguration.sentryConfiguration {
+            try AnalyticsSetup.setupSentry(sentryConfiguration: sentryConfiguration, emceeVersion: emceeVersion)
+        }
         
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,

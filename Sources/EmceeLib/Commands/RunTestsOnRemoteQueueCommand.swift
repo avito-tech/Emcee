@@ -170,6 +170,9 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     ) throws -> JobResults {
         let metricRecorder: MutableMetricRecorder = try di.get()
         try metricRecorder.set(analyticsConfiguration: testArgFile.analyticsConfiguration)
+        if let sentryConfiguration = testArgFile.analyticsConfiguration.sentryConfiguration {
+            try AnalyticsSetup.setupSentry(sentryConfiguration: sentryConfiguration, emceeVersion: version)
+        }
         
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
