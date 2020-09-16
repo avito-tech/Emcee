@@ -96,7 +96,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
                 strongSelf.payloadSignature = .success(workerConfiguration.payloadSignature)
                 Logger.debug("Registered with server. Worker configuration: \(workerConfiguration)")
                 
-//                try didFetchAnalyticsConfiguration(workerConfiguration.analyticsConfiguration)
+                try didFetchAnalyticsConfiguration(workerConfiguration.analyticsConfiguration)
                 
                 _ = try strongSelf.runTests(
                     workerConfiguration: workerConfiguration

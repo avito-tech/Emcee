@@ -71,6 +71,7 @@ public struct QueueServerConfiguration: Decodable {
         payloadSignature: PayloadSignature
     ) -> WorkerConfiguration {
         return WorkerConfiguration(
+            analyticsConfiguration: analyticsConfiguration,
             numberOfSimulators: workerSpecificConfiguration.numberOfSimulators,
             payloadSignature: payloadSignature
         )
