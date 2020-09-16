@@ -13,17 +13,20 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
     private let persistentMetricsJobId: String
     private let lastTestStoppedEventTimestamp = AtomicValue<Date?>(nil)
     private let willRunEventTimestamp = AtomicValue<Date?>(nil)
+    private let metricRecorder: MetricRecorder
     
     public init(
         dateProvider: DateProvider,
         version: Version,
         host: String,
-        persistentMetricsJobId: String
+        persistentMetricsJobId: String,
+        metricRecorder: MetricRecorder
     ) {
         self.dateProvider = dateProvider
         self.host = host
         self.version = version
         self.persistentMetricsJobId = persistentMetricsJobId
+        self.metricRecorder = metricRecorder
     }
     
     public func openStream() {
@@ -33,7 +36,7 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
     public func testStarted(testName: TestName) {
         willRunEventTimestamp.withExclusiveAccess { value in
             if let willRunEventTimestamp = value {
-                MetricRecorder.capture(
+                metricRecorder.capture(
                     TestPreflightMetric(
                         host: host,
                         duration: dateProvider.currentDate().timeIntervalSince(willRunEventTimestamp),
@@ -45,7 +48,7 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
             }
         }
         
-        MetricRecorder.capture(
+        metricRecorder.capture(
             TestStartedMetric(
                 host: host,
                 testClassName: testName.className,
@@ -56,7 +59,7 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
         )
         
         if let timestamp = lastTestStoppedEventTimestamp.currentValue() {
-            MetricRecorder.capture(
+            metricRecorder.capture(
                 TimeBetweenTestsMetric(
                     host: host,
                     duration: dateProvider.currentDate().timeIntervalSince(timestamp),
@@ -69,7 +72,7 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
     }
     
     public func testStopped(testStoppedEvent: TestStoppedEvent) {
-        MetricRecorder.capture(
+        metricRecorder.capture(
             TestFinishedMetric(
                 result: testStoppedEvent.result.rawValue,
                 host: host,
@@ -88,7 +91,7 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
                 timestamp: dateProvider.currentDate()
             )
         )
-        MetricRecorder.capture(
+        metricRecorder.capture(
             AggregatedTestsDurationMetric(
                 result: testStoppedEvent.result.rawValue,
                 host: host,
@@ -106,7 +109,7 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
     public func closeStream() {
         lastTestStoppedEventTimestamp.withExclusiveAccess { value in
             if let lastTestStoppedEventTimestamp = value {
-                MetricRecorder.capture(
+                metricRecorder.capture(
                     TestPostflightMetric(
                         host: host,
                         duration: dateProvider.currentDate().timeIntervalSince(lastTestStoppedEventTimestamp),
@@ -120,7 +123,7 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
         
         willRunEventTimestamp.withExclusiveAccess { value in
             if let streamOpenEventTimestamp = value {
-                MetricRecorder.capture(
+                metricRecorder.capture(
                     UselessTestRunnerInvocationMetric(
                         host: host,
                         version: version,

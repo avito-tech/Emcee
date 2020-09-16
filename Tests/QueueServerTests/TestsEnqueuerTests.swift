@@ -1,6 +1,7 @@
 import BucketQueueTestHelpers
 import DateProviderTestHelpers
 import Foundation
+import MetricsTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
 import QueueServer
@@ -20,7 +21,8 @@ final class TestsEnqueuerTests: XCTestCase {
             bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 1),
             dateProvider: DateProviderFixture(),
             enqueueableBucketReceptor: enqueueableBucketReceptor,
-            version: Version(value: "version")
+            version: Version(value: "version"),
+            metricRecorder: NoOpMetricRecorder()
         )
         
         try testsEnqueuer.enqueue(

@@ -2,6 +2,7 @@ import BuildArtifacts
 import BuildArtifactsTestHelpers
 import Foundation
 import RunnerModels
+import LoggingSetup
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import TestArgFile
@@ -35,7 +36,12 @@ final class TestArgFileValidatorTests: XCTestCase {
             jobId: "",
             jobPriority: 0,
             testDestinationConfigurations: [],
-            persistentMetricsJobId: ""
+            persistentMetricsJobId: "",
+            analyticsConfiguration: AnalyticsConfiguration(
+                graphiteConfiguration: nil,
+                statsdConfiguration: nil,
+                sentryConfiguration: nil
+            )
         )
         
         assertDoesNotThrow {
@@ -69,7 +75,12 @@ final class TestArgFileValidatorTests: XCTestCase {
             jobId: "",
             jobPriority: 0,
             testDestinationConfigurations: [],
-            persistentMetricsJobId: ""
+            persistentMetricsJobId: "",
+            analyticsConfiguration: AnalyticsConfiguration(
+                graphiteConfiguration: nil,
+                statsdConfiguration: nil,
+                sentryConfiguration: nil
+            )
         )
         
         assertThrows {
@@ -103,7 +114,12 @@ final class TestArgFileValidatorTests: XCTestCase {
             jobId: "",
             jobPriority: 0,
             testDestinationConfigurations: [],
-            persistentMetricsJobId: ""
+            persistentMetricsJobId: "",
+            analyticsConfiguration: AnalyticsConfiguration(
+                graphiteConfiguration: nil,
+                statsdConfiguration: nil,
+                sentryConfiguration: nil
+            )
         )
         
         assertThrows {
@@ -137,7 +153,12 @@ final class TestArgFileValidatorTests: XCTestCase {
             jobId: "",
             jobPriority: 0,
             testDestinationConfigurations: [],
-            persistentMetricsJobId: ""
+            persistentMetricsJobId: "",
+            analyticsConfiguration: AnalyticsConfiguration(
+                graphiteConfiguration: nil,
+                statsdConfiguration: nil,
+                sentryConfiguration: nil
+            )
         )
         
         assertThrows {
@@ -171,7 +192,12 @@ final class TestArgFileValidatorTests: XCTestCase {
             jobId: "",
             jobPriority: 0,
             testDestinationConfigurations: [],
-            persistentMetricsJobId: ""
+            persistentMetricsJobId: "",
+            analyticsConfiguration: AnalyticsConfiguration(
+                graphiteConfiguration: nil,
+                statsdConfiguration: nil,
+                sentryConfiguration: nil
+            )
         )
         
         assertThrows {

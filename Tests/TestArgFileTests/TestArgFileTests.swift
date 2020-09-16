@@ -1,7 +1,10 @@
 import BuildArtifacts
 import Foundation
 import ResourceLocation
+import LoggingSetup
+import Sentry
 import SimulatorPoolModels
+import SocketModels
 import TestArgFile
 import XCTest
 
@@ -15,7 +18,20 @@ final class TestArgFileTests: XCTestCase {
                 "jobId": "jobId",
                 "jobPriority": 500,
                 "testDestinationConfigurations": [],
-                "persistentMetricsJobId": "persistentMetricsJobId"
+                "persistentMetricsJobId": "persistentMetricsJobId",
+                "analyticsConfiguration": {
+                    "graphiteConfiguration": {
+                        "socketAddress": "graphite.host:123",
+                        "metricPrefix": "graphite.prefix",
+                    },
+                    "statsdConfiguration": {
+                        "socketAddress": "statsd.host:124",
+                        "metricPrefix": "statsd.prefix",
+                    },
+                    "sentryConfiguration": {
+                        "dsn": "http://example.com",
+                    }
+                }
             }
         """.data(using: .utf8)!
         
@@ -32,7 +48,18 @@ final class TestArgFileTests: XCTestCase {
                 jobId: "jobId",
                 jobPriority: 500,
                 testDestinationConfigurations: [],
-                persistentMetricsJobId: "persistentMetricsJobId"
+                persistentMetricsJobId: "persistentMetricsJobId",
+                analyticsConfiguration: AnalyticsConfiguration(
+                    graphiteConfiguration: MetricConfiguration(
+                        socketAddress: SocketAddress(host: "graphite.host", port: 123),
+                        metricPrefix: "graphite.prefix"
+                    ),
+                    statsdConfiguration: MetricConfiguration(
+                        socketAddress: SocketAddress(host: "statsd.host", port: 124),
+                        metricPrefix: "statsd.prefix"
+                    ),
+                    sentryConfiguration: SentryConfiguration(dsn: URL(string: "http://example.com")!)
+                )
             )
         )
     }
@@ -58,7 +85,8 @@ final class TestArgFileTests: XCTestCase {
                 jobId: "jobId",
                 jobPriority: TestArgFileDefaultValues.priority,
                 testDestinationConfigurations: [],
-                persistentMetricsJobId: TestArgFileDefaultValues.persistentMetricsJobId
+                persistentMetricsJobId: TestArgFileDefaultValues.persistentMetricsJobId,
+                analyticsConfiguration: TestArgFileDefaultValues.analyticsConfiguration
             )
         )
     }

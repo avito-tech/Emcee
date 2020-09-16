@@ -11,15 +11,18 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
     let delegate: SimulatorStateMachineActionExecutor
     private let dateProvider: DateProvider
     private let version: Version
+    private let metricRecorder: MetricRecorder
     
     public init(
         dateProvider: DateProvider,
         delegate: SimulatorStateMachineActionExecutor,
-        version: Version
+        version: Version,
+        metricRecorder: MetricRecorder
     ) {
         self.dateProvider = dateProvider
         self.delegate = delegate
         self.version = version
+        self.metricRecorder = metricRecorder
     }
     
     public func performCreateSimulatorAction(
@@ -107,7 +110,7 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
             result = Either.error(error)
         }
         
-        MetricRecorder.capture(
+        metricRecorder.capture(
             SimulatorDurationMetric(
                 action: action,
                 host: LocalHostDeterminer.currentHostAddress,

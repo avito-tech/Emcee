@@ -24,11 +24,12 @@ public extension SimulatorPool {
     func allocateSimulator(
         dateProvider: DateProvider,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,
-        version: Version
+        version: Version,
+        metricRecorder: MetricRecorder
     ) throws -> AllocatedSimulator {
         try TimeMeasurer.measure(
             result: { workSuccessful, duration in
-                MetricRecorder.capture(
+                metricRecorder.capture(
                     SimulatorAllocationDurationMetric(
                         host: LocalHostDeterminer.currentHostAddress,
                         duration: duration,

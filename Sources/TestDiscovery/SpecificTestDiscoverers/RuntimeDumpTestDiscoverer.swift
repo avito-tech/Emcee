@@ -4,6 +4,7 @@ import DeveloperDirLocator
 import FileSystem
 import Foundation
 import Logging
+import Metrics
 import PathLib
 import PluginManager
 import QueueModels
@@ -32,6 +33,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let testType: TestType
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let version: Version
+    private let metricRecorder: MetricRecorder
     
     init(
         buildArtifacts: BuildArtifacts,
@@ -48,7 +50,8 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         testRunnerProvider: TestRunnerProvider,
         testType: TestType,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
-        version: Version
+        version: Version,
+        metricRecorder: MetricRecorder
     ) {
         self.buildArtifacts = buildArtifacts
         self.dateProvider = dateProvider
@@ -65,6 +68,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         self.testType = testType
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.version = version
+        self.metricRecorder = metricRecorder
     }
     
     func discoverTestEntries(
@@ -89,7 +93,8 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,
             version: version,
-            persistentMetricsJobId: configuration.persistentMetricsJobId
+            persistentMetricsJobId: configuration.persistentMetricsJobId,
+            metricRecorder: metricRecorder
         )
         
         return try runRetrying(times: numberOfAttemptsToPerformRuntimeDump) {
@@ -162,7 +167,8 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         return try simulatorPool.allocateSimulator(
             dateProvider: dateProvider,
             simulatorOperationTimeouts: configuration.simulatorOperationTimeouts,
-            version: version
+            version: version,
+            metricRecorder: metricRecorder
         )
     }
     

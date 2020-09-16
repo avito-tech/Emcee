@@ -12,17 +12,20 @@ public final class TestsEnqueuer {
     private let dateProvider: DateProvider
     private let enqueueableBucketReceptor: EnqueueableBucketReceptor
     private let version: Version
+    private let metricRecorder: MetricRecorder
 
     public init(
         bucketSplitInfo: BucketSplitInfo,
         dateProvider: DateProvider,
         enqueueableBucketReceptor: EnqueueableBucketReceptor,
-        version: Version
+        version: Version,
+        metricRecorder: MetricRecorder
     ) {
         self.bucketSplitInfo = bucketSplitInfo
         self.dateProvider = dateProvider
         self.enqueueableBucketReceptor = enqueueableBucketReceptor
         self.version = version
+        self.metricRecorder = metricRecorder
     }
     
     public func enqueue(
@@ -36,7 +39,7 @@ public final class TestsEnqueuer {
         )
         try enqueueableBucketReceptor.enqueue(buckets: buckets, prioritizedJob: prioritizedJob)
         
-        MetricRecorder.capture(
+        metricRecorder.capture(
             EnqueueTestsMetric(
                 version: version,
                 queueHost: LocalHostDeterminer.currentHostAddress,

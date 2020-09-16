@@ -11,6 +11,7 @@ import Foundation
 import LocalHostDeterminer
 import Logging
 import LoggingSetup
+import Metrics
 import PathLib
 import PluginManager
 import QueueClient
@@ -38,6 +39,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
     private let httpRestServer: HTTPRESTServer
     private let version: Version
     private let workerId: WorkerId
+    private let metricRecorder: MetricRecorder
     private var payloadSignature = Either<PayloadSignature, DistWorkerError>.error(DistWorkerError.missingPayloadSignature)
     
     private enum ReducedBucketFetchResult: Equatable {
@@ -48,7 +50,8 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
     public init(
         di: DI,
         version: Version,
-        workerId: WorkerId
+        workerId: WorkerId,
+        metricRecorder: MetricRecorder
     ) {
         self.di = di
         self.httpRestServer = HTTPRESTServer(
@@ -57,6 +60,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
         )
         self.version = version
         self.workerId = workerId
+        self.metricRecorder = metricRecorder
     }
     
     public func start(
@@ -92,7 +96,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
                 strongSelf.payloadSignature = .success(workerConfiguration.payloadSignature)
                 Logger.debug("Registered with server. Worker configuration: \(workerConfiguration)")
                 
-                try didFetchAnalyticsConfiguration(workerConfiguration.analyticsConfiguration)
+//                try didFetchAnalyticsConfiguration(workerConfiguration.analyticsConfiguration)
                 
                 _ = try strongSelf.runTests(
                     workerConfiguration: workerConfiguration
@@ -117,7 +121,8 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
             numberOfSimulators: workerConfiguration.numberOfSimulators,
             schedulerDataSource: self,
             schedulerDelegate: self,
-            version: version
+            version: version,
+            metricRecorder: metricRecorder
         )
         try scheduler.run()
     }

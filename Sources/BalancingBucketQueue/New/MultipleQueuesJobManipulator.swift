@@ -6,15 +6,18 @@ import LocalHostDeterminer
 
 public final class MultipleQueuesJobManipulator: JobManipulator {
     private let dateProvider: DateProvider
+    private let metricRecorder: MetricRecorder
     private let multipleQueuesContainer: MultipleQueuesContainer
     private let emceeVersion: Version
     
     public init(
         dateProvider: DateProvider,
+        metricRecorder: MetricRecorder,
         multipleQueuesContainer: MultipleQueuesContainer,
         emceeVersion: Version
     ) {
         self.dateProvider = dateProvider
+        self.metricRecorder = metricRecorder
         self.multipleQueuesContainer = multipleQueuesContainer
         self.emceeVersion = emceeVersion
     }
@@ -35,7 +38,7 @@ public final class MultipleQueuesJobManipulator: JobManipulator {
             for deletedJobQueue in jobQueuesToDelete {
                 multipleQueuesContainer.untrack(jobGroup: deletedJobQueue.jobGroup)
             
-                MetricRecorder.capture(
+                metricRecorder.capture(
                     JobProcessingDurationMetric(
                         queueHost: LocalHostDeterminer.currentHostAddress,
                         version: emceeVersion,

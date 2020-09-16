@@ -3,6 +3,7 @@ import BucketQueue
 import BucketQueueModels
 import DateProvider
 import Foundation
+import MetricsTestHelpers
 import QueueModels
 import WorkerCapabilitiesModels
 
@@ -25,6 +26,7 @@ public final class BalancingBucketQueueImpl {
     public func delete(jobId: JobId) throws {
         try MultipleQueuesJobManipulator(
             dateProvider: dateProvider,
+            metricRecorder: NoOpMetricRecorder(),
             multipleQueuesContainer: multipleQueuesContainer,
             emceeVersion: emceeVersion
         ).delete(jobId: jobId)

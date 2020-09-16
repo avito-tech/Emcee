@@ -1,4 +1,5 @@
 import Foundation
+import LoggingSetup
 import QueueModels
 
 /// Represents --test-arg-file file contents which describes test plan.
@@ -10,6 +11,7 @@ public struct TestArgFile: Codable, Equatable {
     public let jobPriority: Priority
     public let testDestinationConfigurations: [TestDestinationConfiguration]
     public let persistentMetricsJobId: String
+    public let analyticsConfiguration: AnalyticsConfiguration
     
     public init(
         entries: [TestArgFileEntry],
@@ -18,7 +20,8 @@ public struct TestArgFile: Codable, Equatable {
         jobId: JobId,
         jobPriority: Priority,
         testDestinationConfigurations: [TestDestinationConfiguration],
-        persistentMetricsJobId: String
+        persistentMetricsJobId: String,
+        analyticsConfiguration: AnalyticsConfiguration
     ) {
         self.entries = entries
         self.jobGroupId = jobGroupId
@@ -27,6 +30,7 @@ public struct TestArgFile: Codable, Equatable {
         self.jobPriority = jobPriority
         self.testDestinationConfigurations = testDestinationConfigurations
         self.persistentMetricsJobId = persistentMetricsJobId
+        self.analyticsConfiguration = analyticsConfiguration
     }
     
     public init(from decoder: Decoder) throws {
@@ -44,6 +48,8 @@ public struct TestArgFile: Codable, Equatable {
         let testDestinationConfigurations = try container.decodeIfPresent([TestDestinationConfiguration].self, forKey: .testDestinationConfigurations) ??
             []
         let persistentMetricsJobId = try container.decodeIfPresent(String.self, forKey: .persistentMetricsJobId) ?? TestArgFileDefaultValues.persistentMetricsJobId
+        let analyticsConfiguration = try container.decodeIfPresent(AnalyticsConfiguration.self, forKey: .analyticsConfiguration) ?? TestArgFileDefaultValues.analyticsConfiguration
+        
         
         self.init(
             entries: entries,
@@ -52,7 +58,8 @@ public struct TestArgFile: Codable, Equatable {
             jobId: jobId,
             jobPriority: jobPriority,
             testDestinationConfigurations: testDestinationConfigurations,
-            persistentMetricsJobId: persistentMetricsJobId
+            persistentMetricsJobId: persistentMetricsJobId,
+            analyticsConfiguration: analyticsConfiguration
         )
     }
 }

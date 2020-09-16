@@ -1,6 +1,7 @@
 import BuildArtifacts
 import DeveloperDirModels
 import Foundation
+import LoggingSetup
 import PluginSupport
 import QueueModels
 import RunnerModels
@@ -47,4 +48,9 @@ public enum TestArgFileDefaultValues {
     )
     public static let workerCapabilityRequirements: Set<WorkerCapabilityRequirement> = []
     public static let persistentMetricsJobId: String = "UnidentifiedJob"
+    public static let analyticsConfiguration = AnalyticsConfiguration(
+        graphiteConfiguration: nil,
+        statsdConfiguration: nil,
+        sentryConfiguration: nil
+    )
 }

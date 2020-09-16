@@ -3,6 +3,7 @@ import DateProvider
 import DeveloperDirLocator
 import FileSystem
 import Foundation
+import Metrics
 import ProcessController
 import QueueModels
 import ResourceLocationResolver
@@ -15,7 +16,8 @@ public final class OnDemandSimulatorPoolFactory {
     public static func create(
         di: DI,
         simulatorBootQueue: DispatchQueue = DispatchQueue(label: "SimulatorBootQueue"),
-        version: Version
+        version: Version,
+        metricRecorder: MetricRecorder
     ) throws -> OnDemandSimulatorPool {
         DefaultOnDemandSimulatorPool(
             resourceLocationResolver: try di.get(),
@@ -32,7 +34,8 @@ public final class OnDemandSimulatorPoolFactory {
                         temporaryFolder: try di.get(),
                         uniqueIdentifierGenerator: try di.get()
                     ),
-                    version: version
+                    version: version,
+                    metricRecorder: metricRecorder
                 )
             ),
             tempFolder: try di.get()

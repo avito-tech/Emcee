@@ -7,29 +7,41 @@ import QueueModels
 import Sentry
 import Statsd
 
+extension MetricRecorderImpl {
+    public convenience init(analyticsConfiguration: AnalyticsConfiguration) throws {
+        let graphiteMetricHandler: GraphiteMetricHandler
+        if let graphiteConfiguration = analyticsConfiguration.graphiteConfiguration {
+            graphiteMetricHandler = try GraphiteMetricHandlerImpl(
+                graphiteDomain: graphiteConfiguration.metricPrefix.components(separatedBy: "."),
+                graphiteSocketAddress: graphiteConfiguration.socketAddress
+            )
+        } else {
+            graphiteMetricHandler = NoOpMetricHandler()
+        }
+        
+        let statsdMetricHandler: StatsdMetricHandler
+        if let statsdConfiguration = analyticsConfiguration.statsdConfiguration {
+            statsdMetricHandler = try StatsdMetricHandlerImpl(
+                statsdDomain: statsdConfiguration.metricPrefix.components(separatedBy: "."),
+                statsdClient: StatsdClientImpl(statsdSocketAddress: statsdConfiguration.socketAddress)
+            )
+        } else {
+            statsdMetricHandler = NoOpMetricHandler()
+        }
+        
+        self.init(
+            graphiteMetricHandler: graphiteMetricHandler,
+            statsdMetricHandler: statsdMetricHandler
+        )
+    }
+}
+
 public final class AnalyticsSetup {
     private init() {}
     
-    public static func setupAnalytics(analyticsConfiguration: AnalyticsConfiguration, emceeVersion: Version) throws {
-        if let sentryConfiguration = analyticsConfiguration.sentryConfiguration {
-            try setupSentry(emceeVersion: emceeVersion, sentryConfiguration: sentryConfiguration)
-        }
-        if let graphiteConfiguration = analyticsConfiguration.graphiteConfiguration {
-            try setupGraphite(configuration: graphiteConfiguration)
-        }
-        if let statsdConfiguration = analyticsConfiguration.statsdConfiguration {
-            try setupStatsd(configuration: statsdConfiguration)
-        }
-    }
-    
-    public static func tearDown(timeout: TimeInterval) {
-        GlobalMetricConfig.graphiteMetricHandler.tearDown(timeout: timeout)
-        GlobalMetricConfig.statsdMetricHandler.tearDown(timeout: timeout)
-    }
-    
-    private static func setupSentry(
-        emceeVersion: Version,
-        sentryConfiguration: SentryConfiguration
+    public static func setupSentry(
+        sentryConfiguration: SentryConfiguration,
+        emceeVersion: Version
     ) throws {
         let loggerHandler = AggregatedLoggerHandler(
             handlers: [
@@ -42,18 +54,6 @@ public final class AnalyticsSetup {
             ]
         )
         GlobalLoggerConfig.loggerHandler = loggerHandler
-    }
-
-    private static func setupGraphite(configuration: MetricConfiguration) throws {
-        GlobalMetricConfig.graphiteMetricHandler = try createGraphiteMetricHandler(
-            configuration: configuration
-        )
-    }
-    
-    private static func setupStatsd(configuration: MetricConfiguration) throws {
-        GlobalMetricConfig.statsdMetricHandler = try createStatsdMetricHandler(
-            configuration: configuration
-        )
     }
     
     private static func createSentryLoggerHandler(
@@ -69,24 +69,6 @@ public final class AnalyticsSetup {
             sentryEventDateFormatter: SentryDateFormatterFactory.createDateFormatter(),
             urlSession: URLSession.shared,
             verbosity: verbosity
-        )
-    }
-    
-    private static func createGraphiteMetricHandler(
-        configuration: MetricConfiguration
-    ) throws -> GraphiteMetricHandler {
-        return try GraphiteMetricHandlerImpl(
-            graphiteDomain: configuration.metricPrefix.components(separatedBy: "."),
-            graphiteSocketAddress: configuration.socketAddress
-        )
-    }
-    
-    private static func createStatsdMetricHandler(
-        configuration: MetricConfiguration
-    ) throws -> StatsdMetricHandler {
-        return try StatsdMetricHandlerImpl(
-            statsdDomain: configuration.metricPrefix.components(separatedBy: "."),
-            statsdClient: StatsdClientImpl(statsdSocketAddress: configuration.socketAddress)
         )
     }
 }

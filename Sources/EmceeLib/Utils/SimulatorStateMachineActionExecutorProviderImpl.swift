@@ -1,6 +1,7 @@
 import AppleTools
 import DateProvider
 import Foundation
+import Metrics
 import PathLib
 import ProcessController
 import QueueModels
@@ -17,19 +18,22 @@ public final class SimulatorStateMachineActionExecutorProviderImpl: SimulatorSta
     private let resourceLocationResolver: ResourceLocationResolver
     private let simulatorSetPathDeterminer: SimulatorSetPathDeterminer
     private let version: Version
+    private let metricRecorder: MetricRecorder
 
     public init(
         dateProvider: DateProvider,
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver,
         simulatorSetPathDeterminer: SimulatorSetPathDeterminer,
-        version: Version
+        version: Version,
+        metricRecorder: MetricRecorder
     ) {
         self.dateProvider = dateProvider
         self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
         self.simulatorSetPathDeterminer = simulatorSetPathDeterminer
         self.version = version
+        self.metricRecorder = metricRecorder
     }
     
     public func simulatorStateMachineActionExecutor(
@@ -58,7 +62,8 @@ public final class SimulatorStateMachineActionExecutorProviderImpl: SimulatorSta
         return MetricSupportingSimulatorStateMachineActionExecutor(
             dateProvider: dateProvider,
             delegate: simulatorStateMachineActionExecutor,
-            version: version
+            version: version,
+            metricRecorder: metricRecorder
         )
     }
 }

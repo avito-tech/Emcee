@@ -6,4 +6,9 @@ public protocol Command {
     var arguments: Arguments { get }
     
     func run(payload: CommandPayload) throws
+    func tearDown(timeout: TimeInterval)
+}
+
+extension Command {
+    public func tearDown(timeout: TimeInterval) { }
 }

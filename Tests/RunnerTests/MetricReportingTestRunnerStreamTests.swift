@@ -13,11 +13,17 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
     lazy var dateProvider = DateProviderFixture(Date(timeIntervalSinceReferenceDate: 12345))
     lazy var host = "host"
     lazy var metricHandler = FakeMetricHandler<GraphiteMetric>()
+    lazy var metricQueue = DispatchQueue(label: "test")
     lazy var stream = MetricReportingTestRunnerStream(
         dateProvider: dateProvider,
         version: version,
         host: host,
-        persistentMetricsJobId: ""
+        persistentMetricsJobId: "",
+        metricRecorder: MetricRecorderImpl(
+            graphiteMetricHandler: metricHandler,
+            statsdMetricHandler: NoOpMetricHandler(),
+            queue: metricQueue
+        )
     )
     lazy var testName = TestName(className: "class", methodName: "test")
     lazy var testContext = TestContextFixtures().testContext
@@ -29,14 +35,11 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
         testStartTimestamp: 111
     )
     lazy var version = Version(value: "version")
-    
-    override func setUp() {
-        GlobalMetricConfig.graphiteMetricHandler = metricHandler
-    }
 
     func test___reporting_test_started_metric() {
         stream.testStarted(testName: testName)
         
+        metricQueue.sync { }
         XCTAssertEqual(
             metricHandler.metrics,
             [
@@ -56,6 +59,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
             testStoppedEvent: testStoppedEvent
         )
         
+        metricQueue.sync { }
         XCTAssertTrue(
             metricHandler.metrics.contains(
                 TestFinishedMetric(
@@ -75,6 +79,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
             testStoppedEvent: testStoppedEvent
         )
         
+        metricQueue.sync { }
         XCTAssertTrue(
             metricHandler.metrics.contains(
                 ConcreteTestDurationMetric(
@@ -101,6 +106,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
         dateProvider.result += timeBetweenStopOfPreviousTestAndStartOfNextTest
         stream.testStarted(testName: testName)
         
+        metricQueue.sync { }
         XCTAssertTrue(
             metricHandler.metrics.contains(
                 TimeBetweenTestsMetric(
@@ -118,6 +124,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
         dateProvider.result += 100
         stream.testStarted(testName: testName)
         
+        metricQueue.sync { }
         XCTAssertEqual(
             metricHandler.metrics,
             [
@@ -144,6 +151,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
         dateProvider.result += 100
         stream.closeStream()
         
+        metricQueue.sync { }
         XCTAssert(
             metricHandler.metrics.contains(
                 TestPostflightMetric(
@@ -161,6 +169,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
         dateProvider.result += 25
         stream.closeStream()
         
+        metricQueue.sync { }
         XCTAssertEqual(
             metricHandler.metrics,
             [
@@ -189,6 +198,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
         let bucketFinishedAt = dateProvider.currentDate()
         stream.closeStream()
         
+        metricQueue.sync { }
         XCTAssertEqual(
             metricHandler.metrics,
             [

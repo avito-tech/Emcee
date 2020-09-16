@@ -34,6 +34,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     private let testRunnerProvider: TestRunnerProvider
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let version: Version
+    private let metricRecorder: MetricRecorder
     
     public init(
         dateProvider: DateProvider,
@@ -48,7 +49,8 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         tempFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
-        version: Version
+        version: Version,
+        metricRecorder: MetricRecorder
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
@@ -63,6 +65,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         self.testRunnerProvider = testRunnerProvider
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.version = version
+        self.metricRecorder = metricRecorder
     }
     
     public func query(configuration: TestDiscoveryConfiguration) throws -> TestDiscoveryResult {
@@ -164,7 +167,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     private func reportStats(testCaseCount: Int, testCount: Int, configuration: TestDiscoveryConfiguration) {
         let testBundleName = configuration.xcTestBundleLocation.resourceLocation.stringValue.lastPathComponent
         Logger.info("Test discovery in \(configuration.xcTestBundleLocation.resourceLocation): bundle has \(testCaseCount) XCTestCases, \(testCount) tests")
-        MetricRecorder.capture(
+        metricRecorder.capture(
             RuntimeDumpTestCountMetric(
                 testBundleName: testBundleName,
                 numberOfTests: testCount,
@@ -181,7 +184,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     }
     
     private func reportDiscoveryDuration(persistentMetricsJobId: String, startDate: Date, isSuccessful: Bool) {
-        MetricRecorder.capture(
+        metricRecorder.capture(
             TestDiscoveryDurationMetric(
                 host: LocalHostDeterminer.currentHostAddress,
                 version: version,
@@ -258,7 +261,8 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             testRunnerProvider: testRunnerProvider,
             testType: testType,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
-            version: version
+            version: version,
+            metricRecorder: metricRecorder
         )
     }
 }

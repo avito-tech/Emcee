@@ -3,6 +3,7 @@ import AppleTools
 import DateProviderTestHelpers
 import EmceeLib
 import Foundation
+import MetricsTestHelpers
 import ProcessControllerTestHelpers
 import QueueModels
 import ResourceLocationResolverTestHelpers
@@ -21,7 +22,8 @@ final class SimulatorStateMachineActionExecutorProviderTests: XCTestCase {
         processControllerProvider: fakeProcessControllerProvider,
         resourceLocationResolver: FakeResourceLocationResolver.throwing(),
         simulatorSetPathDeterminer: FakeSimulatorSetPathDeterminer(provider: { _ in self.tempFolder.absolutePath }),
-        version: Version(value: "version")
+        version: Version(value: "version"),
+        metricRecorder: NoOpMetricRecorder()
     )
     
     func test___simctl() {

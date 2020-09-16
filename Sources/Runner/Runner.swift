@@ -42,7 +42,8 @@ public final class Runner {
         testRunnerProvider: TestRunnerProvider,
         testTimeoutCheckInterval: DispatchTimeInterval = .seconds(1),
         version: Version,
-        persistentMetricsJobId: String
+        persistentMetricsJobId: String,
+        metricRecorder: MetricRecorder
     ) {
         self.configuration = configuration
         self.dateProvider = dateProvider
@@ -52,7 +53,8 @@ public final class Runner {
             dateProvider: dateProvider,
             version: version,
             host: LocalHostDeterminer.currentHostAddress,
-            persistentMetricsJobId: persistentMetricsJobId
+            persistentMetricsJobId: persistentMetricsJobId,
+            metricRecorder: metricRecorder
         )
         self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver

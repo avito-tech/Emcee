@@ -110,20 +110,28 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     func test___poller_log_metric() {
         let expectedMetric1 = NumberOfWorkersToUtilizeMetric(emceeVersion: "emceeVersion", queueHost: "queueHost", workersCount: 0)
         let metricHandler = FakeMetricHandler<GraphiteMetric>()
-        GlobalMetricConfig.graphiteMetricHandler = metricHandler
+        let metricQueue = DispatchQueue(label: "test")
         let expectation = self.expectation(description: "workersToUtilize was called")
         communicationService.completionHandler = { completion in
             completion(.success([WorkerId(value: "workerId")]))
             expectation.fulfill()
         }
         let expectedMetric2 = NumberOfWorkersToUtilizeMetric(emceeVersion: "emceeVersion", queueHost: "queueHost", workersCount: 1)
-        let poller = buildPoller(deployments: [])
+        let poller = buildPoller(
+            deployments: [],
+            metricRecorder: MetricRecorderImpl(
+                graphiteMetricHandler: metricHandler,
+                statsdMetricHandler: NoOpMetricHandler(),
+                queue: metricQueue
+            )
+        )
         let expectedMetrics = Set([expectedMetric1, expectedMetric2])
 
         poller.startPolling()
 
         wait(for: [expectation], timeout: 5)
-
+        metricQueue.sync { }
+        
         for expectedMetric in expectedMetrics {
             let contains = metricHandler.metrics.contains { metric -> Bool in
                 expectedMetric.testCompare(metric)
@@ -134,12 +142,16 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
         }    
     }
 
-    private func buildPoller(deployments: [DeploymentDestination]) -> DefaultWorkerUtilizationStatusPoller {
+    private func buildPoller(
+        deployments: [DeploymentDestination],
+        metricRecorder: MetricRecorder = NoOpMetricRecorder()
+    ) -> DefaultWorkerUtilizationStatusPoller {
         DefaultWorkerUtilizationStatusPoller(
             emceeVersion: "emceeVersion",
             queueHost: "queueHost",
             defaultDeployments: deployments,
-            communicationService: communicationService
+            communicationService: communicationService,
+            metricRecorder: metricRecorder
         )
     }
 }

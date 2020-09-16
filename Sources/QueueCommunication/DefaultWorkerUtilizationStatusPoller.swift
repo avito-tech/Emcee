@@ -14,19 +14,22 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
     private let pollingTrigger = DispatchBasedTimer(repeating: .seconds(60), leeway: .seconds(10))
     private let emceeVersion: Version
     private let queueHost: String
+    private let metricRecorder: MetricRecorder
     
     public init(
         emceeVersion: Version,
         queueHost: String,
         defaultDeployments: [DeploymentDestination],
-        communicationService: QueueCommunicationService
+        communicationService: QueueCommunicationService,
+        metricRecorder: MetricRecorder
     ) {
         self.defaultDeployments = defaultDeployments
         self.communicationService = communicationService
         self.workerIdsToUtilize = AtomicValue(Set(defaultDeployments.workerIds()))
         self.emceeVersion = emceeVersion
         self.queueHost = queueHost
-        MetricRecorder.capture(
+        self.metricRecorder = metricRecorder
+        metricRecorder.capture(
             NumberOfWorkersToUtilizeMetric(emceeVersion: emceeVersion, queueHost: queueHost, workersCount: defaultDeployments.count)
         )
     }
@@ -43,7 +46,7 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
         Logger.debug("Stopping polling workers to utilize")
         pollingTrigger.stop()
         self.workerIdsToUtilize.set(Set(defaultDeployments.workerIds()))
-        MetricRecorder.capture(
+        metricRecorder.capture(
             NumberOfWorkersToUtilizeMetric(emceeVersion: emceeVersion, queueHost: queueHost, workersCount: defaultDeployments.count)
         )
     }
@@ -60,7 +63,7 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
                     let workerIds = try result.dematerialize()
                     Logger.debug("Fetched workerIds to utilize: \(workerIds)")
                     strongSelf.workerIdsToUtilize.set(workerIds)
-                    MetricRecorder.capture(
+                    strongSelf.metricRecorder.capture(
                         NumberOfWorkersToUtilizeMetric(
                             emceeVersion: strongSelf.emceeVersion,
                             queueHost: strongSelf.queueHost,

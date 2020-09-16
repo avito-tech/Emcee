@@ -1,5 +1,6 @@
 import DateProviderTestHelpers
 import Foundation
+import MetricsTestHelpers
 import QueueCommunicationTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
@@ -173,7 +174,8 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         bucketSplitInfo: bucketSplitInfo,
         dateProvider: DateProviderFixture(),
         enqueueableBucketReceptor: enqueueableBucketReceptor,
-        version: Version(value: "version")
+        version: Version(value: "version"),
+        metricRecorder: NoOpMetricRecorder()
     )
     lazy var workerId: WorkerId = "worker"
     lazy var capableWorkerId: WorkerId = "capableWorkerId"

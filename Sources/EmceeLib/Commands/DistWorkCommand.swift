@@ -8,6 +8,7 @@ import FileSystem
 import Foundation
 import Logging
 import LoggingSetup
+import Metrics
 import PathLib
 import PluginManager
 import ProcessController
@@ -25,14 +26,19 @@ import UniqueIdentifierGenerator
 import WorkerCapabilitiesModels
 import WorkerCapabilities
 
+import Graphite
+import Statsd
+
 public final class DistWorkCommand: Command {
     public let name = "distWork"
     public let description = "Takes jobs from a dist runner queue and performs them"
     public var arguments: Arguments = [
         ArgumentDescriptions.emceeVersion.asOptional,
         ArgumentDescriptions.queueServer.asRequired,
-        ArgumentDescriptions.workerId.asRequired
+        ArgumentDescriptions.workerId.asRequired,
     ]
+    
+    private var metricRecorder: MetricRecorder?
     
     private let di: DI
 
@@ -46,10 +52,17 @@ public final class DistWorkCommand: Command {
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
         
         di.set(try createScopedTemporaryFolder(), for: TemporaryFolder.self)
+        
+        let metricRecorder = MetricRecorderImpl(
+            graphiteMetricHandler: NoOpMetricHandler(),
+            statsdMetricHandler: NoOpMetricHandler()
+        )
+        self.metricRecorder = metricRecorder
 
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
-            version: emceeVersion
+            version: emceeVersion,
+            metricRecorder: metricRecorder
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
         
@@ -58,7 +71,8 @@ public final class DistWorkCommand: Command {
         let distWorker = try createDistWorker(
             queueServerAddress: queueServerAddress,
             version: emceeVersion,
-            workerId: workerId
+            workerId: workerId,
+            metricRecorder: metricRecorder
         )
         
         SignalHandling.addSignalHandler(signals: [.term, .int]) { signal in
@@ -66,13 +80,18 @@ public final class DistWorkCommand: Command {
             onDemandSimulatorPool.deleteSimulators()
         }
         
-        try startWorker(distWorker: distWorker, emceeVersion: emceeVersion)
+        try startWorker(distWorker: distWorker, emceeVersion: emceeVersion, metricRecorder: metricRecorder)
+    }
+    
+    public func tearDown(timeout: TimeInterval) {
+        metricRecorder?.tearDown(timeout: timeout)
     }
     
     private func createDistWorker(
         queueServerAddress: SocketAddress,
         version: Version,
-        workerId: WorkerId
+        workerId: WorkerId,
+        metricRecorder: MetricRecorder
     ) throws -> DistWorker {
         let requestSender = try di.get(RequestSenderProvider.self).requestSender(socketAddress: queueServerAddress)
         
@@ -109,16 +128,41 @@ public final class DistWorkCommand: Command {
         return DistWorker(
             di: di,
             version: version,
-            workerId: workerId
+            workerId: workerId,
+            metricRecorder: metricRecorder
         )
     }
         
-    private func startWorker(distWorker: DistWorker, emceeVersion: Version) throws {
+    private func startWorker(
+        distWorker: DistWorker,
+        emceeVersion: Version,
+        metricRecorder: MutableMetricRecorder
+    ) throws {
         var isWorking = true
         
         try distWorker.start(
             didFetchAnalyticsConfiguration: { analyticsConfiguration in
-                try AnalyticsSetup.setupAnalytics(analyticsConfiguration: analyticsConfiguration, emceeVersion: emceeVersion)
+                if let graphiteConfiguration = analyticsConfiguration.graphiteConfiguration {
+                    try metricRecorder.setGraphiteMetric(
+                        handler: GraphiteMetricHandlerImpl(
+                            graphiteDomain: graphiteConfiguration.metricPrefix.components(separatedBy: "."),
+                            graphiteSocketAddress: graphiteConfiguration.socketAddress
+                        )
+                    )
+                }
+                
+                if let statsdConfiguration = analyticsConfiguration.statsdConfiguration {
+                    try metricRecorder.setStatsdMetric(
+                        handler: StatsdMetricHandlerImpl(
+                            statsdDomain: statsdConfiguration.metricPrefix.components(separatedBy: "."),
+                            statsdClient: StatsdClientImpl(statsdSocketAddress: statsdConfiguration.socketAddress)
+                        )
+                    )
+                }
+                
+                if let sentryConfiguration = analyticsConfiguration.sentryConfiguration {
+                    try AnalyticsSetup.setupSentry(sentryConfiguration: sentryConfiguration, emceeVersion: emceeVersion)
+                }
             },
             completion: {
                 isWorking = false

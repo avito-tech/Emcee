@@ -12,17 +12,20 @@ public final class WorkerAlivenessMetricCapturer {
     private let timer: DispatchBasedTimer
     private let version: Version
     private let workerAlivenessProvider: WorkerAlivenessProvider
+    private let metricRecorder: MetricRecorder
 
     public init(
         dateProvider: DateProvider,
         reportInterval: DispatchTimeInterval,
         version: Version,
-        workerAlivenessProvider: WorkerAlivenessProvider
+        workerAlivenessProvider: WorkerAlivenessProvider,
+        metricRecorder: MetricRecorder
     ) {
         self.dateProvider = dateProvider
         self.timer = DispatchBasedTimer(repeating: reportInterval, leeway: .seconds(1))
         self.version = version
         self.workerAlivenessProvider = workerAlivenessProvider
+        self.metricRecorder = metricRecorder
     }
     
     public func start() {
@@ -51,7 +54,7 @@ public final class WorkerAlivenessMetricCapturer {
                 timestamp: dateProvider.currentDate()
             )
         }
-        MetricRecorder.capture(metrics)
+        metricRecorder.capture(metrics)
     }
 }
 

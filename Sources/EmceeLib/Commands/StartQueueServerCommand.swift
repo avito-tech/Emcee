@@ -10,6 +10,7 @@ import LocalHostDeterminer
 import LocalQueueServerRunner
 import Logging
 import LoggingSetup
+import Metrics
 import PluginManager
 import PortDeterminer
 import ProcessController
@@ -39,6 +40,8 @@ public final class StartQueueServerCommand: Command {
         qualityOfService: .default
     )
     
+    private var metricRecorder: MetricRecorder?
+    
     private let di: DI
 
     public init(di: DI) {
@@ -52,19 +55,29 @@ public final class StartQueueServerCommand: Command {
             resourceLocationResolver: try di.get()
         )
         
-        try AnalyticsSetup.setupAnalytics(analyticsConfiguration: queueServerConfiguration.analyticsConfiguration, emceeVersion: emceeVersion)
+        if let sentryConfiguration = queueServerConfiguration.analyticsConfiguration.sentryConfiguration {
+            try AnalyticsSetup.setupSentry(sentryConfiguration: sentryConfiguration, emceeVersion: emceeVersion)
+        }
+        let metricRecorder = try MetricRecorderImpl(analyticsConfiguration: queueServerConfiguration.analyticsConfiguration)
+        self.metricRecorder = metricRecorder
         
         try startQueueServer(
             emceeVersion: emceeVersion,
             queueServerConfiguration: queueServerConfiguration,
-            workerDestinations: queueServerConfiguration.workerDeploymentDestinations
+            workerDestinations: queueServerConfiguration.workerDeploymentDestinations,
+            metricRecorder: metricRecorder
         )
+    }
+    
+    public func tearDown(timeout: TimeInterval) {
+        metricRecorder?.tearDown(timeout: timeout)
     }
     
     private func startQueueServer(
         emceeVersion: Version,
         queueServerConfiguration: QueueServerConfiguration,
-        workerDestinations: [DeploymentDestination]
+        workerDestinations: [DeploymentDestination],
+        metricRecorder: MetricRecorder
     ) throws {
         di.set(
             PayloadSignature(value: try di.get(UniqueIdentifierGenerator.self).generate())
@@ -95,7 +108,8 @@ public final class StartQueueServerCommand: Command {
             emceeVersion: emceeVersion,
             queueHost: socketHost,
             defaultDeployments: workerDestinations,
-            communicationService: queueCommunicationService
+            communicationService: queueCommunicationService,
+            metricRecorder: metricRecorder
         )
         
         let workersToUtilizeService = DefaultWorkersToUtilizeService(
@@ -144,7 +158,8 @@ public final class StartQueueServerCommand: Command {
             workerCapabilitiesStorage: WorkerCapabilitiesStorageImpl(),
             workerConfigurations: workerConfigurations,
             workerUtilizationStatusPoller: workerUtilizationStatusPoller,
-            workersToUtilizeService: workersToUtilizeService
+            workersToUtilizeService: workersToUtilizeService,
+            metricRecorder: metricRecorder
         )
         queueServerPortProvider.source = queueServer.queueServerPortProvider
         

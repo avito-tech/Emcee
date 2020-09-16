@@ -12,19 +12,22 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
     private let jobStateProvider: JobStateProvider
     private let queueStateProvider: RunningQueueStateProvider
     private let version: Version
+    private let metricRecorder: MetricRecorder
 
     public init(
         bucketResultAccepter: BucketResultAccepter,
         dateProvider: DateProvider,
         jobStateProvider: JobStateProvider,
         queueStateProvider: RunningQueueStateProvider,
-        version: Version
+        version: Version,
+        metricRecorder: MetricRecorder
     ) {
         self.bucketResultAccepter = bucketResultAccepter
         self.dateProvider = dateProvider
         self.jobStateProvider = jobStateProvider
         self.queueStateProvider = queueStateProvider
         self.version = version
+        self.metricRecorder = metricRecorder
     }
     
     public func accept(
@@ -70,8 +73,8 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
             }
         }
         
-        MetricRecorder.capture(testTimeToStartMetrics + queueStateMetrics)
-        MetricRecorder.capture(
+        metricRecorder.capture(testTimeToStartMetrics + queueStateMetrics)
+        metricRecorder.capture(
             BucketProcessingDurationMetric(
                 queueHost: LocalHostDeterminer.currentHostAddress,
                 version: version,

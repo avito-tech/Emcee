@@ -19,6 +19,8 @@ import URLResource
 import UniqueIdentifierGenerator
 
 public final class InProcessMain {
+    private var commands: [Command] = []
+    
     public init() {}
     
     public func run() throws {
@@ -104,18 +106,21 @@ public final class InProcessMain {
             for: UniqueIdentifierGenerator.self
         )
         
+        let commands: [Command] = [
+            DistWorkCommand(di: di),
+            DumpCommand(di: di),
+            RunTestsOnRemoteQueueCommand(di: di),
+            StartQueueServerCommand(di: di),
+            try KickstartCommand(di: di),
+            try EnableWorkerCommand(di: di),
+            try DisableWorkerCommand(di: di),
+            try ToggleWorkersSharingCommand(di: di),
+            VersionCommand(),
+        ]
+        self.commands = commands
+        
         let commandInvoker = CommandInvoker(
-            commands: [
-                DistWorkCommand(di: di),
-                DumpCommand(di: di),
-                RunTestsOnRemoteQueueCommand(di: di),
-                StartQueueServerCommand(di: di),
-                try KickstartCommand(di: di),
-                try EnableWorkerCommand(di: di),
-                try DisableWorkerCommand(di: di),
-                try ToggleWorkersSharingCommand(di: di),
-                VersionCommand(),
-            ],
+            commands: commands,
             helpCommandType: .generateAutomatically
         )
         try commandInvoker.invokeSuitableCommand()
@@ -142,6 +147,6 @@ public final class InProcessMain {
     
     private func tearDown(timeout: TimeInterval) {
         LoggingSetup.tearDown(timeout: timeout)
-        AnalyticsSetup.tearDown(timeout: timeout)
+        commands.forEach { $0.tearDown(timeout: timeout) }
     }
 }

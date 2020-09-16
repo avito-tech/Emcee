@@ -5,6 +5,7 @@ import DeveloperDirLocatorTestHelpers
 import DeveloperDirModels
 import FileSystemTestHelpers
 import Foundation
+import MetricsTestHelpers
 import PluginManagerTestHelpers
 import ProcessController
 import ProcessControllerTestHelpers
@@ -221,7 +222,8 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,
             uniqueIdentifierGenerator: fixedValueUniqueIdentifierGenerator,
-            version: version
+            version: version,
+            metricRecorder: NoOpMetricRecorder()
         )
     }
     

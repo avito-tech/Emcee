@@ -17,19 +17,22 @@ public final class StuckBucketsPoller {
     private let stuckBucketsReenqueuer: StuckBucketsReenqueuer
     private let stuckBucketsTrigger = DispatchBasedTimer(repeating: .seconds(1), leeway: .seconds(5))
     private let version: Version
+    private let metricRecorder: MetricRecorder
     
     public init(
         dateProvider: DateProvider,
         jobStateProvider: JobStateProvider,
         runningQueueStateProvider: RunningQueueStateProvider,
         stuckBucketsReenqueuer: StuckBucketsReenqueuer,
-        version: Version
+        version: Version,
+        metricRecorder: MetricRecorder
     ) {
         self.dateProvider = dateProvider
         self.jobStateProvider = jobStateProvider
         self.runningQueueStateProvider = runningQueueStateProvider
         self.stuckBucketsReenqueuer = stuckBucketsReenqueuer
         self.version = version
+        self.metricRecorder = metricRecorder
     }
     
     public func startTrackingStuckBuckets() {
@@ -54,7 +57,7 @@ public final class StuckBucketsPoller {
                 timestamp: dateProvider.currentDate()
             )
         }
-        MetricRecorder.capture(stuckBucketMetrics)
+        metricRecorder.capture(stuckBucketMetrics)
         
         Logger.warning("Detected stuck buckets:")
         for stuckBucket in stuckBuckets {
@@ -66,7 +69,7 @@ public final class StuckBucketsPoller {
             version: version
         )
         
-        MetricRecorder.capture(
+        metricRecorder.capture(
             queueStateMetricGatherer.metrics(
                 jobStates: jobStateProvider.allJobStates,
                 runningQueueState: runningQueueStateProvider.runningQueueState

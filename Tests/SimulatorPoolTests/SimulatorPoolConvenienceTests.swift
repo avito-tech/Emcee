@@ -1,5 +1,6 @@
 import DateProviderTestHelpers
 import QueueModels
+import MetricsTestHelpers
 import SimulatorPool
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
@@ -17,7 +18,8 @@ final class SimulatorPoolConvenienceTests: XCTestCase {
         let allocatedSimulator = try pool.allocateSimulator(
             dateProvider: dateProvider,
             simulatorOperationTimeouts: simulatorOperationTimeouts,
-            version: version
+            version: version,
+            metricRecorder: NoOpMetricRecorder()
         )
         allocatedSimulator.releaseSimulator()
         

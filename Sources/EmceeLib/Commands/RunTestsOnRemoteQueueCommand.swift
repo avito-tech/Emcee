@@ -10,6 +10,7 @@ import FileSystem
 import Foundation
 import Logging
 import LoggingSetup
+import Metrics
 import PathLib
 import PluginManager
 import PortDeterminer
@@ -43,6 +44,8 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         ArgumentDescriptions.testArgFile.asRequired,
         ArgumentDescriptions.trace.asOptional,
     ]
+    
+    private var metricRecorder: MetricRecorder?
     
     private let callbackQueue = DispatchQueue(label: "RunTestsOnRemoteQueueCommand.callbackQueue")
     private let di: DI
@@ -94,6 +97,10 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             testDestinationConfigurations: testArgFile.testDestinationConfigurations
         )
         try resultOutputGenerator.generateOutput()
+    }
+    
+    public func tearDown(timeout: TimeInterval) {
+        metricRecorder?.tearDown(timeout: timeout)
     }
     
     private func detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
@@ -167,9 +174,15 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         testArgFile: TestArgFile,
         version: Version
     ) throws -> JobResults {
+        let metricRecorder = try MetricRecorderImpl(
+            analyticsConfiguration: testArgFile.analyticsConfiguration
+        )
+        self.metricRecorder = metricRecorder
+        
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
-            version: version
+            version: version,
+            metricRecorder: metricRecorder
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
         
@@ -192,7 +205,8 @@ public final class RunTestsOnRemoteQueueCommand: Command {
                 resourceLocationResolver: try di.get()
             ),
             uniqueIdentifierGenerator: try di.get(),
-            version: version
+            version: version,
+            metricRecorder: metricRecorder
         )
         
         let queueClient = SynchronousQueueClient(queueServerAddress: queueServerAddress)

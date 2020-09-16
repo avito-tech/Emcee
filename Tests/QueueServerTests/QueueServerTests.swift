@@ -3,6 +3,7 @@ import DateProviderTestHelpers
 import DistWorkerModels
 import DistWorkerModelsTestHelpers
 import Foundation
+import MetricsTestHelpers
 import PortDeterminer
 import QueueClient
 import QueueCommunicationTestHelpers
@@ -65,7 +66,8 @@ final class QueueServerTests: XCTestCase {
             workerCapabilitiesStorage: workerCapabilitiesStorage,
             workerConfigurations: workerConfigurations,
             workerUtilizationStatusPoller: FakeWorkerUtilizationStatusPoller(),
-            workersToUtilizeService: FakeWorkersToUtilizeService()
+            workersToUtilizeService: FakeWorkersToUtilizeService(),
+            metricRecorder: NoOpMetricRecorder()
         )
         XCTAssertThrowsError(try server.queueResults(jobId: jobId))
     }
@@ -108,7 +110,8 @@ final class QueueServerTests: XCTestCase {
             workerCapabilitiesStorage: workerCapabilitiesStorage,
             workerConfigurations: workerConfigurations,
             workerUtilizationStatusPoller: FakeWorkerUtilizationStatusPoller(),
-            workersToUtilizeService: FakeWorkersToUtilizeService()
+            workersToUtilizeService: FakeWorkersToUtilizeService(),
+            metricRecorder: NoOpMetricRecorder()
         )
         try server.schedule(
             bucketSplitter: ScheduleStrategyType.individual.bucketSplitter(

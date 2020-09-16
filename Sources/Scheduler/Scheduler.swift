@@ -7,6 +7,7 @@ import Foundation
 import ListeningSemaphore
 import LocalHostDeterminer
 import Logging
+import Metrics
 import PluginManager
 import ProcessController
 import QueueModels
@@ -25,6 +26,7 @@ public final class Scheduler {
     private let queue = OperationQueue()
     private let resourceSemaphore: ListeningSemaphore<ResourceAmounts>
     private let version: Version
+    private let metricRecorder: MetricRecorder
     private weak var schedulerDataSource: SchedulerDataSource?
     private weak var schedulerDelegate: SchedulerDelegate?
     
@@ -33,7 +35,8 @@ public final class Scheduler {
         numberOfSimulators: UInt,
         schedulerDataSource: SchedulerDataSource,
         schedulerDelegate: SchedulerDelegate,
-        version: Version
+        version: Version,
+        metricRecorder: MetricRecorder
     ) {
         self.di = di
         self.resourceSemaphore = ListeningSemaphore(
@@ -44,6 +47,7 @@ public final class Scheduler {
         self.schedulerDataSource = schedulerDataSource
         self.schedulerDelegate = schedulerDelegate
         self.version = version
+        self.metricRecorder = metricRecorder
     }
     
     public func run() throws {
@@ -167,7 +171,8 @@ public final class Scheduler {
         let allocatedSimulator = try simulatorPool.allocateSimulator(
             dateProvider: try di.get(),
             simulatorOperationTimeouts: bucket.simulatorOperationTimeouts,
-            version: version
+            version: version,
+            metricRecorder: metricRecorder
         )
         defer { allocatedSimulator.releaseSimulator() }
         
@@ -195,7 +200,8 @@ public final class Scheduler {
             tempFolder: try di.get(),
             testRunnerProvider: try di.get(),
             version: version,
-            persistentMetricsJobId: bucket.persistentMetricsJobId
+            persistentMetricsJobId: bucket.persistentMetricsJobId,
+            metricRecorder: metricRecorder
         )
 
         let runnerResult = try runner.run(

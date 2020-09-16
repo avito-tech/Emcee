@@ -15,9 +15,15 @@ final class MetricHandlerTests: XCTestCase {
             timestamp: Date()
         )
         
-        GlobalMetricConfig.graphiteMetricHandler = metricHandler
-        MetricRecorder.capture(metric)
+        let queue = DispatchQueue(label: "test")
+        let recorder = MetricRecorderImpl(
+            graphiteMetricHandler: metricHandler,
+            statsdMetricHandler: NoOpMetricHandler(),
+            queue: queue
+        )
+        recorder.capture(metric)
         
+        queue.sync { }
         XCTAssertEqual(metricHandler.metrics, [metric])
     }
     
@@ -29,9 +35,15 @@ final class MetricHandlerTests: XCTestCase {
             value: .gauge(1)
         )
         
-        GlobalMetricConfig.statsdMetricHandler = metricHandler
-        MetricRecorder.capture(metric)
+        let queue = DispatchQueue(label: "test")
+        let recorder = MetricRecorderImpl(
+            graphiteMetricHandler: NoOpMetricHandler(),
+            statsdMetricHandler: metricHandler,
+            queue: queue
+        )
+        recorder.capture(metric)
         
+        queue.sync { }
         XCTAssertEqual(metricHandler.metrics, [metric])
     }
 }

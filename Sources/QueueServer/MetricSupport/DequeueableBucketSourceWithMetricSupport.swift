@@ -14,19 +14,22 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
     private let jobStateProvider: JobStateProvider
     private let queueStateProvider: RunningQueueStateProvider
     private let version: Version
-
+    private let metricRecorder: MetricRecorder
+    
     public init(
         dateProvider: DateProvider,
         dequeueableBucketSource: DequeueableBucketSource,
         jobStateProvider: JobStateProvider,
         queueStateProvider: RunningQueueStateProvider,
-        version: Version
+        version: Version,
+        metricRecorder: MetricRecorder
     ) {
         self.dateProvider = dateProvider
         self.dequeueableBucketSource = dequeueableBucketSource
         self.jobStateProvider = jobStateProvider
         self.queueStateProvider = queueStateProvider
         self.version = version
+        self.metricRecorder = metricRecorder
     }
     
     public func dequeueBucket(workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeuedBucket? {
@@ -75,6 +78,6 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
                 timestamp: dateProvider.currentDate()
             )
         ]
-        MetricRecorder.capture(queueStateMetrics + bucketAndTestMetrics)
+        metricRecorder.capture(queueStateMetrics + bucketAndTestMetrics)
     }
 }
