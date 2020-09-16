@@ -85,14 +85,6 @@ public final class DistWorkCommand: Command {
         di.set(WorkerRegistererImpl(requestSender: requestSender), for: WorkerRegisterer.self)
         di.set(BucketResultSenderImpl(requestSender: requestSender), for: BucketResultSender.self)
         di.set(BucketFetcherImpl(requestSender: requestSender), for: BucketFetcher.self)
-        di.set(
-            DefaultTestRunnerProvider(
-                dateProvider: try di.get(),
-                processControllerProvider: try di.get(),
-                resourceLocationResolver: try di.get()
-            ),
-            for: TestRunnerProvider.self
-        )
         
         di.set(
             SimulatorSettingsModifierImpl(

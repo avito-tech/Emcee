@@ -14,6 +14,7 @@ import ProcessController
 import QueueModels
 import RequestSender
 import ResourceLocationResolver
+import Runner
 import TestDiscovery
 import URLResource
 import UniqueIdentifierGenerator
@@ -117,6 +118,15 @@ public final class InProcessMain {
         di.set(
             UuidBasedUniqueIdentifierGenerator(),
             for: UniqueIdentifierGenerator.self
+        )
+        
+        di.set(
+            DefaultTestRunnerProvider(
+                dateProvider: try di.get(),
+                processControllerProvider: try di.get(),
+                resourceLocationResolver: try di.get()
+            ),
+            for: TestRunnerProvider.self
         )
         
         let commandInvoker = CommandInvoker(
