@@ -7,6 +7,7 @@ import RESTInterfaces
 import RESTMethods
 import RESTServer
 import SynchronousWaiter
+import WorkerAlivenessModels
 import WorkerAlivenessProvider
 import WorkerCapabilities
 import UniqueIdentifierGenerator
@@ -51,31 +52,46 @@ public final class ScheduleTestsEndpoint: RESTEndpoint {
     private func waitForAnySuitableWorker(payload: ScheduleTestsPayload) throws {
         guard !payload.testEntryConfigurations.isEmpty else { return }
         
-        do {
-            try SynchronousWaiter().waitWhile(
-                timeout: waitForCapableWorkerTimeout,
-                description: "Any worker capable of executing tests"
-            ) {
-                for (workerId, workerAliveness) in workerAlivenessProvider.workerAliveness {
-                    guard workerAliveness.isInWorkingCondition else { continue }
-                    let workerCapabilities = workerCapabilitiesStorage.workerCapabilities(
-                        forWorkerId: workerId
+        let testEntryConfigurationsWithUnmetRequirements = {
+            payload.testEntryConfigurations.filter { testEntryConfiguration -> Bool in
+                let workersThatMeetRequirements = self.workerAlivenessProvider.workerAliveness.filter { (item: (workerId: WorkerId, aliveness: WorkerAliveness)) -> Bool in
+                    guard item.aliveness.isInWorkingCondition else { return false }
+                    return self.workerCapabilityConstraintResolver.requirementsSatisfied(
+                        requirements: testEntryConfiguration.workerCapabilityRequirements,
+                        workerCapabilities: self.workerCapabilitiesStorage.workerCapabilities(
+                            forWorkerId: item.workerId
+                        )
                     )
-                    
-                    for testEntryConfiguration in payload.testEntryConfigurations {
-                        if workerCapabilityConstraintResolver.requirementsSatisfied(
-                            requirements: testEntryConfiguration.workerCapabilityRequirements,
-                            workerCapabilities: workerCapabilities
-                        ) {
-                            return false
-                        }
-                    }
                 }
-                return true
+                return workersThatMeetRequirements.isEmpty
             }
-        } catch {
-            Logger.error("Can't execute tests from payload: no workers meeting requirements")
-            throw error
         }
+        
+        try SynchronousWaiter().mapErrorIfTimeout(
+            work: { waiter in
+                try waiter.waitWhile(
+                    timeout: waitForCapableWorkerTimeout,
+                    description: "All test entry configuration requirements can be satisfied"
+                ) {
+                    !testEntryConfigurationsWithUnmetRequirements().isEmpty
+                }
+            },
+            timeoutToErrorTransformation: { timeout -> Error in
+                NoSuitableWorkerAppearedError(
+                    testEntryConfigurationsWithUnmetRequirements: testEntryConfigurationsWithUnmetRequirements(),
+                    timeout: timeout.value
+                )
+            }
+        )
+    }
+}
+
+private struct NoSuitableWorkerAppearedError: Error, CustomStringConvertible {
+    let testEntryConfigurationsWithUnmetRequirements: [TestEntryConfiguration]
+    let timeout: TimeInterval
+    
+    var description: String {
+        "Some worker requirements cannot be met after waiting for \(LoggableDuration(timeout)) for any worker with suitable capabilities to appear: " +
+            testEntryConfigurationsWithUnmetRequirements.map { "\($0)" }.joined(separator: ", ")
     }
 }
