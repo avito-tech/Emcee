@@ -21,11 +21,10 @@ public final class EnableWorkerCommand: Command {
     ]
     
     private let callbackQueue = DispatchQueue(label: "EnableWorkerCommand.callbackQueue")
-    private let requestSenderProvider: RequestSenderProvider
-    private let waiter = SynchronousWaiter()
+    private let di: DI
     
     public init(di: DI) throws {
-        self.requestSenderProvider = try di.get()
+        self.di = di
     }
     
     public func run(payload: CommandPayload) throws {
@@ -33,12 +32,12 @@ public final class EnableWorkerCommand: Command {
         let workerId: WorkerId = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.workerId.name)
         
         let workerEnabler = WorkerEnablerImpl(
-            requestSender: requestSenderProvider.requestSender(
+            requestSender: try di.get(RequestSenderProvider.self).requestSender(
                 socketAddress: queueServerAddress
             )
         )
         
-        let callbackWaiter: CallbackWaiter<Either<WorkerId, Error>> = waiter.createCallbackWaiter()
+        let callbackWaiter: CallbackWaiter<Either<WorkerId, Error>> = try di.get(Waiter.self).createCallbackWaiter()
         
         workerEnabler.enableWorker(
             workerId: workerId,

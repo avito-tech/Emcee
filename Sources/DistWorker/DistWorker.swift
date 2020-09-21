@@ -131,9 +131,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
     
     private func nextBucketFetchResult() throws -> ReducedBucketFetchResult {
         return try currentlyBeingProcessedBucketsTracker.perform { tracker -> ReducedBucketFetchResult in
-            let waiter = SynchronousWaiter()
-            
-            let callbackWaiter: CallbackWaiter<Either<BucketFetchResult, Error>> = waiter.createCallbackWaiter()
+            let callbackWaiter: CallbackWaiter<Either<BucketFetchResult, Error>> = try di.get(Waiter.self).createCallbackWaiter()
             
             try di.get(BucketFetcher.self).fetch(
                 payloadSignature: try payloadSignature.dematerialize(),
@@ -173,7 +171,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
                 case .result(let result):
                     return result
                 case .checkAgain(let after):
-                    SynchronousWaiter().wait(timeout: after, description: "Pause before checking queue server again")
+                    try di.get(Waiter.self).wait(timeout: after, description: "Pause before checking queue server again")
                 }
             } catch {
                 Logger.error("Failed to fetch next bucket: \(error)")

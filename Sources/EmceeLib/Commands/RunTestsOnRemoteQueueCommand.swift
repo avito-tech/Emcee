@@ -48,7 +48,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     private let callbackQueue = DispatchQueue(label: "RunTestsOnRemoteQueueCommand.callbackQueue")
     private let di: DI
     private let testArgFileValidator = TestArgFileValidator()
-    private let waiter = SynchronousWaiter()
     
     public init(di: DI) {
         self.di = di
@@ -129,7 +128,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             queueServerConfigurationLocation: queueServerConfigurationLocation
         )
         
-        try waiter.waitWhile(pollPeriod: 1.0, timeout: 30.0, description: "Wait for remote queue to start") {
+        try di.get(Waiter.self).waitWhile(pollPeriod: 1.0, timeout: 30.0, description: "Wait for remote queue to start") {
             suitablePorts = try remoteQueueDetector.findSuitableRemoteRunningQueuePorts(timeout: 10)
             return suitablePorts.isEmpty
         }
@@ -180,20 +179,22 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         defer { onDemandSimulatorPool.deleteSimulators() }
         
         di.set(onDemandSimulatorPool, for:OnDemandSimulatorPool.self)
-        
-        let testDiscoveryQuerier = TestDiscoveryQuerierImpl(
-            dateProvider: try di.get(),
-            developerDirLocator: try di.get(),
-            fileSystem: try di.get(),
-            metricRecorder: try di.get(),
-            onDemandSimulatorPool: try di.get(),
-            pluginEventBusProvider: try di.get(),
-            processControllerProvider: try di.get(),
-            resourceLocationResolver: try di.get(),
-            tempFolder: try di.get(),
-            testRunnerProvider: try di.get(),
-            uniqueIdentifierGenerator: try di.get(),
-            version: version
+        di.set(
+            TestDiscoveryQuerierImpl(
+                dateProvider: try di.get(),
+                developerDirLocator: try di.get(),
+                fileSystem: try di.get(),
+                metricRecorder: try di.get(),
+                onDemandSimulatorPool: try di.get(),
+                pluginEventBusProvider: try di.get(),
+                processControllerProvider: try di.get(),
+                resourceLocationResolver: try di.get(),
+                tempFolder: try di.get(),
+                testRunnerProvider: try di.get(),
+                uniqueIdentifierGenerator: try di.get(),
+                version: version
+            ),
+            for: TestDiscoveryQuerier.self
         )
         
         let queueClient = SynchronousQueueClient(queueServerAddress: queueServerAddress)
@@ -206,38 +207,14 @@ public final class RunTestsOnRemoteQueueCommand: Command {
                 Logger.error("Failed to delete job \(testArgFile.prioritizedJob): \(error)")
             }
         }
-
-        let testEntriesValidator = TestEntriesValidator(
-            remoteCache: try di.get(RuntimeDumpRemoteCacheProvider.self).remoteCache(config: remoteCacheConfig),
-            testArgFileEntries: testArgFile.entries,
-            testDiscoveryQuerier: testDiscoveryQuerier,
-            persistentMetricsJobId: testArgFile.prioritizedJob.persistentMetricsJobId
+        
+        try JobPreparer(di: di).formJob(
+            emceeVersion: version,
+            queueServerAddress: queueServerAddress,
+            remoteCacheConfig: remoteCacheConfig,
+            testArgFile: testArgFile
         )
-        
-        _ = try testEntriesValidator.validatedTestEntries { testArgFileEntry, validatedTestEntry in
-            let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
-                validatedEntries: validatedTestEntry,
-                testArgFileEntry: testArgFileEntry,
-                persistentMetricsJobId: testArgFile.prioritizedJob.persistentMetricsJobId
-            )
-            let testEntryConfigurations = testEntryConfigurationGenerator.createTestEntryConfigurations()
-            Logger.info("Will schedule \(testEntryConfigurations.count) tests to queue server at \(queueServerAddress)")
-            
-            let testScheduler = TestSchedulerImpl(
-                requestSender: try di.get(RequestSenderProvider.self).requestSender(socketAddress: queueServerAddress)
-            )
-            
-            let callbackWaiter: CallbackWaiter<Either<Void, Error>> = waiter.createCallbackWaiter()
-            testScheduler.scheduleTests(
-                prioritizedJob: testArgFile.prioritizedJob,
-                scheduleStrategy: testArgFileEntry.scheduleStrategy,
-                testEntryConfigurations: testEntryConfigurations,
-                callbackQueue: callbackQueue,
-                completion: callbackWaiter.set
-            )
-            try callbackWaiter.wait(timeout: 60, description: "Schedule tests").dematerialize()
-        }
-        
+
         var caughtSignal = false
         SignalHandling.addSignalHandler(signals: [.int, .term]) { signal in
             Logger.info("Caught \(signal) signal")
@@ -247,7 +224,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         }
         
         Logger.info("Will now wait for job queue to deplete")
-        try waiter.waitWhile(pollPeriod: 30.0, description: "Wait for job queue to deplete") {
+        try di.get(Waiter.self).waitWhile(pollPeriod: 30.0, description: "Wait for job queue to deplete") {
             if caughtSignal { return false }
             let jobState = try queueClient.jobState(jobId: testArgFile.prioritizedJob.jobId)
             switch jobState.queueState {

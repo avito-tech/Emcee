@@ -593,6 +593,7 @@ let package = Package(
                 "SimulatorPool",
                 "SimulatorPoolModels",
                 "SocketModels",
+                "Statsd",
                 "SynchronousWaiter",
                 "TemporaryStuff",
                 "TestArgFile",

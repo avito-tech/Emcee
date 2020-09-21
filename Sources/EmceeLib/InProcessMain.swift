@@ -15,6 +15,7 @@ import QueueModels
 import RequestSender
 import ResourceLocationResolver
 import Runner
+import SynchronousWaiter
 import TestDiscovery
 import URLResource
 import UniqueIdentifierGenerator
@@ -127,6 +128,11 @@ public final class InProcessMain {
                 resourceLocationResolver: try di.get()
             ),
             for: TestRunnerProvider.self
+        )
+        
+        di.set(
+            SynchronousWaiter(),
+            for: Waiter.self
         )
         
         let commandInvoker = CommandInvoker(
