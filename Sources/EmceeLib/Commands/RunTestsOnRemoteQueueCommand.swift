@@ -81,7 +81,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             emceeVersion: emceeVersion,
             queueServerDeploymentDestination: queueServerConfiguration.queueServerDeploymentDestination,
             queueServerConfigurationLocation: queueServerConfigurationLocation,
-            jobId: testArgFile.jobId
+            jobId: testArgFile.prioritizedJob.jobId
         )
         let jobResults = try runTestsOnRemotelyRunningQueue(
             queueServerAddress: runningQueueServerAddress,
@@ -199,11 +199,11 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         let queueClient = SynchronousQueueClient(queueServerAddress: queueServerAddress)
         
         defer {
-            Logger.info("Will delete job \(testArgFile.jobId)")
+            Logger.info("Will delete job \(testArgFile.prioritizedJob)")
             do {
-                _ = try queueClient.delete(jobId: testArgFile.jobId)
+                _ = try queueClient.delete(jobId: testArgFile.prioritizedJob.jobId)
             } catch {
-                Logger.error("Failed to delete job \(testArgFile.jobId): \(error)")
+                Logger.error("Failed to delete job \(testArgFile.prioritizedJob): \(error)")
             }
         }
 
@@ -211,14 +211,14 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             remoteCache: try di.get(RuntimeDumpRemoteCacheProvider.self).remoteCache(config: remoteCacheConfig),
             testArgFileEntries: testArgFile.entries,
             testDiscoveryQuerier: testDiscoveryQuerier,
-            persistentMetricsJobId: testArgFile.persistentMetricsJobId
+            persistentMetricsJobId: testArgFile.prioritizedJob.persistentMetricsJobId
         )
         
         _ = try testEntriesValidator.validatedTestEntries { testArgFileEntry, validatedTestEntry in
             let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
                 validatedEntries: validatedTestEntry,
                 testArgFileEntry: testArgFileEntry,
-                persistentMetricsJobId: testArgFile.persistentMetricsJobId
+                persistentMetricsJobId: testArgFile.prioritizedJob.persistentMetricsJobId
             )
             let testEntryConfigurations = testEntryConfigurationGenerator.createTestEntryConfigurations()
             Logger.info("Will schedule \(testEntryConfigurations.count) tests to queue server at \(queueServerAddress)")
@@ -229,13 +229,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             
             let callbackWaiter: CallbackWaiter<Either<Void, Error>> = waiter.createCallbackWaiter()
             testScheduler.scheduleTests(
-                prioritizedJob: PrioritizedJob(
-                    jobGroupId: testArgFile.jobGroupId,
-                    jobGroupPriority: testArgFile.jobGroupPriority,
-                    jobId: testArgFile.jobId,
-                    jobPriority: testArgFile.jobPriority,
-                    persistentMetricsJobId: testArgFile.persistentMetricsJobId
-                ),
+                prioritizedJob: testArgFile.prioritizedJob,
                 scheduleStrategy: testArgFileEntry.scheduleStrategy,
                 testEntryConfigurations: testEntryConfigurations,
                 callbackQueue: callbackQueue,
@@ -247,15 +241,15 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         var caughtSignal = false
         SignalHandling.addSignalHandler(signals: [.int, .term]) { signal in
             Logger.info("Caught \(signal) signal")
-            Logger.info("Will delete job \(testArgFile.jobId)")
-            _ = try? queueClient.delete(jobId: testArgFile.jobId)
+            Logger.info("Will delete job \(testArgFile.prioritizedJob.jobId)")
+            _ = try? queueClient.delete(jobId: testArgFile.prioritizedJob.jobId)
             caughtSignal = true
         }
         
         Logger.info("Will now wait for job queue to deplete")
         try waiter.waitWhile(pollPeriod: 30.0, description: "Wait for job queue to deplete") {
             if caughtSignal { return false }
-            let jobState = try queueClient.jobState(jobId: testArgFile.jobId)
+            let jobState = try queueClient.jobState(jobId: testArgFile.prioritizedJob.jobId)
             switch jobState.queueState {
             case .deleted:
                 return false
@@ -265,7 +259,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             }
         }
         Logger.info("Will now fetch job results")
-        return try queueClient.jobResults(jobId: testArgFile.jobId)
+        return try queueClient.jobResults(jobId: testArgFile.prioritizedJob.jobId)
     }
     
     private func selectPort(ports: Set<SocketModels.Port>) throws -> SocketModels.Port {

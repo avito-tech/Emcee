@@ -1,7 +1,8 @@
 import BuildArtifacts
 import Foundation
-import ResourceLocation
 import LoggingSetup
+import QueueModels
+import ResourceLocation
 import Sentry
 import SimulatorPoolModels
 import SocketModels
@@ -42,13 +43,6 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             testArgFile,
             TestArgFile(
-                entries: [],
-                jobGroupId: "jobGroupId",
-                jobGroupPriority: 100,
-                jobId: "jobId",
-                jobPriority: 500,
-                testDestinationConfigurations: [],
-                persistentMetricsJobId: "persistentMetricsJobId",
                 analyticsConfiguration: AnalyticsConfiguration(
                     graphiteConfiguration: MetricConfiguration(
                         socketAddress: SocketAddress(host: "graphite.host", port: 123),
@@ -59,7 +53,16 @@ final class TestArgFileTests: XCTestCase {
                         metricPrefix: "statsd.prefix"
                     ),
                     sentryConfiguration: SentryConfiguration(dsn: URL(string: "http://example.com")!)
-                )
+                ),
+                entries: [],
+                prioritizedJob: PrioritizedJob(
+                    jobGroupId: "jobGroupId",
+                    jobGroupPriority: 100,
+                    jobId: "jobId",
+                    jobPriority: 500,
+                    persistentMetricsJobId: "persistentMetricsJobId"
+                ),
+                testDestinationConfigurations: []
             )
         )
     }
@@ -79,14 +82,16 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             testArgFile,
             TestArgFile(
+                analyticsConfiguration: TestArgFileDefaultValues.analyticsConfiguration,
                 entries: [],
-                jobGroupId: "jobId",
-                jobGroupPriority: TestArgFileDefaultValues.priority,
-                jobId: "jobId",
-                jobPriority: TestArgFileDefaultValues.priority,
-                testDestinationConfigurations: [],
-                persistentMetricsJobId: TestArgFileDefaultValues.persistentMetricsJobId,
-                analyticsConfiguration: TestArgFileDefaultValues.analyticsConfiguration
+                prioritizedJob: PrioritizedJob(
+                    jobGroupId: "jobId",
+                    jobGroupPriority: TestArgFileDefaultValues.priority,
+                    jobId: "jobId",
+                    jobPriority: TestArgFileDefaultValues.priority,
+                    persistentMetricsJobId: TestArgFileDefaultValues.persistentMetricsJobId
+                ),
+                testDestinationConfigurations: []
             )
         )
     }
@@ -114,7 +119,7 @@ final class TestArgFileTests: XCTestCase {
             try JSONDecoder().decode(TestArgFile.self, from: json)
         }
 
-        XCTAssertEqual(testArgFile.jobId, "jobId")
+        XCTAssertEqual(testArgFile.prioritizedJob.jobId, "jobId")
         XCTAssertEqual(testArgFile.entries.count, 1)
         XCTAssertEqual(testArgFile.entries[0].testsToRun, [.allDiscoveredTests])
         XCTAssertEqual(testArgFile.entries[0].testDestination, try TestDestination(deviceType: "iPhone X", runtime: "11.3"))

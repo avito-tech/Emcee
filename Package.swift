@@ -928,6 +928,7 @@ let package = Package(
             // MARK: Metrics
             name: "Metrics",
             dependencies: [
+                "DateProvider",
                 "Graphite",
                 "Statsd",
             ],
@@ -947,10 +948,12 @@ let package = Package(
             // MARK: MetricsTests
             name: "MetricsTests",
             dependencies: [
+                "DateProviderTestHelpers",
                 "Graphite",
                 "Metrics",
                 "MetricsTestHelpers",
                 "Statsd",
+                "TestHelpers",
             ],
             path: "Tests/MetricsTests"
         ),
@@ -1975,6 +1978,7 @@ let package = Package(
                 "BuildArtifactsTestHelpers",
                 "LoggingSetup",
                 "PluginSupport",
+                "QueueModels",
                 "ResourceLocation",
                 "RunnerModels",
                 "RunnerTestHelpers",

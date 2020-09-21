@@ -83,7 +83,7 @@ public final class PipelinedTestDiscoverer {
                         testTimeoutConfiguration: testTimeoutConfigurationForRuntimeDump,
                         testsToValidate: testArgFileEntry.testsToRun,
                         xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location,
-                        persistentMetricsJobId: testArgFile.persistentMetricsJobId,
+                        persistentMetricsJobId: testArgFile.prioritizedJob.persistentMetricsJobId,
                         remoteCache: runtimeDumpRemoteCacheProvider.remoteCache(config: remoteCacheConfig)
                     )
                     

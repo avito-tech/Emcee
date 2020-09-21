@@ -5,6 +5,7 @@ import EmceeLib
 import Foundation
 import LoggingSetup
 import PathLib
+import QueueModels
 import SimulatorPoolTestHelpers
 import TestArgFile
 import TestDiscovery
@@ -181,6 +182,7 @@ private class FakeRuntimeDumpRemoteCacheProvider: RuntimeDumpRemoteCacheProvider
 extension TestArgFile {
     static func create(buildArtifacts: [BuildArtifacts]) -> TestArgFile {
         TestArgFile(
+            analyticsConfiguration: TestArgFileDefaultValues.analyticsConfiguration,
             entries: buildArtifacts.map {
                 TestArgFileEntry(
                     buildArtifacts: $0,
@@ -200,13 +202,14 @@ extension TestArgFile {
                     workerCapabilityRequirements: []
                 )
             },
-            jobGroupId: "groupId",
-            jobGroupPriority: .medium,
-            jobId: "jobId",
-            jobPriority: .medium,
-            testDestinationConfigurations: [],
-            persistentMetricsJobId: "",
-            analyticsConfiguration: TestArgFileDefaultValues.analyticsConfiguration
+            prioritizedJob: PrioritizedJob(
+                jobGroupId: "groupId",
+                jobGroupPriority: .medium,
+                jobId: "jobId",
+                jobPriority: .medium,
+                persistentMetricsJobId: ""
+            ),
+            testDestinationConfigurations: []
         )
     }
 }

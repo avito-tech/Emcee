@@ -1,20 +1,34 @@
+import DateProvider
 import Foundation
 
-public final class TimeMeasurer {
-    private init() {}
+public protocol TimeMeasurer {
+    func measure<T>(
+        work: () throws -> T,
+        result: (Error?, TimeInterval) -> ()
+    ) rethrows -> T
+}
+
+public final class TimeMeasurerImpl: TimeMeasurer {
+    private let dateProvider: DateProvider
     
-    public static func measure<T>(
-        result: (Bool, TimeInterval) -> (),
-        work: () throws -> T
+    public init(
+        dateProvider: DateProvider
+    ) {
+        self.dateProvider = dateProvider
+    }
+    
+    public func measure<T>(
+        work: () throws -> T,
+        result: (Error?, TimeInterval) -> ()
     ) rethrows -> T {
-        let startedAt = Date()
+        let startedAt = dateProvider.currentDate()
         
         do {
             let value = try work()
-            result(true, Date().timeIntervalSince(startedAt))
+            result(nil, dateProvider.currentDate().timeIntervalSince(startedAt))
             return value
         } catch {
-            result(false, Date().timeIntervalSince(startedAt))
+            result(error, dateProvider.currentDate().timeIntervalSince(startedAt))
             throw error
         }
         

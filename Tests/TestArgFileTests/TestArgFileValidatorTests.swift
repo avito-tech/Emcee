@@ -1,6 +1,7 @@
 import BuildArtifacts
 import BuildArtifactsTestHelpers
 import Foundation
+import QueueModels
 import RunnerModels
 import LoggingSetup
 import SimulatorPoolModels
@@ -11,7 +12,7 @@ import XCTest
 
 final class TestArgFileValidatorTests: XCTestCase {
     func test___successful() {
-        let testArgFile = TestArgFile(
+        let testArgFile = createTestArgFile(
             entries: [
                 TestArgFileEntry(
                     buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
@@ -30,18 +31,7 @@ final class TestArgFileValidatorTests: XCTestCase {
                     testsToRun: [],
                     workerCapabilityRequirements: []
                 )
-            ],
-            jobGroupId: "",
-            jobGroupPriority: 0,
-            jobId: "",
-            jobPriority: 0,
-            testDestinationConfigurations: [],
-            persistentMetricsJobId: "",
-            analyticsConfiguration: AnalyticsConfiguration(
-                graphiteConfiguration: nil,
-                statsdConfiguration: nil,
-                sentryConfiguration: nil
-            )
+            ]
         )
         
         assertDoesNotThrow {
@@ -50,7 +40,7 @@ final class TestArgFileValidatorTests: XCTestCase {
     }
     
     func test___insideEmceeTempFolder_and_xcodebuild___incompatible() {
-        let testArgFile = TestArgFile(
+        let testArgFile = createTestArgFile(
             entries: [
                 TestArgFileEntry(
                     buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
@@ -69,18 +59,7 @@ final class TestArgFileValidatorTests: XCTestCase {
                     testsToRun: [],
                     workerCapabilityRequirements: []
                 )
-            ],
-            jobGroupId: "",
-            jobGroupPriority: 0,
-            jobId: "",
-            jobPriority: 0,
-            testDestinationConfigurations: [],
-            persistentMetricsJobId: "",
-            analyticsConfiguration: AnalyticsConfiguration(
-                graphiteConfiguration: nil,
-                statsdConfiguration: nil,
-                sentryConfiguration: nil
-            )
+            ]
         )
         
         assertThrows {
@@ -89,7 +68,7 @@ final class TestArgFileValidatorTests: XCTestCase {
     }
     
     func test___appTest_should_require_appBundle_presense() {
-        let testArgFile = TestArgFile(
+        let testArgFile = createTestArgFile(
             entries: [
                 TestArgFileEntry(
                     buildArtifacts: BuildArtifactsFixtures.withLocalPaths(appBundle: nil, runner: nil, xcTestBundle: "", additionalApplicationBundles: []),
@@ -108,18 +87,7 @@ final class TestArgFileValidatorTests: XCTestCase {
                     testsToRun: [],
                     workerCapabilityRequirements: []
                 )
-            ],
-            jobGroupId: "",
-            jobGroupPriority: 0,
-            jobId: "",
-            jobPriority: 0,
-            testDestinationConfigurations: [],
-            persistentMetricsJobId: "",
-            analyticsConfiguration: AnalyticsConfiguration(
-                graphiteConfiguration: nil,
-                statsdConfiguration: nil,
-                sentryConfiguration: nil
-            )
+            ]
         )
         
         assertThrows {
@@ -128,7 +96,7 @@ final class TestArgFileValidatorTests: XCTestCase {
     }
     
     func test___uiTest_should_require_appBundle_presense() {
-        let testArgFile = TestArgFile(
+        let testArgFile = createTestArgFile(
             entries: [
                 TestArgFileEntry(
                     buildArtifacts: BuildArtifactsFixtures.withLocalPaths(appBundle: nil, runner: nil, xcTestBundle: "", additionalApplicationBundles: []),
@@ -147,18 +115,7 @@ final class TestArgFileValidatorTests: XCTestCase {
                     testsToRun: [],
                     workerCapabilityRequirements: []
                 )
-            ],
-            jobGroupId: "",
-            jobGroupPriority: 0,
-            jobId: "",
-            jobPriority: 0,
-            testDestinationConfigurations: [],
-            persistentMetricsJobId: "",
-            analyticsConfiguration: AnalyticsConfiguration(
-                graphiteConfiguration: nil,
-                statsdConfiguration: nil,
-                sentryConfiguration: nil
-            )
+            ]
         )
         
         assertThrows {
@@ -167,7 +124,7 @@ final class TestArgFileValidatorTests: XCTestCase {
     }
     
     func test___uiTest_should_require_runner_presense() {
-        let testArgFile = TestArgFile(
+        let testArgFile = createTestArgFile(
             entries: [
                 TestArgFileEntry(
                     buildArtifacts: BuildArtifactsFixtures.withLocalPaths(appBundle: "", runner: nil, xcTestBundle: "", additionalApplicationBundles: []),
@@ -186,23 +143,31 @@ final class TestArgFileValidatorTests: XCTestCase {
                     testsToRun: [],
                     workerCapabilityRequirements: []
                 )
-            ],
-            jobGroupId: "",
-            jobGroupPriority: 0,
-            jobId: "",
-            jobPriority: 0,
-            testDestinationConfigurations: [],
-            persistentMetricsJobId: "",
-            analyticsConfiguration: AnalyticsConfiguration(
-                graphiteConfiguration: nil,
-                statsdConfiguration: nil,
-                sentryConfiguration: nil
-            )
+            ]
         )
         
         assertThrows {
             try TestArgFileValidator().validate(testArgFile: testArgFile)
         }
+    }
+    
+    private func createTestArgFile(entries: [TestArgFileEntry]) -> TestArgFile {
+        TestArgFile(
+            analyticsConfiguration: AnalyticsConfiguration(
+                graphiteConfiguration: nil,
+                statsdConfiguration: nil,
+                sentryConfiguration: nil
+            ),
+            entries: entries,
+            prioritizedJob: PrioritizedJob(
+                jobGroupId: "",
+                jobGroupPriority: 0,
+                jobId: "",
+                jobPriority: 0,
+                persistentMetricsJobId: ""
+            ),
+            testDestinationConfigurations: []
+        )
     }
 }
 

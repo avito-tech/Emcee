@@ -27,32 +27,35 @@ public extension SimulatorPool {
         version: Version,
         metricRecorder: MetricRecorder
     ) throws -> AllocatedSimulator {
-        try TimeMeasurer.measure(
-            result: { workSuccessful, duration in
+        try TimeMeasurerImpl(
+            dateProvider: dateProvider
+        ).measure(
+            work: {
+                let simulatorController = try self.allocateSimulatorController()
+                simulatorController.apply(simulatorOperationTimeouts: simulatorOperationTimeouts)
+                
+                do {
+                    return AllocatedSimulator(
+                        simulator: try simulatorController.bootedSimulator(),
+                        releaseSimulator: { self.free(simulatorController: simulatorController) }
+                    )
+                } catch {
+                    Logger.error("Failed to get booted simulator: \(error)")
+                    try simulatorController.deleteSimulator()
+                    throw error
+                }
+            },
+            result: { error, duration in
                 metricRecorder.capture(
                     SimulatorAllocationDurationMetric(
                         host: LocalHostDeterminer.currentHostAddress,
                         duration: duration,
-                        allocatedSuccessfully: workSuccessful,
+                        allocatedSuccessfully: error == nil,
                         version: version,
                         timestamp: dateProvider.currentDate()
                     )
                 )
             }
-        ) {
-            let simulatorController = try self.allocateSimulatorController()
-            simulatorController.apply(simulatorOperationTimeouts: simulatorOperationTimeouts)
-
-            do {
-                return AllocatedSimulator(
-                    simulator: try simulatorController.bootedSimulator(),
-                    releaseSimulator: { self.free(simulatorController: simulatorController) }
-                )
-            } catch {
-                Logger.error("Failed to get booted simulator: \(error)")
-                try simulatorController.deleteSimulator()
-                throw error
-            }
-        }
+        )
     }
 }
