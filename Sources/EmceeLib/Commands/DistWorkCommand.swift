@@ -52,8 +52,7 @@ public final class DistWorkCommand: Command {
 
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
-            version: emceeVersion,
-            metricRecorder: metricRecorder
+            version: emceeVersion
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
         

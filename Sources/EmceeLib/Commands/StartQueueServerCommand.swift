@@ -56,22 +56,19 @@ public final class StartQueueServerCommand: Command {
         if let sentryConfiguration = queueServerConfiguration.analyticsConfiguration.sentryConfiguration {
             try AnalyticsSetup.setupSentry(sentryConfiguration: sentryConfiguration, emceeVersion: emceeVersion)
         }
-        let metricRecorder: MutableMetricRecorder = try di.get()
-        try metricRecorder.set(analyticsConfiguration: queueServerConfiguration.analyticsConfiguration)
+        try di.get(MutableMetricRecorder.self).set(analyticsConfiguration: queueServerConfiguration.analyticsConfiguration)
         
         try startQueueServer(
             emceeVersion: emceeVersion,
             queueServerConfiguration: queueServerConfiguration,
-            workerDestinations: queueServerConfiguration.workerDeploymentDestinations,
-            metricRecorder: metricRecorder
+            workerDestinations: queueServerConfiguration.workerDeploymentDestinations
         )
     }
     
     private func startQueueServer(
         emceeVersion: Version,
         queueServerConfiguration: QueueServerConfiguration,
-        workerDestinations: [DeploymentDestination],
-        metricRecorder: MetricRecorder
+        workerDestinations: [DeploymentDestination]
     ) throws {
         di.set(
             PayloadSignature(value: try di.get(UniqueIdentifierGenerator.self).generate())
@@ -99,11 +96,11 @@ public final class StartQueueServerCommand: Command {
             version: emceeVersion
         )
         let workerUtilizationStatusPoller = DefaultWorkerUtilizationStatusPoller(
-            emceeVersion: emceeVersion,
-            queueHost: socketHost,
-            defaultDeployments: workerDestinations,
             communicationService: queueCommunicationService,
-            metricRecorder: metricRecorder
+            defaultDeployments: workerDestinations,
+            emceeVersion: emceeVersion,
+            metricRecorder: try di.get(),
+            queueHost: socketHost
         )
         
         let workersToUtilizeService = DefaultWorkersToUtilizeService(
@@ -135,6 +132,7 @@ public final class StartQueueServerCommand: Command {
             deploymentDestinations: workerDestinations,
             emceeVersion: emceeVersion,
             localPortDeterminer: LocalPortDeterminer(portRange: EmceePorts.defaultQueuePortRange),
+            metricRecorder: try di.get(),
             onDemandWorkerStarter: OnDemandWorkerStarterViaDeployer(
                 queueServerPortProvider: queueServerPortProvider,
                 remoteWorkerStarterProvider: remoteWorkerStarterProvider
@@ -152,8 +150,7 @@ public final class StartQueueServerCommand: Command {
             workerCapabilitiesStorage: WorkerCapabilitiesStorageImpl(),
             workerConfigurations: workerConfigurations,
             workerUtilizationStatusPoller: workerUtilizationStatusPoller,
-            workersToUtilizeService: workersToUtilizeService,
-            metricRecorder: metricRecorder
+            workersToUtilizeService: workersToUtilizeService
         )
         queueServerPortProvider.source = queueServer.queueServerPortProvider
         

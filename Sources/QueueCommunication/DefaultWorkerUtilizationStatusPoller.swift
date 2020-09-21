@@ -10,25 +10,25 @@ import Timer
 public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller {
     private let communicationService: QueueCommunicationService
     private let defaultDeployments: [DeploymentDestination]
-    private var workerIdsToUtilize: AtomicValue<Set<WorkerId>>
-    private let pollingTrigger = DispatchBasedTimer(repeating: .seconds(60), leeway: .seconds(10))
     private let emceeVersion: Version
-    private let queueHost: String
     private let metricRecorder: MetricRecorder
+    private let pollingTrigger = DispatchBasedTimer(repeating: .seconds(60), leeway: .seconds(10))
+    private let queueHost: String
+    private var workerIdsToUtilize: AtomicValue<Set<WorkerId>>
     
     public init(
-        emceeVersion: Version,
-        queueHost: String,
-        defaultDeployments: [DeploymentDestination],
         communicationService: QueueCommunicationService,
-        metricRecorder: MetricRecorder
+        defaultDeployments: [DeploymentDestination],
+        emceeVersion: Version,
+        metricRecorder: MetricRecorder,
+        queueHost: String
     ) {
-        self.defaultDeployments = defaultDeployments
         self.communicationService = communicationService
-        self.workerIdsToUtilize = AtomicValue(Set(defaultDeployments.workerIds()))
+        self.defaultDeployments = defaultDeployments
         self.emceeVersion = emceeVersion
-        self.queueHost = queueHost
         self.metricRecorder = metricRecorder
+        self.queueHost = queueHost
+        self.workerIdsToUtilize = AtomicValue(Set(defaultDeployments.workerIds()))
         metricRecorder.capture(
             NumberOfWorkersToUtilizeMetric(emceeVersion: emceeVersion, queueHost: queueHost, workersCount: defaultDeployments.count)
         )

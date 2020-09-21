@@ -24,6 +24,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let fileSystem: FileSystem
+    private let metricRecorder: MetricRecorder
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let pluginEventBusProvider: PluginEventBusProvider
     private let processControllerProvider: ProcessControllerProvider
@@ -32,12 +33,12 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     private let testRunnerProvider: TestRunnerProvider
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let version: Version
-    private let metricRecorder: MetricRecorder
     
     public init(
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         fileSystem: FileSystem,
+        metricRecorder: MetricRecorder,
         onDemandSimulatorPool: OnDemandSimulatorPool,
         pluginEventBusProvider: PluginEventBusProvider,
         processControllerProvider: ProcessControllerProvider,
@@ -45,12 +46,12 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         tempFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
-        version: Version,
-        metricRecorder: MetricRecorder
+        version: Version
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.fileSystem = fileSystem
+        self.metricRecorder = metricRecorder
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.pluginEventBusProvider = pluginEventBusProvider
         self.processControllerProvider = processControllerProvider
@@ -59,7 +60,6 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         self.testRunnerProvider = testRunnerProvider
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.version = version
-        self.metricRecorder = metricRecorder
     }
     
     public func query(configuration: TestDiscoveryConfiguration) throws -> TestDiscoveryResult {

@@ -58,6 +58,7 @@ public final class QueueServerImpl: QueueServer {
         deploymentDestinations: [DeploymentDestination],
         emceeVersion: Version,
         localPortDeterminer: LocalPortDeterminer,
+        metricRecorder: MetricRecorder,
         onDemandWorkerStarter: OnDemandWorkerStarter,
         payloadSignature: PayloadSignature,
         queueServerLock: QueueServerLock,
@@ -67,8 +68,7 @@ public final class QueueServerImpl: QueueServer {
         workerCapabilitiesStorage: WorkerCapabilitiesStorage,
         workerConfigurations: WorkerConfigurations,
         workerUtilizationStatusPoller: WorkerUtilizationStatusPoller,
-        workersToUtilizeService: WorkersToUtilizeService,
-        metricRecorder: MetricRecorder
+        workersToUtilizeService: WorkersToUtilizeService
     ) {
         self.httpRestServer = HTTPRESTServer(
             automaticTerminationController: automaticTerminationController,

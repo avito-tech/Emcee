@@ -213,6 +213,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             dateProvider: DateProviderFixture(),
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
+            metricRecorder: NoOpMetricRecorder(),
             onDemandSimulatorPool: simulatorPool,
             pluginEventBusProvider: NoOoPluginEventBusProvider(),
             processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder),
@@ -220,8 +221,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,
             uniqueIdentifierGenerator: fixedValueUniqueIdentifierGenerator,
-            version: version,
-            metricRecorder: NoOpMetricRecorder()
+            version: version
         )
     }
     

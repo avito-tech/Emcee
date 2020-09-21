@@ -58,16 +58,14 @@ public final class DumpCommand: Command {
 
         di.set(tempFolder, for: TemporaryFolder.self)
         
-        let metricRecorder: MutableMetricRecorder = try di.get()
-        try metricRecorder.set(analyticsConfiguration: testArgFile.analyticsConfiguration)
+        try di.get(MutableMetricRecorder.self).set(analyticsConfiguration: testArgFile.analyticsConfiguration)
         if let sentryConfiguration = testArgFile.analyticsConfiguration.sentryConfiguration {
             try AnalyticsSetup.setupSentry(sentryConfiguration: sentryConfiguration, emceeVersion: emceeVersion)
         }
         
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
-            version: emceeVersion,
-            metricRecorder: metricRecorder
+            version: emceeVersion
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
         
@@ -83,6 +81,7 @@ public final class DumpCommand: Command {
                 dateProvider: try di.get(),
                 developerDirLocator: try di.get(),
                 fileSystem: try di.get(),
+                metricRecorder: try di.get(),
                 onDemandSimulatorPool: try di.get(),
                 pluginEventBusProvider: try di.get(),
                 processControllerProvider: try di.get(),
@@ -90,8 +89,7 @@ public final class DumpCommand: Command {
                 tempFolder: try di.get(),
                 testRunnerProvider: try di.get(),
                 uniqueIdentifierGenerator: try di.get(),
-                version: emceeVersion,
-                metricRecorder: metricRecorder
+                version: emceeVersion
             ),
             for: TestDiscoveryQuerier.self
         )

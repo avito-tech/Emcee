@@ -168,16 +168,14 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         testArgFile: TestArgFile,
         version: Version
     ) throws -> JobResults {
-        let metricRecorder: MutableMetricRecorder = try di.get()
-        try metricRecorder.set(analyticsConfiguration: testArgFile.analyticsConfiguration)
+        try di.get(MutableMetricRecorder.self).set(analyticsConfiguration: testArgFile.analyticsConfiguration)
         if let sentryConfiguration = testArgFile.analyticsConfiguration.sentryConfiguration {
             try AnalyticsSetup.setupSentry(sentryConfiguration: sentryConfiguration, emceeVersion: version)
         }
         
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
-            version: version,
-            metricRecorder: metricRecorder
+            version: version
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
         
@@ -187,6 +185,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             dateProvider: try di.get(),
             developerDirLocator: try di.get(),
             fileSystem: try di.get(),
+            metricRecorder: try di.get(),
             onDemandSimulatorPool: try di.get(),
             pluginEventBusProvider: try di.get(),
             processControllerProvider: try di.get(),
@@ -194,8 +193,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             tempFolder: try di.get(),
             testRunnerProvider: try di.get(),
             uniqueIdentifierGenerator: try di.get(),
-            version: version,
-            metricRecorder: metricRecorder
+            version: version
         )
         
         let queueClient = SynchronousQueueClient(queueServerAddress: queueServerAddress)

@@ -16,8 +16,7 @@ public final class OnDemandSimulatorPoolFactory {
     public static func create(
         di: DI,
         simulatorBootQueue: DispatchQueue = DispatchQueue(label: "SimulatorBootQueue"),
-        version: Version,
-        metricRecorder: MetricRecorder
+        version: Version
     ) throws -> OnDemandSimulatorPool {
         DefaultOnDemandSimulatorPool(
             resourceLocationResolver: try di.get(),
@@ -35,7 +34,7 @@ public final class OnDemandSimulatorPoolFactory {
                         uniqueIdentifierGenerator: try di.get()
                     ),
                     version: version,
-                    metricRecorder: metricRecorder
+                    metricRecorder: try di.get()
                 )
             ),
             tempFolder: try di.get()

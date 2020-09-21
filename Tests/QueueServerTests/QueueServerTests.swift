@@ -57,6 +57,7 @@ final class QueueServerTests: XCTestCase {
             deploymentDestinations: [],
             emceeVersion: "emceeVersion",
             localPortDeterminer: localPortDeterminer,
+            metricRecorder: NoOpMetricRecorder(),
             onDemandWorkerStarter: FakeOnDemandWorkerStarter(),
             payloadSignature: payloadSignature,
             queueServerLock: NeverLockableQueueServerLock(),
@@ -66,8 +67,7 @@ final class QueueServerTests: XCTestCase {
             workerCapabilitiesStorage: workerCapabilitiesStorage,
             workerConfigurations: workerConfigurations,
             workerUtilizationStatusPoller: FakeWorkerUtilizationStatusPoller(),
-            workersToUtilizeService: FakeWorkersToUtilizeService(),
-            metricRecorder: NoOpMetricRecorder()
+            workersToUtilizeService: FakeWorkersToUtilizeService()
         )
         XCTAssertThrowsError(try server.queueResults(jobId: jobId))
     }
@@ -101,6 +101,7 @@ final class QueueServerTests: XCTestCase {
             deploymentDestinations: [],
             emceeVersion: "emceeVersion",
             localPortDeterminer: localPortDeterminer,
+            metricRecorder: NoOpMetricRecorder(),
             onDemandWorkerStarter: FakeOnDemandWorkerStarter(),
             payloadSignature: payloadSignature,
             queueServerLock: NeverLockableQueueServerLock(),
@@ -110,8 +111,7 @@ final class QueueServerTests: XCTestCase {
             workerCapabilitiesStorage: workerCapabilitiesStorage,
             workerConfigurations: workerConfigurations,
             workerUtilizationStatusPoller: FakeWorkerUtilizationStatusPoller(),
-            workersToUtilizeService: FakeWorkersToUtilizeService(),
-            metricRecorder: NoOpMetricRecorder()
+            workersToUtilizeService: FakeWorkersToUtilizeService()
         )
         try server.schedule(
             bucketSplitter: ScheduleStrategyType.individual.bucketSplitter(

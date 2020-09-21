@@ -147,11 +147,11 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
         metricRecorder: MetricRecorder = NoOpMetricRecorder()
     ) -> DefaultWorkerUtilizationStatusPoller {
         DefaultWorkerUtilizationStatusPoller(
-            emceeVersion: "emceeVersion",
-            queueHost: "queueHost",
-            defaultDeployments: deployments,
             communicationService: communicationService,
-            metricRecorder: metricRecorder
+            defaultDeployments: deployments,
+            emceeVersion: "emceeVersion",
+            metricRecorder: metricRecorder,
+            queueHost: "queueHost"
         )
     }
 }
