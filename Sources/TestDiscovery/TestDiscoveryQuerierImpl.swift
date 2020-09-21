@@ -96,36 +96,30 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     private func discoveredTests(
         configuration: TestDiscoveryConfiguration
     ) throws -> DiscoveredTests {
-        let discoveryStartDate = Date()
-        let internalTestDiscoverer = createSpecificTestDiscoverer(configuration: configuration)
-        
-        let foundTestEntries: [DiscoveredTestEntry]
-        do {
-            foundTestEntries = try internalTestDiscoverer.discoverTestEntries(
-                configuration: configuration
-            )
-        } catch {
-            reportDiscoveryDuration(
-                persistentMetricsJobId: configuration.persistentMetricsJobId,
-                startDate: discoveryStartDate,
-                isSuccessful: false
-            )
-            throw error
-        }
-        
-        let allTests = foundTestEntries.flatMap { $0.testMethods }
-        reportStats(
-            testCaseCount: foundTestEntries.count,
-            testCount: allTests.count,
-            configuration: configuration
+        try TimeMeasurerImpl(dateProvider: dateProvider).measure(
+            work: {
+                let internalTestDiscoverer = createSpecificTestDiscoverer(configuration: configuration)
+                
+                let foundTestEntries = try internalTestDiscoverer.discoverTestEntries(
+                    configuration: configuration
+                )
+                
+                let allTests = foundTestEntries.flatMap { $0.testMethods }
+                reportStats(
+                    testCaseCount: foundTestEntries.count,
+                    testCount: allTests.count,
+                    configuration: configuration
+                )
+                return DiscoveredTests(tests: foundTestEntries)
+            },
+            result: { error, duration in
+                reportDiscoveryDuration(
+                    persistentMetricsJobId: configuration.persistentMetricsJobId,
+                    duration: duration,
+                    isSuccessful: error == nil
+                )
+            }
         )
-        reportDiscoveryDuration(
-            persistentMetricsJobId: configuration.persistentMetricsJobId,
-            startDate: discoveryStartDate,
-            isSuccessful: true
-        )
-        
-        return DiscoveredTests(tests: foundTestEntries)
     }
     
     private func requestedTestsNotAvailable(
@@ -177,14 +171,14 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         )
     }
     
-    private func reportDiscoveryDuration(persistentMetricsJobId: String, startDate: Date, isSuccessful: Bool) {
+    private func reportDiscoveryDuration(persistentMetricsJobId: String, duration: TimeInterval, isSuccessful: Bool) {
         metricRecorder.capture(
             TestDiscoveryDurationMetric(
                 host: LocalHostDeterminer.currentHostAddress,
                 version: version,
                 persistentMetricsJobId: persistentMetricsJobId,
                 isSuccessful: isSuccessful,
-                duration: dateProvider.currentDate().timeIntervalSince(startDate)
+                duration: duration
             )
         )
     }
