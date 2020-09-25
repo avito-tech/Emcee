@@ -31,15 +31,14 @@ public final class WorkerRegistererImpl: WorkerRegisterer {
             ),
             callbackQueue: callbackQueue,
             callback: { (result: Either<RegisterWorkerResponse, RequestSenderError>) in
-                do {
-                    let response = try result.dematerialize()
-                    switch response {
-                    case .workerRegisterSuccess(let workerConfiguration):
-                        completion(Either.success(workerConfiguration))
+                completion(
+                    result.mapResult {
+                        switch $0 {
+                        case .workerRegisterSuccess(let workerConfiguration):
+                            return workerConfiguration
+                        }
                     }
-                } catch {
-                    completion(Either.error(error))
-                }
+                )
             }
         )
     }

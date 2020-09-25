@@ -60,4 +60,22 @@ class EitherTests: XCTestCase {
         XCTAssertEqual(either.right, true)
         XCTAssertNil(either.left)
     }
+    
+    func test___map_result() {
+        let either = Either<Int, Error>.left(0)
+        
+        XCTAssertEqual(
+            try either.mapResult { _ in "hello" }.dematerialize(),
+            "hello"
+        )
+    }
+    
+    func test___map_result___for_error() {
+        let error = SomeError(thisIsError: "error")
+        let either = Either<Int, Error>.error(error)
+        
+        XCTAssertThrowsError(
+            try either.mapResult { _ in "hello" }.dematerialize()
+        )
+    }
 }

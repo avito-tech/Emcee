@@ -77,6 +77,15 @@ public extension Either where Right: Error {
         }
     }
     
+    func mapResult<NewResult>(_ transform: (Left) -> NewResult) -> Either<NewResult, Error> {
+        do {
+            let result = try dematerialize()
+            return .success(transform(result))
+        } catch {
+            return .error(error)
+        }
+    }
+    
     var isSuccess: Bool { return isLeft }
     var isError: Bool { return isRight }
 }

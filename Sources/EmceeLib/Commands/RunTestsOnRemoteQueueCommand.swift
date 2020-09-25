@@ -214,44 +214,48 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             remoteCacheConfig: remoteCacheConfig,
             testArgFile: testArgFile
         )
-
-        var caughtSignal = false
-        SignalHandling.addSignalHandler(signals: [.int, .term]) { signal in
-            Logger.info("Caught \(signal) signal")
-            Logger.info("Will delete job \(testArgFile.prioritizedJob.jobId)")
-            _ = try? queueClient.delete(jobId: testArgFile.prioritizedJob.jobId)
-            caughtSignal = true
-        }
         
-        Logger.info("Will now wait for job queue to deplete")
-        try di.get(Waiter.self).waitWhile(pollPeriod: 30.0, description: "Wait for job queue to deplete") {
-            if caughtSignal { return false }
-            let jobState = try queueClient.jobState(jobId: testArgFile.prioritizedJob.jobId)
-            switch jobState.queueState {
-            case .deleted:
-                return false
-            case .running(let runningQueueState):
-                BucketQueueStateLogger(runningQueueState: runningQueueState).logQueueSize()
-                return !runningQueueState.isDepleted
-            }
-        }
-        Logger.info("Will now fetch job results")
+        Logger.debug("Will now wait for job queue to deplete")
+        try waitForJobQueueToDeplete(jobId: testArgFile.prioritizedJob.jobId)
+        
+        Logger.debug("Fetching job results")
         return try queueClient.jobResults(jobId: testArgFile.prioritizedJob.jobId)
     }
     
-    private func selectPort(ports: Set<SocketModels.Port>) throws -> SocketModels.Port {
-        enum PortScanningError: Error, CustomStringConvertible {
-            case noQueuePortDetected
-            
-            var description: String {
-                switch self {
-                case .noQueuePortDetected:
-                    return "No running queue server found"
-                }
-            }
+    private func waitForJobQueueToDeplete(jobId: JobId) throws {
+        var caughtSignal = false
+        SignalHandling.addSignalHandler(signals: [.int, .term]) { signal in
+            Logger.info("Caught \(signal) signal")
+            caughtSignal = true
         }
         
-        guard let port = ports.sorted().last else { throw PortScanningError.noQueuePortDetected }
+        try di.get(Waiter.self).waitWhile(pollPeriod: 30.0, description: "Wait for job queue to deplete") {
+            if caughtSignal { return false }
+            
+            let state = try fetchJobState(jobId: jobId)
+            switch state.queueState {
+            case .deleted: return false
+            case .running(let queueState): return !queueState.isDepleted
+            }
+        }
+    }
+    
+    private func fetchJobState(jobId: JobId) throws -> JobState {
+        let callbackWaiter: CallbackWaiter<Either<JobState, Error>> =  try di.get(Waiter.self).createCallbackWaiter()
+        try di.get(JobStateFetcher.self).fetch(
+            jobId: jobId,
+            callbackQueue: callbackQueue,
+            completion: callbackWaiter.set
+        )
+        return try callbackWaiter.wait(timeout: .infinity, description: "").dematerialize()
+    }
+    
+    private func selectPort(ports: Set<SocketModels.Port>) throws -> SocketModels.Port {
+        struct NoRunningQueueFoundError: Error, CustomStringConvertible {
+            var description: String { "No running queue server found" }
+        }
+        
+        guard let port = ports.sorted().last else { throw NoRunningQueueFoundError() }
         return port
     }
 }

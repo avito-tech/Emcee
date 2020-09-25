@@ -21,11 +21,9 @@ public final class WorkerKickstarterImpl: WorkerKickstarter {
             request: KickstartWorkerRequest(payload: KickstartWorkerPayload(workerId: workerId)),
             callbackQueue: callbackQueue,
             callback: { (result: Either<KickstartWorkerResponse, RequestSenderError>) in
-                do {
-                    completion(.success(try result.dematerialize().workerId))
-                } catch {
-                    completion(.error(error))
-                }
+                completion(
+                    result.mapResult { $0.workerId }
+                )
             }
         )
     }

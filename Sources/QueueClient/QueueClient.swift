@@ -41,14 +41,6 @@ public final class QueueClient {
         )
     }
     
-    public func fetchJobState(jobId: JobId) throws {
-        try sendRequest(
-            .jobState,
-            payload: JobStateRequest(jobId: jobId),
-            completionHandler: handleJobStateResponse
-        )
-    }
-    
     public func deleteJob(jobId: JobId) throws {
         try sendRequest(
             .jobDelete,
@@ -108,10 +100,6 @@ public final class QueueClient {
     }
     
     // MARK: - Response Handlers
-    
-    private func handleJobStateResponse(response: JobStateResponse) {
-        delegate?.queueClient(self, didFetchJobState: response.jobState)
-    }
     
     private func handleJobResultsResponse(response: JobResultsResponse) {
         delegate?.queueClient(self, didFetchJobResults: response.jobResults)

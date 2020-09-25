@@ -32,17 +32,13 @@ public final class TestSchedulerImpl: TestScheduler {
             ),
             callbackQueue: callbackQueue
         ) { (result: Either<ScheduleTestsResponse, RequestSenderError>) in
-            do {
-                let response = try result.dematerialize()
-                switch response {
-                case .scheduledTests:
-                    Logger.debug("Successfully scheduled \(testEntryConfigurations.count) tests")
-                    completion(.success(()))
+            completion(
+                result.mapResult {
+                    switch $0 {
+                    case .scheduledTests: return ()
+                    }
                 }
-            } catch {
-                Logger.error("Failed to schedule \(testEntryConfigurations.count) tests: \(error)")
-                completion(.error(error))
-            }
+            )
         }
     }
 }

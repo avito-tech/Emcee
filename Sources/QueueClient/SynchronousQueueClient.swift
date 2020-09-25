@@ -12,7 +12,6 @@ import Types
 public final class SynchronousQueueClient: QueueClientDelegate {
     private let queueClient: QueueClient
     private var jobResultsResult: Either<JobResults, QueueClientError>?
-    private var jobStateResult: Either<JobState, QueueClientError>?
     private var jobDeleteResult: Either<JobId, QueueClientError>?
     private let syncQueue = DispatchQueue(label: "ru.avito.SynchronousQueueClient")
     private let requestTimeout: TimeInterval
@@ -47,19 +46,6 @@ public final class SynchronousQueueClient: QueueClientDelegate {
                     self.jobResultsResult == nil
                 }
                 return try jobResultsResult!.dematerialize()
-            }
-        }
-    }
-    
-    public func jobState(jobId: JobId) throws -> JobState {
-        return try synchronize {
-            jobStateResult = nil
-            return try runRetrying {
-                try queueClient.fetchJobState(jobId: jobId)
-                try SynchronousWaiter().waitWhile(timeout: requestTimeout, description: "Wait for \(jobId) job state") {
-                    self.jobStateResult == nil
-                }
-                return try jobStateResult!.dematerialize()
             }
         }
     }
@@ -102,12 +88,7 @@ public final class SynchronousQueueClient: QueueClientDelegate {
     
     public func queueClient(_ sender: QueueClient, didFailWithError error: QueueClientError) {
         jobResultsResult = Either.error(error)
-        jobStateResult = Either.error(error)
         jobDeleteResult = Either.error(error)
-    }
-
-    public func queueClient(_ sender: QueueClient, didFetchJobState jobState: JobState) {
-        jobStateResult = Either.success(jobState)
     }
     
     public func queueClient(_ sender: QueueClient, didFetchJobResults jobResults: JobResults) {

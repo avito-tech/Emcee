@@ -21,12 +21,9 @@ public final class WorkerDisablerImpl: WorkerDisabler {
             request: DisableWorkerRequest(payload: DisableWorkerPayload(workerId: workerId)),
             callbackQueue: callbackQueue,
             callback: { (result: Either<WorkerDisabledResponse, RequestSenderError>) in
-                do {
-                    let response = try result.dematerialize()
-                    completion(.success(response.workerId))
-                } catch {
-                    completion(.error(error))
-                }
+                completion(
+                    result.mapResult { $0.workerId }
+                )
             }
         )
     }

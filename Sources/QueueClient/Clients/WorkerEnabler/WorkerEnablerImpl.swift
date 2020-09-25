@@ -21,12 +21,9 @@ public final class WorkerEnablerImpl: WorkerEnabler {
             request: EnableWorkerRequest(payload: EnableWorkerPayload(workerId: workerId)),
             callbackQueue: callbackQueue,
             callback: { (result: Either<WorkerEnabledResponse, RequestSenderError>) in
-                do {
-                    let response = try result.dematerialize()
-                    completion(.success(response.workerId))
-                } catch {
-                    completion(.error(error))
-                }
+                completion(
+                    result.mapResult { $0.workerId }
+                )
             }
         )
     }

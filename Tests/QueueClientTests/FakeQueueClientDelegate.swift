@@ -5,7 +5,6 @@ import QueueModels
 class FakeQueueClientDelegate: QueueClientDelegate {
     enum ServerResponse {
         case error(QueueClientError)
-        case fetchedJobState(JobState)
         case fecthedJobResults(JobResults)
         case deletedJob(JobId)
     }
@@ -14,10 +13,6 @@ class FakeQueueClientDelegate: QueueClientDelegate {
     
     func queueClient(_ sender: QueueClient, didFailWithError error: QueueClientError) {
         responses.append(ServerResponse.error(error))
-    }
-
-    func queueClient(_ sender: QueueClient, didFetchJobState jobState: JobState) {
-        responses.append(ServerResponse.fetchedJobState(jobState))
     }
     
     func queueClient(_ sender: QueueClient, didFetchJobResults jobResults: JobResults) {

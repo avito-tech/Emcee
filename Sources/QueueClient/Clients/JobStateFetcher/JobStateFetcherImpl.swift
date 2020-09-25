@@ -4,9 +4,8 @@ import QueueModels
 import RESTMethods
 import RequestSender
 import Types
-import WorkerAlivenessModels
 
-public final class WorkerStatusFetcherImpl: WorkerStatusFetcher {
+public final class JobStateFetcherImpl: JobStateFetcher {
     private let requestSender: RequestSender
     
     public init(requestSender: RequestSender) {
@@ -14,16 +13,20 @@ public final class WorkerStatusFetcherImpl: WorkerStatusFetcher {
     }
     
     public func fetch(
+        jobId: JobId,
         callbackQueue: DispatchQueue,
-        completion: @escaping (Either<[WorkerId: WorkerAliveness], Error>) -> ()
+        completion: @escaping ((Either<JobState, Error>) -> ())
     ) {
-        requestSender.sendRequestWithCallback(
-            request: WorkerStatusRequest(payload: WorkerStatusPayload()),
-            callbackQueue: callbackQueue
-        ) { (result: Either<WorkerStatusResponse, RequestSenderError>) in
-            completion(
-                result.mapResult { $0.workerAliveness }
+        let request = JobStateRequest(
+            payload: JobStatePayload(
+                jobId: jobId
             )
+        )
+        requestSender.sendRequestWithCallback(
+            request: request,
+            callbackQueue: callbackQueue
+        ) { (result: Either<JobStateResponse, RequestSenderError>) in
+            completion(result.mapResult { $0.jobState })
         }
     }
 }

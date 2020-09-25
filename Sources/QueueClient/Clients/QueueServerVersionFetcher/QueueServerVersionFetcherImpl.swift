@@ -20,15 +20,13 @@ public final class QueueServerVersionFetcherImpl: QueueServerVersionFetcher {
             request: QueueVersionRequest(),
             callbackQueue: callbackQueue,
             callback: { (result: Either<QueueVersionResponse, RequestSenderError>) in
-                do {
-                    let response = try result.dematerialize()
-                    switch response {
-                    case .queueVersion(let version):
-                        completion(Either.success(version))
+                completion(
+                    result.mapResult {
+                        switch $0 {
+                        case .queueVersion(let version): return version
+                        }
                     }
-                } catch {
-                    completion(Either.error(error))
-                }
+                )
             }
         )
     }

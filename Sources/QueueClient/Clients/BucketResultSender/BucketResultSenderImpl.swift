@@ -33,15 +33,13 @@ public final class BucketResultSenderImpl: BucketResultSender {
             request: request,
             callbackQueue: callbackQueue,
             callback: { (response: Either<BucketResultAcceptResponse, RequestSenderError>) in
-                do {
-                    let value = try response.dematerialize()
-                    switch value {
-                    case .bucketResultAccepted(let bucketId):
-                        completion(Either<BucketId, Error>.success(bucketId))
+                completion(
+                    response.mapResult {
+                        switch $0 {
+                        case .bucketResultAccepted(let bucketId): return bucketId
+                        }
                     }
-                } catch {
-                    completion(Either<BucketId, Error>.error(error))
-                }
+                )
             }
         )
     }
