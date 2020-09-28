@@ -1,10 +1,14 @@
-import Foundation
-import QueueModels
+import RESTInterfaces
+import RequestSender
 
-public final class JobResultsRequest: Codable {
-    public let jobId: JobId
-    
-    public init(jobId: JobId) {
-        self.jobId = jobId
+public final class JobResultRequest: NetworkRequest {
+    public typealias Response = JobResultsResponse
+
+    public let httpMethod = HTTPMethod.post
+    public let pathWithLeadingSlash = JobResultsRESTMethod().pathWithLeadingSlash
+
+    public let payload: JobResultsPayload?
+    public init(payload: JobResultsPayload) {
+        self.payload = payload
     }
 }

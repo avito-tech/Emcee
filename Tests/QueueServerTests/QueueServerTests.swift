@@ -211,10 +211,6 @@ final class QueueServerTests: XCTestCase {
         )
     }
     
-    private func synchronousQueueClient(port: SocketModels.Port) -> SynchronousQueueClient {
-        return SynchronousQueueClient(queueServerAddress: queueServerAddress(port: port))
-    }
-    
     private func queueServerAddress(port: SocketModels.Port) -> SocketAddress {
         return SocketAddress(host: "localhost", port: port)
     }

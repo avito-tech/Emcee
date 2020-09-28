@@ -6,8 +6,6 @@ public enum RESTMethod: String, RESTPath {
     case disableWorker
     case enableWorker
     case getBucket
-    case jobDelete
-    case jobResults
     case queueVersion
     case registerWorker
     case reportAlive

@@ -29,7 +29,7 @@ final class JobDeleteEndpointTests: XCTestCase, JobManipulator {
         shouldThrow = false
         
         let endpoint = JobDeleteEndpoint(jobManipulator: self)
-        let response = try endpoint.handle(payload: JobDeleteRequest(jobId: jobId))
+        let response = try endpoint.handle(payload: JobDeletePayload(jobId: jobId))
         XCTAssertEqual(response.jobId, jobId)
     }
     
@@ -37,7 +37,7 @@ final class JobDeleteEndpointTests: XCTestCase, JobManipulator {
         shouldThrow = true
         
         let endpoint = JobDeleteEndpoint(jobManipulator: self)
-        XCTAssertThrowsError(_ = try endpoint.handle(payload: JobDeleteRequest(jobId: jobId)))
+        XCTAssertThrowsError(_ = try endpoint.handle(payload: JobDeletePayload(jobId: jobId)))
     }
 }
 

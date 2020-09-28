@@ -196,16 +196,27 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             ),
             for: TestDiscoveryQuerier.self
         )
-        
-        let queueClient = SynchronousQueueClient(queueServerAddress: queueServerAddress)
+        di.set(
+            JobStateFetcherImpl(
+                requestSender: try di.get(RequestSenderProvider.self).requestSender(socketAddress: queueServerAddress)
+            ),
+            for: JobStateFetcher.self
+        )
+        di.set(
+            JobResultsFetcherImpl(
+                requestSender: try di.get(RequestSenderProvider.self).requestSender(socketAddress: queueServerAddress)
+            ),
+            for: JobResultsFetcher.self
+        )
+        di.set(
+            JobDeleterImpl(
+                requestSender: try di.get(RequestSenderProvider.self).requestSender(socketAddress: queueServerAddress)
+            ),
+            for: JobDeleter.self
+        )
         
         defer {
-            Logger.info("Will delete job \(testArgFile.prioritizedJob)")
-            do {
-                _ = try queueClient.delete(jobId: testArgFile.prioritizedJob.jobId)
-            } catch {
-                Logger.error("Failed to delete job \(testArgFile.prioritizedJob): \(error)")
-            }
+            deleteJob(jobId: testArgFile.prioritizedJob.jobId)
         }
         
         try JobPreparer(di: di).formJob(
@@ -215,11 +226,8 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             testArgFile: testArgFile
         )
         
-        Logger.debug("Will now wait for job queue to deplete")
         try waitForJobQueueToDeplete(jobId: testArgFile.prioritizedJob.jobId)
-        
-        Logger.debug("Fetching job results")
-        return try queueClient.jobResults(jobId: testArgFile.prioritizedJob.jobId)
+        return try fetchJobResults(jobId: testArgFile.prioritizedJob.jobId)
     }
     
     private func waitForJobQueueToDeplete(jobId: JobId) throws {
@@ -229,7 +237,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             caughtSignal = true
         }
         
-        try di.get(Waiter.self).waitWhile(pollPeriod: 30.0, description: "Wait for job queue to deplete") {
+        try di.get(Waiter.self).waitWhile(pollPeriod: 30.0, description: "Waiting for job queue to deplete") {
             if caughtSignal { return false }
             
             let state = try fetchJobState(jobId: jobId)
@@ -238,6 +246,16 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             case .running(let queueState): return !queueState.isDepleted
             }
         }
+    }
+    
+    private func fetchJobResults(jobId: JobId) throws -> JobResults {
+        let callbackWaiter: CallbackWaiter<Either<JobResults, Error>> = try di.get(Waiter.self).createCallbackWaiter()
+        try di.get(JobResultsFetcher.self).fetch(
+            jobId: jobId,
+            callbackQueue: callbackQueue,
+            completion: callbackWaiter.set
+        )
+        return try callbackWaiter.wait(timeout: .infinity, description: "Fetching job results").dematerialize()
     }
     
     private func fetchJobState(jobId: JobId) throws -> JobState {
@@ -257,5 +275,19 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         
         guard let port = ports.sorted().last else { throw NoRunningQueueFoundError() }
         return port
+    }
+    
+    private func deleteJob(jobId: JobId) {
+        do {
+            let callbackWaiter: CallbackWaiter<Either<(), Error>> = try di.get(Waiter.self).createCallbackWaiter()
+            try di.get(JobDeleter.self).delete(
+                jobId: jobId,
+                callbackQueue: callbackQueue,
+                completion: callbackWaiter.set
+            )
+            try callbackWaiter.wait(timeout: .infinity, description: "Deleting job").dematerialize()
+        } catch {
+            Logger.error("Failed to delete job: \(error)")
+        }
     }
 }
