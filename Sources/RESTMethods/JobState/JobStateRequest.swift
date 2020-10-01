@@ -6,7 +6,7 @@ public final class JobStateRequest: NetworkRequest {
     public typealias Response = JobStateResponse
 
     public let httpMethod = HTTPMethod.post
-    public let pathWithLeadingSlash = KickstartWorkerRESTMethod().pathWithLeadingSlash
+    public let pathWithLeadingSlash = JobStateRESTMethod().pathWithLeadingSlash
 
     public let payload: JobStatePayload?
     public init(payload: JobStatePayload) {
