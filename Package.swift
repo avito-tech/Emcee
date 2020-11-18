@@ -49,6 +49,7 @@ let package = Package(
                 "SocketModels",
                 "TestArgFile",
                 "TestDiscovery",
+                "TestsWorkingDirectorySupport",
                 "TypedResourceLocation",
                 "WorkerAlivenessModels",
                 "WorkerCapabilitiesModels",
