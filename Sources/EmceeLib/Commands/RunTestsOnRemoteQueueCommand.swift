@@ -287,7 +287,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             )
             try callbackWaiter.wait(timeout: .infinity, description: "Deleting job").dematerialize()
         } catch {
-            Logger.error("Failed to delete job")
+            Logger.warning("Failed to delete job")
         }
     }
 }
