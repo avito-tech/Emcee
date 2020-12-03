@@ -41,7 +41,8 @@ public final class KickstartWorkerEndpoint: RESTEndpoint {
             throw WorkerConfigurationError.missingWorkerConfiguration(workerId: payload.workerId)
         }
         
-        guard workerAlivenessProvider.alivenessForWorker(workerId: payload.workerId).silent else {
+        let workerAliveness = workerAlivenessProvider.alivenessForWorker(workerId: payload.workerId)
+        guard !workerAliveness.registered || workerAliveness.silent else {
             throw KickstartError.isAlive(payload.workerId)
         }
         

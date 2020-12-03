@@ -47,6 +47,20 @@ final class KickstartWorkerEndpointTests: XCTestCase {
         )
     }
     
+    func test___kickstarting_existing_alive_but_not_registered_worker() {
+        workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
+
+        assertDoesNotThrow {
+            let response = try endpoint.handle(payload: KickstartWorkerPayload(workerId: workerId))
+            XCTAssertEqual(response.workerId, workerId)
+        }
+
+        XCTAssertEqual(
+            onDemandWorkerStarter.startedWorkerId,
+            workerId
+        )
+    }
+    
     func test___kickstarting_non_existing_worker___throws() {
         assertThrows {
             try endpoint.handle(payload: KickstartWorkerPayload(workerId: "random_id"))
