@@ -17,7 +17,7 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
     private let testContext: TestContext
     private let testType: TestType
     private let testingEnvironment: XcTestRunTestingEnvironment
-        
+    
     public enum XcTestRunFileArgumentError: CustomStringConvertible, Error {
         case cannotObtainBundleIdentifier(path: AbsolutePath)
         
@@ -56,8 +56,8 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
         let xcTestRunPlist = XcTestRunPlist(xcTestRun: xcTestRun)
 
         let plistPath = try temporaryFolder.createFile(
-            components: ["xctestrun"],
-            filename: UUID().uuidString + ".xctestrun",
+            components: [testContext.contextUuid.uuidString, "xctestrun"],
+            filename: "testrun.xctestrun",
             contents: try xcTestRunPlist.createPlistData()
         )
         Logger.debug("xcrun: \(plistPath)")

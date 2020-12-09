@@ -53,6 +53,9 @@ public final class XcodebuildBasedTestRunner: TestRunner {
             insertedLibraries = []
         }
         
+        let invocationPath = try temporaryFolder.pathByCreatingDirectories(components: [testContext.contextUuid.uuidString])
+        let resultStreamFile = try temporaryFolder.createFile(components: [testContext.contextUuid.uuidString], filename: "result_stream.json")
+        
         let processController = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
                 arguments: [
@@ -61,6 +64,9 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                     "-destination", XcodebuildSimulatorDestinationArgument(
                         destinationId: simulator.udid
                     ),
+                    "-derivedDataPath", invocationPath.appending(component: "derivedData"),
+                    "-resultBundlePath", invocationPath.appending(component: "resultBundle"),
+                    "-resultStreamPath", resultStreamFile,
                     "-xctestrun", XcTestRunFileArgument(
                         buildArtifacts: buildArtifacts,
                         entriesToRun: entriesToRun,

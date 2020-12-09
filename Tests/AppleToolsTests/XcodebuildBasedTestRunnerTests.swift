@@ -26,6 +26,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
     private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     private let testRunnerStream = AccumulatingTestRunnerStream()
     private let dateProvider = DateProviderFixture(Date(timeIntervalSince1970: 100500))
+    private lazy var contextUuid = UUID()
     private lazy var processControllerProvider = FakeProcessControllerProvider(tempFolder: tempFolder)
     private lazy var resourceLocationResolver = FakeResourceLocationResolver(
         resolvingResult: .directlyAccessibleFile(path: tempFolder.absolutePath)
@@ -38,6 +39,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         }
     )
     private lazy var testContext = TestContext(
+        contextUuid: contextUuid,
         developerDir: DeveloperDir.current,
         environment: [:],
         simulatorPath: simulator.path.fileUrl,
@@ -101,17 +103,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         let argsValidatedExpectation = expectation(description: "Arguments have been validated")
         
         processControllerProvider.creator = { subprocess -> ProcessController in
-            XCTAssertEqual(
-                try subprocess.arguments.map { try $0.stringValue() },
-                [
-                    "/usr/bin/xcrun",
-                    "xcodebuild",
-                    "-destination", "platform=iOS Simulator,id=" + self.simulator.udid.value,
-                    "-xctestrun", try self.pathToXctestrunFile().pathString,
-                    "-parallel-testing-enabled", "NO",
-                    "test-without-building"
-                ]
-            )
+            self.assertArgumentsAreCorrect(arguments: subprocess.arguments)
             
             XCTAssertEqual(
                 try self.createdXcTestRun(),
@@ -171,17 +163,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         let argsValidatedExpectation = expectation(description: "Arguments have been validated")
         
         processControllerProvider.creator = { subprocess -> ProcessController in
-            XCTAssertEqual(
-                try subprocess.arguments.map { try $0.stringValue() },
-                [
-                    "/usr/bin/xcrun",
-                    "xcodebuild",
-                    "-destination", "platform=iOS Simulator,id=" + self.simulator.udid.value,
-                    "-xctestrun", try self.pathToXctestrunFile().pathString,
-                    "-parallel-testing-enabled", "NO",
-                    "test-without-building"
-                ]
-            )
+            self.assertArgumentsAreCorrect(arguments: subprocess.arguments)
             
             XCTAssertEqual(
                 try self.createdXcTestRun(),
@@ -244,17 +226,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         let argsValidatedExpectation = expectation(description: "Arguments have been validated")
         
         processControllerProvider.creator = { subprocess -> ProcessController in
-            XCTAssertEqual(
-                try subprocess.arguments.map { try $0.stringValue() },
-                [
-                    "/usr/bin/xcrun",
-                    "xcodebuild",
-                    "-destination", "platform=iOS Simulator,id=" + self.simulator.udid.value,
-                    "-xctestrun", try self.pathToXctestrunFile().pathString,
-                    "-parallel-testing-enabled", "NO",
-                    "test-without-building"
-                ]
-            )
+            self.assertArgumentsAreCorrect(arguments: subprocess.arguments)
             
             argsValidatedExpectation.fulfill()
             
@@ -381,7 +353,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
     }
     
     private func pathToXctestrunFile() throws -> AbsolutePath {
-        let path = self.tempFolder.pathWith(components: ["xctestrun"])
+        let path = self.tempFolder.pathWith(components: [contextUuid.uuidString, "xctestrun"])
         let contents = try FileManager.default.contentsOfDirectory(atPath: path.pathString)
         let xctestrunFileName: String = contents.first(where: { $0.hasSuffix("xctestrun") }) ?? "NOT_FOUND"
         return path.appending(component: xctestrunFileName)
@@ -394,5 +366,22 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 options: .mappedIfSafe
             )
         ).xcTestRun
+    }
+    
+    private func assertArgumentsAreCorrect(arguments: [SubprocessArgument]) {
+        XCTAssertEqual(
+            try arguments.map { try $0.stringValue() },
+            [
+                "/usr/bin/xcrun",
+                "xcodebuild",
+                "-destination", "platform=iOS Simulator,id=" + simulator.udid.value,
+                "-derivedDataPath", tempFolder.absolutePath.appending(components: [contextUuid.uuidString, "derivedData"]).pathString,
+                "-resultBundlePath", tempFolder.absolutePath.appending(components: [contextUuid.uuidString, "resultBundle"]).pathString,
+                "-resultStreamPath", tempFolder.absolutePath.appending(components: [contextUuid.uuidString, "result_stream.json"]).pathString,
+                "-xctestrun", try pathToXctestrunFile().pathString,
+                "-parallel-testing-enabled", "NO",
+                "test-without-building"
+            ]
+        )
     }
 }

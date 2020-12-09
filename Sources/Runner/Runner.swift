@@ -272,8 +272,9 @@ public final class Runner {
         developerDir: DeveloperDir,
         simulator: Simulator
     ) throws -> TestContext {
+        let contextUuid = UUID()
         let testsWorkingDirectory = try tempFolder.pathByCreatingDirectories(
-            components: ["testsWorkingDir", UUID().uuidString]
+            components: ["testsWorkingDir", contextUuid.uuidString]
         )
 
         var environment = configuration.environment
@@ -281,6 +282,7 @@ public final class Runner {
         environment = try developerDirLocator.suitableEnvironment(forDeveloperDir: developerDir, byUpdatingEnvironment: environment)
 
         return TestContext(
+            contextUuid: contextUuid,
             developerDir: developerDir,
             environment: environment,
             simulatorPath: simulator.path.fileUrl,
