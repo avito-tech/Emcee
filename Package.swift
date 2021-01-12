@@ -774,6 +774,7 @@ let package = Package(
             // MARK: JSONStream
             name: "JSONStream",
             dependencies: [
+                "AtomicModels",
             ],
             path: "Sources/JSONStream"
         ),

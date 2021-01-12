@@ -1,27 +1,22 @@
+import AtomicModels
 import Dispatch
 import Foundation
 
 public final class BlockingArrayBasedJSONStream: AppendableJSONStream {
-    private let readQueue = DispatchQueue(label: "ru.avito.SynchronizedArrayBasedJSONStream.readQueue")
-    private let writeQueue = DispatchQueue(label: "ru.avito.SynchronizedArrayBasedJSONStream.writeQueue")
-    private var storage = ThreadSafeArray<Unicode.Scalar>()
+    private let readLock = NSLock()
+    private let writeLock = DispatchSemaphore(value: 0)
     
-    private var willProvideMoreData = true {
-        didSet {
-            if !willProvideMoreData {
-                newDataCondition.signal()
-            }
-        }
-    }
-    private let newDataCondition = NSCondition()
+    private let storage = AtomicValue<[Unicode.Scalar]>([])
+    
+    private var willProvideMoreData = true
     
     public init() {}
     
     public func append(scalars: [Unicode.Scalar]) {
-        writeQueue.async {
-            self.storage.insert(contentsOf: scalars.reversed(), at: 0)
-            self.newDataCondition.signal()
+        storage.withExclusiveAccess {
+            $0.insert(contentsOf: scalars.reversed(), at: 0)
         }
+        onNewData()
     }
     
     // MARK: - JSONStream
@@ -36,23 +31,53 @@ public final class BlockingArrayBasedJSONStream: AppendableJSONStream {
     
     public func close() {
         willProvideMoreData = false
+        onStreamClose()
     }
     
     private func lastScalar(delete: Bool) -> Unicode.Scalar? {
-        return readQueue.sync {
-            if storage.isEmpty {
-                if willProvideMoreData {
-                    newDataCondition.wait()
-                } else {
-                    return nil
-                }
-            }
-            
-            let scalar = storage.last
-            if delete, scalar != nil {
-                _ = writeQueue.sync { storage.removeLast() }
-            }
-            return scalar
+        readLock.lock()
+        defer {
+            readLock.unlock()
         }
+        
+        if storage.currentValue().isEmpty {
+            if willProvideMoreData {
+                waitForNewDataOrStreamCloseEvent()
+            } else {
+                return nil
+            }
+        }
+        
+        return storage.withExclusiveAccess {
+            if delete {
+                return $0.popLast()
+            } else {
+                return $0.last
+            }
+        }
+    }
+    
+    private func waitForNewDataOrStreamCloseEvent() {
+        writeLock.waitForUnblocking()
+    }
+    
+    private func onNewData() {
+        writeLock.unblock()
+    }
+    
+    private func onStreamClose() {
+        writeLock.unblock()
+    }
+}
+
+extension DispatchSemaphore {
+    func waitForUnblocking() {
+        wait()
+        signal()
+    }
+    
+    func unblock() {
+        signal()
+        wait()
     }
 }
