@@ -19,17 +19,19 @@ final class SimulatorControlToolTests: XCTestCase {
         XCTAssertEqual(
             try decoder.decode(
                 [String: SimulatorControlTool].self,
-                from: """
-                {
-                    "value": {
-                        "tool": {
-                            "toolType": "fbsimctl",
-                            "location": "\(SimulatorControlToolFixtures.fakeFbsimctlUrl.absoluteString)"
-                        },
-                        "location": "insideEmceeTempFolder"
-                    }
-                }
-                """.data(using: .utf8)!
+                from: Data(
+                    """
+                        {
+                            "value": {
+                                "tool": {
+                                    "toolType": "fbsimctl",
+                                    "location": "\(SimulatorControlToolFixtures.fakeFbsimctlUrl.absoluteString)"
+                                },
+                                "location": "insideEmceeTempFolder"
+                            }
+                        }
+                    """.utf8
+                )
             ),
             ["value": SimulatorControlToolFixtures.fakeFbsimctlTool]
         )
@@ -51,16 +53,18 @@ final class SimulatorControlToolTests: XCTestCase {
         XCTAssertEqual(
             try decoder.decode(
                 [String: SimulatorControlTool].self,
-                from: """
-                {
-                    "value": {
-                        "location": "insideUserLibrary",
-                        "tool": {
-                            "toolType": "simctl"
+                from: Data(
+                    """
+                        {
+                            "value": {
+                                "location": "insideUserLibrary",
+                                "tool": {
+                                    "toolType": "simctl"
+                                }
+                            }
                         }
-                    }
-                }
-                """.data(using: .utf8)!
+                    """.utf8
+                )
             ),
             ["value": simulatorControlTool]
         )

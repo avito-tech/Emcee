@@ -12,7 +12,8 @@ import XCTest
 
 final class TestArgFileEntryTests: XCTestCase {
     func test___decoding_full_json() throws {
-        let json = """
+        let json = Data(
+            """
             {
                 "testsToRun": [
                     {"predicateType": "singleTestName", "testName": "ClassName/testMethod"}
@@ -73,7 +74,8 @@ final class TestArgFileEntryTests: XCTestCase {
                 },
                 "workerCapabilityRequirements": []
             }
-        """.data(using: .utf8)!
+            """.utf8
+        )
         
         let entry = assertDoesNotThrow {
             try JSONDecoder().decode(TestArgFileEntry.self, from: json)
@@ -120,7 +122,8 @@ final class TestArgFileEntryTests: XCTestCase {
     }
     
     func test___decoding_short_json() throws {
-        let json = """
+        let json = Data(
+            """
             {
                 "testsToRun": [
                     "all",
@@ -139,7 +142,8 @@ final class TestArgFileEntryTests: XCTestCase {
                     "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"]
                 }
             }
-        """.data(using: .utf8)!
+            """.utf8
+        )
         
         let entry = assertDoesNotThrow {
             try JSONDecoder().decode(TestArgFileEntry.self, from: json)

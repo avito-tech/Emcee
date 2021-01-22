@@ -76,7 +76,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
                 
                 let pathToStdout = try self.tempFolder.createFile(
                     filename: "stdout.txt",
-                    contents: expectedUdid.data(using: .utf8)
+                    contents: Data(expectedUdid.utf8)
                 )
                 
                 controller.subprocess = Subprocess(

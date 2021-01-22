@@ -478,7 +478,7 @@ final class DefaultProcessControllerTests: XCTestCase {
         
         XCTAssertEqual(
             collectedData,
-            "aa\n".data(using: .utf8)
+            Data("aa\n".utf8)
         )
     }
     
@@ -501,7 +501,7 @@ final class DefaultProcessControllerTests: XCTestCase {
         
         XCTAssertEqual(
             collectedData,
-            "aa\n".data(using: .utf8)
+            Data("aa\n".utf8)
         )
     }
 

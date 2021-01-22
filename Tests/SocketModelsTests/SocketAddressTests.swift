@@ -10,7 +10,7 @@ final class SocketAddressTests: XCTestCase {
     
     func test___parsing_string() throws {
         let input = "{\"address\": \"localhost:42\"}"
-        let parsedAddress = try JSONDecoder().decode([String: SocketAddress].self, from: input.data(using: .utf8)!)
+        let parsedAddress = try JSONDecoder().decode([String: SocketAddress].self, from: Data(input.utf8))
         XCTAssertEqual(parsedAddress["address"], SocketAddress(host: "localhost", port: 42))
     }
 }

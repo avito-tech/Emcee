@@ -10,7 +10,8 @@ import XCTest
 
 final class QueueServerConfigurationTests: XCTestCase {
     func test___parsing() throws {
-        let data = """
+        let data = Data(
+            """
                 {
                   "analyticsConfiguration": {
                     "graphiteConfiguration": {
@@ -57,7 +58,8 @@ final class QueueServerConfigurationTests: XCTestCase {
                     }
                   ]
                 }
-            """.data(using: .utf8)!
+            """.utf8
+        )
         
         let config = try JSONDecoder().decode(QueueServerConfiguration.self, from: data)
         XCTAssertEqual(

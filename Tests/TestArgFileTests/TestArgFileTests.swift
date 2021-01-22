@@ -11,7 +11,8 @@ import XCTest
 
 final class TestArgFileTests: XCTestCase {
     func test___decoding_full_json() throws {
-        let json = """
+        let json = Data(
+            """
             {
                 "entries": [],
                 "jobGroupId": "jobGroupId",
@@ -34,7 +35,8 @@ final class TestArgFileTests: XCTestCase {
                     }
                 }
             }
-        """.data(using: .utf8)!
+            """.utf8
+        )
         
         let testArgFile = assertDoesNotThrow {
             try JSONDecoder().decode(TestArgFile.self, from: json)
@@ -68,12 +70,14 @@ final class TestArgFileTests: XCTestCase {
     }
     
     func test___decoding_short_json() throws {
-        let json = """
+        let json = Data(
+            """
             {
                 "entries": [],
                 "jobId": "jobId",
             }
-        """.data(using: .utf8)!
+            """.utf8
+        )
         
         let testArgFile = assertDoesNotThrow {
             try JSONDecoder().decode(TestArgFile.self, from: json)
@@ -97,7 +101,8 @@ final class TestArgFileTests: XCTestCase {
     }
     
     func test___complete_short_example() throws {
-        let json = """
+        let json = Data(
+            """
             {
                 "jobId": "jobId",
                 "entries": [
@@ -113,7 +118,8 @@ final class TestArgFileTests: XCTestCase {
                     }
                 ]
             }
-        """.data(using: .utf8)!
+            """.utf8
+        )
         
         let testArgFile = assertDoesNotThrow {
             try JSONDecoder().decode(TestArgFile.self, from: json)

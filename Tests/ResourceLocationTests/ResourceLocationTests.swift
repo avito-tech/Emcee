@@ -6,14 +6,14 @@ import XCTest
 final class ResourceLocationTests: XCTestCase {
     func test__decoding_JSON_with_string__maps_to_localFilePath() throws {
         let temp = NSTemporaryDirectory()
-        let jsonData = "{\"value\": \"\(temp)\"}".data(using: .utf8)!
+        let jsonData = Data("{\"value\": \"\(temp)\"}".utf8)
         let decoded = try JSONDecoder().decode([String: ResourceLocation].self, from: jsonData)
         XCTAssertEqual(decoded["value"], ResourceLocation.localFilePath(temp))
     }
     
     func test__decoding_JSON_with_string_URL__maps_to_remoteUrl() throws {
         let urlString = "https://example.com/file.zip#path/to/file.txt"
-        let jsonData = "{\"value\": \"\(urlString)\"}".data(using: .utf8)!
+        let jsonData = Data("{\"value\": \"\(urlString)\"}".utf8)
         let decoded = try JSONDecoder().decode([String: ResourceLocation].self, from: jsonData)
         XCTAssertEqual(decoded["value"], ResourceLocation.remoteUrl(URL(string: urlString)!))
     }
@@ -57,7 +57,7 @@ final class ResourceLocationTests: XCTestCase {
     }
     
     func test___location__from_json_with_spaces_in_local_path() throws {
-        let jsonData = "{\"value\": \"/path/to/file name.txt\"}".data(using: .utf8)!
+        let jsonData = Data("{\"value\": \"/path/to/file name.txt\"}".utf8)
         let decoded = try JSONDecoder().decode([String: ResourceLocation].self, from: jsonData)
         XCTAssertEqual(decoded["value"], ResourceLocation.localFilePath("/path/to/file name.txt"))
     }

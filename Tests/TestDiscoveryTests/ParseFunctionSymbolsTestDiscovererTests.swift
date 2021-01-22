@@ -27,7 +27,7 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
     
     func test___not_empty_test_bundle___discovers_tests() {
         let discoverer = createParseFunctionSymbolsTestDiscoverer(
-            nmOutputData: parseFunctionSymbolsTestData.joined(separator: "\n").data(using: .utf8)
+            nmOutputData: Data(parseFunctionSymbolsTestData.joined(separator: "\n").utf8)
         )
         let discoveredTestEntries = assertDoesNotThrow {
             try discoverer.discoverTestEntries(configuration: configuration)

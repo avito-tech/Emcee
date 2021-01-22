@@ -12,7 +12,7 @@ final class TestToRunTests: XCTestCase {
         let expected = ["test": TestToRun.testName(TestName(className: "ClassName", methodName: "testName"))]
         
         XCTAssertEqual(
-            try decoder.decode([String: TestToRun].self, from: data(json)),
+            try decoder.decode([String: TestToRun].self, from: Data(json.utf8)),
             expected
         )
     }
@@ -23,13 +23,9 @@ final class TestToRunTests: XCTestCase {
         let expected = ["test": TestToRun.allDiscoveredTests]
         
         XCTAssertEqual(
-            try decoder.decode([String: TestToRun].self, from: data(json)),
+            try decoder.decode([String: TestToRun].self, from: Data(json.utf8)),
             expected
         )
-    }
-    
-    func data(_ string: String) -> Data {
-        return string.data(using: .utf8)!
     }
 }
 

@@ -12,7 +12,7 @@ class StdInToStdOutStreamer {
                 FileHandle.standardInput.readabilityHandler = nil
             } else {
                 guard let string = String(data: stdinData, encoding: .utf8) else { return }
-                guard let outputData = string.data(using: .utf8) else { return }
+                let outputData = Data(string.utf8)
                 write(data: outputData, file: stdout)
                 if string.contains("bye") {
                     FileHandle.standardInput.readabilityHandler = nil
@@ -27,8 +27,7 @@ class StdInToStdOutStreamer {
 }
 
 func write(string: String, file: UnsafeMutablePointer<FILE>) {
-    guard let data = string.data(using: .utf8) else { return }
-    write(data: data, file: file)
+    write(data: Data(string.utf8), file: file)
 }
 
 func write(data: Data, file: UnsafeMutablePointer<FILE>) {

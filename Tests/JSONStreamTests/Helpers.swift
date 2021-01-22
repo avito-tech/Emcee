@@ -6,8 +6,7 @@ class FakeJSONStream: JSONStream {
     var isClosed = false
     
     public init(string: String) {
-        let stringData = string.data(using: .utf8) ?? Data()
-        data = [UInt8](stringData).reversed()
+        data = [UInt8](string.utf8).reversed()
     }
     
     func read() -> UInt8? {

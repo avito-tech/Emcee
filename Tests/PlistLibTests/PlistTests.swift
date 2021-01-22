@@ -34,9 +34,7 @@ final class PlistTests: XCTestCase {
     }
     
     func test___parsing_data() throws {
-        guard let plistData = plistStringContents.data(using: .utf8) else {
-            failTest("Failed to convert string to data")
-        }
+        let plistData = Data(plistStringContents.utf8)
         
         let plist = try Plist.create(fromData: plistData)
         XCTAssertEqual(

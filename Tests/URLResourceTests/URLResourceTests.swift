@@ -57,7 +57,7 @@ final class URLResourceTests: XCTestCase {
         let expectedContents = "some fetched contents"
         try setServerHandler {
             HttpResponse.raw(200, "OK", ["Content-Length": "\(expectedContents.count)"], { writer in
-                try writer.write(expectedContents.data(using: .utf8)!)
+                try writer.write(Data(expectedContents.utf8))
             })
         }
         
@@ -74,7 +74,7 @@ final class URLResourceTests: XCTestCase {
         let expectedContents = "some fetched contents"
         try setServerHandler {
             HttpResponse.raw(200, "OK", ["Content-Length": "\(expectedContents.count * 3)"], { writer in
-                try writer.write(expectedContents.data(using: .utf8)!)
+                try writer.write(Data(expectedContents.utf8))
             })
         }
         

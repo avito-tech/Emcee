@@ -8,7 +8,8 @@ import XCTest
 
 final class RuntimeDumpRemoteCacheConfigTests: XCTestCase {
     func test___decoding_full_json() throws {
-        let json = """
+        let json = Data(
+            """
             {
                 "credentials": {
                     "username": "username",
@@ -19,7 +20,8 @@ final class RuntimeDumpRemoteCacheConfigTests: XCTestCase {
                 "relativePathToRemoteStorage": "remote_cache_path/",
                 "socketAddress": "example.com:1337"
             }
-        """.data(using: .utf8)!
+            """.utf8
+        )
 
         let config = assertDoesNotThrow {
             try JSONDecoder().decode(RuntimeDumpRemoteCacheConfig.self, from: json)

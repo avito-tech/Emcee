@@ -24,7 +24,7 @@ final class RequestParserTests: XCTestCase {
     private var defaultRequestForThisTest: HttpRequest {
         let request = HttpRequest()
         request.path = "request_path"
-        request.body = [UInt8]("{\"value\": 42}".data(using: .utf8)!)
+        request.body = [UInt8]("{\"value\": 42}".utf8)
         return request
     }
     

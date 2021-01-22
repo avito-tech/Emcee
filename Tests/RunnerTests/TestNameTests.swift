@@ -48,14 +48,14 @@ final class TestNameTests: XCTestCase {
         
         XCTAssertEqual(
             result,
-            expectedValue.data(using: .utf8)
+            Data(expectedValue.utf8)
         )
     }
     
     private func fromJson(string: String) throws -> [String : TestName] {
         return try JSONDecoder().decode(
             [String: TestName].self,
-            from: string.data(using: .utf8)!
+            from: Data(string.utf8)
         )
     }
 }

@@ -19,7 +19,7 @@ final class TemporaryStuffTests: XCTestCase {
     func testCreaintFile() throws {
         let tempFolder = try TemporaryFolder()
         let contents = "hello"
-        let path = try tempFolder.createFile(components: ["a", "b"], filename: "file.txt", contents: contents.data(using: .utf8))
+        let path = try tempFolder.createFile(components: ["a", "b"], filename: "file.txt", contents: Data(contents.utf8))
         
         var isDir: ObjCBool = false
         XCTAssertTrue(FileManager.default.fileExists(atPath: path.pathString, isDirectory: &isDir))

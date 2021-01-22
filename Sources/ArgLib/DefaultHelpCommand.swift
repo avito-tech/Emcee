@@ -87,9 +87,8 @@ public final class DefaultHelpCommand: HelpCommand {
         if !text.hasSuffix("\n") {
             text = text + "\n"
         }
-        guard let data = text.data(using: .utf8) else { return }
         let outputHandle = FileHandle.standardError
-        outputHandle.write(data)
+        outputHandle.write(Data(text.utf8))
     }
 }
 

@@ -263,10 +263,14 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             controller.overridedProcessStatus = .stillRunning
             
             impactQueue.asyncAfter(deadline: .now() + 0.5) {
-                controller.broadcastStdout(data: "Test Case '-[ModuleWithTests.TestClassName testMethodName]' started.".data(using: .utf8)!)
+                controller.broadcastStdout(
+                    data: Data("Test Case '-[ModuleWithTests.TestClassName testMethodName]' started.".utf8)
+                )
                 
                 impactQueue.asyncAfter(deadline: .now() + 0.5) {
-                    controller.broadcastStdout(data: "Test Case '-[ModuleWithTests.TestClassName testMethodName]' failed (42.000 seconds).".data(using: .utf8)!)
+                    controller.broadcastStdout(
+                        data: Data("Test Case '-[ModuleWithTests.TestClassName testMethodName]' failed (42.000 seconds).".utf8)
+                    )
                     
                     impactQueue.asyncAfter(deadline: .now() + 0.1) {
                         controller.overridedProcessStatus = .terminated(exitCode: 0)

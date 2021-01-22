@@ -22,7 +22,7 @@ final class XcodebuildOutputProcessorTests: XCTestCase {
             }
         }
         
-        xcodebuildOutputProcessor.newStdout(data: "aaa".data(using: .utf8)!)
+        xcodebuildOutputProcessor.newStdout(data: Data("aaa".utf8))
         
         XCTAssertTrue(testRunnerStream.streamIsOpen)
     }
@@ -66,7 +66,7 @@ final class XcodebuildOutputProcessorTests: XCTestCase {
         xcodebuildOutputProcessor.newStdout(data: проверкаData.dropFirst(проверкаData.count - 1))
         XCTAssertTrue(testRunnerStream.streamIsOpen)
         
-        xcodebuildOutputProcessor.newStdout(data: "close".data(using: .utf8)!)
+        xcodebuildOutputProcessor.newStdout(data: Data("close".utf8))
         XCTAssertFalse(testRunnerStream.streamIsOpen)
     }
     
@@ -91,7 +91,7 @@ final class XcodebuildOutputProcessorTests: XCTestCase {
         xcodebuildOutputProcessor.newStdout(data: Data([0x80, 0xD0, 0xBA, 0xD0, 0xB0]))
         XCTAssertTrue(testRunnerStream.streamIsOpen)
         
-        xcodebuildOutputProcessor.newStdout(data: "close".data(using: .utf8)!)
+        xcodebuildOutputProcessor.newStdout(data: Data("close".utf8))
         XCTAssertFalse(testRunnerStream.streamIsOpen)
     }
 }

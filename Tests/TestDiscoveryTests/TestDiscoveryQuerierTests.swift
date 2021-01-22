@@ -98,7 +98,8 @@ final class TestDiscoveryQuerierTests: XCTestCase {
     func test__when_JSON_file_has_incorrect_format_throws__without_application_test_support() throws {
         try tempFolder.createFile(
             filename: dumpFilename,
-            contents: "oopps".data(using: .utf8)!)
+            contents: Data("oopps".utf8)
+        )
         let querier = testDiscoveryQuerier()
         let configuration = testDiscoveryConfiguration(
             testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
@@ -153,7 +154,8 @@ final class TestDiscoveryQuerierTests: XCTestCase {
     func test__when_JSON_file_has_incorrect_format_throws__with_application_test_support() throws {
         try tempFolder.createFile(
             filename: dumpFilename,
-            contents: "oopps".data(using: .utf8)!)
+            contents: Data("oopps".utf8)
+        )
         let querier = testDiscoveryQuerier()
         let configuration = testDiscoveryConfiguration(
             testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
@@ -181,7 +183,8 @@ final class TestDiscoveryQuerierTests: XCTestCase {
     func test__runner_is_not_called__with_data_in_remote_cache() throws {
         try tempFolder.createFile(
             filename: dumpFilename,
-            contents: "oopps".data(using: .utf8)!)
+            contents: Data("oopps".utf8)
+        )
         let querier = testDiscoveryQuerier()
 
         let xcTestBundleLocation = TestBundleLocation(ResourceLocation.localFilePath("xcTestBundleLocationPathForCacheTest"))

@@ -147,8 +147,8 @@ public final class FbxctestOutputProcessor: TestRunnerInvocation {
     
     private func processStdErrEventContents(_ contents: String, processId: Int32) {
         let decoder = JSONDecoder()
-        guard let possibleJSONData = contents.data(using: .utf8),
-            let genericError = try? decoder.decode(FbXcGenericErrorEvent.self, from: possibleJSONData) else {
+        let possibleJSONData = Data(contents.utf8)
+        guard let genericError = try? decoder.decode(FbXcGenericErrorEvent.self, from: possibleJSONData) else {
                 return
         }
         

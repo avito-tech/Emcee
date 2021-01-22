@@ -12,9 +12,9 @@ class PrintSleepPrint {
             fileHandle = FileHandle.standardOutput
         }
         
-        fileHandle.write("Print".data(using: .utf8)!)
+        fileHandle.write(Data("Print".utf8))
         Thread.sleep(forTimeInterval: 1.0)
-        fileHandle.write("Finished".data(using: .utf8)!)
+        fileHandle.write(Data("Finished".utf8))
     }
 }
 

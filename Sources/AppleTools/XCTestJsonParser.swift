@@ -21,7 +21,7 @@ public final class XCTestJsonParser: XcodebuildLogParser {
             .compactMap { json in
                 try? JSONDecoder().decode(
                     XCTestJsonEvent.self,
-                    from: json.data(using: .utf8) ?? Data()
+                    from: Data(json.utf8)
                 )
             }
             .forEach { event in
