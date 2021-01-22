@@ -2288,6 +2288,30 @@ let package = Package(
             path: "Tests/UniqueIdentifierGeneratorTestHelpers"
         ),
         .target(
+            // MARK: UpdatingFileReader
+            name: "UpdatingFileReader",
+            dependencies: [
+                "PathLib",
+                "ProcessController",
+            ],
+            path: "Sources/UpdatingFileReader"
+        ),
+        .testTarget(
+            // MARK: UpdatingFileReaderTests
+            name: "UpdatingFileReaderTests",
+            dependencies: [
+                "DateProvider",
+                "FileSystem",
+                "PathLib",
+                "ProcessController",
+                "ProcessControllerTestHelpers",
+                "TemporaryStuff",
+                "TestHelpers",
+                "UpdatingFileReader",
+            ],
+            path: "Tests/UpdatingFileReaderTests"
+        ),
+        .target(
             // MARK: WorkerAlivenessModels
             name: "WorkerAlivenessModels",
             dependencies: [
