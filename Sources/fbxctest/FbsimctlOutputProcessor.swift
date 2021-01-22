@@ -70,22 +70,13 @@ public final class FbsimctlOutputProcessor: JSONReaderEventStream {
             do {
                 try reader.start()
             } catch {
-                Logger.error("JSON stream processing failed: \(error). Context: \(reader.collectedScalars)")
+                let context = String(data: Data(reader.collectedBytes), encoding: .utf8)
+                Logger.error("JSON stream processing failed: \(error). Context: \(String(describing: context))")
             }
         }
     }
     
-    private func processSingleLiveEvent(_ scalars: [Unicode.Scalar]) {
-        var string = String()
-        string.unicodeScalars.append(contentsOf: scalars)
-        guard let eventData = string.data(using: .utf8) else {
-            Logger.warning("Failed to convert JSON string to data: '\(string)'", processController.subprocessInfo)
-            return
-        }
-        processSingleLiveEvent(eventData: eventData, dataStringRepresentation: string)
-    }
-    
-    private func processSingleLiveEvent(eventData: Data, dataStringRepresentation: String) {
+    private func processSingleLiveEvent(eventData: Data) {
         if let event = try? decoder.decode(FbSimCtlCreateEndedEvent.self, from: eventData) {
             Logger.verboseDebug("Parsed event: \(event)", processController.subprocessInfo)
             receivedEvents.withExclusiveAccess { $0.append(event) }
@@ -103,17 +94,18 @@ public final class FbsimctlOutputProcessor: JSONReaderEventStream {
             receivedEvents.withExclusiveAccess { $0.append(event) }
             Logger.verboseDebug("Parsed event: \(event)", processController.subprocessInfo)
         } catch {
-            Logger.error("Failed to parse event: '\(dataStringRepresentation)': \(error)", processController.subprocessInfo)
+            let dataStringRepresentation = String(data: eventData, encoding: .utf8)
+            Logger.error("Failed to parse event: '\(String(describing: dataStringRepresentation))': \(error)", processController.subprocessInfo)
         }
     }
     
     // MARK: - JSONReaderEventStream
     
-    public func newArray(_ array: NSArray, scalars: [Unicode.Scalar]) {
-        processSingleLiveEvent(scalars)
+    public func newArray(_ array: NSArray, data: Data) {
+        processSingleLiveEvent(eventData: data)
     }
     
-    public func newObject(_ object: NSDictionary, scalars: [Unicode.Scalar]) {
-        processSingleLiveEvent(scalars)
+    public func newObject(_ object: NSDictionary, data: Data) {
+        processSingleLiveEvent(eventData: data)
     }
 }

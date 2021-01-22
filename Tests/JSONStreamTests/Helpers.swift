@@ -2,20 +2,21 @@ import Foundation
 import JSONStream
 
 class FakeJSONStream: JSONStream {
-    var data: [Unicode.Scalar]
+    var data: [UInt8]
     var isClosed = false
     
     public init(string: String) {
-        data = Array(string.unicodeScalars).reversed()
+        let stringData = string.data(using: .utf8) ?? Data()
+        data = [UInt8](stringData).reversed()
     }
     
-    func read() -> Unicode.Scalar? {
+    func read() -> UInt8? {
         guard let last = data.last else { return nil }
         data.removeLast()
         return last
     }
     
-    func touch() -> Unicode.Scalar? {
+    func touch() -> UInt8? {
         return data.last
     }
     
@@ -28,19 +29,19 @@ class FakeEventStream: JSONReaderEventStream {
     var all = [NSObject]()
     var allObjects = [NSDictionary]()
     var allArrays = [NSArray]()
-    var allScalars = [[Unicode.Scalar]]()
+    var allData = [Data]()
     
     public init() {}
     
-    func newArray(_ array: NSArray, scalars: [Unicode.Scalar]) {
+    func newArray(_ array: NSArray, data: Data) {
         all.append(array)
         allArrays.append(array)
-        allScalars.append(scalars)
+        allData.append(data)
     }
     
-    func newObject(_ object: NSDictionary, scalars: [Unicode.Scalar]) {
+    func newObject(_ object: NSDictionary, data: Data) {
         all.append(object)
         allObjects.append(object)
-        allScalars.append(scalars)
+        allData.append(data)
     }
 }

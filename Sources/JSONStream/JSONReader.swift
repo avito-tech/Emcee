@@ -11,19 +11,33 @@ public final class JSONReader {
     let anyCharacterSet = CharacterSet([]).inverted
     let numberChars = CharacterSet(charactersIn: "-1234567890")
     let whiteCharacters = CharacterSet.whitespacesAndNewlines
-    public private(set) var collectedScalars = [Unicode.Scalar]()
+    public private(set) var collectedBytes = [UInt8]()
     
     enum `Error`: Swift.Error {
-        case unexpectedCharacter(Unicode.Scalar)
-        case unexpectedCharacters([Unicode.Scalar], expected: [Unicode.Scalar])
+        case unexpectedCharacter(UInt8)
+        case unexpectedCharacters([UInt8], expected: [UInt8])
         case streamHasNoData
         case streamEndedAtRootContext
         case unexpectedEndOfStream
         case invalidData
-        case invalidNumberValue(String)
+        case invalidStringData(Data)
+        case invalidNumberValue(Data)
         case arrayCannotHaveKeys(parent: ParsingContext, child: ParsingContext)
         case objectMustHaveKey(parent: ParsingContext, child: ParsingContext)
         case unhandledContextCombination(parent: ParsingContext, child: ParsingContext)
+    }
+    
+    enum SpecialSymbols {
+        static let quotationMark: UInt8 = 0x22 // "
+        static let leftSquareBracket: UInt8 = 0x5b // [
+        static let leftCurlyBracket: UInt8 = 0x7b // {
+        static let rightSquareBracket: UInt8 = 0x5d // ]
+        static let rightCurlyBracket: UInt8 = 0x7d // }
+        static let comma: UInt8 = 0x2c // ,
+        static let colon: UInt8 = 0x3a // :
+        static let reverseSolidus: UInt8 = 0x5c // \
+        static let digits: ClosedRange<UInt8> = 0x30 ... 0x39 // 0123456789
+        static let hypenMinus: UInt8 = 0x2d // -
     }
     
     public init(inputStream: JSONStream, eventStream: JSONReaderEventStream) {
@@ -57,11 +71,11 @@ public final class JSONReader {
             case .inArray(let key, let storage):
                 try validateArrayContext(key, storage)
             case .inKey(let keyStorage):
-                try validateKeyContext(keyStorage)
+                try validateKeyContext(keyStorage as Data)
             case .inValue(let key):
                 try validateValueForKeyContext(key)
-            case .inStringValue(_, let storage):
-                try validateStringContext(storage)
+            case .inStringValue(_, let mutableData):
+                try validateStringContext(mutableData)
             case .inStringObject(let storage):
                 try validateStringContext(storage)
             case .inNullValue(_):
@@ -78,15 +92,15 @@ public final class JSONReader {
     
     private func validateRootContext() throws {
         let readResult = read(untilAnyCharacterFrom: anyCharacterSet, ignoreCharacters: whiteCharacters)
-        guard let scalar = readResult.matchingScalar else { throw Error.streamEndedAtRootContext }
+        guard let byte = readResult.matchingByte else { throw Error.streamEndedAtRootContext }
         
-        switch scalar {
-        case "[":
+        switch byte {
+        case SpecialSymbols.leftSquareBracket:
             pushContext(.inArray(key: nil, storage: NSMutableArray()))
-        case "{":
+        case SpecialSymbols.leftCurlyBracket:
             pushContext(.inObject(key: nil, storage: NSMutableDictionary()))
         default:
-            throw Error.unexpectedCharacter(scalar)
+            throw Error.unexpectedCharacter(byte)
         }
     }
     
@@ -97,42 +111,46 @@ public final class JSONReader {
         // {  "key": "value"}, {"key": []}, {"key": {}  }
         //  ^
         let readResult = read(untilAnyCharacterFrom: anyCharacterSet, ignoreCharacters: whiteCharacters)
-        guard let scalar = readResult.matchingScalar else { throw Error.streamHasNoData }
+        guard let byte = readResult.matchingByte else { throw Error.streamHasNoData }
         
-        switch scalar {
-        case "}":
+        switch byte {
+        case SpecialSymbols.rightCurlyBracket:
             if !expectingAnotherKeyValue {
                 try popContext()
             } else {
-                throw Error.unexpectedCharacter(scalar)
+                throw Error.unexpectedCharacter(byte)
             }
-        case "\"":
-            pushContext(.inKey(NSMutableString()))
-        case ",":
+        case SpecialSymbols.quotationMark:
+            pushContext(.inKey(NSMutableData()))
+        case SpecialSymbols.comma:
             if storage.count == 0 || expectingAnotherKeyValue {
-                throw Error.unexpectedCharacter(scalar)
-            } 
+                throw Error.unexpectedCharacter(byte)
+            }
             try validateObjectContext(key, storage, expectingAnotherKeyValue: true)
         default:
-            throw Error.unexpectedCharacter(scalar)
+            throw Error.unexpectedCharacter(byte)
         }
     }
     
-    private func validateKeyContext(_ keyStorage: NSMutableString) throws {
+    private func validateKeyContext(_ keyStorage: Data) throws {
         // "key" :
         //  ^ we're here
         var readResult = read(untilAnyCharacterFrom: CharacterSet(["\""]))
-        guard readResult.matchingScalar == "\"" else { throw Error.streamHasNoData }
-        var key = ""
-        key.unicodeScalars.append(contentsOf: readResult.passedScalars)
-        keyStorage.setString(key)
+        guard readResult.matchingByte == SpecialSymbols.quotationMark else { throw Error.streamHasNoData }
+        
+        var keyData = Data()
+        keyData.append(contentsOf: readResult.passedBytes)
         
         // "key" :
         //      ^ we're here
         readResult = read(untilAnyCharacterFrom: CharacterSet([":"]), ignoreCharacters: whiteCharacters)
-        guard readResult.passedScalars.isEmpty else { throw Error.unexpectedCharacter(readResult.passedScalars[0]) }
-        guard let scalar = readResult.matchingScalar else { throw Error.streamHasNoData }
-        guard scalar == ":" else { throw Error.unexpectedCharacter(scalar) }
+        guard readResult.passedBytes.isEmpty else { throw Error.unexpectedCharacter(readResult.passedBytes[0]) }
+        guard let byte = readResult.matchingByte else { throw Error.streamHasNoData }
+        guard byte == SpecialSymbols.colon else { throw Error.unexpectedCharacter(byte) }
+        
+        guard let key = String(data: keyData, encoding: .utf8) else {
+            throw Error.invalidStringData(keyData)
+        }
         
         try popContext()
         pushContext(.inValue(key: key))
@@ -142,47 +160,48 @@ public final class JSONReader {
         // "key":  _____
         //       ^ we're here
         let readResult = read(untilAnyCharacterFrom: anyCharacterSet, ignoreCharacters: whiteCharacters)
-        guard let scalar = readResult.matchingScalar else { throw Error.streamHasNoData }
+        guard let byte = readResult.matchingByte else { throw Error.streamHasNoData }
         
         try popContext()
         
-        switch scalar {
-        case "[":
+        switch byte {
+        case SpecialSymbols.leftSquareBracket:
             pushContext(.inArray(key: key, storage: NSMutableArray()))
-        case "{":
+        case SpecialSymbols.leftCurlyBracket:
             pushContext(.inObject(key: key, storage: NSMutableDictionary()))
-        case "\"":
-            pushContext(.inStringValue(key: key, storage: NSMutableString()))
-        case "n":
+        case SpecialSymbols.quotationMark:
+            pushContext(.inStringValue(key: key, storage: NSMutableData()))
+        case 0x6e: // "n"
             pushContext(.inNullValue(key: key))
-        case "t":
+        case 0x74: // "t"
             pushContext(.inTrueValue(key: key))
-        case "f":
+        case 0x66: // "f"
             pushContext(.inFalseValue(key: key))
-        case numberChars.contains(scalar) ? scalar : nil:
-            pushContext(.inNumericValue(key: key, storage: NumericStorage(String(scalar))))
+        case SpecialSymbols.digits, SpecialSymbols.hypenMinus:
+            pushContext(.inNumericValue(key: key, storage: NumericStorage(Data([byte]))))
         default:
-            throw Error.unexpectedCharacter(scalar)
+            throw Error.unexpectedCharacter(byte)
         }
     }
     
-    private func validateStringContext(_ storage: NSMutableString) throws {
+    private func validateStringContext(_ storage: NSMutableData) throws {
         // "some string"
         //  ^ we're here
-        var string = ""
+        var data = Data()
         var expectedEscapedValue = false
         while true {
-            guard let scalar = readScalar() else { throw Error.streamHasNoData }
-            if scalar == "\\" && !expectedEscapedValue {
+            guard let byte = readByte() else { throw Error.streamHasNoData }
+            
+            if byte == SpecialSymbols.reverseSolidus && !expectedEscapedValue {
                 expectedEscapedValue = true
             } else if expectedEscapedValue {
                 expectedEscapedValue = false
-            } else if !expectedEscapedValue && scalar == "\"" {
+            } else if !expectedEscapedValue && byte == SpecialSymbols.quotationMark {
                 break
             }
-            string.unicodeScalars.append(scalar)
+            data.append(byte)
         }
-        storage.setString(string)
+        storage.setData(data)
         
         try popContext()
     }
@@ -198,58 +217,58 @@ public final class JSONReader {
         expectedChars.formUnion(numberChars)
         
         let readResult = read(untilAnyCharacterFrom: expectedChars, ignoreCharacters: whiteCharacters)
-        guard readResult.passedScalars.isEmpty else { throw Error.unexpectedCharacter(readResult.passedScalars[0]) }
-        guard let scalar = readResult.matchingScalar else { throw Error.streamHasNoData }
+        guard readResult.passedBytes.isEmpty else { throw Error.unexpectedCharacter(readResult.passedBytes[0]) }
+        guard let byte = readResult.matchingByte else { throw Error.streamHasNoData }
         
-        switch scalar {
-        case "]":
+        switch byte {
+        case SpecialSymbols.rightSquareBracket:
             if !expectingAnotherObject {
                 try popContext()
             } else {
-                throw Error.unexpectedCharacter(scalar)
+                throw Error.unexpectedCharacter(byte)
             }
-        case "\"":
-            pushContext(.inStringObject(storage: NSMutableString()))
-        case "{":
+        case SpecialSymbols.quotationMark:
+            pushContext(.inStringObject(storage: NSMutableData()))
+        case SpecialSymbols.leftCurlyBracket:
             pushContext(.inObject(key: nil, storage: NSMutableDictionary()))
-        case "[":
+        case SpecialSymbols.leftSquareBracket:
             pushContext(.inArray(key: nil, storage: NSMutableArray()))
-        case ",":
+        case SpecialSymbols.comma:
             if storage.count == 0 || expectingAnotherObject {
-                throw Error.unexpectedCharacter(scalar)
+                throw Error.unexpectedCharacter(byte)
             }
             try validateArrayContext(key, storage, expectingAnotherObject: true)
-        case "n":
+        case 0x6E: // "n"
             pushContext(.inNullValue(key: nil))
-        case "t":
+        case 0x74: // "t"
             pushContext(.inTrueValue(key: nil))
-        case "f":
+        case 0x66: // "f"
             pushContext(.inFalseValue(key: nil))
-        case numberChars.contains(scalar) ? scalar : nil:
-            pushContext(.inNumericValue(key: nil, storage: NumericStorage(String(scalar))))
+        case SpecialSymbols.digits, SpecialSymbols.hypenMinus:
+            pushContext(.inNumericValue(key: nil, storage: NumericStorage(Data([byte]))))
         default:
-            throw Error.unexpectedCharacter(scalar)
+            throw Error.unexpectedCharacter(byte)
         }
     }
     
     private func validateNullContext() throws {
         // null
         //  ^
-        try readAndValidateScalars(["u", "l", "l"])
+        try readAndValidateBytes([0x75, 0x6C, 0x6C])
         try popContext()
     }
     
     private func validateTrueContext() throws {
         // true
         //  ^
-        try readAndValidateScalars(["r", "u", "e"])
+        try readAndValidateBytes([0x72, 0x75, 0x65])
         try popContext()
     }
     
     private func validateFalseContext() throws {
         // false
         //  ^
-        try readAndValidateScalars(["a", "l", "s", "e"])
+        try readAndValidateBytes([0x61, 0x6C, 0x73, 0x65])
         try popContext()
     }
     
@@ -268,39 +287,42 @@ public final class JSONReader {
         let readBreakers = Set<Unicode.Scalar>([",", endOfContainerContextScalar])
         
         while true {
-            guard let nextScalar = inputStream.touch() else { throw Error.streamHasNoData }
+            guard let nextByte = inputStream.touch() else { throw Error.streamHasNoData }
+            let nextScalar = Unicode.Scalar(nextByte)
             if readBreakers.contains(nextScalar) || whiteCharacters.contains(nextScalar) { break }
             
-            guard let scalar = readScalar() else { throw Error.streamHasNoData }
-            storage.string.append(String(scalar))
+            guard let byte = readByte() else { throw Error.streamHasNoData }
+            storage.bytes.append(byte)
         }
         
-        let stringRepresentation = String(storage.string)
+        guard let stringRepresentation = String(data: Data(storage.bytes), encoding: .utf8) else {
+            throw Error.invalidNumberValue(storage.bytes)
+        }
         storage.parsedNumber = try NumberValidator.validateStringRepresentationOfNumber(stringRepresentation)
         
         try popContext()
     }
     
-    private func read(times: Int) throws -> [Unicode.Scalar] {
-        var result = [Unicode.Scalar]()
+    private func read(times: Int) throws -> [UInt8] {
+        var result = [UInt8]()
         for _ in 0 ..< times {
-            guard let scalar = readScalar() else { throw Error.streamHasNoData }
-            result.append(scalar)
+            guard let byte = readByte() else { throw Error.streamHasNoData }
+            result.append(byte)
         }
         return result
     }
     
-    private func readAndValidateScalars(_ expectedScalars: [Unicode.Scalar]) throws {
-        let actualScalars = try read(times: expectedScalars.count)
-        guard actualScalars == expectedScalars else {
-            throw Error.unexpectedCharacters(actualScalars, expected: expectedScalars)
+    private func readAndValidateBytes(_ expectedBytes: [UInt8]) throws {
+        let actualBytes = try read(times: expectedBytes.count)
+        guard actualBytes == expectedBytes else {
+            throw Error.unexpectedCharacters(actualBytes, expected: expectedBytes)
         }
     }
     
-    private func readScalar() -> Unicode.Scalar? {
-        guard let scalar = inputStream.read() else { return nil }
-        collectedScalars.append(scalar)
-        return scalar
+    private func readByte() -> UInt8? {
+        guard let byte = inputStream.read() else { return nil }
+        collectedBytes.append(byte)
+        return byte
     }
     
     /*
@@ -312,20 +334,21 @@ public final class JSONReader {
     private func read(
         untilAnyCharacterFrom characterSet: CharacterSet,
         ignoreCharacters: CharacterSet? = nil)
-        -> (passedScalars: [Unicode.Scalar], matchingScalar: Unicode.Scalar?)
+        -> (passedBytes: [UInt8], matchingByte: UInt8?)
     {
-        var passedScalars = [Unicode.Scalar]()
+        var passedBytes = [UInt8]()
         while true {
-            guard let inputScalar = readScalar() else { break }
+            guard let inputByte = readByte() else { break }
+            let inputScalar = Unicode.Scalar(inputByte)
             if ignoreCharacters?.contains(inputScalar) == true { continue }
             
             if characterSet.contains(inputScalar) {
-                return (passedScalars: passedScalars, matchingScalar: inputScalar)
+                return (passedBytes: passedBytes, matchingByte: inputByte)
             } else {
-                passedScalars.append(inputScalar)
+                passedBytes.append(inputByte)
             }
         }
-        return (passedScalars: passedScalars, matchingScalar: nil)
+        return (passedBytes: passedBytes, matchingByte: nil)
     }
     
     // MARK: - Context
@@ -350,9 +373,10 @@ public final class JSONReader {
             break
         case (.inValue(_), .inObject(_, _)):
             break
-        case (.inStringValue(let key, let stringValue), .inObject(_, let object)):
+        case (.inStringValue(let key, let data), .inObject(_, let object)):
             // case: {"key": "stringValue"}
             guard let key = key else { throw Error.objectMustHaveKey(parent: currentContext, child: popedContext) }
+            guard let stringValue = String(data: data as Data, encoding: .utf8) else { throw Error.invalidStringData(Data(data)) }
             object[key] = stringValue
         case (.inObject(let key, let objectValue), .inObject(_, let object)):
             // case: {"key": {...}}
@@ -377,15 +401,16 @@ public final class JSONReader {
         case (.inNumericValue(let key, let storage), .inObject(_, let object)):
             // case: {"key": -123.45e-3}
             guard let key = key else { throw Error.objectMustHaveKey(parent: currentContext, child: popedContext) }
-            guard let parsedNumber = storage.parsedNumber else { throw Error.invalidNumberValue(String(storage.string)) }
+            guard let parsedNumber = storage.parsedNumber else { throw Error.invalidNumberValue(storage.bytes) }
             object[key] = parsedNumber
             
             /**
              * When parent context is array
              */
-        case (.inStringObject(let string), .inArray(_, let array)):
+        case (.inStringObject(let data), .inArray(_, let array)):
+            guard let stringValue = String(data: data as Data, encoding: .utf8) else { throw Error.invalidStringData(Data(data)) }
             // case: ["string"]
-            array.add(string)
+            array.add(stringValue)
         case (.inObject(let key, let object), .inArray(_, let array)):
             // case: [{}]
             // arrays do not have keys so key must be nil
@@ -414,18 +439,18 @@ public final class JSONReader {
         case (.inNumericValue(let key, let storage), .inArray(_, let array)):
             // case: [-123.45e-3]
             // arrays do not have keys so key must be nil
-            guard key == nil, let parsedNumber = storage.parsedNumber else { throw Error.invalidNumberValue(String(storage.string)) }
+            guard key == nil, let parsedNumber = storage.parsedNumber else { throw Error.invalidNumberValue(storage.bytes) }
             array.add(parsedNumber)
             
             /**
              * When parent context is root, we expect specific child contexts
              */
         case (.inObject(_, let object), .root):
-            eventStream.newObject(NSDictionary(dictionary: object), scalars: collectedScalars)
-            collectedScalars.removeAll()
+            eventStream.newObject(NSDictionary(dictionary: object), data: Data(collectedBytes))
+            collectedBytes.removeAll()
         case (.inArray(_, let array), .root):
-            eventStream.newArray(NSArray(array: array), scalars: collectedScalars)
-            collectedScalars.removeAll()
+            eventStream.newArray(NSArray(array: array), data: Data(collectedBytes))
+            collectedBytes.removeAll()
         default:
             throw Error.unhandledContextCombination(parent: currentContext, child: popedContext)
         }

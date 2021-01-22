@@ -7,37 +7,37 @@ class BlockingArrayBasedJSONStreamTests: XCTestCase {
         let readQueue = OperationQueue()
         let writeQeuue = OperationQueue()
         let stream = BlockingArrayBasedJSONStream()
-        stream.append(scalars: ["1"])
+        stream.append(string: "1")
         
-        var scalar: Unicode.Scalar?
+        var byte: UInt8?
         readQueue.addOperation {
-            scalar = stream.read()
+            byte = stream.read()
             // next call will block until writeQueue updates the stream with new data
-            scalar = stream.read()
+            byte = stream.read()
         }
         
         writeQeuue.addOperation {
             Thread.sleep(forTimeInterval: 0.3)
-            stream.append(scalars: ["2"])
+            stream.append(string: "2")
         }
         
         readQueue.waitUntilAllOperationsAreFinished()
         writeQeuue.waitUntilAllOperationsAreFinished()
         
-        XCTAssertEqual(scalar, "2")
+        XCTAssertEqual(byte, 0x32)
     }
     
     func testReadBlocksUntilFlagFlips() {
         let readQueue = OperationQueue()
         let writeQeuue = OperationQueue()
         let stream = BlockingArrayBasedJSONStream()
-        stream.append(scalars: ["1"])
+        stream.append(string: "1")
         
-        var scalar: Unicode.Scalar?
+        var byte: UInt8?
         readQueue.addOperation {
-            scalar = stream.read()  // == 1
+            byte = stream.read()  // == 1
             // next call will block until writeQueue flips the flag that data is over
-            scalar = stream.read()
+            byte = stream.read()
         }
         
         writeQeuue.addOperation {
@@ -48,7 +48,7 @@ class BlockingArrayBasedJSONStreamTests: XCTestCase {
         readQueue.waitUntilAllOperationsAreFinished()
         writeQeuue.waitUntilAllOperationsAreFinished()
         
-        XCTAssertNil(scalar)
+        XCTAssertNil(byte)
     }
     
     func testReadBlocksMultipleThreadsUntilNewDataComes() {
@@ -57,24 +57,24 @@ class BlockingArrayBasedJSONStreamTests: XCTestCase {
         let writeQeuue = OperationQueue()
         let stream = BlockingArrayBasedJSONStream()
         
-        var scalar1: Unicode.Scalar?
-        var scalar2: Unicode.Scalar?
+        var byte1: UInt8?
+        var byte2: UInt8?
         
-        readQueue1.addOperation { scalar1 = stream.read() }
-        readQueue2.addOperation { scalar2 = stream.read() }
+        readQueue1.addOperation { byte1 = stream.read() }
+        readQueue2.addOperation { byte2 = stream.read() }
         
         writeQeuue.addOperation {
             Thread.sleep(forTimeInterval: 0.3)
-            stream.append(scalars: ["1", "2"])
+            stream.append(string: "12")
         }
         
         readQueue1.waitUntilAllOperationsAreFinished()
         readQueue2.waitUntilAllOperationsAreFinished()
         writeQeuue.waitUntilAllOperationsAreFinished()
         
-        // both scalar1 and scalar2 might have "1" or "2" values depending on the order of execution of the operations
-        XCTAssertNotNil(scalar1)
-        XCTAssertNotNil(scalar2)
-        XCTAssertNotEqual(scalar1, scalar2)
+        // both byte1 and byte2 might have "1" or "2" values depending on the order of execution of the operations
+        XCTAssertNotNil(byte1)
+        XCTAssertNotNil(byte2)
+        XCTAssertNotEqual(byte1, byte2)
     }
 }

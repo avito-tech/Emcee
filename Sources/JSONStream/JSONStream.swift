@@ -4,9 +4,9 @@ import Foundation
 /// rather than having the whole JSON object availbla to parse upfront.
 public protocol JSONStream {
     /// Provides back a next scalar without actually moving a pointer. Returns nil if no more data avaiable.
-    func touch() -> Unicode.Scalar?
+    func touch() -> UInt8?
     /// Moves a pointer to the next scalar and provides it back. Returns nil if no more data avaiable.
-    func read() -> Unicode.Scalar?
+    func read() -> UInt8?
     /// Closes the stream.
     func close()
 }

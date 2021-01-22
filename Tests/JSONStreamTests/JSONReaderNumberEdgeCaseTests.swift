@@ -3,11 +3,7 @@ import JSONStream
 import XCTest
 
 class JSONReaderNumberEdgeCaseTests: XCTestCase {
-    
-    var eventStream = FakeEventStream()
-    override func setUp() {
-        eventStream = FakeEventStream()
-    }
+    let eventStream = FakeEventStream()
     
     func testNumberJustMinusShouldFail() throws {
         let jsonStream = FakeJSONStream(string: "[-]")

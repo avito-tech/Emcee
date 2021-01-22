@@ -1,13 +1,11 @@
 import Foundation
 
 final class NumericStorage {
-    let string = NSMutableString()
+    var bytes = Data()
     var parsedNumber: NSNumber?
     
-    public init(_ initialString: String?) {
-        if let initialString = initialString {
-            string.append(initialString)
-        }
+    public init(_ initialBytes: Data) {
+        bytes = initialBytes
     }
 }
 
@@ -15,10 +13,10 @@ enum ParsingContext: CustomStringConvertible {
     case root
     case inObject(key: String?, storage: NSMutableDictionary)
     case inArray(key: String?, storage: NSMutableArray)
-    case inKey(NSMutableString)
+    case inKey(NSMutableData)
     case inValue(key: String)
-    case inStringObject(storage: NSMutableString)
-    case inStringValue(key: String?, storage: NSMutableString)
+    case inStringObject(storage: NSMutableData)
+    case inStringValue(key: String?, storage: NSMutableData)
     case inNullValue(key: String?)
     case inTrueValue(key: String?)
     case inFalseValue(key: String?)

@@ -53,9 +53,9 @@ final class FbsimctlOutputProcessorTests: XCTestCase {
         
         impactQueue.async {
             self.appendableJsonStream.append(
-                scalars: Array("""
+                string: """
                 {"event_name":"create","timestamp":1572010777,"subject":{"name":"iPhone X","arch":"x86_64","os":"iOS 12.1","container-pid":0,"model":"iPhone X","udid":"BC53B27F-E0E2-4996-80D9-EE7B5E9BE05B","state":"Shutdown","pid":0},"event_type":"ended"}
-                """.unicodeScalars)
+                """
             )
         }
         
@@ -189,7 +189,7 @@ final class FbsimctlOutputProcessorTests: XCTestCase {
         """
         
         impactQueue.async {
-            self.appendableJsonStream.append(scalars: Array(contents.unicodeScalars))
+            self.appendableJsonStream.append(string: contents)
         }
         
         wait(for: [workExpectation], timeout: 60.0)

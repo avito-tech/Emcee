@@ -3,11 +3,7 @@ import JSONStream
 import XCTest
 
 class JSONReaderTests: XCTestCase {
-    
-    var eventStream = FakeEventStream()
-    override func setUp() {
-        eventStream = FakeEventStream()
-    }
+    let eventStream = FakeEventStream()
     
     func testEmptyObject() throws {
         let jsonStream = FakeJSONStream(string: "{}")
@@ -300,9 +296,8 @@ class JSONReaderTests: XCTestCase {
         let reader = JSONReader(inputStream: jsonStream, eventStream: eventStream)
         try reader.start()
         
-        XCTAssertEqual(eventStream.allScalars.count, 1)
-        var string = String()
-        string.unicodeScalars.append(contentsOf: eventStream.allScalars[0])
+        XCTAssertEqual(eventStream.allData.count, 1)
+        let string = String(data: Data(eventStream.allData[0]), encoding: .utf8)
         XCTAssertEqual(string, "[[\"obj\"]]")
     }
 }
