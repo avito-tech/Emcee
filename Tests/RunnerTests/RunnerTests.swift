@@ -178,6 +178,30 @@ public final class RunnerTests: XCTestCase {
         )
     }
     
+    func test___if_test_runner_fails_to_run___test_runner_stream_is_closed() throws {
+        let eventExpectation = expectation(description: "didRun event has been sent")
+        
+        noOpPluginEventBusProvider.eventBus.add(
+            stream: BlockBasedEventStream { (busEvent: BusEvent) in
+                switch busEvent {
+                case let .runnerEvent(runnerEvent):
+                    switch runnerEvent {
+                    case .didRun:
+                        eventExpectation.fulfill()
+                    case .willRun, .testStarted, .testFinished:
+                        break
+                    }
+                case .tearDown:
+                    break
+                }
+            }
+        )
+        
+        _ = try runTestEntries([testEntry])
+
+        wait(for: [eventExpectation], timeout: 15)
+    }
+    
     func test___if_test_timeout___test_timeout_reason_reported() throws {
         testTimeout = 1
         testRunnerProvider.predefinedFakeTestRunner.disableTestStoppedTestRunnerStreamEvents()

@@ -322,9 +322,9 @@ public final class Runner {
     private func cleanUpDeadCache(simulator: Simulator) {
         let deadCachePath = simulator.path.appending(relativePath: RelativePath("data/Library/Caches/com.apple.containermanagerd/Dead"))
         do {
-            if FileManager.default.fileExists(atPath: deadCachePath.pathString) {
+            if try fileSystem.properties(forFileAtPath: deadCachePath).exists() {
                 Logger.debug("Will attempt to clean up simulator dead cache at: \(deadCachePath)")
-                try FileManager.default.removeItem(at: deadCachePath.fileUrl)
+                try fileSystem.delete(fileAtPath: deadCachePath)
             }
         } catch {
             Logger.warning("Failed to delete dead cache at \(deadCachePath): \(error)")
@@ -350,6 +350,7 @@ public final class Runner {
                 )
             )
         }
+        testRunnerStream.closeStream()
         return NoOpTestRunnerInvocation()
     }
     
