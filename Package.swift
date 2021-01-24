@@ -1571,6 +1571,51 @@ let package = Package(
             path: "Tests/ResourceLocationTests"
         ),
         .target(
+            // MARK: ResultStream
+            name: "ResultStream",
+            dependencies: [
+                "DateProvider",
+                "JSONStream",
+                "Logging",
+                "PathLib",
+                "ResultStreamModels",
+                "Runner",
+                "RunnerModels",
+            ],
+            path: "Sources/ResultStream"
+        ),
+        .target(
+            // MARK: ResultStreamModels
+            name: "ResultStreamModels",
+            dependencies: [
+                "RunnerModels",
+            ],
+            path: "Sources/ResultStreamModels"
+        ),
+        .testTarget(
+            // MARK: ResultStreamModelsTests
+            name: "ResultStreamModelsTests",
+            dependencies: [
+                "ResultStreamModels",
+                "TestHelpers",
+            ],
+            path: "Tests/ResultStreamModelsTests"
+        ),
+        .testTarget(
+            // MARK: ResultStreamTests
+            name: "ResultStreamTests",
+            dependencies: [
+                "DateProviderTestHelpers",
+                "ResultStream",
+                "ResultStreamModels",
+                "RunnerModels",
+                "RunnerTestHelpers",
+                "SynchronousWaiter",
+                "TestHelpers",
+            ],
+            path: "Tests/ResultStreamTests"
+        ),
+        .target(
             // MARK: Runner
             name: "Runner",
             dependencies: [
