@@ -192,7 +192,8 @@ public final class RunTestsOnRemoteQueueCommand: Command {
                 tempFolder: try di.get(),
                 testRunnerProvider: try di.get(),
                 uniqueIdentifierGenerator: try di.get(),
-                version: version
+                version: version,
+                waiter: try di.get()
             ),
             for: TestDiscoveryQuerier.self
         )

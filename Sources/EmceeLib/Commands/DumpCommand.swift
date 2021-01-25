@@ -89,7 +89,8 @@ public final class DumpCommand: Command {
                 tempFolder: try di.get(),
                 testRunnerProvider: try di.get(),
                 uniqueIdentifierGenerator: try di.get(),
-                version: emceeVersion
+                version: emceeVersion,
+                waiter: try di.get()
             ),
             for: TestDiscoveryQuerier.self
         )

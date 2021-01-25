@@ -179,23 +179,7 @@ public final class RunnerTests: XCTestCase {
     }
     
     func test___if_test_runner_fails_to_run___test_runner_stream_is_closed() throws {
-        let eventExpectation = expectation(description: "didRun event has been sent")
-        
-        noOpPluginEventBusProvider.eventBus.add(
-            stream: BlockBasedEventStream { (busEvent: BusEvent) in
-                switch busEvent {
-                case let .runnerEvent(runnerEvent):
-                    switch runnerEvent {
-                    case .didRun:
-                        eventExpectation.fulfill()
-                    case .willRun, .testStarted, .testFinished:
-                        break
-                    }
-                case .tearDown:
-                    break
-                }
-            }
-        )
+        let eventExpectation = expectationForDidRunEvent()
         
         _ = try runTestEntries([testEntry])
 
@@ -232,6 +216,53 @@ public final class RunnerTests: XCTestCase {
         )
     }
     
+    func test___runner_waits_for_stream_to_close() throws {
+        let streamIsStillOpenExpectation = expectationForDidRunEvent()
+        streamIsStillOpenExpectation.expectationDescription = "Stream is still open (hasn't been closed)"
+        streamIsStillOpenExpectation.isInverted = true
+        
+        let streamClosedExpectation = expectationForDidRunEvent()
+        
+        
+        let handlerInvokedExpectation = XCTestExpectation(description: "stream close handler called")
+        
+        testRunnerProvider.predefinedFakeTestRunner.onStreamClose = { testRunnerStream in
+            self.wait(for: [streamIsStillOpenExpectation], timeout: 5)
+            
+            testRunnerStream.closeStream()
+            
+            self.wait(for: [streamClosedExpectation], timeout: 5)
+            
+            handlerInvokedExpectation.fulfill()
+        }
+        
+        _ = try runTestEntries([testEntry])
+        
+        wait(for: [handlerInvokedExpectation], timeout: 5)
+    }
+    
+    private func expectationForDidRunEvent() -> XCTestExpectation {
+        let eventExpectation = XCTestExpectation(description: "didRun event has been sent")
+        
+        noOpPluginEventBusProvider.eventBus.add(
+            stream: BlockBasedEventStream { (busEvent: BusEvent) in
+                switch busEvent {
+                case let .runnerEvent(runnerEvent):
+                    switch runnerEvent {
+                    case .didRun:
+                        eventExpectation.fulfill()
+                    case .willRun, .testStarted, .testFinished:
+                        break
+                    }
+                case .tearDown:
+                    break
+                }
+            }
+        )
+        
+        return eventExpectation
+    }
+    
     private func runTestEntries(_ testEntries: [TestEntry]) throws -> RunnerRunResult {
         let runner = Runner(
             configuration: createRunnerConfig(),
@@ -245,7 +276,8 @@ public final class RunnerTests: XCTestCase {
             testTimeoutCheckInterval: .milliseconds(100),
             version: Version(value: "version"),
             persistentMetricsJobId: "",
-            metricRecorder: NoOpMetricRecorder()
+            metricRecorder: NoOpMetricRecorder(),
+            waiter: SynchronousWaiter()
         )
         return try runner.run(
             entries: testEntries,

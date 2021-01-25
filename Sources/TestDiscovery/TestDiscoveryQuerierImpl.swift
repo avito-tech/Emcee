@@ -33,6 +33,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     private let testRunnerProvider: TestRunnerProvider
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let version: Version
+    private let waiter: Waiter
     
     public init(
         dateProvider: DateProvider,
@@ -46,7 +47,8 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         tempFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
-        version: Version
+        version: Version,
+        waiter: Waiter
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
@@ -60,6 +62,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         self.testRunnerProvider = testRunnerProvider
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.version = version
+        self.waiter = waiter
     }
     
     public func query(configuration: TestDiscoveryConfiguration) throws -> TestDiscoveryResult {
@@ -250,6 +253,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             testType: testType,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             version: version,
+            waiter: waiter,
             metricRecorder: metricRecorder
         )
     }

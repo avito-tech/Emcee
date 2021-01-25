@@ -15,6 +15,7 @@ import QueueModels
 import ResourceLocationResolver
 import RunnerModels
 import SimulatorPoolModels
+import SynchronousWaiter
 import TemporaryStuff
 import TestsWorkingDirectorySupport
 
@@ -30,6 +31,7 @@ public final class Runner {
     private let tempFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
     private let testTimeoutCheckInterval: DispatchTimeInterval
+    private let waiter: Waiter
     
     public init(
         configuration: RunnerConfiguration,
@@ -43,7 +45,8 @@ public final class Runner {
         testTimeoutCheckInterval: DispatchTimeInterval = .seconds(1),
         version: Version,
         persistentMetricsJobId: String,
-        metricRecorder: MetricRecorder
+        metricRecorder: MetricRecorder,
+        waiter: Waiter
     ) {
         self.configuration = configuration
         self.dateProvider = dateProvider
@@ -61,6 +64,7 @@ public final class Runner {
         self.tempFolder = tempFolder
         self.testRunnerProvider = testRunnerProvider
         self.testTimeoutCheckInterval = testTimeoutCheckInterval
+        self.waiter = waiter
     }
     
     /** Runs the given tests, attempting to restart the runner in case of crash. */
@@ -165,6 +169,7 @@ public final class Runner {
         )
         
         let testRunnerRunningInvocationContainer = AtomicValue<TestRunnerRunningInvocation?>(nil)
+        let streamClosedCallback: CallbackWaiter<()> = waiter.createCallbackWaiter()
         
         let testRunnerStream = CompositeTestRunnerStream(
             testRunnerStreams: [
@@ -222,6 +227,7 @@ public final class Runner {
                     },
                     onCloseStream: {
                         Logger.debug("Finished executing tests", testRunnerRunningInvocationContainer.currentValue()?.subprocessInfo)
+                        streamClosedCallback.set(result: ())
                     }
                 ),
             ]
@@ -248,8 +254,8 @@ public final class Runner {
             standardStreamsCaptureConfig: runningInvocation.output,
             subprocessInfo: runningInvocation.subprocessInfo
         )
-        runnerSilenceTracker.whileTracking {
-            runningInvocation.wait()
+        try runnerSilenceTracker.whileTracking {
+            try streamClosedCallback.wait(timeout: .infinity, description: "Test Runner Stream Close")
         }
         
         let result = Runner.prepareResults(
@@ -336,6 +342,7 @@ public final class Runner {
         entriesToRun: [TestEntry],
         testRunnerStream: TestRunnerStream
     ) -> TestRunnerInvocation {
+        testRunnerStream.openStream()
         for testEntry in entriesToRun {
             testRunnerStream.testStarted(testName: testEntry.testName)
             testRunnerStream.testStopped(

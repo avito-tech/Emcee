@@ -201,7 +201,8 @@ public final class Scheduler {
             testRunnerProvider: try di.get(),
             version: version,
             persistentMetricsJobId: bucket.persistentMetricsJobId,
-            metricRecorder: metricRecorder
+            metricRecorder: metricRecorder,
+            waiter: try di.get()
         )
 
         let runnerResult = try runner.run(

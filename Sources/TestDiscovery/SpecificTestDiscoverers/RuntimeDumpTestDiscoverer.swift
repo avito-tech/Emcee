@@ -33,6 +33,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let testType: TestType
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let version: Version
+    private let waiter: Waiter
     private let metricRecorder: MetricRecorder
     
     init(
@@ -51,6 +52,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         testType: TestType,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         version: Version,
+        waiter: Waiter,
         metricRecorder: MetricRecorder
     ) {
         self.buildArtifacts = buildArtifacts
@@ -68,6 +70,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         self.testType = testType
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.version = version
+        self.waiter = waiter
         self.metricRecorder = metricRecorder
     }
     
@@ -94,7 +97,8 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             testRunnerProvider: testRunnerProvider,
             version: version,
             persistentMetricsJobId: configuration.persistentMetricsJobId,
-            metricRecorder: metricRecorder
+            metricRecorder: metricRecorder,
+            waiter: waiter
         )
         
         return try runRetrying(times: numberOfAttemptsToPerformRuntimeDump) {
@@ -127,7 +131,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
                 return try work()
             } catch {
                 Logger.error("Failed to get runtime dump, error: \(error)")
-                SynchronousWaiter().wait(timeout: TimeInterval(retryIndex) * 2.0, description: "Pause between runtime dump retries")
+                waiter.wait(timeout: TimeInterval(retryIndex) * 2.0, description: "Pause between runtime dump retries")
             }
         }
         return try work()

@@ -94,6 +94,7 @@ public final class FakeTestRunner: TestRunner {
             testResultProvider: onExecuteTest,
             onTestStarted: onTestStarted,
             onTestStopped: onTestStopped,
+            onStreamClose: onStreamClose,
             tempFolder: tempFolder
         )
     }

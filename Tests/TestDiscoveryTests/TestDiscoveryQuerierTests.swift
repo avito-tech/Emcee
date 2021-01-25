@@ -16,6 +16,7 @@ import ResourceLocationResolverTestHelpers
 import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolTestHelpers
+import SynchronousWaiter
 import TemporaryStuff
 import TestArgFile
 import TestHelpers
@@ -224,7 +225,8 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,
             uniqueIdentifierGenerator: fixedValueUniqueIdentifierGenerator,
-            version: version
+            version: version,
+            waiter: SynchronousWaiter()
         )
     }
     

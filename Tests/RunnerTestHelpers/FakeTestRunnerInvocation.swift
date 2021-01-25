@@ -10,6 +10,7 @@ public final class FakeTestRunnerInvocation: TestRunnerInvocation {
     private let testResultProvider: (TestName) -> TestStoppedEvent.Result
     private let onTestStarted: (TestName, TestRunnerStream) -> ()
     private let onTestStopped: (TestStoppedEvent, TestRunnerStream) -> ()
+    private let onStreamClose: (TestRunnerStream) -> ()
     private let tempFolder: TemporaryFolder
     
     public init(
@@ -18,6 +19,7 @@ public final class FakeTestRunnerInvocation: TestRunnerInvocation {
         testResultProvider: @escaping (TestName) -> TestStoppedEvent.Result,
         onTestStarted: @escaping (TestName, TestRunnerStream) -> (),
         onTestStopped: @escaping (TestStoppedEvent, TestRunnerStream) -> (),
+        onStreamClose: @escaping (TestRunnerStream) -> (),
         tempFolder: TemporaryFolder
     ) {
         self.entriesToRun = entriesToRun
@@ -25,6 +27,7 @@ public final class FakeTestRunnerInvocation: TestRunnerInvocation {
         self.testResultProvider = testResultProvider
         self.onTestStarted = onTestStarted
         self.onTestStopped = onTestStopped
+        self.onStreamClose = onStreamClose
         self.tempFolder = tempFolder
     }
     
@@ -70,7 +73,7 @@ public final class FakeTestRunnerInvocation: TestRunnerInvocation {
         }
         
         group.notify(queue: runningQueue) {
-            self.testRunnerStream.closeStream()
+            self.onStreamClose(self.testRunnerStream)
         }
         
         let runningInvocation = FakeTestRunnerRunningInvocation(
