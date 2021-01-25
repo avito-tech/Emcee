@@ -2,11 +2,11 @@ import Foundation
 import PathLib
 import ProcessController
 
-public protocol UpdatingFileReader {
-    func read(handler: @escaping (Data) -> ()) throws -> UpdatingFileReaderHandle
+public protocol ObservableFileReader {
+    func read(handler: @escaping (Data) -> ()) throws -> ObservableFileReaderHandler
 }
 
-public final class UpdatingFileReaderImpl: UpdatingFileReader {
+public final class ObservableFileReaderImpl: ObservableFileReader {
     private let path: AbsolutePath
     private let processControllerProvider: ProcessControllerProvider
     
@@ -18,7 +18,7 @@ public final class UpdatingFileReaderImpl: UpdatingFileReader {
         self.processControllerProvider = processControllerProvider
     }
     
-    public func read(handler: @escaping (Data) -> ()) throws -> UpdatingFileReaderHandle {
+    public func read(handler: @escaping (Data) -> ()) throws -> ObservableFileReaderHandler {
         let processController = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
                 arguments: ["/usr/bin/tail", "-f", "-n", "+1", path.pathString]
@@ -28,6 +28,6 @@ public final class UpdatingFileReaderImpl: UpdatingFileReader {
             handler(data)
         }
         processController.start()
-        return ProcessUpdatingFileReaderHandle(processController: processController)
+        return ProcessObservableFileReaderHandler(processController: processController)
     }
 }

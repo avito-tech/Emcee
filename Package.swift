@@ -970,6 +970,30 @@ let package = Package(
             path: "Sources/MetricsUtils"
         ),
         .target(
+            // MARK: ObservableFileReader
+            name: "ObservableFileReader",
+            dependencies: [
+                "PathLib",
+                "ProcessController",
+            ],
+            path: "Sources/ObservableFileReader"
+        ),
+        .testTarget(
+            // MARK: ObservableFileReaderTests
+            name: "ObservableFileReaderTests",
+            dependencies: [
+                "DateProvider",
+                "FileSystem",
+                "ObservableFileReader",
+                "PathLib",
+                "ProcessController",
+                "ProcessControllerTestHelpers",
+                "TemporaryStuff",
+                "TestHelpers",
+            ],
+            path: "Tests/ObservableFileReaderTests"
+        ),
+        .target(
             // MARK: PathLib
             name: "PathLib",
             dependencies: [
@@ -2286,30 +2310,6 @@ let package = Package(
                 "UniqueIdentifierGenerator",
             ],
             path: "Tests/UniqueIdentifierGeneratorTestHelpers"
-        ),
-        .target(
-            // MARK: UpdatingFileReader
-            name: "UpdatingFileReader",
-            dependencies: [
-                "PathLib",
-                "ProcessController",
-            ],
-            path: "Sources/UpdatingFileReader"
-        ),
-        .testTarget(
-            // MARK: UpdatingFileReaderTests
-            name: "UpdatingFileReaderTests",
-            dependencies: [
-                "DateProvider",
-                "FileSystem",
-                "PathLib",
-                "ProcessController",
-                "ProcessControllerTestHelpers",
-                "TemporaryStuff",
-                "TestHelpers",
-                "UpdatingFileReader",
-            ],
-            path: "Tests/UpdatingFileReaderTests"
         ),
         .target(
             // MARK: WorkerAlivenessModels

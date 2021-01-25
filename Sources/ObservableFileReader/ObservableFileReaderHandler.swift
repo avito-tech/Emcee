@@ -1,11 +1,11 @@
 import Foundation
 import ProcessController
 
-public protocol UpdatingFileReaderHandle {
+public protocol ObservableFileReaderHandler {
     func cancel()
 }
 
-public final class ProcessUpdatingFileReaderHandle: UpdatingFileReaderHandle {
+public final class ProcessObservableFileReaderHandler: ObservableFileReaderHandler {
     private let processController: ProcessController
     
     public init(processController: ProcessController) {

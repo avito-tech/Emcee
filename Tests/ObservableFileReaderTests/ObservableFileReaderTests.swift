@@ -1,18 +1,18 @@
 import DateProvider
 import FileSystem
 import Foundation
+import ObservableFileReader
 import PathLib
 import ProcessController
 import TemporaryStuff
 import TestHelpers
-import UpdatingFileReader
 import XCTest
 
-final class UpdatingFileReaderTests: XCTestCase {
+final class ObservableFileReaderTests: XCTestCase {
     lazy var tempFile = assertDoesNotThrow { try TemporaryFile() }
     
     func test() throws {
-        let reader = try UpdatingFileReaderImpl(
+        let reader = try ObservableFileReaderImpl(
             path: tempFile.absolutePath,
             processControllerProvider: DefaultProcessControllerProvider(
                 dateProvider: SystemDateProvider(),
