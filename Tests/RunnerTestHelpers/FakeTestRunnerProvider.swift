@@ -1,6 +1,6 @@
 import Runner
 import RunnerModels
-import TemporaryStuff
+import Tmp
 
 public final class FakeTestRunnerProvider: TestRunnerProvider {
     public lazy var predefinedFakeTestRunner = FakeTestRunner(

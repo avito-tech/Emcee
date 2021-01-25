@@ -12,3 +12,6 @@ build:
 
 test:
 	bash make.sh test
+
+package:
+	bash make.sh package

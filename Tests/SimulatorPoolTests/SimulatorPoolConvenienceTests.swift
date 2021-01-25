@@ -5,7 +5,7 @@ import SimulatorPool
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import SynchronousWaiter
-import TemporaryStuff
+import Tmp
 import XCTest
 
 final class SimulatorPoolConvenienceTests: XCTestCase {

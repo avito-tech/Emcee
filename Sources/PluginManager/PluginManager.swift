@@ -115,8 +115,8 @@ public final class PluginManager: EventStream {
         }
     }
     
-    private func environmentForLaunchingPlugin(pluginSocket: String, pluginIdentifier: String) -> [String: String] {
-        return [
+    private func environmentForLaunchingPlugin(pluginSocket: String, pluginIdentifier: String) -> Environment {
+        [
             PluginSupport.pluginSocketEnv: pluginSocket,
             PluginSupport.pluginIdentifierEnv: pluginIdentifier
         ]

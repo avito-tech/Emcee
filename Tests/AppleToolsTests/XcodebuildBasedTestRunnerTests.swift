@@ -19,7 +19,7 @@ import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
-import TemporaryStuff
+import Tmp
 import TestHelpers
 import URLResource
 import XCTest
@@ -29,7 +29,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
     private let testRunnerStream = AccumulatingTestRunnerStream()
     private let dateProvider = DateProviderFixture(Date(timeIntervalSince1970: 100500))
     private lazy var contextUuid = UUID()
-    private lazy var processControllerProvider = FakeProcessControllerProvider(tempFolder: tempFolder)
+    private lazy var processControllerProvider = FakeProcessControllerProvider()
     private lazy var resourceLocationResolver = FakeResourceLocationResolver(
         resolvingResult: .directlyAccessibleFile(path: tempFolder.absolutePath)
     )

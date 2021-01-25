@@ -2,7 +2,7 @@ import FileSystem
 import FileSystemTestHelpers
 import Foundation
 import PlistLib
-import TemporaryStuff
+import Tmp
 import TestHelpers
 import WorkerCapabilities
 import WorkerCapabilitiesModels

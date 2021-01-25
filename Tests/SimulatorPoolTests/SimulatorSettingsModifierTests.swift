@@ -6,7 +6,7 @@ import ProcessController
 import ProcessControllerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
-import TemporaryStuff
+import Tmp
 import TestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
@@ -83,7 +83,7 @@ final class SimulatorSettingsModifierTests: XCTestCase {
     func test___DEVELOPER_DIR_is_present_for_all_subprocess_invocations() throws {
         processControllerProvider.creator = { [developerDirLocator] subprocess -> ProcessController in
             XCTAssertEqual(
-                subprocess.environment["DEVELOPER_DIR"],
+                subprocess.environment.values["DEVELOPER_DIR"],
                 try developerDirLocator.path(developerDir: .current).pathString,
                 "DEVELOPER_DIR env must be used when executing xcrun"
             )
@@ -231,7 +231,7 @@ final class SimulatorSettingsModifierTests: XCTestCase {
     // MARK: - Helper Variables
     
     lazy var developerDirLocator = FakeDeveloperDirLocator(result: self.tempFolder.absolutePath.appending(component: "Dev_Dir"))
-    lazy var processControllerProvider = FakeProcessControllerProvider(tempFolder: tempFolder)
+    lazy var processControllerProvider = FakeProcessControllerProvider()
     lazy var simulator = Simulator(
         testDestination: TestDestinationFixtures.testDestination,
         udid: UDID(value: "sim_udid"),

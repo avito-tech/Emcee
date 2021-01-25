@@ -7,7 +7,7 @@ import SimulatorPool
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import SynchronousWaiter
-import TemporaryStuff
+import Tmp
 import TestHelpers
 import XCTest
 

@@ -3,7 +3,7 @@ import Foundation
 import PathLib
 import RunnerModels
 import SimulatorPoolModels
-import TemporaryStuff
+import Tmp
 import UniqueIdentifierGenerator
 
 public final class SimulatorSetPathDeterminerImpl: SimulatorSetPathDeterminer {

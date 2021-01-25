@@ -42,7 +42,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
                     "create",
                     "iOS \(testDestination.runtime)", testDestination.deviceType
                 ],
-                environment: environment
+                environment: Environment(environment)
             )
         )
 
@@ -79,7 +79,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
                     "--locale", "ru_US",
                     "--direct-launch", "--", "listen"
                 ],
-                environment: environment
+                environment: Environment(environment)
             )
         )
         try waitForFbsimctlToBootSimulator(
@@ -114,7 +114,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
                     "simctl", "--set", simulator.simulatorSetPath,
                     "shutdown", simulator.udid.value
                 ],
-                environment: environment,
+                environment: Environment(environment),
                 automaticManagement: .sigintThenKillIfSilent(interval: timeout)
             )
         )
@@ -139,7 +139,7 @@ public final class FbsimctlBasedSimulatorStateMachineActionExecutor: SimulatorSt
                     "--json", "--set", simulator.simulatorSetPath,
                     "--simulators", "delete"
                 ],
-                environment: environment,
+                environment: Environment(environment),
                 automaticManagement: .sigintThenKillIfSilent(interval: timeout)
             )
         )

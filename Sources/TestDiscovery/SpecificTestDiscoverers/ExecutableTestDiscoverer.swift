@@ -8,7 +8,7 @@ import PathLib
 import ProcessController
 import ResourceLocationResolver
 import SimulatorPoolModels
-import TemporaryStuff
+import Tmp
 import UniqueIdentifierGenerator
 
 final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
@@ -78,7 +78,7 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
                 arguments: [
                     executablePath
                 ],
-                environment: [
+                environment: Environment([
                     "SIMULATOR_ROOT": latestRuntimeRoot,
                     "DYLD_ROOT_PATH": latestRuntimeRoot,
                     "SIMULATOR_SHARED_RESOURCES_DIRECTORY": tempFolder.pathByCreatingDirectories(
@@ -86,10 +86,7 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
                     ).pathString,
                     "EMCEE_RUNTIME_TESTS_EXPORT_PATH": runtimeEntriesJSONPath.pathString,
                     "EMCEE_XCTEST_BUNDLE_PATH": loadableBundlePath.pathString,
-                ].merging(
-                    configuration.testExecutionBehavior.environment,
-                    uniquingKeysWith: { (_, new) in new }
-                )
+                ]).merge(with: configuration.testExecutionBehavior.environment)
             )
         )
         try controller.startAndWaitForSuccessfulTermination()
@@ -110,15 +107,18 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
                     "/usr/bin/xcrun",
                     "simctl", "list", "-j", "runtimes"
                 ],
-                environment: try developerDirLocator.suitableEnvironment(forDeveloperDir: developerDir)
+                environment: Environment(
+                    try developerDirLocator.suitableEnvironment(forDeveloperDir: developerDir)
+                )
             )
         )
+        
+        var capturedData = Data()
+        controller.onStdout { _, data, _ in capturedData.append(data) }
+        
         try controller.startAndWaitForSuccessfulTermination()
         
-        let runtimes = try JSONDecoder().decode(
-            SimulatorRuntimes.self,
-            from: Data(contentsOf: controller.subprocess.standardStreamsCaptureConfig.stdoutOutputPath().fileUrl)
-        )
+        let runtimes = try JSONDecoder().decode(SimulatorRuntimes.self, from: capturedData)
         
         guard let runtime = runtimes.runtimes.first(
             where: { $0.name == "iOS \(testDestination.runtime)" }

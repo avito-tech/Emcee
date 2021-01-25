@@ -16,7 +16,7 @@ import ResourceLocationResolver
 import RunnerModels
 import SimulatorPoolModels
 import SynchronousWaiter
-import TemporaryStuff
+import Tmp
 import TestsWorkingDirectorySupport
 
 public final class Runner {
@@ -76,8 +76,7 @@ public final class Runner {
         if entries.isEmpty {
             return RunnerRunResult(
                 entriesToRun: entries,
-                testEntryResults: [],
-                subprocessStandardStreamsCaptureConfig: nil
+                testEntryResults: []
             )
         }
         
@@ -94,7 +93,7 @@ public final class Runner {
         // is promblem in them, not in infrastructure.
         
         var reviveAttempt = 0
-        var lastSubprocessStandardStreamsCaptureConfig: StandardStreamsCaptureConfig? = nil
+
         while runResult.nonLostTestEntryResults.count < entries.count, reviveAttempt <= numberOfAttemptsToRevive {
             let entriesToRun = missingEntriesForScheduledEntries(
                 expectedEntriesToRun: entries,
@@ -105,7 +104,6 @@ public final class Runner {
                 developerDir: developerDir,
                 simulator: simulator
             )
-            lastSubprocessStandardStreamsCaptureConfig = runResults.subprocessStandardStreamsCaptureConfig
             
             runResult.append(testEntryResults: runResults.testEntryResults)
             
@@ -124,8 +122,7 @@ public final class Runner {
             testEntryResults: testEntryResults(
                 runResult: runResult,
                 simulatorId: simulator.udid
-            ),
-            subprocessStandardStreamsCaptureConfig: lastSubprocessStandardStreamsCaptureConfig
+            )
         )
     }
     
@@ -139,8 +136,7 @@ public final class Runner {
             Logger.info("Nothing to run!")
             return RunnerRunResult(
                 entriesToRun: entriesToRun,
-                testEntryResults: [],
-                subprocessStandardStreamsCaptureConfig: nil
+                testEntryResults: []
             )
         }
 
@@ -188,7 +184,7 @@ public final class Runner {
                 TestTimeoutTrackingTestRunnerSream(
                     dateProvider: dateProvider,
                     detectedLongRunningTest: { [dateProvider] testName, testStartedAt in
-                        Logger.debug("Detected long running test \(testName)", testRunnerRunningInvocationContainer.currentValue()?.subprocessInfo)
+                        Logger.debug("Detected long running test \(testName)", testRunnerRunningInvocationContainer.currentValue()?.pidInfo)
                         collectedTestStoppedEvents.append(
                             TestStoppedEvent(
                                 testName: testName,
@@ -209,35 +205,35 @@ public final class Runner {
                 metricReportingTestRunnerStream,
                 TestRunnerStreamWrapper(
                     onOpenStream: {
-                        Logger.debug("Started executing tests", testRunnerRunningInvocationContainer.currentValue()?.subprocessInfo)
+                        Logger.debug("Started executing tests", testRunnerRunningInvocationContainer.currentValue()?.pidInfo)
                     },
                     onTestStarted: { testName in
                         collectedTestExceptions = []
-                        Logger.debug("Test started: \(testName)", testRunnerRunningInvocationContainer.currentValue()?.subprocessInfo)
+                        Logger.debug("Test started: \(testName)", testRunnerRunningInvocationContainer.currentValue()?.pidInfo)
                     },
                     onTestException: { testException in
                         collectedTestExceptions.append(testException)
-                        Logger.debug("Caught test exception: \(testException)", testRunnerRunningInvocationContainer.currentValue()?.subprocessInfo)
+                        Logger.debug("Caught test exception: \(testException)", testRunnerRunningInvocationContainer.currentValue()?.pidInfo)
                     },
                     onTestStopped: { testStoppedEvent in
                         let testStoppedEvent = testStoppedEvent.byMergingTestExceptions(testExceptions: collectedTestExceptions)
                         collectedTestStoppedEvents.append(testStoppedEvent)
                         collectedTestExceptions = []
-                        Logger.debug("Test stopped: \(testStoppedEvent.testName), \(testStoppedEvent.result)", testRunnerRunningInvocationContainer.currentValue()?.subprocessInfo)
+                        Logger.debug("Test stopped: \(testStoppedEvent.testName), \(testStoppedEvent.result)", testRunnerRunningInvocationContainer.currentValue()?.pidInfo)
                     },
                     onCloseStream: {
-                        Logger.debug("Finished executing tests", testRunnerRunningInvocationContainer.currentValue()?.subprocessInfo)
+                        Logger.debug("Finished executing tests", testRunnerRunningInvocationContainer.currentValue()?.pidInfo)
                         streamClosedCallback.set(result: ())
                     }
                 ),
                 PreflightPostflightTimeoutTrackingTestRunnerStream(
                     dateProvider: dateProvider,
                     onPreflightTimeout: {
-                        Logger.debug("Detected preflight timeout", testRunnerRunningInvocationContainer.currentValue()?.subprocessInfo)
+                        Logger.debug("Detected preflight timeout", testRunnerRunningInvocationContainer.currentValue()?.pidInfo)
                         testRunnerRunningInvocationContainer.currentValue()?.cancel()
                     },
                     onPostflightTimeout: { testName in
-                        Logger.debug("Detected postflight timeout, last finished test was \(testName)", testRunnerRunningInvocationContainer.currentValue()?.subprocessInfo)
+                        Logger.debug("Detected postflight timeout, last finished test was \(testName)", testRunnerRunningInvocationContainer.currentValue()?.pidInfo)
                         testRunnerRunningInvocationContainer.currentValue()?.cancel()
                     },
                     maximumPreflightDuration: configuration.testTimeoutConfiguration.testRunnerMaximumSilenceDuration,
@@ -257,20 +253,7 @@ public final class Runner {
         let runningInvocation = testRunnerInvocation.startExecutingTests()
         testRunnerRunningInvocationContainer.set(runningInvocation)
         
-        let runnerSilenceTracker = ProcessOutputSilenceTracker(
-            dateProvider: dateProvider,
-            fileSystem: fileSystem,
-            onSilence: { [configuration] in
-                Logger.debug("Test runner has been silent for too long (\(LoggableDuration(configuration.testTimeoutConfiguration.testRunnerMaximumSilenceDuration))), terminating tests", runningInvocation.subprocessInfo)
-                runningInvocation.cancel()
-            },
-            silenceDuration: configuration.testTimeoutConfiguration.testRunnerMaximumSilenceDuration,
-            standardStreamsCaptureConfig: runningInvocation.output,
-            subprocessInfo: runningInvocation.subprocessInfo
-        )
-        try runnerSilenceTracker.whileTracking {
-            try streamClosedCallback.wait(timeout: .infinity, description: "Test Runner Stream Close")
-        }
+        try streamClosedCallback.wait(timeout: .infinity, description: "Test Runner Stream Close")
         
         let result = Runner.prepareResults(
             collectedTestStoppedEvents: collectedTestStoppedEvents,
@@ -278,13 +261,12 @@ public final class Runner {
             simulatorId: simulator.udid
         )
         
-        Logger.debug("Attempted to run \(entriesToRun.count) tests on simulator \(simulator): \(entriesToRun)", runningInvocation.subprocessInfo)
-        Logger.debug("Did get \(result.count) results: \(result)", runningInvocation.subprocessInfo)
+        Logger.debug("Attempted to run \(entriesToRun.count) tests on simulator \(simulator): \(entriesToRun)", runningInvocation.pidInfo)
+        Logger.debug("Did get \(result.count) results: \(result)", runningInvocation.pidInfo)
         
         return RunnerRunResult(
             entriesToRun: entriesToRun,
-            testEntryResults: result,
-            subprocessStandardStreamsCaptureConfig: runningInvocation.output
+            testEntryResults: result
         )
     }
     
@@ -342,7 +324,7 @@ public final class Runner {
     private func cleanUpDeadCache(simulator: Simulator) {
         let deadCachePath = simulator.path.appending(relativePath: RelativePath("data/Library/Caches/com.apple.containermanagerd/Dead"))
         do {
-            if try fileSystem.properties(forFileAtPath: deadCachePath).exists() {
+            if fileSystem.properties(forFileAtPath: deadCachePath).exists() {
                 Logger.debug("Will attempt to clean up simulator dead cache at: \(deadCachePath)")
                 try fileSystem.delete(fileAtPath: deadCachePath)
             }
@@ -497,8 +479,7 @@ private extension TestStoppedEvent {
 private class NoOpTestRunnerInvocation: TestRunnerInvocation {
     private class NoOpTestRunnerRunningInvocation: TestRunnerRunningInvocation {
         init() {}
-        let output = StandardStreamsCaptureConfig()
-        let subprocessInfo = SubprocessInfo(subprocessId: 0, subprocessName: "no-op process")
+        let pidInfo = PidInfo(pid: 0, name: "no-op process")
         func cancel() {}
         func wait() {}
     }

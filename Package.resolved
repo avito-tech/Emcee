@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/IBM-Swift/BlueSignals.git",
         "state": {
           "branch": null,
-          "revision": "23f62ec7a38a837e1c14acffc2e963b667a88b46",
-          "version": "1.0.16"
+          "revision": "b7331c8bef913f5f8b3cffa6ecfcce679f7c2531",
+          "version": "1.0.21"
         }
       },
       {
@@ -20,21 +20,21 @@
         }
       },
       {
+        "package": "CommandLineToolkit",
+        "repositoryURL": "https://github.com/avito-tech/CommandLineToolkit.git",
+        "state": {
+          "branch": "master",
+          "revision": "1da04bca1f31d05c4d5bad5c384af2c09d8e28b9",
+          "version": null
+        }
+      },
+      {
         "package": "CountedSet",
         "repositoryURL": "https://github.com/0x7fs/CountedSet",
         "state": {
           "branch": "master",
           "revision": "5bdaf31e6f71dcb430e40a0da3ff10ff61bf5368",
           "version": null
-        }
-      },
-      {
-        "package": "GraphiteClient",
-        "repositoryURL": "https://github.com/avito-tech/GraphiteClient.git",
-        "state": {
-          "branch": null,
-          "revision": "2333d2c4a73c19db636939033cbe2b5ba3fc9f8c",
-          "version": "0.1.1"
         }
       },
       {

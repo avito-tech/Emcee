@@ -3,7 +3,7 @@ import DeveloperDirModels
 import ResourceLocationResolver
 import SimulatorPoolTestHelpers
 import SynchronousWaiter
-import TemporaryStuff
+import Tmp
 import TestHelpers
 import XCTest
 

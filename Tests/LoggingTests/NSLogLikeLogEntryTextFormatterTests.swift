@@ -6,7 +6,7 @@ final class NSLogLikeLogEntryTextFormatterTests: XCTestCase {
     func test() {
         let entry = LogEntry(
             message: "message",
-            subprocessInfo: SubprocessInfo(subprocessId: 42, subprocessName: "subproc"),
+            pidInfo: PidInfo(pid: 42, name: "subproc"),
             timestamp: Date(timeIntervalSince1970: 42),
             verbosity: Verbosity.always
         )

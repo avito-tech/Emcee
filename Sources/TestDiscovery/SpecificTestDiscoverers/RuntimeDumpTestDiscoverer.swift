@@ -14,7 +14,7 @@ import RunnerModels
 import SimulatorPool
 import SimulatorPoolModels
 import SynchronousWaiter
-import TemporaryStuff
+import Tmp
 import UniqueIdentifierGenerator
 
 final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
@@ -108,7 +108,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             )
             defer { allocatedSimulator.releaseSimulator() }
             
-            let runnerRunResult = try runner.runOnce(
+            _ = try runner.runOnce(
                 entriesToRun: [testEntryToQueryRuntimeDump],
                 developerDir: configuration.developerDir,
                 simulator: allocatedSimulator.simulator
@@ -117,7 +117,6 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             guard let data = try? Data(contentsOf: runtimeEntriesJSONPath.fileUrl),
                 let foundTestEntries = try? JSONDecoder().decode([DiscoveredTestEntry].self, from: data)
                 else {
-                    runnerRunResult.dumpStandardStreams()
                     throw TestExplorationError.fileNotFound(runtimeEntriesJSONPath)
             }
             

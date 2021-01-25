@@ -65,7 +65,7 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
         let contentsPath = zipFilePath.removingLastComponent.appending(component: "zip_contents")
         try unarchiveQueue.sync {
             try urlResource.whileLocked {
-                if try !fileSystem.properties(forFileAtPath: contentsPath).exists() {
+                if !fileSystem.properties(forFileAtPath: contentsPath).exists() {
                     let temporaryContentsPath = zipFilePath.removingLastComponent.appending(
                         component: "zip_contents_\(UUID().uuidString)"
                     )

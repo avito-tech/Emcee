@@ -1,0 +1,155 @@
+{
+  "dependencies" : {
+    "external" : {
+        "CommandLineToolkit": {
+            "url": "https://github.com/avito-tech/CommandLineToolkit.git",
+            "version": {
+                "branch": "master"
+            },
+            "targetNames": [
+                "AtomicModels",
+                "DateProvider",
+                "DateProviderTestHelpers",
+                "FileSystem",
+                "FileSystemTestHelpers",
+                "Graphite",
+                "GraphiteClient",
+                "IO",
+                "Metrics",
+                "MetricsTestHelpers",
+                "MetricsUtils",
+                "PathLib",
+                "PlistLib",
+                "ProcessController",
+                "ProcessControllerTestHelpers",
+                "SignalHandling",
+                "SocketModels",
+                "Statsd",
+                "SynchronousWaiter",
+                "TestHelpers",
+                "Timer",
+                "Tmp",
+                "TmpTestHelpers",
+                "Types",
+                "UserDefaultsLib",
+                "UserDefaultsLibTestHelpers",
+                "Waitable",
+                "XcodeLocator",
+                "XcodeLocatorModels"
+            ]
+        },
+        "CountedSet": {
+            "url": "https://github.com/0x7fs/CountedSet",
+            "version": {
+                "branch": "master"
+            },
+            "targetNames": [
+                "CountedSet"
+            ]
+        },
+        "OrderedSet": {
+            "url": "https://github.com/Weebly/OrderedSet",
+            "version": {
+                "exact": "5.0.0"
+            },
+            "targetNames": [
+                "OrderedSet"
+            ]
+        },
+        "Starscream": {
+            "url": "https://github.com/daltoniam/Starscream.git",
+            "version": {
+                "exact": "3.0.6"
+            },
+            "targetNames": [
+                "Starscream"
+            ]
+        },
+        "Swifter": {
+            "url": "https://github.com/httpswift/swifter.git",
+            "version": {
+                "exact": "1.4.6"
+            },
+            "targetNames": [
+                "Swifter"
+            ]
+        },
+        "Shout": {
+            "url": "https://github.com/jakeheis/Shout.git",
+            "version": {
+                "exact": "0.5.4"
+            },
+            "targetNames": [
+                "Shout"
+            ]
+        }
+    },
+    "implicitSystemModules" : [
+      "AppKit",
+      "Darwin",
+      "Dispatch",
+      "Foundation",
+      "XCTest"
+    ]
+  },
+  "name" : "EmceeTestRunner",
+  "platforms" : [
+    {
+      "name" : "macOS",
+      "version" : "10.15"
+    }
+  ],
+  "products" : [{
+      "name": "Emcee",
+      "productType": "executable",
+      "targets": [
+          "EmceeBinary"
+      ]
+  }, {
+      "name": "testing_plugin",
+      "productType": "executable",
+      "targets": [
+          "TestingPlugin"
+      ]
+  }, {
+      "name": "EmceePlugin",
+      "productType": "library",
+      "targets": [
+          "Logging",
+          "Plugin"
+      ]
+  }, {
+      "name": "EmceeCommunications",
+      "productType": "library",
+      "targets": [
+          "PortDeterminer",
+          "QueueClient",
+          "QueueCommunication",
+          "RemotePortDeterminer",
+          "RequestSender"
+      ]
+  }, {
+      "name": "EmceeInterfaces",
+      "productType": "library",
+      "targets": [
+          "BuildArtifacts",
+          "DeveloperDirModels",
+          "EmceeVersion",
+          "PluginSupport",
+          "QueueModels",
+          "ResourceLocation",
+          "ResourceLocationResolver",
+          "RunnerModels",
+          "SimulatorPoolModels",
+          "SimulatorVideoRecorder",
+          "TestArgFile",
+          "TestDiscovery",
+          "TestsWorkingDirectorySupport",
+          "TypedResourceLocation",
+          "WorkerAlivenessModels",
+          "WorkerCapabilitiesModels"
+      ]
+  }],
+  "swiftToolsVersion" : "5.2",
+  "targets" : "discoverAutomatically"
+}

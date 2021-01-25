@@ -37,8 +37,8 @@ public final class SentryLoggerHandler: LoggerHandler {
             "hostname": hostname,
             "verbosity": logEntry.verbosity.stringCode
         ]
-        if let subprocessInfo = logEntry.subprocessInfo {
-            extraData["subprocess_name"] = subprocessInfo.subprocessName
+        if let pidInfo = logEntry.pidInfo {
+            extraData["subprocess_name"] = pidInfo.name
         }
         
         let sentryEvent = SentryEvent(

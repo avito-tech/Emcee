@@ -3,7 +3,7 @@ import Foundation
 import LaunchdUtils
 import QueueModels
 import SSHDeployer
-import TemporaryStuff
+import Tmp
 
 public final class RemoteQueueLaunchdPlist {
     /// Unique deployment id

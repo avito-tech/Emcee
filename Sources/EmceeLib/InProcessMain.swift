@@ -9,6 +9,7 @@ import LocalHostDeterminer
 import Logging
 import LoggingSetup
 import Metrics
+import PathLib
 import PluginManager
 import ProcessController
 import QueueModels
@@ -43,6 +44,13 @@ public final class InProcessMain {
         let logsTimeToLive = TimeUnit.days(14)
         
         let logCleaningQueue = OperationQueue()
+        di.set(
+            LoggingSetup(
+                dateProvider: try di.get(),
+                fileSystem: try di.get()
+            )
+        )
+        
         try setupLogging(di: di, logsTimeToLive: logsTimeToLive, queue: logCleaningQueue)
         
         defer {
@@ -55,10 +63,7 @@ public final class InProcessMain {
         Logger.info("Arguments: \(ProcessInfo.processInfo.arguments)")
 
         di.set(
-            DefaultProcessControllerProvider(
-                dateProvider: try di.get(),
-                fileSystem: try di.get()
-            ),
+            try DetailedAcitivityLoggableProcessControllerProvider(di: di),
             for: ProcessControllerProvider.self
         )
         
@@ -168,10 +173,7 @@ public final class InProcessMain {
     }
     
     private func setupLogging(di: DI, logsTimeToLive: TimeUnit, queue: OperationQueue) throws {
-        let loggingSetup = LoggingSetup(
-            dateProvider: try di.get(),
-            fileSystem: try di.get()
-        )
+        let loggingSetup: LoggingSetup = try di.get()
         try loggingSetup.setupLogging(stderrVerbosity: Verbosity.info)
         try loggingSetup.cleanUpLogs(
             olderThan: try di.get(DateProvider.self).currentDate().addingTimeInterval(-logsTimeToLive.timeInterval),

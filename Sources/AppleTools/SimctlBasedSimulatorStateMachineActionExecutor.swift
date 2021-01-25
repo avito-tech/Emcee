@@ -16,7 +16,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
         public var description: String {
             switch self {
             case .emptyUdid:
-                return "Simctl returned an empty udid value, ot the value was not found"
+                return "Simctl returned an empty udid value, or the value was not found"
             }
         }
     }
@@ -48,16 +48,19 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                     "com.apple.CoreSimulator.SimDeviceType." + testDestination.deviceType.replacingOccurrences(of: " ", with: "-"),
                     "com.apple.CoreSimulator.SimRuntime.iOS-" + testDestination.runtime.replacingOccurrences(of: ".", with: "-")
                 ],
-                environment: environment,
+                environment: Environment(environment),
                 automaticManagement: .sigintThenKillAfterRunningFor(interval: timeout)
             )
         )
+        
+        var capturedData = Data()
+        controller.onStdout { _, data, _ in capturedData.append(data) }
         try controller.startAndWaitForSuccessfulTermination()
         
-        let createdUdid = try String(contentsOf: controller.subprocess.standardStreamsCaptureConfig.stdoutOutputPath().fileUrl, encoding: .utf8).trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !createdUdid.isEmpty else { throw SimctlUdidParseError.emptyUdid }
-        
-        let udid = UDID(value: createdUdid)
+        guard let createdUdid = String(data: capturedData, encoding: .utf8), !createdUdid.isEmpty else {
+            throw SimctlUdidParseError.emptyUdid
+        }
+        let udid = UDID(value: createdUdid.trimmingCharacters(in: .whitespacesAndNewlines))
         
         return Simulator(
             testDestination: testDestination,
@@ -79,7 +82,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                     "bootstatus", simulator.udid.value,
                     "-bd"
                 ],
-                environment: environment,
+                environment: Environment(environment),
                 automaticManagement: .sigintThenKillAfterRunningFor(interval: timeout)
             )
         )
@@ -98,7 +101,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                     "--set", simulator.simulatorSetPath,
                     "shutdown", simulator.udid.value
                 ],
-                environment: environment,
+                environment: Environment(environment),
                 automaticManagement: .sigintThenKillAfterRunningFor(interval: timeout)
             )
         )
@@ -117,7 +120,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                     "--set", simulator.simulatorSetPath,
                     "delete", simulator.udid.value
                 ],
-                environment: environment,
+                environment: Environment(environment),
                 automaticManagement: .sigintThenKillAfterRunningFor(interval: timeout)
             )
         )

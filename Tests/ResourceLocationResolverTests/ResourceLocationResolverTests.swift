@@ -9,7 +9,7 @@ import ResourceLocation
 import ResourceLocationResolver
 import Swifter
 import SynchronousWaiter
-import TemporaryStuff
+import Tmp
 import TestHelpers
 import URLResource
 import XCTest

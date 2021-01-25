@@ -1,5 +1,5 @@
 import Foundation
-import TemporaryStuff
+import Tmp
 import XCTest
 
 public class FileManagerTests: XCTestCase {

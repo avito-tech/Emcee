@@ -1,6 +1,6 @@
 import Foundation
 import ResourceLocation
-import TemporaryStuff
+import Tmp
 import XCTest
 
 final class ResourceLocationTests: XCTestCase {

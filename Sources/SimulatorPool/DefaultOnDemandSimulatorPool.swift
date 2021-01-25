@@ -3,7 +3,7 @@ import Foundation
 import Logging
 import ResourceLocationResolver
 import RunnerModels
-import TemporaryStuff
+import Tmp
 
 public class DefaultOnDemandSimulatorPool: OnDemandSimulatorPool {
     private let resourceLocationResolver: ResourceLocationResolver

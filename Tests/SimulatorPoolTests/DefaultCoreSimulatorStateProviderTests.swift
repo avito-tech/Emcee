@@ -3,7 +3,7 @@ import PlistLib
 import SimulatorPool
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
-import TemporaryStuff
+import Tmp
 import TestHelpers
 import XCTest
 

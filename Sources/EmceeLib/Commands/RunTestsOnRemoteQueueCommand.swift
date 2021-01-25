@@ -26,7 +26,7 @@ import SignalHandling
 import SimulatorPool
 import SocketModels
 import SynchronousWaiter
-import TemporaryStuff
+import Tmp
 import TestArgFile
 import TestDiscovery
 import Types

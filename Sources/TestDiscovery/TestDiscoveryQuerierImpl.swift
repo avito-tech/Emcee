@@ -16,8 +16,8 @@ import RunnerModels
 import SimulatorPool
 import SimulatorPoolModels
 import SynchronousWaiter
-import TemporaryStuff
 import TestArgFile
+import Tmp
 import UniqueIdentifierGenerator
 
 public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {

@@ -10,13 +10,13 @@ import ResourceLocationResolverTestHelpers
 import RunnerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
-import TemporaryStuff
+import Tmp
 import XCTest
 import fbxctest
 
 final class SimulatorStateMachineActionExecutorProviderTests: XCTestCase {
     private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
-    private lazy var fakeProcessControllerProvider = FakeProcessControllerProvider(tempFolder: tempFolder)
+    private lazy var fakeProcessControllerProvider = FakeProcessControllerProvider()
     private lazy var provider = SimulatorStateMachineActionExecutorProviderImpl(
         dateProvider: DateProviderFixture(),
         processControllerProvider: fakeProcessControllerProvider,

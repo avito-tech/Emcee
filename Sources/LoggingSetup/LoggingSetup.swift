@@ -7,7 +7,7 @@ import Logging
 import Metrics
 import PathLib
 import Sentry
-import TemporaryStuff
+import Tmp
 
 public final class LoggingSetup {
     private let dateProvider: DateProvider
@@ -42,6 +42,13 @@ public final class LoggingSetup {
         GlobalLoggerConfig.loggerHandler = aggregatedHandler
         Logger.always("To fetch detailed verbose log:")
         Logger.always("$ scp \(NSUserName())@\(LocalHostDeterminer.currentHostAddress):\(detailedLogPath.absolutePath) /tmp/\(filename).log && open /tmp/\(filename).log")
+    }
+    
+    public func childProcessLogsContainerProvider() throws -> ChildProcessLogsContainerProvider {
+        return ChildProcessLogsContainerProviderImpl(
+            fileSystem: fileSystem,
+            mainContainerPath: try logsContainerFolder()
+        )
     }
     
     public static func tearDown(timeout: TimeInterval) {

@@ -2,7 +2,7 @@ import DateProviderTestHelpers
 import FileCache
 import FileSystem
 import Swifter
-import TemporaryStuff
+import Tmp
 import TestHelpers
 import URLResource
 import XCTest

@@ -2,7 +2,7 @@
 import Deployer
 import PathLib
 import ResourceLocationResolver
-import TemporaryStuff
+import Tmp
 import XCTest
 
 class DeployablesGeneratorTests: XCTestCase {

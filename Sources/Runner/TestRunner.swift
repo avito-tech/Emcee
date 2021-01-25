@@ -5,11 +5,10 @@ import Logging
 import ProcessController
 import RunnerModels
 import SimulatorPoolModels
-import TemporaryStuff
+import Tmp
 
 public protocol TestRunnerRunningInvocation {
-    var output: StandardStreamsCaptureConfig { get }
-    var subprocessInfo: SubprocessInfo { get }
+    var pidInfo: PidInfo { get }
     func cancel()
     func wait()
 }

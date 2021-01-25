@@ -18,7 +18,7 @@ import ScheduleStrategy
 import SimulatorPool
 import SimulatorPoolModels
 import SynchronousWaiter
-import TemporaryStuff
+import Tmp
 import UniqueIdentifierGenerator
 
 public final class Scheduler {
@@ -211,9 +211,8 @@ public final class Scheduler {
             simulator: allocatedSimulator.simulator
         )
         
-        if !runnerResult.testEntryResults.filter({ $0.isLost }).isEmpty {
-            Logger.warning("Some test results are lost")
-            runnerResult.dumpStandardStreams()
+        runnerResult.testEntryResults.filter { $0.isLost }.forEach {
+            Logger.debug("Lost result for \($0)")
         }
         
         return TestingResult(

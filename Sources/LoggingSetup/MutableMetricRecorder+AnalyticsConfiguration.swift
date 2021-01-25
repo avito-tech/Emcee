@@ -24,7 +24,7 @@ extension MutableMetricRecorder {
             statsdMetricHandler = NoOpMetricHandler()
         }
         
-        setGraphiteMetric(handler: graphiteMetricHandler)
-        setStatsdMetric(handler: statsdMetricHandler)
+        try setGraphiteMetric(handler: graphiteMetricHandler)
+        try setStatsdMetric(handler: statsdMetricHandler)
     }
 }

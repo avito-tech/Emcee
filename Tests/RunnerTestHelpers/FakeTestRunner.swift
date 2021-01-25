@@ -5,14 +5,12 @@ import ProcessController
 import Runner
 import RunnerModels
 import SimulatorPoolModels
-import TemporaryStuff
+import Tmp
 
 public final class FakeTestRunner: TestRunner {
     public var entriesToRun: [TestEntry]?
     public var errorToThrowOnRun: Error?
     private let tempFolder: TemporaryFolder
-
-    public var standardStreamsCaptureConfig = StandardStreamsCaptureConfig()
     
     public struct SomeError: Error, CustomStringConvertible {
         public let description = "some error happened"

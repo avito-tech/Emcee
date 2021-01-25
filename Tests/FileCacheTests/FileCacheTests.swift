@@ -3,7 +3,7 @@ import FileCache
 import FileSystem
 import Foundation
 import PathLib
-import TemporaryStuff
+import Tmp
 import TestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers

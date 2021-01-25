@@ -3,7 +3,7 @@ import Foundation
 import RunnerModels
 import SimulatorPool
 import SimulatorPoolModels
-import TemporaryStuff
+import Tmp
 
 public final class FakeSimulatorControllerProvider: SimulatorControllerProvider {
     public var result: (TestDestination) -> SimulatorController

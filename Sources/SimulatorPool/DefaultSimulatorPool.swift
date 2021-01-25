@@ -5,7 +5,7 @@ import Logging
 import ResourceLocationResolver
 import RunnerModels
 import SimulatorPoolModels
-import TemporaryStuff
+import Tmp
 
 public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible {
     private let developerDir: DeveloperDir

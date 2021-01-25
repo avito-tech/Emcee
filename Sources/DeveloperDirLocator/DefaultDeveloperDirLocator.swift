@@ -31,9 +31,13 @@ public final class DefaultDeveloperDirLocator: DeveloperDirLocator {
         let processController = try processControllerProvider.createProcessController(
             subprocess: Subprocess(arguments: ["/usr/bin/xcode-select", "-p"])
         )
+        var output = ""
+        processController.onStdout { _, data, _ in
+            guard let string = String(data: data, encoding: .utf8) else { return }
+            output.append(string)
+        }
         processController.startAndListenUntilProcessDies()
-        let path = try String(contentsOf: processController.subprocess.standardStreamsCaptureConfig.stdoutOutputPath().fileUrl)
-        return AbsolutePath(path.trimmingCharacters(in: .whitespacesAndNewlines))
+        return AbsolutePath(output.trimmingCharacters(in: .whitespacesAndNewlines))
     }
     
     private func findDeveloperDir(

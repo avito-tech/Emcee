@@ -21,7 +21,7 @@ import RemotePortDeterminer
 import RequestSender
 import ResourceLocationResolver
 import ScheduleStrategy
-import TemporaryStuff
+import Tmp
 import UniqueIdentifierGenerator
 import WorkerAlivenessProvider
 import WorkerCapabilities

@@ -38,7 +38,7 @@ public final class FbsimctlOutputProcessor: JSONReaderEventStream {
         
         while shouldKeepWaitingForEvent(type: type, name: name) {
             guard Date().timeIntervalSinceReferenceDate - startTime < timeout else {
-                Logger.debug("Did not receive event \(name) \(type) within \(timeout) seconds", processController.subprocessInfo)
+                Logger.debug("Did not receive event \(name) \(type) within \(timeout) seconds")
                 processController.interruptAndForceKillIfNeeded()
                 throw FbsimctlEventWaitError.timeoutOccured(name, type)
             }
@@ -78,13 +78,13 @@ public final class FbsimctlOutputProcessor: JSONReaderEventStream {
     
     private func processSingleLiveEvent(eventData: Data) {
         if let event = try? decoder.decode(FbSimCtlCreateEndedEvent.self, from: eventData) {
-            Logger.verboseDebug("Parsed event: \(event)", processController.subprocessInfo)
+            Logger.verboseDebug("Parsed event: \(event)")
             receivedEvents.withExclusiveAccess { $0.append(event) }
             return
         }
 
         if let event = try? decoder.decode(FbSimCtlEventWithStringSubject.self, from: eventData) {
-            Logger.verboseDebug("Parsed event: \(event)", processController.subprocessInfo)
+            Logger.verboseDebug("Parsed event: \(event)")
             receivedEvents.withExclusiveAccess { $0.append(event) }
             return
         }
@@ -92,10 +92,10 @@ public final class FbsimctlOutputProcessor: JSONReaderEventStream {
         do {
             let event = try decoder.decode(FbSimCtlEvent.self, from: eventData)
             receivedEvents.withExclusiveAccess { $0.append(event) }
-            Logger.verboseDebug("Parsed event: \(event)", processController.subprocessInfo)
+            Logger.verboseDebug("Parsed event: \(event)")
         } catch {
             let dataStringRepresentation = String(data: eventData, encoding: .utf8)
-            Logger.error("Failed to parse event: '\(String(describing: dataStringRepresentation))': \(error)", processController.subprocessInfo)
+            Logger.error("Failed to parse event: '\(String(describing: dataStringRepresentation))': \(error)")
         }
     }
     

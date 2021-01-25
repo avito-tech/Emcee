@@ -2,7 +2,7 @@ import Foundation
 import Logging
 import ProcessController
 import Runner
-import TemporaryStuff
+import Tmp
 
 public final class FakeTestRunnerRunningInvocation: TestRunnerRunningInvocation {
     private let tempFolder: TemporaryFolder
@@ -18,15 +18,8 @@ public final class FakeTestRunnerRunningInvocation: TestRunnerRunningInvocation 
         onCancel()
     }
     
-    public var output: StandardStreamsCaptureConfig {
-        StandardStreamsCaptureConfig(
-            stdoutPath: try? tempFolder.createFile(filename: "\(uuid)_stdout.log"),
-            stderrPath: try? tempFolder.createFile(filename: "\(uuid)_stderr.log")
-        )
-    }
-    
-    public var subprocessInfo: SubprocessInfo {
-        SubprocessInfo(subprocessId: 42, subprocessName: "fake process")
+    public var pidInfo: PidInfo {
+        PidInfo(pid: 42, name: "fake process")
     }
     
     public func wait() {

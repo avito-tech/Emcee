@@ -19,12 +19,8 @@ public class ProcessControllerWrappingTestRunnerInvocation: TestRunnerInvocation
         processController.terminateAndForceKillIfNeeded()
     }
     
-    public var subprocessInfo: SubprocessInfo {
-        SubprocessInfo(subprocessId: processController.processId, subprocessName: processController.processName)
-    }
-    
-    public var output: StandardStreamsCaptureConfig {
-        processController.subprocess.standardStreamsCaptureConfig
+    public var pidInfo: PidInfo {
+        PidInfo(pid: processController.processId, name: processController.processName)
     }
     
     public func wait() {

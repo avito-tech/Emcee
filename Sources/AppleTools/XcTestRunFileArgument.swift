@@ -7,7 +7,7 @@ import ResourceLocation
 import ResourceLocationResolver
 import Runner
 import RunnerModels
-import TemporaryStuff
+import Tmp
 
 public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConvertible {
     private let buildArtifacts: BuildArtifacts

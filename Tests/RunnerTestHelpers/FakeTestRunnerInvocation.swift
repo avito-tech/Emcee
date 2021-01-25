@@ -2,7 +2,7 @@ import Foundation
 import ProcessController
 import Runner
 import RunnerModels
-import TemporaryStuff
+import Tmp
 
 public final class FakeTestRunnerInvocation: TestRunnerInvocation {
     private let entriesToRun: [TestEntry]

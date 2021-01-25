@@ -17,8 +17,8 @@ public final class NSLogLikeLogEntryTextFormatter: LogEntryTextFormatter {
         
         var result = "[\(logEntry.verbosity.stringCode)] \(timeStamp)"
         
-        if let subprocessInfo = logEntry.subprocessInfo {
-            result += " \(subprocessInfo.subprocessName)[\(subprocessInfo.subprocessId)]"
+        if let pidInfo = logEntry.pidInfo {
+            result += " \(pidInfo.name)[\(pidInfo.pid)]"
         }
         
         result += ": "

@@ -5,7 +5,7 @@ import Foundation
 import ResourceLocationResolverTestHelpers
 import RunnerTestHelpers
 import SimulatorPoolModels
-import TemporaryStuff
+import Tmp
 import TestHelpers
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest

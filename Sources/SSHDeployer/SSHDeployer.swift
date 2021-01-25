@@ -3,7 +3,7 @@ import Foundation
 import Logging
 import PathLib
 import ProcessController
-import TemporaryStuff
+import Tmp
 import UniqueIdentifierGenerator
 
 public final class SSHDeployer: Deployer {

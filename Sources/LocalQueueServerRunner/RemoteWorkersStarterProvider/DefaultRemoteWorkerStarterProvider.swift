@@ -4,7 +4,7 @@ import Foundation
 import ProcessController
 import QueueModels
 import SocketModels
-import TemporaryStuff
+import Tmp
 import UniqueIdentifierGenerator
 
 public final class DefaultRemoteWorkerStarterProvider: RemoteWorkerStarterProvider {

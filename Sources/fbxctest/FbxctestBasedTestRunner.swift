@@ -8,7 +8,7 @@ import ResourceLocationResolver
 import Runner
 import RunnerModels
 import SimulatorPoolModels
-import TemporaryStuff
+import Tmp
 
 public final class FbxctestBasedTestRunner: TestRunner {
     private let encoder = JSONEncoder()
@@ -138,10 +138,10 @@ public final class FbxctestBasedTestRunner: TestRunner {
     private func fbxctestEnvironment(
         testContext: TestContext,
         fbxctestTempFolder: AbsolutePath
-    ) -> [String: String] {
+    ) -> Environment {
         var result = testContext.environment
         result["TMPDIR"] = fbxctestTempFolder.pathString
-        return result
+        return Environment(result)
     }
     
     private func cleanUp(fbxctestWorkingDirectory: AbsolutePath) {

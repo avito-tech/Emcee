@@ -2,7 +2,7 @@ import Foundation
 import Logging
 import PathLib
 import ProcessController
-import TemporaryStuff
+import Tmp
 import UniqueIdentifierGenerator
 
 /** Basic class that defines a logic for deploying a number of DeployableItems. */

@@ -4,26 +4,25 @@ import PathLib
 import ProcessController
 import ProcessControllerTestHelpers
 import TestHelpers
-import TemporaryStuff
+import Tmp
 import XCTest
 
 final class DefaultDeveloperDirLocatorTests: XCTestCase {
     let currentDeveloperDirPath = AbsolutePath("/expected/path/to/developer/dir")
     lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     
-    lazy var processControllerProvider = FakeProcessControllerProvider(tempFolder: tempFolder) { subprocess -> ProcessController in
+    lazy var processControllerProvider = FakeProcessControllerProvider() { subprocess -> ProcessController in
         XCTAssertEqual(
             try subprocess.arguments.map { try $0.stringValue() },
             ["/usr/bin/xcode-select", "-p"]
         )
-        self.assertDoesNotThrow {
-            try self.currentDeveloperDirPath.pathString.write(
-                to: subprocess.standardStreamsCaptureConfig.stdoutOutputPath().fileUrl,
-                atomically: true,
-                encoding: .utf8
-            )
+        
+        let processController = FakeProcessController(subprocess: subprocess)
+        processController.onStart { _, unsubscribe in
+            processController.broadcastStdout(data: Data(self.currentDeveloperDirPath.pathString.utf8))
+            unsubscribe()
         }
-        return FakeProcessController(subprocess: subprocess)
+        return processController
     }
     
     func test___current_developer_dir() throws {

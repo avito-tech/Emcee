@@ -2,7 +2,7 @@ import Deployer
 import Foundation
 import ProcessController
 import SSHDeployer
-import TemporaryStuff
+import Tmp
 import UniqueIdentifierGenerator
 
 /// Class for generic usage: it deploys the provided deployable items to the provided deployment destinations, and

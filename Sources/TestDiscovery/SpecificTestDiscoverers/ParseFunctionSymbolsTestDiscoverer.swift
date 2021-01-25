@@ -13,7 +13,7 @@ import RunnerModels
 import SimulatorPool
 import SimulatorPoolModels
 import SynchronousWaiter
-import TemporaryStuff
+import Tmp
 import UniqueIdentifierGenerator
 
 final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
@@ -40,24 +40,21 @@ final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
     func discoverTestEntries(
         configuration: TestDiscoveryConfiguration
     ) throws -> [DiscoveredTestEntry] {
-        let nmOutputPath = try tempFolder.pathByCreatingDirectories(components: [uniqueIdentifierGenerator.generate()])
         let nmProcess = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/nm", "-j", "-U",
                     try testBinaryPath(xcTestBundleLocation: configuration.xcTestBundleLocation)
-                ],
-                standardStreamsCaptureConfig: StandardStreamsCaptureConfig(
-                    stdoutPath: nmOutputPath.appending(component: "nm_stdout"),
-                    stderrPath: nmOutputPath.appending(component: "nm_stderr")
-                )
+                ]
             )
         )
+        var nmOutputData = Data()
+        nmProcess.onStdout { _, data, _ in nmOutputData.append(data) }
         try nmProcess.startAndWaitForSuccessfulTermination()
         
         return try convert(
             developerDir: configuration.developerDir,
-            nmOutput: nmProcess.subprocess.standardStreamsCaptureConfig.stdoutOutputPath()
+            nmOutputData: nmOutputData
         )
     }
     
@@ -83,9 +80,9 @@ final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
         return resourcePath.appending(component: executableName)
     }
     
-    private func convert(developerDir: DeveloperDir, nmOutput: AbsolutePath) throws -> [DiscoveredTestEntry] {
-        guard let string = String(data: try Data(contentsOf: nmOutput.fileUrl), encoding: .utf8) else {
-            Logger.error("Failed to load contents of nm output at \(nmOutput)")
+    private func convert(developerDir: DeveloperDir, nmOutputData: Data) throws -> [DiscoveredTestEntry] {
+        guard let string = String(data: nmOutputData, encoding: .utf8) else {
+            Logger.error("Failed to get contents of nm output from \(nmOutputData.count) bytes")
             return []
         }
         

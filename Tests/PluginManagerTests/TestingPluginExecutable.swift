@@ -1,4 +1,5 @@
 import Foundation
+import Extensions
 
 final class TestingPluginExecutable {
     private static let swiftPackagePath = FileManager.default.walkUpTheHierarchy(

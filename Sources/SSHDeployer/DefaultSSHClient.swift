@@ -1,6 +1,5 @@
 import Foundation
 import Shout
-import CSSH
 import PathLib
 
 public final class DefaultSSHClient: SSHClient {

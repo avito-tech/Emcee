@@ -35,7 +35,7 @@ final class RSDateTests: XCTestCase {
         } equals: {
             computedValue
         }
-        
+
         assert {
             decodedValue._value
         } equals: {

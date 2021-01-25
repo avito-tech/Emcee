@@ -5,7 +5,7 @@ import Logging
 import PlistLib
 import ProcessController
 import SimulatorPoolModels
-import TemporaryStuff
+import Tmp
 import UniqueIdentifierGenerator
 
 public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
@@ -31,7 +31,7 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
         simulatorSettings: SimulatorSettings,
         toSimulator simulator: Simulator
     ) throws {
-        let environment = try developerDirLocator.suitableEnvironment(forDeveloperDir: developerDir)
+        let environment = Environment(try developerDirLocator.suitableEnvironment(forDeveloperDir: developerDir))
         var didImportPlist = false
         
         let globalPreferencesPlist = Plist(
@@ -91,7 +91,7 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
     private func importDefaults(
         domain: String,
         plistToImport: Plist,
-        environment: [String: String],
+        environment: Environment,
         simulator: Simulator
     ) throws -> Bool {
         let uniqueId = uniqueIdentifierGenerator.generate()
@@ -138,7 +138,7 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
     
     private func kill(
         daemon: String,
-        environment: [String: String],
+        environment: Environment,
         simulator: Simulator
     ) throws {
         try processControllerProvider.startAndWaitForSuccessfulTermination(
@@ -151,7 +151,7 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
 extension ProcessControllerProvider {
     func startAndWaitForSuccessfulTermination(
         arguments: [SubprocessArgument],
-        environment: [String: String]
+        environment: Environment
     ) throws {
         try createProcessController(
             subprocess: Subprocess(

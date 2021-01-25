@@ -10,7 +10,7 @@ import ResourceLocationResolverTestHelpers
 import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolTestHelpers
-import TemporaryStuff
+import Tmp
 import TestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
@@ -59,24 +59,21 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
                     fileSystem: LocalFileSystem()
                 )
             ),
-            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder, creator: { subprocess -> ProcessController in
+            processControllerProvider: FakeProcessControllerProvider { subprocess -> ProcessController in
                 XCTAssertEqual(
                     try subprocess.arguments.map { try $0.stringValue() },
                     ["/usr/bin/nm", "-j", "-U", self.testBundlePathInTempFolder.appending(component: self.executableInsideTestBundle).pathString]
                 )
                 
-                self.assertDoesNotThrow {
-                    _ = try self.tempFolder.createFile(
-                        components: subprocess.standardStreamsCaptureConfig.stdoutOutputPath().removingLastComponent.relativePath(anchorPath: self.tempFolder.absolutePath).components,
-                        filename: subprocess.standardStreamsCaptureConfig.stdoutOutputPath().lastComponent,
-                        contents: nmOutputData
-                    )
-                }
-                
                 let processController = FakeProcessController(subprocess: subprocess)
+                processController.onStart { _, unsubscribe in
+                    processController.broadcastStdout(data: nmOutputData ?? Data())
+                    processController.overridedProcessStatus = .terminated(exitCode: 0)
+                    unsubscribe()
+                }
                 processController.overridedProcessStatus = .terminated(exitCode: 0)
                 return processController
-            }),
+            },
             resourceLocationResolver: FakeResourceLocationResolver.resolvingTo(path: testBundlePathInTempFolder),
             tempFolder: tempFolder,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator

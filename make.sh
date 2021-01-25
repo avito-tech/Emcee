@@ -23,7 +23,11 @@ function install_deps() {
         ln -s $(brew --prefix)/opt/openssl@1.1/lib/pkgconfig/libcrypto.pc $(brew --prefix)/lib/pkgconfig/libcrypto.pc
     fi
     
-    swift "PackageGenerator.swift"
+    swift package resolve
+}
+
+function generate_package_swift() {
+    swift run --package-path ".build/checkouts/CommandLineToolkit/PackageGenerator/" package-gen .
 }
 
 function generate_emcee_version() {
@@ -43,6 +47,7 @@ function open_xcodeproj() {
 
 function generate_xcodeproj() {
 	install_deps
+    generate_package_swift
 	swift package generate-xcodeproj --enable-code-coverage
 }
 
@@ -55,6 +60,7 @@ function build() {
 	trap reset_emcee_version EXIT
 	generate_emcee_version
 	install_deps
+    generate_package_swift
 	swift build
 }
 
@@ -62,6 +68,7 @@ function run_tests_parallel() {
 	trap reset_emcee_version EXIT
 	generate_emcee_version	
 	install_deps
+    generate_package_swift
 	swift test --parallel
 }
 
@@ -81,4 +88,7 @@ case "$1" in
     clean)
     	clean
     	;;
+    package)
+        generate_package_swift
+        ;;
 esac

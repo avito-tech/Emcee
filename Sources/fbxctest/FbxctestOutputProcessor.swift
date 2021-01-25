@@ -178,6 +178,6 @@ public final class FbxctestOutputProcessor: TestRunnerInvocation {
     }
     
     private func log_fbxctest(_ text: String) {
-        Logger.verboseDebug(text, processController.subprocessInfo)
+        Logger.verboseDebug(text)
     }
 }

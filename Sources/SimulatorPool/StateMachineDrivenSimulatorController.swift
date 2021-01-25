@@ -7,7 +7,7 @@ import PathLib
 import PlistLib
 import SimulatorPoolModels
 import SynchronousWaiter
-import TemporaryStuff
+import Tmp
 
 public final class StateMachineDrivenSimulatorController: SimulatorController, CustomStringConvertible {
     private let additionalBootAttempts: UInt

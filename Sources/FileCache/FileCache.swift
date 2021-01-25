@@ -57,7 +57,7 @@ public final class FileCache {
         self.nameKeyer = nameHasher
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         
-        if try !fileSystem.properties(forFileAtPath: cachesContainer).exists() {
+        if !fileSystem.properties(forFileAtPath: cachesContainer).exists() {
             try fileSystem.createDirectory(atPath: cachesContainer, withIntermediateDirectories: true)
         }
         
@@ -71,7 +71,7 @@ public final class FileCache {
         do {
             return try whileLocked {
                 let filePath = try path(forItemWithName: name)
-                return try fileSystem.properties(forFileAtPath: filePath).exists()
+                return fileSystem.properties(forFileAtPath: filePath).exists()
             }
         } catch {
             return false
@@ -186,7 +186,7 @@ public final class FileCache {
             }
             
             let expectedCachedItemPath = element.appending(component: element.lastComponent).appending(extension: "json")
-            if try fileSystem.properties(forFileAtPath: expectedCachedItemPath).exists() {
+            if fileSystem.properties(forFileAtPath: expectedCachedItemPath).exists() {
                 cachedItemInfos[element] = try cachedItemInfo(path: expectedCachedItemPath)
             }
         }
@@ -197,7 +197,7 @@ public final class FileCache {
     private func containerPath(forItemWithName name: String) throws -> AbsolutePath {
         let key = try nameKeyer.key(forName: name)
         let containerPath = cachesContainer.appending(component: key)
-        if try !fileSystem.properties(forFileAtPath: containerPath).exists() {
+        if !fileSystem.properties(forFileAtPath: containerPath).exists() {
             try fileSystem.createDirectory(atPath: containerPath, withIntermediateDirectories: true)
         }
         return containerPath

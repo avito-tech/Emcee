@@ -1,17 +1,17 @@
 import Foundation
 
-public final class SubprocessInfo: Equatable {
-    public let subprocessId: Int32
-    public let subprocessName: String
+public final class PidInfo: Equatable {
+    public let pid: Int32
+    public let name: String
 
-    public init(subprocessId: Int32, subprocessName: String) {
-        self.subprocessId = subprocessId
-        self.subprocessName = subprocessName
+    public init(pid: Int32, name: String) {
+        self.pid = pid
+        self.name = name
     }
     
-    public static func ==(left: SubprocessInfo, right: SubprocessInfo) -> Bool {
-        return left.subprocessId == right.subprocessId
-            && left.subprocessName == right.subprocessName 
+    public static func ==(left: PidInfo, right: PidInfo) -> Bool {
+        return left.pid == right.pid
+            && left.name == right.name
     }
 }
 
@@ -19,7 +19,7 @@ public final class LogEntry: Equatable {
     public let file: StaticString
     public let line: UInt
     public let message: String
-    public let subprocessInfo: SubprocessInfo?
+    public let pidInfo: PidInfo?
     public let timestamp: Date
     public let verbosity: Verbosity
 
@@ -27,14 +27,14 @@ public final class LogEntry: Equatable {
         file: StaticString = #file,
         line: UInt = #line,
         message: String,
-        subprocessInfo: SubprocessInfo? = nil,
+        pidInfo: PidInfo? = nil,
         timestamp: Date = Date(),
         verbosity: Verbosity
     ) {
         self.file = file
         self.line = line
         self.message = message
-        self.subprocessInfo = subprocessInfo
+        self.pidInfo = pidInfo
         self.timestamp = timestamp
         self.verbosity = verbosity
     }
@@ -43,7 +43,7 @@ public final class LogEntry: Equatable {
         return left.file.description == right.file.description
             && left.line == right.line
             && left.message == right.message
-            && left.subprocessInfo == right.subprocessInfo
+            && left.pidInfo == right.pidInfo
             && left.timestamp == right.timestamp
             && left.verbosity == right.verbosity
     }

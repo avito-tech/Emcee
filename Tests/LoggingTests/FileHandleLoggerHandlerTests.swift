@@ -1,6 +1,6 @@
 import Foundation
 import Logging
-import TemporaryStuff
+import Tmp
 import XCTest
 
 final class FileHandleLoggerHandlerTests: XCTestCase {

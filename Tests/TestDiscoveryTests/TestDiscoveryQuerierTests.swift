@@ -17,7 +17,7 @@ import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolTestHelpers
 import SynchronousWaiter
-import TemporaryStuff
+import Tmp
 import TestArgFile
 import TestHelpers
 import UniqueIdentifierGenerator
@@ -220,7 +220,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             metricRecorder: NoOpMetricRecorder(),
             onDemandSimulatorPool: simulatorPool,
             pluginEventBusProvider: NoOoPluginEventBusProvider(),
-            processControllerProvider: FakeProcessControllerProvider(tempFolder: tempFolder),
+            processControllerProvider: FakeProcessControllerProvider(),
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,

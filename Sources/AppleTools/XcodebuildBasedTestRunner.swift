@@ -10,7 +10,7 @@ import ResultStream
 import Runner
 import RunnerModels
 import SimulatorPoolModels
-import TemporaryStuff
+import Tmp
 
 public final class XcodebuildBasedTestRunner: TestRunner {
     private let xctestJsonLocation: XCTestJsonLocation?
@@ -85,7 +85,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                     "-parallel-testing-enabled", "NO",
                     "test-without-building",
                 ],
-                environment: testContext.environment
+                environment: Environment(testContext.environment)
             )
         )
         
