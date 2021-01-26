@@ -12,6 +12,8 @@ import ProcessController
 import ProcessControllerTestHelpers
 import ResourceLocationResolver
 import ResourceLocationResolverTestHelpers
+import ResultStreamModels
+import ResultStreamModelsTestHelpers
 import Runner
 import RunnerModels
 import RunnerTestHelpers
@@ -38,14 +40,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             try tempFolder.pathByCreatingDirectories(components: ["simulator"])
         }
     )
-    private lazy var testContext = TestContext(
-        contextUuid: contextUuid,
-        developerDir: DeveloperDir.current,
-        environment: [:],
-        simulatorPath: simulator.path.fileUrl,
-        simulatorUdid: simulator.udid,
-        testDestination: simulator.testDestination
-    )
+    private lazy var testContext = createTestContext()
     private lazy var runner = XcodebuildBasedTestRunner(
         xctestJsonLocation: nil,
         dateProvider: dateProvider,
@@ -98,6 +93,17 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             AdditionalAppBundleLocation(.localFilePath(additionalAppPath.pathString)),
         ]
     )
+    
+    private func createTestContext(environment: [String: String] = [:]) -> TestContext {
+        TestContext(
+            contextUuid: contextUuid,
+            developerDir: DeveloperDir.current,
+            environment: environment,
+            simulatorPath: simulator.path.fileUrl,
+            simulatorUdid: simulator.udid,
+            testDestination: simulator.testDestination
+        )
+    }
     
     func test___logic_test_arguments() throws {
         let argsValidatedExpectation = expectation(description: "Arguments have been validated")
@@ -356,6 +362,73 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         XCTAssertFalse(testRunnerStream.streamIsOpen)
     }
     
+    func test___working_with_result_stream() throws {
+        let testName = TestName(className: "Class", methodName: "test")
+        let impactQueue = DispatchQueue(label: "impact.queue")
+        
+        testContext = createTestContext(environment: [XcodebuildBasedTestRunner.useResultStreamToggleEnvName: "true"])
+        
+        var tailProcessController: FakeProcessController?
+        var xcodebuildProcessController: FakeProcessController?
+        
+        processControllerProvider.creator = { subprocess -> ProcessController in
+            let controller = FakeProcessController(subprocess: subprocess)
+            controller.overridedProcessStatus = .stillRunning
+            
+            if xcodebuildProcessController == nil, try subprocess.arguments[0].stringValue().contains("xcrun") {
+                xcodebuildProcessController = controller
+            } else if tailProcessController == nil, try subprocess.arguments[0].stringValue().contains("tail") {
+                tailProcessController = controller
+            }
+            
+            return controller
+        }
+        
+        let invocation = try runner.prepareTestRun(
+            buildArtifacts: buildArtifacts,
+            developerDirLocator: developerDirLocator,
+            entriesToRun: [TestEntry(testName: testName, tags: [], caseId: nil)],
+            simulator: simulator,
+            temporaryFolder: tempFolder,
+            testContext: testContext,
+            testRunnerStream: testRunnerStream,
+            testType: .logicTest
+        )
+        let runningInvocation = invocation.startExecutingTests()
+        
+        impactQueue.async {
+            tailProcessController?.broadcastStdout(data: Data(RSTestStartedTestInput.input(testName: testName).utf8))
+            impactQueue.async {
+                tailProcessController?.broadcastStdout(data: Data(RSTestFinishedTestInput.input(testName: testName, duration: 5).utf8))
+                impactQueue.async {
+                    xcodebuildProcessController?.overridedProcessStatus = .terminated(exitCode: 0)
+                }
+            }
+        }
+        
+        runningInvocation.wait()
+        
+        guard testRunnerStream.accumulatedData.count == 2 else {
+            failTest("Unexpected number of events in test stream")
+        }
+        
+        XCTAssertEqual(
+            testRunnerStream.castTo(TestName.self, index: 0),
+            testName
+        )
+        
+        XCTAssertEqual(
+            testRunnerStream.castTo(TestStoppedEvent.self, index: 1),
+            TestStoppedEvent(
+                testName: testName,
+                result: .success,
+                testDuration: 5,
+                testExceptions: [],
+                testStartTimestamp: dateProvider.currentDate().timeIntervalSince1970 - 5
+            )
+        )
+    }
+    
     private func pathToXctestrunFile() throws -> AbsolutePath {
         let path = self.tempFolder.pathWith(components: [contextUuid.uuidString, "xctestrun"])
         let contents = try FileManager.default.contentsOfDirectory(atPath: path.pathString)
@@ -387,5 +460,12 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 "test-without-building"
             ]
         )
+    }
+}
+
+private extension RSAbstractStreamedEvent {
+    func data() throws -> Data {
+        let encoder = JSONEncoder()
+        return try encoder.encode(self)
     }
 }

@@ -79,11 +79,13 @@ let package = Package(
                 "DateProvider",
                 "DeveloperDirLocator",
                 "Logging",
+                "ObservableFileReader",
                 "PathLib",
                 "PlistLib",
                 "ProcessController",
                 "ResourceLocation",
                 "ResourceLocationResolver",
+                "ResultStream",
                 "Runner",
                 "RunnerModels",
                 "SimulatorPool",
@@ -112,6 +114,8 @@ let package = Package(
                 "QueueModelsTestHelpers",
                 "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
+                "ResultStreamModels",
+                "ResultStreamModelsTestHelpers",
                 "Runner",
                 "RunnerModels",
                 "RunnerTestHelpers",
@@ -1616,11 +1620,21 @@ let package = Package(
             ],
             path: "Sources/ResultStreamModels"
         ),
+        .target(
+            // MARK: ResultStreamModelsTestHelpers
+            name: "ResultStreamModelsTestHelpers",
+            dependencies: [
+                "RunnerModels",
+            ],
+            path: "Tests/ResultStreamModelsTestHelpers"
+        ),
         .testTarget(
             // MARK: ResultStreamModelsTests
             name: "ResultStreamModelsTests",
             dependencies: [
                 "ResultStreamModels",
+                "ResultStreamModelsTestHelpers",
+                "RunnerModels",
                 "TestHelpers",
             ],
             path: "Tests/ResultStreamModelsTests"

@@ -3,8 +3,10 @@ import DateProvider
 import DeveloperDirLocator
 import Foundation
 import Logging
+import ObservableFileReader
 import ProcessController
 import ResourceLocationResolver
+import ResultStream
 import Runner
 import RunnerModels
 import SimulatorPoolModels
@@ -15,6 +17,8 @@ public final class XcodebuildBasedTestRunner: TestRunner {
     private let dateProvider: DateProvider
     private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
+    
+    public static let useResultStreamToggleEnvName = "EMCEE_USE_RESULT_STREAM"
     
     public init(
         xctestJsonLocation: XCTestJsonLocation?,
@@ -85,18 +89,52 @@ public final class XcodebuildBasedTestRunner: TestRunner {
             )
         )
         
+        let useResultStream = testContext.environment[Self.useResultStreamToggleEnvName] == "true"
+        
         let xcodebuildOutputProcessor = XcodebuildOutputProcessor(
             testRunnerStream: testRunnerStream,
             xcodebuildLogParser: xcodebuildLogParser
         )
+        let resultStream = ResultStreamImpl(
+            dateProvider: dateProvider,
+            testRunnerStream: testRunnerStream
+        )
+        let observableFileReader = try ObservableFileReaderImpl(
+            path: resultStreamFile,
+            processControllerProvider: processControllerProvider
+        )
+        var observableFileReaderHandler: ObservableFileReaderHandler?
+        
         processController.onStart { sender, _ in
             testRunnerStream.openStream()
+            
+            if useResultStream {
+                do {
+                    observableFileReaderHandler = try observableFileReader.read(handler: resultStream.write(data:))
+                } catch {
+                    Logger.error("Failed to read stream file: \(error)")
+                    return sender.terminateAndForceKillIfNeeded()
+                }
+                resultStream.streamContents { error in
+                    if let error = error {
+                        Logger.error("Result stream error: \(error)")
+                    }
+                    testRunnerStream.closeStream()
+                }
+            }
         }
-        processController.onStdout { _, data, _ in
-            xcodebuildOutputProcessor.newStdout(data: data)
+        if !useResultStream {
+            processController.onStdout { _, data, _ in
+                xcodebuildOutputProcessor.newStdout(data: data)
+            }
         }
         processController.onTermination { _, _ in
-            testRunnerStream.closeStream()
+            if useResultStream {
+                observableFileReaderHandler?.cancel()
+                resultStream.close()
+            } else {
+                testRunnerStream.closeStream()
+            }
         }
         return ProcessControllerWrappingTestRunnerInvocation(
             processController: processController
