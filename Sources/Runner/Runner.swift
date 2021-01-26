@@ -230,6 +230,20 @@ public final class Runner {
                         streamClosedCallback.set(result: ())
                     }
                 ),
+                PreflightPostflightTimeoutTrackingTestRunnerStream(
+                    dateProvider: dateProvider,
+                    onPreflightTimeout: {
+                        Logger.debug("Detected preflight timeout", testRunnerRunningInvocationContainer.currentValue()?.subprocessInfo)
+                        testRunnerRunningInvocationContainer.currentValue()?.cancel()
+                    },
+                    onPostflightTimeout: { testName in
+                        Logger.debug("Detected postflight timeout, last finished test was \(testName)", testRunnerRunningInvocationContainer.currentValue()?.subprocessInfo)
+                        testRunnerRunningInvocationContainer.currentValue()?.cancel()
+                    },
+                    maximumPreflightDuration: configuration.testTimeoutConfiguration.testRunnerMaximumSilenceDuration,
+                    maximumPostflightDuration: configuration.testTimeoutConfiguration.testRunnerMaximumSilenceDuration,
+                    pollPeriod: testTimeoutCheckInterval
+                )
             ]
         )
         
