@@ -13,7 +13,7 @@ final class PreflightPostflightTimeoutTrackingTestRunnerStreamTests: XCTestCase 
         dateProvider: dateProvider,
         onPreflightTimeout: { [weak self] in self?.preflightExpectation.fulfill() },
         onPostflightTimeout: { [weak self] _ in self?.postflightExpectation.fulfill() },
-        maximumPreflightDuration: 5.0,
+        maximumPreflightDuration: 0.01,
         maximumPostflightDuration: 0.01,
         pollPeriod: .milliseconds(1)
     )
