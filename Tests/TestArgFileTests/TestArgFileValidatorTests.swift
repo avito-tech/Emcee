@@ -4,6 +4,7 @@ import Foundation
 import QueueModels
 import RunnerModels
 import LoggingSetup
+import MetricsExtensions
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import TestArgFile
@@ -153,13 +154,9 @@ final class TestArgFileValidatorTests: XCTestCase {
     
     private func createTestArgFile(entries: [TestArgFileEntry]) -> TestArgFile {
         TestArgFile(
-            analyticsConfiguration: AnalyticsConfiguration(
-                graphiteConfiguration: nil,
-                statsdConfiguration: nil,
-                sentryConfiguration: nil
-            ),
             entries: entries,
             prioritizedJob: PrioritizedJob(
+                analyticsConfiguration: AnalyticsConfiguration(),
                 jobGroupId: "",
                 jobGroupPriority: 0,
                 jobId: "",

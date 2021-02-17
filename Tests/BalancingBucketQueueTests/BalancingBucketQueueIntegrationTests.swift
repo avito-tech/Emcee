@@ -6,6 +6,7 @@ import BuildArtifacts
 import BuildArtifactsTestHelpers
 import DateProviderTestHelpers
 import Foundation
+import MetricsExtensions
 import QueueCommunication
 import QueueCommunicationTestHelpers
 import QueueModels
@@ -238,9 +239,29 @@ final class BalancingBucketQueueIntegrationTests: XCTestCase {
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
 
         let bucket1 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class1")])
-        try balancingQueue.enqueue(buckets: [bucket1], prioritizedJob: PrioritizedJob(jobGroupId: "group1", jobGroupPriority: .medium, jobId: "job1", jobPriority: .medium, persistentMetricsJobId: ""))
+        try balancingQueue.enqueue(
+            buckets: [bucket1],
+            prioritizedJob: PrioritizedJob(
+                analyticsConfiguration: analyticsConfiguration,
+                jobGroupId: "group1",
+                jobGroupPriority: .medium,
+                jobId: "job1",
+                jobPriority: .medium,
+                persistentMetricsJobId: ""
+            )
+        )
         let bucket2 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class2")])
-        try balancingQueue.enqueue(buckets: [bucket2], prioritizedJob: PrioritizedJob(jobGroupId: "group2", jobGroupPriority: .highest, jobId: "job2", jobPriority: .medium, persistentMetricsJobId: ""))
+        try balancingQueue.enqueue(
+            buckets: [bucket2],
+            prioritizedJob: PrioritizedJob(
+                analyticsConfiguration: analyticsConfiguration,
+                jobGroupId: "group2",
+                jobGroupPriority: .highest,
+                jobId: "job2",
+                jobPriority: .medium,
+                persistentMetricsJobId: ""
+            )
+        )
 
         XCTAssertEqual(
             balancingQueue.dequeueBucket(
@@ -431,8 +452,17 @@ final class BalancingBucketQueueIntegrationTests: XCTestCase {
         )
     }
     
+    lazy var analyticsConfiguration = AnalyticsConfiguration()
+    
     lazy var anotherJobId: JobId = "anotherJobId"
-    lazy var anotherPrioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: anotherJobId, jobPriority: .medium, persistentMetricsJobId: "")
+    lazy var anotherPrioritizedJob = PrioritizedJob(
+        analyticsConfiguration: analyticsConfiguration,
+        jobGroupId: "groupId",
+        jobGroupPriority: .medium,
+        jobId: anotherJobId,
+        jobPriority: .medium,
+        persistentMetricsJobId: ""
+    )
     lazy var balancingQueue = BalancingBucketQueueImpl(
         bucketQueueFactory: bucketQueueFactory,
         dateProvider: dateProvider,
@@ -449,10 +479,24 @@ final class BalancingBucketQueueIntegrationTests: XCTestCase {
     )
     lazy var checkAgainTimeInterval: TimeInterval = 42
     lazy var dateProvider = DateProviderFixture()
-    lazy var highlyPrioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: highlyPrioritizedJobId, jobPriority: .highest, persistentMetricsJobId: "")
+    lazy var highlyPrioritizedJob = PrioritizedJob(
+        analyticsConfiguration: analyticsConfiguration,
+        jobGroupId: "groupId",
+        jobGroupPriority: .medium,
+        jobId: highlyPrioritizedJobId,
+        jobPriority: .highest,
+        persistentMetricsJobId: ""
+    )
     lazy var highlyPrioritizedJobId: JobId = "highPriorityJobId"
     lazy var jobId: JobId = "jobId"
-    lazy var prioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: jobId, jobPriority: .medium, persistentMetricsJobId: "")
+    lazy var prioritizedJob = PrioritizedJob(
+        analyticsConfiguration: analyticsConfiguration,
+        jobGroupId: "groupId",
+        jobGroupPriority: .medium,
+        jobId: jobId,
+        jobPriority: .medium,
+        persistentMetricsJobId: ""
+    )
     lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator()
     lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(
         knownWorkerIds: [workerId],

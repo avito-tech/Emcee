@@ -3,6 +3,7 @@ import DateProviderTestHelpers
 import DistWorkerModels
 import DistWorkerModelsTestHelpers
 import Foundation
+import MetricsExtensions
 import MetricsTestHelpers
 import PortDeterminer
 import QueueClient
@@ -27,7 +28,14 @@ final class QueueServerTests: XCTestCase {
     private let workerConfigurations = WorkerConfigurations()
     private let workerId: WorkerId = "workerId"
     private let jobId: JobId = "jobId"
-    private lazy var prioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: jobId, jobPriority: .medium, persistentMetricsJobId: "")
+    private lazy var prioritizedJob = PrioritizedJob(
+        analyticsConfiguration: AnalyticsConfiguration(),
+        jobGroupId: "groupId",
+        jobGroupPriority: .medium,
+        jobId: jobId,
+        jobPriority: .medium,
+        persistentMetricsJobId: ""
+    )
     private let automaticTerminationController = AutomaticTerminationControllerFactory(
         automaticTerminationPolicy: .stayAlive
     ).createAutomaticTerminationController()
@@ -57,7 +65,8 @@ final class QueueServerTests: XCTestCase {
             deploymentDestinations: [],
             emceeVersion: "emceeVersion",
             localPortDeterminer: localPortDeterminer,
-            metricRecorder: NoOpMetricRecorder(),
+            globalMetricRecorder: GlobalMetricRecorderImpl(),
+            specificMetricRecorderProvider: NoOpSpecificMetricRecorderProvider(),
             onDemandWorkerStarter: FakeOnDemandWorkerStarter(),
             payloadSignature: payloadSignature,
             queueServerLock: NeverLockableQueueServerLock(),
@@ -101,7 +110,8 @@ final class QueueServerTests: XCTestCase {
             deploymentDestinations: [],
             emceeVersion: "emceeVersion",
             localPortDeterminer: localPortDeterminer,
-            metricRecorder: NoOpMetricRecorder(),
+            globalMetricRecorder: GlobalMetricRecorderImpl(),
+            specificMetricRecorderProvider: NoOpSpecificMetricRecorderProvider(),
             onDemandWorkerStarter: FakeOnDemandWorkerStarter(),
             payloadSignature: payloadSignature,
             queueServerLock: NeverLockableQueueServerLock(),

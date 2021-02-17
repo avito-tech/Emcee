@@ -1,6 +1,7 @@
 import BalancingBucketQueue
 import BucketQueue
 import BucketQueueTestHelpers
+import MetricsExtensions
 import QueueModels
 import QueueModelsTestHelpers
 import TestHelpers
@@ -10,6 +11,7 @@ final class MultipleQueuesEnqueueableBucketReceptorTests: XCTestCase {
     lazy var bucketQueueFactory = FakeBucketQueueFactory()
     lazy var container = MultipleQueuesContainer()
     lazy var prioritizedJob = PrioritizedJob(
+        analyticsConfiguration: AnalyticsConfiguration(),
         jobGroupId: "group",
         jobGroupPriority: .medium,
         jobId: "job",

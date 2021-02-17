@@ -12,6 +12,7 @@ import LocalHostDeterminer
 import Logging
 import LoggingSetup
 import Metrics
+import MetricsExtensions
 import PathLib
 import PluginManager
 import QueueClient
@@ -39,7 +40,6 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
     private let httpRestServer: HTTPRESTServer
     private let version: Version
     private let workerId: WorkerId
-    private let metricRecorder: MetricRecorder
     private var payloadSignature = Either<PayloadSignature, DistWorkerError>.error(DistWorkerError.missingPayloadSignature)
     
     private enum ReducedBucketFetchResult: Equatable {
@@ -50,8 +50,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
     public init(
         di: DI,
         version: Version,
-        workerId: WorkerId,
-        metricRecorder: MetricRecorder
+        workerId: WorkerId
     ) {
         self.di = di
         self.httpRestServer = HTTPRESTServer(
@@ -60,11 +59,9 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
         )
         self.version = version
         self.workerId = workerId
-        self.metricRecorder = metricRecorder
     }
     
     public func start(
-        didFetchAnalyticsConfiguration: @escaping (AnalyticsConfiguration) throws -> (),
         completion: @escaping () -> ()
     ) throws {
         httpRestServer.add(
@@ -86,17 +83,19 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
         ) { [weak self] result in
             do {
                 guard let strongSelf = self else {
-                    Logger.error("self is nil in start() in DistWorker")
+                    Logger.error("self is nil in start()")
                     completion()
                     return
                 }
                 
                 let workerConfiguration = try result.dematerialize()
                 
+                try strongSelf.di.get(GlobalMetricRecorder.self).set(
+                    analyticsConfiguration: workerConfiguration.globalAnalyticsConfiguration
+                )
+                
                 strongSelf.payloadSignature = .success(workerConfiguration.payloadSignature)
                 Logger.debug("Registered with server. Worker configuration: \(workerConfiguration)")
-                
-                try didFetchAnalyticsConfiguration(workerConfiguration.analyticsConfiguration)
                 
                 _ = try strongSelf.runTests(
                     workerConfiguration: workerConfiguration
@@ -121,8 +120,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
             numberOfSimulators: workerConfiguration.numberOfSimulators,
             schedulerDataSource: self,
             schedulerDelegate: self,
-            version: version,
-            metricRecorder: metricRecorder
+            version: version
         )
         try scheduler.run()
     }

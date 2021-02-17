@@ -2,6 +2,7 @@ import BuildArtifacts
 import BuildArtifactsTestHelpers
 import DeveloperDirModels
 import Foundation
+import MetricsExtensions
 import PluginSupport
 import QueueModels
 import RunnerModels
@@ -11,6 +12,7 @@ import SimulatorPoolTestHelpers
 import WorkerCapabilitiesModels
 
 public final class TestEntryConfigurationFixtures {
+    public var analyticsConfiguration = AnalyticsConfiguration()
     public var buildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
     public var pluginLocations = Set<PluginLocation>()
     public var simulatorSettings = SimulatorSettings(
@@ -35,6 +37,11 @@ public final class TestEntryConfigurationFixtures {
     
     public func add(testEntries: [TestEntry]) -> Self {
         self.testEntries.append(contentsOf: testEntries)
+        return self
+    }
+    
+    public func with(analyticsConfiguration: AnalyticsConfiguration) -> Self {
+        self.analyticsConfiguration = analyticsConfiguration
         return self
     }
     
@@ -86,6 +93,7 @@ public final class TestEntryConfigurationFixtures {
     public func testEntryConfigurations() -> [TestEntryConfiguration] {
         return testEntries.map { testEntry in
             TestEntryConfiguration(
+                analyticsConfiguration: analyticsConfiguration,
                 buildArtifacts: buildArtifacts,
                 developerDir: developerDir,
                 pluginLocations: pluginLocations,

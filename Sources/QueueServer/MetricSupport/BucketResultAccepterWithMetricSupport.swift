@@ -3,7 +3,9 @@ import BucketQueue
 import DateProvider
 import Foundation
 import LocalHostDeterminer
+import Logging
 import Metrics
+import MetricsExtensions
 import QueueModels
 
 public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
@@ -12,7 +14,7 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
     private let jobStateProvider: JobStateProvider
     private let queueStateProvider: RunningQueueStateProvider
     private let version: Version
-    private let metricRecorder: MetricRecorder
+    private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
 
     public init(
         bucketResultAccepter: BucketResultAccepter,
@@ -20,14 +22,14 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
         jobStateProvider: JobStateProvider,
         queueStateProvider: RunningQueueStateProvider,
         version: Version,
-        metricRecorder: MetricRecorder
+        specificMetricRecorderProvider: SpecificMetricRecorderProvider
     ) {
         self.bucketResultAccepter = bucketResultAccepter
         self.dateProvider = dateProvider
         self.jobStateProvider = jobStateProvider
         self.queueStateProvider = queueStateProvider
         self.version = version
-        self.metricRecorder = metricRecorder
+        self.specificMetricRecorderProvider = specificMetricRecorderProvider
     }
     
     public func accept(
@@ -73,14 +75,21 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
             }
         }
         
-        metricRecorder.capture(testTimeToStartMetrics + queueStateMetrics)
-        metricRecorder.capture(
-            BucketProcessingDurationMetric(
-                queueHost: LocalHostDeterminer.currentHostAddress,
-                version: version,
-                persistentMetricsJobId: acceptResult.dequeuedBucket.enqueuedBucket.bucket.persistentMetricsJobId ,
-                duration: dateProvider.currentDate().timeIntervalSince(acceptResult.dequeuedBucket.enqueuedBucket.enqueueTimestamp)
+        do {
+            let specificMetricRecorder = try specificMetricRecorderProvider.specificMetricRecorder(
+                analyticsConfiguration: acceptResult.dequeuedBucket.enqueuedBucket.bucket.analyticsConfiguration
             )
-        )
+            specificMetricRecorder.capture(testTimeToStartMetrics + queueStateMetrics)
+            specificMetricRecorder.capture(
+                BucketProcessingDurationMetric(
+                    queueHost: LocalHostDeterminer.currentHostAddress,
+                    version: version,
+                    persistentMetricsJobId: acceptResult.dequeuedBucket.enqueuedBucket.bucket.persistentMetricsJobId ,
+                    duration: dateProvider.currentDate().timeIntervalSince(acceptResult.dequeuedBucket.enqueuedBucket.enqueueTimestamp)
+                )
+            )
+        } catch {
+            Logger.error("Failed to send metrics: \(error)")
+        }
     }
 }

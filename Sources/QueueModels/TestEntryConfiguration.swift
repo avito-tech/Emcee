@@ -1,12 +1,14 @@
 import BuildArtifacts
 import DeveloperDirModels
 import Foundation
+import MetricsExtensions
 import PluginSupport
 import RunnerModels
 import SimulatorPoolModels
 import WorkerCapabilitiesModels
 
 public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable {
+    public let analyticsConfiguration: AnalyticsConfiguration
     public let buildArtifacts: BuildArtifacts
     public let developerDir: DeveloperDir
     public let pluginLocations: Set<PluginLocation>
@@ -23,6 +25,7 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
     public let persistentMetricsJobId: String
 
     public init(
+        analyticsConfiguration: AnalyticsConfiguration,
         buildArtifacts: BuildArtifacts,
         developerDir: DeveloperDir,
         pluginLocations: Set<PluginLocation>,
@@ -38,6 +41,7 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement>,
         persistentMetricsJobId: String
     ) {
+        self.analyticsConfiguration = analyticsConfiguration
         self.buildArtifacts = buildArtifacts
         self.developerDir = developerDir
         self.pluginLocations = pluginLocations
@@ -55,6 +59,6 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
     }
     
     public var description: String {
-        return "<\(type(of: self)): \(testEntry) \(testType) \(testDestination) \(buildArtifacts) \(pluginLocations) \(simulatorSettings) \(testExecutionBehavior) \(testTimeoutConfiguration) \(simulatorControlTool) \(simulatorOperationTimeouts) \(testRunnerTool) \(developerDir) \(workerCapabilityRequirements) \(persistentMetricsJobId)>"
+        return "<\(type(of: self)): \(testEntry) \(testType) \(testDestination) \(buildArtifacts) \(pluginLocations) \(simulatorSettings) \(testExecutionBehavior) \(testTimeoutConfiguration) \(simulatorControlTool) \(simulatorOperationTimeouts) \(testRunnerTool) \(developerDir) \(workerCapabilityRequirements) \(analyticsConfiguration) \(persistentMetricsJobId)>"
     }
 }

@@ -1,12 +1,14 @@
 import BuildArtifacts
 import DeveloperDirModels
 import Foundation
+import MetricsExtensions
 import PluginSupport
 import RunnerModels
 import SimulatorPoolModels
 import TestArgFile
 
 public struct TestDiscoveryConfiguration {
+    public let analyticsConfiguration: AnalyticsConfiguration
     public let developerDir: DeveloperDir
     public let pluginLocations: Set<PluginLocation>
     public let testDiscoveryMode: TestDiscoveryMode
@@ -22,6 +24,7 @@ public struct TestDiscoveryConfiguration {
     public let remoteCache: RuntimeDumpRemoteCache
 
     public init(
+        analyticsConfiguration: AnalyticsConfiguration,
         developerDir: DeveloperDir,
         pluginLocations: Set<PluginLocation>,
         testDiscoveryMode: TestDiscoveryMode,
@@ -36,6 +39,7 @@ public struct TestDiscoveryConfiguration {
         persistentMetricsJobId: String,
         remoteCache: RuntimeDumpRemoteCache
     ) {
+        self.analyticsConfiguration = analyticsConfiguration
         self.developerDir = developerDir
         self.pluginLocations = pluginLocations
         self.testDiscoveryMode = testDiscoveryMode

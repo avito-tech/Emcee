@@ -3,6 +3,7 @@ import Dispatch
 import Foundation
 import Logging
 import Metrics
+import MetricsExtensions
 import QueueClient
 import QueueModels
 import RequestSender
@@ -38,6 +39,7 @@ public final class JobPreparer {
                 try? reportJobPreparationDuration(
                     duration: duration,
                     emceeVersion: emceeVersion,
+                    analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration,
                     persistentMetricsJobId: testArgFile.prioritizedJob.persistentMetricsJobId,
                     queueHost: queueServerAddress.host,
                     successful: error == nil
@@ -55,11 +57,13 @@ public final class JobPreparer {
             remoteCache: try di.get(RuntimeDumpRemoteCacheProvider.self).remoteCache(config: remoteCacheConfig),
             testArgFileEntries: testArgFile.entries,
             testDiscoveryQuerier: try di.get(),
+            analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration,
             persistentMetricsJobId: testArgFile.prioritizedJob.persistentMetricsJobId
         )
         
         _ = try testEntriesValidator.validatedTestEntries { testArgFileEntry, validatedTestEntry in
             let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
+                analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration,
                 validatedEntries: validatedTestEntry,
                 testArgFileEntry: testArgFileEntry,
                 persistentMetricsJobId: testArgFile.prioritizedJob.persistentMetricsJobId
@@ -86,11 +90,14 @@ public final class JobPreparer {
     private func reportJobPreparationDuration(
         duration: TimeInterval,
         emceeVersion: Version,
+        analyticsConfiguration: AnalyticsConfiguration,
         persistentMetricsJobId: String,
         queueHost: String,
         successful: Bool
     ) throws {
-        try di.get(MetricRecorder.self).capture(
+        try di.get(SpecificMetricRecorderProvider.self).specificMetricRecorder(
+            analyticsConfiguration: analyticsConfiguration
+        ).capture(
             JobPreparationDurationMetric(
                 queueHost: queueHost,
                 version: emceeVersion,

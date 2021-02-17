@@ -2,6 +2,7 @@ import Deployer
 import DeployerTestHelpers
 import Graphite
 import Metrics
+import MetricsExtensions
 import MetricsTestHelpers
 import QueueCommunication
 import QueueCommunicationTestHelpers
@@ -119,9 +120,9 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
         let expectedMetric2 = NumberOfWorkersToUtilizeMetric(emceeVersion: "emceeVersion", queueHost: "queueHost", workersCount: 1)
         let poller = buildPoller(
             deployments: [],
-            metricRecorder: MetricRecorderImpl(
-                graphiteMetricHandler: metricHandler,
-                statsdMetricHandler: NoOpMetricHandler(),
+            globalMetricRecorder: GlobalMetricRecorderImpl(
+                graphiteHandler: metricHandler,
+                statsdHandler: NoOpMetricHandler(),
                 queue: metricQueue
             )
         )
@@ -144,13 +145,13 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
 
     private func buildPoller(
         deployments: [DeploymentDestination],
-        metricRecorder: MetricRecorder = NoOpMetricRecorder()
+        globalMetricRecorder: GlobalMetricRecorder = GlobalMetricRecorderImpl()
     ) -> DefaultWorkerUtilizationStatusPoller {
         DefaultWorkerUtilizationStatusPoller(
             communicationService: communicationService,
             defaultDeployments: deployments,
             emceeVersion: "emceeVersion",
-            metricRecorder: metricRecorder,
+            globalMetricRecorder: globalMetricRecorder,
             queueHost: "queueHost"
         )
     }

@@ -6,6 +6,7 @@ import DeveloperDirLocatorTestHelpers
 import FileCache
 import Foundation
 import Logging
+import MetricsExtensions
 import PathLib
 import ProcessController
 import ProcessControllerTestHelpers
@@ -214,6 +215,7 @@ final class ExecutableTestDiscovererTests: XCTestCase {
         )
     )
     private lazy var configuration = TestDiscoveryConfiguration(
+        analyticsConfiguration: AnalyticsConfiguration(),
         developerDir: .current,
         pluginLocations: [],
         testDiscoveryMode: .runtimeExecutableLaunch(appBundleLocation),

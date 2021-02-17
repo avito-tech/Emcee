@@ -2,6 +2,7 @@ import BalancingBucketQueue
 import BucketQueueTestHelpers
 import DateProviderTestHelpers
 import Foundation
+import MetricsExtensions
 import MetricsTestHelpers
 import QueueModels
 import TestHelpers
@@ -11,7 +12,7 @@ final class MultipleQueuesJobManipulatorTests: XCTestCase {
     private lazy var container = MultipleQueuesContainer()
     private lazy var manipulator = MultipleQueuesJobManipulator(
         dateProvider: DateProviderFixture(),
-        metricRecorder: NoOpMetricRecorder(),
+        specificMetricRecorderProvider: NoOpSpecificMetricRecorderProvider(),
         multipleQueuesContainer: container,
         emceeVersion: Version(value: "version")
     )

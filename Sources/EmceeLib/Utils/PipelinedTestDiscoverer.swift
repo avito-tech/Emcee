@@ -69,6 +69,7 @@ public final class PipelinedTestDiscoverer {
             let dumpOperation = BlockOperation { [runtimeDumpRemoteCacheProvider, testDiscoveryQuerier] in
                 do {
                     let configuration = TestDiscoveryConfiguration(
+                        analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration,
                         developerDir: testArgFileEntry.developerDir,
                         pluginLocations: testArgFileEntry.pluginLocations,
                         testDiscoveryMode: try TestDiscoveryModeDeterminer.testDiscoveryMode(testArgFileEntry: testArgFileEntry),

@@ -1,6 +1,6 @@
 import Foundation
 
-public struct SentryConfiguration: Codable, Equatable {
+public struct SentryConfiguration: Codable, Hashable {
     public let dsn: URL
 
     public init(dsn: URL) {

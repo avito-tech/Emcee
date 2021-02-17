@@ -2,6 +2,7 @@
 import BuildArtifacts
 import BuildArtifactsTestHelpers
 import EmceeLib
+import MetricsExtensions
 import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolModels
@@ -95,6 +96,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             remoteCache: NoOpRuntimeDumpRemoteCache(),
             testArgFileEntries: testArgFileEntries,
             testDiscoveryQuerier: testDiscoveryQuerier,
+            analyticsConfiguration: AnalyticsConfiguration(),
             persistentMetricsJobId: ""
         )
     }

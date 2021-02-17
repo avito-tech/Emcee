@@ -34,7 +34,7 @@ public final class OnDemandSimulatorPoolFactory {
                         uniqueIdentifierGenerator: try di.get()
                     ),
                     version: version,
-                    metricRecorder: try di.get()
+                    globalMetricRecorder: try di.get()
                 )
             ),
             tempFolder: try di.get()

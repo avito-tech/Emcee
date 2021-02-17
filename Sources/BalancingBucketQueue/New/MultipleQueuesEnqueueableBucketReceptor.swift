@@ -31,6 +31,7 @@ public final class MultipleQueuesEnqueueableBucketReceptor: EnqueueableBucketRec
                 
                 multipleQueuesContainer.add(
                     runningJobQueue: JobQueue(
+                        analyticsConfiguration: prioritizedJob.analyticsConfiguration,
                         bucketQueue: bucketQueue,
                         job: Job(creationTime: Date(), jobId: prioritizedJob.jobId, priority: prioritizedJob.jobPriority),
                         jobGroup: fetchOrCreateJobGroup(

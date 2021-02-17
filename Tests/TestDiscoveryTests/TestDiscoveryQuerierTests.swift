@@ -5,6 +5,7 @@ import DeveloperDirLocatorTestHelpers
 import DeveloperDirModels
 import FileSystemTestHelpers
 import Foundation
+import MetricsExtensions
 import MetricsTestHelpers
 import PluginManagerTestHelpers
 import ProcessController
@@ -217,7 +218,8 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             dateProvider: DateProviderFixture(),
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
-            metricRecorder: NoOpMetricRecorder(),
+            globalMetricRecorder: GlobalMetricRecorderImpl(),
+            specificMetricRecorderProvider: NoOpSpecificMetricRecorderProvider(),
             onDemandSimulatorPool: simulatorPool,
             pluginEventBusProvider: NoOoPluginEventBusProvider(),
             processControllerProvider: FakeProcessControllerProvider(),
@@ -236,6 +238,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
         xcTestBundleLocation: TestBundleLocation = TestBundleLocation(ResourceLocation.localFilePath(""))
     ) -> TestDiscoveryConfiguration {
         return TestDiscoveryConfiguration(
+            analyticsConfiguration: AnalyticsConfiguration(),
             developerDir: DeveloperDir.current,
             pluginLocations: [],
             testDiscoveryMode: .runtimeLogicTest(applicationTestSupport?.simulatorControlTool ?? SimulatorControlToolFixtures.fakeFbsimctlTool),

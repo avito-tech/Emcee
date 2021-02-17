@@ -9,6 +9,7 @@ import LocalHostDeterminer
 import Logging
 import LoggingSetup
 import Metrics
+import MetricsExtensions
 import PathLib
 import PluginManager
 import ProcessController
@@ -35,9 +36,27 @@ public final class InProcessMain {
             SystemDateProvider(),
             for: DateProvider.self
         )
+        di.set(
+            SpecificMetricRecorderProviderImpl(
+                mutableMetricRecorderProvider: MutableMetricRecorderProviderImpl(
+                    queue: DispatchQueue(
+                        label: "MutableMetricRecorderProvider.queue",
+                        attributes: .concurrent,
+                        target: .global()
+                    )
+                )
+            ),
+            for: SpecificMetricRecorderProvider.self
+        )
         
-        setupMetrics(di: di)
-        let metricRecorder: MetricRecorder = try di.get()
+        // global metric recorder to be configured after obtaining analytics configuration 
+        di.set(
+            GlobalMetricRecorderImpl(),
+            for: GlobalMetricRecorder.self
+        )
+        
+        let globalMmetricRecorder: GlobalMetricRecorder = try di.get()
+        let specificMetricRecorderProvider: SpecificMetricRecorderProvider = try di.get()
         
         let cacheElementTimeToLive = TimeUnit.hours(1)
         let cacheMaximumSize = 20 * 1024 * 1024 * 1024
@@ -56,7 +75,8 @@ public final class InProcessMain {
         defer {
             let timeout: TimeInterval = 10
             LoggingSetup.tearDown(timeout: timeout)
-            metricRecorder.tearDown(timeout: timeout)
+            specificMetricRecorderProvider.tearDown(timeout: timeout)
+            globalMmetricRecorder.tearDown(timeout: timeout)
             logCleaningQueue.waitUntilAllOperationsAreFinished()
         }
         
@@ -155,21 +175,6 @@ public final class InProcessMain {
             helpCommandType: .generateAutomatically
         )
         try commandInvoker.invokeSuitableCommand()
-    }
-    
-    private func setupMetrics(di: DI) {
-        let metricRecorder = MetricRecorderImpl(
-            graphiteMetricHandler: NoOpMetricHandler(),
-            statsdMetricHandler: NoOpMetricHandler()
-        )
-        di.set(
-            metricRecorder,
-            for: MutableMetricRecorder.self
-        )
-        di.set(
-            metricRecorder,
-            for: MetricRecorder.self
-        )
     }
     
     private func setupLogging(di: DI, logsTimeToLive: TimeUnit, queue: OperationQueue) throws {

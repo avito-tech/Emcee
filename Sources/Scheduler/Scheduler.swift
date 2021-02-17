@@ -8,6 +8,7 @@ import ListeningSemaphore
 import LocalHostDeterminer
 import Logging
 import Metrics
+import MetricsExtensions
 import PluginManager
 import ProcessController
 import QueueModels
@@ -26,7 +27,6 @@ public final class Scheduler {
     private let queue = OperationQueue()
     private let resourceSemaphore: ListeningSemaphore<ResourceAmounts>
     private let version: Version
-    private let metricRecorder: MetricRecorder
     private weak var schedulerDataSource: SchedulerDataSource?
     private weak var schedulerDelegate: SchedulerDelegate?
     
@@ -35,8 +35,7 @@ public final class Scheduler {
         numberOfSimulators: UInt,
         schedulerDataSource: SchedulerDataSource,
         schedulerDelegate: SchedulerDelegate,
-        version: Version,
-        metricRecorder: MetricRecorder
+        version: Version
     ) {
         self.di = di
         self.resourceSemaphore = ListeningSemaphore(
@@ -47,7 +46,6 @@ public final class Scheduler {
         self.schedulerDataSource = schedulerDataSource
         self.schedulerDelegate = schedulerDelegate
         self.version = version
-        self.metricRecorder = metricRecorder
     }
     
     public func run() throws {
@@ -167,12 +165,17 @@ public final class Scheduler {
                 simulatorControlTool: bucket.simulatorControlTool
             )
         )
+        
+        let specificMetricRecorderProvider: SpecificMetricRecorderProvider = try di.get()
+        let specificMetricRecorder = try specificMetricRecorderProvider.specificMetricRecorder(
+            analyticsConfiguration: bucket.analyticsConfiguration
+        )
 
         let allocatedSimulator = try simulatorPool.allocateSimulator(
             dateProvider: try di.get(),
             simulatorOperationTimeouts: bucket.simulatorOperationTimeouts,
             version: version,
-            metricRecorder: metricRecorder
+            globalMetricRecorder: try di.get()
         )
         defer { allocatedSimulator.releaseSimulator() }
         
@@ -201,7 +204,7 @@ public final class Scheduler {
             testRunnerProvider: try di.get(),
             version: version,
             persistentMetricsJobId: bucket.persistentMetricsJobId,
-            metricRecorder: metricRecorder,
+            specificMetricRecorder: specificMetricRecorder,
             waiter: try di.get()
         )
 

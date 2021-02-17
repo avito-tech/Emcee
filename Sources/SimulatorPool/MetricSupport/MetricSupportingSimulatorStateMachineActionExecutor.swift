@@ -1,7 +1,9 @@
 import DateProvider
 import Foundation
 import LocalHostDeterminer
+import Logging
 import Metrics
+import MetricsExtensions
 import PathLib
 import QueueModels
 import SimulatorPoolModels
@@ -11,18 +13,18 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
     let delegate: SimulatorStateMachineActionExecutor
     private let dateProvider: DateProvider
     private let version: Version
-    private let metricRecorder: MetricRecorder
+    private let globalMetricRecorder: GlobalMetricRecorder
     
     public init(
         dateProvider: DateProvider,
         delegate: SimulatorStateMachineActionExecutor,
         version: Version,
-        metricRecorder: MetricRecorder
+        globalMetricRecorder: GlobalMetricRecorder
     ) {
         self.dateProvider = dateProvider
         self.delegate = delegate
         self.version = version
-        self.metricRecorder = metricRecorder
+        self.globalMetricRecorder = globalMetricRecorder
     }
     
     public func performCreateSimulatorAction(
@@ -110,7 +112,7 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
             result = Either.error(error)
         }
         
-        metricRecorder.capture(
+        globalMetricRecorder.capture(
             SimulatorDurationMetric(
                 action: action,
                 host: LocalHostDeterminer.currentHostAddress,

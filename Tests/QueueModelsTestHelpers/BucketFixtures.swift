@@ -1,6 +1,7 @@
 import BuildArtifacts
 import BuildArtifactsTestHelpers
 import Foundation
+import MetricsExtensions
 import QueueModels
 import RunnerModels
 import RunnerTestHelpers
@@ -15,6 +16,7 @@ public final class BucketFixtures {
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement> = []
     ) -> Bucket {
         return Bucket(
+            analyticsConfiguration: AnalyticsConfiguration(),
             bucketId: bucketId,
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
             developerDir: .current,

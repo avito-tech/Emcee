@@ -4,6 +4,7 @@ import DateProvider
 import DeveloperDirLocator
 import FileSystem
 import Foundation
+import MetricsExtensions
 import ProcessController
 import ProcessControllerTestHelpers
 import ResourceLocationResolverTestHelpers
@@ -86,6 +87,7 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
     private lazy var testBundlePathInTempFolder = tempFolder.absolutePath.appending(component: "bundle.xctest")
     private lazy var testBundleLocation = TestBundleLocation(.localFilePath(testBundlePathInTempFolder.pathString))
     private lazy var configuration = TestDiscoveryConfiguration(
+        analyticsConfiguration: AnalyticsConfiguration(),
         developerDir: .current,
         pluginLocations: [],
         testDiscoveryMode: .parseFunctionSymbols,

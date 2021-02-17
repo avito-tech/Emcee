@@ -1,6 +1,7 @@
 import DateProviderTestHelpers
-import QueueModels
+import MetricsExtensions
 import MetricsTestHelpers
+import QueueModels
 import SimulatorPool
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
@@ -19,7 +20,7 @@ final class SimulatorPoolConvenienceTests: XCTestCase {
             dateProvider: dateProvider,
             simulatorOperationTimeouts: simulatorOperationTimeouts,
             version: version,
-            metricRecorder: NoOpMetricRecorder()
+            globalMetricRecorder: GlobalMetricRecorderImpl()
         )
         allocatedSimulator.releaseSimulator()
         

@@ -1,8 +1,10 @@
 import BucketQueue
 import Foundation
+import MetricsExtensions
 import QueueModels
 
 public struct JobQueue: DefinesExecutionOrder {
+    public let analyticsConfiguration: AnalyticsConfiguration
     public let bucketQueue: BucketQueue
     public let job: Job
     public let jobGroup: JobGroup
@@ -10,12 +12,14 @@ public struct JobQueue: DefinesExecutionOrder {
     public let persistentMetricsJobId: String
     
     public init(
+        analyticsConfiguration: AnalyticsConfiguration,
         bucketQueue: BucketQueue,
         job: Job,
         jobGroup: JobGroup,
         resultsCollector: ResultsCollector,
         persistentMetricsJobId: String
     ) {
+        self.analyticsConfiguration = analyticsConfiguration
         self.bucketQueue = bucketQueue
         self.job = job
         self.jobGroup = jobGroup

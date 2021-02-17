@@ -1,12 +1,14 @@
 import BuildArtifacts
 import DeveloperDirModels
 import Foundation
+import MetricsExtensions
 import PluginSupport
 import QueueModels
 import SimulatorPoolModels
 import RunnerModels
 
 public struct SchedulerBucket: CustomStringConvertible, Equatable {
+    public let analyticsConfiguration: AnalyticsConfiguration
     public let bucketId: BucketId
     public let buildArtifacts: BuildArtifacts
     public let developerDir: DeveloperDir
@@ -44,6 +46,7 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
     }
 
     public init(
+        analyticsConfiguration: AnalyticsConfiguration,
         bucketId: BucketId,
         buildArtifacts: BuildArtifacts,
         developerDir: DeveloperDir,
@@ -59,6 +62,7 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
         testType: TestType,
         persistentMetricsJobId: String
     ) {
+        self.analyticsConfiguration = analyticsConfiguration
         self.bucketId = bucketId
         self.buildArtifacts = buildArtifacts
         self.developerDir = developerDir
@@ -77,6 +81,7 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
     
     public static func from(bucket: Bucket, testExecutionBehavior: TestExecutionBehavior) -> SchedulerBucket {
         return SchedulerBucket(
+            analyticsConfiguration: bucket.analyticsConfiguration,
             bucketId: bucket.bucketId,
             buildArtifacts: bucket.buildArtifacts,
             developerDir: bucket.developerDir,

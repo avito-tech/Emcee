@@ -45,6 +45,7 @@ public class BucketSplitter: Splitter, CustomStringConvertible {
         return groups.compactMap { (group: [TestEntryConfiguration]) -> Bucket? in
             guard let entry = group.first else { return nil }
             return Bucket(
+                analyticsConfiguration: entry.analyticsConfiguration,
                 bucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
                 buildArtifacts: entry.buildArtifacts,
                 developerDir: entry.developerDir,

@@ -11,6 +11,7 @@ import Foundation
 import Logging
 import LoggingSetup
 import Metrics
+import MetricsExtensions
 import PathLib
 import PluginManager
 import ProcessController
@@ -58,8 +59,9 @@ public final class DumpCommand: Command {
 
         di.set(tempFolder, for: TemporaryFolder.self)
         
-        try di.get(MutableMetricRecorder.self).set(analyticsConfiguration: testArgFile.analyticsConfiguration)
-        if let sentryConfiguration = testArgFile.analyticsConfiguration.sentryConfiguration {
+        try di.get(GlobalMetricRecorder.self).set(analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration)
+        
+        if let sentryConfiguration = testArgFile.prioritizedJob.analyticsConfiguration.sentryConfiguration {
             try AnalyticsSetup.setupSentry(sentryConfiguration: sentryConfiguration, emceeVersion: emceeVersion)
         }
         
@@ -81,7 +83,8 @@ public final class DumpCommand: Command {
                 dateProvider: try di.get(),
                 developerDirLocator: try di.get(),
                 fileSystem: try di.get(),
-                metricRecorder: try di.get(),
+                globalMetricRecorder: try di.get(),
+                specificMetricRecorderProvider: try di.get(),
                 onDemandSimulatorPool: try di.get(),
                 pluginEventBusProvider: try di.get(),
                 processControllerProvider: try di.get(),

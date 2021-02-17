@@ -5,6 +5,7 @@ import FileSystem
 import Foundation
 import Logging
 import Metrics
+import MetricsExtensions
 import PathLib
 import PluginManager
 import QueueModels
@@ -34,7 +35,8 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let version: Version
     private let waiter: Waiter
-    private let metricRecorder: MetricRecorder
+    private let globalMetricRecorder: GlobalMetricRecorder
+    private let specificMetricRecorder: SpecificMetricRecorder
     
     init(
         buildArtifacts: BuildArtifacts,
@@ -53,7 +55,8 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         version: Version,
         waiter: Waiter,
-        metricRecorder: MetricRecorder
+        globalMetricRecorder: GlobalMetricRecorder,
+        specificMetricRecorder: SpecificMetricRecorder
     ) {
         self.buildArtifacts = buildArtifacts
         self.dateProvider = dateProvider
@@ -71,7 +74,8 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.version = version
         self.waiter = waiter
-        self.metricRecorder = metricRecorder
+        self.globalMetricRecorder = globalMetricRecorder
+        self.specificMetricRecorder = specificMetricRecorder
     }
     
     func discoverTestEntries(
@@ -97,7 +101,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             testRunnerProvider: testRunnerProvider,
             version: version,
             persistentMetricsJobId: configuration.persistentMetricsJobId,
-            metricRecorder: metricRecorder,
+            specificMetricRecorder: specificMetricRecorder,
             waiter: waiter
         )
         
@@ -171,7 +175,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             dateProvider: dateProvider,
             simulatorOperationTimeouts: configuration.simulatorOperationTimeouts,
             version: version,
-            metricRecorder: metricRecorder
+            globalMetricRecorder: globalMetricRecorder
         )
     }
     

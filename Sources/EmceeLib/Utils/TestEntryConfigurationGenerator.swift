@@ -1,21 +1,25 @@
 import BuildArtifacts
 import Foundation
 import Logging
+import MetricsExtensions
 import QueueModels
 import RunnerModels
 import TestArgFile
 import TestDiscovery
 
 public final class TestEntryConfigurationGenerator {
+    private let analyticsConfiguration: AnalyticsConfiguration
     private let validatedEntries: [ValidatedTestEntry]
     private let testArgFileEntry: TestArgFileEntry
     private let persistentMetricsJobId: String
 
     public init(
+        analyticsConfiguration: AnalyticsConfiguration,
         validatedEntries: [ValidatedTestEntry],
         testArgFileEntry: TestArgFileEntry,
         persistentMetricsJobId: String
     ) {
+        self.analyticsConfiguration = analyticsConfiguration
         self.validatedEntries = validatedEntries
         self.testArgFileEntry = testArgFileEntry
         self.persistentMetricsJobId = persistentMetricsJobId
@@ -31,6 +35,7 @@ public final class TestEntryConfigurationGenerator {
             )
             return testEntries.map { testEntry -> TestEntryConfiguration in
                 TestEntryConfiguration(
+                    analyticsConfiguration: analyticsConfiguration,
                     buildArtifacts: testArgFileEntry.buildArtifacts,
                     developerDir: testArgFileEntry.developerDir,
                     pluginLocations: testArgFileEntry.pluginLocations,

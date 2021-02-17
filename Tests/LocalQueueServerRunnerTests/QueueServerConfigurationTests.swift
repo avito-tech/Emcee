@@ -2,6 +2,7 @@ import AutomaticTermination
 import Deployer
 import Foundation
 import LocalQueueServerRunner
+import MetricsExtensions
 import LoggingSetup
 import QueueModels
 import Sentry
@@ -13,7 +14,7 @@ final class QueueServerConfigurationTests: XCTestCase {
         let data = Data(
             """
                 {
-                  "analyticsConfiguration": {
+                  "globalAnalyticsConfiguration": {
                     "graphiteConfiguration": {
                       "socketAddress": "host:123",
                       "metricPrefix": "graphite.prefix"
@@ -63,7 +64,7 @@ final class QueueServerConfigurationTests: XCTestCase {
         
         let config = try JSONDecoder().decode(QueueServerConfiguration.self, from: data)
         XCTAssertEqual(
-            config.analyticsConfiguration,
+            config.globalAnalyticsConfiguration,
             AnalyticsConfiguration(
                 graphiteConfiguration: MetricConfiguration(socketAddress: SocketAddress(host: "host", port: 123), metricPrefix: "graphite.prefix"),
                 statsdConfiguration: MetricConfiguration(socketAddress: SocketAddress(host: "host", port: 123), metricPrefix: "statsd.prefix"),

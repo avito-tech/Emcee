@@ -10,7 +10,7 @@ public extension FileSystem {
     
     func emceeLogsCleanUpMarkerFile() throws -> AbsolutePath {
         let path = try emceeLogsFolder().appending(component: "logs_cleanup_marker")
-        if try !properties(forFileAtPath: path).exists() {
+        if !properties(forFileAtPath: path).exists() {
             try createFile(atPath: path, data: nil)
         }
         return path

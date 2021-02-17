@@ -11,6 +11,7 @@ import Foundation
 import Logging
 import LoggingSetup
 import Metrics
+import MetricsExtensions
 import PathLib
 import PluginManager
 import PortDeterminer
@@ -167,8 +168,8 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         testArgFile: TestArgFile,
         version: Version
     ) throws -> JobResults {
-        try di.get(MutableMetricRecorder.self).set(analyticsConfiguration: testArgFile.analyticsConfiguration)
-        if let sentryConfiguration = testArgFile.analyticsConfiguration.sentryConfiguration {
+        try di.get(GlobalMetricRecorder.self).set(analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration)
+        if let sentryConfiguration = testArgFile.prioritizedJob.analyticsConfiguration.sentryConfiguration {
             try AnalyticsSetup.setupSentry(sentryConfiguration: sentryConfiguration, emceeVersion: version)
         }
         
@@ -178,13 +179,14 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
         
-        di.set(onDemandSimulatorPool, for:OnDemandSimulatorPool.self)
+        di.set(onDemandSimulatorPool, for: OnDemandSimulatorPool.self)
         di.set(
             TestDiscoveryQuerierImpl(
                 dateProvider: try di.get(),
                 developerDirLocator: try di.get(),
                 fileSystem: try di.get(),
-                metricRecorder: try di.get(),
+                globalMetricRecorder: try di.get(),
+                specificMetricRecorderProvider: try di.get(),
                 onDemandSimulatorPool: try di.get(),
                 pluginEventBusProvider: try di.get(),
                 processControllerProvider: try di.get(),

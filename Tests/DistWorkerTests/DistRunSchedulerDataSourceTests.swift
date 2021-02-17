@@ -1,5 +1,6 @@
 import BuildArtifactsTestHelpers
 import DistWorker
+import MetricsExtensions
 import RunnerModels
 import RunnerTestHelpers
 import Scheduler
@@ -10,6 +11,7 @@ final class DistRunSchedulerDataSourceTests: XCTestCase {
     func test() {
         let handler: () -> SchedulerBucket? = {
             SchedulerBucket(
+                analyticsConfiguration: AnalyticsConfiguration(),
                 bucketId: "id",
                 buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
                 developerDir: .current,

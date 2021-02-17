@@ -1,7 +1,7 @@
 import Foundation
 import SocketModels
 
-public struct MetricConfiguration: Codable, Equatable {
+public struct MetricConfiguration: Codable, Hashable {
     public let socketAddress: SocketAddress
     public let metricPrefix: String
 

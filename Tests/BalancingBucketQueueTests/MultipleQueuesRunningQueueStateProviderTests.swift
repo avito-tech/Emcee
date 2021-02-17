@@ -1,6 +1,7 @@
 import BalancingBucketQueue
 import BucketQueue
 import BucketQueueTestHelpers
+import MetricsExtensions
 import RunnerModels
 import QueueModels
 import XCTest
@@ -96,6 +97,7 @@ final class MultipleQueuesRunningQueueStateProviderTests: XCTestCase {
         bucketQueue.runningQueueState = runningQueueState
         
         return JobQueue(
+            analyticsConfiguration: AnalyticsConfiguration(),
             bucketQueue: bucketQueue,
             job: Job(creationTime: Date(), jobId: jobId, priority: .medium),
             jobGroup: JobGroup(creationTime: Date(), jobGroupId: JobGroupId("group_" + jobId.value), priority: .medium),

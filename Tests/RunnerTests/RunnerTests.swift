@@ -6,6 +6,7 @@ import EventBus
 import FileSystemTestHelpers
 import Foundation
 import Logging
+import MetricsExtensions
 import MetricsTestHelpers
 import PluginManagerTestHelpers
 import QueueModels
@@ -276,7 +277,7 @@ public final class RunnerTests: XCTestCase {
             testTimeoutCheckInterval: .milliseconds(100),
             version: Version(value: "version"),
             persistentMetricsJobId: "",
-            metricRecorder: NoOpMetricRecorder(),
+            specificMetricRecorder: SpecificMetricRecorderWrapper(NoOpMetricRecorder()),
             waiter: SynchronousWaiter()
         )
         return try runner.run(

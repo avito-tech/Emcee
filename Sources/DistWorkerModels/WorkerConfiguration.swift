@@ -1,18 +1,19 @@
 import Foundation
+import MetricsExtensions
 import LoggingSetup
 import QueueModels
 
 public struct WorkerConfiguration: Codable, Equatable {
-    public let analyticsConfiguration: AnalyticsConfiguration
+    public let globalAnalyticsConfiguration: AnalyticsConfiguration
     public let numberOfSimulators: UInt
     public let payloadSignature: PayloadSignature
 
     public init(
-        analyticsConfiguration: AnalyticsConfiguration,
+        globalAnalyticsConfiguration: AnalyticsConfiguration,
         numberOfSimulators: UInt,
         payloadSignature: PayloadSignature
     ) {
-        self.analyticsConfiguration = analyticsConfiguration
+        self.globalAnalyticsConfiguration = globalAnalyticsConfiguration
         self.numberOfSimulators = numberOfSimulators
         self.payloadSignature = payloadSignature
     }

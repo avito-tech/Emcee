@@ -1,4 +1,5 @@
 import Dispatch
+import MetricsExtensions
 import QueueClient
 import QueueModels
 import RESTMethods
@@ -14,6 +15,7 @@ final class TestSchedulerTests: XCTestCase {
     private let requestSender = FakeRequestSender()
     private let workerId: WorkerId = "workerId"
     private lazy var prioritizedJob = PrioritizedJob(
+        analyticsConfiguration: AnalyticsConfiguration(),
         jobGroupId: "group",
         jobGroupPriority: .lowest,
         jobId: "job",

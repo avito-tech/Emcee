@@ -54,6 +54,7 @@ public final class SingleBucketQueueStuckBucketsReenqueuer: StuckBucketsReenqueu
             let buckets = stuckBuckets.flatMap { stuckBucket in
                 stuckBucket.bucket.testEntries.map { testEntry in
                     Bucket(
+                        analyticsConfiguration: stuckBucket.bucket.analyticsConfiguration,
                         bucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
                         buildArtifacts: stuckBucket.bucket.buildArtifacts,
                         developerDir: stuckBucket.bucket.developerDir,

@@ -3,6 +3,7 @@ import Foundation
 import LocalHostDeterminer
 import Logging
 import Metrics
+import MetricsExtensions
 import QueueModels
 import RunnerModels
 import SimulatorPoolModels
@@ -25,7 +26,7 @@ public extension SimulatorPool {
         dateProvider: DateProvider,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,
         version: Version,
-        metricRecorder: MetricRecorder
+        globalMetricRecorder: GlobalMetricRecorder
     ) throws -> AllocatedSimulator {
         try TimeMeasurerImpl(
             dateProvider: dateProvider
@@ -46,7 +47,7 @@ public extension SimulatorPool {
                 }
             },
             result: { error, duration in
-                metricRecorder.capture(
+                globalMetricRecorder.capture(
                     SimulatorAllocationDurationMetric(
                         host: LocalHostDeterminer.currentHostAddress,
                         duration: duration,

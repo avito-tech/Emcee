@@ -1,3 +1,7 @@
+# This document has been deprecated.
+
+All changes are now being documented via **Releases** page on GitHub.
+
 # Change Log
 
 All notable changes to this project will be documented in this file.

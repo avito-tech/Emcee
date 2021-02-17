@@ -2,6 +2,7 @@ import BuildArtifacts
 import BuildArtifactsTestHelpers
 import EmceeLib
 import Foundation
+import MetricsExtensions
 import QueueModelsTestHelpers
 import RunnerModels
 import RunnerTestHelpers
@@ -13,10 +14,9 @@ import TestHelpers
 import XCTest
 
 final class TestEntryConfigurationGeneratorTests: XCTestCase {
-    let argFileTestToRun1 = TestName(className: "classFromArgs", methodName: "test1")
-    let argFileTestToRun2 = TestName(className: "classFromArgs", methodName: "test2")
-    
-    let buildArtifacts = BuildArtifactsFixtures.withLocalPaths(
+    lazy var argFileTestToRun1 = TestName(className: "classFromArgs", methodName: "test1")
+    lazy var argFileTestToRun2 = TestName(className: "classFromArgs", methodName: "test2")
+    lazy var buildArtifacts = BuildArtifactsFixtures.withLocalPaths(
         appBundle: "1",
         runner: "1",
         xcTestBundle: "1",
@@ -24,8 +24,9 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
     )
     lazy var argFileDestination1 = assertDoesNotThrow { try TestDestination(deviceType: UUID().uuidString, runtime: "10.1") }
     lazy var argFileDestination2 = assertDoesNotThrow { try TestDestination(deviceType: UUID().uuidString, runtime: "10.2") }
-    let simulatorSettings = SimulatorSettingsFixtures().simulatorSettings()
-    let testTimeoutConfiguration = TestTimeoutConfiguration(singleTestMaximumDuration: 10, testRunnerMaximumSilenceDuration: 20)
+    lazy var simulatorSettings = SimulatorSettingsFixtures().simulatorSettings()
+    lazy var testTimeoutConfiguration = TestTimeoutConfiguration(singleTestMaximumDuration: 10, testRunnerMaximumSilenceDuration: 20)
+    lazy var analyticsConfiguration = AnalyticsConfiguration()
 
     lazy var validatedEntries: [ValidatedTestEntry] = {
         return [
@@ -44,6 +45,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
     
     func test() {
         let generator = TestEntryConfigurationGenerator(
+            analyticsConfiguration: analyticsConfiguration,
             validatedEntries: validatedEntries,
             testArgFileEntry: TestArgFileEntry(
                 buildArtifacts: buildArtifacts,
@@ -82,6 +84,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
     
     func test_repeated_items() {
         let generator = TestEntryConfigurationGenerator(
+            analyticsConfiguration: analyticsConfiguration,
             validatedEntries: validatedEntries,
             testArgFileEntry: TestArgFileEntry(
                 buildArtifacts: buildArtifacts,
@@ -122,6 +125,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
     
     func test__all_available_tests() {
         let generator = TestEntryConfigurationGenerator(
+            analyticsConfiguration: analyticsConfiguration,
             validatedEntries: validatedEntries,
             testArgFileEntry: TestArgFileEntry(
                 buildArtifacts: buildArtifacts,

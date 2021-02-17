@@ -1,12 +1,14 @@
 import BuildArtifacts
 import DeveloperDirModels
 import Foundation
+import MetricsExtensions
 import PluginSupport
 import RunnerModels
 import SimulatorPoolModels
 import WorkerCapabilitiesModels
 
-public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStringConvertible {
+public struct Bucket: Codable, Hashable, CustomStringConvertible {
+    public let analyticsConfiguration: AnalyticsConfiguration
     public let bucketId: BucketId
     public let buildArtifacts: BuildArtifacts
     public let developerDir: DeveloperDir
@@ -24,6 +26,7 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStr
     public let persistentMetricsJobId: String
 
     public init(
+        analyticsConfiguration: AnalyticsConfiguration,
         bucketId: BucketId,
         buildArtifacts: BuildArtifacts,
         developerDir: DeveloperDir,
@@ -40,6 +43,7 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStr
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement>,
         persistentMetricsJobId: String
     ) {
+        self.analyticsConfiguration = analyticsConfiguration
         self.bucketId = bucketId
         self.buildArtifacts = buildArtifacts
         self.developerDir = developerDir
@@ -59,9 +63,5 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible, CustomDebugStr
     
     public var description: String {
         return "<\((type(of: self))) \(bucketId) \(testEntries.count) tests>"
-    }
-    
-    public var debugDescription: String {
-        return "<\((type(of: self))) \(bucketId) \(developerDir) \(testType) \(testDestination), \(simulatorControlTool), \(simulatorOperationTimeouts), \(testRunnerTool), \(buildArtifacts), \(pluginLocations), \(workerCapabilityRequirements), \(persistentMetricsJobId), \(testEntries.debugDescription)>"
     }
 }

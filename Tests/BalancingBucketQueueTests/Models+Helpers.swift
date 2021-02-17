@@ -1,6 +1,7 @@
 import BalancingBucketQueue
 import BucketQueue
 import BucketQueueTestHelpers
+import MetricsExtensions
 import Foundation
 import QueueModels
 
@@ -35,6 +36,7 @@ func createJobQueue(
     resultsCollector: ResultsCollector = ResultsCollector()
 ) -> JobQueue {
     JobQueue(
+        analyticsConfiguration: AnalyticsConfiguration(),
         bucketQueue: bucketQueue,
         job: job,
         jobGroup: jobGroup,

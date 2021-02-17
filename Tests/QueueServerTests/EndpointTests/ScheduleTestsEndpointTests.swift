@@ -1,5 +1,6 @@
 import DateProviderTestHelpers
 import Foundation
+import MetricsExtensions
 import MetricsTestHelpers
 import QueueCommunicationTestHelpers
 import QueueModels
@@ -165,7 +166,14 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         numberOfWorkers: 0
     )
     let jobId = JobId(value: "jobId")
-    lazy var prioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: jobId, jobPriority: .medium, persistentMetricsJobId: "")
+    lazy var prioritizedJob = PrioritizedJob(
+        analyticsConfiguration: AnalyticsConfiguration(),
+        jobGroupId: "groupId",
+        jobGroupPriority: .medium,
+        jobId: jobId,
+        jobPriority: .medium,
+        persistentMetricsJobId: ""
+    )
     let testEntryConfigurations = TestEntryConfigurationFixtures()
         .add(testEntry: TestEntryFixtures.testEntry())
         .testEntryConfigurations()
@@ -175,7 +183,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         dateProvider: DateProviderFixture(),
         enqueueableBucketReceptor: enqueueableBucketReceptor,
         version: Version(value: "version"),
-        metricRecorder: NoOpMetricRecorder()
+        specificMetricRecorderProvider: NoOpSpecificMetricRecorderProvider()
     )
     lazy var workerId: WorkerId = "worker"
     lazy var capableWorkerId: WorkerId = "capableWorkerId"

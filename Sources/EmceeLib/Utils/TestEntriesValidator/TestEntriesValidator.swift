@@ -1,5 +1,6 @@
 import EventBus
 import Logging
+import MetricsExtensions
 import ResourceLocationResolver
 import RunnerModels
 import SimulatorPool
@@ -11,6 +12,7 @@ public final class TestEntriesValidator {
     private let remoteCache: RuntimeDumpRemoteCache
     private let testArgFileEntries: [TestArgFileEntry]
     private let testDiscoveryQuerier: TestDiscoveryQuerier
+    private let analyticsConfiguration: AnalyticsConfiguration
     private let persistentMetricsJobId: String
     private let transformer = TestToRunIntoTestEntryTransformer()
 
@@ -18,11 +20,13 @@ public final class TestEntriesValidator {
         remoteCache: RuntimeDumpRemoteCache,
         testArgFileEntries: [TestArgFileEntry],
         testDiscoveryQuerier: TestDiscoveryQuerier,
+        analyticsConfiguration: AnalyticsConfiguration,
         persistentMetricsJobId: String
     ) {
         self.remoteCache = remoteCache
         self.testArgFileEntries = testArgFileEntries
         self.testDiscoveryQuerier = testDiscoveryQuerier
+        self.analyticsConfiguration = analyticsConfiguration
         self.persistentMetricsJobId = persistentMetricsJobId
     }
     
@@ -44,6 +48,7 @@ public final class TestEntriesValidator {
         testArgFileEntry: TestArgFileEntry
     ) throws -> [ValidatedTestEntry] {
         let configuration = TestDiscoveryConfiguration(
+            analyticsConfiguration: analyticsConfiguration,
             developerDir: testArgFileEntry.developerDir,
             pluginLocations: testArgFileEntry.pluginLocations,
             testDiscoveryMode: try TestDiscoveryModeDeterminer.testDiscoveryMode(

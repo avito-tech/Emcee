@@ -11,6 +11,7 @@ import LocalQueueServerRunner
 import Logging
 import LoggingSetup
 import Metrics
+import MetricsExtensions
 import PluginManager
 import PortDeterminer
 import ProcessController
@@ -53,10 +54,10 @@ public final class StartQueueServerCommand: Command {
             resourceLocationResolver: try di.get()
         )
         
-        if let sentryConfiguration = queueServerConfiguration.analyticsConfiguration.sentryConfiguration {
+        try di.get(GlobalMetricRecorder.self).set(analyticsConfiguration: queueServerConfiguration.globalAnalyticsConfiguration)
+        if let sentryConfiguration = queueServerConfiguration.globalAnalyticsConfiguration.sentryConfiguration {
             try AnalyticsSetup.setupSentry(sentryConfiguration: sentryConfiguration, emceeVersion: emceeVersion)
         }
-        try di.get(MutableMetricRecorder.self).set(analyticsConfiguration: queueServerConfiguration.analyticsConfiguration)
         
         try startQueueServer(
             emceeVersion: emceeVersion,
@@ -99,7 +100,7 @@ public final class StartQueueServerCommand: Command {
             communicationService: queueCommunicationService,
             defaultDeployments: workerDestinations,
             emceeVersion: emceeVersion,
-            metricRecorder: try di.get(),
+            globalMetricRecorder: try di.get(),
             queueHost: socketHost
         )
         
@@ -132,7 +133,8 @@ public final class StartQueueServerCommand: Command {
             deploymentDestinations: workerDestinations,
             emceeVersion: emceeVersion,
             localPortDeterminer: LocalPortDeterminer(portRange: EmceePorts.defaultQueuePortRange),
-            metricRecorder: try di.get(),
+            globalMetricRecorder: try di.get(),
+            specificMetricRecorderProvider: try di.get(),
             onDemandWorkerStarter: OnDemandWorkerStarterViaDeployer(
                 queueServerPortProvider: queueServerPortProvider,
                 remoteWorkerStarterProvider: remoteWorkerStarterProvider

@@ -4,7 +4,9 @@ import BucketQueueModels
 import DateProvider
 import Foundation
 import LocalHostDeterminer
+import Logging
 import Metrics
+import MetricsExtensions
 import QueueModels
 import WorkerCapabilitiesModels
 
@@ -14,7 +16,7 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
     private let jobStateProvider: JobStateProvider
     private let queueStateProvider: RunningQueueStateProvider
     private let version: Version
-    private let metricRecorder: MetricRecorder
+    private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
     
     public init(
         dateProvider: DateProvider,
@@ -22,14 +24,14 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
         jobStateProvider: JobStateProvider,
         queueStateProvider: RunningQueueStateProvider,
         version: Version,
-        metricRecorder: MetricRecorder
+        specificMetricRecorderProvider: SpecificMetricRecorderProvider
     ) {
         self.dateProvider = dateProvider
         self.dequeueableBucketSource = dequeueableBucketSource
         self.jobStateProvider = jobStateProvider
         self.queueStateProvider = queueStateProvider
         self.version = version
-        self.metricRecorder = metricRecorder
+        self.specificMetricRecorderProvider = specificMetricRecorderProvider
     }
     
     public func dequeueBucket(workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeuedBucket? {
@@ -78,6 +80,13 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
                 timestamp: dateProvider.currentDate()
             )
         ]
-        metricRecorder.capture(queueStateMetrics + bucketAndTestMetrics)
+        
+        do {
+            try specificMetricRecorderProvider.specificMetricRecorder(
+                analyticsConfiguration: dequeuedBucket.enqueuedBucket.bucket.analyticsConfiguration
+            ).capture(queueStateMetrics + bucketAndTestMetrics)
+        } catch {
+            Logger.error("Failed to send metrics: \(error)")
+        }
     }
 }

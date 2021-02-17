@@ -1,6 +1,7 @@
 import BuildArtifacts
 import Foundation
 import LoggingSetup
+import MetricsExtensions
 import QueueModels
 import ResourceLocation
 import Sentry
@@ -45,19 +46,19 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             testArgFile,
             TestArgFile(
-                analyticsConfiguration: AnalyticsConfiguration(
-                    graphiteConfiguration: MetricConfiguration(
-                        socketAddress: SocketAddress(host: "graphite.host", port: 123),
-                        metricPrefix: "graphite.prefix"
-                    ),
-                    statsdConfiguration: MetricConfiguration(
-                        socketAddress: SocketAddress(host: "statsd.host", port: 124),
-                        metricPrefix: "statsd.prefix"
-                    ),
-                    sentryConfiguration: SentryConfiguration(dsn: URL(string: "http://example.com")!)
-                ),
                 entries: [],
                 prioritizedJob: PrioritizedJob(
+                    analyticsConfiguration: AnalyticsConfiguration(
+                        graphiteConfiguration: MetricConfiguration(
+                            socketAddress: SocketAddress(host: "graphite.host", port: 123),
+                            metricPrefix: "graphite.prefix"
+                        ),
+                        statsdConfiguration: MetricConfiguration(
+                            socketAddress: SocketAddress(host: "statsd.host", port: 124),
+                            metricPrefix: "statsd.prefix"
+                        ),
+                        sentryConfiguration: SentryConfiguration(dsn: URL(string: "http://example.com")!)
+                    ),
                     jobGroupId: "jobGroupId",
                     jobGroupPriority: 100,
                     jobId: "jobId",
@@ -86,9 +87,9 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(
             testArgFile,
             TestArgFile(
-                analyticsConfiguration: TestArgFileDefaultValues.analyticsConfiguration,
                 entries: [],
                 prioritizedJob: PrioritizedJob(
+                    analyticsConfiguration: TestArgFileDefaultValues.analyticsConfiguration,
                     jobGroupId: "jobId",
                     jobGroupPriority: TestArgFileDefaultValues.priority,
                     jobId: "jobId",

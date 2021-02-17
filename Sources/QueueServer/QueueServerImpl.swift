@@ -7,6 +7,7 @@ import DistWorkerModels
 import Foundation
 import Logging
 import Metrics
+import MetricsExtensions
 import PortDeterminer
 import QueueCommunication
 import QueueModels
@@ -58,7 +59,8 @@ public final class QueueServerImpl: QueueServer {
         deploymentDestinations: [DeploymentDestination],
         emceeVersion: Version,
         localPortDeterminer: LocalPortDeterminer,
-        metricRecorder: MetricRecorder,
+        globalMetricRecorder: GlobalMetricRecorder,
+        specificMetricRecorderProvider: SpecificMetricRecorderProvider,
         onDemandWorkerStarter: OnDemandWorkerStarter,
         payloadSignature: PayloadSignature,
         queueServerLock: QueueServerLock,
@@ -100,7 +102,7 @@ public final class QueueServerImpl: QueueServer {
         let multipleQueuesContainer = MultipleQueuesContainer()
         let jobManipulator: JobManipulator = MultipleQueuesJobManipulator(
             dateProvider: dateProvider,
-            metricRecorder: metricRecorder,
+            specificMetricRecorderProvider: specificMetricRecorderProvider,
             multipleQueuesContainer: multipleQueuesContainer,
             emceeVersion: emceeVersion
         )
@@ -129,7 +131,7 @@ public final class QueueServerImpl: QueueServer {
             jobStateProvider: jobStateProvider,
             queueStateProvider: runningQueueStateProvider,
             version: emceeVersion,
-            metricRecorder: metricRecorder
+            specificMetricRecorderProvider: specificMetricRecorderProvider
         )
         let bucketResultAccepter: BucketResultAccepter = MultipleQueuesBucketResultAccepter(
             multipleQueuesContainer: multipleQueuesContainer
@@ -143,7 +145,7 @@ public final class QueueServerImpl: QueueServer {
             dateProvider: dateProvider,
             enqueueableBucketReceptor: enqueueableBucketReceptor,
             version: emceeVersion,
-            metricRecorder: metricRecorder
+            specificMetricRecorderProvider: specificMetricRecorderProvider
         )
         self.scheduleTestsHandler = ScheduleTestsEndpoint(
             testsEnqueuer: testsEnqueuer,
@@ -164,7 +166,8 @@ public final class QueueServerImpl: QueueServer {
             runningQueueStateProvider: runningQueueStateProvider,
             stuckBucketsReenqueuer: stuckBucketsReenqueuer,
             version: emceeVersion,
-            metricRecorder: metricRecorder
+            specificMetricRecorderProvider: specificMetricRecorderProvider,
+            globalMetricRecorder: globalMetricRecorder
         )
         self.bucketProvider = BucketProviderEndpoint(
             checkAfter: checkAgainTimeInterval,
@@ -180,7 +183,7 @@ public final class QueueServerImpl: QueueServer {
                 jobStateProvider: jobStateProvider,
                 queueStateProvider: runningQueueStateProvider,
                 version: emceeVersion,
-                metricRecorder: metricRecorder
+                specificMetricRecorderProvider: specificMetricRecorderProvider
             ),
             expectedPayloadSignature: payloadSignature,
             workerAlivenessProvider: workerAlivenessProvider
@@ -219,7 +222,7 @@ public final class QueueServerImpl: QueueServer {
             reportInterval: .seconds(30),
             version: emceeVersion,
             workerAlivenessProvider: workerAlivenessProvider,
-            metricRecorder: metricRecorder
+            globalMetricRecorder: globalMetricRecorder
         )
         self.workersToUtilizeEndpoint = WorkersToUtilizeEndpoint(
             service: workersToUtilizeService

@@ -1,6 +1,7 @@
 import BucketQueueTestHelpers
 import DateProviderTestHelpers
 import Foundation
+import MetricsExtensions
 import MetricsTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
@@ -13,7 +14,14 @@ import XCTest
 
 final class TestsEnqueuerTests: XCTestCase {
     let enqueueableBucketReceptor = FakeEnqueueableBucketReceptor()
-    let prioritizedJob = PrioritizedJob(jobGroupId: "groupId", jobGroupPriority: .medium, jobId: "jobId", jobPriority: .medium, persistentMetricsJobId: "")
+    let prioritizedJob = PrioritizedJob(
+        analyticsConfiguration: AnalyticsConfiguration(),
+        jobGroupId: "groupId",
+        jobGroupPriority: .medium,
+        jobId: "jobId",
+        jobPriority: .medium,
+        persistentMetricsJobId: ""
+    )
     
     func test() throws {
         let bucketId = BucketId(value: UUID().uuidString)
@@ -22,7 +30,7 @@ final class TestsEnqueuerTests: XCTestCase {
             dateProvider: DateProviderFixture(),
             enqueueableBucketReceptor: enqueueableBucketReceptor,
             version: Version(value: "version"),
-            metricRecorder: NoOpMetricRecorder()
+            specificMetricRecorderProvider: NoOpSpecificMetricRecorderProvider()
         )
         
         try testsEnqueuer.enqueue(

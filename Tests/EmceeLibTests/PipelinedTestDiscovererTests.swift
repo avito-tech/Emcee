@@ -182,7 +182,6 @@ private class FakeRuntimeDumpRemoteCacheProvider: RuntimeDumpRemoteCacheProvider
 extension TestArgFile {
     static func create(buildArtifacts: [BuildArtifacts]) -> TestArgFile {
         TestArgFile(
-            analyticsConfiguration: TestArgFileDefaultValues.analyticsConfiguration,
             entries: buildArtifacts.map {
                 TestArgFileEntry(
                     buildArtifacts: $0,
@@ -203,6 +202,7 @@ extension TestArgFile {
                 )
             },
             prioritizedJob: PrioritizedJob(
+                analyticsConfiguration: TestArgFileDefaultValues.analyticsConfiguration,
                 jobGroupId: "groupId",
                 jobGroupPriority: .medium,
                 jobId: "jobId",

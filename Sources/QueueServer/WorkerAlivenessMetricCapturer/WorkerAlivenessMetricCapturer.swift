@@ -2,6 +2,7 @@ import DateProvider
 import Foundation
 import LocalHostDeterminer
 import Metrics
+import MetricsExtensions
 import QueueModels
 import Timer
 import WorkerAlivenessModels
@@ -12,20 +13,20 @@ public final class WorkerAlivenessMetricCapturer {
     private let timer: DispatchBasedTimer
     private let version: Version
     private let workerAlivenessProvider: WorkerAlivenessProvider
-    private let metricRecorder: MetricRecorder
+    private let globalMetricRecorder: GlobalMetricRecorder
 
     public init(
         dateProvider: DateProvider,
         reportInterval: DispatchTimeInterval,
         version: Version,
         workerAlivenessProvider: WorkerAlivenessProvider,
-        metricRecorder: MetricRecorder
+        globalMetricRecorder: GlobalMetricRecorder
     ) {
         self.dateProvider = dateProvider
         self.timer = DispatchBasedTimer(repeating: reportInterval, leeway: .seconds(1))
         self.version = version
         self.workerAlivenessProvider = workerAlivenessProvider
-        self.metricRecorder = metricRecorder
+        self.globalMetricRecorder = globalMetricRecorder
     }
     
     public func start() {
@@ -54,7 +55,7 @@ public final class WorkerAlivenessMetricCapturer {
                 timestamp: dateProvider.currentDate()
             )
         }
-        metricRecorder.capture(metrics)
+        globalMetricRecorder.capture(metrics)
     }
 }
 

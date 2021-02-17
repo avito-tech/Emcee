@@ -6,6 +6,7 @@ import Foundation
 import LocalHostDeterminer
 import Logging
 import Metrics
+import MetricsExtensions
 import QueueModels
 import ScheduleStrategy
 import Timer
@@ -17,7 +18,8 @@ public final class StuckBucketsPoller {
     private let stuckBucketsReenqueuer: StuckBucketsReenqueuer
     private let stuckBucketsTrigger = DispatchBasedTimer(repeating: .seconds(1), leeway: .seconds(5))
     private let version: Version
-    private let metricRecorder: MetricRecorder
+    private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
+    private let globalMetricRecorder: GlobalMetricRecorder
     
     public init(
         dateProvider: DateProvider,
@@ -25,14 +27,16 @@ public final class StuckBucketsPoller {
         runningQueueStateProvider: RunningQueueStateProvider,
         stuckBucketsReenqueuer: StuckBucketsReenqueuer,
         version: Version,
-        metricRecorder: MetricRecorder
+        specificMetricRecorderProvider: SpecificMetricRecorderProvider,
+        globalMetricRecorder: GlobalMetricRecorder
     ) {
         self.dateProvider = dateProvider
         self.jobStateProvider = jobStateProvider
         self.runningQueueStateProvider = runningQueueStateProvider
         self.stuckBucketsReenqueuer = stuckBucketsReenqueuer
         self.version = version
-        self.metricRecorder = metricRecorder
+        self.specificMetricRecorderProvider = specificMetricRecorderProvider
+        self.globalMetricRecorder = globalMetricRecorder
     }
     
     public func startTrackingStuckBuckets() {
@@ -57,19 +61,24 @@ public final class StuckBucketsPoller {
                 timestamp: dateProvider.currentDate()
             )
         }
-        metricRecorder.capture(stuckBucketMetrics)
         
         Logger.warning("Detected stuck buckets:")
         for stuckBucket in stuckBuckets {
             Logger.warning("-- Bucket \(stuckBucket.bucket.bucketId) is stuck with worker '\(stuckBucket.workerId)': \(stuckBucket.reason)")
+            do {
+                try specificMetricRecorderProvider.specificMetricRecorder(
+                    analyticsConfiguration: stuckBucket.bucket.analyticsConfiguration
+                ).capture(stuckBucketMetrics)
+            } catch {
+                Logger.error("Failed to send metrics: \(error)")
+            }
         }
         
         let queueStateMetricGatherer = QueueStateMetricGatherer(
             dateProvider: dateProvider,
             version: version
         )
-        
-        metricRecorder.capture(
+        globalMetricRecorder.capture(
             queueStateMetricGatherer.metrics(
                 jobStates: jobStateProvider.allJobStates,
                 runningQueueState: runningQueueStateProvider.runningQueueState

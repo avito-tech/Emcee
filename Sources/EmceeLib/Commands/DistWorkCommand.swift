@@ -47,8 +47,6 @@ public final class DistWorkCommand: Command {
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
         
         di.set(try createScopedTemporaryFolder(), for: TemporaryFolder.self)
-        
-        let metricRecorder: MutableMetricRecorder = try di.get()
 
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
@@ -61,8 +59,7 @@ public final class DistWorkCommand: Command {
         let distWorker = try createDistWorker(
             queueServerAddress: queueServerAddress,
             version: emceeVersion,
-            workerId: workerId,
-            metricRecorder: metricRecorder
+            workerId: workerId
         )
         
         SignalHandling.addSignalHandler(signals: [.term, .int]) { signal in
@@ -70,14 +67,13 @@ public final class DistWorkCommand: Command {
             onDemandSimulatorPool.deleteSimulators()
         }
         
-        try startWorker(distWorker: distWorker, emceeVersion: emceeVersion, metricRecorder: metricRecorder)
+        try startWorker(distWorker: distWorker, emceeVersion: emceeVersion)
     }
     
     private func createDistWorker(
         queueServerAddress: SocketAddress,
         version: Version,
-        workerId: WorkerId,
-        metricRecorder: MetricRecorder
+        workerId: WorkerId
     ) throws -> DistWorker {
         let requestSender = try di.get(RequestSenderProvider.self).requestSender(socketAddress: queueServerAddress)
         
@@ -106,29 +102,17 @@ public final class DistWorkCommand: Command {
         return DistWorker(
             di: di,
             version: version,
-            workerId: workerId,
-            metricRecorder: metricRecorder
+            workerId: workerId
         )
     }
         
     private func startWorker(
         distWorker: DistWorker,
-        emceeVersion: Version,
-        metricRecorder: MutableMetricRecorder
+        emceeVersion: Version
     ) throws {
         var isWorking = true
         
-        try distWorker.start(
-            didFetchAnalyticsConfiguration: { analyticsConfiguration in
-                try metricRecorder.set(analyticsConfiguration: analyticsConfiguration)
-                if let sentryConfiguration = analyticsConfiguration.sentryConfiguration {
-                    try AnalyticsSetup.setupSentry(sentryConfiguration: sentryConfiguration, emceeVersion: emceeVersion)
-                }
-            },
-            completion: {
-                isWorking = false
-            }
-        )
+        try distWorker.start { isWorking = false }
         
         SignalHandling.addSignalHandler(signals: [.term, .int]) { signal in
             Logger.debug("Got signal: \(signal)")

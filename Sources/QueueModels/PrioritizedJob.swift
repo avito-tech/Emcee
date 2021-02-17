@@ -1,6 +1,8 @@
 import Foundation
+import MetricsExtensions
 
-public struct PrioritizedJob: Hashable, Codable, CustomStringConvertible {    
+public struct PrioritizedJob: Hashable, Codable, CustomStringConvertible {
+    public let analyticsConfiguration: AnalyticsConfiguration
     public let jobGroupId: JobGroupId
     public let jobGroupPriority: Priority
     public let jobId: JobId
@@ -8,12 +10,14 @@ public struct PrioritizedJob: Hashable, Codable, CustomStringConvertible {
     public let persistentMetricsJobId: String
 
     public init(
+        analyticsConfiguration: AnalyticsConfiguration,
         jobGroupId: JobGroupId,
         jobGroupPriority: Priority,
         jobId: JobId,
         jobPriority: Priority,
         persistentMetricsJobId: String
     ) {
+        self.analyticsConfiguration = analyticsConfiguration
         self.jobGroupId = jobGroupId
         self.jobGroupPriority = jobGroupPriority
         self.jobId = jobId

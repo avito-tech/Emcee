@@ -8,6 +8,7 @@ import Foundation
 import LocalHostDeterminer
 import Logging
 import Metrics
+import MetricsExtensions
 import PathLib
 import PluginManager
 import ProcessController
@@ -45,7 +46,7 @@ public final class Runner {
         testTimeoutCheckInterval: DispatchTimeInterval = .seconds(1),
         version: Version,
         persistentMetricsJobId: String,
-        metricRecorder: MetricRecorder,
+        specificMetricRecorder: SpecificMetricRecorder,
         waiter: Waiter
     ) {
         self.configuration = configuration
@@ -57,7 +58,7 @@ public final class Runner {
             version: version,
             host: LocalHostDeterminer.currentHostAddress,
             persistentMetricsJobId: persistentMetricsJobId,
-            metricRecorder: metricRecorder
+            specificMetricRecorder: specificMetricRecorder
         )
         self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
