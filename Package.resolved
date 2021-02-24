@@ -23,8 +23,8 @@
         "package": "CommandLineToolkit",
         "repositoryURL": "https://github.com/avito-tech/CommandLineToolkit.git",
         "state": {
-          "branch": "master",
-          "revision": "1da04bca1f31d05c4d5bad5c384af2c09d8e28b9",
+          "branch": null,
+          "revision": "5b3f77819ec68ceaf1b283f222926136b8319092",
           "version": null
         }
       },
