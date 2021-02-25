@@ -11,15 +11,27 @@ import XCTest
 final class ObservableFileReaderTests: XCTestCase {
     lazy var tempFile = assertDoesNotThrow { try TemporaryFile() }
     
-    func test() throws {
-        let reader = try ObservableFileReaderImpl(
-            path: tempFile.absolutePath,
-            processControllerProvider: DefaultProcessControllerProvider(
-                dateProvider: SystemDateProvider(),
-                fileSystem: LocalFileSystem()
+    func test___ObservableFileReaderImpl() throws {
+        try runTestsWith(
+            reader: ObservableFileReaderImpl(
+                path: tempFile.absolutePath,
+                processControllerProvider: DefaultProcessControllerProvider(
+                    dateProvider: SystemDateProvider(),
+                    fileSystem: LocalFileSystem()
+                )
             )
         )
-        
+    }
+    
+    func test___FileHandleObservableFileReaderImpl() throws {
+        try runTestsWith(
+            reader: FileHandleObservableFileReaderImpl(
+                path: tempFile.absolutePath
+            )
+        )
+    }
+    
+    func runTestsWith(reader: ObservableFileReader) throws {
         let collectedTabSymbol = XCTestExpectation()
         
         var collectedContents = ""

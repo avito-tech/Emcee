@@ -4,7 +4,7 @@ import ProcessController
 import ProcessControllerTestHelpers
 import XCTest
 
-final class UpdatingFileReaderHandlerTests: XCTestCase {
+final class ProcessObservableFileReaderHandlerTests: XCTestCase {
     lazy var processController = FakeProcessController(subprocess: Subprocess(arguments: []))
     
     func test() {

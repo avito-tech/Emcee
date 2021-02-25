@@ -19,6 +19,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
     private let resourceLocationResolver: ResourceLocationResolver
     
     public static let useResultStreamToggleEnvName = "EMCEE_USE_RESULT_STREAM"
+    public static let useInProcessFileTailingEnvName = "EMCEE_USE_IN_PROCESS_TAIL"
     
     public init(
         xctestJsonLocation: XCTestJsonLocation?,
@@ -99,10 +100,16 @@ public final class XcodebuildBasedTestRunner: TestRunner {
             dateProvider: dateProvider,
             testRunnerStream: testRunnerStream
         )
-        let observableFileReader = try ObservableFileReaderImpl(
-            path: resultStreamFile,
-            processControllerProvider: processControllerProvider
-        )
+        let observableFileReader: ObservableFileReader
+        if testContext.environment[Self.useInProcessFileTailingEnvName] == "true" {
+            observableFileReader = FileHandleObservableFileReaderImpl(path: resultStreamFile)
+        } else {
+            observableFileReader = ObservableFileReaderImpl(
+                path: resultStreamFile,
+                processControllerProvider: processControllerProvider
+            )
+        }
+        
         var observableFileReaderHandler: ObservableFileReaderHandler?
         
         processController.onStart { sender, _ in
