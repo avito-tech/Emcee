@@ -24,7 +24,8 @@ final class PreflightPostflightTimeoutTrackingTestRunnerStreamTests: XCTestCase 
         testStream.openStream()
         dateProvider.result += 5
         
-        wait(for: [preflightExpectation, postflightExpectation], timeout: 5)
+        wait(for: [preflightExpectation], timeout: 15) // expected to be fulfilled
+        wait(for: [postflightExpectation], timeout: 2) // not expected to be fulfilled
     }
     
     func test___preflight_is_not_called___when_stream_opens_and_test_starts() {
@@ -67,7 +68,8 @@ final class PreflightPostflightTimeoutTrackingTestRunnerStreamTests: XCTestCase 
         
         dateProvider.result += 5
         
-        wait(for: [preflightExpectation, postflightExpectation], timeout: 5)
+        wait(for: [postflightExpectation], timeout: 15) // expected to be fulfilled
+        wait(for: [preflightExpectation], timeout: 2) // not expected to be fulfilled
     }
     
     func test___postflight_is_not_called___when_test_finished_and_next_starts() {
