@@ -243,8 +243,11 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             
             let state = try fetchJobState(jobId: jobId)
             switch state.queueState {
-            case .deleted: return false
-            case .running(let queueState): return !queueState.isDepleted
+            case .deleted:
+                return false
+            case .running(let queueState):
+                BucketQueueStateLogger(runningQueueState: queueState).logQueueSize()
+                return !queueState.isDepleted
             }
         }
     }
