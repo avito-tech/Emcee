@@ -36,7 +36,7 @@ public class BucketSplitter: Splitter, CustomStringConvertible {
     }
     
     open func split(inputs: [TestEntryConfiguration], bucketSplitInfo: BucketSplitInfo) -> [[TestEntryConfiguration]] {
-        Logger.fatal("BucketSplitter cannot be used, you must use subclass")
+        fatalError("BucketSplitter cannot be used directly, you must use subclass")
     }
     
     open func map(chunk: [TestEntryConfiguration], bucketSplitInfo: BucketSplitInfo) -> [Bucket] {

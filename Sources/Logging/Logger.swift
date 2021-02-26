@@ -48,16 +48,6 @@ public final class Logger {
         log(.error, message, pidInfo, file: file, line: line)
     }
     
-    public static func fatal(
-        _ message: String,
-        _ pidInfo: PidInfo? = nil,
-        file: StaticString = #file,
-        line: UInt = #line) -> Never
-    {
-        log(.fatal, message, pidInfo, file: file, line: line)
-        fatalError(message)
-    }
-    
     public static func always(
         _ message: String,
         _ pidInfo: PidInfo? = nil,

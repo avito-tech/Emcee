@@ -120,7 +120,6 @@ let package = Package(
                 .product(name: "CountedSet", package: "CountedSet"),
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
                 "LocalHostDeterminer",
-                "Logging",
                 .product(name: "Metrics", package: "CommandLineToolkit"),
                 "MetricsExtensions",
                 "QueueModels",
@@ -1841,8 +1840,6 @@ let package = Package(
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
                 "EventBus",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
-                "Logging",
-                "LoggingSetup",
                 "Plugin",
             ],
             path: "Sources/TestingPlugin"

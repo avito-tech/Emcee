@@ -11,8 +11,6 @@ public enum Verbosity: UInt, Comparable {
     case warning = 300
     /// Errors important for the user
     case error = 200
-    /// Fatal errors that lead to the crash
-    case fatal = 100
     /// Always print this log message
     case always = 0
     
@@ -32,8 +30,6 @@ public enum Verbosity: UInt, Comparable {
             return "WARNING"
         case .error:
             return "ERROR"
-        case .fatal:
-            return "FATAL"
         case .always:
             return "ALWAYS"
         }

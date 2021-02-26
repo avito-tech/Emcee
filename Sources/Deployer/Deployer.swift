@@ -90,6 +90,6 @@ open class Deployer {
     open func deployToDestination(
         pathToDeployable: [AbsolutePath: DeployableItem]
     ) throws {
-        Logger.fatal("Deployer.deployToDestinations() must be overrided in subclass")
+        fatalError("Deployer.deployToDestinations() must be overrided in subclass")
     }
 }

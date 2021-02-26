@@ -2,18 +2,11 @@ import DateProvider
 import EventBus
 import FileSystem
 import Foundation
-import Logging
-import LoggingSetup
 import Plugin
 
 class Listener: DefaultBusListener {
     var allEvents = [RunnerEvent]()
     var allSignals = [UInt32]()
-    
-    override func process(event: BusEvent) {
-        Logger.verboseDebug("Received bus event: \(event)")
-        super.process(event: event)
-    }
     
     override func runnerEvent(_ event: RunnerEvent) {
         allEvents.append(event)
@@ -27,32 +20,20 @@ class Listener: DefaultBusListener {
         for event in allEvents {
             do {
                 guard let outputPath = event.testContext.environment["EMCEE_TEST_PLUGIN_OUTPUT"] else {
-                    Logger.fatal("TestingPlugin requires runner events to specify env.EMCEE_TEST_PLUGIN_OUTPUT")
+                    print("Error: TestingPlugin requires runner events to specify env.EMCEE_TEST_PLUGIN_OUTPUT")
+                    exit(1)
                 }
-                Logger.debug("Writing event \(event) to: \(outputPath)")
                 let encoder = JSONEncoder()
                 let data = try encoder.encode(event)
                 try data.write(to: URL(fileURLWithPath: outputPath), options: .atomicWrite)
             } catch {
-                Logger.error("Error: \(error)")
+                print("Error: \(error)")
             }
         }
     }
 }
 
 func main() throws -> Int32 {
-    let loggingSetup = LoggingSetup(
-        dateProvider: SystemDateProvider(),
-        fileSystem: LocalFileSystem()
-    )
-    
-    try loggingSetup.setupLogging(stderrVerbosity: Verbosity.info)
-    defer {
-        LoggingSetup.tearDown(timeout: 10)
-    }
-
-    Logger.debug("Started plugin")
-    
     let eventBus = EventBus()
     let listener = Listener()
     eventBus.add(stream: listener)

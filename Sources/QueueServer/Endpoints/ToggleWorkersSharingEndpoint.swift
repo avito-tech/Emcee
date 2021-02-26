@@ -20,7 +20,7 @@ public final class ToggleWorkersSharingEndpoint: RESTEndpoint {
     }
     
     public func handle(payload: ToggleWorkersSharingPayload) throws -> VoidPayload {
-        Logger.debug("Change workers sharing feature state to :\(payload.status)")
+        Logger.debug("Change workers sharing feature state to: \(payload.status)")
         
         switch payload.status {
         case .disabled:

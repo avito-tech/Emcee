@@ -1,11 +1,11 @@
 import Foundation
-import Logging
 import PathLib
 import ProcessController
 import Tmp
 
 /** Packs DeployableItem, returns URL to a single file with a package. */
 public final class Packager {
+    private let fileManager = FileManager()
     private let processControllerProvider: ProcessControllerProvider
     
     public init(processControllerProvider: ProcessControllerProvider) {
@@ -18,11 +18,9 @@ public final class Packager {
      */
     public func preparePackage(deployable: DeployableItem, packageFolder: AbsolutePath) throws -> AbsolutePath {
         let archivePath = deployable.name.components(separatedBy: "/").reduce(packageFolder) { $0.appending(component: $1) }
-        try FileManager.default.createDirectory(atPath: archivePath.removingLastComponent)
-        Logger.debug("\(deployable.name): archive is \(archivePath)")
+        try fileManager.createDirectory(atPath: archivePath.removingLastComponent)
 
-        if FileManager.default.fileExists(atPath: archivePath.pathString) {
-            Logger.debug("\(deployable.name): file already present, won't use it")
+        if fileManager.fileExists(atPath: archivePath.pathString) {
             return archivePath
         }
         
@@ -30,10 +28,10 @@ public final class Packager {
         
         for file in deployable.files {
             let containerPath = file.destination.removingLastComponent
-            if !FileManager.default.fileExists(atPath: containerPath.pathString) {
+            if !fileManager.fileExists(atPath: containerPath.pathString) {
                 _ = try temporaryFolder.pathByCreatingDirectories(components: containerPath.components)
             }
-            try FileManager.default.copyItem(
+            try fileManager.copyItem(
                 atPath: file.source.pathString,
                 toPath: temporaryFolder.absolutePath.appending(relativePath: file.destination).pathString
             )

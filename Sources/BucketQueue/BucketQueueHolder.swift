@@ -1,18 +1,9 @@
 import BucketQueueModels
 import Foundation
-import Logging
 
 public final class BucketQueueHolder {
-    private var enqueuedBuckets = [EnqueuedBucket]() {
-        didSet {
-            Logger.debug("Updated enqueued buckets count: \(enqueuedBuckets.count)")
-        }
-    }
-    private var dequeuedBuckets = Set<DequeuedBucket>() {
-        didSet {
-            Logger.debug("Updated dequeued buckets count: \(dequeuedBuckets.count)")
-        }
-    }
+    private var enqueuedBuckets = [EnqueuedBucket]()
+    private var dequeuedBuckets = Set<DequeuedBucket>()
 
     private let syncQueue = DispatchQueue(label: "BucketQueueHolder.syncQueue")
     private let exclusiveAccessLock = NSRecursiveLock()
@@ -31,7 +22,6 @@ public final class BucketQueueHolder {
     
     public func removeAllEnqueuedBuckets() {
         syncQueue.sync {
-            Logger.debug("Removing all enqueued buckets (\(enqueuedBuckets.count) items)")
             enqueuedBuckets.removeAll()
         }
     }

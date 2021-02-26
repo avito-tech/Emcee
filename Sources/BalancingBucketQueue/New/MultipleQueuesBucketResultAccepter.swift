@@ -1,6 +1,5 @@
 import BucketQueue
 import Foundation
-import Logging
 import QueueModels
 
 public final class MultipleQueuesBucketResultAccepter: BucketResultAccepter {
@@ -27,7 +26,7 @@ public final class MultipleQueuesBucketResultAccepter: BucketResultAccepter {
                     jobQueue.resultsCollector.append(testingResult: result.testingResultToCollect)
                     return result
                 } catch {
-                    Logger.debug("Job \(jobQueue.job) is not associated with \(bucketId)")
+                    // jobQueue is not associated with bucketId, move over to the next jobQueue
                 }
             }
             

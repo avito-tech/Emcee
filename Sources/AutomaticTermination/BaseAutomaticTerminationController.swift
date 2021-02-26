@@ -26,16 +26,11 @@ internal class BaseAutomaticTerminationController: AutomaticTerminationControlle
         }
         set {
             syncQueue.sync { storedActivityDate = newValue }
-            let formatted = NSLogLikeLogEntryTextFormatter.logDateFormatter.string(from: newValue)
-            Logger.debug("Recorded activity at \(formatted)")
         }
     }
     
     func startTracking() {
         updateLastActivityDate()
-        
-        Logger.debug("Starting tracking of automatic termination occurrence")
-        
         trackingTimer.start { [weak self] timer in
             guard let strongSelf = self else {
                 timer.stop()
@@ -65,7 +60,6 @@ internal class BaseAutomaticTerminationController: AutomaticTerminationControlle
     
     private func fireHandlers() {
         let handlers = syncQueue.sync { self.handlers }
-        Logger.debug("Firing \(handlers.count) automatic termination handlers")
         for handler in handlers {
             handler()
         }

@@ -54,6 +54,4 @@ public final class DisableWorkerCommand: Command {
             Logger.error("Failed to disabled worker \(workerId) on queue \(queueServerAddress): \(error)")
         }
     }
-    
-    
 }

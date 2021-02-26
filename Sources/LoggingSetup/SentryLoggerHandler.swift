@@ -111,8 +111,6 @@ extension Verbosity {
             return .warning
         case .error:
             return .error
-        case .fatal:
-            return .fatal
         case .always:
             return .info
         }
