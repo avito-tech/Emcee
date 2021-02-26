@@ -60,7 +60,6 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
             filename: "testrun.xctestrun",
             contents: try xcTestRunPlist.createPlistData()
         )
-        Logger.debug("xcrun: \(plistPath)")
         return try plistPath.stringValue()
     }
 

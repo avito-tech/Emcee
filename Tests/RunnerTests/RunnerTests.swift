@@ -297,7 +297,7 @@ public final class RunnerTests: XCTestCase {
             environment: [:],
             pluginLocations: [],
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-            testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
+            testRunnerTool: .xcodebuild,
             testTimeoutConfiguration: TestTimeoutConfiguration(
                 singleTestMaximumDuration: testTimeout,
                 testRunnerMaximumSilenceDuration: 0

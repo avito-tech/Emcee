@@ -25,7 +25,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         }
 
         XCTAssertEqual(querierConfiguration.testDiscoveryMode, .runtimeLogicTest(testArgFileEntry.simulatorControlTool))
-        XCTAssertEqual(querierConfiguration.testRunnerTool, TestRunnerToolFixtures.fakeFbxctestTool)
+        XCTAssertEqual(querierConfiguration.testRunnerTool, .xcodebuild)
         XCTAssertEqual(querierConfiguration.xcTestBundleLocation, testArgFileEntry.buildArtifacts.xcTestBundle.location)
         XCTAssertEqual(querierConfiguration.testDestination, testArgFileEntry.testDestination)
         XCTAssertEqual(querierConfiguration.testsToValidate.count, 1)
@@ -60,7 +60,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             .runtimeAppTest(
                 RuntimeDumpApplicationTestSupport(
                     appBundle: fakeBuildArtifacts.appBundle!,
-                    simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool
+                    simulatorControlTool: SimulatorControlToolFixtures.simctlTool
                 )
             )
         )
@@ -112,11 +112,11 @@ final class TestEntriesValidatorTests: XCTestCase {
             numberOfRetries: 1,
             pluginLocations: [],
             scheduleStrategy: .unsplit,
-            simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
+            simulatorControlTool: SimulatorControlToolFixtures.simctlTool,
             simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: try TestDestination(deviceType: "iPhoneXL", runtime: "10.3"),
-            testRunnerTool: TestRunnerToolFixtures.fakeFbxctestTool,
+            testRunnerTool: .xcodebuild,
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
             testType: testType,
             testsToRun: [.testName(TestName(className: "MyTest", methodName: "test"))],

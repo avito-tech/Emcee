@@ -13,7 +13,6 @@ import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import Tmp
 import XCTest
-import fbxctest
 
 final class SimulatorStateMachineActionExecutorProviderTests: XCTestCase {
     private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
@@ -38,19 +37,6 @@ final class SimulatorStateMachineActionExecutorProviderTests: XCTestCase {
         }
         let metricSupportingExecutor = assertIsMetricSupportingExecutor(executor: executor)
         XCTAssert(metricSupportingExecutor.delegate is SimctlBasedSimulatorStateMachineActionExecutor)
-    }
-    
-    func test___fbsimctl() {
-        let executor = assertDoesNotThrow {
-            try provider.simulatorStateMachineActionExecutor(
-                simulatorControlTool: SimulatorControlTool(
-                    location: .insideEmceeTempFolder,
-                    tool: .fbsimctl(FbsimcrlLocationFixtures.fakeFbsimctlLocation)
-                )
-            )
-        }
-        let metricSupportingExecutor = assertIsMetricSupportingExecutor(executor: executor)
-        XCTAssert(metricSupportingExecutor.delegate is FbsimctlBasedSimulatorStateMachineActionExecutor)
     }
     
     private func assertIsMetricSupportingExecutor(

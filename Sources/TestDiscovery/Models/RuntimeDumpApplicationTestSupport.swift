@@ -3,11 +3,7 @@ import RunnerModels
 import SimulatorPoolModels
 
 public struct RuntimeDumpApplicationTestSupport: Hashable {
-
-    /** Path to hosting application*/
     public let appBundle: AppBundleLocation
-
-    /** Path to Fbsimctl to run simulator*/
     public let simulatorControlTool: SimulatorControlTool
 
     public init(

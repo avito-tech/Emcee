@@ -7,7 +7,6 @@ import RunnerModels
 import SimulatorPool
 import SimulatorPoolModels
 import Tmp
-import fbxctest
 
 public final class DefaultSimulatorControllerProvider: SimulatorControllerProvider {
     private let additionalBootAttempts: UInt

@@ -87,7 +87,7 @@ public final class Runner {
         // It is unlikely that multiple revives would provide any results, so we leave only a single retry.
         let numberOfAttemptsToRevive = 1
         
-        // Something may crash (fbxctest/xctest), many tests may be not started. Some external code that uses Runner
+        // Something may crash (xcodebuild/xctest), many tests may be not started. Some external code that uses Runner
         // may have its own logic for restarting particular tests, but here at Runner we deal with crashes of bunches
         // of tests, many of which can be even not started. Simplifying this: if something that runs tests is crashed,
         // we should retry running tests more than if some test fails. External code will treat failed tests as it

@@ -242,7 +242,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     // MARK: - Envrironment
     
     private func environment() throws -> [String: String] {
-        let temporaryPathComponents = ["fbsimctl_working_dir", UUID().uuidString, "fbsimctl_tmp"]
+        let temporaryPathComponents = ["simctl_working_dir", UUID().uuidString, "simctl_tmp"]
         let tmpdir = try temporaryFolder.pathByCreatingDirectories(components: temporaryPathComponents).pathString
         
         return try developerDirLocator.suitableEnvironment(

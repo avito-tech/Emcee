@@ -31,12 +31,11 @@ final class TestArgFileEntryTests: XCTestCase {
                     },
                     "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"]
                 },
-                "testRunnerTool": {"toolType": "fbxctest", "fbxctestLocation": "http://example.com/fbxctest.zip"},
+                "testRunnerTool": {"toolType": "xcodebuild"},
                 "simulatorControlTool": {
                     "location": "insideUserLibrary",
                     "tool": {
-                        "toolType": "fbsimctl",
-                        "location": "http://example.com/fbsimctl.zip"
+                        "toolType": "simctl"
                     }
                 },
                 "developerDir": {"kind": "current"},
@@ -94,7 +93,7 @@ final class TestArgFileEntryTests: XCTestCase {
                 scheduleStrategy: .unsplit,
                 simulatorControlTool: SimulatorControlTool(
                     location: .insideUserLibrary,
-                    tool: .fbsimctl(FbsimctlLocation(.remoteUrl(URL(string: "http://example.com/fbsimctl.zip")!)))
+                    tool: .simctl
                 ),
                 simulatorOperationTimeouts: SimulatorOperationTimeouts(
                     create: 50,
@@ -109,7 +108,7 @@ final class TestArgFileEntryTests: XCTestCase {
                     watchdogSettings: WatchdogSettings(bundleIds: ["sample.app"], timeout: 42)
                 ),
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
-                testRunnerTool: .fbxctest(FbxctestLocation(.remoteUrl(URL(string: "http://example.com/fbxctest.zip")!))),
+                testRunnerTool: .xcodebuild,
                 testTimeoutConfiguration: TestTimeoutConfiguration(
                     singleTestMaximumDuration: 42,
                     testRunnerMaximumSilenceDuration: 24

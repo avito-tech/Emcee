@@ -6,7 +6,7 @@ import XCTest
 final class ActivityAwareSimulatorControllerTests: XCTestCase {
     let fakeSimulatorController = FakeSimulatorController(
         simulator: SimulatorFixture.simulator(),
-        simulatorControlTool: SimulatorControlToolFixtures.fakeFbsimctlTool,
+        simulatorControlTool: SimulatorControlToolFixtures.simctlTool,
         developerDir: .current
     )
     

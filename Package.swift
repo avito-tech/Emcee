@@ -24,7 +24,6 @@ let package = Package(
         .target(
             name: "AppleTools",
             dependencies: [
-                .product(name: "AtomicModels", package: "CommandLineToolkit"),
                 "BuildArtifacts",
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
                 "DeveloperDirLocator",
@@ -41,7 +40,6 @@ let package = Package(
                 "SimulatorPool",
                 "SimulatorPoolModels",
                 .product(name: "Tmp", package: "CommandLineToolkit"),
-                "XCTestJsonCodable",
             ],
             path: "Sources/AppleTools"
         ),
@@ -519,7 +517,6 @@ let package = Package(
                 "WorkerAlivenessProvider",
                 "WorkerCapabilities",
                 "WorkerCapabilitiesModels",
-                "fbxctest",
             ],
             path: "Sources/EmceeLib"
         ),
@@ -553,7 +550,6 @@ let package = Package(
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 "URLResource",
                 "UniqueIdentifierGeneratorTestHelpers",
-                "fbxctest",
             ],
             path: "Tests/EmceeLibTests"
         ),
@@ -1414,7 +1410,6 @@ let package = Package(
                 "DeveloperDirModels",
                 "PluginSupport",
                 "SimulatorPoolModels",
-                "TypedResourceLocation",
             ],
             path: "Sources/RunnerModels"
         ),
@@ -1600,7 +1595,6 @@ let package = Package(
             dependencies: [
                 .product(name: "PathLib", package: "CommandLineToolkit"),
                 "ResourceLocation",
-                "TypedResourceLocation",
                 .product(name: "Types", package: "CommandLineToolkit"),
             ],
             path: "Sources/SimulatorPoolModels"
@@ -1842,13 +1836,6 @@ let package = Package(
             path: "Tests/TestHistoryTrackerTests"
         ),
         .target(
-            name: "TestingFakeFbxctest",
-            dependencies: [
-                "Extensions",
-            ],
-            path: "Sources/TestingFakeFbxctest"
-        ),
-        .target(
             name: "TestingPlugin",
             dependencies: [
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
@@ -1983,47 +1970,6 @@ let package = Package(
             dependencies: [
             ],
             path: "Sources/XCTestJsonCodable"
-        ),
-        .target(
-            name: "fbxctest",
-            dependencies: [
-                .product(name: "AtomicModels", package: "CommandLineToolkit"),
-                "BuildArtifacts",
-                "DeveloperDirLocator",
-                "JSONStream",
-                "LocalHostDeterminer",
-                "Logging",
-                .product(name: "PathLib", package: "CommandLineToolkit"),
-                .product(name: "ProcessController", package: "CommandLineToolkit"),
-                "ResourceLocation",
-                "ResourceLocationResolver",
-                "Runner",
-                "RunnerModels",
-                "SimulatorPool",
-                "SimulatorPoolModels",
-                .product(name: "Timer", package: "CommandLineToolkit"),
-                .product(name: "Tmp", package: "CommandLineToolkit"),
-            ],
-            path: "Sources/fbxctest"
-        ),
-        .testTarget(
-            name: "fbxctestTests",
-            dependencies: [
-                "BuildArtifactsTestHelpers",
-                "DeveloperDirLocatorTestHelpers",
-                "JSONStream",
-                .product(name: "ProcessController", package: "CommandLineToolkit"),
-                .product(name: "ProcessControllerTestHelpers", package: "CommandLineToolkit"),
-                "ResourceLocationResolverTestHelpers",
-                "Runner",
-                "RunnerModels",
-                "RunnerTestHelpers",
-                "SimulatorPoolTestHelpers",
-                .product(name: "TestHelpers", package: "CommandLineToolkit"),
-                .product(name: "Tmp", package: "CommandLineToolkit"),
-                "fbxctest",
-            ],
-            path: "Tests/fbxctestTests"
         ),
     ]
 )

@@ -19,7 +19,7 @@ public struct SimulatorControlTool: Codable, CustomStringConvertible, Hashable {
 }
 
 public enum SimulatorLocation: String, Codable, CustomStringConvertible, Hashable {
-    /// Allows to create a private simulators in Emcee's temporary folder. Currently only supported by `fbxctest` runner. `xcodebuild` cannot locate these simulators yet.
+    /// Allows to create a private simulators in Emcee's temporary folder.
     case insideEmceeTempFolder
     
     /// Default location used by simctl and Xcode: `~/Library/Developer/CoreSimulator/Devices`
@@ -36,16 +36,11 @@ public enum SimulatorLocation: String, Codable, CustomStringConvertible, Hashabl
 }
 
 public enum SimCtlTool: Codable, CustomStringConvertible, Hashable {
-    /// Use provided fbsimctl binary
-    case fbsimctl(FbsimctlLocation)
-
     /// Use default tool
     case simctl
     
     public var description: String {
         switch self {
-        case .fbsimctl(let fbsimctlLocation):
-            return "fbsimctl at: \(fbsimctlLocation)"
         case .simctl:
             return "simctl"
         }
@@ -57,7 +52,6 @@ public enum SimCtlTool: Codable, CustomStringConvertible, Hashable {
     }
 
     private enum ToolType: String, Codable {
-        case fbsimctl
         case simctl
     }
     
@@ -65,12 +59,6 @@ public enum SimCtlTool: Codable, CustomStringConvertible, Hashable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let toolType = try container.decode(ToolType.self, forKey: .toolType)
         switch toolType {
-        case .fbsimctl:
-            self = .fbsimctl(
-                FbsimctlLocation(
-                    try container.decode(ResourceLocation.self, forKey: .location)
-                )
-            )
         case .simctl:
             self = .simctl
         }
@@ -79,9 +67,6 @@ public enum SimCtlTool: Codable, CustomStringConvertible, Hashable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch self {
-        case .fbsimctl(let fbsimctlLocation):
-            try container.encode(ToolType.fbsimctl, forKey: .toolType)
-            try container.encode(fbsimctlLocation.resourceLocation, forKey: .location)
         case .simctl:
             try container.encode(ToolType.simctl, forKey: .toolType)
         }

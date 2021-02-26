@@ -14,7 +14,7 @@ public final class SimulatorSetPathDeterminerImpl: SimulatorSetPathDeterminer {
 
     public init(
         fileSystem: FileSystem,
-        simulatorContainerFolderName: String = "fbsimctl_simulators",
+        simulatorContainerFolderName: String = "simulators",
         temporaryFolder: TemporaryFolder,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {

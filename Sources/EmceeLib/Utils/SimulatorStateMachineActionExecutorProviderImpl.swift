@@ -11,7 +11,6 @@ import RunnerModels
 import SimulatorPool
 import SimulatorPoolModels
 import Tmp
-import fbxctest
 
 public final class SimulatorStateMachineActionExecutorProviderImpl: SimulatorStateMachineActionExecutorProvider {
     private let dateProvider: DateProvider
@@ -47,12 +46,6 @@ public final class SimulatorStateMachineActionExecutorProviderImpl: SimulatorSta
         let simulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor
         
         switch simulatorControlTool.tool {
-        case .fbsimctl(let fbsimctlLocation):
-            simulatorStateMachineActionExecutor = FbsimctlBasedSimulatorStateMachineActionExecutor(
-                fbsimctl: resourceLocationResolver.resolvable(withRepresentable: fbsimctlLocation),
-                processControllerProvider: processControllerProvider,
-                simulatorsContainerPath: simulatorSetPath
-            )
         case .simctl:
             simulatorStateMachineActionExecutor = SimctlBasedSimulatorStateMachineActionExecutor(
                 processControllerProvider: processControllerProvider,

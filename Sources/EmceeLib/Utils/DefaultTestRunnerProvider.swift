@@ -5,7 +5,6 @@ import ProcessController
 import ResourceLocationResolver
 import Runner
 import RunnerModels
-import fbxctest
 
 public final class DefaultTestRunnerProvider: TestRunnerProvider {
     private let dateProvider: DateProvider
@@ -24,15 +23,8 @@ public final class DefaultTestRunnerProvider: TestRunnerProvider {
 
     public func testRunner(testRunnerTool: TestRunnerTool) throws -> TestRunner {
         switch testRunnerTool {
-        case .fbxctest(let fbxctestLocation):
-            return FbxctestBasedTestRunner(
-                fbxctestLocation: fbxctestLocation,
-                processControllerProvider: processControllerProvider,
-                resourceLocationResolver: resourceLocationResolver
-            )
-        case .xcodebuild(let xctestJsonLocation):
+        case .xcodebuild:
             return XcodebuildBasedTestRunner(
-                xctestJsonLocation: xctestJsonLocation,
                 dateProvider: dateProvider,
                 processControllerProvider: processControllerProvider,
                 resourceLocationResolver: resourceLocationResolver

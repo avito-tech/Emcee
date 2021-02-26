@@ -42,7 +42,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
     )
     private lazy var testContext = createTestContext()
     private lazy var runner = XcodebuildBasedTestRunner(
-        xctestJsonLocation: nil,
         dateProvider: dateProvider,
         processControllerProvider: processControllerProvider,
         resourceLocationResolver: resourceLocationResolver
@@ -109,6 +108,10 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         let argsValidatedExpectation = expectation(description: "Arguments have been validated")
         
         processControllerProvider.creator = { subprocess -> ProcessController in
+            guard !(try subprocess.arguments[0].stringValue().contains("tail")) else {
+                return FakeProcessController(subprocess: subprocess)
+            }
+            
             self.assertArgumentsAreCorrect(arguments: subprocess.arguments)
             
             XCTAssertEqual(
@@ -169,6 +172,10 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         let argsValidatedExpectation = expectation(description: "Arguments have been validated")
         
         processControllerProvider.creator = { subprocess -> ProcessController in
+            guard !(try subprocess.arguments[0].stringValue().contains("tail")) else {
+                return FakeProcessController(subprocess: subprocess)
+            }
+            
             self.assertArgumentsAreCorrect(arguments: subprocess.arguments)
             
             XCTAssertEqual(
@@ -232,6 +239,10 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         let argsValidatedExpectation = expectation(description: "Arguments have been validated")
         
         processControllerProvider.creator = { subprocess -> ProcessController in
+            guard !(try subprocess.arguments[0].stringValue().contains("tail")) else {
+                return FakeProcessController(subprocess: subprocess)
+            }
+            
             self.assertArgumentsAreCorrect(arguments: subprocess.arguments)
             
             argsValidatedExpectation.fulfill()
@@ -259,69 +270,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         
         wait(for: [argsValidatedExpectation], timeout: 15)
     }
-    
-    func test___ui_test___test_stream_events() throws {
-        let impactQueue = DispatchQueue(label: "impact.queue")
         
-        processControllerProvider.creator = { subprocess -> ProcessController in
-            let controller = FakeProcessController(subprocess: subprocess)
-            
-            controller.overridedProcessStatus = .stillRunning
-            
-            impactQueue.asyncAfter(deadline: .now() + 0.5) {
-                controller.broadcastStdout(
-                    data: Data("Test Case '-[ModuleWithTests.TestClassName testMethodName]' started.".utf8)
-                )
-                
-                impactQueue.asyncAfter(deadline: .now() + 0.5) {
-                    controller.broadcastStdout(
-                        data: Data("Test Case '-[ModuleWithTests.TestClassName testMethodName]' failed (42.000 seconds).".utf8)
-                    )
-                    
-                    impactQueue.asyncAfter(deadline: .now() + 0.1) {
-                        controller.overridedProcessStatus = .terminated(exitCode: 0)
-                    }
-                }
-            }
-            return controller
-        }
-        
-        assertDoesNotThrow {
-            let invocation = try runner.prepareTestRun(
-                buildArtifacts: buildArtifacts,
-                developerDirLocator: developerDirLocator,
-                entriesToRun: [
-                    TestEntryFixtures.testEntry()
-                ],
-                simulator: simulator,
-                temporaryFolder: tempFolder,
-                testContext: testContext,
-                testRunnerStream: testRunnerStream,
-                testType: .uiTest
-            )
-            invocation.startExecutingTests().wait()
-        }
-        
-        guard testRunnerStream.accumulatedData.count == 2 else {
-            failTest("Unexpected number of events in test stream")
-        }
-        
-        XCTAssertEqual(
-            testRunnerStream.castTo(TestName.self, index: 0),
-            TestName(className: "TestClassName", methodName: "testMethodName")
-        )
-        XCTAssertEqual(
-            testRunnerStream.castTo(TestStoppedEvent.self, index: 1),
-            TestStoppedEvent(
-                testName: TestName(className: "TestClassName", methodName: "testMethodName"),
-                result: .failure,
-                testDuration: 42.0,
-                testExceptions: [],
-                testStartTimestamp: dateProvider.currentDate().addingTimeInterval(-42.0).timeIntervalSince1970
-            )
-        )
-    }
-    
     func test___open_stream_called___when_test_runner_starts() throws {
         testRunnerStream.streamIsOpen = false
         
@@ -357,9 +306,13 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             testRunnerStream: testRunnerStream,
             testType: .logicTest
         )
+        
+        let streamIsClosed = XCTestExpectation(description: "Stream closed")
+        testRunnerStream.onCloseStream = streamIsClosed.fulfill
+        
         invocation.startExecutingTests().cancel()
         
-        XCTAssertFalse(testRunnerStream.streamIsOpen)
+        wait(for: [streamIsClosed], timeout: 10)
     }
     
     func test___working_with_result_stream() throws {

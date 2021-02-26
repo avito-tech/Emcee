@@ -14,40 +14,6 @@ final class SimulatorControlToolTests: XCTestCase {
     override func setUp() {
         encoder.outputFormatting = [.sortedKeys]
     }
-    
-    func test__decoding_fbsimctl() {
-        XCTAssertEqual(
-            try decoder.decode(
-                [String: SimulatorControlTool].self,
-                from: Data(
-                    """
-                        {
-                            "value": {
-                                "tool": {
-                                    "toolType": "fbsimctl",
-                                    "location": "\(SimulatorControlToolFixtures.fakeFbsimctlUrl.absoluteString)"
-                                },
-                                "location": "insideEmceeTempFolder"
-                            }
-                        }
-                    """.utf8
-                )
-            ),
-            ["value": SimulatorControlToolFixtures.fakeFbsimctlTool]
-        )
-    }
-    
-    func test_encoding_fbsimctl() {
-        let expectedStringValue = SimulatorControlToolFixtures.fakeFbsimctlUrl.absoluteString.replacingOccurrences(
-            of: "/",
-            with: "\\/"
-        )
-        
-        XCTAssertEqual(
-            String(data: try encoder.encode(["value": SimulatorControlToolFixtures.fakeFbsimctlTool]), encoding: .utf8),
-            "{\"value\":{\"location\":\"insideEmceeTempFolder\",\"tool\":{\"location\":\"\(expectedStringValue)\",\"toolType\":\"fbsimctl\"}}}"
-        )
-    }
 
     func test__decoding_simctl() {
         XCTAssertEqual(

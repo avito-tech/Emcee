@@ -26,7 +26,7 @@ public struct TestDestination: Hashable, CustomStringConvertible, Codable {
         }
         
         // Apple APIs return "patchless" Simulator version. E.g. for 10.3.1 it returns iOS 10.3.
-        // Thus, when we ask runtime to be 10.3.1, fbxctest can't locate 10.3.1 runtime inside predicate.
+        // Thus, when we ask runtime to be 10.3.1.
         // Interestingly, when we ask for iOS Simulator 10.3, SDK returns 10.3.1 anyway.
         // Here we are removing patch from the iOS version:
         // e.g. 11.2, 10.3 - it is fine
