@@ -1,7 +1,6 @@
 import Graphite
 import Metrics
 import MetricsExtensions
-import Sentry
 import SocketModels
 import Statsd
 import TestHelpers
@@ -36,8 +35,8 @@ final class SpecificMetricRecorderProviderTests: XCTestCase {
         let secondRecorder = try specificProvider.specificMetricRecorder(
             analyticsConfiguration: AnalyticsConfiguration(
                 graphiteConfiguration: nil,
-                statsdConfiguration: nil,
-                sentryConfiguration: SentryConfiguration(dsn: URL(fileURLWithPath: "/dev/null")))
+                statsdConfiguration: MetricConfiguration(socketAddress: SocketAddress(host: "example.com", port: 2003), metricPrefix: "prefix")
+            )
         )
         
         XCTAssertNotEqual(
@@ -63,16 +62,12 @@ final class SpecificMetricRecorderProviderTests: XCTestCase {
             analyticsConfiguration: AnalyticsConfiguration()
         )
         _ = try specificProvider.specificMetricRecorder(
-            analyticsConfiguration: AnalyticsConfiguration(
-                graphiteConfiguration: nil,
-                statsdConfiguration: nil,
-                sentryConfiguration: SentryConfiguration(dsn: URL(fileURLWithPath: "/dev/null")))
+            analyticsConfiguration: AnalyticsConfiguration()
         )
         _ = try specificProvider.specificMetricRecorder(
             analyticsConfiguration: AnalyticsConfiguration(
                 graphiteConfiguration: nil,
-                statsdConfiguration: MetricConfiguration(socketAddress: SocketAddress(host: "host", port: 0), metricPrefix: "prefix"),
-                sentryConfiguration: nil
+                statsdConfiguration: MetricConfiguration(socketAddress: SocketAddress(host: "host", port: 0), metricPrefix: "prefix")
             )
         )
         

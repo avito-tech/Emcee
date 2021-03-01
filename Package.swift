@@ -739,7 +739,6 @@ let package = Package(
                 "RemotePortDeterminer",
                 "RemotePortDeterminerTestHelpers",
                 "ScheduleStrategy",
-                "Sentry",
                 .product(name: "SocketModels", package: "CommandLineToolkit"),
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
@@ -756,8 +755,6 @@ let package = Package(
                 "LocalHostDeterminer",
                 .product(name: "Metrics", package: "CommandLineToolkit"),
                 .product(name: "PathLib", package: "CommandLineToolkit"),
-                "QueueModels",
-                "Sentry",
                 .product(name: "Tmp", package: "CommandLineToolkit"),
             ],
             path: "Sources/LoggingSetup"
@@ -776,7 +773,6 @@ let package = Package(
                 .product(name: "AtomicModels", package: "CommandLineToolkit"),
                 .product(name: "Graphite", package: "CommandLineToolkit"),
                 .product(name: "Metrics", package: "CommandLineToolkit"),
-                "Sentry",
                 .product(name: "SocketModels", package: "CommandLineToolkit"),
                 .product(name: "Statsd", package: "CommandLineToolkit"),
             ],
@@ -788,7 +784,6 @@ let package = Package(
                 .product(name: "Graphite", package: "CommandLineToolkit"),
                 .product(name: "Metrics", package: "CommandLineToolkit"),
                 "MetricsExtensions",
-                "Sentry",
                 .product(name: "SocketModels", package: "CommandLineToolkit"),
                 .product(name: "Statsd", package: "CommandLineToolkit"),
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
@@ -1550,19 +1545,6 @@ let package = Package(
             path: "Sources/Scheduler"
         ),
         .target(
-            name: "Sentry",
-            dependencies: [
-            ],
-            path: "Sources/Sentry"
-        ),
-        .testTarget(
-            name: "SentryTests",
-            dependencies: [
-                "Sentry",
-            ],
-            path: "Tests/SentryTests"
-        ),
-        .target(
             name: "SimulatorPool",
             dependencies: [
                 .product(name: "AtomicModels", package: "CommandLineToolkit"),
@@ -1684,7 +1666,6 @@ let package = Package(
                 "ResourceLocation",
                 "RunnerModels",
                 "RunnerTestHelpers",
-                "Sentry",
                 "SimulatorPoolModels",
                 "SimulatorPoolTestHelpers",
                 .product(name: "SocketModels", package: "CommandLineToolkit"),

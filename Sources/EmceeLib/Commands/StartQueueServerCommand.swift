@@ -55,10 +55,7 @@ public final class StartQueueServerCommand: Command {
         )
         
         try di.get(GlobalMetricRecorder.self).set(analyticsConfiguration: queueServerConfiguration.globalAnalyticsConfiguration)
-        if let sentryConfiguration = queueServerConfiguration.globalAnalyticsConfiguration.sentryConfiguration {
-            try AnalyticsSetup.setupSentry(sentryConfiguration: sentryConfiguration, emceeVersion: emceeVersion)
-        }
-        
+
         try startQueueServer(
             emceeVersion: emceeVersion,
             queueServerConfiguration: queueServerConfiguration,

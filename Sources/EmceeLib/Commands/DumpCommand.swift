@@ -61,10 +61,6 @@ public final class DumpCommand: Command {
         
         try di.get(GlobalMetricRecorder.self).set(analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration)
         
-        if let sentryConfiguration = testArgFile.prioritizedJob.analyticsConfiguration.sentryConfiguration {
-            try AnalyticsSetup.setupSentry(sentryConfiguration: sentryConfiguration, emceeVersion: emceeVersion)
-        }
-        
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
             version: emceeVersion

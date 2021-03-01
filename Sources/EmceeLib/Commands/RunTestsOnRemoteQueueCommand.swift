@@ -169,10 +169,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         version: Version
     ) throws -> JobResults {
         try di.get(GlobalMetricRecorder.self).set(analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration)
-        if let sentryConfiguration = testArgFile.prioritizedJob.analyticsConfiguration.sentryConfiguration {
-            try AnalyticsSetup.setupSentry(sentryConfiguration: sentryConfiguration, emceeVersion: version)
-        }
-        
+
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
             version: version

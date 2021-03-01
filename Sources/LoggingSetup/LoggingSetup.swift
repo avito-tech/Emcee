@@ -6,7 +6,6 @@ import LocalHostDeterminer
 import EmceeLogging
 import Metrics
 import PathLib
-import Sentry
 import Tmp
 
 public final class LoggingSetup {

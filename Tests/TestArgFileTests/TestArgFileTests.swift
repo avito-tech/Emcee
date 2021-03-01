@@ -4,7 +4,6 @@ import LoggingSetup
 import MetricsExtensions
 import QueueModels
 import ResourceLocation
-import Sentry
 import SimulatorPoolModels
 import SocketModels
 import TestArgFile
@@ -30,9 +29,6 @@ final class TestArgFileTests: XCTestCase {
                     "statsdConfiguration": {
                         "socketAddress": "statsd.host:124",
                         "metricPrefix": "statsd.prefix",
-                    },
-                    "sentryConfiguration": {
-                        "dsn": "http://example.com",
                     }
                 }
             }
@@ -56,8 +52,7 @@ final class TestArgFileTests: XCTestCase {
                         statsdConfiguration: MetricConfiguration(
                             socketAddress: SocketAddress(host: "statsd.host", port: 124),
                             metricPrefix: "statsd.prefix"
-                        ),
-                        sentryConfiguration: SentryConfiguration(dsn: URL(string: "http://example.com")!)
+                        )
                     ),
                     jobGroupId: "jobGroupId",
                     jobGroupPriority: 100,
