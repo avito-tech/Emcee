@@ -5,7 +5,7 @@ import DeveloperDirLocatorTestHelpers
 import EventBus
 import FileSystemTestHelpers
 import Foundation
-import Logging
+import EmceeLogging
 import MetricsExtensions
 import MetricsTestHelpers
 import PluginManagerTestHelpers

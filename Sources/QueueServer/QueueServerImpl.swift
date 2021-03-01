@@ -5,7 +5,7 @@ import DateProvider
 import Deployer
 import DistWorkerModels
 import Foundation
-import Logging
+import EmceeLogging
 import Metrics
 import MetricsExtensions
 import PortDeterminer

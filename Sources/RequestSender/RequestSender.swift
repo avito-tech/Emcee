@@ -1,6 +1,6 @@
 import Dispatch
 import Foundation
-import Logging
+import EmceeLogging
 import Types
 
 public protocol RequestSender {

@@ -1,6 +1,6 @@
 import FileSystem
 import Foundation
-import Logging
+import EmceeLogging
 import PathLib
 import PlistLib
 import WorkerCapabilitiesModels

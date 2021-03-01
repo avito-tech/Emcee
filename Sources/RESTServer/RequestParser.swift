@@ -1,6 +1,6 @@
 import Foundation
 import Swifter
-import Logging
+import EmceeLogging
 
 public final class RequestParser {
     private let decoder: JSONDecoder

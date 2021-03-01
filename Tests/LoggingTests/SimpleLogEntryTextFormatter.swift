@@ -1,5 +1,5 @@
 import Foundation
-import Logging
+import EmceeLogging
 
 final class SimpleLogEntryTextFormatter: LogEntryTextFormatter {
     func format(logEntry: LogEntry) -> String {

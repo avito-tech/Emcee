@@ -1,7 +1,7 @@
 import BuildArtifacts
 import DeveloperDirLocator
 import Foundation
-import Logging
+import EmceeLogging
 import ProcessController
 import RunnerModels
 import SimulatorPoolModels

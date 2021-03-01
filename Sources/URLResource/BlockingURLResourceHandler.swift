@@ -1,7 +1,7 @@
 import AtomicModels
 import Dispatch
 import Foundation
-import Logging
+import EmceeLogging
 import PathLib
 import SynchronousWaiter
 import Types

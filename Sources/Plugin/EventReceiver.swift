@@ -1,6 +1,6 @@
 import Foundation
 import Starscream
-import Logging
+import EmceeLogging
 import PluginSupport
 
 public final class EventReceiver: WebSocketDelegate {

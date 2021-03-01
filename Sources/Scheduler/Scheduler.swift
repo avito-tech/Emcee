@@ -6,7 +6,7 @@ import FileSystem
 import Foundation
 import ListeningSemaphore
 import LocalHostDeterminer
-import Logging
+import EmceeLogging
 import Metrics
 import MetricsExtensions
 import PluginManager

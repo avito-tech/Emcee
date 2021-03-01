@@ -1,6 +1,6 @@
 import DateProvider
 import Foundation
-import Logging
+import EmceeLogging
 import ResultStreamModels
 import Runner
 import RunnerModels

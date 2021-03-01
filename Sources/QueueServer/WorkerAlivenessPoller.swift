@@ -1,6 +1,6 @@
 import DistWorkerModels
 import Foundation
-import Logging
+import EmceeLogging
 import RequestSender
 import Timer
 import Types

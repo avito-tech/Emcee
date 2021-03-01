@@ -1,6 +1,6 @@
 import Foundation
 import LocalHostDeterminer
-import Logging
+import EmceeLogging
 import QueueModels
 import Sentry
 

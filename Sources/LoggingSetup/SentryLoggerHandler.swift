@@ -1,5 +1,5 @@
 import Foundation
-import Logging
+import EmceeLogging
 import Sentry
 
 public final class SentryLoggerHandler: LoggerHandler {

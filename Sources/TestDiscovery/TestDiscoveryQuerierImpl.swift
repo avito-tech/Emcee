@@ -3,7 +3,7 @@ import DateProvider
 import DeveloperDirLocator
 import FileSystem
 import Foundation
-import Logging
+import EmceeLogging
 import Metrics
 import MetricsExtensions
 import PathLib

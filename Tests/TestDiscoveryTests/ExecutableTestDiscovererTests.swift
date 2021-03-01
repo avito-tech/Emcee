@@ -5,7 +5,7 @@ import DeveloperDirLocator
 import DeveloperDirLocatorTestHelpers
 import FileCache
 import Foundation
-import Logging
+import EmceeLogging
 import MetricsExtensions
 import PathLib
 import ProcessController

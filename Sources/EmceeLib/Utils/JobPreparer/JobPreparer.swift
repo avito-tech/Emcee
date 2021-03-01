@@ -1,7 +1,7 @@
 import DI
 import Dispatch
 import Foundation
-import Logging
+import EmceeLogging
 import Metrics
 import MetricsExtensions
 import QueueClient

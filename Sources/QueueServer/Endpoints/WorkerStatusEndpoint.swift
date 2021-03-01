@@ -1,7 +1,7 @@
 import Dispatch
 import DistWorkerModels
 import Foundation
-import Logging
+import EmceeLogging
 import RESTInterfaces
 import RESTMethods
 import RESTServer

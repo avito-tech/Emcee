@@ -1,5 +1,5 @@
 import Foundation
-import Logging
+import EmceeLogging
 import ProcessController
 
 public class ProcessControllerWrappingTestRunnerInvocation: TestRunnerInvocation, TestRunnerRunningInvocation {

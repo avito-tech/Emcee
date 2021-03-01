@@ -1,7 +1,7 @@
 import ChromeTracing
 import Foundation
 import JunitReporting
-import Logging
+import EmceeLogging
 import RunnerModels
 import TestArgFile
 

@@ -1,7 +1,7 @@
 import AtomicModels
 import BuildArtifacts
 import Foundation
-import Logging
+import EmceeLogging
 import PathLib
 import RequestSender
 import SynchronousWaiter

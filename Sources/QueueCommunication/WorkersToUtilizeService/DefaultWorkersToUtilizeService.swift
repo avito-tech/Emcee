@@ -1,6 +1,6 @@
 import Deployer
 import Foundation
-import Logging
+import EmceeLogging
 import QueueModels
 import RemotePortDeterminer
 

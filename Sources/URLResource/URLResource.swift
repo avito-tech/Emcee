@@ -1,7 +1,7 @@
 import Dispatch
 import FileCache
 import Foundation
-import Logging
+import EmceeLogging
 import PathLib
 
 public protocol URLResource {

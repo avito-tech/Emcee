@@ -1,5 +1,5 @@
 import Foundation
-import Logging
+import EmceeLogging
 import Tmp
 import XCTest
 

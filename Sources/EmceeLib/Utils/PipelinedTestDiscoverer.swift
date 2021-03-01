@@ -1,7 +1,7 @@
 import AtomicModels
 import BuildArtifacts
 import DI
-import Logging
+import EmceeLogging
 import Foundation
 import QueueModels
 import ResourceLocation

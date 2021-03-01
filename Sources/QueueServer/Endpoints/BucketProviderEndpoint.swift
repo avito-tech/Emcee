@@ -3,7 +3,7 @@ import BucketQueue
 import Dispatch
 import EventBus
 import Foundation
-import Logging
+import EmceeLogging
 import QueueModels
 import RESTInterfaces
 import RESTMethods

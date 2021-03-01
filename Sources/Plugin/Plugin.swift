@@ -4,7 +4,7 @@ import EventBus
 import FileSystem
 import Foundation
 import JSONStream
-import Logging
+import EmceeLogging
 import LoggingSetup
 import PluginSupport
 import SynchronousWaiter

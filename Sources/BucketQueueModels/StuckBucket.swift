@@ -1,5 +1,5 @@
 import Foundation
-import Logging
+import EmceeLogging
 import QueueModels
 
 public struct StuckBucket: Equatable {

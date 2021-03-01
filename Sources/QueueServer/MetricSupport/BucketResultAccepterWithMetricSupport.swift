@@ -3,7 +3,7 @@ import BucketQueue
 import DateProvider
 import Foundation
 import LocalHostDeterminer
-import Logging
+import EmceeLogging
 import Metrics
 import MetricsExtensions
 import QueueModels

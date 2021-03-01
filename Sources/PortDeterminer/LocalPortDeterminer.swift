@@ -1,6 +1,6 @@
 import Darwin
 import Foundation
-import Logging
+import EmceeLogging
 import SocketModels
 import Swifter
 

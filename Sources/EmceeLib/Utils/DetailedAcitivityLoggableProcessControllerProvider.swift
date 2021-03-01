@@ -1,6 +1,6 @@
 import DI
 import Foundation
-import Logging
+import EmceeLogging
 import LoggingSetup
 import PathLib
 import ProcessController

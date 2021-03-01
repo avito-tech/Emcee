@@ -2,7 +2,7 @@ import DateProvider
 import FileCache
 import FileSystem
 import Foundation
-import Logging
+import EmceeLogging
 import PathLib
 import ProcessController
 import ResourceLocation

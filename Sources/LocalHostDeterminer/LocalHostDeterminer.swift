@@ -1,5 +1,5 @@
 import Foundation
-import Logging
+import EmceeLogging
 
 /**
  * This class attempts to read the current host name from the same source as `scutil --get HostName` does.

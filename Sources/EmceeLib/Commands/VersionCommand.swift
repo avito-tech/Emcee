@@ -1,7 +1,7 @@
 import ArgLib
 import EmceeVersion
 import Foundation
-import Logging
+import EmceeLogging
 import QueueModels
 
 public final class VersionCommand: Command {

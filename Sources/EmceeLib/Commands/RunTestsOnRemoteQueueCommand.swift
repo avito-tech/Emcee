@@ -8,7 +8,7 @@ import DistDeployer
 import EmceeVersion
 import FileSystem
 import Foundation
-import Logging
+import EmceeLogging
 import LoggingSetup
 import Metrics
 import MetricsExtensions

@@ -2,7 +2,7 @@ import AutomaticTermination
 import FileLock
 import Foundation
 import LocalHostDeterminer
-import Logging
+import EmceeLogging
 import QueueCommunication
 import QueueModels
 import QueueServer

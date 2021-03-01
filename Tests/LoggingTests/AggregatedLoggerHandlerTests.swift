@@ -1,5 +1,5 @@
 import Foundation
-import Logging
+import EmceeLogging
 import XCTest
 
 final class AggregatedLoggerHandlerTests: XCTestCase {

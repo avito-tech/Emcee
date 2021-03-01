@@ -3,7 +3,7 @@ import BuildArtifacts
 import DeveloperDirLocator
 import DeveloperDirModels
 import Foundation
-import Logging
+import EmceeLogging
 import PathLib
 import ProcessController
 import ResourceLocationResolver

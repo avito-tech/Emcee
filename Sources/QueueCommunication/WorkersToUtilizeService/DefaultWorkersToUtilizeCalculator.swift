@@ -1,5 +1,5 @@
 import Deployer
-import Logging
+import EmceeLogging
 import QueueModels
 import Types
 

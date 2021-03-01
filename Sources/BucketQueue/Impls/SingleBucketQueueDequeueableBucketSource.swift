@@ -1,6 +1,6 @@
 import BucketQueueModels
 import Foundation
-import Logging
+import EmceeLogging
 import QueueModels
 import TestHistoryTracker
 import WorkerAlivenessProvider

@@ -1,6 +1,6 @@
 import BuildArtifacts
 import Foundation
-import Logging
+import EmceeLogging
 import MetricsExtensions
 import QueueModels
 import RunnerModels

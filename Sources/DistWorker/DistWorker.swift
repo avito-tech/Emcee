@@ -9,7 +9,7 @@ import EventBus
 import FileSystem
 import Foundation
 import LocalHostDeterminer
-import Logging
+import EmceeLogging
 import LoggingSetup
 import Metrics
 import MetricsExtensions

@@ -1,5 +1,5 @@
 import EventBus
-import Logging
+import EmceeLogging
 import MetricsExtensions
 import ResourceLocationResolver
 import RunnerModels

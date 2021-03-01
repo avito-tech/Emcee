@@ -1,7 +1,7 @@
 import Deployer
 import Dispatch
 import Foundation
-import Logging
+import EmceeLogging
 import QueueModels
 import RESTMethods
 import RequestSender

@@ -2,7 +2,7 @@ import BuildArtifacts
 import DateProvider
 import DeveloperDirLocator
 import Foundation
-import Logging
+import EmceeLogging
 import ObservableFileReader
 import ProcessController
 import ResourceLocationResolver

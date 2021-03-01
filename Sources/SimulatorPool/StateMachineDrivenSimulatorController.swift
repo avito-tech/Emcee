@@ -2,7 +2,7 @@ import AtomicModels
 import DeveloperDirLocator
 import DeveloperDirModels
 import Foundation
-import Logging
+import EmceeLogging
 import PathLib
 import PlistLib
 import SimulatorPoolModels

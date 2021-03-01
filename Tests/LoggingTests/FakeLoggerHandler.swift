@@ -1,5 +1,5 @@
 import Foundation
-import Logging
+import EmceeLogging
 
 public final class FakeLoggerHandle: LoggerHandler {
     public var logEntries = [LogEntry]()

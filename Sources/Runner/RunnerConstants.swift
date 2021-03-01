@@ -1,5 +1,5 @@
 import Foundation
-import Logging
+import EmceeLogging
 import RunnerModels
 
 public enum RunnerConstants: CustomStringConvertible {

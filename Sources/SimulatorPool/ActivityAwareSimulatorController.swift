@@ -1,6 +1,6 @@
 import AutomaticTermination
 import Foundation
-import Logging
+import EmceeLogging
 import SimulatorPoolModels
 
 public final class ActivityAwareSimulatorController: SimulatorController, CustomStringConvertible {

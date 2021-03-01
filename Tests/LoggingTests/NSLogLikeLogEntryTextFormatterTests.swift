@@ -1,5 +1,5 @@
 import Foundation
-@testable import Logging
+@testable import EmceeLogging
 import XCTest
 
 final class NSLogLikeLogEntryTextFormatterTests: XCTestCase {

@@ -2,7 +2,7 @@ import ArgLib
 import AtomicModels
 import DI
 import Foundation
-import Logging
+import EmceeLogging
 import QueueClient
 import QueueModels
 import RequestSender

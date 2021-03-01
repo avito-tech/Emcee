@@ -1,7 +1,7 @@
 import AtomicModels
 import DateProvider
 import Foundation
-import Logging
+import EmceeLogging
 import RunnerModels
 import Timer
 

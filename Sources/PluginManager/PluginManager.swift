@@ -1,7 +1,7 @@
 import EventBus
 import FileSystem
 import Foundation
-import Logging
+import EmceeLogging
 import PathLib
 import PluginSupport
 import ProcessController

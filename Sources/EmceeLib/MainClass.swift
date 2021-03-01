@@ -1,6 +1,6 @@
 import Foundation
 import LocalHostDeterminer
-import Logging
+import EmceeLogging
 import LoggingSetup
 import Metrics
 import ProcessController

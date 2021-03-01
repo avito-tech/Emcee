@@ -1,7 +1,7 @@
 import AutomaticTermination
 import SynchronousWaiter
 import Foundation
-import Logging
+import EmceeLogging
 import QueueModels
 
 public final class QueueServerTerminationWaiterImpl: QueueServerTerminationWaiter {

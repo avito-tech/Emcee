@@ -3,7 +3,7 @@ import Dispatch
 import FileSystem
 import Foundation
 import LocalHostDeterminer
-import Logging
+import EmceeLogging
 import Metrics
 import PathLib
 import Sentry

@@ -2,7 +2,7 @@ import BucketQueueModels
 import DateProvider
 import Dispatch
 import Foundation
-import Logging
+import EmceeLogging
 import QueueModels
 import RunnerModels
 import TestHistoryTracker

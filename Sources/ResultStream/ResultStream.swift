@@ -1,7 +1,7 @@
 import DateProvider
 import Foundation
 import JSONStream
-import Logging
+import EmceeLogging
 import PathLib
 import Runner
 

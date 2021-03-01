@@ -1,5 +1,5 @@
 import Foundation
-import Logging
+import EmceeLogging
 import Swifter
 
 public extension HttpResponse {

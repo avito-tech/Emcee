@@ -1,7 +1,7 @@
 import EventBus
 import Foundation
 import JSONStream
-import Logging
+import EmceeLogging
 
 final class JSONStreamToEventBusAdapter: JSONReaderEventStream {
     private let eventBus: EventBus

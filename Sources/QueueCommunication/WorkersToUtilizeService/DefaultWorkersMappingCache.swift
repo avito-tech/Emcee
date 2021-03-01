@@ -1,6 +1,6 @@
 import DateProvider
 import Foundation
-import Logging
+import EmceeLogging
 
 private struct CacheData {
     let mapping: WorkersPerVersion

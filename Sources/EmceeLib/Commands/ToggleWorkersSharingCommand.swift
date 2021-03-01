@@ -1,6 +1,6 @@
 import ArgLib
 import DI
-import Logging
+import EmceeLogging
 import QueueClient
 import RESTMethods
 import RequestSender

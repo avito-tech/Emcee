@@ -1,7 +1,7 @@
 import DeveloperDirLocator
 import Dispatch
 import Foundation
-import Logging
+import EmceeLogging
 import PathLib
 import ProcessController
 import ResourceLocationResolver

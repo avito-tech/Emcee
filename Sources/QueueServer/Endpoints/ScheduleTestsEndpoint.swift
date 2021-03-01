@@ -1,7 +1,7 @@
 import BalancingBucketQueue
 import Dispatch
 import Foundation
-import Logging
+import EmceeLogging
 import QueueModels
 import RESTInterfaces
 import RESTMethods

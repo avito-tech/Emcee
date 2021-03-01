@@ -1,5 +1,5 @@
 import Deployer
-import Logging
+import EmceeLogging
 import QueueCommunication
 import RESTInterfaces
 import RESTMethods
