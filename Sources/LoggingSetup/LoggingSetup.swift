@@ -3,6 +3,7 @@ import Dispatch
 import FileSystem
 import Foundation
 import LocalHostDeterminer
+import Logging
 import EmceeLogging
 import Metrics
 import PathLib
@@ -38,6 +39,11 @@ public final class LoggingSetup {
                 detaildLogFileHandle: detailedLogPath.fileHandleForWriting
             )
         )
+        
+        LoggingSystem.bootstrap { label -> LogHandler in
+            aggregatedHandler
+        }
+        
         GlobalLoggerConfig.loggerHandler = aggregatedHandler
         Logger.always("To fetch detailed verbose log:")
         Logger.always("$ scp \(NSUserName())@\(LocalHostDeterminer.currentHostAddress):\(detailedLogPath.absolutePath) /tmp/\(filename).log && open /tmp/\(filename).log")
@@ -105,6 +111,7 @@ public final class LoggingSetup {
     
     private func createStderrInfoLoggerHandler(verbosity: Verbosity) -> LoggerHandler {
         return FileHandleLoggerHandler(
+            dateProvider: dateProvider,
             fileHandle: FileHandle.standardError,
             verbosity: verbosity,
             logEntryTextFormatter: NSLogLikeLogEntryTextFormatter(),
@@ -115,6 +122,7 @@ public final class LoggingSetup {
     
     private func createDetailedLoggerHandler(fileHandle: FileHandle) -> LoggerHandler {
         return FileHandleLoggerHandler(
+            dateProvider: dateProvider,
             fileHandle: fileHandle,
             verbosity: Verbosity.verboseDebug,
             logEntryTextFormatter: NSLogLikeLogEntryTextFormatter(),

@@ -8,6 +8,7 @@ import Foundation
 import LocalHostDeterminer
 import EmceeLogging
 import LoggingSetup
+import Logging
 import Metrics
 import MetricsExtensions
 import PathLib
@@ -71,6 +72,7 @@ public final class InProcessMain {
         )
         
         try setupLogging(di: di, logsTimeToLive: logsTimeToLive, queue: logCleaningQueue)
+        let logger = Logging.Logger(label: "ru.avito.emcee.main")
         
         defer {
             let timeout: TimeInterval = 10
@@ -80,7 +82,7 @@ public final class InProcessMain {
             logCleaningQueue.waitUntilAllOperationsAreFinished()
         }
         
-        Logger.info("Arguments: \(ProcessInfo.processInfo.arguments)")
+        logger.info("Arguments: \(ProcessInfo.processInfo.arguments)")
 
         di.set(
             try DetailedAcitivityLoggableProcessControllerProvider(di: di),

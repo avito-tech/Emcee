@@ -65,6 +65,15 @@
         }
       },
       {
+        "package": "swift-log",
+        "repositoryURL": "https://github.com/apple/swift-log.git",
+        "state": {
+          "branch": null,
+          "revision": "12d3a8651d32295794a850307f77407f95b8c881",
+          "version": "1.4.1"
+        }
+      },
+      {
         "package": "Swifter",
         "repositoryURL": "https://github.com/httpswift/swifter.git",
         "state": {

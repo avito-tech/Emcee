@@ -2,7 +2,7 @@ import Foundation
 
 public final class NSLogLikeLogEntryTextFormatter: LogEntryTextFormatter {
     
-    // 2018-03-29 19:05:01.994+0300
+    // 2018-03-29 19:05:01.994
     public static let logDateFormatter: DateFormatter = {
         let logFormatter = DateFormatter()
         logFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
@@ -15,21 +15,14 @@ public final class NSLogLikeLogEntryTextFormatter: LogEntryTextFormatter {
     public func format(logEntry: LogEntry) -> String {
         let timeStamp = NSLogLikeLogEntryTextFormatter.logDateFormatter.string(from: logEntry.timestamp)
         
-        var result = "[\(logEntry.verbosity.stringCode)] \(timeStamp)"
+        let filename = logEntry.file.lastPathComponent
         
-        if let pidInfo = logEntry.pidInfo {
-            result += " \(pidInfo.name)[\(pidInfo.pid)]"
+        // [LEVEL] 2018-03-29 19:05:01.994 <file:line> <coordinate1> [<coordinate2> [...]]: <mesage>
+        var result = "[\(logEntry.verbosity.stringCode)] \(timeStamp) \(filename):\(logEntry.line)"
+        if !logEntry.coordinates.isEmpty {
+            result += " " + logEntry.coordinates.joined(separator: " ")
         }
-        
-        result += ": "
-        
-        if logEntry.verbosity >= .debug {
-            let filename = logEntry.file.description.lastPathComponent
-            result += "\(filename):\(logEntry.line): "
-        }
-        
-        result += logEntry.message
-        
+        result += ": " + logEntry.message
         return result
     }
 }

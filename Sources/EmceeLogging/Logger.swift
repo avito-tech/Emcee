@@ -65,10 +65,12 @@ public final class Logger {
         line: UInt = #line)
     {
         let logEntry = LogEntry(
-            file: file,
+            file: file.description,
             line: line,
+            coordinates: [
+                pidInfo?.loggableValue
+            ].compactMap { $0 },
             message: message,
-            pidInfo: pidInfo,
             timestamp: Date(),
             verbosity: verbosity
         )
@@ -77,5 +79,11 @@ public final class Logger {
     
     public static func log(_ logEntry: LogEntry) {
         GlobalLoggerConfig.loggerHandler.handle(logEntry: logEntry)
+    }
+}
+
+extension PidInfo {
+    var loggableValue: String {
+        "\(name)[\(pid)]"
     }
 }

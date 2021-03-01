@@ -19,6 +19,7 @@ let package = Package(
         .package(name: "Shout", url: "https://github.com/jakeheis/Shout.git", .exact("0.5.4")),
         .package(name: "Starscream", url: "https://github.com/daltoniam/Starscream.git", .exact("3.0.6")),
         .package(name: "Swifter", url: "https://github.com/httpswift/swifter.git", .exact("1.4.6")),
+        .package(name: "swift-log", url: "https://github.com/apple/swift-log.git", .exact("1.4.1")),
     ],
     targets: [
         .target(
@@ -480,6 +481,7 @@ let package = Package(
                 "JunitReporting",
                 "LocalHostDeterminer",
                 "LocalQueueServerRunner",
+                .product(name: "Logging", package: "swift-log"),
                 "LoggingSetup",
                 .product(name: "Metrics", package: "CommandLineToolkit"),
                 "MetricsExtensions",
@@ -556,7 +558,9 @@ let package = Package(
             name: "EmceeLogging",
             dependencies: [
                 .product(name: "AtomicModels", package: "CommandLineToolkit"),
+                .product(name: "DateProvider", package: "CommandLineToolkit"),
                 "Extensions",
+                .product(name: "Logging", package: "swift-log"),
             ],
             path: "Sources/EmceeLogging"
         ),
@@ -753,6 +757,7 @@ let package = Package(
                 "EmceeLogging",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
                 "LocalHostDeterminer",
+                .product(name: "Logging", package: "swift-log"),
                 .product(name: "Metrics", package: "CommandLineToolkit"),
                 .product(name: "PathLib", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
@@ -762,7 +767,10 @@ let package = Package(
         .testTarget(
             name: "LoggingTests",
             dependencies: [
+                .product(name: "DateProviderTestHelpers", package: "CommandLineToolkit"),
                 "EmceeLogging",
+                .product(name: "Logging", package: "swift-log"),
+                .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
             ],
             path: "Tests/LoggingTests"

@@ -8,11 +8,14 @@ final class LoggerTests: XCTestCase {
         GlobalLoggerConfig.loggerHandler = handler
         
         let logEntry = LogEntry(
+            file: "file",
+            line: 42,
+            coordinates: [],
             message: "message",
-            verbosity: Verbosity.error
+            timestamp: Date(),
+            verbosity: .error
         )
         Logger.log(logEntry)
         XCTAssertEqual(handler.logEntries, [logEntry])
     }
 }
-
