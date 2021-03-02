@@ -60,6 +60,9 @@ public final class DumpCommand: Command {
         di.set(tempFolder, for: TemporaryFolder.self)
         
         try di.get(GlobalMetricRecorder.self).set(analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration)
+        if let kibanaConfiguration = testArgFile.prioritizedJob.analyticsConfiguration.kibanaConfiguration {
+            try di.get(LoggingSetup.self).set(kibanaConfiguration: kibanaConfiguration)
+        }
         
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,

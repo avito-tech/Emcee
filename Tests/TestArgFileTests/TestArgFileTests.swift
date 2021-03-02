@@ -29,6 +29,12 @@ final class TestArgFileTests: XCTestCase {
                     "statsdConfiguration": {
                         "socketAddress": "statsd.host:124",
                         "metricPrefix": "statsd.prefix",
+                    },
+                    "kibanaConfiguration": {
+                        "endpoints": [
+                            "http://kibana.example.com:9200"
+                        ],
+                        "indexPattern": "index-pattern"
                     }
                 }
             }
@@ -52,6 +58,12 @@ final class TestArgFileTests: XCTestCase {
                         statsdConfiguration: MetricConfiguration(
                             socketAddress: SocketAddress(host: "statsd.host", port: 124),
                             metricPrefix: "statsd.prefix"
+                        ),
+                        kibanaConfiguration: KibanaConfiguration(
+                            endpoints: [
+                                URL(string: "http://kibana.example.com:9200")!
+                            ],
+                            indexPattern: "index-pattern"
                         )
                     ),
                     jobGroupId: "jobGroupId",

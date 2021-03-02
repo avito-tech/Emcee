@@ -55,6 +55,9 @@ public final class StartQueueServerCommand: Command {
         )
         
         try di.get(GlobalMetricRecorder.self).set(analyticsConfiguration: queueServerConfiguration.globalAnalyticsConfiguration)
+        if let kibanaConfiguration = queueServerConfiguration.globalAnalyticsConfiguration.kibanaConfiguration {
+            try di.get(LoggingSetup.self).set(kibanaConfiguration: kibanaConfiguration)
+        }
 
         try startQueueServer(
             emceeVersion: emceeVersion,

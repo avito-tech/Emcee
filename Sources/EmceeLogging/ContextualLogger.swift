@@ -1,3 +1,4 @@
+import EmceeVersion
 import Foundation
 import Logging
 import QueueModels
@@ -6,20 +7,21 @@ public final class ContextualLogger {
     private let logger: Logging.Logger
     
     public enum ContextKeys: String {
-        case subprocess
-        case pid
-        case name
-        case workerProcess
+        case subprocessId
+        case subprocessName
+        case workerProcessId
+        case workerProcessName
         case workerId
+        case emceeVersion
+        case persistentMetricsJobId
     }
     
-    private static let workerProcessMetadata: Logging.Logger.Metadata = [
-        ContextKeys.pid.rawValue: .string("\(ProcessInfo.processInfo.processIdentifier)"),
-        ContextKeys.name.rawValue: .string(ProcessInfo.processInfo.processName),
-    ]
+    public convenience init<T>(_ type: T.Type) {
+        self.init(logger: Logging.Logger(label: "\(T.self)"))
+    }
     
-    public init<T>(_ type: T.Type) {
-        logger = Logging.Logger(label: "\(T.self)")
+    public init(logger: Logging.Logger) {
+        self.logger = logger
     }
     
     public func log(
@@ -27,6 +29,7 @@ public final class ContextualLogger {
         _ message: String,
         pidInfo: PidInfo? = nil,
         workerId: WorkerId? = nil,
+        persistentMetricsJobId: String? = nil,
         source: String? = nil,
         file: String = #file,
         function: String = #function,
@@ -34,17 +37,22 @@ public final class ContextualLogger {
     ) {
         var metadata: Logging.Logger.Metadata = [:]
         
-        metadata[ContextKeys.workerProcess.rawValue] = .dictionary(Self.workerProcessMetadata)
+        let workerProcessInfo = ProcessInfo.processInfo
+        metadata[ContextKeys.workerProcessId.rawValue] = .string("\(workerProcessInfo.processIdentifier)")
+        metadata[ContextKeys.workerProcessName.rawValue] = .string(workerProcessInfo.processName)
+        metadata[ContextKeys.emceeVersion.rawValue] = .string(EmceeVersion.version.value)
         
         if let pidInfo = pidInfo {
-            metadata[ContextKeys.subprocess.rawValue] = [
-                ContextKeys.name.rawValue: .string(pidInfo.name),
-                ContextKeys.pid.rawValue: .string("\(pidInfo.pid)"),
-            ]
+            metadata[ContextKeys.subprocessId.rawValue] = .string("\(pidInfo.pid)")
+            metadata[ContextKeys.subprocessName.rawValue] = .string(pidInfo.name)
         }
         
         if let workerId = workerId {
-            metadata[ContextKeys.workerId.rawValue] = .stringConvertible(workerId)
+            metadata[ContextKeys.workerId.rawValue] = .string(workerId.value)
+        }
+        
+        if let persistentMetricsJobId = persistentMetricsJobId {
+            metadata[ContextKeys.persistentMetricsJobId.rawValue] = .string(persistentMetricsJobId)
         }
         
         logger.log(

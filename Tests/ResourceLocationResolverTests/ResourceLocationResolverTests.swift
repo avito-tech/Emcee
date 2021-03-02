@@ -12,6 +12,7 @@ import SynchronousWaiter
 import Tmp
 import TestHelpers
 import URLResource
+import URLSessionTestHelpers
 import XCTest
 
 final class ResourceLocationResolverTests: XCTestCase {

@@ -5,7 +5,7 @@ import XCTest
 final class LoggerTests: XCTestCase {
     func test___logger_uses_global_config() {
         let handler = FakeLoggerHandle()
-        GlobalLoggerConfig.loggerHandler = handler
+        GlobalLoggerConfig.loggerHandler.append(handler: handler)
         
         let logEntry = LogEntry(
             file: "file",

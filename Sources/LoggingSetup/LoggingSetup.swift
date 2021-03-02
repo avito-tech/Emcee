@@ -6,6 +6,7 @@ import LocalHostDeterminer
 import Logging
 import EmceeLogging
 import Metrics
+import MetricsExtensions
 import PathLib
 import Tmp
 
@@ -33,20 +34,26 @@ public final class LoggingSetup {
             deleteOnDealloc: false
         )
         
-        let aggregatedHandler = AggregatedLoggerHandler(
-            handlers: createLoggerHandlers(
-                stderrVerbosity: stderrVerbosity,
-                detaildLogFileHandle: detailedLogPath.fileHandleForWriting
-            )
-        )
+        GlobalLoggerConfig.loggerHandler.append(handler: createStderrInfoLoggerHandler(verbosity: stderrVerbosity))
+        GlobalLoggerConfig.loggerHandler.append(handler: createDetailedLoggerHandler(fileHandle: detailedLogPath.fileHandleForWriting))
         
-        LoggingSystem.bootstrap { label -> LogHandler in
-            aggregatedHandler
-        }
+        LoggingSystem.bootstrap { _ in GlobalLoggerConfig.loggerHandler }
         
-        GlobalLoggerConfig.loggerHandler = aggregatedHandler
         Logger.always("To fetch detailed verbose log:")
         Logger.always("$ scp \(NSUserName())@\(LocalHostDeterminer.currentHostAddress):\(detailedLogPath.absolutePath) /tmp/\(filename).log && open /tmp/\(filename).log")
+    }
+    
+    public func set(kibanaConfiguration: KibanaConfiguration) throws {
+        let handler = KibanaLoggerHandler(
+            kibanaClient: HttpKibanaClient(
+                dateProvider: dateProvider,
+                endpoints: try kibanaConfiguration.endpoints.map { try KibanaHttpEndpoint.from(url: $0) },
+                indexPattern: kibanaConfiguration.indexPattern,
+                urlSession: .shared
+            )
+        )
+        GlobalLoggerConfig.loggerHandler.append(handler: handler)
+        Logger.debug("Set kibana logging with index \(kibanaConfiguration.indexPattern)")
     }
     
     public func childProcessLogsContainerProvider() throws -> ChildProcessLogsContainerProvider {

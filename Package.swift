@@ -379,6 +379,7 @@ let package = Package(
                 "EventBus",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
                 "LocalHostDeterminer",
+                "LoggingSetup",
                 .product(name: "Metrics", package: "CommandLineToolkit"),
                 "MetricsExtensions",
                 .product(name: "PathLib", package: "CommandLineToolkit"),
@@ -558,11 +559,26 @@ let package = Package(
             dependencies: [
                 .product(name: "AtomicModels", package: "CommandLineToolkit"),
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
+                "EmceeVersion",
                 "Extensions",
                 .product(name: "Logging", package: "swift-log"),
+                "MetricsExtensions",
                 "QueueModels",
+                .product(name: "SocketModels", package: "CommandLineToolkit"),
             ],
             path: "Sources/EmceeLogging"
+        ),
+        .testTarget(
+            name: "EmceeLoggingTests",
+            dependencies: [
+                .product(name: "DateProviderTestHelpers", package: "CommandLineToolkit"),
+                "EmceeLogging",
+                .product(name: "Logging", package: "swift-log"),
+                .product(name: "SocketModels", package: "CommandLineToolkit"),
+                .product(name: "TestHelpers", package: "CommandLineToolkit"),
+                "URLSessionTestHelpers",
+            ],
+            path: "Tests/EmceeLoggingTests"
         ),
         .target(
             name: "EmceeVersion",
@@ -759,6 +775,7 @@ let package = Package(
                 "LocalHostDeterminer",
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "Metrics", package: "CommandLineToolkit"),
+                "MetricsExtensions",
                 .product(name: "PathLib", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
             ],
@@ -1314,6 +1331,7 @@ let package = Package(
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 "URLResource",
+                "URLSessionTestHelpers",
             ],
             path: "Tests/ResourceLocationResolverTests"
         ),
@@ -1874,6 +1892,12 @@ let package = Package(
                 "URLResource",
             ],
             path: "Tests/URLResourceTests"
+        ),
+        .target(
+            name: "URLSessionTestHelpers",
+            dependencies: [
+            ],
+            path: "Tests/URLSessionTestHelpers"
         ),
         .target(
             name: "UniqueIdentifierGenerator",

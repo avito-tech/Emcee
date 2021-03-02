@@ -70,6 +70,10 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         let tempFolder = try TemporaryFolder(containerPath: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.tempFolder.name))
         let testArgFile = try ArgumentsReader.testArgFile(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testArgFile.name))
         try testArgFileValidator.validate(testArgFile: testArgFile)
+        
+        if let kibanaConfiguration = testArgFile.prioritizedJob.analyticsConfiguration.kibanaConfiguration {
+            try di.get(LoggingSetup.self).set(kibanaConfiguration: kibanaConfiguration)
+        }
 
         let remoteCacheConfig = try ArgumentsReader.remoteCacheConfig(
             try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.remoteCacheConfig.name)

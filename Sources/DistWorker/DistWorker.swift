@@ -10,6 +10,7 @@ import EventBus
 import FileSystem
 import Foundation
 import LocalHostDeterminer
+import LoggingSetup
 import Metrics
 import MetricsExtensions
 import PathLib
@@ -91,6 +92,9 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
                 try strongSelf.di.get(GlobalMetricRecorder.self).set(
                     analyticsConfiguration: workerConfiguration.globalAnalyticsConfiguration
                 )
+                if let kibanaConfiguration = workerConfiguration.globalAnalyticsConfiguration.kibanaConfiguration {
+                    try strongSelf.di.get(LoggingSetup.self).set(kibanaConfiguration: kibanaConfiguration)
+                }
                 
                 strongSelf.payloadSignature = .success(workerConfiguration.payloadSignature)
                 strongSelf.logger.log(.debug, "Registered with server. Worker configuration: \(workerConfiguration)", workerId: strongSelf.workerId)

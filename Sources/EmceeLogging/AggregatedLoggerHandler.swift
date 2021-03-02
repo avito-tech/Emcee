@@ -3,7 +3,7 @@ import Foundation
 import Logging
 
 public final class AggregatedLoggerHandler: LoggerHandler {
-    private let handlers: [LoggerHandler]
+    private var handlers: [LoggerHandler]
     private let syncQueue = DispatchQueue(label: "ru.avito.emcee.AggregatedLoggerHandler.syncQueue")
     
     public init(handlers: [LoggerHandler]) {
@@ -16,9 +16,10 @@ public final class AggregatedLoggerHandler: LoggerHandler {
         }
     }
     
-    public func byAdding(handler: LoggerHandler) -> AggregatedLoggerHandler {
-        let newHandlers = allHandlers_safe + [handler]
-        return AggregatedLoggerHandler(handlers: newHandlers)
+    public func append(handler: LoggerHandler) {
+        syncQueue.sync {
+            handlers.append(handler)
+        }
     }
     
     private var allHandlers_safe: [LoggerHandler] {
