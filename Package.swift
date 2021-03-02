@@ -379,7 +379,6 @@ let package = Package(
                 "EventBus",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
                 "LocalHostDeterminer",
-                "LoggingSetup",
                 .product(name: "Metrics", package: "CommandLineToolkit"),
                 "MetricsExtensions",
                 .product(name: "PathLib", package: "CommandLineToolkit"),
@@ -561,6 +560,7 @@ let package = Package(
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
                 "Extensions",
                 .product(name: "Logging", package: "swift-log"),
+                "QueueModels",
             ],
             path: "Sources/EmceeLogging"
         ),

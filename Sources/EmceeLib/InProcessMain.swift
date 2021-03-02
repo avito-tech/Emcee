@@ -2,11 +2,11 @@ import ArgLib
 import DI
 import DateProvider
 import DeveloperDirLocator
+import EmceeLogging
 import FileCache
 import FileSystem
 import Foundation
 import LocalHostDeterminer
-import EmceeLogging
 import LoggingSetup
 import Logging
 import Metrics
@@ -71,8 +71,7 @@ public final class InProcessMain {
             )
         )
         
-        try setupLogging(di: di, logsTimeToLive: logsTimeToLive, queue: logCleaningQueue)
-        let logger = Logging.Logger(label: "ru.avito.emcee.main")
+        let logger = try setupLogging(di: di, logsTimeToLive: logsTimeToLive, queue: logCleaningQueue)
         
         defer {
             let timeout: TimeInterval = 10
@@ -82,7 +81,7 @@ public final class InProcessMain {
             logCleaningQueue.waitUntilAllOperationsAreFinished()
         }
         
-        logger.info("Arguments: \(ProcessInfo.processInfo.arguments)")
+        logger.log(.info, "Arguments: \(ProcessInfo.processInfo.arguments)")
 
         di.set(
             try DetailedAcitivityLoggableProcessControllerProvider(di: di),
@@ -179,19 +178,22 @@ public final class InProcessMain {
         try commandInvoker.invokeSuitableCommand()
     }
     
-    private func setupLogging(di: DI, logsTimeToLive: TimeUnit, queue: OperationQueue) throws {
+    private func setupLogging(di: DI, logsTimeToLive: TimeUnit, queue: OperationQueue) throws -> ContextualLogger {
         let loggingSetup: LoggingSetup = try di.get()
-        try loggingSetup.setupLogging(stderrVerbosity: Verbosity.info)
+        try loggingSetup.setupLogging(stderrVerbosity: .info)
+        
+        let logger = ContextualLogger(InProcessMain.self)
+        
         try loggingSetup.cleanUpLogs(
             olderThan: try di.get(DateProvider.self).currentDate().addingTimeInterval(-logsTimeToLive.timeInterval),
             queue: queue,
             completion: { error in
                 if let error = error {
-                    Logger.error("Failed to clean up old logs: \(error)")
-                } else {
-                    Logger.info("Logs clean up complete")
+                    logger.log(.error, "Failed to clean up old logs: \(error)")
                 }
             }
         )
+        
+        return logger
     }
 }
