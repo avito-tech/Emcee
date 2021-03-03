@@ -244,14 +244,22 @@ public final class Runner {
             ]
         )
         
-        let testRunnerInvocation = runTestsViaTestRunner(
-            testRunner: testRunner,
-            entriesToRun: entriesToRun,
-            simulator: simulator,
-            testContext: testContext,
-            testRunnerStream: testRunnerStream
-        )
-        let runningInvocation = testRunnerInvocation.startExecutingTests()
+        let runningInvocation: TestRunnerRunningInvocation
+        do {
+            runningInvocation = try runTestsViaTestRunner(
+                testRunner: testRunner,
+                entriesToRun: entriesToRun,
+                simulator: simulator,
+                testContext: testContext,
+                testRunnerStream: testRunnerStream
+            ).startExecutingTests()
+        } catch {
+            runningInvocation = try generateTestFailuresBecauseOfRunnerFailure(
+                runnerError: error,
+                entriesToRun: entriesToRun,
+                testRunnerStream: testRunnerStream
+            ).startExecutingTests()
+        }
         testRunnerRunningInvocationContainer.set(runningInvocation)
         
         try streamClosedCallback.wait(timeout: .infinity, description: "Test Runner Stream Close")
@@ -300,26 +308,18 @@ public final class Runner {
         simulator: Simulator,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream
-    ) -> TestRunnerInvocation {
+    ) throws -> TestRunnerInvocation {
         cleanUpDeadCache(simulator: simulator)
-        do {
-            return try testRunner.prepareTestRun(
-                buildArtifacts: configuration.buildArtifacts,
-                developerDirLocator: developerDirLocator,
-                entriesToRun: entriesToRun,
-                simulator: simulator,
-                temporaryFolder: tempFolder,
-                testContext: testContext,
-                testRunnerStream: testRunnerStream,
-                testType: configuration.testType
-            )
-        } catch {
-            return generateTestFailuresBecauseOfRunnerFailure(
-                runnerError: error,
-                entriesToRun: entriesToRun,
-                testRunnerStream: testRunnerStream
-            )
-        }
+        return try testRunner.prepareTestRun(
+            buildArtifacts: configuration.buildArtifacts,
+            developerDirLocator: developerDirLocator,
+            entriesToRun: entriesToRun,
+            simulator: simulator,
+            temporaryFolder: tempFolder,
+            testContext: testContext,
+            testRunnerStream: testRunnerStream,
+            testType: configuration.testType
+        )
     }
     
     private func cleanUpDeadCache(simulator: Simulator) {

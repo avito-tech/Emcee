@@ -27,7 +27,7 @@ public final class ObservableFileReaderImpl: ObservableFileReader {
         processController.onStdout { _, data, _ in
             handler(data)
         }
-        processController.start()
+        try processController.start()
         return ProcessObservableFileReaderHandler(processController: processController)
     }
 }

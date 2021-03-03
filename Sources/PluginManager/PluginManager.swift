@@ -102,7 +102,7 @@ public final class PluginManager: EventStream {
                     )
                 )
             )
-            controller.start()
+            try controller.start()
             processControllers.append(controller)
         }
         

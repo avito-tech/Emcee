@@ -36,7 +36,7 @@ public final class DefaultDeveloperDirLocator: DeveloperDirLocator {
             guard let string = String(data: data, encoding: .utf8) else { return }
             output.append(string)
         }
-        processController.startAndListenUntilProcessDies()
+        try processController.startAndListenUntilProcessDies()
         return AbsolutePath(output.trimmingCharacters(in: .whitespacesAndNewlines))
     }
     

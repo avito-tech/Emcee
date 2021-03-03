@@ -14,7 +14,7 @@ public protocol TestRunnerRunningInvocation {
 }
 
 public protocol TestRunnerInvocation {
-    func startExecutingTests() -> TestRunnerRunningInvocation
+    func startExecutingTests() throws -> TestRunnerRunningInvocation
 }
 
 public protocol TestRunner {

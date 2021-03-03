@@ -10,8 +10,8 @@ public class ProcessControllerWrappingTestRunnerInvocation: TestRunnerInvocation
         self.processController = processController
     }
     
-    public func startExecutingTests() -> TestRunnerRunningInvocation {
-        processController.start()
+    public func startExecutingTests() throws -> TestRunnerRunningInvocation {
+        try processController.start()
         return self
     }
     

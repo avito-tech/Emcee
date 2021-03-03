@@ -162,7 +162,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 testRunnerStream: testRunnerStream,
                 testType: .logicTest
             )
-            invocation.startExecutingTests().wait()
+            try invocation.startExecutingTests().wait()
         }
         
         wait(for: [argsValidatedExpectation], timeout: 15)
@@ -229,7 +229,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 testRunnerStream: testRunnerStream,
                 testType: .appTest
             )
-            invocation.startExecutingTests().wait()
+            try invocation.startExecutingTests().wait()
         }
         
         wait(for: [argsValidatedExpectation], timeout: 15)
@@ -265,7 +265,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 testRunnerStream: testRunnerStream,
                 testType: .uiTest
             )
-            invocation.startExecutingTests().wait()
+            try invocation.startExecutingTests().wait()
         }
         
         wait(for: [argsValidatedExpectation], timeout: 15)
@@ -286,7 +286,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             testRunnerStream: testRunnerStream,
             testType: .logicTest
         )
-        _ = invocation.startExecutingTests()
+        _ = try invocation.startExecutingTests()
         
         XCTAssertTrue(testRunnerStream.streamIsOpen)
     }
@@ -310,7 +310,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         let streamIsClosed = XCTestExpectation(description: "Stream closed")
         testRunnerStream.onCloseStream = streamIsClosed.fulfill
         
-        invocation.startExecutingTests().cancel()
+        try invocation.startExecutingTests().cancel()
         
         wait(for: [streamIsClosed], timeout: 10)
     }
@@ -347,7 +347,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             testRunnerStream: testRunnerStream,
             testType: .logicTest
         )
-        let runningInvocation = invocation.startExecutingTests()
+        let runningInvocation = try invocation.startExecutingTests()
         
         impactQueue.async {
             tailProcessController?.broadcastStdout(data: Data(RSTestStartedTestInput.input(testName: testName).utf8))
