@@ -54,7 +54,7 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
         configuration: TestDiscoveryConfiguration
     ) throws -> [DiscoveredTestEntry] {
         let runtimeEntriesJSONPath = tempFolder.pathWith(components: [uniqueIdentifierGenerator.generate()])
-        Logger.debug("Will dump tests from executable into file: \(runtimeEntriesJSONPath)")
+        Logger.debug("Will dump tests from \(configuration.xcTestBundleLocation) into file: \(runtimeEntriesJSONPath)")
         
         let latestRuntimeRoot = try findRuntimeRoot(
             testDestination: configuration.testDestination,

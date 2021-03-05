@@ -4,7 +4,7 @@
         "CommandLineToolkit": {
             "url": "https://github.com/avito-tech/CommandLineToolkit.git",
             "version": {
-                "revision": "bc37816ef50ef2fbca2c9530c5c9f32a950ddc4e"
+                "revision": "90e0bfa7749c3bd7614f2a5584a427a651c9ea5a"
             },
             "targetNames": [
                 "AtomicModels",

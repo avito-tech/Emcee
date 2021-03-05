@@ -96,6 +96,7 @@ public final class PipelinedTestDiscoverer {
                         $0[index] = result
                     }
                 } catch {
+                    Logger.error("Failed to discover tests for test bundle \(testArgFileEntry.buildArtifacts.xcTestBundle): \(error)")
                     collectedErrors.withExclusiveAccess {
                         $0.append(CollectedError.testDiscoveryError(entryIndex: index, error: error))
                     }
