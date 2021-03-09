@@ -6,12 +6,14 @@ import URLSessionTestHelpers
 import XCTest
 
 final class HttpKibanaClientTests: XCTestCase {
-    lazy var client = HttpKibanaClient(
-        dateProvider: dateProvider,
-        endpoints: [.http(SocketAddress(host: "example.com", port: 42))],
-        indexPattern: "index-pattern-thing",
-        urlSession: urlSession
-    )
+    lazy var client = assertDoesNotThrow {
+        try HttpKibanaClient(
+            dateProvider: dateProvider,
+            endpoints: [.http(SocketAddress(host: "example.com", port: 42))],
+            indexPattern: "index-pattern-thing",
+            urlSession: urlSession
+        )
+    }
     lazy var dateProvider = DateProviderFixture(Date(timeIntervalSince1970: 100))
     lazy var urlSession = FakeURLSession()
     

@@ -45,7 +45,7 @@ public final class LoggingSetup {
     
     public func set(kibanaConfiguration: KibanaConfiguration) throws {
         let handler = KibanaLoggerHandler(
-            kibanaClient: HttpKibanaClient(
+            kibanaClient: try HttpKibanaClient(
                 dateProvider: dateProvider,
                 endpoints: try kibanaConfiguration.endpoints.map { try KibanaHttpEndpoint.from(url: $0) },
                 indexPattern: kibanaConfiguration.indexPattern,

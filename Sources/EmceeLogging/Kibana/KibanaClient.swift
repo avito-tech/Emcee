@@ -49,13 +49,25 @@ public struct KibanaHttpEndpoint {
         KibanaHttpEndpoint(scheme: .https, socketAddress: socketAddress)
     }
     
-    public func singleEventUrl(indexPattern: String, date: Date) -> URL {
+    public func singleEventUrl(indexPattern: String, date: Date) throws -> URL {
+        struct FailedToBuildUrlError: Error, CustomStringConvertible {
+            let scheme: Scheme
+            let socketAddress: SocketAddress
+            let path: String
+            var description: String { "Cannot build URL with scheme \(scheme), address \(socketAddress), path \(path)" }
+        }
+        
+        let path = "/\(indexPattern)/_doc"
+        
         var components = URLComponents()
         components.scheme = scheme.rawValue
         components.host = socketAddress.host
         components.port = socketAddress.port.value
-        components.path = "/\(indexPattern)/_doc"
-        return components.url!
+        components.path = path
+        guard let url = components.url else {
+            throw FailedToBuildUrlError(scheme: scheme, socketAddress: socketAddress, path: path)
+        }
+        return url
     }
 }
 
@@ -78,11 +90,19 @@ public final class HttpKibanaClient: KibanaClient {
         endpoints: [KibanaHttpEndpoint],
         indexPattern: String,
         urlSession: URLSession
-    ) {
+    ) throws {
+        guard !endpoints.isEmpty else { throw KibanaClientEndpointError() }
+        
         self.dateProvider = dateProvider
         self.endpoints = endpoints
         self.indexPattern = indexPattern
         self.urlSession = urlSession
+    }
+    
+    public struct KibanaClientEndpointError: Error, CustomStringConvertible {
+        public var description: String {
+            "No endpoint provided for kibana client. At least a single endpoint must be provided."
+        }
     }
     
     public func send(
@@ -101,8 +121,10 @@ public final class HttpKibanaClient: KibanaClient {
         
         params.merge(metadata) { current, _ in current }
         
+        guard let endpoint = endpoints.randomElement() else { throw KibanaClientEndpointError() }
+        
         var request = URLRequest(
-            url: endpoints.randomElement()!.singleEventUrl(
+            url: try endpoint.singleEventUrl(
                 indexPattern: indexPattern,
                 date: timestamp
             )
