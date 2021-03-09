@@ -9,13 +9,25 @@ final class HttpKibanaClientTests: XCTestCase {
     lazy var client = HttpKibanaClient(
         dateProvider: dateProvider,
         endpoints: [.http(SocketAddress(host: "example.com", port: 42))],
-        indexPattern: "index-pattern-thing-",
+        indexPattern: "index-pattern-thing",
         urlSession: urlSession
     )
     lazy var dateProvider = DateProviderFixture(Date(timeIntervalSince1970: 100))
     lazy var urlSession = FakeURLSession()
     
     func test() throws {
+        let dateComponents = DateComponents(
+            calendar: Calendar(identifier: .gregorian),
+            timeZone: TimeZone(secondsFromGMT: 3600),
+            year: 1975,
+            month: 11,
+            day: 20,
+            hour: 10,
+            minute: 0,
+            second: 42
+        )
+        dateProvider.result = assertNotNil { dateComponents.date }
+        
         try client.send(
             level: "level",
             message: "message",
@@ -28,7 +40,7 @@ final class HttpKibanaClientTests: XCTestCase {
         let request = urlTask.originalTask.originalRequest
         
         XCTAssertEqual(request?.httpMethod, "POST")
-        XCTAssertEqual(request?.url?.absoluteString, "http://example.com:42/index-pattern-thing-/_doc")
+        XCTAssertEqual(request?.url?.absoluteString, "http://example.com:42/index-pattern-thing/_doc")
         
         let bodyPayload = try JSONDecoder().decode([String: String].self, from: assertNotNil { request?.httpBody })
         
@@ -38,7 +50,7 @@ final class HttpKibanaClientTests: XCTestCase {
             [
                 "message": "message",
                 "level": "level",
-                "@timestamp": "1970-01-01T03:01:40.000Z",
+                "@timestamp": "1975-11-20T09:00:42.000Z",
                 "one": "thing",
             ]
         }
