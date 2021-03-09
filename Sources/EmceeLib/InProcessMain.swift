@@ -3,6 +3,7 @@ import DI
 import DateProvider
 import DeveloperDirLocator
 import EmceeLogging
+import EmceeVersion
 import FileCache
 import FileSystem
 import Foundation
@@ -56,7 +57,7 @@ public final class InProcessMain {
             for: GlobalMetricRecorder.self
         )
         
-        let globalMmetricRecorder: GlobalMetricRecorder = try di.get()
+        let globalMetricRecorder: GlobalMetricRecorder = try di.get()
         let specificMetricRecorderProvider: SpecificMetricRecorderProvider = try di.get()
         
         let cacheElementTimeToLive = TimeUnit.hours(1)
@@ -72,12 +73,16 @@ public final class InProcessMain {
         )
         
         let logger = try setupLogging(di: di, logsTimeToLive: logsTimeToLive, queue: logCleaningQueue)
+            .withMetadata(key: .emceeVersion, value: EmceeVersion.version.value)
+            .withMetadata(key: .processId, value: "\(ProcessInfo.processInfo.processIdentifier)")
+            .withMetadata(key: .processName, value: ProcessInfo.processInfo.processName)
+        di.set(logger)
         
         defer {
             let timeout: TimeInterval = 10
             LoggingSetup.tearDown(timeout: timeout)
             specificMetricRecorderProvider.tearDown(timeout: timeout)
-            globalMmetricRecorder.tearDown(timeout: timeout)
+            globalMetricRecorder.tearDown(timeout: timeout)
             logCleaningQueue.waitUntilAllOperationsAreFinished()
         }
         

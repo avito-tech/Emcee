@@ -568,12 +568,22 @@ let package = Package(
             ],
             path: "Sources/EmceeLogging"
         ),
+        .target(
+            name: "EmceeLoggingTestHelpers",
+            dependencies: [
+                "EmceeLogging",
+                .product(name: "Logging", package: "swift-log"),
+            ],
+            path: "Tests/EmceeLoggingTestHelpers"
+        ),
         .testTarget(
             name: "EmceeLoggingTests",
             dependencies: [
                 "EmceeLogging",
+                "EmceeLoggingTestHelpers",
                 "Kibana",
                 .product(name: "Logging", package: "swift-log"),
+                "QueueModels",
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
             ],
             path: "Tests/EmceeLoggingTests"
@@ -805,7 +815,7 @@ let package = Package(
             dependencies: [
                 .product(name: "DateProviderTestHelpers", package: "CommandLineToolkit"),
                 "EmceeLogging",
-                .product(name: "Logging", package: "swift-log"),
+                "EmceeLoggingTestHelpers",
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
             ],

@@ -101,6 +101,9 @@ public final class DistWorkCommand: Command {
         
         return DistWorker(
             di: di,
+            logger: try di.get(ContextualLogger.self)
+                .withMetadata(key: .workerId, value: workerId.value)
+                .withMetadata(key: .emceeVersion, value: version.value),
             version: version,
             workerId: workerId
         )
