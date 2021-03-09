@@ -1,5 +1,6 @@
 import EmceeLogging
 import Foundation
+import Kibana
 import Logging
 import TestHelpers
 import XCTest

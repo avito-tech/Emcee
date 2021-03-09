@@ -13,7 +13,12 @@ public class FakeKibanaClient: KibanaClient {
     public var onSend: (Payload) throws -> () = { _ in }
     public var capturedEvents = [Payload]()
     
-    public func send(level: String, message: String, metadata: [String : String], completion: @escaping (Error?) -> ()) throws {
+    public func send(
+        level: String,
+        message: String,
+        metadata: [String: String],
+        completion: @escaping (Error?) -> ()
+    ) throws {
         let payload = Payload(
             level: level,
             message: message,

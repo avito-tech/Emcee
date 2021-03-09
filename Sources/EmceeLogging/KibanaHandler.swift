@@ -1,4 +1,5 @@
 import Foundation
+import Kibana
 import Logging
 import MetricsExtensions
 

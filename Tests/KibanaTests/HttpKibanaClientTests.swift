@@ -1,5 +1,6 @@
 import DateProviderTestHelpers
 import EmceeLogging
+import Kibana
 import SocketModels
 import TestHelpers
 import URLSessionTestHelpers

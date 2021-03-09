@@ -561,22 +561,20 @@ let package = Package(
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
                 "EmceeVersion",
                 "Extensions",
+                "Kibana",
                 .product(name: "Logging", package: "swift-log"),
                 "MetricsExtensions",
                 "QueueModels",
-                .product(name: "SocketModels", package: "CommandLineToolkit"),
             ],
             path: "Sources/EmceeLogging"
         ),
         .testTarget(
             name: "EmceeLoggingTests",
             dependencies: [
-                .product(name: "DateProviderTestHelpers", package: "CommandLineToolkit"),
                 "EmceeLogging",
+                "Kibana",
                 .product(name: "Logging", package: "swift-log"),
-                .product(name: "SocketModels", package: "CommandLineToolkit"),
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
-                "URLSessionTestHelpers",
             ],
             path: "Tests/EmceeLoggingTests"
         ),
@@ -685,6 +683,26 @@ let package = Package(
             path: "Tests/JunitReportingTests"
         ),
         .target(
+            name: "Kibana",
+            dependencies: [
+                .product(name: "DateProvider", package: "CommandLineToolkit"),
+                .product(name: "SocketModels", package: "CommandLineToolkit"),
+            ],
+            path: "Sources/Kibana"
+        ),
+        .testTarget(
+            name: "KibanaTests",
+            dependencies: [
+                .product(name: "DateProviderTestHelpers", package: "CommandLineToolkit"),
+                "EmceeLogging",
+                "Kibana",
+                .product(name: "SocketModels", package: "CommandLineToolkit"),
+                .product(name: "TestHelpers", package: "CommandLineToolkit"),
+                "URLSessionTestHelpers",
+            ],
+            path: "Tests/KibanaTests"
+        ),
+        .target(
             name: "LaunchdUtils",
             dependencies: [
             ],
@@ -772,6 +790,7 @@ let package = Package(
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
                 "EmceeLogging",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
+                "Kibana",
                 "LocalHostDeterminer",
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "Metrics", package: "CommandLineToolkit"),
