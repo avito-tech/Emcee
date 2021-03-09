@@ -81,7 +81,7 @@ public final class InProcessMain {
             logCleaningQueue.waitUntilAllOperationsAreFinished()
         }
         
-        logger.log(.info, "Arguments: \(ProcessInfo.processInfo.arguments)")
+        logger.info("Arguments: \(ProcessInfo.processInfo.arguments)")
 
         di.set(
             try DetailedAcitivityLoggableProcessControllerProvider(di: di),
@@ -189,7 +189,7 @@ public final class InProcessMain {
             queue: queue,
             completion: { error in
                 if let error = error {
-                    logger.log(.error, "Failed to clean up old logs: \(error)")
+                    logger.error("Failed to clean up old logs: \(error)")
                 }
             }
         )

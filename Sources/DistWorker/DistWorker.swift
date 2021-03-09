@@ -97,14 +97,14 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
                 }
                 
                 strongSelf.payloadSignature = .success(workerConfiguration.payloadSignature)
-                strongSelf.logger.log(.debug, "Registered with server. Worker configuration: \(workerConfiguration)", workerId: strongSelf.workerId)
+                strongSelf.logger.debug("Registered with server. Worker configuration: \(workerConfiguration)", workerId: strongSelf.workerId)
                 
                 _ = try strongSelf.runTests(
                     workerConfiguration: workerConfiguration
                 )
-                strongSelf.logger.log(.debug, "Dist worker has finished", workerId: strongSelf.workerId)
+                strongSelf.logger.debug("Dist worker has finished", workerId: strongSelf.workerId)
             } catch {
-                strongSelf.logger.log(.error, "Caught unexpected error: \(error)", workerId: strongSelf.workerId)
+                strongSelf.logger.error("Caught unexpected error: \(error)", workerId: strongSelf.workerId)
             }
         }
     }
@@ -141,10 +141,10 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
 
             switch result {
             case .checkLater(let after):
-                logger.log(.debug, "Server asked to wait for \(after) seconds and fetch next bucket again", workerId: workerId)
+                logger.debug("Server asked to wait for \(after) seconds and fetch next bucket again", workerId: workerId)
                 return .checkAgain(after: after)
             case .bucket(let fetchedBucket):
-                logger.log(.debug, "Received \(fetchedBucket.bucketId)", workerId: workerId)
+                logger.debug("Received \(fetchedBucket.bucketId)", workerId: workerId)
                 tracker.willProcess(bucketId: fetchedBucket.bucketId)
                 return .result(
                     SchedulerBucket.from(
@@ -162,7 +162,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
     public func nextBucket() -> SchedulerBucket? {
         while true {
             do {
-                logger.log(.debug, "Fetching next bucket from server", workerId: workerId)
+                logger.debug("Fetching next bucket from server", workerId: workerId)
                 let fetchResult = try nextBucketFetchResult()
                 switch fetchResult {
                 case .result(let result):
@@ -171,7 +171,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
                     try di.get(Waiter.self).wait(timeout: after, description: "Pause before checking queue server again")
                 }
             } catch {
-                logger.log(.error, "Failed to fetch next bucket: \(error)", workerId: workerId)
+                logger.error("Failed to fetch next bucket: \(error)", workerId: workerId)
                 return nil
             }
         }
@@ -182,7 +182,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
         obtainedTestingResult testingResult: TestingResult,
         forBucket bucket: SchedulerBucket
     ) {
-        logger.log(.debug, "Obtained testing result for bucket \(bucket.bucketId): \(testingResult)", workerId: workerId)
+        logger.debug("Obtained testing result for bucket \(bucket.bucketId): \(testingResult)", workerId: workerId)
         didReceiveTestResult(testingResult: testingResult, bucketId: bucket.bucketId)
     }
     
@@ -207,14 +207,14 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
                                 expected: bucketId
                             )
                         }
-                        logger.log(.debug, "Successfully sent test run result for bucket \(bucketId)", workerId: workerId)
+                        logger.debug("Successfully sent test run result for bucket \(bucketId)", workerId: workerId)
                     } catch {
-                        logger.log(.error, "Server response for results of bucket \(bucketId) has error: \(error)", workerId: workerId)
+                        logger.error("Server response for results of bucket \(bucketId) has error: \(error)", workerId: workerId)
                     }
                 }
             )
         } catch {
-            logger.log(.error, "Failed to send test run result for bucket \(bucketId): \(error)", workerId: workerId)
+            logger.error("Failed to send test run result for bucket \(bucketId): \(error)", workerId: workerId)
         }
     }
 }

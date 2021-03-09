@@ -27,13 +27,13 @@ public final class ContextualLogger {
     public func log(
         _ verbosity: Verbosity,
         _ message: String,
-        pidInfo: PidInfo? = nil,
-        workerId: WorkerId? = nil,
-        persistentMetricsJobId: String? = nil,
-        source: String? = nil,
-        file: String = #file,
-        function: String = #function,
-        line: UInt = #line
+        pidInfo: PidInfo?,
+        workerId: WorkerId?,
+        persistentMetricsJobId: String?,
+        source: String?,
+        file: String,
+        function: String,
+        line: UInt
     ) {
         var metadata: Logging.Logger.Metadata = [:]
         
@@ -64,5 +64,25 @@ public final class ContextualLogger {
             function: function,
             line: line
         )
+    }
+}
+
+public extension ContextualLogger {
+    func debug(
+        _ message: String, pidInfo: PidInfo? = nil, workerId: WorkerId? = nil, persistentMetricsJobId: String? = nil, source: String? = nil, file: String = #file, function: String = #function, line: UInt = #line
+    ) {
+        log(.debug, message, pidInfo: pidInfo, workerId: workerId, persistentMetricsJobId: persistentMetricsJobId, source: source, file: file, function: function, line: line)
+    }
+    
+    func error(
+        _ message: String, pidInfo: PidInfo? = nil, workerId: WorkerId? = nil, persistentMetricsJobId: String? = nil, source: String? = nil, file: String = #file, function: String = #function, line: UInt = #line
+    ) {
+        log(.error, message, pidInfo: pidInfo, workerId: workerId, persistentMetricsJobId: persistentMetricsJobId, source: source, file: file, function: function, line: line)
+    }
+    
+    func info(
+        _ message: String, pidInfo: PidInfo? = nil, workerId: WorkerId? = nil, persistentMetricsJobId: String? = nil, source: String? = nil, file: String = #file, function: String = #function, line: UInt = #line
+    ) {
+        log(.info, message, pidInfo: pidInfo, workerId: workerId, persistentMetricsJobId: persistentMetricsJobId, source: source, file: file, function: function, line: line)
     }
 }
