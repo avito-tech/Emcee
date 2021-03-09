@@ -36,9 +36,11 @@ public final class DistWorkCommand: Command {
     ]
     
     private let di: DI
+    private let logger: ContextualLogger
 
-    public init(di: DI) {
+    public init(di: DI) throws {
         self.di = di
+        self.logger = try di.get(ContextualLogger.self).forType(Self.self)
     }
     
     public func run(payload: CommandPayload) throws {
@@ -62,8 +64,8 @@ public final class DistWorkCommand: Command {
             workerId: workerId
         )
         
-        SignalHandling.addSignalHandler(signals: [.term, .int]) { signal in
-            Logger.debug("Got signal: \(signal)")
+        SignalHandling.addSignalHandler(signals: [.term, .int]) { [logger] signal in
+            logger.debug("Got signal: \(signal)")
             onDemandSimulatorPool.deleteSimulators()
         }
         
@@ -117,8 +119,8 @@ public final class DistWorkCommand: Command {
         
         try distWorker.start { isWorking = false }
         
-        SignalHandling.addSignalHandler(signals: [.term, .int]) { signal in
-            Logger.debug("Got signal: \(signal)")
+        SignalHandling.addSignalHandler(signals: [.term, .int]) { [logger] signal in
+            logger.debug("Got signal: \(signal)")
             isWorking = false
         }
         

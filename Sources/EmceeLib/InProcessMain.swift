@@ -89,7 +89,7 @@ public final class InProcessMain {
         logger.info("Arguments: \(ProcessInfo.processInfo.arguments)")
 
         di.set(
-            try DetailedAcitivityLoggableProcessControllerProvider(di: di),
+            try DetailedActivityLoggableProcessControllerProvider(di: di),
             for: ProcessControllerProvider.self
         )
         
@@ -168,10 +168,10 @@ public final class InProcessMain {
         
         let commandInvoker = CommandInvoker(
             commands: [
-                DistWorkCommand(di: di),
-                DumpCommand(di: di),
-                RunTestsOnRemoteQueueCommand(di: di),
-                StartQueueServerCommand(di: di),
+                try DistWorkCommand(di: di),
+                try DumpCommand(di: di),
+                try RunTestsOnRemoteQueueCommand(di: di),
+                try StartQueueServerCommand(di: di),
                 try KickstartCommand(di: di),
                 try EnableWorkerCommand(di: di),
                 try DisableWorkerCommand(di: di),

@@ -1,6 +1,7 @@
 import AtomicModels
 import BuildArtifacts
 import BuildArtifactsTestHelpers
+import EmceeLogging
 import EmceeLib
 import Foundation
 import LoggingSetup
@@ -18,6 +19,7 @@ final class PipelinedTestDiscovererTests: XCTestCase {
     private lazy var testDiscoveryQuerier = TestDiscoveryQuerierMock()
     private lazy var runtimeDumpRemoteCacheProvider = FakeRuntimeDumpRemoteCacheProvider()
     private lazy var discoverer = PipelinedTestDiscoverer(
+        logger: ContextualLogger(Self.self),
         runtimeDumpRemoteCacheProvider: runtimeDumpRemoteCacheProvider,
         testDiscoveryQuerier: testDiscoveryQuerier,
         urlResource: urlResource

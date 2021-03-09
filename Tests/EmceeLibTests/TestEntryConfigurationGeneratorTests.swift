@@ -1,6 +1,7 @@
 import BuildArtifacts
 import BuildArtifactsTestHelpers
 import EmceeLib
+import EmceeLogging
 import Foundation
 import MetricsExtensions
 import QueueModelsTestHelpers
@@ -64,7 +65,8 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 testsToRun: [.testName(argFileTestToRun1)],
                 workerCapabilityRequirements: []
             ),
-            persistentMetricsJobId: ""
+            persistentMetricsJobId: "",
+            logger: ContextualLogger(Self.self)
         )
         
         let configurations = generator.createTestEntryConfigurations()
@@ -103,7 +105,8 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 testsToRun: [.testName(argFileTestToRun1), .testName(argFileTestToRun1)],
                 workerCapabilityRequirements: []
             ),
-            persistentMetricsJobId: ""
+            persistentMetricsJobId: "",
+            logger: ContextualLogger(Self.self)
         )
         
         let expectedTestEntryConfigurations =
@@ -144,7 +147,8 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 testsToRun: [.allDiscoveredTests],
                 workerCapabilityRequirements: []
             ),
-            persistentMetricsJobId: ""
+            persistentMetricsJobId: "",
+            logger: ContextualLogger(Self.self)
         )
         
         let expectedConfigurations = [

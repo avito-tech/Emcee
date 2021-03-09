@@ -12,21 +12,26 @@ public final class TestEntryConfigurationGenerator {
     private let validatedEntries: [ValidatedTestEntry]
     private let testArgFileEntry: TestArgFileEntry
     private let persistentMetricsJobId: String
+    private let logger: ContextualLogger
 
     public init(
         analyticsConfiguration: AnalyticsConfiguration,
         validatedEntries: [ValidatedTestEntry],
         testArgFileEntry: TestArgFileEntry,
-        persistentMetricsJobId: String
+        persistentMetricsJobId: String,
+        logger: ContextualLogger
     ) {
         self.analyticsConfiguration = analyticsConfiguration
         self.validatedEntries = validatedEntries
         self.testArgFileEntry = testArgFileEntry
         self.persistentMetricsJobId = persistentMetricsJobId
+        self.logger = logger
+            .forType(Self.self)
+            .withMetadata(key: .persistentMetricsJobId, value: persistentMetricsJobId)
     }
     
     public func createTestEntryConfigurations() -> [TestEntryConfiguration] {
-        Logger.debug("Preparing test entry configurations for \(testArgFileEntry.testsToRun.count) tests: \(testArgFileEntry.testsToRun)")
+        logger.debug("Preparing test entry configurations for \(testArgFileEntry.testsToRun.count) tests: \(testArgFileEntry.testsToRun)")
         
         let testArgFileEntryConfigurations = testArgFileEntry.testsToRun.flatMap { testToRun -> [TestEntryConfiguration] in
             let testEntries = testEntriesMatching(

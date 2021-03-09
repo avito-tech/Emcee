@@ -5,16 +5,22 @@ import LoggingSetup
 import PathLib
 import ProcessController
 
-public final class DetailedAcitivityLoggableProcessControllerProvider: ProcessControllerProvider {
+public final class DetailedActivityLoggableProcessControllerProvider: ProcessControllerProvider {
     private let processControllerProvider: LoggableProcessControllerProvider
+    private let logger: ContextualLogger
     
     public init(
         di: DI
     ) throws {
+        logger = try di.get(ContextualLogger.self).forType(Self.self)
+        
         processControllerProvider = LoggableProcessControllerProvider(
-            pathProvider: { processName -> (stdout: AbsolutePath, stderr: AbsolutePath) in
+            pathProvider: { [logger] processName -> (stdout: AbsolutePath, stderr: AbsolutePath) in
                 let paths = try di.get(LoggingSetup.self).childProcessLogsContainerProvider().paths(subprocessName: processName)
-                Logger.debug("Subprocess output will be stored: stdout: \(paths.stdout) stderr: \(paths.stderr)")
+                logger.debug(
+                    "Subprocess output will be stored: stdout: \(paths.stdout) stderr: \(paths.stderr)",
+                    subprocessPidInfo: PidInfo(pid: 0, name: processName)
+                )
                 return paths
             },
             provider: DefaultProcessControllerProvider(
@@ -27,16 +33,16 @@ public final class DetailedAcitivityLoggableProcessControllerProvider: ProcessCo
     public func createProcessController(subprocess: Subprocess) throws -> ProcessController {
         let processController = try processControllerProvider.createProcessController(subprocess: subprocess)
         
-        processController.onStart { sender, _ in
-            Logger.debug("Started subprocess: \(sender.subprocess)", sender.subprocessInfo.pidInfo)
+        processController.onStart { [logger] sender, _ in
+            logger.debug("Started subprocess: \(sender.subprocess)", subprocessPidInfo: sender.subprocessInfo.pidInfo)
         }
         
-        processController.onSignal { sender, signal, _ in
-            Logger.debug("Signalled \(signal)", sender.subprocessInfo.pidInfo)
+        processController.onSignal { [logger] sender, signal, _ in
+            logger.debug("Signalled \(signal)", subprocessPidInfo: sender.subprocessInfo.pidInfo)
         }
         
-        processController.onTermination { sender, _ in
-            Logger.debug("Process terminated", sender.subprocessInfo.pidInfo)
+        processController.onTermination { [logger] sender, _ in
+            logger.debug("Process terminated", subprocessPidInfo: sender.subprocessInfo.pidInfo)
         }
         
         return processController

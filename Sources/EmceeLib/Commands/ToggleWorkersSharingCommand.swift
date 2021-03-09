@@ -17,9 +17,11 @@ public final class ToggleWorkersSharingCommand: Command {
     ]
     
     private let requestSenderProvider: RequestSenderProvider
+    private let logger: ContextualLogger
     
     public init(di: DI) throws {
         self.requestSenderProvider = try di.get()
+        self.logger = try di.get(ContextualLogger.self).forType(Self.self)
     }
     
     public func run(payload: CommandPayload) throws {
@@ -36,9 +38,9 @@ public final class ToggleWorkersSharingCommand: Command {
         let sharingStatus: WorkersSharingFeatureStatus = sharingEnabled ? .enabled : .disabled
         do {
             try toggler.setSharingStatus(sharingStatus)
-            Logger.always("Successfully \(sharingStatus) workers sharing feature on queue \(queueServerAddress)")
+            logger.info("Successfully \(sharingStatus) workers sharing feature on queue \(queueServerAddress)")
         } catch {
-            Logger.error("Failed to \(sharingStatus) workers sharing feature on queue \(queueServerAddress): \(error)")
+            logger.error("Failed to \(sharingStatus) workers sharing feature on queue \(queueServerAddress): \(error)")
         }
     }
 }

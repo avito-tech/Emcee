@@ -42,9 +42,11 @@ public final class StartQueueServerCommand: Command {
     )
     
     private let di: DI
+    private let logger: ContextualLogger
 
-    public init(di: DI) {
+    public init(di: DI) throws {
         self.di = di
+        self.logger = try di.get(ContextualLogger.self).forType(Self.self)
     }
     
     public func run(payload: CommandPayload) throws {
@@ -74,7 +76,7 @@ public final class StartQueueServerCommand: Command {
         di.set(
             PayloadSignature(value: try di.get(UniqueIdentifierGenerator.self).generate())
         )
-        Logger.info("Generated payload signature: \(try di.get(PayloadSignature.self))")
+        logger.debug("Generated payload signature: \(try di.get(PayloadSignature.self))")
         
         let automaticTerminationController = AutomaticTerminationControllerFactory(
             automaticTerminationPolicy: queueServerConfiguration.queueServerTerminationPolicy

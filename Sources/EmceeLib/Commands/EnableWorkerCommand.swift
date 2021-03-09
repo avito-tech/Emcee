@@ -22,9 +22,11 @@ public final class EnableWorkerCommand: Command {
     
     private let callbackQueue = DispatchQueue(label: "EnableWorkerCommand.callbackQueue")
     private let di: DI
+    private let logger: ContextualLogger
     
     public init(di: DI) throws {
         self.di = di
+        self.logger = try di.get(ContextualLogger.self).forType(Self.self)
     }
     
     public func run(payload: CommandPayload) throws {
@@ -48,9 +50,9 @@ public final class EnableWorkerCommand: Command {
         
         let enabledWorkerId = try callbackWaiter.wait(timeout: 15, description: "Request to enable worker \(workerId) on queue")
         do {
-            Logger.always("Successfully enabled worker \(try enabledWorkerId.dematerialize()) on queue \(queueServerAddress)")
+            logger.info("Successfully enabled worker \(try enabledWorkerId.dematerialize()) on queue \(queueServerAddress)")
         } catch {
-            Logger.error("Failed to enable worker \(workerId) on queue \(queueServerAddress): \(error)")
+            logger.error("Failed to enable worker \(workerId) on queue \(queueServerAddress): \(error)")
         }
     }
     

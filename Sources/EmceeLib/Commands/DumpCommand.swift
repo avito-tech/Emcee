@@ -41,9 +41,12 @@ public final class DumpCommand: Command {
     
     private let di: DI
     private let encoder = JSONEncoder.pretty()
+    private let logger: ContextualLogger
     
-    public init(di: DI) {
+    public init(di: DI) throws {
         self.di = di
+        self.logger = try di.get(ContextualLogger.self)
+            .forType(Self.self)
     }
 
     public func run(payload: CommandPayload) throws {
@@ -72,8 +75,8 @@ public final class DumpCommand: Command {
         
         di.set(onDemandSimulatorPool, for: OnDemandSimulatorPool.self)
         
-        SignalHandling.addSignalHandler(signals: [.term, .int]) { signal in
-            Logger.debug("Got signal: \(signal)")
+        SignalHandling.addSignalHandler(signals: [.term, .int]) { [logger] signal in
+            logger.debug("Got signal: \(signal)")
             onDemandSimulatorPool.deleteSimulators()
         }
         
@@ -98,6 +101,7 @@ public final class DumpCommand: Command {
         )
         
         let discoverer = PipelinedTestDiscoverer(
+            logger: try di.get(),
             runtimeDumpRemoteCacheProvider: try di.get(),
             testDiscoveryQuerier: try di.get(),
             urlResource: try di.get()
@@ -112,9 +116,9 @@ public final class DumpCommand: Command {
         do {
             let encodedResult = try encoder.encode(dumpedTests)
             try encodedResult.write(to: outputPath.fileUrl, options: [.atomic])
-            Logger.debug("Wrote run time tests dump to file \(outputPath)")
+            logger.debug("Wrote run time tests dump to file \(outputPath)")
         } catch {
-            Logger.error("Failed to write output: \(error)")
+            logger.error("Failed to write output: \(error)")
         }
     }
 }

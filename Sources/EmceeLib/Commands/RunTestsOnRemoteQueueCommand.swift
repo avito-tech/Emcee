@@ -48,10 +48,12 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     
     private let callbackQueue = DispatchQueue(label: "RunTestsOnRemoteQueueCommand.callbackQueue")
     private let di: DI
+    private let logger: ContextualLogger
     private let testArgFileValidator = TestArgFileValidator()
     
-    public init(di: DI) {
+    public init(di: DI) throws {
         self.di = di
+        self.logger = try di.get(ContextualLogger.self).forType(Self.self)
     }
     
     public func run(payload: CommandPayload) throws {
@@ -107,7 +109,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         queueServerConfigurationLocation: QueueServerConfigurationLocation,
         jobId: JobId
     ) throws -> SocketAddress {
-        Logger.info("Searching for queue server on '\(queueServerDeploymentDestination.host)' with queue version \(emceeVersion)")
+        logger.info("Searching for queue server on '\(queueServerDeploymentDestination.host)' with queue version \(emceeVersion)")
         let remoteQueueDetector = DefaultRemoteQueueDetector(
             emceeVersion: emceeVersion,
             remotePortDeterminer: RemoteQueuePortScanner(
@@ -122,7 +124,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
                 host: queueServerDeploymentDestination.host,
                 port: try selectPort(ports: suitablePorts)
             )
-            Logger.info("Found queue server at '\(socketAddress)'")
+            logger.info("Found queue server at '\(socketAddress)'")
             return socketAddress
         }
         
@@ -142,7 +144,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             host: queueServerDeploymentDestination.host,
             port: try selectPort(ports: suitablePorts)
         )
-        Logger.info("Found queue server at '\(queueServerAddress)'")
+        logger.info("Found queue server at '\(queueServerAddress)'")
 
         return queueServerAddress
     }
@@ -153,7 +155,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         emceeVersion: Version,
         queueServerConfigurationLocation: QueueServerConfigurationLocation
     ) throws {
-        Logger.info("No running queue server has been found. Will deploy and start remote queue.")
+        logger.info("No running queue server has been found. Will deploy and start remote queue.")
         let remoteQueueStarter = RemoteQueueStarter(
             deploymentId: jobId.value,
             deploymentDestination: queueServerDeploymentDestination,
@@ -236,8 +238,8 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     
     private func waitForJobQueueToDeplete(jobId: JobId) throws {
         var caughtSignal = false
-        SignalHandling.addSignalHandler(signals: [.int, .term]) { signal in
-            Logger.info("Caught \(signal) signal")
+        SignalHandling.addSignalHandler(signals: [.int, .term]) { [logger] signal in
+            logger.info("Caught \(signal) signal")
             caughtSignal = true
         }
         
@@ -294,7 +296,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             )
             try callbackWaiter.wait(timeout: .infinity, description: "Deleting job").dematerialize()
         } catch {
-            Logger.warning("Failed to delete job")
+            logger.warning("Failed to delete job")
         }
     }
 }

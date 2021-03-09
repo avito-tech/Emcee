@@ -61,15 +61,20 @@ public final class JobPreparer {
             persistentMetricsJobId: testArgFile.prioritizedJob.persistentMetricsJobId
         )
         
+        let logger = try di.get(ContextualLogger.self)
+            .forType(Self.self)
+            .withMetadata(key: .persistentMetricsJobId, value: testArgFile.prioritizedJob.persistentMetricsJobId)
+        
         _ = try testEntriesValidator.validatedTestEntries { testArgFileEntry, validatedTestEntry in
             let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
                 analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration,
                 validatedEntries: validatedTestEntry,
                 testArgFileEntry: testArgFileEntry,
-                persistentMetricsJobId: testArgFile.prioritizedJob.persistentMetricsJobId
+                persistentMetricsJobId: testArgFile.prioritizedJob.persistentMetricsJobId,
+                logger: logger
             )
             let testEntryConfigurations = testEntryConfigurationGenerator.createTestEntryConfigurations()
-            Logger.info("Will schedule \(testEntryConfigurations.count) tests to queue server at \(queueServerAddress)")
+            logger.info("Will schedule \(testEntryConfigurations.count) tests to queue server at \(queueServerAddress)")
             
             let testScheduler = TestSchedulerImpl(
                 requestSender: try di.get(RequestSenderProvider.self).requestSender(socketAddress: queueServerAddress)

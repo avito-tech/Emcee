@@ -20,9 +20,11 @@ public final class KickstartCommand: Command {
     private let callbackQueue = DispatchQueue(label: "KickstartCommand.callbackQueue")
     private let processingQueue = DispatchQueue(label: "KickstartCommand.processingQueue", attributes: .concurrent, target: DispatchQueue.global(qos: .default))
     private let requestSenderProvider: RequestSenderProvider
+    private let logger: ContextualLogger
     
     public init(di: DI) throws {
         self.requestSenderProvider = try di.get()
+        self.logger = try di.get(ContextualLogger.self).forType(Self.self)
     }
     
     public func run(payload: CommandPayload) throws {
@@ -40,16 +42,16 @@ public final class KickstartCommand: Command {
         for workerId in workerIds {
             waitingGroup.enter()
             
-            Logger.info("Attempting to kickstart \(workerId)")
-            kickstarter.kickstart(workerId: workerId, callbackQueue: callbackQueue) { result in
+            logger.info("Attempting to kickstart \(workerId)")
+            kickstarter.kickstart(workerId: workerId, callbackQueue: callbackQueue) { [logger] result in
                 defer {
                     waitingGroup.leave()
                 }
                 do {
                     let workerId = try result.dematerialize()
-                    Logger.info("Successfully kickstarted \(workerId)")
+                    logger.info("Successfully kickstarted \(workerId)")
                 } catch {
-                    Logger.error("Failed to start worker \(workerId): \(error)")
+                    logger.error("Failed to start worker \(workerId): \(error)")
                 }
             }
         }

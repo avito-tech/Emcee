@@ -8,8 +8,12 @@ import TestArgFile
 public final class ReportsGenerator {
     private let testingResult: CombinedTestingResults
     private let reportOutput: ReportOutput
+    private let logger = ContextualLogger(ReportsGenerator.self)
     
-    public init(testingResult: CombinedTestingResults, reportOutput: ReportOutput) {
+    public init(
+        testingResult: CombinedTestingResults,
+        reportOutput: ReportOutput
+    ) {
         self.testingResult = testingResult
         self.reportOutput = reportOutput
     }
@@ -27,7 +31,7 @@ public final class ReportsGenerator {
     }
     
     private func prepareJunitReport(testingResult: CombinedTestingResults, path: String) throws {
-        try FileManager.default.createDirectory(
+        try FileManager().createDirectory(
             atPath: path.deletingLastPathComponent,
             withIntermediateDirectories: true
         )
@@ -54,9 +58,8 @@ public final class ReportsGenerator {
         let generator = JunitGenerator(testCases: testCases)
         do {
             try generator.writeReport(path: path)
-            Logger.debug("Stored Junit report at \(path)")
-        } catch let error {
-            Logger.error("Failed to write out junit report: \(error)")
+        } catch {
+            logger.error("Failed to write out junit report: \(error)")
             throw error
         }
     }
@@ -70,31 +73,30 @@ public final class ReportsGenerator {
         let generator = ChromeTraceGenerator(testingResult: testingResult)
         do {
             try generator.writeReport(path: path)
-            Logger.debug("Stored trace report at \(path)")
-        } catch let error {
-            Logger.error("Failed to write out trace report: \(error)")
+        } catch {
+            logger.error("Failed to write out trace report: \(error)")
             throw error
         }
     }
     
     private func prepareConsoleReport(testingResult: CombinedTestingResults) {
         guard !testingResult.failedTests.isEmpty else {
-            return Logger.info("All \(testingResult.successfulTests.count) tests completed successfully")
+            return logger.info("All \(testingResult.successfulTests.count) tests completed successfully")
         }
-        Logger.info("\(testingResult.successfulTests.count) tests completed successfully")
-        Logger.info("\(testingResult.failedTests.count) tests completed with errors")
+        logger.info("\(testingResult.successfulTests.count) tests completed successfully")
+        logger.info("\(testingResult.failedTests.count) tests completed with errors")
         for testEntryResult in testingResult.failedTests {
-            Logger.info("Test \(testEntryResult.testEntry) failed after \(testEntryResult.testRunResults.count) runs")
+            logger.info("Test \(testEntryResult.testEntry) failed after \(testEntryResult.testRunResults.count) runs")
             for testRunResult in testEntryResult.testRunResults {
                 let formattedDate = NSLogLikeLogEntryTextFormatter.logDateFormatter.string(from: Date(timeIntervalSince1970: testRunResult.startTime))
-                Logger.info("   executed on \(testRunResult.hostName) at \(formattedDate) using \(testRunResult.simulatorId)")
+                logger.info("   executed on \(testRunResult.hostName) at \(formattedDate) using \(testRunResult.simulatorId)")
                 if !testRunResult.exceptions.isEmpty {
-                    Logger.info("   caught \(testRunResult.exceptions.count) exceptions")
+                    logger.info("   caught \(testRunResult.exceptions.count) exceptions")
                     for exception in testRunResult.exceptions {
-                        Logger.info("       \(exception)")
+                        logger.info("       \(exception)")
                     }
                 } else {
-                    Logger.info("   no test exception has been caught")
+                    logger.info("   no test exception has been caught")
                 }
             }
         }

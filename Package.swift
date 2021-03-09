@@ -530,6 +530,7 @@ let package = Package(
                 "BuildArtifactsTestHelpers",
                 .product(name: "DateProviderTestHelpers", package: "CommandLineToolkit"),
                 "EmceeLib",
+                "EmceeLogging",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
                 .product(name: "FileSystemTestHelpers", package: "CommandLineToolkit"),
                 "LoggingSetup",
