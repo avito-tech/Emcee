@@ -261,7 +261,10 @@ public final class Runner {
             ).startExecutingTests()
         }
         testRunnerRunningInvocationContainer.set(runningInvocation)
-        
+        defer {
+            // since we refer this in closures, we must clean up to ensure no retain cycles will occur
+            testRunnerRunningInvocationContainer.set(nil)
+        }
         try streamClosedCallback.wait(timeout: .infinity, description: "Test Runner Stream Close")
         
         let result = Runner.prepareResults(
