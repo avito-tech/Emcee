@@ -1,5 +1,6 @@
 import DistWorkerModels
 import DistWorkerModelsTestHelpers
+import EmceeLogging
 import Foundation
 import QueueCommunicationTestHelpers
 import QueueModels
@@ -27,6 +28,7 @@ final class WorkerRegistrarTests: XCTestCase {
     
     private func createRegistrar() -> WorkerRegistrar {
         return WorkerRegistrar(
+            logger: .noOp,
             workerAlivenessProvider: alivenessTracker,
             workerCapabilitiesStorage: workerCapabilitiesStorage,
             workerConfigurations: workerConfigurations,

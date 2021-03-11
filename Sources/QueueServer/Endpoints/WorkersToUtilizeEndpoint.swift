@@ -9,14 +9,19 @@ public final class WorkersToUtilizeEndpoint: RESTEndpoint {
     public let path: RESTPath = RESTMethod.workersToUtilize
     public let requestIndicatesActivity = false
     
+    private let logger: ContextualLogger
     private let service: WorkersToUtilizeService
     
-    public init(service: WorkersToUtilizeService) {
+    public init(
+        logger: ContextualLogger,
+        service: WorkersToUtilizeService
+    ) {
+        self.logger = logger
         self.service = service
     }
     
     public func handle(payload: WorkersToUtilizePayload) throws -> WorkersToUtilizeResponse {
-        Logger.debug("Received workers to utilize payload: \(payload)")
+        logger.debug("Received workers to utilize payload: \(payload)")
         return .workersToUtilize(
             workerIds: Set(service.workersToUtilize(
                 initialWorkers: payload.deployments.workerIds(),

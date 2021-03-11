@@ -161,6 +161,7 @@ final class WorkerAlivenessPollerTests: XCTestCase {
         requestSenderProvider: RequestSenderProvider
     ) -> WorkerAlivenessPoller {
         return WorkerAlivenessPoller(
+            logger: .noOp,
             pollInterval: pollInterval,
             requestSenderProvider: requestSenderProvider,
             workerAlivenessProvider: workerAlivenessProvider,

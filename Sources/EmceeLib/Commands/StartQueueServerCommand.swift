@@ -135,6 +135,7 @@ public final class StartQueueServerCommand: Command {
             deploymentDestinations: workerDestinations,
             emceeVersion: emceeVersion,
             localPortDeterminer: LocalPortDeterminer(portRange: EmceePorts.defaultQueuePortRange),
+            logger: logger,
             globalMetricRecorder: try di.get(),
             specificMetricRecorderProvider: try di.get(),
             onDemandWorkerStarter: OnDemandWorkerStarterViaDeployer(
@@ -160,6 +161,7 @@ public final class StartQueueServerCommand: Command {
         
         let pollPeriod: TimeInterval = 5.0
         let queueServerTerminationWaiter = QueueServerTerminationWaiterImpl(
+            logger: logger,
             pollInterval: pollPeriod,
             queueServerTerminationPolicy: queueServerConfiguration.queueServerTerminationPolicy
         )

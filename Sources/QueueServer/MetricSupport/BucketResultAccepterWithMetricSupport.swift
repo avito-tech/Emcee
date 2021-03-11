@@ -12,6 +12,7 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
     private let bucketResultAccepter: BucketResultAccepter
     private let dateProvider: DateProvider
     private let jobStateProvider: JobStateProvider
+    private let logger: ContextualLogger
     private let queueStateProvider: RunningQueueStateProvider
     private let version: Version
     private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
@@ -20,6 +21,7 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
         bucketResultAccepter: BucketResultAccepter,
         dateProvider: DateProvider,
         jobStateProvider: JobStateProvider,
+        logger: ContextualLogger,
         queueStateProvider: RunningQueueStateProvider,
         version: Version,
         specificMetricRecorderProvider: SpecificMetricRecorderProvider
@@ -27,6 +29,7 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
         self.bucketResultAccepter = bucketResultAccepter
         self.dateProvider = dateProvider
         self.jobStateProvider = jobStateProvider
+        self.logger = logger.forType(Self.self)
         self.queueStateProvider = queueStateProvider
         self.version = version
         self.specificMetricRecorderProvider = specificMetricRecorderProvider
@@ -89,7 +92,7 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
                 )
             )
         } catch {
-            Logger.error("Failed to send metrics: \(error)")
+            logger.error("Failed to send metrics: \(error)")
         }
     }
 }

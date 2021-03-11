@@ -14,6 +14,7 @@ import Timer
 public final class StuckBucketsPoller {
     private let dateProvider: DateProvider
     private let jobStateProvider: JobStateProvider
+    private let logger: ContextualLogger
     private let runningQueueStateProvider: RunningQueueStateProvider
     private let stuckBucketsReenqueuer: StuckBucketsReenqueuer
     private let stuckBucketsTrigger = DispatchBasedTimer(repeating: .seconds(1), leeway: .seconds(5))
@@ -24,6 +25,7 @@ public final class StuckBucketsPoller {
     public init(
         dateProvider: DateProvider,
         jobStateProvider: JobStateProvider,
+        logger: ContextualLogger,
         runningQueueStateProvider: RunningQueueStateProvider,
         stuckBucketsReenqueuer: StuckBucketsReenqueuer,
         version: Version,
@@ -32,6 +34,7 @@ public final class StuckBucketsPoller {
     ) {
         self.dateProvider = dateProvider
         self.jobStateProvider = jobStateProvider
+        self.logger = logger.forType(Self.self)
         self.runningQueueStateProvider = runningQueueStateProvider
         self.stuckBucketsReenqueuer = stuckBucketsReenqueuer
         self.version = version
@@ -62,15 +65,15 @@ public final class StuckBucketsPoller {
             )
         }
         
-        Logger.warning("Detected stuck buckets:")
+        logger.warning("Detected stuck buckets:")
         for stuckBucket in stuckBuckets {
-            Logger.warning("-- Bucket \(stuckBucket.bucket.bucketId) is stuck with worker '\(stuckBucket.workerId)': \(stuckBucket.reason)")
+            logger.warning("-- Bucket \(stuckBucket.bucket.bucketId) is stuck with worker '\(stuckBucket.workerId)': \(stuckBucket.reason)")
             do {
                 try specificMetricRecorderProvider.specificMetricRecorder(
                     analyticsConfiguration: stuckBucket.bucket.analyticsConfiguration
                 ).capture(stuckBucketMetrics)
             } catch {
-                Logger.error("Failed to send metrics: \(error)")
+                logger.error("Failed to send metrics: \(error)")
             }
         }
         

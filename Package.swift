@@ -1164,6 +1164,7 @@ let package = Package(
                 "DeployerTestHelpers",
                 "DistWorkerModels",
                 "DistWorkerModelsTestHelpers",
+                "EmceeLogging",
                 .product(name: "Graphite", package: "CommandLineToolkit"),
                 .product(name: "Metrics", package: "CommandLineToolkit"),
                 "MetricsExtensions",

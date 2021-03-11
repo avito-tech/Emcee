@@ -7,6 +7,7 @@ import Types
 import WorkerAlivenessProvider
 
 public final class WorkerAlivenessPoller {
+    private let logger: ContextualLogger
     private let pollInterval: TimeInterval
     private let requestSenderProvider: RequestSenderProvider
     private let workerAlivenessProvider: WorkerAlivenessProvider
@@ -14,11 +15,13 @@ public final class WorkerAlivenessPoller {
     private var pollingTimer: DispatchBasedTimer?
 
     public init(
+        logger: ContextualLogger,
         pollInterval: TimeInterval,
         requestSenderProvider: RequestSenderProvider,
         workerAlivenessProvider: WorkerAlivenessProvider,
         workerDetailsHolder: WorkerDetailsHolder
     ) {
+        self.logger = logger.forType(Self.self)
         self.pollInterval = pollInterval
         self.requestSenderProvider = requestSenderProvider
         self.workerAlivenessProvider = workerAlivenessProvider
@@ -52,7 +55,7 @@ public final class WorkerAlivenessPoller {
             let sender = self.requestSenderProvider.requestSender(
                 socketAddress: socketAddress
             )
-            Logger.debug("Polling \(workerId) for currently processing buckets")
+            logger.debug("Polling \(workerId) for currently processing buckets")
             sender.sendRequestWithCallback(
                 request: CurrentlyProcessingBucketsNetworkRequest(
                     timeout: pollInterval
@@ -69,7 +72,7 @@ public final class WorkerAlivenessPoller {
                             workerId: workerId
                         )
                     } catch {
-                        Logger.error("Failed to obtain currently processing buckets for \(workerId): \(error)")
+                        strongSelf.logger.error("Failed to obtain currently processing buckets for \(workerId): \(error)")
                         strongSelf.workerAlivenessProvider.setWorkerIsSilent(
                             workerId: workerId
                         )
@@ -79,6 +82,6 @@ public final class WorkerAlivenessPoller {
         }
         
         group.wait()
-        Logger.debug("Finished polling workers for currently processing buckets")
+        logger.debug("Finished polling workers for currently processing buckets")
     }
 }

@@ -29,6 +29,7 @@ final class TestsEnqueuerTests: XCTestCase {
             bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 1),
             dateProvider: DateProviderFixture(),
             enqueueableBucketReceptor: enqueueableBucketReceptor,
+            logger: .noOp,
             version: Version(value: "version"),
             specificMetricRecorderProvider: NoOpSpecificMetricRecorderProvider()
         )

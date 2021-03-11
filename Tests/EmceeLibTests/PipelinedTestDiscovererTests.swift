@@ -19,7 +19,7 @@ final class PipelinedTestDiscovererTests: XCTestCase {
     private lazy var testDiscoveryQuerier = TestDiscoveryQuerierMock()
     private lazy var runtimeDumpRemoteCacheProvider = FakeRuntimeDumpRemoteCacheProvider()
     private lazy var discoverer = PipelinedTestDiscoverer(
-        logger: ContextualLogger(Self.self),
+        logger: .noOp,
         runtimeDumpRemoteCacheProvider: runtimeDumpRemoteCacheProvider,
         testDiscoveryQuerier: testDiscoveryQuerier,
         urlResource: urlResource

@@ -46,8 +46,6 @@ public final class KickstartWorkerEndpoint: RESTEndpoint {
             throw KickstartError.isAlive(payload.workerId)
         }
         
-        Logger.debug("Request to kickstart \(payload.workerId)")
-        
         try onDemandWorkerStarter.start(workerId: payload.workerId)
         
         return KickstartWorkerResponse(workerId: payload.workerId)

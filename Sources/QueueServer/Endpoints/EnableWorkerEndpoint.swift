@@ -37,7 +37,6 @@ public final class EnableWorkerEndpoint: RESTEndpoint {
         guard workerConfigurations.workerConfiguration(workerId: payload.workerId) != nil else {
             throw WorkerConfigurationError.missingWorkerConfiguration(workerId: payload.workerId)
         }
-        Logger.debug("Request to enable worker with id: \(payload.workerId)")
         
         guard workerAlivenessProvider.alivenessForWorker(workerId: payload.workerId).disabled else {
             throw EnableWorkerError.workerIsAlreadyEnabled(workerId: payload.workerId)

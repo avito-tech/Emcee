@@ -20,6 +20,13 @@ public final class ContextualLogger {
         Logging.Logger(label: "\(T.self)")
     }
     
+    public static let noOp: ContextualLogger = ContextualLogger(
+        logger: Logging.Logger(
+            label: "no-op",
+            factory: { _ in SwiftLogNoOpLogHandler() }
+        )
+    )
+    
     public convenience init<T>(_ type: T.Type) {
         self.init(logger: Self.createTypedLogger(type), addedMetadata: [:])
     }

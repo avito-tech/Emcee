@@ -2,6 +2,7 @@ import AutomaticTermination
 import DateProviderTestHelpers
 import DistWorkerModels
 import DistWorkerModelsTestHelpers
+import EmceeLogging
 import Foundation
 import MetricsExtensions
 import MetricsTestHelpers
@@ -65,6 +66,7 @@ final class QueueServerTests: XCTestCase {
             deploymentDestinations: [],
             emceeVersion: "emceeVersion",
             localPortDeterminer: localPortDeterminer,
+            logger: .noOp,
             globalMetricRecorder: GlobalMetricRecorderImpl(),
             specificMetricRecorderProvider: NoOpSpecificMetricRecorderProvider(),
             onDemandWorkerStarter: FakeOnDemandWorkerStarter(),
@@ -110,6 +112,7 @@ final class QueueServerTests: XCTestCase {
             deploymentDestinations: [],
             emceeVersion: "emceeVersion",
             localPortDeterminer: localPortDeterminer,
+            logger: .noOp,
             globalMetricRecorder: GlobalMetricRecorderImpl(),
             specificMetricRecorderProvider: NoOpSpecificMetricRecorderProvider(),
             onDemandWorkerStarter: FakeOnDemandWorkerStarter(),
@@ -131,6 +134,7 @@ final class QueueServerTests: XCTestCase {
             prioritizedJob: prioritizedJob
         )
         let queueWaiter = QueueServerTerminationWaiterImpl(
+            logger: .noOp,
             pollInterval: 0.1,
             queueServerTerminationPolicy: .stayAlive
         )

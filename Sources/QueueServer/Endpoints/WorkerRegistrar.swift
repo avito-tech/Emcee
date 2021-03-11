@@ -10,6 +10,7 @@ import WorkerAlivenessProvider
 import WorkerCapabilities
 
 public final class WorkerRegistrar: RESTEndpoint {
+    private let logger: ContextualLogger
     private let workerAlivenessProvider: WorkerAlivenessProvider
     private let workerCapabilitiesStorage: WorkerCapabilitiesStorage
     private let workerConfigurations: WorkerConfigurations
@@ -32,11 +33,13 @@ public final class WorkerRegistrar: RESTEndpoint {
     }
     
     public init(
+        logger: ContextualLogger,
         workerAlivenessProvider: WorkerAlivenessProvider,
         workerCapabilitiesStorage: WorkerCapabilitiesStorage,
         workerConfigurations: WorkerConfigurations,
         workerDetailsHolder: WorkerDetailsHolder
     ) {
+        self.logger = logger.forType(Self.self)
         self.workerAlivenessProvider = workerAlivenessProvider
         self.workerCapabilitiesStorage = workerCapabilitiesStorage
         self.workerConfigurations = workerConfigurations
@@ -47,7 +50,7 @@ public final class WorkerRegistrar: RESTEndpoint {
         guard let workerConfiguration = workerConfigurations.workerConfiguration(workerId: payload.workerId) else {
             throw WorkerRegistrarError.missingWorkerConfiguration(workerId: payload.workerId)
         }
-        Logger.debug("Registration request from worker with id: \(payload.workerId)")
+        logger.debug("Registration request from worker with id: \(payload.workerId)")
         
         workerCapabilitiesStorage.set(workerCapabilities: payload.workerCapabilities, forWorkerId: payload.workerId)
         
@@ -56,7 +59,7 @@ public final class WorkerRegistrar: RESTEndpoint {
             throw WorkerRegistrarError.workerIsAlreadyRegistered(workerId: payload.workerId)
         }
         workerAlivenessProvider.didRegisterWorker(workerId: payload.workerId)
-        Logger.debug("Worker \(payload.workerId) has acceptable status")
+        logger.debug("Worker \(payload.workerId) has acceptable status")
         workerDetailsHolder.update(
             workerId: payload.workerId,
             restAddress: payload.workerRestAddress

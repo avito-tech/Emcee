@@ -14,6 +14,7 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
     private let dateProvider: DateProvider
     private let dequeueableBucketSource: DequeueableBucketSource
     private let jobStateProvider: JobStateProvider
+    private let logger: ContextualLogger
     private let queueStateProvider: RunningQueueStateProvider
     private let version: Version
     private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
@@ -22,6 +23,7 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
         dateProvider: DateProvider,
         dequeueableBucketSource: DequeueableBucketSource,
         jobStateProvider: JobStateProvider,
+        logger: ContextualLogger,
         queueStateProvider: RunningQueueStateProvider,
         version: Version,
         specificMetricRecorderProvider: SpecificMetricRecorderProvider
@@ -29,6 +31,7 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
         self.dateProvider = dateProvider
         self.dequeueableBucketSource = dequeueableBucketSource
         self.jobStateProvider = jobStateProvider
+        self.logger = logger.forType(Self.self)
         self.queueStateProvider = queueStateProvider
         self.version = version
         self.specificMetricRecorderProvider = specificMetricRecorderProvider
@@ -86,7 +89,7 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
                 analyticsConfiguration: dequeuedBucket.enqueuedBucket.bucket.analyticsConfiguration
             ).capture(queueStateMetrics + bucketAndTestMetrics)
         } catch {
-            Logger.error("Failed to send metrics: \(error)")
+            logger.error("Failed to send metrics: \(error)")
         }
     }
 }

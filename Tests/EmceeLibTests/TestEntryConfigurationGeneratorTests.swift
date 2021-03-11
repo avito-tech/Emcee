@@ -66,7 +66,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 workerCapabilityRequirements: []
             ),
             persistentMetricsJobId: "",
-            logger: ContextualLogger(Self.self)
+            logger: .noOp
         )
         
         let configurations = generator.createTestEntryConfigurations()
@@ -106,7 +106,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 workerCapabilityRequirements: []
             ),
             persistentMetricsJobId: "",
-            logger: ContextualLogger(Self.self)
+            logger: .noOp
         )
         
         let expectedTestEntryConfigurations =
@@ -148,7 +148,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 workerCapabilityRequirements: []
             ),
             persistentMetricsJobId: "",
-            logger: ContextualLogger(Self.self)
+            logger: .noOp
         )
         
         let expectedConfigurations = [

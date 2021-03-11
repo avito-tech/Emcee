@@ -5,14 +5,16 @@ import EmceeLogging
 import QueueModels
 
 public final class QueueServerTerminationWaiterImpl: QueueServerTerminationWaiter {
-    
+    private let logger: ContextualLogger
     private let queueServerTerminationPolicy: AutomaticTerminationPolicy
     private let pollInterval: TimeInterval
     
     public init(
+        logger: ContextualLogger,
         pollInterval: TimeInterval,
         queueServerTerminationPolicy: AutomaticTerminationPolicy
     ) {
+        self.logger = logger.forType(Self.self)
         self.queueServerTerminationPolicy = queueServerTerminationPolicy
         self.pollInterval = pollInterval
     }
@@ -53,7 +55,7 @@ public final class QueueServerTerminationWaiterImpl: QueueServerTerminationWaite
             queueServer: queueServer,
             automaticTerminationController: automaticTerminationController
         )
-        Logger.debug("Bucket queue has depleted")
+        logger.debug("Bucket queue has depleted")
         return try queueServer.queueResults(jobId: jobId)
     }
     

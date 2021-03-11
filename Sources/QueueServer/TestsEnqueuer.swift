@@ -12,6 +12,7 @@ public final class TestsEnqueuer {
     private let bucketSplitInfo: BucketSplitInfo
     private let dateProvider: DateProvider
     private let enqueueableBucketReceptor: EnqueueableBucketReceptor
+    private let logger: ContextualLogger
     private let version: Version
     private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
 
@@ -19,12 +20,14 @@ public final class TestsEnqueuer {
         bucketSplitInfo: BucketSplitInfo,
         dateProvider: DateProvider,
         enqueueableBucketReceptor: EnqueueableBucketReceptor,
+        logger: ContextualLogger,
         version: Version,
         specificMetricRecorderProvider: SpecificMetricRecorderProvider
     ) {
         self.bucketSplitInfo = bucketSplitInfo
         self.dateProvider = dateProvider
         self.enqueueableBucketReceptor = enqueueableBucketReceptor
+        self.logger = logger.forType(Self.self)
         self.version = version
         self.specificMetricRecorderProvider = specificMetricRecorderProvider
     }
@@ -57,11 +60,11 @@ public final class TestsEnqueuer {
             )
         )
         
-        Logger.info("Enqueued \(buckets.count) buckets for job '\(prioritizedJob)'")
+        logger.info("Enqueued \(buckets.count) buckets for job '\(prioritizedJob)'")
         for bucket in buckets {
-            Logger.verboseDebug("-- \(bucket) with tests:")
+            logger.debug("-- \(bucket) with tests:")
             for testEntries in bucket.testEntries {
-                Logger.verboseDebug("-- -- \(testEntries)")
+                logger.debug("-- -- \(testEntries)")
             }
         }
     }
