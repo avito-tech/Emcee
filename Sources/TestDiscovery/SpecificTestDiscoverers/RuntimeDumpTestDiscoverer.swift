@@ -23,6 +23,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let fileSystem: FileSystem
+    private let logger: ContextualLogger
     private let numberOfAttemptsToPerformRuntimeDump: UInt
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let pluginEventBusProvider: PluginEventBusProvider
@@ -43,6 +44,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         fileSystem: FileSystem,
+        logger: ContextualLogger,
         numberOfAttemptsToPerformRuntimeDump: UInt,
         onDemandSimulatorPool: OnDemandSimulatorPool,
         pluginEventBusProvider: PluginEventBusProvider,
@@ -62,6 +64,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.fileSystem = fileSystem
+        self.logger = logger.forType(Self.self)
         self.numberOfAttemptsToPerformRuntimeDump = max(numberOfAttemptsToPerformRuntimeDump, 1)
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.pluginEventBusProvider = pluginEventBusProvider
@@ -82,7 +85,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         configuration: TestDiscoveryConfiguration
     ) throws -> [DiscoveredTestEntry] {
         let runtimeEntriesJSONPath = tempFolder.pathWith(components: [uniqueIdentifierGenerator.generate()])
-        Logger.debug("Will dump runtime tests into file: \(runtimeEntriesJSONPath)")
+        logger.debug("Will dump runtime tests into file: \(runtimeEntriesJSONPath)")
         
         let runnerConfiguration = buildRunnerConfiguration(
             buildArtifacts: buildArtifacts,
@@ -95,6 +98,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
+            logger: logger,
             pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,
             tempFolder: tempFolder,
@@ -133,7 +137,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             do {
                 return try work()
             } catch {
-                Logger.error("Failed to get runtime dump, error: \(error)")
+                logger.error("Failed to get runtime dump, error: \(error)")
                 waiter.wait(timeout: TimeInterval(retryIndex) * 2.0, description: "Pause between runtime dump retries")
             }
         }
@@ -173,6 +177,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         )
         return try simulatorPool.allocateSimulator(
             dateProvider: dateProvider,
+            logger: logger,
             simulatorOperationTimeouts: configuration.simulatorOperationTimeouts,
             version: version,
             globalMetricRecorder: globalMetricRecorder

@@ -16,22 +16,18 @@ class CancellableRecordingImpl: CancellableRecording {
     }
     
     func stopRecording() -> AbsolutePath {
-        Logger.verboseDebug("Stopping recording into \(outputPath)")
         recordingProcess.interruptAndForceKillIfNeeded()
         recordingProcess.waitForProcessToDie()
-        Logger.debug("Recoring process interrupted")
         return outputPath
     }
     
     func cancelRecording() {
-        Logger.verboseDebug("Cancelling recording into \(outputPath)")
         recordingProcess.terminateAndForceKillIfNeeded()
         recordingProcess.waitForProcessToDie()
         
-        if FileManager.default.fileExists(atPath: outputPath.pathString) {
-            try? FileManager.default.removeItem(atPath: outputPath.pathString)
+        let fileManager = FileManager()
+        if fileManager.fileExists(atPath: outputPath.pathString) {
+            try? fileManager.removeItem(atPath: outputPath.pathString)
         }
-        
-        Logger.debug("Recoring process cancelled")
     }
 }

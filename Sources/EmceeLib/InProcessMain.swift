@@ -73,6 +73,7 @@ public final class InProcessMain {
         )
         
         let logger = try setupLogging(di: di, logsTimeToLive: logsTimeToLive, queue: logCleaningQueue)
+            .forType(Self.self)
             .withMetadata(key: .emceeVersion, value: EmceeVersion.version.value)
             .withMetadata(key: .processId, value: "\(ProcessInfo.processInfo.processIdentifier)")
             .withMetadata(key: .processName, value: ProcessInfo.processInfo.processName)
@@ -101,7 +102,9 @@ public final class InProcessMain {
         )
         
         di.set(
-            DefaultRequestSenderProvider(),
+            DefaultRequestSenderProvider(
+                logger: logger
+            ),
             for: RequestSenderProvider.self
         )
         
@@ -123,6 +126,7 @@ public final class InProcessMain {
         di.set(
             URLResourceImpl(
                 fileCache: try di.get(),
+                logger: logger,
                 urlSession: URLSession.shared
             ),
             for: URLResource.self
@@ -131,6 +135,7 @@ public final class InProcessMain {
         di.set(
             ResourceLocationResolverImpl(
                 fileSystem: try di.get(),
+                logger: logger,
                 urlResource: try di.get(),
                 cacheElementTimeToLive: cacheElementTimeToLive.timeInterval,
                 maximumCacheSize: cacheMaximumSize,
@@ -141,6 +146,7 @@ public final class InProcessMain {
         
         di.set(
             PluginEventBusProviderImpl(
+                logger: logger,
                 processControllerProvider: try di.get(),
                 resourceLocationResolver: try di.get()
             ),
@@ -185,9 +191,9 @@ public final class InProcessMain {
     
     private func setupLogging(di: DI, logsTimeToLive: TimeUnit, queue: OperationQueue) throws -> ContextualLogger {
         let loggingSetup: LoggingSetup = try di.get()
-        try loggingSetup.setupLogging(stderrVerbosity: .info)
-        
-        let logger = ContextualLogger(InProcessMain.self)
+        let logger = try loggingSetup
+            .setupLogging(stderrVerbosity: .info)
+            .forType(Self.self)
         
         try loggingSetup.cleanUpLogs(
             olderThan: try di.get(DateProvider.self).currentDate().addingTimeInterval(-logsTimeToLive.timeInterval),

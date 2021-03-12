@@ -4,17 +4,23 @@ import SocketModels
 import Types
 
 public final class RequestSenderImpl: RequestSender {
+    private let logger: ContextualLogger
     private let urlSession: URLSession
     private let queueServerAddress: SocketAddress
     private var isClosed = false
 
-    public init(urlSession: URLSession, queueServerAddress: SocketAddress) {
+    public init(
+        logger: ContextualLogger,
+        urlSession: URLSession,
+        queueServerAddress: SocketAddress
+    ) {
+        self.logger = logger.forType(Self.self)
         self.urlSession = urlSession
         self.queueServerAddress = queueServerAddress
     }
     
     public func close() {
-        Logger.verboseDebug("Invalidating URL session")
+        logger.debug("Invalidating URL session")
         urlSession.finishTasksAndInvalidate()
         isClosed = true
     }
@@ -46,7 +52,7 @@ public final class RequestSenderImpl: RequestSender {
         callback: @escaping (Either<NetworkRequestType.Response, RequestSenderError>) -> ()
     ) throws {
         let url = try createUrl(pathWithSlash: request.pathWithLeadingSlash)
-        Logger.verboseDebug("Sending request to \(url)")
+        logger.debug("Sending request to \(url)")
         
         guard !isClosed else {
             throw RequestSenderError.sessionIsClosed(url)
@@ -74,9 +80,9 @@ public final class RequestSenderImpl: RequestSender {
         let jsonData = try JSONEncoder.pretty().encode(payload)
         
         if let stringJson = String(data: jsonData, encoding: .utf8) {
-            Logger.verboseDebug("Payload: \(stringJson)")
+            logger.debug("Payload: \(stringJson)")
         } else {
-            Logger.verboseDebug("Unable to get string for payload data \(jsonData.count) bytes")
+            logger.debug("Unable to get string for payload data \(jsonData.count) bytes")
         }
 
         return jsonData
@@ -88,9 +94,11 @@ public final class RequestSenderImpl: RequestSender {
         callbackQueue: DispatchQueue,
         callback: @escaping (Either<ResponseType, RequestSenderError>) -> ()
     ) {
+        let logger = self.logger.withMetadata(key: "url", value: "\(url)")
+        
         let dataTask = urlSession.dataTask(with: urlRequest) { (data: Data?, response: URLResponse?, error: Error?) in
             if let error = error {
-                Logger.verboseDebug("Failed to perform request to \(url): \(error)")
+                logger.debug("Failed to perform request to \(url): \(error)")
                 callbackQueue.async { callback(.error(.communicationError(error))) }
                 return
             }
@@ -111,14 +119,14 @@ public final class RequestSenderImpl: RequestSender {
             if let data = data {
                 do {
                     let decodedObject = try JSONDecoder().decode(ResponseType.self, from: data)
-                    Logger.verboseDebug("Successfully decoded object from response of request to \(url): \(decodedObject)")
+                    logger.debug("Successfully decoded object from response of request to \(url): \(decodedObject)")
                     callbackQueue.async { callback(.success(decodedObject)) }
                 } catch {
-                    Logger.verboseDebug("Failed to decode object from response of request to \(url): \(error)")
+                    logger.debug("Failed to decode object from response of request to \(url): \(error)")
                     callbackQueue.async { callback(.error(.parseError(error, data))) }
                 }
             } else {
-                Logger.verboseDebug("Failed to perform request to \(url): response has no data")
+                logger.debug("Failed to perform request to \(url): response has no data")
                 callbackQueue.async { callback(.error(.noData)) }
             }
         }

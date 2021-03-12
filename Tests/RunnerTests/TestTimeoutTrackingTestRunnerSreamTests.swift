@@ -1,4 +1,5 @@
 import DateProviderTestHelpers
+import EmceeLogging
 import Foundation
 import Runner
 import RunnerModels
@@ -17,6 +18,7 @@ final class TestTimeoutTrackingTestRunnerSreamTests: XCTestCase {
             detectedLongRunningTest: { _, _ in
                 timeoutCallInvoked.fulfill()
             },
+            logger: { .noOp },
             maximumTestDuration: 5,
             pollPeriod: .milliseconds(100)
         )
@@ -37,6 +39,7 @@ final class TestTimeoutTrackingTestRunnerSreamTests: XCTestCase {
             detectedLongRunningTest: { _, _ in
                 timeoutCallInvoked.fulfill()
             },
+            logger: { .noOp },
             maximumTestDuration: 1,
             pollPeriod: .milliseconds(100)
         )
@@ -56,6 +59,7 @@ final class TestTimeoutTrackingTestRunnerSreamTests: XCTestCase {
             detectedLongRunningTest: { _, _ in
                 timeoutCallInvoked.fulfill()
             },
+            logger: { .noOp },
             maximumTestDuration: 1,
             pollPeriod: .milliseconds(100)
         )

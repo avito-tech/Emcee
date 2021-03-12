@@ -9,6 +9,7 @@ import Tmp
 
 public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible {
     private let developerDir: DeveloperDir
+    private let logger: ContextualLogger
     private let simulatorControlTool: SimulatorControlTool
     private let simulatorControllerProvider: SimulatorControllerProvider
     private let tempFolder: TemporaryFolder
@@ -22,12 +23,14 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
     
     public init(
         developerDir: DeveloperDir,
+        logger: ContextualLogger,
         simulatorControlTool: SimulatorControlTool,
         simulatorControllerProvider: SimulatorControllerProvider,
         tempFolder: TemporaryFolder,
         testDestination: TestDestination
     ) throws {
         self.developerDir = developerDir
+        self.logger = logger.forType(Self.self)
         self.simulatorControlTool = simulatorControlTool
         self.simulatorControllerProvider = simulatorControllerProvider
         self.tempFolder = tempFolder
@@ -41,7 +44,7 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
     public func allocateSimulatorController() throws -> SimulatorController {
         return try syncQueue.sync {
             if let controller = controllers.popLast() {
-                Logger.verboseDebug("Allocated simulator: \(controller)")
+                logger.debug("Allocated simulator: \(controller)")
                 controller.simulatorBecameBusy()
                 return controller
             }
@@ -51,7 +54,7 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
                 temporaryFolder: tempFolder,
                 testDestination: testDestination
             )
-            Logger.verboseDebug("Allocated new simulator: \(controller)")
+            logger.debug("Allocated new simulator: \(controller)")
             controller.simulatorBecameBusy()
             return controller
         }
@@ -60,19 +63,19 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
     public func free(simulatorController: SimulatorController) {
         syncQueue.sync {
             controllers.append(simulatorController)
-            Logger.verboseDebug("Freed simulator: \(simulatorController)")
+            logger.debug("Freed simulator: \(simulatorController)")
             simulatorController.simulatorBecameIdle()
         }
     }
     
     public func deleteSimulators() {
         syncQueue.sync {
-            Logger.verboseDebug("\(self): deleting simulators")
+            logger.debug("\(self): deleting simulators")
             controllers.forEach {
                 do {
                     try $0.deleteSimulator()
                 } catch {
-                    Logger.warning("Failed to delete simulator \($0): \(error). Skipping this error.")
+                    logger.warning("Failed to delete simulator \($0): \(error). Skipping this error.")
                 }
             }
         }
@@ -80,12 +83,12 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
     
     public func shutdownSimulators() {
         syncQueue.sync {
-            Logger.verboseDebug("\(self): deleting simulators")
+            logger.debug("\(self): deleting simulators")
             controllers.forEach {
                 do {
                     try $0.shutdownSimulator()
                 } catch {
-                    Logger.warning("Failed to shutdown simulator \($0): \(error). Skipping this error.")
+                    logger.warning("Failed to shutdown simulator \($0): \(error). Skipping this error.")
                 }
             }
         }

@@ -1,5 +1,4 @@
 import Foundation
-import EmceeLogging
 import Swifter
 
 public extension HttpResponse {
@@ -8,12 +7,20 @@ public extension HttpResponse {
     static func json<R: Encodable>(response: R) -> HttpResponse {
         do {
             let data = try responseEncoder.encode(response)
-            return .raw(200, "OK", ["Content-Type": "application/json"]) {
-                try $0.write(data)
+            return .raw(200, "OK", ["Content-Type": "application/json"]) { writer in
+                try writer.write(data)
             }
         } catch {
-            Logger.error("Failed to generate JSON response: \(error). Will return server error response.")
-            return .internalServerError
+            return .raw(500, "Error", ["Content-Type": "application/json"]) { writer in
+                try writer.write(
+                    responseEncoder.encode(
+                        [
+                            "error": "\(error)",
+                            "operationDescription": "Failed to generate JSON response"
+                        ]
+                    )
+                )
+            }
         }
     }
 }

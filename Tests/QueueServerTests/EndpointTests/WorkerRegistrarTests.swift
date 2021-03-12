@@ -15,6 +15,7 @@ import XCTest
 final class WorkerRegistrarTests: XCTestCase {
     lazy var alivenessTracker = WorkerAlivenessProviderImpl(
         knownWorkerIds: [workerId],
+        logger: .noOp,
         workerPermissionProvider: FakeWorkerPermissionProvider()
     )
     lazy var workerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()

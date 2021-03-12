@@ -1,5 +1,6 @@
 import AppleTools
 import DateProvider
+import EmceeLogging
 import Foundation
 import ProcessController
 import ResourceLocationResolver

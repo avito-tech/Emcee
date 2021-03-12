@@ -138,6 +138,7 @@ final class EventBusReportingTestRunnerStreamTests: XCTestCase {
     lazy var testStream = EventBusReportingTestRunnerStream(
         entriesToRun: [testEntry],
         eventBus: eventBus,
+        logger: { .noOp },
         testContext: testContext,
         resultsProvider: { [weak self] in
             guard let strongSelf = self else { return [] }

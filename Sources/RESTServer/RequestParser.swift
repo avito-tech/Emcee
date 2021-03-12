@@ -21,7 +21,6 @@ public final class RequestParser {
             return .json(response: try responseProducer(object))
         } catch {
             let errorString = "Failed to process request with path \"\(request.path)\", error: \"\(error)\""
-            Logger.error("\(errorString). Will return badRequest response.")
             return .badRequest(HttpResponseBody.text(errorString))
         }
     }

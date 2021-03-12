@@ -12,6 +12,7 @@ import URLResource
 
 public final class ResourceLocationResolverImpl: ResourceLocationResolver {
     private let fileSystem: FileSystem
+    private let logger: ContextualLogger
     private let urlResource: URLResource
     private let cacheAccessCount = AtomicValue<Int>(0)
     private let cacheElementTimeToLive: TimeInterval
@@ -32,12 +33,14 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
     
     public init(
         fileSystem: FileSystem,
+        logger: ContextualLogger,
         urlResource: URLResource,
         cacheElementTimeToLive: TimeInterval,
         maximumCacheSize: Int,
         processControllerProvider: ProcessControllerProvider
     ) {
         self.fileSystem = fileSystem
+        self.logger = logger.forType(Self.self)
         self.urlResource = urlResource
         self.cacheElementTimeToLive = cacheElementTimeToLive
         self.maximumCacheSize = maximumCacheSize
@@ -70,7 +73,7 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
                         component: "zip_contents_\(UUID().uuidString)"
                     )
                     
-                    Logger.debug("Will unzip '\(zipFilePath)' into '\(temporaryContentsPath)'")
+                    logger.debug("Will unzip \(zipFilePath) into \(temporaryContentsPath)")
                     
                     let processController = try processControllerProvider.createProcessController(
                         subprocess: Subprocess(
@@ -79,16 +82,16 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
                     )
                     do {
                         try processController.startAndWaitForSuccessfulTermination()
-                        Logger.debug("Moving '\(temporaryContentsPath)' to '\(contentsPath)'")
+                        logger.debug("Moving \(temporaryContentsPath) to \(contentsPath)")
                         try fileSystem.move(source: temporaryContentsPath, destination: contentsPath)
                     } catch {
-                        Logger.error("Failed to unzip file: \(error)")
+                        logger.error("Failed to unzip file: \(error)")
                         do {
-                            Logger.debug("Removing downloaded file at \(url)")
+                            logger.debug("Removing downloaded file at \(url)")
                             try urlResource.deleteResource(url: url)
                             try fileSystem.delete(fileAtPath: temporaryContentsPath)
                         } catch {
-                            Logger.error("Failed to delete corrupted cached contents for item at url \(url)")
+                            logger.error("Failed to delete corrupted cached contents for item at url \(url)")
                         }
                         throw ValidationError.unpackProcessError(zipPath: zipFilePath, error: error)
                     }
@@ -97,11 +100,10 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
                 // Once we unzip the contents, we don't want to keep zip file on disk since its contents is available under zip_contents.
                 // We erase it and keep empty file, to make sure cache does not refetch it when we access cached item.
                 if let zipFileSize = try? fileSystem.properties(forFileAtPath: zipFilePath).size(), zipFileSize != 0 {
-                    Logger.debug("Will replace ZIP file at \(zipFilePath) with empty contents")
+                    logger.debug("Will replace ZIP file at \(zipFilePath) with empty contents")
                     let handle = try FileHandle(forWritingTo: zipFilePath.fileUrl)
                     handle.truncateFile(atOffset: 0)
                     handle.closeFile()
-                    Logger.debug("ZIP file at \(zipFilePath) now has empty contents")
                 }
             }
         }
@@ -117,16 +119,9 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
             if counter % evictionRegularity == 0 {
                 counter = 1
                 var evictedEntryPaths = (try? urlResource.evictResources(olderThan: evictBarrierDate)) ?? []
-                Logger.debug("Evicted \(evictedEntryPaths.count) cached items older than: \(LoggableDate(evictBarrierDate))")
-                for path in evictedEntryPaths {
-                    Logger.debug("-- evicted \(path)")
-                }
-                
+                logger.debug("Evicted \(evictedEntryPaths.count) cached items older than: \(LoggableDate(evictBarrierDate))")
                 evictedEntryPaths = (try? urlResource.evictResources(toFitSize: maximumCacheSize)) ?? []
-                Logger.debug("Evicted \(evictedEntryPaths.count) cached items to limit cache size to \(maximumCacheSize) bytes")
-                for path in evictedEntryPaths {
-                    Logger.debug("-- evicted \(path)")
-                }
+                logger.debug("Evicted \(evictedEntryPaths.count) cached items to limit cache size to \(maximumCacheSize) bytes")
             } else {
                 counter = counter + 1
             }

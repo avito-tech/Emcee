@@ -52,21 +52,18 @@ class DefaultRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
             pathWithLeadingSlash: try pathToRemoteFile(xcTestBundleLocation),
             payload: tests
         )
-
-        let didFinishRequest = AtomicValue(false)
         
+        let callbackWaiter: CallbackWaiter<RequestSenderError?> = waiter.createCallbackWaiter()
+
         sender.sendRequestWithCallback(
             request: request,
             credentials: config.credentials,
             callbackQueue: callbackQueue
         ) { (result: Either<VoidPayload, RequestSenderError>) in
-            Logger.verboseDebug("Stored runtime query with result: \(result)")
-            didFinishRequest.set(true)
+            callbackWaiter.set(result: result.right)
         }
         
-        try waiter.waitWhile(timeout: 20.0, description: "Runtime Dump Remote Cache Store") { () -> Bool in
-            didFinishRequest.currentValue() == false
-        }
+        _ = try callbackWaiter.wait(timeout: 20, description: "Runtime Dump Remote Cache Store")
     }
 
     private func pathToRemoteFile(_ xcTestBundleLocation: TestBundleLocation) throws -> String {

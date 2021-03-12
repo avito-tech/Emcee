@@ -1,6 +1,6 @@
+import EmceeLogging
 import Foundation
 import Starscream
-import EmceeLogging
 import PluginSupport
 
 public final class EventReceiver: WebSocketDelegate {
@@ -9,6 +9,7 @@ public final class EventReceiver: WebSocketDelegate {
     public typealias DataHandler = (Data) -> ()
     
     private let address: String
+    private let logger: ContextualLogger
     private let pluginIdentifier: String
     private let socket: WebSocket
     private let encoder = JSONEncoder()
@@ -30,33 +31,38 @@ public final class EventReceiver: WebSocketDelegate {
         }
     }
 
-    public init(address: String, pluginIdentifier: String) {
+    public init(
+        address: String,
+        logger: ContextualLogger,
+        pluginIdentifier: String
+    ) {
         self.address = address
+        self.logger = logger.forType(Self.self)
         self.pluginIdentifier = pluginIdentifier
         self.socket = WebSocket(url: URL(string: address)!)
     }
     
     public func start() {
-        Logger.debug("Connecting to web socket: \(address)")
+        logger.debug("Connecting to web socket: \(address)")
         didHandshake = false
         socket.delegate = self
         socket.connect()
     }
     
     public func stop() {
-        Logger.debug("Disconnecting from web socket: \(address)")
+        logger.debug("Disconnecting from web socket: \(address)")
         socket.disconnect()
     }
     
     public func websocketDidConnect(socket: WebSocketClient) {
-        Logger.verboseDebug("Connected to web socket")
+        logger.debug("Connected to web socket")
         do {
             let handshakeRequest = PluginHandshakeRequest(pluginIdentifier: pluginIdentifier)
             let data = try encoder.encode(handshakeRequest)
             socket.write(data: data)
-            Logger.debug("Sent handshake request")
+            logger.debug("Sent handshake request")
         } catch {
-            Logger.error("Failed to encode handshake request: \(error)")
+            logger.error("Failed to encode handshake request: \(error)")
         }
     }
     
@@ -64,24 +70,24 @@ public final class EventReceiver: WebSocketDelegate {
         didHandshake = false
         if let error = error {
             if let wsError = error as? WSError, wsError.code == CloseCode.normal.rawValue {
-                Logger.verboseDebug("Disconnected from web socket normally")
+                logger.debug("Disconnected from web socket normally")
                 onDisconnect?()
             } else {
-                Logger.error("Web socket error: \(error)")
+                logger.error("Web socket error: \(error)")
                 onError?(error)
             }
         } else {
-            Logger.verboseDebug("Disconnected from web socket without error")
+            logger.debug("Disconnected from web socket without error")
             onDisconnect?()
         }
     }
     
     public func websocketDidReceiveMessage(socket: WebSocketClient, text: String) {
-        Logger.debug("Received message from web socket: \(text)")
+        logger.debug("Received message from web socket: \(text)")
     }
     
     public func websocketDidReceiveData(socket: WebSocketClient, data: Data) {
-        Logger.debug("Received data from web socket: \(data.count) bytes")
+        logger.debug("Received data from web socket: \(data.count) bytes")
         
         if didHandshake {
             onData?(data)

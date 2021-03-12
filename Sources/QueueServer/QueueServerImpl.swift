@@ -77,6 +77,7 @@ public final class QueueServerImpl: QueueServer {
         self.logger = logger.forType(Self.self)
         self.httpRestServer = HTTPRESTServer(
             automaticTerminationController: automaticTerminationController,
+            logger: logger,
             portProvider: localPortDeterminer
         )
         

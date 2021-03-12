@@ -37,6 +37,7 @@ final class PluginManagerTests: XCTestCase {
         
         let manager = PluginManager(
             fileSystem: fileSystem,
+            logger: .noOp,
             pluginLocations: [
                 PluginLocation(.localFilePath(pluginBundlePath.pathString))
             ],
@@ -54,6 +55,7 @@ final class PluginManagerTests: XCTestCase {
         )
         let manager = PluginManager(
             fileSystem: fileSystem,
+            logger: .noOp,
             pluginLocations: [
                 PluginLocation(.localFilePath(executablePath.pathString))
             ],
@@ -80,6 +82,7 @@ final class PluginManagerTests: XCTestCase {
         
         let manager = PluginManager(
             fileSystem: fileSystem,
+            logger: .noOp,
             pluginLocations: [
                 PluginLocation(.localFilePath(pluginBundlePath.pathString))
             ],

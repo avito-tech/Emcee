@@ -29,6 +29,7 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
     
     private let appBundleLocation: AppBundleLocation
     private let developerDirLocator: DeveloperDirLocator
+    private let logger: ContextualLogger
     private let resourceLocationResolver: ResourceLocationResolver
     private let processControllerProvider: ProcessControllerProvider
     private let tempFolder: TemporaryFolder
@@ -37,6 +38,7 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
     init(
         appBundleLocation: AppBundleLocation,
         developerDirLocator: DeveloperDirLocator,
+        logger: ContextualLogger,
         resourceLocationResolver: ResourceLocationResolver,
         processControllerProvider: ProcessControllerProvider,
         tempFolder: TemporaryFolder,
@@ -44,6 +46,7 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
     ) {
         self.appBundleLocation = appBundleLocation
         self.developerDirLocator = developerDirLocator
+        self.logger = logger.forType(Self.self)
         self.resourceLocationResolver = resourceLocationResolver
         self.processControllerProvider = processControllerProvider
         self.tempFolder = tempFolder
@@ -54,7 +57,7 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
         configuration: TestDiscoveryConfiguration
     ) throws -> [DiscoveredTestEntry] {
         let runtimeEntriesJSONPath = tempFolder.pathWith(components: [uniqueIdentifierGenerator.generate()])
-        Logger.debug("Will dump tests from \(configuration.xcTestBundleLocation) into file: \(runtimeEntriesJSONPath)")
+        logger.debug("Will dump tests from \(configuration.xcTestBundleLocation) into file: \(runtimeEntriesJSONPath)")
         
         let latestRuntimeRoot = try findRuntimeRoot(
             testDestination: configuration.testDestination,

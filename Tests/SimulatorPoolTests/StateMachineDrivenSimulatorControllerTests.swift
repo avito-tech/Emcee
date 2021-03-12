@@ -282,6 +282,7 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
             coreSimulatorStateProvider: coreSimulatorStateProvider,
             developerDir: .current,
             developerDirLocator: developerDirLocator,
+            logger: .noOp,
             simulatorStateMachine: SimulatorStateMachine(),
             simulatorStateMachineActionExecutor: actionExecutor,
             temporaryFolder: try TemporaryFolder(),

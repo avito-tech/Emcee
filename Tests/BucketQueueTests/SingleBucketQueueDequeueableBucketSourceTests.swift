@@ -15,6 +15,7 @@ final class SingleBucketQueueDequeueableBucketSourceTests: XCTestCase {
     lazy var testHistoryTracker = FakeTestHistoryTracker()
     lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(
         knownWorkerIds: [workerId],
+        logger: .noOp,
         workerPermissionProvider: workerPermissionProvider
     )
     lazy var workerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()

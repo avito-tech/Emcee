@@ -1,4 +1,5 @@
 import Dispatch
+import Extensions
 import Foundation
 import EmceeLogging
 import QueueCommunication
@@ -7,124 +8,128 @@ import QueueModels
 import WorkerAlivenessModels
 
 public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
-    private let syncQueue = DispatchQueue(label: "ru.avito.emcee.workerAlivenessProvider.syncQueue")
+    private let lock = NSLock()
     private let knownWorkerIds: Set<WorkerId>
+    private let logger: ContextualLogger
     private var registeredWorkerIds = Set<WorkerId>()
     private var disabledWorkerIds = Set<WorkerId>()
     private var silentWorkerIds = Set<WorkerId>()
     private let workerPermissionProvider: WorkerPermissionProvider
-    private let workerBucketIdsBeingProcessed = WorkerCurrentlyProcessingBucketsTracker()
+    private let workerBucketIdsBeingProcessed: WorkerCurrentlyProcessingBucketsTracker
 
     public init(
         knownWorkerIds: Set<WorkerId>,
+        logger: ContextualLogger,
         workerPermissionProvider: WorkerPermissionProvider
     ) {
         self.knownWorkerIds = knownWorkerIds
+        self.logger = logger.forType(Self.self)
         self.workerPermissionProvider = workerPermissionProvider
+        self.workerBucketIdsBeingProcessed = WorkerCurrentlyProcessingBucketsTracker(logger: logger)
     }
     
     public func willDequeueBucket(workerId: WorkerId) {
-        syncQueue.sync {
-            onSyncQueue_markWorkerAsAlive(workerId: workerId)
+        lock.whileLocked {
+            unsafe_markWorkerAsAlive(workerId: workerId)
         }
     }
     
     public func didDequeueBucket(bucketId: BucketId, workerId: WorkerId) {
-        syncQueue.sync {
-            onSyncQueue_markWorkerAsAlive(workerId: workerId)
+        lock.whileLocked {
+            unsafe_markWorkerAsAlive(workerId: workerId)
             workerBucketIdsBeingProcessed.append(bucketId: bucketId, workerId: workerId)
         }
     }
     
     public func set(bucketIdsBeingProcessed: Set<BucketId>, workerId: WorkerId) {
-        syncQueue.sync {
-            onSyncQueue_markWorkerAsAlive(workerId: workerId)
+        lock.whileLocked {
+            unsafe_markWorkerAsAlive(workerId: workerId)
             workerBucketIdsBeingProcessed.set(bucketIdsBeingProcessed: bucketIdsBeingProcessed, byWorkerId: workerId)
         }
     }
     
     public func bucketIdsBeingProcessed(workerId: WorkerId) -> Set<BucketId> {
-        syncQueue.sync {
+        lock.whileLocked {
             workerBucketIdsBeingProcessed.bucketIdsBeingProcessedBy(workerId: workerId)
         }
     }
     
     public func isWorkerRegistered(workerId: WorkerId) -> Bool {
-        syncQueue.sync {
+        lock.whileLocked {
             registeredWorkerIds.contains(workerId)
         }
     }
     
     public func didRegisterWorker(workerId: WorkerId) {
-        syncQueue.sync {
+        lock.whileLocked {
             registeredWorkerIds.insert(workerId)
-            onSyncQueue_markWorkerAsAlive(workerId: workerId)
+            unsafe_markWorkerAsAlive(workerId: workerId)
         }
     }
         
     public var workerAliveness: [WorkerId: WorkerAliveness] {
-        return syncQueue.sync {
-            onSyncQueue_workerAliveness()
+        lock.whileLocked {
+            unsafe_workerAliveness()
         }
     }
     
     public func alivenessForWorker(workerId: WorkerId) -> WorkerAliveness {
-        return syncQueue.sync {
+        lock.whileLocked {
             onSyncQueue_alivenessForWorker(workerId: workerId)
         }
     }
     
     public func enableWorker(workerId: WorkerId) {
-        syncQueue.sync {
+        lock.whileLocked {
             if disabledWorkerIds.contains(workerId) {
-                Logger.debug("Enabling \(workerId)")
+                logger.debug("Enabling \(workerId)")
                 _ = disabledWorkerIds.remove(workerId)
             }
         }
     }
     
     public func disableWorker(workerId: WorkerId) {
-        syncQueue.sync {
+        lock.whileLocked {
             if !disabledWorkerIds.contains(workerId) {
-                Logger.debug("Disabling \(workerId)")
+                logger.debug("Disabling \(workerId)")
                 _ = disabledWorkerIds.insert(workerId)
             }
         }
     }
     
     public func isWorkerEnabled(workerId: WorkerId) -> Bool {
-        syncQueue.sync {
+        lock.whileLocked {
             !disabledWorkerIds.contains(workerId)
         }
     }
     
     public func setWorkerIsSilent(workerId: WorkerId) {
-        syncQueue.sync {
-            onSyncQueue_markWorkerAsSilent(workerId: workerId)
+        lock.whileLocked {
+            unsafe_markWorkerAsSilent(workerId: workerId)
         }
     }
     
     public func isWorkerSilent(workerId: WorkerId) -> Bool {
-        syncQueue.sync {
+        lock.whileLocked {
             silentWorkerIds.contains(workerId)
         }
     }
     
-    private func onSyncQueue_markWorkerAsAlive(workerId: WorkerId) {
+    private func unsafe_markWorkerAsAlive(workerId: WorkerId) {
         if silentWorkerIds.contains(workerId) {
-            Logger.debug("Marking \(workerId) as alive")
+            logger.debug("Marking \(workerId) as alive")
             _ = silentWorkerIds.remove(workerId)
         }
     }
     
-    private func onSyncQueue_markWorkerAsSilent(workerId: WorkerId) {
+    private func unsafe_markWorkerAsSilent(workerId: WorkerId) {
         if !silentWorkerIds.contains(workerId) {
-            Logger.debug("Marking \(workerId) as silent")
+            logger.debug("Marking \(workerId) as silent")
             _ = silentWorkerIds.insert(workerId)
         }
     }
     
-    private func onSyncQueue_workerAliveness() -> [WorkerId: WorkerAliveness] {
+    private func unsafe_workerAliveness() -> [WorkerId: WorkerAliveness] {
         var workerAliveness = [WorkerId: WorkerAliveness]()
         for id in knownWorkerIds {
             workerAliveness[id] = onSyncQueue_alivenessForWorker(workerId: id)

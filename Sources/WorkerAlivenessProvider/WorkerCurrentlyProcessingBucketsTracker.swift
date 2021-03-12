@@ -3,10 +3,14 @@ import EmceeLogging
 import QueueModels
 
 public final class WorkerCurrentlyProcessingBucketsTracker {
-    
+    private let logger: ContextualLogger
     private var values = [WorkerId: Set<BucketId>]()
     
-    public init() {}
+    public init(
+        logger: ContextualLogger
+    ) {
+        self.logger = logger.forType(Self.self)
+    }
     
     public func bucketIdsBeingProcessedBy(workerId: WorkerId) -> Set<BucketId> {
         return values[workerId] ?? Set()
@@ -15,9 +19,7 @@ public final class WorkerCurrentlyProcessingBucketsTracker {
     public func set(bucketIdsBeingProcessed bucketIds: Set<BucketId>, byWorkerId workerId: WorkerId) {
         if values[workerId] != bucketIds {
             values[workerId] = bucketIds
-            Logger.verboseDebug("Worker \(workerId) is processing \(bucketIds.count) buckets: \(bucketIds)")
-        } else {
-            Logger.verboseDebug("Worker \(workerId) is processing same \(bucketIds.count) buckets")
+            logger.debug("Worker \(workerId) is processing \(bucketIds.count) buckets: \(bucketIds)")
         }
     }
     

@@ -156,6 +156,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 entriesToRun: [
                     TestEntryFixtures.testEntry()
                 ],
+                logger: .noOp,
                 simulator: simulator,
                 temporaryFolder: tempFolder,
                 testContext: testContext,
@@ -223,6 +224,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 entriesToRun: [
                     TestEntryFixtures.testEntry()
                 ],
+                logger: .noOp,
                 simulator: simulator,
                 temporaryFolder: tempFolder,
                 testContext: testContext,
@@ -259,6 +261,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 entriesToRun: [
                     TestEntryFixtures.testEntry()
                 ],
+                logger: .noOp,
                 simulator: simulator,
                 temporaryFolder: tempFolder,
                 testContext: testContext,
@@ -280,6 +283,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             entriesToRun: [
                 TestEntryFixtures.testEntry()
             ],
+            logger: .noOp,
             simulator: simulator,
             temporaryFolder: tempFolder,
             testContext: testContext,
@@ -300,6 +304,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             entriesToRun: [
                 TestEntryFixtures.testEntry()
             ],
+            logger: .noOp,
             simulator: simulator,
             temporaryFolder: tempFolder,
             testContext: testContext,
@@ -341,6 +346,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             buildArtifacts: buildArtifacts,
             developerDirLocator: developerDirLocator,
             entriesToRun: [TestEntry(testName: testName, tags: [], caseId: nil)],
+            logger: .noOp,
             simulator: simulator,
             temporaryFolder: tempFolder,
             testContext: testContext,

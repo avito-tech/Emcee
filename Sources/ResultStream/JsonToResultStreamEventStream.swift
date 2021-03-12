@@ -8,19 +8,22 @@ import JSONStream
 
 public final class JsonToResultStreamEventStream: JSONReaderEventStream {
     private let jsonDecoder = JSONDecoder()
+    private let logger: ContextualLogger
     private let testRunnerStream: TestRunnerStream
     private let dateProvider: DateProvider
     
     public init(
         dateProvider: DateProvider,
+        logger: ContextualLogger,
         testRunnerStream: TestRunnerStream
     ) {
         self.dateProvider = dateProvider
+        self.logger = logger.forType(Self.self)
         self.testRunnerStream = testRunnerStream
     }
     
     public func newArray(_ array: NSArray, data: Data) {
-        Logger.debug("Skipped xcresultstream event: array is an unexpected kind of root object")
+        logger.debug("Skipped xcresultstream event: array is an unexpected kind of root object")
     }
     
     public func newObject(_ object: NSDictionary, data: Data) {
@@ -46,7 +49,7 @@ public final class JsonToResultStreamEventStream: JSONReaderEventStream {
                 break
             }
         } catch {
-            Logger.error("Failed to parse result stream error for \(eventName) event: \(error)")
+            logger.error("Failed to parse result stream error for \(eventName) event: \(error)")
         }
     }
 }

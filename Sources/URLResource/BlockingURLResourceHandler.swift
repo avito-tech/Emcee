@@ -1,7 +1,6 @@
 import AtomicModels
 import Dispatch
 import Foundation
-import EmceeLogging
 import PathLib
 import SynchronousWaiter
 import Types
@@ -20,12 +19,10 @@ public final class BlockingURLResourceHandler: URLResourceHandler {
     }
     
     public func resource(path: AbsolutePath, forUrl url: URL) {
-        Logger.verboseDebug("Obtained contents for \(url) at \(path)")
         callbackWaiter.set(result: .success(path))
     }
     
     public func failedToGetContents(forUrl url: URL, error: Error) {
-        Logger.error("Failed to fetch contents for \(url): \(error)")
         callbackWaiter.set(result: .error(error))
     }
 }

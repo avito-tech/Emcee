@@ -115,6 +115,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             logger: logger,
             remotePortDeterminer: RemoteQueuePortScanner(
                 host: queueServerDeploymentDestination.host,
+                logger: logger,
                 portRange: EmceePorts.defaultQueuePortRange,
                 requestSenderProvider: try di.get()
             )
@@ -180,6 +181,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
 
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
+            logger: logger,
             version: version
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
@@ -190,6 +192,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
                 dateProvider: try di.get(),
                 developerDirLocator: try di.get(),
                 fileSystem: try di.get(),
+                logger: logger,
                 globalMetricRecorder: try di.get(),
                 specificMetricRecorderProvider: try di.get(),
                 onDemandSimulatorPool: try di.get(),

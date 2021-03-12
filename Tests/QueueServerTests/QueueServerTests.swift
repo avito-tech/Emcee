@@ -41,11 +41,15 @@ final class QueueServerTests: XCTestCase {
         automaticTerminationPolicy: .stayAlive
     ).createAutomaticTerminationController()
     /// https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?&page=1
-    private let localPortDeterminer = LocalPortDeterminer(portRange: 49152...65535)
+    private let localPortDeterminer = LocalPortDeterminer(
+        logger: .noOp,
+        portRange: 49152...65535
+    )
     private let bucketSplitInfo = BucketSplitInfo(numberOfWorkers: 1)
     private let payloadSignature = PayloadSignature(value: "expectedPayloadSignature")
     private lazy var workerAlivenessProvider: WorkerAlivenessProvider = WorkerAlivenessProviderImpl(
         knownWorkerIds: workerConfigurations.workerIds,
+        logger: .noOp,
         workerPermissionProvider: FakeWorkerPermissionProvider()
     )
     private lazy var workerCapabilitiesStorage: WorkerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()
@@ -72,7 +76,7 @@ final class QueueServerTests: XCTestCase {
             onDemandWorkerStarter: FakeOnDemandWorkerStarter(),
             payloadSignature: payloadSignature,
             queueServerLock: NeverLockableQueueServerLock(),
-            requestSenderProvider: DefaultRequestSenderProvider(),
+            requestSenderProvider: DefaultRequestSenderProvider(logger: .noOp),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessProvider: workerAlivenessProvider,
             workerCapabilitiesStorage: workerCapabilitiesStorage,
@@ -118,7 +122,7 @@ final class QueueServerTests: XCTestCase {
             onDemandWorkerStarter: FakeOnDemandWorkerStarter(),
             payloadSignature: payloadSignature,
             queueServerLock: NeverLockableQueueServerLock(),
-            requestSenderProvider: DefaultRequestSenderProvider(),
+            requestSenderProvider: DefaultRequestSenderProvider(logger: .noOp),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessProvider: workerAlivenessProvider,
             workerCapabilitiesStorage: workerCapabilitiesStorage,
@@ -177,6 +181,7 @@ final class QueueServerTests: XCTestCase {
         
         let bucketFetcher = BucketFetcherImpl(
             requestSender: RequestSenderImpl(
+                logger: .noOp,
                 urlSession: URLSession.shared,
                 queueServerAddress: queueServerAddress(port: port)
             )
@@ -195,6 +200,7 @@ final class QueueServerTests: XCTestCase {
         
         let resultSender = BucketResultSenderImpl(
             requestSender: RequestSenderImpl(
+                logger: .noOp,
                 urlSession: URLSession.shared,
                 queueServerAddress: queueServerAddress(port: port)
             )

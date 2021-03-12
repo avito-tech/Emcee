@@ -34,12 +34,15 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         buildArtifacts: BuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
+        logger: ContextualLogger,
         simulator: Simulator,
         temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
         testType: TestType
     ) throws -> TestRunnerInvocation {
+        let logger = logger.forType(Self.self)
+    
         let invocationPath = try temporaryFolder.pathByCreatingDirectories(components: [testContext.contextUuid.uuidString])
         let resultStreamFile = try temporaryFolder.createFile(components: [testContext.contextUuid.uuidString], filename: "result_stream.json")
         
@@ -72,6 +75,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         
         let resultStream = ResultStreamImpl(
             dateProvider: dateProvider,
+            logger: logger,
             testRunnerStream: testRunnerStream
         )
         let observableFileReader: ObservableFileReader
@@ -86,17 +90,21 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         
         var observableFileReaderHandler: ObservableFileReaderHandler?
         
-        processController.onStart { sender, _ in
+        processController.onStart { [logger] sender, _ in
+            let logger = logger
+                .withMetadata(key: .subprocessId, value: "\(sender.subprocessInfo.subprocessId)")
+                .withMetadata(key: .subprocessName, value: sender.subprocessInfo.subprocessName)
+            
             testRunnerStream.openStream()
             do {
                 observableFileReaderHandler = try observableFileReader.read(handler: resultStream.write(data:))
             } catch {
-                Logger.error("Failed to read stream file: \(error)")
+                logger.error("Failed to read stream file: \(error)")
                 return sender.terminateAndForceKillIfNeeded()
             }
             resultStream.streamContents { error in
                 if let error = error {
-                    Logger.error("Result stream error: \(error)")
+                    logger.error("Result stream error: \(error)")
                 }
                 testRunnerStream.closeStream()
             }

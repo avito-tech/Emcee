@@ -154,6 +154,7 @@ final class BucketQueueRetryTests: XCTestCase {
     private func bucketQueue(workerIds: [WorkerId]) -> BucketQueue {
         let tracker = WorkerAlivenessProviderImpl(
             knownWorkerIds: Set(workerIds),
+            logger: .noOp,
             workerPermissionProvider: FakeWorkerPermissionProvider()
         )
         workerIds.forEach(tracker.didRegisterWorker)

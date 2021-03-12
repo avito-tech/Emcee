@@ -12,6 +12,7 @@ final class WorkerStatusEndpointTests: XCTestCase {
     lazy var workerId = WorkerId(value: "worker")
     lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(
         knownWorkerIds: [workerId],
+        logger: .noOp,
         workerPermissionProvider: FakeWorkerPermissionProvider()
     )
     lazy var endpoint = WorkerStatusEndpoint(workerAlivenessProvider: workerAlivenessProvider)

@@ -16,7 +16,11 @@ final class URLResourceTests: XCTestCase {
     lazy var fileCache = assertDoesNotThrow {
         try FileCache(cachesContainer: tempFolder.absolutePath, dateProvider: dateProvider, fileSystem: LocalFileSystem())
     }
-    lazy var resource = URLResourceImpl(fileCache: fileCache, urlSession: URLSession.shared)
+    lazy var resource = URLResourceImpl(
+        fileCache: fileCache,
+        logger: .noOp,
+        urlSession: URLSession.shared
+    )
     
     private func setServerHandler(handler: @escaping () -> (HttpResponse)) throws {
         try server.start(0)

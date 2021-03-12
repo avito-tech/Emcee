@@ -1,18 +1,23 @@
+import EmceeLogging
 import EventBus
 import Foundation
 import JSONStream
-import EmceeLogging
 
 final class JSONStreamToEventBusAdapter: JSONReaderEventStream {
     private let eventBus: EventBus
+    private let logger: ContextualLogger
     private let decoder = JSONDecoder()
     
-    public init(eventBus: EventBus) {
+    public init(
+        eventBus: EventBus,
+        logger: ContextualLogger
+    ) {
         self.eventBus = eventBus
+        self.logger = logger.forType(Self.self)
     }
     
     func newArray(_ array: NSArray, data: Data) {
-        Logger.error("JSON stream reader received an unexpected event: '\(data)'")
+        logger.warning("JSON stream reader received an unexpected event: '\(data)'")
     }
     
     func newObject(_ object: NSDictionary, data: Data) {
@@ -20,9 +25,8 @@ final class JSONStreamToEventBusAdapter: JSONReaderEventStream {
             let busEvent = try decoder.decode(BusEvent.self, from: data)
             eventBus.post(event: busEvent)
         } catch {
-            Logger.error("Failed to decode plugin event: \(error)")
             let string = String(data: data, encoding: .utf8)
-            Logger.debug("JSON String: \(String(describing: string))")
+            logger.error("Failed to decode plugin event: \(error). JSON string: \(String(describing: string))")
         }
     }
 }

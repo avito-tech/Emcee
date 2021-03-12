@@ -85,6 +85,7 @@ public final class StartQueueServerCommand: Command {
         let socketHost = LocalHostDeterminer.currentHostAddress
         let remotePortDeterminer = RemoteQueuePortScanner(
             host: socketHost,
+            logger: logger,
             portRange: EmceePorts.defaultQueuePortRange,
             requestSenderProvider: try di.get()
         )
@@ -143,7 +144,10 @@ public final class StartQueueServerCommand: Command {
             dateProvider: try di.get(),
             deploymentDestinations: workerDestinations,
             emceeVersion: emceeVersion,
-            localPortDeterminer: LocalPortDeterminer(portRange: EmceePorts.defaultQueuePortRange),
+            localPortDeterminer: LocalPortDeterminer(
+                logger: logger,
+                portRange: EmceePorts.defaultQueuePortRange
+            ),
             logger: logger,
             globalMetricRecorder: try di.get(),
             specificMetricRecorderProvider: try di.get(),
@@ -159,6 +163,7 @@ public final class StartQueueServerCommand: Command {
             uniqueIdentifierGenerator: try di.get(),
             workerAlivenessProvider: WorkerAlivenessProviderImpl(
                 knownWorkerIds: workerConfigurations.workerIds,
+                logger: logger,
                 workerPermissionProvider: workerUtilizationStatusPoller
             ),
             workerCapabilitiesStorage: WorkerCapabilitiesStorageImpl(),

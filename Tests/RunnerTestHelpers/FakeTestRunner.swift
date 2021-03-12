@@ -1,5 +1,6 @@
 import BuildArtifacts
 import DeveloperDirLocator
+import EmceeLogging
 import Foundation
 import ProcessController
 import Runner
@@ -72,6 +73,7 @@ public final class FakeTestRunner: TestRunner {
         buildArtifacts: BuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
+        logger: ContextualLogger,
         simulator: Simulator,
         temporaryFolder: TemporaryFolder,
         testContext: TestContext,

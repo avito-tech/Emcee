@@ -14,14 +14,17 @@ final class LocalPortDeterminerTests: XCTestCase {
         let server = busyServerWithPort()
         let port = server.port
         
-        let determiner = LocalPortDeterminer(portRange: SocketModels.Port(value: port)...SocketModels.Port(value: port))
+        let determiner = LocalPortDeterminer(
+            logger: .noOp,
+            portRange: SocketModels.Port(value: port)...SocketModels.Port(value: port)
+        )
         XCTAssertThrowsError(_ = try determiner.availableLocalPort())
     }
     
     func test___if_port_range_has_free_port___determiner_returns_available_port() {
         let port = freePort()
         
-        let determiner = LocalPortDeterminer(portRange: port...port)
+        let determiner = LocalPortDeterminer(logger: .noOp, portRange: port...port)
         XCTAssertNoThrow(
             XCTAssertEqual(try determiner.availableLocalPort(), port)
         )
@@ -33,7 +36,10 @@ final class LocalPortDeterminerTests: XCTestCase {
         
         // this could be flaky, as we can't guarantee that we will have continuous port range
         if server.port == freePort.value - 1 {
-            let determiner = LocalPortDeterminer(portRange: SocketModels.Port(value: server.port)...freePort)
+            let determiner = LocalPortDeterminer(
+                logger: .noOp,
+                portRange: SocketModels.Port(value: server.port)...freePort
+            )
             XCTAssertNoThrow(
                 XCTAssertEqual(try determiner.availableLocalPort(), freePort)
             )

@@ -13,15 +13,18 @@ public protocol ResultStream {
 
 public final class ResultStreamImpl: ResultStream {
     private let dateProvider: DateProvider
+    private let logger: ContextualLogger
     private let queue = DispatchQueue(label: "queue")
     private let testRunnerStream: TestRunnerStream
     private let jsonStream = BlockingArrayBasedJSONStream()
     
     public init(
         dateProvider: DateProvider,
+        logger: ContextualLogger,
         testRunnerStream: TestRunnerStream
     ) {
         self.dateProvider = dateProvider
+        self.logger = logger.forType(Self.self)
         self.testRunnerStream = testRunnerStream
     }
     
@@ -38,6 +41,7 @@ public final class ResultStreamImpl: ResultStream {
     ) {
         let eventStream = JsonToResultStreamEventStream(
             dateProvider: dateProvider,
+            logger: logger,
             testRunnerStream: testRunnerStream
         )
         let jsonReader = JSONReader(

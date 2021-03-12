@@ -13,6 +13,7 @@ import XCTest
 final class BucketResultRegistrarTests: XCTestCase {
     lazy var alivenessTracker = WorkerAlivenessProviderImpl(
         knownWorkerIds: ["worker"],
+        logger: .noOp,
         workerPermissionProvider: FakeWorkerPermissionProvider()
     )
     let expectedPayloadSignature = PayloadSignature(value: "expectedPayloadSignature")

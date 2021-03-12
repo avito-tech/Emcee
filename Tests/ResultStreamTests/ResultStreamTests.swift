@@ -63,6 +63,7 @@ final class ResultStreamTests: XCTestCase {
     private func resultStream(with contents: String) -> ResultStream {
         let stream = ResultStreamImpl(
             dateProvider: dateProvider,
+            logger: .noOp,
             testRunnerStream: testRunnerStream
         )
         stream.write(data: contents.data(using: .utf8) ?? Data())

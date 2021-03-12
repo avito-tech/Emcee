@@ -20,6 +20,7 @@ class DefaultSimulatorPoolTests: XCTestCase {
     lazy var pool = assertDoesNotThrow {
         try DefaultSimulatorPool(
             developerDir: DeveloperDir.current,
+            logger: .noOp,
             simulatorControlTool: SimulatorControlToolFixtures.simctlTool,
             simulatorControllerProvider: simulatorControllerProvider,
             tempFolder: tempFolder,

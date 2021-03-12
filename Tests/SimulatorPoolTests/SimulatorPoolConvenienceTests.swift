@@ -18,6 +18,7 @@ final class SimulatorPoolConvenienceTests: XCTestCase {
         let pool = SimulatorPoolMock()
         let allocatedSimulator = try pool.allocateSimulator(
             dateProvider: dateProvider,
+            logger: .noOp,
             simulatorOperationTimeouts: simulatorOperationTimeouts,
             version: version,
             globalMetricRecorder: GlobalMetricRecorderImpl()

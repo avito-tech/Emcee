@@ -69,6 +69,7 @@ public final class DumpCommand: Command {
         
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
+            logger: logger,
             version: emceeVersion
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
@@ -85,6 +86,7 @@ public final class DumpCommand: Command {
                 dateProvider: try di.get(),
                 developerDirLocator: try di.get(),
                 fileSystem: try di.get(),
+                logger: logger,
                 globalMetricRecorder: try di.get(),
                 specificMetricRecorderProvider: try di.get(),
                 onDemandSimulatorPool: try di.get(),

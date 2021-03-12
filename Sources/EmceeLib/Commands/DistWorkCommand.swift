@@ -52,6 +52,7 @@ public final class DistWorkCommand: Command {
 
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
+            logger: logger,
             version: emceeVersion
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
@@ -95,7 +96,10 @@ public final class DistWorkCommand: Command {
         di.set(
             JoinedCapabilitiesProvider(
                 providers: [
-                    XcodeCapabilitiesProvider(fileSystem: try di.get()),
+                    XcodeCapabilitiesProvider(
+                        fileSystem: try di.get(),
+                        logger: logger
+                    ),
                 ]
             ),
             for: WorkerCapabilitiesProvider.self

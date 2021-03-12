@@ -8,7 +8,10 @@ import XCTest
 final class WorkerAlivenessProviderTests: XCTestCase {
     func test__when_worker_registers__it_is_alive() {
         let tracker = WorkerAlivenessProviderImpl(
-            knownWorkerIds: [], workerPermissionProvider: FakeWorkerPermissionProvider())
+            knownWorkerIds: [],
+            logger: .noOp,
+            workerPermissionProvider: FakeWorkerPermissionProvider()
+        )
         tracker.didRegisterWorker(workerId: "worker")
         XCTAssertFalse(tracker.alivenessForWorker(workerId: "worker").silent)
     }
@@ -16,6 +19,7 @@ final class WorkerAlivenessProviderTests: XCTestCase {
     func test__when_worker_registers__it_has_no_buckets_being_processed() {
         let tracker = WorkerAlivenessProviderImpl(
             knownWorkerIds: [],
+            logger: .noOp,
             workerPermissionProvider: FakeWorkerPermissionProvider()
         )
         XCTAssertFalse(tracker.alivenessForWorker(workerId: "worker").registered)
@@ -27,6 +31,7 @@ final class WorkerAlivenessProviderTests: XCTestCase {
     func test__marking_worker_as_alive___registers_buckets_being_processing() {
         let tracker = WorkerAlivenessProviderImpl(
             knownWorkerIds: [],
+            logger: .noOp,
             workerPermissionProvider: FakeWorkerPermissionProvider()
         )
         tracker.didRegisterWorker(workerId: "worker")
@@ -37,6 +42,7 @@ final class WorkerAlivenessProviderTests: XCTestCase {
     func test__when_worker_is_silent__tracker_returns_silent() {
         let tracker = WorkerAlivenessProviderImpl(
             knownWorkerIds: ["worker"],
+            logger: .noOp,
             workerPermissionProvider: FakeWorkerPermissionProvider()
         )
         XCTAssertFalse(tracker.alivenessForWorker(workerId: "worker").registered)
@@ -49,6 +55,7 @@ final class WorkerAlivenessProviderTests: XCTestCase {
     func test___when_worker_is_silent___tracker_includes_buckets_being_processed() {
         let tracker = WorkerAlivenessProviderImpl(
             knownWorkerIds: ["worker"],
+            logger: .noOp,
             workerPermissionProvider: FakeWorkerPermissionProvider()
         )
         tracker.didRegisterWorker(workerId: "worker")
@@ -61,6 +68,7 @@ final class WorkerAlivenessProviderTests: XCTestCase {
     func test__availability_of_workers() {
         let tracker = WorkerAlivenessProviderImpl(
             knownWorkerIds: ["worker"],
+            logger: .noOp,
             workerPermissionProvider: FakeWorkerPermissionProvider()
         )
         tracker.didRegisterWorker(workerId: "worker")
@@ -70,6 +78,7 @@ final class WorkerAlivenessProviderTests: XCTestCase {
     func test___aliveness_for_not_registered_workers() {
         let tracker = WorkerAlivenessProviderImpl(
             knownWorkerIds: ["worker"],
+            logger: .noOp,
             workerPermissionProvider: FakeWorkerPermissionProvider()
         )
         XCTAssertEqual(
@@ -89,6 +98,7 @@ final class WorkerAlivenessProviderTests: XCTestCase {
     func test___disabling_worker___keeps_processing_buckets() {
         let tracker = WorkerAlivenessProviderImpl(
             knownWorkerIds: ["worker"],
+            logger: .noOp,
             workerPermissionProvider: FakeWorkerPermissionProvider()
         )
         tracker.didRegisterWorker(workerId: "worker")
@@ -112,6 +122,7 @@ final class WorkerAlivenessProviderTests: XCTestCase {
     func test___enabling_worker___keeps_processing_buckets() {
         let tracker = WorkerAlivenessProviderImpl(
             knownWorkerIds: ["worker"],
+            logger: .noOp,
             workerPermissionProvider: FakeWorkerPermissionProvider()
         )
         tracker.didRegisterWorker(workerId: "worker")
@@ -139,6 +150,7 @@ final class WorkerAlivenessProviderTests: XCTestCase {
         
         let tracker = WorkerAlivenessProviderImpl(
             knownWorkerIds: ["worker"],
+            logger: .noOp,
             workerPermissionProvider: workerPermissionProvider
         )
         XCTAssertEqual(

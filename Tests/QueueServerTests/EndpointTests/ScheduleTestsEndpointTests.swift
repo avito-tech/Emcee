@@ -190,6 +190,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
     lazy var capableWorkerId: WorkerId = "capableWorkerId"
     lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(
         knownWorkerIds: [workerId, capableWorkerId],
+        logger: .noOp,
         workerPermissionProvider: FakeWorkerPermissionProvider()
     )
     lazy var workerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()

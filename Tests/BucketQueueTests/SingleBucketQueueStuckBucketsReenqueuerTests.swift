@@ -16,6 +16,7 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
     lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator()
     lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(
         knownWorkerIds: [workerId],
+        logger: .noOp,
         workerPermissionProvider: workerPermissionProvider
     )
     lazy var workerPermissionProvider = FakeWorkerPermissionProvider()

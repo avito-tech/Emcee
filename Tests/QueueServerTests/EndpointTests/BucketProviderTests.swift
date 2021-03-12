@@ -22,6 +22,7 @@ final class BucketProviderTests: XCTestCase {
     )
     lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(
         knownWorkerIds: ["worker"],
+        logger: .noOp,
         workerPermissionProvider: FakeWorkerPermissionProvider()
     )
     lazy var workerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()

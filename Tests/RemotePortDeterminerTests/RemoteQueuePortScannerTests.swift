@@ -11,11 +11,12 @@ import Swifter
 import XCTest
 
 final class RemoteQueuePortScannerTests: XCTestCase {
-    lazy var requestSenderProvider = DefaultRequestSenderProvider()
+    lazy var requestSenderProvider = DefaultRequestSenderProvider(logger: .noOp)
     
     func test___scanning_ports_without_queue___returns_empty_result() throws {
         let scanner = RemoteQueuePortScanner(
             host: "localhost",
+            logger: .noOp,
             portRange: 12000...12005,
             requestSenderProvider: requestSenderProvider
         )
@@ -37,6 +38,7 @@ final class RemoteQueuePortScannerTests: XCTestCase {
         
         let scanner = RemoteQueuePortScanner(
             host: "localhost",
+            logger: .noOp,
             portRange: port...port,
             requestSenderProvider: requestSenderProvider
         )

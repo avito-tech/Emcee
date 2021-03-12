@@ -18,6 +18,7 @@ import UniqueIdentifierGenerator
 
 final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
     private let developerDirLocator: DeveloperDirLocator
+    private let logger: ContextualLogger
     private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TemporaryFolder
@@ -25,12 +26,14 @@ final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
 
     init(
         developerDirLocator: DeveloperDirLocator,
+        logger: ContextualLogger,
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver,
         tempFolder: TemporaryFolder,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
         self.developerDirLocator = developerDirLocator
+        self.logger = logger.forType(Self.self)
         self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
         self.tempFolder = tempFolder
@@ -82,7 +85,7 @@ final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
     
     private func convert(developerDir: DeveloperDir, nmOutputData: Data) throws -> [DiscoveredTestEntry] {
         guard let string = String(data: nmOutputData, encoding: .utf8) else {
-            Logger.error("Failed to get contents of nm output from \(nmOutputData.count) bytes")
+            logger.error("Failed to get contents of nm output from \(nmOutputData.count) bytes")
             return []
         }
         
@@ -128,7 +131,7 @@ final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
         }
         
         let components = try TestNameParser.components(moduledTestName: moduledTestName)
-        Logger.debug("Extracted components: moduleName \(components.module), className \(components.className), methodName \(components.methodName)")
+        logger.debug("Extracted components: moduleName \(components.module), className \(components.className), methodName \(components.methodName)")
         
         guard components.methodName.hasPrefix("test") else {
             return nil
@@ -140,7 +143,6 @@ final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
             testMethods: [components.methodName], caseId: nil,
             tags: []
         )
-        Logger.debug("Discovered test entry: \(discoveredTestEntry)")
         return discoveredTestEntry
     }
 }

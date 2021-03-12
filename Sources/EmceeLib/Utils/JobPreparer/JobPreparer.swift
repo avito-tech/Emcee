@@ -77,6 +77,7 @@ public final class JobPreparer {
             logger.info("Will schedule \(testEntryConfigurations.count) tests to queue server at \(queueServerAddress)")
             
             let testScheduler = TestSchedulerImpl(
+                logger: logger,
                 requestSender: try di.get(RequestSenderProvider.self).requestSender(socketAddress: queueServerAddress)
             )
             

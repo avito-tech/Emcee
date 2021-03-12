@@ -21,7 +21,7 @@ final class XcodeCapabilitiesProviderTests: XCTestCase {
             ShallowFileSystemEnumerator(fileManager: FileManager(), path: args.path)
         }
 
-        let provider = XcodeCapabilitiesProvider(fileSystem: fileSystem)
+        let provider = XcodeCapabilitiesProvider(fileSystem: fileSystem, logger: .noOp)
         XCTAssertEqual(
             provider.workerCapabilities(),
             [

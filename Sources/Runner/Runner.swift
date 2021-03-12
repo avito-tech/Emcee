@@ -25,6 +25,7 @@ public final class Runner {
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let fileSystem: FileSystem
+    private let logger: ContextualLogger
     private let metricReportingTestRunnerStream: MetricReportingTestRunnerStream
     private let pluginEventBusProvider: PluginEventBusProvider
     private let pluginTearDownQueue = OperationQueue()
@@ -39,6 +40,7 @@ public final class Runner {
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         fileSystem: FileSystem,
+        logger: ContextualLogger,
         pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver,
         tempFolder: TemporaryFolder,
@@ -53,6 +55,7 @@ public final class Runner {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.fileSystem = fileSystem
+        self.logger = logger.forType(Self.self)
         self.metricReportingTestRunnerStream = MetricReportingTestRunnerStream(
             dateProvider: dateProvider,
             version: version,
@@ -111,7 +114,7 @@ public final class Runner {
             if runResults.testEntryResults.filter({ !$0.isLost }).isEmpty {
                 // Here, if we do not receive events at all, we will get 0 results. We try to revive a limited number of times.
                 reviveAttempt += 1
-                Logger.warning("Got no results. Attempting to revive #\(reviveAttempt) out of allowed \(numberOfAttemptsToRevive) attempts to revive")
+                logger.warning("Got no results. Attempting to revive #\(reviveAttempt) out of allowed \(numberOfAttemptsToRevive) attempts to revive")
             } else {
                 // Here, we actually got events, so we could reset revive attempts.
                 reviveAttempt = 0
@@ -134,7 +137,6 @@ public final class Runner {
         simulator: Simulator
     ) throws -> RunnerRunResult {
         if entriesToRun.isEmpty {
-            Logger.info("Nothing to run!")
             return RunnerRunResult(
                 entriesToRun: entriesToRun,
                 testEntryResults: []
@@ -157,7 +159,8 @@ public final class Runner {
             pluginTearDownQueue.addOperation(eventBus.tearDown)
         }
         
-        Logger.debug("Will run \(entriesToRun.count) tests on simulator \(simulator)")
+        var logger = self.logger
+        logger.debug("Will run \(entriesToRun.count) tests on simulator \(simulator)")
         
         let singleTestMaximumDuration = configuration.testTimeoutConfiguration.singleTestMaximumDuration
         
@@ -173,6 +176,7 @@ public final class Runner {
                 EventBusReportingTestRunnerStream(
                     entriesToRun: entriesToRun,
                     eventBus: eventBus,
+                    logger: { logger },
                     testContext: testContext,
                     resultsProvider: {
                         Runner.prepareResults(
@@ -185,7 +189,7 @@ public final class Runner {
                 TestTimeoutTrackingTestRunnerSream(
                     dateProvider: dateProvider,
                     detectedLongRunningTest: { [dateProvider] testName, testStartedAt in
-                        Logger.debug("Detected long running test \(testName)", testRunnerRunningInvocationContainer.currentValue()?.pidInfo)
+                        logger.debug("Detected long running test \(testName)")
                         collectedTestStoppedEvents.append(
                             TestStoppedEvent(
                                 testName: testName,
@@ -200,41 +204,42 @@ public final class Runner {
                         
                         testRunnerRunningInvocationContainer.currentValue()?.cancel()
                     },
+                    logger: { logger },
                     maximumTestDuration: singleTestMaximumDuration,
                     pollPeriod: testTimeoutCheckInterval
                 ),
                 metricReportingTestRunnerStream,
                 TestRunnerStreamWrapper(
                     onOpenStream: {
-                        Logger.debug("Started executing tests", testRunnerRunningInvocationContainer.currentValue()?.pidInfo)
+                        logger.debug("Started executing tests")
                     },
                     onTestStarted: { testName in
                         collectedTestExceptions = []
-                        Logger.debug("Test started: \(testName)", testRunnerRunningInvocationContainer.currentValue()?.pidInfo)
+                        logger.debug("Test started: \(testName)")
                     },
                     onTestException: { testException in
                         collectedTestExceptions.append(testException)
-                        Logger.debug("Caught test exception: \(testException)", testRunnerRunningInvocationContainer.currentValue()?.pidInfo)
+                        logger.debug("Caught test exception: \(testException)")
                     },
                     onTestStopped: { testStoppedEvent in
                         let testStoppedEvent = testStoppedEvent.byMergingTestExceptions(testExceptions: collectedTestExceptions)
                         collectedTestStoppedEvents.append(testStoppedEvent)
                         collectedTestExceptions = []
-                        Logger.debug("Test stopped: \(testStoppedEvent.testName), \(testStoppedEvent.result)", testRunnerRunningInvocationContainer.currentValue()?.pidInfo)
+                        logger.debug("Test stopped: \(testStoppedEvent.testName), \(testStoppedEvent.result)")
                     },
                     onCloseStream: {
-                        Logger.debug("Finished executing tests", testRunnerRunningInvocationContainer.currentValue()?.pidInfo)
+                        logger.debug("Finished executing tests")
                         streamClosedCallback.set(result: ())
                     }
                 ),
                 PreflightPostflightTimeoutTrackingTestRunnerStream(
                     dateProvider: dateProvider,
                     onPreflightTimeout: {
-                        Logger.debug("Detected preflight timeout", testRunnerRunningInvocationContainer.currentValue()?.pidInfo)
+                        logger.debug("Detected preflight timeout")
                         testRunnerRunningInvocationContainer.currentValue()?.cancel()
                     },
                     onPostflightTimeout: { testName in
-                        Logger.debug("Detected postflight timeout, last finished test was \(testName)", testRunnerRunningInvocationContainer.currentValue()?.pidInfo)
+                        logger.debug("Detected postflight timeout, last finished test was \(testName)")
                         testRunnerRunningInvocationContainer.currentValue()?.cancel()
                     },
                     maximumPreflightDuration: configuration.testTimeoutConfiguration.testRunnerMaximumSilenceDuration,
@@ -249,6 +254,7 @@ public final class Runner {
             runningInvocation = try runTestsViaTestRunner(
                 testRunner: testRunner,
                 entriesToRun: entriesToRun,
+                logger: logger,
                 simulator: simulator,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream
@@ -260,6 +266,9 @@ public final class Runner {
                 testRunnerStream: testRunnerStream
             ).startExecutingTests()
         }
+        logger = logger
+            .withMetadata(key: .subprocessId, value: "\(runningInvocation.pidInfo.pid)")
+            .withMetadata(key: .subprocessName, value: "\(runningInvocation.pidInfo.name)")
         testRunnerRunningInvocationContainer.set(runningInvocation)
         defer {
             // since we refer this in closures, we must clean up to ensure no retain cycles will occur
@@ -273,8 +282,8 @@ public final class Runner {
             simulatorId: simulator.udid
         )
         
-        Logger.debug("Attempted to run \(entriesToRun.count) tests on simulator \(simulator): \(entriesToRun)", runningInvocation.pidInfo)
-        Logger.debug("Did get \(result.count) results: \(result)", runningInvocation.pidInfo)
+        logger.debug("Attempted to run \(entriesToRun.count) tests on simulator \(simulator): \(entriesToRun)")
+        logger.debug("Did get \(result.count) results: \(result)")
         
         return RunnerRunResult(
             entriesToRun: entriesToRun,
@@ -308,15 +317,20 @@ public final class Runner {
     private func runTestsViaTestRunner(
         testRunner: TestRunner,
         entriesToRun: [TestEntry],
+        logger: ContextualLogger,
         simulator: Simulator,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream
     ) throws -> TestRunnerInvocation {
-        cleanUpDeadCache(simulator: simulator)
+        cleanUpDeadCache(
+            logger: logger,
+            simulator: simulator
+        )
         return try testRunner.prepareTestRun(
             buildArtifacts: configuration.buildArtifacts,
             developerDirLocator: developerDirLocator,
             entriesToRun: entriesToRun,
+            logger: logger,
             simulator: simulator,
             temporaryFolder: tempFolder,
             testContext: testContext,
@@ -325,15 +339,18 @@ public final class Runner {
         )
     }
     
-    private func cleanUpDeadCache(simulator: Simulator) {
+    private func cleanUpDeadCache(
+        logger: ContextualLogger,
+        simulator: Simulator
+    ) {
         let deadCachePath = simulator.path.appending(relativePath: RelativePath("data/Library/Caches/com.apple.containermanagerd/Dead"))
         do {
             if fileSystem.properties(forFileAtPath: deadCachePath).exists() {
-                Logger.debug("Will attempt to clean up simulator dead cache at: \(deadCachePath)")
+                logger.debug("Will attempt to clean up simulator dead cache at: \(deadCachePath)")
                 try fileSystem.delete(fileAtPath: deadCachePath)
             }
         } catch {
-            Logger.warning("Failed to delete dead cache at \(deadCachePath): \(error)")
+            logger.warning("Failed to delete dead cache at \(deadCachePath): \(error)")
         }
     }
     

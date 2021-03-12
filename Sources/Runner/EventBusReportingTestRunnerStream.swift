@@ -7,17 +7,20 @@ import RunnerModels
 public final class EventBusReportingTestRunnerStream: TestRunnerStream {
     private let entriesToRun: [TestEntry]
     private let eventBus: EventBus
+    private let logger: () -> ContextualLogger
     private let testContext: TestContext
     private let resultsProvider: () -> [TestEntryResult]
     
     public init(
         entriesToRun: [TestEntry],
         eventBus: EventBus,
+        logger: @escaping () -> ContextualLogger,
         testContext: TestContext,
         resultsProvider: @escaping () -> [TestEntryResult]
     ) {
         self.entriesToRun = entriesToRun
         self.eventBus = eventBus
+        self.logger = logger
         self.testContext = testContext
         self.resultsProvider = resultsProvider
     }
@@ -30,7 +33,7 @@ public final class EventBusReportingTestRunnerStream: TestRunnerStream {
     
     public func testStarted(testName: TestName) {
         guard let testEntry = testEntryFor(testName: testName) else {
-            return Logger.warning("Can't find test entry for test \(testName)")
+            return logger().warning("Can't find test entry for test \(testName)")
         }
         
         eventBus.post(
@@ -42,7 +45,7 @@ public final class EventBusReportingTestRunnerStream: TestRunnerStream {
     
     public func testStopped(testStoppedEvent: TestStoppedEvent) {
         guard let testEntry = testEntryFor(testName: testStoppedEvent.testName) else {
-            return Logger.warning("Can't find test entry for test \(testStoppedEvent.testName)")
+            return logger().warning("Can't find test entry for test \(testStoppedEvent.testName)")
         }
         
         eventBus.post(

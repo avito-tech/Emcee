@@ -12,6 +12,8 @@ public final class ActivityAwareSimulatorController: SimulatorController, Custom
     
     private let delegate: SimulatorController
     
+    private let logger: ContextualLogger
+    
     /// - Parameters:
     ///   - automaticDeleteTimePeriod: Time after which simulator will be automatically deleted. Timer will start after simulator is shutdown.
     ///   - automaticShutdownTimePeriod: Time after which simulator will be automatically shutdown. Timer will start after simulator becomes idle.
@@ -19,7 +21,8 @@ public final class ActivityAwareSimulatorController: SimulatorController, Custom
     public init(
         automaticDeleteTimePeriod: TimeInterval,
         automaticShutdownTimePeriod: TimeInterval,
-        delegate: SimulatorController
+        delegate: SimulatorController,
+        logger: ContextualLogger
     ) {
         automaticDeletionTerminationControllerFactory = ActivityAwareSimulatorController.automaticTerminationController(
             period: automaticDeleteTimePeriod
@@ -28,6 +31,7 @@ public final class ActivityAwareSimulatorController: SimulatorController, Custom
             period: automaticShutdownTimePeriod
         )
         self.delegate = delegate
+        self.logger = logger.forType(Self.self)
     }
     
     private static func automaticTerminationController(period: TimeInterval) -> AutomaticTerminationControllerFactory {
@@ -80,7 +84,7 @@ public final class ActivityAwareSimulatorController: SimulatorController, Custom
     
     private func scheduleAutomaticShutdown() {
         guard automaticShutdownController == nil else {
-            Logger.debug("Automatic shutdown of \(delegate) has already been scheduled")
+            logger.debug("Automatic shutdown of \(delegate) has already been scheduled")
             return
         }
         
@@ -88,15 +92,15 @@ public final class ActivityAwareSimulatorController: SimulatorController, Custom
         automaticShutdownController?.startTracking()
         automaticShutdownController?.add { [weak self] in
             guard let strongSelf = self else { return }
-            Logger.debug("Performing automatic shutdown of \(strongSelf.delegate)")
+            strongSelf.logger.debug("Performing automatic shutdown of \(strongSelf.delegate)")
             try? strongSelf.shutdownSimulator()
         }
-        Logger.debug("Scheduled automatic shutdown of \(delegate)")
+        logger.debug("Scheduled automatic shutdown of \(delegate)")
     }
     
     private func scheduleAutomaticDeletion() {
         guard automaticDeletionController == nil else {
-            Logger.debug("Automatic deletion of \(delegate) has already been scheduled")
+            logger.debug("Automatic deletion of \(delegate) has already been scheduled")
             return
         }
         
@@ -104,10 +108,10 @@ public final class ActivityAwareSimulatorController: SimulatorController, Custom
         automaticDeletionController?.startTracking()
         automaticDeletionController?.add { [weak self] in
             guard let strongSelf = self else { return }
-            Logger.debug("Performing automatic deletion of \(strongSelf.delegate)")
+            strongSelf.logger.debug("Performing automatic deletion of \(strongSelf.delegate)")
             try? strongSelf.deleteSimulator()
         }
-        Logger.debug("Scheduled automatic deletion of \(delegate)")
+        logger.debug("Scheduled automatic deletion of \(delegate)")
     }
     
     // MARK: - Cancelling Automatic Operations
@@ -119,19 +123,19 @@ public final class ActivityAwareSimulatorController: SimulatorController, Custom
     
     private func cancelAutomaticShutdown() {
         if automaticShutdownController == nil {
-            Logger.debug("Automatic shutdown of \(delegate) has already been cancelled")
+            logger.debug("Automatic shutdown of \(delegate) has already been cancelled")
         } else {
             automaticShutdownController = nil
-            Logger.debug("Cancelled automatic shutdown of \(delegate)")
+            logger.debug("Cancelled automatic shutdown of \(delegate)")
         }
     }
     
     private func cancelAutomaticDelete() {
         if automaticDeletionController == nil {
-            Logger.debug("Automatic deletion of \(delegate) has already been cancelled")
+            logger.debug("Automatic deletion of \(delegate) has already been cancelled")
         } else {
             automaticDeletionController = nil
-            Logger.debug("Cancelled automatic deletion of \(delegate)")
+            logger.debug("Cancelled automatic deletion of \(delegate)")
         }
     }
 }

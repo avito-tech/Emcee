@@ -13,7 +13,8 @@ final class ActivityAwareSimulatorControllerTests: XCTestCase {
     lazy var activityAwareController = ActivityAwareSimulatorController(
         automaticDeleteTimePeriod: 1.0,
         automaticShutdownTimePeriod: 1.0,
-        delegate: fakeSimulatorController
+        delegate: fakeSimulatorController,
+        logger: .noOp
     )
     
     func test___when_idle___passes_through() {

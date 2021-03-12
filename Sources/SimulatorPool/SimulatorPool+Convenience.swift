@@ -24,11 +24,14 @@ public final class AllocatedSimulator {
 public extension SimulatorPool {
     func allocateSimulator(
         dateProvider: DateProvider,
+        logger: ContextualLogger,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,
         version: Version,
         globalMetricRecorder: GlobalMetricRecorder
     ) throws -> AllocatedSimulator {
-        try TimeMeasurerImpl(
+        let logger = logger.forType(Self.self)
+        
+        return try TimeMeasurerImpl(
             dateProvider: dateProvider
         ).measure(
             work: {
@@ -41,7 +44,7 @@ public extension SimulatorPool {
                         releaseSimulator: { self.free(simulatorController: simulatorController) }
                     )
                 } catch {
-                    Logger.error("Failed to get booted simulator: \(error)")
+                    logger.error("Failed to get booted simulator: \(error)")
                     try simulatorController.deleteSimulator()
                     throw error
                 }

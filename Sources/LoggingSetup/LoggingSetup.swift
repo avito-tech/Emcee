@@ -26,7 +26,7 @@ public final class LoggingSetup {
         self.fileSystem = fileSystem
     }
     
-    public func setupLogging(stderrVerbosity: Verbosity) throws {
+    public func setupLogging(stderrVerbosity: Verbosity) throws -> ContextualLogger {
         let filename = logFilePrefix + String(ProcessInfo.processInfo.processIdentifier)
         let detailedLogPath = try TemporaryFile(
             containerPath: try logsContainerFolder(),
@@ -44,6 +44,8 @@ public final class LoggingSetup {
         
         logger.info("To fetch detailed verbose log:")
         logger.info("$ scp \(NSUserName())@\(LocalHostDeterminer.currentHostAddress):\(detailedLogPath.absolutePath) /tmp/\(filename).log && open /tmp/\(filename).log")
+        
+        return logger
     }
     
     public func set(kibanaConfiguration: KibanaConfiguration) throws {

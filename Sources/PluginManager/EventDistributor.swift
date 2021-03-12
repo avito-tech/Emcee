@@ -14,6 +14,7 @@ public final class EventDistributor {
         }
     }
     
+    private let logger: ContextualLogger
     private var pluginIdentifiers = Set<String>()
     private var connectedPluginIdentifiers = Set<String>()
     private let server = HttpServer()
@@ -21,24 +22,23 @@ public final class EventDistributor {
     private let queue = DispatchQueue(label: "ru.avito.emcee.EventDistributor.queue")
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
-    private let sessionId: UUID
     
-    public init(sessionId: UUID) {
-        self.sessionId = sessionId
+    public init(logger: ContextualLogger) {
+        self.logger = logger.forType(Self.self)
     }
     
     public func start() throws {
         try queue.sync {
-            Logger.verboseDebug("[\(sessionId)] Starting web socket server")
+            logger.debug("Starting web socket server")
             server["/"] = websocket(text: nil, binary: onBinary, pong: nil, connected: nil, disconnected: nil)
             try server.start(0, forceIPv4: false, priority: .default)
         }
-        Logger.debug("[\(sessionId)] Web socket server is available at: \(try webSocketAddress())")
+        logger.debug("Web socket server is available at: \(try webSocketAddress())")
     }
     
     public func stop() {
         queue.sync {
-            Logger.verboseDebug("[\(sessionId)] Stopping web socket server")
+            logger.debug("Stopping web socket server")
             server.stop()
         }
     }
@@ -48,7 +48,7 @@ public final class EventDistributor {
     }
     
     public func waitForPluginsToConnect(timeout: TimeInterval) throws {
-        try SynchronousWaiter().waitWhile(pollPeriod: 0.5, timeout: timeout, description: "[\(sessionId)] Waiting for \(pluginIdentifiers.count) plugins to connect") {
+        try SynchronousWaiter().waitWhile(pollPeriod: 0.5, timeout: timeout, description: "Waiting for \(pluginIdentifiers.count) plugins to connect") {
             connectedPluginIdentifiers != pluginIdentifiers
         }
     }
@@ -89,13 +89,13 @@ public final class EventDistributor {
             acknowledgement = .error("Internal error: '\(error)'")
         }
         
-        Logger.verboseDebug("[\(sessionId)] New connection from plugin with acknowledgement: '\(acknowledgement)'")
+        logger.debug("New connection from plugin with acknowledgement: '\(acknowledgement)'")
         
         do {
             let data = try encoder.encode(acknowledgement)
             session.writeBinary([UInt8](data))
         } catch {
-            Logger.error("[\(sessionId)] Failed to send acknowledgement: \(error)")
+            logger.error("Failed to send acknowledgement: \(error)")
         }
     }
 }

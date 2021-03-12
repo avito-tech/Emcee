@@ -20,6 +20,7 @@ final class WorkerAlivenessPollerTests: XCTestCase {
     lazy var worker2 = WorkerId("worker2")
     lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(
         knownWorkerIds: [worker1, worker2],
+        logger: .noOp,
         workerPermissionProvider: FakeWorkerPermissionProvider()
     )
     lazy var workerDetailsHolder = WorkerDetailsHolderImpl()
@@ -144,7 +145,7 @@ final class WorkerAlivenessPollerTests: XCTestCase {
         }
         
         let poller = createWorkerAlivenessPoller(
-            requestSenderProvider: DefaultRequestSenderProvider()
+            requestSenderProvider: DefaultRequestSenderProvider(logger: .noOp)
         )
         defer { poller.stopPolling() }
         poller.startPolling()

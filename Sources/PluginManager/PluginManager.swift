@@ -12,6 +12,7 @@ public final class PluginManager: EventStream {
     private let encoder = JSONEncoder.pretty()
     private let eventDistributor: EventDistributor
     private let fileSystem: FileSystem
+    private let logger: ContextualLogger
     private let pluginLocations: Set<PluginLocation>
     private let pluginsConnectionTimeout: TimeInterval = 30.0
     private let processControllerProvider: ProcessControllerProvider
@@ -25,12 +26,16 @@ public final class PluginManager: EventStream {
     
     public init(
         fileSystem: FileSystem,
+        logger: ContextualLogger,
         pluginLocations: Set<PluginLocation>,
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver
     ) {
         self.fileSystem = fileSystem
-        self.eventDistributor = EventDistributor(sessionId: sessionId)
+        self.logger = logger
+            .forType(Self.self)
+            .withMetadata(key: "pluginSessionId", value: sessionId.uuidString)
+        self.eventDistributor = EventDistributor(logger: logger)
         self.pluginLocations = pluginLocations
         self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
@@ -89,7 +94,7 @@ public final class PluginManager: EventStream {
         let pluginBundles = try pathsToPluginBundles()
         
         for bundlePath in pluginBundles {
-            Logger.debug("[\(sessionId)] Starting plugin at '\(bundlePath)'")
+            logger.debug("[\(sessionId)] Starting plugin at '\(bundlePath)'")
             let pluginExecutable = bundlePath.appending(component: PluginManager.pluginExecutableName)
             let pluginIdentifier = try pluginExecutable.pathString.avito_sha256Hash()
             eventDistributor.add(pluginIdentifier: pluginIdentifier)
@@ -109,7 +114,7 @@ public final class PluginManager: EventStream {
         do {
             try eventDistributor.waitForPluginsToConnect(timeout: pluginsConnectionTimeout)
         } catch {
-            Logger.error("[\(sessionId)] Failed to start plugins, will not tear down")
+            logger.error("[\(sessionId)] Failed to start plugins, will not tear down")
             tearDown()
             throw error
         }
@@ -123,7 +128,7 @@ public final class PluginManager: EventStream {
     }
     
     private func killPlugins() {
-        Logger.debug("[\(sessionId)] Killing plugins that are still alive")
+        logger.debug("[\(sessionId)] Killing plugins that are still alive")
         for controller in processControllers {
             controller.interruptAndForceKillIfNeeded()
         }
@@ -155,7 +160,7 @@ public final class PluginManager: EventStream {
             try SynchronousWaiter().waitWhile(timeout: tearDownAllowance, description: "[\(sessionId)] Tear down plugins") {
                 processControllers.map { $0.isProcessRunning }.contains(true)
             }
-            Logger.debug("[\(sessionId)] All plugins torn down successfully without force killing.")
+            logger.debug("[\(sessionId)] All plugins torn down successfully without force killing.")
         } catch {
             killPlugins()
         }
@@ -169,7 +174,7 @@ public final class PluginManager: EventStream {
             let data = try encoder.encode(busEvent)
             sendData(data)
         } catch {
-            Logger.error("[\(sessionId)] Failed to get data for \(busEvent) event: \(error)")
+            logger.error("[\(sessionId)] Failed to get data for \(busEvent) event: \(error)")
         }
     }
     

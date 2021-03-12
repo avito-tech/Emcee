@@ -171,6 +171,7 @@ final class ExecutableTestDiscovererTests: XCTestCase {
         return ExecutableTestDiscoverer(
             appBundleLocation: appBundleLocation,
             developerDirLocator: FakeDeveloperDirLocator(result: AbsolutePath("/path/to/developer_dir")),
+            logger: .noOp,
             resourceLocationResolver: FakeResourceLocationResolver.resolvingTo(
                 path: AbsolutePath(testBundleLocation.resourceLocation.stringValue)
             ),

@@ -12,6 +12,7 @@ final class HTTPRESTServerTests: XCTestCase {
     lazy var anyPortProvider = PortProviderWrapper { 0 }
     lazy var server = HTTPRESTServer(
         automaticTerminationController: automaticTerminationController,
+        logger: .noOp,
         portProvider: anyPortProvider
     )
     

@@ -270,6 +270,7 @@ public final class RunnerTests: XCTestCase {
             dateProvider: dateProvider,
             developerDirLocator: FakeDeveloperDirLocator(result: tempFolder.absolutePath),
             fileSystem: fileSystem,
+            logger: .noOp,
             pluginEventBusProvider: noOpPluginEventBusProvider,
             resourceLocationResolver: resolver,
             tempFolder: tempFolder,

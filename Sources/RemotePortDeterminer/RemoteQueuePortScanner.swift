@@ -10,16 +10,19 @@ import Types
 
 public final class RemoteQueuePortScanner: RemotePortDeterminer {
     private let host: String
+    private let logger: ContextualLogger
     private let portRange: ClosedRange<SocketModels.Port>
     private let requestSenderProvider: RequestSenderProvider
     private let workQueue = DispatchQueue(label: "RemoteQueuePortScanner.workQueue")
     
     public init(
         host: String,
+        logger: ContextualLogger,
         portRange: ClosedRange<SocketModels.Port>,
         requestSenderProvider: RequestSenderProvider
     ) {
         self.host = host
+        self.logger = logger.forType(Self.self)
         self.portRange = portRange
         self.requestSenderProvider = requestSenderProvider
     }
@@ -31,7 +34,7 @@ public final class RemoteQueuePortScanner: RemotePortDeterminer {
         
         for port in portRange {
             group.enter()
-            Logger.debug("Checking availability of \(port)")
+            logger.debug("Checking availability of \(port)")
             
             let queueServerVersionFetcher = QueueServerVersionFetcherImpl(
                 requestSender: requestSenderProvider.requestSender(
@@ -43,7 +46,7 @@ public final class RemoteQueuePortScanner: RemotePortDeterminer {
                 callbackQueue: workQueue
             ) { (result: Either<Version, Error>) in
                 if let version = try? result.dematerialize() {
-                    Logger.debug("Found queue server with \(version) version at \(port)")
+                    self.logger.debug("Found queue server with \(version) version at \(port)")
                     portToVersion.withExclusiveAccess { $0[port] = version }
                 }
                 group.leave()

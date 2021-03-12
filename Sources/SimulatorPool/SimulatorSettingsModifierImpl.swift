@@ -1,7 +1,6 @@
 import DeveloperDirLocator
 import DeveloperDirModels
 import Foundation
-import EmceeLogging
 import PlistLib
 import ProcessController
 import SimulatorPoolModels
@@ -125,7 +124,6 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
             entriesInCurrentPlist = [:]
         }
         if try plistToImport.root.plistEntry.dictEntry() == entriesInCurrentPlist {
-            Logger.debug("Will not import plist for domain \(domain) of simulator \(simulator): current plist already has correct data")
             return false
         }
         

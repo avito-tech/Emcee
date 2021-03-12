@@ -15,6 +15,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     private let coreSimulatorStateProvider: CoreSimulatorStateProvider
     private let developerDir: DeveloperDir
     private let developerDirLocator: DeveloperDirLocator
+    private let logger: ContextualLogger
     private let simulatorOperationTimeouts = AtomicValue<SimulatorOperationTimeouts>(
         SimulatorOperationTimeouts(create: 30, boot: 180, delete: 20, shutdown: 20, automaticSimulatorShutdown: 3600, automaticSimulatorDelete: 7200)
     )
@@ -31,6 +32,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
         coreSimulatorStateProvider: CoreSimulatorStateProvider,
         developerDir: DeveloperDir,
         developerDirLocator: DeveloperDirLocator,
+        logger: ContextualLogger,
         simulatorStateMachine: SimulatorStateMachine,
         simulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor,
         temporaryFolder: TemporaryFolder,
@@ -42,6 +44,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
         self.coreSimulatorStateProvider = coreSimulatorStateProvider
         self.developerDir = developerDir
         self.developerDirLocator = developerDirLocator
+        self.logger = logger.forType(Self.self)
         self.simulatorStateMachine = simulatorStateMachine
         self.simulatorStateMachineActionExecutor = simulatorStateMachineActionExecutor
         self.temporaryFolder = temporaryFolder
@@ -73,11 +76,11 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     }
     
     public func simulatorBecameBusy() {
-        Logger.debug("Simulator controller \(self) is now busy")
+        logger.debug("Simulator controller \(self) is now busy")
     }
     
     public func simulatorBecameIdle() {
-        Logger.debug("Simulator controller \(self) is now idle")
+        logger.debug("Simulator controller \(self) is now idle")
     }
     
     // MARK: - State Switching
@@ -97,7 +100,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
                 return .absent
             }
         } catch {
-            Logger.warning("Failed to get state for simulator \(simulator): \(error). This error will be ignored. Absent state will be returned.")
+            logger.warning("Failed to get state for simulator \(simulator): \(error). This error will be ignored. Absent state will be returned.")
             return .absent
         }
     }
@@ -112,7 +115,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
 
     private func perform(actions: [SimulatorStateMachine.Action]) throws {
         for action in actions {
-            Logger.debug("Simulator controller \(self) is performing action: \(action)")
+            logger.debug("Simulator controller \(self) is performing action: \(action)")
             switch action {
             case .create:
                 simulator = try create()
@@ -124,19 +127,19 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
                 try invokeEnsuringSimulatorIsPresent(delete)
                 simulator = nil
             }
-            Logger.debug("Simulator controller \(self) updated state to: \(currentSimulatorState)")
+            logger.debug("Simulator controller \(self) updated state to: \(currentSimulatorState)")
         }
     }
     
     private func create() throws -> Simulator {
-        Logger.verboseDebug("Creating simulator with \(testDestination)")
+        logger.debug("Creating simulator with \(testDestination)")
 
         let simulator = try simulatorStateMachineActionExecutor.performCreateSimulatorAction(
             environment: try environment(),
             testDestination: testDestination,
             timeout: simulatorOperationTimeouts.currentValue().create
         )
-        Logger.debug("Created simulator: \(simulator)")
+        logger.debug("Created simulator: \(simulator)")
         return simulator
     }
     
@@ -148,10 +151,10 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     }
     
     private func boot(simulator: Simulator) throws {
-        Logger.verboseDebug("Booting simulator: \(simulator)")
+        logger.debug("Booting simulator: \(simulator)")
         
         if currentSimulatorState == .booted {
-            Logger.debug("Simulator \(simulator) is already booted, will not boot")
+            logger.debug("Simulator \(simulator) is already booted, will not boot")
             return
         }
         
@@ -168,10 +171,10 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
             while true {
                 do {
                     try performBoot()
-                    Logger.debug("Booted simulator \(simulator) using #\(bootAttempt + 1) attempts")
+                    logger.debug("Booted simulator \(simulator) using #\(bootAttempt + 1) attempts")
                     break
                 } catch {
-                    Logger.error("Attempt to boot simulator \(simulator.testDestination) failed: \(error)")
+                    logger.error("Attempt to boot simulator \(simulator.testDestination) failed: \(error)")
                     bootAttempt += 1
                     if bootAttempt < 1 + additionalBootAttempts {
                         waiter.wait(timeout: Double(bootAttempt) * 3.0, description: "Time gap between reboot attempts")
@@ -184,10 +187,10 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     }
     
     private func shutdown(simulator: Simulator) throws {
-        Logger.debug("Shutting down simulator \(simulator)")
+        logger.debug("Shutting down simulator \(simulator)")
         
         if currentSimulatorState == .created {
-            Logger.debug("Simulator \(simulator) is shot down")
+            logger.debug("Simulator \(simulator) is shot down")
             return
         }
         
@@ -199,7 +202,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     }
 
     private func delete(simulator: Simulator) throws {
-        Logger.debug("Deleting simulator \(simulator.udid)")
+        logger.debug("Deleting simulator \(simulator.udid)")
         
         try simulatorStateMachineActionExecutor.performDeleteSimulatorAction(
             environment: try environment(),
@@ -222,14 +225,14 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
             .expandingTildeInPath
             .appending(pathComponent: simulator.udid.value)
         if FileManager.default.fileExists(atPath: simulatorLogsPath) {
-            Logger.verboseDebug("Removing logs of simulator \(simulator)")
+            logger.debug("Removing logs of simulator \(simulator)")
             try FileManager.default.removeItem(atPath: simulatorLogsPath)
         }
     }
     
     private func deleteSimulatorWorkingDirectory(simulator: Simulator) throws {
         if FileManager.default.fileExists(atPath: simulator.path.pathString) {
-            Logger.verboseDebug("Removing working directory of simulator \(simulator)")
+            logger.debug("Removing working directory of simulator \(simulator)")
             try FileManager.default.removeItem(atPath: simulator.path.pathString)
         }
     }

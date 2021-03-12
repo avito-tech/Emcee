@@ -58,6 +58,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
         self.logger = logger.forType(Self.self)
         self.httpRestServer = HTTPRESTServer(
             automaticTerminationController: StayAliveTerminationController(),
+            logger: logger,
             portProvider: PortProviderWrapper(provider: { 0 })
         )
         self.version = version
@@ -119,6 +120,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
     ) throws {
         let scheduler = Scheduler(
             di: di,
+            logger: logger,
             numberOfSimulators: workerConfiguration.numberOfSimulators,
             schedulerDataSource: self,
             schedulerDelegate: self,

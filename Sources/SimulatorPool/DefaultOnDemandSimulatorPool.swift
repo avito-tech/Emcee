@@ -6,6 +6,7 @@ import RunnerModels
 import Tmp
 
 public class DefaultOnDemandSimulatorPool: OnDemandSimulatorPool {
+    private let logger: ContextualLogger
     private let resourceLocationResolver: ResourceLocationResolver
     private let simulatorControllerProvider: SimulatorControllerProvider
     private let syncQueue = DispatchQueue(label: "ru.avito.OnDemandSimulatorPool")
@@ -13,10 +14,12 @@ public class DefaultOnDemandSimulatorPool: OnDemandSimulatorPool {
     private var pools = [OnDemandSimulatorPoolKey: SimulatorPool]()
     
     public init(
+        logger: ContextualLogger,
         resourceLocationResolver: ResourceLocationResolver,
         simulatorControllerProvider: SimulatorControllerProvider,
         tempFolder: TemporaryFolder
     ) {
+        self.logger = logger.forType(Self.self)
         self.resourceLocationResolver = resourceLocationResolver
         self.simulatorControllerProvider = simulatorControllerProvider
         self.tempFolder = tempFolder
@@ -29,18 +32,19 @@ public class DefaultOnDemandSimulatorPool: OnDemandSimulatorPool {
     public func pool(key: OnDemandSimulatorPoolKey) throws -> SimulatorPool {
         return try syncQueue.sync {
             if let existingPool = pools[key] {
-                Logger.verboseDebug("Got SimulatorPool for key \(key)")
+                logger.debug("Got SimulatorPool for key \(key)")
                 return existingPool
             } else {
                 let pool = try DefaultSimulatorPool(
                     developerDir: key.developerDir,
+                    logger: logger,
                     simulatorControlTool: key.simulatorControlTool,
                     simulatorControllerProvider: simulatorControllerProvider,
                     tempFolder: tempFolder,
                     testDestination: key.testDestination
                 )
                 pools[key] = pool
-                Logger.verboseDebug("Created SimulatorPool for key \(key)")
+                logger.debug("Created SimulatorPool for key \(key)")
                 return pool
             }
         }

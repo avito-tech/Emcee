@@ -60,6 +60,7 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
                     fileSystem: LocalFileSystem()
                 )
             ),
+            logger: .noOp,
             processControllerProvider: FakeProcessControllerProvider { subprocess -> ProcessController in
                 XCTAssertEqual(
                     try subprocess.arguments.map { try $0.stringValue() },

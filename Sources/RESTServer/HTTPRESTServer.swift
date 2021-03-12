@@ -7,15 +7,18 @@ import Swifter
 
 public final class HTTPRESTServer {
     private let automaticTerminationController: AutomaticTerminationController
+    private let logger: ContextualLogger
     private let portProvider: PortProvider
     private let requestParser = RequestParser()
     private let server = HttpServer()
     
     public init(
         automaticTerminationController: AutomaticTerminationController,
+        logger: ContextualLogger,
         portProvider: PortProvider
     ) {
         self.automaticTerminationController = automaticTerminationController
+        self.logger = logger.forType(Self.self)
         self.portProvider = portProvider
     }
 
@@ -32,10 +35,11 @@ public final class HTTPRESTServer {
     ) -> ((HttpRequest) -> HttpResponse) {
         return { [weak self] (httpRequest: HttpRequest) -> HttpResponse in
             guard let strongSelf = self else {
-                Logger.error("\(type(of: self)) has been deallocated")
-                return .internalServerError
+                return .raw(500, "Internal Server Error", [:]) {
+                    try $0.write(Data("\(type(of: self)) has been deallocated".utf8))
+                }
             }
-            Logger.verboseDebug("Processing request to \(httpRequest.path)")
+            strongSelf.logger.debug("Processing request to \(httpRequest.path)")
             
             if endpoint.requestIndicatesActivity {
                 strongSelf.automaticTerminationController.indicateActivityFinished()
@@ -52,7 +56,7 @@ public final class HTTPRESTServer {
         try server.start(in_port_t(port.value), forceIPv4: false, priority: .default)
         
         let actualPort = try server.port()
-        Logger.debug("Started REST server on \(actualPort) port")
+        logger.debug("Started REST server on \(actualPort) port")
         return Port(value: actualPort)
     }
     

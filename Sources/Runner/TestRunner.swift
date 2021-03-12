@@ -22,6 +22,7 @@ public protocol TestRunner {
         buildArtifacts: BuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
+        logger: ContextualLogger,
         simulator: Simulator,
         temporaryFolder: TemporaryFolder,
         testContext: TestContext,

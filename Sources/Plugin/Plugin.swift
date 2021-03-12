@@ -12,6 +12,7 @@ import SynchronousWaiter
 /// Allows the plugin to track `PluginEvent`s from the main process using the provided `EventBus`.
 public final class Plugin {
     private let eventBus: EventBus
+    private let logger: ContextualLogger
     private let jsonReaderQueue = DispatchQueue(label: "Plugin.jsonReaderQueue")
     private let stdinReadQueue = DispatchQueue(label: "Plugin.stdinReadQueue")
     private let jsonInputStream = BlockingArrayBasedJSONStream()
@@ -28,12 +29,15 @@ public final class Plugin {
     /// - Parameters:
     ///     - eventBus:             The event bus which will receive the events from the main process
     public init(eventBus: EventBus) throws {
-        try loggingSetup.setupLogging(stderrVerbosity: Verbosity.info)
-        
+        self.logger = try loggingSetup.setupLogging(stderrVerbosity: Verbosity.info)
         self.eventBus = eventBus
-        self.jsonStreamToEventBusAdapter = JSONStreamToEventBusAdapter(eventBus: eventBus)
+        self.jsonStreamToEventBusAdapter = JSONStreamToEventBusAdapter(
+            eventBus: eventBus,
+            logger: logger
+        )
         self.eventReceiver = EventReceiver(
             address: try PluginSupport.pluginSocket(),
+            logger: logger,
             pluginIdentifier: try PluginSupport.pluginIdentifier())
     }
     
@@ -61,13 +65,13 @@ public final class Plugin {
         let jsonReader = JSONReader(inputStream: jsonInputStream, eventStream: jsonStreamToEventBusAdapter)
         jsonReaderQueue.async {
             do {
-                Logger.verboseDebug("Starting JSON stream parser")
+                self.logger.debug("Starting JSON stream parser")
                 try jsonReader.start()
             } catch {
                 self.jsonStreamHasFinished = true
-                Logger.error("JSON stream error: \(error)")
+                self.logger.error("JSON stream error: \(error)")
             }
-            Logger.verboseDebug("JSON stream parser finished")
+            self.logger.debug("JSON stream parser finished")
         }
     }
     
@@ -85,7 +89,7 @@ public final class Plugin {
         }
         
         eventReceiver.onError = { error in
-            Logger.error("\(error)")
+            self.logger.error("\(error)")
             self.onEndOfData()
         }
         

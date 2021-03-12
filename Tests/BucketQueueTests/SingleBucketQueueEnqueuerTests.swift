@@ -19,6 +19,7 @@ final class SingleBucketQueueEnqueuerTests: XCTestCase {
     lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator()
     lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(
         knownWorkerIds: [workerId],
+        logger: .noOp,
         workerPermissionProvider: workerPermissionProvider
     )
     lazy var workerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()

@@ -25,6 +25,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let fileSystem: FileSystem
+    private let logger: ContextualLogger
     private let globalMetricRecorder: GlobalMetricRecorder
     private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
     private let onDemandSimulatorPool: OnDemandSimulatorPool
@@ -41,6 +42,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         fileSystem: FileSystem,
+        logger: ContextualLogger,
         globalMetricRecorder: GlobalMetricRecorder,
         specificMetricRecorderProvider: SpecificMetricRecorderProvider,
         onDemandSimulatorPool: OnDemandSimulatorPool,
@@ -56,6 +58,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.fileSystem = fileSystem
+        self.logger = logger.forType(Self.self)
         self.globalMetricRecorder = globalMetricRecorder
         self.specificMetricRecorderProvider = specificMetricRecorderProvider
         self.onDemandSimulatorPool = onDemandSimulatorPool
@@ -90,13 +93,13 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             analyticsConfiguration: configuration.analyticsConfiguration
         )
         
-        Logger.debug("Trying to fetch cached runtime dump entries for bundle: \(configuration.xcTestBundleLocation)")
+        logger.debug("Trying to fetch cached runtime dump entries for bundle: \(configuration.xcTestBundleLocation)")
         if let cachedRuntimeTests = try? configuration.remoteCache.results(xcTestBundleLocation: configuration.xcTestBundleLocation) {
-            Logger.debug("Fetched cached runtime dump entries for test bundle \(configuration.xcTestBundleLocation): \(cachedRuntimeTests)")
+            logger.debug("Fetched cached runtime dump entries for test bundle \(configuration.xcTestBundleLocation): \(cachedRuntimeTests)")
             return cachedRuntimeTests
         }
 
-        Logger.debug("No cached runtime dump entries found for bundle: \(configuration.xcTestBundleLocation)")
+        logger.debug("No cached runtime dump entries found for bundle: \(configuration.xcTestBundleLocation)")
         let dumpedTests = try discoveredTests(configuration: configuration, specificMetricRecorder: specificMetricRecorder)
 
         try? configuration.remoteCache.store(tests: dumpedTests, xcTestBundleLocation: configuration.xcTestBundleLocation)
@@ -176,7 +179,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         specificMetricRecorder: SpecificMetricRecorder
     ) {
         let testBundleName = configuration.xcTestBundleLocation.resourceLocation.stringValue.lastPathComponent
-        Logger.info("Test discovery in \(configuration.xcTestBundleLocation.resourceLocation): bundle has \(testCaseCount) XCTestCases, \(testCount) tests")
+        logger.info("Test discovery in \(configuration.xcTestBundleLocation.resourceLocation): bundle has \(testCaseCount) XCTestCases, \(testCount) tests")
         specificMetricRecorder.capture(
             RuntimeDumpTestCountMetric(
                 testBundleName: testBundleName,
@@ -218,6 +221,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         case .parseFunctionSymbols:
             return ParseFunctionSymbolsTestDiscoverer(
                 developerDirLocator: developerDirLocator,
+                logger: logger,
                 processControllerProvider: processControllerProvider,
                 resourceLocationResolver: resourceLocationResolver,
                 tempFolder: tempFolder,
@@ -227,6 +231,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             return ExecutableTestDiscoverer(
                 appBundleLocation: appBundleLocation,
                 developerDirLocator: developerDirLocator,
+                logger: logger,
                 resourceLocationResolver: resourceLocationResolver,
                 processControllerProvider: processControllerProvider,
                 tempFolder: tempFolder,
@@ -271,6 +276,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
+            logger: logger,
             numberOfAttemptsToPerformRuntimeDump: 3,
             onDemandSimulatorPool: onDemandSimulatorPool,
             pluginEventBusProvider: pluginEventBusProvider,

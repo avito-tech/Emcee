@@ -5,9 +5,14 @@ import SocketModels
 import Swifter
 
 public final class LocalPortDeterminer {
+    private let logger: ContextualLogger
     private let portRange: ClosedRange<SocketModels.Port>
     
-    public init(portRange: ClosedRange<SocketModels.Port>) {
+    public init(
+        logger: ContextualLogger,
+        portRange: ClosedRange<SocketModels.Port>
+    ) {
+        self.logger = logger.forType(Self.self)
         self.portRange = portRange
     }
     
@@ -24,9 +29,9 @@ public final class LocalPortDeterminer {
     
     public func availableLocalPort() throws -> SocketModels.Port {
         for port in portRange {
-            Logger.debug("Checking availability of local port \(port)")
+            logger.debug("Checking availability of local port \(port)")
             if isPortAvailable(port: UInt16(port.value)) {
-                Logger.debug("Port \(port) appears to be available")
+                logger.debug("Port \(port) appears to be available")
                 return port
             }
         }

@@ -24,6 +24,7 @@ final class BucketQueueTests: XCTestCase {
     lazy var workerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()
     lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(
         knownWorkerIds: [workerId, capableWorkerId],
+        logger: .noOp,
         workerPermissionProvider: FakeWorkerPermissionProvider()
     )
     lazy var workerConfigurations = WorkerConfigurations()

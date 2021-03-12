@@ -1957,6 +1957,7 @@ let package = Package(
             name: "WorkerAlivenessProvider",
             dependencies: [
                 "EmceeLogging",
+                "Extensions",
                 "QueueCommunication",
                 "QueueCommunicationModels",
                 "QueueModels",
