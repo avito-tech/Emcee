@@ -9,6 +9,7 @@ import UniqueIdentifierGenerator
 public final class SSHDeployer: Deployer {
     
     private let sshClientType: SSHClient.Type
+    private let logger: ContextualLogger
     
     public init(
         sshClientType: SSHClient.Type,
@@ -16,16 +17,19 @@ public final class SSHDeployer: Deployer {
         deployables: [DeployableItem],
         deployableCommands: [DeployableCommand],
         destination: DeploymentDestination,
+        logger: ContextualLogger,
         processControllerProvider: ProcessControllerProvider,
         temporaryFolder: TemporaryFolder,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) throws {
         self.sshClientType = sshClientType
+        self.logger = logger.forType(Self.self)
         try super.init(
             deploymentId: deploymentId,
             deployables: deployables,
             deployableCommands: deployableCommands,
             destination: destination,
+            logger: logger,
             processControllerProvider: processControllerProvider,
             temporaryFolder: temporaryFolder,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
@@ -37,8 +41,8 @@ public final class SSHDeployer: Deployer {
     ) throws {
         do {
             try deploy(pathToDeployable: pathToDeployable)
-        } catch let error {
-            SSHDeployer.log(destination, "Failed to deploy to this destination with error: \(error)")
+        } catch {
+            log(destination, "Failed to deploy to this destination with error: \(error)")
         }
     }
     
@@ -73,7 +77,7 @@ public final class SSHDeployer: Deployer {
     private func deploy(
         pathToDeployable: [AbsolutePath: DeployableItem]
     ) throws {
-        SSHDeployer.log(destination, "Connecting")
+        log(destination, "Connecting")
         let sshClient = try self.sshClientType.init(
             host: destination.host,
             port: destination.port,
@@ -81,7 +85,7 @@ public final class SSHDeployer: Deployer {
             password: destination.password
         )
         try sshClient.connectAndAuthenticate()
-        SSHDeployer.log(destination, "Connected and authenticated")
+        log(destination, "Connected and authenticated")
         
         try pathToDeployable.forEach { (absolutePath: AbsolutePath, deployable: DeployableItem) in
             let remoteDeploymentPath = SSHDeployer.remoteContainerPath(
@@ -114,7 +118,7 @@ public final class SSHDeployer: Deployer {
             destination: destination
         )
         
-        SSHDeployer.log(destination, "Finished deploying")
+        log(destination, "Finished deploying")
     }
     
     private func uploadFile(
@@ -123,9 +127,9 @@ public final class SSHDeployer: Deployer {
         localAbsolutePath: AbsolutePath,
         remoteAbsolutePath: AbsolutePath
     ) throws {
-        SSHDeployer.log(destination, "Uploading \(localAbsolutePath) -> \(remoteAbsolutePath)")
+        log(destination, "Uploading \(localAbsolutePath) -> \(remoteAbsolutePath)")
         try sshClient.upload(localUrl: localAbsolutePath.fileUrl, remotePath: remoteAbsolutePath.pathString)
-        SSHDeployer.log(destination, "Uploaded \(localAbsolutePath) -> \(remoteAbsolutePath)")
+        log(destination, "Uploaded \(localAbsolutePath) -> \(remoteAbsolutePath)")
     }
     
     private func deployPackageRemotely(
@@ -135,9 +139,9 @@ public final class SSHDeployer: Deployer {
         remotePackagePath: AbsolutePath,
         remoteDeploymentPath: AbsolutePath
     ) throws {
-        SSHDeployer.log(destination, "Deploying '\(deployable.name)'")
+        log(destination, "Deploying '\(deployable.name)'")
         try sshClient.execute(["unzip", remotePackagePath.pathString, "-d", remoteDeploymentPath.pathString])
-        SSHDeployer.log(destination, "Deployed '\(deployable.name)'")
+        log(destination, "Deployed '\(deployable.name)'")
     }
     
     // MARK: - Private - Command Invocatoin
@@ -159,20 +163,20 @@ public final class SSHDeployer: Deployer {
                     return remotePath.pathString
                 }
             }
-            SSHDeployer.log(destination, "Executing command: \(command)")
+            log(destination, "Executing command: \(command)")
             try sshClient.execute(commandArgs)
-            SSHDeployer.log(destination, "Executed command")
+            log(destination, "Executed command")
         }
     }
     
     // MARK: - Private - Logging
 
-    private static func log(
+    private func log(
         _ destination: DeploymentDestination,
         _ text: String,
-        file: StaticString = #file,
+        file: String = #file,
         line: UInt = #line
     ) {
-        Logger.debug("\(destination.host): \(text)", file: file, line: line)
+        logger.debug("\(destination.host): \(text)", file: file, line: line)
     }
 }

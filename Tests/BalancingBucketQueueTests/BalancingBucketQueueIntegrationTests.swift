@@ -470,6 +470,7 @@ final class BalancingBucketQueueIntegrationTests: XCTestCase {
     )
     lazy var bucketQueueFactory = BucketQueueFactoryImpl(
         dateProvider: dateProvider,
+        logger: .noOp,
         testHistoryTracker: TestHistoryTrackerFixtures.testHistoryTracker(
             uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator()
         ),

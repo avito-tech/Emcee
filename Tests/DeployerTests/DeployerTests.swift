@@ -33,6 +33,7 @@ class DeployerTests: XCTestCase {
                 password: "pass",
                 remoteDeploymentPath: "/remote/path"
             ),
+            logger: .noOp,
             processControllerProvider: FakeProcessControllerProvider { subprocess -> ProcessController in
                 XCTAssertEqual(
                     try subprocess.arguments.map { try $0.stringValue() },
@@ -75,6 +76,7 @@ class DeployerTests: XCTestCase {
                     password: "pass",
                     remoteDeploymentPath: "/remote/path"
                 ),
+                logger: .noOp,
                 processControllerProvider: FakeProcessControllerProvider(),
                 temporaryFolder: self.tempFolder,
                 uniqueIdentifierGenerator: self.uniqueIdentifierGenerator

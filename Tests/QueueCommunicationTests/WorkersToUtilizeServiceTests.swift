@@ -118,6 +118,7 @@ class WorkersToUtilizeServiceTests: XCTestCase {
             cache: cache,
             calculator: calculator,
             communicationService: communicationService,
+            logger: .noOp,
             portDeterminer: RemotePortDeterminerFixture(result: ports).build()
         )
     }

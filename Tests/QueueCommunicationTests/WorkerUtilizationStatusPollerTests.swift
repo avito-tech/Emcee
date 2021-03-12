@@ -151,6 +151,7 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
             communicationService: communicationService,
             defaultDeployments: deployments,
             emceeVersion: "emceeVersion",
+            logger: .noOp,
             globalMetricRecorder: globalMetricRecorder,
             queueHost: "queueHost"
         )

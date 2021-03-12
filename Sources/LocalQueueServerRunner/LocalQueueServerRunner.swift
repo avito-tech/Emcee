@@ -13,6 +13,7 @@ import SynchronousWaiter
 public final class LocalQueueServerRunner {
     private let automaticTerminationController: AutomaticTerminationController
     private let deployQueue: OperationQueue
+    private let logger: ContextualLogger
     private let newWorkerRegistrationTimeAllowance: TimeInterval
     private let pollPeriod: TimeInterval
     private let queueServer: QueueServer
@@ -30,6 +31,7 @@ public final class LocalQueueServerRunner {
     public init(
         automaticTerminationController: AutomaticTerminationController,
         deployQueue: OperationQueue,
+        logger: ContextualLogger,
         newWorkerRegistrationTimeAllowance: TimeInterval,
         pollPeriod: TimeInterval,
         queueServer: QueueServer,
@@ -42,6 +44,7 @@ public final class LocalQueueServerRunner {
     ) {
         self.automaticTerminationController = automaticTerminationController
         self.deployQueue = deployQueue
+        self.logger = logger.forType(Self.self)
         self.newWorkerRegistrationTimeAllowance = newWorkerRegistrationTimeAllowance
         self.pollPeriod = pollPeriod
         self.queueServer = queueServer
@@ -94,7 +97,7 @@ public final class LocalQueueServerRunner {
     }
     
     private func startWorkers(emceeVersion: Version, port: SocketModels.Port) throws {
-        Logger.info("Deploying and starting workers in background")
+        logger.info("Deploying and starting workers in background")
         
         let dispatchGroup = DispatchGroup()
         
@@ -110,14 +113,14 @@ public final class LocalQueueServerRunner {
                         queueAddress: LocalQueueServerRunner.queueServerAddress(port: port)
                     )
                 } catch {
-                    Logger.error("Failed to deploy to \(workerId): \(error)")
+                    self.logger.error("Failed to deploy to \(workerId): \(error)")
                 }
                 dispatchGroup.leave()
             }
         }
         
         dispatchGroup.notify(queue: .global()) {
-            Logger.debug("Finished deploying workers")
+            self.logger.debug("Finished deploying workers")
         }
     }
     

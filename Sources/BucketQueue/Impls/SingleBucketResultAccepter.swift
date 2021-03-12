@@ -8,15 +8,18 @@ import TestHistoryTracker
 public final class SingleBucketResultAccepter: BucketResultAccepter {
     private let bucketEnqueuer: BucketEnqueuer
     private let bucketQueueHolder: BucketQueueHolder
+    private let logger: ContextualLogger
     private let testHistoryTracker: TestHistoryTracker
     
     public init(
         bucketEnqueuer: BucketEnqueuer,
         bucketQueueHolder: BucketQueueHolder,
+        logger: ContextualLogger,
         testHistoryTracker: TestHistoryTracker
     ) {
         self.bucketEnqueuer = bucketEnqueuer
         self.bucketQueueHolder = bucketQueueHolder
+        self.logger = logger.forType(Self.self)
         self.testHistoryTracker = testHistoryTracker
     }
     
@@ -26,10 +29,9 @@ public final class SingleBucketResultAccepter: BucketResultAccepter {
         workerId: WorkerId
     ) throws -> BucketQueueAcceptResult {
         try bucketQueueHolder.performWithExclusiveAccess {
-            Logger.debug("Validating result for \(bucketId) from \(workerId): \(testingResult)")
+            logger.debug("Validating result for \(bucketId) from \(workerId): \(testingResult)")
             
             guard let dequeuedBucket = previouslyDequeuedBucket(bucketId: bucketId, workerId: workerId) else {
-                Logger.verboseDebug("Validation failed: no dequeued bucket for \(bucketId) \(workerId)")
                 throw BucketQueueAcceptanceError.noDequeuedBucket(bucketId: bucketId, workerId: workerId)
             }
             
@@ -49,7 +51,7 @@ public final class SingleBucketResultAccepter: BucketResultAccepter {
             )
             
             bucketQueueHolder.remove(dequeuedBucket: dequeuedBucket)
-            Logger.debug("Accepted result for \(dequeuedBucket.enqueuedBucket.bucket.bucketId) from \(workerId)")
+            logger.debug("Accepted result for \(dequeuedBucket.enqueuedBucket.bucket.bucketId) from \(workerId)")
             
             try bucketEnqueuer.enqueue(buckets: acceptResult.bucketsToReenqueue)
             
@@ -68,7 +70,7 @@ public final class SingleBucketResultAccepter: BucketResultAccepter {
     ) throws {
         let lostTestEntries = expectedTestEntries.subtracting(actualTestEntries)
         if !lostTestEntries.isEmpty {
-            Logger.debug("Test result for \(bucket.bucketId) from \(workerId) contains lost test entries: \(lostTestEntries)")
+            logger.debug("Test result for \(bucket.bucketId) from \(workerId) contains lost test entries: \(lostTestEntries)")
             let lostResult = try testHistoryTracker.accept(
                 testingResult: TestingResult(
                     testDestination: bucket.testDestination,

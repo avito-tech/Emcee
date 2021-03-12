@@ -92,6 +92,7 @@ let package = Package(
         .target(
             name: "AutomaticTermination",
             dependencies: [
+                .product(name: "AtomicModels", package: "CommandLineToolkit"),
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
                 "EmceeLogging",
                 .product(name: "Timer", package: "CommandLineToolkit"),
@@ -120,6 +121,7 @@ let package = Package(
                 "BucketQueueModels",
                 .product(name: "CountedSet", package: "CountedSet"),
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
+                "Extensions",
                 "LocalHostDeterminer",
                 .product(name: "Metrics", package: "CommandLineToolkit"),
                 "MetricsExtensions",
@@ -377,6 +379,7 @@ let package = Package(
                 "DistWorkerModels",
                 "EmceeLogging",
                 "EventBus",
+                "Extensions",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
                 "LocalHostDeterminer",
                 "LoggingSetup",
@@ -599,7 +602,6 @@ let package = Package(
         .target(
             name: "EventBus",
             dependencies: [
-                "EmceeLogging",
                 "RunnerModels",
             ],
             path: "Sources/EventBus"

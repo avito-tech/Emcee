@@ -112,6 +112,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         logger.info("Searching for queue server on '\(queueServerDeploymentDestination.host)' with queue version \(emceeVersion)")
         let remoteQueueDetector = DefaultRemoteQueueDetector(
             emceeVersion: emceeVersion,
+            logger: logger,
             remotePortDeterminer: RemoteQueuePortScanner(
                 host: queueServerDeploymentDestination.host,
                 portRange: EmceePorts.defaultQueuePortRange,
@@ -160,6 +161,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             deploymentId: jobId.value,
             deploymentDestination: queueServerDeploymentDestination,
             emceeVersion: emceeVersion,
+            logger: logger,
             processControllerProvider: try di.get(),
             queueServerConfigurationLocation: queueServerConfigurationLocation,
             tempFolder: try di.get(),
@@ -251,7 +253,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             case .deleted:
                 return false
             case .running(let queueState):
-                BucketQueueStateLogger(runningQueueState: queueState).logQueueSize()
+                BucketQueueStateLogger(runningQueueState: queueState).printQueueSize()
                 return !queueState.isDepleted
             }
         }

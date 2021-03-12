@@ -13,14 +13,19 @@ public final class CurrentlyProcessingBucketsEndpoint: RESTEndpoint {
     public let requestIndicatesActivity = false
     
     private let currentlyBeingProcessedBucketsTracker: CurrentlyBeingProcessedBucketsTracker
+    private let logger: ContextualLogger
 
-    public init(currentlyBeingProcessedBucketsTracker: CurrentlyBeingProcessedBucketsTracker) {
+    public init(
+        currentlyBeingProcessedBucketsTracker: CurrentlyBeingProcessedBucketsTracker,
+        logger: ContextualLogger
+    ) {
         self.currentlyBeingProcessedBucketsTracker = currentlyBeingProcessedBucketsTracker
+        self.logger = logger.forType(Self.self)
     }
     
     public func handle(payload: VoidPayload) throws -> CurrentlyProcessingBucketsResponse {
         let bucketIds = Array(currentlyBeingProcessedBucketsTracker.bucketIdsBeingProcessed)
-        Logger.debug("Processing \(bucketIds.count) buckets")
+        logger.debug("Processing \(bucketIds.count) buckets")
         return CurrentlyProcessingBucketsResponse(
             bucketIds: bucketIds
         )

@@ -13,6 +13,7 @@ class QueueCommunicationServiceTests: XCTestCase {
     let remoteQueueDetector = FakeRemoteQueueDetector()
     
     lazy var service = DefaultQueueCommunicationService(
+        logger: .noOp,
         remoteQueueDetector: remoteQueueDetector,
         requestSenderProvider: requestSenderProvider,
         requestTimeout: 10,

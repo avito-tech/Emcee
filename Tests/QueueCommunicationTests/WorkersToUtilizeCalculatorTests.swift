@@ -3,7 +3,7 @@ import QueueModels
 import XCTest
 
 class WorkersToUtilizeCalculatorTests: XCTestCase {
-    private let calculator = DefaultWorkersToUtilizeCalculator()
+    private let calculator = DefaultWorkersToUtilizeCalculator(logger: .noOp)
     
     func test___disjoint___with_equal_number_of_workers_and_versions() {
         let initialWorkers = buildWorkers(count: 4)

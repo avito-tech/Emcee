@@ -17,13 +17,16 @@ public enum RemoteQueueDetectorError: Error, CustomStringConvertible {
 
 public final class DefaultRemoteQueueDetector: RemoteQueueDetector {
     private let emceeVersion: Version
+    private let logger: ContextualLogger
     private let remotePortDeterminer: RemotePortDeterminer
 
     public init(
         emceeVersion: Version,
+        logger: ContextualLogger,
         remotePortDeterminer: RemotePortDeterminer)
     {
         self.emceeVersion = emceeVersion
+        self.logger = logger
         self.remotePortDeterminer = remotePortDeterminer
     }
     
@@ -47,7 +50,7 @@ public final class DefaultRemoteQueueDetector: RemoteQueueDetector {
             throw RemoteQueueDetectorError.noMasterQueueFound
         }
         
-        Logger.debug("Found master queue with version \(masterQueue.value) at port \(masterQueue.key)")
+        logger.debug("Found master queue with version \(masterQueue.value) at port \(masterQueue.key)")
         return masterQueue.key
     }
 }

@@ -11,12 +11,16 @@ public class DefaultWorkersMappingCache: WorkersMappingCache {
     private let cacheIvalidationTime: TimeInterval
     private var cache: CacheData?
     private let dateProvider: DateProvider
+    private let logger: ContextualLogger
+    
     public init(
         cacheIvalidationTime: TimeInterval,
-        dateProvider: DateProvider
+        dateProvider: DateProvider,
+        logger: ContextualLogger
     ) {
         self.cacheIvalidationTime = cacheIvalidationTime
         self.dateProvider = dateProvider
+        self.logger = logger.forType(Self.self)
     }
     
     public func cachedMapping() -> WorkersPerVersion? {
@@ -24,10 +28,10 @@ public class DefaultWorkersMappingCache: WorkersMappingCache {
             return nil
         }
         
-        let timeSinceCacheCreation = Date().timeIntervalSince(cache.creationDate)
+        let timeSinceCacheCreation = dateProvider.currentDate().timeIntervalSince(cache.creationDate)
         
-        if TimeInterval(timeSinceCacheCreation) >= cacheIvalidationTime {
-            Logger.info("Invalidating workers mapping cache, time since cache creation: \(timeSinceCacheCreation)")
+        if timeSinceCacheCreation >= cacheIvalidationTime {
+            logger.debug("Invalidating workers mapping cache, time since cache creation: \(timeSinceCacheCreation)")
             self.cache = nil
         }
         
@@ -35,7 +39,7 @@ public class DefaultWorkersMappingCache: WorkersMappingCache {
     }
     
     public func cacheMapping(_ mapping: WorkersPerVersion) {
-        Logger.info("Caching workers mapping: \(mapping)")
+        logger.debug("Caching workers mapping: \(mapping)")
         self.cache = CacheData(
             mapping: mapping,
             creationDate: dateProvider.currentDate()

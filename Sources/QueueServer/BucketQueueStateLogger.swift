@@ -9,15 +9,15 @@ public final class BucketQueueStateLogger {
         self.runningQueueState = runningQueueState
     }
     
-    public func logQueueSize() {
+    public func printQueueSize() {
         let dequeuedTests = runningQueueState.dequeuedTests.asDictionary
         
         for workerId in Array(dequeuedTests.keys).sorted() {
             if let testsOnWorker = dequeuedTests[workerId] {
-                Logger.info("\(workerId.value) is executing \(testsOnWorker.map { $0.stringValue }.sorted().joined(separator: ", "))")
+                print("\(workerId.value) is executing \(testsOnWorker.map { $0.stringValue }.sorted().joined(separator: ", "))")
             }
         }
 
-        Logger.info("Enqueued tests: \(runningQueueState.enqueuedTests.count), running tests: \(runningQueueState.dequeuedTests.flattenValues.count)")
+        print("Enqueued tests: \(runningQueueState.enqueuedTests.count), running tests: \(runningQueueState.dequeuedTests.flattenValues.count)")
     }
 }

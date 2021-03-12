@@ -10,7 +10,7 @@ internal final class AfterPeriodOfInactivityTerminationController: BaseAutomatic
     }
     
     override var isTerminationAllowed: Bool {
-        return dateProvider.currentDate() > lastActivityDate.addingTimeInterval(inactivityInterval)
+        return dateProvider.currentDate() > lastActivityDate.currentValue().addingTimeInterval(inactivityInterval)
     }
     
     var description: String {

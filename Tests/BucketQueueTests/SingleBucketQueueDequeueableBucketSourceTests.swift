@@ -23,6 +23,7 @@ final class SingleBucketQueueDequeueableBucketSourceTests: XCTestCase {
     
     lazy var source = SingleBucketQueueDequeueableBucketSource(
         bucketQueueHolder: bucketQueueHolder,
+        logger: .noOp,
         testHistoryTracker: testHistoryTracker,
         workerAlivenessProvider: workerAlivenessProvider,
         workerCapabilitiesStorage: workerCapabilitiesStorage

@@ -21,10 +21,10 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
     lazy var workerPermissionProvider = FakeWorkerPermissionProvider()
     lazy var workerId = WorkerId("workerId")
 
-    
     lazy var reenqueuer = SingleBucketQueueStuckBucketsReenqueuer(
         bucketEnqueuer: bucketEnqueuer,
         bucketQueueHolder: bucketQueueHolder,
+        logger: .noOp,
         workerAlivenessProvider: workerAlivenessProvider,
         uniqueIdentifierGenerator: uniqueIdentifierGenerator
     )

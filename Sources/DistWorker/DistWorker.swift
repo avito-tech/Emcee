@@ -70,7 +70,8 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
         httpRestServer.add(
             handler: RESTEndpointOf(
                 CurrentlyProcessingBucketsEndpoint(
-                    currentlyBeingProcessedBucketsTracker: currentlyBeingProcessedBucketsTracker
+                    currentlyBeingProcessedBucketsTracker: currentlyBeingProcessedBucketsTracker,
+                    logger: logger
                 )
             )
         )

@@ -11,6 +11,7 @@ open class Deployer {
     public let deployables: [DeployableItem]
     public let deployableCommands: [DeployableCommand]
     public let destination: DeploymentDestination
+    private let logger: ContextualLogger
     private let processControllerProvider: ProcessControllerProvider
     private let temporaryFolder: TemporaryFolder
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
@@ -20,6 +21,7 @@ open class Deployer {
         deployables: [DeployableItem],
         deployableCommands: [DeployableCommand],
         destination: DeploymentDestination,
+        logger: ContextualLogger,
         processControllerProvider: ProcessControllerProvider,
         temporaryFolder: TemporaryFolder,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
@@ -28,6 +30,7 @@ open class Deployer {
         self.deployables = deployables
         self.deployableCommands = deployableCommands
         self.destination = destination
+        self.logger = logger.forType(Self.self)
         self.processControllerProvider = processControllerProvider
         self.temporaryFolder = temporaryFolder
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
@@ -61,15 +64,15 @@ open class Deployer {
             group.enter()
             queue.async {
                 do {
-                    Logger.debug("Preparing deployable '\(deployable.name)'...")
+                    self.logger.debug("Preparing deployable '\(deployable.name)'...")
                     let path = try packager.preparePackage(
                         deployable: deployable,
                         packageFolder: try self.temporaryFolder.pathByCreatingDirectories(components: [self.uniqueIdentifierGenerator.generate()])
                     )
-                    Logger.debug("'\(deployable.name)' package path: \(path)")
+                    self.logger.debug("'\(deployable.name)' package path: \(path)")
                     syncQueue.sync { pathToDeployable[path] = deployable }
                 } catch {
-                    Logger.error("Failed to prepare deployable \(deployable.name): \(error)")
+                    self.logger.error("Failed to prepare deployable \(deployable.name): \(error)")
                     syncQueue.sync { deployablesFailedToPrepare.append(deployable) }
                 }
                 group.leave()

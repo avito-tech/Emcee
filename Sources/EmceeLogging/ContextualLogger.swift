@@ -3,6 +3,19 @@ import Foundation
 import Logging
 import QueueModels
 
+/// # Philosophy behind a contextual logging system
+/// Each layer of a software might want to log different information on top of other information added by layers on top.
+/// Example:
+///
+/// * `main` entrypoint might put some metadata to a logger: pid, process name
+/// * `command` being executed might add a command name, its arguments, probably user input
+/// * `process executor` which is being used by a `command` may add `subprocessId` and `subprocessName` to loggable messages.
+///
+/// In order to achieve this, `main` may create its instance of `ContextualLogger` and pass it down to the objects
+/// `command` may get the instance from `main`, and obtain its own instance by adding metadata. `ContextualLogger` here works like a factory.
+/// When executing subprocess, `command` will pass its `ContextualLogger` to `process executor`.
+/// `process executor` will again append its own metadata and use new instance to log its stuff.
+/// This way metadata can be derived between layers of software, extending it where needed, and still allowing layers to log data with its set of metadata without being affected by other layers.
 public final class ContextualLogger {
     private let logger: Logging.Logger
     

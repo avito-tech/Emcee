@@ -1,3 +1,4 @@
+import AtomicModels
 import DateProvider
 import Dispatch
 import Foundation
@@ -6,27 +7,17 @@ import Timer
 
 internal class BaseAutomaticTerminationController: AutomaticTerminationController {
     internal let dateProvider: DateProvider
-    private var storedActivityDate: Date
-    private var handlers = [AutomaticTerminationControllerHandler]()
-    private let syncQueue = DispatchQueue(label: "ru.avito.emcee.BaseAutomaticTerminationController.syncQueue")
+    let lastActivityDate: AtomicValue<Date>
+    private let handlers = AtomicValue<[AutomaticTerminationControllerHandler]>([])
     private var trackingTimer = DispatchBasedTimer(repeating: .seconds(1), leeway: .seconds(1))
     
     init(dateProvider: DateProvider) {
         self.dateProvider = dateProvider
-        storedActivityDate = dateProvider.currentDate()
+        lastActivityDate = AtomicValue(dateProvider.currentDate())
     }
     
     var isTerminationAllowed: Bool {
         fatalError("Subclasses must override this method")
-    }
-    
-    internal var lastActivityDate: Date {
-        get {
-            return syncQueue.sync { storedActivityDate }
-        }
-        set {
-            syncQueue.sync { storedActivityDate = newValue }
-        }
     }
     
     func startTracking() {
@@ -44,8 +35,8 @@ internal class BaseAutomaticTerminationController: AutomaticTerminationControlle
     }
     
     func add(handler: @escaping AutomaticTerminationControllerHandler) {
-        syncQueue.sync {
-            handlers.append(handler)
+        handlers.withExclusiveAccess {
+            $0.append(handler)
         }
     }
     
@@ -55,12 +46,11 @@ internal class BaseAutomaticTerminationController: AutomaticTerminationControlle
     
     private func updateLastActivityDate()  {
         guard !isTerminationAllowed else { return }
-        lastActivityDate = dateProvider.currentDate()
+        lastActivityDate.set(dateProvider.currentDate())
     }
     
     private func fireHandlers() {
-        let handlers = syncQueue.sync { self.handlers }
-        for handler in handlers {
+        for handler in handlers.currentValue() {
             handler()
         }
     }

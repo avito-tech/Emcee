@@ -16,6 +16,7 @@ final class SingleBucketResultAccepterTests: XCTestCase {
     lazy var accepter = SingleBucketResultAccepter(
         bucketEnqueuer: bucketEnqueuer,
         bucketQueueHolder: bucketQueueHolder,
+        logger: .noOp,
         testHistoryTracker: testHistoryTracker
     )
     

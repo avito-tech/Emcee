@@ -1,4 +1,5 @@
 import DateProvider
+import EmceeLogging
 import Foundation
 import TestHistoryTracker
 import UniqueIdentifierGenerator
@@ -7,6 +8,7 @@ import WorkerCapabilities
 
 public final class BucketQueueFactoryImpl: BucketQueueFactory {
     private let dateProvider: DateProvider
+    private let logger: ContextualLogger
     private let testHistoryTracker: TestHistoryTracker
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let workerAlivenessProvider: WorkerAlivenessProvider
@@ -14,12 +16,14 @@ public final class BucketQueueFactoryImpl: BucketQueueFactory {
 
     public init(
         dateProvider: DateProvider,
+        logger: ContextualLogger,
         testHistoryTracker: TestHistoryTracker,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         workerAlivenessProvider: WorkerAlivenessProvider,
         workerCapabilitiesStorage: WorkerCapabilitiesStorage
     ) {
         self.dateProvider = dateProvider
+        self.logger = logger.forType(Self.self)
         self.testHistoryTracker = testHistoryTracker
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.workerAlivenessProvider = workerAlivenessProvider
@@ -29,6 +33,7 @@ public final class BucketQueueFactoryImpl: BucketQueueFactory {
     public func createBucketQueue() -> BucketQueue {
         return BucketQueueImpl(
             dateProvider: dateProvider,
+            logger: logger,
             testHistoryTracker: testHistoryTracker,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessProvider: workerAlivenessProvider,

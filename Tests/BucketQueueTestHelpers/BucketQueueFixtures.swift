@@ -25,6 +25,7 @@ public final class BucketQueueFixtures {
     ) -> BucketQueue {
         return BucketQueueFactoryImpl(
             dateProvider: dateProvider,
+            logger: .noOp,
             testHistoryTracker: testHistoryTracker,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessProvider: workerAlivenessProvider,

@@ -1,6 +1,5 @@
 import Dispatch
 import Foundation
-import EmceeLogging
 
 public final class EventBus {
     private var streams = [EventStream]()
@@ -18,7 +17,6 @@ public final class EventBus {
     public func post(event: BusEvent) {
         workQueue.sync {
             streams.forEach { stream in
-                Logger.verboseDebug("Posting event to stream \(stream): \(event)")
                 eventDeliveryQueue.async {
                     stream.process(event: event)
                 }

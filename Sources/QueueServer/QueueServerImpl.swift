@@ -94,6 +94,7 @@ public final class QueueServerImpl: QueueServer {
         
         let bucketQueueFactory = BucketQueueFactoryImpl(
             dateProvider: dateProvider,
+            logger: logger,
             testHistoryTracker: TestHistoryTrackerImpl(
                 testHistoryStorage: TestHistoryStorageImpl(),
                 uniqueIdentifierGenerator: uniqueIdentifierGenerator

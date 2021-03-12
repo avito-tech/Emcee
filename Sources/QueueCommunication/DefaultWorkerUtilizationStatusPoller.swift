@@ -12,6 +12,7 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
     private let communicationService: QueueCommunicationService
     private let defaultDeployments: [DeploymentDestination]
     private let emceeVersion: Version
+    private let logger: ContextualLogger
     private let globalMetricRecorder: GlobalMetricRecorder
     private let pollingTrigger = DispatchBasedTimer(repeating: .seconds(60), leeway: .seconds(10))
     private let queueHost: String
@@ -21,12 +22,14 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
         communicationService: QueueCommunicationService,
         defaultDeployments: [DeploymentDestination],
         emceeVersion: Version,
+        logger: ContextualLogger,
         globalMetricRecorder: GlobalMetricRecorder,
         queueHost: String
     ) {
         self.communicationService = communicationService
         self.defaultDeployments = defaultDeployments
         self.emceeVersion = emceeVersion
+        self.logger = logger.forType(Self.self)
         self.globalMetricRecorder = globalMetricRecorder
         self.queueHost = queueHost
         self.workerIdsToUtilize = AtomicValue(Set(defaultDeployments.workerIds()))
@@ -34,15 +37,19 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
     }
     
     public func startPolling() {
-        Logger.debug("Starting polling workers to utilize")
+        logger.debug("Starting polling workers to utilize")
         pollingTrigger.start { [weak self] timer in
-            Logger.debug("Fetching workers to utilize")
-            self?.fetchWorkersToUtilize()
+            guard let strongSelf = self else {
+                return timer.stop()
+            }
+            
+            strongSelf.logger.debug("Fetching workers to utilize")
+            strongSelf.fetchWorkersToUtilize()
         }
     }
     
     public func stopPollingAndRestoreDefaultConfig() {
-        Logger.debug("Stopping polling workers to utilize")
+        logger.debug("Stopping polling workers to utilize")
         pollingTrigger.stop()
         workerIdsToUtilize.set(Set(defaultDeployments.workerIds()))
         reportMetric()
@@ -58,11 +65,11 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
                 
                 do {
                     let workerIds = try result.dematerialize()
-                    Logger.debug("Fetched workerIds to utilize: \(workerIds)")
+                    strongSelf.logger.debug("Fetched workerIds to utilize: \(workerIds)")
                     strongSelf.workerIdsToUtilize.set(workerIds)
                     strongSelf.reportMetric()
                 } catch {
-                    Logger.error("Failed to fetch workers to utilize: \(error)")
+                    strongSelf.logger.error("Failed to fetch workers to utilize: \(error)")
                 }
         })
     }

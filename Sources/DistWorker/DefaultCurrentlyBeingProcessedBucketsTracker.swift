@@ -1,28 +1,29 @@
 import CountedSet
 import Dispatch
+import Extensions
 import Foundation
 import QueueModels
 
 public final class DefaultCurrentlyBeingProcessedBucketsTracker: CurrentlyBeingProcessedBucketsTracker {
     private var bucketIds = CountedSet<BucketId>()
-    private let syncQueue = DispatchQueue(label: "ru.avito.emcee.CurrentlyBeingProcessedBucketsTracker.syncQueue")
+    private let lock = NSLock()
     
     public init() {}
     
     public func willProcess(bucketId: BucketId) {
-        _ = syncQueue.sync {
-            bucketIds.update(with: bucketId)
+        lock.whileLocked {
+            _ = bucketIds.update(with: bucketId)
         }
     }
     
     public func didProcess(bucketId: BucketId) {
-        _ = syncQueue.sync {
-            bucketIds.remove(bucketId)
+        lock.whileLocked {
+            _ = bucketIds.remove(bucketId)
         }
     }
     
     public var bucketIdsBeingProcessed: Set<BucketId> {
-        return syncQueue.sync {
+        lock.whileLocked {
             Set(bucketIds)
         }
     }
@@ -48,7 +49,7 @@ public final class DefaultCurrentlyBeingProcessedBucketsTracker: CurrentlyBeingP
     }
     
     public func perform<T>(work: (CurrentlyBeingProcessedBucketsTracker) throws -> T) rethrows -> T {
-        return try syncQueue.sync {
+        try lock.whileLocked {
             let tracker = InternalUnsafeTracker(bucketIds: bucketIds)
             defer { bucketIds = tracker.bucketIds }
             return try work(tracker)

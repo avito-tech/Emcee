@@ -1,5 +1,6 @@
 import Deployer
 import DistDeployer
+import EmceeLogging
 import Foundation
 import ProcessController
 import QueueModels
@@ -9,6 +10,7 @@ import UniqueIdentifierGenerator
 
 public final class DefaultRemoteWorkerStarterProvider: RemoteWorkerStarterProvider {
     private let emceeVersion: Version
+    private let logger: ContextualLogger
     private let processControllerProvider: ProcessControllerProvider
     private let tempFolder: TemporaryFolder
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
@@ -16,12 +18,14 @@ public final class DefaultRemoteWorkerStarterProvider: RemoteWorkerStarterProvid
     
     public init(
         emceeVersion: Version,
+        logger: ContextualLogger,
         processControllerProvider: ProcessControllerProvider,
         tempFolder: TemporaryFolder,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         workerDeploymentDestinations: [DeploymentDestination]
     ) {
         self.emceeVersion = emceeVersion
+        self.logger = logger.forType(Self.self)
         self.processControllerProvider = processControllerProvider
         self.tempFolder = tempFolder
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
@@ -49,6 +53,7 @@ public final class DefaultRemoteWorkerStarterProvider: RemoteWorkerStarterProvid
         return DefaultRemoteWorkersStarter(
             deploymentDestination: deploymentDestination,
             emceeVersion: emceeVersion,
+            logger: logger,
             processControllerProvider: processControllerProvider,
             tempFolder: tempFolder,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator

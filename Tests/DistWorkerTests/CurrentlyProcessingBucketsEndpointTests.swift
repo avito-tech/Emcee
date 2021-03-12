@@ -8,7 +8,8 @@ final class CurrentlyProcessingBucketsEndpointTests: XCTestCase {
     let bucketId = BucketId(value: "bucket")
     let currentlyBeingProcessedBucketsTracker = DefaultCurrentlyBeingProcessedBucketsTracker()
     lazy var endpoint = CurrentlyProcessingBucketsEndpoint(
-        currentlyBeingProcessedBucketsTracker: currentlyBeingProcessedBucketsTracker
+        currentlyBeingProcessedBucketsTracker: currentlyBeingProcessedBucketsTracker,
+        logger: .noOp
     )
     
     func test() throws {

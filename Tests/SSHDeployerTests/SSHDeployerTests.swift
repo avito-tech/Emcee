@@ -37,6 +37,7 @@ class SSHDeployerTests: XCTestCase {
                 ]
             ],
             destination: destination,
+            logger: .noOp,
             processControllerProvider: FakeProcessControllerProvider(),
             temporaryFolder: tempFolder,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator

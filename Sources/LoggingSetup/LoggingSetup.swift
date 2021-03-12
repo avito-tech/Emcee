@@ -40,8 +40,10 @@ public final class LoggingSetup {
         
         LoggingSystem.bootstrap { _ in GlobalLoggerConfig.loggerHandler }
         
-        Logger.always("To fetch detailed verbose log:")
-        Logger.always("$ scp \(NSUserName())@\(LocalHostDeterminer.currentHostAddress):\(detailedLogPath.absolutePath) /tmp/\(filename).log && open /tmp/\(filename).log")
+        let logger = ContextualLogger(Self.self)
+        
+        logger.info("To fetch detailed verbose log:")
+        logger.info("$ scp \(NSUserName())@\(LocalHostDeterminer.currentHostAddress):\(detailedLogPath.absolutePath) /tmp/\(filename).log && open /tmp/\(filename).log")
     }
     
     public func set(kibanaConfiguration: KibanaConfiguration) throws {
@@ -54,7 +56,6 @@ public final class LoggingSetup {
             )
         )
         GlobalLoggerConfig.loggerHandler.append(handler: handler)
-        Logger.debug("Set kibana logging with index \(kibanaConfiguration.indexPattern)")
     }
     
     public func childProcessLogsContainerProvider() throws -> ChildProcessLogsContainerProvider {
@@ -73,16 +74,19 @@ public final class LoggingSetup {
         queue: OperationQueue,
         completion: @escaping (Error?) -> ()
     ) throws {
+        let logger = ContextualLogger(Self.self)
+        
         let emceeLogsCleanUpMarkerFileProperties = fileSystem.properties(
             forFileAtPath: try fileSystem.emceeLogsCleanUpMarkerFile()
         )
         guard dateProvider.currentDate().timeIntervalSince(
             try emceeLogsCleanUpMarkerFileProperties.modificationDate()
         ) > logFilesCleanUpRegularity else {
-            return Logger.debug("Skipping log clean up since last clean up happened recently")
+            logger.debug("Skipping log clean up since last clean up happened recently")
+            return
         }
         
-        Logger.info("Cleaning up old log files")
+        logger.info("Cleaning up old log files")
         try emceeLogsCleanUpMarkerFileProperties.touch()
         
         let logsEnumerator = fileSystem.contentEnumerator(forPath: try fileSystem.emceeLogsFolder(), style: .deep)
@@ -96,7 +100,7 @@ public final class LoggingSetup {
                         do {
                             try self.fileSystem.delete(fileAtPath: path)
                         } catch {
-                            Logger.error("Failed to remove old log file at \(path): \(error)")
+                            logger.error("Failed to remove old log file at \(path): \(error)")
                         }
                     }
                 }

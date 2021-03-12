@@ -14,6 +14,7 @@ import WorkerCapabilitiesModels
 
 final class BucketQueueImpl: BucketQueue {
     private let dateProvider: DateProvider
+    private let logger: ContextualLogger
     private let testHistoryTracker: TestHistoryTracker
     private let workerAlivenessProvider: WorkerAlivenessProvider
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
@@ -24,12 +25,14 @@ final class BucketQueueImpl: BucketQueue {
     
     public init(
         dateProvider: DateProvider,
+        logger: ContextualLogger,
         testHistoryTracker: TestHistoryTracker,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         workerAlivenessProvider: WorkerAlivenessProvider,
         workerCapabilitiesStorage: WorkerCapabilitiesStorage
     ) {
         self.dateProvider = dateProvider
+        self.logger = logger.forType(Self.self)
         self.testHistoryTracker = testHistoryTracker
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.workerAlivenessProvider = workerAlivenessProvider
@@ -55,6 +58,7 @@ final class BucketQueueImpl: BucketQueue {
     public func dequeueBucket(workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeuedBucket? {
         SingleBucketQueueDequeueableBucketSource(
             bucketQueueHolder: bucketQueueHolder,
+            logger: logger,
             testHistoryTracker: testHistoryTracker,
             workerAlivenessProvider: workerAlivenessProvider,
             workerCapabilitiesStorage: workerCapabilitiesStorage
@@ -77,6 +81,7 @@ final class BucketQueueImpl: BucketQueue {
                 workerCapabilitiesStorage: workerCapabilitiesStorage
             ),
             bucketQueueHolder: bucketQueueHolder,
+            logger: logger,
             workerAlivenessProvider: workerAlivenessProvider,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         ).reenqueueStuckBuckets()
@@ -96,6 +101,7 @@ final class BucketQueueImpl: BucketQueue {
                 workerCapabilitiesStorage: workerCapabilitiesStorage
             ),
             bucketQueueHolder: bucketQueueHolder,
+            logger: logger,
             testHistoryTracker: testHistoryTracker
         ).accept(
             bucketId: bucketId,

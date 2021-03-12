@@ -8,25 +8,28 @@ public class DefaultWorkersToUtilizeService: WorkersToUtilizeService {
     private let cache: WorkersMappingCache
     private let calculator: WorkersToUtilizeCalculator
     private let communicationService: QueueCommunicationService
+    private let logger: ContextualLogger
     private let portDeterminer: RemotePortDeterminer
     
     public init(
         cache: WorkersMappingCache,
         calculator: WorkersToUtilizeCalculator,
         communicationService: QueueCommunicationService,
+        logger: ContextualLogger,
         portDeterminer: RemotePortDeterminer
     ) {
         self.cache = cache
         self.calculator = calculator
         self.communicationService = communicationService
+        self.logger = logger.forType(Self.self)
         self.portDeterminer = portDeterminer
     }
     
     public func workersToUtilize(initialWorkers: [WorkerId], version: Version) -> [WorkerId] {
-        Logger.debug("Preparing workers to utilize for version \(version) with initial workers \(initialWorkers)")
+        logger.debug("Preparing workers to utilize for version \(version) with initial workers \(initialWorkers)")
         
         if let cachedWorkers = cache.cachedMapping()?[version] {
-            Logger.info("Use cached workers to utilize: \(cachedWorkers) for version: \(version)")
+            logger.debug("Use cached workers to utilize: \(cachedWorkers) for version: \(version)")
             return cachedWorkers
         }
         
@@ -34,11 +37,11 @@ public class DefaultWorkersToUtilizeService: WorkersToUtilizeService {
         cache.cacheMapping(mappings)
         
         guard let workers = mappings[version] else {
-            Logger.error("Not found workers mapping for version \(version)")
+            logger.error("Not found workers mapping for version \(version)")
             return initialWorkers
         }
         
-        Logger.info("Use workers to utilize: \(workers) for version: \(version)")
+        logger.debug("Use workers to utilize: \(workers) for version: \(version)")
         return workers
     }
     
@@ -55,7 +58,7 @@ public class DefaultWorkersToUtilizeService: WorkersToUtilizeService {
                     let workers = try result.dematerialize().workerIds()
                     mapping[version] = workers
                 } catch {
-                    Logger.error("Error in obtaining deployment destinations for queue at port \(port) with error \(error.localizedDescription)")
+                    self.logger.error("Error in obtaining deployment destinations for queue at port \(port) with error \(error.localizedDescription)")
                 }
             }
         }

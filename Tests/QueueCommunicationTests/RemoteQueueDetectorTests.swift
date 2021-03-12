@@ -10,6 +10,7 @@ final class RemoteQueueDetectorTests: XCTestCase {
         
         let detector = DefaultRemoteQueueDetector(
             emceeVersion: "local_version",
+            logger: .noOp,
             remotePortDeterminer: remotePortDeterminer
         )
         
@@ -25,6 +26,7 @@ final class RemoteQueueDetectorTests: XCTestCase {
         
         let detector = DefaultRemoteQueueDetector(
             emceeVersion: "local_version",
+            logger: .noOp,
             remotePortDeterminer: remotePortDeterminer
         )
         
@@ -43,6 +45,7 @@ final class RemoteQueueDetectorTests: XCTestCase {
         
         let detector = DefaultRemoteQueueDetector(
             emceeVersion: "local_version",
+            logger: .noOp,
             remotePortDeterminer: remotePortDeterminer
         )
         
@@ -57,6 +60,7 @@ final class RemoteQueueDetectorTests: XCTestCase {
         
         let detector = DefaultRemoteQueueDetector(
             emceeVersion: "local_version",
+            logger: .noOp,
             remotePortDeterminer: remotePortDeterminer
         )
         
@@ -71,6 +75,7 @@ final class RemoteQueueDetectorTests: XCTestCase {
         
         let detector = DefaultRemoteQueueDetector(
             emceeVersion: "local_version",
+            logger: .noOp,
             remotePortDeterminer: remotePortDeterminer
         )
         
@@ -85,6 +90,7 @@ final class RemoteQueueDetectorTests: XCTestCase {
         
         let detector = DefaultRemoteQueueDetector(
             emceeVersion: "local_version",
+            logger: .noOp,
             remotePortDeterminer: remotePortDeterminer
         )
         
@@ -101,6 +107,7 @@ final class RemoteQueueDetectorTests: XCTestCase {
         
         let detector = DefaultRemoteQueueDetector(
             emceeVersion: "version1",
+            logger: .noOp,
             remotePortDeterminer: remotePortDeterminer
         )
         
@@ -117,6 +124,7 @@ final class RemoteQueueDetectorTests: XCTestCase {
         
         let detector = DefaultRemoteQueueDetector(
             emceeVersion: "version1",
+            logger: .noOp,
             remotePortDeterminer: remotePortDeterminer
         )
         

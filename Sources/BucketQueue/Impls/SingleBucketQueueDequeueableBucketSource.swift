@@ -10,6 +10,7 @@ import WorkerCapabilitiesModels
 
 public final class SingleBucketQueueDequeueableBucketSource: DequeueableBucketSource {
     private let bucketQueueHolder: BucketQueueHolder
+    private let logger: ContextualLogger
     private let testHistoryTracker: TestHistoryTracker
     private let workerAlivenessProvider: WorkerAlivenessProvider
     private let workerCapabilitiesStorage: WorkerCapabilitiesStorage
@@ -17,11 +18,13 @@ public final class SingleBucketQueueDequeueableBucketSource: DequeueableBucketSo
     
     public init(
         bucketQueueHolder: BucketQueueHolder,
+        logger: ContextualLogger,
         testHistoryTracker: TestHistoryTracker,
         workerAlivenessProvider: WorkerAlivenessProvider,
         workerCapabilitiesStorage: WorkerCapabilitiesStorage
     ) {
         self.bucketQueueHolder = bucketQueueHolder
+        self.logger = logger.forType(Self.self)
         self.testHistoryTracker = testHistoryTracker
         self.workerAlivenessProvider = workerAlivenessProvider
         self.workerCapabilitiesStorage = workerCapabilitiesStorage
@@ -43,7 +46,7 @@ public final class SingleBucketQueueDequeueableBucketSource: DequeueableBucketSo
                     requirements: enqueuedBucket.bucket.workerCapabilityRequirements,
                     workerCapabilities: workerCapabilities
                 ) else {
-                    Logger.debug("capabilities \(workerCapabilities) of \(workerId) do not meet bucket requirements: \(enqueuedBucket.bucket.workerCapabilityRequirements)")
+                    logger.debug("capabilities \(workerCapabilities) of \(workerId) do not meet bucket requirements: \(enqueuedBucket.bucket.workerCapabilityRequirements)")
                     return nil
                 }
                 
@@ -62,7 +65,7 @@ public final class SingleBucketQueueDequeueableBucketSource: DequeueableBucketSo
         
         bucketQueueHolder.replacePreviouslyEnqueuedBucket(withDequeuedBucket: dequeuedBucket)
         
-        Logger.debug("Dequeued new bucket: \(dequeuedBucket)")
+        logger.debug("Dequeued new bucket: \(dequeuedBucket)")
         
         workerAlivenessProvider.didDequeueBucket(
             bucketId: dequeuedBucket.enqueuedBucket.bucket.bucketId,

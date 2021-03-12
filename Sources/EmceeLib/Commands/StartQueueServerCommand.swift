@@ -89,8 +89,10 @@ public final class StartQueueServerCommand: Command {
             requestSenderProvider: try di.get()
         )
         let queueCommunicationService = DefaultQueueCommunicationService(
+            logger: logger,
             remoteQueueDetector: DefaultRemoteQueueDetector(
                 emceeVersion: emceeVersion,
+                logger: logger,
                 remotePortDeterminer: remotePortDeterminer
             ),
             requestSenderProvider: try di.get(),
@@ -102,19 +104,26 @@ public final class StartQueueServerCommand: Command {
             communicationService: queueCommunicationService,
             defaultDeployments: workerDestinations,
             emceeVersion: emceeVersion,
+            logger: logger,
             globalMetricRecorder: try di.get(),
             queueHost: socketHost
         )
         
         let workersToUtilizeService = DefaultWorkersToUtilizeService(
-            cache: DefaultWorkersMappingCache(cacheIvalidationTime: 300, dateProvider: try di.get()),
-            calculator: DefaultWorkersToUtilizeCalculator(),
+            cache: DefaultWorkersMappingCache(
+                cacheIvalidationTime: 300,
+                dateProvider: try di.get(),
+                logger: logger
+            ),
+            calculator: DefaultWorkersToUtilizeCalculator(logger: logger),
             communicationService: queueCommunicationService,
+            logger: logger,
             portDeterminer: remotePortDeterminer
         )
         
         let remoteWorkerStarterProvider = DefaultRemoteWorkerStarterProvider(
             emceeVersion: emceeVersion,
+            logger: logger,
             processControllerProvider: try di.get(),
             tempFolder: try TemporaryFolder(),
             uniqueIdentifierGenerator: try di.get(),
@@ -169,6 +178,7 @@ public final class StartQueueServerCommand: Command {
         let localQueueServerRunner = LocalQueueServerRunner(
             automaticTerminationController: automaticTerminationController,
             deployQueue: deployQueue,
+            logger: logger,
             newWorkerRegistrationTimeAllowance: 360.0,
             pollPeriod: pollPeriod,
             queueServer: queueServer,

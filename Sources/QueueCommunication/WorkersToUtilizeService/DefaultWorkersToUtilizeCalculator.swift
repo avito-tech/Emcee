@@ -6,12 +6,16 @@ import Types
 private typealias VersionClusters = MapWithCollection<[Version], WorkerId>
 
 public class DefaultWorkersToUtilizeCalculator: WorkersToUtilizeCalculator {
-    public init() { }
+    private let logger: ContextualLogger
+    
+    public init(logger: ContextualLogger) {
+        self.logger = logger.forType(Self.self)
+    }
     
     public func disjointWorkers(mapping: WorkersPerVersion) -> WorkersPerVersion {
-        Logger.info("Received workers to disjoint: \(mapping)")
+        logger.debug("Received workers to disjoint: \(mapping)")
         let calculatedMapping = calculateMapping(clusters: splitDestinationsToClusters(mapping: mapping))
-        Logger.info("Disjoint workers: \(calculatedMapping)")
+        logger.debug("Disjoint workers: \(calculatedMapping)")
         return calculatedMapping
     }
     
