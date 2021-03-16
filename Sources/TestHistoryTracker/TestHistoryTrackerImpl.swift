@@ -96,8 +96,7 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
                 testRunnerTool: bucket.testRunnerTool,
                 testTimeoutConfiguration: bucket.testTimeoutConfiguration,
                 testType: bucket.testType,
-                workerCapabilityRequirements: bucket.workerCapabilityRequirements,
-                persistentMetricsJobId: bucket.persistentMetricsJobId
+                workerCapabilityRequirements: bucket.workerCapabilityRequirements
             )
         }
         

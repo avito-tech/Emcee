@@ -59,8 +59,7 @@ public class BucketSplitter: Splitter, CustomStringConvertible {
                 testRunnerTool: entry.testRunnerTool,
                 testTimeoutConfiguration: entry.testTimeoutConfiguration,
                 testType: entry.testType,
-                workerCapabilityRequirements: entry.workerCapabilityRequirements,
-                persistentMetricsJobId: entry.persistentMetricsJobId
+                workerCapabilityRequirements: entry.workerCapabilityRequirements
             )
         }
     }

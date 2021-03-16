@@ -202,13 +202,13 @@ public final class Scheduler {
             developerDirLocator: try di.get(),
             fileSystem: try di.get(),
             logger: logger,
+            persistentMetricsJobId: bucket.analyticsConfiguration.persistentMetricsJobId,
             pluginEventBusProvider: try di.get(),
             resourceLocationResolver: try di.get(),
+            specificMetricRecorder: specificMetricRecorder,
             tempFolder: try di.get(),
             testRunnerProvider: try di.get(),
             version: version,
-            persistentMetricsJobId: bucket.persistentMetricsJobId,
-            specificMetricRecorder: specificMetricRecorder,
             waiter: try di.get()
         )
 

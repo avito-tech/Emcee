@@ -71,8 +71,7 @@ public final class SingleBucketQueueStuckBucketsReenqueuer: StuckBucketsReenqueu
                         testRunnerTool: stuckBucket.bucket.testRunnerTool,
                         testTimeoutConfiguration: stuckBucket.bucket.testTimeoutConfiguration,
                         testType: stuckBucket.bucket.testType,
-                        workerCapabilityRequirements: stuckBucket.bucket.workerCapabilityRequirements,
-                        persistentMetricsJobId: stuckBucket.bucket.persistentMetricsJobId
+                        workerCapabilityRequirements: stuckBucket.bucket.workerCapabilityRequirements
                     )
                 }
             }

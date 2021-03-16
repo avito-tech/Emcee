@@ -11,7 +11,7 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
     private let dateProvider: DateProvider
     private let version: Version
     private let host: String
-    private let persistentMetricsJobId: String
+    private let persistentMetricsJobId: String?
     private let lastTestStoppedEventTimestamp = AtomicValue<Date?>(nil)
     private let willRunEventTimestamp = AtomicValue<Date?>(nil)
     private let specificMetricRecorder: SpecificMetricRecorder
@@ -20,14 +20,14 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
         dateProvider: DateProvider,
         version: Version,
         host: String,
-        persistentMetricsJobId: String,
+        persistentMetricsJobId: String?,
         specificMetricRecorder: SpecificMetricRecorder
     ) {
         self.dateProvider = dateProvider
         self.host = host
         self.version = version
         self.persistentMetricsJobId = persistentMetricsJobId
-        self.specificMetricRecorder =         specificMetricRecorder
+        self.specificMetricRecorder = specificMetricRecorder
     }
     
     public func openStream() {
@@ -92,15 +92,17 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
                 timestamp: dateProvider.currentDate()
             )
         )
-        specificMetricRecorder.capture(
-            AggregatedTestsDurationMetric(
-                result: testStoppedEvent.result.rawValue,
-                host: host,
-                version: version,
-                persistentMetricsJobId: persistentMetricsJobId,
-                duration: testStoppedEvent.testDuration
+        if let persistentMetricsJobId = persistentMetricsJobId {
+            specificMetricRecorder.capture(
+                AggregatedTestsDurationMetric(
+                    result: testStoppedEvent.result.rawValue,
+                    host: host,
+                    version: version,
+                    persistentMetricsJobId: persistentMetricsJobId,
+                    duration: testStoppedEvent.testDuration
+                )
             )
-        )
+        }
         
         lastTestStoppedEventTimestamp.set(dateProvider.currentDate())
     }

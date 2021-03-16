@@ -11,23 +11,18 @@ public final class TestEntryConfigurationGenerator {
     private let analyticsConfiguration: AnalyticsConfiguration
     private let validatedEntries: [ValidatedTestEntry]
     private let testArgFileEntry: TestArgFileEntry
-    private let persistentMetricsJobId: String
     private let logger: ContextualLogger
 
     public init(
         analyticsConfiguration: AnalyticsConfiguration,
         validatedEntries: [ValidatedTestEntry],
         testArgFileEntry: TestArgFileEntry,
-        persistentMetricsJobId: String,
         logger: ContextualLogger
     ) {
         self.analyticsConfiguration = analyticsConfiguration
         self.validatedEntries = validatedEntries
         self.testArgFileEntry = testArgFileEntry
-        self.persistentMetricsJobId = persistentMetricsJobId
-        self.logger = logger
-            .forType(Self.self)
-            .withMetadata(key: .persistentMetricsJobId, value: persistentMetricsJobId)
+        self.logger = logger.forType(Self.self)
     }
     
     public func createTestEntryConfigurations() -> [TestEntryConfiguration] {
@@ -56,8 +51,7 @@ public final class TestEntryConfigurationGenerator {
                     testRunnerTool: testArgFileEntry.testRunnerTool,
                     testTimeoutConfiguration: testArgFileEntry.testTimeoutConfiguration,
                     testType: testArgFileEntry.testType,
-                    workerCapabilityRequirements: testArgFileEntry.workerCapabilityRequirements,
-                    persistentMetricsJobId: persistentMetricsJobId
+                    workerCapabilityRequirements: testArgFileEntry.workerCapabilityRequirements
                 )
             }
         }

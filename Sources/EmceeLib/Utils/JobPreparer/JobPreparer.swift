@@ -70,7 +70,6 @@ public final class JobPreparer {
                 analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration,
                 validatedEntries: validatedTestEntry,
                 testArgFileEntry: testArgFileEntry,
-                persistentMetricsJobId: testArgFile.prioritizedJob.persistentMetricsJobId,
                 logger: logger
             )
             let testEntryConfigurations = testEntryConfigurationGenerator.createTestEntryConfigurations()

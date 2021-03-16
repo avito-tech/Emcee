@@ -30,8 +30,7 @@ public final class BucketFixtures {
             testRunnerTool: .xcodebuild,
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
             testType: TestType.uiTest,
-            workerCapabilityRequirements: workerCapabilityRequirements,
-            persistentMetricsJobId: ""
+            workerCapabilityRequirements: workerCapabilityRequirements
         )
     }
 }

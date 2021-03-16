@@ -22,7 +22,6 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testType: TestType
     public let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
-    public let persistentMetricsJobId: String
 
     public init(
         analyticsConfiguration: AnalyticsConfiguration,
@@ -38,8 +37,7 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
         testRunnerTool: TestRunnerTool,
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testType: TestType,
-        workerCapabilityRequirements: Set<WorkerCapabilityRequirement>,
-        persistentMetricsJobId: String
+        workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
     ) {
         self.analyticsConfiguration = analyticsConfiguration
         self.buildArtifacts = buildArtifacts
@@ -55,10 +53,9 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testType = testType
         self.workerCapabilityRequirements = workerCapabilityRequirements
-        self.persistentMetricsJobId = persistentMetricsJobId
     }
     
     public var description: String {
-        return "<\(type(of: self)): \(testEntry) \(testType) \(testDestination) \(buildArtifacts) \(pluginLocations) \(simulatorSettings) \(testExecutionBehavior) \(testTimeoutConfiguration) \(simulatorControlTool) \(simulatorOperationTimeouts) \(testRunnerTool) \(developerDir) \(workerCapabilityRequirements) \(analyticsConfiguration) \(persistentMetricsJobId)>"
+        return "<\(type(of: self)): \(testEntry) \(testType) \(testDestination) \(buildArtifacts) \(pluginLocations) \(simulatorSettings) \(testExecutionBehavior) \(testTimeoutConfiguration) \(simulatorControlTool) \(simulatorOperationTimeouts) \(testRunnerTool) \(developerDir) \(workerCapabilityRequirements) \(analyticsConfiguration)>"
     }
 }

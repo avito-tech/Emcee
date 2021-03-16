@@ -106,8 +106,7 @@ public final class TestEntryConfigurationFixtures {
                 testRunnerTool: .xcodebuild,
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: testType,
-                workerCapabilityRequirements: workerCapabilityRequirements,
-                persistentMetricsJobId: persistentMetricsJobId
+                workerCapabilityRequirements: workerCapabilityRequirements
             )
         }
     }

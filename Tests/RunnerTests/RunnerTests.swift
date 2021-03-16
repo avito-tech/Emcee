@@ -271,14 +271,14 @@ public final class RunnerTests: XCTestCase {
             developerDirLocator: FakeDeveloperDirLocator(result: tempFolder.absolutePath),
             fileSystem: fileSystem,
             logger: .noOp,
+            persistentMetricsJobId: nil,
             pluginEventBusProvider: noOpPluginEventBusProvider,
             resourceLocationResolver: resolver,
+            specificMetricRecorder: SpecificMetricRecorderWrapper(NoOpMetricRecorder()),
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,
             testTimeoutCheckInterval: .milliseconds(100),
             version: Version(value: "version"),
-            persistentMetricsJobId: "",
-            specificMetricRecorder: SpecificMetricRecorderWrapper(NoOpMetricRecorder()),
             waiter: SynchronousWaiter()
         )
         return try runner.run(

@@ -26,13 +26,15 @@ public final class Runner {
     private let developerDirLocator: DeveloperDirLocator
     private let fileSystem: FileSystem
     private let logger: ContextualLogger
-    private let metricReportingTestRunnerStream: MetricReportingTestRunnerStream
+    private let persistentMetricsJobId: String?
     private let pluginEventBusProvider: PluginEventBusProvider
     private let pluginTearDownQueue = OperationQueue()
     private let resourceLocationResolver: ResourceLocationResolver
+    private let specificMetricRecorder: SpecificMetricRecorder
     private let tempFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
     private let testTimeoutCheckInterval: DispatchTimeInterval
+    private let version: Version
     private let waiter: Waiter
     
     public init(
@@ -41,14 +43,14 @@ public final class Runner {
         developerDirLocator: DeveloperDirLocator,
         fileSystem: FileSystem,
         logger: ContextualLogger,
+        persistentMetricsJobId: String?,
         pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver,
+        specificMetricRecorder: SpecificMetricRecorder,
         tempFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider,
         testTimeoutCheckInterval: DispatchTimeInterval = .seconds(1),
         version: Version,
-        persistentMetricsJobId: String,
-        specificMetricRecorder: SpecificMetricRecorder,
         waiter: Waiter
     ) {
         self.configuration = configuration
@@ -56,18 +58,14 @@ public final class Runner {
         self.developerDirLocator = developerDirLocator
         self.fileSystem = fileSystem
         self.logger = logger.forType(Self.self)
-        self.metricReportingTestRunnerStream = MetricReportingTestRunnerStream(
-            dateProvider: dateProvider,
-            version: version,
-            host: LocalHostDeterminer.currentHostAddress,
-            persistentMetricsJobId: persistentMetricsJobId,
-            specificMetricRecorder: specificMetricRecorder
-        )
+        self.persistentMetricsJobId = persistentMetricsJobId
         self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
+        self.specificMetricRecorder = specificMetricRecorder
         self.tempFolder = tempFolder
         self.testRunnerProvider = testRunnerProvider
         self.testTimeoutCheckInterval = testTimeoutCheckInterval
+        self.version = version
         self.waiter = waiter
     }
     
@@ -208,7 +206,13 @@ public final class Runner {
                     maximumTestDuration: singleTestMaximumDuration,
                     pollPeriod: testTimeoutCheckInterval
                 ),
-                metricReportingTestRunnerStream,
+                MetricReportingTestRunnerStream(
+                    dateProvider: dateProvider,
+                    version: version,
+                    host: LocalHostDeterminer.currentHostAddress,
+                    persistentMetricsJobId: persistentMetricsJobId,
+                    specificMetricRecorder: specificMetricRecorder
+                ),
                 TestRunnerStreamWrapper(
                     onOpenStream: {
                         logger.debug("Started executing tests")

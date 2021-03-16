@@ -65,7 +65,6 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 testsToRun: [.testName(argFileTestToRun1)],
                 workerCapabilityRequirements: []
             ),
-            persistentMetricsJobId: "",
             logger: .noOp
         )
         
@@ -105,7 +104,6 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 testsToRun: [.testName(argFileTestToRun1), .testName(argFileTestToRun1)],
                 workerCapabilityRequirements: []
             ),
-            persistentMetricsJobId: "",
             logger: .noOp
         )
         
@@ -147,7 +145,6 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 testsToRun: [.allDiscoveredTests],
                 workerCapabilityRequirements: []
             ),
-            persistentMetricsJobId: "",
             logger: .noOp
         )
         

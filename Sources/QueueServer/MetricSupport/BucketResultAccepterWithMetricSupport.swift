@@ -83,14 +83,17 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
                 analyticsConfiguration: acceptResult.dequeuedBucket.enqueuedBucket.bucket.analyticsConfiguration
             )
             specificMetricRecorder.capture(testTimeToStartMetrics + queueStateMetrics)
-            specificMetricRecorder.capture(
-                BucketProcessingDurationMetric(
-                    queueHost: LocalHostDeterminer.currentHostAddress,
-                    version: version,
-                    persistentMetricsJobId: acceptResult.dequeuedBucket.enqueuedBucket.bucket.persistentMetricsJobId ,
-                    duration: dateProvider.currentDate().timeIntervalSince(acceptResult.dequeuedBucket.enqueuedBucket.enqueueTimestamp)
+            if let persistentMetricsJobId = acceptResult.dequeuedBucket.enqueuedBucket.bucket.analyticsConfiguration.persistentMetricsJobId {
+                specificMetricRecorder.capture(
+                    BucketProcessingDurationMetric(
+                        queueHost: LocalHostDeterminer.currentHostAddress,
+                        version: version,
+                        persistentMetricsJobId: persistentMetricsJobId,
+                        duration: dateProvider.currentDate().timeIntervalSince(acceptResult.dequeuedBucket.enqueuedBucket.enqueueTimestamp)
+                    )
                 )
-            )
+
+            }
         } catch {
             logger.error("Failed to send metrics: \(error)")
         }

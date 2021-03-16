@@ -22,7 +22,6 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
     public let testRunnerTool: TestRunnerTool
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testType: TestType
-    public let persistentMetricsJobId: String
     
     public var description: String {
         var result = [String]()
@@ -40,7 +39,6 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
         result.append("testRunnerTool: \(testRunnerTool)")
         result.append("testTimeoutConfiguration: \(testTimeoutConfiguration)")
         result.append("testType: \(testType)")
-        result.append("persistentMetricsJobId: \(persistentMetricsJobId)")
         
         return "<\((type(of: self))) " + result.joined(separator: " ") + ">"
     }
@@ -59,8 +57,7 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
         testExecutionBehavior: TestExecutionBehavior,
         testRunnerTool: TestRunnerTool,
         testTimeoutConfiguration: TestTimeoutConfiguration,
-        testType: TestType,
-        persistentMetricsJobId: String
+        testType: TestType
     ) {
         self.analyticsConfiguration = analyticsConfiguration
         self.bucketId = bucketId
@@ -76,7 +73,6 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
         self.testRunnerTool = testRunnerTool
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testType = testType
-        self.persistentMetricsJobId = persistentMetricsJobId
     }
     
     public static func from(bucket: Bucket, testExecutionBehavior: TestExecutionBehavior) -> SchedulerBucket {
@@ -94,8 +90,7 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
             testExecutionBehavior: testExecutionBehavior,
             testRunnerTool: bucket.testRunnerTool,
             testTimeoutConfiguration: bucket.testTimeoutConfiguration,
-            testType: bucket.testType,
-            persistentMetricsJobId: bucket.persistentMetricsJobId
+            testType: bucket.testType
         )
     }
 }

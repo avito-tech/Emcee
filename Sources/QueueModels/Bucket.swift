@@ -23,7 +23,6 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible {
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testType: TestType
     public let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
-    public let persistentMetricsJobId: String
 
     public init(
         analyticsConfiguration: AnalyticsConfiguration,
@@ -40,8 +39,7 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible {
         testRunnerTool: TestRunnerTool,
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testType: TestType,
-        workerCapabilityRequirements: Set<WorkerCapabilityRequirement>,
-        persistentMetricsJobId: String
+        workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
     ) {
         self.analyticsConfiguration = analyticsConfiguration
         self.bucketId = bucketId
@@ -58,7 +56,6 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible {
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testType = testType
         self.workerCapabilityRequirements = workerCapabilityRequirements
-        self.persistentMetricsJobId = persistentMetricsJobId
     }
     
     public var description: String {
