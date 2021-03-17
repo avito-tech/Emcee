@@ -24,7 +24,7 @@ import UniqueIdentifierGenerator
 
 public final class Scheduler {
     private let di: DI
-    private let logger: ContextualLogger
+    private let rootLogger: ContextualLogger
     private let queue = OperationQueue()
     private let resourceSemaphore: ListeningSemaphore<ResourceAmounts>
     private let version: Version
@@ -40,7 +40,7 @@ public final class Scheduler {
         version: Version
     ) {
         self.di = di
-        self.logger = logger.forType(Self.self)
+        self.rootLogger = logger.forType(Self.self)
         self.resourceSemaphore = ListeningSemaphore(
             maximumValues: .of(
                 runningTests: Int(numberOfSimulators)
@@ -72,25 +72,29 @@ public final class Scheduler {
                 return
             }
             guard let bucket = self.schedulerDataSource?.nextBucket() else {
-                self.logger.debug("Data Source returned no bucket")
+                self.rootLogger.debug("Data Source returned no bucket")
                 return
             }
-            self.logger.debug("Data Source returned bucket: \(bucket)")
-            self.runTestsFromFetchedBucket(bucket)
+            let logger = self.rootLogger.withMetadata(bucket.analyticsConfiguration.metadata ?? [:])
+            logger.debug("Data Source returned bucket: \(bucket)")
+            self.runTestsFromFetchedBucket(bucket: bucket, logger: logger)
         }
     }
     
-    private func runTestsFromFetchedBucket(_ bucket: SchedulerBucket) {
+    private func runTestsFromFetchedBucket(
+        bucket: SchedulerBucket,
+        logger: ContextualLogger
+    ) {
         do {
             let acquireResources = try resourceSemaphore.acquire(.of(runningTests: 1))
             let runTestsInBucketAfterAcquiringResources = BlockOperation {
                 do {
-                    let testingResult = self.execute(bucket: bucket)
+                    let testingResult = self.execute(bucket: bucket, logger: logger)
                     try self.resourceSemaphore.release(.of(runningTests: 1))
                     self.schedulerDelegate?.scheduler(self, obtainedTestingResult: testingResult, forBucket: bucket)
                     self.fetchAndRunBucket()
                 } catch {
-                    self.logger.error("Error running tests from fetched bucket with error: \(error). Bucket: \(bucket)")
+                    logger.error("Error running tests from fetched bucket with error: \(error). Bucket: \(bucket)")
                 }
             }
             acquireResources.addCascadeCancellableDependency(runTestsInBucketAfterAcquiringResources)
@@ -102,10 +106,13 @@ public final class Scheduler {
     
     // MARK: - Running the Tests
     
-    private func execute(bucket: SchedulerBucket) -> TestingResult {
+    private func execute(
+        bucket: SchedulerBucket,
+        logger: ContextualLogger
+    ) -> TestingResult {
         let startedAt = Date()
         do {
-            return try self.runRetrying(bucket: bucket)
+            return try runRetrying(bucket: bucket, logger: logger)
         } catch {
             logger.error("Failed to execute bucket \(bucket.bucketId): \(error)")
             return TestingResult(
@@ -136,8 +143,11 @@ public final class Scheduler {
     /**
      Runs tests in a given Bucket, retrying failed tests multiple times if necessary.
      */
-    private func runRetrying(bucket: SchedulerBucket) throws -> TestingResult {
-        let firstRun = try runBucketOnce(bucket: bucket, testsToRun: bucket.testEntries)
+    private func runRetrying(
+        bucket: SchedulerBucket,
+        logger: ContextualLogger
+    ) throws -> TestingResult {
+        let firstRun = try runBucketOnce(bucket: bucket, testsToRun: bucket.testEntries, logger: logger)
         
         guard bucket.testExecutionBehavior.numberOfRetries > 0 else {
             return firstRun
@@ -153,13 +163,17 @@ public final class Scheduler {
             }
             logger.debug("After last run \(failedTestEntriesAfterLastRun.count) tests have failed: \(failedTestEntriesAfterLastRun).")
             logger.debug("Retrying them, attempt #\(retryNumber + 1) of maximum \(bucket.testExecutionBehavior.numberOfRetries) attempts")
-            lastRunResults = try runBucketOnce(bucket: bucket, testsToRun: failedTestEntriesAfterLastRun)
+            lastRunResults = try runBucketOnce(bucket: bucket, testsToRun: failedTestEntriesAfterLastRun, logger: logger)
             results.append(lastRunResults)
         }
         return try combine(runResults: results)
     }
     
-    private func runBucketOnce(bucket: SchedulerBucket, testsToRun: [TestEntry]) throws -> TestingResult {
+    private func runBucketOnce(
+        bucket: SchedulerBucket,
+        testsToRun: [TestEntry],
+        logger: ContextualLogger
+    ) throws -> TestingResult {
         let simulatorPool = try di.get(OnDemandSimulatorPool.self).pool(
             key: OnDemandSimulatorPoolKey(
                 developerDir: bucket.developerDir,

@@ -135,4 +135,10 @@ public extension ContextualLogger {
     ) {
         log(.warning, message, subprocessPidInfo: subprocessPidInfo, workerId: workerId, persistentMetricsJobId: persistentMetricsJobId, source: source, file: file, function: function, line: line)
     }
+    
+    func withMetadata(_ keyValues: [String: String]) -> ContextualLogger {
+        var addedMetadata = self.addedMetadata
+        addedMetadata.merge(keyValues) { _, new -> String in new }
+        return ContextualLogger(logger: logger, addedMetadata: addedMetadata)
+    }
 }

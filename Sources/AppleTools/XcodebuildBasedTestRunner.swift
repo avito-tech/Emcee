@@ -91,20 +91,16 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         var observableFileReaderHandler: ObservableFileReaderHandler?
         
         processController.onStart { [logger] sender, _ in
-            let logger = logger
-                .withMetadata(key: .subprocessId, value: "\(sender.subprocessInfo.subprocessId)")
-                .withMetadata(key: .subprocessName, value: sender.subprocessInfo.subprocessName)
-            
             testRunnerStream.openStream()
             do {
                 observableFileReaderHandler = try observableFileReader.read(handler: resultStream.write(data:))
             } catch {
-                logger.error("Failed to read stream file: \(error)")
+                logger.error("Failed to read stream file: \(error)", subprocessPidInfo: sender.subprocessInfo.pidInfo)
                 return sender.terminateAndForceKillIfNeeded()
             }
             resultStream.streamContents { error in
                 if let error = error {
-                    logger.error("Result stream error: \(error)")
+                    logger.error("Result stream error: \(error)", subprocessPidInfo: sender.subprocessInfo.pidInfo)
                 }
                 testRunnerStream.closeStream()
             }

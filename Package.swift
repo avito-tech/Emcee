@@ -568,6 +568,7 @@ let package = Package(
                 "Kibana",
                 .product(name: "Logging", package: "swift-log"),
                 "MetricsExtensions",
+                .product(name: "ProcessController", package: "CommandLineToolkit"),
                 "QueueModels",
             ],
             path: "Sources/EmceeLogging"

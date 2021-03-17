@@ -48,9 +48,3 @@ public final class DetailedActivityLoggableProcessControllerProvider: ProcessCon
         return processController
     }
 }
-
-extension SubprocessInfo {
-    var pidInfo: PidInfo {
-        PidInfo(pid: subprocessId, name: subprocessName)
-    }
-}
