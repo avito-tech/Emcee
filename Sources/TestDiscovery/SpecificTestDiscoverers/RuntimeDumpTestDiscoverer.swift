@@ -99,7 +99,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
             logger: logger,
-            persistentMetricsJobId: configuration.persistentMetricsJobId,
+            persistentMetricsJobId: configuration.analyticsConfiguration.persistentMetricsJobId,
             pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,
             specificMetricRecorder: specificMetricRecorder,

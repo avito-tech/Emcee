@@ -13,21 +13,18 @@ public final class TestEntriesValidator {
     private let testArgFileEntries: [TestArgFileEntry]
     private let testDiscoveryQuerier: TestDiscoveryQuerier
     private let analyticsConfiguration: AnalyticsConfiguration
-    private let persistentMetricsJobId: String
     private let transformer = TestToRunIntoTestEntryTransformer()
 
     public init(
         remoteCache: RuntimeDumpRemoteCache,
         testArgFileEntries: [TestArgFileEntry],
         testDiscoveryQuerier: TestDiscoveryQuerier,
-        analyticsConfiguration: AnalyticsConfiguration,
-        persistentMetricsJobId: String
+        analyticsConfiguration: AnalyticsConfiguration
     ) {
         self.remoteCache = remoteCache
         self.testArgFileEntries = testArgFileEntries
         self.testDiscoveryQuerier = testDiscoveryQuerier
         self.analyticsConfiguration = analyticsConfiguration
-        self.persistentMetricsJobId = persistentMetricsJobId
     }
     
     public func validatedTestEntries(
@@ -65,7 +62,6 @@ public final class TestEntriesValidator {
             testTimeoutConfiguration: testTimeoutConfigurationForRuntimeDump,
             testsToValidate: testArgFileEntry.testsToRun,
             xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location,
-            persistentMetricsJobId: persistentMetricsJobId,
             remoteCache: remoteCache
         )
 

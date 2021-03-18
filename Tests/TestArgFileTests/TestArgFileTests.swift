@@ -35,6 +35,10 @@ final class TestArgFileTests: XCTestCase {
                             "http://kibana.example.com:9200"
                         ],
                         "indexPattern": "index-pattern"
+                    },
+                    "persistentMetricsJobId": "persistentMetricsJobId",
+                    "metadata": {
+                        "some": "value"
                     }
                 }
             }
@@ -64,13 +68,14 @@ final class TestArgFileTests: XCTestCase {
                                 URL(string: "http://kibana.example.com:9200")!
                             ],
                             indexPattern: "index-pattern"
-                        )
+                        ),
+                        persistentMetricsJobId: "persistentMetricsJobId",
+                        metadata: ["some": "value"]
                     ),
                     jobGroupId: "jobGroupId",
                     jobGroupPriority: 100,
                     jobId: "jobId",
-                    jobPriority: 500,
-                    persistentMetricsJobId: "persistentMetricsJobId"
+                    jobPriority: 500
                 ),
                 testDestinationConfigurations: []
             )
@@ -100,8 +105,7 @@ final class TestArgFileTests: XCTestCase {
                     jobGroupId: "jobId",
                     jobGroupPriority: TestArgFileDefaultValues.priority,
                     jobId: "jobId",
-                    jobPriority: TestArgFileDefaultValues.priority,
-                    persistentMetricsJobId: TestArgFileDefaultValues.persistentMetricsJobId
+                    jobPriority: TestArgFileDefaultValues.priority
                 ),
                 testDestinationConfigurations: []
             )

@@ -39,16 +39,18 @@ public final class MultipleQueuesJobManipulator: JobManipulator {
             for deletedJobQueue in jobQueuesToDelete {
                 multipleQueuesContainer.untrack(jobGroup: deletedJobQueue.jobGroup)
                 
-                try specificMetricRecorderProvider.specificMetricRecorder(
-                    analyticsConfiguration: deletedJobQueue.analyticsConfiguration
-                ).capture(
-                    JobProcessingDurationMetric(
-                        queueHost: LocalHostDeterminer.currentHostAddress,
-                        version: emceeVersion,
-                        persistentMetricsJobId: deletedJobQueue.persistentMetricsJobId,
-                        duration: dateProvider.currentDate().timeIntervalSince(deletedJobQueue.job.creationTime)
+                if let persistentMetricsJobId = deletedJobQueue.analyticsConfiguration.persistentMetricsJobId {
+                    try specificMetricRecorderProvider.specificMetricRecorder(
+                        analyticsConfiguration: deletedJobQueue.analyticsConfiguration
+                    ).capture(
+                        JobProcessingDurationMetric(
+                            queueHost: LocalHostDeterminer.currentHostAddress,
+                            version: emceeVersion,
+                            persistentMetricsJobId: persistentMetricsJobId,
+                            duration: dateProvider.currentDate().timeIntervalSince(deletedJobQueue.job.creationTime)
+                        )
                     )
-                )
+                }
             }
         }
     }

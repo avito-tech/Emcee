@@ -254,7 +254,6 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             ),
             testsToValidate: testsToValidate,
             xcTestBundleLocation: xcTestBundleLocation,
-            persistentMetricsJobId: "",
             remoteCache: remoteCache
         )
     }

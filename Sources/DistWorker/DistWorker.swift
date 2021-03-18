@@ -50,12 +50,11 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
     
     public init(
         di: DI,
-        logger: ContextualLogger,
         version: Version,
         workerId: WorkerId
-    ) {
+    ) throws {
         self.di = di
-        self.logger = logger.forType(Self.self)
+        self.logger = try di.get(ContextualLogger.self).forType(Self.self)
         self.httpRestServer = HTTPRESTServer(
             automaticTerminationController: StayAliveTerminationController(),
             logger: logger,

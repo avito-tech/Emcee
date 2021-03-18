@@ -47,15 +47,12 @@ public struct TestArgFile: Codable, Equatable {
                 jobPriority
             let analyticsConfiguration = try container.decodeIfPresent(AnalyticsConfiguration.self, forKey: .analyticsConfiguration) ??
                 TestArgFileDefaultValues.analyticsConfiguration
-            let persistentMetricsJobId = try container.decodeIfPresent(String.self, forKey: .persistentMetricsJobId) ??
-                TestArgFileDefaultValues.persistentMetricsJobId
             return PrioritizedJob(
                 analyticsConfiguration: analyticsConfiguration,
                 jobGroupId: jobGroupId,
                 jobGroupPriority: jobGroupPriority,
                 jobId: jobId,
-                jobPriority: jobPriority,
-                persistentMetricsJobId: persistentMetricsJobId
+                jobPriority: jobPriority
             )
         }()
 

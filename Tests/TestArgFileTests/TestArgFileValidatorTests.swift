@@ -160,8 +160,7 @@ final class TestArgFileValidatorTests: XCTestCase {
                 jobGroupId: "",
                 jobGroupPriority: 0,
                 jobId: "",
-                jobPriority: 0,
-                persistentMetricsJobId: ""
+                jobPriority: 0
             ),
             testDestinationConfigurations: []
         )

@@ -15,8 +15,7 @@ final class MultipleQueuesEnqueueableBucketReceptorTests: XCTestCase {
         jobGroupId: "group",
         jobGroupPriority: .medium,
         jobId: "job",
-        jobPriority: .medium,
-        persistentMetricsJobId: ""
+        jobPriority: .medium
     )
     lazy var receptor = MultipleQueuesEnqueueableBucketReceptor(
         bucketQueueFactory: bucketQueueFactory,

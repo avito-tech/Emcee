@@ -45,7 +45,7 @@ public final class PipelinedTestDiscoverer {
         remoteCacheConfig: RuntimeDumpRemoteCacheConfig?
     ) throws -> [[DiscoveredTestEntry]] {
         let logger = self.logger
-            .withMetadata(key: .persistentMetricsJobId, value: testArgFile.prioritizedJob.persistentMetricsJobId)
+            .withMetadata(key: .persistentMetricsJobId, value: testArgFile.prioritizedJob.analyticsConfiguration.persistentMetricsJobId)
         
         let discoveredTests = AtomicValue<[[DiscoveredTestEntry]]>(
             Array(repeating: [], count: testArgFile.entries.count)
@@ -90,7 +90,6 @@ public final class PipelinedTestDiscoverer {
                         testTimeoutConfiguration: testTimeoutConfigurationForRuntimeDump,
                         testsToValidate: testArgFileEntry.testsToRun,
                         xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location,
-                        persistentMetricsJobId: testArgFile.prioritizedJob.persistentMetricsJobId,
                         remoteCache: runtimeDumpRemoteCacheProvider.remoteCache(config: remoteCacheConfig)
                     )
                     

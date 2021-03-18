@@ -228,7 +228,6 @@ final class ExecutableTestDiscovererTests: XCTestCase {
         testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
         testsToValidate: [],
         xcTestBundleLocation: testBundleLocation,
-        persistentMetricsJobId: "",
         remoteCache: NoOpRuntimeDumpRemoteCache()
     )
     private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }

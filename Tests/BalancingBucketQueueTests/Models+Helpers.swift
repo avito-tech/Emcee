@@ -40,7 +40,6 @@ func createJobQueue(
         bucketQueue: bucketQueue,
         job: job,
         jobGroup: jobGroup,
-        resultsCollector: resultsCollector,
-        persistentMetricsJobId: ""
+        resultsCollector: resultsCollector
     )
 }

@@ -96,8 +96,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             remoteCache: NoOpRuntimeDumpRemoteCache(),
             testArgFileEntries: testArgFileEntries,
             testDiscoveryQuerier: testDiscoveryQuerier,
-            analyticsConfiguration: AnalyticsConfiguration(),
-            persistentMetricsJobId: ""
+            analyticsConfiguration: AnalyticsConfiguration()
         )
     }
 

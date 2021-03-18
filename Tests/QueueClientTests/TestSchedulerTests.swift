@@ -22,8 +22,7 @@ final class TestSchedulerTests: XCTestCase {
         jobGroupId: "group",
         jobGroupPriority: .lowest,
         jobId: "job",
-        jobPriority: .highest,
-        persistentMetricsJobId: ""
+        jobPriority: .highest
     )
     
     func test___success_scenario() {

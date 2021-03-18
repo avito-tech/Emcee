@@ -34,8 +34,7 @@ final class QueueServerTests: XCTestCase {
         jobGroupId: "groupId",
         jobGroupPriority: .medium,
         jobId: jobId,
-        jobPriority: .medium,
-        persistentMetricsJobId: ""
+        jobPriority: .medium
     )
     private let automaticTerminationController = AutomaticTerminationControllerFactory(
         automaticTerminationPolicy: .stayAlive

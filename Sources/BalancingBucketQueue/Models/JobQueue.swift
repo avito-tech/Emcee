@@ -9,22 +9,19 @@ public struct JobQueue: DefinesExecutionOrder {
     public let job: Job
     public let jobGroup: JobGroup
     public let resultsCollector: ResultsCollector
-    public let persistentMetricsJobId: String
     
     public init(
         analyticsConfiguration: AnalyticsConfiguration,
         bucketQueue: BucketQueue,
         job: Job,
         jobGroup: JobGroup,
-        resultsCollector: ResultsCollector,
-        persistentMetricsJobId: String
+        resultsCollector: ResultsCollector
     ) {
         self.analyticsConfiguration = analyticsConfiguration
         self.bucketQueue = bucketQueue
         self.job = job
         self.jobGroup = jobGroup
         self.resultsCollector = resultsCollector
-        self.persistentMetricsJobId = persistentMetricsJobId
     }
     
     public func executionOrder(relativeTo other: JobQueue) -> ExecutionOrder {

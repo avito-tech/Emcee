@@ -20,7 +20,6 @@ public struct TestDiscoveryConfiguration {
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testsToValidate: [TestToRun]
     public let xcTestBundleLocation: TestBundleLocation
-    public let persistentMetricsJobId: String
     public let remoteCache: RuntimeDumpRemoteCache
 
     public init(
@@ -36,7 +35,6 @@ public struct TestDiscoveryConfiguration {
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testsToValidate: [TestToRun],
         xcTestBundleLocation: TestBundleLocation,
-        persistentMetricsJobId: String,
         remoteCache: RuntimeDumpRemoteCache
     ) {
         self.analyticsConfiguration = analyticsConfiguration
@@ -51,7 +49,6 @@ public struct TestDiscoveryConfiguration {
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testsToValidate = testsToValidate
         self.xcTestBundleLocation = xcTestBundleLocation
-        self.persistentMetricsJobId = persistentMetricsJobId
         self.remoteCache = remoteCache
     }
 }

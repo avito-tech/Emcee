@@ -105,11 +105,13 @@ public final class DistWorkCommand: Command {
             for: WorkerCapabilitiesProvider.self
         )
         
-        return DistWorker(
+        let updatedLogger = try di.get(ContextualLogger.self)
+            .withMetadata(key: .workerId, value: workerId.value)
+            .withMetadata(key: .emceeVersion, value: version.value)
+        di.set(updatedLogger)
+        
+        return try DistWorker(
             di: di,
-            logger: try di.get(ContextualLogger.self)
-                .withMetadata(key: .workerId, value: workerId.value)
-                .withMetadata(key: .emceeVersion, value: version.value),
             version: version,
             workerId: workerId
         )

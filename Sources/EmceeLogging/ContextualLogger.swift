@@ -141,4 +141,15 @@ public extension ContextualLogger {
         addedMetadata.merge(keyValues) { _, new -> String in new }
         return ContextualLogger(logger: logger, addedMetadata: addedMetadata)
     }
+    
+    func withMetadata(key: ContextKeys, value: String?) -> ContextualLogger {
+        withMetadata(key: key.rawValue, value: value)
+    }
+    
+    func withMetadata(key: String, value: String?) -> ContextualLogger {
+        if let value = value {
+            return withMetadata(key: key, value: value)
+        }
+        return self
+    }
 }

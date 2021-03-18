@@ -19,8 +19,7 @@ final class TestsEnqueuerTests: XCTestCase {
         jobGroupId: "groupId",
         jobGroupPriority: .medium,
         jobId: "jobId",
-        jobPriority: .medium,
-        persistentMetricsJobId: ""
+        jobPriority: .medium
     )
     
     func test() throws {

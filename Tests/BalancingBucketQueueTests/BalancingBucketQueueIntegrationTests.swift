@@ -246,8 +246,7 @@ final class BalancingBucketQueueIntegrationTests: XCTestCase {
                 jobGroupId: "group1",
                 jobGroupPriority: .medium,
                 jobId: "job1",
-                jobPriority: .medium,
-                persistentMetricsJobId: ""
+                jobPriority: .medium
             )
         )
         let bucket2 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class2")])
@@ -258,8 +257,7 @@ final class BalancingBucketQueueIntegrationTests: XCTestCase {
                 jobGroupId: "group2",
                 jobGroupPriority: .highest,
                 jobId: "job2",
-                jobPriority: .medium,
-                persistentMetricsJobId: ""
+                jobPriority: .medium
             )
         )
 
@@ -460,8 +458,7 @@ final class BalancingBucketQueueIntegrationTests: XCTestCase {
         jobGroupId: "groupId",
         jobGroupPriority: .medium,
         jobId: anotherJobId,
-        jobPriority: .medium,
-        persistentMetricsJobId: ""
+        jobPriority: .medium
     )
     lazy var balancingQueue = BalancingBucketQueueImpl(
         bucketQueueFactory: bucketQueueFactory,
@@ -485,8 +482,7 @@ final class BalancingBucketQueueIntegrationTests: XCTestCase {
         jobGroupId: "groupId",
         jobGroupPriority: .medium,
         jobId: highlyPrioritizedJobId,
-        jobPriority: .highest,
-        persistentMetricsJobId: ""
+        jobPriority: .highest
     )
     lazy var highlyPrioritizedJobId: JobId = "highPriorityJobId"
     lazy var jobId: JobId = "jobId"
@@ -495,8 +491,7 @@ final class BalancingBucketQueueIntegrationTests: XCTestCase {
         jobGroupId: "groupId",
         jobGroupPriority: .medium,
         jobId: jobId,
-        jobPriority: .medium,
-        persistentMetricsJobId: ""
+        jobPriority: .medium
     )
     lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator()
     lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(

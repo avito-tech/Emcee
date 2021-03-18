@@ -40,7 +40,6 @@ public final class JobPreparer {
                     duration: duration,
                     emceeVersion: emceeVersion,
                     analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration,
-                    persistentMetricsJobId: testArgFile.prioritizedJob.persistentMetricsJobId,
                     queueHost: queueServerAddress.host,
                     successful: error == nil
                 )
@@ -57,14 +56,13 @@ public final class JobPreparer {
             remoteCache: try di.get(RuntimeDumpRemoteCacheProvider.self).remoteCache(config: remoteCacheConfig),
             testArgFileEntries: testArgFile.entries,
             testDiscoveryQuerier: try di.get(),
-            analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration,
-            persistentMetricsJobId: testArgFile.prioritizedJob.persistentMetricsJobId
+            analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration
         )
         
         let logger = try di.get(ContextualLogger.self)
             .forType(Self.self)
-            .withMetadata(key: .persistentMetricsJobId, value: testArgFile.prioritizedJob.persistentMetricsJobId)
-        
+            .withMetadata(key: .persistentMetricsJobId, value: testArgFile.prioritizedJob.analyticsConfiguration.persistentMetricsJobId)
+
         _ = try testEntriesValidator.validatedTestEntries { testArgFileEntry, validatedTestEntry in
             let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
                 analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration,
@@ -96,20 +94,21 @@ public final class JobPreparer {
         duration: TimeInterval,
         emceeVersion: Version,
         analyticsConfiguration: AnalyticsConfiguration,
-        persistentMetricsJobId: String,
         queueHost: String,
         successful: Bool
     ) throws {
-        try di.get(SpecificMetricRecorderProvider.self).specificMetricRecorder(
-            analyticsConfiguration: analyticsConfiguration
-        ).capture(
-            JobPreparationDurationMetric(
-                queueHost: queueHost,
-                version: emceeVersion,
-                persistentMetricsJobId: persistentMetricsJobId,
-                successful: successful,
-                duration: duration
+        if let persistentMetricsJobId = analyticsConfiguration.persistentMetricsJobId {
+            try di.get(SpecificMetricRecorderProvider.self).specificMetricRecorder(
+                analyticsConfiguration: analyticsConfiguration
+            ).capture(
+                JobPreparationDurationMetric(
+                    queueHost: queueHost,
+                    version: emceeVersion,
+                    persistentMetricsJobId: persistentMetricsJobId,
+                    successful: successful,
+                    duration: duration
+                )
             )
-        )
+        }
     }
 }

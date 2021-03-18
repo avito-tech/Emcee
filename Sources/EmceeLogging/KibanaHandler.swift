@@ -1,3 +1,4 @@
+import Extensions
 import Foundation
 import Kibana
 import Logging
@@ -29,7 +30,7 @@ public final class KibanaLoggerHandler: LoggerHandler {
         line: UInt
     ) {
         var kibanaPayload = [
-            "fileLine": "\(file):\(line)",
+            "fileLine": "\(file.lastPathComponent):\(line)",
         ]
         
         for keyValue in metadata ?? [:] {

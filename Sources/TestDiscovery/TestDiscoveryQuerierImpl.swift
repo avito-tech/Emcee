@@ -133,7 +133,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             },
             result: { error, duration in
                 reportDiscoveryDuration(
-                    persistentMetricsJobId: configuration.persistentMetricsJobId,
+                    persistentMetricsJobId: configuration.analyticsConfiguration.persistentMetricsJobId,
                     duration: duration,
                     isSuccessful: error == nil,
                     specificMetricRecorder: specificMetricRecorder
@@ -197,20 +197,22 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     }
     
     private func reportDiscoveryDuration(
-        persistentMetricsJobId: String,
+        persistentMetricsJobId: String?,
         duration: TimeInterval,
         isSuccessful: Bool,
         specificMetricRecorder: SpecificMetricRecorder
     ) {
-        specificMetricRecorder.capture(
-            TestDiscoveryDurationMetric(
-                host: LocalHostDeterminer.currentHostAddress,
-                version: version,
-                persistentMetricsJobId: persistentMetricsJobId,
-                isSuccessful: isSuccessful,
-                duration: duration
+        if let persistentMetricsJobId = persistentMetricsJobId {
+            specificMetricRecorder.capture(
+                TestDiscoveryDurationMetric(
+                    host: LocalHostDeterminer.currentHostAddress,
+                    version: version,
+                    persistentMetricsJobId: persistentMetricsJobId,
+                    isSuccessful: isSuccessful,
+                    duration: duration
+                )
             )
-        )
+        }
     }
     
     private func createSpecificTestDiscoverer(

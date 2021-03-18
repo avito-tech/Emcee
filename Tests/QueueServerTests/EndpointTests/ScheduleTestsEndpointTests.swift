@@ -171,8 +171,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         jobGroupId: "groupId",
         jobGroupPriority: .medium,
         jobId: jobId,
-        jobPriority: .medium,
-        persistentMetricsJobId: ""
+        jobPriority: .medium
     )
     let testEntryConfigurations = TestEntryConfigurationFixtures()
         .add(testEntry: TestEntryFixtures.testEntry())

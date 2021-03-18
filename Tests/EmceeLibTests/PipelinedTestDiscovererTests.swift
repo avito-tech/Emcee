@@ -208,8 +208,7 @@ extension TestArgFile {
                 jobGroupId: "groupId",
                 jobGroupPriority: .medium,
                 jobId: "jobId",
-                jobPriority: .medium,
-                persistentMetricsJobId: ""
+                jobPriority: .medium
             ),
             testDestinationConfigurations: []
         )
