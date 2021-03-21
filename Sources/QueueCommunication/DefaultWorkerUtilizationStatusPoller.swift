@@ -75,16 +75,16 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
     }
     
     public func utilizationPermissionForWorker(workerId: WorkerId) -> WorkerUtilizationPermission {
-        return workerIdsToUtilize.withExclusiveAccess { workerIds in
-            return workerIds.contains(workerId) ? .allowedToUtilize : .notAllowedToUtilize
-        }
+        workerIdsToUtilize.currentValue().contains(workerId) ? .allowedToUtilize : .notAllowedToUtilize
     }
     
     private func reportMetric() {
-        workerIdsToUtilize.withExclusiveAccess {
-            globalMetricRecorder.capture(
-                NumberOfWorkersToUtilizeMetric(emceeVersion: emceeVersion, queueHost: queueHost, workersCount: $0.count)
+        globalMetricRecorder.capture(
+            NumberOfWorkersToUtilizeMetric(
+                emceeVersion: emceeVersion,
+                queueHost: queueHost,
+                workersCount: workerIdsToUtilize.currentValue().count
             )
-        }
+        )
     }
 }

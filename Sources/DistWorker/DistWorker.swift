@@ -35,7 +35,12 @@ import WorkerCapabilities
 
 public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
     private let di: DI
-    private let callbackQueue = DispatchQueue(label: "DistWorker.callbackQueue", qos: .default, attributes: .concurrent)
+    private let callbackQueue = DispatchQueue(
+        label: "DistWorker.callbackQueue",
+        qos: .default,
+        attributes: .concurrent,
+        target: .global()
+    )
     private let currentlyBeingProcessedBucketsTracker = DefaultCurrentlyBeingProcessedBucketsTracker()
     private let httpRestServer: HTTPRESTServer
     private let version: Version

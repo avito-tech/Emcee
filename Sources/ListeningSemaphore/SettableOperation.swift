@@ -1,8 +1,9 @@
 import Dispatch
+import Extensions
 import Foundation
 
 final class SettableOperation: Operation, CascadeCancellable {
-    private let syncQueue = DispatchQueue(label: "ru.avito.SettableOperation.syncQueue")
+    private let lock = NSLock()
     private var cascaseCancellableDependencies = [Operation]()
     private var isAbleToRun: Bool {
         willSet {
@@ -30,7 +31,7 @@ final class SettableOperation: Operation, CascadeCancellable {
     }
     
     public func unblock() {
-        syncQueue.sync { isAbleToRun = true }
+        lock.whileLocked { isAbleToRun = true }
     }
     
     func addCascadeCancellableDependency(_ operation: Operation) {

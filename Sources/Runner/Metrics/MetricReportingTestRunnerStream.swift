@@ -124,17 +124,15 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
             value = nil
         }
         
-        willRunEventTimestamp.withExclusiveAccess { value in
-            if let streamOpenEventTimestamp = value {
-                specificMetricRecorder.capture(
-                    UselessTestRunnerInvocationMetric(
-                        host: host,
-                        version: version,
-                        duration: dateProvider.currentDate().timeIntervalSince(streamOpenEventTimestamp),
-                        timestamp: dateProvider.currentDate()
-                    )
+        if let streamOpenEventTimestamp = willRunEventTimestamp.currentValue() {
+            specificMetricRecorder.capture(
+                UselessTestRunnerInvocationMetric(
+                    host: host,
+                    version: version,
+                    duration: dateProvider.currentDate().timeIntervalSince(streamOpenEventTimestamp),
+                    timestamp: dateProvider.currentDate()
                 )
-            }
+            )
         }
     }
 }

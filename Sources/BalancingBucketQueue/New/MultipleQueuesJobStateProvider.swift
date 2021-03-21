@@ -17,22 +17,20 @@ public final class MultipleQueuesJobStateProvider: JobStateProvider {
     }
     
     public func state(jobId: JobId) throws -> JobState {
-        try multipleQueuesContainer.performWithExclusiveAccess {
-            if let jobQueue = multipleQueuesContainer.allRunningJobQueues().first(where: { $0.job.jobId == jobId }) {
-                return JobState(
-                    jobId: jobId,
-                    queueState: QueueState.running(jobQueue.bucketQueue.runningQueueState)
-                )
-            }
-            
-            if multipleQueuesContainer.allDeletedJobQueues().first(where: { $0.job.jobId == jobId }) != nil {
-                return JobState(
-                    jobId: jobId,
-                    queueState: QueueState.deleted
-                )
-            }
-            
-            throw NoQueueForJobIdFoundError.noQueue(jobId: jobId) 
+        if let jobQueue = multipleQueuesContainer.allRunningJobQueues().first(where: { $0.job.jobId == jobId }) {
+            return JobState(
+                jobId: jobId,
+                queueState: QueueState.running(jobQueue.bucketQueue.runningQueueState)
+            )
         }
+        
+        if multipleQueuesContainer.allDeletedJobQueues().first(where: { $0.job.jobId == jobId }) != nil {
+            return JobState(
+                jobId: jobId,
+                queueState: QueueState.deleted
+            )
+        }
+        
+        throw NoQueueForJobIdFoundError.noQueue(jobId: jobId)
     }
 }

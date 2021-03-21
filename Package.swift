@@ -168,6 +168,7 @@ let package = Package(
                 "BucketQueueModels",
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
                 "EmceeLogging",
+                "Extensions",
                 "QueueModels",
                 "RunnerModels",
                 "TestHistoryModels",
@@ -411,6 +412,7 @@ let package = Package(
         .target(
             name: "DistWorkerModels",
             dependencies: [
+                "Extensions",
                 "LoggingSetup",
                 "MetricsExtensions",
                 "QueueModels",
@@ -603,6 +605,7 @@ let package = Package(
         .target(
             name: "EventBus",
             dependencies: [
+                "Extensions",
                 "RunnerModels",
             ],
             path: "Sources/EventBus"
@@ -732,6 +735,7 @@ let package = Package(
         .target(
             name: "ListeningSemaphore",
             dependencies: [
+                "Extensions",
             ],
             path: "Sources/ListeningSemaphore"
         ),

@@ -48,17 +48,18 @@ open class Deployer {
      * from a URL with a package of the DeployableItem to a corresponding DeployableItem
      */
     private func prepareDeployables() throws -> [AbsolutePath: DeployableItem] {
-        let syncQueue = DispatchQueue(label: "ru.avito.Deployer.syncQueue")
+        let syncQueue = DispatchQueue(label: "Deployer.syncQueue")
         var deployablesFailedToPrepare = [DeployableItem]()
         var pathToDeployable = [AbsolutePath: DeployableItem]()
         let packager = Packager(processControllerProvider: processControllerProvider)
         
         let queue = DispatchQueue(
-            label: "ru.avito.Deployer",
+            label: "Deployer.queue",
             qos: .default,
             attributes: .concurrent,
             autoreleaseFrequency: .workItem,
-            target: nil)
+            target: DispatchQueue.global()
+        )
         let group = DispatchGroup()
         for deployable in deployables {
             group.enter()

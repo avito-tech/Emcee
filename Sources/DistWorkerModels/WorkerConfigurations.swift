@@ -1,22 +1,23 @@
 import Dispatch
+import Extensions
 import Foundation
 import QueueModels
 
 public final class WorkerConfigurations {
-    private let queue = DispatchQueue(label: "WorkerConfigurations.queue")
+    private let lock = NSLock()
     private var workerIdToRunConfiguration = [WorkerId: WorkerConfiguration]()
     
     public init() {}
     
     public func add(workerId: WorkerId, configuration: WorkerConfiguration) {
-        queue.sync { workerIdToRunConfiguration[workerId] = configuration }
+        lock.whileLocked { workerIdToRunConfiguration[workerId] = configuration }
     }
     
     public func workerConfiguration(workerId: WorkerId) -> WorkerConfiguration? {
-        return queue.sync { workerIdToRunConfiguration[workerId] }
+        lock.whileLocked { workerIdToRunConfiguration[workerId] }
     }
     
     public var workerIds: Set<WorkerId> {
-        return Set(workerIdToRunConfiguration.keys)
+        return Set(lock.whileLocked{ workerIdToRunConfiguration.keys })
     }
 }

@@ -11,9 +11,9 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     private let lock = NSLock()
     private let knownWorkerIds: Set<WorkerId>
     private let logger: ContextualLogger
-    private var registeredWorkerIds = Set<WorkerId>()
-    private var disabledWorkerIds = Set<WorkerId>()
-    private var silentWorkerIds = Set<WorkerId>()
+    private var unsafe_registeredWorkerIds = Set<WorkerId>()
+    private var unsafe_disabledWorkerIds = Set<WorkerId>()
+    private var unsafe_silentWorkerIds = Set<WorkerId>()
     private let workerPermissionProvider: WorkerPermissionProvider
     private let workerBucketIdsBeingProcessed: WorkerCurrentlyProcessingBucketsTracker
 
@@ -56,13 +56,13 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     
     public func isWorkerRegistered(workerId: WorkerId) -> Bool {
         lock.whileLocked {
-            registeredWorkerIds.contains(workerId)
+            unsafe_registeredWorkerIds.contains(workerId)
         }
     }
     
     public func didRegisterWorker(workerId: WorkerId) {
         lock.whileLocked {
-            registeredWorkerIds.insert(workerId)
+            unsafe_registeredWorkerIds.insert(workerId)
             unsafe_markWorkerAsAlive(workerId: workerId)
         }
     }
@@ -75,31 +75,31 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     
     public func alivenessForWorker(workerId: WorkerId) -> WorkerAliveness {
         lock.whileLocked {
-            onSyncQueue_alivenessForWorker(workerId: workerId)
+            unsafe_alivenessForWorker(workerId: workerId)
         }
     }
     
     public func enableWorker(workerId: WorkerId) {
         lock.whileLocked {
-            if disabledWorkerIds.contains(workerId) {
+            if unsafe_disabledWorkerIds.contains(workerId) {
                 logger.debug("Enabling \(workerId)")
-                _ = disabledWorkerIds.remove(workerId)
+                _ = unsafe_disabledWorkerIds.remove(workerId)
             }
         }
     }
     
     public func disableWorker(workerId: WorkerId) {
         lock.whileLocked {
-            if !disabledWorkerIds.contains(workerId) {
+            if !unsafe_disabledWorkerIds.contains(workerId) {
                 logger.debug("Disabling \(workerId)")
-                _ = disabledWorkerIds.insert(workerId)
+                _ = unsafe_disabledWorkerIds.insert(workerId)
             }
         }
     }
     
     public func isWorkerEnabled(workerId: WorkerId) -> Bool {
         lock.whileLocked {
-            !disabledWorkerIds.contains(workerId)
+            !unsafe_disabledWorkerIds.contains(workerId)
         }
     }
     
@@ -111,40 +111,40 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     
     public func isWorkerSilent(workerId: WorkerId) -> Bool {
         lock.whileLocked {
-            silentWorkerIds.contains(workerId)
+            unsafe_silentWorkerIds.contains(workerId)
         }
     }
     
     private func unsafe_markWorkerAsAlive(workerId: WorkerId) {
-        if silentWorkerIds.contains(workerId) {
+        if unsafe_silentWorkerIds.contains(workerId) {
             logger.debug("Marking \(workerId) as alive")
-            _ = silentWorkerIds.remove(workerId)
+            _ = unsafe_silentWorkerIds.remove(workerId)
         }
     }
     
     private func unsafe_markWorkerAsSilent(workerId: WorkerId) {
-        if !silentWorkerIds.contains(workerId) {
+        if !unsafe_silentWorkerIds.contains(workerId) {
             logger.debug("Marking \(workerId) as silent")
-            _ = silentWorkerIds.insert(workerId)
+            _ = unsafe_silentWorkerIds.insert(workerId)
         }
     }
     
     private func unsafe_workerAliveness() -> [WorkerId: WorkerAliveness] {
-        var workerAliveness = [WorkerId: WorkerAliveness]()
+        var workerAliveness = [WorkerId: WorkerAliveness](minimumCapacity: knownWorkerIds.count)
         for id in knownWorkerIds {
-            workerAliveness[id] = onSyncQueue_alivenessForWorker(workerId: id)
+            workerAliveness[id] = unsafe_alivenessForWorker(workerId: id)
         }
         return workerAliveness
     }
     
-    private func onSyncQueue_alivenessForWorker(workerId: WorkerId) -> WorkerAliveness {
+    private func unsafe_alivenessForWorker(workerId: WorkerId) -> WorkerAliveness {
         WorkerAliveness(
-            registered: registeredWorkerIds.contains(workerId),
+            registered: unsafe_registeredWorkerIds.contains(workerId),
             bucketIdsBeingProcessed: workerBucketIdsBeingProcessed.bucketIdsBeingProcessedBy(
                 workerId: workerId
             ),
-            disabled: disabledWorkerIds.contains(workerId),
-            silent: silentWorkerIds.contains(workerId),
+            disabled: unsafe_disabledWorkerIds.contains(workerId),
+            silent: unsafe_silentWorkerIds.contains(workerId),
             workerUtilizationPermission: workerPermissionProvider.utilizationPermissionForWorker(
                 workerId: workerId
             )

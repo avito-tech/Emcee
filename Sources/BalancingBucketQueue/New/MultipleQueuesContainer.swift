@@ -1,99 +1,96 @@
 import CountedSet
+import Extensions
 import Foundation
 import QueueModels
 
 public final class MultipleQueuesContainer {
-    private let syncQueue = DispatchQueue(label: "MultipleQueuesContainer.syncQueue")
-    private let exclusiveAccessLock = NSLock()
+    private let discreteAccessLock = NSLock()
+    private let continousAccessLock = NSLock()
 
     public init() {}
     
     public func performWithExclusiveAccess<T>(
         work: () throws -> T
     ) rethrows -> T {
-        exclusiveAccessLock.lock()
-        defer {
-            exclusiveAccessLock.unlock()
-        }
-        return try work()
+        try continousAccessLock.whileLocked(work)
     }
     
     public func runningAndDeletedJobQueues() -> [JobQueue] {
-        syncQueue.sync {
-            runningJobQueues_onSyncQueue + deletedJobQueues_onSyncQueue
+        discreteAccessLock.whileLocked {
+            unsafe_runningJobQueues + unsafe_deletedJobQueues
         }
     }
     
     // MARK: - JobGroups
     
-    private var runningJobGroups_onSyncQueue = CountedSet<JobGroup>()
+    private var unsafe_runningJobGroups = CountedSet<JobGroup>()
     
     public func track(jobGroup: JobGroup) {
-        syncQueue.sync {
-            _ = runningJobGroups_onSyncQueue.update(with: jobGroup)
+        discreteAccessLock.whileLocked {
+            _ = unsafe_runningJobGroups.update(with: jobGroup)
         }
     }
     
     public func untrack(jobGroup: JobGroup) {
-        syncQueue.sync {
-            _ = runningJobGroups_onSyncQueue.remove(jobGroup)
+        discreteAccessLock.whileLocked {
+            _ = unsafe_runningJobGroups.remove(jobGroup)
         }
     }
     
     public func trackedJobGroups() -> [JobGroup] {
-        syncQueue.sync {
-            Array(runningJobGroups_onSyncQueue)
+        discreteAccessLock.whileLocked {
+            Array(unsafe_runningJobGroups)
         }
     }
     
     // MARK: - Running Job Queues
     
-    private var runningJobQueues_onSyncQueue = [JobQueue]()
+    private var unsafe_runningJobQueues = [JobQueue]()
     
     public func runningJobQueues(jobId: JobId) -> [JobQueue] {
-        syncQueue.sync {
-            runningJobQueues_onSyncQueue.filter { $0.job.jobId == jobId }
+        discreteAccessLock.whileLocked {
+            unsafe_runningJobQueues.filter { $0.job.jobId == jobId }
         }
     }
     
     public func add(runningJobQueue: JobQueue) {
-        syncQueue.sync {
-            runningJobQueues_onSyncQueue.append(runningJobQueue)
-            runningJobQueues_onSyncQueue.sort { $0.executionOrder(relativeTo: $1) == .before }
+        discreteAccessLock.whileLocked {
+            unsafe_runningJobQueues.append(runningJobQueue)
+            unsafe_runningJobQueues.sort { $0.executionOrder(relativeTo: $1) == .before }
         }
     }
     
     public func removeRunningJobQueues(jobId: JobId) {
-        syncQueue.sync {
-            runningJobQueues_onSyncQueue.removeAll(where: { $0.job.jobId == jobId })
+        discreteAccessLock.whileLocked {
+            unsafe_runningJobQueues.removeAll(where: { $0.job.jobId == jobId })
         }
     }
     
     public func allRunningJobQueues() -> [JobQueue] {
-        syncQueue.sync {
-            runningJobQueues_onSyncQueue
+        discreteAccessLock.whileLocked {
+            unsafe_runningJobQueues
         }
     }
     
     // MARK: - Deleted Job Queues
     
-    private var deletedJobQueues_onSyncQueue = [JobQueue]()
+    private var unsafe_deletedJobQueues = [JobQueue]()
     
     public func add(deletedJobQueues: [JobQueue]) {
-        syncQueue.sync {
-            deletedJobQueues_onSyncQueue.append(contentsOf: deletedJobQueues)
+        discreteAccessLock.whileLocked {
+            unsafe_deletedJobQueues.append(contentsOf: deletedJobQueues)
         }
     }
     
     public func allDeletedJobQueues() -> [JobQueue] {
-        syncQueue.sync {
-            deletedJobQueues_onSyncQueue
+        discreteAccessLock.whileLocked {
+            unsafe_deletedJobQueues
         }
     }
     
     public func removeFromDeleted(jobId: JobId) {
-        syncQueue.sync {
-            deletedJobQueues_onSyncQueue.removeAll(where: { $0.job.jobId == jobId })
+        discreteAccessLock.whileLocked {
+            unsafe_deletedJobQueues.removeAll(where: { $0.job.jobId == jobId })
         }
     }
 }
