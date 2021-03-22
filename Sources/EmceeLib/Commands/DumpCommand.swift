@@ -41,12 +41,9 @@ public final class DumpCommand: Command {
     
     private let di: DI
     private let encoder = JSONEncoder.pretty()
-    private let rootLogger: ContextualLogger
     
     public init(di: DI) throws {
         self.di = di
-        self.rootLogger = try di.get(ContextualLogger.self)
-            .forType(Self.self)
     }
 
     public func run(payload: CommandPayload) throws {
@@ -66,9 +63,11 @@ public final class DumpCommand: Command {
         if let kibanaConfiguration = testArgFile.prioritizedJob.analyticsConfiguration.kibanaConfiguration {
             try di.get(LoggingSetup.self).set(kibanaConfiguration: kibanaConfiguration)
         }
-        let logger = rootLogger.with(
-            analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration
-        )
+        let logger = try di.get(ContextualLogger.self)
+            .forType(Self.self)
+            .with(
+                analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration
+            )
         
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,

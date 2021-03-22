@@ -186,7 +186,13 @@ public final class InProcessMain {
             ],
             helpCommandType: .generateAutomatically
         )
-        try commandInvoker.invokeSuitableCommand()
+        let invokableCommand = try commandInvoker.invokableCommand()
+        
+        di.set(
+            try di.get(ContextualLogger.self).withMetadata(key: .emceeCommand, value: invokableCommand.command.name)
+        )
+        
+        try invokableCommand.invoke()
     }
     
     private func setupLogging(di: DI, logsTimeToLive: TimeUnit, queue: OperationQueue) throws -> ContextualLogger {

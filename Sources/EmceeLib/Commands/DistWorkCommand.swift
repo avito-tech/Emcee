@@ -36,11 +36,9 @@ public final class DistWorkCommand: Command {
     ]
     
     private let di: DI
-    private let logger: ContextualLogger
 
     public init(di: DI) throws {
         self.di = di
-        self.logger = try di.get(ContextualLogger.self).forType(Self.self)
     }
     
     public func run(payload: CommandPayload) throws {
@@ -49,6 +47,8 @@ public final class DistWorkCommand: Command {
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
         
         di.set(try createScopedTemporaryFolder(), for: TemporaryFolder.self)
+        
+        let logger = try di.get(ContextualLogger.self).forType(Self.self)
 
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
@@ -62,7 +62,8 @@ public final class DistWorkCommand: Command {
         let distWorker = try createDistWorker(
             queueServerAddress: queueServerAddress,
             version: emceeVersion,
-            workerId: workerId
+            workerId: workerId,
+            logger: logger
         )
         
         SignalHandling.addSignalHandler(signals: [.term, .int]) { [logger] signal in
@@ -70,13 +71,18 @@ public final class DistWorkCommand: Command {
             onDemandSimulatorPool.deleteSimulators()
         }
         
-        try startWorker(distWorker: distWorker, emceeVersion: emceeVersion)
+        try startWorker(
+            distWorker: distWorker,
+            emceeVersion: emceeVersion,
+            logger: logger
+        )
     }
     
     private func createDistWorker(
         queueServerAddress: SocketAddress,
         version: Version,
-        workerId: WorkerId
+        workerId: WorkerId,
+        logger: ContextualLogger
     ) throws -> DistWorker {
         let requestSender = try di.get(RequestSenderProvider.self).requestSender(socketAddress: queueServerAddress)
         
@@ -119,7 +125,8 @@ public final class DistWorkCommand: Command {
         
     private func startWorker(
         distWorker: DistWorker,
-        emceeVersion: Version
+        emceeVersion: Version,
+        logger: ContextualLogger
     ) throws {
         var isWorking = true
         

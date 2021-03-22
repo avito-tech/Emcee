@@ -25,6 +25,7 @@ public final class ContextualLogger {
         case processId
         case processName
         case workerId
+        case emceeCommand
         case emceeVersion
         case persistentMetricsJobId
     }
@@ -136,6 +137,33 @@ public extension ContextualLogger {
         log(.warning, message, subprocessPidInfo: subprocessPidInfo, workerId: workerId, persistentMetricsJobId: persistentMetricsJobId, source: source, file: file, function: function, line: line)
     }
     
+    func debugFromData(_ data: Data, subprocessPidInfo: PidInfo? = nil, workerId: WorkerId? = nil, persistentMetricsJobId: String? = nil, source: String? = nil, file: String = #file, function: String = #function, line: UInt = #line
+    ) {
+        guard let string = String(data: data, encoding: .utf8) else {
+            error(
+                "Failed to get string from data (\(data.count) bytes), BASE64: \(data.base64EncodedString())",
+                subprocessPidInfo: subprocessPidInfo,
+                workerId: workerId,
+                persistentMetricsJobId: persistentMetricsJobId,
+                source: source,
+                file: file,
+                function: function,
+                line: line
+            )
+            return
+        }
+        debug(
+            string,
+            subprocessPidInfo: subprocessPidInfo,
+            workerId: workerId,
+            persistentMetricsJobId: persistentMetricsJobId,
+            source: source,
+            file: file,
+            function: function,
+            line: line
+        )
+    }
+    
     func withMetadata(_ keyValues: [String: String]) -> ContextualLogger {
         var addedMetadata = self.addedMetadata
         addedMetadata.merge(keyValues) { _, new -> String in new }
@@ -151,5 +179,13 @@ public extension ContextualLogger {
             return withMetadata(key: key, value: value)
         }
         return self
+    }
+    
+    var skippingStdOutput: ContextualLogger {
+        withMetadata(key: FileHandleLoggerHandler.SkipMetadataFlag.skipStdOutput.rawValue, value: "true")
+    }
+    
+    var skippingKibana: ContextualLogger {
+        withMetadata(key: KibanaLoggerHandler.skipMetadataFlag, value: "true")
     }
 }

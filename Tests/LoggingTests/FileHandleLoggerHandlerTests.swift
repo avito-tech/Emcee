@@ -14,7 +14,8 @@ final class FileHandleLoggerHandlerTests: XCTestCase {
         verbosity: .info,
         logEntryTextFormatter: SimpleLogEntryTextFormatter(),
         supportsAnsiColors: false,
-        fileHandleShouldBeClosed: true
+        fileHandleShouldBeClosed: true,
+        skipMetadataFlag: nil
     )
     
     func test___handling_higher_verbosity_entries___writes_to_file_handler() throws {
@@ -76,7 +77,8 @@ final class FileHandleLoggerHandlerTests: XCTestCase {
             verbosity: .always,
             logEntryTextFormatter: SimpleLogEntryTextFormatter(),
             supportsAnsiColors: false,
-            fileHandleShouldBeClosed: false
+            fileHandleShouldBeClosed: false,
+            skipMetadataFlag: nil
         )
         loggerHandler.tearDownLogging(timeout: 10)
         
@@ -91,7 +93,8 @@ final class FileHandleLoggerHandlerTests: XCTestCase {
             verbosity: .always,
             logEntryTextFormatter: SimpleLogEntryTextFormatter(),
             supportsAnsiColors: false,
-            fileHandleShouldBeClosed: true
+            fileHandleShouldBeClosed: true,
+            skipMetadataFlag: nil
         )
         loggerHandler.tearDownLogging(timeout: 10)
         
@@ -106,7 +109,8 @@ final class FileHandleLoggerHandlerTests: XCTestCase {
             verbosity: .always,
             logEntryTextFormatter: SimpleLogEntryTextFormatter(),
             supportsAnsiColors: false,
-            fileHandleShouldBeClosed: true
+            fileHandleShouldBeClosed: true,
+            skipMetadataFlag: nil
         )
         loggerHandler.tearDownLogging(timeout: 10)
         loggerHandler.tearDownLogging(timeout: 10)

@@ -23,6 +23,8 @@ public final class BucketQueueStateLogger {
             }
         }
 
-        logger.info("Enqueued tests: \(runningQueueState.enqueuedTests.count), running tests: \(runningQueueState.dequeuedTests.flattenValues.count)")
+        logger
+            .skippingKibana
+            .info("Enqueued tests: \(runningQueueState.enqueuedTests.count), running tests: \(runningQueueState.dequeuedTests.flattenValues.count)")
     }
 }

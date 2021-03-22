@@ -48,12 +48,10 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     
     private let callbackQueue = DispatchQueue(label: "RunTestsOnRemoteQueueCommand.callbackQueue")
     private let di: DI
-    private let rootLogger: ContextualLogger
     private let testArgFileValidator = TestArgFileValidator()
     
     public init(di: DI) throws {
         self.di = di
-        self.rootLogger = try di.get(ContextualLogger.self).forType(Self.self)
     }
     
     public func run(payload: CommandPayload) throws {
@@ -79,9 +77,11 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         try di.get(GlobalMetricRecorder.self).set(
             analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration
         )
-        let logger = rootLogger.with(
-            analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration
-        )
+        let logger = try di.get(ContextualLogger.self)
+            .forType(Self.self)
+            .with(
+                analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration
+            )
 
         let remoteCacheConfig = try ArgumentsReader.remoteCacheConfig(
             try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.remoteCacheConfig.name)

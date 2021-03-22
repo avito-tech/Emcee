@@ -4,6 +4,15 @@ public final class CommandInvoker {
     private let commands: [Command]
     private let helpCommandType: HelpCommandType
     
+    public struct InvokableCommand {
+        public let command: Command
+        public let commandPayload: CommandPayload
+        
+        public func invoke() throws {
+            try command.run(payload: commandPayload)
+        }
+    }
+    
     public enum HelpCommandType {
         case missing
         case custom(HelpCommand)
@@ -15,9 +24,9 @@ public final class CommandInvoker {
         self.helpCommandType = helpCommandType
     }
     
-    public func invokeSuitableCommand(
+    public func invokableCommand(
         arguments: [String] = CommandLine.meaningfulArguments
-    ) throws {
+    ) throws -> InvokableCommand {
         let command: Command
         do {
             command = try CommandParser.choose(
@@ -34,8 +43,9 @@ public final class CommandInvoker {
             to: command.arguments.argumentDescriptions
         )
         
-        try command.run(
-            payload: CommandPayload(
+        return InvokableCommand(
+            command: command,
+            commandPayload: CommandPayload(
                 valueHolders: valueHolders
             )
         )
@@ -47,5 +57,13 @@ public final class CommandInvoker {
         case .custom(let command): return command
         case .generateAutomatically: return DefaultHelpCommand(supportedCommands: commands)
         }
+    }
+}
+
+extension CommandInvoker {
+    public func invokeSuitableCommand(
+        arguments: [String] = CommandLine.meaningfulArguments
+    ) throws {
+        try invokableCommand(arguments: arguments).invoke()
     }
 }

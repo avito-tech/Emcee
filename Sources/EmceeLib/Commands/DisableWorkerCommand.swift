@@ -22,11 +22,9 @@ public final class DisableWorkerCommand: Command {
     
     private let callbackQueue = DispatchQueue(label: "DisableWorkerCommand.callbackQueue")
     private let di: DI
-    private let logger: ContextualLogger
     
     public init(di: DI) throws {
         self.di = di
-        self.logger = try di.get(ContextualLogger.self).forType(Self.self)
     }
     
     public func run(payload: CommandPayload) throws {
@@ -49,6 +47,8 @@ public final class DisableWorkerCommand: Command {
         }
         
         let disabledWorkerId = try callbackWaiter.wait(timeout: 15, description: "Request to disable \(workerId) on queue")
+        
+        let logger = try di.get(ContextualLogger.self).forType(Self.self)
         
         do {
             logger.info("Successfully disabled worker \(try disabledWorkerId.dematerialize()) on queue \(queueServerAddress)")

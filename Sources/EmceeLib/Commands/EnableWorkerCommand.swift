@@ -55,6 +55,4 @@ public final class EnableWorkerCommand: Command {
             logger.error("Failed to enable worker \(workerId) on queue \(queueServerAddress): \(error)")
         }
     }
-    
-    
 }

@@ -130,7 +130,8 @@ public final class LoggingSetup {
             verbosity: verbosity,
             logEntryTextFormatter: NSLogLikeLogEntryTextFormatter(),
             supportsAnsiColors: true,
-            fileHandleShouldBeClosed: false
+            fileHandleShouldBeClosed: false,
+            skipMetadataFlag: .skipStdOutput
         )
     }
     
@@ -141,7 +142,8 @@ public final class LoggingSetup {
             verbosity: Verbosity.verboseDebug,
             logEntryTextFormatter: NSLogLikeLogEntryTextFormatter(),
             supportsAnsiColors: false,
-            fileHandleShouldBeClosed: true
+            fileHandleShouldBeClosed: true,
+            skipMetadataFlag: .skipFileOutput
         )
     }
     

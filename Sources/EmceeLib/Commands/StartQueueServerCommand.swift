@@ -42,14 +42,13 @@ public final class StartQueueServerCommand: Command {
     )
     
     private let di: DI
-    private let logger: ContextualLogger
 
     public init(di: DI) throws {
         self.di = di
-        self.logger = try di.get(ContextualLogger.self).forType(Self.self)
     }
     
     public func run(payload: CommandPayload) throws {
+        let logger = try di.get(ContextualLogger.self).forType(Self.self)
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
         let queueServerConfiguration = try ArgumentsReader.queueServerConfiguration(
             location: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerConfigurationLocation.name),
@@ -64,14 +63,16 @@ public final class StartQueueServerCommand: Command {
         try startQueueServer(
             emceeVersion: emceeVersion,
             queueServerConfiguration: queueServerConfiguration,
-            workerDestinations: queueServerConfiguration.workerDeploymentDestinations
+            workerDestinations: queueServerConfiguration.workerDeploymentDestinations,
+            logger: logger
         )
     }
     
     private func startQueueServer(
         emceeVersion: Version,
         queueServerConfiguration: QueueServerConfiguration,
-        workerDestinations: [DeploymentDestination]
+        workerDestinations: [DeploymentDestination],
+        logger: ContextualLogger
     ) throws {
         di.set(
             PayloadSignature(value: try di.get(UniqueIdentifierGenerator.self).generate())

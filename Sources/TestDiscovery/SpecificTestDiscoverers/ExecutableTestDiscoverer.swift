@@ -92,6 +92,11 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
                 ]).merge(with: configuration.testExecutionBehavior.environment)
             )
         )
+        
+        controller.onStdout { [logger] sender, data, _ in
+            logger.skippingStdOutput.debugFromData(data, subprocessPidInfo: sender.subprocessInfo.pidInfo)
+        }
+        
         try controller.startAndWaitForSuccessfulTermination()
         
         return try JSONDecoder().decode(
@@ -118,6 +123,10 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
         
         var capturedData = Data()
         controller.onStdout { _, data, _ in capturedData.append(data) }
+        
+        controller.onStdout { [logger] sender, data, _ in
+            logger.skippingStdOutput.debugFromData(data, subprocessPidInfo: sender.subprocessInfo.pidInfo)
+        }
         
         try controller.startAndWaitForSuccessfulTermination()
         

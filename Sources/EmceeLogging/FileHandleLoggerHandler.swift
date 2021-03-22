@@ -10,6 +10,12 @@ public final class FileHandleLoggerHandler: LoggerHandler {
     private let verbosity: Verbosity
     private let logEntryTextFormatter: LogEntryTextFormatter
     private let fileHandleShouldBeClosed: Bool
+    private let skipMetadataFlag: SkipMetadataFlag?
+    
+    public enum SkipMetadataFlag: String {
+        case skipStdOutput
+        case skipFileOutput
+    }
 
     public init(
         dateProvider: DateProvider,
@@ -17,7 +23,8 @@ public final class FileHandleLoggerHandler: LoggerHandler {
         verbosity: Verbosity,
         logEntryTextFormatter: LogEntryTextFormatter,
         supportsAnsiColors: Bool,
-        fileHandleShouldBeClosed: Bool
+        fileHandleShouldBeClosed: Bool,
+        skipMetadataFlag: SkipMetadataFlag?
     ) {
         self.dateProvider = dateProvider
         self.fileState = AtomicValue(FileState.open(fileHandle))
@@ -25,6 +32,7 @@ public final class FileHandleLoggerHandler: LoggerHandler {
         self.logEntryTextFormatter = logEntryTextFormatter
         self.fileHandleShouldBeClosed = fileHandleShouldBeClosed
         self.logLevel = verbosity.level
+        self.skipMetadataFlag = skipMetadataFlag
     }
     
     public func handle(logEntry: LogEntry) {
@@ -54,6 +62,8 @@ public final class FileHandleLoggerHandler: LoggerHandler {
         function: String,
         line: UInt
     ) {
+        if let skipMetadataFlag = skipMetadataFlag, metadata?[skipMetadataFlag.rawValue] != nil { return }
+        
         let entry = LogEntry(
             file: file,
             line: line,

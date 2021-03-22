@@ -8,6 +8,8 @@ public final class KibanaLoggerHandler: LoggerHandler {
     private let group = DispatchGroup()
     private let kibanaClient: KibanaClient
     
+    public static let skipMetadataFlag = "skipKibana"
+    
     public init(kibanaClient: KibanaClient) {
         self.kibanaClient = kibanaClient
     }
@@ -29,6 +31,8 @@ public final class KibanaLoggerHandler: LoggerHandler {
         function: String,
         line: UInt
     ) {
+        guard metadata?[Self.skipMetadataFlag] == nil else { return }
+        
         var kibanaPayload = [
             "fileLine": "\(file.lastPathComponent):\(line)",
         ]
