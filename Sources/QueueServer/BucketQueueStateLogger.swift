@@ -4,9 +4,14 @@ import QueueModels
 
 public final class BucketQueueStateLogger {
     private let runningQueueState: RunningQueueState
+    private let logger: ContextualLogger
     
-    public init(runningQueueState: RunningQueueState) {
+    public init(
+        runningQueueState: RunningQueueState,
+        logger: ContextualLogger
+    ) {
         self.runningQueueState = runningQueueState
+        self.logger = logger.forType(Self.self)
     }
     
     public func printQueueSize() {
@@ -18,6 +23,6 @@ public final class BucketQueueStateLogger {
             }
         }
 
-        print("Enqueued tests: \(runningQueueState.enqueuedTests.count), running tests: \(runningQueueState.dequeuedTests.flattenValues.count)")
+        logger.info("Enqueued tests: \(runningQueueState.enqueuedTests.count), running tests: \(runningQueueState.dequeuedTests.flattenValues.count)")
     }
 }

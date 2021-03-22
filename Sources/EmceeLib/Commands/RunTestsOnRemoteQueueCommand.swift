@@ -266,7 +266,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             case .deleted:
                 return false
             case .running(let queueState):
-                BucketQueueStateLogger(runningQueueState: queueState).printQueueSize()
+                BucketQueueStateLogger(runningQueueState: queueState, logger: logger).printQueueSize()
                 return !queueState.isDepleted
             }
         }
