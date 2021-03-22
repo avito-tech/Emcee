@@ -61,7 +61,9 @@ public final class JobPreparer {
         
         let logger = try di.get(ContextualLogger.self)
             .forType(Self.self)
-            .withMetadata(key: .persistentMetricsJobId, value: testArgFile.prioritizedJob.analyticsConfiguration.persistentMetricsJobId)
+            .with(
+                analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration
+            )
 
         _ = try testEntriesValidator.validatedTestEntries { testArgFileEntry, validatedTestEntry in
             let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(

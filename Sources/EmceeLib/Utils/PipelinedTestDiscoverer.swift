@@ -45,7 +45,9 @@ public final class PipelinedTestDiscoverer {
         remoteCacheConfig: RuntimeDumpRemoteCacheConfig?
     ) throws -> [[DiscoveredTestEntry]] {
         let logger = self.logger
-            .withMetadata(key: .persistentMetricsJobId, value: testArgFile.prioritizedJob.analyticsConfiguration.persistentMetricsJobId)
+            .with(
+                analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration
+            )
         
         let discoveredTests = AtomicValue<[[DiscoveredTestEntry]]>(
             Array(repeating: [], count: testArgFile.entries.count)

@@ -20,7 +20,6 @@ final class TestArgFileTests: XCTestCase {
                 "jobId": "jobId",
                 "jobPriority": 500,
                 "testDestinationConfigurations": [],
-                "persistentMetricsJobId": "persistentMetricsJobId",
                 "analyticsConfiguration": {
                     "graphiteConfiguration": {
                         "socketAddress": "graphite.host:123",

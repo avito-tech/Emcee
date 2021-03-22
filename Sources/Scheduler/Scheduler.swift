@@ -75,7 +75,9 @@ public final class Scheduler {
                 self.rootLogger.debug("Data Source returned no bucket")
                 return
             }
-            let logger = self.rootLogger.withMetadata(bucket.analyticsConfiguration.metadata ?? [:])
+            let logger = self.rootLogger.with(
+                analyticsConfiguration: bucket.analyticsConfiguration
+            )
             logger.debug("Data Source returned bucket: \(bucket)")
             self.runTestsFromFetchedBucket(bucket: bucket, logger: logger)
         }

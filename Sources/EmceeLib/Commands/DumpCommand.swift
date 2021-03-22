@@ -66,8 +66,8 @@ public final class DumpCommand: Command {
         if let kibanaConfiguration = testArgFile.prioritizedJob.analyticsConfiguration.kibanaConfiguration {
             try di.get(LoggingSetup.self).set(kibanaConfiguration: kibanaConfiguration)
         }
-        let logger = rootLogger.withMetadata(
-            testArgFile.prioritizedJob.analyticsConfiguration.metadata ?? [:]
+        let logger = rootLogger.with(
+            analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration
         )
         
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(

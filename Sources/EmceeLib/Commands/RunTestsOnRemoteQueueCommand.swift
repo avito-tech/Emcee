@@ -79,8 +79,8 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         try di.get(GlobalMetricRecorder.self).set(
             analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration
         )
-        let logger = rootLogger.withMetadata(
-            testArgFile.prioritizedJob.analyticsConfiguration.metadata ?? [:]
+        let logger = rootLogger.with(
+            analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration
         )
 
         let remoteCacheConfig = try ArgumentsReader.remoteCacheConfig(
