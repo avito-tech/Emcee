@@ -41,7 +41,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         ArgumentDescriptions.junit.asOptional,
         ArgumentDescriptions.queueServerConfigurationLocation.asRequired,
         ArgumentDescriptions.remoteCacheConfig.asOptional,
-        ArgumentDescriptions.tempFolder.asRequired,
+        ArgumentDescriptions.tempFolder.asOptional,
         ArgumentDescriptions.testArgFile.asRequired,
         ArgumentDescriptions.trace.asOptional,
     ]
@@ -69,7 +69,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         )
 
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
-        let tempFolder = try TemporaryFolder(containerPath: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.tempFolder.name))
+        let tempFolder = try TemporaryFolder(containerPath: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.tempFolder.name))
         let testArgFile = try ArgumentsReader.testArgFile(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testArgFile.name))
         try testArgFileValidator.validate(testArgFile: testArgFile)
         
