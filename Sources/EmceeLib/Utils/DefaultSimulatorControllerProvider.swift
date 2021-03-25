@@ -25,7 +25,7 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
     ) {
         self.additionalBootAttempts = additionalBootAttempts
         self.developerDirLocator = developerDirLocator
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.simulatorBootQueue = simulatorBootQueue
         self.simulatorStateMachineActionExecutorProvider = simulatorStateMachineActionExecutorProvider
     }

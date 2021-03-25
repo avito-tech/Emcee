@@ -74,7 +74,7 @@ public final class QueueServerImpl: QueueServer {
         workerUtilizationStatusPoller: WorkerUtilizationStatusPoller,
         workersToUtilizeService: WorkersToUtilizeService
     ) {
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.httpRestServer = HTTPRESTServer(
             automaticTerminationController: automaticTerminationController,
             logger: logger,

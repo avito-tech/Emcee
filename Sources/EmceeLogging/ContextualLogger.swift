@@ -1,6 +1,7 @@
 import EmceeVersion
 import Foundation
 import Logging
+import ProcessController
 import QueueModels
 
 /// # Philosophy behind a contextual logging system
@@ -28,33 +29,29 @@ public final class ContextualLogger {
         case emceeCommand
         case emceeVersion
         case persistentMetricsJobId
-    }
-    
-    private static func createTypedLogger<T>(_ type: T.Type) -> Logging.Logger {
-        Logging.Logger(label: "\(T.self)")
+        case hostname
     }
     
     public static let noOp: ContextualLogger = ContextualLogger(
         logger: Logging.Logger(
             label: "no-op",
             factory: { _ in SwiftLogNoOpLogHandler() }
-        )
+        ),
+        addedMetadata: [:]
     )
-    
-    public convenience init<T>(_ type: T.Type) {
-        self.init(logger: Self.createTypedLogger(type), addedMetadata: [:])
-    }
-    
-    public convenience init(logger: Logging.Logger) {
-        self.init(logger: logger, addedMetadata: [:])
-    }
-    
+
     public init(logger: Logging.Logger, addedMetadata: [String: String]) {
         self.logger = logger
         self.addedMetadata = addedMetadata
     }
     
     private let addedMetadata: [String: String]
+    
+    func withMetadata(_ keyValues: [String: String]) -> ContextualLogger {
+        var addedMetadata = self.addedMetadata
+        addedMetadata.merge(keyValues) { _, new -> String in new }
+        return ContextualLogger(logger: logger, addedMetadata: addedMetadata)
+    }
     
     public func withMetadata(key: String, value: String) -> ContextualLogger {
         var addedMetadata = self.addedMetadata
@@ -64,10 +61,6 @@ public final class ContextualLogger {
     
     public func withMetadata(key: ContextKeys, value: String) -> ContextualLogger {
         withMetadata(key: key.rawValue, value: value)
-    }
-    
-    public func forType<T>(_ type: T.Type) -> ContextualLogger {
-        ContextualLogger(logger: Self.createTypedLogger(type), addedMetadata: addedMetadata)
     }
     
     public func log(
@@ -109,83 +102,5 @@ public final class ContextualLogger {
             function: function,
             line: line
         )
-    }
-}
-
-public extension ContextualLogger {
-    func debug(
-        _ message: String, subprocessPidInfo: PidInfo? = nil, workerId: WorkerId? = nil, persistentMetricsJobId: String? = nil, source: String? = nil, file: String = #file, function: String = #function, line: UInt = #line
-    ) {
-        log(.debug, message, subprocessPidInfo: subprocessPidInfo, workerId: workerId, persistentMetricsJobId: persistentMetricsJobId, source: source, file: file, function: function, line: line)
-    }
-    
-    func error(
-        _ message: String, subprocessPidInfo: PidInfo? = nil, workerId: WorkerId? = nil, persistentMetricsJobId: String? = nil, source: String? = nil, file: String = #file, function: String = #function, line: UInt = #line
-    ) {
-        log(.error, message, subprocessPidInfo: subprocessPidInfo, workerId: workerId, persistentMetricsJobId: persistentMetricsJobId, source: source, file: file, function: function, line: line)
-    }
-    
-    func info(
-        _ message: String, subprocessPidInfo: PidInfo? = nil, workerId: WorkerId? = nil, persistentMetricsJobId: String? = nil, source: String? = nil, file: String = #file, function: String = #function, line: UInt = #line
-    ) {
-        log(.info, message, subprocessPidInfo: subprocessPidInfo, workerId: workerId, persistentMetricsJobId: persistentMetricsJobId, source: source, file: file, function: function, line: line)
-    }
-    
-    func warning(
-        _ message: String, subprocessPidInfo: PidInfo? = nil, workerId: WorkerId? = nil, persistentMetricsJobId: String? = nil, source: String? = nil, file: String = #file, function: String = #function, line: UInt = #line
-    ) {
-        log(.warning, message, subprocessPidInfo: subprocessPidInfo, workerId: workerId, persistentMetricsJobId: persistentMetricsJobId, source: source, file: file, function: function, line: line)
-    }
-    
-    func debugFromData(_ data: Data, subprocessPidInfo: PidInfo? = nil, workerId: WorkerId? = nil, persistentMetricsJobId: String? = nil, source: String? = nil, file: String = #file, function: String = #function, line: UInt = #line
-    ) {
-        guard let string = String(data: data, encoding: .utf8) else {
-            error(
-                "Failed to get string from data (\(data.count) bytes), BASE64: \(data.base64EncodedString())",
-                subprocessPidInfo: subprocessPidInfo,
-                workerId: workerId,
-                persistentMetricsJobId: persistentMetricsJobId,
-                source: source,
-                file: file,
-                function: function,
-                line: line
-            )
-            return
-        }
-        debug(
-            string,
-            subprocessPidInfo: subprocessPidInfo,
-            workerId: workerId,
-            persistentMetricsJobId: persistentMetricsJobId,
-            source: source,
-            file: file,
-            function: function,
-            line: line
-        )
-    }
-    
-    func withMetadata(_ keyValues: [String: String]) -> ContextualLogger {
-        var addedMetadata = self.addedMetadata
-        addedMetadata.merge(keyValues) { _, new -> String in new }
-        return ContextualLogger(logger: logger, addedMetadata: addedMetadata)
-    }
-    
-    func withMetadata(key: ContextKeys, value: String?) -> ContextualLogger {
-        withMetadata(key: key.rawValue, value: value)
-    }
-    
-    func withMetadata(key: String, value: String?) -> ContextualLogger {
-        if let value = value {
-            return withMetadata(key: key, value: value)
-        }
-        return self
-    }
-    
-    var skippingStdOutput: ContextualLogger {
-        withMetadata(key: FileHandleLoggerHandler.SkipMetadataFlag.skipStdOutput.rawValue, value: "true")
-    }
-    
-    var skippingKibana: ContextualLogger {
-        withMetadata(key: KibanaLoggerHandler.skipMetadataFlag, value: "true")
     }
 }

@@ -23,7 +23,7 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
         workerPermissionProvider: WorkerPermissionProvider
     ) {
         self.knownWorkerIds = knownWorkerIds
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.workerPermissionProvider = workerPermissionProvider
         self.workerBucketIdsBeingProcessed = WorkerCurrentlyProcessingBucketsTracker(logger: logger)
     }

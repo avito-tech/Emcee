@@ -23,7 +23,6 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let fileSystem: FileSystem
-    private let logger: ContextualLogger
     private let numberOfAttemptsToPerformRuntimeDump: UInt
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let pluginEventBusProvider: PluginEventBusProvider
@@ -44,7 +43,6 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         fileSystem: FileSystem,
-        logger: ContextualLogger,
         numberOfAttemptsToPerformRuntimeDump: UInt,
         onDemandSimulatorPool: OnDemandSimulatorPool,
         pluginEventBusProvider: PluginEventBusProvider,
@@ -64,7 +62,6 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.fileSystem = fileSystem
-        self.logger = logger.forType(Self.self)
         self.numberOfAttemptsToPerformRuntimeDump = max(numberOfAttemptsToPerformRuntimeDump, 1)
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.pluginEventBusProvider = pluginEventBusProvider
@@ -85,7 +82,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         configuration: TestDiscoveryConfiguration
     ) throws -> [DiscoveredTestEntry] {
         let runtimeEntriesJSONPath = tempFolder.pathWith(components: [uniqueIdentifierGenerator.generate()])
-        logger.debug("Will dump runtime tests into file: \(runtimeEntriesJSONPath)")
+        configuration.logger.debug("Will dump runtime tests into file: \(runtimeEntriesJSONPath)")
         
         let runnerConfiguration = buildRunnerConfiguration(
             buildArtifacts: buildArtifacts,
@@ -98,7 +95,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
-            logger: logger,
+            logger: configuration.logger,
             persistentMetricsJobId: configuration.analyticsConfiguration.persistentMetricsJobId,
             pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,
@@ -109,7 +106,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             waiter: waiter
         )
         
-        return try runRetrying(times: numberOfAttemptsToPerformRuntimeDump) {
+        return try runRetrying(logger: configuration.logger, times: numberOfAttemptsToPerformRuntimeDump) {
             let allocatedSimulator = try simulatorForTestDiscovery(
                 configuration: configuration,
                 simulatorControlTool: simulatorControlTool
@@ -132,7 +129,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         }
     }
     
-    private func runRetrying<T>(times: UInt, _ work: () throws -> T) rethrows -> T {
+    private func runRetrying<T>(logger: ContextualLogger, times: UInt, _ work: () throws -> T) rethrows -> T {
         for retryIndex in 0 ..< times {
             do {
                 return try work()
@@ -177,7 +174,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         )
         return try simulatorPool.allocateSimulator(
             dateProvider: dateProvider,
-            logger: logger,
+            logger: configuration.logger,
             simulatorOperationTimeouts: configuration.simulatorOperationTimeouts,
             version: version,
             globalMetricRecorder: globalMetricRecorder

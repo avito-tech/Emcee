@@ -40,7 +40,7 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
         processControllerProvider: ProcessControllerProvider
     ) {
         self.fileSystem = fileSystem
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.urlResource = urlResource
         self.cacheElementTimeToLive = cacheElementTimeToLive
         self.maximumCacheSize = maximumCacheSize

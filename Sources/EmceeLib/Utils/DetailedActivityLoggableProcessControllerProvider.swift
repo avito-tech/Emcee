@@ -17,7 +17,7 @@ public final class DetailedActivityLoggableProcessControllerProvider: ProcessCon
         
         processControllerProvider = LoggableProcessControllerProvider(
             pathProvider: { [di] processName -> (stdout: AbsolutePath, stderr: AbsolutePath) in
-                let logger = try di.get(ContextualLogger.self).forType(Self.self)
+                let logger = try di.get(ContextualLogger.self)
                 
                 let paths = try di.get(LoggingSetup.self).childProcessLogsContainerProvider().paths(subprocessName: processName)
                 logger.debug(
@@ -34,7 +34,7 @@ public final class DetailedActivityLoggableProcessControllerProvider: ProcessCon
     }
     
     public func createProcessController(subprocess: Subprocess) throws -> ProcessController {
-        let logger = try di.get(ContextualLogger.self).forType(Self.self)
+        let logger = try di.get(ContextualLogger.self)
         let processController = try processControllerProvider.createProcessController(subprocess: subprocess)
         
         processController.onStart { [logger] sender, _ in

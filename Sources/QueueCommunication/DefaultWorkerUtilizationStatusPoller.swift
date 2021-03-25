@@ -29,7 +29,7 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
         self.communicationService = communicationService
         self.defaultDeployments = defaultDeployments
         self.emceeVersion = emceeVersion
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.globalMetricRecorder = globalMetricRecorder
         self.queueHost = queueHost
         self.workerIdsToUtilize = AtomicValue(Set(defaultDeployments.workerIds()))

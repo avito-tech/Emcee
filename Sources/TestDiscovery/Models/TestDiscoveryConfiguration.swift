@@ -1,5 +1,6 @@
 import BuildArtifacts
 import DeveloperDirModels
+import EmceeLogging
 import Foundation
 import MetricsExtensions
 import PluginSupport
@@ -21,6 +22,7 @@ public struct TestDiscoveryConfiguration {
     public let testsToValidate: [TestToRun]
     public let xcTestBundleLocation: TestBundleLocation
     public let remoteCache: RuntimeDumpRemoteCache
+    public let logger: ContextualLogger
 
     public init(
         analyticsConfiguration: AnalyticsConfiguration,
@@ -35,7 +37,8 @@ public struct TestDiscoveryConfiguration {
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testsToValidate: [TestToRun],
         xcTestBundleLocation: TestBundleLocation,
-        remoteCache: RuntimeDumpRemoteCache
+        remoteCache: RuntimeDumpRemoteCache,
+        logger: ContextualLogger
     ) {
         self.analyticsConfiguration = analyticsConfiguration
         self.developerDir = developerDir
@@ -50,5 +53,6 @@ public struct TestDiscoveryConfiguration {
         self.testsToValidate = testsToValidate
         self.xcTestBundleLocation = xcTestBundleLocation
         self.remoteCache = remoteCache
+        self.logger = logger
     }
 }

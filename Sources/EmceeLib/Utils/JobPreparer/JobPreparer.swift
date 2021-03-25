@@ -60,12 +60,8 @@ public final class JobPreparer {
         )
         
         let logger = try di.get(ContextualLogger.self)
-            .forType(Self.self)
-            .with(
-                analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration
-            )
 
-        _ = try testEntriesValidator.validatedTestEntries { testArgFileEntry, validatedTestEntry in
+        _ = try testEntriesValidator.validatedTestEntries(logger: logger) { testArgFileEntry, validatedTestEntry in
             let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
                 analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration,
                 validatedEntries: validatedTestEntry,

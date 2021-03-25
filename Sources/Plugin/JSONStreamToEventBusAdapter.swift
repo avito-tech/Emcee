@@ -13,7 +13,7 @@ final class JSONStreamToEventBusAdapter: JSONReaderEventStream {
         logger: ContextualLogger
     ) {
         self.eventBus = eventBus
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
     }
     
     func newArray(_ array: NSArray, data: Data) {

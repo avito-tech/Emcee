@@ -26,7 +26,7 @@ public final class DefaultRemoteWorkersStarter: RemoteWorkerStarter {
     ) {
         self.deploymentDestination = deploymentDestination
         self.emceeVersion = emceeVersion
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.processControllerProvider = processControllerProvider
         self.tempFolder = tempFolder
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator

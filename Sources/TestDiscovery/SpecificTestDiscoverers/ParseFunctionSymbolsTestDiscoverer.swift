@@ -18,7 +18,6 @@ import UniqueIdentifierGenerator
 
 final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
     private let developerDirLocator: DeveloperDirLocator
-    private let logger: ContextualLogger
     private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TemporaryFolder
@@ -26,14 +25,12 @@ final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
 
     init(
         developerDirLocator: DeveloperDirLocator,
-        logger: ContextualLogger,
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver,
         tempFolder: TemporaryFolder,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
         self.developerDirLocator = developerDirLocator
-        self.logger = logger.forType(Self.self)
         self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
         self.tempFolder = tempFolder
@@ -57,7 +54,8 @@ final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
         
         return try convert(
             developerDir: configuration.developerDir,
-            nmOutputData: nmOutputData
+            nmOutputData: nmOutputData,
+            logger: configuration.logger
         )
     }
     
@@ -83,7 +81,11 @@ final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
         return resourcePath.appending(component: executableName)
     }
     
-    private func convert(developerDir: DeveloperDir, nmOutputData: Data) throws -> [DiscoveredTestEntry] {
+    private func convert(
+        developerDir: DeveloperDir,
+        nmOutputData: Data,
+        logger: ContextualLogger
+    ) throws -> [DiscoveredTestEntry] {
         guard let string = String(data: nmOutputData, encoding: .utf8) else {
             logger.error("Failed to get contents of nm output from \(nmOutputData.count) bytes")
             return []
@@ -96,11 +98,15 @@ final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
         )
         
         return try string.split(separator: "\n").compactMap {
-            try demangleAndCompactMap(string: String($0), demangler: demangler)
+            try demangleAndCompactMap(string: String($0), demangler: demangler, logger: logger)
         }
     }
     
-    private func demangleAndCompactMap(string: String, demangler: Demangler) throws -> DiscoveredTestEntry? {
+    private func demangleAndCompactMap(
+        string: String,
+        demangler: Demangler,
+        logger: ContextualLogger
+    ) throws -> DiscoveredTestEntry? {
         guard let demangledString = try demangler.demangle(string: string) else {
             return nil
         }

@@ -18,7 +18,7 @@ public final class HTTPRESTServer {
         portProvider: PortProvider
     ) {
         self.automaticTerminationController = automaticTerminationController
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.portProvider = portProvider
     }
 

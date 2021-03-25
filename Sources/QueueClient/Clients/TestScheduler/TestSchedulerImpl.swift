@@ -15,7 +15,7 @@ public final class TestSchedulerImpl: TestScheduler {
         logger: ContextualLogger,
         requestSender: RequestSender
     ) {
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.requestSender = requestSender
     }
     

@@ -21,7 +21,7 @@ public final class WorkerAlivenessPoller {
         workerAlivenessProvider: WorkerAlivenessProvider,
         workerDetailsHolder: WorkerDetailsHolder
     ) {
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.pollInterval = pollInterval
         self.requestSenderProvider = requestSenderProvider
         self.workerAlivenessProvider = workerAlivenessProvider

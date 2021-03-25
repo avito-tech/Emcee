@@ -39,7 +39,7 @@ public final class WorkerRegistrar: RESTEndpoint {
         workerConfigurations: WorkerConfigurations,
         workerDetailsHolder: WorkerDetailsHolder
     ) {
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.workerAlivenessProvider = workerAlivenessProvider
         self.workerCapabilitiesStorage = workerCapabilitiesStorage
         self.workerConfigurations = workerConfigurations

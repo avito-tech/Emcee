@@ -16,7 +16,7 @@ public final class PluginEventBusProviderImpl: PluginEventBusProvider {
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver
     ) {
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
     }

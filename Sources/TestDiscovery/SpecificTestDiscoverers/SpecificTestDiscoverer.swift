@@ -1,4 +1,5 @@
 import Foundation
+import EmceeLogging
 
 protocol SpecificTestDiscoverer {
     func discoverTestEntries(

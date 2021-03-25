@@ -40,7 +40,7 @@ public final class Scheduler {
         version: Version
     ) {
         self.di = di
-        self.rootLogger = logger.forType(Self.self)
+        self.rootLogger = logger
         self.resourceSemaphore = ListeningSemaphore(
             maximumValues: .of(
                 runningTests: Int(numberOfSimulators)

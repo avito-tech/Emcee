@@ -63,11 +63,13 @@ public final class DumpCommand: Command {
         if let kibanaConfiguration = testArgFile.prioritizedJob.analyticsConfiguration.kibanaConfiguration {
             try di.get(LoggingSetup.self).set(kibanaConfiguration: kibanaConfiguration)
         }
-        let logger = try di.get(ContextualLogger.self)
-            .forType(Self.self)
-            .with(
+        di.set(
+            try di.get(ContextualLogger.self).with(
                 analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration
             )
+        )
+        
+        let logger = try di.get(ContextualLogger.self)
         
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
@@ -88,7 +90,6 @@ public final class DumpCommand: Command {
                 dateProvider: try di.get(),
                 developerDirLocator: try di.get(),
                 fileSystem: try di.get(),
-                logger: logger,
                 globalMetricRecorder: try di.get(),
                 specificMetricRecorderProvider: try di.get(),
                 onDemandSimulatorPool: try di.get(),
@@ -105,13 +106,13 @@ public final class DumpCommand: Command {
         )
         
         let discoverer = PipelinedTestDiscoverer(
-            logger: try di.get(),
             runtimeDumpRemoteCacheProvider: try di.get(),
             testDiscoveryQuerier: try di.get(),
             urlResource: try di.get()
         )
         
         let dumpedTests = try discoverer.performTestDiscovery(
+            logger: logger,
             testArgFile: testArgFile,
             emceeVersion: emceeVersion,
             remoteCacheConfig: remoteCacheConfig

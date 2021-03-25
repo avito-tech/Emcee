@@ -31,7 +31,7 @@ public final class ActivityAwareSimulatorController: SimulatorController, Custom
             period: automaticShutdownTimePeriod
         )
         self.delegate = delegate
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
     }
     
     private static func automaticTerminationController(period: TimeInterval) -> AutomaticTerminationControllerFactory {

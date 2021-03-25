@@ -31,7 +31,7 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
         self.dateProvider = dateProvider
         self.dequeueableBucketSource = dequeueableBucketSource
         self.jobStateProvider = jobStateProvider
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.queueStateProvider = queueStateProvider
         self.version = version
         self.specificMetricRecorderProvider = specificMetricRecorderProvider

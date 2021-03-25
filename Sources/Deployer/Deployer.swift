@@ -30,7 +30,7 @@ open class Deployer {
         self.deployables = deployables
         self.deployableCommands = deployableCommands
         self.destination = destination
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.processControllerProvider = processControllerProvider
         self.temporaryFolder = temporaryFolder
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator

@@ -6,7 +6,7 @@ public final class DefaultRequestSenderProvider: RequestSenderProvider {
     private let logger: ContextualLogger
     
     public init(logger: ContextualLogger) {
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
     }
     
     public func requestSender(socketAddress: SocketAddress) -> RequestSender {

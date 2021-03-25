@@ -14,7 +14,7 @@ public final class RequestSenderImpl: RequestSender {
         urlSession: URLSession,
         queueServerAddress: SocketAddress
     ) {
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.urlSession = urlSession
         self.queueServerAddress = queueServerAddress
     }

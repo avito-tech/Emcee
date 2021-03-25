@@ -73,7 +73,7 @@ public final class InProcessMain {
         )
         
         let logger = try setupLogging(di: di, logsTimeToLive: logsTimeToLive, queue: logCleaningQueue)
-            .forType(Self.self)
+            .withMetadata(key: .hostname, value: LocalHostDeterminer.currentHostAddress)
             .withMetadata(key: .emceeVersion, value: EmceeVersion.version.value)
             .withMetadata(key: .processId, value: "\(ProcessInfo.processInfo.processIdentifier)")
             .withMetadata(key: .processName, value: ProcessInfo.processInfo.processName)
@@ -197,11 +197,10 @@ public final class InProcessMain {
     
     private func setupLogging(di: DI, logsTimeToLive: TimeUnit, queue: OperationQueue) throws -> ContextualLogger {
         let loggingSetup: LoggingSetup = try di.get()
-        let logger = try loggingSetup
-            .setupLogging(stderrVerbosity: .info)
-            .forType(Self.self)
+        let logger = try loggingSetup.setupLogging(stderrVerbosity: .info)
         
         try loggingSetup.cleanUpLogs(
+            logger: logger,
             olderThan: try di.get(DateProvider.self).currentDate().addingTimeInterval(-logsTimeToLive.timeInterval),
             queue: queue,
             completion: { error in

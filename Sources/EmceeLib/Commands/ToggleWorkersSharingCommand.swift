@@ -21,7 +21,7 @@ public final class ToggleWorkersSharingCommand: Command {
     
     public init(di: DI) throws {
         self.requestSenderProvider = try di.get()
-        self.logger = try di.get(ContextualLogger.self).forType(Self.self)
+        self.logger = try di.get(ContextualLogger.self)
     }
     
     public func run(payload: CommandPayload) throws {

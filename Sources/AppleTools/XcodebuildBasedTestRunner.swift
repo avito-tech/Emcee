@@ -41,8 +41,6 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         testRunnerStream: TestRunnerStream,
         testType: TestType
     ) throws -> TestRunnerInvocation {
-        let logger = logger.forType(Self.self)
-    
         let invocationPath = try temporaryFolder.pathByCreatingDirectories(components: [testContext.contextUuid.uuidString])
         let resultStreamFile = try temporaryFolder.createFile(components: [testContext.contextUuid.uuidString], filename: "result_stream.json")
         

@@ -11,7 +11,6 @@ import TestDiscovery
 import URLResource
 
 public final class PipelinedTestDiscoverer {
-    private let logger: ContextualLogger
     private let runtimeDumpRemoteCacheProvider: RuntimeDumpRemoteCacheProvider
     private let testDiscoveryQuerier: TestDiscoveryQuerier
     private let urlResource: URLResource
@@ -28,27 +27,21 @@ public final class PipelinedTestDiscoverer {
     )
     
     public init(
-        logger: ContextualLogger,
         runtimeDumpRemoteCacheProvider: RuntimeDumpRemoteCacheProvider,
         testDiscoveryQuerier: TestDiscoveryQuerier,
         urlResource: URLResource
     ) {
-        self.logger = logger
         self.runtimeDumpRemoteCacheProvider = runtimeDumpRemoteCacheProvider
         self.testDiscoveryQuerier = testDiscoveryQuerier
         self.urlResource = urlResource
     }
     
     public func performTestDiscovery(
+        logger: ContextualLogger,
         testArgFile: TestArgFile,
         emceeVersion: Version,
         remoteCacheConfig: RuntimeDumpRemoteCacheConfig?
-    ) throws -> [[DiscoveredTestEntry]] {
-        let logger = self.logger
-            .with(
-                analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration
-            )
-        
+    ) throws -> [[DiscoveredTestEntry]] {        
         let discoveredTests = AtomicValue<[[DiscoveredTestEntry]]>(
             Array(repeating: [], count: testArgFile.entries.count)
         )
@@ -92,7 +85,8 @@ public final class PipelinedTestDiscoverer {
                         testTimeoutConfiguration: testTimeoutConfigurationForRuntimeDump,
                         testsToValidate: testArgFileEntry.testsToRun,
                         xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location,
-                        remoteCache: runtimeDumpRemoteCacheProvider.remoteCache(config: remoteCacheConfig)
+                        remoteCache: runtimeDumpRemoteCacheProvider.remoteCache(config: remoteCacheConfig),
+                        logger: logger
                     )
                     
                     let result = try testDiscoveryQuerier.query(

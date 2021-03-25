@@ -29,7 +29,7 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
         socketHost: String,
         version: Version
     ) {
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.remoteQueueDetector = remoteQueueDetector
         self.requestSenderProvider = requestSenderProvider
         self.requestTimeout = requestTimeout

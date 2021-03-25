@@ -171,7 +171,6 @@ final class ExecutableTestDiscovererTests: XCTestCase {
         return ExecutableTestDiscoverer(
             appBundleLocation: appBundleLocation,
             developerDirLocator: FakeDeveloperDirLocator(result: AbsolutePath("/path/to/developer_dir")),
-            logger: .noOp,
             resourceLocationResolver: FakeResourceLocationResolver.resolvingTo(
                 path: AbsolutePath(testBundleLocation.resourceLocation.stringValue)
             ),
@@ -228,7 +227,8 @@ final class ExecutableTestDiscovererTests: XCTestCase {
         testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
         testsToValidate: [],
         xcTestBundleLocation: testBundleLocation,
-        remoteCache: NoOpRuntimeDumpRemoteCache()
+        remoteCache: NoOpRuntimeDumpRemoteCache(),
+        logger: .noOp
     )
     private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
 }

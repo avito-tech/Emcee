@@ -23,7 +23,7 @@ public final class SSHDeployer: Deployer {
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) throws {
         self.sshClientType = sshClientType
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         try super.init(
             deploymentId: deploymentId,
             deployables: deployables,

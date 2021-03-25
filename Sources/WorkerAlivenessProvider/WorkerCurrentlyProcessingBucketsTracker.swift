@@ -9,7 +9,7 @@ public final class WorkerCurrentlyProcessingBucketsTracker {
     public init(
         logger: ContextualLogger
     ) {
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
     }
     
     public func bucketIdsBeingProcessedBy(workerId: WorkerId) -> Set<BucketId> {

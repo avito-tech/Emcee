@@ -18,7 +18,7 @@ public final class JsonToResultStreamEventStream: JSONReaderEventStream {
         testRunnerStream: TestRunnerStream
     ) {
         self.dateProvider = dateProvider
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.testRunnerStream = testRunnerStream
     }
     

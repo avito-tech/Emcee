@@ -10,7 +10,7 @@ final class ContextualLoggerTests: XCTestCase {
     lazy var handler = FakeLoggerHandle()
     
     func test___basic_logging() {
-        let logger = ContextualLogger(logger: Logging.Logger(label: "label", factory: { _ in handler }))
+        let logger = ContextualLogger(logger: Logging.Logger(label: "label", factory: { _ in handler }), addedMetadata: [:])
         logger.debug("hello")
         
         XCTAssertTrue(handler.logCalls.count == 1)
@@ -19,7 +19,7 @@ final class ContextualLoggerTests: XCTestCase {
     }
     
     func test___chained_logger_with_metadata() {
-        let logger = ContextualLogger(logger: Logging.Logger(label: "label", factory: { _ in handler }))
+        let logger = ContextualLogger(logger: Logging.Logger(label: "label", factory: { _ in handler }), addedMetadata: [:])
             .withMetadata(key: "new", value: "metadata")
         logger.debug("hello")
         
@@ -28,7 +28,7 @@ final class ContextualLoggerTests: XCTestCase {
     }
     
     func test___chained_logger_with_overriden_metadata() {
-        let logger = ContextualLogger(logger: Logging.Logger(label: "label", factory: { _ in handler }))
+        let logger = ContextualLogger(logger: Logging.Logger(label: "label", factory: { _ in handler }), addedMetadata: [:])
             .withMetadata(key: .workerId, value: "abc")
         
         logger.debug("workerId", workerId: WorkerId("workerId"))

@@ -19,7 +19,7 @@ public class DefaultOnDemandSimulatorPool: OnDemandSimulatorPool {
         simulatorControllerProvider: SimulatorControllerProvider,
         tempFolder: TemporaryFolder
     ) {
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.resourceLocationResolver = resourceLocationResolver
         self.simulatorControllerProvider = simulatorControllerProvider
         self.tempFolder = tempFolder

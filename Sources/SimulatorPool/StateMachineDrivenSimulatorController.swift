@@ -44,7 +44,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
         self.coreSimulatorStateProvider = coreSimulatorStateProvider
         self.developerDir = developerDir
         self.developerDirLocator = developerDirLocator
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.simulatorStateMachine = simulatorStateMachine
         self.simulatorStateMachineActionExecutor = simulatorStateMachineActionExecutor
         self.temporaryFolder = temporaryFolder

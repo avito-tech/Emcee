@@ -27,7 +27,7 @@ public final class TestsEnqueuer {
         self.bucketSplitInfo = bucketSplitInfo
         self.dateProvider = dateProvider
         self.enqueueableBucketReceptor = enqueueableBucketReceptor
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.version = version
         self.specificMetricRecorderProvider = specificMetricRecorderProvider
     }

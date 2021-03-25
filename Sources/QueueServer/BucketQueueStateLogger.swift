@@ -11,7 +11,7 @@ public final class BucketQueueStateLogger {
         logger: ContextualLogger
     ) {
         self.runningQueueState = runningQueueState
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
     }
     
     public func printQueueSize() {

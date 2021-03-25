@@ -48,7 +48,6 @@ public final class StartQueueServerCommand: Command {
     }
     
     public func run(payload: CommandPayload) throws {
-        let logger = try di.get(ContextualLogger.self).forType(Self.self)
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
         let queueServerConfiguration = try ArgumentsReader.queueServerConfiguration(
             location: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerConfigurationLocation.name),
@@ -59,12 +58,18 @@ public final class StartQueueServerCommand: Command {
         if let kibanaConfiguration = queueServerConfiguration.globalAnalyticsConfiguration.kibanaConfiguration {
             try di.get(LoggingSetup.self).set(kibanaConfiguration: kibanaConfiguration)
         }
+        
+        di.set(
+            try di.get(ContextualLogger.self).with(
+                analyticsConfiguration: queueServerConfiguration.globalAnalyticsConfiguration
+            )
+        )
 
         try startQueueServer(
             emceeVersion: emceeVersion,
             queueServerConfiguration: queueServerConfiguration,
             workerDestinations: queueServerConfiguration.workerDeploymentDestinations,
-            logger: logger
+            logger: try di.get()
         )
     }
     

@@ -18,7 +18,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         let testArgFileEntry = try createTestEntry(testType: .uiTest)
         let validator = createValidator(testArgFileEntries: [testArgFileEntry])
 
-        _ = try validator.validatedTestEntries { _, _ in }
+        _ = try validator.validatedTestEntries(logger: .noOp) { _, _ in }
 
         guard let querierConfiguration = testDiscoveryQuerier.configuration else {
             return XCTFail("configuration is unexpectedly nil")
@@ -35,7 +35,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         let uiTestEntry = try createTestEntry(testType: .uiTest)
         let validator = createValidator(testArgFileEntries: [uiTestEntry])
 
-        _ = try validator.validatedTestEntries { _, _ in }
+        _ = try validator.validatedTestEntries(logger: .noOp) { _, _ in }
 
         guard let querierConfiguration = testDiscoveryQuerier.configuration else {
             return XCTFail("configuration is unexpectedly nil")
@@ -49,7 +49,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         let validator = createValidator(testArgFileEntries: [appTestEntry])
         let fakeBuildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
 
-        _ = try validator.validatedTestEntries { _, _ in }
+        _ = try validator.validatedTestEntries(logger: .noOp) { _, _ in }
 
         guard let querierConfiguration = testDiscoveryQuerier.configuration else {
             return XCTFail("configuration is unexpectedly nil")
@@ -76,7 +76,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         )
         let validator = createValidator(testArgFileEntries: [appTestEntry])
 
-        XCTAssertThrowsError(_ = try validator.validatedTestEntries { _, _ in })
+        XCTAssertThrowsError(_ = try validator.validatedTestEntries(logger: .noOp) { _, _ in })
     }
 
     func test__querier_called_several_times__if_configuration_contains_several_build_artifacts() throws {
@@ -84,7 +84,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         let appTestEntry2 = try createTestEntry(testType: .appTest, buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(appBundleLocation: "/App2"))
         let validator = createValidator(testArgFileEntries: [appTestEntry1, appTestEntry2])
 
-        _ = try validator.validatedTestEntries { _, _ in }
+        _ = try validator.validatedTestEntries(logger: .noOp) { _, _ in }
 
         XCTAssertEqual(testDiscoveryQuerier.numberOfCalls, 2)
     }

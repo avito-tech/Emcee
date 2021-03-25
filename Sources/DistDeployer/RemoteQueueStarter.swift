@@ -30,7 +30,7 @@ public final class RemoteQueueStarter {
         self.deploymentId = deploymentId
         self.deploymentDestination = deploymentDestination
         self.emceeVersion = emceeVersion
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.processControllerProvider = processControllerProvider
         self.queueServerConfigurationLocation = queueServerConfigurationLocation
         self.tempFolder = tempFolder

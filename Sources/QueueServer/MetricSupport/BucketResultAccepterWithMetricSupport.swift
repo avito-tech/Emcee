@@ -29,7 +29,7 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
         self.bucketResultAccepter = bucketResultAccepter
         self.dateProvider = dateProvider
         self.jobStateProvider = jobStateProvider
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.queueStateProvider = queueStateProvider
         self.version = version
         self.specificMetricRecorderProvider = specificMetricRecorderProvider

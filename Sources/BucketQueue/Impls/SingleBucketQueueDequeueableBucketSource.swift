@@ -24,7 +24,7 @@ public final class SingleBucketQueueDequeueableBucketSource: DequeueableBucketSo
         workerCapabilitiesStorage: WorkerCapabilitiesStorage
     ) {
         self.bucketQueueHolder = bucketQueueHolder
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.testHistoryTracker = testHistoryTracker
         self.workerAlivenessProvider = workerAlivenessProvider
         self.workerCapabilitiesStorage = workerCapabilitiesStorage

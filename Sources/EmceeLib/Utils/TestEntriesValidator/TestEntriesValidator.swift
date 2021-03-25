@@ -28,12 +28,16 @@ public final class TestEntriesValidator {
     }
     
     public func validatedTestEntries(
+        logger: ContextualLogger,
         intermediateResult: (TestArgFileEntry, [ValidatedTestEntry]) throws -> ()
     ) throws -> [ValidatedTestEntry] {
         var result = [ValidatedTestEntry]()
         
         for testArgFileEntry in testArgFileEntries {
-            let validatedTestEntries = try self.validatedTestEntries(testArgFileEntry: testArgFileEntry)
+            let validatedTestEntries = try self.validatedTestEntries(
+                logger: logger,
+                testArgFileEntry: testArgFileEntry
+            )
             try intermediateResult(testArgFileEntry, validatedTestEntries)
             result.append(contentsOf: validatedTestEntries)
         }
@@ -42,6 +46,7 @@ public final class TestEntriesValidator {
     }
 
     private func validatedTestEntries(
+        logger: ContextualLogger,
         testArgFileEntry: TestArgFileEntry
     ) throws -> [ValidatedTestEntry] {
         let configuration = TestDiscoveryConfiguration(
@@ -62,7 +67,8 @@ public final class TestEntriesValidator {
             testTimeoutConfiguration: testTimeoutConfigurationForRuntimeDump,
             testsToValidate: testArgFileEntry.testsToRun,
             xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location,
-            remoteCache: remoteCache
+            remoteCache: remoteCache,
+            logger: logger
         )
 
         return try transformer.transform(

@@ -29,7 +29,7 @@ public extension SimulatorPool {
         version: Version,
         globalMetricRecorder: GlobalMetricRecorder
     ) throws -> AllocatedSimulator {
-        let logger = logger.forType(Self.self)
+        let logger = logger
         
         return try TimeMeasurerImpl(
             dateProvider: dateProvider

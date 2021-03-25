@@ -57,7 +57,7 @@ public final class Runner {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.fileSystem = fileSystem
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.persistentMetricsJobId = persistentMetricsJobId
         self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver

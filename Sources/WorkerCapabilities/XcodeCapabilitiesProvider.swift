@@ -14,7 +14,7 @@ public final class XcodeCapabilitiesProvider: WorkerCapabilitiesProvider {
         logger: ContextualLogger
     ) {
         self.fileSystem = fileSystem
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
     }
     
     public static func workerCapabilityName(shortVersion: String) -> WorkerCapabilityName {

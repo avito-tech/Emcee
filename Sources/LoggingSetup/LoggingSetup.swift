@@ -40,7 +40,7 @@ public final class LoggingSetup {
         
         LoggingSystem.bootstrap { _ in GlobalLoggerConfig.loggerHandler }
         
-        let logger = ContextualLogger(Self.self)
+        let logger = ContextualLogger(logger: Logger(label: "emcee"), addedMetadata: [:])
         
         logger.info("To fetch detailed verbose log:")
         logger.info("$ scp \(NSUserName())@\(LocalHostDeterminer.currentHostAddress):\(detailedLogPath.absolutePath) /tmp/\(filename).log && open /tmp/\(filename).log")
@@ -72,12 +72,11 @@ public final class LoggingSetup {
     }
     
     public func cleanUpLogs(
+        logger: ContextualLogger,
         olderThan date: Date,
         queue: OperationQueue,
         completion: @escaping (Error?) -> ()
     ) throws {
-        let logger = ContextualLogger(Self.self)
-        
         let emceeLogsCleanUpMarkerFileProperties = fileSystem.properties(
             forFileAtPath: try fileSystem.emceeLogsCleanUpMarkerFile()
         )

@@ -77,11 +77,12 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         try di.get(GlobalMetricRecorder.self).set(
             analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration
         )
-        let logger = try di.get(ContextualLogger.self)
-            .forType(Self.self)
-            .with(
+        di.set(
+            try di.get(ContextualLogger.self).with(
                 analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration
             )
+        )
+        let logger = try di.get(ContextualLogger.self)
 
         let remoteCacheConfig = try ArgumentsReader.remoteCacheConfig(
             try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.remoteCacheConfig.name)
@@ -104,6 +105,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             logger: logger
         )
         let resultOutputGenerator = ResultingOutputGenerator(
+            logger: logger,
             testingResults: jobResults.testingResults,
             commonReportOutput: commonReportOutput,
             testDestinationConfigurations: testArgFile.testDestinationConfigurations
@@ -202,7 +204,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
                 dateProvider: try di.get(),
                 developerDirLocator: try di.get(),
                 fileSystem: try di.get(),
-                logger: logger,
                 globalMetricRecorder: try di.get(),
                 specificMetricRecorderProvider: try di.get(),
                 onDemandSimulatorPool: try di.get(),

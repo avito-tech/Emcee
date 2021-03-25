@@ -9,7 +9,7 @@ public class DefaultWorkersToUtilizeCalculator: WorkersToUtilizeCalculator {
     private let logger: ContextualLogger
     
     public init(logger: ContextualLogger) {
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
     }
     
     public func disjointWorkers(mapping: WorkersPerVersion) -> WorkersPerVersion {

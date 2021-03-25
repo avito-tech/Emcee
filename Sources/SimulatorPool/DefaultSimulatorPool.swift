@@ -30,7 +30,7 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
         testDestination: TestDestination
     ) throws {
         self.developerDir = developerDir
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.simulatorControlTool = simulatorControlTool
         self.simulatorControllerProvider = simulatorControllerProvider
         self.tempFolder = tempFolder

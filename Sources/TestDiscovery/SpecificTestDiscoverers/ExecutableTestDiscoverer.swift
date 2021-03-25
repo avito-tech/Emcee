@@ -29,7 +29,6 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
     
     private let appBundleLocation: AppBundleLocation
     private let developerDirLocator: DeveloperDirLocator
-    private let logger: ContextualLogger
     private let resourceLocationResolver: ResourceLocationResolver
     private let processControllerProvider: ProcessControllerProvider
     private let tempFolder: TemporaryFolder
@@ -38,7 +37,6 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
     init(
         appBundleLocation: AppBundleLocation,
         developerDirLocator: DeveloperDirLocator,
-        logger: ContextualLogger,
         resourceLocationResolver: ResourceLocationResolver,
         processControllerProvider: ProcessControllerProvider,
         tempFolder: TemporaryFolder,
@@ -46,7 +44,6 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
     ) {
         self.appBundleLocation = appBundleLocation
         self.developerDirLocator = developerDirLocator
-        self.logger = logger.forType(Self.self)
         self.resourceLocationResolver = resourceLocationResolver
         self.processControllerProvider = processControllerProvider
         self.tempFolder = tempFolder
@@ -57,11 +54,12 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
         configuration: TestDiscoveryConfiguration
     ) throws -> [DiscoveredTestEntry] {
         let runtimeEntriesJSONPath = tempFolder.pathWith(components: [uniqueIdentifierGenerator.generate()])
-        logger.debug("Will dump tests from \(configuration.xcTestBundleLocation) into file: \(runtimeEntriesJSONPath)")
+        configuration.logger.debug("Will dump tests from \(configuration.xcTestBundleLocation) into file: \(runtimeEntriesJSONPath)")
         
         let latestRuntimeRoot = try findRuntimeRoot(
             testDestination: configuration.testDestination,
-            developerDir: configuration.developerDir
+            developerDir: configuration.developerDir,
+            logger: configuration.logger
         )
         
         let appBundlePath = try resourceLocationResolver.resolvable(
@@ -93,9 +91,8 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
             )
         )
         
-        controller.onStdout { [logger] sender, data, _ in
-            logger.skippingStdOutput.debugFromData(data, subprocessPidInfo: sender.subprocessInfo.pidInfo)
-        }
+        let processLogger = configuration.logger.skippingStdOutput
+        processLogger.attachToProcess(processController: controller)
         
         try controller.startAndWaitForSuccessfulTermination()
         
@@ -107,7 +104,8 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
     
     private func findRuntimeRoot(
         testDestination: TestDestination,
-        developerDir: DeveloperDir
+        developerDir: DeveloperDir,
+        logger: ContextualLogger
     ) throws -> String {
         let controller = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
@@ -124,9 +122,8 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
         var capturedData = Data()
         controller.onStdout { _, data, _ in capturedData.append(data) }
         
-        controller.onStdout { [logger] sender, data, _ in
-            logger.skippingStdOutput.debugFromData(data, subprocessPidInfo: sender.subprocessInfo.pidInfo)
-        }
+        let processLogger = logger.skippingStdOutput
+        processLogger.attachToProcess(processController: controller)
         
         try controller.startAndWaitForSuccessfulTermination()
         

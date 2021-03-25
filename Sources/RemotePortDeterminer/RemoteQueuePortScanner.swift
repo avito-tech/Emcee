@@ -22,7 +22,7 @@ public final class RemoteQueuePortScanner: RemotePortDeterminer {
         requestSenderProvider: RequestSenderProvider
     ) {
         self.host = host
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.portRange = portRange
         self.requestSenderProvider = requestSenderProvider
     }

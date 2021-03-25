@@ -32,7 +32,7 @@ final class BucketQueueImpl: BucketQueue {
         workerCapabilitiesStorage: WorkerCapabilitiesStorage
     ) {
         self.dateProvider = dateProvider
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.testHistoryTracker = testHistoryTracker
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.workerAlivenessProvider = workerAlivenessProvider

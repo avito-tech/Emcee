@@ -22,7 +22,7 @@ public final class TestEntryConfigurationGenerator {
         self.analyticsConfiguration = analyticsConfiguration
         self.validatedEntries = validatedEntries
         self.testArgFileEntry = testArgFileEntry
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
     }
     
     public func createTestEntryConfigurations() -> [TestEntryConfiguration] {

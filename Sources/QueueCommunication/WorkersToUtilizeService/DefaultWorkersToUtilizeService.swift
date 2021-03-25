@@ -21,7 +21,7 @@ public class DefaultWorkersToUtilizeService: WorkersToUtilizeService {
         self.cache = cache
         self.calculator = calculator
         self.communicationService = communicationService
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.portDeterminer = portDeterminer
     }
     

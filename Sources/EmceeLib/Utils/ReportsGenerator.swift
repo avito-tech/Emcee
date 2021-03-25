@@ -8,12 +8,14 @@ import TestArgFile
 public final class ReportsGenerator {
     private let testingResult: CombinedTestingResults
     private let reportOutput: ReportOutput
-    private let logger = ContextualLogger(ReportsGenerator.self)
+    private let logger: ContextualLogger
     
     public init(
+        logger: ContextualLogger,
         testingResult: CombinedTestingResults,
         reportOutput: ReportOutput
     ) {
+        self.logger = logger
         self.testingResult = testingResult
         self.reportOutput = reportOutput
     }

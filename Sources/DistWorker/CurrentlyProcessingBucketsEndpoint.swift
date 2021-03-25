@@ -20,7 +20,7 @@ public final class CurrentlyProcessingBucketsEndpoint: RESTEndpoint {
         logger: ContextualLogger
     ) {
         self.currentlyBeingProcessedBucketsTracker = currentlyBeingProcessedBucketsTracker
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
     }
     
     public func handle(payload: VoidPayload) throws -> CurrentlyProcessingBucketsResponse {

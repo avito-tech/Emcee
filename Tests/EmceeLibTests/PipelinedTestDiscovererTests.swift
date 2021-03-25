@@ -19,7 +19,6 @@ final class PipelinedTestDiscovererTests: XCTestCase {
     private lazy var testDiscoveryQuerier = TestDiscoveryQuerierMock()
     private lazy var runtimeDumpRemoteCacheProvider = FakeRuntimeDumpRemoteCacheProvider()
     private lazy var discoverer = PipelinedTestDiscoverer(
-        logger: .noOp,
         runtimeDumpRemoteCacheProvider: runtimeDumpRemoteCacheProvider,
         testDiscoveryQuerier: testDiscoveryQuerier,
         urlResource: urlResource
@@ -27,6 +26,7 @@ final class PipelinedTestDiscovererTests: XCTestCase {
     
     func test___empty_results() throws {
         let result = try discoverer.performTestDiscovery(
+            logger: .noOp,
             testArgFile: TestArgFile.create(
                 buildArtifacts: []
             ),
@@ -71,6 +71,7 @@ final class PipelinedTestDiscovererTests: XCTestCase {
         }
         
         _ = try discoverer.performTestDiscovery(
+            logger: .noOp,
             testArgFile: TestArgFile.create(
                 buildArtifacts: buildArtifacts
             ),
@@ -97,6 +98,7 @@ final class PipelinedTestDiscovererTests: XCTestCase {
 
         assertThrows {
             _ = try discoverer.performTestDiscovery(
+                logger: .noOp,
                 testArgFile: TestArgFile.create(buildArtifacts: [buildArtifacts]),
                 emceeVersion: "version",
                 remoteCacheConfig: nil
@@ -139,6 +141,7 @@ final class PipelinedTestDiscovererTests: XCTestCase {
         }
         
         let results = try discoverer.performTestDiscovery(
+            logger: .noOp,
             testArgFile: TestArgFile.create(
                 buildArtifacts: buildArtifacts
             ),

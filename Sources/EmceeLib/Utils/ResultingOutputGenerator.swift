@@ -4,14 +4,18 @@ import QueueModels
 import TestArgFile
 
 public final class ResultingOutputGenerator {
+    private let logger: ContextualLogger
     private let testingResults: [TestingResult]
     private let commonReportOutput: ReportOutput
     private let testDestinationConfigurations: [TestDestinationConfiguration]
 
     public init(
+        logger: ContextualLogger,
         testingResults: [TestingResult],
         commonReportOutput: ReportOutput,
-        testDestinationConfigurations: [TestDestinationConfiguration]) {
+        testDestinationConfigurations: [TestDestinationConfiguration]
+    ) {
+        self.logger = logger
         self.testingResults = testingResults
         self.commonReportOutput = commonReportOutput
         self.testDestinationConfigurations = testDestinationConfigurations
@@ -45,6 +49,7 @@ public final class ResultingOutputGenerator {
     
     private func generateOutput(combinedTestingResults: CombinedTestingResults, reportOutput: ReportOutput) throws {
         let reportsGenerator = ReportsGenerator(
+            logger: logger,
             testingResult: combinedTestingResults,
             reportOutput: reportOutput
         )

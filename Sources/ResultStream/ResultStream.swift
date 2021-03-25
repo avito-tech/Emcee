@@ -24,7 +24,7 @@ public final class ResultStreamImpl: ResultStream {
         testRunnerStream: TestRunnerStream
     ) {
         self.dateProvider = dateProvider
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.testRunnerStream = testRunnerStream
     }
     

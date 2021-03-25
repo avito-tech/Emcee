@@ -44,7 +44,7 @@ public final class LocalQueueServerRunner {
     ) {
         self.automaticTerminationController = automaticTerminationController
         self.deployQueue = deployQueue
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.newWorkerRegistrationTimeAllowance = newWorkerRegistrationTimeAllowance
         self.pollPeriod = pollPeriod
         self.queueServer = queueServer

@@ -218,7 +218,6 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             dateProvider: DateProviderFixture(),
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
-            logger: .noOp,
             globalMetricRecorder: GlobalMetricRecorderImpl(),
             specificMetricRecorderProvider: NoOpSpecificMetricRecorderProvider(),
             onDemandSimulatorPool: simulatorPool,
@@ -254,7 +253,8 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             ),
             testsToValidate: testsToValidate,
             xcTestBundleLocation: xcTestBundleLocation,
-            remoteCache: remoteCache
+            remoteCache: remoteCache,
+            logger: .noOp
         )
     }
 

@@ -22,7 +22,7 @@ public final class SingleBucketQueueStuckBucketsReenqueuer: StuckBucketsReenqueu
     ) {
         self.bucketEnqueuer = bucketEnqueuer
         self.bucketQueueHolder = bucketQueueHolder
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.workerAlivenessProvider = workerAlivenessProvider
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }

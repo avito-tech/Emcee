@@ -14,7 +14,7 @@ public final class QueueServerTerminationWaiterImpl: QueueServerTerminationWaite
         pollInterval: TimeInterval,
         queueServerTerminationPolicy: AutomaticTerminationPolicy
     ) {
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.queueServerTerminationPolicy = queueServerTerminationPolicy
         self.pollInterval = pollInterval
     }

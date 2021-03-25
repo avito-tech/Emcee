@@ -34,7 +34,7 @@ public final class StuckBucketsPoller {
     ) {
         self.dateProvider = dateProvider
         self.jobStateProvider = jobStateProvider
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.runningQueueStateProvider = runningQueueStateProvider
         self.stuckBucketsReenqueuer = stuckBucketsReenqueuer
         self.version = version

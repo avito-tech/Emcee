@@ -60,7 +60,6 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
                     fileSystem: LocalFileSystem()
                 )
             ),
-            logger: .noOp,
             processControllerProvider: FakeProcessControllerProvider { subprocess -> ProcessController in
                 XCTAssertEqual(
                     try subprocess.arguments.map { try $0.stringValue() },
@@ -100,6 +99,7 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
         testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
         testsToValidate: [],
         xcTestBundleLocation: testBundleLocation,
-        remoteCache: NoOpRuntimeDumpRemoteCache()
+        remoteCache: NoOpRuntimeDumpRemoteCache(),
+        logger: .noOp
     )
 }

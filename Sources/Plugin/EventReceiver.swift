@@ -37,7 +37,7 @@ public final class EventReceiver: WebSocketDelegate {
         pluginIdentifier: String
     ) {
         self.address = address
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.pluginIdentifier = pluginIdentifier
         self.socket = WebSocket(url: URL(string: address)!)
     }

@@ -24,7 +24,7 @@ public final class EventDistributor {
     private let decoder = JSONDecoder()
     
     public init(logger: ContextualLogger) {
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
     }
     
     public func start() throws {

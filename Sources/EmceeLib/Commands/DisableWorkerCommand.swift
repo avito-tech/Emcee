@@ -48,7 +48,7 @@ public final class DisableWorkerCommand: Command {
         
         let disabledWorkerId = try callbackWaiter.wait(timeout: 15, description: "Request to disable \(workerId) on queue")
         
-        let logger = try di.get(ContextualLogger.self).forType(Self.self)
+        let logger = try di.get(ContextualLogger.self)
         
         do {
             logger.info("Successfully disabled worker \(try disabledWorkerId.dematerialize()) on queue \(queueServerAddress)")

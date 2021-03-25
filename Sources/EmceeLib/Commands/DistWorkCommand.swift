@@ -48,7 +48,7 @@ public final class DistWorkCommand: Command {
         
         di.set(try createScopedTemporaryFolder(), for: TemporaryFolder.self)
         
-        let logger = try di.get(ContextualLogger.self).forType(Self.self)
+        let logger = try di.get(ContextualLogger.self)
 
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,

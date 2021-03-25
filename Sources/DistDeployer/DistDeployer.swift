@@ -33,7 +33,7 @@ final class DistDeployer {
         self.deploymentDestination = deploymentDestination
         self.deployableItems = deployableItems
         self.deployableCommands = deployableCommands
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.processControllerProvider = processControllerProvider
         self.tempFolder = tempFolder
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator

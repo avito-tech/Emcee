@@ -19,7 +19,7 @@ public final class SingleBucketResultAccepter: BucketResultAccepter {
     ) {
         self.bucketEnqueuer = bucketEnqueuer
         self.bucketQueueHolder = bucketQueueHolder
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
         self.testHistoryTracker = testHistoryTracker
     }
     

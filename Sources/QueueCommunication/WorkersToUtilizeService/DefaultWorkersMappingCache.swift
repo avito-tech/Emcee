@@ -20,7 +20,7 @@ public class DefaultWorkersMappingCache: WorkersMappingCache {
     ) {
         self.cacheIvalidationTime = cacheIvalidationTime
         self.dateProvider = dateProvider
-        self.logger = logger.forType(Self.self)
+        self.logger = logger
     }
     
     public func cachedMapping() -> WorkersPerVersion? {

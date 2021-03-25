@@ -12,7 +12,7 @@ import SynchronousWaiter
 /// Allows the plugin to track `PluginEvent`s from the main process using the provided `EventBus`.
 public final class Plugin {
     private let eventBus: EventBus
-    private let logger: ContextualLogger
+    public let logger: ContextualLogger
     private let jsonReaderQueue = DispatchQueue(label: "Plugin.jsonReaderQueue")
     private let stdinReadQueue = DispatchQueue(label: "Plugin.stdinReadQueue")
     private let jsonInputStream = BlockingArrayBasedJSONStream()
@@ -38,7 +38,8 @@ public final class Plugin {
         self.eventReceiver = EventReceiver(
             address: try PluginSupport.pluginSocket(),
             logger: logger,
-            pluginIdentifier: try PluginSupport.pluginIdentifier())
+            pluginIdentifier: try PluginSupport.pluginIdentifier()
+        )
     }
     
     public func streamPluginEvents() {
