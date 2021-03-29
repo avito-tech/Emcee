@@ -31,33 +31,3 @@ public final class ObservableFileReaderImpl: ObservableFileReader {
         return ProcessObservableFileReaderHandler(processController: processController)
     }
 }
-
-public final class FileHandleObservableFileReaderImpl: ObservableFileReader {
-    private let path: AbsolutePath
-
-    public init(
-        path: AbsolutePath
-    ) {
-        self.path = path
-    }
-    
-    public func read(handler: @escaping (Data) -> ()) throws -> ObservableFileReaderHandler {
-        let fileHandle = try FileHandle(forReadingFrom: path.fileUrl)
-        fileHandle.readabilityHandler = { sender in
-            handler(sender.availableData)
-        }
-        return FileHandlerObservableFileReaderHandler(fileHandle: fileHandle)
-    }
-
-    private class FileHandlerObservableFileReaderHandler: ObservableFileReaderHandler {
-        private let fileHandle: FileHandle
-        
-        init(fileHandle: FileHandle) {
-            self.fileHandle = fileHandle
-        }
-        
-        func cancel() {
-            fileHandle.readabilityHandler = nil
-        }
-    }
-}

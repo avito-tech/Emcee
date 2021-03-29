@@ -23,14 +23,6 @@ final class ObservableFileReaderTests: XCTestCase {
         )
     }
     
-    func test___FileHandleObservableFileReaderImpl() throws {
-        try runTestsWith(
-            reader: FileHandleObservableFileReaderImpl(
-                path: tempFile.absolutePath
-            )
-        )
-    }
-    
     func runTestsWith(reader: ObservableFileReader) throws {
         let collectedTabSymbol = XCTestExpectation()
         

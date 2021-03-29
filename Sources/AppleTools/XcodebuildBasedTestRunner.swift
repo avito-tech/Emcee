@@ -17,9 +17,6 @@ public final class XcodebuildBasedTestRunner: TestRunner {
     private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
     
-    public static let useResultStreamToggleEnvName = "EMCEE_USE_RESULT_STREAM"
-    public static let useInProcessFileTailingEnvName = "EMCEE_USE_IN_PROCESS_TAIL"
-    
     public init(
         dateProvider: DateProvider,
         processControllerProvider: ProcessControllerProvider,
@@ -76,15 +73,10 @@ public final class XcodebuildBasedTestRunner: TestRunner {
             logger: logger,
             testRunnerStream: testRunnerStream
         )
-        let observableFileReader: ObservableFileReader
-        if testContext.environment[Self.useInProcessFileTailingEnvName] == "true" {
-            observableFileReader = FileHandleObservableFileReaderImpl(path: resultStreamFile)
-        } else {
-            observableFileReader = ObservableFileReaderImpl(
-                path: resultStreamFile,
-                processControllerProvider: processControllerProvider
-            )
-        }
+        let observableFileReader: ObservableFileReader = ObservableFileReaderImpl(
+            path: resultStreamFile,
+            processControllerProvider: processControllerProvider
+        )
         
         var observableFileReaderHandler: ObservableFileReaderHandler?
         

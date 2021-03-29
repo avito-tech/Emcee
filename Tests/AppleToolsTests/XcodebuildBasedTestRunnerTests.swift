@@ -324,8 +324,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         let testName = TestName(className: "Class", methodName: "test")
         let impactQueue = DispatchQueue(label: "impact.queue")
         
-        testContext = createTestContext(environment: [XcodebuildBasedTestRunner.useResultStreamToggleEnvName: "true"])
-        
         var tailProcessController: FakeProcessController?
         var xcodebuildProcessController: FakeProcessController?
         
