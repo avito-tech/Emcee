@@ -17,8 +17,9 @@ import ResourceLocationResolver
 import RunnerModels
 import SimulatorPoolModels
 import SynchronousWaiter
-import Tmp
 import TestsWorkingDirectorySupport
+import Tmp
+import UniqueIdentifierGenerator
 
 public final class Runner {
     private let configuration: RunnerConfiguration
@@ -34,6 +35,7 @@ public final class Runner {
     private let tempFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
     private let testTimeoutCheckInterval: DispatchTimeInterval
+    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let version: Version
     private let waiter: Waiter
     
@@ -50,6 +52,7 @@ public final class Runner {
         tempFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider,
         testTimeoutCheckInterval: DispatchTimeInterval = .seconds(1),
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         version: Version,
         waiter: Waiter
     ) {
@@ -65,6 +68,7 @@ public final class Runner {
         self.tempFolder = tempFolder
         self.testRunnerProvider = testRunnerProvider
         self.testTimeoutCheckInterval = testTimeoutCheckInterval
+        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.version = version
         self.waiter = waiter
     }
@@ -154,7 +158,10 @@ public final class Runner {
             pluginLocations: configuration.pluginLocations
         )
         defer {
-            pluginTearDownQueue.addOperation(eventBus.tearDown)
+            pluginTearDownQueue.addOperation { [fileSystem] in
+                eventBus.tearDown()
+                try? fileSystem.delete(fileAtPath: testContext.testsWorkingDirectory)
+            }
         }
         
         var logger = self.logger
@@ -299,22 +306,22 @@ public final class Runner {
         developerDir: DeveloperDir,
         simulator: Simulator
     ) throws -> TestContext {
-        let contextUuid = UUID()
+        let contextId = uniqueIdentifierGenerator.generate()
         let testsWorkingDirectory = try tempFolder.pathByCreatingDirectories(
-            components: ["testsWorkingDir", contextUuid.uuidString]
+            components: ["testsWorkingDir", contextId]
         )
-
         var environment = configuration.environment
         environment[TestsWorkingDirectorySupport.envTestsWorkingDirectory] = testsWorkingDirectory.pathString
         environment = try developerDirLocator.suitableEnvironment(forDeveloperDir: developerDir, byUpdatingEnvironment: environment)
-
+        
         return TestContext(
-            contextUuid: contextUuid,
+            contextId: contextId,
             developerDir: developerDir,
             environment: environment,
-            simulatorPath: simulator.path.fileUrl,
+            simulatorPath: simulator.path,
             simulatorUdid: simulator.udid,
-            testDestination: simulator.testDestination
+            testDestination: simulator.testDestination,
+            testsWorkingDirectory: testsWorkingDirectory
         )
     }
     

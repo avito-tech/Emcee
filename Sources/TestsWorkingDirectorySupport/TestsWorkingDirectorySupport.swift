@@ -5,3 +5,4 @@ import Foundation
 public final class TestsWorkingDirectorySupport {
     public static let envTestsWorkingDirectory = "EMCEE_TESTS_WORKING_DIRECTORY"
 }
+

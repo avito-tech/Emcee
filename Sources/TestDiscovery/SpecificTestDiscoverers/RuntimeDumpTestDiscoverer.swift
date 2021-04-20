@@ -102,6 +102,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             specificMetricRecorder: specificMetricRecorder,
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             version: version,
             waiter: waiter
         )

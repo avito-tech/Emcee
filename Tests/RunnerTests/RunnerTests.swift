@@ -19,6 +19,7 @@ import SimulatorPoolTestHelpers
 import SynchronousWaiter
 import Tmp
 import TestHelpers
+import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 public final class RunnerTests: XCTestCase {
@@ -31,6 +32,7 @@ public final class RunnerTests: XCTestCase {
     lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     lazy var fileSystem = FakeFileSystem(rootPath: tempFolder.absolutePath)
     lazy var dateProvider = DateProviderFixture(Date(timeIntervalSince1970: 100))
+    lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: "someId")
     
     func test___running_test_without_output_to_stream___provides_test_did_not_run_results() throws {
         testRunnerProvider.predefinedFakeTestRunner.disableTestStartedTestRunnerStreamEvents()
@@ -224,7 +226,6 @@ public final class RunnerTests: XCTestCase {
         
         let streamClosedExpectation = expectationForDidRunEvent()
         
-        
         let handlerInvokedExpectation = XCTestExpectation(description: "stream close handler called")
         
         testRunnerProvider.predefinedFakeTestRunner.onStreamClose = { testRunnerStream in
@@ -240,6 +241,19 @@ public final class RunnerTests: XCTestCase {
         _ = try runTestEntries([testEntry])
         
         wait(for: [handlerInvokedExpectation], timeout: 5)
+    }
+    
+    func test___deletes_tests_working_directory___after_run() throws {
+        let testsWorkingDirDeletedExpectation = XCTestExpectation(description: "testsWorkingDir is deleted")
+        fileSystem.onDelete = { [tempFolder, uniqueIdentifierGenerator] path in
+            if path == tempFolder.pathWith(components: ["testsWorkingDir", uniqueIdentifierGenerator.generate()]) {
+                testsWorkingDirDeletedExpectation.fulfill()
+            }
+        }
+        
+        _ = try runTestEntries([testEntry])
+        
+        wait(for: [testsWorkingDirDeletedExpectation], timeout: 0)
     }
     
     private func expectationForDidRunEvent() -> XCTestExpectation {
@@ -278,6 +292,7 @@ public final class RunnerTests: XCTestCase {
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,
             testTimeoutCheckInterval: .milliseconds(100),
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             version: Version(value: "version"),
             waiter: SynchronousWaiter()
         )

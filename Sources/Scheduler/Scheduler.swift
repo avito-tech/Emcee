@@ -224,6 +224,7 @@ public final class Scheduler {
             specificMetricRecorder: specificMetricRecorder,
             tempFolder: try di.get(),
             testRunnerProvider: try di.get(),
+            uniqueIdentifierGenerator: try di.get(),
             version: version,
             waiter: try di.get()
         )

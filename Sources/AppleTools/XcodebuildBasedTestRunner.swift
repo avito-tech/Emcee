@@ -38,8 +38,8 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         testRunnerStream: TestRunnerStream,
         testType: TestType
     ) throws -> TestRunnerInvocation {
-        let invocationPath = try temporaryFolder.pathByCreatingDirectories(components: [testContext.contextUuid.uuidString])
-        let resultStreamFile = try temporaryFolder.createFile(components: [testContext.contextUuid.uuidString], filename: "result_stream.json")
+        let invocationPath = try temporaryFolder.pathByCreatingDirectories(components: [testContext.contextId])
+        let resultStreamFile = try temporaryFolder.createFile(components: [testContext.contextId], filename: "result_stream.json")
         
         let processController = try processControllerProvider.createProcessController(
             subprocess: Subprocess(

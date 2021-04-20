@@ -56,7 +56,7 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
         let xcTestRunPlist = XcTestRunPlist(xcTestRun: xcTestRun)
 
         let plistPath = try temporaryFolder.createFile(
-            components: [testContext.contextUuid.uuidString, "xctestrun"],
+            components: [testContext.contextId, "xctestrun"],
             filename: "testrun.xctestrun",
             contents: try xcTestRunPlist.createPlistData()
         )

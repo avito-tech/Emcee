@@ -481,6 +481,7 @@ let package = Package(
                 "EmceeLogging",
                 "EmceeVersion",
                 "EventBus",
+                "Extensions",
                 "FileCache",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
                 "JunitReporting",
@@ -1458,6 +1459,7 @@ let package = Package(
                 "TestsWorkingDirectorySupport",
                 .product(name: "Timer", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
+                "UniqueIdentifierGenerator",
             ],
             path: "Sources/Runner"
         ),
@@ -1466,6 +1468,7 @@ let package = Package(
             dependencies: [
                 "BuildArtifacts",
                 "DeveloperDirModels",
+                .product(name: "PathLib", package: "CommandLineToolkit"),
                 "PluginSupport",
                 "SimulatorPoolModels",
             ],
@@ -1478,6 +1481,7 @@ let package = Package(
                 "DeveloperDirLocator",
                 "DeveloperDirModels",
                 "EmceeLogging",
+                .product(name: "PathLib", package: "CommandLineToolkit"),
                 .product(name: "ProcessController", package: "CommandLineToolkit"),
                 "Runner",
                 "RunnerModels",
@@ -1514,6 +1518,7 @@ let package = Package(
                 .product(name: "SynchronousWaiter", package: "CommandLineToolkit"),
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
+                "UniqueIdentifierGeneratorTestHelpers",
             ],
             path: "Tests/RunnerTests"
         ),
@@ -1892,8 +1897,6 @@ let package = Package(
         .target(
             name: "TestsWorkingDirectorySupport",
             dependencies: [
-                .product(name: "PathLib", package: "CommandLineToolkit"),
-                "RunnerModels",
             ],
             path: "Sources/TestsWorkingDirectorySupport"
         ),
