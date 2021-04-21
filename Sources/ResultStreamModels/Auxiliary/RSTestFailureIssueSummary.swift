@@ -1,22 +1,25 @@
 import Foundation
  
-public struct RSTestFailureIssueSummary: Codable, RSTypedValue, Equatable {
-    public static let typeName = "TestFailureIssueSummary"
+public struct RSTestFailureIssueSummary: Codable, Equatable {
+    public static var typeNames: [String] { ["TestFailureIssueSummary", "IssueSummary"] }
     
-    public let documentLocationInCreatingWorkspace: RSDocumentLocation
     public let issueType: RSString
     public let message: RSString
-    public let testCaseName: RSString
+    public let producingTarget: RSString?
+    public let documentLocationInCreatingWorkspace: RSDocumentLocation?
+    public let testCaseName: RSString?
     
     public init(
-        documentLocationInCreatingWorkspace: RSDocumentLocation,
         issueType: RSString,
         message: RSString,
-        testCaseName: RSString
+        producingTarget: RSString?,
+        documentLocationInCreatingWorkspace: RSDocumentLocation?,
+        testCaseName: RSString?
     ) {
-        self.documentLocationInCreatingWorkspace = documentLocationInCreatingWorkspace
         self.issueType = issueType
         self.message = message
+        self.producingTarget = producingTarget
+        self.documentLocationInCreatingWorkspace = documentLocationInCreatingWorkspace
         self.testCaseName = testCaseName
     }
     
@@ -25,9 +28,19 @@ public struct RSTestFailureIssueSummary: Codable, RSTypedValue, Equatable {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        documentLocationInCreatingWorkspace = try container.decode(RSDocumentLocation.self, forKey: .documentLocationInCreatingWorkspace)
         issueType = try container.decode(RSString.self, forKey: .issueType)
         message = try container.decode(RSString.self, forKey: .message)
-        testCaseName = try container.decode(RSString.self, forKey: .testCaseName)
+        producingTarget = try container.decodeIfPresent(RSString.self, forKey: .producingTarget)
+        documentLocationInCreatingWorkspace = try container.decodeIfPresent(RSDocumentLocation.self, forKey: .documentLocationInCreatingWorkspace)
+        testCaseName = try container.decodeIfPresent(RSString.self, forKey: .testCaseName)
+    }
+    
+    private static func validateRsType(decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: _RsTypeKeys.self)
+        let type = try container.decode(RSType.self, forKey: _RsTypeKeys._type)
+        
+        guard Self.typeNames.contains(type._name) else {
+            throw ValueMismatchError(expectedValue: typeNames.joined(separator: " or "), actualValue: type._name)
+        }
     }
 }
