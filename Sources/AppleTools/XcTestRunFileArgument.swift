@@ -7,13 +7,12 @@ import ResourceLocation
 import ResourceLocationResolver
 import Runner
 import RunnerModels
-import Tmp
 
 public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConvertible {
     private let buildArtifacts: BuildArtifacts
     private let entriesToRun: [TestEntry]
+    private let containerPath: AbsolutePath
     private let resourceLocationResolver: ResourceLocationResolver
-    private let temporaryFolder: TemporaryFolder
     private let testContext: TestContext
     private let testType: TestType
     private let testingEnvironment: XcTestRunTestingEnvironment
@@ -32,16 +31,16 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
     public init(
         buildArtifacts: BuildArtifacts,
         entriesToRun: [TestEntry],
+        containerPath: AbsolutePath,
         resourceLocationResolver: ResourceLocationResolver,
-        temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testType: TestType,
         testingEnvironment: XcTestRunTestingEnvironment
     ) {
         self.buildArtifacts = buildArtifacts
         self.entriesToRun = entriesToRun
+        self.containerPath = containerPath
         self.resourceLocationResolver = resourceLocationResolver
-        self.temporaryFolder = temporaryFolder
         self.testContext = testContext
         self.testType = testType
         self.testingEnvironment = testingEnvironment
@@ -54,13 +53,12 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
     public func stringValue() throws -> String {
         let xcTestRun = try createXcTestRun()
         let xcTestRunPlist = XcTestRunPlist(xcTestRun: xcTestRun)
-
-        let plistPath = try temporaryFolder.createFile(
-            components: [testContext.contextId, "xctestrun"],
-            filename: "testrun.xctestrun",
-            contents: try xcTestRunPlist.createPlistData()
+        let plistPath = containerPath.appending(component: "testrun.xctestrun")
+        try xcTestRunPlist.createPlistData().write(
+            to: plistPath.fileUrl,
+            options: .atomic
         )
-        return try plistPath.stringValue()
+        return plistPath.pathString
     }
 
     private func createXcTestRun() throws -> XcTestRun {

@@ -74,6 +74,7 @@ public final class FakeTestRunner: TestRunner {
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         logger: ContextualLogger,
+        runnerWasteCollector: RunnerWasteCollector,
         simulator: Simulator,
         temporaryFolder: TemporaryFolder,
         testContext: TestContext,
@@ -99,4 +100,3 @@ public final class FakeTestRunner: TestRunner {
         )
     }
 }
-

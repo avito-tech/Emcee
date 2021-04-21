@@ -22,8 +22,8 @@ final class XcTestRunFileArgumentTests: XCTestCase {
                 additionalApplicationBundles: []
             ),
             entriesToRun: [],
+            containerPath: tempFolder.absolutePath,
             resourceLocationResolver: FakeResourceLocationResolver.resolvingTo(path: tempFolder.absolutePath),
-            temporaryFolder: tempFolder,
             testContext: TestContextFixtures().testContext,
             testType: .appTest,
             testingEnvironment: XcTestRunTestingEnvironment()
@@ -41,8 +41,8 @@ final class XcTestRunFileArgumentTests: XCTestCase {
                 additionalApplicationBundles: []
             ),
             entriesToRun: [],
+            containerPath: tempFolder.absolutePath,
             resourceLocationResolver: FakeResourceLocationResolver.resolvingTo(path: tempFolder.absolutePath),
-            temporaryFolder: tempFolder,
             testContext: TestContextFixtures().testContext,
             testType: .uiTest,
             testingEnvironment: XcTestRunTestingEnvironment()
@@ -60,8 +60,8 @@ final class XcTestRunFileArgumentTests: XCTestCase {
                 additionalApplicationBundles: []
             ),
             entriesToRun: [],
+            containerPath: tempFolder.absolutePath,
             resourceLocationResolver: FakeResourceLocationResolver.resolvingTo(path: tempFolder.absolutePath),
-            temporaryFolder: tempFolder,
             testContext: TestContextFixtures().testContext,
             testType: .uiTest,
             testingEnvironment: XcTestRunTestingEnvironment()

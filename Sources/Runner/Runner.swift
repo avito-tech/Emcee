@@ -153,14 +153,19 @@ public final class Runner {
             simulator: simulator
         )
         
+        let runnerWasteCollector: RunnerWasteCollector = RunnerWasteCollectorImpl()
+        runnerWasteCollector.scheduleCollection(path: testContext.testsWorkingDirectory)
+        
         let eventBus = try pluginEventBusProvider.createEventBus(
             fileSystem: fileSystem,
             pluginLocations: configuration.pluginLocations
         )
         defer {
-            pluginTearDownQueue.addOperation { [fileSystem] in
+            pluginTearDownQueue.addOperation {
                 eventBus.tearDown()
-                try? fileSystem.delete(fileAtPath: testContext.testsWorkingDirectory)
+                self.cleanUp(
+                    paths: runnerWasteCollector.collectedPaths
+                )
             }
         }
         
@@ -266,6 +271,7 @@ public final class Runner {
                 testRunner: testRunner,
                 entriesToRun: entriesToRun,
                 logger: logger,
+                runnerWasteCollector: runnerWasteCollector,
                 simulator: simulator,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream
@@ -329,6 +335,7 @@ public final class Runner {
         testRunner: TestRunner,
         entriesToRun: [TestEntry],
         logger: ContextualLogger,
+        runnerWasteCollector: RunnerWasteCollector,
         simulator: Simulator,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream
@@ -342,6 +349,7 @@ public final class Runner {
             developerDirLocator: developerDirLocator,
             entriesToRun: entriesToRun,
             logger: logger,
+            runnerWasteCollector: runnerWasteCollector,
             simulator: simulator,
             temporaryFolder: tempFolder,
             testContext: testContext,
@@ -491,6 +499,16 @@ public final class Runner {
                 simulatorId: simulatorId
             )
         )
+    }
+    
+    private func cleanUp(
+        paths: Set<AbsolutePath>
+    ) {
+        for path in paths {
+            if fileSystem.properties(forFileAtPath: path).exists() {
+                try? fileSystem.delete(fileAtPath: path)
+            }
+        }
     }
 }
 

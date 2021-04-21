@@ -32,6 +32,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         logger: ContextualLogger,
+        runnerWasteCollector: RunnerWasteCollector,
         simulator: Simulator,
         temporaryFolder: TemporaryFolder,
         testContext: TestContext,
@@ -39,28 +40,29 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         testType: TestType
     ) throws -> TestRunnerInvocation {
         let invocationPath = try temporaryFolder.pathByCreatingDirectories(components: [testContext.contextId])
+        runnerWasteCollector.scheduleCollection(path: invocationPath)
+        
         let resultStreamFile = try temporaryFolder.createFile(components: [testContext.contextId], filename: "result_stream.json")
+        let xcTestRunFile = XcTestRunFileArgument(
+            buildArtifacts: buildArtifacts,
+            entriesToRun: entriesToRun,
+            containerPath: invocationPath,
+            resourceLocationResolver: resourceLocationResolver,
+            testContext: testContext,
+            testType: testType,
+            testingEnvironment: XcTestRunTestingEnvironment(insertedLibraries: [])
+        )
         
         let processController = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/xcrun",
                     "xcodebuild",
-                    "-destination", XcodebuildSimulatorDestinationArgument(
-                        destinationId: simulator.udid
-                    ),
+                    "-destination", XcodebuildSimulatorDestinationArgument(destinationId: simulator.udid),
                     "-derivedDataPath", invocationPath.appending(component: "derivedData"),
                     "-resultBundlePath", invocationPath.appending(component: "resultBundle"),
                     "-resultStreamPath", resultStreamFile,
-                    "-xctestrun", XcTestRunFileArgument(
-                        buildArtifacts: buildArtifacts,
-                        entriesToRun: entriesToRun,
-                        resourceLocationResolver: resourceLocationResolver,
-                        temporaryFolder: temporaryFolder,
-                        testContext: testContext,
-                        testType: testType,
-                        testingEnvironment: XcTestRunTestingEnvironment(insertedLibraries: [])
-                    ),
+                    "-xctestrun", xcTestRunFile,
                     "-parallel-testing-enabled", "NO",
                     "test-without-building",
                 ],
