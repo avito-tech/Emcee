@@ -39,6 +39,8 @@ public final class Runner {
     private let version: Version
     private let waiter: Waiter
     
+    public static let skipReviveAttemptsEnvName = "EMCEE_SKIP_REVIVE_ATTEMPTS"
+    
     public init(
         configuration: RunnerConfiguration,
         dateProvider: DateProvider,
@@ -92,6 +94,8 @@ public final class Runner {
         // It is unlikely that multiple revives would provide any results, so we leave only a single retry.
         let numberOfAttemptsToRevive = 1
         
+        let shouldSkipReviveAttempts = configuration.environment[Self.skipReviveAttemptsEnvName] == "true"
+        
         // Something may crash (xcodebuild/xctest), many tests may be not started. Some external code that uses Runner
         // may have its own logic for restarting particular tests, but here at Runner we deal with crashes of bunches
         // of tests, many of which can be even not started. Simplifying this: if something that runs tests is crashed,
@@ -101,17 +105,21 @@ public final class Runner {
         var reviveAttempt = 0
 
         while runResult.nonLostTestEntryResults.count < entries.count, reviveAttempt <= numberOfAttemptsToRevive {
-            let entriesToRun = missingEntriesForScheduledEntries(
+            let missingEntriesToRun = missingEntriesForScheduledEntries(
                 expectedEntriesToRun: entries,
                 collectedResults: runResult
             )
             let runResults = try runOnce(
-                entriesToRun: entriesToRun,
+                entriesToRun: missingEntriesToRun,
                 developerDir: developerDir,
                 simulator: simulator
             )
             
             runResult.append(testEntryResults: runResults.testEntryResults)
+
+            if shouldSkipReviveAttempts {
+                break
+            }
             
             if runResults.testEntryResults.filter({ !$0.isLost }).isEmpty {
                 // Here, if we do not receive events at all, we will get 0 results. We try to revive a limited number of times.
