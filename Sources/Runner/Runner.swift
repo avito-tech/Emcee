@@ -163,6 +163,7 @@ public final class Runner {
         
         let runnerWasteCollector: RunnerWasteCollector = RunnerWasteCollectorImpl()
         runnerWasteCollector.scheduleCollection(path: testContext.testsWorkingDirectory)
+        runnerWasteCollector.scheduleCollection(path: simulator.path.appending(relativePath: "data/Library/Caches/com.apple.containermanagerd/Dead"))
         
         let runnerResultsPreparer = RunnerResultsPreparerImpl()
         
@@ -171,11 +172,9 @@ public final class Runner {
             pluginLocations: configuration.pluginLocations
         )
         defer {
-            pluginTearDownQueue.addOperation {
+            pluginTearDownQueue.addOperation { [fileSystem] in
                 eventBus.tearDown()
-                self.cleanUp(
-                    paths: runnerWasteCollector.collectedPaths
-                )
+                RunnerWasteCleanerImpl(fileSystem: fileSystem).cleanWaste(runnerWasteCollector: runnerWasteCollector)
             }
         }
         
@@ -277,14 +276,17 @@ public final class Runner {
         
         let runningInvocation: TestRunnerRunningInvocation
         do {
-            runningInvocation = try runTestsViaTestRunner(
-                testRunner: testRunner,
+            runningInvocation = try testRunner.prepareTestRun(
+                buildArtifacts: configuration.buildArtifacts,
+                developerDirLocator: developerDirLocator,
                 entriesToRun: entriesToRun,
                 logger: logger,
                 runnerWasteCollector: runnerWasteCollector,
                 simulator: simulator,
+                temporaryFolder: tempFolder,
                 testContext: testContext,
-                testRunnerStream: testRunnerStream
+                testRunnerStream: testRunnerStream,
+                testType: configuration.testType
             ).startExecutingTests()
         } catch {
             runningInvocation = try generateTestFailuresBecauseOfRunnerFailure(
@@ -339,48 +341,6 @@ public final class Runner {
             testDestination: simulator.testDestination,
             testsWorkingDirectory: testsWorkingDirectory
         )
-    }
-    
-    private func runTestsViaTestRunner(
-        testRunner: TestRunner,
-        entriesToRun: [TestEntry],
-        logger: ContextualLogger,
-        runnerWasteCollector: RunnerWasteCollector,
-        simulator: Simulator,
-        testContext: TestContext,
-        testRunnerStream: TestRunnerStream
-    ) throws -> TestRunnerInvocation {
-        cleanUpDeadCache(
-            logger: logger,
-            simulator: simulator
-        )
-        return try testRunner.prepareTestRun(
-            buildArtifacts: configuration.buildArtifacts,
-            developerDirLocator: developerDirLocator,
-            entriesToRun: entriesToRun,
-            logger: logger,
-            runnerWasteCollector: runnerWasteCollector,
-            simulator: simulator,
-            temporaryFolder: tempFolder,
-            testContext: testContext,
-            testRunnerStream: testRunnerStream,
-            testType: configuration.testType
-        )
-    }
-    
-    private func cleanUpDeadCache(
-        logger: ContextualLogger,
-        simulator: Simulator
-    ) {
-        let deadCachePath = simulator.path.appending(relativePath: RelativePath("data/Library/Caches/com.apple.containermanagerd/Dead"))
-        do {
-            if fileSystem.properties(forFileAtPath: deadCachePath).exists() {
-                logger.debug("Will attempt to clean up simulator dead cache at: \(deadCachePath)")
-                try fileSystem.delete(fileAtPath: deadCachePath)
-            }
-        } catch {
-            logger.warning("Failed to delete dead cache at \(deadCachePath): \(error)")
-        }
     }
     
     private func generateTestFailuresBecauseOfRunnerFailure(
@@ -449,16 +409,6 @@ public final class Runner {
                 simulatorId: simulatorId
             )
         )
-    }
-    
-    private func cleanUp(
-        paths: Set<AbsolutePath>
-    ) {
-        for path in paths {
-            if fileSystem.properties(forFileAtPath: path).exists() {
-                try? fileSystem.delete(fileAtPath: path)
-            }
-        }
     }
 }
 
