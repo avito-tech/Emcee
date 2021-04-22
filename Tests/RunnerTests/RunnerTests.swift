@@ -138,6 +138,28 @@ public final class RunnerTests: XCTestCase {
         XCTAssertEqual(testResult.testEntry, testEntry)
         XCTAssertEqual(testResult.testRunResults[0].exceptions.first, RunnerConstants.testDidNotRun(testEntry.testName).testException)
     }
+    
+    func test___running_test_without_stop_event___does_not_revive___when_revive_is_disabled() throws {
+        testRunnerProvider.predefinedFakeTestRunner.disableTestStoppedTestRunnerStreamEvents()
+
+        var numberOfAttemptsToRunTest = 0
+        testRunnerProvider.predefinedFakeTestRunner.onExecuteTest = { _ in
+            numberOfAttemptsToRunTest += 1
+            return .success
+        }
+
+        let runnerResults = try runTestEntries([testEntry], environment: [Runner.skipReviveAttemptsEnvName: "true"])
+
+        XCTAssertEqual(numberOfAttemptsToRunTest, 1)
+
+        guard runnerResults.testEntryResults.count == 1, let testResult = runnerResults.testEntryResults.first else {
+            failTest("Unexpected number of test results")
+        }
+
+        XCTAssertFalse(testResult.succeeded)
+        XCTAssertEqual(testResult.testEntry, testEntry)
+        XCTAssertEqual(testResult.testRunResults[0].exceptions.first, RunnerConstants.testDidNotRun(testEntry.testName).testException)
+    }
 
     func test___running_test_and_reviving_after_test_stopped_event_loss___provides_back_correct_result() throws {
         var didRevive = false
@@ -278,9 +300,9 @@ public final class RunnerTests: XCTestCase {
         return eventExpectation
     }
     
-    private func runTestEntries(_ testEntries: [TestEntry]) throws -> RunnerRunResult {
+    private func runTestEntries(_ testEntries: [TestEntry], environment: [String: String] = [:]) throws -> RunnerRunResult {
         let runner = Runner(
-            configuration: createRunnerConfig(),
+            configuration: createRunnerConfig(environment: environment),
             dateProvider: dateProvider,
             developerDirLocator: FakeDeveloperDirLocator(result: tempFolder.absolutePath),
             fileSystem: fileSystem,
@@ -307,10 +329,10 @@ public final class RunnerTests: XCTestCase {
         )
     }
 
-    private func createRunnerConfig() -> RunnerConfiguration {
+    private func createRunnerConfig(environment: [String: String]) -> RunnerConfiguration {
         return RunnerConfiguration(
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
-            environment: [:],
+            environment: environment,
             pluginLocations: [],
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testRunnerTool: .xcodebuild,

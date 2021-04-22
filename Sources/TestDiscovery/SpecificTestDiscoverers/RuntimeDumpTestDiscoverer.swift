@@ -117,7 +117,8 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             _ = try runner.runOnce(
                 entriesToRun: [testEntryToQueryRuntimeDump],
                 developerDir: configuration.developerDir,
-                simulator: allocatedSimulator.simulator
+                simulator: allocatedSimulator.simulator,
+                lostTestProcessingMode: .reportError
             )
             
             guard let data = try? Data(contentsOf: runtimeEntriesJSONPath.fileUrl),

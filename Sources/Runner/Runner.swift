@@ -94,8 +94,6 @@ public final class Runner {
         // It is unlikely that multiple revives would provide any results, so we leave only a single retry.
         let numberOfAttemptsToRevive = 1
         
-        let shouldSkipReviveAttempts = configuration.environment[Self.skipReviveAttemptsEnvName] == "true"
-        
         // Something may crash (xcodebuild/xctest), many tests may be not started. Some external code that uses Runner
         // may have its own logic for restarting particular tests, but here at Runner we deal with crashes of bunches
         // of tests, many of which can be even not started. Simplifying this: if something that runs tests is crashed,
@@ -103,6 +101,8 @@ public final class Runner {
         // is promblem in them, not in infrastructure.
         
         var reviveAttempt = 0
+        
+        let lostTestProcessingMode: LostTestProcessingMode = configuration.environment[Self.skipReviveAttemptsEnvName] == "true" ? .reportError : .reportLost
 
         while runResult.nonLostTestEntryResults.count < entries.count, reviveAttempt <= numberOfAttemptsToRevive {
             let missingEntriesToRun = missingEntriesForScheduledEntries(
@@ -112,14 +112,11 @@ public final class Runner {
             let runResults = try runOnce(
                 entriesToRun: missingEntriesToRun,
                 developerDir: developerDir,
-                simulator: simulator
+                simulator: simulator,
+                lostTestProcessingMode: reviveAttempt == numberOfAttemptsToRevive ? .reportError : lostTestProcessingMode
             )
             
             runResult.append(testEntryResults: runResults.testEntryResults)
-
-            if shouldSkipReviveAttempts {
-                break
-            }
             
             if runResults.testEntryResults.filter({ !$0.isLost }).isEmpty {
                 // Here, if we do not receive events at all, we will get 0 results. We try to revive a limited number of times.
@@ -133,10 +130,7 @@ public final class Runner {
         
         return RunnerRunResult(
             entriesToRun: entries,
-            testEntryResults: testEntryResults(
-                runResult: runResult,
-                simulatorId: simulator.udid
-            )
+            testEntryResults: runResult.testEntryResults
         )
     }
     
@@ -144,7 +138,8 @@ public final class Runner {
     public func runOnce(
         entriesToRun: [TestEntry],
         developerDir: DeveloperDir,
-        simulator: Simulator
+        simulator: Simulator,
+        lostTestProcessingMode: LostTestProcessingMode
     ) throws -> RunnerRunResult {
         if entriesToRun.isEmpty {
             return RunnerRunResult(
@@ -165,7 +160,10 @@ public final class Runner {
         runnerWasteCollector.scheduleCollection(path: testContext.testsWorkingDirectory)
         runnerWasteCollector.scheduleCollection(path: simulator.path.appending(relativePath: "data/Library/Caches/com.apple.containermanagerd/Dead"))
         
-        let runnerResultsPreparer = RunnerResultsPreparerImpl()
+        let runnerResultsPreparer = RunnerResultsPreparerImpl(
+            dateProvider: dateProvider,
+            lostTestProcessingMode: lostTestProcessingMode
+        )
         
         let eventBus = try pluginEventBusProvider.createEventBus(
             fileSystem: fileSystem,
@@ -183,8 +181,11 @@ public final class Runner {
         
         let singleTestMaximumDuration = configuration.testTimeoutConfiguration.singleTestMaximumDuration
         
-        let testRunner = try testRunnerProvider.testRunner(
-            testRunnerTool: configuration.testRunnerTool
+        let testRunner = FailureReportingTestRunnerProxy(
+            dateProvider: dateProvider,
+            testRunner: try testRunnerProvider.testRunner(
+                testRunnerTool: configuration.testRunnerTool
+            )
         )
         
         let testRunnerRunningInvocationContainer = AtomicValue<TestRunnerRunningInvocation?>(nil)
@@ -274,27 +275,19 @@ public final class Runner {
             ]
         )
         
-        let runningInvocation: TestRunnerRunningInvocation
-        do {
-            runningInvocation = try testRunner.prepareTestRun(
-                buildArtifacts: configuration.buildArtifacts,
-                developerDirLocator: developerDirLocator,
-                entriesToRun: entriesToRun,
-                logger: logger,
-                runnerWasteCollector: runnerWasteCollector,
-                simulator: simulator,
-                temporaryFolder: tempFolder,
-                testContext: testContext,
-                testRunnerStream: testRunnerStream,
-                testType: configuration.testType
-            ).startExecutingTests()
-        } catch {
-            runningInvocation = try generateTestFailuresBecauseOfRunnerFailure(
-                runnerError: error,
-                entriesToRun: entriesToRun,
-                testRunnerStream: testRunnerStream
-            ).startExecutingTests()
-        }
+        let runningInvocation = try testRunner.prepareTestRun(
+            buildArtifacts: configuration.buildArtifacts,
+            developerDirLocator: developerDirLocator,
+            entriesToRun: entriesToRun,
+            logger: logger,
+            runnerWasteCollector: runnerWasteCollector,
+            simulator: simulator,
+            temporaryFolder: tempFolder,
+            testContext: testContext,
+            testRunnerStream: testRunnerStream,
+            testType: configuration.testType
+        ).startExecutingTests()
+        
         logger = logger
             .withMetadata(key: .subprocessId, value: "\(runningInvocation.pidInfo.pid)")
             .withMetadata(key: .subprocessName, value: "\(runningInvocation.pidInfo.name)")
@@ -343,30 +336,6 @@ public final class Runner {
         )
     }
     
-    private func generateTestFailuresBecauseOfRunnerFailure(
-        runnerError: Error,
-        entriesToRun: [TestEntry],
-        testRunnerStream: TestRunnerStream
-    ) -> TestRunnerInvocation {
-        testRunnerStream.openStream()
-        for testEntry in entriesToRun {
-            testRunnerStream.testStarted(testName: testEntry.testName)
-            testRunnerStream.testStopped(
-                testStoppedEvent: TestStoppedEvent(
-                    testName: testEntry.testName,
-                    result: .lost,
-                    testDuration: 0,
-                    testExceptions: [
-                        RunnerConstants.failedToStartTestRunner(runnerError).testException
-                    ],
-                    testStartTimestamp: dateProvider.currentDate().timeIntervalSince1970
-                )
-            )
-        }
-        testRunnerStream.closeStream()
-        return NoOpTestRunnerInvocation()
-    }
-    
     private func missingEntriesForScheduledEntries(
         expectedEntriesToRun: [TestEntry],
         collectedResults: RunResult)
@@ -375,66 +344,4 @@ public final class Runner {
         let receivedTestEntries = Set(collectedResults.nonLostTestEntryResults.map { $0.testEntry })
         return expectedEntriesToRun.filter { !receivedTestEntries.contains($0) }
     }
-    
-    private func testEntryResults(
-        runResult: RunResult,
-        simulatorId: UDID
-    ) -> [TestEntryResult] {
-        return runResult.testEntryResults.map {
-            if $0.isLost {
-                return resultForSingleTestThatDidNotRun(
-                    simulatorId: simulatorId,
-                    testEntry: $0.testEntry
-                )
-            } else {
-                return $0
-            }
-        }
-    }
-    
-    private func resultForSingleTestThatDidNotRun(
-        simulatorId: UDID,
-        testEntry: TestEntry
-    ) -> TestEntryResult {
-        return .withResult(
-            testEntry: testEntry,
-            testRunResult: TestRunResult(
-                succeeded: false,
-                exceptions: [
-                    RunnerConstants.testDidNotRun(testEntry.testName).testException
-                ],
-                duration: 0,
-                startTime: dateProvider.currentDate().timeIntervalSince1970,
-                hostName: LocalHostDeterminer.currentHostAddress,
-                simulatorId: simulatorId
-            )
-        )
-    }
-}
-
-private extension TestStoppedEvent {
-    func byMergingTestExceptions(
-        testExceptions: [TestException]
-    ) -> TestStoppedEvent {
-        return TestStoppedEvent(
-            testName: testName,
-            result: result,
-            testDuration: testDuration,
-            testExceptions: testExceptions + self.testExceptions,
-            testStartTimestamp: testStartTimestamp
-        )
-    }
-}
-
-private class NoOpTestRunnerInvocation: TestRunnerInvocation {
-    private class NoOpTestRunnerRunningInvocation: TestRunnerRunningInvocation {
-        init() {}
-        let pidInfo = PidInfo(pid: 0, name: "no-op process")
-        func cancel() {}
-        func wait() {}
-    }
-    
-    init() {}
-    
-    func startExecutingTests() -> TestRunnerRunningInvocation { NoOpTestRunnerRunningInvocation() }
 }

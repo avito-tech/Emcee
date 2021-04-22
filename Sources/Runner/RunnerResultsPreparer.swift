@@ -1,3 +1,4 @@
+import DateProvider
 import Foundation
 import LocalHostDeterminer
 import RunnerModels
@@ -11,8 +12,22 @@ public protocol RunnerResultsPreparer {
     ) -> [TestEntryResult]
 }
 
+public enum LostTestProcessingMode: Equatable {
+    case reportError
+    case reportLost
+}
+
 public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
-    public init() {}
+    private let dateProvider: DateProvider
+    private let lostTestProcessingMode: LostTestProcessingMode
+    
+    public init(
+        dateProvider: DateProvider,
+        lostTestProcessingMode: LostTestProcessingMode
+    ) {
+        self.dateProvider = dateProvider
+        self.lostTestProcessingMode = lostTestProcessingMode
+    }
 
     public func prepareResults(
         collectedTestStoppedEvents: [TestStoppedEvent],
@@ -49,9 +64,18 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
         testEntry: TestEntry,
         testStoppedEvents: [TestStoppedEvent]
     ) -> TestEntryResult {
-        guard !testStoppedEvents.isEmpty else {
-            return .lost(testEntry: testEntry)
+        if testStoppedEvents.isEmpty {
+            switch lostTestProcessingMode {
+            case .reportLost:
+                return .lost(testEntry: testEntry)
+            case .reportError:
+                return resultForSingleTestThatDidNotRun(
+                    simulatorId: simulatorId,
+                    testEntry: testEntry
+                )
+            }
         }
+        
         return TestEntryResult.withResults(
             testEntry: testEntry,
             testRunResults: testStoppedEvents.map { testStoppedEvent -> TestRunResult in
@@ -72,5 +96,24 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
         collectedTestStoppedEvents: [TestStoppedEvent]
     ) -> [TestStoppedEvent] {
         return collectedTestStoppedEvents.filter { $0.testName == testName }
+    }
+    
+    private func resultForSingleTestThatDidNotRun(
+        simulatorId: UDID,
+        testEntry: TestEntry
+    ) -> TestEntryResult {
+        return .withResult(
+            testEntry: testEntry,
+            testRunResult: TestRunResult(
+                succeeded: false,
+                exceptions: [
+                    RunnerConstants.testDidNotRun(testEntry.testName).testException
+                ],
+                duration: 0,
+                startTime: dateProvider.currentDate().timeIntervalSince1970,
+                hostName: LocalHostDeterminer.currentHostAddress,
+                simulatorId: simulatorId
+            )
+        )
     }
 }
