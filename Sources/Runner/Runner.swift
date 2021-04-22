@@ -164,6 +164,8 @@ public final class Runner {
         let runnerWasteCollector: RunnerWasteCollector = RunnerWasteCollectorImpl()
         runnerWasteCollector.scheduleCollection(path: testContext.testsWorkingDirectory)
         
+        let runnerResultsPreparer = RunnerResultsPreparerImpl()
+        
         let eventBus = try pluginEventBusProvider.createEventBus(
             fileSystem: fileSystem,
             pluginLocations: configuration.pluginLocations
@@ -197,7 +199,7 @@ public final class Runner {
                     logger: { logger },
                     testContext: testContext,
                     resultsProvider: {
-                        Runner.prepareResults(
+                        runnerResultsPreparer.prepareResults(
                             collectedTestStoppedEvents: collectedTestStoppedEvents,
                             requestedEntriesToRun: entriesToRun,
                             simulatorId: simulator.udid
@@ -301,7 +303,7 @@ public final class Runner {
         }
         try streamClosedCallback.wait(timeout: .infinity, description: "Test Runner Stream Close")
         
-        let result = Runner.prepareResults(
+        let result = runnerResultsPreparer.prepareResults(
             collectedTestStoppedEvents: collectedTestStoppedEvents,
             requestedEntriesToRun: entriesToRun,
             simulatorId: simulator.udid
@@ -403,66 +405,6 @@ public final class Runner {
         }
         testRunnerStream.closeStream()
         return NoOpTestRunnerInvocation()
-    }
-    
-    private static func prepareResults(
-        collectedTestStoppedEvents: [TestStoppedEvent],
-        requestedEntriesToRun: [TestEntry],
-        simulatorId: UDID
-    ) -> [TestEntryResult] {
-        return requestedEntriesToRun.map { requestedEntryToRun in
-            prepareResult(
-                requestedEntryToRun: requestedEntryToRun,
-                simulatorId: simulatorId,
-                collectedTestStoppedEvents: collectedTestStoppedEvents
-            )
-        }
-    }
-    
-    private static func prepareResult(
-        requestedEntryToRun: TestEntry,
-        simulatorId: UDID,
-        collectedTestStoppedEvents: [TestStoppedEvent]
-    ) -> TestEntryResult {
-        let correspondingTestStoppedEvents = testStoppedEvents(
-            testName: requestedEntryToRun.testName,
-            collectedTestStoppedEvents: collectedTestStoppedEvents
-        )
-        return testEntryResultForFinishedTest(
-            simulatorId: simulatorId,
-            testEntry: requestedEntryToRun,
-            testStoppedEvents: correspondingTestStoppedEvents
-        )
-    }
-    
-    private static func testEntryResultForFinishedTest(
-        simulatorId: UDID,
-        testEntry: TestEntry,
-        testStoppedEvents: [TestStoppedEvent]
-    ) -> TestEntryResult {
-        guard !testStoppedEvents.isEmpty else {
-            return .lost(testEntry: testEntry)
-        }
-        return TestEntryResult.withResults(
-            testEntry: testEntry,
-            testRunResults: testStoppedEvents.map { testStoppedEvent -> TestRunResult in
-                TestRunResult(
-                    succeeded: testStoppedEvent.succeeded,
-                    exceptions: testStoppedEvent.testExceptions,
-                    duration: testStoppedEvent.testDuration,
-                    startTime: testStoppedEvent.testStartTimestamp,
-                    hostName: LocalHostDeterminer.currentHostAddress,
-                    simulatorId: simulatorId
-                )
-            }
-        )
-    }
-    
-    private static func testStoppedEvents(
-        testName: TestName,
-        collectedTestStoppedEvents: [TestStoppedEvent]
-    ) -> [TestStoppedEvent] {
-        return collectedTestStoppedEvents.filter { $0.testName == testName }
     }
     
     private func missingEntriesForScheduledEntries(
