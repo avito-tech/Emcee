@@ -201,6 +201,7 @@ public final class Runner {
                     resultsProvider: {
                         runnerResultsPreparer.prepareResults(
                             collectedTestStoppedEvents: collectedTestStoppedEvents,
+                            collectedTestExceptions: collectedTestExceptions,
                             requestedEntriesToRun: entriesToRun,
                             simulatorId: simulator.udid
                         )
@@ -240,7 +241,6 @@ public final class Runner {
                         logger.debug("Started executing tests")
                     },
                     onTestStarted: { testName in
-                        collectedTestExceptions = []
                         logger.debug("Test started: \(testName)")
                     },
                     onTestException: { testException in
@@ -300,6 +300,7 @@ public final class Runner {
         
         let result = runnerResultsPreparer.prepareResults(
             collectedTestStoppedEvents: collectedTestStoppedEvents,
+            collectedTestExceptions: collectedTestExceptions,
             requestedEntriesToRun: entriesToRun,
             simulatorId: simulator.udid
         )

@@ -278,6 +278,42 @@ public final class RunnerTests: XCTestCase {
         wait(for: [testsWorkingDirDeletedExpectation], timeout: 0)
     }
     
+    func test___when_exception_outside_test_started_test_finished_happens___these_exceptions_are_appended_to_all_lost_tests() throws {
+        let outOfScopeException = TestException(reason: "some out-of-scope exception", filePathInProject: "", lineNumber: 0)
+        
+        testRunnerProvider.predefinedFakeTestRunner.onStreamOpen = { testRunnerStream in
+            testRunnerStream.openStream()
+            testRunnerStream.caughtException(testException: outOfScopeException)
+        }
+        testRunnerProvider.predefinedFakeTestRunner.disableTestStartedTestRunnerStreamEvents()
+        testRunnerProvider.predefinedFakeTestRunner.disableTestStoppedTestRunnerStreamEvents()
+        
+        let testEntry1 = TestEntryFixtures.testEntry(className: "class1", methodName: "test1")
+        let testEntry2 = TestEntryFixtures.testEntry(className: "class2", methodName: "test2")
+
+        let runnerResults = try runTestEntries([testEntry1, testEntry2])
+
+        guard runnerResults.testEntryResults.count == 2 else {
+            failTest("Unexpected number of test results")
+        }
+
+        for testEntryResult in runnerResults.testEntryResults {
+            guard testEntryResult.testRunResults.count == 1 else {
+                failTest("Unexpected number of test run results")
+            }
+            
+            let testRunResult = testEntryResult.testRunResults[0]
+            assert {
+                testRunResult.exceptions
+            } equals: {
+                [
+                    outOfScopeException,
+                    RunnerConstants.testDidNotRun(testEntryResult.testEntry.testName).testException
+                ]
+            }
+        }
+    }
+    
     private func expectationForDidRunEvent() -> XCTestExpectation {
         let eventExpectation = XCTestExpectation(description: "didRun event has been sent")
         

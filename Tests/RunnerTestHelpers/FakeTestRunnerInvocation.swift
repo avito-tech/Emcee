@@ -8,6 +8,7 @@ public final class FakeTestRunnerInvocation: TestRunnerInvocation {
     private let entriesToRun: [TestEntry]
     private let testRunnerStream: TestRunnerStream
     private let testResultProvider: (TestName) -> TestStoppedEvent.Result
+    private let onStreamOpen: (TestRunnerStream) -> ()
     private let onTestStarted: (TestName, TestRunnerStream) -> ()
     private let onTestStopped: (TestStoppedEvent, TestRunnerStream) -> ()
     private let onStreamClose: (TestRunnerStream) -> ()
@@ -17,6 +18,7 @@ public final class FakeTestRunnerInvocation: TestRunnerInvocation {
         entriesToRun: [TestEntry],
         testRunnerStream: TestRunnerStream,
         testResultProvider: @escaping (TestName) -> TestStoppedEvent.Result,
+        onStreamOpen: @escaping (TestRunnerStream) -> (),
         onTestStarted: @escaping (TestName, TestRunnerStream) -> (),
         onTestStopped: @escaping (TestStoppedEvent, TestRunnerStream) -> (),
         onStreamClose: @escaping (TestRunnerStream) -> (),
@@ -25,6 +27,7 @@ public final class FakeTestRunnerInvocation: TestRunnerInvocation {
         self.entriesToRun = entriesToRun
         self.testRunnerStream = testRunnerStream
         self.testResultProvider = testResultProvider
+        self.onStreamOpen = onStreamOpen
         self.onTestStarted = onTestStarted
         self.onTestStopped = onTestStopped
         self.onStreamClose = onStreamClose
@@ -37,7 +40,7 @@ public final class FakeTestRunnerInvocation: TestRunnerInvocation {
         
         let group = DispatchGroup()
         
-        testRunnerStream.openStream()
+        onStreamOpen(testRunnerStream)
         
         var isCancelled = false
         

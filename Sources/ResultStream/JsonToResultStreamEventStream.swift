@@ -35,12 +35,34 @@ public final class JsonToResultStreamEventStream: JSONReaderEventStream {
             switch eventName {
             case RSTestStarted.name.stringValue:
                 let testStarted = try jsonDecoder.decode(RSTestStarted.self, from: data)
-                let testName = try testStarted.structuredPayload.testIdentifier.testName()
-                testRunnerStream.testStarted(testName: testName)
+                do {
+                    let testName = try testStarted.structuredPayload.testIdentifier.testName()
+                    testRunnerStream.testStarted(testName: testName)
+                } catch {
+                    // when app crashes, test event contains not a test name, but a description of a crash
+                    testRunnerStream.caughtException(
+                        testException: TestException(
+                            reason: testStarted.structuredPayload.testIdentifier.identifier.stringValue,
+                            filePathInProject: "Unknown",
+                            lineNumber: 0
+                        )
+                    )
+                }
             case RSTestFinished.name.stringValue:
                 let testFinished = try jsonDecoder.decode(RSTestFinished.self, from: data)
-                let testStoppedEvent = try testFinished.testStoppedEvent(dateProvider: dateProvider)
-                testRunnerStream.testStopped(testStoppedEvent: testStoppedEvent)
+                do {
+                    let testStoppedEvent = try testFinished.testStoppedEvent(dateProvider: dateProvider)
+                    testRunnerStream.testStopped(testStoppedEvent: testStoppedEvent)
+                } catch {
+                    // when app crashes, test event contains not a test name, but a description of a crash
+                    testRunnerStream.caughtException(
+                        testException: TestException(
+                            reason: testFinished.structuredPayload.test.identifier.stringValue,
+                            filePathInProject: "Unknown",
+                            lineNumber: 0
+                        )
+                    )
+                }
             case RSIssueEmitted.name.stringValue:
                 let issue = try jsonDecoder.decode(RSIssueEmitted.self, from: data)
                 let testException = issue.structuredPayload.issue.testException()

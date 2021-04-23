@@ -93,6 +93,7 @@ public final class FakeTestRunner: TestRunner {
             entriesToRun: entriesToRun,
             testRunnerStream: testRunnerStream,
             testResultProvider: onExecuteTest,
+            onStreamOpen: onStreamOpen,
             onTestStarted: onTestStarted,
             onTestStopped: onTestStopped,
             onStreamClose: onStreamClose,
