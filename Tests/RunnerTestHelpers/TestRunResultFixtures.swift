@@ -6,6 +6,7 @@ public final class TestRunResultFixtures {
         return TestRunResult(
             succeeded: succeeded,
             exceptions: [],
+            logs: [],
             duration: 0,
             startTime: timestamp,
             hostName: "",

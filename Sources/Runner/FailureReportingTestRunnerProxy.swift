@@ -69,6 +69,7 @@ public final class FailureReportingTestRunnerProxy: TestRunner {
                     testExceptions: [
                         RunnerConstants.failedToStartTestRunner(runnerError).testException
                     ],
+                    logs: [],
                     testStartTimestamp: dateProvider.currentDate().timeIntervalSince1970
                 )
             )

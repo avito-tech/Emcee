@@ -5,6 +5,7 @@ import SimulatorPoolModels
 public struct TestRunResult: Codable, CustomStringConvertible, Equatable {
     public let succeeded: Bool
     public let exceptions: [TestException]
+    public let logs: [TestLogEntry]
     public let duration: TimeInterval
     public let startTime: TimeInterval
     public let hostName: String
@@ -17,6 +18,7 @@ public struct TestRunResult: Codable, CustomStringConvertible, Equatable {
     public init(
         succeeded: Bool,
         exceptions: [TestException],
+        logs: [TestLogEntry],
         duration: TimeInterval,
         startTime: TimeInterval,
         hostName: String,
@@ -24,6 +26,7 @@ public struct TestRunResult: Codable, CustomStringConvertible, Equatable {
     ) {
         self.succeeded = succeeded
         self.exceptions = exceptions
+        self.logs = logs
         self.duration = duration
         self.startTime = startTime
         self.hostName = hostName
@@ -37,6 +40,9 @@ public struct TestRunResult: Codable, CustomStringConvertible, Equatable {
         result += ["\(simulatorId)"]
         if !exceptions.isEmpty {
             result += ["exceptions: \(exceptions)"]
+        }
+        if !logs.isEmpty {
+            result += ["\(logs.count) log entries"]
         }
         return "<\(result.joined(separator: ", "))>"
     }

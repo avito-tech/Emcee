@@ -389,6 +389,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 result: .success,
                 testDuration: 5,
                 testExceptions: [],
+                logs: [],
                 testStartTimestamp: dateProvider.currentDate().timeIntervalSince1970 - 5
             )
         )

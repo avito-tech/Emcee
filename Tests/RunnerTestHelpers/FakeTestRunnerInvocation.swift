@@ -62,6 +62,7 @@ public final class FakeTestRunnerInvocation: TestRunnerInvocation {
                             result: testResult,
                             testDuration: Date().timeIntervalSince(testStartTimestamp),
                             testExceptions: [],
+                            logs: [],
                             testStartTimestamp: testStartTimestamp.timeIntervalSince1970
                         )
                         

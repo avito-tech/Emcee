@@ -8,6 +8,7 @@ public protocol RunnerResultsPreparer {
     func prepareResults(
         collectedTestStoppedEvents: [TestStoppedEvent],
         collectedTestExceptions: [TestException],
+        collectedLogs: [TestLogEntry],
         requestedEntriesToRun: [TestEntry],
         simulatorId: UDID
     ) -> [TestEntryResult]
@@ -33,6 +34,7 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
     public func prepareResults(
         collectedTestStoppedEvents: [TestStoppedEvent],
         collectedTestExceptions: [TestException],
+        collectedLogs: [TestLogEntry],
         requestedEntriesToRun: [TestEntry],
         simulatorId: UDID
     ) -> [TestEntryResult] {
@@ -41,7 +43,8 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
                 requestedEntryToRun: requestedEntryToRun,
                 simulatorId: simulatorId,
                 collectedTestStoppedEvents: collectedTestStoppedEvents,
-                collectedTestExceptions: collectedTestExceptions
+                collectedTestExceptions: collectedTestExceptions,
+                collectedLogs: collectedLogs
             )
         }
     }
@@ -50,7 +53,8 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
         requestedEntryToRun: TestEntry,
         simulatorId: UDID,
         collectedTestStoppedEvents: [TestStoppedEvent],
-        collectedTestExceptions: [TestException]
+        collectedTestExceptions: [TestException],
+        collectedLogs: [TestLogEntry]
     ) -> TestEntryResult {
         let correspondingTestStoppedEvents = testStoppedEvents(
             testName: requestedEntryToRun.testName,
@@ -60,7 +64,8 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
             simulatorId: simulatorId,
             testEntry: requestedEntryToRun,
             testStoppedEvents: correspondingTestStoppedEvents,
-            collectedTestExceptions: collectedTestExceptions
+            collectedTestExceptions: collectedTestExceptions,
+            collectedLogs: collectedLogs
         )
     }
     
@@ -68,7 +73,8 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
         simulatorId: UDID,
         testEntry: TestEntry,
         testStoppedEvents: [TestStoppedEvent],
-        collectedTestExceptions: [TestException]
+        collectedTestExceptions: [TestException],
+        collectedLogs: [TestLogEntry]
     ) -> TestEntryResult {
         if testStoppedEvents.isEmpty {
             switch lostTestProcessingMode {
@@ -78,7 +84,8 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
                 return resultForSingleTestThatDidNotRun(
                     simulatorId: simulatorId,
                     testEntry: testEntry,
-                    collectedTestExceptions: collectedTestExceptions
+                    collectedTestExceptions: collectedTestExceptions,
+                    collectedLogs: collectedLogs
                 )
             }
         }
@@ -89,6 +96,7 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
                 TestRunResult(
                     succeeded: testStoppedEvent.succeeded,
                     exceptions: testStoppedEvent.testExceptions,
+                    logs: testStoppedEvent.logs,
                     duration: testStoppedEvent.testDuration,
                     startTime: testStoppedEvent.testStartTimestamp,
                     hostName: LocalHostDeterminer.currentHostAddress,
@@ -108,13 +116,15 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
     private func resultForSingleTestThatDidNotRun(
         simulatorId: UDID,
         testEntry: TestEntry,
-        collectedTestExceptions: [TestException]
+        collectedTestExceptions: [TestException],
+        collectedLogs: [TestLogEntry]
     ) -> TestEntryResult {
         return .withResult(
             testEntry: testEntry,
             testRunResult: TestRunResult(
                 succeeded: false,
                 exceptions: collectedTestExceptions + [RunnerConstants.testDidNotRun(testEntry.testName).testException],
+                logs: collectedLogs,
                 duration: 0,
                 startTime: dateProvider.currentDate().timeIntervalSince1970,
                 hostName: LocalHostDeterminer.currentHostAddress,

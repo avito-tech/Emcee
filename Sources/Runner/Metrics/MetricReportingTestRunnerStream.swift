@@ -109,6 +109,8 @@ public final class MetricReportingTestRunnerStream: TestRunnerStream {
     
     public func caughtException(testException: TestException) {}
     
+    public func logCaptured(entry: TestLogEntry) {}
+    
     public func closeStream() {
         lastTestStoppedEventTimestamp.withExclusiveAccess { value in
             if let lastTestStoppedEventTimestamp = value {

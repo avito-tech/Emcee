@@ -66,6 +66,7 @@ final class CompositeTestRunnerStreamTests: XCTestCase {
         result: .failure,
         testDuration: 22,
         testExceptions: [testException],
+        logs: [],
         testStartTimestamp: 11
     )
 }

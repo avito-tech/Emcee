@@ -314,6 +314,106 @@ public final class RunnerTests: XCTestCase {
         }
     }
     
+    func test___after_test_execution___logs_are_attached_to_result___when_log_capturing_is_enabled() throws {
+        testRunnerProvider.predefinedFakeTestRunner.onStreamOpen = { testRunnerStream in
+            testRunnerStream.openStream()
+            
+            testRunnerStream.logCaptured(entry: TestLogEntry(contents: "first log"))
+            testRunnerStream.logCaptured(entry: TestLogEntry(contents: "second log"))
+        }
+
+        let runnerResults = try runTestEntries([testEntry], environment: [Runner.logCapturingModeEnvName: Runner.LogCapturingMode.allLogs.rawValue])
+        
+        guard runnerResults.testEntryResults.count == 1, let testResult = runnerResults.testEntryResults.first else {
+            failTest("Unexpected number of test results")
+        }
+
+        XCTAssertEqual(
+            testResult.testRunResults[0].logs,
+            [
+                TestLogEntry(contents: "first log"),
+                TestLogEntry(contents: "second log"),
+            ]
+        )
+    }
+    
+    func test___after_test_execution___logs_are_not_attached_to_result___when_log_capturing_is_disabled() throws {
+        testRunnerProvider.predefinedFakeTestRunner.onStreamOpen = { testRunnerStream in
+            testRunnerStream.openStream()
+            
+            testRunnerStream.logCaptured(entry: TestLogEntry(contents: "first log"))
+            testRunnerStream.logCaptured(entry: TestLogEntry(contents: "second log"))
+        }
+
+        let runnerResults = try runTestEntries([testEntry])
+        
+        guard runnerResults.testEntryResults.count == 1, let testResult = runnerResults.testEntryResults.first else {
+            failTest("Unexpected number of test results")
+        }
+
+        assertTrue {
+            testResult.testRunResults[0].logs.isEmpty
+        }
+    }
+    
+    func test___after_test_execution___crash_logs_are_attached_to_result___when_only_crash_logs_capturing_is_enabled() throws {
+        let crashLogEntry = TestLogEntry(contents: "Process: Tratata, Crashed Thread: Some Index")
+        
+        testRunnerProvider.predefinedFakeTestRunner.onStreamOpen = { testRunnerStream in
+            testRunnerStream.openStream()
+            
+            testRunnerStream.logCaptured(entry: TestLogEntry(contents: "first log"))
+            testRunnerStream.logCaptured(entry: crashLogEntry)
+        }
+
+        let runnerResults = try runTestEntries([testEntry], environment: [Runner.logCapturingModeEnvName: Runner.LogCapturingMode.onlyCrashLogs.rawValue])
+        
+        guard runnerResults.testEntryResults.count == 1, let testResult = runnerResults.testEntryResults.first else {
+            failTest("Unexpected number of test results")
+        }
+        
+        assert {
+            testResult.testRunResults[0].logs
+        } equals: {
+            [crashLogEntry]
+        }
+    }
+    
+    func test___after_test_crash___logs_are_attached_to_result___when_log_capturing_is_enabled() throws {
+        let logEntry = TestLogEntry(contents: "log entry contents")
+        
+        testRunnerProvider.predefinedFakeTestRunner.onStreamOpen = { testRunnerStream in
+            testRunnerStream.openStream()
+            testRunnerStream.logCaptured(entry: logEntry)
+        }
+        testRunnerProvider.predefinedFakeTestRunner.disableTestStartedTestRunnerStreamEvents()
+        testRunnerProvider.predefinedFakeTestRunner.disableTestStoppedTestRunnerStreamEvents()
+        
+        let testEntry1 = TestEntryFixtures.testEntry(className: "class1", methodName: "test1")
+        let testEntry2 = TestEntryFixtures.testEntry(className: "class2", methodName: "test2")
+
+        let runnerResults = try runTestEntries([testEntry1, testEntry2], environment: [Runner.logCapturingModeEnvName: Runner.LogCapturingMode.allLogs.rawValue])
+
+        guard runnerResults.testEntryResults.count == 2 else {
+            failTest("Unexpected number of test results")
+        }
+
+        for testEntryResult in runnerResults.testEntryResults {
+            guard testEntryResult.testRunResults.count == 1 else {
+                failTest("Unexpected number of test run results")
+            }
+            
+            let testRunResult = testEntryResult.testRunResults[0]
+            assert {
+                testRunResult.logs
+            } equals: {
+                [
+                    logEntry
+                ]
+            }
+        }
+    }
+    
     private func expectationForDidRunEvent() -> XCTestExpectation {
         let eventExpectation = XCTestExpectation(description: "didRun event has been sent")
         

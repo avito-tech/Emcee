@@ -64,6 +64,7 @@ final class EventBusReportingTestRunnerStreamTests: XCTestCase {
                 result: .failure,
                 testDuration: 0,
                 testExceptions: [],
+                logs: [],
                 testStartTimestamp: 0
             )
         )
@@ -123,6 +124,7 @@ final class EventBusReportingTestRunnerStreamTests: XCTestCase {
     lazy var testRunResult = TestRunResult(
         succeeded: true,
         exceptions: [testException],
+        logs: [],
         duration: 5,
         startTime: 5,
         hostName: "host",
@@ -133,6 +135,7 @@ final class EventBusReportingTestRunnerStreamTests: XCTestCase {
         result: .failure,
         testDuration: 1,
         testExceptions: [testException],
+        logs: [],
         testStartTimestamp: 2
     )
     lazy var testStream = EventBusReportingTestRunnerStream(

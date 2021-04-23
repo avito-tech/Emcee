@@ -5,6 +5,7 @@ final class TestRunnerStreamWrapper: TestRunnerStream {
     private let onOpenStream: () -> ()
     private let onTestStarted: (TestName) -> ()
     private let onTestException: (TestException) -> ()
+    private let onLog: (TestLogEntry) -> ()
     private let onTestStopped: (TestStoppedEvent) -> ()
     private let onCloseStream: () -> ()
     
@@ -12,12 +13,14 @@ final class TestRunnerStreamWrapper: TestRunnerStream {
         onOpenStream: @escaping () -> (),
         onTestStarted: @escaping (TestName) -> (),
         onTestException: @escaping (TestException) -> (),
+        onLog: @escaping (TestLogEntry) -> (),
         onTestStopped: @escaping (TestStoppedEvent) -> (),
         onCloseStream: @escaping () -> ()
     ) {
         self.onOpenStream = onOpenStream
         self.onTestStarted = onTestStarted
         self.onTestException = onTestException
+        self.onLog = onLog
         self.onTestStopped = onTestStopped
         self.onCloseStream = onCloseStream
     }
@@ -32,6 +35,10 @@ final class TestRunnerStreamWrapper: TestRunnerStream {
     
     func caughtException(testException: TestException) {
         onTestException(testException)
+    }
+    
+    func logCaptured(entry: TestLogEntry) {
+        onLog(entry)
     }
     
     func testStopped(testStoppedEvent: TestStoppedEvent) {

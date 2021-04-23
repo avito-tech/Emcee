@@ -41,6 +41,8 @@ public final class TestTimeoutTrackingTestRunnerSream: TestRunnerStream {
     
     public func caughtException(testException: TestException) {}
     
+    public func logCaptured(entry: TestLogEntry) {}
+    
     public func testStopped(testStoppedEvent: TestStoppedEvent) {
         stopMonitoringForHangs(testStoppedEvent: testStoppedEvent)
     }

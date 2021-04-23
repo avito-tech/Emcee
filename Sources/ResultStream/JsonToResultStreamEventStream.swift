@@ -67,6 +67,9 @@ public final class JsonToResultStreamEventStream: JSONReaderEventStream {
                 let issue = try jsonDecoder.decode(RSIssueEmitted.self, from: data)
                 let testException = issue.structuredPayload.issue.testException()
                 testRunnerStream.caughtException(testException: testException)
+            case RSLogTextAppended.name.stringValue:
+                let event = try jsonDecoder.decode(RSLogTextAppended.self, from: data)
+                testRunnerStream.logCaptured(entry: TestLogEntry(contents: event.structuredPayload.text.stringValue))
             default:
                 break
             }

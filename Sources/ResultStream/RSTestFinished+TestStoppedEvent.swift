@@ -13,6 +13,7 @@ extension RSTestFinished {
             result: structuredPayload.test.testStatus == "Success" ? .success : .failure,
             testDuration: testDuration,
             testExceptions: [],
+            logs: [],
             testStartTimestamp: dateProvider.currentDate().addingTimeInterval(-testDuration).timeIntervalSince1970
         )
     }

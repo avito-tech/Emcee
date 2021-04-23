@@ -24,7 +24,7 @@ final class TestTimeoutTrackingTestRunnerSreamTests: XCTestCase {
         )
         
         stream.testStarted(testName: testName)
-        stream.testStopped(testStoppedEvent: TestStoppedEvent(testName: testName, result: .success, testDuration: 1, testExceptions: [], testStartTimestamp: 0))
+        stream.testStopped(testStoppedEvent: TestStoppedEvent(testName: testName, result: .success, testDuration: 1, testExceptions: [], logs: [], testStartTimestamp: 0))
         
         wait(for: [timeoutCallInvoked], timeout: 5)
     }

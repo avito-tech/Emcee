@@ -131,6 +131,7 @@ public final class Scheduler {
                                     lineNumber: #line
                                 )
                             ],
+                            logs: [],
                             duration: Date().timeIntervalSince(startedAt),
                             startTime: startedAt.timeIntervalSince1970,
                             hostName: LocalHostDeterminer.currentHostAddress,

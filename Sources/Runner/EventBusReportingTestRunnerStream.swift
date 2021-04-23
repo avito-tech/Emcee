@@ -43,6 +43,8 @@ public final class EventBusReportingTestRunnerStream: TestRunnerStream {
     
     public func caughtException(testException: TestException) {}
     
+    public func logCaptured(entry: TestLogEntry) {}
+    
     public func testStopped(testStoppedEvent: TestStoppedEvent) {
         guard let testEntry = testEntryFor(testName: testStoppedEvent.testName) else {
             return logger().warning("Can't find test entry for test \(testStoppedEvent.testName)")

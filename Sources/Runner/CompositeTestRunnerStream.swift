@@ -17,6 +17,10 @@ public final class CompositeTestRunnerStream: TestRunnerStream {
         testRunnerStreams.forEach { $0.caughtException(testException: testException) }
     }
     
+    public func logCaptured(entry: TestLogEntry) {
+        testRunnerStreams.forEach { $0.logCaptured(entry: entry) }
+    }
+    
     public func testStarted(testName: TestName) {
         testRunnerStreams.forEach { $0.testStarted(testName: testName) }
     }

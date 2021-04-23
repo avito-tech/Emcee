@@ -63,6 +63,7 @@ final class PreflightPostflightTimeoutTrackingTestRunnerStreamTests: XCTestCase 
                 result: .success,
                 testDuration: 1,
                 testExceptions: [],
+                logs: [],
                 testStartTimestamp: dateProvider.currentDate().timeIntervalSince1970)
         )
         
@@ -86,6 +87,7 @@ final class PreflightPostflightTimeoutTrackingTestRunnerStreamTests: XCTestCase 
                 result: .success,
                 testDuration: 1,
                 testExceptions: [],
+                logs: [],
                 testStartTimestamp: dateProvider.currentDate().timeIntervalSince1970)
         )
         testStream.testStarted(
@@ -111,6 +113,7 @@ final class PreflightPostflightTimeoutTrackingTestRunnerStreamTests: XCTestCase 
                 result: .success,
                 testDuration: 1,
                 testExceptions: [],
+                logs: [],
                 testStartTimestamp: dateProvider.currentDate().timeIntervalSince1970)
         )
         testStream.closeStream()

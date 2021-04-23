@@ -35,6 +35,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
         result: .failure,
         testDuration: 12,
         testExceptions: [TestException(reason: "reason", filePathInProject: "file", lineNumber: 42)],
+        logs: [],
         testStartTimestamp: 111
     )
     lazy var version = Version(value: "version")

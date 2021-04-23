@@ -40,6 +40,7 @@ public final class Runner {
     private let waiter: Waiter
     
     public static let skipReviveAttemptsEnvName = "EMCEE_SKIP_REVIVE_ATTEMPTS"
+    public static let logCapturingModeEnvName = "EMCEE_LOG_CAPTURE_MODE"
     
     public init(
         configuration: RunnerConfiguration,
@@ -147,9 +148,12 @@ public final class Runner {
                 testEntryResults: []
             )
         }
+        
+        let logCapturingMode = LogCapturingMode(rawValue: configuration.environment[Self.logCapturingModeEnvName] ?? LogCapturingMode.noLogs.rawValue) ?? .noLogs
 
         var collectedTestStoppedEvents = [TestStoppedEvent]()
         var collectedTestExceptions = [TestException]()
+        var collectedLogs = [TestLogEntry]()
         
         let testContext = try createTestContext(
             developerDir: developerDir,
@@ -202,6 +206,7 @@ public final class Runner {
                         runnerResultsPreparer.prepareResults(
                             collectedTestStoppedEvents: collectedTestStoppedEvents,
                             collectedTestExceptions: collectedTestExceptions,
+                            collectedLogs: collectedLogs,
                             requestedEntriesToRun: entriesToRun,
                             simulatorId: simulator.udid
                         )
@@ -219,6 +224,7 @@ public final class Runner {
                                 testExceptions: [
                                     RunnerConstants.testTimeout(singleTestMaximumDuration).testException
                                 ],
+                                logs: collectedLogs,
                                 testStartTimestamp: testStartedAt.timeIntervalSince1970
                             )
                         )
@@ -245,12 +251,25 @@ public final class Runner {
                     },
                     onTestException: { testException in
                         collectedTestExceptions.append(testException)
-                        logger.debug("Caught test exception: \(testException)")
+                    },
+                    onLog: { logEntry in
+                        switch logCapturingMode {
+                        case .noLogs:
+                            break
+                        case .allLogs:
+                            collectedLogs.append(logEntry)
+                        case .onlyCrashLogs:
+                            if logEntry.contents.contains("Process:") && logEntry.contents.contains("Crashed Thread:") {
+                                collectedLogs.append(logEntry)
+                            }
+                        }
+                        
                     },
                     onTestStopped: { testStoppedEvent in
-                        let testStoppedEvent = testStoppedEvent.byMergingTestExceptions(testExceptions: collectedTestExceptions)
+                        let testStoppedEvent = testStoppedEvent.byMerging(testExceptions: collectedTestExceptions, logs: collectedLogs)
                         collectedTestStoppedEvents.append(testStoppedEvent)
                         collectedTestExceptions = []
+                        collectedLogs = []
                         logger.debug("Test stopped: \(testStoppedEvent.testName), \(testStoppedEvent.result)")
                     },
                     onCloseStream: {
@@ -301,6 +320,7 @@ public final class Runner {
         let result = runnerResultsPreparer.prepareResults(
             collectedTestStoppedEvents: collectedTestStoppedEvents,
             collectedTestExceptions: collectedTestExceptions,
+            collectedLogs: collectedLogs,
             requestedEntriesToRun: entriesToRun,
             simulatorId: simulator.udid
         )
@@ -312,6 +332,12 @@ public final class Runner {
             entriesToRun: entriesToRun,
             testEntryResults: result
         )
+    }
+    
+    public enum LogCapturingMode: String, Equatable {
+        case allLogs
+        case onlyCrashLogs
+        case noLogs
     }
     
     private func createTestContext(

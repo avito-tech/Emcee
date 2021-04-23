@@ -53,6 +53,8 @@ public final class PreflightPostflightTimeoutTrackingTestRunnerStream: TestRunne
     
     public func caughtException(testException: TestException) {}
     
+    public func logCaptured(entry: TestLogEntry) {}
+    
     public func testStopped(testStoppedEvent: TestStoppedEvent) {
         lastEventInfo.set(
             LastEventInfo(
