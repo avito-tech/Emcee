@@ -30,6 +30,7 @@ public final class ContextualLogger {
         case emceeVersion
         case persistentMetricsJobId
         case hostname
+        case xcrunToolName
     }
     
     public static let noOp: ContextualLogger = ContextualLogger(

@@ -16,7 +16,12 @@ public final class DetailedActivityLoggableProcessControllerProvider: ProcessCon
     }
     
     public func createProcessController(subprocess: Subprocess) throws -> ProcessController {
-        let logger = try di.get(ContextualLogger.self)
+        var logger = try di.get(ContextualLogger.self)
+        
+        if try subprocess.processName() == "xcrun", subprocess.arguments.count > 1 {
+            let toolName = try subprocess.arguments[1].stringValue()
+            logger = logger.withMetadata(key: .xcrunToolName, value: toolName)
+        }
         
         let paths = try di.get(LoggingSetup.self).childProcessLogsContainerProvider().paths(
             subprocessName: try subprocess.processName()
