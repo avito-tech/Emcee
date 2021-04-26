@@ -109,7 +109,8 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
         
         try processControllerProvider.startAndWaitForSuccessfulTermination(
             arguments: ["/usr/bin/xcrun", "simctl", "--set", simulator.simulatorSetPath, "spawn", simulator.udid.value, "defaults", "export", domain, currentPlistFilePath.pathString],
-            environment: environment
+            environment: environment,
+            automaticManagement: .sigtermThenKillIfSilent(interval: 30)
         )
         
         let entriesInCurrentPlist: [String: PlistEntry]
@@ -129,7 +130,8 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
         
         try processControllerProvider.startAndWaitForSuccessfulTermination(
             arguments: ["/usr/bin/xcrun", "simctl", "--set", simulator.simulatorSetPath, "spawn", simulator.udid.value, "defaults", "import", domain, pathToPlistToImport.pathString],
-            environment: environment
+            environment: environment,
+            automaticManagement: .sigtermThenKillIfSilent(interval: 30)
         )
         return true
     }
@@ -141,7 +143,8 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
     ) throws {
         try processControllerProvider.startAndWaitForSuccessfulTermination(
             arguments: ["/usr/bin/xcrun", "simctl", "--set", simulator.simulatorSetPath, "spawn", simulator.udid.value, "launchctl", "kill", "SIGKILL", "system/" + daemon],
-            environment: environment
+            environment: environment,
+            automaticManagement: .sigtermThenKillIfSilent(interval: 30)
         )
     }
 }
@@ -149,12 +152,14 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
 extension ProcessControllerProvider {
     func startAndWaitForSuccessfulTermination(
         arguments: [SubprocessArgument],
-        environment: Environment
+        environment: Environment,
+        automaticManagement: AutomaticManagement = .noManagement
     ) throws {
         try createProcessController(
             subprocess: Subprocess(
                 arguments: arguments,
-                environment: environment
+                environment: environment,
+                automaticManagement: automaticManagement
             )
         ).startAndWaitForSuccessfulTermination()
     }
