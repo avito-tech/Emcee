@@ -41,6 +41,8 @@ public final class RemoteWorkerLaunchdPlist {
         let launchdPlist = LaunchdPlist(
             job: LaunchdJob(
                 label: jobLabel,
+                username: nil,
+                groupname: nil,
                 programArguments: [
                     workerBinaryRemotePath.pathString, "distWork",
                     "--emcee-version", emceeVersion.value,

@@ -13,7 +13,7 @@ let package = Package(
         .library(name: "EmceeInterfaces", targets: ["BuildArtifacts", "DeveloperDirModels", "EmceeVersion", "PluginSupport", "QueueModels", "ResourceLocation", "ResourceLocationResolver", "RunnerModels", "SimulatorPoolModels", "SimulatorVideoRecorder", "TestArgFile", "TestDiscovery", "TestsWorkingDirectorySupport", "TypedResourceLocation", "WorkerAlivenessModels", "WorkerCapabilitiesModels"]),
     ],
     dependencies: [
-        .package(name: "CommandLineToolkit", url: "https://github.com/avito-tech/CommandLineToolkit.git", .revision("ecc14634fdca2eea60f4dcda98c82c2d36da96c5")),
+        .package(name: "CommandLineToolkit", url: "https://github.com/avito-tech/CommandLineToolkit.git", .revision("95d7af1ccaacd2904def3d261a749905f90d3796")),
         .package(name: "CountedSet", url: "https://github.com/0x7fs/CountedSet", .branch("master")),
         .package(name: "OrderedSet", url: "https://github.com/Weebly/OrderedSet", .exact("5.0.0")),
         .package(name: "Shout", url: "https://github.com/jakeheis/Shout.git", .exact("0.5.4")),
@@ -342,7 +342,7 @@ let package = Package(
             dependencies: [
                 "Deployer",
                 "EmceeLogging",
-                "LaunchdUtils",
+                .product(name: "LaunchdUtils", package: "CommandLineToolkit"),
                 .product(name: "PathLib", package: "CommandLineToolkit"),
                 .product(name: "ProcessController", package: "CommandLineToolkit"),
                 "QueueModels",
@@ -673,20 +673,6 @@ let package = Package(
             path: "Tests/FileLockTests"
         ),
         .target(
-            name: "JSONStream",
-            dependencies: [
-                .product(name: "AtomicModels", package: "CommandLineToolkit"),
-            ],
-            path: "Sources/JSONStream"
-        ),
-        .testTarget(
-            name: "JSONStreamTests",
-            dependencies: [
-                "JSONStream",
-            ],
-            path: "Tests/JSONStreamTests"
-        ),
-        .target(
             name: "JunitReporting",
             dependencies: [
             ],
@@ -719,19 +705,6 @@ let package = Package(
                 "URLSessionTestHelpers",
             ],
             path: "Tests/KibanaTests"
-        ),
-        .target(
-            name: "LaunchdUtils",
-            dependencies: [
-            ],
-            path: "Sources/LaunchdUtils"
-        ),
-        .testTarget(
-            name: "LaunchdUtilsTests",
-            dependencies: [
-                "LaunchdUtils",
-            ],
-            path: "Tests/LaunchdUtilsTests"
         ),
         .target(
             name: "ListeningSemaphore",
@@ -882,7 +855,7 @@ let package = Package(
                 "EmceeLogging",
                 "EventBus",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
-                "JSONStream",
+                .product(name: "JSONStream", package: "CommandLineToolkit"),
                 "LoggingSetup",
                 "PluginSupport",
                 .product(name: "Starscream", package: "Starscream"),
@@ -1387,7 +1360,7 @@ let package = Package(
             dependencies: [
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
                 "EmceeLogging",
-                "JSONStream",
+                .product(name: "JSONStream", package: "CommandLineToolkit"),
                 .product(name: "PathLib", package: "CommandLineToolkit"),
                 "ResultStreamModels",
                 "Runner",

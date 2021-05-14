@@ -4,7 +4,7 @@
         "CommandLineToolkit": {
             "url": "https://github.com/avito-tech/CommandLineToolkit.git",
             "version": {
-                "revision": "ecc14634fdca2eea60f4dcda98c82c2d36da96c5"
+                "revision": "95d7af1ccaacd2904def3d261a749905f90d3796"
             },
             "targetNames": [
                 "AtomicModels",
@@ -15,6 +15,8 @@
                 "Graphite",
                 "GraphiteClient",
                 "IO",
+                "JSONStream",
+                "LaunchdUtils",
                 "Metrics",
                 "MetricsTestHelpers",
                 "MetricsUtils",
