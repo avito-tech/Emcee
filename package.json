@@ -4,41 +4,9 @@
         "CommandLineToolkit": {
             "url": "https://github.com/avito-tech/CommandLineToolkit.git",
             "version": {
-                "revision": "95d7af1ccaacd2904def3d261a749905f90d3796"
+                "exact": "1.0.1"
             },
-            "targetNames": [
-                "AtomicModels",
-                "DateProvider",
-                "DateProviderTestHelpers",
-                "FileSystem",
-                "FileSystemTestHelpers",
-                "Graphite",
-                "GraphiteClient",
-                "IO",
-                "JSONStream",
-                "LaunchdUtils",
-                "Metrics",
-                "MetricsTestHelpers",
-                "MetricsUtils",
-                "PathLib",
-                "PlistLib",
-                "ProcessController",
-                "ProcessControllerTestHelpers",
-                "SignalHandling",
-                "SocketModels",
-                "Statsd",
-                "SynchronousWaiter",
-                "TestHelpers",
-                "Timer",
-                "Tmp",
-                "TmpTestHelpers",
-                "Types",
-                "UserDefaultsLib",
-                "UserDefaultsLibTestHelpers",
-                "Waitable",
-                "XcodeLocator",
-                "XcodeLocatorModels"
-            ]
+            "targetNames": "generated"
         },
         "CountedSet": {
             "url": "https://github.com/0x7fs/CountedSet",
