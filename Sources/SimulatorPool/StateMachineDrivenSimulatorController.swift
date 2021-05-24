@@ -1,6 +1,7 @@
 import AtomicModels
 import DeveloperDirLocator
 import DeveloperDirModels
+import FileSystem
 import Foundation
 import EmceeLogging
 import PathLib
@@ -15,6 +16,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     private let coreSimulatorStateProvider: CoreSimulatorStateProvider
     private let developerDir: DeveloperDir
     private let developerDirLocator: DeveloperDirLocator
+    private let fileSystem: FileSystem
     private let logger: ContextualLogger
     private let simulatorOperationTimeouts = AtomicValue<SimulatorOperationTimeouts>(
         SimulatorOperationTimeouts(create: 30, boot: 180, delete: 20, shutdown: 20, automaticSimulatorShutdown: 3600, automaticSimulatorDelete: 7200)
@@ -32,6 +34,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
         coreSimulatorStateProvider: CoreSimulatorStateProvider,
         developerDir: DeveloperDir,
         developerDirLocator: DeveloperDirLocator,
+        fileSystem: FileSystem,
         logger: ContextualLogger,
         simulatorStateMachine: SimulatorStateMachine,
         simulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor,
@@ -44,6 +47,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
         self.coreSimulatorStateProvider = coreSimulatorStateProvider
         self.developerDir = developerDir
         self.developerDirLocator = developerDirLocator
+        self.fileSystem = fileSystem
         self.logger = logger
         self.simulatorStateMachine = simulatorStateMachine
         self.simulatorStateMachineActionExecutor = simulatorStateMachineActionExecutor
@@ -221,19 +225,19 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     private func deleteSimulatorLogs(
         simulator: Simulator
     ) throws {
-        let simulatorLogsPath = ("~/Library/Logs/CoreSimulator/" as NSString)
-            .expandingTildeInPath
-            .appending(pathComponent: simulator.udid.value)
-        if FileManager.default.fileExists(atPath: simulatorLogsPath) {
+        let simulatorLogsPath = try fileSystem.commonlyUsedPathsProvider
+            .library(inDomain: .user, create: false)
+            .appending(components: ["Logs", "CoreSimulator", simulator.udid.value])
+        if fileSystem.properties(forFileAtPath: simulatorLogsPath).exists() {
             logger.debug("Removing logs of simulator \(simulator)")
-            try FileManager.default.removeItem(atPath: simulatorLogsPath)
+            try fileSystem.delete(fileAtPath: simulatorLogsPath)
         }
     }
     
     private func deleteSimulatorWorkingDirectory(simulator: Simulator) throws {
-        if FileManager.default.fileExists(atPath: simulator.path.pathString) {
+        if fileSystem.properties(forFileAtPath: simulator.path).exists() {
             logger.debug("Removing working directory of simulator \(simulator)")
-            try FileManager.default.removeItem(atPath: simulator.path.pathString)
+            try fileSystem.delete(fileAtPath: simulator.path)
         }
     }
     

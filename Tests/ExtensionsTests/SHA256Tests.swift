@@ -1,3 +1,4 @@
+import Extensions
 import Foundation
 import XCTest
 

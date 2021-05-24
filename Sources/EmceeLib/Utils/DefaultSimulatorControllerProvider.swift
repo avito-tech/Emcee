@@ -2,6 +2,7 @@ import AppleTools
 import DeveloperDirLocator
 import DeveloperDirModels
 import EmceeLogging
+import FileSystem
 import Foundation
 import PathLib
 import RunnerModels
@@ -12,6 +13,7 @@ import Tmp
 public final class DefaultSimulatorControllerProvider: SimulatorControllerProvider {
     private let additionalBootAttempts: UInt
     private let developerDirLocator: DeveloperDirLocator
+    private let fileSystem: FileSystem
     private let logger: ContextualLogger
     private let simulatorBootQueue: DispatchQueue
     private let simulatorStateMachineActionExecutorProvider: SimulatorStateMachineActionExecutorProvider
@@ -19,12 +21,14 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
     public init(
         additionalBootAttempts: UInt,
         developerDirLocator: DeveloperDirLocator,
+        fileSystem: FileSystem,
         logger: ContextualLogger,
         simulatorBootQueue: DispatchQueue,
         simulatorStateMachineActionExecutorProvider: SimulatorStateMachineActionExecutorProvider
     ) {
         self.additionalBootAttempts = additionalBootAttempts
         self.developerDirLocator = developerDirLocator
+        self.fileSystem = fileSystem
         self.logger = logger
         self.simulatorBootQueue = simulatorBootQueue
         self.simulatorStateMachineActionExecutorProvider = simulatorStateMachineActionExecutorProvider
@@ -45,6 +49,7 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
                 coreSimulatorStateProvider: DefaultCoreSimulatorStateProvider(),
                 developerDir: developerDir,
                 developerDirLocator: developerDirLocator,
+                fileSystem: fileSystem,
                 logger: logger,
                 simulatorStateMachine: SimulatorStateMachine(),
                 simulatorStateMachineActionExecutor: try simulatorStateMachineActionExecutorProvider.simulatorStateMachineActionExecutor(

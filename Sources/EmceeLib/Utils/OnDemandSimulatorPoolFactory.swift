@@ -26,6 +26,7 @@ public final class OnDemandSimulatorPoolFactory {
             simulatorControllerProvider: DefaultSimulatorControllerProvider(
                 additionalBootAttempts: 2,
                 developerDirLocator: try di.get(),
+                fileSystem: try di.get(),
                 logger: logger,
                 simulatorBootQueue: simulatorBootQueue,
                 simulatorStateMachineActionExecutorProvider: SimulatorStateMachineActionExecutorProviderImpl(

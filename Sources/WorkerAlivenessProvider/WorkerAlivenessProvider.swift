@@ -2,7 +2,7 @@ import Foundation
 import QueueModels
 import WorkerAlivenessModels
 
-public protocol WorkerAlivenessProvider: class {
+public protocol WorkerAlivenessProvider: AnyObject {
     /// Returns immediate snapshot of all worker aliveness statuses.
     var workerAliveness: [WorkerId: WorkerAliveness] { get }
     

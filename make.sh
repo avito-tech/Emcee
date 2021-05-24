@@ -27,6 +27,7 @@ function install_deps() {
 }
 
 function generate_package_swift() {
+    install_deps
     swift run --package-path ".build/checkouts/CommandLineToolkit/PackageGenerator/" package-gen .
 }
 
@@ -40,19 +41,14 @@ function reset_emcee_version() {
     echo "Reverted source code version '$EMCEE_SHORT_VERSION' to 'undefined_version'"
 }
 
-function open_xcodeproj() {
-	generate_xcodeproj
-	open *.xcodeproj
-}
-
-function generate_xcodeproj() {
-	install_deps
+function open_package() {
     generate_package_swift
-	swift package generate-xcodeproj --enable-code-coverage
+	open Package.swift
 }
 
 function clean() {
 	rm -rf .build/
+    rm -rf .swiftpm/
 	rm -rf *.xcodeproj
 }
 
@@ -73,11 +69,8 @@ function run_tests_parallel() {
 }
 
 case "$1" in
-    generate)
-        generate_xcodeproj
-        ;;
     open)
-    	open_xcodeproj
+    	open_package
     	;;
     test)
         run_tests_parallel

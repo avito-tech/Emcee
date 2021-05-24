@@ -49,12 +49,12 @@ We are happy to accept your pull requests. If something does not work for you, p
 
 General commands that help you with a development workflow:
 
-- Generating an Xcode project: `make open`
-- Generating `Package.swift` based on template and `import` statements in source code: `make gen`
-- Building the binary at `.build/debug/Emcee`: `make build`
-- Running unit tests: `make test`
+- To open a package in Xcode: `make open`
+- To generate `Package.swift`: `make package`
+- To build the binary into `.build/debug/Emcee`: `make build`
+- To run unit tests: `make test`
 
-Since `Package.swift` file is generated automatically, you must update it before submitting a pull request. CI checks will fail if you forget to do so.
+`Package.swift` file is generated automatically. You must update it before submitting a pull request (run `make package`). CI checks will fail if you forget to do so.
 
 # Dependencies
 

@@ -1,5 +1,6 @@
 import DeveloperDirLocator
 import DeveloperDirLocatorTestHelpers
+import FileSystemTestHelpers
 import Foundation
 import PathLib
 import PlistLib
@@ -18,6 +19,7 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
     private let expectedTimeout: TimeInterval = 42.0
     private let expectedUdid = UDID(value: "some_UDID")
     private let coreSimulatorStateProvider = FakeCoreSimulatorStateProvider()
+    private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     
     func test___if_create_throws___boot_fails() {
         let controller = assertDoesNotThrow {
@@ -282,10 +284,11 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
             coreSimulatorStateProvider: coreSimulatorStateProvider,
             developerDir: .current,
             developerDirLocator: developerDirLocator,
+            fileSystem: FakeFileSystem(rootPath: tempFolder.absolutePath),
             logger: .noOp,
             simulatorStateMachine: SimulatorStateMachine(),
             simulatorStateMachineActionExecutor: actionExecutor,
-            temporaryFolder: try TemporaryFolder(),
+            temporaryFolder: tempFolder,
             testDestination: expectedTestDestination,
             waiter: NoOpWaiter()
         )

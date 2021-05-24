@@ -1,5 +1,5 @@
+import CLTExtensions
 import Dispatch
-import Extensions
 import Foundation
 
 public final class EventBus {

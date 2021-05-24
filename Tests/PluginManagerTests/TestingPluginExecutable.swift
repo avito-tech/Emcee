@@ -1,15 +1,19 @@
-import Foundation
 import Extensions
+import Foundation
+import FileSystem
+import PathLib
 
 final class TestingPluginExecutable {
-    private static let swiftPackagePath = FileManager.default.walkUpTheHierarchy(
-        path: #file,
-        untilFileIsFound: "Package.swift")
+    
+    private static let fileSystem = LocalFileSystem()
     
     public static let testingPluginPath: String? = buildTestingPlugin()
     
     private static func buildTestingPlugin() -> String? {
-        guard let swiftPackagePath = TestingPluginExecutable.swiftPackagePath else {
+        guard let swiftPackagePath = walkUpTheHierarchy(
+            startingAtPath: AbsolutePath(#file),
+            untilFileIsFound: "Package.swift"
+        ) else {
             return nil
         }
         
@@ -17,15 +21,31 @@ final class TestingPluginExecutable {
             launchPath: "/usr/bin/swift",
             arguments: [
                 "build",
-                "--package-path", swiftPackagePath,
+                "--package-path", swiftPackagePath.pathString,
                 "--product", "testing_plugin"
             ])
         process.waitUntilExit()
-        let location = swiftPackagePath.appending(pathComponents: [".build", "debug", "testing_plugin"])
-        if FileManager.default.fileExists(atPath: location) {
-            return location
+        let location = swiftPackagePath.appending(components: [".build", "debug", "testing_plugin"])
+        if fileSystem.properties(forFileAtPath: location).exists() {
+            return location.pathString
         } else {
             return nil
         }
+    }
+    
+    private static func walkUpTheHierarchy(
+        startingAtPath path: AbsolutePath,
+        untilFileIsFound filename: String
+    ) -> AbsolutePath? {
+        var path = path
+        
+        while !path.isRoot {
+            if fileSystem.properties(forFileAtPath: path.appending(component: filename)).exists() {
+                return path
+            }
+            
+            path = path.removingLastComponent
+        }
+        return nil
     }
 }

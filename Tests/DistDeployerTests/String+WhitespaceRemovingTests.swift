@@ -1,4 +1,4 @@
-import Extensions
+import DistDeployer
 import Foundation
 import XCTest
 

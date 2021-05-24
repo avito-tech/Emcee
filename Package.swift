@@ -13,7 +13,7 @@ let package = Package(
         .library(name: "EmceeInterfaces", targets: ["BuildArtifacts", "DeveloperDirModels", "EmceeVersion", "PluginSupport", "QueueModels", "ResourceLocation", "ResourceLocationResolver", "RunnerModels", "SimulatorPoolModels", "SimulatorVideoRecorder", "TestArgFile", "TestDiscovery", "TestsWorkingDirectorySupport", "TypedResourceLocation", "WorkerAlivenessModels", "WorkerCapabilitiesModels"]),
     ],
     dependencies: [
-        .package(name: "CommandLineToolkit", url: "https://github.com/avito-tech/CommandLineToolkit.git", .exact("1.0.1")),
+        .package(name: "CommandLineToolkit", url: "https://github.com/avito-tech/CommandLineToolkit.git", .exact("1.0.2")),
         .package(name: "CountedSet", url: "https://github.com/0x7fs/CountedSet", .branch("master")),
         .package(name: "OrderedSet", url: "https://github.com/Weebly/OrderedSet", .exact("5.0.0")),
         .package(name: "Shout", url: "https://github.com/jakeheis/Shout.git", .exact("0.5.4")),
@@ -412,7 +412,7 @@ let package = Package(
         .target(
             name: "DistWorkerModels",
             dependencies: [
-                "Extensions",
+                .product(name: "CLTExtensions", package: "CommandLineToolkit"),
                 "LoggingSetup",
                 "MetricsExtensions",
                 "QueueModels",
@@ -606,7 +606,7 @@ let package = Package(
         .target(
             name: "EventBus",
             dependencies: [
-                "Extensions",
+                .product(name: "CLTExtensions", package: "CommandLineToolkit"),
                 "RunnerModels",
             ],
             path: "Sources/EventBus"
@@ -629,7 +629,6 @@ let package = Package(
             name: "ExtensionsTests",
             dependencies: [
                 "Extensions",
-                .product(name: "Tmp", package: "CommandLineToolkit"),
             ],
             path: "Tests/ExtensionsTests"
         ),
@@ -709,7 +708,7 @@ let package = Package(
         .target(
             name: "ListeningSemaphore",
             dependencies: [
-                "Extensions",
+                .product(name: "CLTExtensions", package: "CommandLineToolkit"),
             ],
             path: "Sources/ListeningSemaphore"
         ),
@@ -1595,6 +1594,7 @@ let package = Package(
                 "DeveloperDirLocator",
                 "DeveloperDirModels",
                 "EmceeLogging",
+                .product(name: "FileSystem", package: "CommandLineToolkit"),
                 .product(name: "Graphite", package: "CommandLineToolkit"),
                 "LocalHostDeterminer",
                 .product(name: "Metrics", package: "CommandLineToolkit"),
@@ -1644,6 +1644,7 @@ let package = Package(
                 "DeveloperDirLocator",
                 "DeveloperDirLocatorTestHelpers",
                 "DeveloperDirModels",
+                .product(name: "FileSystemTestHelpers", package: "CommandLineToolkit"),
                 "MetricsExtensions",
                 .product(name: "MetricsTestHelpers", package: "CommandLineToolkit"),
                 .product(name: "PathLib", package: "CommandLineToolkit"),
