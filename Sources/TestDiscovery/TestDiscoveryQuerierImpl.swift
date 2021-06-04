@@ -115,9 +115,15 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
                     specificMetricRecorder: specificMetricRecorder
                 )
                 
-                let foundTestEntries = try internalTestDiscoverer.discoverTestEntries(
-                    configuration: configuration
-                )
+                let foundTestEntries = try runRetrying(
+                    logger: configuration.logger,
+                    xcTestBundleLocation: configuration.xcTestBundleLocation,
+                    times: configuration.testExecutionBehavior.numberOfRetries
+                ) {
+                    try internalTestDiscoverer.discoverTestEntries(
+                        configuration: configuration
+                    )
+                }
                 
                 let allTests = foundTestEntries.flatMap { $0.testMethods }
                 reportStats(
@@ -137,6 +143,20 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
                 )
             }
         )
+    }
+    
+    private func runRetrying<T>(logger: ContextualLogger, xcTestBundleLocation: TestBundleLocation, times: UInt, _ work: () throws -> T) rethrows -> T {
+        for retryIndex in 0 ..< times {
+            do {
+                return try work()
+            } catch {
+                let pauseDuration = TimeInterval(retryIndex) * 2.0
+                logger.error("[\(retryIndex)/\(times)] Failed to get runtime dump for test bundle \(xcTestBundleLocation): \(error)")
+                logger.debug("Waiting for \(LoggableDuration(pauseDuration, suffix: "sec")) before attempting again")
+                waiter.wait(timeout: pauseDuration, description: "Pause between runtime dump retries")
+            }
+        }
+        return try work()
     }
     
     private func requestedTestsNotAvailable(
@@ -273,7 +293,6 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
-            numberOfAttemptsToPerformRuntimeDump: 3,
             onDemandSimulatorPool: onDemandSimulatorPool,
             pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,
