@@ -7,10 +7,12 @@ import Runner
 import RunnerModels
 import SimulatorPoolModels
 import Tmp
+import PathLib
 
 public final class FakeTestRunner: TestRunner {
     public var entriesToRun: [TestEntry]?
     public var errorToThrowOnRun: Error?
+    public var testContext: TestContext?
     private let tempFolder: TemporaryFolder
     
     public struct SomeError: Error, CustomStringConvertible {
@@ -84,6 +86,7 @@ public final class FakeTestRunner: TestRunner {
         isRunCalled = true
 
         self.entriesToRun = entriesToRun
+        self.testContext = testContext
         
         if let errorToThrowOnRun = errorToThrowOnRun {
             throw errorToThrowOnRun
@@ -99,5 +102,13 @@ public final class FakeTestRunner: TestRunner {
             onStreamClose: onStreamClose,
             tempFolder: tempFolder
         )
+    }
+    
+    public var isAdditionalEnvironmentCalled = false
+    public var additionalEnvironmentReturns: [String: String] = [:]
+    
+    public func additionalEnvironment(absolutePath: AbsolutePath) -> [String : String] {
+        isAdditionalEnvironmentCalled = true
+        return additionalEnvironmentReturns
     }
 }

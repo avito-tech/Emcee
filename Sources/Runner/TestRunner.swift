@@ -6,6 +6,7 @@ import ProcessController
 import RunnerModels
 import SimulatorPoolModels
 import Tmp
+import PathLib
 
 public protocol TestRunnerRunningInvocation {
     var pidInfo: PidInfo { get }
@@ -18,6 +19,7 @@ public protocol TestRunnerInvocation {
 }
 
 public protocol TestRunner {
+    func additionalEnvironment(absolutePath: AbsolutePath) -> [String: String]
     func prepareTestRun(
         buildArtifacts: BuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
@@ -31,4 +33,3 @@ public protocol TestRunner {
         testType: TestType
     ) throws -> TestRunnerInvocation
 }
-
