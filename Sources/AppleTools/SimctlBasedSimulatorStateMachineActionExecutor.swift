@@ -1,3 +1,4 @@
+import AtomicModels
 import DeveloperDirLocator
 import Dispatch
 import Foundation
@@ -10,14 +11,9 @@ import SimulatorPoolModels
 
 public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor, CustomStringConvertible {
     
-    public enum SimctlUdidParseError: Error, CustomStringConvertible {
-        case emptyUdid
-        
+    public struct SimctlUdidParseError: Error, CustomStringConvertible {
         public var description: String {
-            switch self {
-            case .emptyUdid:
-                return "Simctl returned an empty udid value, or the value was not found"
-            }
+            "Simctl returned an empty udid value, or the value was not found"
         }
     }
 
@@ -55,10 +51,10 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
         
         var capturedData = Data()
         controller.onStdout { _, data, _ in capturedData.append(data) }
-        try controller.startAndWaitForSuccessfulTermination()
+        try runAndHumanifyError(operation: .create, processController: controller)
         
         guard let createdUdid = String(data: capturedData, encoding: .utf8), !createdUdid.isEmpty else {
-            throw SimctlUdidParseError.emptyUdid
+            throw SimctlUdidParseError()
         }
         let udid = UDID(value: createdUdid.trimmingCharacters(in: .whitespacesAndNewlines))
         
@@ -86,7 +82,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                 automaticManagement: .sigintThenKillAfterRunningFor(interval: timeout)
             )
         )
-        try processController.startAndWaitForSuccessfulTermination()
+        try runAndHumanifyError(operation: .bootstatus, processController: processController)
     }
     
     public func performShutdownSimulatorAction(
@@ -105,7 +101,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                 automaticManagement: .sigintThenKillAfterRunningFor(interval: timeout)
             )
         )
-        try shutdownController.startAndWaitForSuccessfulTermination()
+        try runAndHumanifyError(operation: .shutdown, processController: shutdownController)
     }
     
     public func performDeleteSimulatorAction(
@@ -124,6 +120,40 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                 automaticManagement: .sigintThenKillAfterRunningFor(interval: timeout)
             )
         )
-        try deleteController.startAndWaitForSuccessfulTermination()
+        try runAndHumanifyError(operation: .delete, processController: deleteController)
+    }
+    
+    public struct SimctlFailureError: Error, CustomStringConvertible {
+        public enum Operation: String {
+            case create
+            case bootstatus
+            case shutdown
+            case delete
+        }
+        
+        public let data: Data
+        public let operation: Operation
+        public let subprocess: Subprocess
+        public let innerError: Error
+        
+        public var description: String {
+            let processOutput = String(data: data, encoding: .utf8) ?? "non-utf8 output"
+            return "Simctl failed to perform '\(operation.rawValue)' operation with error: \(innerError). Subprocess \(subprocess) had output: \(processOutput)"
+        }
+    }
+    
+    private func runAndHumanifyError(
+        operation: SimctlFailureError.Operation,
+        processController: ProcessController
+    ) throws {
+        let collectedOutput = AtomicValue(Data())
+        processController.onStdout { _, data, _ in collectedOutput.withExclusiveAccess { $0.append(data) } }
+        processController.onStderr { _, data, _ in collectedOutput.withExclusiveAccess { $0.append(data) } }
+        
+        do {
+            try processController.startAndWaitForSuccessfulTermination()
+        } catch {
+            throw SimctlFailureError(data: collectedOutput.currentValue(), operation: operation, subprocess: processController.subprocess, innerError: error)
+        }
     }
 }
