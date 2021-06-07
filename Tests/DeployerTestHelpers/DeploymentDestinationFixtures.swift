@@ -5,8 +5,8 @@ public final class DeploymentDestinationFixtures {
     
     public var host: String = "localhost"
     public var port: Int32 = 42
-    public var username: String = "username"
-    public var password: String = "password"
+    public var username: String = "user"
+    public var authentication: DeploymentDestinationAuthenticationType = .plain(password: "pass")
     public var remoteDeploymentPath: String = "/Users/username/path"
     
     public init() {}
@@ -26,8 +26,8 @@ public final class DeploymentDestinationFixtures {
         return self
     }
     
-    public func with(password: String) -> DeploymentDestinationFixtures {
-        self.password = password
+    public func with(authentication: DeploymentDestinationAuthenticationType) -> DeploymentDestinationFixtures {
+        self.authentication = authentication
         return self
     }
     
@@ -41,7 +41,7 @@ public final class DeploymentDestinationFixtures {
             host: host,
             port: port,
             username: username,
-            password: password,
+            authentication: authentication,
             remoteDeploymentPath: remoteDeploymentPath
         )
     }

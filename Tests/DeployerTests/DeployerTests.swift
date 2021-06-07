@@ -30,7 +30,7 @@ class DeployerTests: XCTestCase {
                 host: "localhost",
                 port: 32,
                 username: "user",
-                password: "pass",
+                authentication: .plain(password: "pass"),
                 remoteDeploymentPath: "/remote/path"
             ),
             logger: .noOp,
@@ -73,7 +73,7 @@ class DeployerTests: XCTestCase {
                     host: "localhost",
                     port: 32,
                     username: "user",
-                    password: "pass",
+                    authentication: .plain(password: "pass"),
                     remoteDeploymentPath: "/remote/path"
                 ),
                 logger: .noOp,

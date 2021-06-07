@@ -23,7 +23,7 @@ class SSHDeployerTests: XCTestCase {
             host: "host",
             port: 1034,
             username: "user",
-            password: "pa$$",
+            authentication: .plain(password: "pa$$"),
             remoteDeploymentPath: "/some/remote/container")
         
         let deployer = try SSHDeployer(
@@ -52,7 +52,7 @@ class SSHDeployerTests: XCTestCase {
         XCTAssertEqual(client.host, destination.host)
         XCTAssertEqual(client.port, destination.port)
         XCTAssertEqual(client.username, destination.username)
-        XCTAssertEqual(client.password, destination.password)
+        XCTAssertEqual(client.authentication, destination.authentication)
         XCTAssertTrue(client.calledConnectAndAuthenticate)
         
         XCTAssertEqual(client.executeCommands.count, 4)

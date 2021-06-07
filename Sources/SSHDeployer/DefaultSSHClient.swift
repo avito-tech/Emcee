@@ -1,24 +1,30 @@
 import Foundation
 import Shout
 import PathLib
+import Deployer
 
 public final class DefaultSSHClient: SSHClient {
     private let ssh: SSH
     private let host: String
     private let port: Int32
     private let username: String
-    private let password: String
+    private let authentication: DeploymentDestinationAuthenticationType
     
-    public init(host: String, port: Int32, username: String, password: String) throws {
+    public init(host: String, port: Int32, username: String, authentication: DeploymentDestinationAuthenticationType) throws {
         self.host = host
         self.port = port
         self.username = username
-        self.password = password
+        self.authentication = authentication
         self.ssh = try SSH(host: host, port: port)
     }
 
     public func connectAndAuthenticate() throws {
-        try ssh.authenticate(username: username, password: password)
+        switch authentication{
+        case .plain(let password):
+            try ssh.authenticate(username: username, password: password)
+        case .key(let path):
+            try ssh.authenticate(username: username, privateKey: path)
+        }
     }
     
     @discardableResult

@@ -1,21 +1,22 @@
 import Foundation
 @testable import SSHDeployer
+import Deployer
 
 class FakeSSHClient: SSHClient {
     let host: String
     let port: Int32
     let username: String
-    let password: String
+    let authentication: DeploymentDestinationAuthenticationType
     
     var calledConnectAndAuthenticate = false
     var executeCommands = [[String]]()
     var uploadCommands = [[URL: String]]()
     
-    required init(host: String, port: Int32, username: String, password: String) throws {
+    required init(host: String, port: Int32, username: String, authentication: DeploymentDestinationAuthenticationType) throws {
         self.host = host
         self.port = port
         self.username = username
-        self.password = password
+        self.authentication = authentication
         
         FakeSSHClient.lastCreatedInstance = self
     }
