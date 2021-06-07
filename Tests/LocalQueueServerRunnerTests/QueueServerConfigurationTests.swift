@@ -38,7 +38,10 @@ final class QueueServerConfigurationTests: XCTestCase {
                     "host": "queue",
                     "port": 22,
                     "username": "q_user",
-                    "password": "q_pass",
+                    "authentication": {
+                        "type": "plain",
+                        "password": "pass"
+                    },
                     "remoteDeploymentPath": "/remote/queue/depl/path"
                   },
                   "queueServerTerminationPolicy": {
@@ -50,7 +53,10 @@ final class QueueServerConfigurationTests: XCTestCase {
                       "host": "host",
                       "port": 1,
                       "username": "username",
-                      "password": "password",
+                      "authentication": {
+                          "type": "plain",
+                          "password": "pass"
+                      },
                       "remoteDeploymentPath": "/remote/deployment/path"
                     }
                   ]
@@ -76,7 +82,7 @@ final class QueueServerConfigurationTests: XCTestCase {
         )
         XCTAssertEqual(
             config.queueServerDeploymentDestination,
-            DeploymentDestination(host: "queue", port: 22, username: "q_user", password: "q_pass", remoteDeploymentPath: "/remote/queue/depl/path")
+            DeploymentDestination(host: "queue", port: 22, username: "q_user", authentication: .plain(password: "pass"), remoteDeploymentPath: "/remote/queue/depl/path")
         )
         XCTAssertEqual(
             config.queueServerTerminationPolicy,
@@ -89,8 +95,29 @@ final class QueueServerConfigurationTests: XCTestCase {
         XCTAssertEqual(
             config.workerDeploymentDestinations,
             [
-                DeploymentDestination(host: "host", port: 1, username: "username", password: "password", remoteDeploymentPath: "/remote/deployment/path")
+                DeploymentDestination(host: "host", port: 1, username: "username", authentication: .plain(password: "pass"), remoteDeploymentPath: "/remote/deployment/path")
             ]
+        )
+    }
+    
+    func test___deployment_destination_with_key_parsing() throws {
+        let data = Data("""
+            {
+                "host": "host",
+                "port": 1,
+                "username": "username",
+                "authentication": {
+                    "type": "key",
+                    "path": "key"
+                },
+                "remoteDeploymentPath": "/remote/deployment/path"
+            }
+        """.utf8
+        )
+        let config = try JSONDecoder().decode(DeploymentDestination.self, from: data)
+        XCTAssertEqual(
+            config,
+            DeploymentDestination(host: "host", port: 1, username: "username", authentication: .key(path: "key"), remoteDeploymentPath: "/remote/deployment/path")
         )
     }
 }
