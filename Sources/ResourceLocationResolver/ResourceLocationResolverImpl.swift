@@ -62,7 +62,7 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
         evictOldCache()
         
         let handler = BlockingURLResourceHandler()
-        urlResource.fetchResource(url: url, handler: handler)
+        urlResource.fetchResource(url: url, handler: handler, tokens: [:])
         let zipFilePath = try handler.wait(limit: 120, remoteUrl: url)
         
         let contentsPath = zipFilePath.removingLastComponent.appending(component: "zip_contents")

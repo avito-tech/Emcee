@@ -39,7 +39,8 @@ final class URLResourceTests: XCTestCase {
         let handler = BlockingURLResourceHandler()
         resource.fetchResource(
             url: url,
-            handler: handler
+            handler: handler,
+            tokens: [:]
         )
         let contentPath = try handler.wait(limit: 5, remoteUrl: url)
         
@@ -52,7 +53,8 @@ final class URLResourceTests: XCTestCase {
         let handler = BlockingURLResourceHandler()
         resource.fetchResource(
             url: url,
-            handler: handler
+            handler: handler,
+            tokens: [:]
         )
         XCTAssertThrowsError(try handler.wait(limit: 5, remoteUrl: url))
     }
@@ -68,7 +70,8 @@ final class URLResourceTests: XCTestCase {
         let handler = BlockingURLResourceHandler()
         resource.fetchResource(
             url: url,
-            handler: handler
+            handler: handler,
+            tokens: [:]
         )
         
         _ = try handler.wait(limit: 5, remoteUrl: url)
@@ -85,7 +88,8 @@ final class URLResourceTests: XCTestCase {
         let handler = BlockingURLResourceHandler()
         resource.fetchResource(
             url: url,
-            handler: handler
+            handler: handler,
+            tokens: [:]
         )
         XCTAssertThrowsError(
             try handler.wait(limit: 5, remoteUrl: url),
@@ -100,7 +104,8 @@ final class URLResourceTests: XCTestCase {
         let handler = BlockingURLResourceHandler()
         resource.fetchResource(
             url: url,
-            handler: handler
+            handler: handler,
+            tokens: [:]
         )
         let contentPath = try handler.wait(limit: 5, remoteUrl: url)
         

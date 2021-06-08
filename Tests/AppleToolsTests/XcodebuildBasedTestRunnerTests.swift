@@ -90,7 +90,8 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         ),
         additionalApplicationBundles: [
             AdditionalAppBundleLocation(.localFilePath(additionalAppPath.pathString)),
-        ]
+        ],
+        hostsTokens: [:]
     )
     private lazy var runnerWasteCollector = RunnerWasteCollectorImpl()
     

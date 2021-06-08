@@ -58,7 +58,7 @@ public final class PipelinedTestDiscoverer {
                     for artifact in requiredArtifacts {
                         if let url = artifact.url {
                             let handler = BlockingURLResourceHandler()
-                            urlResource.fetchResource(url: url, handler: handler)
+                            urlResource.fetchResource(url: url, handler: handler, tokens: testArgFileEntry.buildArtifacts.hostsTokens)
                             let path = try handler.wait(limit: 30, remoteUrl: url)
                             logger.debug("Prefetched contents of URL \(url) to \(path)")
                         }

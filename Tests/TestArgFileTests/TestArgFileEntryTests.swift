@@ -29,7 +29,8 @@ final class TestArgFileEntryTests: XCTestCase {
                         "location": "/xcTestBundle",
                         "testDiscoveryMode": "runtimeAppTest"
                     },
-                    "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"]
+                    "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"],
+                    "hostsTokens": {"host": "token"}
                 },
                 "testRunnerTool": {"toolType": "xcodebuild"},
                 "simulatorControlTool": {
@@ -83,7 +84,7 @@ final class TestArgFileEntryTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFileEntry(
-                buildArtifacts: buildArtifacts(),
+                buildArtifacts: buildArtifacts(hostsTokens: ["host": "token"]),
                 developerDir: .current,
                 environment: ["value": "key"],
                 numberOfRetries: 42,
@@ -138,7 +139,8 @@ final class TestArgFileEntryTests: XCTestCase {
                         "location": "/xcTestBundle",
                         "testDiscoveryMode": "runtimeAppTest"
                     },
-                    "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"]
+                    "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"],
+                    "hostsTokens": {"host": "token", "host2": "token2"}
                 }
             }
             """.utf8
@@ -178,14 +180,16 @@ final class TestArgFileEntryTests: XCTestCase {
         appBundle: String? = "/appBundle",
         runner: String? = "/runner",
         additionalApplicationBundles: [String] = ["/additionalApp1", "/additionalApp2"],
-        testDiscoveryMode: XcTestBundleTestDiscoveryMode = .runtimeAppTest
+        testDiscoveryMode: XcTestBundleTestDiscoveryMode = .runtimeAppTest,
+        hostsTokens: [String: String] = ["host": "token", "host2": "token2"]
     ) -> BuildArtifacts {
         return BuildArtifactsFixtures.withLocalPaths(
             appBundle: appBundle,
             runner: runner,
             xcTestBundle: "/xcTestBundle",
             additionalApplicationBundles: additionalApplicationBundles,
-            testDiscoveryMode: testDiscoveryMode
+            testDiscoveryMode: testDiscoveryMode,
+            hostsTokens: hostsTokens
         )
     }
 }

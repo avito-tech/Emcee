@@ -150,7 +150,8 @@ final class TestArgFileTests: XCTestCase {
                     location: TestBundleLocation(try .from("http://example.com/App.zip#Tests/UITests-Runner.app/PlugIns/UITests.xctest")),
                     testDiscoveryMode: .parseFunctionSymbols
                 ),
-                additionalApplicationBundles: []
+                additionalApplicationBundles: [],
+                hostsTokens: [:]
             )
         )
     }

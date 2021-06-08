@@ -168,7 +168,7 @@ private class FakeURLResource: URLResource {
     
     public var onFetch: (URL) -> () = { _ in }
     
-    func fetchResource(url: URL, handler: URLResourceHandler) {
+    func fetchResource(url: URL, handler: URLResourceHandler, tokens: [String: String]) {
         onFetch(url)
         handler.resource(path: AbsolutePath.root, forUrl: url)
     }
