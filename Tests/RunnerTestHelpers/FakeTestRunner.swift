@@ -107,7 +107,7 @@ public final class FakeTestRunner: TestRunner {
     public var isAdditionalEnvironmentCalled = false
     public var additionalEnvironmentReturns: [String: String] = [:]
     
-    public func additionalEnvironment(absolutePath: AbsolutePath) -> [String : String] {
+    public func additionalEnvironment(testRunnerWorkingDirectory: AbsolutePath) -> [String : String] {
         isAdditionalEnvironmentCalled = true
         return additionalEnvironmentReturns
     }

@@ -19,7 +19,7 @@ public protocol TestRunnerInvocation {
 }
 
 public protocol TestRunner {
-    func additionalEnvironment(absolutePath: AbsolutePath) -> [String: String]
+    func additionalEnvironment(testRunnerWorkingDirectory: AbsolutePath) -> [String: String]
     func prepareTestRun(
         buildArtifacts: BuildArtifacts,
         developerDirLocator: DeveloperDirLocator,

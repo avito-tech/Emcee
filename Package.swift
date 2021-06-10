@@ -10,7 +10,7 @@ let package = Package(
         .executable(name: "testing_plugin", targets: ["TestingPlugin"]),
         .library(name: "EmceePlugin", targets: ["EmceeLogging", "Plugin"]),
         .library(name: "EmceeCommunications", targets: ["PortDeterminer", "QueueClient", "QueueCommunication", "RemotePortDeterminer", "RequestSender"]),
-        .library(name: "EmceeInterfaces", targets: ["BuildArtifacts", "DeveloperDirModels", "EmceeVersion", "PluginSupport", "QueueModels", "ResourceLocation", "ResourceLocationResolver", "RunnerModels", "SimulatorPoolModels", "SimulatorVideoRecorder", "TestArgFile", "TestDiscovery", "TestsWorkingDirectorySupport", "TypedResourceLocation", "WorkerAlivenessModels", "WorkerCapabilitiesModels"]),
+        .library(name: "EmceeInterfaces", targets: ["BuildArtifacts", "DeveloperDirModels", "EmceeVersion", "PluginSupport", "QueueModels", "ResourceLocation", "ResourceLocationResolver", "RunnerModels", "SimulatorPoolModels", "SimulatorVideoRecorder", "TestArgFile", "TestDiscovery", "TestsWorkingDirectorySupport", "TypedResourceLocation", "WorkerAlivenessModels", "WorkerCapabilitiesModels", "XcodebuildTestRunnerConstants"]),
     ],
     dependencies: [
         .package(name: "CommandLineToolkit", url: "https://github.com/avito-tech/CommandLineToolkit.git", .exact("1.0.2")),
@@ -1432,6 +1432,7 @@ let package = Package(
                 .product(name: "Timer", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 "UniqueIdentifierGenerator",
+                "XcodebuildTestRunnerConstants",
             ],
             path: "Sources/Runner"
         ),
@@ -1990,6 +1991,12 @@ let package = Package(
                 "WorkerCapabilitiesModels",
             ],
             path: "Tests/WorkerCapabilitiesTests"
+        ),
+        .target(
+            name: "XcodebuildTestRunnerConstants",
+            dependencies: [
+            ],
+            path: "Sources/XcodebuildTestRunnerConstants"
         ),
         .target(
             name: "XCTestJsonCodable",

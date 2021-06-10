@@ -12,6 +12,7 @@ import RunnerModels
 import SimulatorPoolModels
 import Tmp
 import PathLib
+import XcodebuildTestRunnerConstants
 
 public final class XcodebuildBasedTestRunner: TestRunner {
     private let dateProvider: DateProvider
@@ -107,7 +108,8 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         )
     }
     
-    public func additionalEnvironment(absolutePath: AbsolutePath) -> [String: String] {
-        return ["EMCEE_XCRESULT_PATH": absolutePath.pathString.appending("/resultBundle.xcresult")]
+    public func additionalEnvironment(testRunnerWorkingDirectory: AbsolutePath) -> [String: String] {
+        return [XcodebuildTestRunnerConstants.envXcresultPath: testRunnerWorkingDirectory.appending(component: "resultBundle.xcresult").pathString]
+
     }
 }

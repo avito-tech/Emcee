@@ -54,8 +54,8 @@ public final class FailureReportingTestRunnerProxy: TestRunner {
         }
     }
     
-    public func additionalEnvironment(absolutePath: AbsolutePath) -> [String: String] {
-        return testRunner.additionalEnvironment(absolutePath: absolutePath)
+    public func additionalEnvironment(testRunnerWorkingDirectory: AbsolutePath) -> [String: String] {
+        return testRunner.additionalEnvironment(testRunnerWorkingDirectory: testRunnerWorkingDirectory)
     }
     
     private func generateFailureResults(
