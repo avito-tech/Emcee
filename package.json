@@ -126,7 +126,8 @@
           "TestsWorkingDirectorySupport",
           "TypedResourceLocation",
           "WorkerAlivenessModels",
-          "WorkerCapabilitiesModels"
+          "WorkerCapabilitiesModels",
+          "XcodebuildTestRunnerConstants"
       ]
   }],
   "swiftToolsVersion" : "5.2",

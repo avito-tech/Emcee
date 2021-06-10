@@ -6,6 +6,7 @@ import SimulatorPoolModels
 import Tmp
 import RunnerModels
 import Foundation
+import PathLib
 
 public final class FailureReportingTestRunnerProxy: TestRunner {
     private let dateProvider: DateProvider
@@ -33,15 +34,15 @@ public final class FailureReportingTestRunnerProxy: TestRunner {
     ) throws -> TestRunnerInvocation {
         do {
             return try testRunner.prepareTestRun(
-                buildArtifacts: buildArtifacts, 
-                developerDirLocator: developerDirLocator, 
-                entriesToRun: entriesToRun, 
-                logger: logger, 
-                runnerWasteCollector: runnerWasteCollector, 
-                simulator: simulator, 
-                temporaryFolder: temporaryFolder, 
-                testContext: testContext, 
-                testRunnerStream: testRunnerStream, 
+                buildArtifacts: buildArtifacts,
+                developerDirLocator: developerDirLocator,
+                entriesToRun: entriesToRun,
+                logger: logger,
+                runnerWasteCollector: runnerWasteCollector,
+                simulator: simulator,
+                temporaryFolder: temporaryFolder,
+                testContext: testContext,
+                testRunnerStream: testRunnerStream,
                 testType: testType
             )
         } catch {
@@ -51,6 +52,10 @@ public final class FailureReportingTestRunnerProxy: TestRunner {
                 testRunnerStream: testRunnerStream
             )
         }
+    }
+    
+    public func additionalEnvironment(testRunnerWorkingDirectory: AbsolutePath) -> [String: String] {
+        return testRunner.additionalEnvironment(testRunnerWorkingDirectory: testRunnerWorkingDirectory)
     }
     
     private func generateFailureResults(

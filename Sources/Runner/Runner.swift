@@ -155,9 +155,17 @@ public final class Runner {
         var collectedTestExceptions = [TestException]()
         var collectedLogs = [TestLogEntry]()
         
+        let testRunner = FailureReportingTestRunnerProxy(
+            dateProvider: dateProvider,
+            testRunner: try testRunnerProvider.testRunner(
+                testRunnerTool: configuration.testRunnerTool
+            )
+        )
+        
         let testContext = try createTestContext(
             developerDir: developerDir,
-            simulator: simulator
+            simulator: simulator,
+            testRunner: testRunner
         )
         
         let runnerWasteCollector: RunnerWasteCollector = RunnerWasteCollectorImpl()
@@ -184,13 +192,6 @@ public final class Runner {
         logger.debug("Will run \(entriesToRun.count) tests on simulator \(simulator)")
         
         let singleTestMaximumDuration = configuration.testTimeoutConfiguration.singleTestMaximumDuration
-        
-        let testRunner = FailureReportingTestRunnerProxy(
-            dateProvider: dateProvider,
-            testRunner: try testRunnerProvider.testRunner(
-                testRunnerTool: configuration.testRunnerTool
-            )
-        )
         
         let testRunnerRunningInvocationContainer = AtomicValue<TestRunnerRunningInvocation?>(nil)
         let streamClosedCallback: CallbackWaiter<()> = waiter.createCallbackWaiter()
@@ -342,15 +343,21 @@ public final class Runner {
     
     private func createTestContext(
         developerDir: DeveloperDir,
-        simulator: Simulator
+        simulator: Simulator,
+        testRunner: TestRunner
     ) throws -> TestContext {
         let contextId = uniqueIdentifierGenerator.generate()
         let testsWorkingDirectory = try tempFolder.pathByCreatingDirectories(
             components: ["testsWorkingDir", contextId]
         )
+        let testRunnerWorkingDirectory = try tempFolder.pathByCreatingDirectories(components: ["runnerWorkingDir", contextId])
+        let additionalEnvironment = testRunner.additionalEnvironment(testRunnerWorkingDirectory: testRunnerWorkingDirectory)
         var environment = configuration.environment
         environment[TestsWorkingDirectorySupport.envTestsWorkingDirectory] = testsWorkingDirectory.pathString
         environment = try developerDirLocator.suitableEnvironment(forDeveloperDir: developerDir, byUpdatingEnvironment: environment)
+        additionalEnvironment.forEach {
+            environment[$0.key] = $0.value
+        }
         
         return TestContext(
             contextId: contextId,

@@ -11,6 +11,8 @@ import Runner
 import RunnerModels
 import SimulatorPoolModels
 import Tmp
+import PathLib
+import XcodebuildTestRunnerConstants
 
 public final class XcodebuildBasedTestRunner: TestRunner {
     private let dateProvider: DateProvider
@@ -104,5 +106,10 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         return ProcessControllerWrappingTestRunnerInvocation(
             processController: processController
         )
+    }
+    
+    public func additionalEnvironment(testRunnerWorkingDirectory: AbsolutePath) -> [String: String] {
+        return [XcodebuildTestRunnerConstants.envXcresultPath: testRunnerWorkingDirectory.appending(component: "resultBundle.xcresult").pathString]
+
     }
 }
