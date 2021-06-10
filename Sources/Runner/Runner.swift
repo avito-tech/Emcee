@@ -350,8 +350,8 @@ public final class Runner {
         let testsWorkingDirectory = try tempFolder.pathByCreatingDirectories(
             components: ["testsWorkingDir", contextId]
         )
-        let testResultDirectory = try tempFolder.pathByCreatingDirectories(components: [contextId])
-        let additionalEnvironment = testRunner.additionalEnvironment(testRunnerWorkingDirectory: testResultDirectory)
+        let testRunnerWorkingDirectory = try tempFolder.pathByCreatingDirectories(components: ["runnerWorkingDir", contextId])
+        let additionalEnvironment = testRunner.additionalEnvironment(testRunnerWorkingDirectory: testRunnerWorkingDirectory)
         var environment = configuration.environment
         environment[TestsWorkingDirectorySupport.envTestsWorkingDirectory] = testsWorkingDirectory.pathString
         environment = try developerDirLocator.suitableEnvironment(forDeveloperDir: developerDir, byUpdatingEnvironment: environment)
