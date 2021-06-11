@@ -40,7 +40,7 @@ final class URLResourceTests: XCTestCase {
         resource.fetchResource(
             url: url,
             handler: handler,
-            tokens: [:]
+            headers: [:]
         )
         let contentPath = try handler.wait(limit: 5, remoteUrl: url)
         
@@ -54,7 +54,7 @@ final class URLResourceTests: XCTestCase {
         resource.fetchResource(
             url: url,
             handler: handler,
-            tokens: [:]
+            headers: [:]
         )
         XCTAssertThrowsError(try handler.wait(limit: 5, remoteUrl: url))
     }
@@ -71,7 +71,7 @@ final class URLResourceTests: XCTestCase {
         resource.fetchResource(
             url: url,
             handler: handler,
-            tokens: [:]
+            headers: [:]
         )
         
         _ = try handler.wait(limit: 5, remoteUrl: url)
@@ -89,7 +89,7 @@ final class URLResourceTests: XCTestCase {
         resource.fetchResource(
             url: url,
             handler: handler,
-            tokens: [:]
+            headers: [:]
         )
         XCTAssertThrowsError(
             try handler.wait(limit: 5, remoteUrl: url),
@@ -105,7 +105,7 @@ final class URLResourceTests: XCTestCase {
         resource.fetchResource(
             url: url,
             handler: handler,
-            tokens: [:]
+            headers: [:]
         )
         let contentPath = try handler.wait(limit: 5, remoteUrl: url)
         

@@ -6,46 +6,68 @@ import XCTest
 final class ResourceLocationTests: XCTestCase {
     func test__decoding_JSON_with_string__maps_to_localFilePath() throws {
         let temp = NSTemporaryDirectory()
-        let jsonData = Data("{\"value\": \"\(temp)\"}".utf8)
-        let decoded = try JSONDecoder().decode([String: ResourceLocation].self, from: jsonData)
-        XCTAssertEqual(decoded["value"], ResourceLocation.localFilePath(temp))
+        let jsonData = Data("{\"url\": \"\(temp)\"}".utf8)
+        let decoded = try JSONDecoder().decode(ResourceLocation.self, from: jsonData)
+        XCTAssertEqual(decoded, ResourceLocation.localFilePath(temp))
     }
     
     func test__decoding_JSON_with_string_URL__maps_to_remoteUrl() throws {
         let urlString = "https://example.com/file.zip#path/to/file.txt"
-        let jsonData = Data("{\"value\": \"\(urlString)\"}".utf8)
-        let decoded = try JSONDecoder().decode([String: ResourceLocation].self, from: jsonData)
-        XCTAssertEqual(decoded["value"], ResourceLocation.remoteUrl(URL(string: urlString)!))
+        let jsonData = Data("{\"url\": \"\(urlString)\"}".utf8)
+        let decoded = try JSONDecoder().decode(ResourceLocation.self, from: jsonData)
+        XCTAssertEqual(decoded, ResourceLocation.remoteUrl(URL(string: urlString)!, [:]))
+    }
+    
+    func test__decoding_JSON_with_string_URL_with_headers__maps_to_remoteUrl() throws {
+        let urlString = "https://example.com/file.zip#path/to/file.txt"
+        let jsonData = Data("{\"url\": \"\(urlString)\", \"headers\": {\"key1\": \"value1\", \"key2\": \"value2\"}}".utf8)
+        let decoded = try JSONDecoder().decode(ResourceLocation.self, from: jsonData)
+        XCTAssertEqual(decoded, ResourceLocation.remoteUrl(URL(string: urlString)!, ["key1":"value1", "key2": "value2"]))
     }
     
     func test__encoding_localFilePath__maps_to_string() throws {
         let temp = NSTemporaryDirectory()
-        let data = try JSONEncoder().encode(["value": ResourceLocation.localFilePath(temp)])
+        let data = try JSONEncoder().encode(ResourceLocation.localFilePath(temp))
         let decoded = try JSONSerialization.jsonObject(with: data, options: [])
         guard let decodedDict = decoded as? NSDictionary else {
             return XCTFail("Unexpected decoding result: \(decoded)")
         }
-        XCTAssertEqual(decodedDict["value"] as? String, temp)
+        XCTAssertEqual(decodedDict["url"] as? String, temp)
     }
     
     func test__encoding_remoteUrl__maps_to_string_URL() throws {
         let urlString = "https://example.com/file.zip#path/to/file.txt"
-        let data = try JSONEncoder().encode(["value": ResourceLocation.remoteUrl(URL(string: urlString)!)])
+        let data = try JSONEncoder().encode(ResourceLocation.remoteUrl(URL(string: urlString)!, [:]))
         let decoded = try JSONSerialization.jsonObject(with: data, options: [])
         guard let decodedDict = decoded as? NSDictionary else {
             return XCTFail("Unexpected decoding result: \(decoded)")
         }
-        XCTAssertEqual(decodedDict["value"] as? String, urlString)
+        XCTAssertEqual(decodedDict["url"] as? String, urlString)
+        let headers = decodedDict["headers"] as! [String: String]
+        XCTAssertEqual(headers.count, 0)
+    }
+    
+    func test__encoding_remoteUrl_with_headers_maps_to_string_URL() throws {
+        let urlString = "https://example.com/file.zip#path/to/file.txt"
+        let data = try JSONEncoder().encode(ResourceLocation.remoteUrl(URL(string: urlString)!, ["key":"value"]))
+        let decoded = try JSONSerialization.jsonObject(with: data, options: [])
+        guard let decodedDict = decoded as? NSDictionary else {
+            return XCTFail("Unexpected decoding result: \(decoded)")
+        }
+        XCTAssertEqual(decodedDict["url"] as? String, urlString)
+        let headers = decodedDict["headers"] as! [String: String]
+        XCTAssertEqual(headers.count, 1)
+        XCTAssertEqual(headers["key"], "value")
     }
     
     func test___string_value() {
         XCTAssertEqual(ResourceLocation.localFilePath("/path").stringValue, "/path")
         XCTAssertEqual(
-            ResourceLocation.remoteUrl(URL(string: "http://example.com/file.zip")!).stringValue,
+            ResourceLocation.remoteUrl(URL(string: "http://example.com/file.zip")!, [:]).stringValue,
             "http://example.com/file.zip"
         )
         XCTAssertEqual(
-            ResourceLocation.remoteUrl(URL(string: "http://example.com/file.zip#file")!).stringValue,
+            ResourceLocation.remoteUrl(URL(string: "http://example.com/file.zip#file")!, [:]).stringValue,
             "http://example.com/file.zip#file"
         )
     }
@@ -57,9 +79,9 @@ final class ResourceLocationTests: XCTestCase {
     }
     
     func test___location__from_json_with_spaces_in_local_path() throws {
-        let jsonData = Data("{\"value\": \"/path/to/file name.txt\"}".utf8)
-        let decoded = try JSONDecoder().decode([String: ResourceLocation].self, from: jsonData)
-        XCTAssertEqual(decoded["value"], ResourceLocation.localFilePath("/path/to/file name.txt"))
+        let jsonData = Data("{\"url\": \"/path/to/file name.txt\"}".utf8)
+        let decoded = try JSONDecoder().decode(ResourceLocation.self, from: jsonData)
+        XCTAssertEqual(decoded, ResourceLocation.localFilePath("/path/to/file name.txt"))
     }
 }
 

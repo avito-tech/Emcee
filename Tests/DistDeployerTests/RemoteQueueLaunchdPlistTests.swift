@@ -22,7 +22,7 @@ final class RemoteQueueLaunchdPlistTests: XCTestCase {
             ]
         ),
         emceeVersion: emceeVersion,
-        queueServerConfigurationLocation: QueueServerConfigurationLocation(.remoteUrl(remoteConfigUrl))
+        queueServerConfigurationLocation: QueueServerConfigurationLocation(.remoteUrl(remoteConfigUrl, [:]))
     )
     
     func test() throws {

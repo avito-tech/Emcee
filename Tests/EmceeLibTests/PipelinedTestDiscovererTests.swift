@@ -46,7 +46,7 @@ final class PipelinedTestDiscovererTests: XCTestCase {
         var buildArtifacts = urls.map {
             BuildArtifactsFixtures.with(
                 xcTestBundle: XcTestBundle(
-                    location: TestBundleLocation(.remoteUrl($0)),
+                    location: TestBundleLocation(.remoteUrl($0, [:])),
                     testDiscoveryMode: .parseFunctionSymbols
                 )
             )
@@ -57,9 +57,9 @@ final class PipelinedTestDiscovererTests: XCTestCase {
         
         buildArtifacts.append(
             BuildArtifactsFixtures.with(
-                appBundle: .remoteUrl(appBundleUrl),
+                appBundle: .remoteUrl(appBundleUrl, [:]),
                 xcTestBundle: XcTestBundle(
-                    location: TestBundleLocation(.remoteUrl(testBundleUrl)),
+                    location: TestBundleLocation(.remoteUrl(testBundleUrl, [:])),
                     testDiscoveryMode: .runtimeAppTest
                 )
             )
@@ -91,7 +91,7 @@ final class PipelinedTestDiscovererTests: XCTestCase {
         let buildArtifacts = BuildArtifactsFixtures.with(
             appBundle: nil,                           // app bundle is nil
             xcTestBundle: XcTestBundle(
-                location: TestBundleLocation(.remoteUrl(testBundleUrl)),
+                location: TestBundleLocation(.remoteUrl(testBundleUrl, [:])),
                 testDiscoveryMode: .runtimeAppTest    // requires app bundle, but it is nil
             )
         )
@@ -115,7 +115,7 @@ final class PipelinedTestDiscovererTests: XCTestCase {
         let buildArtifacts = urls.map {
             BuildArtifactsFixtures.with(
                 xcTestBundle: XcTestBundle(
-                    location: TestBundleLocation(.remoteUrl($0)),
+                    location: TestBundleLocation(.remoteUrl($0, [:])),
                     testDiscoveryMode: .parseFunctionSymbols
                 )
             )
@@ -168,7 +168,7 @@ private class FakeURLResource: URLResource {
     
     public var onFetch: (URL) -> () = { _ in }
     
-    func fetchResource(url: URL, handler: URLResourceHandler, tokens: [String: String]) {
+    func fetchResource(url: URL, handler: URLResourceHandler, headers: [String: String]?) {
         onFetch(url)
         handler.resource(path: AbsolutePath.root, forUrl: url)
     }

@@ -5,7 +5,7 @@ import EmceeLogging
 import PathLib
 
 public protocol URLResource {
-    func fetchResource(url: URL, handler: URLResourceHandler, tokens: [String: String])
+    func fetchResource(url: URL, handler: URLResourceHandler, headers: [String: String]?)
     func deleteResource(url: URL) throws
     
     func evictResources(olderThan date: Date) throws -> [AbsolutePath]
@@ -52,14 +52,14 @@ public final class URLResourceImpl: URLResource {
         self.handlersWrapper = HandlersWrapper(handlerQueue: handlerQueue)
     }
     
-    public func fetchResource(url: URL, handler: URLResourceHandler, tokens: [String: String]) {
+    public func fetchResource(url: URL, handler: URLResourceHandler, headers: [String: String]?) {
         let url = downloadUrl(resourceUrl: url)
         syncQueue.sync {
             if fileCache.contains(itemForURL: url) {
                 provideResourceImmediately_onSyncQueue(url: url, handler: handler)
             } else {
                 if handlersWrapper.countOfHandlersAfterAppending(handler: handler, url: url) == 1 {
-                    startLoadingUrlResource(url: url, tokens: tokens)
+                    startLoadingUrlResource(url: url, headers: headers)
                 }
             }
         }
@@ -82,12 +82,12 @@ public final class URLResourceImpl: URLResource {
         }
     }
     
-    private func startLoadingUrlResource(url: URL, tokens: [String: String]) {
+    private func startLoadingUrlResource(url: URL, headers: [String: String]?) {
         var request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 20)
-        tokens.forEach { host, token in
-            if url.host == host {
-                logger.debug("Add basic auth to \(url)")
-                request.setValue("Basic \(token)", forHTTPHeaderField:"Authorization")
+        if let headers = headers {
+            headers.forEach { key, value in
+                logger.debug("Add header \(key) to \(url)")
+                request.setValue(value, forHTTPHeaderField: key)
             }
         }
 

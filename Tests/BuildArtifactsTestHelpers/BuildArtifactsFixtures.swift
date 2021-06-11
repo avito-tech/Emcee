@@ -15,8 +15,7 @@ public final class BuildArtifactsFixtures {
                 location: TestBundleLocation(.localFilePath("")),
                 testDiscoveryMode: testDiscoveryMode
             ),
-            additionalApplicationBundles: [],
-            hostsTokens: [:]
+            additionalApplicationBundles: []
         )
     }
     
@@ -25,8 +24,7 @@ public final class BuildArtifactsFixtures {
         runner: String?,
         xcTestBundle: String,
         additionalApplicationBundles: [String],
-        testDiscoveryMode: XcTestBundleTestDiscoveryMode = .runtimeLogicTest,
-        hostsTokens: [String: String] = [:]
+        testDiscoveryMode: XcTestBundleTestDiscoveryMode = .runtimeLogicTest
     ) -> BuildArtifacts {
         return BuildArtifacts(
             appBundle: appBundle != nil ? AppBundleLocation(.localFilePath(appBundle!)) : nil,
@@ -35,8 +33,7 @@ public final class BuildArtifactsFixtures {
                 location: TestBundleLocation(.localFilePath(xcTestBundle)),
                 testDiscoveryMode: testDiscoveryMode
             ),
-            additionalApplicationBundles: additionalApplicationBundles.map { AdditionalAppBundleLocation(.localFilePath($0)) },
-            hostsTokens: hostsTokens
+            additionalApplicationBundles: additionalApplicationBundles.map { AdditionalAppBundleLocation(.localFilePath($0)) }
         )
     }
     
@@ -44,15 +41,13 @@ public final class BuildArtifactsFixtures {
         appBundle: ResourceLocation? = nil,
         runner: ResourceLocation? = nil,
         xcTestBundle: XcTestBundle,
-        additionalApplicationBundles: [ResourceLocation] = [],
-        hostsTokens: [String: String] = [:]
+        additionalApplicationBundles: [ResourceLocation] = []
     ) -> BuildArtifacts {
         BuildArtifacts(
             appBundle: AppBundleLocation(appBundle),
             runner: RunnerAppLocation(runner),
             xcTestBundle: xcTestBundle,
-            additionalApplicationBundles: additionalApplicationBundles.map { AdditionalAppBundleLocation($0) },
-            hostsTokens: ["host": "token"]
+            additionalApplicationBundles: additionalApplicationBundles.map { AdditionalAppBundleLocation($0) }
         )
     }
 }

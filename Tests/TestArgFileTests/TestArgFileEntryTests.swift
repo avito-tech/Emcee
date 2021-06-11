@@ -16,32 +16,58 @@ final class TestArgFileEntryTests: XCTestCase {
             """
             {
                 "testsToRun": [
-                    {"predicateType": "singleTestName", "testName": "ClassName/testMethod"}
+                    {
+                        "predicateType": "singleTestName",
+                        "testName": "ClassName/testMethod"
+                    }
                 ],
-                "environment": {"value": "key"},
+                "environment": {
+                    "value": "key"
+                },
                 "numberOfRetries": 42,
-                "testDestination": {"deviceType": "iPhone SE", "runtime": "11.3"},
+                "testDestination": {
+                    "deviceType": "iPhone SE",
+                    "runtime": "11.3"
+                },
                 "testType": "logicTest",
                 "buildArtifacts": {
-                    "appBundle": "/appBundle",
-                    "runner": "/runner",
+                    "appBundle": {
+                        "url": "/appBundle"
+                    },
+                    "runner": {
+                        "url": "/runner"
+                    },
                     "xcTestBundle": {
-                        "location": "/xcTestBundle",
+                        "location": {
+                            "url": "/xcTestBundle"
+                        },
                         "testDiscoveryMode": "runtimeAppTest"
                     },
-                    "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"],
-                    "hostsTokens": {"host": "token"}
+                    "additionalApplicationBundles": [
+                        {
+                            "url": "/additionalApp1"
+                        },
+                        {
+                            "url": "/additionalApp2"
+                        }
+                    ]
                 },
-                "testRunnerTool": {"toolType": "xcodebuild"},
+                "testRunnerTool": {
+                    "toolType": "xcodebuild"
+                },
                 "simulatorControlTool": {
                     "location": "insideUserLibrary",
                     "tool": {
                         "toolType": "simctl"
                     }
                 },
-                "developerDir": {"kind": "current"},
+                "developerDir": {
+                    "kind": "current"
+                },
                 "pluginLocations": [
-                    "http://example.com/plugin.zip#sample.emceeplugin"
+                    {
+                        "url": "http://example.com/plugin.zip#sample.emceeplugin"
+                    }
                 ],
                 "scheduleStrategy": "unsplit",
                 "simulatorOperationTimeouts": {
@@ -55,16 +81,28 @@ final class TestArgFileEntryTests: XCTestCase {
                 "simulatorSettings": {
                     "simulatorLocalizationSettings": {
                         "localeIdentifier": "ru_US",
-                        "keyboards":  ["ru_RU@sw=Russian;hw=Automatic", "en_US@sw=QWERTY;hw=Automatic"],
-                        "passcodeKeyboards": ["ru_RU@sw=Russian;hw=Automatic", "en_US@sw=QWERTY;hw=Automatic"],
-                        "languages": ["ru-US", "en", "ru-RU"],
+                        "keyboards": [
+                            "ru_RU@sw=Russian;hw=Automatic",
+                            "en_US@sw=QWERTY;hw=Automatic"
+                        ],
+                        "passcodeKeyboards": [
+                            "ru_RU@sw=Russian;hw=Automatic",
+                            "en_US@sw=QWERTY;hw=Automatic"
+                        ],
+                        "languages": [
+                            "ru-US",
+                            "en",
+                            "ru-RU"
+                        ],
                         "addingEmojiKeybordHandled": true,
                         "enableKeyboardExpansion": true,
                         "didShowInternationalInfoAlert": true,
                         "didShowContinuousPathIntroduction": true
                     },
                     "watchdogSettings": {
-                        "bundleIds": ["sample.app"],
+                        "bundleIds": [
+                            "sample.app"
+                        ],
                         "timeout": 42
                     },
                 },
@@ -84,12 +122,12 @@ final class TestArgFileEntryTests: XCTestCase {
         XCTAssertEqual(
             entry,
             TestArgFileEntry(
-                buildArtifacts: buildArtifacts(hostsTokens: ["host": "token"]),
+                buildArtifacts: buildArtifacts(),
                 developerDir: .current,
                 environment: ["value": "key"],
                 numberOfRetries: 42,
                 pluginLocations: [
-                    PluginLocation(.remoteUrl(URL(string: "http://example.com/plugin.zip#sample.emceeplugin")!))
+                    PluginLocation(.remoteUrl(URL(string: "http://example.com/plugin.zip#sample.emceeplugin")!, [:]))
                 ],
                 scheduleStrategy: .unsplit,
                 simulatorControlTool: SimulatorControlTool(
@@ -128,19 +166,35 @@ final class TestArgFileEntryTests: XCTestCase {
                 "testsToRun": [
                     "all",
                     "ClassName/testMethod",
-                    {"predicateType": "singleTestName", "testName": "ClassName/testMethod"}
+                    {
+                        "predicateType": "singleTestName",
+                        "testName": "ClassName/testMethod"
+                    }
                 ],
-                "testDestination": {"deviceType": "iPhone SE", "runtime": "11.3"},
+                "testDestination": {
+                    "deviceType": "iPhone SE",
+                    "runtime": "11.3"
+                },
                 "testType": "logicTest",
                 "buildArtifacts": {
-                    "appBundle": "/appBundle",
-                    "runner": "/runner",
+                    "appBundle": {
+                        "url": "/appBundle"
+                    },
+                    "runner": {
+                        "url": "/runner"
+                    },
                     "xcTestBundle": {
-                        "location": "/xcTestBundle",
+                        "location": {"url":"/xcTestBundle"},
                         "testDiscoveryMode": "runtimeAppTest"
                     },
-                    "additionalApplicationBundles": ["/additionalApp1", "/additionalApp2"],
-                    "hostsTokens": {"host": "token", "host2": "token2"}
+                    "additionalApplicationBundles": [
+                        {
+                            "url": "/additionalApp1"
+                        },
+                        {
+                            "url": "/additionalApp2"
+                        }
+                    ]
                 }
             }
             """.utf8
@@ -180,16 +234,14 @@ final class TestArgFileEntryTests: XCTestCase {
         appBundle: String? = "/appBundle",
         runner: String? = "/runner",
         additionalApplicationBundles: [String] = ["/additionalApp1", "/additionalApp2"],
-        testDiscoveryMode: XcTestBundleTestDiscoveryMode = .runtimeAppTest,
-        hostsTokens: [String: String] = ["host": "token", "host2": "token2"]
+        testDiscoveryMode: XcTestBundleTestDiscoveryMode = .runtimeAppTest
     ) -> BuildArtifacts {
         return BuildArtifactsFixtures.withLocalPaths(
             appBundle: appBundle,
             runner: runner,
             xcTestBundle: "/xcTestBundle",
             additionalApplicationBundles: additionalApplicationBundles,
-            testDiscoveryMode: testDiscoveryMode,
-            hostsTokens: hostsTokens
+            testDiscoveryMode: testDiscoveryMode
         )
     }
 }

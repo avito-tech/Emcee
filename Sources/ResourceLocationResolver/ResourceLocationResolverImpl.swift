@@ -51,18 +51,18 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
         switch resourceLocation {
         case .localFilePath(let path):
             return .directlyAccessibleFile(path: AbsolutePath(path))
-        case .remoteUrl(let url):
-            let path = try cachedContentsOfUrl(url)
+        case .remoteUrl(let url, let headers):
+            let path = try cachedContentsOfUrl(url, headers)
             let filenameInArchive = url.fragment
             return .contentsOfArchive(containerPath: path, filenameInArchive: filenameInArchive)
         }
     }
     
-    private func cachedContentsOfUrl(_ url: URL) throws -> AbsolutePath {
+    private func cachedContentsOfUrl(_ url: URL, _ headers: [String: String]?) throws -> AbsolutePath {
         evictOldCache()
         
         let handler = BlockingURLResourceHandler()
-        urlResource.fetchResource(url: url, handler: handler, tokens: [:])
+        urlResource.fetchResource(url: url, handler: handler, headers: headers)
         let zipFilePath = try handler.wait(limit: 120, remoteUrl: url)
         
         let contentsPath = zipFilePath.removingLastComponent.appending(component: "zip_contents")

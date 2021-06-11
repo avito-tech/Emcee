@@ -298,8 +298,7 @@ private extension BuildArtifacts {
             appBundle: nil,
             runner: nil,
             xcTestBundle: xcTestBundle,
-            additionalApplicationBundles: [],
-            hostsTokens: [:]
+            additionalApplicationBundles: []
         )
     }
     
@@ -311,8 +310,7 @@ private extension BuildArtifacts {
             appBundle: appBundle,
             runner: nil,
             xcTestBundle: xcTestBundle,
-            additionalApplicationBundles: [],
-            hostsTokens: [:]
+            additionalApplicationBundles: []
         )
     }
 }

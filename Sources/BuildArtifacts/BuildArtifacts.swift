@@ -12,22 +12,17 @@ public struct BuildArtifacts: Codable, Hashable, CustomStringConvertible {
     
     /// Location of additional apps that can be launched diring tests.
     public let additionalApplicationBundles: [AdditionalAppBundleLocation]
-    
-    /// Dictionary with Host : Token for artifacts urls
-    public let hostsTokens: [String: String]
 
     public init(
         appBundle: AppBundleLocation?,
         runner: RunnerAppLocation?,
         xcTestBundle: XcTestBundle,
-        additionalApplicationBundles: [AdditionalAppBundleLocation],
-        hostsTokens: [String: String])
+        additionalApplicationBundles: [AdditionalAppBundleLocation])
     {
         self.appBundle = appBundle
         self.runner = runner
         self.xcTestBundle = xcTestBundle
         self.additionalApplicationBundles = additionalApplicationBundles
-        self.hostsTokens = hostsTokens
     }
 
     private enum CodingKeys: CodingKey {
@@ -35,7 +30,6 @@ public struct BuildArtifacts: Codable, Hashable, CustomStringConvertible {
         case runner
         case xcTestBundle
         case additionalApplicationBundles
-        case hostsTokens
     }
 
     public init(from decoder: Decoder) throws {
@@ -47,15 +41,12 @@ public struct BuildArtifacts: Codable, Hashable, CustomStringConvertible {
         self.additionalApplicationBundles = try container.decodeIfPresent(
             [AdditionalAppBundleLocation].self, forKey: .additionalApplicationBundles
         ) ?? []
-        
-        self.hostsTokens = try container.decodeIfPresent([String: String].self, forKey: .hostsTokens) ?? [:]
     }
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(xcTestBundle, forKey: .xcTestBundle)
         try container.encode(additionalApplicationBundles, forKey: .additionalApplicationBundles)
-        try container.encode(hostsTokens, forKey: .hostsTokens)
 
         if let appBundle = appBundle {
             try container.encode(appBundle, forKey: .appBundle)
@@ -78,7 +69,6 @@ public struct BuildArtifacts: Codable, Hashable, CustomStringConvertible {
         if !additionalApplicationBundles.isEmpty {
             result += ["additionalApplicationBundles: \(additionalApplicationBundles)"]
         }
-        result += ["hostsTokens: \(hostsTokens)"]
         return "<\(type(of: self)): " + result.joined(separator: " ") + ">"
     }
 }
