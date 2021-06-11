@@ -13,7 +13,7 @@ let package = Package(
         .library(name: "EmceeInterfaces", targets: ["BuildArtifacts", "DeveloperDirModels", "EmceeVersion", "PluginSupport", "QueueModels", "ResourceLocation", "ResourceLocationResolver", "RunnerModels", "SimulatorPoolModels", "SimulatorVideoRecorder", "TestArgFile", "TestDiscovery", "TestsWorkingDirectorySupport", "TypedResourceLocation", "WorkerAlivenessModels", "WorkerCapabilitiesModels", "XcodebuildTestRunnerConstants"]),
     ],
     dependencies: [
-        .package(name: "CommandLineToolkit", url: "https://github.com/avito-tech/CommandLineToolkit.git", .exact("1.0.2")),
+        .package(name: "CommandLineToolkit", url: "https://github.com/avito-tech/CommandLineToolkit.git", .exact("1.0.4")),
         .package(name: "CountedSet", url: "https://github.com/0x7fs/CountedSet", .branch("master")),
         .package(name: "OrderedSet", url: "https://github.com/Weebly/OrderedSet", .exact("5.0.0")),
         .package(name: "Shout", url: "https://github.com/jakeheis/Shout.git", .exact("0.5.4")),
@@ -25,6 +25,7 @@ let package = Package(
         .target(
             name: "AppleTools",
             dependencies: [
+                .product(name: "AtomicModels", package: "CommandLineToolkit"),
                 "BuildArtifacts",
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
                 "DeveloperDirLocator",
@@ -41,6 +42,7 @@ let package = Package(
                 "SimulatorPool",
                 "SimulatorPoolModels",
                 .product(name: "Tmp", package: "CommandLineToolkit"),
+                "XcodebuildTestRunnerConstants",
             ],
             path: "Sources/AppleTools"
         ),
@@ -1432,7 +1434,6 @@ let package = Package(
                 .product(name: "Timer", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 "UniqueIdentifierGenerator",
-                "XcodebuildTestRunnerConstants",
             ],
             path: "Sources/Runner"
         ),
@@ -1997,12 +1998,6 @@ let package = Package(
             dependencies: [
             ],
             path: "Sources/XcodebuildTestRunnerConstants"
-        ),
-        .target(
-            name: "XCTestJsonCodable",
-            dependencies: [
-            ],
-            path: "Sources/XCTestJsonCodable"
         ),
     ]
 )
