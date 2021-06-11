@@ -43,14 +43,7 @@ final class TestArgFileEntryTests: XCTestCase {
                         },
                         "testDiscoveryMode": "runtimeAppTest"
                     },
-                    "additionalApplicationBundles": [
-                        {
-                            "url": "/additionalApp1"
-                        },
-                        {
-                            "url": "/additionalApp2"
-                        }
-                    ]
+                    "additionalApplicationBundles": ["/additionalApp1","/additionalApp2"]
                 },
                 "testRunnerTool": {
                     "toolType": "xcodebuild"
@@ -64,11 +57,7 @@ final class TestArgFileEntryTests: XCTestCase {
                 "developerDir": {
                     "kind": "current"
                 },
-                "pluginLocations": [
-                    {
-                        "url": "http://example.com/plugin.zip#sample.emceeplugin"
-                    }
-                ],
+                "pluginLocations": ["http://example.com/plugin.zip#sample.emceeplugin"],
                 "scheduleStrategy": "unsplit",
                 "simulatorOperationTimeouts": {
                     "create": 50,

@@ -25,6 +25,7 @@ let package = Package(
         .target(
             name: "AppleTools",
             dependencies: [
+                .product(name: "AtomicModels", package: "CommandLineToolkit"),
                 "BuildArtifacts",
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
                 "DeveloperDirLocator",
@@ -41,6 +42,7 @@ let package = Package(
                 "SimulatorPool",
                 "SimulatorPoolModels",
                 .product(name: "Tmp", package: "CommandLineToolkit"),
+                "XcodebuildTestRunnerConstants",
             ],
             path: "Sources/AppleTools"
         ),
@@ -1432,7 +1434,6 @@ let package = Package(
                 .product(name: "Timer", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 "UniqueIdentifierGenerator",
-                "XcodebuildTestRunnerConstants",
             ],
             path: "Sources/Runner"
         ),
@@ -1993,16 +1994,16 @@ let package = Package(
             path: "Tests/WorkerCapabilitiesTests"
         ),
         .target(
-            name: "XcodebuildTestRunnerConstants",
-            dependencies: [
-            ],
-            path: "Sources/XcodebuildTestRunnerConstants"
-        ),
-        .target(
             name: "XCTestJsonCodable",
             dependencies: [
             ],
             path: "Sources/XCTestJsonCodable"
+        ),
+        .target(
+            name: "XcodebuildTestRunnerConstants",
+            dependencies: [
+            ],
+            path: "Sources/XcodebuildTestRunnerConstants"
         ),
     ]
 )

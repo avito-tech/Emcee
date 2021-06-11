@@ -133,10 +133,14 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
     }
     
     public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let url = try container.decode(String.self, forKey: .url)
-        let headers = try? container.decodeIfPresent([String: String].self, forKey: .headers)
-        self = try ResourceLocation.withoutValueValidation(url, headers)
+        if let container = try? decoder.container(keyedBy: CodingKeys.self) {
+            let url = try container.decode(String.self, forKey: .url)
+            let headers = try? container.decodeIfPresent([String: String].self, forKey: .headers)
+            self = try ResourceLocation.withoutValueValidation(url, headers)
+        } else {
+            let container = try decoder.singleValueContainer()
+            self = try ResourceLocation.withoutValueValidation(try container.decode(String.self), nil)
+        }
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -146,7 +150,9 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
             try container.encode(path, forKey: .url)
         case .remoteUrl(let url, let headers):
             try container.encode(url, forKey: .url)
-            try container.encode(headers, forKey: .headers)
+            if let headers = headers {
+                try container.encode(headers, forKey: .headers)
+            }
         }
     }
 }
