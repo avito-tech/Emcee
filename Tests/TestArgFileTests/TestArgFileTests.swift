@@ -118,13 +118,24 @@ final class TestArgFileTests: XCTestCase {
                 "jobId": "jobId",
                 "entries": [
                     {
-                        "testsToRun": ["all"],
-                        "testDestination": {"deviceType": "iPhone X", "runtime": "11.3"},
+                        "testsToRun": [
+                            "all"
+                        ],
+                        "testDestination": {
+                            "deviceType": "iPhone X",
+                            "runtime": "11.3"
+                        },
                         "testType": "uiTest",
                         "buildArtifacts": {
-                            "appBundle": "http://example.com/App.zip#MyApp/MyApp.app",
-                            "runner": "http://example.com/App.zip#Tests/UITests-Runner.app",
-                            "xcTestBundle": "http://example.com/App.zip#Tests/UITests-Runner.app/PlugIns/UITests.xctest"
+                            "appBundle": {
+                                "url": "http://example.com/App.zip#MyApp/MyApp.app"
+                            },
+                            "runner": {
+                                "url": "http://example.com/App.zip#Tests/UITests-Runner.app"
+                            },
+                            "xcTestBundle": {
+                                "url": "http://example.com/App.zip#Tests/UITests-Runner.app/PlugIns/UITests.xctest"
+                            }
                         }
                     }
                 ]

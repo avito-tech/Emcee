@@ -5,7 +5,7 @@ import EmceeLogging
 import PathLib
 
 public protocol URLResource {
-    func fetchResource(url: URL, handler: URLResourceHandler)
+    func fetchResource(url: URL, handler: URLResourceHandler, headers: [String: String]?)
     func deleteResource(url: URL) throws
     
     func evictResources(olderThan date: Date) throws -> [AbsolutePath]
@@ -52,14 +52,14 @@ public final class URLResourceImpl: URLResource {
         self.handlersWrapper = HandlersWrapper(handlerQueue: handlerQueue)
     }
     
-    public func fetchResource(url: URL, handler: URLResourceHandler) {
+    public func fetchResource(url: URL, handler: URLResourceHandler, headers: [String: String]?) {
         let url = downloadUrl(resourceUrl: url)
         syncQueue.sync {
             if fileCache.contains(itemForURL: url) {
                 provideResourceImmediately_onSyncQueue(url: url, handler: handler)
             } else {
                 if handlersWrapper.countOfHandlersAfterAppending(handler: handler, url: url) == 1 {
-                    startLoadingUrlResource(url: url)
+                    startLoadingUrlResource(url: url, headers: headers)
                 }
             }
         }
@@ -82,8 +82,15 @@ public final class URLResourceImpl: URLResource {
         }
     }
     
-    private func startLoadingUrlResource(url: URL) {
-        let request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 20)
+    private func startLoadingUrlResource(url: URL, headers: [String: String]?) {
+        var request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 20)
+        if let headers = headers {
+            headers.forEach { key, value in
+                logger.debug("Add header \(key) to \(url)")
+                request.setValue(value, forHTTPHeaderField: key)
+            }
+        }
+
         logger.debug("Will fetch resource '\(url)'")
         let task = createDownloadTask(request: request, url: url)
         task.resume()

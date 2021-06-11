@@ -47,7 +47,7 @@ final class ResourceLocationResolverTests: XCTestCase {
         let server = try startServer(serverPath: "/contents/example.zip", localPath: smallZipFile)
         let remoteUrl = URL(string: "http://localhost:\(server.port)/contents/example.zip#example")!
         
-        let result = try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl))
+        let result = try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl, [:]))
         
         switch result {
         case .directlyAccessibleFile:
@@ -69,7 +69,7 @@ final class ResourceLocationResolverTests: XCTestCase {
         let server = try startServer(serverPath: "/contents/example.zip", localPath: smallZipFile)
         let remoteUrl = URL(string: "http://localhost:\(server.port)/contents/example.zip")!
         
-        let result = try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl))
+        let result = try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl, [:]))
         
         switch result {
         case .directlyAccessibleFile:
@@ -91,7 +91,7 @@ final class ResourceLocationResolverTests: XCTestCase {
         let server = try startServer(serverPath: "/contents/example.zip", localPath: smallZipFile)
         let remoteUrl = URL(string: "http://localhost:\(server.port)/contents/example.zip")!
         
-        _ = try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl))
+        _ = try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl, [:]))
         let localCachePath = try fileCache.pathForCachedContents(ofUrl: remoteUrl)
         
         let attributes = try FileManager.default.attributesOfItem(atPath: localCachePath.pathString)
@@ -109,7 +109,7 @@ final class ResourceLocationResolverTests: XCTestCase {
         for _ in 0 ..< maximumConcurrentOperations {
             operationQueue.addOperation {
                 do {
-                    let result = try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl))
+                    let result = try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl, [:]))
                     switch result {
                     case .directlyAccessibleFile:
                         XCTFail("Unexpected result")
@@ -137,7 +137,7 @@ final class ResourceLocationResolverTests: XCTestCase {
         
         for _ in 0 ..< maximumConcurrentOperations {
             operationQueue.addOperation {
-                _ = try? resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl))
+                _ = try? resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl, [:]))
             }
         }
         operationQueue.waitUntilAllOperationsAreFinished()
@@ -150,7 +150,7 @@ final class ResourceLocationResolverTests: XCTestCase {
         let remoteUrl = URL(string: "http://localhost:\(server.port)/contents/example.zip")!
         
         XCTAssertThrowsError(
-            _ = try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl)),
+            _ = try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl, [:])),
             "Corrupted ZIP file should throw error"
         )
         
@@ -169,11 +169,11 @@ final class ResourceLocationResolverTests: XCTestCase {
         let remoteUrl = URL(string: "http://localhost:\(serverAndPort.port)/url")!
         
         assertThrows {
-            try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl))
+            try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl, [:]))
         }
         
         assertThrows {
-            try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl))
+            try resolver.resolvePath(resourceLocation: .remoteUrl(remoteUrl, [:]))
         }
         
         XCTAssertEqual(

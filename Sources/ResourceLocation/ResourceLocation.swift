@@ -8,7 +8,7 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
     /// URL to archive that should be extracted in order to get the file.
     /// Filename in this case can be specified by fragment:
     /// http://example.com/file.zip#actualFileInsideZip
-    case remoteUrl(URL)
+    case remoteUrl(URL, _ headers: [String: String]?)
     
     public enum ValidationError: Error, CustomStringConvertible {
         case cannotCreateUrl(String)
@@ -26,20 +26,34 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
     
     public var url: URL? {
         switch self {
-        case .remoteUrl(let url):
+        case .remoteUrl(let url, _):
             return url
         case .localFilePath:
             return nil
         }
     }
     
-    public static func from(_ string: String) throws -> ResourceLocation {
+    public var headers: [String: String]? {
+        switch self {
+        case .remoteUrl(_, let headers):
+            return headers
+        case .localFilePath:
+            return nil
+        }
+    }
+    
+    private enum CodingKeys: CodingKey {
+        case url
+        case headers
+    }
+    
+    public static func from(_ string: String, headers: [String: String] = [:]) throws -> ResourceLocation {
         let components = try urlComponents(string)
         guard let url = components.url else { throw ValidationError.cannotCreateUrl(string) }
         if url.isFileURL {
             return try withPathString(string)
         } else {
-            return withUrl(url)
+            return withUrl(url, headers)
         }
     }
     
@@ -61,18 +75,18 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
         return components
     }
     
-    private static func withoutValueValidation(_ string: String) throws -> ResourceLocation {
+    private static func withoutValueValidation(_ string: String, _ headers: [String: String]?) throws -> ResourceLocation {
         let components = try urlComponents(string)
         guard let url = components.url else { throw ValidationError.cannotCreateUrl(string) }
         if url.isFileURL {
             return .localFilePath(string)
         } else {
-            return .remoteUrl(url)
+            return .remoteUrl(url, headers)
         }
     }
     
-    private static func withUrl(_ url: URL) -> ResourceLocation {
-        return ResourceLocation.remoteUrl(url)
+    private static func withUrl(_ url: URL, _ headers: [String: String]) -> ResourceLocation {
+        return ResourceLocation.remoteUrl(url, headers)
     }
     
     private static func withPathString(_ string: String) throws -> ResourceLocation {
@@ -84,7 +98,7 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
         switch self {
         case .localFilePath(let path):
             hasher.combine(path)
-        case .remoteUrl(let url):
+        case .remoteUrl(let url, _):
             hasher.combine(url)
         }
     }
@@ -93,7 +107,7 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
         switch self {
         case .localFilePath(let path):
             return "\(path)"
-        case .remoteUrl(let url):
+        case .remoteUrl(let url, _):
             return "\(url)"
         }
     }
@@ -102,7 +116,7 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
         switch self {
         case .localFilePath(let path):
             return path
-        case .remoteUrl(let url):
+        case .remoteUrl(let url, _):
             return url.absoluteString
         }
     }
@@ -111,7 +125,7 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
         switch (left, right) {
         case (.localFilePath(let leftPath), .localFilePath(let rightPath)):
             return leftPath == rightPath
-        case (.remoteUrl(let leftUrl), .remoteUrl(let rightUrl)):
+        case (.remoteUrl(let leftUrl, _), .remoteUrl(let rightUrl, _)):
             return leftUrl == rightUrl
         default:
             return false
@@ -119,13 +133,20 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
     }
     
     public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        self = try ResourceLocation.withoutValueValidation(try container.decode(String.self))
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let url = try container.decode(String.self, forKey: .url)
+        let headers = try? container.decodeIfPresent([String: String].self, forKey: .headers)
+        self = try ResourceLocation.withoutValueValidation(url, headers)
     }
     
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(stringValue)
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .localFilePath(let path):
+            try container.encode(path, forKey: .url)
+        case .remoteUrl(let url, let headers):
+            try container.encode(url, forKey: .url)
+            try container.encode(headers, forKey: .headers)
+        }
     }
-    
 }
