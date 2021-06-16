@@ -14,6 +14,7 @@ import QueueModels
 import ResourceLocation
 import ResourceLocationResolver
 import ResourceLocationResolverTestHelpers
+import Runner
 import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolTestHelpers
@@ -224,6 +225,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             pluginEventBusProvider: NoOoPluginEventBusProvider(),
             processControllerProvider: FakeProcessControllerProvider(),
             resourceLocationResolver: resourceLocationResolver,
+            runnerWasteCollector: RunnerWasteCollectorImpl(),
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,
             uniqueIdentifierGenerator: fixedValueUniqueIdentifierGenerator,

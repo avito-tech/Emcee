@@ -96,6 +96,7 @@ public final class DumpCommand: Command {
                 pluginEventBusProvider: try di.get(),
                 processControllerProvider: try di.get(),
                 resourceLocationResolver: try di.get(),
+                runnerWasteCollector: try di.get(),
                 tempFolder: try di.get(),
                 testRunnerProvider: try di.get(),
                 uniqueIdentifierGenerator: try di.get(),

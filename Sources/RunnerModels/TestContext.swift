@@ -10,6 +10,7 @@ public struct TestContext: Codable, Hashable, CustomStringConvertible {
     public let simulatorPath: AbsolutePath
     public let simulatorUdid: UDID
     public let testDestination: TestDestination
+    public let testRunnerWorkingDirectory: AbsolutePath
     public let testsWorkingDirectory: AbsolutePath
     
     public init(
@@ -19,6 +20,7 @@ public struct TestContext: Codable, Hashable, CustomStringConvertible {
         simulatorPath: AbsolutePath,
         simulatorUdid: UDID,
         testDestination: TestDestination,
+        testRunnerWorkingDirectory: AbsolutePath,
         testsWorkingDirectory: AbsolutePath
     ) {
         self.contextId = contextId
@@ -27,10 +29,11 @@ public struct TestContext: Codable, Hashable, CustomStringConvertible {
         self.simulatorPath = simulatorPath
         self.simulatorUdid = simulatorUdid
         self.testDestination = testDestination
+        self.testRunnerWorkingDirectory = testRunnerWorkingDirectory
         self.testsWorkingDirectory = testsWorkingDirectory
     }
     
     public var description: String {
-        return "<\(type(of: self)): contextId: \(contextId) simulator: \(simulatorUdid) \(testDestination), developerDir: \(developerDir), testsWorkingDirectory: \(testsWorkingDirectory), env: \(environment)>"
+        return "<\(type(of: self)): contextId: \(contextId) simulator: \(simulatorUdid) \(testDestination), developerDir: \(developerDir), testRunnerWorkingDirectory: \(testRunnerWorkingDirectory), testsWorkingDirectory: \(testsWorkingDirectory), env: \(environment)>"
     }
 }

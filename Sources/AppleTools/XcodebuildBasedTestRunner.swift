@@ -1,6 +1,7 @@
 import BuildArtifacts
 import DateProvider
 import DeveloperDirLocator
+import FileSystem
 import Foundation
 import EmceeLogging
 import ObservableFileReader
@@ -16,15 +17,18 @@ import XcodebuildTestRunnerConstants
 
 public final class XcodebuildBasedTestRunner: TestRunner {
     private let dateProvider: DateProvider
+    private let fileSystem: FileSystem
     private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
     
     public init(
         dateProvider: DateProvider,
+        fileSystem: FileSystem,
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver
     ) {
         self.dateProvider = dateProvider
+        self.fileSystem = fileSystem
         self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
     }
@@ -36,19 +40,17 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         logger: ContextualLogger,
         runnerWasteCollector: RunnerWasteCollector,
         simulator: Simulator,
-        temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
         testType: TestType
     ) throws -> TestRunnerInvocation {
-        let invocationPath = try temporaryFolder.pathByCreatingDirectories(components: [testContext.contextId])
-        runnerWasteCollector.scheduleCollection(path: invocationPath)
+        let resultStreamFile = testContext.testRunnerWorkingDirectory.appending(component: "result_stream.json")
+        try fileSystem.createFile(atPath: resultStreamFile, data: nil)
         
-        let resultStreamFile = try temporaryFolder.createFile(components: [testContext.contextId], filename: "result_stream.json")
         let xcTestRunFile = XcTestRunFileArgument(
             buildArtifacts: buildArtifacts,
             entriesToRun: entriesToRun,
-            containerPath: invocationPath,
+            containerPath: testContext.testRunnerWorkingDirectory,
             resourceLocationResolver: resourceLocationResolver,
             testContext: testContext,
             testType: testType,
@@ -61,8 +63,8 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                     "/usr/bin/xcrun",
                     "xcodebuild",
                     "-destination", XcodebuildSimulatorDestinationArgument(destinationId: simulator.udid),
-                    "-derivedDataPath", invocationPath.appending(component: "derivedData"),
-                    "-resultBundlePath", invocationPath.appending(component: "resultBundle"),
+                    "-derivedDataPath", testContext.testRunnerWorkingDirectory.appending(component: "derivedData"),
+                    "-resultBundlePath", xcresultBundlePath(testRunnerWorkingDirectory: testContext.testRunnerWorkingDirectory),
                     "-resultStreamPath", resultStreamFile,
                     "-xctestrun", xcTestRunFile,
                     "-parallel-testing-enabled", "NO",
@@ -109,7 +111,12 @@ public final class XcodebuildBasedTestRunner: TestRunner {
     }
     
     public func additionalEnvironment(testRunnerWorkingDirectory: AbsolutePath) -> [String: String] {
-        return [XcodebuildTestRunnerConstants.envXcresultPath: testRunnerWorkingDirectory.appending(component: "resultBundle.xcresult").pathString]
-
+        return [
+            XcodebuildTestRunnerConstants.envXcresultPath: xcresultBundlePath(testRunnerWorkingDirectory: testRunnerWorkingDirectory).pathString
+        ]
+    }
+    
+    private func xcresultBundlePath(testRunnerWorkingDirectory: AbsolutePath) -> AbsolutePath {
+        return testRunnerWorkingDirectory.appending(component: "resultBundle.xcresult")
     }
 }

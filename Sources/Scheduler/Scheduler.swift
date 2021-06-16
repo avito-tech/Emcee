@@ -222,6 +222,7 @@ public final class Scheduler {
             persistentMetricsJobId: bucket.analyticsConfiguration.persistentMetricsJobId,
             pluginEventBusProvider: try di.get(),
             resourceLocationResolver: try di.get(),
+            runnerWasteCollector: try di.get(),
             specificMetricRecorder: specificMetricRecorder,
             tempFolder: try di.get(),
             testRunnerProvider: try di.get(),

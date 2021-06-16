@@ -6,6 +6,7 @@ import DeveloperDirLocator
 import DeveloperDirLocatorTestHelpers
 import DeveloperDirModels
 import FileCache
+import FileSystemTestHelpers
 import Foundation
 import PathLib
 import ProcessController
@@ -25,6 +26,7 @@ import URLResource
 import XCTest
 
 final class XcodebuildBasedTestRunnerTests: XCTestCase {
+    private lazy var fileSystem = FakeFileSystem(rootPath: tempFolder.absolutePath)
     private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     private let testRunnerStream = AccumulatingTestRunnerStream()
     private let dateProvider = DateProviderFixture(Date(timeIntervalSince1970: 100500))
@@ -43,6 +45,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
     private lazy var testContext = assertDoesNotThrow { try createTestContext() }
     private lazy var runner = XcodebuildBasedTestRunner(
         dateProvider: dateProvider,
+        fileSystem: fileSystem,
         processControllerProvider: processControllerProvider,
         resourceLocationResolver: resourceLocationResolver
     )
@@ -94,6 +97,18 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
     )
     private lazy var runnerWasteCollector = RunnerWasteCollectorImpl()
     
+    private var testRunnerWorkingDirectory: AbsolutePath {
+        assertDoesNotThrow {
+            try tempFolder.pathByCreatingDirectories(components: [Runner.runnerWorkingDir, contextId])
+        }
+    }
+    
+    private var testsWorkingDirectory: AbsolutePath {
+        assertDoesNotThrow {
+            try tempFolder.pathByCreatingDirectories(components: [Runner.testsWorkingDir, contextId])
+        }
+    }
+    
     private func createTestContext(environment: [String: String] = [:]) throws -> TestContext {
         TestContext(
             contextId: contextId,
@@ -102,7 +117,8 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             simulatorPath: simulator.path,
             simulatorUdid: simulator.udid,
             testDestination: simulator.testDestination,
-            testsWorkingDirectory: try tempFolder.pathByCreatingDirectories(components: ["testsWorkingDirectory"])
+            testRunnerWorkingDirectory: try tempFolder.pathByCreatingDirectories(components: testRunnerWorkingDirectory.relativePath(anchorPath: tempFolder.absolutePath).components),
+            testsWorkingDirectory: try tempFolder.pathByCreatingDirectories(components: testsWorkingDirectory.relativePath(anchorPath: tempFolder.absolutePath).components)
         )
     }
     
@@ -161,7 +177,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 logger: .noOp,
                 runnerWasteCollector: runnerWasteCollector,
                 simulator: simulator,
-                temporaryFolder: tempFolder,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream,
                 testType: .logicTest
@@ -230,7 +245,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 logger: .noOp,
                 runnerWasteCollector: runnerWasteCollector,
                 simulator: simulator,
-                temporaryFolder: tempFolder,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream,
                 testType: .appTest
@@ -268,7 +282,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 logger: .noOp,
                 runnerWasteCollector: runnerWasteCollector,
                 simulator: simulator,
-                temporaryFolder: tempFolder,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream,
                 testType: .uiTest
@@ -291,7 +304,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             logger: .noOp,
             runnerWasteCollector: runnerWasteCollector,
             simulator: simulator,
-            temporaryFolder: tempFolder,
             testContext: testContext,
             testRunnerStream: testRunnerStream,
             testType: .logicTest
@@ -313,7 +325,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             logger: .noOp,
             runnerWasteCollector: runnerWasteCollector,
             simulator: simulator,
-            temporaryFolder: tempFolder,
             testContext: testContext,
             testRunnerStream: testRunnerStream,
             testType: .logicTest
@@ -354,7 +365,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             logger: .noOp,
             runnerWasteCollector: runnerWasteCollector,
             simulator: simulator,
-            temporaryFolder: tempFolder,
             testContext: testContext,
             testRunnerStream: testRunnerStream,
             testType: .logicTest
@@ -395,32 +405,10 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         )
     }
     
-    func test___schedules_collection_of_invocation_related_files() throws {
-        _ = try runner.prepareTestRun(
-            buildArtifacts: buildArtifacts,
-            developerDirLocator: developerDirLocator,
-            entriesToRun: [TestEntryFixtures.testEntry()],
-            logger: .noOp,
-            runnerWasteCollector: runnerWasteCollector,
-            simulator: simulator,
-            temporaryFolder: tempFolder,
-            testContext: testContext,
-            testRunnerStream: testRunnerStream,
-            testType: .logicTest
-        )
-        XCTAssertEqual(
-            runnerWasteCollector.collectedPaths,
-            [
-                tempFolder.absolutePath.appending(component: testContext.contextId)
-            ]
-        )
-    }
-    
     private func pathToXctestrunFile() throws -> AbsolutePath {
-        let path = self.tempFolder.pathWith(components: [contextId])
-        let contents = try FileManager().contentsOfDirectory(atPath: path.pathString)
+        let contents = try FileManager().contentsOfDirectory(atPath: testRunnerWorkingDirectory.pathString)
         let xctestrunFileName: String = contents.first(where: { $0.hasSuffix("xctestrun") }) ?? "NOT_FOUND"
-        return path.appending(component: xctestrunFileName)
+        return testRunnerWorkingDirectory.appending(component: xctestrunFileName)
     }
     
     private func createdXcTestRun() throws -> XcTestRun {
@@ -439,9 +427,9 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 "/usr/bin/xcrun",
                 "xcodebuild",
                 "-destination", "platform=iOS Simulator,id=" + simulator.udid.value,
-                "-derivedDataPath", tempFolder.absolutePath.appending(components: [contextId, "derivedData"]).pathString,
-                "-resultBundlePath", tempFolder.absolutePath.appending(components: [contextId, "resultBundle"]).pathString,
-                "-resultStreamPath", tempFolder.absolutePath.appending(components: [contextId, "result_stream.json"]).pathString,
+                "-derivedDataPath", testRunnerWorkingDirectory.appending(component: "derivedData").pathString,
+                "-resultBundlePath", testRunnerWorkingDirectory.appending(component: "resultBundle.xcresult").pathString,
+                "-resultStreamPath", testRunnerWorkingDirectory.appending(component: "result_stream.json").pathString,
                 "-xctestrun", try pathToXctestrunFile().pathString,
                 "-parallel-testing-enabled", "NO",
                 "test-without-building"

@@ -31,6 +31,7 @@ public final class Runner {
     private let pluginEventBusProvider: PluginEventBusProvider
     private let pluginTearDownQueue = OperationQueue()
     private let resourceLocationResolver: ResourceLocationResolver
+    private let runnerWasteCollector: RunnerWasteCollector
     private let specificMetricRecorder: SpecificMetricRecorder
     private let tempFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
@@ -42,6 +43,9 @@ public final class Runner {
     public static let skipReviveAttemptsEnvName = "EMCEE_SKIP_REVIVE_ATTEMPTS"
     public static let logCapturingModeEnvName = "EMCEE_LOG_CAPTURE_MODE"
     
+    public static let runnerWorkingDir = "runnerWorkingDir"
+    public static let testsWorkingDir = "testsWorkingDir"
+    
     public init(
         configuration: RunnerConfiguration,
         dateProvider: DateProvider,
@@ -51,6 +55,7 @@ public final class Runner {
         persistentMetricsJobId: String?,
         pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver,
+        runnerWasteCollector: RunnerWasteCollector,
         specificMetricRecorder: SpecificMetricRecorder,
         tempFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider,
@@ -67,6 +72,7 @@ public final class Runner {
         self.persistentMetricsJobId = persistentMetricsJobId
         self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
+        self.runnerWasteCollector = runnerWasteCollector
         self.specificMetricRecorder = specificMetricRecorder
         self.tempFolder = tempFolder
         self.testRunnerProvider = testRunnerProvider
@@ -168,8 +174,8 @@ public final class Runner {
             testRunner: testRunner
         )
         
-        let runnerWasteCollector: RunnerWasteCollector = RunnerWasteCollectorImpl()
         runnerWasteCollector.scheduleCollection(path: testContext.testsWorkingDirectory)
+        runnerWasteCollector.scheduleCollection(path: testContext.testRunnerWorkingDirectory)
         runnerWasteCollector.scheduleCollection(path: simulator.path.appending(relativePath: "data/Library/Caches/com.apple.containermanagerd/Dead"))
         
         let runnerResultsPreparer = RunnerResultsPreparerImpl(
@@ -182,7 +188,7 @@ public final class Runner {
             pluginLocations: configuration.pluginLocations
         )
         defer {
-            pluginTearDownQueue.addOperation { [fileSystem] in
+            pluginTearDownQueue.addOperation { [fileSystem, runnerWasteCollector] in
                 eventBus.tearDown()
                 RunnerWasteCleanerImpl(fileSystem: fileSystem).cleanWaste(runnerWasteCollector: runnerWasteCollector)
             }
@@ -302,7 +308,6 @@ public final class Runner {
             logger: logger,
             runnerWasteCollector: runnerWasteCollector,
             simulator: simulator,
-            temporaryFolder: tempFolder,
             testContext: testContext,
             testRunnerStream: testRunnerStream,
             testType: configuration.testType
@@ -348,9 +353,12 @@ public final class Runner {
     ) throws -> TestContext {
         let contextId = uniqueIdentifierGenerator.generate()
         let testsWorkingDirectory = try tempFolder.pathByCreatingDirectories(
-            components: ["testsWorkingDir", contextId]
+            components: [Self.testsWorkingDir, contextId]
         )
-        let testRunnerWorkingDirectory = try tempFolder.pathByCreatingDirectories(components: ["runnerWorkingDir", contextId])
+        let testRunnerWorkingDirectory = try tempFolder.pathByCreatingDirectories(
+            components: [Self.runnerWorkingDir, contextId]
+        )
+        
         let additionalEnvironment = testRunner.additionalEnvironment(testRunnerWorkingDirectory: testRunnerWorkingDirectory)
         var environment = configuration.environment
         environment[TestsWorkingDirectorySupport.envTestsWorkingDirectory] = testsWorkingDirectory.pathString
@@ -366,6 +374,7 @@ public final class Runner {
             simulatorPath: simulator.path,
             simulatorUdid: simulator.udid,
             testDestination: simulator.testDestination,
+            testRunnerWorkingDirectory: testRunnerWorkingDirectory,
             testsWorkingDirectory: testsWorkingDirectory
         )
     }
