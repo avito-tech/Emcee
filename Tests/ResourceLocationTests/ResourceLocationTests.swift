@@ -18,6 +18,20 @@ final class ResourceLocationTests: XCTestCase {
         XCTAssertEqual(decoded, ResourceLocation.remoteUrl(URL(string: urlString)!, [:]))
     }
     
+    func test__decoding_JSON_with_single_string__maps_to_localFilePath() throws {
+        let temp = NSTemporaryDirectory()
+                let jsonData = Data("{\"value\": \"\(temp)\"}".utf8)
+                let decoded = try JSONDecoder().decode([String: ResourceLocation].self, from: jsonData)
+                XCTAssertEqual(decoded["value"], ResourceLocation.localFilePath(temp))
+    }
+    
+    func test__decoding_JSON_with_single_string_URL__maps_to_remoteUrl() throws {
+            let urlString = "https://example.com/file.zip#path/to/file.txt"
+            let jsonData = Data("{\"value\": \"\(urlString)\"}".utf8)
+            let decoded = try JSONDecoder().decode([String: ResourceLocation].self, from: jsonData)
+            XCTAssertEqual(decoded["value"], ResourceLocation.remoteUrl(URL(string: urlString)!, nil))
+    }
+    
     func test__decoding_JSON_with_string_URL_with_headers__maps_to_remoteUrl() throws {
         let urlString = "https://example.com/file.zip#path/to/file.txt"
         let jsonData = Data("{\"url\": \"\(urlString)\", \"headers\": {\"key1\": \"value1\", \"key2\": \"value2\"}}".utf8)
