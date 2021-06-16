@@ -12,6 +12,7 @@ public final class TestContextFixtures {
     public var simulatorPath: AbsolutePath
     public var simulatorUdid: UDID
     public var testDestination: TestDestination
+    public var testRunnerWorkingDirectory: AbsolutePath
     public var testsWorkingDirectory: AbsolutePath
     
     public init(
@@ -21,6 +22,7 @@ public final class TestContextFixtures {
         simulatorPath: AbsolutePath = AbsolutePath(NSTemporaryDirectory()),
         simulatorUdid: UDID = UDID(value: "fixture_test_context_udid"),
         testDestination: TestDestination = TestDestinationFixtures.testDestination,
+        testRunnerWorkingDirectory: AbsolutePath = AbsolutePath(NSTemporaryDirectory()),
         testsWorkingDirectory: AbsolutePath = AbsolutePath(NSTemporaryDirectory())
     ) {
         self.contextId = contextId
@@ -29,6 +31,7 @@ public final class TestContextFixtures {
         self.simulatorPath = simulatorPath
         self.simulatorUdid = simulatorUdid
         self.testDestination = testDestination
+        self.testRunnerWorkingDirectory = testRunnerWorkingDirectory
         self.testsWorkingDirectory = testsWorkingDirectory
     }
     
@@ -40,6 +43,7 @@ public final class TestContextFixtures {
             simulatorPath: simulatorPath,
             simulatorUdid: simulatorUdid,
             testDestination: testDestination,
+            testRunnerWorkingDirectory: testRunnerWorkingDirectory,
             testsWorkingDirectory: testsWorkingDirectory
         )
     }

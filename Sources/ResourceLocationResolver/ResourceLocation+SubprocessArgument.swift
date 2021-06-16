@@ -49,7 +49,7 @@ private class ResolvableResourceLocationArg: SubprocessArgument, CustomStringCon
         switch resolvableResourceLocation.resourceLocation {
         case .localFilePath(let path):
             return path
-        case .remoteUrl(let url):
+        case .remoteUrl(let url, _):
             var items = ["url: \(url)"]
             if let implicitFilenameInArchive = implicitFilenameInArchive {
                 items.append("file: \(implicitFilenameInArchive)")

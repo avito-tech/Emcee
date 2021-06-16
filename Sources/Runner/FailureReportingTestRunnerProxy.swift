@@ -27,7 +27,6 @@ public final class FailureReportingTestRunnerProxy: TestRunner {
         logger: ContextualLogger,
         runnerWasteCollector: RunnerWasteCollector,
         simulator: Simulator,
-        temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
         testType: TestType
@@ -40,7 +39,6 @@ public final class FailureReportingTestRunnerProxy: TestRunner {
                 logger: logger,
                 runnerWasteCollector: runnerWasteCollector,
                 simulator: simulator,
-                temporaryFolder: temporaryFolder,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream,
                 testType: testType

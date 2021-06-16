@@ -78,7 +78,6 @@ public final class FakeTestRunner: TestRunner {
         logger: ContextualLogger,
         runnerWasteCollector: RunnerWasteCollector,
         simulator: Simulator,
-        temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
         testType: TestType
