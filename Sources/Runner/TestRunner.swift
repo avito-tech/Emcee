@@ -19,7 +19,10 @@ public protocol TestRunnerInvocation {
 }
 
 public protocol TestRunner {
-    func additionalEnvironment(testRunnerWorkingDirectory: AbsolutePath) -> [String: String]
+    func additionalEnvironment(
+        testRunnerWorkingDirectory: AbsolutePath
+    ) -> [String: String]
+    
     func prepareTestRun(
         buildArtifacts: BuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
@@ -27,7 +30,6 @@ public protocol TestRunner {
         logger: ContextualLogger,
         runnerWasteCollector: RunnerWasteCollector,
         simulator: Simulator,
-        temporaryFolder: TemporaryFolder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream,
         testType: TestType

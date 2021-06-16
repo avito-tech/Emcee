@@ -32,6 +32,7 @@ public final class RunnerTests: XCTestCase {
     lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     lazy var fileSystem = FakeFileSystem(rootPath: tempFolder.absolutePath)
     lazy var dateProvider = DateProviderFixture(Date(timeIntervalSince1970: 100))
+    lazy var runnerWasteCollector = RunnerWasteCollectorImpl()
     lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: "someId")
     
     func test___running_test_without_output_to_stream___provides_test_did_not_run_results() throws {
@@ -268,7 +269,7 @@ public final class RunnerTests: XCTestCase {
     func test___deletes_tests_working_directory___after_run() throws {
         let testsWorkingDirDeletedExpectation = XCTestExpectation(description: "testsWorkingDir is deleted")
         fileSystem.onDelete = { [tempFolder, uniqueIdentifierGenerator] path in
-            if path == tempFolder.pathWith(components: ["testsWorkingDir", uniqueIdentifierGenerator.generate()]) {
+            if path == tempFolder.pathWith(components: [Runner.testsWorkingDir, uniqueIdentifierGenerator.generate()]) {
                 testsWorkingDirDeletedExpectation.fulfill()
             }
         }
@@ -416,9 +417,57 @@ public final class RunnerTests: XCTestCase {
     
     func test___additional_environment_from_runner_sends_to_test_context() throws {
         testRunnerProvider.predefinedFakeTestRunner.additionalEnvironmentReturns = ["key": "value"]
-        let _ = try runTestEntries([testEntry])
+        _ = try runTestEntries([testEntry])
 
         XCTAssertEqual(testRunnerProvider.predefinedFakeTestRunner.testContext?.environment["key"], "value")
+    }
+    
+    func test___test_context_contains_valid_path_for_runner_working_dir() throws {
+        _ = try runTestEntries([testEntry])
+
+        XCTAssertEqual(
+            testRunnerProvider.predefinedFakeTestRunner.testContext?.testRunnerWorkingDirectory,
+            tempFolder.absolutePath.appending(components: [Runner.runnerWorkingDir, uniqueIdentifierGenerator.value])
+        )
+    }
+    
+    func test___test_context_contains_valid_path_for_tests_working_dir() throws {
+        _ = try runTestEntries([testEntry])
+
+        XCTAssertEqual(
+            testRunnerProvider.predefinedFakeTestRunner.testContext?.testsWorkingDirectory,
+            tempFolder.absolutePath.appending(components: [Runner.testsWorkingDir, uniqueIdentifierGenerator.value])
+        )
+    }
+    
+    func test___temporary_folder_for_runner___is_collected() throws {
+        _ = try runTestEntries([testEntry])
+        
+        assertTrue {
+            runnerWasteCollector.collectedPaths.contains { path in
+                path == tempFolder.absolutePath.appending(components: [Runner.runnerWorkingDir, uniqueIdentifierGenerator.value])
+            }
+        }
+    }
+    
+    func test___temporary_folder_for_tests___is_collected() throws {
+        _ = try runTestEntries([testEntry])
+        
+        assertTrue {
+            runnerWasteCollector.collectedPaths.contains { path in
+                path == tempFolder.absolutePath.appending(components: [Runner.testsWorkingDir, uniqueIdentifierGenerator.value])
+            }
+        }
+    }
+    
+    func test___simulator_dead_cache___is_collected() throws {
+        _ = try runTestEntries([testEntry])
+        
+        assertTrue {
+            runnerWasteCollector.collectedPaths.contains { path in
+                path == simulator.path.appending(relativePath: "data/Library/Caches/com.apple.containermanagerd/Dead")
+            }
+        }
     }
     
     private func expectationForDidRunEvent() -> XCTestExpectation {
@@ -443,7 +492,10 @@ public final class RunnerTests: XCTestCase {
         return eventExpectation
     }
     
-    private func runTestEntries(_ testEntries: [TestEntry], environment: [String: String] = [:]) throws -> RunnerRunResult {
+    private func runTestEntries(
+        _ testEntries: [TestEntry],
+        environment: [String: String] = [:]
+    ) throws -> RunnerRunResult {
         let runner = Runner(
             configuration: createRunnerConfig(environment: environment),
             dateProvider: dateProvider,
@@ -453,6 +505,7 @@ public final class RunnerTests: XCTestCase {
             persistentMetricsJobId: nil,
             pluginEventBusProvider: noOpPluginEventBusProvider,
             resourceLocationResolver: resolver,
+            runnerWasteCollector: runnerWasteCollector,
             specificMetricRecorder: SpecificMetricRecorderWrapper(NoOpMetricRecorder()),
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,
@@ -464,13 +517,15 @@ public final class RunnerTests: XCTestCase {
         return try runner.run(
             entries: testEntries,
             developerDir: .current,
-            simulator: Simulator(
-                testDestination: TestDestinationFixtures.testDestination,
-                udid: UDID(value: UUID().uuidString),
-                path: tempFolder.absolutePath
-            )
+            simulator: simulator
         )
     }
+    
+    private lazy var simulator = Simulator(
+        testDestination: TestDestinationFixtures.testDestination,
+        udid: UDID(value: UUID().uuidString),
+        path: tempFolder.absolutePath
+    )
 
     private func createRunnerConfig(environment: [String: String]) -> RunnerConfiguration {
         return RunnerConfiguration(

@@ -145,6 +145,11 @@ public final class InProcessMain {
         )
         
         di.set(
+            RunnerWasteCollectorImpl(),
+            for: RunnerWasteCollector.self
+        )
+        
+        di.set(
             PluginEventBusProviderImpl(
                 logger: logger,
                 processControllerProvider: try di.get(),
@@ -161,6 +166,7 @@ public final class InProcessMain {
         di.set(
             DefaultTestRunnerProvider(
                 dateProvider: try di.get(),
+                fileSystem: try di.get(),
                 processControllerProvider: try di.get(),
                 resourceLocationResolver: try di.get()
             ),

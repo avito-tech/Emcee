@@ -31,6 +31,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     private let pluginEventBusProvider: PluginEventBusProvider
     private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
+    private let runnerWasteCollector: RunnerWasteCollector
     private let tempFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
@@ -47,6 +48,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         pluginEventBusProvider: PluginEventBusProvider,
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver,
+        runnerWasteCollector: RunnerWasteCollector,
         tempFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
@@ -62,6 +64,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         self.pluginEventBusProvider = pluginEventBusProvider
         self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
+        self.runnerWasteCollector = runnerWasteCollector
         self.tempFolder = tempFolder
         self.testRunnerProvider = testRunnerProvider
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
@@ -296,6 +299,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             onDemandSimulatorPool: onDemandSimulatorPool,
             pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,
+            runnerWasteCollector: runnerWasteCollector,
             simulatorControlTool: simulatorControlTool,
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,
