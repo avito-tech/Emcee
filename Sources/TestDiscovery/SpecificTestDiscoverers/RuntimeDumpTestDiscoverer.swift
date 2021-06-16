@@ -23,7 +23,6 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let fileSystem: FileSystem
-    private let numberOfAttemptsToPerformRuntimeDump: UInt
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let pluginEventBusProvider: PluginEventBusProvider
     private let resourceLocationResolver: ResourceLocationResolver
@@ -43,7 +42,6 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         fileSystem: FileSystem,
-        numberOfAttemptsToPerformRuntimeDump: UInt,
         onDemandSimulatorPool: OnDemandSimulatorPool,
         pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver,
@@ -62,7 +60,6 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.fileSystem = fileSystem
-        self.numberOfAttemptsToPerformRuntimeDump = max(numberOfAttemptsToPerformRuntimeDump, 1)
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
@@ -107,40 +104,25 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             waiter: waiter
         )
         
-        return try runRetrying(logger: configuration.logger, times: numberOfAttemptsToPerformRuntimeDump) {
-            let allocatedSimulator = try simulatorForTestDiscovery(
-                configuration: configuration,
-                simulatorControlTool: simulatorControlTool
-            )
-            defer { allocatedSimulator.releaseSimulator() }
-            
-            _ = try runner.runOnce(
-                entriesToRun: [testEntryToQueryRuntimeDump],
-                developerDir: configuration.developerDir,
-                simulator: allocatedSimulator.simulator,
-                lostTestProcessingMode: .reportError
-            )
-            
-            guard let data = try? Data(contentsOf: runtimeEntriesJSONPath.fileUrl),
-                let foundTestEntries = try? JSONDecoder().decode([DiscoveredTestEntry].self, from: data)
-                else {
-                    throw TestExplorationError.fileNotFound(runtimeEntriesJSONPath)
-            }
-            
-            return foundTestEntries
+        let allocatedSimulator = try simulatorForTestDiscovery(
+            configuration: configuration,
+            simulatorControlTool: simulatorControlTool
+        )
+        defer { allocatedSimulator.releaseSimulator() }
+        
+        _ = try runner.runOnce(
+            entriesToRun: [testEntryToQueryRuntimeDump],
+            developerDir: configuration.developerDir,
+            simulator: allocatedSimulator.simulator,
+            lostTestProcessingMode: .reportError
+        )
+        
+        guard fileSystem.properties(forFileAtPath: runtimeEntriesJSONPath).exists() else {
+            throw TestExplorationError.fileNotFound(runtimeEntriesJSONPath)
         }
-    }
-    
-    private func runRetrying<T>(logger: ContextualLogger, times: UInt, _ work: () throws -> T) rethrows -> T {
-        for retryIndex in 0 ..< times {
-            do {
-                return try work()
-            } catch {
-                logger.error("Failed to get runtime dump, error: \(error)")
-                waiter.wait(timeout: TimeInterval(retryIndex) * 2.0, description: "Pause between runtime dump retries")
-            }
-        }
-        return try work()
+        
+        let data = try Data(contentsOf: runtimeEntriesJSONPath.fileUrl)
+        return try JSONDecoder().decode([DiscoveredTestEntry].self, from: data)
     }
     
     private func buildRunnerConfiguration(

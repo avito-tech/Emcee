@@ -57,7 +57,8 @@ final class TestArgFileEntryTests: XCTestCase {
                 "developerDir": {
                     "kind": "current"
                 },
-                "pluginLocations": ["http://example.com/plugin.zip#sample.emceeplugin"],
+                "pluginLocations": [
+            {"url":"http://example.com/plugin.zip#sample.emceeplugin"}],
                 "scheduleStrategy": "unsplit",
                 "simulatorOperationTimeouts": {
                     "create": 50,

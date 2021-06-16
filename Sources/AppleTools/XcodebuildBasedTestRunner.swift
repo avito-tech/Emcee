@@ -109,7 +109,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
     }
     
     public func additionalEnvironment(testRunnerWorkingDirectory: AbsolutePath) -> [String: String] {
-        return [XcodebuildTestRunnerConstants.envXcresultPath: testRunnerWorkingDirectory.appending(component: "resultBundle.xcresult").pathString]
+        return [XcodebuildTestRunnerConstants.envXcresultPath: testRunnerWorkingDirectory.pathString.appending("/resultBundle.xcresult")]
 
     }
 }
