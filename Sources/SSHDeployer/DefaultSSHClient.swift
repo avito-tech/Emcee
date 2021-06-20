@@ -20,7 +20,7 @@ public final class DefaultSSHClient: SSHClient {
 
     public func connectAndAuthenticate() throws {
         switch authentication{
-        case .plain(let password):
+        case .password(let password):
             try ssh.authenticate(username: username, password: password)
         case .key(let path):
             try ssh.authenticate(username: username, privateKey: path)

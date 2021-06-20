@@ -6,7 +6,7 @@ public final class DeploymentDestinationFixtures {
     public var host: String = "localhost"
     public var port: Int32 = 42
     public var username: String = "user"
-    public var authentication: DeploymentDestinationAuthenticationType = .plain(password: "pass")
+    public var authentication: DeploymentDestinationAuthenticationType = .password("pass")
     public var remoteDeploymentPath: String = "/Users/username/path"
     
     public init() {}
