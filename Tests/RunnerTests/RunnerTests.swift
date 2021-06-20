@@ -505,7 +505,9 @@ public final class RunnerTests: XCTestCase {
             persistentMetricsJobId: nil,
             pluginEventBusProvider: noOpPluginEventBusProvider,
             resourceLocationResolver: resolver,
-            runnerWasteCollector: runnerWasteCollector,
+            runnerWasteCollectorProvider: FakeRunnerWasteCollectorProvider { [runnerWasteCollector] in
+                runnerWasteCollector
+            },
             specificMetricRecorder: SpecificMetricRecorderWrapper(NoOpMetricRecorder()),
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,

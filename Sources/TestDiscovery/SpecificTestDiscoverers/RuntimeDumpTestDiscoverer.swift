@@ -26,7 +26,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let pluginEventBusProvider: PluginEventBusProvider
     private let resourceLocationResolver: ResourceLocationResolver
-    private let runnerWasteCollector: RunnerWasteCollector
+    private let runnerWasteCollectorProvider: RunnerWasteCollectorProvider
     private let simulatorControlTool: SimulatorControlTool
     private let tempFolder: TemporaryFolder
     private let testEntryToQueryRuntimeDump: TestEntry
@@ -46,7 +46,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         onDemandSimulatorPool: OnDemandSimulatorPool,
         pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver,
-        runnerWasteCollector: RunnerWasteCollector,
+        runnerWasteCollectorProvider: RunnerWasteCollectorProvider,
         simulatorControlTool: SimulatorControlTool,
         tempFolder: TemporaryFolder,
         testEntryToQueryRuntimeDump: TestEntry = TestEntry(testName: TestName(className: "NonExistingTest", methodName: "fakeTest"), tags: [], caseId: nil),
@@ -65,7 +65,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
-        self.runnerWasteCollector = runnerWasteCollector
+        self.runnerWasteCollectorProvider = runnerWasteCollectorProvider
         self.simulatorControlTool = simulatorControlTool
         self.tempFolder = tempFolder
         self.testEntryToQueryRuntimeDump = testEntryToQueryRuntimeDump
@@ -99,7 +99,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             persistentMetricsJobId: configuration.analyticsConfiguration.persistentMetricsJobId,
             pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,
-            runnerWasteCollector: runnerWasteCollector,
+            runnerWasteCollectorProvider: runnerWasteCollectorProvider,
             specificMetricRecorder: specificMetricRecorder,
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,

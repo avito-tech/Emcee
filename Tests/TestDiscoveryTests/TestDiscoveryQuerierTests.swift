@@ -225,7 +225,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             pluginEventBusProvider: NoOoPluginEventBusProvider(),
             processControllerProvider: FakeProcessControllerProvider(),
             resourceLocationResolver: resourceLocationResolver,
-            runnerWasteCollector: RunnerWasteCollectorImpl(),
+            runnerWasteCollectorProvider: FakeRunnerWasteCollectorProvider(),
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,
             uniqueIdentifierGenerator: fixedValueUniqueIdentifierGenerator,

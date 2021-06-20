@@ -210,7 +210,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
                 pluginEventBusProvider: try di.get(),
                 processControllerProvider: try di.get(),
                 resourceLocationResolver: try di.get(),
-                runnerWasteCollector: try di.get(),
+                runnerWasteCollectorProvider: try di.get(),
                 tempFolder: try di.get(),
                 testRunnerProvider: try di.get(),
                 uniqueIdentifierGenerator: try di.get(),

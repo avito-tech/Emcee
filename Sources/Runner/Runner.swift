@@ -31,7 +31,7 @@ public final class Runner {
     private let pluginEventBusProvider: PluginEventBusProvider
     private let pluginTearDownQueue = OperationQueue()
     private let resourceLocationResolver: ResourceLocationResolver
-    private let runnerWasteCollector: RunnerWasteCollector
+    private let runnerWasteCollectorProvider: RunnerWasteCollectorProvider
     private let specificMetricRecorder: SpecificMetricRecorder
     private let tempFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
@@ -55,7 +55,7 @@ public final class Runner {
         persistentMetricsJobId: String?,
         pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver,
-        runnerWasteCollector: RunnerWasteCollector,
+        runnerWasteCollectorProvider: RunnerWasteCollectorProvider,
         specificMetricRecorder: SpecificMetricRecorder,
         tempFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider,
@@ -72,7 +72,7 @@ public final class Runner {
         self.persistentMetricsJobId = persistentMetricsJobId
         self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
-        self.runnerWasteCollector = runnerWasteCollector
+        self.runnerWasteCollectorProvider = runnerWasteCollectorProvider
         self.specificMetricRecorder = specificMetricRecorder
         self.tempFolder = tempFolder
         self.testRunnerProvider = testRunnerProvider
@@ -174,6 +174,7 @@ public final class Runner {
             testRunner: testRunner
         )
         
+        let runnerWasteCollector = runnerWasteCollectorProvider.createRunnerWasteCollector()
         runnerWasteCollector.scheduleCollection(path: testContext.testsWorkingDirectory)
         runnerWasteCollector.scheduleCollection(path: testContext.testRunnerWorkingDirectory)
         runnerWasteCollector.scheduleCollection(path: simulator.path.appending(relativePath: "data/Library/Caches/com.apple.containermanagerd/Dead"))
@@ -188,7 +189,7 @@ public final class Runner {
             pluginLocations: configuration.pluginLocations
         )
         defer {
-            pluginTearDownQueue.addOperation { [fileSystem, runnerWasteCollector] in
+            pluginTearDownQueue.addOperation { [fileSystem] in
                 eventBus.tearDown()
                 RunnerWasteCleanerImpl(fileSystem: fileSystem).cleanWaste(runnerWasteCollector: runnerWasteCollector)
             }

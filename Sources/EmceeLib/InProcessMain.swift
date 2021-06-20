@@ -145,8 +145,8 @@ public final class InProcessMain {
         )
         
         di.set(
-            RunnerWasteCollectorImpl(),
-            for: RunnerWasteCollector.self
+            RunnerWasteCollectorProviderImpl(),
+            for: RunnerWasteCollectorProvider.self
         )
         
         di.set(
