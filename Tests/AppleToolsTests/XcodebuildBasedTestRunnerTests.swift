@@ -117,8 +117,8 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             simulatorPath: simulator.path,
             simulatorUdid: simulator.udid,
             testDestination: simulator.testDestination,
-            testRunnerWorkingDirectory: try tempFolder.pathByCreatingDirectories(components: testRunnerWorkingDirectory.relativePath(anchorPath: tempFolder.absolutePath).components),
-            testsWorkingDirectory: try tempFolder.pathByCreatingDirectories(components: testsWorkingDirectory.relativePath(anchorPath: tempFolder.absolutePath).components)
+            testRunnerWorkingDirectory: testRunnerWorkingDirectory,
+            testsWorkingDirectory: testsWorkingDirectory
         )
     }
     

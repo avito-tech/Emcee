@@ -445,7 +445,7 @@ public final class RunnerTests: XCTestCase {
         
         assertTrue {
             runnerWasteCollector.collectedPaths.contains { path in
-                path == tempFolder.absolutePath.appending(components: [Runner.runnerWorkingDir, uniqueIdentifierGenerator.value])
+                path == tempFolder.pathWith(components: [Runner.runnerWorkingDir, uniqueIdentifierGenerator.value])
             }
         }
     }

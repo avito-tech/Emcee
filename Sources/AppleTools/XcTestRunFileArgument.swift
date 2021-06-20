@@ -11,7 +11,7 @@ import RunnerModels
 public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConvertible {
     private let buildArtifacts: BuildArtifacts
     private let entriesToRun: [TestEntry]
-    private let containerPath: AbsolutePath
+    private let path: AbsolutePath
     private let resourceLocationResolver: ResourceLocationResolver
     private let testContext: TestContext
     private let testType: TestType
@@ -31,7 +31,7 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
     public init(
         buildArtifacts: BuildArtifacts,
         entriesToRun: [TestEntry],
-        containerPath: AbsolutePath,
+        path: AbsolutePath,
         resourceLocationResolver: ResourceLocationResolver,
         testContext: TestContext,
         testType: TestType,
@@ -39,7 +39,7 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
     ) {
         self.buildArtifacts = buildArtifacts
         self.entriesToRun = entriesToRun
-        self.containerPath = containerPath
+        self.path = path
         self.resourceLocationResolver = resourceLocationResolver
         self.testContext = testContext
         self.testType = testType
@@ -47,18 +47,17 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
     }
     
     public var description: String {
-        "<\(type(of: self)) tests: \(entriesToRun.map { $0.testName }), testType \(testType), environment \(testContext.environment)>"
+        "<\(type(of: self)) tests: \(entriesToRun.map { $0.testName }), testType \(testType), environment \(testContext.environment), path: \(path)>"
     }
 
     public func stringValue() throws -> String {
         let xcTestRun = try createXcTestRun()
         let xcTestRunPlist = XcTestRunPlist(xcTestRun: xcTestRun)
-        let plistPath = containerPath.appending(component: "testrun.xctestrun")
         try xcTestRunPlist.createPlistData().write(
-            to: plistPath.fileUrl,
+            to: path.fileUrl,
             options: .atomic
         )
-        return plistPath.pathString
+        return path.pathString
     }
 
     private func createXcTestRun() throws -> XcTestRun {

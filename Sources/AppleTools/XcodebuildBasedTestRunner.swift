@@ -50,7 +50,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         let xcTestRunFile = XcTestRunFileArgument(
             buildArtifacts: buildArtifacts,
             entriesToRun: entriesToRun,
-            containerPath: testContext.testRunnerWorkingDirectory,
+            path: testContext.testRunnerWorkingDirectory.appending(component: "testrun.xctestrun"),
             resourceLocationResolver: resourceLocationResolver,
             testContext: testContext,
             testType: testType,
