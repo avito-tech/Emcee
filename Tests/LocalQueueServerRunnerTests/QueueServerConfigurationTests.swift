@@ -39,7 +39,6 @@ final class QueueServerConfigurationTests: XCTestCase {
                     "port": 22,
                     "username": "q_user",
                     "authentication": {
-                        "type": "plain",
                         "password": "pass"
                     },
                     "remoteDeploymentPath": "/remote/queue/depl/path"
@@ -54,7 +53,6 @@ final class QueueServerConfigurationTests: XCTestCase {
                       "port": 1,
                       "username": "username",
                       "authentication": {
-                          "type": "plain",
                           "password": "pass"
                       },
                       "remoteDeploymentPath": "/remote/deployment/path"
@@ -107,8 +105,7 @@ final class QueueServerConfigurationTests: XCTestCase {
                 "port": 1,
                 "username": "username",
                 "authentication": {
-                    "type": "key",
-                    "path": "key"
+                    "keyPath": "/path/to/key"
                 },
                 "remoteDeploymentPath": "/remote/deployment/path"
             }
@@ -117,7 +114,7 @@ final class QueueServerConfigurationTests: XCTestCase {
         let config = try JSONDecoder().decode(DeploymentDestination.self, from: data)
         XCTAssertEqual(
             config,
-            DeploymentDestination(host: "host", port: 1, username: "username", authentication: .key(path: "key"), remoteDeploymentPath: "/remote/deployment/path")
+            DeploymentDestination(host: "host", port: 1, username: "username", authentication: .key(path: "/path/to/key"), remoteDeploymentPath: "/remote/deployment/path")
         )
     }
 }

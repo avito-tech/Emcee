@@ -23,7 +23,7 @@ public final class DefaultSSHClient: SSHClient {
         case .password(let password):
             try ssh.authenticate(username: username, password: password)
         case .key(let path):
-            try ssh.authenticate(username: username, privateKey: path)
+            try ssh.authenticate(username: username, privateKey: path.pathString)
         }
     }
     

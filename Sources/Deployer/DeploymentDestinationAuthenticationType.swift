@@ -1,8 +1,9 @@
 import Foundation
+import PathLib
 
 public enum DeploymentDestinationAuthenticationType: Codable, CustomStringConvertible, Equatable, Hashable {
     case password(String)
-    case key(path: String)
+    case key(path: AbsolutePath)
     
     public var description: String {
         switch self {
@@ -14,25 +15,16 @@ public enum DeploymentDestinationAuthenticationType: Codable, CustomStringConver
     }
     
     private enum CodingKeys: String, CodingKey {
-        case type
         case password
-        case path
-    }
-    
-    private enum AuthType: String, Codable {
-        case plain
-        case key
+        case keyPath
     }
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let type = try container.decode(AuthType.self, forKey: .type)
-
-        switch type {
-        case .plain:
+        do {
             self = .password(try container.decode(String.self, forKey: .password))
-        case .key:
-            self = .key(path: try container.decode(String.self, forKey: .path))
+        } catch {
+            self = .key(path: try container.decode(AbsolutePath.self, forKey: .keyPath))
         }
     }
     
@@ -40,11 +32,9 @@ public enum DeploymentDestinationAuthenticationType: Codable, CustomStringConver
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch self {
         case .password(let password):
-            try container.encode(AuthType.plain, forKey: .type)
             try container.encode(password, forKey: .password)
         case .key(let path):
-            try container.encode(AuthType.key, forKey: .type)
-            try container.encode(path, forKey: .path)
+            try container.encode(path, forKey: .keyPath)
         }
     }
 }

@@ -1,4 +1,5 @@
 import Foundation
+import PathLib
 import QueueModels
 
 public struct DeploymentDestination: Codable, CustomStringConvertible, Hashable {
@@ -7,7 +8,7 @@ public struct DeploymentDestination: Codable, CustomStringConvertible, Hashable 
     public let port: Int32
     public let username: String
     public let authentication: DeploymentDestinationAuthenticationType
-    public let remoteDeploymentPath: String
+    public let remoteDeploymentPath: AbsolutePath
     
     enum CodingKeys: String, CodingKey {
         case host
@@ -23,14 +24,15 @@ public struct DeploymentDestination: Codable, CustomStringConvertible, Hashable 
         let port = try container.decode(Int32.self, forKey: .port)
         let username = try container.decode(String.self, forKey: .username)
         let authentication = try container.decode(DeploymentDestinationAuthenticationType.self, forKey: .authentication)
-        let remoteDeploymentPath = try container.decode(String.self, forKey: .remoteDeploymentPath)
+        let remoteDeploymentPath = try container.decode(AbsolutePath.self, forKey: .remoteDeploymentPath)
         
         self.init(
             host: host,
             port: port,
             username: username,
             authentication: authentication,
-            remoteDeploymentPath: remoteDeploymentPath)
+            remoteDeploymentPath: remoteDeploymentPath
+        )
     }
 
     public init(
@@ -38,8 +40,8 @@ public struct DeploymentDestination: Codable, CustomStringConvertible, Hashable 
         port: Int32,
         username: String,
         authentication: DeploymentDestinationAuthenticationType,
-        remoteDeploymentPath: String)
-    {
+        remoteDeploymentPath: AbsolutePath
+    ) {
         self.workerId = WorkerId(value: host)
         self.host = host
         self.port = port

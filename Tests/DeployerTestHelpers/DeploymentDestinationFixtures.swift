@@ -1,5 +1,6 @@
 import Deployer
 import Foundation
+import PathLib
 
 public final class DeploymentDestinationFixtures {
     
@@ -7,7 +8,7 @@ public final class DeploymentDestinationFixtures {
     public var port: Int32 = 42
     public var username: String = "user"
     public var authentication: DeploymentDestinationAuthenticationType = .password("pass")
-    public var remoteDeploymentPath: String = "/Users/username/path"
+    public var remoteDeploymentPath = AbsolutePath("/Users/username/path")
     
     public init() {}
     
@@ -31,7 +32,7 @@ public final class DeploymentDestinationFixtures {
         return self
     }
     
-    public func with(remoteDeploymentPath: String) -> DeploymentDestinationFixtures {
+    public func with(remoteDeploymentPath: AbsolutePath) -> DeploymentDestinationFixtures {
         self.remoteDeploymentPath = remoteDeploymentPath
         return self
     }

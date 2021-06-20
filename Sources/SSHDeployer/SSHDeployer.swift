@@ -54,8 +54,9 @@ public final class SSHDeployer: Deployer {
         destination: DeploymentDestination,
         deploymentId: String
     ) -> AbsolutePath {
-        return AbsolutePath(destination.remoteDeploymentPath)
-            .appending(components: [deploymentId, deployable.name])
+        return destination.remoteDeploymentPath.appending(
+            components: [deploymentId, deployable.name]
+        )
     }
     
     public static func remotePath(
