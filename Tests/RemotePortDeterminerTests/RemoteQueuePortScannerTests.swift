@@ -8,6 +8,7 @@ import RequestSender
 import RequestSenderTestHelpers
 import SocketModels
 import Swifter
+import TestHelpers
 import XCTest
 
 final class RemoteQueuePortScannerTests: XCTestCase {
@@ -15,7 +16,7 @@ final class RemoteQueuePortScannerTests: XCTestCase {
     
     func test___scanning_ports_without_queue___returns_empty_result() throws {
         let scanner = RemoteQueuePortScanner(
-            host: "localhost",
+            hosts: ["localhost"],
             logger: .noOp,
             portRange: 12000...12005,
             requestSenderProvider: requestSenderProvider
@@ -37,12 +38,17 @@ final class RemoteQueuePortScannerTests: XCTestCase {
         let port = SocketModels.Port(value: try server.port())
         
         let scanner = RemoteQueuePortScanner(
-            host: "localhost",
+            hosts: [
+                "localhost"
+            ],
             logger: .noOp,
             portRange: port...port,
             requestSenderProvider: requestSenderProvider
         )
         let result = scanner.queryPortAndQueueServerVersion(timeout: 10.0)
-        XCTAssertEqual(result, [port: expectedVersion])
+        XCTAssertEqual(
+            result,
+            [SocketAddress(host: "localhost", port: port): expectedVersion]
+        )
     }
 }

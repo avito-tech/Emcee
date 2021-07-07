@@ -3,5 +3,5 @@ import QueueModels
 import SocketModels
 
 public protocol RemotePortDeterminer {
-    func queryPortAndQueueServerVersion(timeout: TimeInterval) -> [SocketModels.Port: Version]
+    func queryPortAndQueueServerVersion(timeout: TimeInterval) -> [SocketAddress: Version]
 }

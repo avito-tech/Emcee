@@ -10,7 +10,7 @@ public protocol QueueCommunicationService {
     )
     
     func deploymentDestinations(
-        port: SocketModels.Port,
+        socketAddress: SocketAddress,
         completion: @escaping (Either<[DeploymentDestination], Error>) -> ()
     )
 }

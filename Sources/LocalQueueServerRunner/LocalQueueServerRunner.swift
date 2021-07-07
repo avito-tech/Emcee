@@ -87,11 +87,11 @@ public final class LocalQueueServerRunner {
     }
     
     private func ensureQueueWithMatchingVersionIsNotRunning(version: Version) throws {
-        let portToQueueServerVersion = remotePortDeterminer.queryPortAndQueueServerVersion(timeout: 10)
+        let addressToQueueServerVersion = remotePortDeterminer.queryPortAndQueueServerVersion(timeout: 10)
         
-        try portToQueueServerVersion.forEach { (item: (key: SocketModels.Port, value: Version)) in
+        try addressToQueueServerVersion.forEach { (item: (key: SocketAddress, value: Version)) in
             if item.value == version {
-                throw LocalQueueServerError.sameVersionQueueIsAlreadyRunning(port: item.key, version: version)
+                throw LocalQueueServerError.sameVersionQueueIsAlreadyRunning(address: item.key, version: version)
             }
         }
     }

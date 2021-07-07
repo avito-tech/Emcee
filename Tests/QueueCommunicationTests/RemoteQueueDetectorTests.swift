@@ -2,6 +2,7 @@ import Foundation
 import QueueCommunication
 import QueueModels
 import RemotePortDeterminerTestHelpers
+import SocketModels
 import XCTest
 
 final class RemoteQueueDetectorTests: XCTestCase {
@@ -21,8 +22,9 @@ final class RemoteQueueDetectorTests: XCTestCase {
     }
     
     func test___findSuitableRemoteRunningQueuePorts___when_no_matching_queue_running___returns_empty_result() {
-        let remotePortDeterminer = RemotePortDeterminerFixture(result: [42: Version(value: "remote_version")])
-            .build()
+        let remotePortDeterminer = RemotePortDeterminerFixture(result: [
+            SocketAddress(host: "host", port: 42): Version(value: "remote_version")
+        ]).build()
         
         let detector = DefaultRemoteQueueDetector(
             emceeVersion: "local_version",
@@ -51,7 +53,10 @@ final class RemoteQueueDetectorTests: XCTestCase {
         
         XCTAssertEqual(
             try detector.findSuitableRemoteRunningQueuePorts(timeout: 10.0),
-            [42, 44]
+            [
+                SocketAddress(host: "host", port: 42),
+                SocketAddress(host: "host", port: 44),
+            ]
         )
     }
     
@@ -64,7 +69,7 @@ final class RemoteQueueDetectorTests: XCTestCase {
             remotePortDeterminer: remotePortDeterminer
         )
         
-        XCTAssertThrowsError(try detector.findMasterQueuePort(timeout: 10))
+        XCTAssertThrowsError(try detector.findMasterQueueAddress(timeout: 10))
     }
     
     func test___findMasterQueuePort___with_one_local_queue_running() {
@@ -79,7 +84,7 @@ final class RemoteQueueDetectorTests: XCTestCase {
             remotePortDeterminer: remotePortDeterminer
         )
         
-        XCTAssertEqual(try detector.findMasterQueuePort(timeout: 10), 42)
+        XCTAssertEqual(try detector.findMasterQueueAddress(timeout: 10).port, 42)
     }
     
     func test___findMasterQueuePort___with_one_remote_queue_running() {
@@ -94,7 +99,7 @@ final class RemoteQueueDetectorTests: XCTestCase {
             remotePortDeterminer: remotePortDeterminer
         )
         
-        XCTAssertEqual(try detector.findMasterQueuePort(timeout: 10), 42)
+        XCTAssertEqual(try detector.findMasterQueueAddress(timeout: 10).port, 42)
     }
     
     func test___findMasterQueuePort___with_many_queues_running_lexicographical_order() {
@@ -111,7 +116,7 @@ final class RemoteQueueDetectorTests: XCTestCase {
             remotePortDeterminer: remotePortDeterminer
         )
         
-        XCTAssertEqual(try detector.findMasterQueuePort(timeout: 10), 44)
+        XCTAssertEqual(try detector.findMasterQueueAddress(timeout: 10).port, 44)
     }
     
     func test___findMasterQueuePort___with_many_queues_running_length_order() {
@@ -128,7 +133,7 @@ final class RemoteQueueDetectorTests: XCTestCase {
             remotePortDeterminer: remotePortDeterminer
         )
         
-        XCTAssertEqual(try detector.findMasterQueuePort(timeout: 10), 42)
+        XCTAssertEqual(try detector.findMasterQueueAddress(timeout: 10).port, 42)
     }
 }
 

@@ -4,15 +4,21 @@ import RemotePortDeterminer
 import SocketModels
 
 public final class RemotePortDeterminerFixture: RemotePortDeterminer {
-    private var result = [SocketModels.Port: Version]()
+    private var result = [SocketAddress: Version]()
 
-    public init(result: [SocketModels.Port: Version] = [:]) {
+    public init(result: [SocketAddress: Version] = [:]) {
         self.result = result
     }
     
     @discardableResult
+    public func set(socketAddress: SocketAddress, version: Version) -> RemotePortDeterminerFixture {
+        result.updateValue(version, forKey: socketAddress)
+        return self
+    }
+
+    @discardableResult
     public func set(port: SocketModels.Port, version: Version) -> RemotePortDeterminerFixture {
-        result.updateValue(version, forKey: port)
+        result.updateValue(version, forKey: SocketAddress(host: "host", port: port))
         return self
     }
     
@@ -20,7 +26,7 @@ public final class RemotePortDeterminerFixture: RemotePortDeterminer {
         return self
     }
     
-    public func queryPortAndQueueServerVersion(timeout: TimeInterval) -> [SocketModels.Port: Version] {
+    public func queryPortAndQueueServerVersion(timeout: TimeInterval) -> [SocketAddress: Version] {
         return result
     }
 }

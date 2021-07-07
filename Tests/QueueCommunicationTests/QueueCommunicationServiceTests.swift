@@ -17,7 +17,6 @@ class QueueCommunicationServiceTests: XCTestCase {
         remoteQueueDetector: remoteQueueDetector,
         requestSenderProvider: requestSenderProvider,
         requestTimeout: 10,
-        socketHost: "host",
         version: "Version"
     )
         
@@ -35,7 +34,7 @@ class QueueCommunicationServiceTests: XCTestCase {
     }
     
     func test___workersToUtilize___return_error_if_request_is_failed() {
-        remoteQueueDetector.masterPort = 1337
+        remoteQueueDetector.masterAddress = SocketAddress(host: "host", port: 1337)
         requestSender.requestSenderError = .noData
         let completionCalled = expectation(description: "Completion is called")
         
@@ -49,7 +48,7 @@ class QueueCommunicationServiceTests: XCTestCase {
     }
     
     func test___workersToUtilize___return_worker_ids_if_request_is_successfull() {
-        remoteQueueDetector.masterPort = 1337
+        remoteQueueDetector.masterAddress = SocketAddress(host: "host", port: 1337)
         let expectedWorkerId: Set<WorkerId> = [
             WorkerId(value: "1"),
             WorkerId(value: "2"),

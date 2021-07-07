@@ -289,6 +289,7 @@ let package = Package(
             name: "DeployerTestHelpers",
             dependencies: [
                 "Deployer",
+                .product(name: "PathLib", package: "CommandLineToolkit"),
             ],
             path: "Tests/DeployerTestHelpers"
         ),
@@ -1266,6 +1267,7 @@ let package = Package(
                 "RequestSenderTestHelpers",
                 .product(name: "SocketModels", package: "CommandLineToolkit"),
                 .product(name: "Swifter", package: "Swifter"),
+                .product(name: "TestHelpers", package: "CommandLineToolkit"),
             ],
             path: "Tests/RemotePortDeterminerTests"
         ),

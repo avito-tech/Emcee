@@ -90,7 +90,7 @@ public final class StartQueueServerCommand: Command {
         
         let socketHost = LocalHostDeterminer.currentHostAddress
         let remotePortDeterminer = RemoteQueuePortScanner(
-            host: socketHost,
+            hosts: [socketHost],
             logger: logger,
             portRange: EmceePorts.defaultQueuePortRange,
             requestSenderProvider: try di.get()
@@ -104,7 +104,6 @@ public final class StartQueueServerCommand: Command {
             ),
             requestSenderProvider: try di.get(),
             requestTimeout: 10,
-            socketHost: socketHost,
             version: emceeVersion
         )
         let workerUtilizationStatusPoller = DefaultWorkerUtilizationStatusPoller(

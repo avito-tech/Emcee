@@ -2,12 +2,12 @@ import QueueModels
 import SocketModels
 
 public enum LocalQueueServerError: Error, CustomStringConvertible {
-    case sameVersionQueueIsAlreadyRunning(port: Port, version: Version)
+    case sameVersionQueueIsAlreadyRunning(address: SocketAddress, version: Version)
     
     public var description: String {
         switch self {
-        case .sameVersionQueueIsAlreadyRunning(let port, let version):
-            return "Queue server with version \(version) is already running on port \(port)"
+        case let .sameVersionQueueIsAlreadyRunning(address, version):
+            return "Queue server with version \(version) is already running at \(address)"
         }
     }
 }

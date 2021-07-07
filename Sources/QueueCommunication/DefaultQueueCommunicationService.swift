@@ -13,7 +13,6 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
     private let requestSenderProvider: RequestSenderProvider
     private let remoteQueueDetector: RemoteQueueDetector
     private let requestTimeout: TimeInterval
-    private let socketHost: String
     private let version: Version
     private let callbackQueue = DispatchQueue(
         label: "RuntimeDumpRemoteCache.callbackQueue",
@@ -26,14 +25,12 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
         remoteQueueDetector: RemoteQueueDetector,
         requestSenderProvider: RequestSenderProvider,
         requestTimeout: TimeInterval,
-        socketHost: String,
         version: Version
     ) {
         self.logger = logger
         self.remoteQueueDetector = remoteQueueDetector
         self.requestSenderProvider = requestSenderProvider
         self.requestTimeout = requestTimeout
-        self.socketHost = socketHost
         self.version = version
     }
     
@@ -42,10 +39,10 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
         completion: @escaping (Either<Set<WorkerId>, Error>) -> ()
     ) {
         do {
-            let masterPort = try remoteQueueDetector.findMasterQueuePort(timeout: requestTimeout)
+            let masterQueueAddress = try remoteQueueDetector.findMasterQueueAddress(timeout: requestTimeout)
 
             let requestSender = requestSenderProvider.requestSender(
-                socketAddress: SocketAddress(host: socketHost, port: masterPort)
+                socketAddress: masterQueueAddress
             )
 
             let payload = WorkersToUtilizePayload(deployments: deployments, version: version)
@@ -71,11 +68,11 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
     }
     
     public func deploymentDestinations(
-        port: SocketModels.Port,
+        socketAddress: SocketAddress,
         completion: @escaping (Either<[DeploymentDestination], Error>) -> ()
     ) {
         let requestSender = requestSenderProvider.requestSender(
-            socketAddress: SocketAddress(host: socketHost, port: port)
+            socketAddress: socketAddress
         )
         
         requestSender.sendRequestWithCallback(

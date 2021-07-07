@@ -46,19 +46,19 @@ public class DefaultWorkersToUtilizeService: WorkersToUtilizeService {
     }
     
     private func composeQueuesMapping() -> WorkersPerVersion {
-        let portToVersion = portDeterminer.queryPortAndQueueServerVersion(timeout: 30)
+        let socketToVersion = portDeterminer.queryPortAndQueueServerVersion(timeout: 30)
         var mapping = WorkersPerVersion()
         let dispatchGroup = DispatchGroup()
 
-        for (port, version) in portToVersion {
+        for (socketAddress, version) in socketToVersion {
             dispatchGroup.enter()
-            communicationService.deploymentDestinations(port: port) { result in
+            communicationService.deploymentDestinations(socketAddress: socketAddress) { result in
                 defer { dispatchGroup.leave() }
                 do {
                     let workers = try result.dematerialize().workerIds()
                     mapping[version] = workers
                 } catch {
-                    self.logger.error("Error in obtaining deployment destinations for queue at port \(port) with error \(error.localizedDescription)")
+                    self.logger.error("Error in obtaining deployment destinations for queue at \(socketAddress.asString) with error \(error.localizedDescription)")
                 }
             }
         }

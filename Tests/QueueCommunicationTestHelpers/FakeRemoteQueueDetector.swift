@@ -6,18 +6,16 @@ import TestHelpers
 public class FakeRemoteQueueDetector: RemoteQueueDetector {
     public init() { }
     
-    public func findSuitableRemoteRunningQueuePorts(timeout: TimeInterval) throws -> Set<SocketModels.Port> {
+    public func findSuitableRemoteRunningQueuePorts(timeout: TimeInterval) throws -> Set<SocketAddress> {
         return Set()
     }
     
     public var shoudThrow = false
-    public var masterPort: SocketModels.Port = 0
-    public func findMasterQueuePort(timeout: TimeInterval) throws -> SocketModels.Port {
+    public var masterAddress = SocketAddress(host: "localhost", port: 0)
+    public func findMasterQueueAddress(timeout: TimeInterval) throws -> SocketAddress {
         if shoudThrow {
             throw ErrorForTestingPurposes(text: "FindMasterQueuePort error")
         }
-        return masterPort
+        return masterAddress
     }
-    
-    
 }

@@ -27,16 +27,16 @@ public class FakeQueueCommunicationService: QueueCommunicationService {
         completionHandler(completion)
     }
     
-    public var deploymentDestinationsCallPorts = [Port]()
-    public var workersPerPort: [Port: [WorkerId]] = [:]
+    public var deploymentDestinationsCallAddresses = [SocketAddress]()
+    public var workersPerSocketAddress: [SocketAddress: [WorkerId]] = [:]
     public var deploymentDestinationsAsync = false
     public func deploymentDestinations(
-        port: Port,
+        socketAddress: SocketAddress,
         completion: @escaping (Either<[DeploymentDestination], Error>) -> ())
     {
-        deploymentDestinationsCallPorts.append(port)
+        deploymentDestinationsCallAddresses.append(socketAddress)
         
-        let deployents = (workersPerPort[port] ?? []).map { DeploymentDestinationFixtures().with(host: $0.value).build() }
+        let deployents = (workersPerSocketAddress[socketAddress] ?? []).map { DeploymentDestinationFixtures().with(host: $0.value).build() }
         
         if deploymentDestinationsAsync {
             callbackQueue.asyncAfter(deadline: .now() + 1) {
