@@ -1,17 +1,8 @@
 import DI
-import DateProvider
-import DeveloperDirLocator
 import EmceeLogging
-import FileSystem
 import Foundation
-import Metrics
-import ProcessController
 import QueueModels
-import ResourceLocationResolver
 import SimulatorPool
-import SimulatorPoolModels
-import Tmp
-import UniqueIdentifierGenerator
 
 public final class OnDemandSimulatorPoolFactory {
     public static func create(
@@ -22,7 +13,6 @@ public final class OnDemandSimulatorPoolFactory {
     ) throws -> OnDemandSimulatorPool {
         DefaultOnDemandSimulatorPool(
             logger: logger,
-            resourceLocationResolver: try di.get(),
             simulatorControllerProvider: DefaultSimulatorControllerProvider(
                 additionalBootAttempts: 2,
                 developerDirLocator: try di.get(),
@@ -32,7 +22,6 @@ public final class OnDemandSimulatorPoolFactory {
                 simulatorStateMachineActionExecutorProvider: SimulatorStateMachineActionExecutorProviderImpl(
                     dateProvider: try di.get(),
                     processControllerProvider: try di.get(),
-                    resourceLocationResolver: try di.get(),
                     simulatorSetPathDeterminer: SimulatorSetPathDeterminerImpl(
                         fileSystem: try di.get(),
                         temporaryFolder: try di.get(),

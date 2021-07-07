@@ -27,10 +27,6 @@ final class JobStateEndpointTests: XCTestCase, JobStateProvider {
         return jobState
     }
     
-    var allJobStates: [JobState] {
-        return [jobState]
-    }
-    
     func test___does_not_indicate_activity() {
         let endpoint = JobStateEndpoint(stateProvider: self)
         

@@ -775,7 +775,6 @@ let package = Package(
                 "ScheduleStrategy",
                 .product(name: "SocketModels", package: "CommandLineToolkit"),
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
-                .product(name: "Tmp", package: "CommandLineToolkit"),
                 "UniqueIdentifierGenerator",
             ],
             path: "Tests/LocalQueueServerRunnerTests"
@@ -1429,7 +1428,6 @@ let package = Package(
                 "PluginManager",
                 .product(name: "ProcessController", package: "CommandLineToolkit"),
                 "QueueModels",
-                "ResourceLocationResolver",
                 "RunnerModels",
                 "SimulatorPoolModels",
                 .product(name: "Statsd", package: "CommandLineToolkit"),
@@ -1465,7 +1463,6 @@ let package = Package(
                 "RunnerModels",
                 "SimulatorPoolModels",
                 "SimulatorPoolTestHelpers",
-                .product(name: "Tmp", package: "CommandLineToolkit"),
             ],
             path: "Tests/RunnerTestHelpers"
         ),
@@ -1487,7 +1484,6 @@ let package = Package(
                 .product(name: "ProcessController", package: "CommandLineToolkit"),
                 .product(name: "ProcessControllerTestHelpers", package: "CommandLineToolkit"),
                 "QueueModels",
-                "ResourceLocationResolverTestHelpers",
                 "Runner",
                 "RunnerModels",
                 "RunnerTestHelpers",

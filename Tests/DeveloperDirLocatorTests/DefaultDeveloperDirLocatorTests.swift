@@ -9,7 +9,6 @@ import XCTest
 
 final class DefaultDeveloperDirLocatorTests: XCTestCase {
     let currentDeveloperDirPath = AbsolutePath("/expected/path/to/developer/dir")
-    lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     
     lazy var processControllerProvider = FakeProcessControllerProvider() { subprocess -> ProcessController in
         XCTAssertEqual(

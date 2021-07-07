@@ -13,7 +13,6 @@ final class FileHandleLoggerHandlerTests: XCTestCase {
         fileHandle: tempFile.fileHandleForWriting,
         verbosity: .info,
         logEntryTextFormatter: SimpleLogEntryTextFormatter(),
-        supportsAnsiColors: false,
         fileHandleShouldBeClosed: true,
         skipMetadataFlag: nil
     )
@@ -76,7 +75,6 @@ final class FileHandleLoggerHandlerTests: XCTestCase {
             fileHandle: fileHandler,
             verbosity: .always,
             logEntryTextFormatter: SimpleLogEntryTextFormatter(),
-            supportsAnsiColors: false,
             fileHandleShouldBeClosed: false,
             skipMetadataFlag: nil
         )
@@ -92,7 +90,6 @@ final class FileHandleLoggerHandlerTests: XCTestCase {
             fileHandle: fileHandler,
             verbosity: .always,
             logEntryTextFormatter: SimpleLogEntryTextFormatter(),
-            supportsAnsiColors: false,
             fileHandleShouldBeClosed: true,
             skipMetadataFlag: nil
         )
@@ -108,7 +105,6 @@ final class FileHandleLoggerHandlerTests: XCTestCase {
             fileHandle: fileHandler,
             verbosity: .always,
             logEntryTextFormatter: SimpleLogEntryTextFormatter(),
-            supportsAnsiColors: false,
             fileHandleShouldBeClosed: true,
             skipMetadataFlag: nil
         )

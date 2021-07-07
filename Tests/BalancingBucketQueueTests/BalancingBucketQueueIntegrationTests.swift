@@ -475,7 +475,6 @@ final class BalancingBucketQueueIntegrationTests: XCTestCase {
         workerAlivenessProvider: workerAlivenessProvider,
         workerCapabilitiesStorage: WorkerCapabilitiesStorageImpl()
     )
-    lazy var checkAgainTimeInterval: TimeInterval = 42
     lazy var dateProvider = DateProviderFixture()
     lazy var highlyPrioritizedJob = PrioritizedJob(
         analyticsConfiguration: analyticsConfiguration,

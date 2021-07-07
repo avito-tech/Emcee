@@ -27,7 +27,6 @@ final class BucketQueueTests: XCTestCase {
         logger: .noOp,
         workerPermissionProvider: FakeWorkerPermissionProvider()
     )
-    lazy var workerConfigurations = WorkerConfigurations()
     lazy var workerId: WorkerId = "worker_id"
     let capableWorkerId: WorkerId = "capableWorkerId"
     

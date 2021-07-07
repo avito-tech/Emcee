@@ -437,10 +437,3 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         )
     }
 }
-
-private extension RSAbstractStreamedEvent {
-    func data() throws -> Data {
-        let encoder = JSONEncoder()
-        return try encoder.encode(self)
-    }
-}

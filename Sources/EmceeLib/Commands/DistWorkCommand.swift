@@ -73,7 +73,6 @@ public final class DistWorkCommand: Command {
         
         try startWorker(
             distWorker: distWorker,
-            emceeVersion: emceeVersion,
             logger: logger
         )
     }
@@ -125,7 +124,6 @@ public final class DistWorkCommand: Command {
         
     private func startWorker(
         distWorker: DistWorker,
-        emceeVersion: Version,
         logger: ContextualLogger
     ) throws {
         var isWorking = true

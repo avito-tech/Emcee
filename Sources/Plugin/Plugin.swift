@@ -14,7 +14,6 @@ public final class Plugin {
     private let eventBus: EventBus
     public let logger: ContextualLogger
     private let jsonReaderQueue = DispatchQueue(label: "Plugin.jsonReaderQueue")
-    private let stdinReadQueue = DispatchQueue(label: "Plugin.stdinReadQueue")
     private let jsonInputStream = BlockingArrayBasedJSONStream()
     private let jsonStreamToEventBusAdapter: JSONStreamToEventBusAdapter
     private var jsonStreamHasFinished = false

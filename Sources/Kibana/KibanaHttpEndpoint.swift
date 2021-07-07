@@ -44,7 +44,7 @@ public struct KibanaHttpEndpoint {
         KibanaHttpEndpoint(scheme: .https, socketAddress: socketAddress)
     }
     
-    public func singleEventUrl(indexPattern: String, date: Date) throws -> URL {
+    public func singleEventUrl(indexPattern: String) throws -> URL {
         struct FailedToBuildUrlError: Error, CustomStringConvertible {
             let scheme: Scheme
             let socketAddress: SocketAddress

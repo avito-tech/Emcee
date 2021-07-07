@@ -29,7 +29,6 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
         )
     )
     lazy var testName = TestName(className: "class", methodName: "test")
-    lazy var testContext = TestContextFixtures().testContext
     lazy var testStoppedEvent = TestStoppedEvent(
         testName: testName,
         result: .failure,

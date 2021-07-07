@@ -18,7 +18,6 @@ public final class KickstartCommand: Command {
     ]
     
     private let callbackQueue = DispatchQueue(label: "KickstartCommand.callbackQueue")
-    private let processingQueue = DispatchQueue(label: "KickstartCommand.processingQueue", attributes: .concurrent, target: DispatchQueue.global(qos: .default))
     private let requestSenderProvider: RequestSenderProvider
     private let logger: ContextualLogger
     

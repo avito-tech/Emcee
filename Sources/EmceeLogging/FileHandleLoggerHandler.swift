@@ -22,7 +22,6 @@ public final class FileHandleLoggerHandler: LoggerHandler {
         fileHandle: FileHandle,
         verbosity: Verbosity,
         logEntryTextFormatter: LogEntryTextFormatter,
-        supportsAnsiColors: Bool,
         fileHandleShouldBeClosed: Bool,
         skipMetadataFlag: SkipMetadataFlag?
     ) {

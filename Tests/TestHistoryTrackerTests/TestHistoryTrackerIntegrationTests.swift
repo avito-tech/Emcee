@@ -26,8 +26,6 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
 
     private lazy var oneFailResultsFixtures = TestingResultFixtures()
         .addingResult(success: false)
-    private lazy var oneSuccessResultsFixtures = TestingResultFixtures()
-        .addingResult(success: true)
     private lazy var bucketFixture = BucketFixtures.createBucket(
         bucketId: BucketId(value: fixedIdentifier)
     )

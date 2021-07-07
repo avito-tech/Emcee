@@ -13,7 +13,6 @@ import PathLib
 import PluginManager
 import ProcessController
 import QueueModels
-import ResourceLocationResolver
 import RunnerModels
 import SimulatorPoolModels
 import SynchronousWaiter
@@ -30,7 +29,6 @@ public final class Runner {
     private let persistentMetricsJobId: String?
     private let pluginEventBusProvider: PluginEventBusProvider
     private let pluginTearDownQueue = OperationQueue()
-    private let resourceLocationResolver: ResourceLocationResolver
     private let runnerWasteCollectorProvider: RunnerWasteCollectorProvider
     private let specificMetricRecorder: SpecificMetricRecorder
     private let tempFolder: TemporaryFolder
@@ -54,7 +52,6 @@ public final class Runner {
         logger: ContextualLogger,
         persistentMetricsJobId: String?,
         pluginEventBusProvider: PluginEventBusProvider,
-        resourceLocationResolver: ResourceLocationResolver,
         runnerWasteCollectorProvider: RunnerWasteCollectorProvider,
         specificMetricRecorder: SpecificMetricRecorder,
         tempFolder: TemporaryFolder,
@@ -71,7 +68,6 @@ public final class Runner {
         self.logger = logger
         self.persistentMetricsJobId = persistentMetricsJobId
         self.pluginEventBusProvider = pluginEventBusProvider
-        self.resourceLocationResolver = resourceLocationResolver
         self.runnerWasteCollectorProvider = runnerWasteCollectorProvider
         self.specificMetricRecorder = specificMetricRecorder
         self.tempFolder = tempFolder

@@ -93,8 +93,4 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
             }
         }
     }
-    
-    internal func numberExistingOfControllers() -> Int {
-        return syncQueue.sync { controllers.count }
-    }
 }

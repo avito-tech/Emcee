@@ -16,7 +16,6 @@ final class RequestParserTests: XCTestCase {
         }
     }
     
-    let encoder = JSONEncoder()
     let decoder = JSONDecoder()
     
     private typealias TypeThatMatchesDefaultRequest = [String: Int]

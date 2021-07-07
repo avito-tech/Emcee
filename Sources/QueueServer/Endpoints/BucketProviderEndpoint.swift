@@ -18,7 +18,6 @@ public final class BucketProviderEndpoint: PayloadSignatureVerifyingRESTEndpoint
     private let checkAfter: TimeInterval
     private let dequeueableBucketSource: DequeueableBucketSource
     private let workerAlivenessProvider: WorkerAlivenessProvider
-    private let workerCapabilitiesStorage: WorkerCapabilitiesStorage
     public let expectedPayloadSignature: PayloadSignature
     public let path: RESTPath = RESTMethod.getBucket
     public let requestIndicatesActivity = false
@@ -27,14 +26,12 @@ public final class BucketProviderEndpoint: PayloadSignatureVerifyingRESTEndpoint
         checkAfter: TimeInterval,
         dequeueableBucketSource: DequeueableBucketSource,
         expectedPayloadSignature: PayloadSignature,
-        workerAlivenessProvider: WorkerAlivenessProvider,
-        workerCapabilitiesStorage: WorkerCapabilitiesStorage
+        workerAlivenessProvider: WorkerAlivenessProvider
     ) {
         self.checkAfter = checkAfter
         self.dequeueableBucketSource = dequeueableBucketSource
         self.expectedPayloadSignature = expectedPayloadSignature
         self.workerAlivenessProvider = workerAlivenessProvider
-        self.workerCapabilitiesStorage = workerCapabilitiesStorage
     }
     
     public func handle(verifiedPayload: DequeueBucketPayload) throws -> DequeueBucketResponse {

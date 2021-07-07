@@ -112,23 +112,12 @@ public final class LoggingSetup {
         }
     }
     
-    private func createLoggerHandlers(
-        stderrVerbosity: Verbosity,
-        detaildLogFileHandle: FileHandle
-    ) -> [LoggerHandler] {
-        return [
-            createStderrInfoLoggerHandler(verbosity: stderrVerbosity),
-            createDetailedLoggerHandler(fileHandle: detaildLogFileHandle)
-        ]
-    }
-    
     private func createStderrInfoLoggerHandler(verbosity: Verbosity) -> LoggerHandler {
         return FileHandleLoggerHandler(
             dateProvider: dateProvider,
             fileHandle: FileHandle.standardError,
             verbosity: verbosity,
             logEntryTextFormatter: NSLogLikeLogEntryTextFormatter(),
-            supportsAnsiColors: true,
             fileHandleShouldBeClosed: false,
             skipMetadataFlag: .skipStdOutput
         )
@@ -140,7 +129,6 @@ public final class LoggingSetup {
             fileHandle: fileHandle,
             verbosity: Verbosity.verboseDebug,
             logEntryTextFormatter: NSLogLikeLogEntryTextFormatter(),
-            supportsAnsiColors: false,
             fileHandleShouldBeClosed: true,
             skipMetadataFlag: .skipFileOutput
         )

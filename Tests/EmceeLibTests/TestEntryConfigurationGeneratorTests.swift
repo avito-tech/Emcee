@@ -23,8 +23,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
         xcTestBundle: "1",
         additionalApplicationBundles: ["1", "2"]
     )
-    lazy var argFileDestination1 = assertDoesNotThrow { try TestDestination(deviceType: UUID().uuidString, runtime: "10.1") }
-    lazy var argFileDestination2 = assertDoesNotThrow { try TestDestination(deviceType: UUID().uuidString, runtime: "10.2") }
+    lazy var argFileDestination = assertDoesNotThrow { try TestDestination(deviceType: UUID().uuidString, runtime: "10.1") }
     lazy var simulatorSettings = SimulatorSettingsFixtures().simulatorSettings()
     lazy var testTimeoutConfiguration = TestTimeoutConfiguration(singleTestMaximumDuration: 10, testRunnerMaximumSilenceDuration: 20)
     lazy var analyticsConfiguration = AnalyticsConfiguration()
@@ -58,7 +57,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 simulatorControlTool: SimulatorControlToolFixtures.simctlTool,
                 simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
                 simulatorSettings: simulatorSettings,
-                testDestination: argFileDestination1,
+                testDestination: argFileDestination,
                 testRunnerTool: .xcodebuild,
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .uiTest,
@@ -74,7 +73,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
             .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1"))
             .with(buildArtifacts: buildArtifacts)
             .with(simulatorSettings: simulatorSettings)
-            .with(testDestination: argFileDestination1)
+            .with(testDestination: argFileDestination)
             .with(testTimeoutConfiguration: testTimeoutConfiguration)
             .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
             .with(testType: .uiTest)
@@ -97,7 +96,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 simulatorControlTool: SimulatorControlToolFixtures.simctlTool,
                 simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
                 simulatorSettings: simulatorSettings,
-                testDestination: argFileDestination1,
+                testDestination: argFileDestination,
                 testRunnerTool: .xcodebuild,
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .uiTest,
@@ -113,7 +112,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 .with(buildArtifacts: buildArtifacts)
                 .with(simulatorSettings: simulatorSettings)
                 .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
-                .with(testDestination: argFileDestination1)
+                .with(testDestination: argFileDestination)
                 .with(testTimeoutConfiguration: testTimeoutConfiguration)
                 .with(testType: .uiTest)
                 .testEntryConfigurations()
@@ -138,7 +137,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 simulatorControlTool: SimulatorControlToolFixtures.simctlTool,
                 simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
                 simulatorSettings: simulatorSettings,
-                testDestination: argFileDestination1,
+                testDestination: argFileDestination,
                 testRunnerTool: .xcodebuild,
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testType: .uiTest,
@@ -152,7 +151,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
             TestEntryConfigurationFixtures()
                 .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1"))
                 .with(buildArtifacts: buildArtifacts)
-                .with(testDestination: argFileDestination1)
+                .with(testDestination: argFileDestination)
                 .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
                 .with(testTimeoutConfiguration: testTimeoutConfiguration)
                 .with(testType: .uiTest)
@@ -160,7 +159,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
             TestEntryConfigurationFixtures()
                 .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test2"))
                 .with(buildArtifacts: buildArtifacts)
-                .with(testDestination: argFileDestination1)
+                .with(testDestination: argFileDestination)
                 .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
                 .with(testTimeoutConfiguration: testTimeoutConfiguration)
                 .with(testType: .uiTest)

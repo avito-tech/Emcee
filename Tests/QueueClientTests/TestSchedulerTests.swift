@@ -16,7 +16,6 @@ final class TestSchedulerTests: XCTestCase {
     private let callbackQueue = DispatchQueue(label: "callbackQueue")
     private let expectation = XCTestExpectation(description: "Response provided")
     private let requestSender = FakeRequestSender()
-    private let workerId: WorkerId = "workerId"
     private lazy var prioritizedJob = PrioritizedJob(
         analyticsConfiguration: AnalyticsConfiguration(),
         jobGroupId: "group",

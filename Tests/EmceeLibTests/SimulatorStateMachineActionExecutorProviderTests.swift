@@ -7,7 +7,6 @@ import MetricsExtensions
 import MetricsTestHelpers
 import ProcessControllerTestHelpers
 import QueueModels
-import ResourceLocationResolverTestHelpers
 import RunnerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
@@ -21,7 +20,6 @@ final class SimulatorStateMachineActionExecutorProviderTests: XCTestCase {
     private lazy var provider = SimulatorStateMachineActionExecutorProviderImpl(
         dateProvider: DateProviderFixture(),
         processControllerProvider: fakeProcessControllerProvider,
-        resourceLocationResolver: FakeResourceLocationResolver.throwing(),
         simulatorSetPathDeterminer: FakeSimulatorSetPathDeterminer(provider: { _ in self.tempFolder.absolutePath }),
         version: Version(value: "version"),
         globalMetricRecorder: GlobalMetricRecorderImpl()

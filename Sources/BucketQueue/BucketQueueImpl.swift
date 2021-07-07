@@ -18,7 +18,6 @@ final class BucketQueueImpl: BucketQueue {
     private let testHistoryTracker: TestHistoryTracker
     private let workerAlivenessProvider: WorkerAlivenessProvider
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
-    private let workerCapabilityConstraintResolver = WorkerCapabilityConstraintResolver()
     private let workerCapabilitiesStorage: WorkerCapabilitiesStorage
     
     private let bucketQueueHolder: BucketQueueHolder = BucketQueueHolder()

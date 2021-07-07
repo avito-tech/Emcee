@@ -6,7 +6,6 @@ public enum BusEvent: Codable, Equatable {
     
     enum CodingKeys: CodingKey {
         case eventType
-        case testingResult
         case runnerEvent
     }
     

@@ -134,12 +134,6 @@ public final class PluginManager: EventStream {
         processControllers.removeAll()
     }
     
-    private func forEachPluginProcess(work: (ProcessController) throws -> ()) rethrows {
-        for controller in processControllers {
-            try work(controller)
-        }
-    }
-    
     // MARK: - Event Stream
     
     public func process(event: BusEvent) {

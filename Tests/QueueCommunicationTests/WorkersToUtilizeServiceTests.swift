@@ -126,8 +126,7 @@ class WorkersToUtilizeServiceTests: XCTestCase {
     }
     
     private func buildService(
-        sockets: [SocketAddress: Version] = [:],
-        workersPerSocketAddress: [SocketAddress: [WorkerId]] = [:]
+        sockets: [SocketAddress: Version] = [:]
     ) -> WorkersToUtilizeService {
         return DefaultWorkersToUtilizeService(
             cache: cache,

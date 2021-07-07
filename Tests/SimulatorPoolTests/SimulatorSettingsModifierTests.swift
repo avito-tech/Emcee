@@ -255,7 +255,6 @@ final class SimulatorSettingsModifierTests: XCTestCase {
     )
     lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: "random_value")
-    lazy var plistFileName = uniqueIdentifierGenerator.value + ".plist"
     lazy var expectedGlobalPreferencesPlistContents = Plist(
         rootPlistEntry: .dict([
             "AppleLocale": .string(simulatorSettings.simulatorLocalizationSettings.localeIdentifier),

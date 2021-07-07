@@ -56,8 +56,7 @@ public final class HttpKibanaClient: KibanaClient {
         
         var request = URLRequest(
             url: try endpoint.singleEventUrl(
-                indexPattern: indexPattern,
-                date: timestamp
+                indexPattern: indexPattern
             )
         )
         request.httpMethod = "POST"

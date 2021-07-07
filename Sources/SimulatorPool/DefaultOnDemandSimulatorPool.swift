@@ -1,13 +1,11 @@
 import Dispatch
 import Foundation
 import EmceeLogging
-import ResourceLocationResolver
 import RunnerModels
 import Tmp
 
 public class DefaultOnDemandSimulatorPool: OnDemandSimulatorPool {
     private let logger: ContextualLogger
-    private let resourceLocationResolver: ResourceLocationResolver
     private let simulatorControllerProvider: SimulatorControllerProvider
     private let syncQueue = DispatchQueue(label: "ru.avito.OnDemandSimulatorPool")
     private let tempFolder: TemporaryFolder
@@ -15,12 +13,10 @@ public class DefaultOnDemandSimulatorPool: OnDemandSimulatorPool {
     
     public init(
         logger: ContextualLogger,
-        resourceLocationResolver: ResourceLocationResolver,
         simulatorControllerProvider: SimulatorControllerProvider,
         tempFolder: TemporaryFolder
     ) {
         self.logger = logger
-        self.resourceLocationResolver = resourceLocationResolver
         self.simulatorControllerProvider = simulatorControllerProvider
         self.tempFolder = tempFolder
     }

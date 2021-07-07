@@ -10,7 +10,6 @@ import MetricsExtensions
 import MetricsTestHelpers
 import PluginManagerTestHelpers
 import QueueModels
-import ResourceLocationResolverTestHelpers
 import Runner
 import RunnerModels
 import RunnerTestHelpers
@@ -27,8 +26,7 @@ public final class RunnerTests: XCTestCase {
     lazy var noOpPluginEventBusProvider = NoOoPluginEventBusProvider()
     lazy var testTimeout: TimeInterval = 3
     lazy var impactQueue = DispatchQueue(label: "impact queue")
-    lazy var resolver = FakeResourceLocationResolver.resolvingTo(path: tempFolder.absolutePath)
-    lazy var testRunnerProvider = FakeTestRunnerProvider(tempFolder: tempFolder)
+    lazy var testRunnerProvider = FakeTestRunnerProvider()
     lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     lazy var fileSystem = FakeFileSystem(rootPath: tempFolder.absolutePath)
     lazy var dateProvider = DateProviderFixture(Date(timeIntervalSince1970: 100))
@@ -504,7 +502,6 @@ public final class RunnerTests: XCTestCase {
             logger: .noOp,
             persistentMetricsJobId: nil,
             pluginEventBusProvider: noOpPluginEventBusProvider,
-            resourceLocationResolver: resolver,
             runnerWasteCollectorProvider: FakeRunnerWasteCollectorProvider { [runnerWasteCollector] in
                 runnerWasteCollector
             },

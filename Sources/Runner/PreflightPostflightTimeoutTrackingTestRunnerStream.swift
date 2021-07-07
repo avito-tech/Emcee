@@ -115,7 +115,7 @@ public final class PreflightPostflightTimeoutTrackingTestRunnerStream: TestRunne
     }
     
     private func validatePreflightTimeout(since date: Date) {
-        if dateProvider.currentDate().timeIntervalSince(date) > maximumPostflightDuration {
+        if dateProvider.currentDate().timeIntervalSince(date) > maximumPreflightDuration {
             stopAnyTracking()
             onPreflightTimeout()
         }

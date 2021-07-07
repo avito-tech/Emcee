@@ -115,7 +115,6 @@ public final class DumpCommand: Command {
         let dumpedTests = try discoverer.performTestDiscovery(
             logger: logger,
             testArgFile: testArgFile,
-            emceeVersion: emceeVersion,
             remoteCacheConfig: remoteCacheConfig
         )
         

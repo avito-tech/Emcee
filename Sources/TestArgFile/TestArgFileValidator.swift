@@ -28,7 +28,7 @@ public final class TestArgFileValidator {
         
         for (index, entry) in testArgFile.entries.enumerated() {
             do {
-                try validate(entry: entry, index: index)
+                try validate(entry: entry)
             } catch {
                 errors.append(EntryValidationError(entryIndex: index, error: error))
             }
@@ -39,7 +39,7 @@ public final class TestArgFileValidator {
         }
     }
     
-    private func validate(entry: TestArgFileEntry, index: Int) throws {
+    private func validate(entry: TestArgFileEntry) throws {
         try validate(buildArtifacts: entry.buildArtifacts, testType: entry.testType)
         try validate(simulatorControlTool: entry.simulatorControlTool, testRunnerTool: entry.testRunnerTool)
     }

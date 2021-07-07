@@ -244,9 +244,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             return ParseFunctionSymbolsTestDiscoverer(
                 developerDirLocator: developerDirLocator,
                 processControllerProvider: processControllerProvider,
-                resourceLocationResolver: resourceLocationResolver,
-                tempFolder: tempFolder,
-                uniqueIdentifierGenerator: uniqueIdentifierGenerator
+                resourceLocationResolver: resourceLocationResolver
             )
         case .runtimeExecutableLaunch(let appBundleLocation):
             return ExecutableTestDiscoverer(

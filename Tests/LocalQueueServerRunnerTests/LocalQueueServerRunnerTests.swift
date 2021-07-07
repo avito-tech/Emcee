@@ -9,7 +9,6 @@ import QueueServerTestHelpers
 import RemotePortDeterminer
 import RemotePortDeterminerTestHelpers
 import ScheduleStrategy
-import Tmp
 import TestHelpers
 import UniqueIdentifierGenerator
 import XCTest
@@ -25,7 +24,6 @@ final class LocalQueueServerRunnerTests: XCTestCase {
     )
     private let remotePortDeterminer = RemotePortDeterminerFixture(result: [:])
     private let workerUtilizationStatusPoller = FakeWorkerUtilizationStatusPoller()
-    private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     private lazy var runner = LocalQueueServerRunner(
         automaticTerminationController: automaticTerminationController,
         deployQueue: deployQueue,

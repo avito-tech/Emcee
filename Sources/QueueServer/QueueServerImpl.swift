@@ -183,8 +183,7 @@ public final class QueueServerImpl: QueueServer {
             checkAfter: checkAgainTimeInterval,
             dequeueableBucketSource: dequeueableBucketSource,
             expectedPayloadSignature: payloadSignature,
-            workerAlivenessProvider: workerAlivenessProvider,
-            workerCapabilitiesStorage: workerCapabilitiesStorage
+            workerAlivenessProvider: workerAlivenessProvider
         )
         self.bucketResultRegistrar = BucketResultRegistrar(
             bucketResultAccepter: BucketResultAccepterWithMetricSupport(
@@ -196,8 +195,7 @@ public final class QueueServerImpl: QueueServer {
                 version: emceeVersion,
                 specificMetricRecorderProvider: specificMetricRecorderProvider
             ),
-            expectedPayloadSignature: payloadSignature,
-            workerAlivenessProvider: workerAlivenessProvider
+            expectedPayloadSignature: payloadSignature
         )
         self.kickstartWorkerEndpoint = KickstartWorkerEndpoint(
             onDemandWorkerStarter: onDemandWorkerStarter,

@@ -39,7 +39,6 @@ public final class PipelinedTestDiscoverer {
     public func performTestDiscovery(
         logger: ContextualLogger,
         testArgFile: TestArgFile,
-        emceeVersion: Version,
         remoteCacheConfig: RuntimeDumpRemoteCacheConfig?
     ) throws -> [[DiscoveredTestEntry]] {        
         let discoveredTests = AtomicValue<[[DiscoveredTestEntry]]>(

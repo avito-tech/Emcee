@@ -13,28 +13,20 @@ import RunnerModels
 import SimulatorPool
 import SimulatorPoolModels
 import SynchronousWaiter
-import Tmp
-import UniqueIdentifierGenerator
 
 final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
     private let developerDirLocator: DeveloperDirLocator
     private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
-    private let tempFolder: TemporaryFolder
-    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
 
     init(
         developerDirLocator: DeveloperDirLocator,
         processControllerProvider: ProcessControllerProvider,
-        resourceLocationResolver: ResourceLocationResolver,
-        tempFolder: TemporaryFolder,
-        uniqueIdentifierGenerator: UniqueIdentifierGenerator
+        resourceLocationResolver: ResourceLocationResolver
     ) {
         self.developerDirLocator = developerDirLocator
         self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
-        self.tempFolder = tempFolder
-        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
     func discoverTestEntries(

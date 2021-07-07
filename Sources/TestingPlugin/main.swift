@@ -6,7 +6,6 @@ import Plugin
 
 class Listener: DefaultBusListener {
     var allEvents = [RunnerEvent]()
-    var allSignals = [UInt32]()
     
     override func runnerEvent(_ event: RunnerEvent) {
         allEvents.append(event)

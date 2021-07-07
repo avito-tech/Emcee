@@ -6,23 +6,19 @@ import ProcessController
 import Runner
 import RunnerModels
 import SimulatorPoolModels
-import Tmp
 import PathLib
 
 public final class FakeTestRunner: TestRunner {
     public var entriesToRun: [TestEntry]?
     public var errorToThrowOnRun: Error?
     public var testContext: TestContext?
-    private let tempFolder: TemporaryFolder
     
     public struct SomeError: Error, CustomStringConvertible {
         public let description = "some error happened"
         public init() {}
     }
     
-    public init(tempFolder: TemporaryFolder) {
-        self.tempFolder = tempFolder
-    }
+    public init() {}
 
     // Configuration
 
@@ -98,8 +94,7 @@ public final class FakeTestRunner: TestRunner {
             onStreamOpen: onStreamOpen,
             onTestStarted: onTestStarted,
             onTestStopped: onTestStopped,
-            onStreamClose: onStreamClose,
-            tempFolder: tempFolder
+            onStreamClose: onStreamClose
         )
     }
     

@@ -6,7 +6,6 @@ import MetricsExtensions
 import PathLib
 import ProcessController
 import QueueModels
-import ResourceLocationResolver
 import RunnerModels
 import SimulatorPool
 import SimulatorPoolModels
@@ -15,7 +14,6 @@ import Tmp
 public final class SimulatorStateMachineActionExecutorProviderImpl: SimulatorStateMachineActionExecutorProvider {
     private let dateProvider: DateProvider
     private let processControllerProvider: ProcessControllerProvider
-    private let resourceLocationResolver: ResourceLocationResolver
     private let simulatorSetPathDeterminer: SimulatorSetPathDeterminer
     private let version: Version
     private let globalMetricRecorder: GlobalMetricRecorder
@@ -23,14 +21,12 @@ public final class SimulatorStateMachineActionExecutorProviderImpl: SimulatorSta
     public init(
         dateProvider: DateProvider,
         processControllerProvider: ProcessControllerProvider,
-        resourceLocationResolver: ResourceLocationResolver,
         simulatorSetPathDeterminer: SimulatorSetPathDeterminer,
         version: Version,
         globalMetricRecorder: GlobalMetricRecorder
     ) {
         self.dateProvider = dateProvider
         self.processControllerProvider = processControllerProvider
-        self.resourceLocationResolver = resourceLocationResolver
         self.simulatorSetPathDeterminer = simulatorSetPathDeterminer
         self.version = version
         self.globalMetricRecorder = globalMetricRecorder

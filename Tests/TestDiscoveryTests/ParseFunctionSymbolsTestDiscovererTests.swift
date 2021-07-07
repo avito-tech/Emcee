@@ -13,8 +13,6 @@ import RunnerTestHelpers
 import SimulatorPoolTestHelpers
 import Tmp
 import TestHelpers
-import UniqueIdentifierGenerator
-import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
@@ -46,7 +44,7 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
             let plistContents: [String: Any] = [
                 "CFBundleExecutable": executableInsideTestBundle
             ]
-            _ = try self.tempFolder.createFile(
+            _ = try tempFolder.createFile(
                 components: [testBundlePathInTempFolder.lastComponent],
                 filename: "Info.plist",
                 contents: try PropertyListSerialization.data(fromPropertyList: plistContents, format: .binary, options: 0)
@@ -75,14 +73,11 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
                 processController.overridedProcessStatus = .terminated(exitCode: 0)
                 return processController
             },
-            resourceLocationResolver: FakeResourceLocationResolver.resolvingTo(path: testBundlePathInTempFolder),
-            tempFolder: tempFolder,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            resourceLocationResolver: FakeResourceLocationResolver.resolvingTo(path: testBundlePathInTempFolder)
         )
     }
     
     private let executableInsideTestBundle = "ExecutableInsideTestBundle"
-    private let uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: UUID().uuidString)
     private lazy var tempFolder: TemporaryFolder = assertDoesNotThrow { try TemporaryFolder() }
     private lazy var testBundlePathInTempFolder = tempFolder.absolutePath.appending(component: "bundle.xctest")
     private lazy var testBundleLocation = TestBundleLocation(.localFilePath(testBundlePathInTempFolder.pathString))

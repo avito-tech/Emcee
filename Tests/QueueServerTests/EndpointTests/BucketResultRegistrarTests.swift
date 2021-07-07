@@ -7,15 +7,9 @@ import QueueModelsTestHelpers
 import QueueServer
 import RESTMethods
 import RunnerTestHelpers
-import WorkerAlivenessProvider
 import XCTest
 
 final class BucketResultRegistrarTests: XCTestCase {
-    lazy var alivenessTracker = WorkerAlivenessProviderImpl(
-        knownWorkerIds: ["worker"],
-        logger: .noOp,
-        workerPermissionProvider: FakeWorkerPermissionProvider()
-    )
     let expectedPayloadSignature = PayloadSignature(value: "expectedPayloadSignature")
     let testingResult = TestingResultFixtures()
         .with(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "method"))
@@ -27,8 +21,7 @@ final class BucketResultRegistrarTests: XCTestCase {
         
         let registrar = BucketResultRegistrar(
             bucketResultAccepter: bucketQueue,
-            expectedPayloadSignature: expectedPayloadSignature,
-            workerAlivenessProvider: alivenessTracker
+            expectedPayloadSignature: expectedPayloadSignature
         )
         
         let request = BucketResultPayload(
@@ -43,13 +36,11 @@ final class BucketResultRegistrarTests: XCTestCase {
     }
     
     func test___results_collector_stays_unmodified___if_bucket_queue_does_not_accept_results() {
-        alivenessTracker.didRegisterWorker(workerId: "worker")
         let bucketQueue = FakeBucketQueue(throwsOnAccept: true)
         
         let registrar = BucketResultRegistrar(
             bucketResultAccepter: bucketQueue,
-            expectedPayloadSignature: expectedPayloadSignature,
-            workerAlivenessProvider: alivenessTracker
+            expectedPayloadSignature: expectedPayloadSignature
         )
         
         let request = BucketResultPayload(
@@ -64,13 +55,11 @@ final class BucketResultRegistrarTests: XCTestCase {
     }
 
     func test___throws___when_expected_request_signature_mismatch() {
-        alivenessTracker.didRegisterWorker(workerId: "worker")
         let bucketQueue = FakeBucketQueue(throwsOnAccept: false)
 
         let registrar = BucketResultRegistrar(
             bucketResultAccepter: bucketQueue,
-            expectedPayloadSignature: expectedPayloadSignature,
-            workerAlivenessProvider: alivenessTracker
+            expectedPayloadSignature: expectedPayloadSignature
         )
 
         XCTAssertThrowsError(

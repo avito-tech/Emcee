@@ -30,7 +30,6 @@ final class PipelinedTestDiscovererTests: XCTestCase {
             testArgFile: TestArgFile.create(
                 buildArtifacts: []
             ),
-            emceeVersion: "version",
             remoteCacheConfig: nil
         )
         
@@ -75,7 +74,6 @@ final class PipelinedTestDiscovererTests: XCTestCase {
             testArgFile: TestArgFile.create(
                 buildArtifacts: buildArtifacts
             ),
-            emceeVersion: "version",
             remoteCacheConfig: nil
         )
         
@@ -100,7 +98,6 @@ final class PipelinedTestDiscovererTests: XCTestCase {
             _ = try discoverer.performTestDiscovery(
                 logger: .noOp,
                 testArgFile: TestArgFile.create(buildArtifacts: [buildArtifacts]),
-                emceeVersion: "version",
                 remoteCacheConfig: nil
             )
         }
@@ -145,7 +142,6 @@ final class PipelinedTestDiscovererTests: XCTestCase {
             testArgFile: TestArgFile.create(
                 buildArtifacts: buildArtifacts
             ),
-            emceeVersion: "version",
             remoteCacheConfig: nil
         )
         

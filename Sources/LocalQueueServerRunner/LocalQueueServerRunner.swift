@@ -60,7 +60,6 @@ public final class LocalQueueServerRunner {
         workerUtilizationStatusPoller.startPolling()
         
         try startWorkers(
-            emceeVersion: emceeVersion,
             port: try startQueueServer(emceeVersion: emceeVersion)
         )
         
@@ -96,7 +95,7 @@ public final class LocalQueueServerRunner {
         }
     }
     
-    private func startWorkers(emceeVersion: Version, port: SocketModels.Port) throws {
+    private func startWorkers(port: SocketModels.Port) throws {
         logger.info("Deploying and starting workers in background")
         
         let dispatchGroup = DispatchGroup()

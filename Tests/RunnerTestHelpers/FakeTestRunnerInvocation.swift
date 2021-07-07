@@ -2,7 +2,6 @@ import Foundation
 import ProcessController
 import Runner
 import RunnerModels
-import Tmp
 
 public final class FakeTestRunnerInvocation: TestRunnerInvocation {
     private let entriesToRun: [TestEntry]
@@ -12,7 +11,6 @@ public final class FakeTestRunnerInvocation: TestRunnerInvocation {
     private let onTestStarted: (TestName, TestRunnerStream) -> ()
     private let onTestStopped: (TestStoppedEvent, TestRunnerStream) -> ()
     private let onStreamClose: (TestRunnerStream) -> ()
-    private let tempFolder: TemporaryFolder
     
     public init(
         entriesToRun: [TestEntry],
@@ -21,8 +19,7 @@ public final class FakeTestRunnerInvocation: TestRunnerInvocation {
         onStreamOpen: @escaping (TestRunnerStream) -> (),
         onTestStarted: @escaping (TestName, TestRunnerStream) -> (),
         onTestStopped: @escaping (TestStoppedEvent, TestRunnerStream) -> (),
-        onStreamClose: @escaping (TestRunnerStream) -> (),
-        tempFolder: TemporaryFolder
+        onStreamClose: @escaping (TestRunnerStream) -> ()
     ) {
         self.entriesToRun = entriesToRun
         self.testRunnerStream = testRunnerStream
@@ -31,7 +28,6 @@ public final class FakeTestRunnerInvocation: TestRunnerInvocation {
         self.onTestStarted = onTestStarted
         self.onTestStopped = onTestStopped
         self.onStreamClose = onStreamClose
-        self.tempFolder = tempFolder
     }
     
     public let runningQueue = DispatchQueue(label: "FakeTestRunner")
@@ -80,9 +76,7 @@ public final class FakeTestRunnerInvocation: TestRunnerInvocation {
             self.onStreamClose(self.testRunnerStream)
         }
         
-        let runningInvocation = FakeTestRunnerRunningInvocation(
-            tempFolder: tempFolder
-        )
+        let runningInvocation = FakeTestRunnerRunningInvocation()
         runningInvocation.onWait = group.wait
         runningInvocation.onCancel = {
             isCancelled = true

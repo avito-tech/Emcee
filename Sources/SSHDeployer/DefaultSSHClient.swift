@@ -5,14 +5,10 @@ import Deployer
 
 public final class DefaultSSHClient: SSHClient {
     private let ssh: SSH
-    private let host: String
-    private let port: Int32
     private let username: String
     private let authentication: DeploymentDestinationAuthenticationType
     
     public init(host: String, port: Int32, username: String, authentication: DeploymentDestinationAuthenticationType) throws {
-        self.host = host
-        self.port = port
         self.username = username
         self.authentication = authentication
         self.ssh = try SSH(host: host, port: port)
