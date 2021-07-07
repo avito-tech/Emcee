@@ -92,7 +92,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
 
         let runningQueueServerAddress = try detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
             emceeVersion: emceeVersion,
-            queueServerDeploymentDestination: queueServerConfiguration.queueServerDeploymentDestination,
+            queueServerDeploymentDestinations: queueServerConfiguration.queueServerDeploymentDestinations,
             queueServerConfigurationLocation: queueServerConfigurationLocation,
             jobId: testArgFile.prioritizedJob.jobId,
             logger: logger
@@ -115,17 +115,17 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     
     private func detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
         emceeVersion: Version,
-        queueServerDeploymentDestination: DeploymentDestination,
+        queueServerDeploymentDestinations: [DeploymentDestination],
         queueServerConfigurationLocation: QueueServerConfigurationLocation,
         jobId: JobId,
         logger: ContextualLogger
     ) throws -> SocketAddress {
-        logger.info("Searching for queue server on '\(queueServerDeploymentDestination.host)' with queue version \(emceeVersion)")
+        logger.info("Searching for queue server on '\(queueServerDeploymentDestinations.map(\.host))' with queue version \(emceeVersion)")
         let remoteQueueDetector = DefaultRemoteQueueDetector(
             emceeVersion: emceeVersion,
             logger: logger,
             remotePortDeterminer: RemoteQueuePortScanner(
-                hosts: [queueServerDeploymentDestination.host],
+                hosts: queueServerDeploymentDestinations.map(\.host),
                 logger: logger,
                 portRange: EmceePorts.defaultQueuePortRange,
                 requestSenderProvider: try di.get()
@@ -139,7 +139,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         
         try startNewInstanceOfRemoteQueueServer(
             jobId: jobId,
-            queueServerDeploymentDestination: queueServerDeploymentDestination,
+            queueServerDeploymentDestinations: queueServerDeploymentDestinations,
             emceeVersion: emceeVersion,
             queueServerConfigurationLocation: queueServerConfigurationLocation,
             logger: logger
@@ -157,23 +157,36 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     
     private func startNewInstanceOfRemoteQueueServer(
         jobId: JobId,
-        queueServerDeploymentDestination: DeploymentDestination,
+        queueServerDeploymentDestinations: [DeploymentDestination],
         emceeVersion: Version,
         queueServerConfigurationLocation: QueueServerConfigurationLocation,
         logger: ContextualLogger
     ) throws {
         logger.info("No running queue server has been found. Will deploy and start remote queue.")
-        let remoteQueueStarter = RemoteQueueStarter(
-            deploymentId: jobId.value,
-            deploymentDestination: queueServerDeploymentDestination,
-            emceeVersion: emceeVersion,
-            logger: logger,
-            processControllerProvider: try di.get(),
-            queueServerConfigurationLocation: queueServerConfigurationLocation,
-            tempFolder: try di.get(),
-            uniqueIdentifierGenerator: try di.get()
-        )
-        try remoteQueueStarter.deployAndStart()
+        
+        for queueServerDeploymentDestination in queueServerDeploymentDestinations {
+            do {
+                logger.debug("Trying to start queue on \(queueServerDeploymentDestination.host)")
+                let remoteQueueStarter = RemoteQueueStarter(
+                    deploymentId: jobId.value,
+                    deploymentDestination: queueServerDeploymentDestination,
+                    emceeVersion: emceeVersion,
+                    logger: logger,
+                    processControllerProvider: try di.get(),
+                    queueServerConfigurationLocation: queueServerConfigurationLocation,
+                    tempFolder: try di.get(),
+                    uniqueIdentifierGenerator: try di.get()
+                )
+                try remoteQueueStarter.deployAndStart()
+                logger.debug("Started queue on \(queueServerDeploymentDestination.host)")
+                // The code starts only one queue.
+                // Since queue is started, return from function to avoid starting any additional queues.
+                return
+            } catch {
+                logger.warning("Error starting queue on \(queueServerDeploymentDestination.host): \(error). This error will be ignored.")
+            }
+        }
+        logger.error("Failed to start queue on all \(queueServerDeploymentDestinations.count) hosts.")
     }
     
     private func runTestsOnRemotelyRunningQueue(

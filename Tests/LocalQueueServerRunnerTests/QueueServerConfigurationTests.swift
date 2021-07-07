@@ -79,8 +79,8 @@ final class QueueServerConfigurationTests: XCTestCase {
             ]
         )
         XCTAssertEqual(
-            config.queueServerDeploymentDestination,
-            DeploymentDestination(host: "queue", port: 22, username: "q_user", authentication: .password("pass"), remoteDeploymentPath: "/remote/queue/depl/path")
+            config.queueServerDeploymentDestinations,
+            [DeploymentDestination(host: "queue", port: 22, username: "q_user", authentication: .password("pass"), remoteDeploymentPath: "/remote/queue/depl/path")]
         )
         XCTAssertEqual(
             config.queueServerTerminationPolicy,

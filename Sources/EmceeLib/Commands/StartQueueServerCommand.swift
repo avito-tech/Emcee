@@ -88,9 +88,10 @@ public final class StartQueueServerCommand: Command {
             automaticTerminationPolicy: queueServerConfiguration.queueServerTerminationPolicy
         ).createAutomaticTerminationController()
         
-        let socketHost = LocalHostDeterminer.currentHostAddress
+        let currentHostName = LocalHostDeterminer.currentHostAddress
+        
         let remotePortDeterminer = RemoteQueuePortScanner(
-            hosts: [socketHost],
+            hosts: [currentHostName],
             logger: logger,
             portRange: EmceePorts.defaultQueuePortRange,
             requestSenderProvider: try di.get()
@@ -112,7 +113,7 @@ public final class StartQueueServerCommand: Command {
             emceeVersion: emceeVersion,
             logger: logger,
             globalMetricRecorder: try di.get(),
-            queueHost: socketHost
+            queueHost: currentHostName
         )
         
         let workersToUtilizeService = DefaultWorkersToUtilizeService(
