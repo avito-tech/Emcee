@@ -170,7 +170,7 @@ final class SimulatorSettingsModifierTests: XCTestCase {
     private func checksForNotKilling(daemon: String, file: StaticString = #file, line: UInt = #line) -> ([String]) -> () {
         return { args in
             if args.contains("kill"), args.contains("system/" + daemon) {
-                self.failTest("Daemon \(daemon) has been unexpectedly killed", file: file, line: line)
+                failTest("Daemon \(daemon) has been unexpectedly killed", file: file, line: line)
             }
         }
     }
@@ -183,12 +183,12 @@ final class SimulatorSettingsModifierTests: XCTestCase {
     ) -> ([String]) throws -> () {
         return { args in
             if args.contains("export"), args.contains(domain) {
-                let pathToPlistToWriteTo = self.assertNotNil(file: file, line: line) { args.last }
+                let pathToPlistToWriteTo = assertNotNil(file: file, line: line) { args.last }
                 try plist.data(format: .xml).write(to: URL(fileURLWithPath: pathToPlistToWriteTo))
             }
             
             if args.contains("import"), args.contains(domain) {
-                self.failTest("Unexpected call to import plist for domain \(domain). This should not happen if plist has correct state.", file: file, line: line)
+                failTest("Unexpected call to import plist for domain \(domain). This should not happen if plist has correct state.", file: file, line: line)
             }
         }
     }
@@ -208,7 +208,7 @@ final class SimulatorSettingsModifierTests: XCTestCase {
                     ["/usr/bin/xcrun", "simctl", "--set", self.tempFolder.absolutePath.pathString, "spawn", self.simulator.udid.value, "defaults", "import", domain]
                 )
                 
-                let pathToPlistToImport = self.assertNotNil(file: file, line: line) { args.last }
+                let pathToPlistToImport = assertNotNil(file: file, line: line) { args.last }
                 let plistToImport = try Plist.create(fromData: Data(contentsOf: URL(fileURLWithPath: pathToPlistToImport)))
                 
                 XCTAssertEqual(plistToImport.root, expectedPlistContentsAfterImportHappens.root)

@@ -29,7 +29,7 @@ final class HTTPRESTServerTests: XCTestCase {
         let port = try server.start()
         let startedTask = startDataTask(port: port, body: ["input": "value"]) { (data, _) in
             guard let data = data, let decodedResponse = try? JSONDecoder().decode([String: String].self, from: data) else {
-                self.failTest("Unexpected response")
+                failTest("Unexpected response")
             }
             XCTAssertEqual(
                 decodedResponse,
@@ -52,7 +52,7 @@ final class HTTPRESTServerTests: XCTestCase {
         let port = try server.start()
         let startedTask = startDataTask(port: port, body: ["input": "value"]) { (_, response) in
             guard let response = response, let httpResponse = response as? HTTPURLResponse else {
-                self.failTest("Unexpected response")
+                failTest("Unexpected response")
             }
             XCTAssertEqual(httpResponse.statusCode, 400)
         }

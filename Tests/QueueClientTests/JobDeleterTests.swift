@@ -14,7 +14,7 @@ final class JobDeleterTests: XCTestCase {
     func test() {
         requestSender.validateRequest = { sender in
             guard let request = sender.request as? JobDeleteRequest else {
-                self.failTest("Unexpected request type")
+                failTest("Unexpected request type")
             }
             XCTAssertEqual(
                 request.payload?.jobId,

@@ -11,6 +11,7 @@ import ResourceLocationResolverTestHelpers
 import RunnerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
+import TestHelpers
 import Tmp
 import XCTest
 

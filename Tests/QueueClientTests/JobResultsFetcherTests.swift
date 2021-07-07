@@ -19,7 +19,7 @@ final class JobResultsFetcherTests: XCTestCase {
         
         requestSender.validateRequest = { sender in
             guard let request = sender.request as? JobResultRequest else {
-                self.failTest("Unexpected request type")
+                failTest("Unexpected request type")
             }
             XCTAssertEqual(
                 request.payload?.jobId,

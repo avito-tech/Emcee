@@ -19,7 +19,7 @@ final class WorkerDisablerTests: XCTestCase {
         
         requestSender.validateRequest = { sender in
             guard let request = sender.request as? DisableWorkerRequest else {
-                self.failTest("Unexpected request")
+                failTest("Unexpected request")
             }
             XCTAssertEqual(request.payload?.workerId, self.workerId)
         }

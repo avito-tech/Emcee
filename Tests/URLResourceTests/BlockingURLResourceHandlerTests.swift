@@ -16,7 +16,7 @@ final class BlockingURLResourceHandlerTests: XCTestCase {
         let handler = BlockingURLResourceHandler()
 
         runnerQueue.async {
-            let result = self.assertDoesNotThrow {
+            let result = assertDoesNotThrow {
                 try handler.wait(
                     limit: 60,
                     remoteUrl: self.remoteUrl
@@ -36,7 +36,7 @@ final class BlockingURLResourceHandlerTests: XCTestCase {
         let handler = BlockingURLResourceHandler()
 
         runnerQueue.async {
-            self.assertThrows {
+            assertThrows {
                 try handler.wait(
                     limit: 60,
                     remoteUrl: self.remoteUrl

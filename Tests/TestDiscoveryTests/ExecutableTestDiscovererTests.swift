@@ -185,7 +185,7 @@ final class ExecutableTestDiscovererTests: XCTestCase {
                     if arguments.contains("simctl") {
                         processController.broadcastStdout(data: Data(simctlResponse.utf8))
                     } else if let outputPath = subprocess.environment.values["EMCEE_RUNTIME_TESTS_EXPORT_PATH"] {
-                        self.assertDoesNotThrow {
+                        assertDoesNotThrow {
                             try executableResponse.write(
                                 to: AbsolutePath(outputPath).fileUrl,
                                 atomically: true,

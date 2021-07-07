@@ -3,6 +3,7 @@ import Foundation
 import PathLib
 import ProcessController
 import ProcessControllerTestHelpers
+import TestHelpers
 import Tmp
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest

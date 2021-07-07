@@ -4,6 +4,7 @@ import Foundation
 import QueueModels
 import QueueModelsTestHelpers
 import RunnerModels
+import TestHelpers
 import TestHistoryTestHelpers
 import TestHistoryTracker
 import XCTest

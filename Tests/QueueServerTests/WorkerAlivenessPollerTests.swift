@@ -10,6 +10,7 @@ import RequestSenderTestHelpers
 import SocketModels
 import Swifter
 import SynchronousWaiter
+import TestHelpers
 import WorkerAlivenessModels
 import WorkerAlivenessProvider
 import XCTest

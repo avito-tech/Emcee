@@ -30,7 +30,7 @@ final class TestSchedulerTests: XCTestCase {
         
         requestSender.validateRequest = { sender in
             guard let scheduleTestsRequest = sender.request as? ScheduleTestsRequest else {
-                self.failTest("Unexpected request")
+                failTest("Unexpected request")
             }
             
             XCTAssertEqual(
@@ -49,7 +49,7 @@ final class TestSchedulerTests: XCTestCase {
             testEntryConfigurations: [],
             callbackQueue: callbackQueue,
             completion: { (response: Either<Void, Error>) in
-                self.assertDoesNotThrow {
+                assertDoesNotThrow {
                     try response.dematerialize()
                 }
                 self.expectation.fulfill()

@@ -1,6 +1,7 @@
 import Foundation
 import SimulatorPool
 import SimulatorPoolTestHelpers
+import TestHelpers
 import XCTest
 
 final class ActivityAwareSimulatorControllerTests: XCTestCase {

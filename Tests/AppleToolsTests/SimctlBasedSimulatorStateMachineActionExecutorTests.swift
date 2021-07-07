@@ -5,6 +5,7 @@ import ProcessController
 import ProcessControllerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
+import TestHelpers
 import Tmp
 import XCTest
 

@@ -9,6 +9,7 @@ import QueueServer
 import RESTMethods
 import RunnerTestHelpers
 import ScheduleStrategy
+import TestHelpers
 import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessProvider
 import WorkerCapabilities

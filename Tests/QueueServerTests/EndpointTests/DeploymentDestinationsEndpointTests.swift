@@ -1,6 +1,7 @@
 import DeployerTestHelpers
 import QueueServer
 import RequestSender
+import TestHelpers
 import XCTest
 
 class DeploymentDestinationsEndpointTests: XCTestCase {

@@ -8,6 +8,7 @@ import QueueModelsTestHelpers
 import QueueServer
 import RESTMethods
 import RunnerTestHelpers
+import TestHelpers
 import WorkerAlivenessProvider
 import WorkerCapabilities
 import WorkerCapabilitiesModels

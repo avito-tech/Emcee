@@ -7,6 +7,7 @@ import ResourceLocation
 import SimulatorPoolModels
 import SocketModels
 import TestArgFile
+import TestHelpers
 import XCTest
 
 final class TestArgFileTests: XCTestCase {
