@@ -35,11 +35,12 @@ public final class RemoteQueuePortScanner: RemotePortDeterminer {
         for host in hosts {
             for port in portRange {
                 group.enter()
-                logger.debug("Checking availability of \(port)")
+                let socketAddress = SocketAddress(host: host, port: port)
+                logger.debug("Checking availability of \(socketAddress)")
 
                 let queueServerVersionFetcher = QueueServerVersionFetcherImpl(
                     requestSender: requestSenderProvider.requestSender(
-                        socketAddress: SocketAddress(host: host, port: port)
+                        socketAddress: socketAddress
                     )
                 )
 
@@ -47,9 +48,9 @@ public final class RemoteQueuePortScanner: RemotePortDeterminer {
                     callbackQueue: workQueue
                 ) { (result: Either<Version, Error>) in
                     if let version = try? result.dematerialize() {
-                        self.logger.debug("Found queue server with \(version) version at \(port)")
+                        self.logger.debug("Found queue server with \(version) version at \(socketAddress)")
                         socketToVersion.withExclusiveAccess {
-                            $0[SocketAddress(host: host, port: port)] = version
+                            $0[socketAddress] = version
                         }
                     }
                     group.leave()

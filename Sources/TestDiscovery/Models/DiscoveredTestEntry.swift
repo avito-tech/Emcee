@@ -65,8 +65,8 @@ public struct DiscoveredTestEntry: Codable, CustomStringConvertible, Equatable {
             topLevelComponents.append("tags [\(tagsJoined)]")
         }
         
-        let topLevelComponentsJoined = topLevelComponents.joined(separator: " / ")
+        let topLevelComponentsJoined = topLevelComponents.joined(separator: "; ")
         
-        return "(\(DiscoveredTestEntry.self): \(topLevelComponentsJoined)"
+        return "<Discovered test: \(topLevelComponentsJoined)>"
     }
 }

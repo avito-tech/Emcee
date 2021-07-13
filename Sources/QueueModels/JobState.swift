@@ -10,7 +10,7 @@ public class JobState: Codable, CustomStringConvertible, Equatable {
     }
     
     public var description: String {
-        return "<\(type(of: self)) job: \(jobId) state: \(queueState)>"
+        return "<\(jobId) state: \(queueState)>"
     }
     
     public static func == (left: JobState, right: JobState) -> Bool {

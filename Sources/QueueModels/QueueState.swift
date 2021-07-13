@@ -10,9 +10,9 @@ public enum QueueState: Equatable, CustomStringConvertible, Codable {
     public var description: String {
         switch self {
         case .running(let runningQueueState):
-            return "<\(type(of: self)) running: \(runningQueueState)>"
+            return "<running: \(runningQueueState)>"
         case .deleted:
-            return "<\(type(of: self)) deleted>"
+            return "<deleted>"
         }
     }
 

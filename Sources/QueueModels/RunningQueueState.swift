@@ -25,6 +25,6 @@ public struct RunningQueueState: Equatable, CustomStringConvertible, Codable {
     }
     
     public var description: String {
-        return "<\(type(of: self)): enqueued: \(enqueuedBucketCount) \(enqueuedTests.count), dequeued: \(dequeuedBucketCount) \(dequeuedTests.flattenValues.count)>"
+        return "<enqueued \(enqueuedBucketCount) buckets/\(enqueuedTests.count) tests, dequeued \(dequeuedBucketCount) buckets/\(dequeuedTests.flattenValues.count) tests>"
     }
 }

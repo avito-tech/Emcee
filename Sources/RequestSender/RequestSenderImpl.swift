@@ -126,7 +126,7 @@ public final class RequestSenderImpl: RequestSender {
                     callbackQueue.async { callback(.error(.parseError(error, data))) }
                 }
             } else {
-                logger.debug("Failed to perform request to \(url): response has no data")
+                logger.debug("Failed to process response from request to \(url): response has no data")
                 callbackQueue.async { callback(.error(.noData)) }
             }
         }
