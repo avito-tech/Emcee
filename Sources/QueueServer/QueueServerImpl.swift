@@ -71,7 +71,7 @@ public final class QueueServerImpl: QueueServer {
         workerAlivenessProvider: WorkerAlivenessProvider,
         workerCapabilitiesStorage: WorkerCapabilitiesStorage,
         workerConfigurations: WorkerConfigurations,
-        workerUtilizationStatusPoller: WorkerUtilizationStatusPoller,
+        autoupdatingWorkerPermissionProvider: AutoupdatingWorkerPermissionProvider,
         workersToUtilizeService: WorkersToUtilizeService
     ) {
         self.logger = logger
@@ -132,7 +132,7 @@ public final class QueueServerImpl: QueueServer {
                 dequeueableBucketSource: MultipleQueuesDequeueableBucketSource(
                     multipleQueuesContainer: multipleQueuesContainer
                 ),
-                workerPermissionProvider: workerUtilizationStatusPoller
+                workerPermissionProvider: autoupdatingWorkerPermissionProvider
             ),
             jobStateProvider: jobStateProvider,
             logger: logger,
@@ -237,8 +237,12 @@ public final class QueueServerImpl: QueueServer {
             logger: logger, 
             service: workersToUtilizeService
         )
-        self.deploymentDestinationsHandler = DeploymentDestinationsEndpoint(destinations: deploymentDestinations)
-        self.toggleWorkersSharingEndpoint = ToggleWorkersSharingEndpoint(poller: workerUtilizationStatusPoller)
+        self.deploymentDestinationsHandler = DeploymentDestinationsEndpoint(
+            destinations: deploymentDestinations
+        )
+        self.toggleWorkersSharingEndpoint = ToggleWorkersSharingEndpoint(
+            autoupdatingWorkerPermissionProvider: autoupdatingWorkerPermissionProvider
+        )
     }
     
     public func start() throws -> SocketModels.Port {

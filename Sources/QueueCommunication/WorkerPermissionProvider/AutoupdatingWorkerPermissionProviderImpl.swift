@@ -8,9 +8,9 @@ import QueueCommunicationModels
 import QueueModels
 import Timer
 
-public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller {
+public class AutoupdatingWorkerPermissionProviderImpl: AutoupdatingWorkerPermissionProvider {
     private let communicationService: QueueCommunicationService
-    private let defaultDeployments: [DeploymentDestination]
+    private let initialWorkerDestinations: [DeploymentDestination]
     private let emceeVersion: Version
     private let logger: ContextualLogger
     private let globalMetricRecorder: GlobalMetricRecorder
@@ -20,23 +20,23 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
     
     public init(
         communicationService: QueueCommunicationService,
-        defaultDeployments: [DeploymentDestination],
+        initialWorkerDestinations: [DeploymentDestination],
         emceeVersion: Version,
         logger: ContextualLogger,
         globalMetricRecorder: GlobalMetricRecorder,
         queueHost: String
     ) {
         self.communicationService = communicationService
-        self.defaultDeployments = defaultDeployments
+        self.initialWorkerDestinations = initialWorkerDestinations
         self.emceeVersion = emceeVersion
         self.logger = logger
         self.globalMetricRecorder = globalMetricRecorder
         self.queueHost = queueHost
-        self.workerIdsToUtilize = AtomicValue(Set(defaultDeployments.workerIds()))
+        self.workerIdsToUtilize = AtomicValue(Set(initialWorkerDestinations.workerIds()))
         reportMetric()
     }
     
-    public func startPolling() {
+    public func startUpdating() {
         logger.debug("Starting polling workers to utilize")
         pollingTrigger.start { [weak self] timer in
             guard let strongSelf = self else {
@@ -48,16 +48,16 @@ public class DefaultWorkerUtilizationStatusPoller: WorkerUtilizationStatusPoller
         }
     }
     
-    public func stopPollingAndRestoreDefaultConfig() {
+    public func stopUpdatingAndRestoreDefaultConfig() {
         logger.debug("Stopping polling workers to utilize")
         pollingTrigger.stop()
-        workerIdsToUtilize.set(Set(defaultDeployments.workerIds()))
+        workerIdsToUtilize.set(Set(initialWorkerDestinations.workerIds()))
         reportMetric()
     }
     
     private func fetchWorkersToUtilize() {
         communicationService.workersToUtilize(
-            deployments: defaultDeployments,
+            deployments: initialWorkerDestinations,
             completion: { [weak self] result in
                 guard let strongSelf = self else {
                     return

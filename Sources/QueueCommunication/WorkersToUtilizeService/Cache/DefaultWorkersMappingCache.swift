@@ -38,7 +38,7 @@ public class DefaultWorkersMappingCache: WorkersMappingCache {
         return self.cache?.mapping
     }
     
-    public func cacheMapping(_ mapping: WorkersPerVersion) {
+    public func cache(mapping: WorkersPerVersion) {
         logger.debug("Caching workers mapping: \(mapping)")
         self.cache = CacheData(
             mapping: mapping,

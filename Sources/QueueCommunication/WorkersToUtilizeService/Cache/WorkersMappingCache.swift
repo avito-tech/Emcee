@@ -1,4 +1,4 @@
 public protocol WorkersMappingCache {
     func cachedMapping() -> WorkersPerVersion?
-    func cacheMapping(_ mapping: WorkersPerVersion)
+    func cache(mapping: WorkersPerVersion)
 }

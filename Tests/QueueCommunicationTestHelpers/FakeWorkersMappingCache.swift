@@ -9,7 +9,7 @@ public class FakeWorkersMappingCache: WorkersMappingCache {
     }
     
     public var cacheMappingArgument: WorkersPerVersion?
-    public func cacheMapping(_ mapping: WorkersPerVersion) {
+    public func cache(mapping: WorkersPerVersion) {
         cacheMappingArgument = mapping
     }
 }

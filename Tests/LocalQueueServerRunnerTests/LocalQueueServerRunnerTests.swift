@@ -23,7 +23,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         queueServerTerminationPolicy: AutomaticTerminationPolicy.stayAlive
     )
     private let remotePortDeterminer = RemotePortDeterminerFixture(result: [:])
-    private let workerUtilizationStatusPoller = FakeWorkerUtilizationStatusPoller()
+    private let autoupdatingWorkerPermissionProvider = FakeAutoupdatingWorkerPermissionProvider()
     private lazy var runner = LocalQueueServerRunner(
         automaticTerminationController: automaticTerminationController,
         deployQueue: deployQueue,
@@ -36,7 +36,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         remotePortDeterminer: remotePortDeterminer,
         remoteWorkerStarterProvider: FakeRemoteWorkerStarterProvider(),
         workerIds: [],
-        workerUtilizationStatusPoller: workerUtilizationStatusPoller
+        autoupdatingWorkerPermissionProvider: autoupdatingWorkerPermissionProvider
     )
     
     let deployQueue = OperationQueue()
@@ -195,6 +195,6 @@ final class LocalQueueServerRunnerTests: XCTestCase {
         }
         
         wait(for: [expectation], timeout: 1.0)
-        XCTAssertTrue(self.workerUtilizationStatusPoller.startPollingCalled)
+        XCTAssertTrue(self.autoupdatingWorkerPermissionProvider.startUpdatingCalled)
     }
 }

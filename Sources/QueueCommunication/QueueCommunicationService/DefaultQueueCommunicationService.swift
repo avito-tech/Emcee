@@ -48,19 +48,17 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
             let payload = WorkersToUtilizePayload(deployments: deployments, version: version)
             requestSender.sendRequestWithCallback(
                 request: WorkersToUtilizeRequest(payload: payload),
-                callbackQueue: callbackQueue,
-                callback: { (result: Either<WorkersToUtilizeResponse, RequestSenderError>) in
-                    do {
-                        let response = try result.dematerialize()
+                callbackQueue: callbackQueue
+            ) { (result: Either<WorkersToUtilizeResponse, RequestSenderError>) in
+                completion(
+                    result.mapResult { response -> Set<WorkerId> in
                         switch response {
-                        case .workersToUtilize(let workerIds):
-                            completion(.success(workerIds))
+                        case let .workersToUtilize(workerIds):
+                            return workerIds
                         }
-                    } catch {
-                        completion(.error(error))
                     }
-                }
-            )
+                )
+            }
         } catch {
             logger.error("Failed to find master queue port: \(error)")
             return completion(Either.error(error))
@@ -77,16 +75,16 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
         
         requestSender.sendRequestWithCallback(
             request: DeploymentDestinationsRequest(),
-            callbackQueue: callbackQueue) { (result: Either<DeploymentDestinationsResponse, RequestSenderError>) in
-                do {
-                    let response = try result.dematerialize()
+            callbackQueue: callbackQueue
+        ) { (result: Either<DeploymentDestinationsResponse, RequestSenderError>) in
+            completion(
+                result.mapResult { response -> [DeploymentDestination] in
                     switch response {
-                    case .deploymentDestinations(let destinations):
-                        completion(.success(destinations))
+                    case let .deploymentDestinations(destinations):
+                        return destinations
                     }
-                } catch {
-                    completion(.error(error))
                 }
+            )
         }
     }
 }

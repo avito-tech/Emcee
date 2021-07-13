@@ -10,21 +10,21 @@ import QueueCommunication
 import WorkerAlivenessProvider
 
 public final class ToggleWorkersSharingEndpoint: RESTEndpoint {
-    private let poller: WorkerUtilizationStatusPoller
+    private let autoupdatingWorkerPermissionProvider: AutoupdatingWorkerPermissionProvider
     
     public let path: RESTPath = RESTMethod.toggleWorkersSharing
     public let requestIndicatesActivity = false
     
-    public init(poller: WorkerUtilizationStatusPoller) {
-        self.poller = poller
+    public init(autoupdatingWorkerPermissionProvider: AutoupdatingWorkerPermissionProvider) {
+        self.autoupdatingWorkerPermissionProvider = autoupdatingWorkerPermissionProvider
     }
     
     public func handle(payload: ToggleWorkersSharingPayload) throws -> VoidPayload {
         switch payload.status {
         case .disabled:
-            poller.stopPollingAndRestoreDefaultConfig()
+            autoupdatingWorkerPermissionProvider.stopUpdatingAndRestoreDefaultConfig()
         case .enabled:
-            poller.startPolling()
+            autoupdatingWorkerPermissionProvider.startUpdating()
         }
         
         return VoidPayload()

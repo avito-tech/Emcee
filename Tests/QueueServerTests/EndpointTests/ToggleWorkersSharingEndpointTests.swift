@@ -5,8 +5,8 @@ import TestHelpers
 import XCTest
 
 final class ToggleWorkersSharingEndpointTests: XCTestCase {
-    let poller = FakeWorkerUtilizationStatusPoller()
-    lazy var endpoint = ToggleWorkersSharingEndpoint(poller: poller)
+    let poller = FakeAutoupdatingWorkerPermissionProvider()
+    lazy var endpoint = ToggleWorkersSharingEndpoint(autoupdatingWorkerPermissionProvider: poller)
     
     func test___does_not_indicate_activity() {
         XCTAssertFalse(
@@ -20,8 +20,8 @@ final class ToggleWorkersSharingEndpointTests: XCTestCase {
             try endpoint.handle(payload: ToggleWorkersSharingPayload(status: .enabled))
         }
         
-        XCTAssertTrue(poller.startPollingCalled)
-        XCTAssertFalse(poller.stopPollingCalled)
+        XCTAssertTrue(poller.startUpdatingCalled)
+        XCTAssertFalse(poller.stopUpdatingCalled)
     }
         
     func test___toggle_off() {
@@ -29,7 +29,7 @@ final class ToggleWorkersSharingEndpointTests: XCTestCase {
             try endpoint.handle(payload: ToggleWorkersSharingPayload(status: .disabled))
         }
         
-        XCTAssertFalse(poller.startPollingCalled)
-        XCTAssertTrue(poller.stopPollingCalled)
+        XCTAssertFalse(poller.startUpdatingCalled)
+        XCTAssertTrue(poller.stopUpdatingCalled)
     }
 }

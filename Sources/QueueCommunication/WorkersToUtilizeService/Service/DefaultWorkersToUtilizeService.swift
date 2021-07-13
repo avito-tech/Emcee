@@ -33,10 +33,10 @@ public class DefaultWorkersToUtilizeService: WorkersToUtilizeService {
             return cachedWorkers
         }
         
-        let mappings = calculator.disjointWorkers(mapping: composeQueuesMapping())
-        cache.cacheMapping(mappings)
+        let mapping = calculator.disjointWorkers(mapping: composeQueuesMapping())
+        cache.cache(mapping: mapping)
         
-        guard let workers = mappings[version] else {
+        guard let workers = mapping[version] else {
             logger.error("Not found workers mapping for version \(version)")
             return initialWorkers
         }

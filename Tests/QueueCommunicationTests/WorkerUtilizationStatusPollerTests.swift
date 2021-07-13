@@ -14,12 +14,12 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     private let communicationService = FakeQueueCommunicationService()
     
     func test___poller_uses_default_deployments___if_no_data_was_fetched() {
-        let deployments = [
+        let workerDestinations = [
             DeploymentDestinationFixtures().with(host: "workerId1").build(),
             DeploymentDestinationFixtures().with(host: "workerId2").build()
         ]
         
-        let poller = buildPoller(deployments: deployments)
+        let poller = buildPoller(workerDestinations: workerDestinations)
         
         XCTAssertEqual(poller.utilizationPermissionForWorker(workerId: "workerId1"), .allowedToUtilize)
         XCTAssertEqual(poller.utilizationPermissionForWorker(workerId: "workerId2"), .allowedToUtilize)
@@ -27,7 +27,7 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     }
     
     func test___poller_uses_fetched_worker_ids___if_workers_data_was_fetched() {
-        let deployments = [
+        let workerDestinations = [
             DeploymentDestinationFixtures().with(host: "workerId1").build(),
             DeploymentDestinationFixtures().with(host: "workerId2").build()
         ]
@@ -36,9 +36,9 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
             completion(.success([WorkerId(value: "workerId3")]))
             expectation.fulfill()
         }
-        let poller = buildPoller(deployments: deployments)
+        let poller = buildPoller(workerDestinations: workerDestinations)
         
-        poller.startPolling()
+        poller.startUpdating()
         
         wait(for: [expectation], timeout: 5)
         XCTAssertEqual(poller.utilizationPermissionForWorker(workerId: "workerId1"), .notAllowedToUtilize)
@@ -47,7 +47,7 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     }
     
     func test___poller_uses_default_deployments___fetch_error_occured() {
-        let deployments = [
+        let workerDestinations = [
             DeploymentDestinationFixtures().with(host: "workerId1").build(),
             DeploymentDestinationFixtures().with(host: "workerId2").build()
         ]
@@ -56,9 +56,9 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
             completion(.error(ErrorForTestingPurposes()))
             expectation.fulfill()
         }
-        let poller = buildPoller(deployments: deployments)
+        let poller = buildPoller(workerDestinations: workerDestinations)
         
-        poller.startPolling()
+        poller.startUpdating()
         
         wait(for: [expectation], timeout: 5)
         XCTAssertEqual(poller.utilizationPermissionForWorker(workerId: "workerId1"), .allowedToUtilize)
@@ -67,7 +67,7 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     }
     
     func test___poller_uses_default_worker_ids___if_workers_data_was_fetched_and_reset_was_called() {
-        let deployments = [
+        let workerDestinations = [
             DeploymentDestinationFixtures().with(host: "workerId1").build(),
             DeploymentDestinationFixtures().with(host: "workerId2").build()
         ]
@@ -76,11 +76,11 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
             completion(.success([WorkerId(value: "workerId3")]))
             expectation.fulfill()
         }
-        let poller = buildPoller(deployments: deployments)
+        let poller = buildPoller(workerDestinations: workerDestinations)
         
-        poller.startPolling()
+        poller.startUpdating()
         wait(for: [expectation], timeout: 5)
-        poller.stopPollingAndRestoreDefaultConfig()
+        poller.stopUpdatingAndRestoreDefaultConfig()
         
         XCTAssertEqual(poller.utilizationPermissionForWorker(workerId: "workerId1"), .allowedToUtilize)
         XCTAssertEqual(poller.utilizationPermissionForWorker(workerId: "workerId2"), .allowedToUtilize)
@@ -88,7 +88,7 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     }
     
     func test___poller_starts_again___if_reset_was_called() {
-        let deployments = [
+        let workerDestinations = [
             DeploymentDestinationFixtures().with(host: "workerId1").build(),
             DeploymentDestinationFixtures().with(host: "workerId2").build()
         ]
@@ -97,10 +97,10 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
             completion(.success([WorkerId(value: "workerId3")]))
             expectation.fulfill()
         }
-        let poller = buildPoller(deployments: deployments)
+        let poller = buildPoller(workerDestinations: workerDestinations)
         
-        poller.stopPollingAndRestoreDefaultConfig()
-        poller.startPolling()
+        poller.stopUpdatingAndRestoreDefaultConfig()
+        poller.startUpdating()
         wait(for: [expectation], timeout: 5)
         
         XCTAssertEqual(poller.utilizationPermissionForWorker(workerId: "workerId1"), .notAllowedToUtilize)
@@ -119,7 +119,7 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
         }
         let expectedMetric2 = NumberOfWorkersToUtilizeMetric(emceeVersion: "emceeVersion", queueHost: "queueHost", workersCount: 1)
         let poller = buildPoller(
-            deployments: [],
+            workerDestinations: [],
             globalMetricRecorder: GlobalMetricRecorderImpl(
                 graphiteHandler: metricHandler,
                 statsdHandler: NoOpMetricHandler(),
@@ -128,7 +128,7 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
         )
         let expectedMetrics = Set([expectedMetric1, expectedMetric2])
 
-        poller.startPolling()
+        poller.startUpdating()
 
         wait(for: [expectation], timeout: 5)
         metricQueue.sync { }
@@ -144,12 +144,12 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     }
 
     private func buildPoller(
-        deployments: [DeploymentDestination],
+        workerDestinations: [DeploymentDestination],
         globalMetricRecorder: GlobalMetricRecorder = GlobalMetricRecorderImpl()
-    ) -> DefaultWorkerUtilizationStatusPoller {
-        DefaultWorkerUtilizationStatusPoller(
+    ) -> AutoupdatingWorkerPermissionProvider {
+        AutoupdatingWorkerPermissionProviderImpl(
             communicationService: communicationService,
-            defaultDeployments: deployments,
+            initialWorkerDestinations: workerDestinations,
             emceeVersion: "emceeVersion",
             logger: .noOp,
             globalMetricRecorder: globalMetricRecorder,

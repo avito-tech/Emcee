@@ -80,7 +80,7 @@ final class QueueServerTests: XCTestCase {
             workerAlivenessProvider: workerAlivenessProvider,
             workerCapabilitiesStorage: workerCapabilitiesStorage,
             workerConfigurations: workerConfigurations,
-            workerUtilizationStatusPoller: FakeWorkerUtilizationStatusPoller(),
+            autoupdatingWorkerPermissionProvider: FakeAutoupdatingWorkerPermissionProvider(),
             workersToUtilizeService: FakeWorkersToUtilizeService()
         )
         XCTAssertThrowsError(try server.queueResults(jobId: jobId))
@@ -126,7 +126,7 @@ final class QueueServerTests: XCTestCase {
             workerAlivenessProvider: workerAlivenessProvider,
             workerCapabilitiesStorage: workerCapabilitiesStorage,
             workerConfigurations: workerConfigurations,
-            workerUtilizationStatusPoller: FakeWorkerUtilizationStatusPoller(),
+            autoupdatingWorkerPermissionProvider: FakeAutoupdatingWorkerPermissionProvider(),
             workersToUtilizeService: FakeWorkersToUtilizeService()
         )
         try server.schedule(

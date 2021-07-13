@@ -22,7 +22,7 @@ public final class LocalQueueServerRunner {
     private let remotePortDeterminer: RemotePortDeterminer
     private let remoteWorkerStarterProvider: RemoteWorkerStarterProvider
     private let workerIds: [WorkerId]
-    private let workerUtilizationStatusPoller: WorkerUtilizationStatusPoller
+    private let autoupdatingWorkerPermissionProvider: AutoupdatingWorkerPermissionProvider
     
     public static func queueServerAddress(port: SocketModels.Port) -> SocketAddress {
         SocketAddress(host: LocalHostDeterminer.currentHostAddress, port: port)
@@ -40,7 +40,7 @@ public final class LocalQueueServerRunner {
         remotePortDeterminer: RemotePortDeterminer,
         remoteWorkerStarterProvider: RemoteWorkerStarterProvider,
         workerIds: [WorkerId],
-        workerUtilizationStatusPoller: WorkerUtilizationStatusPoller
+        autoupdatingWorkerPermissionProvider: AutoupdatingWorkerPermissionProvider
     ) {
         self.automaticTerminationController = automaticTerminationController
         self.deployQueue = deployQueue
@@ -53,11 +53,11 @@ public final class LocalQueueServerRunner {
         self.remotePortDeterminer = remotePortDeterminer
         self.remoteWorkerStarterProvider = remoteWorkerStarterProvider
         self.workerIds = workerIds
-        self.workerUtilizationStatusPoller = workerUtilizationStatusPoller
+        self.autoupdatingWorkerPermissionProvider = autoupdatingWorkerPermissionProvider
     }
     
     public func start(emceeVersion: Version) throws {
-        workerUtilizationStatusPoller.startPolling()
+        autoupdatingWorkerPermissionProvider.startUpdating()
         
         try startWorkers(
             port: try startQueueServer(emceeVersion: emceeVersion)

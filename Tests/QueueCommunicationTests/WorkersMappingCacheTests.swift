@@ -14,7 +14,7 @@ class WorkersMappingCacheTests: XCTestCase {
     func test___return_cached_mapping() {
         let expectedMapping: WorkersPerVersion = ["Version": ["WorkerId"]]
         let cache = DefaultWorkersMappingCache(cacheIvalidationTime: 10, dateProvider: dateProvider, logger: .noOp)
-        cache.cacheMapping(expectedMapping)
+        cache.cache(mapping: expectedMapping)
         
         let cachedMapping = cache.cachedMapping()
         
@@ -25,7 +25,7 @@ class WorkersMappingCacheTests: XCTestCase {
         let expectedMapping: WorkersPerVersion = ["Version": ["WorkerId"]]
         
         let cache = DefaultWorkersMappingCache(cacheIvalidationTime: 10, dateProvider: dateProvider, logger: .noOp)
-        cache.cacheMapping(expectedMapping)
+        cache.cache(mapping: expectedMapping)
         
         dateProvider.result += 100
         

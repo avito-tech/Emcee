@@ -107,9 +107,9 @@ public final class StartQueueServerCommand: Command {
             requestTimeout: 10,
             version: emceeVersion
         )
-        let workerUtilizationStatusPoller = DefaultWorkerUtilizationStatusPoller(
+        let autoupdatingWorkerPermissionProvider = AutoupdatingWorkerPermissionProviderImpl(
             communicationService: queueCommunicationService,
-            defaultDeployments: workerDestinations,
+            initialWorkerDestinations: workerDestinations,
             emceeVersion: emceeVersion,
             logger: logger,
             globalMetricRecorder: try di.get(),
@@ -170,11 +170,11 @@ public final class StartQueueServerCommand: Command {
             workerAlivenessProvider: WorkerAlivenessProviderImpl(
                 knownWorkerIds: workerConfigurations.workerIds,
                 logger: logger,
-                workerPermissionProvider: workerUtilizationStatusPoller
+                workerPermissionProvider: autoupdatingWorkerPermissionProvider
             ),
             workerCapabilitiesStorage: WorkerCapabilitiesStorageImpl(),
             workerConfigurations: workerConfigurations,
-            workerUtilizationStatusPoller: workerUtilizationStatusPoller,
+            autoupdatingWorkerPermissionProvider: autoupdatingWorkerPermissionProvider,
             workersToUtilizeService: workersToUtilizeService
         )
         queueServerPortProvider.source = queueServer.queueServerPortProvider
@@ -198,7 +198,7 @@ public final class StartQueueServerCommand: Command {
             remotePortDeterminer: remotePortDeterminer,
             remoteWorkerStarterProvider: remoteWorkerStarterProvider,
             workerIds: workerDestinations.map { $0.workerId },
-            workerUtilizationStatusPoller: workerUtilizationStatusPoller
+            autoupdatingWorkerPermissionProvider: autoupdatingWorkerPermissionProvider
         )
         try localQueueServerRunner.start(emceeVersion: emceeVersion)
     }
