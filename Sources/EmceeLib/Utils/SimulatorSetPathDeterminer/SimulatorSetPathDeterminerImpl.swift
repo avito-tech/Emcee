@@ -33,9 +33,14 @@ public final class SimulatorSetPathDeterminerImpl: SimulatorSetPathDeterminer {
                 components: [simulatorContainerFolderName, uniqueIdentifierGenerator.generate()]
             )
         case .insideUserLibrary:
-            return try fileSystem.commonlyUsedPathsProvider.library(inDomain: .user, create: true).appending(
-                relativePath: RelativePath("Developer/CoreSimulator/Devices")
+            let path = try fileSystem.userLibraryPath().appending(
+                relativePath: "Developer/CoreSimulator/Devices"
             )
+            try fileSystem.createDirectory(
+                atPath: path,
+                withIntermediateDirectories: true
+            )
+            return path
         }
 
     }

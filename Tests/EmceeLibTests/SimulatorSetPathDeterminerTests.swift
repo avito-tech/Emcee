@@ -51,4 +51,26 @@ final class SimulatorSetPathDeterminerTests: XCTestCase {
             )
         )
     }
+    
+    func test___system_location_for_simulators_is_created___when_it_is_missing_initially() throws {
+        fileSystem.propertiesProvider = { _ in
+            FakeFilePropertiesContainer(pathExists: false)
+        }
+        
+        let pathCreatedExpectation = XCTestExpectation()
+        
+        fileSystem.onCreateDirectory = { path, recursive in
+            assert { path } equals: {
+                try self.fileSystem.userLibraryPath().appending(relativePath: "Developer/CoreSimulator/Devices")
+            }
+            assertTrue { recursive }
+            pathCreatedExpectation.fulfill()
+        }
+        
+        assertDoesNotThrow {
+            try provider.simulatorSetPathSuitableForTestRunnerTool(simulatorLocation: .insideUserLibrary)
+        }
+        
+        wait(for: [pathCreatedExpectation], timeout: 0)
+    }
 }
