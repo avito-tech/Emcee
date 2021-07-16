@@ -1,6 +1,6 @@
 import Foundation
-import QueueServer
 import SocketModels
+import QueueServerPortProvider
 
 public final class FakeQueueServerPortProvider: QueueServerPortProvider {
     private let result: SocketModels.Port

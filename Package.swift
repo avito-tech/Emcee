@@ -504,6 +504,7 @@ let package = Package(
                 "QueueCommunication",
                 "QueueModels",
                 "QueueServer",
+                "QueueServerPortProvider",
                 "RESTMethods",
                 "RemotePortDeterminer",
                 "RequestSender",
@@ -747,6 +748,7 @@ let package = Package(
                 "QueueCommunication",
                 "QueueModels",
                 "QueueServer",
+                "QueueServerPortProvider",
                 "RemotePortDeterminer",
                 .product(name: "SocketModels", package: "CommandLineToolkit"),
                 .product(name: "SynchronousWaiter", package: "CommandLineToolkit"),
@@ -769,6 +771,7 @@ let package = Package(
                 "QueueCommunicationTestHelpers",
                 "QueueModels",
                 "QueueServer",
+                "QueueServerPortProviderTestHelpers",
                 "QueueServerTestHelpers",
                 "RemotePortDeterminer",
                 "RemotePortDeterminerTestHelpers",
@@ -979,7 +982,6 @@ let package = Package(
             dependencies: [
                 .product(name: "AtomicModels", package: "CommandLineToolkit"),
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
-                "Deployer",
                 "EmceeLogging",
                 .product(name: "Graphite", package: "CommandLineToolkit"),
                 "LocalHostDeterminer",
@@ -987,6 +989,7 @@ let package = Package(
                 "MetricsExtensions",
                 "QueueCommunicationModels",
                 "QueueModels",
+                "QueueServerPortProvider",
                 "RESTMethods",
                 "RemotePortDeterminer",
                 "RequestSender",
@@ -1027,6 +1030,7 @@ let package = Package(
                 "QueueCommunication",
                 "QueueCommunicationTestHelpers",
                 "QueueModels",
+                "QueueServerPortProviderTestHelpers",
                 "RESTMethods",
                 "RemotePortDeterminer",
                 "RemotePortDeterminerTestHelpers",
@@ -1099,6 +1103,7 @@ let package = Package(
                 "PortDeterminer",
                 "QueueCommunication",
                 "QueueModels",
+                "QueueServerPortProvider",
                 "RESTInterfaces",
                 "RESTMethods",
                 "RESTServer",
@@ -1120,6 +1125,21 @@ let package = Package(
                 "WorkerCapabilitiesModels",
             ],
             path: "Sources/QueueServer"
+        ),
+        .target(
+            name: "QueueServerPortProvider",
+            dependencies: [
+                .product(name: "SocketModels", package: "CommandLineToolkit"),
+            ],
+            path: "Sources/QueueServerPortProvider"
+        ),
+        .target(
+            name: "QueueServerPortProviderTestHelpers",
+            dependencies: [
+                "QueueServerPortProvider",
+                .product(name: "SocketModels", package: "CommandLineToolkit"),
+            ],
+            path: "Tests/QueueServerPortProviderTestHelpers"
         ),
         .target(
             name: "QueueServerTestHelpers",
@@ -1156,6 +1176,8 @@ let package = Package(
                 "QueueModels",
                 "QueueModelsTestHelpers",
                 "QueueServer",
+                "QueueServerPortProvider",
+                "QueueServerPortProviderTestHelpers",
                 "QueueServerTestHelpers",
                 "RESTMethods",
                 "RemotePortDeterminerTestHelpers",

@@ -1,5 +1,7 @@
 import QueueServer
 import QueueServerTestHelpers
+import QueueServerPortProvider
+import QueueServerPortProviderTestHelpers
 import TestHelpers
 import XCTest
 

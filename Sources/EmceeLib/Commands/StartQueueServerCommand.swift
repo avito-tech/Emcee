@@ -18,6 +18,7 @@ import ProcessController
 import QueueCommunication
 import QueueModels
 import QueueServer
+import QueueServerPortProvider
 import RemotePortDeterminer
 import RequestSender
 import ResourceLocationResolver
@@ -89,6 +90,7 @@ public final class StartQueueServerCommand: Command {
         ).createAutomaticTerminationController()
         
         let currentHostName = LocalHostDeterminer.currentHostAddress
+        let queueServerPortProvider = SourcableQueueServerPortProvider()
         
         let remotePortDeterminer = RemoteQueuePortScanner(
             hosts: [currentHostName],
@@ -112,7 +114,8 @@ public final class StartQueueServerCommand: Command {
             emceeVersion: emceeVersion,
             logger: logger,
             globalMetricRecorder: try di.get(),
-            queueHost: currentHostName
+            queueHost: currentHostName,
+            queueServerPortProvider: queueServerPortProvider
         )
         
         let workersToUtilizeService = DefaultWorkersToUtilizeService(
@@ -135,7 +138,6 @@ public final class StartQueueServerCommand: Command {
             uniqueIdentifierGenerator: try di.get(),
             workerDeploymentDestinations: workerDestinations
         )
-        let queueServerPortProvider = SourcableQueueServerPortProvider()
         let workerConfigurations = try createWorkerConfigurations(
             queueServerConfiguration: queueServerConfiguration
         )
@@ -196,7 +198,7 @@ public final class StartQueueServerCommand: Command {
             queueServerTerminationWaiter: queueServerTerminationWaiter,
             remotePortDeterminer: remotePortDeterminer,
             remoteWorkerStarterProvider: remoteWorkerStarterProvider,
-            workerIds: workerDestinations.map { $0.workerId },
+            workerIds: Set(workerDestinations.map { $0.workerId }),
             autoupdatingWorkerPermissionProvider: autoupdatingWorkerPermissionProvider
         )
         try localQueueServerRunner.start(emceeVersion: emceeVersion)

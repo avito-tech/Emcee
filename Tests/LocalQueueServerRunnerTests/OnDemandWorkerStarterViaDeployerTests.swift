@@ -3,6 +3,7 @@ import LocalQueueServerRunner
 import QueueModels
 import QueueServer
 import QueueServerTestHelpers
+import QueueServerPortProviderTestHelpers
 import SocketModels
 import XCTest
 

@@ -4,7 +4,7 @@ import QueueModels
 public class FakeWorkersToUtilizeService: WorkersToUtilizeService {
     public init() { }
     
-    public func workersToUtilize(initialWorkers: Set<WorkerId>, version: Version) -> Set<WorkerId> {
+    public func workersToUtilize(initialWorkerIds: Set<WorkerId>, queueInfo: QueueInfo) -> Set<WorkerId> {
         return []
     }
 }

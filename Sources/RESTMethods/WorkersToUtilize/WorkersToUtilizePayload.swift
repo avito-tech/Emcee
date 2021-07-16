@@ -2,14 +2,14 @@ import Deployer
 import QueueModels
 
 public class WorkersToUtilizePayload: Codable {
-    public let version: Version
+    public let queueInfo: QueueInfo
     public let workerIds: Set<WorkerId>
     
     public init(
-        version: Version,
+        queueInfo: QueueInfo,
         workerIds: Set<WorkerId>
     ) {
+        self.queueInfo = queueInfo
         self.workerIds = workerIds
-        self.version = version
     }
 }

@@ -1,11 +1,12 @@
 import AtomicModels
-import Deployer
 import LocalHostDeterminer
 import EmceeLogging
 import Metrics
 import MetricsExtensions
 import QueueCommunicationModels
 import QueueModels
+import QueueServerPortProvider
+import SocketModels
 import Timer
 
 public class AutoupdatingWorkerPermissionProviderImpl: AutoupdatingWorkerPermissionProvider {
@@ -16,6 +17,7 @@ public class AutoupdatingWorkerPermissionProviderImpl: AutoupdatingWorkerPermiss
     private let globalMetricRecorder: GlobalMetricRecorder
     private let pollingTrigger = DispatchBasedTimer(repeating: .seconds(60), leeway: .seconds(10))
     private let queueHost: String
+    private let queueServerPortProvider: QueueServerPortProvider
     private let workerIdsToUtilize: AtomicValue<Set<WorkerId>>
     
     public init(
@@ -24,7 +26,8 @@ public class AutoupdatingWorkerPermissionProviderImpl: AutoupdatingWorkerPermiss
         emceeVersion: Version,
         logger: ContextualLogger,
         globalMetricRecorder: GlobalMetricRecorder,
-        queueHost: String
+        queueHost: String,
+        queueServerPortProvider: QueueServerPortProvider
     ) {
         self.communicationService = communicationService
         self.initialWorkerIds = initialWorkerIds
@@ -33,6 +36,7 @@ public class AutoupdatingWorkerPermissionProviderImpl: AutoupdatingWorkerPermiss
         self.globalMetricRecorder = globalMetricRecorder
         self.queueHost = queueHost
         self.workerIdsToUtilize = AtomicValue(initialWorkerIds)
+        self.queueServerPortProvider = queueServerPortProvider
         reportMetric()
     }
     
@@ -56,23 +60,33 @@ public class AutoupdatingWorkerPermissionProviderImpl: AutoupdatingWorkerPermiss
     }
     
     private func fetchWorkersToUtilize() {
-        communicationService.workersToUtilize(
-            version: emceeVersion,
-            workerIds: initialWorkerIds
-        ) { [weak self] result in
-            guard let strongSelf = self else {
-                return
-            }
-            
-            do {
-                let workerIds = try result.dematerialize()
-                strongSelf.logger.debug("Fetched workerIds to utilize: \(workerIds)")
-                strongSelf.workerIdsToUtilize.set(workerIds)
-                strongSelf.reportMetric()
-            } catch {
-                strongSelf.logger.error("Failed to fetch workers to utilize: \(error)")
-            }
+        let queuePort: SocketModels.Port
+        do {
+            queuePort = try queueServerPortProvider.port()
+        } catch {
+            logger.warning("Failed to get current queue port: \(error). This error will be ignored.")
+            return
         }
+        
+        communicationService.workersToUtilize(
+            queueInfo: QueueInfo(
+                queueAddress: SocketAddress(host: queueHost, port: queuePort),
+                queueVersion: emceeVersion
+            ),
+            workerIds: initialWorkerIds,
+            completion: { [weak self] result in
+                guard let strongSelf = self else { return }
+                
+                do {
+                    let workerIds = try result.dematerialize()
+                    strongSelf.logger.debug("Fetched workerIds to utilize: \(workerIds)")
+                    strongSelf.workerIdsToUtilize.set(workerIds)
+                    strongSelf.reportMetric()
+                } catch {
+                    strongSelf.logger.error("Failed to fetch workers to utilize: \(error)")
+                }
+            }
+        )
     }
     
     public func utilizationPermissionForWorker(workerId: WorkerId) -> WorkerUtilizationPermission {

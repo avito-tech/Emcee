@@ -8,23 +8,25 @@ import SocketModels
 import XCTest
 
 class QueueCommunicationServiceTests: XCTestCase {
-    let requestSender = FakeRequestSender()
+    lazy var requestSender = FakeRequestSender()
     lazy var requestSenderProvider = FakeRequestSenderProvider(requestSender: requestSender)
-    let remoteQueueDetector = FakeRemoteQueueDetector()
-    
+    lazy var remoteQueueDetector = FakeRemoteQueueDetector()
+    lazy var queueInfo = QueueInfo(
+        queueAddress: SocketAddress(host: "host", port: 42),
+        queueVersion: "Version"
+    )
     lazy var service = DefaultQueueCommunicationService(
         logger: .noOp,
         remoteQueueDetector: remoteQueueDetector,
         requestSenderProvider: requestSenderProvider,
         requestTimeout: 10
     )
-        
     
     func test___workersToUtilize___return_error_if_no_master_queue_found() {
         remoteQueueDetector.shoudThrow = true
         let completionCalled = expectation(description: "Completion is called")
         
-        service.workersToUtilize(version: "verson", workerIds: []) { result in
+        service.workersToUtilize(queueInfo: queueInfo, workerIds: []) { result in
             XCTAssert(result.isError)
             completionCalled.fulfill()
         }
@@ -37,7 +39,7 @@ class QueueCommunicationServiceTests: XCTestCase {
         requestSender.requestSenderError = .noData
         let completionCalled = expectation(description: "Completion is called")
         
-        service.workersToUtilize(version: "version", workerIds: []) { result in
+        service.workersToUtilize(queueInfo: queueInfo, workerIds: []) { result in
             XCTAssert(result.isError)
             completionCalled.fulfill()
         }
@@ -56,7 +58,7 @@ class QueueCommunicationServiceTests: XCTestCase {
         requestSender.result = WorkersToUtilizeResponse.workersToUtilize(workerIds: expectedWorkerId)
         let completionCalled = expectation(description: "Completion is called")
         
-        service.workersToUtilize(version: "version", workerIds: []) { result in
+        service.workersToUtilize(queueInfo: queueInfo, workerIds: []) { result in
             XCTAssertEqual(
                  try? result.dematerialize(),
                  expectedWorkerId

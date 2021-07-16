@@ -31,7 +31,7 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
     }
     
     public func workersToUtilize(
-        version: Version,
+        queueInfo: QueueInfo,
         workerIds: Set<WorkerId>,
         completion: @escaping (Either<Set<WorkerId>, Error>) -> ()
     ) {
@@ -43,7 +43,7 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
             )
 
             let payload = WorkersToUtilizePayload(
-                version: version,
+                queueInfo: queueInfo,
                 workerIds: workerIds
             )
             requestSender.sendRequestWithCallback(

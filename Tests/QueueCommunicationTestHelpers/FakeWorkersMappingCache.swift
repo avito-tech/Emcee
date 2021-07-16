@@ -3,13 +3,13 @@ import QueueCommunication
 public class FakeWorkersMappingCache: WorkersMappingCache {
     public init() { }
     
-    public var presetCachedMapping: WorkersPerVersion?
-    public func cachedMapping() -> WorkersPerVersion? {
+    public var presetCachedMapping: WorkersPerQueue?
+    public func cachedMapping() -> WorkersPerQueue? {
         return presetCachedMapping
     }
     
-    public var cacheMappingArgument: WorkersPerVersion?
-    public func cache(mapping: WorkersPerVersion) {
+    public var cacheMappingArgument: WorkersPerQueue?
+    public func cache(mapping: WorkersPerQueue) {
         cacheMappingArgument = mapping
     }
 }

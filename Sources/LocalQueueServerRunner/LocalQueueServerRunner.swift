@@ -21,7 +21,7 @@ public final class LocalQueueServerRunner {
     private let queueServerTerminationWaiter: QueueServerTerminationWaiter
     private let remotePortDeterminer: RemotePortDeterminer
     private let remoteWorkerStarterProvider: RemoteWorkerStarterProvider
-    private let workerIds: [WorkerId]
+    private let workerIds: Set<WorkerId>
     private let autoupdatingWorkerPermissionProvider: AutoupdatingWorkerPermissionProvider
     
     public static func queueServerAddress(port: SocketModels.Port) -> SocketAddress {
@@ -39,7 +39,7 @@ public final class LocalQueueServerRunner {
         queueServerTerminationWaiter: QueueServerTerminationWaiter,
         remotePortDeterminer: RemotePortDeterminer,
         remoteWorkerStarterProvider: RemoteWorkerStarterProvider,
-        workerIds: [WorkerId],
+        workerIds: Set<WorkerId>,
         autoupdatingWorkerPermissionProvider: AutoupdatingWorkerPermissionProvider
     ) {
         self.automaticTerminationController = automaticTerminationController

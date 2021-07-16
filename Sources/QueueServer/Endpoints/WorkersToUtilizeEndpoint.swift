@@ -24,8 +24,8 @@ public final class WorkersToUtilizeEndpoint: RESTEndpoint {
         logger.debug("Received workers to utilize payload: \(payload)")
         return .workersToUtilize(
             workerIds: service.workersToUtilize(
-                initialWorkers: payload.workerIds,
-                version: payload.version
+                initialWorkerIds: payload.workerIds,
+                queueInfo: payload.queueInfo
             )
         )
     }

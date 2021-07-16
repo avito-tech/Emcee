@@ -1,3 +1,4 @@
+import AtomicModels
 import Foundation
 import EmceeLogging
 import QueueModels
@@ -24,45 +25,50 @@ public class DefaultWorkersToUtilizeService: WorkersToUtilizeService {
         self.portDeterminer = portDeterminer
     }
     
-    public func workersToUtilize(initialWorkers: Set<WorkerId>, version: Version) -> Set<WorkerId> {
-        logger.debug("Preparing workers to utilize for version \(version) with initial workers \(initialWorkers)")
+    public func workersToUtilize(
+        initialWorkerIds: Set<WorkerId>,
+        queueInfo: QueueInfo
+    ) -> Set<WorkerId> {
+        logger.debug("Preparing workers to utilize for queue \(queueInfo.queueAddress) \(queueInfo.queueVersion) with initial workers \(initialWorkerIds.sorted())")
         
-        if let cachedWorkers = cache.cachedMapping()?[version] {
-            logger.debug("Use cached workers to utilize: \(cachedWorkers) for version: \(version)")
+        if let cachedWorkers = cache.cachedMapping()?[queueInfo] {
+            logger.debug("Use cached workers to utilize: \(cachedWorkers) for version: \(queueInfo.queueVersion)")
             return cachedWorkers
         }
         
         let mapping = calculator.disjointWorkers(mapping: composeQueuesMapping())
         cache.cache(mapping: mapping)
         
-        guard let workers = mapping[version] else {
-            logger.error("Not found workers mapping for version \(version)")
-            return initialWorkers
+        guard let workers = mapping[queueInfo] else {
+            logger.error("Not found workers mapping for version \(queueInfo.queueVersion)")
+            return initialWorkerIds
         }
         
-        logger.debug("Use workers to utilize: \(workers) for version: \(version)")
+        logger.debug("Use workers to utilize: \(workers) for queue \(queueInfo.queueAddress) \(queueInfo.queueVersion)")
         return workers
     }
     
-    private func composeQueuesMapping() -> WorkersPerVersion {
+    private func composeQueuesMapping() -> WorkersPerQueue {
         let socketToVersion = portDeterminer.queryPortAndQueueServerVersion(timeout: 30)
-        var mapping = WorkersPerVersion()
+        let mapping = AtomicValue(WorkersPerQueue())
         let dispatchGroup = DispatchGroup()
 
         for (socketAddress, version) in socketToVersion {
+            let queueInfo = QueueInfo(queueAddress: socketAddress, queueVersion: version)
             dispatchGroup.enter()
-            communicationService.queryQueueForWorkerIds(queueAddress: socketAddress) { result in
+            communicationService.queryQueueForWorkerIds(queueAddress: socketAddress) { [logger] result in
                 defer { dispatchGroup.leave() }
                 do {
-                    let workers = try result.dematerialize()
-                    mapping[version] = workers
+                    try mapping.withExclusiveAccess {
+                        $0[queueInfo] = try result.dematerialize()
+                    }
                 } catch {
-                    self.logger.error("Error in obtaining deployment destinations for queue at \(socketAddress.asString) with error \(error.localizedDescription)")
+                    logger.error("Error obtaining workers for queue at \(socketAddress): \(error)")
                 }
             }
         }
         
         dispatchGroup.wait()
-        return mapping
+        return mapping.currentValue()
     }
 }

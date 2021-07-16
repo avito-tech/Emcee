@@ -19,22 +19,21 @@ public class FakeQueueCommunicationService: QueueCommunicationService {
     }
     
     public func workersToUtilize(
-        version: Version,
+        queueInfo: QueueInfo,
         workerIds: Set<WorkerId>,
         completion: @escaping (Either<Set<WorkerId>, Error>) -> ()
     ) {
         completionHandler(completion)
     }
     
-    public var deploymentDestinationsCallAddresses = [SocketAddress]()
+    public var allQueriedQueueAddresses = [SocketAddress]()
     public var workersPerSocketAddress: [SocketAddress: Set<WorkerId>] = [:]
     public var deploymentDestinationsAsync = false
-    
     public func queryQueueForWorkerIds(
         queueAddress: SocketAddress,
-        completion: @escaping (Either<Set<WorkerId>, Error>) -> ()
-    ) {
-        deploymentDestinationsCallAddresses.append(queueAddress)
+        completion: @escaping (Either<Set<WorkerId>, Error>) -> ())
+    {
+        allQueriedQueueAddresses.append(queueAddress)
         
         let workerIds = workersPerSocketAddress[queueAddress] ?? Set()
         

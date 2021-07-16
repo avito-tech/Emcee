@@ -4,6 +4,7 @@ import DistDeployer
 import Foundation
 import QueueModels
 import QueueServer
+import QueueServerPortProvider
 import SocketModels
 
 public final class OnDemandWorkerStarterViaDeployer: OnDemandWorkerStarter {

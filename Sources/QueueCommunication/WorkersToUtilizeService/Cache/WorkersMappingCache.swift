@@ -1,4 +1,4 @@
 public protocol WorkersMappingCache {
-    func cachedMapping() -> WorkersPerVersion?
-    func cache(mapping: WorkersPerVersion)
+    func cachedMapping() -> WorkersPerQueue?
+    func cache(mapping: WorkersPerQueue)
 }

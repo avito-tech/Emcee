@@ -3,7 +3,7 @@ import Foundation
 import EmceeLogging
 
 private struct CacheData {
-    let mapping: WorkersPerVersion
+    let mapping: WorkersPerQueue
     let creationDate: Date
 }
 
@@ -23,7 +23,7 @@ public class DefaultWorkersMappingCache: WorkersMappingCache {
         self.logger = logger
     }
     
-    public func cachedMapping() -> WorkersPerVersion? {
+    public func cachedMapping() -> WorkersPerQueue? {
         guard let cache = self.cache else {
             return nil
         }
@@ -38,7 +38,7 @@ public class DefaultWorkersMappingCache: WorkersMappingCache {
         return self.cache?.mapping
     }
     
-    public func cache(mapping: WorkersPerVersion) {
+    public func cache(mapping: WorkersPerQueue) {
         logger.debug("Caching workers mapping: \(mapping)")
         self.cache = CacheData(
             mapping: mapping,

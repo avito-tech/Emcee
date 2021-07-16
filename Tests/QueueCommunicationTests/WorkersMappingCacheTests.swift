@@ -1,6 +1,8 @@
 import DateProvider
 import DateProviderTestHelpers
 import QueueCommunication
+import QueueModels
+import SocketModels
 import XCTest
 
 class WorkersMappingCacheTests: XCTestCase {
@@ -12,7 +14,12 @@ class WorkersMappingCacheTests: XCTestCase {
     }
     
     func test___return_cached_mapping() {
-        let expectedMapping: WorkersPerVersion = ["Version": ["WorkerId"]]
+        let expectedMapping: WorkersPerQueue = [
+            QueueInfo(
+                queueAddress: SocketAddress(host: "host", port: 12),
+                queueVersion: "Version"
+            ): ["WorkerId"]
+        ]
         let cache = DefaultWorkersMappingCache(cacheIvalidationTime: 10, dateProvider: dateProvider, logger: .noOp)
         cache.cache(mapping: expectedMapping)
         
@@ -22,7 +29,12 @@ class WorkersMappingCacheTests: XCTestCase {
     }
     
     func test___invalidate_cached_mapping() {
-        let expectedMapping: WorkersPerVersion = ["Version": ["WorkerId"]]
+        let expectedMapping: WorkersPerQueue = [
+            QueueInfo(
+                queueAddress: SocketAddress(host: "host", port: 12),
+                queueVersion: "Version"
+            ): ["WorkerId"]
+        ]
         
         let cache = DefaultWorkersMappingCache(cacheIvalidationTime: 10, dateProvider: dateProvider, logger: .noOp)
         cache.cache(mapping: expectedMapping)

@@ -5,11 +5,13 @@ import MetricsTestHelpers
 import QueueCommunication
 import QueueCommunicationTestHelpers
 import QueueModels
+import QueueServerPortProviderTestHelpers
 import TestHelpers
 import XCTest
 
 class WorkerUtilizationStatusPollerTests: XCTestCase {
     private let communicationService = FakeQueueCommunicationService()
+    private lazy var portProvider = FakeQueueServerPortProvider(port: 42)
     
     func test___poller_uses_default_deployments___if_no_data_was_fetched() {
         let workerIds: Set<WorkerId> = [
@@ -151,7 +153,8 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
             emceeVersion: "emceeVersion",
             logger: .noOp,
             globalMetricRecorder: globalMetricRecorder,
-            queueHost: "queueHost"
+            queueHost: "queueHost",
+            queueServerPortProvider: portProvider
         )
     }
 }
