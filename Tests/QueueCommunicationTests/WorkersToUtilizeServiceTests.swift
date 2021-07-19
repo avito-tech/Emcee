@@ -13,7 +13,7 @@ class WorkersToUtilizeServiceTests: XCTestCase {
     
     func test___workersToUtilize___returns_cached_workers___if_cache_avaliable() {
         let service = buildService()
-        let expectedWorkerIds: [WorkerId] = ["WorkerId"]
+        let expectedWorkerIds: Set<WorkerId> = ["WorkerId"]
         cache.presetCachedMapping = ["Version": expectedWorkerIds]
         
         let workers = service.workersToUtilize(initialWorkers: [], version: "Version")
@@ -22,14 +22,14 @@ class WorkersToUtilizeServiceTests: XCTestCase {
     }
     
     func test___workersToUtilize___succesfull_scenario() {
-        let expectedWorkersBerforeCalculation: [WorkerId] = ["WorkerId1", "WorkerId2"]
+        let expectedWorkersBerforeCalculation: Set<WorkerId> = ["WorkerId1", "WorkerId2"]
         communicationService.workersPerSocketAddress = [
             SocketAddress(host: "host", port: 100): expectedWorkersBerforeCalculation
         ]
         let service = buildService(sockets: [
             SocketAddress(host: "host", port: 100): "Version"
         ])
-        let expectedWorkersAfterCalculation: [WorkerId] = ["WorkerId1"]
+        let expectedWorkersAfterCalculation: Set<WorkerId> = ["WorkerId1"]
         let calculationResult: WorkersPerVersion = ["Version": expectedWorkersAfterCalculation]
         calculator.result = calculationResult
         
@@ -48,7 +48,7 @@ class WorkersToUtilizeServiceTests: XCTestCase {
             SocketAddress(host: "host", port: 100): "Version"
         ])
         calculator.result = ["CorruptedVersion": ["CurruptedWorkerId"]]
-        let initialWorkers: [WorkerId] = ["InitialWorkerId1", "InitialWorkerId2"]
+        let initialWorkers: Set<WorkerId> = ["InitialWorkerId1", "InitialWorkerId2"]
         
         let workers = service.workersToUtilize(initialWorkers: initialWorkers, version: "Version")
         
@@ -75,9 +75,9 @@ class WorkersToUtilizeServiceTests: XCTestCase {
     }
     
     func test___workersToUtilize___composes_workers_from_all_available_queues() {
-        let version1workers: [WorkerId] = ["WorkerId1", "WorkerId2"]
-        let version2workers: [WorkerId] = ["WorkerId3", "WorkerId4"]
-        let version3workers: [WorkerId] = ["WorkerId5", "WorkerId6"]
+        let version1workers: Set<WorkerId> = ["WorkerId1", "WorkerId2"]
+        let version2workers: Set<WorkerId> = ["WorkerId3", "WorkerId4"]
+        let version3workers: Set<WorkerId> = ["WorkerId5", "WorkerId6"]
         communicationService.workersPerSocketAddress = [
             SocketAddress(host: "host", port: 101): version1workers,
             SocketAddress(host: "host", port: 102): version2workers,
@@ -101,9 +101,9 @@ class WorkersToUtilizeServiceTests: XCTestCase {
     
     func test___workersToUtilize___wait_for_async_answer() {
         communicationService.deploymentDestinationsAsync = true
-        let version1workers: [WorkerId] = ["WorkerId1", "WorkerId2"]
-        let version2workers: [WorkerId] = ["WorkerId3", "WorkerId4"]
-        let version3workers: [WorkerId] = ["WorkerId5", "WorkerId6"]
+        let version1workers: Set<WorkerId> = ["WorkerId1", "WorkerId2"]
+        let version2workers: Set<WorkerId> = ["WorkerId3", "WorkerId4"]
+        let version3workers: Set<WorkerId> = ["WorkerId5", "WorkerId6"]
         communicationService.workersPerSocketAddress = [
             SocketAddress(host: "host", port: 101): version1workers,
             SocketAddress(host: "host", port: 102): version2workers,

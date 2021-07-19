@@ -1005,7 +1005,6 @@ let package = Package(
         .target(
             name: "QueueCommunicationTestHelpers",
             dependencies: [
-                "Deployer",
                 "DeployerTestHelpers",
                 "QueueCommunication",
                 "QueueCommunicationModels",
@@ -1021,8 +1020,6 @@ let package = Package(
             dependencies: [
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
                 .product(name: "DateProviderTestHelpers", package: "CommandLineToolkit"),
-                "Deployer",
-                "DeployerTestHelpers",
                 .product(name: "Graphite", package: "CommandLineToolkit"),
                 .product(name: "Metrics", package: "CommandLineToolkit"),
                 "MetricsExtensions",
@@ -1145,7 +1142,6 @@ let package = Package(
                 "BucketQueueModels",
                 "BucketQueueTestHelpers",
                 .product(name: "DateProviderTestHelpers", package: "CommandLineToolkit"),
-                "DeployerTestHelpers",
                 "DistWorkerModels",
                 "DistWorkerModelsTestHelpers",
                 "EmceeLogging",

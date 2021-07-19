@@ -1,5 +1,6 @@
 import QueueCommunication
 import QueueModels
+import TestHelpers
 import XCTest
 
 class WorkersToUtilizeCalculatorTests: XCTestCase {
@@ -58,7 +59,7 @@ class WorkersToUtilizeCalculatorTests: XCTestCase {
     func test___disjoint___with_dedicated_deployments() {
         let initialWorkers = buildWorkers(count: 4)
         var initialWorkersForV1 = initialWorkers
-        initialWorkersForV1.append("WorkerId5")
+        initialWorkersForV1.insert("WorkerId5")
         
         let initialMapping: WorkersPerVersion = [
             "V1": initialWorkersForV1,
@@ -68,21 +69,27 @@ class WorkersToUtilizeCalculatorTests: XCTestCase {
         ]
         
         let mapping = calculator.disjointWorkers(mapping: initialMapping)
-        let deployments = mapping["V2"]! + mapping["V3"]! + mapping["V4"]!
+        let workerIdsForQueuesWithVersionDifferentFromV1 = assertNotNil {
+            mapping[Version("V2")]
+        }.union(
+            assertNotNil { mapping[Version("V3")] }
+        ).union(
+            assertNotNil { mapping[Version("V4")] }
+        )
         
         XCTAssertEqual(mapping["V1"]?.count, 2)
         XCTAssertEqual(mapping["V2"]?.count, 1)
         XCTAssertEqual(mapping["V3"]?.count, 1)
         XCTAssertEqual(mapping["V4"]?.count, 1)
-        XCTAssertEqual(Set(deployments).count, 3)
+        XCTAssertEqual(workerIdsForQueuesWithVersionDifferentFromV1.count, 3)
     }
     
     func test___disjoint___with_no_intersection() {
-        let initialWorkers1: [WorkerId] = [
+        let initialWorkers1: Set<WorkerId> = [
             "WorkerId1",
             "WorkerId2"
         ]
-        let initialWorkers2: [WorkerId] = [
+        let initialWorkers2: Set<WorkerId> = [
             "WorkerId3",
             "WorkerId4"
         ]
@@ -103,10 +110,10 @@ class WorkersToUtilizeCalculatorTests: XCTestCase {
         let worker3: WorkerId = "workerId3"
         let worker4: WorkerId = "workerId4"
         
-        let workersForV1 = [worker1, worker2]
-        let workersForV2 = [worker2, worker3]
-        let workersForV3 = [worker3, worker4]
-        let workersForV4 = [worker4, worker1]
+        let workersForV1: Set<WorkerId> = [worker1, worker2]
+        let workersForV2: Set<WorkerId> = [worker2, worker3]
+        let workersForV3: Set<WorkerId> = [worker3, worker4]
+        let workersForV4: Set<WorkerId> = [worker4, worker1]
         
         let initialMapping: WorkersPerVersion = [
             "V1": workersForV1,
@@ -117,10 +124,10 @@ class WorkersToUtilizeCalculatorTests: XCTestCase {
         
         let mapping = calculator.disjointWorkers(mapping: initialMapping)
         
-        XCTAssertEqual(Set(mapping["V1"]!), Set(workersForV1))
-        XCTAssertEqual(Set(mapping["V2"]!), Set(workersForV2))
-        XCTAssertEqual(Set(mapping["V3"]!), Set(workersForV3))
-        XCTAssertEqual(Set(mapping["V4"]!), Set(workersForV4))
+        XCTAssertEqual(mapping["V1"], workersForV1)
+        XCTAssertEqual(mapping["V2"], workersForV2)
+        XCTAssertEqual(mapping["V3"], workersForV3)
+        XCTAssertEqual(mapping["V4"], workersForV4)
     }
     
     func test___disjoint___implementation_imprint() {
@@ -168,16 +175,16 @@ class WorkersToUtilizeCalculatorTests: XCTestCase {
         XCTAssertEqual(mapping1, mapping2)
     }
     
-    private func buildWorkers(count: Int) -> [WorkerId] {
-        var workers = [WorkerId]()
+    private func buildWorkers(count: Int) -> Set<WorkerId> {
+        var workers = Set<WorkerId>()
         for i in 1...count {
             let prependedZero = i < 10 ? "0" : ""
-            workers.append(WorkerId(value: "WorkerId\(prependedZero)\(i)"))
+            workers.insert(WorkerId(value: "WorkerId\(prependedZero)\(i)"))
         }
         return workers
     }
     
-    private func buildMapping(versionsCount: Int, workers: [WorkerId]) -> WorkersPerVersion {
+    private func buildMapping(versionsCount: Int, workers: Set<WorkerId>) -> WorkersPerVersion {
         var mapping = WorkersPerVersion()
         for i in 1...versionsCount {
             mapping[Version(value: "V\(i)")] = workers

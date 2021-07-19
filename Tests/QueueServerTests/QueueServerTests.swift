@@ -63,10 +63,10 @@ final class QueueServerTests: XCTestCase {
         
         let server = QueueServerImpl(
             automaticTerminationController: automaticTerminationController,
+            autoupdatingWorkerPermissionProvider: FakeAutoupdatingWorkerPermissionProvider(),
             bucketSplitInfo: bucketSplitInfo,
             checkAgainTimeInterval: .infinity,
             dateProvider: DateProviderFixture(),
-            deploymentDestinations: [],
             emceeVersion: "emceeVersion",
             localPortDeterminer: localPortDeterminer,
             logger: .noOp,
@@ -80,7 +80,7 @@ final class QueueServerTests: XCTestCase {
             workerAlivenessProvider: workerAlivenessProvider,
             workerCapabilitiesStorage: workerCapabilitiesStorage,
             workerConfigurations: workerConfigurations,
-            autoupdatingWorkerPermissionProvider: FakeAutoupdatingWorkerPermissionProvider(),
+            workerIds: [],
             workersToUtilizeService: FakeWorkersToUtilizeService()
         )
         XCTAssertThrowsError(try server.queueResults(jobId: jobId))
@@ -109,10 +109,10 @@ final class QueueServerTests: XCTestCase {
         ).createAutomaticTerminationController()
         let server = QueueServerImpl(
             automaticTerminationController: terminationController,
+            autoupdatingWorkerPermissionProvider: FakeAutoupdatingWorkerPermissionProvider(),
             bucketSplitInfo: bucketSplitInfo,
             checkAgainTimeInterval: .infinity,
             dateProvider: DateProviderFixture(),
-            deploymentDestinations: [],
             emceeVersion: "emceeVersion",
             localPortDeterminer: localPortDeterminer,
             logger: .noOp,
@@ -126,7 +126,7 @@ final class QueueServerTests: XCTestCase {
             workerAlivenessProvider: workerAlivenessProvider,
             workerCapabilitiesStorage: workerCapabilitiesStorage,
             workerConfigurations: workerConfigurations,
-            autoupdatingWorkerPermissionProvider: FakeAutoupdatingWorkerPermissionProvider(),
+            workerIds: [],
             workersToUtilizeService: FakeWorkersToUtilizeService()
         )
         try server.schedule(

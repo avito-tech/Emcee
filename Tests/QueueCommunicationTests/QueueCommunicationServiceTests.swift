@@ -16,8 +16,7 @@ class QueueCommunicationServiceTests: XCTestCase {
         logger: .noOp,
         remoteQueueDetector: remoteQueueDetector,
         requestSenderProvider: requestSenderProvider,
-        requestTimeout: 10,
-        version: "Version"
+        requestTimeout: 10
     )
         
     
@@ -25,7 +24,7 @@ class QueueCommunicationServiceTests: XCTestCase {
         remoteQueueDetector.shoudThrow = true
         let completionCalled = expectation(description: "Completion is called")
         
-        service.workersToUtilize(deployments: []) { result in
+        service.workersToUtilize(version: "verson", workerIds: []) { result in
             XCTAssert(result.isError)
             completionCalled.fulfill()
         }
@@ -38,7 +37,7 @@ class QueueCommunicationServiceTests: XCTestCase {
         requestSender.requestSenderError = .noData
         let completionCalled = expectation(description: "Completion is called")
         
-        service.workersToUtilize(deployments: []) { result in
+        service.workersToUtilize(version: "version", workerIds: []) { result in
             XCTAssert(result.isError)
             completionCalled.fulfill()
         }
@@ -57,7 +56,7 @@ class QueueCommunicationServiceTests: XCTestCase {
         requestSender.result = WorkersToUtilizeResponse.workersToUtilize(workerIds: expectedWorkerId)
         let completionCalled = expectation(description: "Completion is called")
         
-        service.workersToUtilize(deployments: []) { result in
+        service.workersToUtilize(version: "version", workerIds: []) { result in
             XCTAssertEqual(
                  try? result.dematerialize(),
                  expectedWorkerId

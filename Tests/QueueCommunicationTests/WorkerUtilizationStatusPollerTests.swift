@@ -1,5 +1,3 @@
-import Deployer
-import DeployerTestHelpers
 import Graphite
 import Metrics
 import MetricsExtensions
@@ -14,12 +12,12 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     private let communicationService = FakeQueueCommunicationService()
     
     func test___poller_uses_default_deployments___if_no_data_was_fetched() {
-        let workerDestinations = [
-            DeploymentDestinationFixtures().with(host: "workerId1").build(),
-            DeploymentDestinationFixtures().with(host: "workerId2").build()
+        let workerIds: Set<WorkerId> = [
+            "workerId1",
+            "workerId2",
         ]
         
-        let poller = buildPoller(workerDestinations: workerDestinations)
+        let poller = buildPoller(workerIds: workerIds)
         
         XCTAssertEqual(poller.utilizationPermissionForWorker(workerId: "workerId1"), .allowedToUtilize)
         XCTAssertEqual(poller.utilizationPermissionForWorker(workerId: "workerId2"), .allowedToUtilize)
@@ -27,16 +25,16 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     }
     
     func test___poller_uses_fetched_worker_ids___if_workers_data_was_fetched() {
-        let workerDestinations = [
-            DeploymentDestinationFixtures().with(host: "workerId1").build(),
-            DeploymentDestinationFixtures().with(host: "workerId2").build()
+        let workerIds: Set<WorkerId> = [
+            "workerId1",
+            "workerId2",
         ]
         let expectation = self.expectation(description: "workersToUtilize was called")
         communicationService.completionHandler = { completion in
             completion(.success([WorkerId(value: "workerId3")]))
             expectation.fulfill()
         }
-        let poller = buildPoller(workerDestinations: workerDestinations)
+        let poller = buildPoller(workerIds: workerIds)
         
         poller.startUpdating()
         
@@ -47,16 +45,16 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     }
     
     func test___poller_uses_default_deployments___fetch_error_occured() {
-        let workerDestinations = [
-            DeploymentDestinationFixtures().with(host: "workerId1").build(),
-            DeploymentDestinationFixtures().with(host: "workerId2").build()
+        let workerIds: Set<WorkerId> = [
+            "workerId1",
+            "workerId2",
         ]
         let expectation = self.expectation(description: "workersToUtilize was called")
         communicationService.completionHandler = { completion in
             completion(.error(ErrorForTestingPurposes()))
             expectation.fulfill()
         }
-        let poller = buildPoller(workerDestinations: workerDestinations)
+        let poller = buildPoller(workerIds: workerIds)
         
         poller.startUpdating()
         
@@ -67,16 +65,16 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     }
     
     func test___poller_uses_default_worker_ids___if_workers_data_was_fetched_and_reset_was_called() {
-        let workerDestinations = [
-            DeploymentDestinationFixtures().with(host: "workerId1").build(),
-            DeploymentDestinationFixtures().with(host: "workerId2").build()
+        let workerIds: Set<WorkerId> = [
+            "workerId1",
+            "workerId2",
         ]
         let expectation = self.expectation(description: "workersToUtilize was called")
         communicationService.completionHandler = { completion in
             completion(.success([WorkerId(value: "workerId3")]))
             expectation.fulfill()
         }
-        let poller = buildPoller(workerDestinations: workerDestinations)
+        let poller = buildPoller(workerIds: workerIds)
         
         poller.startUpdating()
         wait(for: [expectation], timeout: 5)
@@ -88,16 +86,16 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     }
     
     func test___poller_starts_again___if_reset_was_called() {
-        let workerDestinations = [
-            DeploymentDestinationFixtures().with(host: "workerId1").build(),
-            DeploymentDestinationFixtures().with(host: "workerId2").build()
+        let workerIds: Set<WorkerId> = [
+            "workerId1",
+            "workerId2",
         ]
         let expectation = self.expectation(description: "workersToUtilize was called")
         communicationService.completionHandler = { completion in
             completion(.success([WorkerId(value: "workerId3")]))
             expectation.fulfill()
         }
-        let poller = buildPoller(workerDestinations: workerDestinations)
+        let poller = buildPoller(workerIds: workerIds)
         
         poller.stopUpdatingAndRestoreDefaultConfig()
         poller.startUpdating()
@@ -119,7 +117,7 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
         }
         let expectedMetric2 = NumberOfWorkersToUtilizeMetric(emceeVersion: "emceeVersion", queueHost: "queueHost", workersCount: 1)
         let poller = buildPoller(
-            workerDestinations: [],
+            workerIds: [],
             globalMetricRecorder: GlobalMetricRecorderImpl(
                 graphiteHandler: metricHandler,
                 statsdHandler: NoOpMetricHandler(),
@@ -144,12 +142,12 @@ class WorkerUtilizationStatusPollerTests: XCTestCase {
     }
 
     private func buildPoller(
-        workerDestinations: [DeploymentDestination],
+        workerIds: Set<WorkerId>,
         globalMetricRecorder: GlobalMetricRecorder = GlobalMetricRecorderImpl()
     ) -> AutoupdatingWorkerPermissionProvider {
         AutoupdatingWorkerPermissionProviderImpl(
             communicationService: communicationService,
-            initialWorkerDestinations: workerDestinations,
+            initialWorkerIds: workerIds,
             emceeVersion: "emceeVersion",
             logger: .noOp,
             globalMetricRecorder: globalMetricRecorder,

@@ -2,14 +2,14 @@ import Deployer
 import QueueModels
 
 public class WorkersToUtilizePayload: Codable {
-    public let deployments: [DeploymentDestination]
     public let version: Version
+    public let workerIds: Set<WorkerId>
     
     public init(
-        deployments: [DeploymentDestination],
-        version: Version
+        version: Version,
+        workerIds: Set<WorkerId>
     ) {
-        self.deployments = deployments
+        self.workerIds = workerIds
         self.version = version
     }
 }

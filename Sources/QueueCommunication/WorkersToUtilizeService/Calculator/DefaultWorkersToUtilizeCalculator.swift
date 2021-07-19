@@ -1,4 +1,3 @@
-import Deployer
 import EmceeLogging
 import QueueModels
 import Types
@@ -42,17 +41,17 @@ public class DefaultWorkersToUtilizeCalculator: WorkersToUtilizeCalculator {
     private func calculateMapping(clusters: VersionClusters) -> WorkersPerVersion {
         var mapping = MapWithCollection<Version, WorkerId>()
         
-        for (cluster, deployments) in clusters.asDictionary {
-            let sortedDeployments = deployments.sorted()
+        for (cluster, workerIds) in clusters.asDictionary {
+            let sortedWorkerIds = workerIds.sorted()
             let sortedCluster = cluster.sorted()
             
-            for i in 0..<max(sortedCluster.count, sortedDeployments.count) {
+            for i in 0..<max(sortedCluster.count, sortedWorkerIds.count) {
                 let version = sortedCluster.cyclicSubscript(i)
-                let deployment = sortedDeployments.cyclicSubscript(i)
-                mapping.append(key: version, element: deployment)
+                let workerId = sortedWorkerIds.cyclicSubscript(i)
+                mapping.append(key: version, element: workerId)
             }
         }
         
-        return mapping.asDictionary
+        return mapping.asDictionary.mapValues { Set($0) }
     }
 }

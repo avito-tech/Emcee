@@ -1,4 +1,3 @@
-import Deployer
 import Foundation
 import EmceeLogging
 import QueueModels
@@ -25,7 +24,7 @@ public class DefaultWorkersToUtilizeService: WorkersToUtilizeService {
         self.portDeterminer = portDeterminer
     }
     
-    public func workersToUtilize(initialWorkers: [WorkerId], version: Version) -> [WorkerId] {
+    public func workersToUtilize(initialWorkers: Set<WorkerId>, version: Version) -> Set<WorkerId> {
         logger.debug("Preparing workers to utilize for version \(version) with initial workers \(initialWorkers)")
         
         if let cachedWorkers = cache.cachedMapping()?[version] {
@@ -52,10 +51,10 @@ public class DefaultWorkersToUtilizeService: WorkersToUtilizeService {
 
         for (socketAddress, version) in socketToVersion {
             dispatchGroup.enter()
-            communicationService.deploymentDestinations(socketAddress: socketAddress) { result in
+            communicationService.queryQueueForWorkerIds(queueAddress: socketAddress) { result in
                 defer { dispatchGroup.leave() }
                 do {
-                    let workers = try result.dematerialize().workerIds()
+                    let workers = try result.dematerialize()
                     mapping[version] = workers
                 } catch {
                     self.logger.error("Error in obtaining deployment destinations for queue at \(socketAddress.asString) with error \(error.localizedDescription)")

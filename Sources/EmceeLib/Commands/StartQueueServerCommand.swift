@@ -104,12 +104,11 @@ public final class StartQueueServerCommand: Command {
                 remotePortDeterminer: remotePortDeterminer
             ),
             requestSenderProvider: try di.get(),
-            requestTimeout: 10,
-            version: emceeVersion
+            requestTimeout: 10
         )
         let autoupdatingWorkerPermissionProvider = AutoupdatingWorkerPermissionProviderImpl(
             communicationService: queueCommunicationService,
-            initialWorkerDestinations: workerDestinations,
+            initialWorkerIds: Set(workerDestinations.map { $0.workerId }),
             emceeVersion: emceeVersion,
             logger: logger,
             globalMetricRecorder: try di.get(),
@@ -143,12 +142,12 @@ public final class StartQueueServerCommand: Command {
         
         let queueServer = QueueServerImpl(
             automaticTerminationController: automaticTerminationController,
+            autoupdatingWorkerPermissionProvider: autoupdatingWorkerPermissionProvider,
             bucketSplitInfo: BucketSplitInfo(
                 numberOfWorkers: UInt(queueServerConfiguration.workerSpecificConfigurations.count)
             ),
             checkAgainTimeInterval: queueServerConfiguration.checkAgainTimeInterval,
             dateProvider: try di.get(),
-            deploymentDestinations: workerDestinations,
             emceeVersion: emceeVersion,
             localPortDeterminer: LocalPortDeterminer(
                 logger: logger,
@@ -174,7 +173,7 @@ public final class StartQueueServerCommand: Command {
             ),
             workerCapabilitiesStorage: WorkerCapabilitiesStorageImpl(),
             workerConfigurations: workerConfigurations,
-            autoupdatingWorkerPermissionProvider: autoupdatingWorkerPermissionProvider,
+            workerIds: Set(workerDestinations.map { $0.workerId }),
             workersToUtilizeService: workersToUtilizeService
         )
         queueServerPortProvider.source = queueServer.queueServerPortProvider

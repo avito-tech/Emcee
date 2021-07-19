@@ -1,4 +1,3 @@
-import Deployer
 import Dispatch
 import Foundation
 import EmceeLogging
@@ -13,7 +12,6 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
     private let requestSenderProvider: RequestSenderProvider
     private let remoteQueueDetector: RemoteQueueDetector
     private let requestTimeout: TimeInterval
-    private let version: Version
     private let callbackQueue = DispatchQueue(
         label: "RuntimeDumpRemoteCache.callbackQueue",
         qos: .default,
@@ -24,18 +22,17 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
         logger: ContextualLogger,
         remoteQueueDetector: RemoteQueueDetector,
         requestSenderProvider: RequestSenderProvider,
-        requestTimeout: TimeInterval,
-        version: Version
+        requestTimeout: TimeInterval
     ) {
         self.logger = logger
         self.remoteQueueDetector = remoteQueueDetector
         self.requestSenderProvider = requestSenderProvider
         self.requestTimeout = requestTimeout
-        self.version = version
     }
     
     public func workersToUtilize(
-        deployments: [DeploymentDestination],
+        version: Version,
+        workerIds: Set<WorkerId>,
         completion: @escaping (Either<Set<WorkerId>, Error>) -> ()
     ) {
         do {
@@ -45,7 +42,10 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
                 socketAddress: masterQueueAddress
             )
 
-            let payload = WorkersToUtilizePayload(deployments: deployments, version: version)
+            let payload = WorkersToUtilizePayload(
+                version: version,
+                workerIds: workerIds
+            )
             requestSender.sendRequestWithCallback(
                 request: WorkersToUtilizeRequest(payload: payload),
                 callbackQueue: callbackQueue
@@ -65,24 +65,21 @@ public class DefaultQueueCommunicationService: QueueCommunicationService {
         }
     }
     
-    public func deploymentDestinations(
-        socketAddress: SocketAddress,
-        completion: @escaping (Either<[DeploymentDestination], Error>) -> ()
+    public func queryQueueForWorkerIds(
+        queueAddress: SocketAddress,
+        completion: @escaping (Either<Set<WorkerId>, Error>) -> ()
     ) {
         let requestSender = requestSenderProvider.requestSender(
-            socketAddress: socketAddress
+            socketAddress: queueAddress
         )
         
         requestSender.sendRequestWithCallback(
-            request: DeploymentDestinationsRequest(),
+            request: WorkerIdsRequest(),
             callbackQueue: callbackQueue
-        ) { (result: Either<DeploymentDestinationsResponse, RequestSenderError>) in
+        ) { (result: Either<WorkerIdsResponse, RequestSenderError>) in
             completion(
-                result.mapResult { response -> [DeploymentDestination] in
-                    switch response {
-                    case let .deploymentDestinations(destinations):
-                        return destinations
-                    }
+                result.mapResult { response -> Set<WorkerId> in
+                    response.workerIds
                 }
             )
         }
