@@ -47,13 +47,16 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
         case headers
     }
     
-    public static func from(_ string: String, headers: [String: String] = [:]) throws -> ResourceLocation {
+    public static func from(_ string: String) throws -> ResourceLocation {
+        if let decoded = try? JSONDecoder().decode(self, from: Data(string.utf8)) {
+            return decoded
+        }
         let components = try urlComponents(string)
         guard let url = components.url else { throw ValidationError.cannotCreateUrl(string) }
         if url.isFileURL {
             return try withPathString(string)
         } else {
-            return withUrl(url, headers)
+            return withUrl(url, [:])
         }
     }
     
