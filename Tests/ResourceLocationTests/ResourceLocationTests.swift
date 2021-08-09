@@ -97,5 +97,16 @@ final class ResourceLocationTests: XCTestCase {
         let decoded = try JSONDecoder().decode(ResourceLocation.self, from: jsonData)
         XCTAssertEqual(decoded, ResourceLocation.localFilePath("/path/to/file name.txt"))
     }
+    
+    func test__decoding_string_with_headers() throws {
+            let value = """
+            {"url": "https://example.url", "headers": {"h1": "v1"}}
+            """
+            let decoded = try ResourceLocation.from(value)
+            XCTAssertEqual(
+                decoded,
+                ResourceLocation.remoteUrl(URL(string: "https://example.url")!, ["h1": "v1"])
+            )
+        }
 }
 
