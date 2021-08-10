@@ -99,7 +99,7 @@ final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
         demangler: Demangler,
         logger: ContextualLogger
     ) throws -> DiscoveredTestEntry? {
-        guard let demangledString = try demangler.demangle(string: string) else {
+        guard let demangledString = try demangler.demangle(string: string, bufferSize: 10240) else {
             return nil
         }
         

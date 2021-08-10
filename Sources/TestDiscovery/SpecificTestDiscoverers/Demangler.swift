@@ -2,7 +2,7 @@ import Foundation
 import PathLib
 
 public protocol Demangler {
-    func demangle(string: String) throws -> String?
+    func demangle(string: String, bufferSize: Int) throws -> String?
 }
 
 public final class LibSwiftDemangler: Demangler {
@@ -40,15 +40,31 @@ public final class LibSwiftDemangler: Demangler {
         }
         internalDemangleFunction = unsafeBitCast(address, to: SwiftDemangleFunction.self)
     }
-    
-    private let kBufferSize = 10240
 
-    public func demangle(string: String) throws -> String? {
+    public func demangle(string: String, bufferSize: Int) throws -> String? {
+        try demangle(string: string, bufferSize: bufferSize, shouldUseDynamicBufferSize: true)
+    }
+    
+    private func demangle(string: String, bufferSize: Int, shouldUseDynamicBufferSize: Bool) throws -> String? {
         let formattedString = removingExcessLeadingUnderscores(fromString: string)
-        let outputString = UnsafeMutablePointer<CChar>.allocate(capacity: kBufferSize)
-        let resultSize = internalDemangleFunction(formattedString, outputString, kBufferSize)
-        if resultSize > kBufferSize {
-            throw DemangleError.bufferOverflow(maxSize: kBufferSize, actualSize: resultSize, input: string)
+        let outputString = UnsafeMutablePointer<CChar>.allocate(capacity: bufferSize)
+        outputString.initialize(repeating: 0, count: bufferSize)
+        defer {
+            outputString.deallocate()
+        }
+        let resultSize = internalDemangleFunction(formattedString, outputString, bufferSize)
+        if resultSize > bufferSize {
+            if shouldUseDynamicBufferSize {
+                return try demangle(
+                    string: string,
+                    bufferSize: resultSize + 1, // + 1 is for NULL terminator
+                    shouldUseDynamicBufferSize: false
+                )
+            } else {
+                /// We use `shouldUseDynamicBufferSize` to avoid a potential recursion,
+                /// which can happen in case if `swift_demangle_getDemangledName()` returns different `resultSize` for the same input.
+                throw DemangleError.bufferOverflow(maxSize: resultSize, actualSize: resultSize, input: string)
+            }
         }
 
         return String(cString: outputString, encoding: .utf8)
