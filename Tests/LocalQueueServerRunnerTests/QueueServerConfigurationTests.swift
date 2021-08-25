@@ -117,4 +117,24 @@ final class QueueServerConfigurationTests: XCTestCase {
             DeploymentDestination(host: "host", port: 1, username: "username", authentication: .key(path: "/path/to/key"), remoteDeploymentPath: "/remote/deployment/path")
         )
     }
+    
+    func test___deployment_destination_with_default_location_key_parsing() throws {
+        let data = Data("""
+            {
+                "host": "host",
+                "port": 1,
+                "username": "username",
+                "authentication": {
+                    "filename": "key"
+                },
+                "remoteDeploymentPath": "/remote/deployment/path"
+            }
+        """.utf8
+        )
+        let config = try JSONDecoder().decode(DeploymentDestination.self, from: data)
+        XCTAssertEqual(
+            config,
+            DeploymentDestination(host: "host", port: 1, username: "username", authentication: .keyInDefaultSshLocation(filename: "key"), remoteDeploymentPath: "/remote/deployment/path")
+        )
+    }
 }
