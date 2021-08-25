@@ -115,12 +115,21 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
         }
     }
     
-    public var stringValue: String {
+    public func stringValue() throws -> String {
         switch self {
         case .localFilePath(let path):
             return path
-        case .remoteUrl(let url, _):
-            return url.absoluteString
+        case .remoteUrl(let url, let headers):
+            guard let headers = headers,
+                  headers.count > 0 else {
+                return url.absoluteString
+            }
+            let params: [String: Encodable] = [
+                "url": url.absoluteString,
+                "headers": headers
+            ]
+            let data = try JSONSerialization.data(withJSONObject: params, options: .fragmentsAllowed)
+            return String(data: data, encoding: .utf8) ?? ""
         }
     }
     

@@ -129,7 +129,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
                 }
                 
                 let allTests = foundTestEntries.flatMap { $0.testMethods }
-                reportStats(
+                try reportStats(
                     testCaseCount: foundTestEntries.count,
                     testCount: allTests.count,
                     configuration: configuration,
@@ -197,8 +197,8 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         testCount: Int,
         configuration: TestDiscoveryConfiguration,
         specificMetricRecorder: SpecificMetricRecorder
-    ) {
-        let testBundleName = configuration.xcTestBundleLocation.resourceLocation.stringValue.lastPathComponent
+    ) throws {
+        let testBundleName = try configuration.xcTestBundleLocation.resourceLocation.stringValue().lastPathComponent
         configuration.logger.info("Test discovery in \(configuration.xcTestBundleLocation.resourceLocation): bundle has \(testCaseCount) XCTestCases, \(testCount) tests")
         specificMetricRecorder.capture(
             RuntimeDumpTestCountMetric(

@@ -167,12 +167,12 @@ final class ExecutableTestDiscovererTests: XCTestCase {
         onSubprocessCreate: ((Subprocess) -> ())? = nil,
         simctlResponse: String,
         executableResponse: String
-    ) -> ExecutableTestDiscoverer {
+    ) throws -> ExecutableTestDiscoverer {
         return ExecutableTestDiscoverer(
             appBundleLocation: appBundleLocation,
             developerDirLocator: FakeDeveloperDirLocator(result: AbsolutePath("/path/to/developer_dir")),
             resourceLocationResolver: FakeResourceLocationResolver.resolvingTo(
-                path: AbsolutePath(testBundleLocation.resourceLocation.stringValue)
+                path: AbsolutePath(try testBundleLocation.resourceLocation.stringValue())
             ),
             processControllerProvider: FakeProcessControllerProvider { subprocess in
                 onSubprocessCreate?(subprocess)
