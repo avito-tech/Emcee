@@ -20,6 +20,8 @@ public final class DefaultSSHClient: SSHClient {
             try ssh.authenticate(username: username, password: password)
         case .key(let path):
             try ssh.authenticate(username: username, privateKey: path.pathString)
+        case .keyInDefaultSshLocation(filename: let filename):
+            try ssh.authenticate(username: username, privateKey: "~/.ssh/\(filename)")
         }
     }
     
