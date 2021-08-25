@@ -56,7 +56,7 @@ public final class RemoteQueueLaunchdPlist {
                 programArguments: [
                     remoteQueueServerBinaryPath.pathString, "startLocalQueueServer",
                     "--emcee-version", emceeVersion.value,
-                    "--queue-server-configuration-location", queueServerConfigurationLocation.resourceLocation.stringValue
+                    "--queue-server-configuration-location", try queueServerConfigurationLocation.resourceLocation.stringValue()
                 ],
                 environmentVariables: [:],
                 workingDirectory: containerPath.pathString,

@@ -67,7 +67,7 @@ class DefaultRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
     }
 
     private func pathToRemoteFile(_ xcTestBundleLocation: TestBundleLocation) throws -> String {
-        let remoteFileName = try xcTestBundleLocation.resourceLocation.stringValue.avito_sha256Hash()
+        let remoteFileName = try xcTestBundleLocation.resourceLocation.stringValue().avito_sha256Hash()
 
         return addLeadingSlashIfNeeded(config.relativePathToRemoteStorage).appending(
             pathComponent: "\(remoteFileName).json"
