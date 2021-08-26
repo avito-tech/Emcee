@@ -17,6 +17,9 @@ public final class TestEntryConfigurationFixtures {
     public var pluginLocations = Set<PluginLocation>()
     public var simulatorSettings = SimulatorSettings(
         simulatorLocalizationSettings: SimulatorLocalizationSettingsFixture().simulatorLocalizationSettings(),
+        simulatorKeychainSettings: SimulatorKeychainSettings(
+            rootCerts: []
+        ),
         watchdogSettings: WatchdogSettings(bundleIds: [], timeout: 0)
     )
     public var testDestination = TestDestinationFixtures.testDestination

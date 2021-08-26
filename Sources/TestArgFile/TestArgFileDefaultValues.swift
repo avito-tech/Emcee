@@ -40,6 +40,9 @@ public enum TestArgFileDefaultValues {
             didShowInternationalInfoAlert: true,
             didShowContinuousPathIntroduction: true
         ),
+        simulatorKeychainSettings: SimulatorKeychainSettings(
+            rootCerts: []
+        ),
         watchdogSettings: WatchdogSettings(bundleIds: [], timeout: 20)
     )
     public static let testRunnerTool: TestRunnerTool = .xcodebuild

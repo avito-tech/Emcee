@@ -6,23 +6,28 @@ import ProcessController
 import SimulatorPoolModels
 import Tmp
 import UniqueIdentifierGenerator
+import ResourceLocationResolver
+import PathLib
 
 public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
     private let developerDirLocator: DeveloperDirLocator
     private let processControllerProvider: ProcessControllerProvider
     private let tempFolder: TemporaryFolder
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
-    
+    private let resourceLocationResolver: ResourceLocationResolver
+
     public init(
         developerDirLocator: DeveloperDirLocator,
         processControllerProvider: ProcessControllerProvider,
         tempFolder: TemporaryFolder,
-        uniqueIdentifierGenerator: UniqueIdentifierGenerator
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator,
+        resourceLocationResolver: ResourceLocationResolver
     ) {
         self.developerDirLocator = developerDirLocator
         self.processControllerProvider = processControllerProvider
         self.tempFolder = tempFolder
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
+        self.resourceLocationResolver = resourceLocationResolver
     }
     
     public func apply(
@@ -73,6 +78,12 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
         didImportPlist = try didImportPlist || importDefaults(
             domain: "com.apple.springboard",
             plistToImport: springboardPlist,
+            environment: environment,
+            simulator: simulator
+        )
+        
+        try addRootCertsKeychain(
+            rootCerts: simulatorSettings.simulatorKeychainSettings.rootCerts,
             environment: environment,
             simulator: simulator
         )
@@ -134,6 +145,30 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
             automaticManagement: .sigtermThenKillIfSilent(interval: 30)
         )
         return true
+    }
+    
+    private func addRootCertsKeychain(
+        rootCerts: [SimulatorCertificateLocation],
+        environment: Environment,
+        simulator: Simulator
+    ) throws {
+        guard !rootCerts.isEmpty else { return }
+        
+        let certPaths: [AbsolutePath] = try rootCerts.map {
+            try resourceLocationResolver
+                .resolvePath(resourceLocation: $0.resourceLocation)
+                .directlyAccessibleResourcePath()
+        }
+        
+        print(certPaths)
+        
+        try certPaths.forEach { certPath in
+            try processControllerProvider.startAndWaitForSuccessfulTermination(
+                arguments: ["/usr/bin/xcrun", "simctl", "--set", simulator.simulatorSetPath, "keychain", simulator.udid.value, "add-root-cert", certPath],
+                environment: environment,
+                automaticManagement: .sigtermThenKillIfSilent(interval: 30)
+            )
+        }
     }
     
     private func kill(

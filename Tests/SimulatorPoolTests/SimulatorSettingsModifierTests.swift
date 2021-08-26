@@ -11,6 +11,7 @@ import TestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
+import ResourceLocationResolverTestHelpers
 
 final class SimulatorSettingsModifierTests: XCTestCase {
     
@@ -18,8 +19,19 @@ final class SimulatorSettingsModifierTests: XCTestCase {
         developerDirLocator: developerDirLocator,
         processControllerProvider: processControllerProvider,
         tempFolder: tempFolder,
-        uniqueIdentifierGenerator: uniqueIdentifierGenerator
+        uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+        resourceLocationResolver: resourceLocationResolver
     )
+    
+    func test__add_root_certificates() throws {
+        addChecksForAddingRootCertificatesIntoKeychain()
+                
+        try modifier.apply(
+            developerDir: .current,
+            simulatorSettings: simulatorSettings,
+            toSimulator: simulator
+        )
+    }
     
     func test___patching_global_preferences() throws {
         addChecksForImportingPlist(
@@ -227,6 +239,24 @@ final class SimulatorSettingsModifierTests: XCTestCase {
             return FakeProcessController(subprocess: subprocess, processStatus: .terminated(exitCode: 0))
         }
     }
+    
+    private func addChecksForAddingRootCertificatesIntoKeychain(
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        processControllerProvider.creator = { subprocess -> ProcessController in
+            let args = try subprocess.arguments.map { try $0.stringValue() }
+            
+            if args.contains("keychain"), args.contains("add-root-cert") {
+                XCTAssertEqual(
+                    args,
+                    ["/usr/bin/xcrun", "simctl", "--set", self.tempFolder.absolutePath.pathString, "keychain", self.simulator.udid.value, "add-root-cert", "/path/to/cert.pem"]
+                )
+            }
+            
+            return FakeProcessController(subprocess: subprocess, processStatus: .terminated(exitCode: 0))
+        }
+    }
 
     // MARK: - Helper Variables
     
@@ -248,6 +278,11 @@ final class SimulatorSettingsModifierTests: XCTestCase {
             didShowInternationalInfoAlert: true,
             didShowContinuousPathIntroduction: true
         ),
+        simulatorKeychainSettings: SimulatorKeychainSettings(
+            rootCerts: [
+                .init(.remoteUrl(URL(string: "http://example.com/cert.zip#cert.pem")!, nil))
+            ]
+        ),
         watchdogSettings: WatchdogSettings(
             bundleIds: ["bundle.id.1", "bundle.id.2"],
             timeout: 42
@@ -255,6 +290,7 @@ final class SimulatorSettingsModifierTests: XCTestCase {
     )
     lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: "random_value")
+    lazy var resourceLocationResolver = FakeResourceLocationResolver(resolvingResult: .directlyAccessibleFile(path: "path/to/cert.pem"))
     lazy var expectedGlobalPreferencesPlistContents = Plist(
         rootPlistEntry: .dict([
             "AppleLocale": .string(simulatorSettings.simulatorLocalizationSettings.localeIdentifier),
