@@ -94,7 +94,8 @@ public final class DistWorkCommand: Command {
                 developerDirLocator: try di.get(),
                 processControllerProvider: try di.get(),
                 tempFolder: try di.get(),
-                uniqueIdentifierGenerator: try di.get()
+                uniqueIdentifierGenerator: try di.get(),
+                resourceLocationResolver: try di.get()
             ),
             for: SimulatorSettingsModifier.self
         )

@@ -1638,6 +1638,7 @@ let package = Package(
             dependencies: [
                 .product(name: "PathLib", package: "CommandLineToolkit"),
                 "ResourceLocation",
+                "TypedResourceLocation",
                 .product(name: "Types", package: "CommandLineToolkit"),
             ],
             path: "Sources/SimulatorPoolModels"
@@ -1673,6 +1674,7 @@ let package = Package(
                 .product(name: "ProcessControllerTestHelpers", package: "CommandLineToolkit"),
                 "QueueModels",
                 "ResourceLocationResolver",
+                "ResourceLocationResolverTestHelpers",
                 "SimulatorPool",
                 "SimulatorPoolModels",
                 "SimulatorPoolTestHelpers",
