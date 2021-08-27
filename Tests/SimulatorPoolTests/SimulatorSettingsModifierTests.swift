@@ -290,7 +290,7 @@ final class SimulatorSettingsModifierTests: XCTestCase {
     )
     lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: "random_value")
-    lazy var resourceLocationResolver = FakeResourceLocationResolver(resolvingResult: .directlyAccessibleFile(path: "path/to/cert.pem"))
+    lazy var resourceLocationResolver = FakeResourceLocationResolver(resolvingResult: .directlyAccessibleFile(path: "/path/to/cert.pem"))
     lazy var expectedGlobalPreferencesPlistContents = Plist(
         rootPlistEntry: .dict([
             "AppleLocale": .string(simulatorSettings.simulatorLocalizationSettings.localeIdentifier),

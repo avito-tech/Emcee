@@ -152,16 +152,12 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
         environment: Environment,
         simulator: Simulator
     ) throws {
-        guard !rootCerts.isEmpty else { return }
-        
         let certPaths: [AbsolutePath] = try rootCerts.map {
             try resourceLocationResolver
                 .resolvePath(resourceLocation: $0.resourceLocation)
                 .directlyAccessibleResourcePath()
         }
-        
-        print(certPaths)
-        
+                
         try certPaths.forEach { certPath in
             try processControllerProvider.startAndWaitForSuccessfulTermination(
                 arguments: ["/usr/bin/xcrun", "simctl", "--set", simulator.simulatorSetPath, "keychain", simulator.udid.value, "add-root-cert", certPath],
