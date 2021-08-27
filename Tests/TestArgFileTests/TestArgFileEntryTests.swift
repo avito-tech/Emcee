@@ -58,7 +58,10 @@ final class TestArgFileEntryTests: XCTestCase {
                     "kind": "current"
                 },
                 "pluginLocations": [
-            {"url":"http://example.com/plugin.zip#sample.emceeplugin"}],
+                    {
+                        "url":"http://example.com/plugin.zip#sample.emceeplugin"
+                    }
+                ],
                 "scheduleStrategy": "unsplit",
                 "simulatorOperationTimeouts": {
                     "create": 50,
@@ -142,8 +145,8 @@ final class TestArgFileEntryTests: XCTestCase {
                     simulatorLocalizationSettings: SimulatorLocalizationSettingsFixture().simulatorLocalizationSettings(),
                     simulatorKeychainSettings: SimulatorKeychainSettings(
                         rootCerts: [
-                            .init(.remoteUrl(URL(string: "http://example.com/cert.zip#cert.pem")!, nil)),
-                            .init(.remoteUrl(URL(string: "http://example.com/cert2.zip#cert2.pem")!, nil))
+                            SimulatorCertificateLocation(.remoteUrl(URL(string: "http://example.com/cert.zip#cert.pem")!, nil)),
+                            SimulatorCertificateLocation(.remoteUrl(URL(string: "http://example.com/cert2.zip#cert2.pem")!, nil))
                         ]
                     ),
                     watchdogSettings: WatchdogSettings(bundleIds: ["sample.app"], timeout: 42)
@@ -208,7 +211,10 @@ final class TestArgFileEntryTests: XCTestCase {
                     "kind": "current"
                 },
                 "pluginLocations": [
-            {"url":"http://example.com/plugin.zip#sample.emceeplugin"}],
+                    {
+                        "url":"http://example.com/plugin.zip#sample.emceeplugin"
+                    }
+                ],
                 "scheduleStrategy": "unsplit",
                 "simulatorOperationTimeouts": {
                     "create": 50,
