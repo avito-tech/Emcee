@@ -198,7 +198,14 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         configuration: TestDiscoveryConfiguration,
         specificMetricRecorder: SpecificMetricRecorder
     ) throws {
-        let testBundleName = try configuration.xcTestBundleLocation.resourceLocation.stringValue().lastPathComponent
+        let lastPathComponent: String
+        switch configuration.xcTestBundleLocation.resourceLocation {
+        case .localFilePath(_):
+            lastPathComponent = try configuration.xcTestBundleLocation.resourceLocation.stringValue().lastPathComponent
+        case .remoteUrl(let url, _):
+            lastPathComponent = url.lastPathComponent
+        }
+        let testBundleName = lastPathComponent
         configuration.logger.info("Test discovery in \(configuration.xcTestBundleLocation.resourceLocation): bundle has \(testCaseCount) XCTestCases, \(testCount) tests")
         specificMetricRecorder.capture(
             RuntimeDumpTestCountMetric(
