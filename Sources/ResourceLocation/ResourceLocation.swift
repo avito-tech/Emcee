@@ -124,12 +124,17 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
                   headers.count > 0 else {
                 return url.absoluteString
             }
-            let params: [String: Encodable] = [
-                "url": url.absoluteString,
-                "headers": headers
-            ]
-            let data = try JSONSerialization.data(withJSONObject: params, options: .fragmentsAllowed)
-            return String(data: data, encoding: .utf8) ?? ""
+            struct Params: Encodable {
+                let url: String
+                let headers: [String: String]
+            }
+            let params = Params(url: url.absoluteString, headers: headers)
+            let data = try JSONEncoder().encode(params)
+            if let result = String(data: data, encoding: .utf8) {
+                return result
+            } else {
+                throw ResourceLocationError.encodeRemoteUrl(url: url.absoluteString)
+            }
         }
     }
     
