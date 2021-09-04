@@ -9,10 +9,10 @@ public final class MultipleQueuesStuckBucketsReenqueuer: StuckBucketsReenqueuer 
         self.multipleQueuesContainer = multipleQueuesContainer
     }
     
-    public func reenqueueStuckBuckets() -> [StuckBucket] {
+    public func reenqueueStuckBuckets() throws -> [StuckBucket] {
         let jobQueues = multipleQueuesContainer.allRunningJobQueues()
-        return jobQueues.flatMap { jobQueue -> [StuckBucket] in
-            jobQueue.bucketQueue.reenqueueStuckBuckets()
+        return try jobQueues.flatMap { jobQueue -> [StuckBucket] in
+            try jobQueue.bucketQueue.reenqueueStuckBuckets()
         }
     }
 }

@@ -118,8 +118,8 @@ public final class Scheduler {
         } catch {
             logger.error("Failed to execute bucket \(bucket.bucketId): \(error)")
             return TestingResult(
-                testDestination: bucket.testDestination,
-                unfilteredResults: bucket.testEntries.map { testEntry -> TestEntryResult in
+                testDestination: bucket.runTestsBucketPayload.testDestination,
+                unfilteredResults: bucket.runTestsBucketPayload.testEntries.map { testEntry -> TestEntryResult in
                     TestEntryResult.withResult(
                         testEntry: testEntry,
                         testRunResult: TestRunResult(
@@ -150,22 +150,26 @@ public final class Scheduler {
         bucket: SchedulerBucket,
         logger: ContextualLogger
     ) throws -> TestingResult {
-        let firstRun = try runBucketOnce(bucket: bucket, testsToRun: bucket.testEntries, logger: logger)
+        let firstRun = try runBucketOnce(
+            bucket: bucket,
+            testsToRun: bucket.runTestsBucketPayload.testEntries,
+            logger: logger
+        )
         
-        guard bucket.testExecutionBehavior.numberOfRetries > 0 else {
+        guard bucket.runTestsBucketPayload.testExecutionBehavior.numberOfRetries > 0 else {
             return firstRun
         }
         
         var lastRunResults = firstRun
         var results = [firstRun]
-        for retryNumber in 0 ..< bucket.testExecutionBehavior.numberOfRetries {
+        for retryNumber in 0 ..< bucket.runTestsBucketPayload.testExecutionBehavior.numberOfRetries {
             let failedTestEntriesAfterLastRun = lastRunResults.failedTests.map { $0.testEntry }
             if failedTestEntriesAfterLastRun.isEmpty {
                 logger.debug("No failed tests after last retry, so nothing to run.")
                 break
             }
             logger.debug("After last run \(failedTestEntriesAfterLastRun.count) tests have failed: \(failedTestEntriesAfterLastRun).")
-            logger.debug("Retrying them, attempt #\(retryNumber + 1) of maximum \(bucket.testExecutionBehavior.numberOfRetries) attempts")
+            logger.debug("Retrying them, attempt #\(retryNumber + 1) of maximum \(bucket.runTestsBucketPayload.testExecutionBehavior.numberOfRetries) attempts")
             lastRunResults = try runBucketOnce(bucket: bucket, testsToRun: failedTestEntriesAfterLastRun, logger: logger)
             results.append(lastRunResults)
         }
@@ -179,9 +183,9 @@ public final class Scheduler {
     ) throws -> TestingResult {
         let simulatorPool = try di.get(OnDemandSimulatorPool.self).pool(
             key: OnDemandSimulatorPoolKey(
-                developerDir: bucket.developerDir,
-                testDestination: bucket.testDestination,
-                simulatorControlTool: bucket.simulatorControlTool
+                developerDir: bucket.runTestsBucketPayload.developerDir,
+                testDestination: bucket.runTestsBucketPayload.testDestination,
+                simulatorControlTool: bucket.runTestsBucketPayload.simulatorControlTool
             )
         )
         
@@ -193,27 +197,27 @@ public final class Scheduler {
         let allocatedSimulator = try simulatorPool.allocateSimulator(
             dateProvider: try di.get(),
             logger: logger,
-            simulatorOperationTimeouts: bucket.simulatorOperationTimeouts,
+            simulatorOperationTimeouts: bucket.runTestsBucketPayload.simulatorOperationTimeouts,
             version: version,
             globalMetricRecorder: try di.get()
         )
         defer { allocatedSimulator.releaseSimulator() }
         
         try di.get(SimulatorSettingsModifier.self).apply(
-            developerDir: bucket.developerDir,
-            simulatorSettings: bucket.simulatorSettings,
+            developerDir: bucket.runTestsBucketPayload.developerDir,
+            simulatorSettings: bucket.runTestsBucketPayload.simulatorSettings,
             toSimulator: allocatedSimulator.simulator
         )
         
         let runner = Runner(
             configuration: RunnerConfiguration(
-                buildArtifacts: bucket.buildArtifacts,
-                environment: bucket.testExecutionBehavior.environment,
+                buildArtifacts: bucket.runTestsBucketPayload.buildArtifacts,
+                environment: bucket.runTestsBucketPayload.testExecutionBehavior.environment,
                 pluginLocations: bucket.pluginLocations,
-                simulatorSettings: bucket.simulatorSettings,
-                testRunnerTool: bucket.testRunnerTool,
-                testTimeoutConfiguration: bucket.testTimeoutConfiguration,
-                testType: bucket.testType
+                simulatorSettings: bucket.runTestsBucketPayload.simulatorSettings,
+                testRunnerTool: bucket.runTestsBucketPayload.testRunnerTool,
+                testTimeoutConfiguration: bucket.runTestsBucketPayload.testTimeoutConfiguration,
+                testType: bucket.runTestsBucketPayload.testType
             ),
             dateProvider: try di.get(),
             developerDirLocator: try di.get(),
@@ -232,7 +236,7 @@ public final class Scheduler {
 
         let runnerResult = try runner.run(
             entries: testsToRun,
-            developerDir: bucket.developerDir,
+            developerDir: bucket.runTestsBucketPayload.developerDir,
             simulator: allocatedSimulator.simulator
         )
         
@@ -241,7 +245,7 @@ public final class Scheduler {
         }
         
         return TestingResult(
-            testDestination: bucket.testDestination,
+            testDestination: bucket.runTestsBucketPayload.testDestination,
             unfilteredResults: runnerResult.testEntryResults
         )
     }

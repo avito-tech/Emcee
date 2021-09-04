@@ -3,6 +3,7 @@ import QueueModels
 import QueueModelsTestHelpers
 import RunnerTestHelpers
 import ScheduleStrategy
+import TestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
@@ -24,7 +25,11 @@ final class IndividualBucketSplitterTests: XCTestCase {
             inputs: testEntryConfigurations,
             splitInfo: BucketSplitInfo(numberOfWorkers: 1)
         )
-        XCTAssertEqual(buckets.map { $0.testEntries }, testEntries.map { [$0] })
+        assert {
+            buckets.map { $0.runTestsBucketPayload.testEntries }
+        } equals: {
+            testEntries.map { [$0] }
+        }
     }
     
     func test_individual_splitter_splits_tests_regardless_of_number_of_destinations() {

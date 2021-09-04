@@ -1883,9 +1883,11 @@ let package = Package(
                 "QueueModels",
                 "QueueModelsTestHelpers",
                 "RunnerTestHelpers",
+                .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 "TestHistoryModels",
                 "TestHistoryTestHelpers",
                 "TestHistoryTracker",
+                "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
             ],
             path: "Tests/TestHistoryTrackerTests"

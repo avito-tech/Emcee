@@ -75,33 +75,22 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         }
         
         let testingResult = TestingResult(
-            testDestination: bucket.testDestination,
+            testDestination: bucket.runTestsBucketPayload.testDestination,
             unfilteredResults: resultsOfSuccessfulTests + resultsOfFailedTests
         )
         
         // Every failed test produces a single bucket with itself
-        let bucketsToReenqueue = resultsOfTestsToRetry.map { testEntryResult in
-            Bucket(
-                analyticsConfiguration: bucket.analyticsConfiguration,
-                bucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
-                buildArtifacts: bucket.buildArtifacts,
-                developerDir: bucket.developerDir,
-                pluginLocations: bucket.pluginLocations,
-                simulatorControlTool: bucket.simulatorControlTool,
-                simulatorOperationTimeouts: bucket.simulatorOperationTimeouts,
-                simulatorSettings: bucket.simulatorSettings,
-                testDestination: bucket.testDestination,
-                testEntries: [testEntryResult.testEntry],
-                testExecutionBehavior: bucket.testExecutionBehavior,
-                testRunnerTool: bucket.testRunnerTool,
-                testTimeoutConfiguration: bucket.testTimeoutConfiguration,
-                testType: bucket.testType,
-                workerCapabilityRequirements: bucket.workerCapabilityRequirements
+        let bucketsToReenqueue = try resultsOfTestsToRetry.map { testEntryResult -> Bucket in
+            try bucket.with(
+                newBucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
+                newRunTestsBucketPayload: bucket.runTestsBucketPayload.with(
+                    testEntries: [testEntryResult.testEntry]
+                )
             )
         }
         
         bucketsToReenqueue.forEach { reenqueuingBucket in
-            reenqueuingBucket.testEntries.forEach { entry in
+            reenqueuingBucket.runTestsBucketPayload.testEntries.forEach { entry in
                 let id = TestEntryHistoryId(
                     bucketId: bucket.bucketId,
                     testEntry: entry
@@ -153,7 +142,7 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         bucket: Bucket,
         whereItWasFailing: (TestEntryHistory) -> Bool
     ) -> Bool {
-        return bucket.testEntries.contains { testEntry in
+        return bucket.runTestsBucketPayload.testEntries.contains { testEntry in
             testEntryWasFailing(
                 testEntry: testEntry,
                 bucket: bucket,
@@ -177,6 +166,6 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
     }
     
     private func numberOfAttemptsToRunTests(bucket: Bucket) -> UInt {
-        return 1 + bucket.testExecutionBehavior.numberOfRetries
+        return 1 + bucket.runTestsBucketPayload.testExecutionBehavior.numberOfRetries
     }
 }

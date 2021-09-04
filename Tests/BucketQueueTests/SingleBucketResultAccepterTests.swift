@@ -49,7 +49,7 @@ final class SingleBucketResultAccepterTests: XCTestCase {
             _ = try accepter.accept(
                 bucketId: bucket.bucketId,
                 testingResult: TestingResultFixtures()
-                    .with(testEntry: bucket.testEntries[0])
+                    .with(testEntry: bucket.runTestsBucketPayload.testEntries[0])
                     .addingResult(success: true)
                     .testingResult(),
                 workerId: "workerId"
@@ -82,8 +82,9 @@ final class SingleBucketResultAccepterTests: XCTestCase {
             XCTAssertEqual(
                 testingResult,
                 TestingResult(
-                    testDestination: bucket.testDestination,
-                    unfilteredResults: bucket.testEntries.map { testEntry in TestEntryResult.lost(testEntry: testEntry)
+                    testDestination: bucket.runTestsBucketPayload.testDestination,
+                    unfilteredResults: bucket.runTestsBucketPayload.testEntries.map { testEntry in
+                        TestEntryResult.lost(testEntry: testEntry)
                     }
                 )
             )

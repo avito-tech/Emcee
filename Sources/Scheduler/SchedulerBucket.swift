@@ -8,89 +8,61 @@ import SimulatorPoolModels
 import RunnerModels
 
 public struct SchedulerBucket: CustomStringConvertible, Equatable {
-    public let analyticsConfiguration: AnalyticsConfiguration
     public let bucketId: BucketId
-    public let buildArtifacts: BuildArtifacts
-    public let developerDir: DeveloperDir
+    public let analyticsConfiguration: AnalyticsConfiguration
     public let pluginLocations: Set<PluginLocation>
-    public let simulatorControlTool: SimulatorControlTool
-    public let simulatorOperationTimeouts: SimulatorOperationTimeouts
-    public let simulatorSettings: SimulatorSettings
-    public let testDestination: TestDestination
-    public let testEntries: [TestEntry]
-    public let testExecutionBehavior: TestExecutionBehavior
-    public let testRunnerTool: TestRunnerTool
-    public let testTimeoutConfiguration: TestTimeoutConfiguration
-    public let testType: TestType
+    public let runTestsBucketPayload: RunTestsBucketPayload
     
     public var description: String {
         var result = [String]()
         
         result.append("\(bucketId)")
-        result.append("buildArtifacts: \(buildArtifacts)")
-        result.append("developerDir: \(developerDir)")
+        result.append("buildArtifacts: \(runTestsBucketPayload.buildArtifacts)")
+        result.append("developerDir: \(runTestsBucketPayload.developerDir)")
         result.append("pluginLocations: \(pluginLocations)")
-        result.append("simulatorControlTool: \(simulatorControlTool)")
-        result.append("simulatorOperationTimeouts: \(simulatorOperationTimeouts)")
-        result.append("simulatorSettings: \(simulatorSettings)")
-        result.append("testDestination: \(testDestination)")
-        result.append("testEntries: " + testEntries.map { $0.testName.stringValue }.joined(separator: ","))
-        result.append("testExecutionBehavior: \(testExecutionBehavior)")
-        result.append("testRunnerTool: \(testRunnerTool)")
-        result.append("testTimeoutConfiguration: \(testTimeoutConfiguration)")
-        result.append("testType: \(testType)")
+        result.append("simulatorControlTool: \(runTestsBucketPayload.simulatorControlTool)")
+        result.append("simulatorOperationTimeouts: \(runTestsBucketPayload.simulatorOperationTimeouts)")
+        result.append("simulatorSettings: \(runTestsBucketPayload.simulatorSettings)")
+        result.append("testDestination: \(runTestsBucketPayload.testDestination)")
+        result.append("testEntries: " + runTestsBucketPayload.testEntries.map { $0.testName.stringValue }.joined(separator: ","))
+        result.append("testExecutionBehavior: \(runTestsBucketPayload.testExecutionBehavior)")
+        result.append("testRunnerTool: \(runTestsBucketPayload.testRunnerTool)")
+        result.append("testTimeoutConfiguration: \(runTestsBucketPayload.testTimeoutConfiguration)")
+        result.append("testType: \(runTestsBucketPayload.testType)")
         
         return "<\((type(of: self))) " + result.joined(separator: " ") + ">"
     }
 
     public init(
-        analyticsConfiguration: AnalyticsConfiguration,
         bucketId: BucketId,
-        buildArtifacts: BuildArtifacts,
-        developerDir: DeveloperDir,
+        analyticsConfiguration: AnalyticsConfiguration,
         pluginLocations: Set<PluginLocation>,
-        simulatorControlTool: SimulatorControlTool,
-        simulatorOperationTimeouts: SimulatorOperationTimeouts,
-        simulatorSettings: SimulatorSettings,
-        testDestination: TestDestination,
-        testEntries: [TestEntry],
-        testExecutionBehavior: TestExecutionBehavior,
-        testRunnerTool: TestRunnerTool,
-        testTimeoutConfiguration: TestTimeoutConfiguration,
-        testType: TestType
+        runTestsBucketPayload: RunTestsBucketPayload
     ) {
-        self.analyticsConfiguration = analyticsConfiguration
         self.bucketId = bucketId
-        self.buildArtifacts = buildArtifacts
-        self.developerDir = developerDir
+        self.analyticsConfiguration = analyticsConfiguration
         self.pluginLocations = pluginLocations
-        self.simulatorControlTool = simulatorControlTool
-        self.simulatorOperationTimeouts = simulatorOperationTimeouts
-        self.simulatorSettings = simulatorSettings
-        self.testDestination = testDestination
-        self.testEntries = testEntries
-        self.testExecutionBehavior = testExecutionBehavior
-        self.testRunnerTool = testRunnerTool
-        self.testTimeoutConfiguration = testTimeoutConfiguration
-        self.testType = testType
+        self.runTestsBucketPayload = runTestsBucketPayload
     }
     
     public static func from(bucket: Bucket, testExecutionBehavior: TestExecutionBehavior) -> SchedulerBucket {
         return SchedulerBucket(
-            analyticsConfiguration: bucket.analyticsConfiguration,
             bucketId: bucket.bucketId,
-            buildArtifacts: bucket.buildArtifacts,
-            developerDir: bucket.developerDir,
+            analyticsConfiguration: bucket.analyticsConfiguration,
             pluginLocations: bucket.pluginLocations,
-            simulatorControlTool: bucket.simulatorControlTool,
-            simulatorOperationTimeouts: bucket.simulatorOperationTimeouts,
-            simulatorSettings: bucket.simulatorSettings,
-            testDestination: bucket.testDestination,
-            testEntries: bucket.testEntries,
-            testExecutionBehavior: testExecutionBehavior,
-            testRunnerTool: bucket.testRunnerTool,
-            testTimeoutConfiguration: bucket.testTimeoutConfiguration,
-            testType: bucket.testType
+            runTestsBucketPayload: RunTestsBucketPayload(
+                buildArtifacts: bucket.runTestsBucketPayload.buildArtifacts,
+                developerDir: bucket.runTestsBucketPayload.developerDir,
+                simulatorControlTool: bucket.runTestsBucketPayload.simulatorControlTool,
+                simulatorOperationTimeouts: bucket.runTestsBucketPayload.simulatorOperationTimeouts,
+                simulatorSettings: bucket.runTestsBucketPayload.simulatorSettings,
+                testDestination: bucket.runTestsBucketPayload.testDestination,
+                testEntries: bucket.runTestsBucketPayload.testEntries,
+                testExecutionBehavior: testExecutionBehavior,
+                testRunnerTool: bucket.runTestsBucketPayload.testRunnerTool,
+                testTimeoutConfiguration: bucket.runTestsBucketPayload.testTimeoutConfiguration,
+                testType: bucket.runTestsBucketPayload.testType
+            )
         )
     }
 }

@@ -15,22 +15,24 @@ public final class BucketFixtures {
         numberOfRetries: UInt = 0,
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement> = []
     ) -> Bucket {
-        return Bucket(
-            analyticsConfiguration: AnalyticsConfiguration(),
+        return Bucket.newBucket(
             bucketId: bucketId,
-            buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
-            developerDir: .current,
+            analyticsConfiguration: AnalyticsConfiguration(),
             pluginLocations: [],
-            simulatorControlTool: SimulatorControlToolFixtures.simctlTool,
-            simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
-            simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-            testDestination: TestDestinationFixtures.testDestination,
-            testEntries: testEntries,
-            testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: numberOfRetries),
-            testRunnerTool: .xcodebuild,
-            testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
-            testType: TestType.uiTest,
-            workerCapabilityRequirements: workerCapabilityRequirements
+            workerCapabilityRequirements: workerCapabilityRequirements,
+            runTestsBucketPayload: RunTestsBucketPayload(
+                buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
+                developerDir: .current,
+                simulatorControlTool: SimulatorControlToolFixtures.simctlTool,
+                simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
+                simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
+                testDestination: TestDestinationFixtures.testDestination,
+                testEntries: testEntries,
+                testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: numberOfRetries),
+                testRunnerTool: .xcodebuild,
+                testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
+                testType: TestType.uiTest
+            )
         )
     }
 }

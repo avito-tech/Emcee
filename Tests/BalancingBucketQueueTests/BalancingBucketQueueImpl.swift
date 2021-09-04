@@ -61,8 +61,8 @@ public final class BalancingBucketQueueImpl {
         try MultipleQueuesBucketResultAccepter(multipleQueuesContainer: multipleQueuesContainer).accept(bucketId: bucketId, testingResult: testingResult, workerId: workerId)
     }
     
-    public func reenqueueStuckBuckets() -> [StuckBucket] {
-        MultipleQueuesStuckBucketsReenqueuer(multipleQueuesContainer: multipleQueuesContainer).reenqueueStuckBuckets()
+    public func reenqueueStuckBuckets() throws -> [StuckBucket] {
+        try MultipleQueuesStuckBucketsReenqueuer(multipleQueuesContainer: multipleQueuesContainer).reenqueueStuckBuckets()
     }
 
     public var runningQueueState: RunningQueueState {

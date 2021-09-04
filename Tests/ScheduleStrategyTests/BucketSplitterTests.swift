@@ -92,8 +92,8 @@ final class BucketSplitterTests: XCTestCase {
             splitInfo: BucketSplitInfo(numberOfWorkers: 1)
         )
         XCTAssertEqual(buckets.count, 3)
-        XCTAssertEqual(buckets[0].testEntries, expectedBucketEntries)
-        XCTAssertEqual(buckets[1].testEntries, expectedBucketEntries)
-        XCTAssertEqual(buckets[2].testEntries, expectedBucketEntries)
+        XCTAssertEqual(buckets[0].runTestsBucketPayload.testEntries, expectedBucketEntries)
+        XCTAssertEqual(buckets[1].runTestsBucketPayload.testEntries, expectedBucketEntries)
+        XCTAssertEqual(buckets[2].runTestsBucketPayload.testEntries, expectedBucketEntries)
     }
 }

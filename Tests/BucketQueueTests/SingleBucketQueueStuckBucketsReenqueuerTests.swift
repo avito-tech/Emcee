@@ -47,7 +47,7 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
             )
         )
         
-        XCTAssertTrue(reenqueuer.reenqueueStuckBuckets().isEmpty)
+        XCTAssertTrue(try reenqueuer.reenqueueStuckBuckets().isEmpty)
         XCTAssertTrue(bucketEnqueuer.enqueuedBuckets.isEmpty)
     }
     
@@ -75,13 +75,13 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
         )
         
         XCTAssertEqual(
-            reenqueuer.reenqueueStuckBuckets(),
+            try reenqueuer.reenqueueStuckBuckets(),
             [StuckBucket(reason: .bucketLost, bucket: bucket, workerId: workerId)]
         )
         XCTAssertTrue(bucketQueueHolder.allDequeuedBuckets.isEmpty)
         
         XCTAssertEqual(
-            bucketEnqueuer.enqueuedBuckets.map { $0.testEntries },
+            bucketEnqueuer.enqueuedBuckets.map { $0.runTestsBucketPayload.testEntries },
             testEntries.map { [$0] }
         )
     }
@@ -110,13 +110,13 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
         )
         
         XCTAssertEqual(
-            reenqueuer.reenqueueStuckBuckets(),
+            try reenqueuer.reenqueueStuckBuckets(),
             [StuckBucket(reason: .workerIsSilent, bucket: bucket, workerId: workerId)]
         )
         XCTAssertTrue(bucketQueueHolder.allDequeuedBuckets.isEmpty)
         
         XCTAssertEqual(
-            bucketEnqueuer.enqueuedBuckets.map { $0.testEntries },
+            bucketEnqueuer.enqueuedBuckets.map { $0.runTestsBucketPayload.testEntries },
             testEntries.map { [$0] }
         )
     }

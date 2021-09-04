@@ -44,22 +44,24 @@ public class BucketSplitter: Splitter, CustomStringConvertible {
         
         return groups.compactMap { (group: [TestEntryConfiguration]) -> Bucket? in
             guard let entry = group.first else { return nil }
-            return Bucket(
-                analyticsConfiguration: entry.analyticsConfiguration,
+            return Bucket.newBucket(
                 bucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
-                buildArtifacts: entry.buildArtifacts,
-                developerDir: entry.developerDir,
+                analyticsConfiguration: entry.analyticsConfiguration,
                 pluginLocations: entry.pluginLocations,
-                simulatorControlTool: entry.simulatorControlTool,
-                simulatorOperationTimeouts: entry.simulatorOperationTimeouts,
-                simulatorSettings: entry.simulatorSettings,
-                testDestination: entry.testDestination,
-                testEntries: group.map { $0.testEntry },
-                testExecutionBehavior: entry.testExecutionBehavior,
-                testRunnerTool: entry.testRunnerTool,
-                testTimeoutConfiguration: entry.testTimeoutConfiguration,
-                testType: entry.testType,
-                workerCapabilityRequirements: entry.workerCapabilityRequirements
+                workerCapabilityRequirements: entry.workerCapabilityRequirements,
+                runTestsBucketPayload: RunTestsBucketPayload(
+                    buildArtifacts: entry.buildArtifacts,
+                    developerDir: entry.developerDir,
+                    simulatorControlTool: entry.simulatorControlTool,
+                    simulatorOperationTimeouts: entry.simulatorOperationTimeouts,
+                    simulatorSettings: entry.simulatorSettings,
+                    testDestination: entry.testDestination,
+                    testEntries: group.map { $0.testEntry },
+                    testExecutionBehavior: entry.testExecutionBehavior,
+                    testRunnerTool: entry.testRunnerTool,
+                    testTimeoutConfiguration: entry.testTimeoutConfiguration,
+                    testType: entry.testType
+                )
             )
         }
     }

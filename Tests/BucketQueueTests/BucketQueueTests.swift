@@ -62,7 +62,7 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            testDestination: bucket.testDestination,
+            testDestination: bucket.runTestsBucketPayload.testDestination,
             unfilteredResults: []
         )
         assertDoesNotThrow {
@@ -140,7 +140,7 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            testDestination: bucket.testDestination,
+            testDestination: bucket.runTestsBucketPayload.testDestination,
             unfilteredResults: [TestEntryResult.lost(testEntry: testEntry)]
         )
         assertDoesNotThrow {
@@ -162,7 +162,7 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            testDestination: bucket.testDestination,
+            testDestination: bucket.runTestsBucketPayload.testDestination,
             unfilteredResults: [ /* empty - misses testEntry */ ]
         )
         assertThrows {
@@ -184,7 +184,7 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            testDestination: bucket.testDestination,
+            testDestination: bucket.runTestsBucketPayload.testDestination,
             unfilteredResults: [ /* empty - misses testEntry */ ]
         )
         assertThrows {
@@ -205,7 +205,7 @@ final class BucketQueueTests: XCTestCase {
         
         workerAlivenessProvider.setWorkerIsSilent(workerId: workerId)
         
-        let stuckBuckets = bucketQueue.reenqueueStuckBuckets()
+        let stuckBuckets = try bucketQueue.reenqueueStuckBuckets()
         XCTAssertEqual(
             stuckBuckets,
             [StuckBucket(reason: .workerIsSilent, bucket: bucket, workerId: workerId)]
@@ -221,13 +221,13 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         XCTAssertEqual(
-            bucketQueue.reenqueueStuckBuckets(),
+            try bucketQueue.reenqueueStuckBuckets(),
             []
         )
         
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         XCTAssertEqual(
-            bucketQueue.reenqueueStuckBuckets(),
+            try bucketQueue.reenqueueStuckBuckets(),
             [StuckBucket(reason: .bucketLost, bucket: bucket, workerId: workerId)]
         )
     }
@@ -255,7 +255,7 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         XCTAssertEqual(
-            bucketQueue.reenqueueStuckBuckets(),
+            try bucketQueue.reenqueueStuckBuckets(),
             []
         )
     }
@@ -285,7 +285,7 @@ final class BucketQueueTests: XCTestCase {
         
         XCTAssertEqual(
             bucketQueue.runningQueueState.enqueuedTests,
-            bucket.testEntries.map { $0.testName } + bucket.testEntries.map { $0.testName },
+            bucket.runTestsBucketPayload.testEntries.map { $0.testName } + bucket.runTestsBucketPayload.testEntries.map { $0.testName },
             "Enqueuing the same bucket multiple times should be reflected in the queue state"
         )
     }
@@ -310,7 +310,7 @@ final class BucketQueueTests: XCTestCase {
         )
         XCTAssertEqual(
             bucketQueue.runningQueueState.enqueuedTests,
-            bucket.testEntries.map { $0.testName },
+            bucket.runTestsBucketPayload.testEntries.map { $0.testName },
             "Dequeueing one of the similar buckets should correctly update queue state"
         )
     }

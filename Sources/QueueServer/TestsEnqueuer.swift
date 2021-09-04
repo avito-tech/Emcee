@@ -63,7 +63,7 @@ public final class TestsEnqueuer {
         logger.info("Enqueued \(buckets.count) buckets for job '\(prioritizedJob)'")
         for bucket in buckets {
             logger.debug("-- \(bucket) with tests:")
-            for testEntries in bucket.testEntries {
+            for testEntries in bucket.runTestsBucketPayload.testEntries {
                 logger.debug("-- -- \(testEntries)")
             }
         }

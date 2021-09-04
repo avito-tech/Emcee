@@ -27,8 +27,8 @@ public final class SingleBucketQueueStuckBucketsReenqueuer: StuckBucketsReenqueu
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
-    public func reenqueueStuckBuckets() -> [StuckBucket] {
-        bucketQueueHolder.performWithExclusiveAccess {
+    public func reenqueueStuckBuckets() throws -> [StuckBucket] {
+        try bucketQueueHolder.performWithExclusiveAccess {
             let allDequeuedBuckets = bucketQueueHolder.allDequeuedBuckets
             let stuckBuckets: [StuckBucket] = allDequeuedBuckets.compactMap { dequeuedBucket in
                 let aliveness = workerAlivenessProvider.alivenessForWorker(workerId: dequeuedBucket.workerId)
@@ -54,24 +54,13 @@ public final class SingleBucketQueueStuckBucketsReenqueuer: StuckBucketsReenqueu
             }
             
             // Every stucked test produces a single bucket with itself
-            let buckets = stuckBuckets.flatMap { stuckBucket in
-                stuckBucket.bucket.testEntries.map { testEntry in
-                    Bucket(
-                        analyticsConfiguration: stuckBucket.bucket.analyticsConfiguration,
-                        bucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
-                        buildArtifacts: stuckBucket.bucket.buildArtifacts,
-                        developerDir: stuckBucket.bucket.developerDir,
-                        pluginLocations: stuckBucket.bucket.pluginLocations,
-                        simulatorControlTool: stuckBucket.bucket.simulatorControlTool,
-                        simulatorOperationTimeouts: stuckBucket.bucket.simulatorOperationTimeouts,
-                        simulatorSettings: stuckBucket.bucket.simulatorSettings,
-                        testDestination: stuckBucket.bucket.testDestination,
-                        testEntries: [testEntry],
-                        testExecutionBehavior: stuckBucket.bucket.testExecutionBehavior,
-                        testRunnerTool: stuckBucket.bucket.testRunnerTool,
-                        testTimeoutConfiguration: stuckBucket.bucket.testTimeoutConfiguration,
-                        testType: stuckBucket.bucket.testType,
-                        workerCapabilityRequirements: stuckBucket.bucket.workerCapabilityRequirements
+            let buckets = try stuckBuckets.flatMap { stuckBucket in
+                try stuckBucket.bucket.runTestsBucketPayload.testEntries.map { testEntry in
+                    try stuckBucket.bucket.with(
+                        newBucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
+                        newRunTestsBucketPayload: stuckBucket.bucket.runTestsBucketPayload.with(
+                            testEntries: [testEntry]
+                        )
                     )
                 }
             }

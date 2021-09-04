@@ -22,7 +22,7 @@ final class MultipleQueuesStuckBucketsReenqueuerTests: XCTestCase {
         multipleQueuesContainer.add(runningJobQueue: createJobQueue(bucketQueue: bucketQueue))
         
         XCTAssertEqual(
-            multipleQueuesStuckBucketsReenqueuer.reenqueueStuckBuckets(),
+            try multipleQueuesStuckBucketsReenqueuer.reenqueueStuckBuckets(),
             [stuckBucket]
         )
     }

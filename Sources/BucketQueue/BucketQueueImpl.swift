@@ -70,8 +70,8 @@ final class BucketQueueImpl: BucketQueue {
         ).removeAllEnqueuedBuckets()
     }
     
-    func reenqueueStuckBuckets() -> [StuckBucket] {
-        SingleBucketQueueStuckBucketsReenqueuer(
+    func reenqueueStuckBuckets() throws -> [StuckBucket] {
+        try SingleBucketQueueStuckBucketsReenqueuer(
             bucketEnqueuer: SingleBucketQueueEnqueuer(
                 bucketQueueHolder: bucketQueueHolder,
                 dateProvider: dateProvider,

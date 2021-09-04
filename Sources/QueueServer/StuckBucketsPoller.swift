@@ -50,7 +50,12 @@ public final class StuckBucketsPoller {
     
     /// internal for testing
     func processStuckBuckets() {
-        let stuckBuckets = stuckBucketsReenqueuer.reenqueueStuckBuckets()
+        let stuckBuckets: [StuckBucket]
+        do {
+            stuckBuckets = try stuckBucketsReenqueuer.reenqueueStuckBuckets()
+        } catch {
+            return logger.error("Failed to reenqueue stuck buckets: \(error)")
+        }
         
         guard !stuckBuckets.isEmpty else { return }
         
