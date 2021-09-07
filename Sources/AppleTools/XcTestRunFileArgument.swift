@@ -97,6 +97,9 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
             xcTestBundlePath: testBundlePath
         )
         
+        let systemAttachmentLifetime = XcTestRunAttachmentLifetime.deleteOnSuccess
+        let userAttachmentLifetime = XcTestRunAttachmentLifetime.deleteOnSuccess
+        
         return XcTestRun(
             testTargetName: testTargetProductModuleName,
             bundleIdentifiersForCrashReportEmphasis: [],
@@ -118,7 +121,9 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
             isUITestBundle: false,
             isAppHostedTestBundle: false,
             isXCTRunnerHostedTestBundle: false,
-            testTargetProductModuleName: testTargetProductModuleName
+            testTargetProductModuleName: testTargetProductModuleName,
+            systemAttachmentLifetime: systemAttachmentLifetime.rawValue,
+            userAttachmentLifetime: userAttachmentLifetime.rawValue
         )
     }
 
@@ -146,6 +151,9 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
             "DYLD_INSERT_LIBRARIES": insertedLibraries.joined(separator: ":"),
             "XCInjectBundleInto": hostAppPath.pathString,
         ]
+        
+        let systemAttachmentLifetime = XcTestRunAttachmentLifetime.deleteOnSuccess
+        let userAttachmentLifetime = XcTestRunAttachmentLifetime.deleteOnSuccess
 
         return XcTestRun(
             testTargetName: testTargetProductModuleName,
@@ -169,7 +177,9 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
             isUITestBundle: false,
             isAppHostedTestBundle: true,
             isXCTRunnerHostedTestBundle: false,
-            testTargetProductModuleName: testTargetProductModuleName
+            testTargetProductModuleName: testTargetProductModuleName,
+            systemAttachmentLifetime: systemAttachmentLifetime.rawValue,
+            userAttachmentLifetime: userAttachmentLifetime.rawValue
         )
     }
 
@@ -200,6 +210,9 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
         if !testingEnvironment.insertedLibraries.isEmpty {
             testingEnvironmentVariables["DYLD_INSERT_LIBRARIES"] = testingEnvironment.insertedLibraries.joined(separator: ":")
         }
+        
+        let systemAttachmentLifetime = XcTestRunAttachmentLifetime.deleteOnSuccess
+        let userAttachmentLifetime = XcTestRunAttachmentLifetime.deleteOnSuccess
 
         return XcTestRun(
             testTargetName: testTargetProductModuleName,
@@ -220,7 +233,9 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
             isUITestBundle: true,
             isAppHostedTestBundle: false,
             isXCTRunnerHostedTestBundle: true,
-            testTargetProductModuleName: testTargetProductModuleName
+            testTargetProductModuleName: testTargetProductModuleName,
+            systemAttachmentLifetime: systemAttachmentLifetime.rawValue,
+            userAttachmentLifetime: userAttachmentLifetime.rawValue
         )
     }
     

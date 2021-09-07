@@ -31,6 +31,8 @@ public final class XcTestRunPlist {
         case IsAppHostedTestBundle
         case IsXCTRunnerHostedTestBundle
         case ProductModuleName
+        case SystemAttachmentLifetime
+        case UserAttachmentLifetime
     }
 
     private func createPlist() -> Plist {
@@ -53,7 +55,9 @@ public final class XcTestRunPlist {
                 Keys.IsUITestBundle.rawValue: .bool(xcTestRun.isUITestBundle),
                 Keys.IsAppHostedTestBundle.rawValue: .bool(xcTestRun.isAppHostedTestBundle),
                 Keys.IsXCTRunnerHostedTestBundle.rawValue: .bool(xcTestRun.isXCTRunnerHostedTestBundle),
-                Keys.ProductModuleName.rawValue: .string(xcTestRun.testTargetProductModuleName)
+                Keys.ProductModuleName.rawValue: .string(xcTestRun.testTargetProductModuleName),
+                Keys.SystemAttachmentLifetime.rawValue: .string(xcTestRun.systemAttachmentLifetime),
+                Keys.UserAttachmentLifetime.rawValue: .string(xcTestRun.userAttachmentLifetime)
             ])
         ])
         return Plist(rootPlistEntry: plistContents)
@@ -92,7 +96,9 @@ public final class XcTestRunPlist {
                 isUITestBundle: try testTargetEntry.entry(forKey: Keys.IsUITestBundle.rawValue).boolValue(),
                 isAppHostedTestBundle: try testTargetEntry.entry(forKey: Keys.IsAppHostedTestBundle.rawValue).boolValue(),
                 isXCTRunnerHostedTestBundle: try testTargetEntry.entry(forKey: Keys.IsXCTRunnerHostedTestBundle.rawValue).boolValue(),
-                testTargetProductModuleName: try testTargetEntry.entry(forKey: Keys.ProductModuleName.rawValue).stringValue()
+                testTargetProductModuleName: try testTargetEntry.entry(forKey: Keys.ProductModuleName.rawValue).stringValue(),
+                systemAttachmentLifetime: try testTargetEntry.entry(forKey: Keys.SystemAttachmentLifetime.rawValue).stringValue(),
+                userAttachmentLifetime: try testTargetEntry.entry(forKey: Keys.UserAttachmentLifetime.rawValue).stringValue()
             )
         )
     }
