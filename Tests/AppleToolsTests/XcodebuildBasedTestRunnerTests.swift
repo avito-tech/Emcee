@@ -157,8 +157,8 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                     isAppHostedTestBundle: false,
                     isXCTRunnerHostedTestBundle: false,
                     testTargetProductModuleName: self.testBundleName,
-                    systemAttachmentLifetime: "deleteOnSuccess",
-                    userAttachmentLifetime: "deleteOnSuccess"
+                    systemAttachmentLifetime: .deleteOnSuccess,
+                    userAttachmentLifetime: .deleteOnSuccess
                 )
             )
             
@@ -227,8 +227,8 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                     isAppHostedTestBundle: true,
                     isXCTRunnerHostedTestBundle: false,
                     testTargetProductModuleName: self.testBundleName,
-                    systemAttachmentLifetime: "deleteOnSuccess",
-                    userAttachmentLifetime: "deleteOnSuccess"
+                    systemAttachmentLifetime: .deleteOnSuccess,
+                    userAttachmentLifetime: .deleteOnSuccess
                 )
             )
             

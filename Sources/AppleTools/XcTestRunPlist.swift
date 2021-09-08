@@ -56,8 +56,8 @@ public final class XcTestRunPlist {
                 Keys.IsAppHostedTestBundle.rawValue: .bool(xcTestRun.isAppHostedTestBundle),
                 Keys.IsXCTRunnerHostedTestBundle.rawValue: .bool(xcTestRun.isXCTRunnerHostedTestBundle),
                 Keys.ProductModuleName.rawValue: .string(xcTestRun.testTargetProductModuleName),
-                Keys.SystemAttachmentLifetime.rawValue: .string(xcTestRun.systemAttachmentLifetime),
-                Keys.UserAttachmentLifetime.rawValue: .string(xcTestRun.userAttachmentLifetime)
+                Keys.SystemAttachmentLifetime.rawValue: .string(xcTestRun.systemAttachmentLifetime.rawValue),
+                Keys.UserAttachmentLifetime.rawValue: .string(xcTestRun.userAttachmentLifetime.rawValue)
             ])
         ])
         return Plist(rootPlistEntry: plistContents)
@@ -75,6 +75,12 @@ public final class XcTestRunPlist {
             throw ReadingError.unexpectedFormat
         }
         let testTargetEntry = try plist.root.plistEntry.entry(forKey: testTargetName)
+        
+        let systemAttachmentLifetimeValue = try testTargetEntry.entry(forKey: Keys.SystemAttachmentLifetime.rawValue).stringValue()
+        let systemAttachmentLifetime = try XcTestRunAttachmentLifetime(fromRawValue: systemAttachmentLifetimeValue)
+        
+        let userAttachmentLifetimeValue = try testTargetEntry.entry(forKey: Keys.UserAttachmentLifetime.rawValue).stringValue()
+        let userAttachmentLifetime = try XcTestRunAttachmentLifetime(fromRawValue: userAttachmentLifetimeValue)
         
         return XcTestRunPlist(
             xcTestRun: XcTestRun(
@@ -97,8 +103,8 @@ public final class XcTestRunPlist {
                 isAppHostedTestBundle: try testTargetEntry.entry(forKey: Keys.IsAppHostedTestBundle.rawValue).boolValue(),
                 isXCTRunnerHostedTestBundle: try testTargetEntry.entry(forKey: Keys.IsXCTRunnerHostedTestBundle.rawValue).boolValue(),
                 testTargetProductModuleName: try testTargetEntry.entry(forKey: Keys.ProductModuleName.rawValue).stringValue(),
-                systemAttachmentLifetime: try testTargetEntry.entry(forKey: Keys.SystemAttachmentLifetime.rawValue).stringValue(),
-                userAttachmentLifetime: try testTargetEntry.entry(forKey: Keys.UserAttachmentLifetime.rawValue).stringValue()
+                systemAttachmentLifetime: systemAttachmentLifetime,
+                userAttachmentLifetime: userAttachmentLifetime
             )
         )
     }

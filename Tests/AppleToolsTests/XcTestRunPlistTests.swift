@@ -30,8 +30,8 @@ final class XcTestRunPlistTests: XCTestCase {
             isAppHostedTestBundle: false,
             isXCTRunnerHostedTestBundle: true,
             testTargetProductModuleName: "TestModuleName",
-            systemAttachmentLifetime: "deleteOnSuccess",
-            userAttachmentLifetime: "deleteOnSuccess"
+            systemAttachmentLifetime: .deleteOnSuccess,
+            userAttachmentLifetime: .deleteOnSuccess
         )
         let plist = XcTestRunPlist(xcTestRun: testRun)
         let contents = try plist.createPlistData()
@@ -155,8 +155,8 @@ final class XcTestRunPlistTests: XCTestCase {
             isAppHostedTestBundle: false,
             isXCTRunnerHostedTestBundle: true,
             testTargetProductModuleName: "TestModuleName",
-            systemAttachmentLifetime: "deleteOnSuccess",
-            userAttachmentLifetime: "deleteOnSuccess"
+            systemAttachmentLifetime: .deleteOnSuccess,
+            userAttachmentLifetime: .deleteOnSuccess
         )
         let plist = XcTestRunPlist(xcTestRun: testRun)
         

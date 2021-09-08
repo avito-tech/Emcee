@@ -67,9 +67,9 @@ public struct XcTestRun: Equatable {
     /// `.` and `-` symbols usually are replaced with `_`, e.g. `Some.SDK` becomes `Some_SDK`.
     public let testTargetProductModuleName: String
     
-    public let systemAttachmentLifetime: String
+    public let systemAttachmentLifetime: XcTestRunAttachmentLifetime
     
-    public let userAttachmentLifetime: String
+    public let userAttachmentLifetime: XcTestRunAttachmentLifetime
 
     public init(
         testTargetName: String,
@@ -91,8 +91,8 @@ public struct XcTestRun: Equatable {
         isAppHostedTestBundle: Bool,
         isXCTRunnerHostedTestBundle: Bool,
         testTargetProductModuleName: String,
-        systemAttachmentLifetime: String,
-        userAttachmentLifetime: String
+        systemAttachmentLifetime: XcTestRunAttachmentLifetime,
+        userAttachmentLifetime: XcTestRunAttachmentLifetime
     ) {
         self.testTargetName = testTargetName
         self.bundleIdentifiersForCrashReportEmphasis = bundleIdentifiersForCrashReportEmphasis
