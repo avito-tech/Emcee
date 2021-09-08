@@ -1643,6 +1643,15 @@ let package = Package(
             ],
             path: "Sources/SimulatorPoolModels"
         ),
+        .testTarget(
+            name: "SimulatorPoolModelsTests",
+            dependencies: [
+                "SimulatorPoolModels",
+                "SimulatorPoolTestHelpers",
+                .product(name: "TestHelpers", package: "CommandLineToolkit"),
+            ],
+            path: "Tests/SimulatorPoolModelsTests"
+        ),
         .target(
             name: "SimulatorPoolTestHelpers",
             dependencies: [
