@@ -118,7 +118,9 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
             isUITestBundle: false,
             isAppHostedTestBundle: false,
             isXCTRunnerHostedTestBundle: false,
-            testTargetProductModuleName: testTargetProductModuleName
+            testTargetProductModuleName: testTargetProductModuleName,
+            systemAttachmentLifetime: .deleteOnSuccess,
+            userAttachmentLifetime: .deleteOnSuccess
         )
     }
 
@@ -169,7 +171,9 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
             isUITestBundle: false,
             isAppHostedTestBundle: true,
             isXCTRunnerHostedTestBundle: false,
-            testTargetProductModuleName: testTargetProductModuleName
+            testTargetProductModuleName: testTargetProductModuleName,
+            systemAttachmentLifetime: .deleteOnSuccess,
+            userAttachmentLifetime: .deleteOnSuccess
         )
     }
 
@@ -220,7 +224,9 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
             isUITestBundle: true,
             isAppHostedTestBundle: false,
             isXCTRunnerHostedTestBundle: true,
-            testTargetProductModuleName: testTargetProductModuleName
+            testTargetProductModuleName: testTargetProductModuleName,
+            systemAttachmentLifetime: .deleteOnSuccess,
+            userAttachmentLifetime: .deleteOnSuccess
         )
     }
     

@@ -66,6 +66,10 @@ public struct XcTestRun: Equatable {
     /// The module name of this test target, as specified by the target's `PRODUCT_MODULE_NAME` build setting in Xcode.
     /// `.` and `-` symbols usually are replaced with `_`, e.g. `Some.SDK` becomes `Some_SDK`.
     public let testTargetProductModuleName: String
+    
+    public let systemAttachmentLifetime: XcTestRunAttachmentLifetime
+    
+    public let userAttachmentLifetime: XcTestRunAttachmentLifetime
 
     public init(
         testTargetName: String,
@@ -86,7 +90,9 @@ public struct XcTestRun: Equatable {
         isUITestBundle: Bool,
         isAppHostedTestBundle: Bool,
         isXCTRunnerHostedTestBundle: Bool,
-        testTargetProductModuleName: String
+        testTargetProductModuleName: String,
+        systemAttachmentLifetime: XcTestRunAttachmentLifetime,
+        userAttachmentLifetime: XcTestRunAttachmentLifetime
     ) {
         self.testTargetName = testTargetName
         self.bundleIdentifiersForCrashReportEmphasis = bundleIdentifiersForCrashReportEmphasis
@@ -107,6 +113,7 @@ public struct XcTestRun: Equatable {
         self.isAppHostedTestBundle = isAppHostedTestBundle
         self.isXCTRunnerHostedTestBundle = isXCTRunnerHostedTestBundle
         self.testTargetProductModuleName = testTargetProductModuleName
+        self.systemAttachmentLifetime = systemAttachmentLifetime
+        self.userAttachmentLifetime = userAttachmentLifetime
     }
 }
-
