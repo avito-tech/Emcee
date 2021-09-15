@@ -51,6 +51,23 @@ final class FileHandleLoggerHandlerTests: XCTestCase {
         )
     }
     
+    func test___handling_coordinates___alters_message() throws {
+        let logEntry = LogEntry(
+            file: "file",
+            line: 42,
+            coordinates: ["coordinate", "123"],
+            message: "message",
+            timestamp: Date(),
+            verbosity: Verbosity.info
+        )
+        loggerHandler.handle(logEntry: logEntry)
+        
+        XCTAssertEqual(
+            try tempFileContents(),
+            SimpleLogEntryTextFormatter().format(logEntry: logEntry) + "\n"
+        )
+    }
+    
     func test___handling_lower_verbosity_entries___does_not_write_to_file_handler() throws {
         let logEntry = LogEntry(
             file: "file",

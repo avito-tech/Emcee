@@ -63,10 +63,19 @@ public final class FileHandleLoggerHandler: LoggerHandler {
     ) {
         if let skipMetadataFlag = skipMetadataFlag, metadata?[skipMetadataFlag.rawValue] != nil { return }
         
+        var coordinates = [String]()
+        if let subprocessId = metadata?[ContextualLogger.ContextKeys.subprocessId.rawValue] {
+            if let xcrunToolName = metadata?[ContextualLogger.ContextKeys.xcrunToolName.rawValue]{
+                coordinates.append("\(xcrunToolName):\(subprocessId)")
+            } else if let subprocessName = metadata?[ContextualLogger.ContextKeys.subprocessName.rawValue] {
+                coordinates.append("\(subprocessName):\(subprocessId)")
+            }
+        }
+        
         let entry = LogEntry(
             file: file,
             line: line,
-            coordinates: [],
+            coordinates: coordinates,
             message: message.description,
             timestamp: dateProvider.currentDate(),
             verbosity: level.verbosity
