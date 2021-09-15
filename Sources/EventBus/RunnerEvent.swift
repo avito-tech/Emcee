@@ -2,11 +2,24 @@ import Foundation
 import RunnerModels
 
 public enum RunnerEvent: Codable, Equatable, CustomStringConvertible {
+    /// Event indicates that a set of tests will be run.
     case willRun(testEntries: [TestEntry], testContext: TestContext)
-    case didRun(results: [TestEntryResult], testContext: TestContext)
-    
+
+    /// Event occurs after test starts.
+    /// At this time there is no information about its result yet.
+    /// This event will be triggered for each test from the set of tests which has started before.
     case testStarted(testEntry: TestEntry, testContext: TestContext)
+    
+    /// Event occurs after test finishes. At this time only a limited test result information is available.
+    /// At the moment of this event triggering, some tests still may be up to be executed by the test runner.
+    /// This event will be triggered for each test from the set of tests which has started before.
+    /// This event is not an appropriate place to process test results, because not all test results can be available, or test results may be not complete.
     case testFinished(testEntry: TestEntry, succeeded: Bool, testContext: TestContext)
+    
+    /// This event indicates that test runner has finished running all tests from the test set it has been executing.
+    /// At this point, all test results are final and contain maximum details test runner managed to obtain.
+    /// This event is a good place to process test results.
+    case didRun(results: [TestEntryResult], testContext: TestContext)
     
     public var testContext: TestContext {
         switch self {
