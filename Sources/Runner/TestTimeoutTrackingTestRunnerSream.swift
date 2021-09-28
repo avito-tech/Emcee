@@ -81,12 +81,7 @@ public final class TestTimeoutTrackingTestRunnerSream: TestRunnerStream {
     }
     
     private func stopTimer() {
-        lastStartedTestInfo.withExclusiveAccess { value in
-            if let lastStartedTest = value {
-                logger().debug("Stopped monitoring duration of test \(lastStartedTest.testName)")
-                value = nil
-            }
-        }
+        lastStartedTestInfo.set(nil)
         testHangTrackingTimer?.stop()
         testHangTrackingTimer = nil
     }
