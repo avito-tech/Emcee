@@ -20,8 +20,10 @@ import QueueModels
 import RequestSender
 import ResourceLocationResolver
 import Runner
+import SimulatorPool
 import SynchronousWaiter
 import TestDiscovery
+import Tmp
 import URLResource
 import UniqueIdentifierGenerator
 
@@ -31,8 +33,9 @@ public final class InProcessMain {
     public func run() throws {
         let di: DI = DIImpl()
        
+        let fileSystem = LocalFileSystem()
         di.set(
-            LocalFileSystem(),
+            fileSystem,
             for: FileSystem.self
         )
         di.set(
@@ -189,6 +192,50 @@ public final class InProcessMain {
             for: Waiter.self
         )
         
+        let tempFolder = try TemporaryFolder()
+        di.set(
+            tempFolder,
+            for: TemporaryFolder.self
+        )
+        defer {
+            try? fileSystem.delete(fileAtPath: tempFolder.absolutePath)
+        }
+
+        let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
+            di: di,
+            logger: try di.get(),
+            version: EmceeVersion.version
+        )
+        defer {
+            onDemandSimulatorPool.deleteSimulators()
+        }
+        
+        di.set(
+            onDemandSimulatorPool,
+            for: OnDemandSimulatorPool.self
+        )
+        
+        di.set(
+            TestDiscoveryQuerierImpl(
+                dateProvider: try di.get(),
+                developerDirLocator: try di.get(),
+                fileSystem: try di.get(),
+                globalMetricRecorder: try di.get(),
+                specificMetricRecorderProvider: try di.get(),
+                onDemandSimulatorPool: try di.get(),
+                pluginEventBusProvider: try di.get(),
+                processControllerProvider: try di.get(),
+                resourceLocationResolver: try di.get(),
+                runnerWasteCollectorProvider: try di.get(),
+                tempFolder: try di.get(),
+                testRunnerProvider: try di.get(),
+                uniqueIdentifierGenerator: try di.get(),
+                version: EmceeVersion.version,
+                waiter: try di.get()
+            ),
+            for: TestDiscoveryQuerier.self
+        )
+        
         let commandInvoker = CommandInvoker(
             commands: [
                 try DistWorkCommand(di: di),
@@ -199,6 +246,9 @@ public final class InProcessMain {
                 try EnableWorkerCommand(di: di),
                 try DisableWorkerCommand(di: di),
                 try ToggleWorkersSharingCommand(di: di),
+                try BenchmarkCommand(di: di),
+                try InitArgFileCommand(di: di),
+                try ReformatPlistCommand(di: di),
                 VersionCommand(),
             ],
             helpCommandType: .generateAutomatically

@@ -42,6 +42,8 @@ public final class LoggingSetup {
         
         let logger = ContextualLogger(logger: Logger(label: "emcee"), addedMetadata: [:])
         
+        logger.info("To continuously read detailed verbose log on local machine:")
+        logger.info("$ tail -f \(detailedLogPath.absolutePath)")
         logger.info("To fetch detailed verbose log:")
         logger.info("$ scp \(NSUserName())@\(LocalHostDeterminer.currentHostAddress):\(detailedLogPath.absolutePath) /tmp/\(filename).log && open /tmp/\(filename).log")
         

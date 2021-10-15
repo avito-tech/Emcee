@@ -8,13 +8,14 @@ public final class OnDemandSimulatorPoolFactory {
     public static func create(
         di: DI,
         logger: ContextualLogger,
+        additionalBootAttempts: UInt = 2,
         simulatorBootQueue: DispatchQueue = DispatchQueue(label: "SimulatorBootQueue"),
         version: Version
     ) throws -> OnDemandSimulatorPool {
         DefaultOnDemandSimulatorPool(
             logger: logger,
             simulatorControllerProvider: DefaultSimulatorControllerProvider(
-                additionalBootAttempts: 2,
+                additionalBootAttempts: additionalBootAttempts,
                 developerDirLocator: try di.get(),
                 fileSystem: try di.get(),
                 logger: logger,

@@ -25,6 +25,10 @@ public final class FakeSimulatorController: SimulatorController {
         self.simulatorOperationTimeouts = simulatorOperationTimeouts
     }
     
+    public func createdSimulator() throws -> Simulator {
+        return simulator
+    }
+    
     public func bootedSimulator() throws -> Simulator {
         return simulator
     }

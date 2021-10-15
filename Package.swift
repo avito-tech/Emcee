@@ -179,6 +179,17 @@ let package = Package(
             path: "Tests/BalancingBucketQueueTests"
         ),
         .target(
+            name: "Benchmarking",
+            dependencies: [
+                .product(name: "AtomicModels", package: "CommandLineToolkit"),
+                .product(name: "DateProvider", package: "CommandLineToolkit"),
+                "EmceeLogging",
+                .product(name: "PlistLib", package: "CommandLineToolkit"),
+                .product(name: "Types", package: "CommandLineToolkit"),
+            ],
+            path: "Sources/Benchmarking"
+        ),
+        .target(
             name: "BucketQueue",
             dependencies: [
                 "BucketQueueModels",
@@ -492,6 +503,7 @@ let package = Package(
                 "ArgLib",
                 .product(name: "AtomicModels", package: "CommandLineToolkit"),
                 "AutomaticTermination",
+                "Benchmarking",
                 "BucketQueue",
                 "BuildArtifacts",
                 "ChromeTracing",
@@ -517,7 +529,9 @@ let package = Package(
                 .product(name: "Metrics", package: "CommandLineToolkit"),
                 "MetricsExtensions",
                 .product(name: "PathLib", package: "CommandLineToolkit"),
+                .product(name: "PlistLib", package: "CommandLineToolkit"),
                 "PluginManager",
+                "PluginSupport",
                 "PortDeterminer",
                 .product(name: "ProcessController", package: "CommandLineToolkit"),
                 "QueueClient",

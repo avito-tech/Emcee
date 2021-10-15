@@ -11,7 +11,7 @@ public struct Priority: Comparable, Hashable, Codable, CustomStringConvertible, 
     public typealias IntegerLiteralType = UInt
     
     public init(integerLiteral value: UInt) {
-        self.intValue = value
+        self.intValue = Swift.min(value, Self.maximumIntValue)
     }
     
     private static let maximumIntValue: UInt = 999

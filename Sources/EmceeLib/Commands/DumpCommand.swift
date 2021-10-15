@@ -85,27 +85,6 @@ public final class DumpCommand: Command {
             onDemandSimulatorPool.deleteSimulators()
         }
         
-        di.set(
-            TestDiscoveryQuerierImpl(
-                dateProvider: try di.get(),
-                developerDirLocator: try di.get(),
-                fileSystem: try di.get(),
-                globalMetricRecorder: try di.get(),
-                specificMetricRecorderProvider: try di.get(),
-                onDemandSimulatorPool: try di.get(),
-                pluginEventBusProvider: try di.get(),
-                processControllerProvider: try di.get(),
-                resourceLocationResolver: try di.get(),
-                runnerWasteCollectorProvider: try di.get(),
-                tempFolder: try di.get(),
-                testRunnerProvider: try di.get(),
-                uniqueIdentifierGenerator: try di.get(),
-                version: emceeVersion,
-                waiter: try di.get()
-            ),
-            for: TestDiscoveryQuerier.self
-        )
-        
         let discoverer = PipelinedTestDiscoverer(
             runtimeDumpRemoteCacheProvider: try di.get(),
             testDiscoveryQuerier: try di.get(),

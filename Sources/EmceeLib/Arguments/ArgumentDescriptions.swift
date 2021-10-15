@@ -13,6 +13,10 @@ final class ArgumentDescriptions {
     static let testArgFile = doubleDashedDescription(dashlessName: "test-arg-file", overview: "JSON file with test plan")
     static let trace = doubleDashedDescription(dashlessName: "trace", overview: "Path where the combined (for all test destinations) Chrome trace file should be created")
     static let workerId = doubleDashedDescription(dashlessName: "worker-id", overview: "An identifier used to distinguish between workers. Useful to match with deployment destination's identifier")
+    static let numberOfSimulators = doubleDashedDescription(dashlessName: "number-of-simulators", overview: "Number of simulators to use for benchmarking")
+    static let duration = doubleDashedDescription(dashlessName: "duration", overview: "Benchmark duration, in seconds")
+    static let sampleInterval = doubleDashedDescription(dashlessName: "sample-interval", overview: "How often system metrics are sampled, in seconds")
+    static let plist = doubleDashedDescription(dashlessName: "plist", overview: "Path to benchmark results")
 
     private static func doubleDashedDescription(dashlessName: String, overview: String, multiple: Bool = false) -> ArgumentDescription {
         return ArgumentDescription(name: .doubleDashed(dashlessName: dashlessName), overview: overview, multiple: multiple)

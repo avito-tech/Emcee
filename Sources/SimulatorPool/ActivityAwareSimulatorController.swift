@@ -51,6 +51,10 @@ public final class ActivityAwareSimulatorController: SimulatorController, Custom
         )
     }
     
+    public func createdSimulator() throws -> Simulator {
+        return try delegate.createdSimulator()
+    }
+    
     public func bootedSimulator() throws -> Simulator {
         return try delegate.bootedSimulator()
     }

@@ -66,6 +66,7 @@
     "implicitSystemModules" : [
       "AppKit",
       "Darwin",
+      "Darwin.Mach",
       "Dispatch",
       "Foundation",
       "XCTest"

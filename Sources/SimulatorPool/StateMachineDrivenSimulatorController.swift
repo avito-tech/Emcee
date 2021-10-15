@@ -62,6 +62,15 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
         self.simulatorOperationTimeouts.set(simulatorOperationTimeouts)
     }
     
+    public func createdSimulator() throws -> Simulator {
+        try attemptToSwitchState(targetStates: [.created])
+        
+        guard let simulator = simulator else {
+            throw SimulatorError.unableToLocateSimulatorUuid
+        }
+        return simulator
+    }
+    
     public func bootedSimulator() throws -> Simulator {
         try attemptToSwitchState(targetStates: [.booted])
         
