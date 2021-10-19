@@ -90,7 +90,8 @@ final class TestArgFileEntryTests: XCTestCase {
                         "addingEmojiKeybordHandled": true,
                         "enableKeyboardExpansion": true,
                         "didShowInternationalInfoAlert": true,
-                        "didShowContinuousPathIntroduction": true
+                        "didShowContinuousPathIntroduction": true,
+                        "didShowGestureKeyboardIntroduction": true
                     },
                     "simulatorKeychainSettings": {
                         "rootCerts": [

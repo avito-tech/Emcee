@@ -26,7 +26,8 @@ final class SimulatorSettingsTests: XCTestCase {
                     "addingEmojiKeybordHandled": true,
                     "enableKeyboardExpansion": true,
                     "didShowInternationalInfoAlert": true,
-                    "didShowContinuousPathIntroduction": true
+                    "didShowContinuousPathIntroduction": true,
+                    "didShowGestureKeyboardIntroduction": true
                 },
                 "simulatorKeychainSettings": {
                     "rootCerts": [
@@ -85,7 +86,8 @@ final class SimulatorSettingsTests: XCTestCase {
                     "addingEmojiKeybordHandled": true,
                     "enableKeyboardExpansion": true,
                     "didShowInternationalInfoAlert": true,
-                    "didShowContinuousPathIntroduction": true
+                    "didShowContinuousPathIntroduction": true,
+                    "didShowGestureKeyboardIntroduction": true
                 },
                 "watchdogSettings": {
                     "bundleIds": [

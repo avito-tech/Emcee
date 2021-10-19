@@ -59,6 +59,7 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
             rootPlistEntry: .dict([
                 "UIKeyboardDidShowInternationalInfoIntroduction": .bool(simulatorSettings.simulatorLocalizationSettings.didShowInternationalInfoAlert),
                 "DidShowContinuousPathIntroduction": .bool(simulatorSettings.simulatorLocalizationSettings.didShowContinuousPathIntroduction),
+                "DidShowGestureKeyboardIntroduction": .bool(simulatorSettings.simulatorLocalizationSettings.didShowGestureKeyboardIntroduction),
             ])
         )
         didImportPlist = try didImportPlist || importDefaults(

@@ -38,7 +38,8 @@ public enum TestArgFileDefaultValues {
             addingEmojiKeybordHandled: true,
             enableKeyboardExpansion: true,
             didShowInternationalInfoAlert: true,
-            didShowContinuousPathIntroduction: true
+            didShowContinuousPathIntroduction: true,
+            didShowGestureKeyboardIntroduction: true
         ),
         simulatorKeychainSettings: SimulatorKeychainSettings(
             rootCerts: []

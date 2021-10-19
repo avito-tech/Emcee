@@ -276,7 +276,8 @@ final class SimulatorSettingsModifierTests: XCTestCase {
             addingEmojiKeybordHandled: true,
             enableKeyboardExpansion: true,
             didShowInternationalInfoAlert: true,
-            didShowContinuousPathIntroduction: true
+            didShowContinuousPathIntroduction: true,
+            didShowGestureKeyboardIntroduction: true
         ),
         simulatorKeychainSettings: SimulatorKeychainSettings(
             rootCerts: [
@@ -305,6 +306,7 @@ final class SimulatorSettingsModifierTests: XCTestCase {
         rootPlistEntry: .dict([
             "UIKeyboardDidShowInternationalInfoIntroduction": .bool(simulatorSettings.simulatorLocalizationSettings.didShowInternationalInfoAlert),
             "DidShowContinuousPathIntroduction": .bool(simulatorSettings.simulatorLocalizationSettings.didShowContinuousPathIntroduction),
+            "DidShowGestureKeyboardIntroduction": .bool(simulatorSettings.simulatorLocalizationSettings.didShowGestureKeyboardIntroduction),
         ])
     )
     lazy var expectedSpringboardPlistContents = Plist(

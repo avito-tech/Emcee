@@ -9,6 +9,7 @@ public struct SimulatorLocalizationSettings: Codable, CustomStringConvertible, H
     public let enableKeyboardExpansion: Bool
     public let didShowInternationalInfoAlert: Bool
     public let didShowContinuousPathIntroduction: Bool
+    public let didShowGestureKeyboardIntroduction: Bool
     
     public init(
         localeIdentifier: String,
@@ -18,7 +19,8 @@ public struct SimulatorLocalizationSettings: Codable, CustomStringConvertible, H
         addingEmojiKeybordHandled: Bool,
         enableKeyboardExpansion: Bool,
         didShowInternationalInfoAlert: Bool,
-        didShowContinuousPathIntroduction: Bool
+        didShowContinuousPathIntroduction: Bool,
+        didShowGestureKeyboardIntroduction: Bool
     ) {
         self.localeIdentifier = localeIdentifier
         self.keyboards = keyboards
@@ -28,9 +30,22 @@ public struct SimulatorLocalizationSettings: Codable, CustomStringConvertible, H
         self.enableKeyboardExpansion = enableKeyboardExpansion
         self.didShowInternationalInfoAlert = didShowInternationalInfoAlert
         self.didShowContinuousPathIntroduction = didShowContinuousPathIntroduction
+        self.didShowGestureKeyboardIntroduction = didShowGestureKeyboardIntroduction
     }
     
     public var description: String {
-        return "<\(type(of: self)) \(localeIdentifier), keyboards: \(keyboards), passcodeKeyboards: \(passcodeKeyboards), languages: \(languages), addingEmojiKeybordHandled \(addingEmojiKeybordHandled), enableKeyboardExpansion \(enableKeyboardExpansion), didShowInternationalInfoAlert \(didShowInternationalInfoAlert), didShowContinuousPathIntroduction \(didShowContinuousPathIntroduction)>"
+        let keysAndValues = [
+            "localeIdentifier: \(localeIdentifier)",
+            "keyboards: \(keyboards)",
+            "passcodeKeyboards: \(passcodeKeyboards)",
+            "languages: \(languages)",
+            "addingEmojiKeybordHandled: \(addingEmojiKeybordHandled)",
+            "enableKeyboardExpansion: \(enableKeyboardExpansion)",
+            "didShowInternationalInfoAlert: \(didShowInternationalInfoAlert)",
+            "didShowContinuousPathIntroduction: \(didShowContinuousPathIntroduction)",
+            "didShowGestureKeyboardIntroduction: \(didShowGestureKeyboardIntroduction)",
+        ].joined(separator: ", ")
+        
+        return "<\(type(of: self)) \(keysAndValues)>"
     }
 }
