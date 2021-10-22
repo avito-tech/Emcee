@@ -23,7 +23,7 @@ final class IndividualBucketSplitterTests: XCTestCase {
     func test__individual_splitter__splits_to_entries_with_single_test() {
         let buckets = individualSplitter.generate(
             inputs: testEntryConfigurations,
-            splitInfo: BucketSplitInfo(numberOfWorkers: 1)
+            splitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 4)
         )
         assert {
             buckets.map { $0.runTestsBucketPayload.testEntries }
@@ -36,11 +36,11 @@ final class IndividualBucketSplitterTests: XCTestCase {
         XCTAssertEqual(
             individualSplitter.generate(
                 inputs: testEntryConfigurations,
-                splitInfo: BucketSplitInfo(numberOfWorkers: 1)
+                splitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1)
             ),
             individualSplitter.generate(
                 inputs: testEntryConfigurations,
-                splitInfo: BucketSplitInfo(numberOfWorkers: 5)
+                splitInfo: BucketSplitInfo(numberOfWorkers: 5, numberOfParallelBuckets: 10)
             )
         )
     }

@@ -146,7 +146,10 @@ public final class StartQueueServerCommand: Command {
             automaticTerminationController: automaticTerminationController,
             autoupdatingWorkerPermissionProvider: autoupdatingWorkerPermissionProvider,
             bucketSplitInfo: BucketSplitInfo(
-                numberOfWorkers: UInt(queueServerConfiguration.workerSpecificConfigurations.count)
+                numberOfWorkers: UInt(queueServerConfiguration.workerSpecificConfigurations.count),
+                numberOfParallelBuckets: queueServerConfiguration.workerSpecificConfigurations.reduce(into: 0, { result, keyValue in
+                    result += keyValue.value.numberOfSimulators
+                })
             ),
             checkAgainTimeInterval: queueServerConfiguration.checkAgainTimeInterval,
             dateProvider: try di.get(),

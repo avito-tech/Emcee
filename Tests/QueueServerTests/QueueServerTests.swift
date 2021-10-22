@@ -44,7 +44,7 @@ final class QueueServerTests: XCTestCase {
         logger: .noOp,
         portRange: 49152...65535
     )
-    private let bucketSplitInfo = BucketSplitInfo(numberOfWorkers: 1)
+    private let bucketSplitInfo = BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1)
     private let payloadSignature = PayloadSignature(value: "expectedPayloadSignature")
     private lazy var workerAlivenessProvider: WorkerAlivenessProvider = WorkerAlivenessProviderImpl(
         knownWorkerIds: workerConfigurations.workerIds,

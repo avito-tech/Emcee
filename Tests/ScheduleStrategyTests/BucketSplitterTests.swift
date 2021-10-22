@@ -37,7 +37,7 @@ final class BucketSplitterTests: XCTestCase {
         
         let buckets = splitter.generate(
             inputs: testEntryConfigurations,
-            splitInfo: BucketSplitInfo(numberOfWorkers: 1)
+            splitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1)
         )
         XCTAssertEqual(buckets.count, 2)
     }
@@ -58,7 +58,7 @@ final class BucketSplitterTests: XCTestCase {
 
         let buckets = splitter.generate(
             inputs: testEntryConfigurations,
-            splitInfo: BucketSplitInfo(numberOfWorkers: 1)
+            splitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1)
         )
         XCTAssertEqual(buckets.count, 4)
     }
@@ -89,7 +89,7 @@ final class BucketSplitterTests: XCTestCase {
 
         let buckets = splitter.generate(
             inputs: testEntryConfigurations,
-            splitInfo: BucketSplitInfo(numberOfWorkers: 1)
+            splitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1)
         )
         XCTAssertEqual(buckets.count, 3)
         XCTAssertEqual(buckets[0].runTestsBucketPayload.testEntries, expectedBucketEntries)

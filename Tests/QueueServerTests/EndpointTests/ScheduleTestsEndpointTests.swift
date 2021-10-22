@@ -164,7 +164,8 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         value: fixedBucketId.value
     )
     let bucketSplitInfo = BucketSplitInfo(
-        numberOfWorkers: 0
+        numberOfWorkers: 0,
+        numberOfParallelBuckets: 0
     )
     let jobId = JobId(value: "jobId")
     lazy var prioritizedJob = PrioritizedJob(

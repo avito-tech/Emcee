@@ -25,7 +25,7 @@ final class TestsEnqueuerTests: XCTestCase {
     func test() throws {
         let bucketId = BucketId(value: UUID().uuidString)
         let testsEnqueuer = TestsEnqueuer(
-            bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 1),
+            bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1),
             dateProvider: DateProviderFixture(),
             enqueueableBucketReceptor: enqueueableBucketReceptor,
             logger: .noOp,

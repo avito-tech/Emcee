@@ -21,11 +21,11 @@ final class EquallyDividedBucketSplitterTests: XCTestCase {
     lazy var testEntryConfigurations = TestEntryConfigurationFixtures().add(testEntries: testEntries).testEntryConfigurations()
     
     func test_equally_divided_splitter__splits_to_buckets_with_equal_size() {
-        let expected = testEntryConfigurations.splitToChunks(withSize: 2)
+        let expected = testEntryConfigurations.splitToChunks(withSize: 1)
         
         let actual = equallyDividedSplitter.split(
             inputs: testEntryConfigurations,
-            bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 2)
+            bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 2, numberOfParallelBuckets: 4)
         )
         
         XCTAssertEqual(actual, expected)
@@ -36,7 +36,7 @@ final class EquallyDividedBucketSplitterTests: XCTestCase {
         
         let actual = equallyDividedSplitter.split(
             inputs: testEntryConfigurations,
-            bucketSplitInfo: BucketSplitInfo(numberOfWorkers: UInt(testEntries.count))
+            bucketSplitInfo: BucketSplitInfo(numberOfWorkers: UInt(testEntries.count), numberOfParallelBuckets: UInt(testEntries.count))
         )
         
         XCTAssertEqual(actual, expected)

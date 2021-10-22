@@ -28,7 +28,7 @@ final class ProgressiveSplitterTests: XCTestCase {
     func test_progressive_splitter() {
         let result = progressiveSplitter.split(
             inputs: testEntryConfigurations,
-            bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 1)
+            bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 100)
         )
         
         XCTAssertEqual(result[0], Array(testEntryConfigurations[0..<4]))
