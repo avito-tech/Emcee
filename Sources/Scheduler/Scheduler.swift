@@ -52,7 +52,9 @@ public final class Scheduler {
     }
     
     public func run() throws {
-        startFetchingAndRunningTests()
+        startFetchingAndRunningTests(
+            dateProvider: try di.get()
+        )
         try SynchronousWaiter().waitWhile(pollPeriod: 1.0) {
             queue.operationCount > 0
         }
@@ -60,13 +62,17 @@ public final class Scheduler {
     
     // MARK: - Running on Queue
     
-    private func startFetchingAndRunningTests() {
+    private func startFetchingAndRunningTests(
+        dateProvider: DateProvider
+    ) {
         for _ in 0 ..< resourceSemaphore.availableResources.runningTests {
-            fetchAndRunBucket()
+            fetchAndRunBucket(dateProvider: dateProvider)
         }
     }
     
-    private func fetchAndRunBucket() {
+    private func fetchAndRunBucket(
+        dateProvider: DateProvider
+    ) {
         queue.addOperation {
             if self.resourceSemaphore.availableResources.runningTests == 0 {
                 return
@@ -79,22 +85,23 @@ public final class Scheduler {
                 analyticsConfiguration: bucket.analyticsConfiguration
             )
             logger.debug("Data Source returned bucket: \(bucket)")
-            self.runTestsFromFetchedBucket(bucket: bucket, logger: logger)
+            self.runTestsFromFetchedBucket(bucket: bucket, dateProvider: dateProvider, logger: logger)
         }
     }
     
     private func runTestsFromFetchedBucket(
         bucket: SchedulerBucket,
+        dateProvider: DateProvider,
         logger: ContextualLogger
     ) {
         do {
             let acquireResources = try resourceSemaphore.acquire(.of(runningTests: 1))
             let runTestsInBucketAfterAcquiringResources = BlockOperation {
                 do {
-                    let testingResult = self.execute(bucket: bucket, logger: logger)
+                    let testingResult = self.execute(bucket: bucket, dateProvider: dateProvider, logger: logger)
                     try self.resourceSemaphore.release(.of(runningTests: 1))
                     self.schedulerDelegate?.scheduler(self, obtainedTestingResult: testingResult, forBucket: bucket)
-                    self.fetchAndRunBucket()
+                    self.fetchAndRunBucket(dateProvider: dateProvider)
                 } catch {
                     logger.error("Error running tests from fetched bucket with error: \(error). Bucket: \(bucket)")
                 }
@@ -110,9 +117,10 @@ public final class Scheduler {
     
     private func execute(
         bucket: SchedulerBucket,
+        dateProvider: DateProvider,
         logger: ContextualLogger
     ) -> TestingResult {
-        let startedAt = Date()
+        let startedAt = dateProvider.dateSince1970ReferenceDate()
         do {
             return try runRetrying(bucket: bucket, logger: logger)
         } catch {
@@ -132,8 +140,8 @@ public final class Scheduler {
                                 )
                             ],
                             logs: [],
-                            duration: Date().timeIntervalSince(startedAt),
-                            startTime: startedAt.timeIntervalSince1970,
+                            duration: dateProvider.currentDate().timeIntervalSince(startedAt.date),
+                            startTime: startedAt,
                             hostName: LocalHostDeterminer.currentHostAddress,
                             simulatorId: UDID(value: "undefined")
                         )

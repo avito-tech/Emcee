@@ -91,7 +91,7 @@ final class TestingResultTests: XCTestCase {
         XCTAssertEqual(merged.failedTests.count, 1)
         XCTAssertEqual(merged.failedTests[0].testEntry, testEntry2)
         XCTAssertEqual(merged.failedTests[0].testRunResults.count, 1)
-        XCTAssertEqual(merged.failedTests[0].testRunResults[0].startTime, 42, accuracy: 0.1)
+        XCTAssertEqual(merged.failedTests[0].testRunResults[0].startTime.timeIntervalSince1970, 42, accuracy: 0.1)
     }
     
     func testMergingMismatchingBucketsFails() throws {

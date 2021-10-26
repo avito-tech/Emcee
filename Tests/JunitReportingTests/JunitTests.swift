@@ -1,4 +1,5 @@
 @testable import JunitReporting
+import EmceeTypes
 import Extensions
 import Foundation
 import XCTest

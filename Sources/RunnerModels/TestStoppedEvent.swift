@@ -1,4 +1,5 @@
 import Foundation
+import EmceeTypes
 
 public struct TestStoppedEvent: Equatable, CustomStringConvertible {
     public enum Result: String, Equatable {
@@ -12,7 +13,7 @@ public struct TestStoppedEvent: Equatable, CustomStringConvertible {
     public let testDuration: TimeInterval
     public let testExceptions: [TestException]
     public let logs: [TestLogEntry]
-    public let testStartTimestamp: TimeInterval
+    public let testStartTimestamp: DateSince1970ReferenceDate
     
     public init(
         testName: TestName,
@@ -20,7 +21,7 @@ public struct TestStoppedEvent: Equatable, CustomStringConvertible {
         testDuration: TimeInterval,
         testExceptions: [TestException],
         logs: [TestLogEntry],
-        testStartTimestamp: TimeInterval
+        testStartTimestamp: DateSince1970ReferenceDate
     ) {
         self.testName = testName
         self.result = result

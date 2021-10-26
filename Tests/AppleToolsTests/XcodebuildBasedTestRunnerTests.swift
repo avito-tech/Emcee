@@ -5,6 +5,7 @@ import DateProviderTestHelpers
 import DeveloperDirLocator
 import DeveloperDirLocatorTestHelpers
 import DeveloperDirModels
+import EmceeTypes
 import FileCache
 import FileSystemTestHelpers
 import Foundation
@@ -404,7 +405,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 testDuration: 5,
                 testExceptions: [],
                 logs: [],
-                testStartTimestamp: dateProvider.currentDate().timeIntervalSince1970 - 5
+                testStartTimestamp: dateProvider.dateSince1970ReferenceDate() - 5
             )
         )
     }

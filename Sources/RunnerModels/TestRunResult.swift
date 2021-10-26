@@ -1,3 +1,4 @@
+import EmceeTypes
 import Foundation
 import SimulatorPoolModels
 
@@ -7,12 +8,12 @@ public struct TestRunResult: Codable, CustomStringConvertible, Equatable {
     public let exceptions: [TestException]
     public let logs: [TestLogEntry]
     public let duration: TimeInterval
-    public let startTime: TimeInterval
+    public let startTime: DateSince1970ReferenceDate
     public let hostName: String
     public let simulatorId: UDID
 
-    public var finishTime: TimeInterval {
-        return startTime + duration
+    public var finishTime: DateSince1970ReferenceDate {
+        return startTime.addingTimeInterval(duration)
     }
 
     public init(
@@ -20,7 +21,7 @@ public struct TestRunResult: Codable, CustomStringConvertible, Equatable {
         exceptions: [TestException],
         logs: [TestLogEntry],
         duration: TimeInterval,
-        startTime: TimeInterval,
+        startTime: DateSince1970ReferenceDate,
         hostName: String,
         simulatorId: UDID
     ) {

@@ -39,7 +39,7 @@ final class ResultStreamTests: XCTestCase {
                 testDuration: 7.6910330057144165,
                 testExceptions: [],
                 logs: [],
-                testStartTimestamp: dateProvider.currentDate().timeIntervalSince1970 - 7.6910330057144165
+                testStartTimestamp: dateProvider.dateSince1970ReferenceDate().addingTimeInterval(-7.6910330057144165)
             )
         )
     }

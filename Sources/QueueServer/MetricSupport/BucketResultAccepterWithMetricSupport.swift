@@ -66,8 +66,7 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
         
         let testTimeToStartMetrics: [TimeToStartTestMetric] = acceptResult.testingResultToCollect.unfilteredResults.flatMap { testEntryResult -> [TimeToStartTestMetric] in
             testEntryResult.testRunResults.map { testRunResult in
-                let testStartedAt = Date(timeIntervalSince1970: testRunResult.startTime)
-                let timeToStart = testStartedAt.timeIntervalSince(acceptResult.dequeuedBucket.enqueuedBucket.enqueueTimestamp)
+                let timeToStart = testRunResult.startTime.date.timeIntervalSince(acceptResult.dequeuedBucket.enqueuedBucket.enqueueTimestamp)
                 return TimeToStartTestMetric(
                     testEntry: testEntryResult.testEntry,
                     version: version,

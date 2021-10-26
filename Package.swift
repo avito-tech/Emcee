@@ -58,6 +58,7 @@ let package = Package(
                 "DeveloperDirLocator",
                 "DeveloperDirLocatorTestHelpers",
                 "DeveloperDirModels",
+                "EmceeTypes",
                 "FileCache",
                 .product(name: "FileSystemTestHelpers", package: "CommandLineToolkit"),
                 .product(name: "PathLib", package: "CommandLineToolkit"),
@@ -603,6 +604,13 @@ let package = Package(
             path: "Tests/EmceeLoggingTests"
         ),
         .target(
+            name: "EmceeTypes",
+            dependencies: [
+                .product(name: "DateProvider", package: "CommandLineToolkit"),
+            ],
+            path: "Sources/EmceeTypes"
+        ),
+        .target(
             name: "EmceeVersion",
             dependencies: [
                 "QueueModels",
@@ -680,12 +688,14 @@ let package = Package(
         .target(
             name: "JunitReporting",
             dependencies: [
+                "EmceeTypes",
             ],
             path: "Sources/JunitReporting"
         ),
         .testTarget(
             name: "JunitReportingTests",
             dependencies: [
+                "EmceeTypes",
                 "Extensions",
                 "JunitReporting",
             ],
@@ -1382,6 +1392,7 @@ let package = Package(
             dependencies: [
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
                 "EmceeLogging",
+                "EmceeTypes",
                 .product(name: "JSONStream", package: "CommandLineToolkit"),
                 .product(name: "PathLib", package: "CommandLineToolkit"),
                 "ResultStreamModels",
@@ -1436,6 +1447,7 @@ let package = Package(
                 "DeveloperDirLocator",
                 "DeveloperDirModels",
                 "EmceeLogging",
+                "EmceeTypes",
                 "EventBus",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
                 .product(name: "Graphite", package: "CommandLineToolkit"),
@@ -1462,6 +1474,7 @@ let package = Package(
             dependencies: [
                 "BuildArtifacts",
                 "DeveloperDirModels",
+                "EmceeTypes",
                 .product(name: "PathLib", package: "CommandLineToolkit"),
                 "PluginSupport",
                 "SimulatorPoolModels",
@@ -1475,6 +1488,7 @@ let package = Package(
                 "DeveloperDirLocator",
                 "DeveloperDirModels",
                 "EmceeLogging",
+                "EmceeTypes",
                 .product(name: "PathLib", package: "CommandLineToolkit"),
                 .product(name: "ProcessController", package: "CommandLineToolkit"),
                 "Runner",

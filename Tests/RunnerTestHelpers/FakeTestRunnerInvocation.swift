@@ -1,3 +1,4 @@
+import EmceeTypes
 import Foundation
 import ProcessController
 import Runner
@@ -44,7 +45,7 @@ public final class FakeTestRunnerInvocation: TestRunnerInvocation {
             group.enter()
             
             runningQueue.async {
-                let testStartTimestamp = Date()
+                let testStartTimestamp = DateSince1970ReferenceDate(timeIntervalSince1970: Date().timeIntervalSince1970)
                 if !isCancelled {
                     self.onTestStarted(testEntry.testName, self.testRunnerStream)
                 }
@@ -56,10 +57,10 @@ public final class FakeTestRunnerInvocation: TestRunnerInvocation {
                         let testStoppedEvent = TestStoppedEvent(
                             testName: testEntry.testName,
                             result: testResult,
-                            testDuration: Date().timeIntervalSince(testStartTimestamp),
+                            testDuration: Date().timeIntervalSince(testStartTimestamp.date),
                             testExceptions: [],
                             logs: [],
-                            testStartTimestamp: testStartTimestamp.timeIntervalSince1970
+                            testStartTimestamp: testStartTimestamp
                         )
                         
                         if !isCancelled {

@@ -1,4 +1,5 @@
 import DateProvider
+import EmceeTypes
 import Foundation
 import ResultStreamModels
 import RunnerModels
@@ -14,7 +15,7 @@ extension RSTestFinished {
             testDuration: testDuration,
             testExceptions: [],
             logs: [],
-            testStartTimestamp: dateProvider.currentDate().addingTimeInterval(-testDuration).timeIntervalSince1970
+            testStartTimestamp: dateProvider.dateSince1970ReferenceDate() - testDuration
         )
     }
 }

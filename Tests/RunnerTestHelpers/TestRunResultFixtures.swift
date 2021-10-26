@@ -1,8 +1,12 @@
+import EmceeTypes
 import Foundation
 import RunnerModels
 
 public final class TestRunResultFixtures {
-    public static func testRunResult(succeeded: Bool = true, timestamp: TimeInterval = 0) -> TestRunResult {
+    public static func testRunResult(
+        succeeded: Bool = true,
+        timestamp: DateSince1970ReferenceDate = DateSince1970ReferenceDate(timeIntervalSince1970: 0)
+    ) -> TestRunResult {
         return TestRunResult(
             succeeded: succeeded,
             exceptions: [],

@@ -18,7 +18,7 @@ public final class ChromeTraceGenerator {
             return CompleteEvent(
                 category: "test_run",
                 name: testName.stringValue,
-                timestamp: .seconds(testRunResult.startTime),
+                timestamp: .seconds(testRunResult.startTime.timeIntervalSince1970),
                 duration: .seconds(testRunResult.duration),
                 processId: testRunResult.hostName,
                 threadId: testRunResult.simulatorId.value,

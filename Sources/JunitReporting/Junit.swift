@@ -1,4 +1,5 @@
 import Foundation
+import EmceeTypes
 
 public struct JunitTestCaseFailure {
     public let reason: String        // "Test failed because of blah"
@@ -11,10 +12,17 @@ public struct JunitTestCaseFailure {
 }
 
 public struct JunitTestCase {
-    public let className: String         // FunctionalTests.AbuseTests_91953
-    public let name: String              // test, testDataSet0
-    public let timestamp: TimeInterval   // when the test was executed, current timezone will be used
-    public let time: TimeInterval        // Time taken (in seconds) to execute the tests in the suite
+    /// E.g. `FunctionalTests.AbuseTests_91953`
+    public let className: String
+    
+    /// E.g. `test`, `testDataSet0`
+    public let name: String
+    
+    /// Date (since 1970 reference date) when the test was started, current timezone will be used.
+    public let timestamp: DateSince1970ReferenceDate
+    
+    /// Time taken (in seconds) to execute the tests in the suite
+    public let time: TimeInterval
     public let hostname: String
     public let isFailure: Bool
     public let failures: [JunitTestCaseFailure]
@@ -22,7 +30,7 @@ public struct JunitTestCase {
     public init(
         className: String,
         name: String,
-        timestamp: TimeInterval,
+        timestamp: DateSince1970ReferenceDate,
         time: TimeInterval,
         hostname: String,
         isFailure: Bool,
@@ -103,7 +111,7 @@ public final class JunitGenerator {
                 
                 try xmlTestCase.addAttribute(withName: "classname", stringValue: "\(className)")
                 try xmlTestCase.addAttribute(withName: "name", stringValue: "\(testCase.name)")
-                try xmlTestCase.addAttribute(withName: "timestamp", stringValue: "\(iso8601DateFormatter.string(from: Date(timeIntervalSince1970: testCase.timestamp)))")
+                try xmlTestCase.addAttribute(withName: "timestamp", stringValue: "\(iso8601DateFormatter.string(from: testCase.timestamp.date))")
                 try xmlTestCase.addAttribute(withName: "time", stringValue: "\(testCase.time)")
                 try xmlTestCase.addAttribute(withName: "hostname", stringValue: "\(testCase.hostname)")
                 xmlTestSuite.addChild(xmlTestCase)

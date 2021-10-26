@@ -224,12 +224,12 @@ public final class Runner {
                             TestStoppedEvent(
                                 testName: testName,
                                 result: .failure,
-                                testDuration: dateProvider.currentDate().timeIntervalSince(testStartedAt),
+                                testDuration: dateProvider.currentDate().timeIntervalSince(testStartedAt.date),
                                 testExceptions: [
                                     RunnerConstants.testTimeout(singleTestMaximumDuration).testException
                                 ],
                                 logs: collectedLogs,
-                                testStartTimestamp: testStartedAt.timeIntervalSince1970
+                                testStartTimestamp: testStartedAt
                             )
                         )
                         

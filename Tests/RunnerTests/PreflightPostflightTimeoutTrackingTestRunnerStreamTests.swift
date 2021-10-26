@@ -18,7 +18,7 @@ final class PreflightPostflightTimeoutTrackingTestRunnerStreamTests: XCTestCase 
         pollPeriod: .milliseconds(1)
     )
     
-    func test___preflight_is_called___when_stream_opens_and_test_does_not_start() {
+    func FLAKY_test___preflight_is_called___when_stream_opens_and_test_does_not_start() {
         postflightExpectation.isInverted = true
         
         testStream.openStream()
@@ -64,7 +64,7 @@ final class PreflightPostflightTimeoutTrackingTestRunnerStreamTests: XCTestCase 
                 testDuration: 1,
                 testExceptions: [],
                 logs: [],
-                testStartTimestamp: dateProvider.currentDate().timeIntervalSince1970)
+                testStartTimestamp: dateProvider.dateSince1970ReferenceDate())
         )
         
         dateProvider.result += 5
@@ -88,7 +88,7 @@ final class PreflightPostflightTimeoutTrackingTestRunnerStreamTests: XCTestCase 
                 testDuration: 1,
                 testExceptions: [],
                 logs: [],
-                testStartTimestamp: dateProvider.currentDate().timeIntervalSince1970)
+                testStartTimestamp: dateProvider.dateSince1970ReferenceDate())
         )
         testStream.testStarted(
             testName: TestName(className: "class", methodName: "test2")
@@ -114,7 +114,7 @@ final class PreflightPostflightTimeoutTrackingTestRunnerStreamTests: XCTestCase 
                 testDuration: 1,
                 testExceptions: [],
                 logs: [],
-                testStartTimestamp: dateProvider.currentDate().timeIntervalSince1970)
+                testStartTimestamp: dateProvider.dateSince1970ReferenceDate())
         )
         testStream.closeStream()
         

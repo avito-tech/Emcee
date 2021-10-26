@@ -126,7 +126,7 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
                 exceptions: collectedTestExceptions + [RunnerConstants.testDidNotRun(testEntry.testName).testException],
                 logs: collectedLogs,
                 duration: 0,
-                startTime: dateProvider.currentDate().timeIntervalSince1970,
+                startTime: dateProvider.dateSince1970ReferenceDate(),
                 hostName: LocalHostDeterminer.currentHostAddress,
                 simulatorId: simulatorId
             )
