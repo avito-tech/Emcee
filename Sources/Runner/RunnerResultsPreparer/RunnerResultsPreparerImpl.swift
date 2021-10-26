@@ -1,23 +1,7 @@
 import DateProvider
-import Foundation
 import LocalHostDeterminer
 import RunnerModels
 import SimulatorPoolModels
-
-public protocol RunnerResultsPreparer {
-    func prepareResults(
-        collectedTestStoppedEvents: [TestStoppedEvent],
-        collectedTestExceptions: [TestException],
-        collectedLogs: [TestLogEntry],
-        requestedEntriesToRun: [TestEntry],
-        simulatorId: UDID
-    ) -> [TestEntryResult]
-}
-
-public enum LostTestProcessingMode: Equatable {
-    case reportError
-    case reportLost
-}
 
 public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
     private let dateProvider: DateProvider
@@ -95,8 +79,8 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
             testRunResults: testStoppedEvents.map { testStoppedEvent -> TestRunResult in
                 TestRunResult(
                     succeeded: testStoppedEvent.succeeded,
-                    exceptions: testStoppedEvent.testExceptions,
-                    logs: testStoppedEvent.logs,
+                    exceptions: testStoppedEvent.testExceptions + collectedTestExceptions,
+                    logs: testStoppedEvent.logs + collectedLogs,
                     duration: testStoppedEvent.testDuration,
                     startTime: testStoppedEvent.testStartTimestamp,
                     hostName: LocalHostDeterminer.currentHostAddress,

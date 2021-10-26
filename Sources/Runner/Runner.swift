@@ -226,7 +226,7 @@ public final class Runner {
                                 result: .failure,
                                 testDuration: dateProvider.currentDate().timeIntervalSince(testStartedAt.date),
                                 testExceptions: [
-                                    RunnerConstants.testTimeout(singleTestMaximumDuration).testException
+                                    RunnerConstants.testTimeout(testName, singleTestMaximumDuration).testException,
                                 ],
                                 logs: collectedLogs,
                                 testStartTimestamp: testStartedAt

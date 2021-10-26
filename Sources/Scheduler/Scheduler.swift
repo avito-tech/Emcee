@@ -136,7 +136,8 @@ public final class Scheduler {
                                 TestException(
                                     reason: "Emcee failed to execute this test: \(error)",
                                     filePathInProject: #file,
-                                    lineNumber: #line
+                                    lineNumber: #line,
+                                    relatedTestName: testEntry.testName
                                 )
                             ],
                             logs: [],

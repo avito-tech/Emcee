@@ -33,7 +33,7 @@ final class MetricReportingTestRunnerStreamTests: XCTestCase {
         testName: testName,
         result: .failure,
         testDuration: 12,
-        testExceptions: [TestException(reason: "reason", filePathInProject: "file", lineNumber: 42)],
+        testExceptions: [TestException(reason: "reason", filePathInProject: "file", lineNumber: 42, relatedTestName: nil)],
         logs: [],
         testStartTimestamp: 111
     )

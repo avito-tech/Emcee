@@ -59,7 +59,7 @@ final class CompositeTestRunnerStreamTests: XCTestCase {
         }
     }
     
-    lazy var testException = TestException(reason: "reason", filePathInProject: "file", lineNumber: 42)
+    lazy var testException = TestException(reason: "reason", filePathInProject: "file", lineNumber: 42, relatedTestName: nil)
     lazy var testName = TestName(className: "class", methodName: "test")
     lazy var testStoppedEvent = TestStoppedEvent(
         testName: testName,

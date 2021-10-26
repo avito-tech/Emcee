@@ -1,4 +1,5 @@
 import AppleTools
+import AppleToolsTestHelpers
 import BuildArtifacts
 import DateProvider
 import DateProviderTestHelpers
@@ -44,11 +45,13 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         }
     )
     private lazy var testContext = assertDoesNotThrow { try createTestContext() }
+    private lazy var xcResultTool = FakeXcResultTool()
     private lazy var runner = XcodebuildBasedTestRunner(
         dateProvider: dateProvider,
         fileSystem: fileSystem,
         processControllerProvider: processControllerProvider,
-        resourceLocationResolver: resourceLocationResolver
+        resourceLocationResolver: resourceLocationResolver,
+        xcResultTool: xcResultTool
     )
     private lazy var developerDirLocator = FakeDeveloperDirLocator(
         result: tempFolder.absolutePath.appending(component: "xcode.app")
@@ -408,6 +411,57 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 testStartTimestamp: dateProvider.dateSince1970ReferenceDate() - 5
             )
         )
+    }
+    
+    func test___providing_xcresultool_errors() throws {
+        xcResultTool.result = RSActionsInvocationRecord(
+            actions: [],
+            issues: RSResultIssueSummaries(testFailureSummaries: [
+                RSTestFailureIssueSummary(
+                    issueType: "whatever",
+                    message: "message",
+                    producingTarget: nil,
+                    documentLocationInCreatingWorkspace: nil,
+                    testCaseName: "ClassName.testMethod()"
+                )
+            ]),
+            metadataRef: RSReference(id: "metadataRef"),
+            metrics: RSResultMetrics(testsCount: nil, testsFailedCount: nil, warningCount: nil)
+        )
+        
+        testRunnerStream.streamIsOpen = true
+        
+        let invocation = try runner.prepareTestRun(
+            buildArtifacts: buildArtifacts,
+            developerDirLocator: developerDirLocator,
+            entriesToRun: [
+                TestEntryFixtures.testEntry(className: "ClassName", methodName: "testMethod"),
+            ],
+            logger: .noOp,
+            runnerWasteCollector: runnerWasteCollector,
+            simulator: simulator,
+            testContext: testContext,
+            testRunnerStream: testRunnerStream,
+            testType: .logicTest
+        )
+        
+        let streamIsClosed = XCTestExpectation(description: "Stream closed")
+        testRunnerStream.onCloseStream = streamIsClosed.fulfill
+        
+        try invocation.startExecutingTests().cancel()
+        
+        wait(for: [streamIsClosed], timeout: 10)
+        
+        assert {
+            TestException(
+                reason: "message",
+                filePathInProject: "Unknown",
+                lineNumber: 0,
+                relatedTestName: TestName(className: "ClassName", methodName: "testMethod")
+            )
+        } equals: {
+            testRunnerStream.castTo(TestException.self, index: 0)
+        }
     }
     
     private func pathToXctestrunFile() throws -> AbsolutePath {

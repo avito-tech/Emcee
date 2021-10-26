@@ -6,13 +6,18 @@ extension TestStoppedEvent {
         testExceptions: [TestException],
         logs: [TestLogEntry]
     ) -> TestStoppedEvent {
-        return TestStoppedEvent(
-            testName: testName,
-            result: result,
-            testDuration: testDuration,
-            testExceptions: testExceptions + self.testExceptions,
-            logs: logs + self.logs,
-            testStartTimestamp: testStartTimestamp
-        )
+        var event = self
+        
+        for exception in testExceptions {
+            if exception.relatedTestName == testName || exception.relatedTestName == nil {
+                event.add(testException: exception)
+            }
+        }
+        
+        logs.forEach {
+            event.add(logEntry: $0)
+        }
+        
+        return event
     }
 }

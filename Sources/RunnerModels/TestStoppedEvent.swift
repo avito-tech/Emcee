@@ -11,8 +11,8 @@ public struct TestStoppedEvent: Equatable, CustomStringConvertible {
     public let testName: TestName
     public let result: Result
     public let testDuration: TimeInterval
-    public let testExceptions: [TestException]
-    public let logs: [TestLogEntry]
+    public private(set) var testExceptions: [TestException]
+    public private(set) var logs: [TestLogEntry]
     public let testStartTimestamp: DateSince1970ReferenceDate
     
     public init(
@@ -29,6 +29,14 @@ public struct TestStoppedEvent: Equatable, CustomStringConvertible {
         self.testExceptions = testExceptions
         self.logs = logs
         self.testStartTimestamp = testStartTimestamp
+    }
+    
+    public mutating func add(testException: TestException) {
+        testExceptions.append(testException)
+    }
+    
+    public mutating func add(logEntry: TestLogEntry) {
+        logs.append(logEntry)
     }
     
     public var succeeded: Bool {

@@ -8,6 +8,7 @@ import ObservableFileReader
 import ProcessController
 import ResourceLocationResolver
 import ResultStream
+import ResultStreamModels
 import Runner
 import RunnerModels
 import SimulatorPoolModels
@@ -20,17 +21,20 @@ public final class XcodebuildBasedTestRunner: TestRunner {
     private let fileSystem: FileSystem
     private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
+    private let xcResultTool: XcResultTool
     
     public init(
         dateProvider: DateProvider,
         fileSystem: FileSystem,
         processControllerProvider: ProcessControllerProvider,
-        resourceLocationResolver: ResourceLocationResolver
+        resourceLocationResolver: ResourceLocationResolver,
+        xcResultTool: XcResultTool
     ) {
         self.dateProvider = dateProvider
         self.fileSystem = fileSystem
         self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
+        self.xcResultTool = xcResultTool
     }
     
     public func prepareTestRun(
@@ -46,6 +50,10 @@ public final class XcodebuildBasedTestRunner: TestRunner {
     ) throws -> TestRunnerInvocation {
         let resultStreamFile = testContext.testRunnerWorkingDirectory.appending(component: "result_stream.json")
         try fileSystem.createFile(atPath: resultStreamFile, data: nil)
+        
+        let xcresultBundlePath = self.xcresultBundlePath(
+            testRunnerWorkingDirectory: testContext.testRunnerWorkingDirectory
+        )
         
         let xcTestRunFile = XcTestRunFileArgument(
             buildArtifacts: buildArtifacts,
@@ -64,7 +72,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                     "xcodebuild",
                     "-destination", XcodebuildSimulatorDestinationArgument(destinationId: simulator.udid),
                     "-derivedDataPath", testContext.testRunnerWorkingDirectory.appending(component: "derivedData"),
-                    "-resultBundlePath", xcresultBundlePath(testRunnerWorkingDirectory: testContext.testRunnerWorkingDirectory),
+                    "-resultBundlePath", xcresultBundlePath,
                     "-resultStreamPath", resultStreamFile,
                     "-xctestrun", xcTestRunFile,
                     "-parallel-testing-enabled", "NO",
@@ -94,10 +102,18 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                 logger.error("Failed to read stream file: \(error)", subprocessPidInfo: sender.subprocessInfo.pidInfo)
                 return sender.terminateAndForceKillIfNeeded()
             }
-            resultStream.streamContents { error in
+            resultStream.streamContents { [weak self] error in
                 if let error = error {
                     logger.error("Result stream error: \(error)", subprocessPidInfo: sender.subprocessInfo.pidInfo)
                 }
+                
+                if let strongSelf = self {
+                    strongSelf.readResultBundle(
+                        path: xcresultBundlePath,
+                        testRunnerStream: testRunnerStream
+                    )
+                }
+                
                 testRunnerStream.closeStream()
             }
         }
@@ -118,5 +134,28 @@ public final class XcodebuildBasedTestRunner: TestRunner {
     
     private func xcresultBundlePath(testRunnerWorkingDirectory: AbsolutePath) -> AbsolutePath {
         return testRunnerWorkingDirectory.appending(component: "resultBundle.xcresult")
+    }
+    
+    private func readResultBundle(
+        path: AbsolutePath,
+        testRunnerStream: TestRunnerStream
+    ) {
+        do {
+            let actionsInvocationRecord = try xcResultTool.get(path: path)
+            actionsInvocationRecord.issues.testFailureSummaries?.values.forEach{ (testFailureIssueSummary: RSTestFailureIssueSummary) in
+                testRunnerStream.caughtException(
+                    testException: testFailureIssueSummary.testException()
+                )
+            }
+        } catch {
+            testRunnerStream.caughtException(
+                testException: TestException(
+                    reason: "Error parsing xcresult bundle: \(error)",
+                    filePathInProject: path.pathString,
+                    lineNumber: 0,
+                    relatedTestName: nil
+                )
+            )
+        }
     }
 }

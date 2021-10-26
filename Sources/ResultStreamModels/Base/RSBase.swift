@@ -3,6 +3,11 @@ import RunnerModels
 
 public protocol RSTypedValue {
     static var typeName: String { get }
+    static var superTypeName: String? { get }
+}
+
+extension RSTypedValue {
+    public static var superTypeName: String? { nil }
 }
 
 public protocol RSNamedValue: RSTypedValue {
@@ -38,7 +43,15 @@ extension RSTypedValue {
     static func validateRsType(decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: _RsTypeKeys.self)
         let type = try container.decode(RSType.self, forKey: _RsTypeKeys._type)
-        try assertValueMatches(expected: Self.typeName, actual: type._name)
+        do {
+            try assertValueMatches(expected: Self.typeName, actual: type._name)
+        } catch {
+            if let supername = Self.superTypeName {
+                try assertValueMatches(expected: supername, actual: type._name)
+            } else {
+                throw error
+            }
+        }
     }
 }
 

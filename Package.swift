@@ -38,6 +38,7 @@ let package = Package(
                 "ResourceLocation",
                 "ResourceLocationResolver",
                 "ResultStream",
+                "ResultStreamModels",
                 "Runner",
                 "RunnerModels",
                 "SimulatorPool",
@@ -47,10 +48,20 @@ let package = Package(
             ],
             path: "Sources/AppleTools"
         ),
+        .target(
+            name: "AppleToolsTestHelpers",
+            dependencies: [
+                "AppleTools",
+                .product(name: "PathLib", package: "CommandLineToolkit"),
+                "ResultStreamModels",
+            ],
+            path: "Tests/AppleToolsTestHelpers"
+        ),
         .testTarget(
             name: "AppleToolsTests",
             dependencies: [
                 "AppleTools",
+                "AppleToolsTestHelpers",
                 "BuildArtifacts",
                 "BuildArtifactsTestHelpers",
                 .product(name: "DateProvider", package: "CommandLineToolkit"),

@@ -13,17 +13,20 @@ public final class DefaultTestRunnerProvider: TestRunnerProvider {
     private let fileSystem: FileSystem
     private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
+    private let xcResultTool: XcResultTool
 
     public init(
         dateProvider: DateProvider,
         fileSystem: FileSystem,
         processControllerProvider: ProcessControllerProvider,
-        resourceLocationResolver: ResourceLocationResolver
+        resourceLocationResolver: ResourceLocationResolver,
+        xcResultTool: XcResultTool
     ) {
         self.dateProvider = dateProvider
         self.fileSystem = fileSystem
         self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
+        self.xcResultTool = xcResultTool
     }
 
     public func testRunner(testRunnerTool: TestRunnerTool) throws -> TestRunner {
@@ -33,7 +36,8 @@ public final class DefaultTestRunnerProvider: TestRunnerProvider {
                 dateProvider: dateProvider,
                 fileSystem: fileSystem,
                 processControllerProvider: processControllerProvider,
-                resourceLocationResolver: resourceLocationResolver
+                resourceLocationResolver: resourceLocationResolver,
+                xcResultTool: xcResultTool
             )
         }
     }

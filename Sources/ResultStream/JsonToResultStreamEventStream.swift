@@ -44,7 +44,8 @@ public final class JsonToResultStreamEventStream: JSONReaderEventStream {
                         testException: TestException(
                             reason: testStarted.structuredPayload.testIdentifier.identifier.stringValue,
                             filePathInProject: "Unknown",
-                            lineNumber: 0
+                            lineNumber: 0,
+                            relatedTestName: nil
                         )
                     )
                 }
@@ -59,7 +60,8 @@ public final class JsonToResultStreamEventStream: JSONReaderEventStream {
                         testException: TestException(
                             reason: testFinished.structuredPayload.test.identifier.stringValue,
                             filePathInProject: "Unknown",
-                            lineNumber: 0
+                            lineNumber: 0,
+                            relatedTestName: nil
                         )
                     )
                 }

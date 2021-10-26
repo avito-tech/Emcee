@@ -1,7 +1,8 @@
 import Foundation
  
-public struct RSTestFailureIssueSummary: Codable, Equatable {
-    public static var typeNames: [String] { ["TestFailureIssueSummary", "IssueSummary"] }
+public struct RSTestFailureIssueSummary: Codable, Equatable, RSTypedValue {
+    public static var typeName: String { "TestFailureIssueSummary" }
+    public static var superTypeName: String? { "IssueSummary" }
     
     public let issueType: RSString
     public let message: RSString
@@ -33,14 +34,5 @@ public struct RSTestFailureIssueSummary: Codable, Equatable {
         producingTarget = try container.decodeIfPresent(RSString.self, forKey: .producingTarget)
         documentLocationInCreatingWorkspace = try container.decodeIfPresent(RSDocumentLocation.self, forKey: .documentLocationInCreatingWorkspace)
         testCaseName = try container.decodeIfPresent(RSString.self, forKey: .testCaseName)
-    }
-    
-    private static func validateRsType(decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: _RsTypeKeys.self)
-        let type = try container.decode(RSType.self, forKey: _RsTypeKeys._type)
-        
-        guard Self.typeNames.contains(type._name) else {
-            throw ValueMismatchError(expectedValue: typeNames.joined(separator: " or "), actualValue: type._name)
-        }
     }
 }

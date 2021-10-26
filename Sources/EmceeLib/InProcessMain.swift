@@ -1,3 +1,4 @@
+import AppleTools
 import ArgLib
 import DI
 import DateProvider
@@ -164,11 +165,21 @@ public final class InProcessMain {
         )
         
         di.set(
+            XcResultToolImpl(
+                dateProvider: try di.get(),
+                logger: logger,
+                processControllerProvider: try di.get()
+            ),
+            for: XcResultTool.self
+        )
+        
+        di.set(
             DefaultTestRunnerProvider(
                 dateProvider: try di.get(),
                 fileSystem: try di.get(),
                 processControllerProvider: try di.get(),
-                resourceLocationResolver: try di.get()
+                resourceLocationResolver: try di.get(),
+                xcResultTool: try di.get()
             ),
             for: TestRunnerProvider.self
         )

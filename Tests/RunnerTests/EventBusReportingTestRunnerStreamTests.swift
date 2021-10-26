@@ -120,7 +120,7 @@ final class EventBusReportingTestRunnerStreamTests: XCTestCase {
     lazy var testContext = TestContextFixtures().testContext
     lazy var testEntry = TestEntryFixtures.testEntry()
     lazy var testEntryResult = TestEntryResult.withResult(testEntry: testEntry, testRunResult: testRunResult)
-    lazy var testException = TestException(reason: "", filePathInProject: "", lineNumber: 0)
+    lazy var testException = TestException(reason: "", filePathInProject: "", lineNumber: 0, relatedTestName: nil)
     lazy var testRunResult = TestRunResult(
         succeeded: true,
         exceptions: [testException],

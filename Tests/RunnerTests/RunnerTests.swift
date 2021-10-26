@@ -236,7 +236,7 @@ public final class RunnerTests: XCTestCase {
         XCTAssertFalse(testRunResult.succeeded)
         XCTAssertEqual(
             testRunResult.exceptions.first,
-            RunnerConstants.testTimeout(testTimeout).testException
+            RunnerConstants.testTimeout(testEntry.testName, testTimeout).testException
         )
     }
     
@@ -277,8 +277,8 @@ public final class RunnerTests: XCTestCase {
         wait(for: [testsWorkingDirDeletedExpectation], timeout: 0)
     }
     
-    func test___when_exception_outside_test_started_test_finished_happens___these_exceptions_are_appended_to_all_lost_tests() throws {
-        let outOfScopeException = TestException(reason: "some out-of-scope exception", filePathInProject: "", lineNumber: 0)
+    func test___when_exception_without_related_test_happens_outside_test_started_test_finished___these_exceptions_are_appended_to_all_lost_tests() throws {
+        let outOfScopeException = TestException(reason: "some out-of-scope exception", filePathInProject: "", lineNumber: 0, relatedTestName: nil)
         
         testRunnerProvider.predefinedFakeTestRunner.onStreamOpen = { testRunnerStream in
             testRunnerStream.openStream()
@@ -310,6 +310,45 @@ public final class RunnerTests: XCTestCase {
                     RunnerConstants.testDidNotRun(testEntryResult.testEntry.testName).testException
                 ]
             }
+        }
+    }
+    
+    func test___when_exception_with_related_test_happens_outside_test_started_test_finished___these_exceptions_are_appended_to_all_lost_tests() throws {
+        let testEntry = TestEntryFixtures.testEntry(className: "class", methodName: "test")
+        let inScopeException = TestException(reason: "some in-scope exception", filePathInProject: "", lineNumber: 0, relatedTestName: testEntry.testName)
+        let outOfScopeException = TestException(reason: "some out-of-scope exception", filePathInProject: "", lineNumber: 0, relatedTestName: testEntry.testName)
+        
+        testRunnerProvider.predefinedFakeTestRunner.onTestStopped = { event, testRunnerStream in
+            testRunnerStream.caughtException(testException: inScopeException)
+            testRunnerStream.testStopped(testStoppedEvent: event)
+        }
+        
+        // This exception happens after test has been finished
+        testRunnerProvider.predefinedFakeTestRunner.onStreamClose = { testRunnerStream in
+            testRunnerStream.caughtException(testException: outOfScopeException)
+            testRunnerStream.closeStream()
+        }
+
+        let runnerResults = try runTestEntries([testEntry])
+
+        guard runnerResults.testEntryResults.count == 1 else {
+            failTest("Unexpected number of test results")
+        }
+        
+        let testEntryResult = runnerResults.testEntryResults[0]
+
+        guard testEntryResult.testRunResults.count == 1 else {
+            failTest("Unexpected number of test run results")
+        }
+        
+        let testRunResult = testEntryResult.testRunResults[0]
+        assert {
+            testRunResult.exceptions
+        } equals: {
+            [
+                inScopeException,
+                outOfScopeException,
+            ]
         }
     }
     
