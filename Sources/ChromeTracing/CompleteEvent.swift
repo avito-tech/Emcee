@@ -25,7 +25,15 @@ public final class CompleteEvent: ChromeTraceEvent {
             phase: .complete,
             processId: processId,
             threadId: threadId,
-            args: args
+            args: args,
+            color: color
         )
+    }
+    
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(duration, forKey: .duration)
+        
+        try super.encode(to: encoder)
     }
 }

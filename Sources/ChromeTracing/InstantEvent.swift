@@ -40,4 +40,11 @@ public final class InstantEvent: ChromeTraceEvent {
             color: color
         )
     }
+    
+    public override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(scope, forKey: .scope)
+        
+        try super.encode(to: encoder)
+    }
 }

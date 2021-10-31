@@ -270,6 +270,14 @@ let package = Package(
             ],
             path: "Sources/ChromeTracing"
         ),
+        .testTarget(
+            name: "ChromeTracingTests",
+            dependencies: [
+                "ChromeTracing",
+                .product(name: "TestHelpers", package: "CommandLineToolkit"),
+            ],
+            path: "Tests/ChromeTracingTests"
+        ),
         .target(
             name: "DI",
             dependencies: [
