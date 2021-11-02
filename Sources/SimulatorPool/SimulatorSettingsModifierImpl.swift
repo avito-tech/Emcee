@@ -68,6 +68,18 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
             simulator: simulator
         )
         
+        let keyboardPreferencesPlist = Plist(
+            rootPlistEntry: .dict([
+                "DidShowContinuousPathIntroduction": .bool(simulatorSettings.simulatorLocalizationSettings.didShowContinuousPathIntroduction)
+            ])
+        )
+        let didImportKeyboardPreferencesPlist = try importDefaults(
+            domain: "com.apple.keyboard.preferences",
+            plistToImport: keyboardPreferencesPlist,
+            environment: environment,
+            simulator: simulator
+        )
+
         let springBoardPlist = Plist(
             rootPlistEntry: .dict([
                 "FBLaunchWatchdogExceptions": .dict(simulatorSettings.watchdogSettings.bundleIds.reduce(into: [String: PlistEntry](), {
@@ -88,7 +100,7 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
             simulator: simulator
         )
         
-        let didImportPlist = didImportGlobalPreferencesPlist || didImportPreferencesPlist || didImportSpringBoardPlist
+        let didImportPlist = didImportGlobalPreferencesPlist || didImportPreferencesPlist || didImportKeyboardPreferencesPlist || didImportSpringBoardPlist
         
         if didImportPlist {
             try kill(daemon: "com.apple.cfprefsd.xpc.daemon", environment: environment, simulator: simulator)
