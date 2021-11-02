@@ -65,6 +65,21 @@ final class SimulatorSettingsModifierTests: XCTestCase {
         wait(for: [expectation], timeout: 5.0)
     }
     
+    func test__patching_keyboard_preferences() throws {
+        let expectation = addChecksForImportingPlist(
+            domain: "com.apple.keyboard.preferences",
+            expectedPlistContentsAfterImportHappens: expectedKeyboardPreferencesPlistContents
+        )
+        
+        try modifier.apply(
+            developerDir: .current,
+            simulatorSettings: simulatorSettings,
+            toSimulator: simulator
+        )
+        
+        wait(for: [expectation], timeout: 5.0)
+    }
+    
     func test___patching_springBoard() throws {
         let expectation = addChecksForImportingPlist(
             domain: "com.apple.SpringBoard",
@@ -157,6 +172,7 @@ final class SimulatorSettingsModifierTests: XCTestCase {
             checksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: expectedGlobalPreferencesPlistContents, domain: ".GlobalPreferences.plist"),
             checksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: expectedPreferencesPlistContents, domain: "com.apple.Preferences"),
             checksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: expectedSpringBoardPlistContents, domain: "com.apple.SpringBoard"),
+            checksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: expectedKeyboardPreferencesPlistContents, domain: "com.apple.keyboard.preferences"),
             checksForNotKilling(daemon: "com.apple.cfprefsd.xpc.daemon"),
             checksForNotKilling(daemon: "com.apple.SpringBoard"),
         ]
@@ -337,6 +353,11 @@ final class SimulatorSettingsModifierTests: XCTestCase {
             "UIKeyboardDidShowInternationalInfoIntroduction": .bool(simulatorSettings.simulatorLocalizationSettings.didShowInternationalInfoAlert),
             "DidShowContinuousPathIntroduction": .bool(simulatorSettings.simulatorLocalizationSettings.didShowContinuousPathIntroduction),
             "DidShowGestureKeyboardIntroduction": .bool(simulatorSettings.simulatorLocalizationSettings.didShowGestureKeyboardIntroduction),
+        ])
+    )
+    lazy var expectedKeyboardPreferencesPlistContents = Plist(
+        rootPlistEntry: .dict([
+            "DidShowContinuousPathIntroduction": .bool(simulatorSettings.simulatorLocalizationSettings.didShowContinuousPathIntroduction)
         ])
     )
     lazy var expectedSpringBoardPlistContents = Plist(
