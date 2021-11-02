@@ -24,17 +24,19 @@ final class SimulatorSettingsModifierTests: XCTestCase {
     )
     
     func test__add_root_certificates() throws {
-        addChecksForAddingRootCertificatesIntoKeychain()
+        let expectation = addChecksForAddingRootCertificatesIntoKeychain()
                 
         try modifier.apply(
             developerDir: .current,
             simulatorSettings: simulatorSettings,
             toSimulator: simulator
         )
+        
+        wait(for: [expectation], timeout: 5.0)
     }
     
     func test___patching_global_preferences() throws {
-        addChecksForImportingPlist(
+        let expectation = addChecksForImportingPlist(
             domain: ".GlobalPreferences.plist",
             expectedPlistContentsAfterImportHappens: expectedGlobalPreferencesPlistContents
         )
@@ -44,10 +46,12 @@ final class SimulatorSettingsModifierTests: XCTestCase {
             simulatorSettings: simulatorSettings,
             toSimulator: simulator
         )
+        
+        wait(for: [expectation], timeout: 5.0)
     }
     
     func test___patching_preferences() throws {
-        addChecksForImportingPlist(
+        let expectation = addChecksForImportingPlist(
             domain: "com.apple.Preferences",
             expectedPlistContentsAfterImportHappens: expectedPreferencesPlistContents
         )
@@ -57,12 +61,14 @@ final class SimulatorSettingsModifierTests: XCTestCase {
             simulatorSettings: simulatorSettings,
             toSimulator: simulator
         )
+        
+        wait(for: [expectation], timeout: 5.0)
     }
     
-    func test___patching_stringboard() throws {
-        addChecksForImportingPlist(
-            domain: "com.apple.springboard",
-            expectedPlistContentsAfterImportHappens: expectedSpringboardPlistContents
+    func test___patching_springBoard() throws {
+        let expectation = addChecksForImportingPlist(
+            domain: "com.apple.SpringBoard",
+            expectedPlistContentsAfterImportHappens: expectedSpringBoardPlistContents
         )
         
         try modifier.apply(
@@ -70,26 +76,32 @@ final class SimulatorSettingsModifierTests: XCTestCase {
             simulatorSettings: simulatorSettings,
             toSimulator: simulator
         )
+        
+        wait(for: [expectation], timeout: 5.0)
     }
     
     func test___kills_prefs_daemon() throws {
-        addChecksForKilling(daemon: "com.apple.cfprefsd.xpc.daemon")
+        let expectation = addChecksForKilling(daemon: "com.apple.cfprefsd.xpc.daemon")
         
         try modifier.apply(
             developerDir: .current,
             simulatorSettings: simulatorSettings,
             toSimulator: simulator
         )
+        
+        wait(for: [expectation], timeout: 5.0)
     }
     
-    func test___kills_springboard_daemon() throws {
-        addChecksForKilling(daemon: "com.apple.SpringBoard")
+    func test___kills_springBoard_daemon() throws {
+        let expectation = addChecksForKilling(daemon: "com.apple.SpringBoard")
         
         try modifier.apply(
             developerDir: .current,
             simulatorSettings: simulatorSettings,
             toSimulator: simulator
         )
+        
+        wait(for: [expectation], timeout: 5.0)
     }
     
     func test___DEVELOPER_DIR_is_present_for_all_subprocess_invocations() throws {
@@ -130,8 +142,8 @@ final class SimulatorSettingsModifierTests: XCTestCase {
         )
     }
     
-    func test___when_springboard_plist_has_correct_state___it_does_not_get_overwritten() throws {
-        addChecksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: expectedSpringboardPlistContents, domain: "com.apple.SpringBoard")
+    func test___when_springBoard_plist_has_correct_state___it_does_not_get_overwritten() throws {
+        addChecksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: expectedSpringBoardPlistContents, domain: "com.apple.SpringBoard")
         
         try modifier.apply(
             developerDir: .current,
@@ -144,7 +156,7 @@ final class SimulatorSettingsModifierTests: XCTestCase {
         let checks = [
             checksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: expectedGlobalPreferencesPlistContents, domain: ".GlobalPreferences.plist"),
             checksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: expectedPreferencesPlistContents, domain: "com.apple.Preferences"),
-            checksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: expectedSpringboardPlistContents, domain: "com.apple.springboard"),
+            checksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: expectedSpringBoardPlistContents, domain: "com.apple.SpringBoard"),
             checksForNotKilling(daemon: "com.apple.cfprefsd.xpc.daemon"),
             checksForNotKilling(daemon: "com.apple.SpringBoard"),
         ]
@@ -164,11 +176,15 @@ final class SimulatorSettingsModifierTests: XCTestCase {
     
     // MARK: - Helper Methods
     
-    private func addChecksForKilling(daemon: String) {
+    private func addChecksForKilling(daemon: String) -> XCTestExpectation {
+        let expectation = XCTestExpectation(description: "'kill' call expectation")
+        
         processControllerProvider.creator = { [simulator, tempFolder] subprocess -> ProcessController in
             let args = try subprocess.arguments.map { try $0.stringValue() }
             
             if args.contains("kill"), args.contains("system/" + daemon) {
+                expectation.fulfill()
+                
                 XCTAssertEqual(
                     args,
                     ["/usr/bin/xcrun", "simctl", "--set", tempFolder.absolutePath.pathString, "spawn", simulator.udid.value, "launchctl", "kill", "SIGKILL", "system/" + daemon]
@@ -177,6 +193,8 @@ final class SimulatorSettingsModifierTests: XCTestCase {
             
             return FakeProcessController(subprocess: subprocess, processStatus: .terminated(exitCode: 0))
         }
+        
+        return expectation
     }
     
     private func checksForNotKilling(daemon: String, file: StaticString = #file, line: UInt = #line) -> ([String]) -> () {
@@ -210,11 +228,15 @@ final class SimulatorSettingsModifierTests: XCTestCase {
         expectedPlistContentsAfterImportHappens: Plist,
         file: StaticString = #file,
         line: UInt = #line
-    ) {
+    ) -> XCTestExpectation {
+        let expectation = XCTestExpectation(description: "'import \(domain)' call expectation")
+        
         processControllerProvider.creator = { subprocess -> ProcessController in
             let args = try subprocess.arguments.map { try $0.stringValue() }
-            
+                        
             if args.contains("import"), args.contains(domain) {
+                expectation.fulfill()
+                
                 XCTAssertEqual(
                     args.dropLast(),
                     ["/usr/bin/xcrun", "simctl", "--set", self.tempFolder.absolutePath.pathString, "spawn", self.simulator.udid.value, "defaults", "import", domain]
@@ -228,6 +250,8 @@ final class SimulatorSettingsModifierTests: XCTestCase {
             
             return FakeProcessController(subprocess: subprocess, processStatus: .terminated(exitCode: 0))
         }
+        
+        return expectation
     }
     
     private func addChecksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: Plist, domain: String) {
@@ -243,11 +267,15 @@ final class SimulatorSettingsModifierTests: XCTestCase {
     private func addChecksForAddingRootCertificatesIntoKeychain(
         file: StaticString = #file,
         line: UInt = #line
-    ) {
+    ) -> XCTestExpectation {
+        let expectation = XCTestExpectation(description: "'add-root-cert' call expectation")
+        
         processControllerProvider.creator = { subprocess -> ProcessController in
             let args = try subprocess.arguments.map { try $0.stringValue() }
             
             if args.contains("keychain"), args.contains("add-root-cert") {
+                expectation.fulfill()
+                
                 XCTAssertEqual(
                     args,
                     ["/usr/bin/xcrun", "simctl", "--set", self.tempFolder.absolutePath.pathString, "keychain", self.simulator.udid.value, "add-root-cert", "/path/to/cert.pem"]
@@ -256,6 +284,8 @@ final class SimulatorSettingsModifierTests: XCTestCase {
             
             return FakeProcessController(subprocess: subprocess, processStatus: .terminated(exitCode: 0))
         }
+        
+        return expectation
     }
 
     // MARK: - Helper Variables
@@ -309,7 +339,7 @@ final class SimulatorSettingsModifierTests: XCTestCase {
             "DidShowGestureKeyboardIntroduction": .bool(simulatorSettings.simulatorLocalizationSettings.didShowGestureKeyboardIntroduction),
         ])
     )
-    lazy var expectedSpringboardPlistContents = Plist(
+    lazy var expectedSpringBoardPlistContents = Plist(
         rootPlistEntry: .dict([
             "FBLaunchWatchdogExceptions": .dict([
                 "bundle.id.1": .number(42),

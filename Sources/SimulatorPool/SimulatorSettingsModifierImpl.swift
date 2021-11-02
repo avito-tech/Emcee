@@ -36,7 +36,6 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
         toSimulator simulator: Simulator
     ) throws {
         let environment = Environment(try developerDirLocator.suitableEnvironment(forDeveloperDir: developerDir))
-        var didImportPlist = false
         
         let globalPreferencesPlist = Plist(
             rootPlistEntry: .dict([
@@ -48,7 +47,7 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
                 "AddingEmojiKeybordHandled": .bool(simulatorSettings.simulatorLocalizationSettings.addingEmojiKeybordHandled),
             ])
         )
-        didImportPlist = try didImportPlist || importDefaults(
+        let didImportGlobalPreferencesPlist = try importDefaults(
             domain: ".GlobalPreferences.plist",
             plistToImport: globalPreferencesPlist,
             environment: environment,
@@ -62,32 +61,34 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
                 "DidShowGestureKeyboardIntroduction": .bool(simulatorSettings.simulatorLocalizationSettings.didShowGestureKeyboardIntroduction),
             ])
         )
-        didImportPlist = try didImportPlist || importDefaults(
+        let didImportPreferencesPlist = try importDefaults(
             domain: "com.apple.Preferences",
             plistToImport: preferencesPlist,
             environment: environment,
             simulator: simulator
         )
         
-        let springboardPlist = Plist(
+        let springBoardPlist = Plist(
             rootPlistEntry: .dict([
                 "FBLaunchWatchdogExceptions": .dict(simulatorSettings.watchdogSettings.bundleIds.reduce(into: [String: PlistEntry](), {
                     $0[$1] = .number(Double(simulatorSettings.watchdogSettings.timeout))
                 })),
             ])
         )
-        didImportPlist = try didImportPlist || importDefaults(
-            domain: "com.apple.springboard",
-            plistToImport: springboardPlist,
+        let didImportSpringBoardPlist = try importDefaults(
+            domain: "com.apple.SpringBoard",
+            plistToImport: springBoardPlist,
             environment: environment,
             simulator: simulator
         )
-        
+
         try addRootCertsKeychain(
             rootCerts: simulatorSettings.simulatorKeychainSettings.rootCerts,
             environment: environment,
             simulator: simulator
         )
+        
+        let didImportPlist = didImportGlobalPreferencesPlist || didImportPreferencesPlist || didImportSpringBoardPlist
         
         if didImportPlist {
             try kill(daemon: "com.apple.cfprefsd.xpc.daemon", environment: environment, simulator: simulator)
