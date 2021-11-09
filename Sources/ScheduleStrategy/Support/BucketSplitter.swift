@@ -3,29 +3,10 @@ import EmceeLogging
 import QueueModels
 import UniqueIdentifierGenerator
 
-public struct BucketSplitInfo {
-    public let numberOfWorkers: UInt
-    public let numberOfParallelBuckets: UInt
-    
-    public init(
-        numberOfWorkers: UInt,
-        numberOfParallelBuckets: UInt
-    ) {
-        self.numberOfWorkers = numberOfWorkers
-        self.numberOfParallelBuckets = numberOfParallelBuckets
-    }
-}
-
-public class BucketSplitter: Splitter, CustomStringConvertible {
-    public typealias Input = TestEntryConfiguration
-    public typealias SplitInfo = BucketSplitInfo
-    public typealias Output = Bucket
-    
-    public let description: String
+public class BucketSplitter {
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     
-    public init(description: String, uniqueIdentifierGenerator: UniqueIdentifierGenerator) {
-        self.description = description
+    public init(uniqueIdentifierGenerator: UniqueIdentifierGenerator) {
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
@@ -42,7 +23,7 @@ public class BucketSplitter: Splitter, CustomStringConvertible {
         fatalError("BucketSplitter cannot be used directly, you must use subclass")
     }
     
-    open func map(chunk: [TestEntryConfiguration], bucketSplitInfo: BucketSplitInfo) -> [Bucket] {
+    private func map(chunk: [TestEntryConfiguration], bucketSplitInfo: BucketSplitInfo) -> [Bucket] {
         let groups = GroupedTestEntryConfigurations(testEntryConfigurations: chunk).grouped()
         
         return groups.compactMap { (group: [TestEntryConfiguration]) -> Bucket? in

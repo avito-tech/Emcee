@@ -8,13 +8,16 @@ public extension Array {
         }
     }
     
+    func splitToChunks(count: UInt) -> [[Element]] {
+        splitToChunks(withSize: Swift.max(1, UInt(self.count) / count))
+    }
+    
     func splitToVariableChunks(
         withStartingRelativeSize size: Double,
         changingRelativeSizeBy step: Double = 1.0,
         minimumRelativeSize: Double = 0.0,
-        minimumChunkSize: UInt = 1)
-        -> [[Element]]
-    {
+        minimumChunkSize: UInt = 1
+    ) -> [[Element]] {
         if size <= 0.0 || size >= 1.0 {
             fatalError("startingRelativeSize must be a number within (0.0, 1.0) range, but was given \(size)")
         }
