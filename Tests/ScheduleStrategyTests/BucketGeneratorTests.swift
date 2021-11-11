@@ -9,7 +9,7 @@ import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
-final class BucketSplitterTests: XCTestCase {
+final class BucketGeneratorTests: XCTestCase {
     lazy var testDestination1 = TestDestinationFixtures.testDestination
     lazy var testDestination2 = assertDoesNotThrow { try TestDestination(deviceType: "device2", runtime: "11.0") }
     
@@ -31,13 +31,14 @@ final class BucketSplitterTests: XCTestCase {
                     .with(testDestination: testDestination2)
                     .testEntryConfigurations()
         
-        let splitter = UnsplitBucketSplitter(
+        let splitter = BucketGeneratorImpl(
             uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator()
         )
         
-        let buckets = splitter.generate(
-            inputs: testEntryConfigurations,
-            splitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1)
+        let buckets = splitter.generateBuckets(
+            testEntryConfigurations: testEntryConfigurations,
+            splitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1),
+            testSplitter: UnsplitBucketSplitter()
         )
         XCTAssertEqual(buckets.count, 2)
     }
@@ -52,13 +53,14 @@ final class BucketSplitterTests: XCTestCase {
                 .with(testDestination: testDestination1)
                 .testEntryConfigurations()
 
-        let splitter = UnsplitBucketSplitter(
+        let splitter = BucketGeneratorImpl(
             uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator()
         )
 
-        let buckets = splitter.generate(
-            inputs: testEntryConfigurations,
-            splitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1)
+        let buckets = splitter.generateBuckets(
+            testEntryConfigurations: testEntryConfigurations,
+            splitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1),
+            testSplitter: UnsplitBucketSplitter()
         )
         XCTAssertEqual(buckets.count, 4)
     }
@@ -83,13 +85,14 @@ final class BucketSplitterTests: XCTestCase {
             TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3")
         ]
 
-        let splitter = UnsplitBucketSplitter(
+        let splitter = BucketGeneratorImpl(
             uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator()
         )
 
-        let buckets = splitter.generate(
-            inputs: testEntryConfigurations,
-            splitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1)
+        let buckets = splitter.generateBuckets(
+            testEntryConfigurations: testEntryConfigurations,
+            splitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1),
+            testSplitter: UnsplitBucketSplitter()
         )
         XCTAssertEqual(buckets.count, 3)
         XCTAssertEqual(buckets[0].runTestsBucketPayload.testEntries, expectedBucketEntries)

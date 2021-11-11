@@ -4,14 +4,10 @@ import QueueModels
 import QueueModelsTestHelpers
 import RunnerTestHelpers
 import ScheduleStrategy
-import UniqueIdentifierGenerator
-import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class EquallyDividedBucketSplitterTests: XCTestCase {
-    let equallyDividedSplitter = EquallyDividedBucketSplitter(
-        uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator()
-    )
+    let equallyDividedSplitter = EquallyDividedBucketSplitter()
     let testEntries = [
         TestEntryFixtures.testEntry(className: "class", methodName: "testMethod1"),
         TestEntryFixtures.testEntry(className: "class", methodName: "testMethod2"),
@@ -24,7 +20,7 @@ final class EquallyDividedBucketSplitterTests: XCTestCase {
         let expected = testEntryConfigurations.splitToChunks(withSize: 1)
         
         let actual = equallyDividedSplitter.split(
-            inputs: testEntryConfigurations,
+            testEntryConfigurations: testEntryConfigurations,
             bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 2, numberOfParallelBuckets: 4)
         )
         
@@ -35,8 +31,11 @@ final class EquallyDividedBucketSplitterTests: XCTestCase {
         let expected = testEntryConfigurations.splitToChunks(withSize: 1)
         
         let actual = equallyDividedSplitter.split(
-            inputs: testEntryConfigurations,
-            bucketSplitInfo: BucketSplitInfo(numberOfWorkers: UInt(testEntries.count), numberOfParallelBuckets: UInt(testEntries.count))
+            testEntryConfigurations: testEntryConfigurations,
+            bucketSplitInfo: BucketSplitInfo(
+                numberOfWorkers: UInt(testEntries.count),
+                numberOfParallelBuckets: UInt(testEntries.count)
+            )
         )
         
         XCTAssertEqual(actual, expected)

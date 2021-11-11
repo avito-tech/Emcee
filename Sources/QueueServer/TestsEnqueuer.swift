@@ -9,6 +9,7 @@ import QueueModels
 import ScheduleStrategy
 
 public final class TestsEnqueuer {
+    private let bucketGenerator: BucketGenerator
     private let bucketSplitInfo: BucketSplitInfo
     private let dateProvider: DateProvider
     private let enqueueableBucketReceptor: EnqueueableBucketReceptor
@@ -17,6 +18,7 @@ public final class TestsEnqueuer {
     private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
 
     public init(
+        bucketGenerator: BucketGenerator,
         bucketSplitInfo: BucketSplitInfo,
         dateProvider: DateProvider,
         enqueueableBucketReceptor: EnqueueableBucketReceptor,
@@ -24,6 +26,7 @@ public final class TestsEnqueuer {
         version: Version,
         specificMetricRecorderProvider: SpecificMetricRecorderProvider
     ) {
+        self.bucketGenerator = bucketGenerator
         self.bucketSplitInfo = bucketSplitInfo
         self.dateProvider = dateProvider
         self.enqueueableBucketReceptor = enqueueableBucketReceptor
@@ -33,13 +36,14 @@ public final class TestsEnqueuer {
     }
     
     public func enqueue(
-        bucketSplitter: BucketSplitter,
         testEntryConfigurations: [TestEntryConfiguration],
+        testSplitter: TestSplitter,
         prioritizedJob: PrioritizedJob
     ) throws {
-        let buckets = bucketSplitter.generate(
-            inputs: testEntryConfigurations,
-            splitInfo: bucketSplitInfo
+        let buckets = bucketGenerator.generateBuckets(
+            testEntryConfigurations: testEntryConfigurations,
+            splitInfo: bucketSplitInfo,
+            testSplitter: testSplitter
         )
         try enqueueableBucketReceptor.enqueue(buckets: buckets, prioritizedJob: prioritizedJob)
         

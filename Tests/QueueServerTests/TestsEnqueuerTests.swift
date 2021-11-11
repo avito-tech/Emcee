@@ -25,6 +25,9 @@ final class TestsEnqueuerTests: XCTestCase {
     func test() throws {
         let bucketId = BucketId(value: UUID().uuidString)
         let testsEnqueuer = TestsEnqueuer(
+            bucketGenerator: BucketGeneratorImpl(
+                uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(value: bucketId.value)
+            ),
             bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1),
             dateProvider: DateProviderFixture(),
             enqueueableBucketReceptor: enqueueableBucketReceptor,
@@ -34,12 +37,10 @@ final class TestsEnqueuerTests: XCTestCase {
         )
         
         try testsEnqueuer.enqueue(
-            bucketSplitter: ScheduleStrategyType.individual.bucketSplitter(
-                uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator(value: bucketId.value)
-            ),
             testEntryConfigurations: TestEntryConfigurationFixtures()
                 .add(testEntry: TestEntryFixtures.testEntry())
                 .testEntryConfigurations(),
+            testSplitter: IndividualBucketSplitter(),
             prioritizedJob: prioritizedJob
         )
         

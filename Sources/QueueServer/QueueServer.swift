@@ -5,8 +5,8 @@ import SocketModels
 public protocol QueueServer {
     func start() throws -> Port
     func schedule(
-        bucketSplitter: BucketSplitter,
         testEntryConfigurations: [TestEntryConfiguration],
+        testSplitter: TestSplitter,
         prioritizedJob: PrioritizedJob
     ) throws
     func queueResults(jobId: JobId) throws -> JobResults

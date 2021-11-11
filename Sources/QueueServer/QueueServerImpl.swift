@@ -56,6 +56,7 @@ public final class QueueServerImpl: QueueServer {
     public init(
         automaticTerminationController: AutomaticTerminationController,
         autoupdatingWorkerPermissionProvider: AutoupdatingWorkerPermissionProvider,
+        bucketGenerator: BucketGenerator,
         bucketSplitInfo: BucketSplitInfo,
         checkAgainTimeInterval: TimeInterval,
         dateProvider: DateProvider,
@@ -149,6 +150,7 @@ public final class QueueServerImpl: QueueServer {
         )
         
         self.testsEnqueuer = TestsEnqueuer(
+            bucketGenerator: bucketGenerator,
             bucketSplitInfo: bucketSplitInfo,
             dateProvider: dateProvider,
             enqueueableBucketReceptor: enqueueableBucketReceptor,
@@ -274,13 +276,13 @@ public final class QueueServerImpl: QueueServer {
     }
     
     public func schedule(
-        bucketSplitter: BucketSplitter,
         testEntryConfigurations: [TestEntryConfiguration],
+        testSplitter: TestSplitter,
         prioritizedJob: PrioritizedJob
     ) throws {
         try testsEnqueuer.enqueue(
-            bucketSplitter: bucketSplitter,
             testEntryConfigurations: testEntryConfigurations,
+            testSplitter: testSplitter,
             prioritizedJob: prioritizedJob
         )
     }

@@ -44,6 +44,9 @@ final class QueueServerTests: XCTestCase {
         logger: .noOp,
         portRange: 49152...65535
     )
+    private lazy var bucketGenerator = BucketGeneratorImpl(
+        uniqueIdentifierGenerator: uniqueIdentifierGenerator
+    )
     private let bucketSplitInfo = BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1)
     private let payloadSignature = PayloadSignature(value: "expectedPayloadSignature")
     private lazy var workerAlivenessProvider: WorkerAlivenessProvider = WorkerAlivenessProviderImpl(
@@ -64,6 +67,7 @@ final class QueueServerTests: XCTestCase {
         let server = QueueServerImpl(
             automaticTerminationController: automaticTerminationController,
             autoupdatingWorkerPermissionProvider: FakeAutoupdatingWorkerPermissionProvider(),
+            bucketGenerator: bucketGenerator,
             bucketSplitInfo: bucketSplitInfo,
             checkAgainTimeInterval: .infinity,
             dateProvider: DateProviderFixture(),
@@ -110,6 +114,7 @@ final class QueueServerTests: XCTestCase {
         let server = QueueServerImpl(
             automaticTerminationController: terminationController,
             autoupdatingWorkerPermissionProvider: FakeAutoupdatingWorkerPermissionProvider(),
+            bucketGenerator: bucketGenerator,
             bucketSplitInfo: bucketSplitInfo,
             checkAgainTimeInterval: .infinity,
             dateProvider: DateProviderFixture(),
@@ -130,10 +135,8 @@ final class QueueServerTests: XCTestCase {
             workersToUtilizeService: FakeWorkersToUtilizeService()
         )
         try server.schedule(
-            bucketSplitter: ScheduleStrategyType.individual.bucketSplitter(
-                uniqueIdentifierGenerator: uniqueIdentifierGenerator
-            ),
             testEntryConfigurations: testEntryConfigurations,
+            testSplitter: IndividualBucketSplitter(),
             prioritizedJob: prioritizedJob
         )
         let queueWaiter = QueueServerTerminationWaiterImpl(

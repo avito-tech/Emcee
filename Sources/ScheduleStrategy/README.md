@@ -19,6 +19,14 @@ This is the most primitive schedule strategy. It generates a set of `Bucket`s wi
 have a fine-grained control of destinations load, but increases the overhead of loading `xctest` bundle and launching `XCTRunner.app`
 for each test.
 
+```json
+{
+    "scheduleStrategy": {
+        {"testSplitterType": {"type": "individual"}}
+    }
+}
+```
+
 ### Equally divided
 
 Another quite primitive schedule strategy which splits a list of `TestEntry` into `number of destinations` buckets 
@@ -26,6 +34,14 @@ with equall number of `TestEntry` in each. This has an advantage of having the l
 loaded only once for each destination. Then, the actual tests from each `Bucket` will be executed sequentially, each destination will execute 
 a single `Bucket`. The downside is that it is highly likely that some destination will slow down the whole test run by talking a significat time
 to fiinsh its set of tests, while the most of destinations will be idle.
+
+```json
+{
+    "scheduleStrategy": { 
+            {"testSplitterType": {"type": "equallyDivided"}}
+    }
+}
+```
 
 ### Progressive 
 
@@ -36,6 +52,42 @@ This strategy type will split the set of test into the `Bucket`s with variable `
 the smaller buckets will be executed last. If some destination becomes idle, it can pick next bucket to execute. 
 As the size of the bucket decreases, destinations will run more and more buckets. 
 While the overhead of loading `xctest` bundle increases over time, this allows to make all destinations work and not stay idle.
+
+```json
+{
+    "scheduleStrategy": {
+        {"testSplitterType": {"type": "progressive"}}
+    }
+}
+```
+
+### Unsplit
+
+Generates a single bucket with all tests in it. Useful when tests are short, and there are multiple of them in a single test bundle.
+In this case it usually does not make sense to split them across workers, but run them all on a single worker.
+
+```json
+{
+    "scheduleStrategy": {
+        {"testSplitterType": {"type": "unsplit"}}
+    }
+}
+```
+
+### Fixed Bucket Size
+
+Generates buckets with a fixed number of tests in them no matter how many workers are present.
+
+```json
+{
+    "scheduleStrategy": {
+        {"testSplitterType": {
+            "type": "individual",
+            "size": 5
+        }
+    }
+}
+```
 
 ### An area of improvement
 

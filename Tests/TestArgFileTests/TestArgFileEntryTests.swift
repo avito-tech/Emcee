@@ -4,6 +4,7 @@ import Foundation
 import PluginSupport
 import RunnerModels
 import RunnerTestHelpers
+import ScheduleStrategy
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import TestArgFile
@@ -62,7 +63,7 @@ final class TestArgFileEntryTests: XCTestCase {
                         "url":"http://example.com/plugin.zip#sample.emceeplugin"
                     }
                 ],
-                "scheduleStrategy": "unsplit",
+                "scheduleStrategy": {"testSplitterType":{"type":"unsplit"}},
                 "simulatorOperationTimeouts": {
                     "create": 50,
                     "boot": 51,
@@ -129,7 +130,7 @@ final class TestArgFileEntryTests: XCTestCase {
                 pluginLocations: [
                     PluginLocation(.remoteUrl(URL(string: "http://example.com/plugin.zip#sample.emceeplugin")!, [:]))
                 ],
-                scheduleStrategy: .unsplit,
+                scheduleStrategy: unsplitScheduleStrategy,
                 simulatorControlTool: SimulatorControlTool(
                     location: .insideUserLibrary,
                     tool: .simctl
@@ -250,5 +251,7 @@ final class TestArgFileEntryTests: XCTestCase {
             testDiscoveryMode: testDiscoveryMode
         )
     }
+    
+    private lazy var unsplitScheduleStrategy = ScheduleStrategy(testSplitterType: .unsplit)
 }
 

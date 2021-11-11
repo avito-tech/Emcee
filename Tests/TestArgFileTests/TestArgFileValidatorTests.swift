@@ -5,6 +5,7 @@ import QueueModels
 import RunnerModels
 import LoggingSetup
 import MetricsExtensions
+import ScheduleStrategy
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import TestArgFile
@@ -21,7 +22,7 @@ final class TestArgFileValidatorTests: XCTestCase {
                     environment: [:],
                     numberOfRetries: 0,
                     pluginLocations: [],
-                    scheduleStrategy: .unsplit,
+                    scheduleStrategy: unsplitScheduleStrategy,
                     simulatorControlTool: SimulatorControlTool(location: .insideUserLibrary, tool: .simctl),
                     simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
                     simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
@@ -49,7 +50,7 @@ final class TestArgFileValidatorTests: XCTestCase {
                     environment: [:],
                     numberOfRetries: 0,
                     pluginLocations: [],
-                    scheduleStrategy: .unsplit,
+                    scheduleStrategy: unsplitScheduleStrategy,
                     simulatorControlTool: SimulatorControlTool(location: .insideEmceeTempFolder, tool: .simctl),
                     simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
                     simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
@@ -77,7 +78,7 @@ final class TestArgFileValidatorTests: XCTestCase {
                     environment: [:],
                     numberOfRetries: 0,
                     pluginLocations: [],
-                    scheduleStrategy: .unsplit,
+                    scheduleStrategy: unsplitScheduleStrategy,
                     simulatorControlTool: SimulatorControlTool(location: .insideUserLibrary, tool: .simctl),
                     simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
                     simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
@@ -105,7 +106,7 @@ final class TestArgFileValidatorTests: XCTestCase {
                     environment: [:],
                     numberOfRetries: 0,
                     pluginLocations: [],
-                    scheduleStrategy: .unsplit,
+                    scheduleStrategy: unsplitScheduleStrategy,
                     simulatorControlTool: SimulatorControlTool(location: .insideUserLibrary, tool: .simctl),
                     simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
                     simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
@@ -133,7 +134,7 @@ final class TestArgFileValidatorTests: XCTestCase {
                     environment: [:],
                     numberOfRetries: 0,
                     pluginLocations: [],
-                    scheduleStrategy: .unsplit,
+                    scheduleStrategy: unsplitScheduleStrategy,
                     simulatorControlTool: SimulatorControlTool(location: .insideUserLibrary, tool: .simctl),
                     simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
                     simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
@@ -165,5 +166,7 @@ final class TestArgFileValidatorTests: XCTestCase {
             testDestinationConfigurations: []
         )
     }
+    
+    private lazy var unsplitScheduleStrategy = ScheduleStrategy(testSplitterType: .unsplit)
 }
 

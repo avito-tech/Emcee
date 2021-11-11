@@ -15,12 +15,15 @@ public class QueueServerFixture: QueueServer {
         return 1
     }
     
-    public func schedule(bucketSplitter: BucketSplitter, testEntryConfigurations: [TestEntryConfiguration], prioritizedJob: PrioritizedJob) {
+    public func schedule(
+        testEntryConfigurations: [TestEntryConfiguration],
+        testSplitter: TestSplitter,
+        prioritizedJob: PrioritizedJob
+    ) throws {
         ongoingJobIds.insert(prioritizedJob.jobId)
     }
     
     public func queueResults(jobId: JobId) throws -> JobResults {
         return JobResults(jobId: jobId, testingResults: [])
-    }
-    
+    }    
 }

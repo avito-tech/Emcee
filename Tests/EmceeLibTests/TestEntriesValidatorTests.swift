@@ -5,6 +5,7 @@ import EmceeLib
 import MetricsExtensions
 import RunnerModels
 import RunnerTestHelpers
+import ScheduleStrategy
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import TestArgFile
@@ -110,7 +111,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             environment: [:],
             numberOfRetries: 1,
             pluginLocations: [],
-            scheduleStrategy: .unsplit,
+            scheduleStrategy: ScheduleStrategy(testSplitterType: .unsplit),
             simulatorControlTool: SimulatorControlToolFixtures.simctlTool,
             simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),

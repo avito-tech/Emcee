@@ -14,7 +14,7 @@ public struct TestArgFileEntry: Codable, Equatable {
     public let environment: [String: String]
     public let numberOfRetries: UInt
     public let pluginLocations: Set<PluginLocation>
-    public let scheduleStrategy: ScheduleStrategyType
+    public let scheduleStrategy: ScheduleStrategy
     public let simulatorControlTool: SimulatorControlTool
     public let simulatorOperationTimeouts: SimulatorOperationTimeouts
     public let simulatorSettings: SimulatorSettings
@@ -31,7 +31,7 @@ public struct TestArgFileEntry: Codable, Equatable {
         environment: [String: String],
         numberOfRetries: UInt,
         pluginLocations: Set<PluginLocation>,
-        scheduleStrategy: ScheduleStrategyType,
+        scheduleStrategy: ScheduleStrategy,
         simulatorControlTool: SimulatorControlTool,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,
         simulatorSettings: SimulatorSettings,
@@ -75,7 +75,7 @@ public struct TestArgFileEntry: Codable, Equatable {
             TestArgFileDefaultValues.numberOfRetries
         let pluginLocations = try container.decodeIfPresent(Set<PluginLocation>.self, forKey: .pluginLocations) ??
             TestArgFileDefaultValues.pluginLocations
-        let scheduleStrategy = try container.decodeIfPresent(ScheduleStrategyType.self, forKey: .scheduleStrategy) ??
+        let scheduleStrategy = try container.decodeIfPresent(ScheduleStrategy.self, forKey: .scheduleStrategy) ??
             TestArgFileDefaultValues.scheduleStrategy
         let simulatorControlTool = try container.decodeIfPresent(SimulatorControlTool.self, forKey: .simulatorControlTool) ??
             TestArgFileDefaultValues.simulatorControlTool

@@ -7,6 +7,7 @@ import MetricsExtensions
 import QueueModelsTestHelpers
 import RunnerModels
 import RunnerTestHelpers
+import ScheduleStrategy
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import TestArgFile
@@ -27,6 +28,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
     lazy var simulatorSettings = SimulatorSettingsFixtures().simulatorSettings()
     lazy var testTimeoutConfiguration = TestTimeoutConfiguration(singleTestMaximumDuration: 10, testRunnerMaximumSilenceDuration: 20)
     lazy var analyticsConfiguration = AnalyticsConfiguration()
+    lazy var unsplitScheduleStrategy = ScheduleStrategy(testSplitterType: .unsplit)
 
     lazy var validatedEntries: [ValidatedTestEntry] = {
         return [
@@ -53,7 +55,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 environment: [:],
                 numberOfRetries: 10,
                 pluginLocations: [],
-                scheduleStrategy: .unsplit,
+                scheduleStrategy: unsplitScheduleStrategy,
                 simulatorControlTool: SimulatorControlToolFixtures.simctlTool,
                 simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
                 simulatorSettings: simulatorSettings,
@@ -92,7 +94,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 environment: [:],
                 numberOfRetries: 10,
                 pluginLocations: [],
-                scheduleStrategy: .unsplit,
+                scheduleStrategy: unsplitScheduleStrategy,
                 simulatorControlTool: SimulatorControlToolFixtures.simctlTool,
                 simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
                 simulatorSettings: simulatorSettings,
@@ -133,7 +135,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 environment: [:],
                 numberOfRetries: 10,
                 pluginLocations: [],
-                scheduleStrategy: .unsplit,
+                scheduleStrategy: unsplitScheduleStrategy,
                 simulatorControlTool: SimulatorControlToolFixtures.simctlTool,
                 simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
                 simulatorSettings: simulatorSettings,

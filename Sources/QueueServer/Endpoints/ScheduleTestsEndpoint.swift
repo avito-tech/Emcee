@@ -40,10 +40,8 @@ public final class ScheduleTestsEndpoint: RESTEndpoint {
         try waitForAnySuitableWorker(payload: payload)
         
         try testsEnqueuer.enqueue(
-            bucketSplitter: payload.scheduleStrategy.bucketSplitter(
-                uniqueIdentifierGenerator: uniqueIdentifierGenerator
-            ),
             testEntryConfigurations: payload.testEntryConfigurations,
+            testSplitter: payload.scheduleStrategy.testSplitter,
             prioritizedJob: payload.prioritizedJob
         )
         return .scheduledTests

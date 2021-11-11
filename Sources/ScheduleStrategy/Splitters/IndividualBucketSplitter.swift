@@ -2,8 +2,13 @@ import Foundation
 import QueueModels
 import UniqueIdentifierGenerator
 
-public final class IndividualBucketSplitter: BucketSplitter {
-    public override func split(inputs: [TestEntryConfiguration], bucketSplitInfo: BucketSplitInfo) -> [[TestEntryConfiguration]] {
-        return inputs.map { [$0] }
+public struct IndividualBucketSplitter: TestSplitter {
+    public init() {}
+    
+    public func split(
+        testEntryConfigurations: [TestEntryConfiguration],
+        bucketSplitInfo: BucketSplitInfo
+    ) -> [[TestEntryConfiguration]] {
+        return testEntryConfigurations.map { [$0] }
     }
 }

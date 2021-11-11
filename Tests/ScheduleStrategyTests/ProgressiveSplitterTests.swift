@@ -9,9 +9,7 @@ import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class ProgressiveSplitterTests: XCTestCase {
-    let progressiveSplitter = ProgressiveBucketSplitter(
-        uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator()
-    )
+    let progressiveSplitter = ProgressiveBucketSplitter()
     
     func test___1_x_100() {
         assert {
@@ -112,10 +110,10 @@ final class ProgressiveSplitterTests: XCTestCase {
     }
     
     func test___result_does_not_repeat_entries() {
-        let inputs = create(count: 999)
+        let inputs = createTestEntryConfigurations(count: 999)
         
         let splitResult = progressiveSplitter.split(
-            inputs: create(count: 999),
+            testEntryConfigurations: createTestEntryConfigurations(count: 999),
             bucketSplitInfo: BucketSplitInfo(
                 numberOfWorkers: 99,
                 numberOfParallelBuckets: 99 * 4
@@ -135,7 +133,7 @@ final class ProgressiveSplitterTests: XCTestCase {
         eachWorkerProcessesBuckets: UInt
     ) -> [Int] {
         progressiveSplitter.split(
-            inputs: create(count: testCount),
+            testEntryConfigurations: createTestEntryConfigurations(count: testCount),
             bucketSplitInfo: BucketSplitInfo(
                 numberOfWorkers: workerCount,
                 numberOfParallelBuckets: workerCount * eachWorkerProcessesBuckets
@@ -143,14 +141,5 @@ final class ProgressiveSplitterTests: XCTestCase {
         ).map {
             $0.count
         }
-    }
-    
-    private func create(count: UInt) -> [TestEntryConfiguration] {
-        let testEntries = (0..<count).reduce(into: [TestEntry]()) { result, index in
-            result.append(TestEntryFixtures.testEntry(className: "class", methodName: "testMethod\(index)"))
-        }
-        return TestEntryConfigurationFixtures().add(
-            testEntries: testEntries
-        ).testEntryConfigurations()
     }
 }

@@ -4,43 +4,39 @@ import QueueModelsTestHelpers
 import RunnerTestHelpers
 import ScheduleStrategy
 import TestHelpers
-import UniqueIdentifierGenerator
-import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class IndividualBucketSplitterTests: XCTestCase {
-    let individualSplitter = IndividualBucketSplitter(
-        uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator()
-    )
+    let individualSplitter = IndividualBucketSplitter()
     let testEntries = [
         TestEntryFixtures.testEntry(className: "class", methodName: "testMethod1"),
         TestEntryFixtures.testEntry(className: "class", methodName: "testMethod2"),
         TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3"),
-        TestEntryFixtures.testEntry(className: "class", methodName: "testMethod4")
+        TestEntryFixtures.testEntry(className: "class", methodName: "testMethod4"),
     ]
     lazy var testEntryConfigurations = TestEntryConfigurationFixtures().add(testEntries: testEntries).testEntryConfigurations()
     
-    func test__individual_splitter__splits_to_entries_with_single_test() {
-        let buckets = individualSplitter.generate(
-            inputs: testEntryConfigurations,
-            splitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 4)
+    func test___individual_splitter_splits_to_buckets_with_single_test() {
+        let groups = individualSplitter.split(
+            testEntryConfigurations: testEntryConfigurations,
+            bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 4)
         )
         assert {
-            buckets.map { $0.runTestsBucketPayload.testEntries }
+            groups
         } equals: {
-            testEntries.map { [$0] }
+            testEntryConfigurations.map { [$0] }
         }
     }
     
-    func test_individual_splitter_splits_tests_regardless_of_number_of_destinations() {
+    func test___individual_splitter_splits_same_way_regardless_of_number_of_destinations() {
         XCTAssertEqual(
-            individualSplitter.generate(
-                inputs: testEntryConfigurations,
-                splitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1)
+            individualSplitter.split(
+                testEntryConfigurations: testEntryConfigurations,
+                bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1)
             ),
-            individualSplitter.generate(
-                inputs: testEntryConfigurations,
-                splitInfo: BucketSplitInfo(numberOfWorkers: 5, numberOfParallelBuckets: 10)
+            individualSplitter.split(
+                testEntryConfigurations: testEntryConfigurations,
+                bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 5, numberOfParallelBuckets: 10)
             )
         )
     }

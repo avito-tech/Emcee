@@ -7,7 +7,7 @@ import Types
 public protocol TestScheduler {
     func scheduleTests(
         prioritizedJob: PrioritizedJob,
-        scheduleStrategy: ScheduleStrategyType,
+        scheduleStrategy: ScheduleStrategy,
         testEntryConfigurations: [TestEntryConfiguration],
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<Void, Error>) -> ()

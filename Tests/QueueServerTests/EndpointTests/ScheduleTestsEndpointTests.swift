@@ -25,7 +25,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         let response = try endpoint.handle(
             payload: ScheduleTestsPayload(
                 prioritizedJob: prioritizedJob,
-                scheduleStrategy: .individual,
+                scheduleStrategy: individualScheduleStrategy,
                 testEntryConfigurations: testEntryConfigurations
             )
         )
@@ -51,7 +51,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         let response = try endpoint.handle(
             payload: ScheduleTestsPayload(
                 prioritizedJob: prioritizedJob,
-                scheduleStrategy: .individual,
+                scheduleStrategy: individualScheduleStrategy,
                 testEntryConfigurations: []
             )
         )
@@ -66,7 +66,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
             try endpoint.handle(
                 payload: ScheduleTestsPayload(
                     prioritizedJob: prioritizedJob,
-                    scheduleStrategy: .individual,
+                    scheduleStrategy: individualScheduleStrategy,
                     testEntryConfigurations: testEntryConfigurations
                 )
             )
@@ -81,7 +81,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
             try endpoint.handle(
                 payload: ScheduleTestsPayload(
                     prioritizedJob: prioritizedJob,
-                    scheduleStrategy: .individual,
+                    scheduleStrategy: individualScheduleStrategy,
                     testEntryConfigurations: TestEntryConfigurationFixtures()
                         .add(testEntry: TestEntryFixtures.testEntry())
                         .with(workerCapabilityRequirements: [WorkerCapabilityRequirement(capabilityName: "name", constraint: .present)])
@@ -102,7 +102,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         let response = try endpoint.handle(
             payload: ScheduleTestsPayload(
                 prioritizedJob: prioritizedJob,
-                scheduleStrategy: .individual,
+                scheduleStrategy: individualScheduleStrategy,
                 testEntryConfigurations: testEntryConfigurations
             )
         )
@@ -130,7 +130,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         let response = try endpoint.handle(
             payload: ScheduleTestsPayload(
                 prioritizedJob: prioritizedJob,
-                scheduleStrategy: .individual,
+                scheduleStrategy: individualScheduleStrategy,
                 testEntryConfigurations: TestEntryConfigurationFixtures()
                     .add(testEntry: TestEntryFixtures.testEntry())
                     .with(workerCapabilityRequirements: [WorkerCapabilityRequirement(capabilityName: "name", constraint: .equal("value"))])
@@ -180,6 +180,9 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         .testEntryConfigurations()
     let enqueueableBucketReceptor = FakeEnqueueableBucketReceptor()
     lazy var testsEnqueuer = TestsEnqueuer(
+        bucketGenerator: BucketGeneratorImpl(
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+        ),
         bucketSplitInfo: bucketSplitInfo,
         dateProvider: DateProviderFixture(),
         enqueueableBucketReceptor: enqueueableBucketReceptor,
@@ -195,4 +198,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         workerPermissionProvider: FakeWorkerPermissionProvider()
     )
     lazy var workerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()
+    private lazy var individualScheduleStrategy = ScheduleStrategy(
+        testSplitterType: .individual
+    )
 }

@@ -65,6 +65,10 @@ public final class StartQueueServerCommand: Command {
                 analyticsConfiguration: queueServerConfiguration.globalAnalyticsConfiguration
             )
         )
+        di.set(
+            BucketGeneratorImpl(uniqueIdentifierGenerator: try di.get()),
+            for: BucketGenerator.self
+        )
 
         try startQueueServer(
             emceeVersion: emceeVersion,
@@ -145,6 +149,7 @@ public final class StartQueueServerCommand: Command {
         let queueServer = QueueServerImpl(
             automaticTerminationController: automaticTerminationController,
             autoupdatingWorkerPermissionProvider: autoupdatingWorkerPermissionProvider,
+            bucketGenerator: try di.get(),
             bucketSplitInfo: BucketSplitInfo(
                 numberOfWorkers: UInt(queueServerConfiguration.workerSpecificConfigurations.count),
                 numberOfParallelBuckets: queueServerConfiguration.workerSpecificConfigurations.reduce(into: 0, { result, keyValue in

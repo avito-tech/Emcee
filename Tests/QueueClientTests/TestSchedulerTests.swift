@@ -4,6 +4,7 @@ import QueueClient
 import QueueModels
 import RESTMethods
 import RequestSenderTestHelpers
+import ScheduleStrategy
 import TestHelpers
 import Types
 import XCTest
@@ -16,6 +17,8 @@ final class TestSchedulerTests: XCTestCase {
     private let callbackQueue = DispatchQueue(label: "callbackQueue")
     private let expectation = XCTestExpectation(description: "Response provided")
     private let requestSender = FakeRequestSender()
+    private lazy var individualScheduleStrategy = ScheduleStrategy(testSplitterType: .individual)
+    private lazy var unsplitScheduleStrategy = ScheduleStrategy(testSplitterType: .unsplit)
     private lazy var prioritizedJob = PrioritizedJob(
         analyticsConfiguration: AnalyticsConfiguration(),
         jobGroupId: "group",
@@ -36,7 +39,7 @@ final class TestSchedulerTests: XCTestCase {
                 scheduleTestsRequest.payload,
                 ScheduleTestsPayload(
                     prioritizedJob: self.prioritizedJob,
-                    scheduleStrategy: .unsplit,
+                    scheduleStrategy: self.unsplitScheduleStrategy,
                     testEntryConfigurations: []
                 )
             )
@@ -44,7 +47,7 @@ final class TestSchedulerTests: XCTestCase {
         
         scheduler.scheduleTests(
             prioritizedJob: prioritizedJob,
-            scheduleStrategy: .unsplit,
+            scheduleStrategy: unsplitScheduleStrategy,
             testEntryConfigurations: [],
             callbackQueue: callbackQueue,
             completion: { (response: Either<Void, Error>) in
@@ -63,7 +66,7 @@ final class TestSchedulerTests: XCTestCase {
         
         scheduler.scheduleTests(
             prioritizedJob: prioritizedJob,
-            scheduleStrategy: .individual,
+            scheduleStrategy: individualScheduleStrategy,
             testEntryConfigurations: [],
             callbackQueue: callbackQueue,
             completion: { response in
