@@ -14,6 +14,7 @@ import FileSystem
 import PlistLib
 import PluginManager
 import Tmp
+import Types
 import UniqueIdentifierGenerator
 import SynchronousWaiter
 
@@ -148,32 +149,63 @@ public final class RunTestBenchmark: Benchmark {
 }
 
 public struct RunTestBenchmarkResult: BenchmarkResult {
-    private let testEntryResults: [TestEntryResult]
+    public let testEntryResults: [TestEntryResult]
     
     public init(testEntryResults: [TestEntryResult]) {
         self.testEntryResults = testEntryResults
     }
-    
-    public func plistEntry() -> PlistEntry {
-        .array(
-            testEntryResults.map { testEntryResult in
-                PlistEntry.dict([
-                    "testName": .string(testEntryResult.testEntry.testName.stringValue),
-                    "succeeded": .bool(testEntryResult.succeeded),
-                    "testRunResults": .array(
-                        testEntryResult.testRunResults.map {
-                            PlistEntry.dict([
-                                "duration": .number($0.duration),
-                                "succeeded": .bool($0.succeeded),
-                                "udid": .string($0.simulatorId.value),
-                                "exceptions": .array(
-                                    $0.exceptions.map { PlistEntry.string($0.reason) }
-                                ),
-                            ])
-                        }
+
+    public func toCsv() -> String {
+        struct _TestRunResult {
+            let testName: String
+            let success: Bool
+            let duration: Double
+        }
+
+        var results = [_TestRunResult]()
+
+        for testEntryResult in testEntryResults {
+            for testRunResult in testEntryResult.testRunResults {
+                results.append(
+                    _TestRunResult(
+                        testName: testEntryResult.testEntry.testName.stringValue,
+                        success: testRunResult.succeeded,
+                        duration: testRunResult.duration
                     )
-                ])
+                )
             }
-        )
+        }
+
+        return MultipleBenchmarkResult(
+            results: results.map {
+                MappedBenchmarkResult(
+                    results: [
+                        "testName": $0.testName,
+                        "success": $0.success,
+                        "duration": $0.duration,
+                    ]
+                )
+            }
+        ).toCsv()
+    }
+}
+
+
+private extension Array where Element == Double {
+    func percentile(probability: Double) -> Double? {
+      if probability < 0 || probability > 1 { return nil }
+      let data = self.sorted(by: <)
+      let count = Double(data.count)
+      let m = 1.0 - probability
+      let k = Int((probability * count) + m)
+      let probability = (probability * count) + m - Double(k)
+      return qDef(data, k: k, probability: probability)
+    }
+
+    private func qDef(_ data: [Double], k: Int, probability: Double) -> Double? {
+      if data.isEmpty { return nil }
+      if k < 1 { return data[0] }
+      if k >= data.count { return data.last }
+      return ((1.0 - probability) * data[k - 1]) + (probability * data[k])
     }
 }

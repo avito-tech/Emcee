@@ -2,17 +2,18 @@ import Foundation
 import PlistLib
 
 public final class MappedBenchmarkResult: BenchmarkResult {
-    private let results: [String: PlistEntry]
+    public let results: [String: BenchmarkResult]
     
     public init(results: [String: BenchmarkResult]) {
-        self.results = results.mapValues { $0.plistEntry() }
-    }
-    
-    public init(results: [String: PlistEntry]) {
         self.results = results
     }
     
-    public func plistEntry() -> PlistEntry {
-        return .dict(results)
+    public func toCsv() -> String {
+        let sorted = results.sorted { (l, r) -> Bool in
+            l.key < r.key
+        }
+        return [
+            sorted.map { $0.value.toCsv() }.joined(separator: ";"),
+        ].joined(separator: "\n")
     }
 }

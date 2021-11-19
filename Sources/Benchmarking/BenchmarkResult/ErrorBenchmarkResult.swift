@@ -7,11 +7,8 @@ public final class ErrorBenchmarkResult: BenchmarkResult {
     public init(error: Error) {
         self.error = error
     }
-    
-    public func plistEntry() -> PlistEntry {
-        return .dict([
-            "errorDescription": .string("\(error)"),
-            "errorLocalizedDescription": .string(error.localizedDescription),
-        ])
+
+    public func toCsv() -> String {
+        error.localizedDescription
     }
 }

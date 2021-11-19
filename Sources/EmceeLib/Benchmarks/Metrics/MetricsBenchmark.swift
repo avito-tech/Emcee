@@ -23,49 +23,44 @@ public final class MetricsBenchmark: Benchmark {
     public func run(contextualLogger: ContextualLogger) -> BenchmarkResult {
         var avg = [Double](repeating: 0, count: 3)
         getloadavg(&avg, 3)
-        
-        do {
-            return MappedBenchmarkResult(
-                results: [
-                    "timestamp": PlistEntry.number(timestampProvider.timestampSinceReferencePoint()),
-                    "cpuLoad": PlistEntry.number(Double(try cpuLoad())),
-                    "numberOfRunningProcesses": PlistEntry.number(Double(try numberOfRunningProcesses())),
-                    "numberOfOpenedFiles": PlistEntry.number(Double(try numberOfOpenedFiles())),
-                    "freeMemory": PlistEntry.number(Double(freeMemory())),
-                    "usedMemory": PlistEntry.number(Double(usedMemory())),
-                    "swapSizeInMb": PlistEntry.number(Double(try swapSizeInMb())),
-                    "loadAverage1min": PlistEntry.number(avg[0]),
-                    "loadAverage5min": PlistEntry.number(avg[1]),
-                    "loadAverage15min": PlistEntry.number(avg[2]),
-                ]
-            )
-        } catch {
-            return ErrorBenchmarkResult(error: error)
-        }
+        return MappedBenchmarkResult(
+            results: [
+                "timestamp": timestampProvider.timestampSinceReferencePoint(),
+                "cpuLoad": cpuLoad(),
+                "numberOfRunningProcesses": numberOfRunningProcesses(),
+                "numberOfOpenedFiles": numberOfOpenedFiles(),
+                "freeMemory": freeMemory(),
+                "usedMemory": usedMemory(),
+                "swapSizeInMb": swapSizeInMb(),
+                "loadAverage1min": avg[0],
+                "loadAverage5min": avg[1],
+                "loadAverage15min": avg[2],
+            ]
+        )
     }
     
-    private func cpuLoad() throws -> Int {
-        try runCommandAndExtractInt(
+    private func cpuLoad() -> BenchmarkResult {
+        runCommandAndExtractInt(
             "ps -A -o %cpu | LANG=en_US.UTF-8 awk '{s+=$1} END {print s}' | grep -o -E '[0-9]+' | head -1"
         )
     }
     
-    private func numberOfRunningProcesses() throws -> Int {
-        try runCommandAndExtractInt(
+    private func numberOfRunningProcesses() -> BenchmarkResult {
+        runCommandAndExtractInt(
             "ps aux | wc -l"
         )
     }
     
-    private func numberOfOpenedFiles() throws -> Int {
-        try runCommandAndExtractInt(
+    private func numberOfOpenedFiles() -> BenchmarkResult {
+        runCommandAndExtractInt(
             "sysctl -n kern.num_files"
         )
     }
     
-    private func swapSizeInMb() throws -> Int {
-        (try? runCommandAndExtractInt(
+    private func swapSizeInMb() -> BenchmarkResult {
+        runCommandAndExtractInt(
             "sysctl -n vm.swapusage | perl -pe 's/(?:^.*?used = ([0-9]+)[.,].*M.*)|.*/\\1/'"
-        )) ?? 0
+        )
     }
     
     private static let machHost = mach_host_self()
@@ -74,7 +69,6 @@ public final class MetricsBenchmark: Benchmark {
         let HOST_VM_INFO64_COUNT: mach_msg_type_number_t = UInt32(
             MemoryLayout<vm_statistics64_data_t>.size / MemoryLayout<integer_t>.size
         )
-
         
         var size     = HOST_VM_INFO64_COUNT
         let hostInfo = vm_statistics64_t.allocate(capacity: 1)
@@ -102,7 +96,7 @@ public final class MetricsBenchmark: Benchmark {
         return Int(ProcessInfo.processInfo.physicalMemory) - freeMemory()
     }
     
-    private func runCommandAndExtractInt(_ command: String) throws -> Int {
+    private func runCommandAndExtractInt(_ command: String) -> BenchmarkResult {
         do {
             let streams = CapturedOutputStreams()
             try processControllerProvider.bash(
@@ -114,7 +108,7 @@ public final class MetricsBenchmark: Benchmark {
                 argumentValue: streams.stdoutSting.trimmingCharacters(in: .whitespacesAndNewlines)
             )
         } catch {
-            return 0
+            return "\(error)"
         }
     }
 }

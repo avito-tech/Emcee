@@ -139,19 +139,23 @@ public final class BenchmarkCommand: Command {
         let topLevelBenchmark = ConcurrentlyPerformedBenchmarks(
             benchmarksToExecute: [
                 "metrics": metricsBenchmark,
-                "testResults": testRunningBenchmark,
+                "testRunningBenchmark": testRunningBenchmark,
             ]
         )
 
-        let completeResult = topLevelBenchmark.run(contextualLogger: logger)
-        
-        let plist = Plist(rootPlistEntry: .dict(
-            try completeResult.plistEntry().dictEntry())
-        )
-        
-        try plist.data(format: PropertyListSerialization.PropertyListFormat.xml).write(to: output.fileUrl)
-        
-        logger.info("Stored plist into \(output)")
+        let mappedBenchmarkResult = topLevelBenchmark.run(contextualLogger: logger) as? MappedBenchmarkResult
+
+        let metricsResult = mappedBenchmarkResult?.results["metrics"]
+        if let csv = metricsResult?.toCsv() {
+            print("Metrics CSV:")
+            print(csv)
+        }
+
+        let testRunningBenchmarkResults = mappedBenchmarkResult?.results["testRunningBenchmark"]
+        if let csv = testRunningBenchmarkResults?.toCsv() {
+            print("Test results CSV:")
+            print(csv)
+        }
     }
     
     private func runTestBenchmark(

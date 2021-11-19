@@ -98,15 +98,15 @@ public final class ReformatPlistCommand: Command {
             let testResults = keyValue.value
             
             print("Test results for \(testName):")
-            print("   - \(testResults.count) runs")
-            print("   - \(testResults.filter { $0.success }.count) successes")
-            print("   - \(testResults.filter { !$0.success }.count) failures")
-            print("   - min duration: \(testResults.map { $0.duration }.min() ?? 0.0)")
-            print("   - p50 duration: \(testResults.map { $0.duration }.percentile(probability: 0.50) ?? 0.0)")
-            print("   - p75 duration: \(testResults.map { $0.duration }.percentile(probability: 0.75) ?? 0.0)")
-            print("   - p90 duration: \(testResults.map { $0.duration }.percentile(probability: 0.90) ?? 0.0)")
-            print("   - p99 duration: \(testResults.map { $0.duration }.percentile(probability: 0.99) ?? 0.0)")
-            print("   - max duration: \(testResults.map { $0.duration }.max() ?? 0.0)")
+//            print("   - \(testResults.count) runs")
+//            print("   - \(testResults.filter { $0.success }.count) successes")
+//            print("   - \(testResults.filter { !$0.success }.count) failures")
+//            print("   - min duration: \(testResults.map { $0.duration }.min() ?? 0.0)")
+//            print("   - p50 duration: \(testResults.map { $0.duration }.percentile(probability: 0.50) ?? 0.0)")
+//            print("   - p75 duration: \(testResults.map { $0.duration }.percentile(probability: 0.75) ?? 0.0)")
+//            print("   - p90 duration: \(testResults.map { $0.duration }.percentile(probability: 0.90) ?? 0.0)")
+//            print("   - p99 duration: \(testResults.map { $0.duration }.percentile(probability: 0.99) ?? 0.0)")
+//            print("   - max duration: \(testResults.map { $0.duration }.max() ?? 0.0)")
             print("Complete data points:")
             print("duration", "success", separator: ";")
             for result in testResults {
@@ -114,24 +114,5 @@ public final class ReformatPlistCommand: Command {
             }
             print("-----------------------------------------------------------")
         }
-    }
-}
-
-private extension Array where Element == Double {
-    func percentile(probability: Double) -> Double? {
-      if probability < 0 || probability > 1 { return nil }
-      let data = self.sorted(by: <)
-      let count = Double(data.count)
-      let m = 1.0 - probability
-      let k = Int((probability * count) + m)
-      let probability = (probability * count) + m - Double(k)
-      return qDef(data, k: k, probability: probability)
-    }
-    
-    private func qDef(_ data: [Double], k: Int, probability: Double) -> Double? {
-      if data.isEmpty { return nil }
-      if k < 1 { return data[0] }
-      if k >= data.count { return data.last }
-      return ((1.0 - probability) * data[k - 1]) + (probability * data[k])
     }
 }

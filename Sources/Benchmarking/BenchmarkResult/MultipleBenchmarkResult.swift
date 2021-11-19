@@ -1,5 +1,4 @@
 import Foundation
-import PlistLib
 
 public final class MultipleBenchmarkResult: BenchmarkResult {
     private let results: [BenchmarkResult]
@@ -7,8 +6,10 @@ public final class MultipleBenchmarkResult: BenchmarkResult {
     public init(results: [BenchmarkResult]) {
         self.results = results
     }
-    
-    public func plistEntry() -> PlistEntry {
-        return .array(results.map { $0.plistEntry() })
+
+    public func toCsv() -> String {
+        results.map {
+            $0.toCsv()
+        }.joined(separator: "\n")
     }
 }
