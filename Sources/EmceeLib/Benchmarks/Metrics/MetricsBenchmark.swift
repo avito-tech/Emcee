@@ -23,6 +23,9 @@ public final class MetricsBenchmark: Benchmark {
     public func run(contextualLogger: ContextualLogger) -> BenchmarkResult {
         var avg = [Double](repeating: 0, count: 3)
         getloadavg(&avg, 3)
+
+        let machFactor = Self.machFactor()
+
         return [
             timestampProvider.timestampSinceReferencePoint(),
             cpuLoad(),
@@ -34,6 +37,9 @@ public final class MetricsBenchmark: Benchmark {
             avg[0],
             avg[1],
             avg[2],
+            machFactor[0],
+            machFactor[1],
+            machFactor[2],
         ].map { "\($0)" }.joined(separator: ";")
     }
     
@@ -108,5 +114,34 @@ public final class MetricsBenchmark: Benchmark {
         } catch {
             return "\(error)"
         }
+    }
+
+    private static func machFactor() -> [Double] {
+        let result = Self.hostLoadInfo().mach_factor
+
+        return [
+            Double(result.0) / Double(LOAD_SCALE),
+            Double(result.1) / Double(LOAD_SCALE),
+            Double(result.2) / Double(LOAD_SCALE),
+        ]
+    }
+
+    private static func hostLoadInfo() -> host_load_info {
+        let HOST_LOAD_INFO_COUNT          : mach_msg_type_number_t =
+                               UInt32(MemoryLayout<host_load_info_data_t>.size / MemoryLayout<integer_t>.size)
+
+        var size     = HOST_LOAD_INFO_COUNT
+        let hostInfo = host_load_info_t.allocate(capacity: 1)
+
+        _ = hostInfo.withMemoryRebound(to: integer_t.self, capacity: Int(size)) {
+            host_statistics(machHost, HOST_LOAD_INFO,
+                            $0,
+                            &size)
+        }
+
+        let data = hostInfo.move()
+        hostInfo.deallocate()
+
+        return data
     }
 }

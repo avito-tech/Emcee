@@ -159,6 +159,9 @@ public final class BenchmarkCommand: Command {
                 "loadAverage1min",
                 "loadAverage5min",
                 "loadAverage15min",
+                "machFactor1min",
+                "machFactor5min",
+                "machFactor15min",
                 separator: ";"
             )
             print(csv)
