@@ -22,14 +22,6 @@ public final class RunTestBenchmark: Benchmark {
     private let dateProvider: DateProvider
     private let measurer: Measurer
     private let onDemandSimulatorPool: OnDemandSimulatorPool
-    private let simulatorOperationTimeouts = SimulatorOperationTimeouts(
-        create: 180,
-        boot: 600,
-        delete: 300,
-        shutdown: 300,
-        automaticSimulatorShutdown: 9999,
-        automaticSimulatorDelete: 9999
-    )
     private let bucket: Bucket
     private let emceeVersion = EmceeVersion.version
     private let developerDirLocator: DeveloperDirLocator
@@ -89,7 +81,7 @@ public final class RunTestBenchmark: Benchmark {
             let simulatorController = try simulatorPool.allocateSimulator(
                 dateProvider: dateProvider,
                 logger: contextualLogger,
-                simulatorOperationTimeouts: simulatorOperationTimeouts,
+                simulatorOperationTimeouts: bucket.runTestsBucketPayload.simulatorOperationTimeouts,
                 version: emceeVersion,
                 globalMetricRecorder: GlobalMetricRecorderImpl()
             )
@@ -191,31 +183,6 @@ public struct RunTestBenchmarkResult: BenchmarkResult {
                 }
             ).toCsv()
         )
-
-//        var testRunsByTestName = MapWithCollection<String, _TestRunResult>()
-//        for testRun in results {
-//            print("Appending to \(testRun.testName)... has \(testRunsByTestName[testRun.testName].count) points")
-//            testRunsByTestName.append(key: testRun.testName, element: testRun)
-//        }
-//
-//        print(testRunsByTestName.asDictionary)
-//
-//        for keyValue in testRunsByTestName.asDictionary {
-//            let testName = keyValue.key
-//            let testResults = keyValue.value
-//
-//            report.append("Test run stats for \(testName):")
-//            report.append("   - \(testResults.count) total runs")
-//            report.append("   - \(testResults.filter { $0.success }.count) successes")
-//            report.append("   - \(testResults.filter { !$0.success }.count) failures")
-//            report.append("   - min duration: \(testResults.map { $0.duration }.min() ?? 0.0)")
-//            report.append("   - p50 duration: \(testResults.map { $0.duration }.percentile(probability: 0.50) ?? 0.0)")
-//            report.append("   - p75 duration: \(testResults.map { $0.duration }.percentile(probability: 0.75) ?? 0.0)")
-//            report.append("   - p90 duration: \(testResults.map { $0.duration }.percentile(probability: 0.90) ?? 0.0)")
-//            report.append("   - p99 duration: \(testResults.map { $0.duration }.percentile(probability: 0.99) ?? 0.0)")
-//            report.append("   - max duration: \(testResults.map { $0.duration }.max() ?? 0.0)")
-//        }
-
         return report.joined(separator: "\n")
     }
 }

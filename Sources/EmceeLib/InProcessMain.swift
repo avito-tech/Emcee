@@ -248,7 +248,6 @@ public final class InProcessMain {
                 try ToggleWorkersSharingCommand(di: di),
                 try BenchmarkCommand(di: di),
                 try InitArgFileCommand(di: di),
-                try ReformatPlistCommand(di: di),
                 VersionCommand(),
             ],
             helpCommandType: .generateAutomatically

@@ -24,13 +24,10 @@ public final class ConditionallyRepeatedBenchmark: Benchmark {
         var results = [BenchmarkResult]()
         
         while condition() {
-            contextualLogger.info("Running benchmark \(benchmarkToExecute.name) while condition allows to run it")
             results.append(
                 benchmarkToExecute.run(contextualLogger: contextualLogger)
             )
         }
-        
-        contextualLogger.info("Stopped running benchmark \(benchmarkToExecute.name) because condition disallowed to run it. Got \(results.count) results.")
         
         return MultipleBenchmarkResult(results: results)
     }

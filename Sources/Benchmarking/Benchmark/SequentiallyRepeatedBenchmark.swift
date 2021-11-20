@@ -20,8 +20,7 @@ public final class SequentiallyRepeatedBenchmark: Benchmark {
     public func run(contextualLogger: ContextualLogger) -> BenchmarkResult {
         var results = [BenchmarkResult]()
         
-        for index in 0..<repeatCount {
-            contextualLogger.info("[\(index + 1)/\(repeatCount)] Sequentially running benchmark: \(benchmarkToExecute.name)")
+        for _ in 0..<repeatCount {
             results.append(
                 benchmarkToExecute.run(contextualLogger: contextualLogger)
             )

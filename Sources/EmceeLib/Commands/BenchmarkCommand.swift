@@ -26,7 +26,6 @@ public final class BenchmarkCommand: Command {
         ArgumentDescriptions.numberOfSimulators.asRequired,
         ArgumentDescriptions.duration.asOptional,
         ArgumentDescriptions.sampleInterval.asOptional,
-        ArgumentDescriptions.output.asRequired,
     ]
     
     private let di: DI
@@ -55,16 +54,12 @@ public final class BenchmarkCommand: Command {
         let sampleInterval: Int = try payload.optionalSingleTypedValue(
             argumentName: ArgumentDescriptions.sampleInterval.name
         ) ?? 20
-        let output: AbsolutePath = try payload.expectedSingleTypedValue(
-            argumentName: ArgumentDescriptions.output.name
-        )
         
         try executeBenchmarks(
             testArgFile: testArgFile,
             numberOfSimulators: numberOfSimulators,
             duration: duration,
-            sampleInterval: sampleInterval,
-            output: output
+            sampleInterval: sampleInterval
         )
     }
     
@@ -72,8 +67,7 @@ public final class BenchmarkCommand: Command {
         testArgFile: TestArgFile,
         numberOfSimulators: UInt,
         duration: Int,
-        sampleInterval: Int,
-        output: AbsolutePath
+        sampleInterval: Int
     ) throws {
         let dateProvider: DateProvider = try di.get()
         let startDate = dateProvider.currentDate()
@@ -147,31 +141,36 @@ public final class BenchmarkCommand: Command {
 
         let metricsResult = mappedBenchmarkResult?.results["metrics"]
         if let csv = metricsResult?.toCsv() {
-            print("Metrics:")
-            print(
-                "timestamp",
-                "cpuLoad",
-                "numberOfRunningProcesses",
-                "numberOfOpenedFiles",
-                "freeMemory",
-                "usedMemory",
-                "swapSizeInMb",
-                "loadAverage1min",
-                "loadAverage5min",
-                "loadAverage15min",
-                "machFactor1min",
-                "machFactor5min",
-                "machFactor15min",
-                separator: ";"
+            logger.info("Metrics:")
+            logger.info(
+                [
+                    "timestamp",
+                    "cpuLoad",
+                    "numberOfRunningProcesses",
+                    "numberOfOpenedFiles",
+                    "freeMemory",
+                    "usedMemory",
+                    "swapSizeInMb",
+                    "loadAverage1min",
+                    "loadAverage5min",
+                    "loadAverage15min",
+                    "machFactor1min",
+                    "machFactor5min",
+                    "machFactor15min"
+                ].joined(separator: ";")
             )
-            print(csv)
+            for line in csv.split(separator: "\n") {
+                logger.info(String(line))
+            }
         }
 
         let testRunningBenchmarkResults = mappedBenchmarkResult?.results["testRunningBenchmark"]
         if let csv = testRunningBenchmarkResults?.toCsv() {
-            print("Test results:")
-            print("duration;success;testname")
-            print(csv)
+            logger.info("Test results:")
+            logger.info("duration;success;testname")
+            for line in csv.split(separator: "\n") {
+                logger.info(String(line))
+            }
         }
     }
     

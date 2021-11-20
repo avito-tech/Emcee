@@ -17,7 +17,6 @@ public final class SequentiallyPerformedBenchmarks: Benchmark {
     public func run(contextualLogger: ContextualLogger) -> BenchmarkResult {
         return MultipleBenchmarkResult(
             results: benchmarks.map { benchmark in
-                contextualLogger.info("Running benchmark sequentially: \(benchmark.name)")
                 return benchmark.run(contextualLogger: contextualLogger)
             }
         )

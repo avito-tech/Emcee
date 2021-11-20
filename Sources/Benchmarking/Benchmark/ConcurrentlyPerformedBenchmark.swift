@@ -26,7 +26,6 @@ public final class ConcurrentlyPerformedBenchmarks: Benchmark {
         
         for namedBenchmark in benchmarksToExecute {
             operationQueue.addOperation {
-                contextualLogger.info("Concurrently running benchmark: \(namedBenchmark.value.name)")
                 let result = namedBenchmark.value.run(contextualLogger: contextualLogger)
                 results.withExclusiveAccess {
                     $0[namedBenchmark.key] = result

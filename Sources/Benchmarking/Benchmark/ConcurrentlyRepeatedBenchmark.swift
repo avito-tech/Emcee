@@ -27,9 +27,8 @@ public final class ConcurrentlyRepeatedBenchmark: Benchmark {
         
         let results = AtomicValue<[BenchmarkResult]>([])
         
-        for index in 0..<repeatCount {
-            operationQueue.addOperation { [benchmarkToExecute, repeatCount] in
-                contextualLogger.info("[\(index + 1)/\(repeatCount)] Concurrently running benchmark: \(benchmarkToExecute.name)")
+        for _ in 0..<repeatCount {
+            operationQueue.addOperation { [benchmarkToExecute] in
                 let result = benchmarkToExecute.run(contextualLogger: contextualLogger)
                 results.withExclusiveAccess {
                     $0.append(result)
