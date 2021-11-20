@@ -51,7 +51,7 @@ public final class BenchmarkCommand: Command {
         )
         let duration: Int = try payload.optionalSingleTypedValue(
             argumentName: ArgumentDescriptions.duration.name
-        ) ?? 600
+        ) ?? 1200
         let sampleInterval: Int = try payload.optionalSingleTypedValue(
             argumentName: ArgumentDescriptions.sampleInterval.name
         ) ?? 20
