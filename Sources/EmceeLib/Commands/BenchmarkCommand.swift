@@ -147,13 +147,27 @@ public final class BenchmarkCommand: Command {
 
         let metricsResult = mappedBenchmarkResult?.results["metrics"]
         if let csv = metricsResult?.toCsv() {
-            print("Metrics CSV:")
+            print("Metrics:")
+            print(
+                "timestamp",
+                "cpuLoad",
+                "numberOfRunningProcesses",
+                "numberOfOpenedFiles",
+                "freeMemory",
+                "usedMemory",
+                "swapSizeInMb",
+                "loadAverage1min",
+                "loadAverage5min",
+                "loadAverage15min",
+                separator: ";"
+            )
             print(csv)
         }
 
         let testRunningBenchmarkResults = mappedBenchmarkResult?.results["testRunningBenchmark"]
         if let csv = testRunningBenchmarkResults?.toCsv() {
-            print("Test results CSV:")
+            print("Test results:")
+            print("duration;success;testname")
             print(csv)
         }
     }

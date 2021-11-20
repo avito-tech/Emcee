@@ -23,20 +23,18 @@ public final class MetricsBenchmark: Benchmark {
     public func run(contextualLogger: ContextualLogger) -> BenchmarkResult {
         var avg = [Double](repeating: 0, count: 3)
         getloadavg(&avg, 3)
-        return MappedBenchmarkResult(
-            results: [
-                "timestamp": timestampProvider.timestampSinceReferencePoint(),
-                "cpuLoad": cpuLoad(),
-                "numberOfRunningProcesses": numberOfRunningProcesses(),
-                "numberOfOpenedFiles": numberOfOpenedFiles(),
-                "freeMemory": freeMemory(),
-                "usedMemory": usedMemory(),
-                "swapSizeInMb": swapSizeInMb(),
-                "loadAverage1min": avg[0],
-                "loadAverage5min": avg[1],
-                "loadAverage15min": avg[2],
-            ]
-        )
+        return [
+            timestampProvider.timestampSinceReferencePoint(),
+            cpuLoad(),
+            numberOfRunningProcesses(),
+            numberOfOpenedFiles(),
+            freeMemory(),
+            usedMemory(),
+            swapSizeInMb(),
+            avg[0],
+            avg[1],
+            avg[2],
+        ].map { "\($0)" }.joined(separator: ";")
     }
     
     private func cpuLoad() -> BenchmarkResult {

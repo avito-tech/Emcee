@@ -176,36 +176,66 @@ public struct RunTestBenchmarkResult: BenchmarkResult {
             }
         }
 
-        return MultipleBenchmarkResult(
-            results: results.map {
-                MappedBenchmarkResult(
-                    results: [
-                        "testName": $0.testName,
-                        "success": $0.success,
-                        "duration": $0.duration,
-                    ]
-                )
-            }
-        ).toCsv()
+        var report = [String]()
+
+        report.append(
+            MultipleBenchmarkResult(
+                results: results.map {
+                    MappedBenchmarkResult(
+                        results: [
+                            "testName": $0.testName,
+                            "success": $0.success,
+                            "duration": $0.duration,
+                        ]
+                    )
+                }
+            ).toCsv()
+        )
+
+//        var testRunsByTestName = MapWithCollection<String, _TestRunResult>()
+//        for testRun in results {
+//            print("Appending to \(testRun.testName)... has \(testRunsByTestName[testRun.testName].count) points")
+//            testRunsByTestName.append(key: testRun.testName, element: testRun)
+//        }
+//
+//        print(testRunsByTestName.asDictionary)
+//
+//        for keyValue in testRunsByTestName.asDictionary {
+//            let testName = keyValue.key
+//            let testResults = keyValue.value
+//
+//            report.append("Test run stats for \(testName):")
+//            report.append("   - \(testResults.count) total runs")
+//            report.append("   - \(testResults.filter { $0.success }.count) successes")
+//            report.append("   - \(testResults.filter { !$0.success }.count) failures")
+//            report.append("   - min duration: \(testResults.map { $0.duration }.min() ?? 0.0)")
+//            report.append("   - p50 duration: \(testResults.map { $0.duration }.percentile(probability: 0.50) ?? 0.0)")
+//            report.append("   - p75 duration: \(testResults.map { $0.duration }.percentile(probability: 0.75) ?? 0.0)")
+//            report.append("   - p90 duration: \(testResults.map { $0.duration }.percentile(probability: 0.90) ?? 0.0)")
+//            report.append("   - p99 duration: \(testResults.map { $0.duration }.percentile(probability: 0.99) ?? 0.0)")
+//            report.append("   - max duration: \(testResults.map { $0.duration }.max() ?? 0.0)")
+//        }
+
+        return report.joined(separator: "\n")
     }
 }
 
 
 private extension Array where Element == Double {
     func percentile(probability: Double) -> Double? {
-      if probability < 0 || probability > 1 { return nil }
-      let data = self.sorted(by: <)
-      let count = Double(data.count)
-      let m = 1.0 - probability
-      let k = Int((probability * count) + m)
-      let probability = (probability * count) + m - Double(k)
-      return qDef(data, k: k, probability: probability)
+        if probability < 0 || probability > 1 { return nil }
+        let data = self.sorted(by: <)
+        let count = Double(data.count)
+        let m = 1.0 - probability
+        let k = Int((probability * count) + m)
+        let probability = (probability * count) + m - Double(k)
+        return qDef(data, k: k, probability: probability)
     }
 
     private func qDef(_ data: [Double], k: Int, probability: Double) -> Double? {
-      if data.isEmpty { return nil }
-      if k < 1 { return data[0] }
-      if k >= data.count { return data.last }
-      return ((1.0 - probability) * data[k - 1]) + (probability * data[k])
+        if data.isEmpty { return nil }
+        if k < 1 { return data[0] }
+        if k >= data.count { return data.last }
+        return ((1.0 - probability) * data[k - 1]) + (probability * data[k])
     }
 }
