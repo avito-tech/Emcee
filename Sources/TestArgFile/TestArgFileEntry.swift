@@ -21,7 +21,6 @@ public struct TestArgFileEntry: Codable, Equatable {
     public let testDestination: TestDestination
     public let testRunnerTool: TestRunnerTool
     public let testTimeoutConfiguration: TestTimeoutConfiguration
-    public let testType: TestType
     public let testsToRun: [TestToRun]
     public let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
     
@@ -38,7 +37,6 @@ public struct TestArgFileEntry: Codable, Equatable {
         testDestination: TestDestination,
         testRunnerTool: TestRunnerTool,
         testTimeoutConfiguration: TestTimeoutConfiguration,
-        testType: TestType,
         testsToRun: [TestToRun],
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
     ) {
@@ -54,7 +52,6 @@ public struct TestArgFileEntry: Codable, Equatable {
         self.testDestination = testDestination
         self.testRunnerTool = testRunnerTool
         self.testTimeoutConfiguration = testTimeoutConfiguration
-        self.testType = testType
         self.testsToRun = testsToRun
         self.workerCapabilityRequirements = workerCapabilityRequirements
     }
@@ -64,7 +61,6 @@ public struct TestArgFileEntry: Codable, Equatable {
 
         let buildArtifacts = try container.decode(BuildArtifacts.self, forKey: .buildArtifacts)
         let testDestination = try container.decode(TestDestination.self, forKey: .testDestination)
-        let testType = try container.decode(TestType.self, forKey: .testType)
         let testsToRun = try container.decode([TestToRun].self, forKey: .testsToRun)
         
         let developerDir = try container.decodeIfPresent(DeveloperDir.self, forKey: .developerDir) ??
@@ -104,7 +100,6 @@ public struct TestArgFileEntry: Codable, Equatable {
             testDestination: testDestination,
             testRunnerTool: testRunnerTool,
             testTimeoutConfiguration: testTimeoutConfiguration,
-            testType: testType,
             testsToRun: testsToRun,
             workerCapabilityRequirements: workerCapabilityRequirements
         )

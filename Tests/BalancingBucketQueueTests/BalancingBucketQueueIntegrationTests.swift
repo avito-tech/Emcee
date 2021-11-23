@@ -47,7 +47,7 @@ final class BalancingBucketQueueIntegrationTests: XCTestCase {
                 queueState: QueueState.running(
                     RunningQueueState(
                         enqueuedBucketCount: 1,
-                        enqueuedTests: bucket.runTestsBucketPayload.testEntries.map { $0.testName },
+                        enqueuedTests: bucket.payload.testEntries.map { $0.testName },
                         dequeuedBucketCount: 0,
                         dequeuedTests: [:]
                     )
@@ -68,7 +68,7 @@ final class BalancingBucketQueueIntegrationTests: XCTestCase {
                 queueState: QueueState.running(
                     RunningQueueState(
                         enqueuedBucketCount: 2,
-                        enqueuedTests: bucket.runTestsBucketPayload.testEntries.map { $0.testName } + bucket.runTestsBucketPayload.testEntries.map { $0.testName },
+                        enqueuedTests: bucket.payload.testEntries.map { $0.testName } + bucket.payload.testEntries.map { $0.testName },
                         dequeuedBucketCount: 0,
                         dequeuedTests: [:]
                     )
@@ -174,7 +174,7 @@ final class BalancingBucketQueueIntegrationTests: XCTestCase {
                         enqueuedBucketCount: 0,
                         enqueuedTests: [],
                         dequeuedBucketCount: 1,
-                        dequeuedTests: [workerId: bucket1.runTestsBucketPayload.testEntries.map { $0.testName }]
+                        dequeuedTests: [workerId: bucket1.payload.testEntries.map { $0.testName }]
                     )
                 )
             )
@@ -202,7 +202,7 @@ final class BalancingBucketQueueIntegrationTests: XCTestCase {
                         enqueuedBucketCount: 0,
                         enqueuedTests: [],
                         dequeuedBucketCount: 1,
-                        dequeuedTests: [workerId: bucket2.runTestsBucketPayload.testEntries.map { $0.testName }]
+                        dequeuedTests: [workerId: bucket2.payload.testEntries.map { $0.testName }]
                     )
                 )
             )
@@ -322,7 +322,7 @@ final class BalancingBucketQueueIntegrationTests: XCTestCase {
         
         let expectedTestingResult = TestingResultFixtures(
             testEntry: testEntry,
-            manuallyTestDestination: bucket.runTestsBucketPayload.testDestination,
+            manuallyTestDestination: bucket.payload.testDestination,
             unfilteredResults: [
                 TestEntryResult.withResult(
                     testEntry: testEntry,
@@ -353,7 +353,7 @@ final class BalancingBucketQueueIntegrationTests: XCTestCase {
         
         let expectedTestingResult = TestingResultFixtures(
             testEntry: testEntry,
-            manuallyTestDestination: bucket.runTestsBucketPayload.testDestination,
+            manuallyTestDestination: bucket.payload.testDestination,
             unfilteredResults: [
                 TestEntryResult.withResult(
                     testEntry: testEntry,

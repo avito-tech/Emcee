@@ -29,7 +29,6 @@ final class TestArgFileValidatorTests: XCTestCase {
                     testDestination: TestDestinationFixtures.testDestination,
                     testRunnerTool: .xcodebuild,
                     testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
-                    testType: .appTest,
                     testsToRun: [],
                     workerCapabilityRequirements: []
                 )
@@ -57,91 +56,6 @@ final class TestArgFileValidatorTests: XCTestCase {
                     testDestination: TestDestinationFixtures.testDestination,
                     testRunnerTool: .xcodebuild,
                     testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
-                    testType: .appTest,
-                    testsToRun: [],
-                    workerCapabilityRequirements: []
-                )
-            ]
-        )
-        
-        assertThrows {
-            try TestArgFileValidator().validate(testArgFile: testArgFile)
-        }
-    }
-    
-    func test___appTest_should_require_appBundle_presense() {
-        let testArgFile = createTestArgFile(
-            entries: [
-                TestArgFileEntry(
-                    buildArtifacts: BuildArtifactsFixtures.withLocalPaths(appBundle: nil, runner: nil, xcTestBundle: "", additionalApplicationBundles: []),
-                    developerDir: .current,
-                    environment: [:],
-                    numberOfRetries: 0,
-                    pluginLocations: [],
-                    scheduleStrategy: unsplitScheduleStrategy,
-                    simulatorControlTool: SimulatorControlTool(location: .insideUserLibrary, tool: .simctl),
-                    simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
-                    simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-                    testDestination: TestDestinationFixtures.testDestination,
-                    testRunnerTool: .xcodebuild,
-                    testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
-                    testType: .appTest,
-                    testsToRun: [],
-                    workerCapabilityRequirements: []
-                )
-            ]
-        )
-        
-        assertThrows {
-            try TestArgFileValidator().validate(testArgFile: testArgFile)
-        }
-    }
-    
-    func test___uiTest_should_require_appBundle_presense() {
-        let testArgFile = createTestArgFile(
-            entries: [
-                TestArgFileEntry(
-                    buildArtifacts: BuildArtifactsFixtures.withLocalPaths(appBundle: nil, runner: nil, xcTestBundle: "", additionalApplicationBundles: []),
-                    developerDir: .current,
-                    environment: [:],
-                    numberOfRetries: 0,
-                    pluginLocations: [],
-                    scheduleStrategy: unsplitScheduleStrategy,
-                    simulatorControlTool: SimulatorControlTool(location: .insideUserLibrary, tool: .simctl),
-                    simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
-                    simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-                    testDestination: TestDestinationFixtures.testDestination,
-                    testRunnerTool: .xcodebuild,
-                    testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
-                    testType: .uiTest,
-                    testsToRun: [],
-                    workerCapabilityRequirements: []
-                )
-            ]
-        )
-        
-        assertThrows {
-            try TestArgFileValidator().validate(testArgFile: testArgFile)
-        }
-    }
-    
-    func test___uiTest_should_require_runner_presense() {
-        let testArgFile = createTestArgFile(
-            entries: [
-                TestArgFileEntry(
-                    buildArtifacts: BuildArtifactsFixtures.withLocalPaths(appBundle: "", runner: nil, xcTestBundle: "", additionalApplicationBundles: []),
-                    developerDir: .current,
-                    environment: [:],
-                    numberOfRetries: 0,
-                    pluginLocations: [],
-                    scheduleStrategy: unsplitScheduleStrategy,
-                    simulatorControlTool: SimulatorControlTool(location: .insideUserLibrary, tool: .simctl),
-                    simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
-                    simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-                    testDestination: TestDestinationFixtures.testDestination,
-                    testRunnerTool: .xcodebuild,
-                    testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
-                    testType: .uiTest,
                     testsToRun: [],
                     workerCapabilityRequirements: []
                 )

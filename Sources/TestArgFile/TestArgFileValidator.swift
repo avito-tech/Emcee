@@ -40,7 +40,6 @@ public final class TestArgFileValidator {
     }
     
     private func validate(entry: TestArgFileEntry) throws {
-        try validate(buildArtifacts: entry.buildArtifacts, testType: entry.testType)
         try validate(simulatorControlTool: entry.simulatorControlTool, testRunnerTool: entry.testRunnerTool)
     }
     
@@ -61,34 +60,6 @@ public final class TestArgFileValidator {
             throw SimulatorToolAndTestRunnerToolMisconfiguration.xcodebuildAndSimulatorLocationIncompatibility(simulatorLocation: simulatorControlTool.location)
         default:
             return
-        }
-    }
-    
-    private func validate(buildArtifacts: BuildArtifacts, testType: TestType) throws {
-        enum BuildArtifactsValidationError: Error, CustomStringConvertible {
-            case missingBuildArtifact(TestType, kind: String)
-            var description: String {
-                switch self {
-                case .missingBuildArtifact(let testType, let kind):
-                    return "Test type \(testType.rawValue) requires \(kind) to be provided"
-                }
-            }
-        }
-        
-        switch testType {
-        case .logicTest:
-            break
-        case .appTest:
-            if buildArtifacts.appBundle == nil {
-                throw BuildArtifactsValidationError.missingBuildArtifact(testType, kind: "appBundle")
-            }
-        case .uiTest:
-            if buildArtifacts.appBundle == nil {
-                throw BuildArtifactsValidationError.missingBuildArtifact(testType, kind: "appBundle")
-            }
-            if buildArtifacts.runner == nil {
-                throw BuildArtifactsValidationError.missingBuildArtifact(testType, kind: "runner (XCTRunner.app)")
-            }
         }
     }
 }

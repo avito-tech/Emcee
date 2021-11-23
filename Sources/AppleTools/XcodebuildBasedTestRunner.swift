@@ -45,8 +45,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         runnerWasteCollector: RunnerWasteCollector,
         simulator: Simulator,
         testContext: TestContext,
-        testRunnerStream: TestRunnerStream,
-        testType: TestType
+        testRunnerStream: TestRunnerStream
     ) throws -> TestRunnerInvocation {
         let resultStreamFile = testContext.testRunnerWorkingDirectory.appending(component: "result_stream.json")
         try fileSystem.createFile(atPath: resultStreamFile, data: nil)
@@ -61,7 +60,6 @@ public final class XcodebuildBasedTestRunner: TestRunner {
             path: testContext.testRunnerWorkingDirectory.appending(component: "testrun.xctestrun"),
             resourceLocationResolver: resourceLocationResolver,
             testContext: testContext,
-            testType: testType,
             testingEnvironment: XcTestRunTestingEnvironment(insertedLibraries: [])
         )
         

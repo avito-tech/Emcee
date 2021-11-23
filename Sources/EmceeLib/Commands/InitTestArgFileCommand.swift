@@ -38,7 +38,16 @@ public final class InitTestArgFileCommand: Command {
         let testArgFile = TestArgFile(
             entries: [
                 TestArgFileEntry(
-                    buildArtifacts: BuildArtifacts(
+                    buildArtifacts: BuildArtifacts.iosUiTests(
+                        xcTestBundle: XcTestBundle(
+                            location: TestBundleLocation(
+                                .remoteUrl(
+                                    URL(string: "http://storage.example.com/build1234/FunctionalTests.zip#FunctionalTests.xctest")!,
+                                    nil
+                                )
+                            ),
+                            testDiscoveryMode: .parseFunctionSymbols
+                        ),
                         appBundle: AppBundleLocation(
                             .remoteUrl(
                                 URL(string: "http://storage.example.com/build1234/MainApp.zip#MainApp.app")!,
@@ -53,15 +62,6 @@ public final class InitTestArgFileCommand: Command {
                                 URL(string: "http://storage.example.com/build1234/FunctionalTests-Runner.zip#FunctionalTests-Runner.app")!,
                                 nil
                             )
-                        ),
-                        xcTestBundle: XcTestBundle(
-                            location: TestBundleLocation(
-                                .remoteUrl(
-                                    URL(string: "http://storage.example.com/build1234/FunctionalTests.zip#FunctionalTests.xctest")!,
-                                    nil
-                                )
-                            ),
-                            testDiscoveryMode: .parseFunctionSymbols
                         ),
                         additionalApplicationBundles: [
                             AdditionalAppBundleLocation(
@@ -106,7 +106,6 @@ public final class InitTestArgFileCommand: Command {
                     testDestination: testDestination,
                     testRunnerTool: TestArgFileDefaultValues.testRunnerTool,
                     testTimeoutConfiguration: TestArgFileDefaultValues.testTimeoutConfiguration,
-                    testType: .uiTest,
                     testsToRun: [
                         .testName(TestName(className: "ClassName", methodName: "test")),
                         .testName(TestName(className: "ClassName", methodName: "testSpecificTestMethodName__youCanRepeatTestNamesMultipleTimes__toMakeTestRunSeveralTimes")),

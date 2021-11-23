@@ -19,13 +19,13 @@ public final class SingleBucketQueueRunningQueueStateProvider: RunningQueueState
         for dequeuedBucket in dequeuedBuckets {
             dequeuedTests.append(
                 key: dequeuedBucket.workerId,
-                elements: dequeuedBucket.enqueuedBucket.bucket.runTestsBucketPayload.testEntries.map { $0.testName }
+                elements: dequeuedBucket.enqueuedBucket.bucket.payload.testEntries.map { $0.testName }
             )
         }
         
         return RunningQueueState(
             enqueuedBucketCount: enqueuedBuckets.count,
-            enqueuedTests: enqueuedBuckets.flatMap { $0.bucket.runTestsBucketPayload.testEntries.map { $0.testName } },
+            enqueuedTests: enqueuedBuckets.flatMap { $0.bucket.payload.testEntries.map { $0.testName } },
             dequeuedBucketCount: dequeuedBuckets.count,
             dequeuedTests: dequeuedTests
         )

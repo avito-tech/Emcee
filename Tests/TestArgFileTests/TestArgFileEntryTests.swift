@@ -30,7 +30,6 @@ final class TestArgFileEntryTests: XCTestCase {
                     "deviceType": "iPhone SE",
                     "runtime": "11.3"
                 },
-                "testType": "logicTest",
                 "buildArtifacts": {
                     "appBundle": {
                         "url": "/appBundle"
@@ -130,7 +129,7 @@ final class TestArgFileEntryTests: XCTestCase {
                 pluginLocations: [
                     PluginLocation(.remoteUrl(URL(string: "http://example.com/plugin.zip#sample.emceeplugin")!, [:]))
                 ],
-                scheduleStrategy: unsplitScheduleStrategy,
+                scheduleStrategy: ScheduleStrategy(testSplitterType: .unsplit),
                 simulatorControlTool: SimulatorControlTool(
                     location: .insideUserLibrary,
                     tool: .simctl
@@ -159,7 +158,6 @@ final class TestArgFileEntryTests: XCTestCase {
                     singleTestMaximumDuration: 42,
                     testRunnerMaximumSilenceDuration: 24
                 ),
-                testType: .logicTest,
                 testsToRun: [.testName(TestName(className: "ClassName", methodName: "testMethod"))],
                 workerCapabilityRequirements: []
             )
@@ -182,7 +180,6 @@ final class TestArgFileEntryTests: XCTestCase {
                     "deviceType": "iPhone SE",
                     "runtime": "11.3"
                 },
-                "testType": "logicTest",
                 "buildArtifacts": {
                     "appBundle": {
                         "url": "/appBundle"
@@ -226,7 +223,6 @@ final class TestArgFileEntryTests: XCTestCase {
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testRunnerTool: TestArgFileDefaultValues.testRunnerTool,
                 testTimeoutConfiguration: TestArgFileDefaultValues.testTimeoutConfiguration,
-                testType: .logicTest,
                 testsToRun: [
                     .allDiscoveredTests,
                     .testName(TestName(className: "ClassName", methodName: "testMethod")),
@@ -237,21 +233,19 @@ final class TestArgFileEntryTests: XCTestCase {
         )
     }
     
-    private func buildArtifacts(
-        appBundle: String? = "/appBundle",
-        runner: String? = "/runner",
-        additionalApplicationBundles: [String] = ["/additionalApp1", "/additionalApp2"],
-        testDiscoveryMode: XcTestBundleTestDiscoveryMode = .runtimeAppTest
-    ) -> BuildArtifacts {
-        return BuildArtifactsFixtures.withLocalPaths(
-            appBundle: appBundle,
-            runner: runner,
-            xcTestBundle: "/xcTestBundle",
-            additionalApplicationBundles: additionalApplicationBundles,
-            testDiscoveryMode: testDiscoveryMode
+    private func buildArtifacts() -> BuildArtifacts {
+        .iosUiTests(
+            xcTestBundle: XcTestBundle(
+                location: TestBundleLocation(.localFilePath("/xcTestBundle")),
+                testDiscoveryMode: .runtimeAppTest
+            ),
+            appBundle: AppBundleLocation(.localFilePath("/appBundle")),
+            runner: RunnerAppLocation(.localFilePath("/runner")),
+            additionalApplicationBundles: [
+                AdditionalAppBundleLocation(.localFilePath("/additionalApp1")),
+                AdditionalAppBundleLocation(.localFilePath("/additionalApp2")),
+            ]
         )
     }
-    
-    private lazy var unsplitScheduleStrategy = ScheduleStrategy(testSplitterType: .unsplit)
 }
 

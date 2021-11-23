@@ -43,7 +43,7 @@ final class PipelinedTestDiscovererTests: XCTestCase {
         ]
         
         var buildArtifacts = urls.map {
-            BuildArtifactsFixtures.with(
+            BuildArtifacts.iosLogicTests(
                 xcTestBundle: XcTestBundle(
                     location: TestBundleLocation(.remoteUrl($0, [:])),
                     testDiscoveryMode: .parseFunctionSymbols
@@ -55,12 +55,12 @@ final class PipelinedTestDiscovererTests: XCTestCase {
         let testBundleUrl = URL(string: "http://example.com/testBundle")!
         
         buildArtifacts.append(
-            BuildArtifactsFixtures.with(
-                appBundle: .remoteUrl(appBundleUrl, [:]),
+            BuildArtifacts.iosApplicationTests(
                 xcTestBundle: XcTestBundle(
                     location: TestBundleLocation(.remoteUrl(testBundleUrl, [:])),
                     testDiscoveryMode: .runtimeAppTest
-                )
+                ),
+                appBundle: AppBundleLocation(.remoteUrl(appBundleUrl, [:]))
             )
         )
         
@@ -83,26 +83,6 @@ final class PipelinedTestDiscovererTests: XCTestCase {
         )
     }
     
-    func test___throws_error___when_required_artifact_is_missing() throws {
-        let testBundleUrl = URL(string: "http://example.com/testBundle")!
-        
-        let buildArtifacts = BuildArtifactsFixtures.with(
-            appBundle: nil,                           // app bundle is nil
-            xcTestBundle: XcTestBundle(
-                location: TestBundleLocation(.remoteUrl(testBundleUrl, [:])),
-                testDiscoveryMode: .runtimeAppTest    // requires app bundle, but it is nil
-            )
-        )
-
-        assertThrows {
-            _ = try discoverer.performTestDiscovery(
-                logger: .noOp,
-                testArgFile: TestArgFile.create(buildArtifacts: [buildArtifacts]),
-                remoteCacheConfig: nil
-            )
-        }
-    }
-    
     func test___returns_index_based_results() throws {
         let urls = [
             URL(string: "http://example.com/url1")!,
@@ -110,7 +90,7 @@ final class PipelinedTestDiscovererTests: XCTestCase {
         ]
         
         let buildArtifacts = urls.map {
-            BuildArtifactsFixtures.with(
+            BuildArtifacts.iosLogicTests(
                 xcTestBundle: XcTestBundle(
                     location: TestBundleLocation(.remoteUrl($0, [:])),
                     testDiscoveryMode: .parseFunctionSymbols
@@ -197,7 +177,6 @@ extension TestArgFile {
                     testDestination: TestDestinationFixtures.testDestination,
                     testRunnerTool: TestArgFileDefaultValues.testRunnerTool,
                     testTimeoutConfiguration: TestArgFileDefaultValues.testTimeoutConfiguration,
-                    testType: .appTest,
                     testsToRun: [],
                     workerCapabilityRequirements: []
                 )

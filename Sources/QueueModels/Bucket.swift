@@ -11,24 +11,24 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible {
     public let analyticsConfiguration: AnalyticsConfiguration
     public let pluginLocations: Set<PluginLocation>
     public let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
-    public private(set) var runTestsBucketPayload: RunTestsBucketPayload
+    public private(set) var payload: Payload
 
     private init(
         bucketId: BucketId,
         analyticsConfiguration: AnalyticsConfiguration,
         pluginLocations: Set<PluginLocation>,
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement>,
-        runTestsBucketPayload: RunTestsBucketPayload
+        payload: Payload
     ) {
         self.bucketId = bucketId
         self.analyticsConfiguration = analyticsConfiguration
         self.pluginLocations = pluginLocations
         self.workerCapabilityRequirements = workerCapabilityRequirements
-        self.runTestsBucketPayload = runTestsBucketPayload
+        self.payload = payload
     }
     
     public var description: String {
-        return "<\((type(of: self))) \(bucketId) payload: \(runTestsBucketPayload)>"
+        return "<\((type(of: self))) \(bucketId) payload: \(payload)>"
     }
 
     /// Explicit method to make it clear that you usually should not create new bucket directly.
@@ -37,14 +37,14 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible {
         analyticsConfiguration: AnalyticsConfiguration,
         pluginLocations: Set<PluginLocation>,
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement>,
-        runTestsBucketPayload: RunTestsBucketPayload
+        payload: Payload
     ) -> Bucket {
         return Bucket(
             bucketId: bucketId,
             analyticsConfiguration: analyticsConfiguration,
             pluginLocations: pluginLocations,
             workerCapabilityRequirements: workerCapabilityRequirements,
-            runTestsBucketPayload: runTestsBucketPayload
+            payload: payload
         )
     }
 
@@ -68,10 +68,10 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible {
     /// This method will throw error if previous bucket id matches new bucket id.
     public func with(
         newBucketId: BucketId,
-        newRunTestsBucketPayload: RunTestsBucketPayload
+        newPayload: Payload
     ) throws -> Bucket {
         var bucket = try with(newBucketId: newBucketId)
-        bucket.runTestsBucketPayload = newRunTestsBucketPayload
+        bucket.payload = newPayload
         return bucket
     }
 }

@@ -20,7 +20,7 @@ public final class BucketFixtures {
             analyticsConfiguration: AnalyticsConfiguration(),
             pluginLocations: [],
             workerCapabilityRequirements: workerCapabilityRequirements,
-            runTestsBucketPayload: RunTestsBucketPayload(
+            payload: Payload(
                 buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
                 developerDir: .current,
                 simulatorControlTool: SimulatorControlToolFixtures.simctlTool,
@@ -28,10 +28,15 @@ public final class BucketFixtures {
                 simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
                 testDestination: TestDestinationFixtures.testDestination,
                 testEntries: testEntries,
-                testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: numberOfRetries),
+                testExecutionBehavior: TestExecutionBehavior(
+                    environment: [:],
+                    numberOfRetries: numberOfRetries
+                ),
                 testRunnerTool: .xcodebuild,
-                testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
-                testType: TestType.uiTest
+                testTimeoutConfiguration: TestTimeoutConfiguration(
+                    singleTestMaximumDuration: 0,
+                    testRunnerMaximumSilenceDuration: 0
+                )
             )
         )
     }

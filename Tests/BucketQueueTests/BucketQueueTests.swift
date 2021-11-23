@@ -62,7 +62,7 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            testDestination: bucket.runTestsBucketPayload.testDestination,
+            testDestination: bucket.payload.testDestination,
             unfilteredResults: []
         )
         assertDoesNotThrow {
@@ -140,7 +140,7 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            testDestination: bucket.runTestsBucketPayload.testDestination,
+            testDestination: bucket.payload.testDestination,
             unfilteredResults: [TestEntryResult.lost(testEntry: testEntry)]
         )
         assertDoesNotThrow {
@@ -162,7 +162,7 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            testDestination: bucket.runTestsBucketPayload.testDestination,
+            testDestination: bucket.payload.testDestination,
             unfilteredResults: [ /* empty - misses testEntry */ ]
         )
         assertThrows {
@@ -184,7 +184,7 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            testDestination: bucket.runTestsBucketPayload.testDestination,
+            testDestination: bucket.payload.testDestination,
             unfilteredResults: [ /* empty - misses testEntry */ ]
         )
         assertThrows {
@@ -285,7 +285,7 @@ final class BucketQueueTests: XCTestCase {
         
         XCTAssertEqual(
             bucketQueue.runningQueueState.enqueuedTests,
-            bucket.runTestsBucketPayload.testEntries.map { $0.testName } + bucket.runTestsBucketPayload.testEntries.map { $0.testName },
+            bucket.payload.testEntries.map { $0.testName } + bucket.payload.testEntries.map { $0.testName },
             "Enqueuing the same bucket multiple times should be reflected in the queue state"
         )
     }
@@ -310,7 +310,7 @@ final class BucketQueueTests: XCTestCase {
         )
         XCTAssertEqual(
             bucketQueue.runningQueueState.enqueuedTests,
-            bucket.runTestsBucketPayload.testEntries.map { $0.testName },
+            bucket.payload.testEntries.map { $0.testName },
             "Dequeueing one of the similar buckets should correctly update queue state"
         )
     }

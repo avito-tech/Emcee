@@ -10,7 +10,6 @@ public struct RunnerConfiguration {
     public let simulatorSettings: SimulatorSettings
     public let testRunnerTool: TestRunnerTool
     public let testTimeoutConfiguration: TestTimeoutConfiguration
-    public let testType: TestType
     
     public init(
         buildArtifacts: BuildArtifacts,
@@ -18,8 +17,7 @@ public struct RunnerConfiguration {
         pluginLocations: Set<PluginLocation>,
         simulatorSettings: SimulatorSettings,
         testRunnerTool: TestRunnerTool,
-        testTimeoutConfiguration: TestTimeoutConfiguration,
-        testType: TestType
+        testTimeoutConfiguration: TestTimeoutConfiguration
     ) {
         self.buildArtifacts = buildArtifacts
         self.environment = environment
@@ -27,6 +25,5 @@ public struct RunnerConfiguration {
         self.simulatorSettings = simulatorSettings
         self.testRunnerTool = testRunnerTool
         self.testTimeoutConfiguration = testTimeoutConfiguration
-        self.testType = testType
     }
 }

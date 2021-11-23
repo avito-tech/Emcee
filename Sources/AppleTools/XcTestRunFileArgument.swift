@@ -14,7 +14,6 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
     private let path: AbsolutePath
     private let resourceLocationResolver: ResourceLocationResolver
     private let testContext: TestContext
-    private let testType: TestType
     private let testingEnvironment: XcTestRunTestingEnvironment
     
     public enum XcTestRunFileArgumentError: CustomStringConvertible, Error {
@@ -34,7 +33,6 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
         path: AbsolutePath,
         resourceLocationResolver: ResourceLocationResolver,
         testContext: TestContext,
-        testType: TestType,
         testingEnvironment: XcTestRunTestingEnvironment
     ) {
         self.buildArtifacts = buildArtifacts
@@ -42,12 +40,11 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
         self.path = path
         self.resourceLocationResolver = resourceLocationResolver
         self.testContext = testContext
-        self.testType = testType
         self.testingEnvironment = testingEnvironment
     }
     
     public var description: String {
-        "<\(type(of: self)) tests: \(entriesToRun.map { $0.testName }), testType \(testType), environment \(testContext.environment), path: \(path)>"
+        "<\(type(of: self)) tests: \(entriesToRun.map { $0.testName }), environment \(testContext.environment), path: \(path)>"
     }
 
     public func stringValue() throws -> String {
@@ -61,20 +58,22 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
     }
 
     private func createXcTestRun() throws -> XcTestRun {
-        let resolvableXcTestBundle = resourceLocationResolver.resolvable(withRepresentable: buildArtifacts.xcTestBundle.location)
-        
-        switch testType {
-        case .uiTest:
-            return try xcTestRunForUiTesting(
-                resolvableXcTestBundle: resolvableXcTestBundle
-            )
-        case .logicTest:
+        switch buildArtifacts {
+        case .iosLogicTests(let xcTestBundle):
             return try xcTestRunForLogicTesting(
-                resolvableXcTestBundle: resolvableXcTestBundle
+                resolvableXcTestBundle: resourceLocationResolver.resolvable(withRepresentable: xcTestBundle.location)
             )
-        case .appTest:
+        case .iosApplicationTests(let xcTestBundle, let appBundle):
             return try xcTestRunForApplicationTesting(
-                resolvableXcTestBundle: resolvableXcTestBundle
+                resolvableXcTestBundle: resourceLocationResolver.resolvable(withRepresentable: xcTestBundle.location),
+                resolvableAppBundle: resourceLocationResolver.resolvable(withRepresentable: appBundle)
+            )
+        case .iosUiTests(let xcTestBundle, let appBundle, let runner, let additionalApps):
+            return try xcTestRunForUiTesting(
+                resolvableXcTestBundle: resourceLocationResolver.resolvable(withRepresentable: xcTestBundle.location),
+                resolvableAppBundle: resourceLocationResolver.resolvable(withRepresentable: appBundle),
+                resolvableRunnerBundle: resourceLocationResolver.resolvable(withRepresentable: runner),
+                resolvableAdditionalAppBundles: additionalApps.map { resourceLocationResolver.resolvable(withRepresentable: $0) }
             )
         }
     }
@@ -125,12 +124,10 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
     }
 
     private func xcTestRunForApplicationTesting(
-        resolvableXcTestBundle: ResolvableResourceLocation
+        resolvableXcTestBundle: ResolvableResourceLocation,
+        resolvableAppBundle: ResolvableResourceLocation
     ) throws -> XcTestRun {
-        guard let representableAppBundle = buildArtifacts.appBundle else {
-            throw RunnerError.noAppBundleDefinedForUiOrApplicationTesting
-        }
-        let hostAppPath = try resourceLocationResolver.resolvable(resourceLocation: representableAppBundle.resourceLocation).resolve().directlyAccessibleResourcePath()
+        let hostAppPath = try resourceLocationResolver.resolvable(resourceLocation: resolvableAppBundle.resourceLocation).resolve().directlyAccessibleResourcePath()
         let testBundlePath = try resolvableXcTestBundle.resolve().directlyAccessibleResourcePath()
         let testTargetProductModuleName = try self.testTargetProductModuleName(
             xcTestBundlePath: testBundlePath
@@ -178,19 +175,15 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
     }
 
     private func xcTestRunForUiTesting(
-        resolvableXcTestBundle: ResolvableResourceLocation
+        resolvableXcTestBundle: ResolvableResourceLocation,
+        resolvableAppBundle: ResolvableResourceLocation,
+        resolvableRunnerBundle: ResolvableResourceLocation,
+        resolvableAdditionalAppBundles: [ResolvableResourceLocation]
     ) throws -> XcTestRun {
-        guard let representableAppBundle = buildArtifacts.appBundle else {
-            throw RunnerError.noAppBundleDefinedForUiOrApplicationTesting
-        }
-        guard let representableRunnerBundle = buildArtifacts.runner else {
-            throw RunnerError.noRunnerAppDefinedForUiTesting
-        }
-        
-        let uiTargetAppPath = try resourceLocationResolver.resolvable(resourceLocation: representableAppBundle.resourceLocation).resolve().directlyAccessibleResourcePath()
-        let hostAppPath = try resourceLocationResolver.resolvable(resourceLocation: representableRunnerBundle.resourceLocation).resolve().directlyAccessibleResourcePath()
+        let uiTargetAppPath = try resourceLocationResolver.resolvable(resourceLocation: resolvableAppBundle.resourceLocation).resolve().directlyAccessibleResourcePath()
+        let hostAppPath = try resourceLocationResolver.resolvable(resourceLocation: resolvableRunnerBundle.resourceLocation).resolve().directlyAccessibleResourcePath()
         let testBundlePath = try resolvableXcTestBundle.resolve().directlyAccessibleResourcePath()
-        let additionalApplicationBundlePaths: [AbsolutePath] = try buildArtifacts.additionalApplicationBundles.map {
+        let additionalApplicationBundlePaths: [AbsolutePath] = try resolvableAdditionalAppBundles.map {
             try resourceLocationResolver.resolvable(resourceLocation: $0.resourceLocation).resolve().directlyAccessibleResourcePath()
         }
         let testTargetProductModuleName = try self.testTargetProductModuleName(

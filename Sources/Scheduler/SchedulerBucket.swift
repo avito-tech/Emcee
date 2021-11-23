@@ -11,24 +11,23 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
     public let bucketId: BucketId
     public let analyticsConfiguration: AnalyticsConfiguration
     public let pluginLocations: Set<PluginLocation>
-    public let runTestsBucketPayload: RunTestsBucketPayload
+    public let payload: Payload
     
     public var description: String {
         var result = [String]()
         
         result.append("\(bucketId)")
-        result.append("buildArtifacts: \(runTestsBucketPayload.buildArtifacts)")
-        result.append("developerDir: \(runTestsBucketPayload.developerDir)")
+        result.append("buildArtifacts: \(payload.buildArtifacts)")
+        result.append("developerDir: \(payload.developerDir)")
         result.append("pluginLocations: \(pluginLocations)")
-        result.append("simulatorControlTool: \(runTestsBucketPayload.simulatorControlTool)")
-        result.append("simulatorOperationTimeouts: \(runTestsBucketPayload.simulatorOperationTimeouts)")
-        result.append("simulatorSettings: \(runTestsBucketPayload.simulatorSettings)")
-        result.append("testDestination: \(runTestsBucketPayload.testDestination)")
-        result.append("testEntries: " + runTestsBucketPayload.testEntries.map { $0.testName.stringValue }.joined(separator: ","))
-        result.append("testExecutionBehavior: \(runTestsBucketPayload.testExecutionBehavior)")
-        result.append("testRunnerTool: \(runTestsBucketPayload.testRunnerTool)")
-        result.append("testTimeoutConfiguration: \(runTestsBucketPayload.testTimeoutConfiguration)")
-        result.append("testType: \(runTestsBucketPayload.testType)")
+        result.append("simulatorControlTool: \(payload.simulatorControlTool)")
+        result.append("simulatorOperationTimeouts: \(payload.simulatorOperationTimeouts)")
+        result.append("simulatorSettings: \(payload.simulatorSettings)")
+        result.append("testDestination: \(payload.testDestination)")
+        result.append("testEntries: " + payload.testEntries.map { $0.testName.stringValue }.joined(separator: ","))
+        result.append("testExecutionBehavior: \(payload.testExecutionBehavior)")
+        result.append("testRunnerTool: \(payload.testRunnerTool)")
+        result.append("testTimeoutConfiguration: \(payload.testTimeoutConfiguration)")
         
         return "<\((type(of: self))) " + result.joined(separator: " ") + ">"
     }
@@ -37,12 +36,12 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
         bucketId: BucketId,
         analyticsConfiguration: AnalyticsConfiguration,
         pluginLocations: Set<PluginLocation>,
-        runTestsBucketPayload: RunTestsBucketPayload
+        payload: Payload
     ) {
         self.bucketId = bucketId
         self.analyticsConfiguration = analyticsConfiguration
         self.pluginLocations = pluginLocations
-        self.runTestsBucketPayload = runTestsBucketPayload
+        self.payload = payload
     }
     
     public static func from(bucket: Bucket, testExecutionBehavior: TestExecutionBehavior) -> SchedulerBucket {
@@ -50,18 +49,17 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
             bucketId: bucket.bucketId,
             analyticsConfiguration: bucket.analyticsConfiguration,
             pluginLocations: bucket.pluginLocations,
-            runTestsBucketPayload: RunTestsBucketPayload(
-                buildArtifacts: bucket.runTestsBucketPayload.buildArtifacts,
-                developerDir: bucket.runTestsBucketPayload.developerDir,
-                simulatorControlTool: bucket.runTestsBucketPayload.simulatorControlTool,
-                simulatorOperationTimeouts: bucket.runTestsBucketPayload.simulatorOperationTimeouts,
-                simulatorSettings: bucket.runTestsBucketPayload.simulatorSettings,
-                testDestination: bucket.runTestsBucketPayload.testDestination,
-                testEntries: bucket.runTestsBucketPayload.testEntries,
+            payload: Payload(
+                buildArtifacts: bucket.payload.buildArtifacts,
+                developerDir: bucket.payload.developerDir,
+                simulatorControlTool: bucket.payload.simulatorControlTool,
+                simulatorOperationTimeouts: bucket.payload.simulatorOperationTimeouts,
+                simulatorSettings: bucket.payload.simulatorSettings,
+                testDestination: bucket.payload.testDestination,
+                testEntries: bucket.payload.testEntries,
                 testExecutionBehavior: testExecutionBehavior,
-                testRunnerTool: bucket.runTestsBucketPayload.testRunnerTool,
-                testTimeoutConfiguration: bucket.runTestsBucketPayload.testTimeoutConfiguration,
-                testType: bucket.runTestsBucketPayload.testType
+                testRunnerTool: bucket.payload.testRunnerTool,
+                testTimeoutConfiguration: bucket.payload.testTimeoutConfiguration
             )
         )
     }

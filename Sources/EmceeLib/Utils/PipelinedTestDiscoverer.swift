@@ -146,16 +146,34 @@ private enum CollectedError: Error, CustomStringConvertible {
 
 private extension BuildArtifacts {
     struct BuildArtifactsMisconfiguration: Error, CustomStringConvertible {
-        let description = "Missing app bundle"
+        let description = "Test discovery requires app bundle to be present but it is missing in build artifacts"
     }
     
     func requiredArtifacts() throws -> [ResourceLocation] {
-        switch xcTestBundle.testDiscoveryMode {
-        case .parseFunctionSymbols, .runtimeLogicTest:
-            return [xcTestBundle.location.resourceLocation]
-        case .runtimeExecutableLaunch, .runtimeAppTest:
-            guard let appBundle = appBundle else { throw BuildArtifactsMisconfiguration() }
-            return [xcTestBundle.location.resourceLocation, appBundle.resourceLocation]
+        switch self {
+        case .iosLogicTests(let xcTestBundle):
+            switch xcTestBundle.testDiscoveryMode {
+            case .parseFunctionSymbols, .runtimeLogicTest:
+                return [xcTestBundle.location.resourceLocation]
+            case .runtimeExecutableLaunch, .runtimeAppTest:
+                throw BuildArtifactsMisconfiguration()
+            }
+            
+        case .iosApplicationTests(let xcTestBundle, let appBundle):
+            switch xcTestBundle.testDiscoveryMode {
+            case .parseFunctionSymbols, .runtimeLogicTest:
+                return [xcTestBundle.location.resourceLocation]
+            case .runtimeExecutableLaunch, .runtimeAppTest:
+                return [xcTestBundle.location.resourceLocation, appBundle.resourceLocation]
+            }
+            
+        case .iosUiTests(let xcTestBundle, let appBundle, _, _):
+            switch xcTestBundle.testDiscoveryMode {
+            case .parseFunctionSymbols, .runtimeLogicTest:
+                return [xcTestBundle.location.resourceLocation]
+            case .runtimeExecutableLaunch, .runtimeAppTest:
+                return [xcTestBundle.location.resourceLocation, appBundle.resourceLocation]
+            }
         }
     }
 }

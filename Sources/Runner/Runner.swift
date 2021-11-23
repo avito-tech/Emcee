@@ -306,8 +306,7 @@ public final class Runner {
             runnerWasteCollector: runnerWasteCollector,
             simulator: simulator,
             testContext: testContext,
-            testRunnerStream: testRunnerStream,
-            testType: configuration.testType
+            testRunnerStream: testRunnerStream
         ).startExecutingTests()
         
         logger = logger

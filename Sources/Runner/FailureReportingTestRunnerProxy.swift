@@ -28,8 +28,7 @@ public final class FailureReportingTestRunnerProxy: TestRunner {
         runnerWasteCollector: RunnerWasteCollector,
         simulator: Simulator,
         testContext: TestContext,
-        testRunnerStream: TestRunnerStream,
-        testType: TestType
+        testRunnerStream: TestRunnerStream
     ) throws -> TestRunnerInvocation {
         do {
             return try testRunner.prepareTestRun(
@@ -40,8 +39,7 @@ public final class FailureReportingTestRunnerProxy: TestRunner {
                 runnerWasteCollector: runnerWasteCollector,
                 simulator: simulator,
                 testContext: testContext,
-                testRunnerStream: testRunnerStream,
-                testType: testType
+                testRunnerStream: testRunnerStream
             )
         } catch {
             return generateFailureResults(

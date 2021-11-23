@@ -73,7 +73,7 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
                 workerId: workerId,
                 version: version,
                 queueHost: LocalHostDeterminer.currentHostAddress,
-                numberOfTests: dequeuedBucket.enqueuedBucket.bucket.runTestsBucketPayload.testEntries.count,
+                numberOfTests: dequeuedBucket.enqueuedBucket.bucket.payload.testEntries.count,
                 timestamp: dateProvider.currentDate()
             ),
             TimeToDequeueBucketMetric(

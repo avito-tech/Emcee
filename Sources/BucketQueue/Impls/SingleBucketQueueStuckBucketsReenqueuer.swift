@@ -55,10 +55,10 @@ public final class SingleBucketQueueStuckBucketsReenqueuer: StuckBucketsReenqueu
             
             // Every stucked test produces a single bucket with itself
             let buckets = try stuckBuckets.flatMap { stuckBucket in
-                try stuckBucket.bucket.runTestsBucketPayload.testEntries.map { testEntry in
+                try stuckBucket.bucket.payload.testEntries.map { testEntry in
                     try stuckBucket.bucket.with(
                         newBucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
-                        newRunTestsBucketPayload: stuckBucket.bucket.runTestsBucketPayload.with(
+                        newPayload: stuckBucket.bucket.payload.with(
                             testEntries: [testEntry]
                         )
                     )

@@ -4,7 +4,7 @@ import RunnerModels
 import SimulatorPoolModels
 import Foundation
 
-public struct RunTestsBucketPayload: Codable, Hashable, CustomStringConvertible {
+public struct Payload: Codable, Hashable, CustomStringConvertible {
     public let buildArtifacts: BuildArtifacts
     public let developerDir: DeveloperDir
     public let simulatorControlTool: SimulatorControlTool
@@ -15,7 +15,6 @@ public struct RunTestsBucketPayload: Codable, Hashable, CustomStringConvertible 
     public let testExecutionBehavior: TestExecutionBehavior
     public let testRunnerTool: TestRunnerTool
     public let testTimeoutConfiguration: TestTimeoutConfiguration
-    public let testType: TestType
 
     public init(
         buildArtifacts: BuildArtifacts,
@@ -27,8 +26,7 @@ public struct RunTestsBucketPayload: Codable, Hashable, CustomStringConvertible 
         testEntries: [TestEntry],
         testExecutionBehavior: TestExecutionBehavior,
         testRunnerTool: TestRunnerTool,
-        testTimeoutConfiguration: TestTimeoutConfiguration,
-        testType: TestType
+        testTimeoutConfiguration: TestTimeoutConfiguration
     ) {
         self.buildArtifacts = buildArtifacts
         self.developerDir = developerDir
@@ -40,15 +38,14 @@ public struct RunTestsBucketPayload: Codable, Hashable, CustomStringConvertible 
         self.testExecutionBehavior = testExecutionBehavior
         self.testRunnerTool = testRunnerTool
         self.testTimeoutConfiguration = testTimeoutConfiguration
-        self.testType = testType
     }
 
     public var description: String {
         "run \(testEntries.count) tests"
     }
 
-    public func with(testEntries newTestEntries: [TestEntry]) -> RunTestsBucketPayload {
-        RunTestsBucketPayload(
+    public func with(testEntries newTestEntries: [TestEntry]) -> Payload {
+        Payload(
             buildArtifacts: buildArtifacts,
             developerDir: developerDir,
             simulatorControlTool: simulatorControlTool,
@@ -58,8 +55,7 @@ public struct RunTestsBucketPayload: Codable, Hashable, CustomStringConvertible 
             testEntries: newTestEntries,
             testExecutionBehavior: testExecutionBehavior,
             testRunnerTool: testRunnerTool,
-            testTimeoutConfiguration: testTimeoutConfiguration,
-            testType: testType
+            testTimeoutConfiguration: testTimeoutConfiguration
         )
     }
 }

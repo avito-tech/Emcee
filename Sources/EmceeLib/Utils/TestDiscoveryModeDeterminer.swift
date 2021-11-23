@@ -22,23 +22,39 @@ public final class TestDiscoveryModeDeterminer {
         switch testArgFileEntry.buildArtifacts.xcTestBundle.testDiscoveryMode {
         case .parseFunctionSymbols:
             return .parseFunctionSymbols
+            
         case .runtimeExecutableLaunch:
-            guard let appLocation = testArgFileEntry.buildArtifacts.appBundle else {
+            switch testArgFileEntry.buildArtifacts {
+            case .iosLogicTests:
                 throw TestDicoveryModeInputValidationError.missingAppBundleToPerformApplicationTestRuntimeDump(testArgFileEntry.buildArtifacts.xcTestBundle)
+            case .iosApplicationTests(_, let appBundle):
+                return .runtimeExecutableLaunch(appBundle)
+            case .iosUiTests(_, let appBundle, _, _):
+                return .runtimeExecutableLaunch(appBundle)
             }
-            return .runtimeExecutableLaunch(appLocation)
+            
         case .runtimeLogicTest:
             return .runtimeLogicTest(testArgFileEntry.simulatorControlTool)
+            
         case .runtimeAppTest:
-            guard let appLocation = testArgFileEntry.buildArtifacts.appBundle else {
+            switch testArgFileEntry.buildArtifacts {
+            case .iosLogicTests:
                 throw TestDicoveryModeInputValidationError.missingAppBundleToPerformApplicationTestRuntimeDump(testArgFileEntry.buildArtifacts.xcTestBundle)
-            }
-            return .runtimeAppTest(
-                RuntimeDumpApplicationTestSupport(
-                    appBundle: appLocation,
-                    simulatorControlTool: testArgFileEntry.simulatorControlTool
+            case .iosApplicationTests(_, let appBundle):
+                return .runtimeAppTest(
+                    RuntimeDumpApplicationTestSupport(
+                        appBundle: appBundle,
+                        simulatorControlTool: testArgFileEntry.simulatorControlTool
+                    )
                 )
-            )
+            case .iosUiTests(_, let appBundle, _, _):
+                return .runtimeAppTest(
+                    RuntimeDumpApplicationTestSupport(
+                        appBundle: appBundle,
+                        simulatorControlTool: testArgFileEntry.simulatorControlTool
+                    )
+                )
+            }
         }
     }
 }

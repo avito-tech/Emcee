@@ -95,8 +95,8 @@ final class BucketGeneratorTests: XCTestCase {
             testSplitter: UnsplitBucketSplitter()
         )
         XCTAssertEqual(buckets.count, 3)
-        XCTAssertEqual(buckets[0].runTestsBucketPayload.testEntries, expectedBucketEntries)
-        XCTAssertEqual(buckets[1].runTestsBucketPayload.testEntries, expectedBucketEntries)
-        XCTAssertEqual(buckets[2].runTestsBucketPayload.testEntries, expectedBucketEntries)
+        XCTAssertEqual(buckets[0].payload.testEntries, expectedBucketEntries)
+        XCTAssertEqual(buckets[1].payload.testEntries, expectedBucketEntries)
+        XCTAssertEqual(buckets[2].payload.testEntries, expectedBucketEntries)
     }
 }

@@ -18,12 +18,7 @@ import XCTest
 final class TestEntryConfigurationGeneratorTests: XCTestCase {
     lazy var argFileTestToRun1 = TestName(className: "classFromArgs", methodName: "test1")
     lazy var argFileTestToRun2 = TestName(className: "classFromArgs", methodName: "test2")
-    lazy var buildArtifacts = BuildArtifactsFixtures.withLocalPaths(
-        appBundle: "1",
-        runner: "1",
-        xcTestBundle: "1",
-        additionalApplicationBundles: ["1", "2"]
-    )
+    lazy var buildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
     lazy var argFileDestination = assertDoesNotThrow { try TestDestination(deviceType: UUID().uuidString, runtime: "10.1") }
     lazy var simulatorSettings = SimulatorSettingsFixtures().simulatorSettings()
     lazy var testTimeoutConfiguration = TestTimeoutConfiguration(singleTestMaximumDuration: 10, testRunnerMaximumSilenceDuration: 20)
@@ -62,7 +57,6 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 testDestination: argFileDestination,
                 testRunnerTool: .xcodebuild,
                 testTimeoutConfiguration: testTimeoutConfiguration,
-                testType: .uiTest,
                 testsToRun: [.testName(argFileTestToRun1)],
                 workerCapabilityRequirements: []
             ),
@@ -78,7 +72,6 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
             .with(testDestination: argFileDestination)
             .with(testTimeoutConfiguration: testTimeoutConfiguration)
             .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
-            .with(testType: .uiTest)
             .testEntryConfigurations()
         
         XCTAssertEqual(Set(configurations), Set(expectedConfigurations))
@@ -101,7 +94,6 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 testDestination: argFileDestination,
                 testRunnerTool: .xcodebuild,
                 testTimeoutConfiguration: testTimeoutConfiguration,
-                testType: .uiTest,
                 testsToRun: [.testName(argFileTestToRun1), .testName(argFileTestToRun1)],
                 workerCapabilityRequirements: []
             ),
@@ -116,7 +108,6 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
                 .with(testDestination: argFileDestination)
                 .with(testTimeoutConfiguration: testTimeoutConfiguration)
-                .with(testType: .uiTest)
                 .testEntryConfigurations()
         
         XCTAssertEqual(
@@ -142,7 +133,6 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 testDestination: argFileDestination,
                 testRunnerTool: .xcodebuild,
                 testTimeoutConfiguration: testTimeoutConfiguration,
-                testType: .uiTest,
                 testsToRun: [.allDiscoveredTests],
                 workerCapabilityRequirements: []
             ),
@@ -156,7 +146,6 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 .with(testDestination: argFileDestination)
                 .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
                 .with(testTimeoutConfiguration: testTimeoutConfiguration)
-                .with(testType: .uiTest)
                 .testEntryConfigurations(),
             TestEntryConfigurationFixtures()
                 .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test2"))
@@ -164,7 +153,6 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 .with(testDestination: argFileDestination)
                 .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10))
                 .with(testTimeoutConfiguration: testTimeoutConfiguration)
-                .with(testType: .uiTest)
                 .testEntryConfigurations()
             ].flatMap { $0 }
         

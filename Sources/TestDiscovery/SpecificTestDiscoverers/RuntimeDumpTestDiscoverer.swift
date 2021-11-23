@@ -31,7 +31,6 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let tempFolder: TemporaryFolder
     private let testEntryToQueryRuntimeDump: TestEntry
     private let testRunnerProvider: TestRunnerProvider
-    private let testType: TestType
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let version: Version
     private let waiter: Waiter
@@ -51,7 +50,6 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         tempFolder: TemporaryFolder,
         testEntryToQueryRuntimeDump: TestEntry = TestEntry(testName: TestName(className: "NonExistingTest", methodName: "fakeTest"), tags: [], caseId: nil),
         testRunnerProvider: TestRunnerProvider,
-        testType: TestType,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         version: Version,
         waiter: Waiter,
@@ -70,7 +68,6 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         self.tempFolder = tempFolder
         self.testEntryToQueryRuntimeDump = testEntryToQueryRuntimeDump
         self.testRunnerProvider = testRunnerProvider
-        self.testType = testType
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.version = version
         self.waiter = waiter
@@ -87,8 +84,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         let runnerConfiguration = buildRunnerConfiguration(
             buildArtifacts: buildArtifacts,
             configuration: configuration,
-            runtimeEntriesJSONPath: runtimeEntriesJSONPath,
-            testType: testType
+            runtimeEntriesJSONPath: runtimeEntriesJSONPath
         )
         let runner = Runner(
             configuration: runnerConfiguration,
@@ -131,8 +127,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private func buildRunnerConfiguration(
         buildArtifacts: BuildArtifacts,
         configuration: TestDiscoveryConfiguration,
-        runtimeEntriesJSONPath: AbsolutePath,
-        testType: TestType
+        runtimeEntriesJSONPath: AbsolutePath
     ) -> RunnerConfiguration {
         return RunnerConfiguration(
             buildArtifacts: buildArtifacts,
@@ -143,8 +138,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             pluginLocations: configuration.pluginLocations,
             simulatorSettings: configuration.simulatorSettings,
             testRunnerTool: configuration.testRunnerTool,
-            testTimeoutConfiguration: configuration.testTimeoutConfiguration,
-            testType: testType
+            testTimeoutConfiguration: configuration.testTimeoutConfiguration
         )
     }
 

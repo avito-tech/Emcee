@@ -36,7 +36,7 @@ public final class SingleBucketResultAccepter: BucketResultAccepter {
             }
             
             let actualTestEntries = Set(testingResult.unfilteredResults.map { $0.testEntry })
-            let expectedTestEntries = Set(dequeuedBucket.enqueuedBucket.bucket.runTestsBucketPayload.testEntries)
+            let expectedTestEntries = Set(dequeuedBucket.enqueuedBucket.bucket.payload.testEntries)
             try reenqueueLostResults(
                 expectedTestEntries: expectedTestEntries,
                 actualTestEntries: actualTestEntries,
@@ -73,7 +73,7 @@ public final class SingleBucketResultAccepter: BucketResultAccepter {
             logger.debug("Test result for \(bucket.bucketId) from \(workerId) contains lost test entries: \(lostTestEntries)")
             let lostResult = try testHistoryTracker.accept(
                 testingResult: TestingResult(
-                    testDestination: bucket.runTestsBucketPayload.testDestination,
+                    testDestination: bucket.payload.testDestination,
                     unfilteredResults: lostTestEntries.map { .lost(testEntry: $0) }
                 ),
                 bucket: bucket,

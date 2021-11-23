@@ -63,7 +63,6 @@ let package = Package(
                 "AppleTools",
                 "AppleToolsTestHelpers",
                 "BuildArtifacts",
-                "BuildArtifactsTestHelpers",
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
                 .product(name: "DateProviderTestHelpers", package: "CommandLineToolkit"),
                 "DeveloperDirLocator",
@@ -75,7 +74,6 @@ let package = Package(
                 .product(name: "PathLib", package: "CommandLineToolkit"),
                 .product(name: "ProcessController", package: "CommandLineToolkit"),
                 .product(name: "ProcessControllerTestHelpers", package: "CommandLineToolkit"),
-                "QueueModelsTestHelpers",
                 "ResourceLocationResolver",
                 "ResourceLocationResolverTestHelpers",
                 "ResultStreamModels",
@@ -261,6 +259,7 @@ let package = Package(
             dependencies: [
                 "BuildArtifacts",
                 "ResourceLocation",
+                "TestDiscovery",
             ],
             path: "Tests/BuildArtifactsTestHelpers"
         ),

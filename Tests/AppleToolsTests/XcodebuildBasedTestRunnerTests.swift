@@ -88,16 +88,24 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         return testBundlePlistPath.removingLastComponent
     }()
     private lazy var additionalAppPath = tempFolder.absolutePath.appending(component: "additionalapp.app")
-    private lazy var buildArtifacts = BuildArtifacts(
+    private lazy var xcTestBundle = XcTestBundle(
+        location: TestBundleLocation(.localFilePath(testBundlePath.pathString)),
+        testDiscoveryMode: .runtimeLogicTest
+    )
+    private lazy var uiTestBuildArtifacts = BuildArtifacts.iosUiTests(
+        xcTestBundle: xcTestBundle,
         appBundle: AppBundleLocation(.localFilePath(appBundlePath.pathString)),
         runner: RunnerAppLocation(.localFilePath(runnerAppPath.pathString)),
-        xcTestBundle: XcTestBundle(
-            location: TestBundleLocation(.localFilePath(testBundlePath.pathString)),
-            testDiscoveryMode: .runtimeLogicTest
-        ),
         additionalApplicationBundles: [
             AdditionalAppBundleLocation(.localFilePath(additionalAppPath.pathString)),
         ]
+    )
+    private lazy var appTestBuildArtifacts = BuildArtifacts.iosApplicationTests(
+        xcTestBundle: xcTestBundle,
+        appBundle: AppBundleLocation(.localFilePath(appBundlePath.pathString))
+    )
+    private lazy var logicTestBuildArtifacts = BuildArtifacts.iosLogicTests(
+        xcTestBundle: xcTestBundle
     )
     private lazy var runnerWasteCollector = RunnerWasteCollectorImpl()
     
@@ -175,7 +183,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         
         assertDoesNotThrow {
             let invocation = try runner.prepareTestRun(
-                buildArtifacts: buildArtifacts,
+                buildArtifacts: logicTestBuildArtifacts,
                 developerDirLocator: developerDirLocator,
                 entriesToRun: [
                     TestEntryFixtures.testEntry()
@@ -184,8 +192,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 runnerWasteCollector: runnerWasteCollector,
                 simulator: simulator,
                 testContext: testContext,
-                testRunnerStream: testRunnerStream,
-                testType: .logicTest
+                testRunnerStream: testRunnerStream
             )
             try invocation.startExecutingTests().wait()
         }
@@ -245,7 +252,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         
         assertDoesNotThrow {
             let invocation = try runner.prepareTestRun(
-                buildArtifacts: buildArtifacts,
+                buildArtifacts: appTestBuildArtifacts,
                 developerDirLocator: developerDirLocator,
                 entriesToRun: [
                     TestEntryFixtures.testEntry()
@@ -254,8 +261,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 runnerWasteCollector: runnerWasteCollector,
                 simulator: simulator,
                 testContext: testContext,
-                testRunnerStream: testRunnerStream,
-                testType: .appTest
+                testRunnerStream: testRunnerStream
             )
             try invocation.startExecutingTests().wait()
         }
@@ -282,7 +288,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         
         assertDoesNotThrow {
             let invocation = try runner.prepareTestRun(
-                buildArtifacts: buildArtifacts,
+                buildArtifacts: uiTestBuildArtifacts,
                 developerDirLocator: developerDirLocator,
                 entriesToRun: [
                     TestEntryFixtures.testEntry()
@@ -291,8 +297,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 runnerWasteCollector: runnerWasteCollector,
                 simulator: simulator,
                 testContext: testContext,
-                testRunnerStream: testRunnerStream,
-                testType: .uiTest
+                testRunnerStream: testRunnerStream
             )
             try invocation.startExecutingTests().wait()
         }
@@ -304,7 +309,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         testRunnerStream.streamIsOpen = false
         
         let invocation = try runner.prepareTestRun(
-            buildArtifacts: buildArtifacts,
+            buildArtifacts: logicTestBuildArtifacts,
             developerDirLocator: developerDirLocator,
             entriesToRun: [
                 TestEntryFixtures.testEntry()
@@ -313,8 +318,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             runnerWasteCollector: runnerWasteCollector,
             simulator: simulator,
             testContext: testContext,
-            testRunnerStream: testRunnerStream,
-            testType: .logicTest
+            testRunnerStream: testRunnerStream
         )
         _ = try invocation.startExecutingTests()
         
@@ -325,7 +329,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         testRunnerStream.streamIsOpen = true
         
         let invocation = try runner.prepareTestRun(
-            buildArtifacts: buildArtifacts,
+            buildArtifacts: logicTestBuildArtifacts,
             developerDirLocator: developerDirLocator,
             entriesToRun: [
                 TestEntryFixtures.testEntry()
@@ -334,8 +338,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             runnerWasteCollector: runnerWasteCollector,
             simulator: simulator,
             testContext: testContext,
-            testRunnerStream: testRunnerStream,
-            testType: .logicTest
+            testRunnerStream: testRunnerStream
         )
         
         let streamIsClosed = XCTestExpectation(description: "Stream closed")
@@ -367,15 +370,14 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         }
         
         let invocation = try runner.prepareTestRun(
-            buildArtifacts: buildArtifacts,
+            buildArtifacts: logicTestBuildArtifacts,
             developerDirLocator: developerDirLocator,
             entriesToRun: [TestEntry(testName: testName, tags: [], caseId: nil)],
             logger: .noOp,
             runnerWasteCollector: runnerWasteCollector,
             simulator: simulator,
             testContext: testContext,
-            testRunnerStream: testRunnerStream,
-            testType: .logicTest
+            testRunnerStream: testRunnerStream
         )
         let runningInvocation = try invocation.startExecutingTests()
         
@@ -432,7 +434,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         testRunnerStream.streamIsOpen = true
         
         let invocation = try runner.prepareTestRun(
-            buildArtifacts: buildArtifacts,
+            buildArtifacts: logicTestBuildArtifacts,
             developerDirLocator: developerDirLocator,
             entriesToRun: [
                 TestEntryFixtures.testEntry(className: "ClassName", methodName: "testMethod"),
@@ -441,8 +443,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             runnerWasteCollector: runnerWasteCollector,
             simulator: simulator,
             testContext: testContext,
-            testRunnerStream: testRunnerStream,
-            testType: .logicTest
+            testRunnerStream: testRunnerStream
         )
         
         let streamIsClosed = XCTestExpectation(description: "Stream closed")

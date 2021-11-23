@@ -37,8 +37,8 @@ final class BucketQueueRetryTests: XCTestCase {
             bucketQueue.dequeueBucket(workerCapabilities: [], workerId: anotherWorker)
         }
         XCTAssertEqual(
-            dequeuedBucket.enqueuedBucket.bucket.runTestsBucketPayload,
-            bucketWithTwoRetires.runTestsBucketPayload
+            dequeuedBucket.enqueuedBucket.bucket.payload,
+            bucketWithTwoRetires.payload
         )
     }
     
@@ -116,7 +116,7 @@ final class BucketQueueRetryTests: XCTestCase {
             bucketQueue.dequeueBucket(workerCapabilities: [], workerId: anotherWorker)
         }
         assert { dequeuedBucket.workerId } equals: { anotherWorker }
-        assert { dequeuedBucket.enqueuedBucket.bucket.runTestsBucketPayload } equals: { bucket.runTestsBucketPayload }
+        assert { dequeuedBucket.enqueuedBucket.bucket.payload } equals: { bucket.payload }
     }
     
     private let firstWorker: WorkerId = "firstWorker"

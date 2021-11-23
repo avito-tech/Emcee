@@ -37,7 +37,7 @@ public class BucketGeneratorImpl: BucketGenerator {
                 analyticsConfiguration: entry.analyticsConfiguration,
                 pluginLocations: entry.pluginLocations,
                 workerCapabilityRequirements: entry.workerCapabilityRequirements,
-                runTestsBucketPayload: RunTestsBucketPayload(
+                payload: Payload(
                     buildArtifacts: entry.buildArtifacts,
                     developerDir: entry.developerDir,
                     simulatorControlTool: entry.simulatorControlTool,
@@ -47,8 +47,7 @@ public class BucketGeneratorImpl: BucketGenerator {
                     testEntries: group.map { $0.testEntry },
                     testExecutionBehavior: entry.testExecutionBehavior,
                     testRunnerTool: entry.testRunnerTool,
-                    testTimeoutConfiguration: entry.testTimeoutConfiguration,
-                    testType: entry.testType
+                    testTimeoutConfiguration: entry.testTimeoutConfiguration
                 )
             )
         }

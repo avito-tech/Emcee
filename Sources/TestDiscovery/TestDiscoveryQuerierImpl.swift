@@ -264,27 +264,25 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             )
         case .runtimeLogicTest(let simulatorControlTool):
             return createRuntimeDumpBasedTestDiscoverer(
-                buildArtifacts: .onlyWithXctestBundle(
+                buildArtifacts: .iosLogicTests(
                     xcTestBundle: XcTestBundle(
                         location: configuration.xcTestBundleLocation,
                         testDiscoveryMode: .runtimeLogicTest
                     )
                 ),
                 simulatorControlTool: simulatorControlTool,
-                testType: .logicTest,
                 specificMetricRecorder: specificMetricRecorder
             )
         case .runtimeAppTest(let runtimeDumpApplicationTestSupport):
             return createRuntimeDumpBasedTestDiscoverer(
-                buildArtifacts: .with(
-                    appBundle: runtimeDumpApplicationTestSupport.appBundle,
+                buildArtifacts: .iosApplicationTests(
                     xcTestBundle: XcTestBundle(
                         location: configuration.xcTestBundleLocation,
                         testDiscoveryMode: .runtimeAppTest
-                    )
+                    ),
+                    appBundle: runtimeDumpApplicationTestSupport.appBundle
                 ),
                 simulatorControlTool: runtimeDumpApplicationTestSupport.simulatorControlTool,
-                testType: .appTest,
                 specificMetricRecorder: specificMetricRecorder
             )
         }
@@ -293,7 +291,6 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     private func createRuntimeDumpBasedTestDiscoverer(
         buildArtifacts: BuildArtifacts,
         simulatorControlTool: SimulatorControlTool,
-        testType: TestType,
         specificMetricRecorder: SpecificMetricRecorder
     ) -> RuntimeDumpTestDiscoverer {
         RuntimeDumpTestDiscoverer(
@@ -308,37 +305,11 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             simulatorControlTool: simulatorControlTool,
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,
-            testType: testType,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             version: version,
             waiter: waiter,
             globalMetricRecorder: globalMetricRecorder,
             specificMetricRecorder: specificMetricRecorder
-        )
-    }
-}
-
-private extension BuildArtifacts {
-    static func onlyWithXctestBundle(
-        xcTestBundle: XcTestBundle
-    ) -> BuildArtifacts {
-        BuildArtifacts(
-            appBundle: nil,
-            runner: nil,
-            xcTestBundle: xcTestBundle,
-            additionalApplicationBundles: []
-        )
-    }
-    
-    static func with(
-        appBundle: AppBundleLocation,
-        xcTestBundle: XcTestBundle
-    ) -> BuildArtifacts {
-        BuildArtifacts(
-            appBundle: appBundle,
-            runner: nil,
-            xcTestBundle: xcTestBundle,
-            additionalApplicationBundles: []
         )
     }
 }

@@ -15,7 +15,7 @@ final class DistRunSchedulerDataSourceTests: XCTestCase {
                 bucketId: "id",
                 analyticsConfiguration: AnalyticsConfiguration(),
                 pluginLocations: [],
-                runTestsBucketPayload: RunTestsBucketPayload(
+                payload: Payload(
                     buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
                     developerDir: .current,
                     simulatorControlTool: SimulatorControlToolFixtures.simctlTool,
@@ -25,8 +25,10 @@ final class DistRunSchedulerDataSourceTests: XCTestCase {
                     testEntries: [TestEntryFixtures.testEntry()],
                     testExecutionBehavior: TestExecutionBehaviorFixtures(environment: ["a": "b"]).build(),
                     testRunnerTool: .xcodebuild,
-                    testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
-                    testType: .uiTest
+                    testTimeoutConfiguration: TestTimeoutConfiguration(
+                        singleTestMaximumDuration: 0,
+                        testRunnerMaximumSilenceDuration: 0
+                    )
                 )
             )
         }

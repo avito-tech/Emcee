@@ -159,7 +159,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
                     SchedulerBucket.from(
                         bucket: fetchedBucket,
                         testExecutionBehavior: TestExecutionBehavior(
-                            environment: fetchedBucket.runTestsBucketPayload.testExecutionBehavior.environment,
+                            environment: fetchedBucket.payload.testExecutionBehavior.environment,
                             numberOfRetries: 0
                         )
                     )

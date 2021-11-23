@@ -31,7 +31,6 @@ public protocol TestRunner {
         runnerWasteCollector: RunnerWasteCollector,
         simulator: Simulator,
         testContext: TestContext,
-        testRunnerStream: TestRunnerStream,
-        testType: TestType
+        testRunnerStream: TestRunnerStream
     ) throws -> TestRunnerInvocation
 }

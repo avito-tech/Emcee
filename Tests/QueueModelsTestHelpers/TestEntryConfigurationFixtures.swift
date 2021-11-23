@@ -26,7 +26,6 @@ public final class TestEntryConfigurationFixtures {
     public var testEntries = [TestEntry]()
     public var testExecutionBehavior = TestExecutionBehavior(environment: [:], numberOfRetries: 0)
     public var testTimeoutConfiguration = TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0)
-    public var testType = TestType.uiTest
     public var developerDir = DeveloperDir.current
     public var persistentMetricsJobId: String = ""
     public var workerCapabilityRequirements: Set<WorkerCapabilityRequirement> = []
@@ -78,11 +77,6 @@ public final class TestEntryConfigurationFixtures {
         return self
     }
     
-    public func with(testType: TestType) -> Self {
-        self.testType = testType
-        return self
-    }
-    
     public func with(developerDir: DeveloperDir) -> Self {
         self.developerDir = developerDir
         return self
@@ -108,7 +102,6 @@ public final class TestEntryConfigurationFixtures {
                 testExecutionBehavior: testExecutionBehavior,
                 testRunnerTool: .xcodebuild,
                 testTimeoutConfiguration: testTimeoutConfiguration,
-                testType: testType,
                 workerCapabilityRequirements: workerCapabilityRequirements
             )
         }

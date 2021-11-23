@@ -152,16 +152,15 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(testArgFile.entries.count, 1)
         XCTAssertEqual(testArgFile.entries[0].testsToRun, [.allDiscoveredTests])
         XCTAssertEqual(testArgFile.entries[0].testDestination, try TestDestination(deviceType: "iPhone X", runtime: "11.3"))
-        XCTAssertEqual(testArgFile.entries[0].testType, .uiTest)
         XCTAssertEqual(
             testArgFile.entries[0].buildArtifacts,
-            BuildArtifacts(
-                appBundle: AppBundleLocation(try .from("http://example.com/App.zip#MyApp/MyApp.app")),
-                runner: RunnerAppLocation(try .from("http://example.com/App.zip#Tests/UITests-Runner.app")),
+            BuildArtifacts.iosUiTests(
                 xcTestBundle: XcTestBundle(
                     location: TestBundleLocation(try .from("http://example.com/App.zip#Tests/UITests-Runner.app/PlugIns/UITests.xctest")),
                     testDiscoveryMode: .parseFunctionSymbols
                 ),
+                appBundle: AppBundleLocation(try .from("http://example.com/App.zip#MyApp/MyApp.app")),
+                runner: RunnerAppLocation(try .from("http://example.com/App.zip#Tests/UITests-Runner.app")),
                 additionalApplicationBundles: []
             )
         )

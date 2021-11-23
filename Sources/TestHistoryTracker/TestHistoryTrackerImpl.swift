@@ -75,7 +75,7 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         }
         
         let testingResult = TestingResult(
-            testDestination: bucket.runTestsBucketPayload.testDestination,
+            testDestination: bucket.payload.testDestination,
             unfilteredResults: resultsOfSuccessfulTests + resultsOfFailedTests
         )
         
@@ -83,14 +83,14 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         let bucketsToReenqueue = try resultsOfTestsToRetry.map { testEntryResult -> Bucket in
             try bucket.with(
                 newBucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
-                newRunTestsBucketPayload: bucket.runTestsBucketPayload.with(
+                newPayload: bucket.payload.with(
                     testEntries: [testEntryResult.testEntry]
                 )
             )
         }
         
         bucketsToReenqueue.forEach { reenqueuingBucket in
-            reenqueuingBucket.runTestsBucketPayload.testEntries.forEach { entry in
+            reenqueuingBucket.payload.testEntries.forEach { entry in
                 let id = TestEntryHistoryId(
                     bucketId: bucket.bucketId,
                     testEntry: entry
@@ -142,7 +142,7 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         bucket: Bucket,
         whereItWasFailing: (TestEntryHistory) -> Bool
     ) -> Bool {
-        return bucket.runTestsBucketPayload.testEntries.contains { testEntry in
+        return bucket.payload.testEntries.contains { testEntry in
             testEntryWasFailing(
                 testEntry: testEntry,
                 bucket: bucket,
@@ -166,6 +166,6 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
     }
     
     private func numberOfAttemptsToRunTests(bucket: Bucket) -> UInt {
-        return 1 + bucket.runTestsBucketPayload.testExecutionBehavior.numberOfRetries
+        return 1 + bucket.payload.testExecutionBehavior.numberOfRetries
     }
 }

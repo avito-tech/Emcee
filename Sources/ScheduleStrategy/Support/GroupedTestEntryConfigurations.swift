@@ -27,7 +27,6 @@ final class GroupedTestEntryConfigurations {
             let testExecutionBehavior: TestExecutionBehavior
             let testRunnerTool: TestRunnerTool
             let testTimeoutConfiguration: TestTimeoutConfiguration
-            let testType: TestType
             let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
         }
         
@@ -45,7 +44,6 @@ final class GroupedTestEntryConfigurations {
                 testExecutionBehavior: testEntryConfiguration.testExecutionBehavior,
                 testRunnerTool: testEntryConfiguration.testRunnerTool,
                 testTimeoutConfiguration: testEntryConfiguration.testTimeoutConfiguration,
-                testType: testEntryConfiguration.testType,
                 workerCapabilityRequirements: testEntryConfiguration.workerCapabilityRequirements
             )
             

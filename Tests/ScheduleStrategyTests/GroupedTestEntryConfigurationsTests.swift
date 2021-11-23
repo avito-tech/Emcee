@@ -122,14 +122,28 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
     
     func test___grouping_by_BuildArtifacts___preserves_order_and_sorts_by_test_count() {
         let testEntryConfigurations1 = TestEntryConfigurationFixtures()
-            .with(buildArtifacts: BuildArtifactsFixtures.withLocalPaths(appBundle: "1", runner: "1", xcTestBundle: "1", additionalApplicationBundles: ["1"]))
+            .with(
+                buildArtifacts: .iosLogicTests(
+                    xcTestBundle: XcTestBundle(
+                        location: TestBundleLocation(.localFilePath("/1")),
+                        testDiscoveryMode: .parseFunctionSymbols
+                    )
+                )
+            )
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
             .add(testEntry: TestEntryFixtures.testEntry(className: "class2", methodName: "test"))
             .add(testEntry: TestEntryFixtures.testEntry(className: "class3", methodName: "test"))
             .testEntryConfigurations()
             .shuffled()
         let testEntryConfigurations2 = TestEntryConfigurationFixtures()
-            .with(buildArtifacts: BuildArtifactsFixtures.withLocalPaths(appBundle: "2", runner: "2", xcTestBundle: "2", additionalApplicationBundles: ["2"]))
+            .with(
+                buildArtifacts: .iosLogicTests(
+                    xcTestBundle: XcTestBundle(
+                        location: TestBundleLocation(.localFilePath("/2")),
+                        testDiscoveryMode: .parseFunctionSymbols
+                    )
+                )
+            )
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
             .add(testEntry: TestEntryFixtures.testEntry(className: "class2", methodName: "test"))
             .testEntryConfigurations()
@@ -242,7 +256,14 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
     func test___grouping_mixed_entries___accounts_all_field_values() {
         let testEntryConfiguration1 = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
-            .with(buildArtifacts: BuildArtifactsFixtures.withLocalPaths(appBundle: "1", runner: "1", xcTestBundle: "1", additionalApplicationBundles: ["1"]))
+            .with(
+                buildArtifacts: .iosLogicTests(
+                    xcTestBundle: XcTestBundle(
+                        location: TestBundleLocation(.localFilePath("/2")),
+                        testDiscoveryMode: .parseFunctionSymbols
+                    )
+                )
+            )
             .testEntryConfigurations()[0]
         let testEntryConfiguration2 = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
