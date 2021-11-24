@@ -6,14 +6,14 @@ import MetricsExtensions
 import LoggingSetup
 import QueueModels
 
-public struct QueueServerConfiguration: Decodable {
+public struct QueueServerConfiguration: Codable {
     public let globalAnalyticsConfiguration: AnalyticsConfiguration
     public let checkAgainTimeInterval: TimeInterval
     public let queueServerDeploymentDestinations: [DeploymentDestination]
     public let queueServerTerminationPolicy: AutomaticTerminationPolicy
     public let workerDeploymentDestinations: [DeploymentDestination]
     public let workerSpecificConfigurations: [WorkerId: WorkerSpecificConfiguration]
-
+    
     public init(
         globalAnalyticsConfiguration: AnalyticsConfiguration,
         checkAgainTimeInterval: TimeInterval,
@@ -39,14 +39,14 @@ public struct QueueServerConfiguration: Decodable {
         case workerDeploymentDestinations
         case workerSpecificConfigurations
     }
-     
+    
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         let globalAnalyticsConfiguration = try container.decode(AnalyticsConfiguration.self, forKey: .globalAnalyticsConfiguration)
         let checkAgainTimeInterval = try container.decode(TimeInterval.self, forKey: .checkAgainTimeInterval)
         let queueServerDeploymentDestinations = try container.decodeIfPresent([DeploymentDestination].self, forKey: .queueServerDeploymentDestinations)
-            ?? [try container.decode(DeploymentDestination.self, forKey: .queueServerDeploymentDestination)]
+        ?? [try container.decode(DeploymentDestination.self, forKey: .queueServerDeploymentDestination)]
         let queueServerTerminationPolicy = try container.decode(AutomaticTerminationPolicy.self, forKey: .queueServerTerminationPolicy)
         let workerDeploymentDestinations = try container.decode([DeploymentDestination].self, forKey: .workerDeploymentDestinations)
         let workerSpecificConfigurations = Dictionary(
@@ -65,6 +65,24 @@ public struct QueueServerConfiguration: Decodable {
             queueServerTerminationPolicy: queueServerTerminationPolicy,
             workerDeploymentDestinations: workerDeploymentDestinations,
             workerSpecificConfigurations: workerSpecificConfigurations
+        )
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(globalAnalyticsConfiguration, forKey: .globalAnalyticsConfiguration)
+        try container.encode(checkAgainTimeInterval, forKey: .checkAgainTimeInterval)
+        try container.encode(queueServerDeploymentDestinations, forKey: .queueServerDeploymentDestinations)
+        try container.encode(queueServerTerminationPolicy, forKey: .queueServerTerminationPolicy)
+        try container.encode(workerDeploymentDestinations, forKey: .workerDeploymentDestinations)
+        try container.encode(
+            Dictionary(
+                uniqueKeysWithValues: workerSpecificConfigurations.map { item in
+                    (item.key.value, item.value)
+                }
+            ),
+            forKey: .workerSpecificConfigurations
         )
     }
     

@@ -518,6 +518,7 @@ let package = Package(
                 "MetricsExtensions",
                 .product(name: "PathLib", package: "CommandLineToolkit"),
                 "PluginManager",
+                "PluginSupport",
                 "PortDeterminer",
                 .product(name: "ProcessController", package: "CommandLineToolkit"),
                 "QueueClient",

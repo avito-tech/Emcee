@@ -199,6 +199,8 @@ public final class InProcessMain {
                 try EnableWorkerCommand(di: di),
                 try DisableWorkerCommand(di: di),
                 try ToggleWorkersSharingCommand(di: di),
+                try InitTestArgFileCommand(di: di),
+                try InitQueueServerConfigCommand(di: di),
                 VersionCommand(),
             ],
             helpCommandType: .generateAutomatically

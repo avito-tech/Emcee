@@ -1,7 +1,7 @@
 import Foundation
 import QueueModels
 
-public struct WorkerSpecificConfiguration: Decodable, Equatable {
+public struct WorkerSpecificConfiguration: Codable, Hashable {
     public let numberOfSimulators: UInt
 
     public init(
