@@ -106,6 +106,10 @@ public final class DistWorkCommand: Command {
                         fileSystem: try di.get(),
                         logger: logger
                     ),
+                    SimRuntimeCapabilitiesProvider(
+                        fileSystem: try di.get(),
+                        logger: logger
+                    ),
                 ]
             ),
             for: WorkerCapabilitiesProvider.self
