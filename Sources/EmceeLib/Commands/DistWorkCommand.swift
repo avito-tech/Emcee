@@ -110,6 +110,9 @@ public final class DistWorkCommand: Command {
                         fileSystem: try di.get(),
                         logger: logger
                     ),
+                    OperatingSystemCapabilitiesProvider(
+                        operatingSystemVersionProvider: ProcessInfo.processInfo
+                    ),
                 ]
             ),
             for: WorkerCapabilitiesProvider.self
