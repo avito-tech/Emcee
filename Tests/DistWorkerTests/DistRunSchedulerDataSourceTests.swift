@@ -14,10 +14,10 @@ final class DistRunSchedulerDataSourceTests: XCTestCase {
             SchedulerBucket(
                 bucketId: "id",
                 analyticsConfiguration: AnalyticsConfiguration(),
-                pluginLocations: [],
                 payload: Payload(
                     buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
                     developerDir: .current,
+                    pluginLocations: [],
                     simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
                     simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
                     testDestination: TestDestinationFixtures.testDestination,

@@ -9,20 +9,17 @@ import WorkerCapabilitiesModels
 public struct Bucket: Codable, Hashable, CustomStringConvertible {
     public private(set) var bucketId: BucketId
     public let analyticsConfiguration: AnalyticsConfiguration
-    public let pluginLocations: Set<PluginLocation>
     public let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
     public private(set) var payload: Payload
 
     private init(
         bucketId: BucketId,
         analyticsConfiguration: AnalyticsConfiguration,
-        pluginLocations: Set<PluginLocation>,
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement>,
         payload: Payload
     ) {
         self.bucketId = bucketId
         self.analyticsConfiguration = analyticsConfiguration
-        self.pluginLocations = pluginLocations
         self.workerCapabilityRequirements = workerCapabilityRequirements
         self.payload = payload
     }
@@ -35,14 +32,12 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible {
     public static func newBucket(
         bucketId: BucketId,
         analyticsConfiguration: AnalyticsConfiguration,
-        pluginLocations: Set<PluginLocation>,
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement>,
         payload: Payload
     ) -> Bucket {
         return Bucket(
             bucketId: bucketId,
             analyticsConfiguration: analyticsConfiguration,
-            pluginLocations: pluginLocations,
             workerCapabilityRequirements: workerCapabilityRequirements,
             payload: payload
         )

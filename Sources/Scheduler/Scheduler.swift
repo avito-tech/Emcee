@@ -218,18 +218,10 @@ public final class Scheduler {
         )
         
         let runner = Runner(
-            configuration: RunnerConfiguration(
-                buildArtifacts: bucket.payload.buildArtifacts,
-                environment: bucket.payload.testExecutionBehavior.environment,
-                pluginLocations: bucket.pluginLocations,
-                simulatorSettings: bucket.payload.simulatorSettings,
-                testTimeoutConfiguration: bucket.payload.testTimeoutConfiguration
-            ),
             dateProvider: try di.get(),
             developerDirLocator: try di.get(),
             fileSystem: try di.get(),
             logger: logger,
-            persistentMetricsJobId: bucket.analyticsConfiguration.persistentMetricsJobId,
             pluginEventBusProvider: try di.get(),
             runnerWasteCollectorProvider: try di.get(),
             specificMetricRecorder: specificMetricRecorder,
@@ -240,10 +232,19 @@ public final class Scheduler {
             waiter: try di.get()
         )
 
-        let runnerResult = try runner.run(
-            entries: testsToRun,
-            developerDir: bucket.payload.developerDir,
-            simulator: allocatedSimulator.simulator
+        let runnerResult = try runner.runOnce(
+            entriesToRun: testsToRun,
+            configuration: RunnerConfiguration(
+                buildArtifacts: bucket.payload.buildArtifacts,
+                developerDir: bucket.payload.developerDir,
+                environment: bucket.payload.testExecutionBehavior.environment,
+                lostTestProcessingMode: .reportError,
+                persistentMetricsJobId: bucket.analyticsConfiguration.persistentMetricsJobId,
+                pluginLocations: bucket.payload.pluginLocations,
+                simulator: allocatedSimulator.simulator,
+                simulatorSettings: bucket.payload.simulatorSettings,
+                testTimeoutConfiguration: bucket.payload.testTimeoutConfiguration
+            )
         )
         
         runnerResult.testEntryResults.filter { $0.isLost }.forEach {

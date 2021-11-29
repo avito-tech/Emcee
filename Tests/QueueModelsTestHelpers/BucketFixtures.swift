@@ -18,11 +18,11 @@ public final class BucketFixtures {
         return Bucket.newBucket(
             bucketId: bucketId,
             analyticsConfiguration: AnalyticsConfiguration(),
-            pluginLocations: [],
             workerCapabilityRequirements: workerCapabilityRequirements,
             payload: Payload(
                 buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
                 developerDir: .current,
+                pluginLocations: [],
                 simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
                 simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
                 testDestination: TestDestinationFixtures.testDestination,

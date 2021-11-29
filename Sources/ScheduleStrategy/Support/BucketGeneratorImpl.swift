@@ -35,11 +35,11 @@ public class BucketGeneratorImpl: BucketGenerator {
             return Bucket.newBucket(
                 bucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
                 analyticsConfiguration: entry.analyticsConfiguration,
-                pluginLocations: entry.pluginLocations,
                 workerCapabilityRequirements: entry.workerCapabilityRequirements,
                 payload: Payload(
                     buildArtifacts: entry.buildArtifacts,
                     developerDir: entry.developerDir,
+                    pluginLocations: entry.pluginLocations,
                     simulatorOperationTimeouts: entry.simulatorOperationTimeouts,
                     simulatorSettings: entry.simulatorSettings,
                     testDestination: entry.testDestination,

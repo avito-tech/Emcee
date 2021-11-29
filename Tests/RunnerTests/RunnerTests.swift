@@ -116,28 +116,6 @@ public final class RunnerTests: XCTestCase {
         wait(for: [busTornDownExpectation], timeout: 15)
     }
 
-    func test___running_test_without_stop_event_output_to_stream___revives_and_attempts_to_run_it_again() throws {
-        testRunnerProvider.predefinedFakeTestRunner.disableTestStoppedTestRunnerStreamEvents()
-
-        var numberOfAttemptsToRunTest = 0
-        testRunnerProvider.predefinedFakeTestRunner.onExecuteTest = { _ in
-            numberOfAttemptsToRunTest += 1
-            return .success
-        }
-
-        let runnerResults = try runTestEntries([testEntry])
-
-        XCTAssertEqual(numberOfAttemptsToRunTest, 2)
-
-        guard runnerResults.testEntryResults.count == 1, let testResult = runnerResults.testEntryResults.first else {
-            failTest("Unexpected number of test results")
-        }
-
-        XCTAssertFalse(testResult.succeeded)
-        XCTAssertEqual(testResult.testEntry, testEntry)
-        XCTAssertEqual(testResult.testRunResults[0].exceptions.first, RunnerConstants.testDidNotRun(testEntry.testName).testException)
-    }
-    
     func test___running_test_without_stop_event___does_not_revive___when_revive_is_disabled() throws {
         testRunnerProvider.predefinedFakeTestRunner.disableTestStoppedTestRunnerStreamEvents()
 
@@ -147,7 +125,7 @@ public final class RunnerTests: XCTestCase {
             return .success
         }
 
-        let runnerResults = try runTestEntries([testEntry], environment: [Runner.skipReviveAttemptsEnvName: "true"])
+        let runnerResults = try runTestEntries([testEntry], environment: [:])
 
         XCTAssertEqual(numberOfAttemptsToRunTest, 1)
 
@@ -534,12 +512,10 @@ public final class RunnerTests: XCTestCase {
         environment: [String: String] = [:]
     ) throws -> RunnerRunResult {
         let runner = Runner(
-            configuration: createRunnerConfig(environment: environment),
             dateProvider: dateProvider,
             developerDirLocator: FakeDeveloperDirLocator(result: tempFolder.absolutePath),
             fileSystem: fileSystem,
             logger: .noOp,
-            persistentMetricsJobId: nil,
             pluginEventBusProvider: noOpPluginEventBusProvider,
             runnerWasteCollectorProvider: FakeRunnerWasteCollectorProvider { [runnerWasteCollector] in
                 runnerWasteCollector
@@ -552,10 +528,9 @@ public final class RunnerTests: XCTestCase {
             version: Version(value: "version"),
             waiter: SynchronousWaiter()
         )
-        return try runner.run(
-            entries: testEntries,
-            developerDir: .current,
-            simulator: simulator
+        return try runner.runOnce(
+            entriesToRun: testEntries,
+            configuration: createRunnerConfig(environment: environment)
         )
     }
     
@@ -568,8 +543,12 @@ public final class RunnerTests: XCTestCase {
     private func createRunnerConfig(environment: [String: String]) -> RunnerConfiguration {
         return RunnerConfiguration(
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
+            developerDir: .current,
             environment: environment,
+            lostTestProcessingMode: .reportError,
+            persistentMetricsJobId: nil,
             pluginLocations: [],
+            simulator: simulator,
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testTimeoutConfiguration: TestTimeoutConfiguration(
                 singleTestMaximumDuration: testTimeout,

@@ -1,12 +1,14 @@
 import BuildArtifacts
 import DeveloperDirModels
+import Foundation
+import PluginSupport
 import RunnerModels
 import SimulatorPoolModels
-import Foundation
 
 public struct Payload: Codable, Hashable, CustomStringConvertible {
     public let buildArtifacts: BuildArtifacts
     public let developerDir: DeveloperDir
+    public let pluginLocations: Set<PluginLocation>
     public let simulatorOperationTimeouts: SimulatorOperationTimeouts
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
@@ -17,6 +19,7 @@ public struct Payload: Codable, Hashable, CustomStringConvertible {
     public init(
         buildArtifacts: BuildArtifacts,
         developerDir: DeveloperDir,
+        pluginLocations: Set<PluginLocation>,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
@@ -26,6 +29,7 @@ public struct Payload: Codable, Hashable, CustomStringConvertible {
     ) {
         self.buildArtifacts = buildArtifacts
         self.developerDir = developerDir
+        self.pluginLocations = pluginLocations
         self.simulatorOperationTimeouts = simulatorOperationTimeouts
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
@@ -42,6 +46,7 @@ public struct Payload: Codable, Hashable, CustomStringConvertible {
         Payload(
             buildArtifacts: buildArtifacts,
             developerDir: developerDir,
+            pluginLocations: pluginLocations,
             simulatorOperationTimeouts: simulatorOperationTimeouts,
             simulatorSettings: simulatorSettings,
             testDestination: testDestination,

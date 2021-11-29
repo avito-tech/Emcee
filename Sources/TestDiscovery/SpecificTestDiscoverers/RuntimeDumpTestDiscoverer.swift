@@ -78,18 +78,11 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         let runtimeEntriesJSONPath = tempFolder.pathWith(components: [uniqueIdentifierGenerator.generate()])
         configuration.logger.debug("Will dump runtime tests into file: \(runtimeEntriesJSONPath)")
         
-        let runnerConfiguration = buildRunnerConfiguration(
-            buildArtifacts: buildArtifacts,
-            configuration: configuration,
-            runtimeEntriesJSONPath: runtimeEntriesJSONPath
-        )
         let runner = Runner(
-            configuration: runnerConfiguration,
             dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
             logger: configuration.logger,
-            persistentMetricsJobId: configuration.analyticsConfiguration.persistentMetricsJobId,
             pluginEventBusProvider: pluginEventBusProvider,
             runnerWasteCollectorProvider: runnerWasteCollectorProvider,
             specificMetricRecorder: specificMetricRecorder,
@@ -107,9 +100,12 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         
         _ = try runner.runOnce(
             entriesToRun: [testEntryToQueryRuntimeDump],
-            developerDir: configuration.developerDir,
-            simulator: allocatedSimulator.simulator,
-            lostTestProcessingMode: .reportError
+            configuration: buildRunnerConfiguration(
+                buildArtifacts: buildArtifacts,
+                configuration: configuration,
+                runtimeEntriesJSONPath: runtimeEntriesJSONPath,
+                simulator: allocatedSimulator.simulator
+            )
         )
         
         guard fileSystem.properties(forFileAtPath: runtimeEntriesJSONPath).exists() else {
@@ -123,15 +119,20 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private func buildRunnerConfiguration(
         buildArtifacts: BuildArtifacts,
         configuration: TestDiscoveryConfiguration,
-        runtimeEntriesJSONPath: AbsolutePath
+        runtimeEntriesJSONPath: AbsolutePath,
+        simulator: Simulator
     ) -> RunnerConfiguration {
         return RunnerConfiguration(
             buildArtifacts: buildArtifacts,
+            developerDir: configuration.developerDir,
             environment: environment(
                 configuration: configuration,
                 runtimeEntriesJSONPath: runtimeEntriesJSONPath
             ),
+            lostTestProcessingMode: .reportError,
+            persistentMetricsJobId: configuration.analyticsConfiguration.persistentMetricsJobId,
             pluginLocations: configuration.pluginLocations,
+            simulator: simulator,
             simulatorSettings: configuration.simulatorSettings,
             testTimeoutConfiguration: configuration.testTimeoutConfiguration
         )

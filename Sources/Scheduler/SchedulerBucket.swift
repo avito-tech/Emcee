@@ -10,7 +10,6 @@ import RunnerModels
 public struct SchedulerBucket: CustomStringConvertible, Equatable {
     public let bucketId: BucketId
     public let analyticsConfiguration: AnalyticsConfiguration
-    public let pluginLocations: Set<PluginLocation>
     public let payload: Payload
     
     public var description: String {
@@ -19,7 +18,7 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
         result.append("\(bucketId)")
         result.append("buildArtifacts: \(payload.buildArtifacts)")
         result.append("developerDir: \(payload.developerDir)")
-        result.append("pluginLocations: \(pluginLocations)")
+        result.append("pluginLocations: \(payload.pluginLocations)")
         result.append("simulatorOperationTimeouts: \(payload.simulatorOperationTimeouts)")
         result.append("simulatorSettings: \(payload.simulatorSettings)")
         result.append("testDestination: \(payload.testDestination)")
@@ -33,12 +32,10 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
     public init(
         bucketId: BucketId,
         analyticsConfiguration: AnalyticsConfiguration,
-        pluginLocations: Set<PluginLocation>,
         payload: Payload
     ) {
         self.bucketId = bucketId
         self.analyticsConfiguration = analyticsConfiguration
-        self.pluginLocations = pluginLocations
         self.payload = payload
     }
     
@@ -46,10 +43,10 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
         return SchedulerBucket(
             bucketId: bucket.bucketId,
             analyticsConfiguration: bucket.analyticsConfiguration,
-            pluginLocations: bucket.pluginLocations,
             payload: Payload(
                 buildArtifacts: bucket.payload.buildArtifacts,
                 developerDir: bucket.payload.developerDir,
+                pluginLocations: bucket.payload.pluginLocations,
                 simulatorOperationTimeouts: bucket.payload.simulatorOperationTimeouts,
                 simulatorSettings: bucket.payload.simulatorSettings,
                 testDestination: bucket.payload.testDestination,

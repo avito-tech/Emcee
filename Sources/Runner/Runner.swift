@@ -21,12 +21,10 @@ import Tmp
 import UniqueIdentifierGenerator
 
 public final class Runner {
-    private let configuration: RunnerConfiguration
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let fileSystem: FileSystem
     private let logger: ContextualLogger
-    private let persistentMetricsJobId: String?
     private let pluginEventBusProvider: PluginEventBusProvider
     private let pluginTearDownQueue = OperationQueue()
     private let runnerWasteCollectorProvider: RunnerWasteCollectorProvider
@@ -38,19 +36,16 @@ public final class Runner {
     private let version: Version
     private let waiter: Waiter
     
-    public static let skipReviveAttemptsEnvName = "EMCEE_SKIP_REVIVE_ATTEMPTS"
     public static let logCapturingModeEnvName = "EMCEE_LOG_CAPTURE_MODE"
     
     public static let runnerWorkingDir = "runnerWorkingDir"
     public static let testsWorkingDir = "testsWorkingDir"
     
     public init(
-        configuration: RunnerConfiguration,
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         fileSystem: FileSystem,
         logger: ContextualLogger,
-        persistentMetricsJobId: String?,
         pluginEventBusProvider: PluginEventBusProvider,
         runnerWasteCollectorProvider: RunnerWasteCollectorProvider,
         specificMetricRecorder: SpecificMetricRecorder,
@@ -61,12 +56,10 @@ public final class Runner {
         version: Version,
         waiter: Waiter
     ) {
-        self.configuration = configuration
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.fileSystem = fileSystem
         self.logger = logger
-        self.persistentMetricsJobId = persistentMetricsJobId
         self.pluginEventBusProvider = pluginEventBusProvider
         self.runnerWasteCollectorProvider = runnerWasteCollectorProvider
         self.specificMetricRecorder = specificMetricRecorder
@@ -78,71 +71,10 @@ public final class Runner {
         self.waiter = waiter
     }
     
-    /** Runs the given tests, attempting to restart the runner in case of crash. */
-    public func run(
-        entries: [TestEntry],
-        developerDir: DeveloperDir,
-        simulator: Simulator
-    ) throws -> RunnerRunResult {
-        if entries.isEmpty {
-            return RunnerRunResult(
-                entriesToRun: entries,
-                testEntryResults: []
-            )
-        }
-        
-        let runResult = RunResult()
-        
-        // To not retry forever.
-        // It is unlikely that multiple revives would provide any results, so we leave only a single retry.
-        let numberOfAttemptsToRevive = 1
-        
-        // Something may crash (xcodebuild/xctest), many tests may be not started. Some external code that uses Runner
-        // may have its own logic for restarting particular tests, but here at Runner we deal with crashes of bunches
-        // of tests, many of which can be even not started. Simplifying this: if something that runs tests is crashed,
-        // we should retry running tests more than if some test fails. External code will treat failed tests as it
-        // is promblem in them, not in infrastructure.
-        
-        var reviveAttempt = 0
-        
-        let lostTestProcessingMode: LostTestProcessingMode = configuration.environment[Self.skipReviveAttemptsEnvName] == "true" ? .reportError : .reportLost
-
-        while runResult.nonLostTestEntryResults.count < entries.count, reviveAttempt <= numberOfAttemptsToRevive {
-            let missingEntriesToRun = missingEntriesForScheduledEntries(
-                expectedEntriesToRun: entries,
-                collectedResults: runResult
-            )
-            let runResults = try runOnce(
-                entriesToRun: missingEntriesToRun,
-                developerDir: developerDir,
-                simulator: simulator,
-                lostTestProcessingMode: reviveAttempt == numberOfAttemptsToRevive ? .reportError : lostTestProcessingMode
-            )
-            
-            runResult.append(testEntryResults: runResults.testEntryResults)
-            
-            if runResults.testEntryResults.filter({ !$0.isLost }).isEmpty {
-                // Here, if we do not receive events at all, we will get 0 results. We try to revive a limited number of times.
-                reviveAttempt += 1
-                logger.warning("Got no results. Attempting to revive #\(reviveAttempt) out of allowed \(numberOfAttemptsToRevive) attempts to revive")
-            } else {
-                // Here, we actually got events, so we could reset revive attempts.
-                reviveAttempt = 0
-            }
-        }
-        
-        return RunnerRunResult(
-            entriesToRun: entries,
-            testEntryResults: runResult.testEntryResults
-        )
-    }
-    
     /// Runs the given tests once without any attempts to restart the failed or crashed tests.
     public func runOnce(
         entriesToRun: [TestEntry],
-        developerDir: DeveloperDir,
-        simulator: Simulator,
-        lostTestProcessingMode: LostTestProcessingMode
+        configuration: RunnerConfiguration
     ) throws -> RunnerRunResult {
         if entriesToRun.isEmpty {
             return RunnerRunResult(
@@ -163,19 +95,18 @@ public final class Runner {
         )
         
         let testContext = try createTestContext(
-            developerDir: developerDir,
-            simulator: simulator,
+            configuration: configuration,
             testRunner: testRunner
         )
         
         let runnerWasteCollector = runnerWasteCollectorProvider.createRunnerWasteCollector()
         runnerWasteCollector.scheduleCollection(path: testContext.testsWorkingDirectory)
         runnerWasteCollector.scheduleCollection(path: testContext.testRunnerWorkingDirectory)
-        runnerWasteCollector.scheduleCollection(path: simulator.path.appending(relativePath: "data/Library/Caches/com.apple.containermanagerd/Dead"))
+        runnerWasteCollector.scheduleCollection(path: configuration.simulator.path.appending(relativePath: "data/Library/Caches/com.apple.containermanagerd/Dead"))
         
         let runnerResultsPreparer = RunnerResultsPreparerImpl(
             dateProvider: dateProvider,
-            lostTestProcessingMode: lostTestProcessingMode
+            lostTestProcessingMode: configuration.lostTestProcessingMode
         )
         
         let eventBus = try pluginEventBusProvider.createEventBus(
@@ -190,7 +121,7 @@ public final class Runner {
         }
         
         var logger = self.logger
-        logger.debug("Will run \(entriesToRun.count) tests on simulator \(simulator)")
+        logger.debug("Will run \(entriesToRun.count) tests on simulator \(configuration.simulator)")
         
         let singleTestMaximumDuration = configuration.testTimeoutConfiguration.singleTestMaximumDuration
         
@@ -210,7 +141,7 @@ public final class Runner {
                             collectedTestExceptions: collectedTestExceptions,
                             collectedLogs: collectedLogs,
                             requestedEntriesToRun: entriesToRun,
-                            simulatorId: simulator.udid
+                            simulatorId: configuration.simulator.udid
                         )
                     }
                 ),
@@ -241,7 +172,7 @@ public final class Runner {
                     dateProvider: dateProvider,
                     version: version,
                     host: LocalHostDeterminer.currentHostAddress,
-                    persistentMetricsJobId: persistentMetricsJobId,
+                    persistentMetricsJobId: configuration.persistentMetricsJobId,
                     specificMetricRecorder: specificMetricRecorder
                 ),
                 TestRunnerStreamWrapper(
@@ -302,7 +233,7 @@ public final class Runner {
             entriesToRun: entriesToRun,
             logger: logger,
             runnerWasteCollector: runnerWasteCollector,
-            simulator: simulator,
+            simulator: configuration.simulator,
             testContext: testContext,
             testRunnerStream: testRunnerStream
         ).startExecutingTests()
@@ -322,10 +253,10 @@ public final class Runner {
             collectedTestExceptions: collectedTestExceptions,
             collectedLogs: collectedLogs,
             requestedEntriesToRun: entriesToRun,
-            simulatorId: simulator.udid
+            simulatorId: configuration.simulator.udid
         )
         
-        logger.debug("Attempted to run \(entriesToRun.count) tests on simulator \(simulator): \(entriesToRun)")
+        logger.debug("Attempted to run \(entriesToRun.count) tests on simulator \(configuration.simulator): \(entriesToRun)")
         logger.debug("Did get \(result.count) results: \(result)")
         
         return RunnerRunResult(
@@ -341,8 +272,7 @@ public final class Runner {
     }
     
     private func createTestContext(
-        developerDir: DeveloperDir,
-        simulator: Simulator,
+        configuration: RunnerConfiguration,
         testRunner: TestRunner
     ) throws -> TestContext {
         let contextId = uniqueIdentifierGenerator.generate()
@@ -356,18 +286,21 @@ public final class Runner {
         let additionalEnvironment = testRunner.additionalEnvironment(testRunnerWorkingDirectory: testRunnerWorkingDirectory)
         var environment = configuration.environment
         environment[TestsWorkingDirectorySupport.envTestsWorkingDirectory] = testsWorkingDirectory.pathString
-        environment = try developerDirLocator.suitableEnvironment(forDeveloperDir: developerDir, byUpdatingEnvironment: environment)
+        environment = try developerDirLocator.suitableEnvironment(
+            forDeveloperDir: configuration.developerDir,
+            byUpdatingEnvironment: environment
+        )
         additionalEnvironment.forEach {
             environment[$0.key] = $0.value
         }
         
         return TestContext(
             contextId: contextId,
-            developerDir: developerDir,
+            developerDir: configuration.developerDir,
             environment: environment,
-            simulatorPath: simulator.path,
-            simulatorUdid: simulator.udid,
-            testDestination: simulator.testDestination,
+            simulatorPath: configuration.simulator.path,
+            simulatorUdid: configuration.simulator.udid,
+            testDestination: configuration.simulator.testDestination,
             testRunnerWorkingDirectory: testRunnerWorkingDirectory,
             testsWorkingDirectory: testsWorkingDirectory
         )
