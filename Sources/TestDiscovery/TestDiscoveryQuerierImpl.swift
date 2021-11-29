@@ -262,7 +262,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
                 tempFolder: tempFolder,
                 uniqueIdentifierGenerator: uniqueIdentifierGenerator
             )
-        case .runtimeLogicTest(let simulatorControlTool):
+        case .runtimeLogicTest:
             return createRuntimeDumpBasedTestDiscoverer(
                 buildArtifacts: .iosLogicTests(
                     xcTestBundle: XcTestBundle(
@@ -270,7 +270,6 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
                         testDiscoveryMode: .runtimeLogicTest
                     )
                 ),
-                simulatorControlTool: simulatorControlTool,
                 specificMetricRecorder: specificMetricRecorder
             )
         case .runtimeAppTest(let runtimeDumpApplicationTestSupport):
@@ -282,7 +281,6 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
                     ),
                     appBundle: runtimeDumpApplicationTestSupport.appBundle
                 ),
-                simulatorControlTool: runtimeDumpApplicationTestSupport.simulatorControlTool,
                 specificMetricRecorder: specificMetricRecorder
             )
         }
@@ -290,7 +288,6 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     
     private func createRuntimeDumpBasedTestDiscoverer(
         buildArtifacts: BuildArtifacts,
-        simulatorControlTool: SimulatorControlTool,
         specificMetricRecorder: SpecificMetricRecorder
     ) -> RuntimeDumpTestDiscoverer {
         RuntimeDumpTestDiscoverer(
@@ -302,7 +299,6 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,
             runnerWasteCollectorProvider: runnerWasteCollectorProvider,
-            simulatorControlTool: simulatorControlTool,
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,

@@ -48,7 +48,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     
     private let callbackQueue = DispatchQueue(label: "RunTestsOnRemoteQueueCommand.callbackQueue")
     private let di: DI
-    private let testArgFileValidator = TestArgFileValidator()
     
     public init(di: DI) throws {
         self.di = di
@@ -69,7 +68,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
         let tempFolder = try TemporaryFolder(containerPath: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.tempFolder.name))
         let testArgFile = try ArgumentsReader.testArgFile(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testArgFile.name))
-        try testArgFileValidator.validate(testArgFile: testArgFile)
         
         if let kibanaConfiguration = testArgFile.prioritizedJob.analyticsConfiguration.kibanaConfiguration {
             try di.get(LoggingSetup.self).set(kibanaConfiguration: kibanaConfiguration)

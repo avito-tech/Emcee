@@ -29,17 +29,14 @@ public final class DefaultTestRunnerProvider: TestRunnerProvider {
         self.xcResultTool = xcResultTool
     }
 
-    public func testRunner(testRunnerTool: TestRunnerTool) throws -> TestRunner {
-        switch testRunnerTool {
-        case .xcodebuild:
-            return XcodebuildBasedTestRunner(
-                dateProvider: dateProvider,
-                fileSystem: fileSystem,
-                processControllerProvider: processControllerProvider,
-                resourceLocationResolver: resourceLocationResolver,
-                xcResultTool: xcResultTool
-            )
-        }
+    public func testRunner() throws -> TestRunner {
+        return XcodebuildBasedTestRunner(
+            dateProvider: dateProvider,
+            fileSystem: fileSystem,
+            processControllerProvider: processControllerProvider,
+            resourceLocationResolver: resourceLocationResolver,
+            xcResultTool: xcResultTool
+        )
     }
 }
 

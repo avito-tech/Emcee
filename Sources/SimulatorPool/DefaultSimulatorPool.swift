@@ -10,7 +10,6 @@ import Tmp
 public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible {
     private let developerDir: DeveloperDir
     private let logger: ContextualLogger
-    private let simulatorControlTool: SimulatorControlTool
     private let simulatorControllerProvider: SimulatorControllerProvider
     private let tempFolder: TemporaryFolder
     private let testDestination: TestDestination
@@ -24,14 +23,12 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
     public init(
         developerDir: DeveloperDir,
         logger: ContextualLogger,
-        simulatorControlTool: SimulatorControlTool,
         simulatorControllerProvider: SimulatorControllerProvider,
         tempFolder: TemporaryFolder,
         testDestination: TestDestination
     ) throws {
         self.developerDir = developerDir
         self.logger = logger
-        self.simulatorControlTool = simulatorControlTool
         self.simulatorControllerProvider = simulatorControllerProvider
         self.tempFolder = tempFolder
         self.testDestination = testDestination
@@ -50,7 +47,6 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
             }
             let controller = try simulatorControllerProvider.createSimulatorController(
                 developerDir: developerDir,
-                simulatorControlTool: simulatorControlTool,
                 temporaryFolder: tempFolder,
                 testDestination: testDestination
             )

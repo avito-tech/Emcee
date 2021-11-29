@@ -243,12 +243,11 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             analyticsConfiguration: AnalyticsConfiguration(),
             developerDir: DeveloperDir.current,
             pluginLocations: [],
-            testDiscoveryMode: .runtimeLogicTest(applicationTestSupport?.simulatorControlTool ?? SimulatorControlToolFixtures.simctlTool),
+            testDiscoveryMode: .runtimeLogicTest,
             simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: TestDestinationFixtures.testDestination,
             testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 0),
-            testRunnerTool: .xcodebuild,
             testTimeoutConfiguration: TestTimeoutConfiguration(
                 singleTestMaximumDuration: 10,
                 testRunnerMaximumSilenceDuration: 10
@@ -262,8 +261,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
 
     private func buildApplicationTestSupport() -> RuntimeDumpApplicationTestSupport {
         return RuntimeDumpApplicationTestSupport(
-            appBundle: AppBundleLocation(.localFilePath("")),
-            simulatorControlTool: SimulatorControlToolFixtures.simctlTool
+            appBundle: AppBundleLocation(.localFilePath(""))
         )
     }
 }

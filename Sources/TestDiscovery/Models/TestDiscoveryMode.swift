@@ -5,7 +5,7 @@ import SimulatorPoolModels
 public enum TestDiscoveryMode: Hashable {
     case parseFunctionSymbols
     case runtimeExecutableLaunch(AppBundleLocation)
-    case runtimeLogicTest(SimulatorControlTool)
+    case runtimeLogicTest
     case runtimeAppTest(RuntimeDumpApplicationTestSupport)
 
     public func hash(into hasher: inout Hasher) {
@@ -15,9 +15,8 @@ public enum TestDiscoveryMode: Hashable {
         case .runtimeExecutableLaunch(let data):
             hasher.combine("runtimeExecutableLaunch")
             hasher.combine(data)
-        case .runtimeLogicTest(let data):
+        case .runtimeLogicTest:
             hasher.combine("runtimeLogicTest")
-            hasher.combine(data)
         case .runtimeAppTest(let data):
             hasher.combine("runtimeAppTest")
             hasher.combine(data)

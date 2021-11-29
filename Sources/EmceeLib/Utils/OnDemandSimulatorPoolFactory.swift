@@ -23,9 +23,7 @@ public final class OnDemandSimulatorPoolFactory {
                     dateProvider: try di.get(),
                     processControllerProvider: try di.get(),
                     simulatorSetPathDeterminer: SimulatorSetPathDeterminerImpl(
-                        fileSystem: try di.get(),
-                        temporaryFolder: try di.get(),
-                        uniqueIdentifierGenerator: try di.get()
+                        fileSystem: try di.get()
                     ),
                     version: version,
                     globalMetricRecorder: try di.get()

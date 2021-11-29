@@ -19,10 +19,6 @@ public enum TestArgFileDefaultValues {
     public static let scheduleStrategy = ScheduleStrategy(
         testSplitterType: .progressive
     )
-    public static let simulatorControlTool = SimulatorControlTool(
-        location: .insideUserLibrary, 
-        tool: .simctl
-    )
     public static let simulatorOperationTimeouts = SimulatorOperationTimeouts(
         create: 60,
         boot: 180,
@@ -48,7 +44,6 @@ public enum TestArgFileDefaultValues {
         ),
         watchdogSettings: WatchdogSettings(bundleIds: [], timeout: 20)
     )
-    public static let testRunnerTool: TestRunnerTool = .xcodebuild
     public static let testTimeoutConfiguration = TestTimeoutConfiguration(
         singleTestMaximumDuration: 180,
         testRunnerMaximumSilenceDuration: 60

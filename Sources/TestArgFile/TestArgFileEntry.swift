@@ -15,11 +15,9 @@ public struct TestArgFileEntry: Codable, Equatable {
     public let numberOfRetries: UInt
     public let pluginLocations: Set<PluginLocation>
     public let scheduleStrategy: ScheduleStrategy
-    public let simulatorControlTool: SimulatorControlTool
     public let simulatorOperationTimeouts: SimulatorOperationTimeouts
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
-    public let testRunnerTool: TestRunnerTool
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testsToRun: [TestToRun]
     public let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
@@ -31,11 +29,9 @@ public struct TestArgFileEntry: Codable, Equatable {
         numberOfRetries: UInt,
         pluginLocations: Set<PluginLocation>,
         scheduleStrategy: ScheduleStrategy,
-        simulatorControlTool: SimulatorControlTool,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
-        testRunnerTool: TestRunnerTool,
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testsToRun: [TestToRun],
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
@@ -46,11 +42,9 @@ public struct TestArgFileEntry: Codable, Equatable {
         self.numberOfRetries = numberOfRetries
         self.pluginLocations = pluginLocations
         self.scheduleStrategy = scheduleStrategy
-        self.simulatorControlTool = simulatorControlTool
         self.simulatorOperationTimeouts = simulatorOperationTimeouts
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
-        self.testRunnerTool = testRunnerTool
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testsToRun = testsToRun
         self.workerCapabilityRequirements = workerCapabilityRequirements
@@ -73,15 +67,11 @@ public struct TestArgFileEntry: Codable, Equatable {
             TestArgFileDefaultValues.pluginLocations
         let scheduleStrategy = try container.decodeIfPresent(ScheduleStrategy.self, forKey: .scheduleStrategy) ??
             TestArgFileDefaultValues.scheduleStrategy
-        let simulatorControlTool = try container.decodeIfPresent(SimulatorControlTool.self, forKey: .simulatorControlTool) ??
-            TestArgFileDefaultValues.simulatorControlTool
         let simulatorOperationTimeouts = try container.decodeIfPresent(SimulatorOperationTimeouts.self, forKey: .simulatorOperationTimeouts) ??
             TestArgFileDefaultValues.simulatorOperationTimeouts
         let simulatorSettings = try container.decodeIfPresent(SimulatorSettings.self, forKey: .simulatorSettings) ??
             TestArgFileDefaultValues.simulatorSettings
         
-        let testRunnerTool = try container.decodeIfPresent(TestRunnerTool.self, forKey: .testRunnerTool) ??
-            TestArgFileDefaultValues.testRunnerTool
         let testTimeoutConfiguration = try container.decodeIfPresent(TestTimeoutConfiguration.self, forKey: .testTimeoutConfiguration) ??
             TestArgFileDefaultValues.testTimeoutConfiguration
         let workerCapabilityRequirements = try container.decodeIfPresent(Set<WorkerCapabilityRequirement>.self, forKey: .workerCapabilityRequirements) ??
@@ -94,11 +84,9 @@ public struct TestArgFileEntry: Codable, Equatable {
             numberOfRetries: numberOfRetries,
             pluginLocations: pluginLocations,
             scheduleStrategy: scheduleStrategy,
-            simulatorControlTool: simulatorControlTool,
             simulatorOperationTimeouts: simulatorOperationTimeouts,
             simulatorSettings: simulatorSettings,
             testDestination: testDestination,
-            testRunnerTool: testRunnerTool,
             testTimeoutConfiguration: testTimeoutConfiguration,
             testsToRun: testsToRun,
             workerCapabilityRequirements: workerCapabilityRequirements

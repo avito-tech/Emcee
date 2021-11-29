@@ -39,7 +39,6 @@ public final class TestEntryConfigurationGenerator {
                     buildArtifacts: testArgFileEntry.buildArtifacts,
                     developerDir: testArgFileEntry.developerDir,
                     pluginLocations: testArgFileEntry.pluginLocations,
-                    simulatorControlTool: testArgFileEntry.simulatorControlTool,
                     simulatorOperationTimeouts: testArgFileEntry.simulatorOperationTimeouts,
                     simulatorSettings: testArgFileEntry.simulatorSettings,
                     testDestination: testArgFileEntry.testDestination,
@@ -48,7 +47,6 @@ public final class TestEntryConfigurationGenerator {
                         environment: testArgFileEntry.environment,
                         numberOfRetries: testArgFileEntry.numberOfRetries
                     ),
-                    testRunnerTool: testArgFileEntry.testRunnerTool,
                     testTimeoutConfiguration: testArgFileEntry.testTimeoutConfiguration,
                     workerCapabilityRequirements: testArgFileEntry.workerCapabilityRequirements
                 )

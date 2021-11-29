@@ -20,12 +20,10 @@ final class GroupedTestEntryConfigurations {
             let buildArtifacts: BuildArtifacts
             let developerDir: DeveloperDir
             let pluginLocations: Set<PluginLocation>
-            let simulatorControlTool: SimulatorControlTool
             let simulatorOperationTimeouts: SimulatorOperationTimeouts
             let simulatorSettings: SimulatorSettings
             let testDestination: TestDestination
             let testExecutionBehavior: TestExecutionBehavior
-            let testRunnerTool: TestRunnerTool
             let testTimeoutConfiguration: TestTimeoutConfiguration
             let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
         }
@@ -37,12 +35,10 @@ final class GroupedTestEntryConfigurations {
                 buildArtifacts: testEntryConfiguration.buildArtifacts,
                 developerDir: testEntryConfiguration.developerDir,
                 pluginLocations: testEntryConfiguration.pluginLocations,
-                simulatorControlTool: testEntryConfiguration.simulatorControlTool,
                 simulatorOperationTimeouts: testEntryConfiguration.simulatorOperationTimeouts,
                 simulatorSettings: testEntryConfiguration.simulatorSettings,
                 testDestination: testEntryConfiguration.testDestination,
                 testExecutionBehavior: testEntryConfiguration.testExecutionBehavior,
-                testRunnerTool: testEntryConfiguration.testRunnerTool,
                 testTimeoutConfiguration: testEntryConfiguration.testTimeoutConfiguration,
                 workerCapabilityRequirements: testEntryConfiguration.workerCapabilityRequirements
             )

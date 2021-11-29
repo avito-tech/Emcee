@@ -571,7 +571,6 @@ public final class RunnerTests: XCTestCase {
             environment: environment,
             pluginLocations: [],
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-            testRunnerTool: .xcodebuild,
             testTimeoutConfiguration: TestTimeoutConfiguration(
                 singleTestMaximumDuration: testTimeout,
                 testRunnerMaximumSilenceDuration: 0

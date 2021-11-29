@@ -80,7 +80,6 @@ public final class PipelinedTestDiscoverer {
                             environment: testArgFileEntry.environment,
                             numberOfRetries: testArgFileEntry.numberOfRetries
                         ),
-                        testRunnerTool: testArgFileEntry.testRunnerTool,
                         testTimeoutConfiguration: testTimeoutConfigurationForRuntimeDump,
                         testsToValidate: testArgFileEntry.testsToRun,
                         xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location,

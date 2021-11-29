@@ -34,7 +34,7 @@ public final class TestDiscoveryModeDeterminer {
             }
             
         case .runtimeLogicTest:
-            return .runtimeLogicTest(testArgFileEntry.simulatorControlTool)
+            return .runtimeLogicTest
             
         case .runtimeAppTest:
             switch testArgFileEntry.buildArtifacts {
@@ -43,15 +43,13 @@ public final class TestDiscoveryModeDeterminer {
             case .iosApplicationTests(_, let appBundle):
                 return .runtimeAppTest(
                     RuntimeDumpApplicationTestSupport(
-                        appBundle: appBundle,
-                        simulatorControlTool: testArgFileEntry.simulatorControlTool
+                        appBundle: appBundle
                     )
                 )
             case .iosUiTests(_, let appBundle, _, _):
                 return .runtimeAppTest(
                     RuntimeDumpApplicationTestSupport(
-                        appBundle: appBundle,
-                        simulatorControlTool: testArgFileEntry.simulatorControlTool
+                        appBundle: appBundle
                     )
                 )
             }

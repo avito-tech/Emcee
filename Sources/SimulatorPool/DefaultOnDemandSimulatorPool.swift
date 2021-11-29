@@ -34,7 +34,6 @@ public class DefaultOnDemandSimulatorPool: OnDemandSimulatorPool {
                 let pool = try DefaultSimulatorPool(
                     developerDir: key.developerDir,
                     logger: logger,
-                    simulatorControlTool: key.simulatorControlTool,
                     simulatorControllerProvider: simulatorControllerProvider,
                     tempFolder: tempFolder,
                     testDestination: key.testDestination

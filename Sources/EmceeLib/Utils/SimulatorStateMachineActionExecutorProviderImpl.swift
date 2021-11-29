@@ -33,21 +33,13 @@ public final class SimulatorStateMachineActionExecutorProviderImpl: SimulatorSta
     }
     
     public func simulatorStateMachineActionExecutor(
-        simulatorControlTool: SimulatorControlTool
     ) throws -> SimulatorStateMachineActionExecutor {
-        let simulatorSetPath = try simulatorSetPathDeterminer.simulatorSetPathSuitableForTestRunnerTool(
-            simulatorLocation: simulatorControlTool.location
+        let simulatorSetPath = try simulatorSetPathDeterminer.simulatorSetPathSuitableForTestRunnerTool()
+        
+        let simulatorStateMachineActionExecutor = SimctlBasedSimulatorStateMachineActionExecutor(
+            processControllerProvider: processControllerProvider,
+            simulatorSetPath: simulatorSetPath
         )
-        
-        let simulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor
-        
-        switch simulatorControlTool.tool {
-        case .simctl:
-            simulatorStateMachineActionExecutor = SimctlBasedSimulatorStateMachineActionExecutor(
-                processControllerProvider: processControllerProvider,
-                simulatorSetPath: simulatorSetPath
-            )
-        }
         
         return MetricSupportingSimulatorStateMachineActionExecutor(
             dateProvider: dateProvider,

@@ -93,7 +93,6 @@ public final class InitTestArgFileCommand: Command {
                         ),
                     ],
                     scheduleStrategy: TestArgFileDefaultValues.scheduleStrategy,
-                    simulatorControlTool: TestArgFileDefaultValues.simulatorControlTool,
                     simulatorOperationTimeouts: SimulatorOperationTimeouts(
                         create: 60,
                         boot: 180,
@@ -104,7 +103,6 @@ public final class InitTestArgFileCommand: Command {
                     ),
                     simulatorSettings: TestArgFileDefaultValues.simulatorSettings,
                     testDestination: testDestination,
-                    testRunnerTool: TestArgFileDefaultValues.testRunnerTool,
                     testTimeoutConfiguration: TestArgFileDefaultValues.testTimeoutConfiguration,
                     testsToRun: [
                         .testName(TestName(className: "ClassName", methodName: "test")),

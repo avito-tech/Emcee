@@ -159,9 +159,7 @@ public final class Runner {
         
         let testRunner = FailureReportingTestRunnerProxy(
             dateProvider: dateProvider,
-            testRunner: try testRunnerProvider.testRunner(
-                testRunnerTool: configuration.testRunnerTool
-            )
+            testRunner: try testRunnerProvider.testRunner()
         )
         
         let testContext = try createTestContext(

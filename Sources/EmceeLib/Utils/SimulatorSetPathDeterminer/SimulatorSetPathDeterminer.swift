@@ -4,7 +4,5 @@ import RunnerModels
 import SimulatorPoolModels
 
 public protocol SimulatorSetPathDeterminer {
-    func simulatorSetPathSuitableForTestRunnerTool(
-        simulatorLocation: SimulatorLocation
-    ) throws -> AbsolutePath
+    func simulatorSetPathSuitableForTestRunnerTool() throws -> AbsolutePath
 }

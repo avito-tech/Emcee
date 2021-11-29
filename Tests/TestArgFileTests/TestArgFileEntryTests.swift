@@ -45,15 +45,6 @@ final class TestArgFileEntryTests: XCTestCase {
                     },
                     "additionalApplicationBundles": ["/additionalApp1","/additionalApp2"]
                 },
-                "testRunnerTool": {
-                    "toolType": "xcodebuild"
-                },
-                "simulatorControlTool": {
-                    "location": "insideUserLibrary",
-                    "tool": {
-                        "toolType": "simctl"
-                    }
-                },
                 "developerDir": {
                     "kind": "current"
                 },
@@ -130,10 +121,6 @@ final class TestArgFileEntryTests: XCTestCase {
                     PluginLocation(.remoteUrl(URL(string: "http://example.com/plugin.zip#sample.emceeplugin")!, [:]))
                 ],
                 scheduleStrategy: ScheduleStrategy(testSplitterType: .unsplit),
-                simulatorControlTool: SimulatorControlTool(
-                    location: .insideUserLibrary,
-                    tool: .simctl
-                ),
                 simulatorOperationTimeouts: SimulatorOperationTimeouts(
                     create: 50,
                     boot: 51,
@@ -153,7 +140,6 @@ final class TestArgFileEntryTests: XCTestCase {
                     watchdogSettings: WatchdogSettings(bundleIds: ["sample.app"], timeout: 42)
                 ),
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
-                testRunnerTool: .xcodebuild,
                 testTimeoutConfiguration: TestTimeoutConfiguration(
                     singleTestMaximumDuration: 42,
                     testRunnerMaximumSilenceDuration: 24
@@ -217,11 +203,9 @@ final class TestArgFileEntryTests: XCTestCase {
                 numberOfRetries: TestArgFileDefaultValues.numberOfRetries,
                 pluginLocations: TestArgFileDefaultValues.pluginLocations,
                 scheduleStrategy: TestArgFileDefaultValues.scheduleStrategy,
-                simulatorControlTool: TestArgFileDefaultValues.simulatorControlTool,
                 simulatorOperationTimeouts: TestArgFileDefaultValues.simulatorOperationTimeouts,
                 simulatorSettings: TestArgFileDefaultValues.simulatorSettings,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
-                testRunnerTool: TestArgFileDefaultValues.testRunnerTool,
                 testTimeoutConfiguration: TestArgFileDefaultValues.testTimeoutConfiguration,
                 testsToRun: [
                     .allDiscoveredTests,

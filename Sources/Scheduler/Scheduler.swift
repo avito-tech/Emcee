@@ -193,8 +193,7 @@ public final class Scheduler {
         let simulatorPool = try di.get(OnDemandSimulatorPool.self).pool(
             key: OnDemandSimulatorPoolKey(
                 developerDir: bucket.payload.developerDir,
-                testDestination: bucket.payload.testDestination,
-                simulatorControlTool: bucket.payload.simulatorControlTool
+                testDestination: bucket.payload.testDestination
             )
         )
         
@@ -224,7 +223,6 @@ public final class Scheduler {
                 environment: bucket.payload.testExecutionBehavior.environment,
                 pluginLocations: bucket.pluginLocations,
                 simulatorSettings: bucket.payload.simulatorSettings,
-                testRunnerTool: bucket.payload.testRunnerTool,
                 testTimeoutConfiguration: bucket.payload.testTimeoutConfiguration
             ),
             dateProvider: try di.get(),

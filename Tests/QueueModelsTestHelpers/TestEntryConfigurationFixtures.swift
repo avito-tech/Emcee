@@ -94,13 +94,11 @@ public final class TestEntryConfigurationFixtures {
                 buildArtifacts: buildArtifacts,
                 developerDir: developerDir,
                 pluginLocations: pluginLocations,
-                simulatorControlTool: SimulatorControlToolFixtures.simctlTool,
                 simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
                 simulatorSettings: simulatorSettings,
                 testDestination: testDestination,
                 testEntry: testEntry,
                 testExecutionBehavior: testExecutionBehavior,
-                testRunnerTool: .xcodebuild,
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 workerCapabilityRequirements: workerCapabilityRequirements
             )

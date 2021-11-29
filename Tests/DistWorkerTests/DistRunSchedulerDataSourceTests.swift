@@ -18,13 +18,11 @@ final class DistRunSchedulerDataSourceTests: XCTestCase {
                 payload: Payload(
                     buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
                     developerDir: .current,
-                    simulatorControlTool: SimulatorControlToolFixtures.simctlTool,
                     simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
                     simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
                     testDestination: TestDestinationFixtures.testDestination,
                     testEntries: [TestEntryFixtures.testEntry()],
                     testExecutionBehavior: TestExecutionBehaviorFixtures(environment: ["a": "b"]).build(),
-                    testRunnerTool: .xcodebuild,
                     testTimeoutConfiguration: TestTimeoutConfiguration(
                         singleTestMaximumDuration: 0,
                         testRunnerMaximumSilenceDuration: 0

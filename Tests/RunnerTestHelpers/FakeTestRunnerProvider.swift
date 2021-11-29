@@ -7,7 +7,7 @@ public final class FakeTestRunnerProvider: TestRunnerProvider {
 
     public init() {}
 
-    public func testRunner(testRunnerTool: TestRunnerTool) throws -> TestRunner {
+    public func testRunner() throws -> TestRunner {
         return predefinedTestRunner
     }
 }

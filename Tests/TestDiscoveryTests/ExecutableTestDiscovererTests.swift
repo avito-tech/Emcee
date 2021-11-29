@@ -223,7 +223,6 @@ final class ExecutableTestDiscovererTests: XCTestCase {
         simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
         testDestination: TestDestinationFixtures.testDestination,
         testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
-        testRunnerTool: .xcodebuild,
         testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
         testsToValidate: [],
         xcTestBundleLocation: testBundleLocation,

@@ -13,7 +13,6 @@ class DefaultSimulatorPoolTests: XCTestCase {
     lazy var simulatorControllerProvider = FakeSimulatorControllerProvider { testDestination -> SimulatorController in
         return FakeSimulatorController(
             simulator: SimulatorFixture.simulator(),
-            simulatorControlTool: SimulatorControlToolFixtures.simctlTool,
             developerDir: .current
         )
     }
@@ -21,7 +20,6 @@ class DefaultSimulatorPoolTests: XCTestCase {
         try DefaultSimulatorPool(
             developerDir: DeveloperDir.current,
             logger: .noOp,
-            simulatorControlTool: SimulatorControlToolFixtures.simctlTool,
             simulatorControllerProvider: simulatorControllerProvider,
             tempFolder: tempFolder,
             testDestination: TestDestinationFixtures.testDestination

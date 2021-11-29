@@ -20,19 +20,16 @@ final class SimulatorStateMachineActionExecutorProviderTests: XCTestCase {
     private lazy var provider = SimulatorStateMachineActionExecutorProviderImpl(
         dateProvider: DateProviderFixture(),
         processControllerProvider: fakeProcessControllerProvider,
-        simulatorSetPathDeterminer: FakeSimulatorSetPathDeterminer(provider: { _ in self.tempFolder.absolutePath }),
+        simulatorSetPathDeterminer: FakeSimulatorSetPathDeterminer(
+            provider: { self.tempFolder.absolutePath }
+        ),
         version: Version(value: "version"),
         globalMetricRecorder: GlobalMetricRecorderImpl()
     )
     
     func test___simctl() {
         let executor = assertDoesNotThrow {
-            try provider.simulatorStateMachineActionExecutor(
-                simulatorControlTool: SimulatorControlTool(
-                    location: .insideEmceeTempFolder,
-                    tool: .simctl
-                )
-            )
+            try provider.simulatorStateMachineActionExecutor()
         }
         let metricSupportingExecutor = assertIsMetricSupportingExecutor(executor: executor)
         XCTAssert(metricSupportingExecutor.delegate is SimctlBasedSimulatorStateMachineActionExecutor)

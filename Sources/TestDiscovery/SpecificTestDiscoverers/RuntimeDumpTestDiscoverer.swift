@@ -27,7 +27,6 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let pluginEventBusProvider: PluginEventBusProvider
     private let resourceLocationResolver: ResourceLocationResolver
     private let runnerWasteCollectorProvider: RunnerWasteCollectorProvider
-    private let simulatorControlTool: SimulatorControlTool
     private let tempFolder: TemporaryFolder
     private let testEntryToQueryRuntimeDump: TestEntry
     private let testRunnerProvider: TestRunnerProvider
@@ -46,7 +45,6 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver,
         runnerWasteCollectorProvider: RunnerWasteCollectorProvider,
-        simulatorControlTool: SimulatorControlTool,
         tempFolder: TemporaryFolder,
         testEntryToQueryRuntimeDump: TestEntry = TestEntry(testName: TestName(className: "NonExistingTest", methodName: "fakeTest"), tags: [], caseId: nil),
         testRunnerProvider: TestRunnerProvider,
@@ -64,7 +62,6 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
         self.runnerWasteCollectorProvider = runnerWasteCollectorProvider
-        self.simulatorControlTool = simulatorControlTool
         self.tempFolder = tempFolder
         self.testEntryToQueryRuntimeDump = testEntryToQueryRuntimeDump
         self.testRunnerProvider = testRunnerProvider
@@ -104,8 +101,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         )
         
         let allocatedSimulator = try simulatorForTestDiscovery(
-            configuration: configuration,
-            simulatorControlTool: simulatorControlTool
+            configuration: configuration
         )
         defer { allocatedSimulator.releaseSimulator() }
         
@@ -137,20 +133,17 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             ),
             pluginLocations: configuration.pluginLocations,
             simulatorSettings: configuration.simulatorSettings,
-            testRunnerTool: configuration.testRunnerTool,
             testTimeoutConfiguration: configuration.testTimeoutConfiguration
         )
     }
 
     private func simulatorForTestDiscovery(
-        configuration: TestDiscoveryConfiguration,
-        simulatorControlTool: SimulatorControlTool
+        configuration: TestDiscoveryConfiguration
     ) throws -> AllocatedSimulator {
         let simulatorPool = try onDemandSimulatorPool.pool(
             key: OnDemandSimulatorPoolKey(
                 developerDir: configuration.developerDir,
-                testDestination: configuration.testDestination,
-                simulatorControlTool: simulatorControlTool
+                testDestination: configuration.testDestination
             )
         )
         return try simulatorPool.allocateSimulator(

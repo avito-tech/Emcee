@@ -171,11 +171,9 @@ extension TestArgFile {
                     numberOfRetries: 0,
                     pluginLocations: [],
                     scheduleStrategy: TestArgFileDefaultValues.scheduleStrategy,
-                    simulatorControlTool: TestArgFileDefaultValues.simulatorControlTool,
                     simulatorOperationTimeouts: TestArgFileDefaultValues.simulatorOperationTimeouts,
                     simulatorSettings: TestArgFileDefaultValues.simulatorSettings,
                     testDestination: TestDestinationFixtures.testDestination,
-                    testRunnerTool: TestArgFileDefaultValues.testRunnerTool,
                     testTimeoutConfiguration: TestArgFileDefaultValues.testTimeoutConfiguration,
                     testsToRun: [],
                     workerCapabilityRequirements: []

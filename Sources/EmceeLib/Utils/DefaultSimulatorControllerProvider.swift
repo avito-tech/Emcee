@@ -36,7 +36,6 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
 
     public func createSimulatorController(
         developerDir: DeveloperDir,
-        simulatorControlTool: SimulatorControlTool,
         temporaryFolder: TemporaryFolder,
         testDestination: TestDestination
     ) throws -> SimulatorController {
@@ -52,9 +51,7 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
                 fileSystem: fileSystem,
                 logger: logger,
                 simulatorStateMachine: SimulatorStateMachine(),
-                simulatorStateMachineActionExecutor: try simulatorStateMachineActionExecutorProvider.simulatorStateMachineActionExecutor(
-                    simulatorControlTool: simulatorControlTool
-                ),
+                simulatorStateMachineActionExecutor: try simulatorStateMachineActionExecutorProvider.simulatorStateMachineActionExecutor(),
                 temporaryFolder: temporaryFolder,
                 testDestination: testDestination
             ),

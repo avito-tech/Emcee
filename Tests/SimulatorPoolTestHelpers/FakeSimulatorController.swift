@@ -7,7 +7,6 @@ public final class FakeSimulatorController: SimulatorController {
     
     public let developerDir: DeveloperDir
     public let simulator: Simulator
-    public let simulatorControlTool: SimulatorControlTool
     public var didCallDelete = false
     public var didCallShutdown = false
     public var isBusy = false
@@ -15,9 +14,8 @@ public final class FakeSimulatorController: SimulatorController {
     public var onDelete: () -> () = {}
     public var simulatorOperationTimeouts: SimulatorOperationTimeouts?
     
-    public init(simulator: Simulator, simulatorControlTool: SimulatorControlTool, developerDir: DeveloperDir) {
+    public init(simulator: Simulator, developerDir: DeveloperDir) {
         self.simulator = simulator
-        self.simulatorControlTool = simulatorControlTool
         self.developerDir = developerDir
     }
     

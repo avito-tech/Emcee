@@ -40,13 +40,11 @@ public class BucketGeneratorImpl: BucketGenerator {
                 payload: Payload(
                     buildArtifacts: entry.buildArtifacts,
                     developerDir: entry.developerDir,
-                    simulatorControlTool: entry.simulatorControlTool,
                     simulatorOperationTimeouts: entry.simulatorOperationTimeouts,
                     simulatorSettings: entry.simulatorSettings,
                     testDestination: entry.testDestination,
                     testEntries: group.map { $0.testEntry },
                     testExecutionBehavior: entry.testExecutionBehavior,
-                    testRunnerTool: entry.testRunnerTool,
                     testTimeoutConfiguration: entry.testTimeoutConfiguration
                 )
             )

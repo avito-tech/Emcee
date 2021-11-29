@@ -26,7 +26,6 @@ final class TestEntriesValidatorTests: XCTestCase {
         }
 
         XCTAssertEqual(querierConfiguration.testDiscoveryMode, .parseFunctionSymbols)
-        XCTAssertEqual(querierConfiguration.testRunnerTool, .xcodebuild)
         XCTAssertEqual(querierConfiguration.xcTestBundleLocation, testArgFileEntry.buildArtifacts.xcTestBundle.location)
         XCTAssertEqual(querierConfiguration.testDestination, testArgFileEntry.testDestination)
         XCTAssertEqual(querierConfiguration.testsToValidate.count, 1)
@@ -66,8 +65,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             querierConfiguration.testDiscoveryMode,
             .runtimeAppTest(
                 RuntimeDumpApplicationTestSupport(
-                    appBundle: appBundleLocation,
-                    simulatorControlTool: SimulatorControlToolFixtures.simctlTool
+                    appBundle: appBundleLocation
                 )
             )
         )
@@ -119,11 +117,9 @@ final class TestEntriesValidatorTests: XCTestCase {
             numberOfRetries: 1,
             pluginLocations: [],
             scheduleStrategy: ScheduleStrategy(testSplitterType: .unsplit),
-            simulatorControlTool: SimulatorControlToolFixtures.simctlTool,
             simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: try TestDestination(deviceType: "iPhoneXL", runtime: "10.3"),
-            testRunnerTool: .xcodebuild,
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
             testsToRun: [.testName(TestName(className: "MyTest", methodName: "test"))],
             workerCapabilityRequirements: []

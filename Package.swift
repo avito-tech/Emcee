@@ -1672,7 +1672,6 @@ let package = Package(
             name: "SimulatorPoolModels",
             dependencies: [
                 .product(name: "PathLib", package: "CommandLineToolkit"),
-                "ResourceLocation",
                 "TypedResourceLocation",
                 .product(name: "Types", package: "CommandLineToolkit"),
             ],

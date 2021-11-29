@@ -23,7 +23,6 @@ public final class BucketFixtures {
             payload: Payload(
                 buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
                 developerDir: .current,
-                simulatorControlTool: SimulatorControlToolFixtures.simctlTool,
                 simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
                 simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
                 testDestination: TestDestinationFixtures.testDestination,
@@ -32,7 +31,6 @@ public final class BucketFixtures {
                     environment: [:],
                     numberOfRetries: numberOfRetries
                 ),
-                testRunnerTool: .xcodebuild,
                 testTimeoutConfiguration: TestTimeoutConfiguration(
                     singleTestMaximumDuration: 0,
                     testRunnerMaximumSilenceDuration: 0

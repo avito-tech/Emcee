@@ -11,38 +11,20 @@ import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class SimulatorSetPathDeterminerTests: XCTestCase {
-    private let simulatorContainerFolder = "sims"
     private lazy var fileSystem = FakeFileSystem(
         rootPath: temporaryFolder.absolutePath
     )
     private lazy var provider = SimulatorSetPathDeterminerImpl(
-        fileSystem: fileSystem,
-        simulatorContainerFolderName: simulatorContainerFolder,
-        temporaryFolder: temporaryFolder,
-        uniqueIdentifierGenerator: uniqueIdentifierGenerator
+        fileSystem: fileSystem
     )
     private lazy var temporaryFolder: TemporaryFolder = assertDoesNotThrow {
         try TemporaryFolder()
     }
     private let uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator()
     
-    func test___simulator_path_is_inside_temp_folder() {
-        let path = assertDoesNotThrow {
-            try provider.simulatorSetPathSuitableForTestRunnerTool(
-                simulatorLocation: .insideEmceeTempFolder
-            )
-        }
-        XCTAssertEqual(
-            path,
-            temporaryFolder.absolutePath.appending(components: [simulatorContainerFolder, uniqueIdentifierGenerator.value])
-        )
-    }
-    
     func test___simulator_path_is_inside_system_folder() {
         let path = assertDoesNotThrow {
-            try provider.simulatorSetPathSuitableForTestRunnerTool(
-                simulatorLocation: .insideUserLibrary
-            )
+            try provider.simulatorSetPathSuitableForTestRunnerTool()
         }
         XCTAssertEqual(
             path,
@@ -68,7 +50,7 @@ final class SimulatorSetPathDeterminerTests: XCTestCase {
         }
         
         assertDoesNotThrow {
-            try provider.simulatorSetPathSuitableForTestRunnerTool(simulatorLocation: .insideUserLibrary)
+            try provider.simulatorSetPathSuitableForTestRunnerTool()
         }
         
         wait(for: [pathCreatedExpectation], timeout: 0)
