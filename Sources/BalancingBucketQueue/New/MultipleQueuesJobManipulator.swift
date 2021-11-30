@@ -1,4 +1,5 @@
 import DateProvider
+import BucketQueue
 import Foundation
 import QueueModels
 import Metrics
@@ -30,7 +31,7 @@ public final class MultipleQueuesJobManipulator: JobManipulator {
                 throw NoQueueForJobIdFoundError.noQueue(jobId: jobId)
             }
             for jobQueue in jobQueuesToDelete {
-                jobQueue.bucketQueue.removeAllEnqueuedBuckets()
+                SingleEmptyableBucketQueue(bucketQueueHolder: jobQueue.bucketQueueHolder).removeAllEnqueuedBuckets()
             }
             
             multipleQueuesContainer.add(deletedJobQueues: jobQueuesToDelete)

@@ -4,14 +4,16 @@ import Foundation
 import QueueModels
 import WorkerCapabilitiesModels
 
-public final class FakeDequeueableBucketSource: DequeueableBucketSource {
-    public var dequeuedBucket: DequeuedBucket?
+open class FakeDequeueableBucketSource: DequeueableBucketSource {
+    public var result: (Set<WorkerCapability>, WorkerId) -> DequeuedBucket?
     
-    public init(dequeuedBucket: DequeuedBucket? = nil) {
-        self.dequeuedBucket = dequeuedBucket
+    public init(
+        result: @escaping (Set<WorkerCapability>, WorkerId) -> DequeuedBucket? = { _, _ in nil }
+    ) {
+        self.result = result
     }
     
     public func dequeueBucket(workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeuedBucket? {
-        return dequeuedBucket
+        result(workerCapabilities, workerId)
     }
 }

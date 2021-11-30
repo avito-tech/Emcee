@@ -2,6 +2,7 @@ import BucketQueueModels
 import Extensions
 import Foundation
 
+/// Defines a mutable state of a single bucket queue. All mutation should happen through `SinglaBucketQueueXXX` impls.
 public final class BucketQueueHolder {
     private var enqueuedBuckets = [EnqueuedBucket]()
     private var dequeuedBuckets = Set<DequeuedBucket>()

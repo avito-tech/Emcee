@@ -5,22 +5,31 @@ import QueueModels
 import WorkerCapabilitiesModels
 
 public final class MultipleQueuesDequeueableBucketSource: DequeueableBucketSource {
+    private let dequeueableBucketSourceProvider: DequeueableBucketSourceProvider
     private let multipleQueuesContainer: MultipleQueuesContainer
     
     public init(
+        dequeueableBucketSourceProvider: DequeueableBucketSourceProvider,
         multipleQueuesContainer: MultipleQueuesContainer
     ) {
+        self.dequeueableBucketSourceProvider = dequeueableBucketSourceProvider
         self.multipleQueuesContainer = multipleQueuesContainer
     }
     
     public func dequeueBucket(workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeuedBucket? {
         multipleQueuesContainer.performWithExclusiveAccess {
-            let bucketQueues = multipleQueuesContainer.allRunningJobQueues().map {
-                $0.bucketQueue
+            let bucketQueueHolders = multipleQueuesContainer.allRunningJobQueues().map {
+                $0.bucketQueueHolder
             }
             
-            for queue in bucketQueues {
-                if let dequeuedBucket = queue.dequeueBucket(workerCapabilities: workerCapabilities, workerId: workerId) {
+            for bucketQueueHolder in bucketQueueHolders {
+                let dequeueableBucketSourceProvider = dequeueableBucketSourceProvider.createDequeueableBucketSource(
+                    bucketQueueHolder: bucketQueueHolder
+                )
+                if let dequeuedBucket = dequeueableBucketSourceProvider.dequeueBucket(
+                    workerCapabilities: workerCapabilities,
+                    workerId: workerId
+                ) {
                     return dequeuedBucket
                 }
             }

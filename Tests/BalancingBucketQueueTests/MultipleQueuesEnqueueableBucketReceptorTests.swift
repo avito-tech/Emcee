@@ -8,7 +8,6 @@ import TestHelpers
 import XCTest
 
 final class MultipleQueuesEnqueueableBucketReceptorTests: XCTestCase {
-    lazy var bucketQueueFactory = FakeBucketQueueFactory()
     lazy var container = MultipleQueuesContainer()
     lazy var prioritizedJob = PrioritizedJob(
         analyticsConfiguration: AnalyticsConfiguration(),
@@ -17,17 +16,27 @@ final class MultipleQueuesEnqueueableBucketReceptorTests: XCTestCase {
         jobId: "job",
         jobPriority: .medium
     )
+            
+    lazy var bucketEnqueuerProvider = FakeBucketEnqueuerProvider()
+    lazy var emptyableBucketQueueProvider = FakeEmptyableBucketQueueProvider()
     lazy var receptor = MultipleQueuesEnqueueableBucketReceptor(
-        bucketQueueFactory: bucketQueueFactory,
+        bucketEnqueuerProvider: bucketEnqueuerProvider,
+        emptyableBucketQueueProvider: emptyableBucketQueueProvider,
         multipleQueuesContainer: container
     )
     
-    func test___enqueueing_to_new_job___creates_job_queue() {
-        var createdBucketQueue: FakeBucketQueue?
-        bucketQueueFactory.tuner = { createdBucketQueue = $0 }
-        
-        
+    func test___enqueueing_to_new_job___creates_job_queue__and_then_enqueues() {
         let bucket = BucketFixtures.createBucket()
+        
+        let enqueueRoutineInvoked = XCTestExpectation()
+        bucketEnqueuerProvider.fakeBucketEnqueuer.onEnqueue = { buckets in
+            assert {
+                buckets
+            } equals: {
+                [bucket]
+            }
+            enqueueRoutineInvoked.fulfill()
+        }
         
         assertDoesNotThrow {
             try receptor.enqueue(
@@ -46,21 +55,34 @@ final class MultipleQueuesEnqueueableBucketReceptorTests: XCTestCase {
             [prioritizedJob.jobGroupId]
         )
         
-        XCTAssertEqual(createdBucketQueue?.enqueuedBuckets, [bucket])
+        wait(for: [enqueueRoutineInvoked], timeout: 15)
     }
     
     func test___enqueueing_to_existing_job___appends_buckets_to_it() {
-        let bucketQueue = FakeBucketQueue()
-        
-        container.add(
-            runningJobQueue: createJobQueue(
-                bucketQueue: bucketQueue,
-                job: createJob(jobId: prioritizedJob.jobId),
-                jobGroup: createJobGroup(jobGroupId: prioritizedJob.jobGroupId)
-            )
+        let runningJobQueue = createJobQueue(
+            job: createJob(jobId: prioritizedJob.jobId),
+            jobGroup: createJobGroup(jobGroupId: prioritizedJob.jobGroupId)
         )
-                
+        container.add(
+            runningJobQueue: runningJobQueue
+        )
+        
         let bucket = BucketFixtures.createBucket()
+        
+        XCTAssertEqual(
+            container.allRunningJobQueues()[0].bucketQueueHolder.allEnqueuedBuckets.map { $0.bucket },
+            []
+        )
+        
+        let enqueueRoutineInvoked = XCTestExpectation()
+        bucketEnqueuerProvider.fakeBucketEnqueuer.onEnqueue = { buckets in
+            assert {
+                buckets
+            } equals: {
+                [bucket]
+            }
+            enqueueRoutineInvoked.fulfill()
+        }
         
         assertDoesNotThrow {
             try receptor.enqueue(
@@ -68,17 +90,19 @@ final class MultipleQueuesEnqueueableBucketReceptorTests: XCTestCase {
                 prioritizedJob: prioritizedJob
             )
         }
+        wait(for: [enqueueRoutineInvoked], timeout: 15)
         
-        XCTAssertEqual(bucketQueue.enqueuedBuckets, [bucket])
+        assert {
+            container.allRunningJobQueues().map { $0.job.jobId }
+        } equals: {
+            [runningJobQueue.job.jobId]
+        }
     }
     
-    func test___enqueueing_to_deleted_job___removes_all_buckets_and_moves_job_to_running() {
-        let bucketQueue = FakeBucketQueue()
-        
+    func test___enqueueing_to_deleted_job___removes_all_buckets_from_it_and_moves_job_into_running___and_enqueues() {
         container.add(
             deletedJobQueues: [
                 createJobQueue(
-                    bucketQueue: bucketQueue,
                     job: createJob(jobId: prioritizedJob.jobId),
                     jobGroup: createJobGroup(jobGroupId: prioritizedJob.jobGroupId)
                 )
@@ -87,6 +111,21 @@ final class MultipleQueuesEnqueueableBucketReceptorTests: XCTestCase {
                 
         let bucket = BucketFixtures.createBucket()
         
+        var didRemoveBucketsFromQueue = false
+        emptyableBucketQueueProvider.fakeEmptyableBucketQueue.onRemoveAllEnqueuedBuckets = {
+            didRemoveBucketsFromQueue = true
+        }
+        
+        let enqueueRoutineInvoked = XCTestExpectation()
+        bucketEnqueuerProvider.fakeBucketEnqueuer.onEnqueue = { buckets in
+            assert {
+                buckets
+            } equals: {
+                [bucket]
+            }
+            enqueueRoutineInvoked.fulfill()
+        }
+        
         assertDoesNotThrow {
             try receptor.enqueue(
                 buckets: [bucket],
@@ -94,9 +133,7 @@ final class MultipleQueuesEnqueueableBucketReceptorTests: XCTestCase {
             )
         }
         
-        XCTAssertEqual(bucketQueue.enqueuedBuckets, [bucket])
         XCTAssertTrue(container.allDeletedJobQueues().isEmpty)
-        XCTAssertTrue(bucketQueue.removedAllEnqueuedBuckets)
-        XCTAssertEqual(bucketQueue.enqueuedBuckets, [bucket])
+        XCTAssertTrue(didRemoveBucketsFromQueue)
     }
 }

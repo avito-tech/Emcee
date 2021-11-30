@@ -1,11 +1,17 @@
+import BucketQueue
 import Foundation
 import QueueModels
 
 public final class MultipleQueuesJobStateProvider: JobStateProvider {
     private let multipleQueuesContainer: MultipleQueuesContainer
+    private let statefulBucketQueueProvider: StatefulBucketQueueProvider
     
-    public init(multipleQueuesContainer: MultipleQueuesContainer) {
+    public init(
+        multipleQueuesContainer: MultipleQueuesContainer,
+        statefulBucketQueueProvider: StatefulBucketQueueProvider
+    ) {
         self.multipleQueuesContainer = multipleQueuesContainer
+        self.statefulBucketQueueProvider = statefulBucketQueueProvider
     }
     
     public var ongoingJobGroupIds: Set<JobGroupId> {
@@ -20,7 +26,11 @@ public final class MultipleQueuesJobStateProvider: JobStateProvider {
         if let jobQueue = multipleQueuesContainer.allRunningJobQueues().first(where: { $0.job.jobId == jobId }) {
             return JobState(
                 jobId: jobId,
-                queueState: QueueState.running(jobQueue.bucketQueue.runningQueueState)
+                queueState: QueueState.running(
+                    statefulBucketQueueProvider.createStatefulBucketQueue(
+                        bucketQueueHolder: jobQueue.bucketQueueHolder
+                    ).runningQueueState
+                )
             )
         }
         

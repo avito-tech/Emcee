@@ -3,9 +3,14 @@ import Foundation
 import QueueModels
 
 public final class MultipleQueuesBucketResultAccepter: BucketResultAccepter {
+    private let bucketResultAccepterProvider: BucketResultAccepterProvider
     private let multipleQueuesContainer: MultipleQueuesContainer
     
-    public init(multipleQueuesContainer: MultipleQueuesContainer) {
+    public init(
+        bucketResultAccepterProvider: BucketResultAccepterProvider,
+        multipleQueuesContainer: MultipleQueuesContainer
+    ) {
+        self.bucketResultAccepterProvider = bucketResultAccepterProvider
         self.multipleQueuesContainer = multipleQueuesContainer
     }
     
@@ -18,7 +23,10 @@ public final class MultipleQueuesBucketResultAccepter: BucketResultAccepter {
             let appropriateJobQueues = multipleQueuesContainer.runningAndDeletedJobQueues()
             for jobQueue in appropriateJobQueues {
                 do {
-                    let result = try jobQueue.bucketQueue.accept(
+                    let bucketResultAccepter = bucketResultAccepterProvider.createBucketResultAccepter(
+                        bucketQueueHolder: jobQueue.bucketQueueHolder
+                    )
+                    let result = try bucketResultAccepter.accept(
                         bucketId: bucketId,
                         testingResult: testingResult,
                         workerId: workerId

@@ -15,26 +15,26 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
     private let dequeueableBucketSource: DequeueableBucketSource
     private let jobStateProvider: JobStateProvider
     private let logger: ContextualLogger
-    private let queueStateProvider: RunningQueueStateProvider
-    private let version: Version
+    private let statefulBucketQueue: StatefulBucketQueue
     private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
+    private let version: Version
     
     public init(
         dateProvider: DateProvider,
         dequeueableBucketSource: DequeueableBucketSource,
         jobStateProvider: JobStateProvider,
         logger: ContextualLogger,
-        queueStateProvider: RunningQueueStateProvider,
-        version: Version,
-        specificMetricRecorderProvider: SpecificMetricRecorderProvider
+        statefulBucketQueue: StatefulBucketQueue,
+        specificMetricRecorderProvider: SpecificMetricRecorderProvider,
+        version: Version
     ) {
         self.dateProvider = dateProvider
         self.dequeueableBucketSource = dequeueableBucketSource
         self.jobStateProvider = jobStateProvider
         self.logger = logger
-        self.queueStateProvider = queueStateProvider
-        self.version = version
+        self.statefulBucketQueue = statefulBucketQueue
         self.specificMetricRecorderProvider = specificMetricRecorderProvider
+        self.version = version
     }
     
     public func dequeueBucket(workerCapabilities: Set<WorkerCapability>, workerId: WorkerId) -> DequeuedBucket? {
@@ -54,12 +54,11 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
         workerId: WorkerId
     ) {
         let jobStates = jobStateProvider.allJobStates
-        let runningQueueState = queueStateProvider.runningQueueState
         let queueStateMetricGatherer = QueueStateMetricGatherer(dateProvider: dateProvider, version: version)
         
         let queueStateMetrics = queueStateMetricGatherer.metrics(
             jobStates: jobStates,
-            runningQueueState: runningQueueState
+            runningQueueState: statefulBucketQueue.runningQueueState
         )
         let bucketAndTestMetrics = [
             DequeueBucketsMetric(

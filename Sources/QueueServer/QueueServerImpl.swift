@@ -40,8 +40,8 @@ public final class QueueServerImpl: QueueServer {
     private let kickstartWorkerEndpoint: KickstartWorkerEndpoint
     private let logger: ContextualLogger
     private let queueServerVersionHandler: QueueServerVersionEndpoint
-    private let runningQueueStateProvider: RunningQueueStateProvider
     private let scheduleTestsHandler: ScheduleTestsEndpoint
+    private let statefulBucketQueue: StatefulBucketQueue
     private let stuckBucketsPoller: StuckBucketsPoller
     private let testsEnqueuer: TestsEnqueuer
     private let toggleWorkersSharingEndpoint: ToggleWorkersSharingEndpoint
@@ -95,18 +95,6 @@ public final class QueueServerImpl: QueueServer {
             workerDetailsHolder: workerDetailsHolder
         )
         
-        let bucketQueueFactory = BucketQueueFactoryImpl(
-            dateProvider: dateProvider,
-            logger: logger,
-            testHistoryTracker: TestHistoryTrackerImpl(
-                testHistoryStorage: TestHistoryStorageImpl(),
-                uniqueIdentifierGenerator: uniqueIdentifierGenerator
-            ),
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
-            workerAlivenessProvider: workerAlivenessProvider,
-            workerCapabilitiesStorage: workerCapabilitiesStorage
-        )
-        
         let multipleQueuesContainer = MultipleQueuesContainer()
         let jobManipulator: JobManipulator = MultipleQueuesJobManipulator(
             dateProvider: dateProvider,
@@ -114,39 +102,75 @@ public final class QueueServerImpl: QueueServer {
             multipleQueuesContainer: multipleQueuesContainer,
             emceeVersion: emceeVersion
         )
+        let singleStatefulBucketQueueProvider = SingleStatefulBucketQueueProvider()
+        let singleEmptyableBucketQueueProvider = SingleEmptyableBucketQueueProvider()
+        
         self.jobStateProvider = MultipleQueuesJobStateProvider(
-            multipleQueuesContainer: multipleQueuesContainer
+            multipleQueuesContainer: multipleQueuesContainer,
+            statefulBucketQueueProvider: singleStatefulBucketQueueProvider
         )
         self.jobResultsProvider = MultipleQueuesJobResultsProvider(
             multipleQueuesContainer: multipleQueuesContainer
         )
+        
+        let testHistoryTracker: TestHistoryTracker = TestHistoryTrackerImpl(
+            testHistoryStorage: TestHistoryStorageImpl(),
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+        )
+        
+        let singleBucketQueueEnqueuerProvider = SingleBucketQueueEnqueuerProvider(
+            dateProvider: dateProvider,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+            workerAlivenessProvider: workerAlivenessProvider,
+            workerCapabilitiesStorage: workerCapabilitiesStorage
+        )
         let enqueueableBucketReceptor: EnqueueableBucketReceptor = MultipleQueuesEnqueueableBucketReceptor(
-            bucketQueueFactory: bucketQueueFactory,
+            bucketEnqueuerProvider: singleBucketQueueEnqueuerProvider,
+            emptyableBucketQueueProvider: singleEmptyableBucketQueueProvider,
             multipleQueuesContainer: multipleQueuesContainer
         )
-        self.runningQueueStateProvider = MultipleQueuesRunningQueueStateProvider(
-            multipleQueuesContainer: multipleQueuesContainer
+        self.statefulBucketQueue = MultipleQueuesStatefulBucketQueue(
+            multipleQueuesContainer: multipleQueuesContainer,
+            statefulBucketQueueProvider: singleStatefulBucketQueueProvider
         )
         
         let dequeueableBucketSource: DequeueableBucketSource = DequeueableBucketSourceWithMetricSupport(
             dateProvider: dateProvider,
             dequeueableBucketSource: WorkerPermissionAwareDequeueableBucketSource(
                 dequeueableBucketSource: MultipleQueuesDequeueableBucketSource(
+                    dequeueableBucketSourceProvider: SingleBucketQueueDequeueableBucketSourceProvider(
+                        logger: logger,
+                        testHistoryTracker: testHistoryTracker,
+                        workerAlivenessProvider: workerAlivenessProvider,
+                        workerCapabilitiesStorage: workerCapabilitiesStorage,
+                        workerCapabilityConstraintResolver: WorkerCapabilityConstraintResolver()
+                    ),
                     multipleQueuesContainer: multipleQueuesContainer
                 ),
                 workerPermissionProvider: autoupdatingWorkerPermissionProvider
             ),
             jobStateProvider: jobStateProvider,
             logger: logger,
-            queueStateProvider: runningQueueStateProvider,
-            version: emceeVersion,
-            specificMetricRecorderProvider: specificMetricRecorderProvider
+            statefulBucketQueue: statefulBucketQueue,
+            specificMetricRecorderProvider: specificMetricRecorderProvider,
+            version: emceeVersion
         )
         let bucketResultAccepter: BucketResultAccepter = MultipleQueuesBucketResultAccepter(
+            bucketResultAccepterProvider: SingleBucketResultAccepterProvider(
+                bucketEnqueuerProvider: singleBucketQueueEnqueuerProvider,
+                logger: logger,
+                testHistoryTracker: testHistoryTracker
+            ),
             multipleQueuesContainer: multipleQueuesContainer
         )
         let stuckBucketsReenqueuer: StuckBucketsReenqueuer = MultipleQueuesStuckBucketsReenqueuer(
-            multipleQueuesContainer: multipleQueuesContainer
+            multipleQueuesContainer: multipleQueuesContainer,
+            stuckBucketsReenqueuerProvider: SingleBucketQueueStuckBucketsReenqueuerProvider(
+                logger: logger,
+                bucketEnqueuerProvider: singleBucketQueueEnqueuerProvider,
+                workerAlivenessProvider: workerAlivenessProvider,
+                uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            )
         )
         
         self.testsEnqueuer = TestsEnqueuer(
@@ -174,13 +198,13 @@ public final class QueueServerImpl: QueueServer {
         )
         self.stuckBucketsPoller = StuckBucketsPoller(
             dateProvider: dateProvider,
+            globalMetricRecorder: globalMetricRecorder,
             jobStateProvider: jobStateProvider,
             logger: logger,
-            runningQueueStateProvider: runningQueueStateProvider,
-            stuckBucketsReenqueuer: stuckBucketsReenqueuer,
-            version: emceeVersion,
             specificMetricRecorderProvider: specificMetricRecorderProvider,
-            globalMetricRecorder: globalMetricRecorder
+            statefulBucketQueue: statefulBucketQueue,
+            stuckBucketsReenqueuer: stuckBucketsReenqueuer,
+            version: emceeVersion
         )
         self.bucketProvider = BucketProviderEndpoint(
             checkAfter: checkAgainTimeInterval,
@@ -194,9 +218,9 @@ public final class QueueServerImpl: QueueServer {
                 dateProvider: dateProvider,
                 jobStateProvider: jobStateProvider,
                 logger: logger,
-                queueStateProvider: runningQueueStateProvider,
-                version: emceeVersion,
-                specificMetricRecorderProvider: specificMetricRecorderProvider
+                specificMetricRecorderProvider: specificMetricRecorderProvider,
+                statefulBucketQueue: statefulBucketQueue,
+                version: emceeVersion
             ),
             expectedPayloadSignature: payloadSignature
         )
@@ -288,7 +312,7 @@ public final class QueueServerImpl: QueueServer {
     }
     
     public var isDepleted: Bool {
-        return runningQueueStateProvider.runningQueueState.isDepleted
+        return statefulBucketQueue.runningQueueState.isDepleted
     }
     
     public var hasAnyAliveWorker: Bool {

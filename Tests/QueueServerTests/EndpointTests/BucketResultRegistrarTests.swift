@@ -1,4 +1,6 @@
 import BalancingBucketQueue
+import BucketQueue
+import BucketQueueModels
 import BucketQueueTestHelpers
 import Foundation
 import QueueCommunicationTestHelpers
@@ -7,6 +9,8 @@ import QueueModelsTestHelpers
 import QueueServer
 import RESTMethods
 import RunnerTestHelpers
+import TestHelpers
+import Types
 import XCTest
 
 final class BucketResultRegistrarTests: XCTestCase {
@@ -15,14 +19,30 @@ final class BucketResultRegistrarTests: XCTestCase {
         .with(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "method"))
         .addingLostResult()
         .testingResult()
+    lazy var buckerResultAccepter = FakeBucketResultAccepter { _, _, _ in
+        throw ErrorForTestingPurposes()
+    }
+    lazy var registrar = BucketResultRegistrar(
+        bucketResultAccepter: buckerResultAccepter,
+        expectedPayloadSignature: expectedPayloadSignature
+    )
+    lazy var acceptedResults = [TestingResult]()
 
     func test__results_collector_receives_results__if_bucket_queue_accepts_results() {
-        let bucketQueue = FakeBucketQueue(throwsOnAccept: false)
-        
-        let registrar = BucketResultRegistrar(
-            bucketResultAccepter: bucketQueue,
-            expectedPayloadSignature: expectedPayloadSignature
-        )
+        buckerResultAccepter.result = { (_: BucketId, testingResult: TestingResult, workerId: WorkerId) in
+            self.acceptedResults.append(testingResult)
+            return BucketQueueAcceptResult(
+                dequeuedBucket: DequeuedBucket(
+                    enqueuedBucket: EnqueuedBucket(
+                        bucket: BucketFixtures.createBucket(bucketId: "bucket id"),
+                        enqueueTimestamp: Date(),
+                        uniqueIdentifier: "doesnotmatter"
+                    ),
+                    workerId: workerId
+                ),
+                testingResultToCollect: testingResult
+            )
+        }
         
         let request = BucketResultPayload(
             bucketId: "bucket id",
@@ -30,39 +50,41 @@ final class BucketResultRegistrarTests: XCTestCase {
             testingResult: testingResult,
             payloadSignature: expectedPayloadSignature
         )
-        XCTAssertNoThrow(try registrar.handle(payload: request))
+        assertDoesNotThrow {
+            try registrar.handle(payload: request)
+        }
         
-        XCTAssertEqual(bucketQueue.acceptedResults, [testingResult])
+        assert {
+            acceptedResults
+        } equals: {
+            [testingResult]
+        }
     }
     
-    func test___results_collector_stays_unmodified___if_bucket_queue_does_not_accept_results() {
-        let bucketQueue = FakeBucketQueue(throwsOnAccept: true)
-        
-        let registrar = BucketResultRegistrar(
-            bucketResultAccepter: bucketQueue,
-            expectedPayloadSignature: expectedPayloadSignature
-        )
-        
+    func test___throws___if_accepted_throws() {
         let request = BucketResultPayload(
             bucketId: "bucket id",
             workerId: "worker",
             testingResult: testingResult,
             payloadSignature: expectedPayloadSignature
         )
-        XCTAssertThrowsError(try registrar.handle(payload: request))
         
-        XCTAssertEqual(bucketQueue.acceptedResults, [])
+        buckerResultAccepter.result = { (_: BucketId, testingResult: TestingResult, _: WorkerId) in
+            throw ErrorForTestingPurposes()
+        }
+        
+        assertThrows {
+            try registrar.handle(payload: request)
+        }
     }
 
-    func test___throws___when_expected_request_signature_mismatch() {
-        let bucketQueue = FakeBucketQueue(throwsOnAccept: false)
-
+    func test___throws___when_payload_signature_mismatches() {
         let registrar = BucketResultRegistrar(
-            bucketResultAccepter: bucketQueue,
+            bucketResultAccepter: buckerResultAccepter,
             expectedPayloadSignature: expectedPayloadSignature
         )
 
-        XCTAssertThrowsError(
+        assertThrows {
             try registrar.handle(
                 payload: BucketResultPayload(
                     bucketId: "bucket id",
@@ -70,9 +92,25 @@ final class BucketResultRegistrarTests: XCTestCase {
                     testingResult: testingResult,
                     payloadSignature: PayloadSignature(value: UUID().uuidString)
                 )
-            ),
-            "When payload signature mismatches, bucket provider endpoind should throw"
-        )
+            )
+        }
     }
 }
 
+open class FakeBucketResultAccepter: BucketResultAccepter {
+    public var result: (BucketId, TestingResult, WorkerId) throws -> BucketQueueAcceptResult
+    
+    public init(
+        result: @escaping (BucketId, TestingResult, WorkerId) throws -> BucketQueueAcceptResult
+    ) {
+        self.result = result
+    }
+    
+    public func accept(
+        bucketId: BucketId,
+        testingResult: TestingResult,
+        workerId: WorkerId
+    ) throws -> BucketQueueAcceptResult {
+        return try result(bucketId, testingResult, workerId)
+    }
+}

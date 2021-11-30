@@ -24,15 +24,13 @@ final class MultipleQueuesJobManipulatorTests: XCTestCase {
     }
     
     func test___deleting_existing_job() {
-        let bucketQueue = FakeBucketQueue()
-        
-        container.add(runningJobQueue: createJobQueue(bucketQueue: bucketQueue, job: createJob(jobId: "jobId")))
+        container.add(runningJobQueue: createJobQueue(job: createJob(jobId: "jobId")))
         
         assertDoesNotThrow {
             try manipulator.delete(jobId: "jobId")
         }
         
-        XCTAssertTrue(bucketQueue.removedAllEnqueuedBuckets)
+        XCTAssertTrue(container.allRunningJobQueues().isEmpty)
         
         XCTAssertEqual(
             container.allDeletedJobQueues().map { $0.job.jobId },

@@ -4,7 +4,7 @@ import RunnerModels
 import Types
 
 
-public final class SingleBucketQueueRunningQueueStateProvider: RunningQueueStateProvider {
+public final class SingleStatefulBucketQueue: StatefulBucketQueue {
     private let bucketQueueHolder: BucketQueueHolder
     
     public init(bucketQueueHolder: BucketQueueHolder) {

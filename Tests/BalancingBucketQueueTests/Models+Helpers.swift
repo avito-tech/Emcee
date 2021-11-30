@@ -30,14 +30,14 @@ func createJobGroup(
 }
 
 func createJobQueue(
-    bucketQueue: BucketQueue = FakeBucketQueue(),
+    bucketQueueHolder: BucketQueueHolder = BucketQueueHolder(),
     job: Job = createJob(),
     jobGroup: JobGroup = createJobGroup(),
     resultsCollector: ResultsCollector = ResultsCollector()
 ) -> JobQueue {
     JobQueue(
         analyticsConfiguration: AnalyticsConfiguration(),
-        bucketQueue: bucketQueue,
+        bucketQueueHolder: bucketQueueHolder,
         job: job,
         jobGroup: jobGroup,
         resultsCollector: resultsCollector

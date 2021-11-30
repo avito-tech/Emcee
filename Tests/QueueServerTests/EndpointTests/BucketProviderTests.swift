@@ -95,7 +95,7 @@ final class BucketProviderTests: XCTestCase {
     ) -> BucketProviderEndpoint {
         BucketProviderEndpoint(
             checkAfter: 42,
-            dequeueableBucketSource: FakeBucketQueue(fixedDequeuedBucket: dequeuedBucket),
+            dequeueableBucketSource: FakeDequeueableBucketSource { _, _ in dequeuedBucket },
             expectedPayloadSignature: expectedPayloadSignature,
             workerAlivenessProvider: workerAlivenessProvider
         )

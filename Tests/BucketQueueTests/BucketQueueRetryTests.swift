@@ -125,7 +125,7 @@ final class BucketQueueRetryTests: XCTestCase {
     private let anotherWorker: WorkerId = "anotherWorker"
     private let dateProvider = DateProviderFixture()
     
-    private func bucketQueue(workerIds: [WorkerId]) -> BucketQueue {
+    private func bucketQueue(workerIds: [WorkerId]) -> BucketQueueImpl {
         let tracker = WorkerAlivenessProviderImpl(
             knownWorkerIds: Set(workerIds),
             logger: .noOp,
@@ -145,7 +145,7 @@ final class BucketQueueRetryTests: XCTestCase {
         return bucketQueue
     }
     
-    private func dequeueTestAndFail(bucketQueue: BucketQueue, workerId: WorkerId) throws {
+    private func dequeueTestAndFail(bucketQueue: BucketQueueImpl, workerId: WorkerId) throws {
         guard let dequeuedBucket = bucketQueue.dequeueBucket(
             workerCapabilities: [],
             workerId: workerId

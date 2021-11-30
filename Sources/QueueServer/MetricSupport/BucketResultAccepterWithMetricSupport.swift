@@ -13,26 +13,26 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
     private let dateProvider: DateProvider
     private let jobStateProvider: JobStateProvider
     private let logger: ContextualLogger
-    private let queueStateProvider: RunningQueueStateProvider
-    private let version: Version
     private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
+    private let statefulBucketQueue: StatefulBucketQueue
+    private let version: Version
 
     public init(
         bucketResultAccepter: BucketResultAccepter,
         dateProvider: DateProvider,
         jobStateProvider: JobStateProvider,
         logger: ContextualLogger,
-        queueStateProvider: RunningQueueStateProvider,
-        version: Version,
-        specificMetricRecorderProvider: SpecificMetricRecorderProvider
+        specificMetricRecorderProvider: SpecificMetricRecorderProvider,
+        statefulBucketQueue: StatefulBucketQueue,
+        version: Version
     ) {
         self.bucketResultAccepter = bucketResultAccepter
         self.dateProvider = dateProvider
         self.jobStateProvider = jobStateProvider
         self.logger = logger
-        self.queueStateProvider = queueStateProvider
-        self.version = version
         self.specificMetricRecorderProvider = specificMetricRecorderProvider
+        self.statefulBucketQueue = statefulBucketQueue
+        self.version = version
     }
     
     public func accept(
@@ -53,7 +53,6 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
     
     private func sendMetrics(acceptResult: BucketQueueAcceptResult) {
         let jobStates = jobStateProvider.allJobStates
-        let runningQueueState = queueStateProvider.runningQueueState
         let queueStateMetricGatherer = QueueStateMetricGatherer(
             dateProvider: dateProvider,
             version: version
@@ -61,7 +60,7 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
         
         let queueStateMetrics = queueStateMetricGatherer.metrics(
             jobStates: jobStates,
-            runningQueueState: runningQueueState
+            runningQueueState: statefulBucketQueue.runningQueueState
         )
         
         let testTimeToStartMetrics: [TimeToStartTestMetric] = acceptResult.testingResultToCollect.unfilteredResults.flatMap { testEntryResult -> [TimeToStartTestMetric] in

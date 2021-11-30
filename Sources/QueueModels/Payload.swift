@@ -42,8 +42,8 @@ public struct Payload: Codable, Hashable, CustomStringConvertible {
         "run \(testEntries.count) tests"
     }
 
-    public func with(testEntries newTestEntries: [TestEntry]) -> Payload {
-        Payload(
+    public func with(testEntries newTestEntries: [TestEntry]) -> Self {
+        Self(
             buildArtifacts: buildArtifacts,
             developerDir: developerDir,
             pluginLocations: pluginLocations,

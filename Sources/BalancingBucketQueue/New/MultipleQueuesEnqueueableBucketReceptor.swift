@@ -3,36 +3,42 @@ import Foundation
 import QueueModels
 
 public final class MultipleQueuesEnqueueableBucketReceptor: EnqueueableBucketReceptor {
-    private let bucketQueueFactory: BucketQueueFactory
+    private let bucketEnqueuerProvider: BucketEnqueuerProvider
+    private let emptyableBucketQueueProvider: EmptyableBucketQueueProvider
     private let multipleQueuesContainer: MultipleQueuesContainer
     
     public init(
-        bucketQueueFactory: BucketQueueFactory,
+        bucketEnqueuerProvider: BucketEnqueuerProvider,
+        emptyableBucketQueueProvider: EmptyableBucketQueueProvider,
         multipleQueuesContainer: MultipleQueuesContainer
     ) {
-        self.bucketQueueFactory = bucketQueueFactory
+        self.bucketEnqueuerProvider = bucketEnqueuerProvider
+        self.emptyableBucketQueueProvider = emptyableBucketQueueProvider
         self.multipleQueuesContainer = multipleQueuesContainer
     }
     
     public func enqueue(buckets: [Bucket], prioritizedJob: PrioritizedJob) throws {
         try multipleQueuesContainer.performWithExclusiveAccess {
-            let bucketQueue: BucketQueue
+            let bucketQueueHolder: BucketQueueHolder
             
             if let existingJobQueue = multipleQueuesContainer.runningJobQueues(jobId: prioritizedJob.jobId).first {
-                bucketQueue = existingJobQueue.bucketQueue
+                bucketQueueHolder = existingJobQueue.bucketQueueHolder
             } else if let previouslyDeletedJobQueue = multipleQueuesContainer.allDeletedJobQueues().first(where: { $0.job.jobId == prioritizedJob.jobId }) {
-                bucketQueue = previouslyDeletedJobQueue.bucketQueue
-                bucketQueue.removeAllEnqueuedBuckets()
+                bucketQueueHolder = previouslyDeletedJobQueue.bucketQueueHolder
+                
+                emptyableBucketQueueProvider.createEmptyableBucketQueue(
+                    bucketQueueHolder: bucketQueueHolder
+                ).removeAllEnqueuedBuckets()
                 
                 multipleQueuesContainer.add(runningJobQueue: previouslyDeletedJobQueue)
                 multipleQueuesContainer.removeFromDeleted(jobId: prioritizedJob.jobId)
             } else {
-                bucketQueue = bucketQueueFactory.createBucketQueue()
+                bucketQueueHolder = BucketQueueHolder()
                 
                 multipleQueuesContainer.add(
                     runningJobQueue: JobQueue(
                         analyticsConfiguration: prioritizedJob.analyticsConfiguration,
-                        bucketQueue: bucketQueue,
+                        bucketQueueHolder: bucketQueueHolder,
                         job: Job(creationTime: Date(), jobId: prioritizedJob.jobId, priority: prioritizedJob.jobPriority),
                         jobGroup: fetchOrCreateJobGroup(
                             jobGroupId: prioritizedJob.jobGroupId,
@@ -43,7 +49,10 @@ public final class MultipleQueuesEnqueueableBucketReceptor: EnqueueableBucketRec
                 )
                 multipleQueuesContainer.removeFromDeleted(jobId: prioritizedJob.jobId)
             }
-            try bucketQueue.enqueue(buckets: buckets)
+            
+            try bucketEnqueuerProvider.createBucketEnqueuer(
+                bucketQueueHolder: bucketQueueHolder
+            ).enqueue(buckets: buckets)
         }
     }
     

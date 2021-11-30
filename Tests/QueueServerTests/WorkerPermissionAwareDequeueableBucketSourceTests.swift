@@ -19,9 +19,7 @@ final class WorkerPermissionAwareDequeueableBucketSourceTests: XCTestCase {
         workerId: "workerId"
     )
     lazy var bucketSource = WorkerPermissionAwareDequeueableBucketSource(
-        dequeueableBucketSource: FakeDequeueableBucketSource(
-            dequeuedBucket: dequeuedBucket
-        ),
+        dequeueableBucketSource: FakeDequeueableBucketSource { [dequeuedBucket] _, _ in dequeuedBucket },
         workerPermissionProvider: permissionProvider
     )
 

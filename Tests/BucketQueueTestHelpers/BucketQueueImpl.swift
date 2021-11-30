@@ -1,3 +1,4 @@
+import BucketQueue
 import BucketQueueModels
 import DateProvider
 import Dispatch
@@ -12,7 +13,7 @@ import WorkerAlivenessProvider
 import WorkerCapabilities
 import WorkerCapabilitiesModels
 
-final class BucketQueueImpl: BucketQueue {
+public final class BucketQueueImpl {
     private let dateProvider: DateProvider
     private let logger: ContextualLogger
     private let testHistoryTracker: TestHistoryTracker
@@ -49,7 +50,7 @@ final class BucketQueueImpl: BucketQueue {
     }
     
     public var runningQueueState: RunningQueueState {
-        SingleBucketQueueRunningQueueStateProvider(
+        SingleStatefulBucketQueue(
             bucketQueueHolder: bucketQueueHolder
         ).runningQueueState
     }
@@ -64,13 +65,13 @@ final class BucketQueueImpl: BucketQueue {
         ).dequeueBucket(workerCapabilities: workerCapabilities, workerId: workerId)
     }
     
-    func removeAllEnqueuedBuckets() {
+    public func removeAllEnqueuedBuckets() {
         SingleEmptyableBucketQueue(
             bucketQueueHolder: bucketQueueHolder
         ).removeAllEnqueuedBuckets()
     }
     
-    func reenqueueStuckBuckets() throws -> [StuckBucket] {
+    public func reenqueueStuckBuckets() throws -> [StuckBucket] {
         try SingleBucketQueueStuckBucketsReenqueuer(
             bucketEnqueuer: SingleBucketQueueEnqueuer(
                 bucketQueueHolder: bucketQueueHolder,
@@ -86,7 +87,7 @@ final class BucketQueueImpl: BucketQueue {
         ).reenqueueStuckBuckets()
     }
     
-    func accept(
+    public func accept(
         bucketId: BucketId,
         testingResult: TestingResult,
         workerId: WorkerId

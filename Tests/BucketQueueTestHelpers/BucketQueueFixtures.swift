@@ -22,7 +22,7 @@ public final class BucketQueueFixtures {
         ),
         workerAlivenessProvider: WorkerAlivenessProvider,
         workerCapabilitiesStorage: WorkerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()
-    ) -> BucketQueue {
+    ) -> BucketQueueImpl {
         return BucketQueueFactoryImpl(
             dateProvider: dateProvider,
             logger: .noOp,

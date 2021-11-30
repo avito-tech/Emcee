@@ -116,16 +116,16 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     }
     
     private func unsafe_markWorkerAsAlive(workerId: WorkerId) {
-        if unsafe_silentWorkerIds.contains(workerId) {
-            logger.debug("Marking \(workerId) as alive")
-            _ = unsafe_silentWorkerIds.remove(workerId)
+        let previousMember = unsafe_silentWorkerIds.remove(workerId)
+        if previousMember != nil {
+            logger.debug("Marked \(workerId) as alive")
         }
     }
     
     private func unsafe_markWorkerAsSilent(workerId: WorkerId) {
-        if !unsafe_silentWorkerIds.contains(workerId) {
-            logger.debug("Marking \(workerId) as silent")
-            _ = unsafe_silentWorkerIds.insert(workerId)
+        let result = unsafe_silentWorkerIds.insert(workerId)
+        if result.inserted {
+            logger.debug("Marked \(workerId) as silent")
         }
     }
     

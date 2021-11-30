@@ -4,15 +4,22 @@ import Foundation
 
 public final class MultipleQueuesStuckBucketsReenqueuer: StuckBucketsReenqueuer {
     private let multipleQueuesContainer: MultipleQueuesContainer
+    private let stuckBucketsReenqueuerProvider: StuckBucketsReenqueuerProvider
     
-    public init(multipleQueuesContainer: MultipleQueuesContainer) {
+    public init(
+        multipleQueuesContainer: MultipleQueuesContainer,
+        stuckBucketsReenqueuerProvider: StuckBucketsReenqueuerProvider
+    ) {
         self.multipleQueuesContainer = multipleQueuesContainer
+        self.stuckBucketsReenqueuerProvider = stuckBucketsReenqueuerProvider
     }
     
     public func reenqueueStuckBuckets() throws -> [StuckBucket] {
         let jobQueues = multipleQueuesContainer.allRunningJobQueues()
         return try jobQueues.flatMap { jobQueue -> [StuckBucket] in
-            try jobQueue.bucketQueue.reenqueueStuckBuckets()
+            try stuckBucketsReenqueuerProvider.createStuckBucketsReenqueuer(
+                bucketQueueHolder: jobQueue.bucketQueueHolder
+            ).reenqueueStuckBuckets()
         }
     }
 }

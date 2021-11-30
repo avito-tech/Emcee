@@ -5,20 +5,20 @@ import QueueModels
 
 public struct JobQueue: DefinesExecutionOrder {
     public let analyticsConfiguration: AnalyticsConfiguration
-    public let bucketQueue: BucketQueue
+    public let bucketQueueHolder: BucketQueueHolder
     public let job: Job
     public let jobGroup: JobGroup
     public let resultsCollector: ResultsCollector
     
     public init(
         analyticsConfiguration: AnalyticsConfiguration,
-        bucketQueue: BucketQueue,
+        bucketQueueHolder: BucketQueueHolder,
         job: Job,
         jobGroup: JobGroup,
         resultsCollector: ResultsCollector
     ) {
         self.analyticsConfiguration = analyticsConfiguration
-        self.bucketQueue = bucketQueue
+        self.bucketQueueHolder = bucketQueueHolder
         self.job = job
         self.jobGroup = jobGroup
         self.resultsCollector = resultsCollector

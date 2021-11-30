@@ -16,3 +16,9 @@ public struct WorkerCapabilityRequirement: Codable, Hashable, CustomStringConver
         "<\(type(of: self)) capability name: \"\(capabilityName.value)\", constraint: \(constraint)>"
     }
 }
+
+extension WorkerCapabilityRequirement {
+    public static func matching(workerCapability: WorkerCapability) -> Self {
+        Self(capabilityName: workerCapability.name, constraint: .equal(workerCapability.value))
+    }
+}

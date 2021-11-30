@@ -4,16 +4,23 @@ import QueueModels
 import RunnerModels
 import Types
 
-public final class MultipleQueuesRunningQueueStateProvider: RunningQueueStateProvider {
+public final class MultipleQueuesStatefulBucketQueue: StatefulBucketQueue {
     private let multipleQueuesContainer: MultipleQueuesContainer
+    private let statefulBucketQueueProvider: StatefulBucketQueueProvider
     
-    public init(multipleQueuesContainer: MultipleQueuesContainer) {
+    public init(
+        multipleQueuesContainer: MultipleQueuesContainer,
+        statefulBucketQueueProvider: StatefulBucketQueueProvider
+    ) {
         self.multipleQueuesContainer = multipleQueuesContainer
+        self.statefulBucketQueueProvider = statefulBucketQueueProvider
     }
     
     public var runningQueueState: RunningQueueState {
         let states = multipleQueuesContainer.allRunningJobQueues().map {
-            $0.bucketQueue.runningQueueState
+            statefulBucketQueueProvider.createStatefulBucketQueue(
+                bucketQueueHolder: $0.bucketQueueHolder
+            ).runningQueueState
         }
         var dequeuedTests = MapWithCollection<WorkerId, TestName>()
         for state in states {

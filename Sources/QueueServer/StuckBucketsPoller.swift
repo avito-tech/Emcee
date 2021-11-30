@@ -13,33 +13,33 @@ import Timer
 
 public final class StuckBucketsPoller {
     private let dateProvider: DateProvider
+    private let globalMetricRecorder: GlobalMetricRecorder
     private let jobStateProvider: JobStateProvider
     private let logger: ContextualLogger
-    private let runningQueueStateProvider: RunningQueueStateProvider
+    private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
+    private let statefulBucketQueue: StatefulBucketQueue
     private let stuckBucketsReenqueuer: StuckBucketsReenqueuer
     private let stuckBucketsTrigger = DispatchBasedTimer(repeating: .seconds(1), leeway: .seconds(5))
     private let version: Version
-    private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
-    private let globalMetricRecorder: GlobalMetricRecorder
     
     public init(
         dateProvider: DateProvider,
+        globalMetricRecorder: GlobalMetricRecorder,
         jobStateProvider: JobStateProvider,
         logger: ContextualLogger,
-        runningQueueStateProvider: RunningQueueStateProvider,
-        stuckBucketsReenqueuer: StuckBucketsReenqueuer,
-        version: Version,
         specificMetricRecorderProvider: SpecificMetricRecorderProvider,
-        globalMetricRecorder: GlobalMetricRecorder
+        statefulBucketQueue: StatefulBucketQueue,
+        stuckBucketsReenqueuer: StuckBucketsReenqueuer,
+        version: Version
     ) {
         self.dateProvider = dateProvider
+        self.globalMetricRecorder = globalMetricRecorder
         self.jobStateProvider = jobStateProvider
         self.logger = logger
-        self.runningQueueStateProvider = runningQueueStateProvider
+        self.specificMetricRecorderProvider = specificMetricRecorderProvider
+        self.statefulBucketQueue = statefulBucketQueue
         self.stuckBucketsReenqueuer = stuckBucketsReenqueuer
         self.version = version
-        self.specificMetricRecorderProvider = specificMetricRecorderProvider
-        self.globalMetricRecorder = globalMetricRecorder
     }
     
     public func startTrackingStuckBuckets() {
@@ -89,7 +89,7 @@ public final class StuckBucketsPoller {
         globalMetricRecorder.capture(
             queueStateMetricGatherer.metrics(
                 jobStates: jobStateProvider.allJobStates,
-                runningQueueState: runningQueueStateProvider.runningQueueState
+                runningQueueState: statefulBucketQueue.runningQueueState
             )
         )
     }

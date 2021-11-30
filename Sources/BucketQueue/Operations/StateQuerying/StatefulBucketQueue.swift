@@ -1,5 +1,5 @@
 import QueueModels
 
-public protocol RunningQueueStateProvider {
+public protocol StatefulBucketQueue {
     var runningQueueState: RunningQueueState { get }
 }
