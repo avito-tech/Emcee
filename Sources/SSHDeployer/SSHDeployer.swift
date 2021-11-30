@@ -43,6 +43,7 @@ public final class SSHDeployer: Deployer {
             try deploy(pathToDeployable: pathToDeployable)
         } catch {
             log(destination, "Failed to deploy to this destination with error: \(error)")
+            throw error
         }
     }
     
