@@ -97,7 +97,7 @@ public final class StartQueueServerCommand: Command {
         let queueServerPortProvider = SourcableQueueServerPortProvider()
         
         let remotePortDeterminer = RemoteQueuePortScanner(
-            hosts: [currentHostName],
+            hosts: queueServerConfiguration.queueServerDeploymentDestinations.map(\.host),
             logger: logger,
             portRange: EmceePorts.defaultQueuePortRange,
             requestSenderProvider: try di.get()
