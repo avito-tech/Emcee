@@ -1,4 +1,4 @@
-import DI
+import EmceeDI
 import EmceeLogging
 import Foundation
 import QueueModels

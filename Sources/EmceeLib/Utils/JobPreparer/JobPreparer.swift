@@ -1,4 +1,4 @@
-import DI
+import EmceeDI
 import Dispatch
 import Foundation
 import EmceeLogging

@@ -252,7 +252,7 @@ public final class RunnerTests: XCTestCase {
         
         _ = try runTestEntries([testEntry])
         
-        wait(for: [testsWorkingDirDeletedExpectation], timeout: 0)
+        wait(for: [testsWorkingDirDeletedExpectation], timeout: 15)
     }
     
     func test___when_exception_without_related_test_happens_outside_test_started_test_finished___these_exceptions_are_appended_to_all_lost_tests() throws {
@@ -442,7 +442,7 @@ public final class RunnerTests: XCTestCase {
 
         XCTAssertEqual(
             testRunnerProvider.predefinedFakeTestRunner.testContext?.testRunnerWorkingDirectory,
-            tempFolder.absolutePath.appending(components: [Runner.runnerWorkingDir, uniqueIdentifierGenerator.value])
+            tempFolder.absolutePath.appending(Runner.runnerWorkingDir, uniqueIdentifierGenerator.value)
         )
     }
     
@@ -451,7 +451,7 @@ public final class RunnerTests: XCTestCase {
 
         XCTAssertEqual(
             testRunnerProvider.predefinedFakeTestRunner.testContext?.testsWorkingDirectory,
-            tempFolder.absolutePath.appending(components: [Runner.testsWorkingDir, uniqueIdentifierGenerator.value])
+            tempFolder.absolutePath.appending(Runner.testsWorkingDir, uniqueIdentifierGenerator.value)
         )
     }
     
@@ -470,7 +470,7 @@ public final class RunnerTests: XCTestCase {
         
         assertTrue {
             runnerWasteCollector.collectedPaths.contains { path in
-                path == tempFolder.absolutePath.appending(components: [Runner.testsWorkingDir, uniqueIdentifierGenerator.value])
+                path == tempFolder.absolutePath.appending(Runner.testsWorkingDir, uniqueIdentifierGenerator.value)
             }
         }
     }

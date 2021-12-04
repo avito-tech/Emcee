@@ -1,4 +1,5 @@
 import DateProviderTestHelpers
+import EmceeExtensions
 import FileCache
 import FileSystem
 import Swifter
@@ -14,7 +15,11 @@ final class URLResourceTests: XCTestCase {
     lazy var serverPort = 0
     lazy var url = URL(string: "http://localhost:\(serverPort)/get/")!
     lazy var fileCache = assertDoesNotThrow {
-        try FileCache(cachesContainer: tempFolder.absolutePath, dateProvider: dateProvider, fileSystem: LocalFileSystem())
+        try FileCache(
+            cachesContainer: tempFolder.absolutePath,
+            dateProvider: dateProvider,
+            fileSystem: LocalFileSystemProvider().create()
+        )
     }
     lazy var resource = URLResourceImpl(
         fileCache: fileCache,

@@ -61,7 +61,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
         return Simulator(
             testDestination: testDestination,
             udid: udid,
-            path: simulatorSetPath.appending(component: udid.value)
+            path: simulatorSetPath.appending(udid.value)
         )
     }
     

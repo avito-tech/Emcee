@@ -1,10 +1,11 @@
 import AppleTools
 import ArgLib
-import DI
+import EmceeDI
 import DateProvider
 import DeveloperDirLocator
 import EmceeLogging
 import EmceeVersion
+import EmceeExtensions
 import FileCache
 import FileSystem
 import Foundation
@@ -32,7 +33,11 @@ public final class InProcessMain {
         let di: DI = DIImpl()
        
         di.set(
-            LocalFileSystem(),
+            FilePropertiesProviderImpl(),
+            for: FilePropertiesProvider.self
+        )
+        di.set(
+            LocalFileSystemProvider().create(),
             for: FileSystem.self
         )
         di.set(

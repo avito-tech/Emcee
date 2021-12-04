@@ -14,12 +14,12 @@ import SimulatorPool
 import SimulatorPoolModels
 import SynchronousWaiter
 
-final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
+public final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
     private let developerDirLocator: DeveloperDirLocator
     private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
 
-    init(
+    public init(
         developerDirLocator: DeveloperDirLocator,
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver
@@ -29,14 +29,26 @@ final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
         self.resourceLocationResolver = resourceLocationResolver
     }
     
-    func discoverTestEntries(
+    public func discoverTestEntries(
         configuration: TestDiscoveryConfiguration
+    ) throws -> [DiscoveredTestEntry] {
+        try discoverTestEntries(
+            developerDir: configuration.developerDir,
+            xcTestBundleLocation: configuration.xcTestBundleLocation,
+            logger: configuration.logger
+        )
+    }
+    
+    public func discoverTestEntries(
+        developerDir: DeveloperDir,
+        xcTestBundleLocation: TestBundleLocation,
+        logger: ContextualLogger
     ) throws -> [DiscoveredTestEntry] {
         let nmProcess = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
                 arguments: [
                     "/usr/bin/nm", "-j", "-U",
-                    try testBinaryPath(xcTestBundleLocation: configuration.xcTestBundleLocation)
+                    try testBinaryPath(xcTestBundleLocation: xcTestBundleLocation)
                 ]
             )
         )
@@ -45,9 +57,9 @@ final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
         try nmProcess.startAndWaitForSuccessfulTermination()
         
         return try convert(
-            developerDir: configuration.developerDir,
+            developerDir: developerDir,
             nmOutputData: nmOutputData,
-            logger: configuration.logger
+            logger: logger
         )
     }
     
@@ -58,7 +70,7 @@ final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
             resourceLocation: xcTestBundleLocation.resourceLocation
         ).resolve().directlyAccessibleResourcePath()
         
-        let absolutePlistPath = resourcePath.appending(component: "Info.plist")
+        let absolutePlistPath = resourcePath.appending("Info.plist")
         let plistContents = try PropertyListSerialization.propertyList(
             from: try Data(contentsOf: absolutePlistPath.fileUrl),
             options: [],
@@ -70,7 +82,7 @@ final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
         guard let executableName = plistDict["CFBundleExecutable"] as? String else {
             throw InfoPlistError.noValueCFBundleExecutable(path: absolutePlistPath)
         }
-        return resourcePath.appending(component: executableName)
+        return resourcePath.appending(executableName)
     }
     
     private func convert(

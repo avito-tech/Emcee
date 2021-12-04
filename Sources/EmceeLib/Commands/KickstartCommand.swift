@@ -1,5 +1,5 @@
 import ArgLib
-import DI
+import EmceeDI
 import EmceeVersion
 import Foundation
 import EmceeLogging

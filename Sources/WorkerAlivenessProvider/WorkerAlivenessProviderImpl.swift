@@ -1,5 +1,5 @@
 import Dispatch
-import Extensions
+import EmceeExtensions
 import Foundation
 import EmceeLogging
 import QueueCommunication

@@ -4,7 +4,7 @@ import BuildArtifacts
 import ChromeTracing
 import DateProvider
 import DeveloperDirLocator
-import DI
+import EmceeDI
 import EmceeVersion
 import FileSystem
 import Foundation

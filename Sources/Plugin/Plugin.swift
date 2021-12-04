@@ -1,6 +1,7 @@
 import DateProvider
 import Dispatch
 import EventBus
+import EmceeExtensions
 import FileSystem
 import Foundation
 import JSONStream
@@ -20,7 +21,7 @@ public final class Plugin {
     private let eventReceiver: EventReceiver
     private let loggingSetup = LoggingSetup(
         dateProvider: SystemDateProvider(),
-        fileSystem: LocalFileSystem()
+        fileSystem: LocalFileSystemProvider().create()
     )
     
     /// Creates a Plugin class that can be used to broadcast the PluginEvents from the main process

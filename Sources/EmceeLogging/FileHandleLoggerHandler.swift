@@ -1,6 +1,6 @@
 import AtomicModels
 import DateProvider
-import Extensions
+import EmceeExtensions
 import Foundation
 import Logging
 

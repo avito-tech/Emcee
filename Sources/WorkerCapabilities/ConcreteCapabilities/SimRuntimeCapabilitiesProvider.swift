@@ -58,7 +58,7 @@ public final class SimRuntimeCapabilitiesProvider: WorkerCapabilitiesProvider {
                 do {
                     guard path.extension == "simruntime" else { return }
                     
-                    let plistPath = path.appending(components: ["Contents", "Info.plist"])
+                    let plistPath = path.appending("Contents", "Info.plist")
                     let plist = try Plist.create(fromData: Data(contentsOf: plistPath.fileUrl, options: .mappedIfSafe))
                     
                     discoveredSimRuntimes.append(

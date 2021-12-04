@@ -49,7 +49,7 @@ public final class PluginManager: EventStream {
                 guard path.lastComponent.pathExtension == PluginManager.pluginBundleExtension else {
                     throw ValidationError.unexpectedExtension(location, actual: path.lastComponent.pathExtension, expected: PluginManager.pluginBundleExtension)
                 }
-                let executablePath = path.appending(component: PluginManager.pluginExecutableName)
+                let executablePath = path.appending(PluginManager.pluginExecutableName)
                 
                 guard try self.fileSystem.properties(forFileAtPath: executablePath).isExecutable() else {
                     throw ValidationError.noExecutableFound(location, expectedLocation: executablePath)
@@ -63,7 +63,7 @@ public final class PluginManager: EventStream {
                 try validatePathToPluginBundle(path)
             case .contentsOfArchive(let containerPath, let concretePluginName):
                 if let concretePluginName = concretePluginName {
-                    var path = containerPath.appending(component: concretePluginName)
+                    var path = containerPath.appending(concretePluginName)
                     if path.lastComponent.pathExtension != PluginManager.pluginBundleExtension {
                         path = path.appending(extension: PluginManager.pluginBundleExtension)
                     }
@@ -94,7 +94,7 @@ public final class PluginManager: EventStream {
         
         for bundlePath in pluginBundles {
             logger.debug("Starting plugin at '\(bundlePath)'")
-            let pluginExecutable = bundlePath.appending(component: PluginManager.pluginExecutableName)
+            let pluginExecutable = bundlePath.appending(PluginManager.pluginExecutableName)
             let pluginIdentifier = try pluginExecutable.pathString.avito_sha256Hash()
             eventDistributor.add(pluginIdentifier: pluginIdentifier)
             let controller = try processControllerProvider.createProcessController(

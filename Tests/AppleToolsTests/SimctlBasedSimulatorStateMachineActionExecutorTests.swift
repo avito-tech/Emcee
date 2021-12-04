@@ -13,7 +13,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
     private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     private let udid = UDID(value: UUID().uuidString)
     private lazy var pathToSimulator = assertDoesNotThrow {
-        try tempFolder.pathByCreatingDirectories(components: [udid.value])
+        try tempFolder.createDirectory(components: [udid.value])
     }
     private lazy var simulator = Simulator(
         testDestination: TestDestinationFixtures.testDestination,

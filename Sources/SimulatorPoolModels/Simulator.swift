@@ -21,6 +21,6 @@ public struct Simulator: Hashable, CustomStringConvertible {
     }
     
     public var devicePlistPath: AbsolutePath {
-        return path.appending(component: "device.plist")
+        return path.appending("device.plist")
     }
 }

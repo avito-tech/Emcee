@@ -15,7 +15,7 @@ public final class RunnerWasteCleanerImpl: RunnerWasteCleaner {
     public func cleanWaste(runnerWasteCollector: RunnerWasteCollector) {
         for path in runnerWasteCollector.collectedPaths {
             if fileSystem.properties(forFileAtPath: path).exists() {
-                try? fileSystem.delete(fileAtPath: path)
+                try? fileSystem.delete(path: path)
             }
         }
     }

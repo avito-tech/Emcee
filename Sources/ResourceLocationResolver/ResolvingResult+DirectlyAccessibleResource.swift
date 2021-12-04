@@ -22,7 +22,7 @@ public extension ResolvingResult {
             return path
         case .contentsOfArchive(let containerPath, let filenameInArchive):
             if let filenameInArchive = filenameInArchive {
-                return containerPath.appending(component: filenameInArchive)
+                return containerPath.appending(filenameInArchive)
             } else {
                 throw DirectlyAccessibleResourceError.archiveFilenameNotSpecified(self)
             }

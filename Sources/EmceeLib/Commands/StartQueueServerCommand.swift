@@ -1,6 +1,6 @@
 import ArgLib
 import AutomaticTermination
-import DI
+import EmceeDI
 import DateProvider
 import Deployer
 import DistWorkerModels

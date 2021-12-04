@@ -1,6 +1,6 @@
 import AtomicModels
 import AutomaticTermination
-import DI
+import EmceeDI
 import DateProvider
 import DeveloperDirLocator
 import Dispatch

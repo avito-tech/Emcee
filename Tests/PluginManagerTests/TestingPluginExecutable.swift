@@ -1,11 +1,11 @@
-import Extensions
+import EmceeExtensions
 import Foundation
 import FileSystem
 import PathLib
 
 final class TestingPluginExecutable {
     
-    private static let fileSystem = LocalFileSystem()
+    private static let fileSystem = LocalFileSystemProvider().create()
     
     public static let testingPluginPath: String? = buildTestingPlugin()
     
@@ -25,7 +25,7 @@ final class TestingPluginExecutable {
                 "--product", "testing_plugin"
             ])
         process.waitUntilExit()
-        let location = swiftPackagePath.appending(components: [".build", "debug", "testing_plugin"])
+        let location = swiftPackagePath.appending(".build", "debug", "testing_plugin")
         if fileSystem.properties(forFileAtPath: location).exists() {
             return location.pathString
         } else {
@@ -40,7 +40,7 @@ final class TestingPluginExecutable {
         var path = path
         
         while !path.isRoot {
-            if fileSystem.properties(forFileAtPath: path.appending(component: filename)).exists() {
+            if fileSystem.properties(forFileAtPath: path.appending(filename)).exists() {
                 return path
             }
             

@@ -2,7 +2,7 @@ import ArgLib
 import Deployer
 import EmceeLogging
 import Foundation
-import DI
+import EmceeDI
 import LocalQueueServerRunner
 import MetricsExtensions
 import PathLib

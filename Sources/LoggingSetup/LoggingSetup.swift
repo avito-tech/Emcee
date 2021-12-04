@@ -99,7 +99,7 @@ public final class LoggingSetup {
                     let modificationDate = try self.fileSystem.properties(forFileAtPath: path).modificationDate()
                     if modificationDate < date {
                         do {
-                            try self.fileSystem.delete(fileAtPath: path)
+                            try self.fileSystem.delete(path: path)
                         } catch {
                             logger.error("Failed to remove old log file at \(path): \(error)")
                         }

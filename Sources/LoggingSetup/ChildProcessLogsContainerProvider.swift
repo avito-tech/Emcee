@@ -29,12 +29,12 @@ public final class ChildProcessLogsContainerProviderImpl: ChildProcessLogsContai
             deleteOnDealloc: false
         ).absolutePath
         
-        let stdoutPath = processContainer.appending(component: "stdout.log")
-        let stderrPath = processContainer.appending(component: "stderr.log")
+        let stdoutPath = processContainer.appending("stdout.log")
+        let stderrPath = processContainer.appending("stderr.log")
         
-        try fileSystem.createDirectory(atPath: processContainer, withIntermediateDirectories: true)
-        try fileSystem.createFile(atPath: stdoutPath, data: nil)
-        try fileSystem.createFile(atPath: stderrPath, data: nil)
+        try fileSystem.createDirectory(path: processContainer, withIntermediateDirectories: true)
+        try fileSystem.createFile(path: stdoutPath, data: nil)
+        try fileSystem.createFile(path: stderrPath, data: nil)
         
         return (stdout: stdoutPath, stderr: stderrPath)
     }

@@ -1,6 +1,6 @@
 import CountedSet
 import Dispatch
-import Extensions
+import EmceeExtensions
 import Foundation
 import QueueModels
 

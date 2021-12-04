@@ -68,7 +68,7 @@ open class Deployer {
                     self.logger.debug("Preparing deployable '\(deployable.name)'...")
                     let path = try packager.preparePackage(
                         deployable: deployable,
-                        packageFolder: try self.temporaryFolder.pathByCreatingDirectories(components: [self.uniqueIdentifierGenerator.generate()])
+                        packageFolder: try self.temporaryFolder.createDirectory(components: [self.uniqueIdentifierGenerator.generate()])
                     )
                     self.logger.debug("'\(deployable.name)' package path: \(path)")
                     syncQueue.sync { pathToDeployable[path] = deployable }

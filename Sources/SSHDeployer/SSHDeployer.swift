@@ -97,7 +97,7 @@ public final class SSHDeployer: Deployer {
             )
             try sshClient.execute(["rm", "-rf", remoteDeploymentPath.pathString])
             try sshClient.execute(["mkdir", "-p", remoteDeploymentPath.pathString])
-            let remotePackagePath = remoteDeploymentPath.appending(component: "_package.zip")
+            let remotePackagePath = remoteDeploymentPath.appending("_package.zip")
             
             try uploadFile(
                 sshClient: sshClient,
@@ -160,7 +160,7 @@ public final class SSHDeployer: Deployer {
                         destination: destination,
                         deploymentId: deploymentId)
                     if let additionalPath = relativePath {
-                        remotePath = remotePath.appending(component: additionalPath)
+                        remotePath = remotePath.appending(additionalPath)
                     }
                     return remotePath.pathString
                 }

@@ -12,7 +12,7 @@ final class DemanglerTests: XCTestCase {
     lazy var developerDirLocator = DefaultDeveloperDirLocator(
         processControllerProvider: DefaultProcessControllerProvider(
             dateProvider: SystemDateProvider(),
-            fileSystem: LocalFileSystem()
+            filePropertiesProvider: FilePropertiesProviderImpl()
         )
     )
     lazy var developerDirPath = assertDoesNotThrow {

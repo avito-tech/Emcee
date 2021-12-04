@@ -62,8 +62,8 @@ public final class RemoteQueueLaunchdPlist {
                 workingDirectory: containerPath.pathString,
                 runAtLoad: true,
                 disabled: true,
-                standardOutPath: containerPath.appending(component: "stdout.log").pathString,
-                standardErrorPath: containerPath.appending(component: "stderr.log").pathString,
+                standardOutPath: containerPath.appending("stdout.log").pathString,
+                standardErrorPath: containerPath.appending("stderr.log").pathString,
                 sockets: [:],
                 inetdCompatibility: .disabled,
                 sessionType: .background

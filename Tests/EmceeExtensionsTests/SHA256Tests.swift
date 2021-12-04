@@ -1,4 +1,4 @@
-import Extensions
+import EmceeExtensions
 import Foundation
 import XCTest
 

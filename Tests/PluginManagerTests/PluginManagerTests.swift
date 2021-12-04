@@ -1,5 +1,6 @@
 import DateProvider
 import EventBus
+import EmceeExtensions
 import FileSystem
 import PathLib
 import PluginManager
@@ -19,11 +20,11 @@ final class PluginManagerTests: XCTestCase {
     lazy var resolver = FakeResourceLocationResolver(
         resolvingResult: ResolvingResult.directlyAccessibleFile(path: tempFolder.absolutePath)
     )
-    lazy var fileSystem = LocalFileSystem()
+    lazy var fileSystem = LocalFileSystemProvider().create()
     
     func testStartingPluginWithinBundleButWithWrongExecutableNameFails() throws {
-        let pluginBundlePath = tempFolder.absolutePath.appending(component: "MyPlugin." + PluginManager.pluginBundleExtension)
-        let executablePath = pluginBundlePath.appending(component: "WrongExecutableName")
+        let pluginBundlePath = tempFolder.absolutePath.appending("MyPlugin." + PluginManager.pluginBundleExtension)
+        let executablePath = pluginBundlePath.appending("WrongExecutableName")
         
         try FileManager.default.createDirectory(atPath: pluginBundlePath)
         try FileManager.default.copyItem(
@@ -48,7 +49,7 @@ final class PluginManagerTests: XCTestCase {
     }
     
     func testStartingPluginWithoutBundleFails() throws {
-        let executablePath = tempFolder.absolutePath.appending(component: PluginManager.pluginExecutableName)
+        let executablePath = tempFolder.absolutePath.appending(PluginManager.pluginExecutableName)
         try FileManager.default.copyItem(
             atPath: testingPluginExecutablePath,
             toPath: executablePath.pathString
@@ -66,8 +67,8 @@ final class PluginManagerTests: XCTestCase {
     }
     
     func testExecutingPlugins() throws {
-        let pluginBundlePath = tempFolder.absolutePath.appending(component: "MyPlugin." + PluginManager.pluginBundleExtension)
-        let executablePath = pluginBundlePath.appending(component: PluginManager.pluginExecutableName)
+        let pluginBundlePath = tempFolder.absolutePath.appending("MyPlugin." + PluginManager.pluginBundleExtension)
+        let executablePath = pluginBundlePath.appending(PluginManager.pluginExecutableName)
         let outputPath = try TemporaryFile()
         
         try FileManager.default.createDirectory(atPath: pluginBundlePath)
@@ -88,7 +89,7 @@ final class PluginManagerTests: XCTestCase {
             ],
             processControllerProvider: DefaultProcessControllerProvider(
                 dateProvider: SystemDateProvider(),
-                fileSystem: fileSystem
+                filePropertiesProvider: FilePropertiesProviderImpl()
             ),
             resourceLocationResolver: resolver
         )

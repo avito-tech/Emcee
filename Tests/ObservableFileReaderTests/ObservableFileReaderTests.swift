@@ -17,7 +17,7 @@ final class ObservableFileReaderTests: XCTestCase {
                 path: tempFile.absolutePath,
                 processControllerProvider: DefaultProcessControllerProvider(
                     dateProvider: SystemDateProvider(),
-                    fileSystem: LocalFileSystem()
+                    filePropertiesProvider: FilePropertiesProviderImpl()
                 )
             )
         )

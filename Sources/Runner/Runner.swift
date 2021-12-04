@@ -276,10 +276,10 @@ public final class Runner {
         testRunner: TestRunner
     ) throws -> TestContext {
         let contextId = uniqueIdentifierGenerator.generate()
-        let testsWorkingDirectory = try tempFolder.pathByCreatingDirectories(
+        let testsWorkingDirectory = try tempFolder.createDirectory(
             components: [Self.testsWorkingDir, contextId]
         )
-        let testRunnerWorkingDirectory = try tempFolder.pathByCreatingDirectories(
+        let testRunnerWorkingDirectory = try tempFolder.createDirectory(
             components: [Self.runnerWorkingDir, contextId]
         )
         

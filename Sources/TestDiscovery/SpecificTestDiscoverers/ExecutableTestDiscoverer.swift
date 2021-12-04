@@ -11,7 +11,7 @@ import SimulatorPoolModels
 import Tmp
 import UniqueIdentifierGenerator
 
-final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
+public final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
     
     enum Errors: Error, CustomStringConvertible {
         case bundleExecutableNotFound(path: AbsolutePath)
@@ -34,7 +34,7 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
     private let tempFolder: TemporaryFolder
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     
-    init(
+    public init(
         appBundleLocation: AppBundleLocation,
         developerDirLocator: DeveloperDirLocator,
         resourceLocationResolver: ResourceLocationResolver,
@@ -50,7 +50,7 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
-    func discoverTestEntries(
+    public func discoverTestEntries(
         configuration: TestDiscoveryConfiguration
     ) throws -> [DiscoveredTestEntry] {
         let runtimeEntriesJSONPath = tempFolder.pathWith(components: [uniqueIdentifierGenerator.generate()])
@@ -82,7 +82,7 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
                 environment: Environment([
                     "SIMULATOR_ROOT": latestRuntimeRoot,
                     "DYLD_ROOT_PATH": latestRuntimeRoot,
-                    "SIMULATOR_SHARED_RESOURCES_DIRECTORY": tempFolder.pathByCreatingDirectories(
+                    "SIMULATOR_SHARED_RESOURCES_DIRECTORY": tempFolder.createDirectory(
                         components: [uniqueIdentifierGenerator.generate()]
                     ).pathString,
                     "EMCEE_RUNTIME_TESTS_EXPORT_PATH": runtimeEntriesJSONPath.pathString,
@@ -135,6 +135,6 @@ final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
             throw Errors.runtimeRootNotFound(testDestination: testDestination)
         }
         
-        return runtime.bundlePath.appending(component: "Contents/Resources/RuntimeRoot").pathString
+        return runtime.bundlePath.appending("Contents/Resources/RuntimeRoot").pathString
     }
 }

@@ -1,4 +1,4 @@
-import DI
+import EmceeDI
 import TestHelpers
 import XCTest
 

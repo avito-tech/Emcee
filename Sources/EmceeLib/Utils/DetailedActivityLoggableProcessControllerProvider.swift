@@ -1,7 +1,7 @@
-import DI
+import EmceeDI
 import Foundation
 import EmceeLogging
-import Extensions
+import EmceeExtensions
 import LoggingSetup
 import PathLib
 import ProcessController
@@ -31,7 +31,7 @@ public final class DetailedActivityLoggableProcessControllerProvider: ProcessCon
             pathProvider: { _ in paths },
             provider: DefaultProcessControllerProvider(
                 dateProvider: try di.get(),
-                fileSystem: try di.get()
+                filePropertiesProvider: try di.get()
             )
         )
 

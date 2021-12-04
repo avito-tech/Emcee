@@ -36,9 +36,9 @@ private class ResolvableResourceLocationArg: SubprocessArgument, CustomStringCon
             return try path.stringValue()
         case .contentsOfArchive(let containerPath, let filenameInArchive):
             if let filenameInArchive = filenameInArchive {
-                return try containerPath.appending(component: filenameInArchive).stringValue()
+                return try containerPath.appending(filenameInArchive).stringValue()
             } else if let implicitFilenameInArchive = implicitFilenameInArchive {
-                return try containerPath.appending(component: implicitFilenameInArchive).stringValue()
+                return try containerPath.appending(implicitFilenameInArchive).stringValue()
             } else {
                 throw ArgError.cannotResolve(resolvableResourceLocation, containerPath: containerPath)
             }

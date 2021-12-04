@@ -1,4 +1,5 @@
 import DateProvider
+import EmceeExtensions
 import FileCache
 import FileSystem
 import Foundation
@@ -13,7 +14,7 @@ final class FileCacheTests: XCTestCase {
     private lazy var dateProvider = SystemDateProvider()
     private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
     private lazy var fileManager = FileManager()
-    private lazy var fileSystem = LocalFileSystem()
+    private lazy var fileSystem = LocalFileSystemProvider().create()
     private lazy var cache = assertDoesNotThrow {
         try FileCache(
             cachesContainer: tempFolder.absolutePath,
@@ -29,7 +30,7 @@ final class FileCacheTests: XCTestCase {
     func test__creating_cache___when_cache_path_does_not_exists() {
         XCTAssertNoThrow(
             _ = try FileCache(
-                cachesContainer: tempFolder.absolutePath.appending(component: "subfolder"),
+                cachesContainer: tempFolder.absolutePath.appending("subfolder"),
                 dateProvider: dateProvider,
                 fileSystem: fileSystem
             )
@@ -99,7 +100,7 @@ final class FileCacheTests: XCTestCase {
         defer {
             do {
                 let expectedPath = expectedEvictingContainerPath
-                    .appending(component: (#file as NSString).lastPathComponent)
+                    .appending((#file as NSString).lastPathComponent)
                 try fileManager.setAttributes([.immutable: false], ofItemAtPath: expectedPath.pathString)
             } catch {
                 print(error)

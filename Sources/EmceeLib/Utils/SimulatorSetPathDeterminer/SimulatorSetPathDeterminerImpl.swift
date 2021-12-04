@@ -16,7 +16,7 @@ public final class SimulatorSetPathDeterminerImpl: SimulatorSetPathDeterminer {
             relativePath: "Developer/CoreSimulator/Devices"
         )
         try fileSystem.createDirectory(
-            atPath: path,
+            path: path,
             withIntermediateDirectories: true
         )
         return path

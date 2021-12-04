@@ -47,7 +47,7 @@ public final class XcodeCapabilitiesProvider: WorkerCapabilitiesProvider {
             try enumerator.each { path in
                 do {
                     guard path.lastComponent.contains("Xcode") || path.lastComponent.contains("xcode") else { return }
-                    let plistPath = path.appending(components: ["Contents", "Info.plist"])
+                    let plistPath = path.appending("Contents", "Info.plist")
                     let plist = try Plist.create(fromData: Data(contentsOf: plistPath.fileUrl, options: .mappedIfSafe))
                     guard try plist.root.plistEntry.entry(forKey: "CFBundleIdentifier").stringValue() == "com.apple.dt.Xcode" else { return }
                     let shortVersion = try plist.root.plistEntry.entry(forKey: "CFBundleShortVersionString").stringValue()

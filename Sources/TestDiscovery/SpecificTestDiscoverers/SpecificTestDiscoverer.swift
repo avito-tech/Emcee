@@ -1,7 +1,7 @@
 import Foundation
 import EmceeLogging
 
-protocol SpecificTestDiscoverer {
+public protocol SpecificTestDiscoverer {
     func discoverTestEntries(
         configuration: TestDiscoveryConfiguration
     ) throws -> [DiscoveredTestEntry]

@@ -1,5 +1,5 @@
 import ArgLib
-import DI
+import EmceeDI
 import DateProvider
 import DeveloperDirLocator
 import DistWorker
@@ -149,7 +149,7 @@ public final class DistWorkCommand: Command {
     private func createScopedTemporaryFolder() throws -> TemporaryFolder {
         let containerPath = AbsolutePath(ProcessInfo.processInfo.executablePath)
             .removingLastComponent
-            .appending(component: "tempFolder")
+            .appending("tempFolder")
         return try TemporaryFolder(containerPath: containerPath)
     }
 }

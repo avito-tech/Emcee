@@ -1,5 +1,5 @@
 import BucketQueueModels
-import Extensions
+import EmceeExtensions
 import Foundation
 
 /// Defines a mutable state of a single bucket queue. All mutation should happen through `SinglaBucketQueueXXX` impls.

@@ -65,12 +65,12 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
         urlResource.fetchResource(url: url, handler: handler, headers: headers)
         let zipFilePath = try handler.wait(limit: 120, remoteUrl: url)
         
-        let contentsPath = zipFilePath.removingLastComponent.appending(component: "zip_contents")
+        let contentsPath = zipFilePath.removingLastComponent.appending("zip_contents")
         try unarchiveQueue.sync {
             try urlResource.whileLocked {
                 if !fileSystem.properties(forFileAtPath: contentsPath).exists() {
                     let temporaryContentsPath = zipFilePath.removingLastComponent.appending(
-                        component: "zip_contents_\(UUID().uuidString)"
+                        "zip_contents_\(UUID().uuidString)"
                     )
                     
                     logger.debug("Will unzip \(zipFilePath) into \(temporaryContentsPath)")
@@ -89,7 +89,7 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
                         do {
                             logger.debug("Removing downloaded file at \(url)")
                             try urlResource.deleteResource(url: url)
-                            try fileSystem.delete(fileAtPath: temporaryContentsPath)
+                            try fileSystem.delete(path: temporaryContentsPath)
                         } catch {
                             logger.error("Failed to delete corrupted cached contents for item at url \(url)")
                         }

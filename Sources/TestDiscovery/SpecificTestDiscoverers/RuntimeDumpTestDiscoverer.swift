@@ -18,7 +18,7 @@ import SynchronousWaiter
 import Tmp
 import UniqueIdentifierGenerator
 
-final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
+public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let buildArtifacts: BuildArtifacts
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
@@ -36,7 +36,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let globalMetricRecorder: GlobalMetricRecorder
     private let specificMetricRecorder: SpecificMetricRecorder
     
-    init(
+    public init(
         buildArtifacts: BuildArtifacts,
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
@@ -72,7 +72,7 @@ final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         self.specificMetricRecorder = specificMetricRecorder
     }
     
-    func discoverTestEntries(
+    public func discoverTestEntries(
         configuration: TestDiscoveryConfiguration
     ) throws -> [DiscoveredTestEntry] {
         let runtimeEntriesJSONPath = tempFolder.pathWith(components: [uniqueIdentifierGenerator.generate()])

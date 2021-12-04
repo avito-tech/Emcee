@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/avito-tech/CommandLineToolkit.git",
         "state": {
           "branch": null,
-          "revision": "970cfcda4ad70d56d7ae12c6b9d2b1296fa877c3",
-          "version": "1.0.6"
+          "revision": "edf4705746298b39c7482f88404062b93419803d",
+          "version": "1.0.8"
         }
       },
       {
@@ -71,6 +71,15 @@
           "branch": null,
           "revision": "ebdc260ea64e68f7569c62e8744b5cd15d3a49d6",
           "version": "3.0.6"
+        }
+      },
+      {
+        "package": "swift-argument-parser",
+        "repositoryURL": "https://github.com/apple/swift-argument-parser",
+        "state": {
+          "branch": null,
+          "revision": "6b2aa2748a7881eebb9f84fb10c01293e15b52ca",
+          "version": "0.5.0"
         }
       },
       {

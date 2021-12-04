@@ -226,7 +226,7 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
     private func testTargetProductModuleName(
         xcTestBundlePath: AbsolutePath
     ) throws -> String {
-        let plistPath = xcTestBundlePath.appending(component: "Info.plist")
+        let plistPath = xcTestBundlePath.appending("Info.plist")
         let plistContents = try PropertyListSerialization.propertyList(
             from: Data(contentsOf: plistPath.fileUrl, options: .mappedIfSafe),
             options: [],

@@ -55,13 +55,13 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
             developerDirLocator: DefaultDeveloperDirLocator(
                 processControllerProvider: DefaultProcessControllerProvider(
                     dateProvider: SystemDateProvider(),
-                    fileSystem: LocalFileSystem()
+                    filePropertiesProvider: FilePropertiesProviderImpl()
                 )
             ),
             processControllerProvider: FakeProcessControllerProvider { subprocess -> ProcessController in
                 XCTAssertEqual(
                     try subprocess.arguments.map { try $0.stringValue() },
-                    ["/usr/bin/nm", "-j", "-U", self.testBundlePathInTempFolder.appending(component: self.executableInsideTestBundle).pathString]
+                    ["/usr/bin/nm", "-j", "-U", self.testBundlePathInTempFolder.appending(self.executableInsideTestBundle).pathString]
                 )
                 
                 let processController = FakeProcessController(subprocess: subprocess)
@@ -79,7 +79,7 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
     
     private let executableInsideTestBundle = "ExecutableInsideTestBundle"
     private lazy var tempFolder: TemporaryFolder = assertDoesNotThrow { try TemporaryFolder() }
-    private lazy var testBundlePathInTempFolder = tempFolder.absolutePath.appending(component: "bundle.xctest")
+    private lazy var testBundlePathInTempFolder = tempFolder.absolutePath.appending("bundle.xctest")
     private lazy var testBundleLocation = TestBundleLocation(.localFilePath(testBundlePathInTempFolder.pathString))
     private lazy var configuration = TestDiscoveryConfiguration(
         analyticsConfiguration: AnalyticsConfiguration(),

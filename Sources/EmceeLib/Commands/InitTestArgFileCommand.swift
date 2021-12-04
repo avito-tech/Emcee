@@ -1,7 +1,7 @@
 import ArgLib
 import BuildArtifacts
 import DeveloperDirModels
-import DI
+import EmceeDI
 import EmceeLogging
 import Foundation
 import MetricsExtensions

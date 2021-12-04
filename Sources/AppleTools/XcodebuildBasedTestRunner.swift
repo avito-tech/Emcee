@@ -47,8 +47,8 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         testContext: TestContext,
         testRunnerStream: TestRunnerStream
     ) throws -> TestRunnerInvocation {
-        let resultStreamFile = testContext.testRunnerWorkingDirectory.appending(component: "result_stream.json")
-        try fileSystem.createFile(atPath: resultStreamFile, data: nil)
+        let resultStreamFile = testContext.testRunnerWorkingDirectory.appending("result_stream.json")
+        try fileSystem.createFile(path: resultStreamFile, data: nil)
         
         let xcresultBundlePath = self.xcresultBundlePath(
             testRunnerWorkingDirectory: testContext.testRunnerWorkingDirectory
@@ -57,7 +57,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         let xcTestRunFile = XcTestRunFileArgument(
             buildArtifacts: buildArtifacts,
             entriesToRun: entriesToRun,
-            path: testContext.testRunnerWorkingDirectory.appending(component: "testrun.xctestrun"),
+            path: testContext.testRunnerWorkingDirectory.appending("testrun.xctestrun"),
             resourceLocationResolver: resourceLocationResolver,
             testContext: testContext,
             testingEnvironment: XcTestRunTestingEnvironment(insertedLibraries: [])
@@ -69,7 +69,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                     "/usr/bin/xcrun",
                     "xcodebuild",
                     "-destination", XcodebuildSimulatorDestinationArgument(destinationId: simulator.udid),
-                    "-derivedDataPath", testContext.testRunnerWorkingDirectory.appending(component: "derivedData"),
+                    "-derivedDataPath", testContext.testRunnerWorkingDirectory.appending("derivedData"),
                     "-resultBundlePath", xcresultBundlePath,
                     "-resultStreamPath", resultStreamFile,
                     "-xctestrun", xcTestRunFile,
@@ -131,7 +131,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
     }
     
     private func xcresultBundlePath(testRunnerWorkingDirectory: AbsolutePath) -> AbsolutePath {
-        return testRunnerWorkingDirectory.appending(component: "resultBundle.xcresult")
+        return testRunnerWorkingDirectory.appending("resultBundle.xcresult")
     }
     
     private func readResultBundle(

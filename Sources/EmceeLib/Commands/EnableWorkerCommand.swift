@@ -1,6 +1,6 @@
 import ArgLib
 import AtomicModels
-import DI
+import EmceeDI
 import Foundation
 import EmceeLogging
 import QueueClient

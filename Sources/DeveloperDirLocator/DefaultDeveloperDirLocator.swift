@@ -48,13 +48,13 @@ public final class DefaultDeveloperDirLocator: DeveloperDirLocator {
             paths: try findXcodePaths(path: containerPath),
             CFBundleShortVersionString: xcodeCFBundleShortVersionString
         )
-        return xcodePath.appending(components: ["Contents", "Developer"])
+        return xcodePath.appending("Contents", "Developer")
     }
     
     private func findXcodePaths(path: AbsolutePath) throws -> [AbsolutePath] {
         let potentialXcodePaths = try FileManager.default.contentsOfDirectory(atPath: path.pathString)
             .filter { $0.hasPrefix("Xcode") }
-            .map { path.appending(component: $0) }
+            .map { path.appending($0) }
         return potentialXcodePaths
     }
     
@@ -63,7 +63,7 @@ public final class DefaultDeveloperDirLocator: DeveloperDirLocator {
         CFBundleShortVersionString: String
     ) throws -> AbsolutePath {
         for xcodePath in paths {
-            let plistPath = xcodePath.appending(components: ["Contents", "Info.plist"])
+            let plistPath = xcodePath.appending("Contents", "Info.plist")
             guard let plist = NSDictionary(contentsOf: plistPath.fileUrl) else {
                 throw DeveloperDirLocatorError.unableToLoadPlist(path: plistPath)
             }

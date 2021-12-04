@@ -38,7 +38,7 @@ public final class FileCache {
         )
         
         return try FileCache(
-            cachesContainer: cacheContainer.appending(component: FileCache.defaultCacheContainerName),
+            cachesContainer: cacheContainer.appending(FileCache.defaultCacheContainerName),
             dateProvider: dateProvider,
             fileSystem: fileSystem
         )
@@ -58,10 +58,10 @@ public final class FileCache {
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         
         if !fileSystem.properties(forFileAtPath: cachesContainer).exists() {
-            try fileSystem.createDirectory(atPath: cachesContainer, withIntermediateDirectories: true)
+            try fileSystem.createDirectory(path: cachesContainer, withIntermediateDirectories: true)
         }
         
-        let lockFilePath = cachesContainer.appending(component: "emcee_cache.lock")
+        let lockFilePath = cachesContainer.appending("emcee_cache.lock")
         self.cacheLock = try FileLock(lockFilePath: lockFilePath.pathString)
     }
     
@@ -98,12 +98,12 @@ public final class FileCache {
             case .copy:
                 try fileSystem.copy(
                     source: itemPath,
-                    destination: container.appending(component: filename)
+                    destination: container.appending(filename)
                 )
             case .move:
                 try fileSystem.move(
                     source: itemPath,
-                    destination: container.appending(component: filename)
+                    destination: container.appending(filename)
                 )
             }
             
@@ -120,7 +120,7 @@ public final class FileCache {
             let updatedItemInfo = CachedItemInfo(fileName: itemInfo.fileName, timestamp: dateProvider.currentDate().timeIntervalSince1970)
             try store(cachedItemInfo: updatedItemInfo, forItemWithName: name)
             
-            return container.appending(component: itemInfo.fileName)
+            return container.appending(itemInfo.fileName)
         }
     }
     
@@ -185,7 +185,7 @@ public final class FileCache {
                 return
             }
             
-            let expectedCachedItemPath = element.appending(component: element.lastComponent).appending(extension: "json")
+            let expectedCachedItemPath = element.appending(element.lastComponent).appending(extension: "json")
             if fileSystem.properties(forFileAtPath: expectedCachedItemPath).exists() {
                 cachedItemInfos[element] = try cachedItemInfo(path: expectedCachedItemPath)
             }
@@ -196,9 +196,9 @@ public final class FileCache {
     
     private func containerPath(forItemWithName name: String) throws -> AbsolutePath {
         let key = try nameKeyer.key(forName: name)
-        let containerPath = cachesContainer.appending(component: key)
+        let containerPath = cachesContainer.appending(key)
         if !fileSystem.properties(forFileAtPath: containerPath).exists() {
-            try fileSystem.createDirectory(atPath: containerPath, withIntermediateDirectories: true)
+            try fileSystem.createDirectory(path: containerPath, withIntermediateDirectories: true)
         }
         return containerPath
     }
@@ -206,7 +206,7 @@ public final class FileCache {
     private func cachedItemInfoPath(forItemWithName name: String) throws -> AbsolutePath {
         let key = try nameKeyer.key(forName: name)
         let container = try containerPath(forItemWithName: name)
-        return container.appending(component: key).appending(extension: "json")
+        return container.appending(key).appending(extension: "json")
     }
     
     private func cachedItemInfo(forItemWithName name: String) throws -> CachedItemInfo {
@@ -226,13 +226,19 @@ public final class FileCache {
     private func safelyEvict(itemPath: AbsolutePath) throws {
         let evictableItemPath = itemPath
             .removingLastComponent
-            .appending(component: [FileCache.evictingStatePrefix, uniqueIdentifierGenerator.generate(), itemPath.lastComponent].joined(separator: "_"))
+            .appending(
+                [
+                    FileCache.evictingStatePrefix,
+                    uniqueIdentifierGenerator.generate(),
+                    itemPath.lastComponent,
+                ].joined(separator: "_")
+            )
         try fileSystem.move(
             source: itemPath,
             destination: evictableItemPath
         )
         try fileSystem.delete(
-            fileAtPath: evictableItemPath
+            path: evictableItemPath
         )
     }
     

@@ -3,6 +3,7 @@ import FileCache
 import FileSystem
 import Foundation
 import EmceeLogging
+import EmceeExtensions
 import PathLib
 import ProcessController
 import ResourceLocation
@@ -57,7 +58,7 @@ final class ResourceLocationResolverTests: XCTestCase {
             XCTAssertTrue(
                 compareFiles(
                     path1: smallFile,
-                    path2: containerPath.appending(component: filenameInArchive ?? "")
+                    path2: containerPath.appending(filenameInArchive ?? "")
                 )
             )
         }
@@ -79,7 +80,7 @@ final class ResourceLocationResolverTests: XCTestCase {
             XCTAssertTrue(
                 compareFiles(
                     path1: smallFile,
-                    path2: containerPath.appending(component: "example")
+                    path2: containerPath.appending("example")
                 )
             )
         }
@@ -117,7 +118,7 @@ final class ResourceLocationResolverTests: XCTestCase {
                         XCTAssertTrue(
                             self.compareFiles(
                                 path1: self.largeFile,
-                                path2: containerPath.appending(component: "example")
+                                path2: containerPath.appending("example")
                             )
                         )
                     }
@@ -194,12 +195,16 @@ final class ResourceLocationResolverTests: XCTestCase {
         maximumCacheSize: 0,
         processControllerProvider: DefaultProcessControllerProvider(
             dateProvider: dateProvider,
-            fileSystem: fileSystem
+            filePropertiesProvider: FilePropertiesProviderImpl()
         )
     )
-    lazy var fileSystem = LocalFileSystem()
-    lazy var serverFolder = assertDoesNotThrow { try tempFolder.pathByCreatingDirectories(components: ["server"]) }
-    lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
+    lazy var fileSystem = LocalFileSystemProvider().create()
+    lazy var serverFolder = assertDoesNotThrow {
+        try tempFolder.createDirectory(components: ["server"])
+    }
+    lazy var tempFolder = assertDoesNotThrow {
+        try TemporaryFolder()
+    }
     lazy var fileCache = assertDoesNotThrow {
         try FileCache(
             cachesContainer: tempFolder.absolutePath,
@@ -213,9 +218,9 @@ final class ResourceLocationResolverTests: XCTestCase {
         urlSession: urlSession
     )
     lazy var smallFile = assertDoesNotThrow { try createFile(name: "example", size: 4096) }
-    lazy var smallZipFile = self.zipFile(toPath: serverFolder.appending(component: "example.zip"), fromPath: smallFile)
+    lazy var smallZipFile = self.zipFile(toPath: serverFolder.appending("example.zip"), fromPath: smallFile)
     lazy var largeFile = assertDoesNotThrow { try createFile(name: "example", size: 12000000) }
-    lazy var largeZipFile = self.zipFile(toPath: serverFolder.appending(component: "example.zip"), fromPath: largeFile)
+    lazy var largeZipFile = self.zipFile(toPath: serverFolder.appending("example.zip"), fromPath: largeFile)
     lazy var corruptedZipFile = assertDoesNotThrow { try createFile(name: "corrupted", size: 1234) }
     let operationQueue = OperationQueue()
     let maximumConcurrentOperations = 10

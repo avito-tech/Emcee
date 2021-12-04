@@ -130,7 +130,7 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
                 udid: simulator.udid,
                 domain: domain
             )
-        ).appending(component: uniqueId + "_current.plist")
+        ).appending(uniqueId + "_current.plist")
         
         try processControllerProvider.startAndWaitForSuccessfulTermination(
             arguments: ["/usr/bin/xcrun", "simctl", "--set", simulator.simulatorSetPath, "spawn", simulator.udid.value, "defaults", "export", domain, currentPlistFilePath.pathString],

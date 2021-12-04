@@ -28,7 +28,7 @@ function install_deps() {
 
 function generate_package_swift() {
     install_deps
-    swift run --package-path ".build/checkouts/CommandLineToolkit/PackageGenerator/" package-gen .
+    swift run --package-path ".build/checkouts/CommandLineToolkit/PackageGenerator/" package-gen . || true
 }
 
 function generate_emcee_version() {

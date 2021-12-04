@@ -31,7 +31,7 @@ final class SimRuntimeCapabilitiesProviderTests: XCTestCase {
             ).data(format: .xml)
         )
         
-        _ = try tempFolder.pathByCreatingDirectories(
+        _ = try tempFolder.createDirectory(
             components: ["Library", "Developer", "CoreSimulator", "Profiles", "Runtimes", "iOS X.Y.simruntime", "Contents"]
         )
         

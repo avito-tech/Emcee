@@ -41,7 +41,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         testDestination: TestDestinationFixtures.testDestination,
         udid: UDID(value: UUID().uuidString),
         path: assertDoesNotThrow {
-            try tempFolder.pathByCreatingDirectories(components: ["simulator"])
+            try tempFolder.createDirectory(components: ["simulator"])
         }
     )
     private lazy var testContext = assertDoesNotThrow { try createTestContext() }
@@ -54,10 +54,10 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         xcResultTool: xcResultTool
     )
     private lazy var developerDirLocator = FakeDeveloperDirLocator(
-        result: tempFolder.absolutePath.appending(component: "xcode.app")
+        result: tempFolder.absolutePath.appending("xcode.app")
     )
     private lazy var appBundlePath: AbsolutePath = assertDoesNotThrow {
-        let path = try tempFolder.pathByCreatingDirectories(components: ["appbundle.app"])
+        let path = try tempFolder.createDirectory(components: ["appbundle.app"])
         let data = try PropertyListSerialization.data(
             fromPropertyList: ["CFBundleIdentifier": hostAppBundleId],
             format: .xml,
@@ -70,7 +70,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         )
         return path
     }
-    private lazy var runnerAppPath = tempFolder.absolutePath.appending(component: "xctrunner.app")
+    private lazy var runnerAppPath = tempFolder.absolutePath.appending("xctrunner.app")
     private let hostAppBundleId = "host.app.bundle.id"
     private let testBundleName = "SomeTestProductName"
     private lazy var testBundlePath: AbsolutePath = {
@@ -87,7 +87,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         }
         return testBundlePlistPath.removingLastComponent
     }()
-    private lazy var additionalAppPath = tempFolder.absolutePath.appending(component: "additionalapp.app")
+    private lazy var additionalAppPath = tempFolder.absolutePath.appending("additionalapp.app")
     private lazy var xcTestBundle = XcTestBundle(
         location: TestBundleLocation(.localFilePath(testBundlePath.pathString)),
         testDiscoveryMode: .runtimeLogicTest
@@ -111,13 +111,13 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
     
     private var testRunnerWorkingDirectory: AbsolutePath {
         assertDoesNotThrow {
-            try tempFolder.pathByCreatingDirectories(components: [Runner.runnerWorkingDir, contextId])
+            try tempFolder.createDirectory(components: [Runner.runnerWorkingDir, contextId])
         }
     }
     
     private var testsWorkingDirectory: AbsolutePath {
         assertDoesNotThrow {
-            try tempFolder.pathByCreatingDirectories(components: [Runner.testsWorkingDir, contextId])
+            try tempFolder.createDirectory(components: [Runner.testsWorkingDir, contextId])
         }
     }
     
@@ -468,7 +468,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
     private func pathToXctestrunFile() throws -> AbsolutePath {
         let contents = try FileManager().contentsOfDirectory(atPath: testRunnerWorkingDirectory.pathString)
         let xctestrunFileName: String = contents.first(where: { $0.hasSuffix("xctestrun") }) ?? "NOT_FOUND"
-        return testRunnerWorkingDirectory.appending(component: xctestrunFileName)
+        return testRunnerWorkingDirectory.appending(xctestrunFileName)
     }
     
     private func createdXcTestRun() throws -> XcTestRun {
@@ -487,9 +487,9 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 "/usr/bin/xcrun",
                 "xcodebuild",
                 "-destination", "platform=iOS Simulator,id=" + simulator.udid.value,
-                "-derivedDataPath", testRunnerWorkingDirectory.appending(component: "derivedData").pathString,
-                "-resultBundlePath", testRunnerWorkingDirectory.appending(component: "resultBundle.xcresult").pathString,
-                "-resultStreamPath", testRunnerWorkingDirectory.appending(component: "result_stream.json").pathString,
+                "-derivedDataPath", testRunnerWorkingDirectory.appending("derivedData").pathString,
+                "-resultBundlePath", testRunnerWorkingDirectory.appending("resultBundle.xcresult").pathString,
+                "-resultStreamPath", testRunnerWorkingDirectory.appending("result_stream.json").pathString,
                 "-xctestrun", try pathToXctestrunFile().pathString,
                 "-parallel-testing-enabled", "NO",
                 "test-without-building"

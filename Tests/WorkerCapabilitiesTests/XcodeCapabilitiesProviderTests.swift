@@ -15,7 +15,7 @@ final class XcodeCapabilitiesProviderTests: XCTestCase {
     func test___discovering_xcodes() throws {
         try tempFolder.createFile(components: ["Applications", "Xcode115.app", "Contents"], filename: "Info.plist", contents: try plist(shortVersion: "11.5").data(format: .xml))
         try tempFolder.createFile(components: ["Applications", "Xcode101.app", "Contents"], filename: "Info.plist", contents: try plist(shortVersion: "10.1").data(format: .xml))
-        _ = try tempFolder.pathByCreatingDirectories(components: ["Applications", "Xcode123.app"])
+        _ = try tempFolder.createDirectory(components: ["Applications", "Xcode123.app"])
         
         fileSystem.fakeContentEnumerator = { args in
             ShallowFileSystemEnumerator(fileManager: FileManager(), path: args.path)

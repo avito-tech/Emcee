@@ -1,6 +1,6 @@
 import ArgLib
 import BucketQueue
-import DI
+import EmceeDI
 import DateProvider
 import Deployer
 import DeveloperDirLocator

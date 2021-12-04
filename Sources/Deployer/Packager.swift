@@ -17,7 +17,7 @@ public final class Packager {
      * If the DeployableItem has been already packed, it will return URL without re-packing it.
      */
     public func preparePackage(deployable: DeployableItem, packageFolder: AbsolutePath) throws -> AbsolutePath {
-        let archivePath = deployable.name.components(separatedBy: "/").reduce(packageFolder) { $0.appending(component: $1) }
+        let archivePath = deployable.name.components(separatedBy: "/").reduce(packageFolder) { $0.appending($1) }
         try fileManager.createDirectory(atPath: archivePath.removingLastComponent)
 
         if fileManager.fileExists(atPath: archivePath.pathString) {
@@ -29,7 +29,7 @@ public final class Packager {
         for file in deployable.files {
             let containerPath = file.destination.removingLastComponent
             if !fileManager.fileExists(atPath: containerPath.pathString) {
-                _ = try temporaryFolder.pathByCreatingDirectories(components: containerPath.components)
+                _ = try temporaryFolder.createDirectory(components: containerPath.components)
             }
             try fileManager.copyItem(
                 atPath: file.source.pathString,

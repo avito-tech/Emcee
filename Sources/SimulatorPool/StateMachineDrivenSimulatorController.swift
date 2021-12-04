@@ -227,17 +227,17 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     ) throws {
         let simulatorLogsPath = try fileSystem.commonlyUsedPathsProvider
             .library(inDomain: .user, create: false)
-            .appending(components: ["Logs", "CoreSimulator", simulator.udid.value])
+            .appending("Logs", "CoreSimulator", simulator.udid.value)
         if fileSystem.properties(forFileAtPath: simulatorLogsPath).exists() {
             logger.debug("Removing logs of simulator \(simulator)")
-            try fileSystem.delete(fileAtPath: simulatorLogsPath)
+            try fileSystem.delete(path: simulatorLogsPath)
         }
     }
     
     private func deleteSimulatorWorkingDirectory(simulator: Simulator) throws {
         if fileSystem.properties(forFileAtPath: simulator.path).exists() {
             logger.debug("Removing working directory of simulator \(simulator)")
-            try fileSystem.delete(fileAtPath: simulator.path)
+            try fileSystem.delete(path: simulator.path)
         }
     }
     
@@ -250,7 +250,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     
     private func environment() throws -> [String: String] {
         let temporaryPathComponents = ["simctl_working_dir", UUID().uuidString, "simctl_tmp"]
-        let tmpdir = try temporaryFolder.pathByCreatingDirectories(components: temporaryPathComponents).pathString
+        let tmpdir = try temporaryFolder.createDirectory(components: temporaryPathComponents).pathString
         
         return try developerDirLocator.suitableEnvironment(
             forDeveloperDir: developerDir,
