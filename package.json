@@ -4,7 +4,7 @@
         "CommandLineToolkit": {
             "url": "https://github.com/avito-tech/CommandLineToolkit.git",
             "version": {
-                "exact": "1.0.8"
+                "exact": "1.0.9"
             },
             "targetNames": "generated"
         },
