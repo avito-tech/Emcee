@@ -10,7 +10,10 @@ public final class MultipleQueuesJobResultsProvider: JobResultsProvider {
     
     public func results(jobId: JobId) throws -> JobResults {
         if let jobQueue = multipleQueuesContainer.runningAndDeletedJobQueues().first(where: { jobQueue in jobQueue.job.jobId == jobId }) {
-            return JobResults(jobId: jobId, testingResults: jobQueue.resultsCollector.collectedResults)
+            return JobResults(
+                jobId: jobId,
+                bucketResults: jobQueue.resultsCollector.collectedResults
+            )
         }
         
         throw NoQueueForJobIdFoundError.noQueue(jobId: jobId)

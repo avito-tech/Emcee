@@ -64,10 +64,14 @@ final class IntegrationTests: XCTestCase {
         workerAlivenessProvider: workerAlivenessProvider,
         workerCapabilitiesStorage: WorkerCapabilitiesStorageImpl()
     )
-    private lazy var bucketResultAccepterProvider = SingleBucketResultAccepterProvider(
+    private lazy var testingResultAcceptorProvider = TestingResultAcceptorProviderImpl(
         bucketEnqueuerProvider: bucketEnqueuerProvider,
         logger: .noOp,
         testHistoryTracker: testHistoryTracker
+    )
+    private lazy var bucketResultAcceptorProvider = SingleBucketResultAcceptorProvider(
+        logger: .noOp,
+        testingResultAcceptorProvider: testingResultAcceptorProvider
     )
     private lazy var stuckBucketsReenqueuerProvider = SingleBucketQueueStuckBucketsReenqueuerProvider(
         logger: .noOp,
@@ -109,8 +113,8 @@ final class IntegrationTests: XCTestCase {
         ),
         multipleQueuesContainer: multipleQueuesContainer
     )
-    private lazy var multipleQueuesBucketResultAccepter = MultipleQueuesBucketResultAccepter(
-        bucketResultAccepterProvider: bucketResultAccepterProvider,
+    private lazy var multipleQueuesBucketResultAcceptor = MultipleQueuesBucketResultAcceptor(
+        bucketResultAcceptorProvider: bucketResultAcceptorProvider,
         multipleQueuesContainer: multipleQueuesContainer
     )
     private lazy var multipleQueuesStuckBucketsReenqueuer = MultipleQueuesStuckBucketsReenqueuer(
@@ -148,12 +152,14 @@ final class IntegrationTests: XCTestCase {
     
     private func submitResult(
         bucketId: BucketId,
-        testingResult: TestingResult = TestingResultFixtures().testingResult(),
+        bucketResult: BucketResult = .testingResult(
+            TestingResultFixtures().testingResult()
+        ),
         workerId: WorkerId? = nil
     ) throws -> BucketQueueAcceptResult {
-        try multipleQueuesBucketResultAccepter.accept(
+        try multipleQueuesBucketResultAcceptor.accept(
             bucketId: bucketId,
-            testingResult: testingResult,
+            bucketResult: bucketResult,
             workerId: workerId ?? self.workerId
         )
     }
@@ -267,7 +273,7 @@ final class IntegrationTests: XCTestCase {
         } equals: {
             JobResults(
                 jobId: prioritizedJob.jobId,
-                testingResults: []
+                bucketResults: []
             )
         }
     }
@@ -430,23 +436,25 @@ final class IntegrationTests: XCTestCase {
         assert {
             try multipleQueuesJobResultsProvider.results(jobId: jobId)
         } equals: {
-            JobResults(jobId: jobId, testingResults: [])
+            JobResults(jobId: jobId, bucketResults: [])
         }
     }
     
     func test___accepting_results___provides_back_results_for_job() throws {
         let testEntry = TestEntryFixtures.testEntry()
         let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
-        let expectedTestingResult = TestingResultFixtures(
-            testEntry: testEntry,
-            manuallyTestDestination: bucket.payload.testDestination,
-            unfilteredResults: [
-                TestEntryResult.withResult(
-                    testEntry: testEntry,
-                    testRunResult: TestRunResultFixtures.testRunResult()
-                )
-            ]
-        ).testingResult()
+        let expectedBucketResult = BucketResult.testingResult(
+            TestingResultFixtures(
+                testEntry: testEntry,
+                manuallyTestDestination: bucket.payload.testDestination,
+                unfilteredResults: [
+                    TestEntryResult.withResult(
+                        testEntry: testEntry,
+                        testRunResult: TestRunResultFixtures.testRunResult()
+                    )
+                ]
+            ).testingResult()
+        )
         
         try enqueue(bucket: bucket)
         assertNotNil {
@@ -456,11 +464,11 @@ final class IntegrationTests: XCTestCase {
         assert {
             try submitResult(
                 bucketId: bucket.bucketId,
-                testingResult: expectedTestingResult,
+                bucketResult: expectedBucketResult,
                 workerId: workerId
-            ).testingResultToCollect
+            ).bucketResultToCollect
         } equals: {
-            expectedTestingResult
+            expectedBucketResult
         }
         
         assert {
@@ -468,7 +476,7 @@ final class IntegrationTests: XCTestCase {
         } equals: {
             JobResults(
                 jobId: jobId,
-                testingResults: [expectedTestingResult]
+                bucketResults: [expectedBucketResult]
             )
         }
     }
@@ -479,16 +487,18 @@ final class IntegrationTests: XCTestCase {
         
         let testEntry = TestEntryFixtures.testEntry()
         let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
-        let expectedTestingResult = TestingResultFixtures(
-            testEntry: testEntry,
-            manuallyTestDestination: bucket.payload.testDestination,
-            unfilteredResults: [
-                TestEntryResult.withResult(
-                    testEntry: testEntry,
-                    testRunResult: TestRunResultFixtures.testRunResult()
-                )
-            ]
-        ).testingResult()
+        let expectedBucketResult = BucketResult.testingResult(
+            TestingResultFixtures(
+                testEntry: testEntry,
+                manuallyTestDestination: bucket.payload.testDestination,
+                unfilteredResults: [
+                    TestEntryResult.withResult(
+                        testEntry: testEntry,
+                        testRunResult: TestRunResultFixtures.testRunResult()
+                    )
+                ]
+            ).testingResult()
+        )
         
         try enqueue(bucket: bucket)
         assertNotNil {
@@ -499,7 +509,7 @@ final class IntegrationTests: XCTestCase {
         assert {
             try submitResult(
                 bucketId: bucket.bucketId,
-                testingResult: expectedTestingResult
+                bucketResult: expectedBucketResult
             ).dequeuedBucket.enqueuedBucket.bucket
         } equals: {
             bucket

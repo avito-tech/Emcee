@@ -19,18 +19,19 @@ final class BucketResultRegistrarTests: XCTestCase {
         .with(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "method"))
         .addingLostResult()
         .testingResult()
-    lazy var buckerResultAccepter = FakeBucketResultAccepter { _, _, _ in
+    lazy var bucketResult = BucketResult.testingResult(testingResult)
+    lazy var buckerResultAcceptor = FakeBucketResultAcceptor { _, _, _ in
         throw ErrorForTestingPurposes()
     }
     lazy var registrar = BucketResultRegistrar(
-        bucketResultAccepter: buckerResultAccepter,
+        bucketResultAcceptor: buckerResultAcceptor,
         expectedPayloadSignature: expectedPayloadSignature
     )
-    lazy var acceptedResults = [TestingResult]()
+    lazy var acceptedResults = [BucketResult]()
 
     func test__results_collector_receives_results__if_bucket_queue_accepts_results() {
-        buckerResultAccepter.result = { (_: BucketId, testingResult: TestingResult, workerId: WorkerId) in
-            self.acceptedResults.append(testingResult)
+        buckerResultAcceptor.result = { (_: BucketId, bucketResult: BucketResult, workerId: WorkerId) in
+            self.acceptedResults.append(bucketResult)
             return BucketQueueAcceptResult(
                 dequeuedBucket: DequeuedBucket(
                     enqueuedBucket: EnqueuedBucket(
@@ -40,14 +41,14 @@ final class BucketResultRegistrarTests: XCTestCase {
                     ),
                     workerId: workerId
                 ),
-                testingResultToCollect: testingResult
+                bucketResultToCollect: bucketResult
             )
         }
         
         let request = BucketResultPayload(
             bucketId: "bucket id",
             workerId: "worker",
-            testingResult: testingResult,
+            bucketResult: bucketResult,
             payloadSignature: expectedPayloadSignature
         )
         assertDoesNotThrow {
@@ -57,7 +58,7 @@ final class BucketResultRegistrarTests: XCTestCase {
         assert {
             acceptedResults
         } equals: {
-            [testingResult]
+            [bucketResult]
         }
     }
     
@@ -65,11 +66,11 @@ final class BucketResultRegistrarTests: XCTestCase {
         let request = BucketResultPayload(
             bucketId: "bucket id",
             workerId: "worker",
-            testingResult: testingResult,
+            bucketResult: bucketResult,
             payloadSignature: expectedPayloadSignature
         )
         
-        buckerResultAccepter.result = { (_: BucketId, testingResult: TestingResult, _: WorkerId) in
+        buckerResultAcceptor.result = { (_: BucketId, _: BucketResult, _: WorkerId) in
             throw ErrorForTestingPurposes()
         }
         
@@ -80,7 +81,7 @@ final class BucketResultRegistrarTests: XCTestCase {
 
     func test___throws___when_payload_signature_mismatches() {
         let registrar = BucketResultRegistrar(
-            bucketResultAccepter: buckerResultAccepter,
+            bucketResultAcceptor: buckerResultAcceptor,
             expectedPayloadSignature: expectedPayloadSignature
         )
 
@@ -89,7 +90,7 @@ final class BucketResultRegistrarTests: XCTestCase {
                 payload: BucketResultPayload(
                     bucketId: "bucket id",
                     workerId: "worker",
-                    testingResult: testingResult,
+                    bucketResult: bucketResult,
                     payloadSignature: PayloadSignature(value: UUID().uuidString)
                 )
             )
@@ -97,20 +98,20 @@ final class BucketResultRegistrarTests: XCTestCase {
     }
 }
 
-open class FakeBucketResultAccepter: BucketResultAccepter {
-    public var result: (BucketId, TestingResult, WorkerId) throws -> BucketQueueAcceptResult
+open class FakeBucketResultAcceptor: BucketResultAcceptor {
+    public var result: (BucketId, BucketResult, WorkerId) throws -> BucketQueueAcceptResult
     
     public init(
-        result: @escaping (BucketId, TestingResult, WorkerId) throws -> BucketQueueAcceptResult
+        result: @escaping (BucketId, BucketResult, WorkerId) throws -> BucketQueueAcceptResult
     ) {
         self.result = result
     }
     
     public func accept(
         bucketId: BucketId,
-        testingResult: TestingResult,
+        bucketResult: BucketResult,
         workerId: WorkerId
     ) throws -> BucketQueueAcceptResult {
-        return try result(bucketId, testingResult, workerId)
+        return try result(bucketId, bucketResult, workerId)
     }
 }

@@ -103,6 +103,7 @@ final class QueueServerTests: XCTestCase {
             .with(testEntry: testEntry)
             .addingLostResult()
             .testingResult()
+        let bucketResult = BucketResult.testingResult(testingResult)
         
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
@@ -211,7 +212,7 @@ final class QueueServerTests: XCTestCase {
         let response: Either<BucketId, Error> = try runSyncronously { [callbackQueue, workerId, payloadSignature] completion in
             resultSender.send(
                 bucketId: bucket.bucketId,
-                testingResult: testingResult,
+                bucketResult: bucketResult,
                 workerId: workerId,
                 payloadSignature: payloadSignature,
                 callbackQueue: callbackQueue,
@@ -228,7 +229,7 @@ final class QueueServerTests: XCTestCase {
         wait(for: [expectationForResults], timeout: 10)
 
         XCTAssertEqual(
-            [JobResults(jobId: jobId, testingResults: [testingResult])],
+            [JobResults(jobId: jobId, bucketResults: [bucketResult])],
             actualResults
         )
     }

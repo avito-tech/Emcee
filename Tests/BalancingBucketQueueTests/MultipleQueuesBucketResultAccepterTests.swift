@@ -8,24 +8,24 @@ import QueueModelsTestHelpers
 import TestHelpers
 import XCTest
 
-final class MultipleQueuesBucketResultAccepterTests: XCTestCase {
-    private lazy var bucketResultAccepterProvider = FakeBucketResultAccepterProvider()
+final class MultipleQueuesBucketResultAcceptorTests: XCTestCase {
+    private lazy var bucketResultAcceptorProvider = FakeBucketResultAcceptorProvider()
     private lazy var multipleQueuesContainer = MultipleQueuesContainer()
-    private lazy var multipleQueuesBucketResultAccepter = MultipleQueuesBucketResultAccepter(
-        bucketResultAccepterProvider: bucketResultAccepterProvider,
+    private lazy var multipleQueuesBucketResultAcceptor = MultipleQueuesBucketResultAcceptor(
+        bucketResultAcceptorProvider: bucketResultAcceptorProvider,
         multipleQueuesContainer: multipleQueuesContainer
     )
     private lazy var workerId = WorkerId("worker")
     
     func test___accepting_results___rethrows___if_accepter_throws() {
-        bucketResultAccepterProvider.resultProvider = { _, _, _ in
+        bucketResultAcceptorProvider.resultProvider = { _, _, _ in
             throw ErrorForTestingPurposes()
         }
         
         assertThrows {
-            _ = try multipleQueuesBucketResultAccepter.accept(
+            _ = try multipleQueuesBucketResultAcceptor.accept(
                 bucketId: "bucket_id",
-                testingResult: TestingResultFixtures().testingResult(),
+                bucketResult: .testingResult(TestingResultFixtures().testingResult()),
                 workerId: workerId
             )
         }
@@ -38,7 +38,7 @@ final class MultipleQueuesBucketResultAccepterTests: XCTestCase {
         
         let acceptanceRoutineInvoked = XCTestExpectation()
 
-        bucketResultAccepterProvider.resultProvider = { bucketId, testingResult, workerId in
+        bucketResultAcceptorProvider.resultProvider = { bucketId, bucketResult, workerId in
             assertTrue { workerId == self.workerId }
             
             acceptanceRoutineInvoked.fulfill()
@@ -52,14 +52,14 @@ final class MultipleQueuesBucketResultAccepterTests: XCTestCase {
                     ),
                     workerId: self.workerId
                 ),
-                testingResultToCollect: testingResult
+                bucketResultToCollect: bucketResult
             )
         }
         
         assertDoesNotThrow {
-            _ = try multipleQueuesBucketResultAccepter.accept(
+            _ = try multipleQueuesBucketResultAcceptor.accept(
                 bucketId: "bucket_id",
-                testingResult: TestingResultFixtures().testingResult(),
+                bucketResult: .testingResult(TestingResultFixtures().testingResult()),
                 workerId: workerId
             )
         }
@@ -74,7 +74,7 @@ final class MultipleQueuesBucketResultAccepterTests: XCTestCase {
         
         let acceptanceRoutineInvoked = XCTestExpectation()
 
-        bucketResultAccepterProvider.resultProvider = { bucketId, testingResult, workerId in
+        bucketResultAcceptorProvider.resultProvider = { bucketId, bucketResult, workerId in
             assertTrue { workerId == self.workerId }
             
             acceptanceRoutineInvoked.fulfill()
@@ -88,14 +88,14 @@ final class MultipleQueuesBucketResultAccepterTests: XCTestCase {
                     ),
                     workerId: self.workerId
                 ),
-                testingResultToCollect: testingResult
+                bucketResultToCollect: bucketResult
             )
         }
         
         assertDoesNotThrow {
-            _ = try multipleQueuesBucketResultAccepter.accept(
+            _ = try multipleQueuesBucketResultAcceptor.accept(
                 bucketId: "bucket_id",
-                testingResult: TestingResultFixtures().testingResult(),
+                bucketResult: .testingResult(TestingResultFixtures().testingResult()),
                 workerId: workerId
             )
         }
@@ -105,9 +105,9 @@ final class MultipleQueuesBucketResultAccepterTests: XCTestCase {
     
     func test___accepting_unknown_bucket___throws() {
         assertThrows {
-            _ = try multipleQueuesBucketResultAccepter.accept(
+            _ = try multipleQueuesBucketResultAcceptor.accept(
                 bucketId: "bucket_id",
-                testingResult: TestingResultFixtures().testingResult(),
+                bucketResult: .testingResult(TestingResultFixtures().testingResult()),
                 workerId: "worker"
             )
         }

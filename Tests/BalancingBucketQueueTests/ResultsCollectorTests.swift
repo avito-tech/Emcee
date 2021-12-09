@@ -19,10 +19,13 @@ final class ResultsCollectorTests: XCTestCase {
         
         
         let collector = ResultsCollector()
-        collector.append(testingResult: testingResult1)
-        collector.append(testingResult: testingResult2)
+        collector.append(bucketResult: .testingResult(testingResult1))
+        collector.append(bucketResult: .testingResult(testingResult2))
         
-        XCTAssertEqual(collector.collectedResults, [testingResult1, testingResult2])
+        XCTAssertEqual(
+            collector.collectedResults,
+            [.testingResult(testingResult1), .testingResult(testingResult2)]
+        )
     }
 }
 

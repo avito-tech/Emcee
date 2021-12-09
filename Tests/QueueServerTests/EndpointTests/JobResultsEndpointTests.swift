@@ -13,10 +13,12 @@ final class JobResultsEndpointTests: XCTestCase, JobResultsProvider {
     private let jobId: JobId = "jobid"
     private lazy var jobResults = JobResults(
         jobId: jobId,
-        testingResults: [
-            TestingResult(
-                testDestination: TestDestinationFixtures.testDestination,
-                unfilteredResults: [TestEntryResult.lost(testEntry: TestEntryFixtures.testEntry())]
+        bucketResults: [
+            .testingResult(
+                TestingResult(
+                    testDestination: TestDestinationFixtures.testDestination,
+                    unfilteredResults: [TestEntryResult.lost(testEntry: TestEntryFixtures.testEntry())]
+                )
             )
         ]
     )

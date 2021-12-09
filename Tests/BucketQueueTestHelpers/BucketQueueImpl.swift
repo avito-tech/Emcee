@@ -89,23 +89,27 @@ public final class BucketQueueImpl {
     
     public func accept(
         bucketId: BucketId,
-        testingResult: TestingResult,
+        bucketResult: BucketResult,
         workerId: WorkerId
     ) throws -> BucketQueueAcceptResult {
-        try SingleBucketResultAccepter(
-            bucketEnqueuer: SingleBucketQueueEnqueuer(
-                bucketQueueHolder: bucketQueueHolder,
-                dateProvider: dateProvider,
-                uniqueIdentifierGenerator: uniqueIdentifierGenerator,
-                workerAlivenessProvider: workerAlivenessProvider,
-                workerCapabilitiesStorage: workerCapabilitiesStorage
-            ),
+        try SingleBucketResultAcceptor(
             bucketQueueHolder: bucketQueueHolder,
             logger: logger,
-            testHistoryTracker: testHistoryTracker
+            testingResultAcceptor: TestingResultAcceptorImpl(
+                bucketEnqueuer: SingleBucketQueueEnqueuer(
+                    bucketQueueHolder: bucketQueueHolder,
+                    dateProvider: dateProvider,
+                    uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+                    workerAlivenessProvider: workerAlivenessProvider,
+                    workerCapabilitiesStorage: workerCapabilitiesStorage
+                ),
+                bucketQueueHolder: bucketQueueHolder,
+                logger: logger,
+                testHistoryTracker: testHistoryTracker
+            )
         ).accept(
             bucketId: bucketId,
-            testingResult: testingResult,
+            bucketResult: bucketResult,
             workerId: workerId
         )
     }

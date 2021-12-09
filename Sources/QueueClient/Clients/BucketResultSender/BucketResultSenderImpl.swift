@@ -14,7 +14,7 @@ public final class BucketResultSenderImpl: BucketResultSender {
     
     public func send(
         bucketId: BucketId,
-        testingResult: TestingResult,
+        bucketResult: BucketResult,
         workerId: WorkerId,
         payloadSignature: PayloadSignature,
         callbackQueue: DispatchQueue,
@@ -24,7 +24,7 @@ public final class BucketResultSenderImpl: BucketResultSender {
             payload: BucketResultPayload(
                 bucketId: bucketId,
                 workerId: workerId,
-                testingResult: testingResult,
+                bucketResult: bucketResult,
                 payloadSignature: payloadSignature
             )
         )

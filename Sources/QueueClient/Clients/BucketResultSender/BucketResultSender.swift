@@ -6,7 +6,7 @@ import Types
 public protocol BucketResultSender {
     func send(
         bucketId: BucketId,
-        testingResult: TestingResult,
+        bucketResult: BucketResult,
         workerId: WorkerId,
         payloadSignature: PayloadSignature,
         callbackQueue: DispatchQueue,

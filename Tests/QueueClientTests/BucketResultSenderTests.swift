@@ -8,7 +8,9 @@ import RequestSenderTestHelpers
 import XCTest
 
 final class BucketResultSenderTests: XCTestCase {
-    private let testingResult = TestingResultFixtures().testingResult()
+    private let bucketResult = BucketResult.testingResult(
+        TestingResultFixtures().testingResult()
+    )
     private let callbackQueue = DispatchQueue(label: "callbackQueue")
     
     func test___callback_with_result() throws {
@@ -22,7 +24,7 @@ final class BucketResultSenderTests: XCTestCase {
         let callbackExpectation = expectation(description: "callback should be called")
         sender.send(
             bucketId: "bucket id",
-            testingResult: testingResult,
+            bucketResult: bucketResult,
             workerId: "worker id",
             payloadSignature: PayloadSignature(value: "signature"),
             callbackQueue: callbackQueue,
@@ -46,7 +48,7 @@ final class BucketResultSenderTests: XCTestCase {
         let callbackExpectation = expectation(description: "callback should be called")
         sender.send(
             bucketId: "bucket id",
-            testingResult: testingResult,
+            bucketResult: bucketResult,
             workerId: "worker id",
             payloadSignature: PayloadSignature(value: "signature"),
             callbackQueue: callbackQueue,

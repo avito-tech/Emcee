@@ -9,10 +9,10 @@ public final class BucketQueueAcceptResult {
     
     // Not every result is ready to collect,
     // this may be due to retrying
-    public let testingResultToCollect: TestingResult
+    public let bucketResultToCollect: BucketResult
     
-    public init(dequeuedBucket: DequeuedBucket, testingResultToCollect: TestingResult) {
+    public init(dequeuedBucket: DequeuedBucket, bucketResultToCollect: BucketResult) {
         self.dequeuedBucket = dequeuedBucket
-        self.testingResultToCollect = testingResultToCollect
+        self.bucketResultToCollect = bucketResultToCollect
     }
 }

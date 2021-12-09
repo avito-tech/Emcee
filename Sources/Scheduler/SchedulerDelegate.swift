@@ -4,7 +4,7 @@ import QueueModels
 public protocol SchedulerDelegate: AnyObject {
     func scheduler(
         _ sender: Scheduler,
-        obtainedTestingResult testingResult: TestingResult,
+        obtainedBucketResult bucketResult: BucketResult,
         forBucket bucket: SchedulerBucket
     )
 }

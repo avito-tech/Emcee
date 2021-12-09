@@ -5,88 +5,60 @@ import QueueModels
 import RunnerModels
 import TestHistoryTracker
 
-public final class SingleBucketResultAccepter: BucketResultAccepter {
-    private let bucketEnqueuer: BucketEnqueuer
+public final class SingleBucketResultAcceptor: BucketResultAcceptor {
     private let bucketQueueHolder: BucketQueueHolder
     private let logger: ContextualLogger
-    private let testHistoryTracker: TestHistoryTracker
+    private let testingResultAcceptor: TestingResultAcceptor
     
     public init(
-        bucketEnqueuer: BucketEnqueuer,
         bucketQueueHolder: BucketQueueHolder,
         logger: ContextualLogger,
-        testHistoryTracker: TestHistoryTracker
+        testingResultAcceptor: TestingResultAcceptor
     ) {
-        self.bucketEnqueuer = bucketEnqueuer
         self.bucketQueueHolder = bucketQueueHolder
         self.logger = logger
-        self.testHistoryTracker = testHistoryTracker
+        self.testingResultAcceptor = testingResultAcceptor
     }
     
     public func accept(
         bucketId: BucketId,
-        testingResult: TestingResult,
+        bucketResult: BucketResult,
         workerId: WorkerId
     ) throws -> BucketQueueAcceptResult {
         try bucketQueueHolder.performWithExclusiveAccess {
-            logger.debug("Validating result for \(bucketId) from \(workerId): \(testingResult)")
+            let previouslyDequeuedBucket = try previouslyDequeuedBucket(
+                bucketId: bucketId,
+                workerId: workerId
+            )
             
-            guard let dequeuedBucket = previouslyDequeuedBucket(bucketId: bucketId, workerId: workerId) else {
-                throw BucketQueueAcceptanceError.noDequeuedBucket(bucketId: bucketId, workerId: workerId)
+            switch bucketResult {
+            case .testingResult(let testingResult):
+                return BucketQueueAcceptResult(
+                    dequeuedBucket: previouslyDequeuedBucket,
+                    bucketResultToCollect: .testingResult(
+                        try testingResultAcceptor.acceptTestingResult(
+                            dequeuedBucket: previouslyDequeuedBucket,
+                            testingResult: testingResult
+                        )
+                    )
+                )
             }
-            
-            let actualTestEntries = Set(testingResult.unfilteredResults.map { $0.testEntry })
-            let expectedTestEntries = Set(dequeuedBucket.enqueuedBucket.bucket.payload.testEntries)
-            try reenqueueLostResults(
-                expectedTestEntries: expectedTestEntries,
-                actualTestEntries: actualTestEntries,
-                bucket: dequeuedBucket.enqueuedBucket.bucket,
-                workerId: workerId
-            )
-            
-            let acceptResult = try testHistoryTracker.accept(
-                testingResult: testingResult,
-                bucket: dequeuedBucket.enqueuedBucket.bucket,
-                workerId: workerId
-            )
-            
-            bucketQueueHolder.remove(dequeuedBucket: dequeuedBucket)
-            logger.debug("Accepted result for \(dequeuedBucket.enqueuedBucket.bucket.bucketId) from \(workerId)")
-            
-            try bucketEnqueuer.enqueue(buckets: acceptResult.bucketsToReenqueue)
-            
-            return BucketQueueAcceptResult(
-                dequeuedBucket: dequeuedBucket,
-                testingResultToCollect: acceptResult.testingResult
-            )
         }
     }
     
-    private func reenqueueLostResults(
-        expectedTestEntries: Set<TestEntry>,
-        actualTestEntries: Set<TestEntry>,
-        bucket: Bucket,
+    private func previouslyDequeuedBucket(
+        bucketId: BucketId,
         workerId: WorkerId
-    ) throws {
-        let lostTestEntries = expectedTestEntries.subtracting(actualTestEntries)
-        if !lostTestEntries.isEmpty {
-            logger.debug("Test result for \(bucket.bucketId) from \(workerId) contains lost test entries: \(lostTestEntries)")
-            let lostResult = try testHistoryTracker.accept(
-                testingResult: TestingResult(
-                    testDestination: bucket.payload.testDestination,
-                    unfilteredResults: lostTestEntries.map { .lost(testEntry: $0) }
-                ),
-                bucket: bucket,
-                workerId: workerId
-            )
-            
-            try bucketEnqueuer.enqueue(buckets: lostResult.bucketsToReenqueue)
+    ) throws -> DequeuedBucket {
+        logger.debug("Validating result for \(bucketId) from \(workerId)")
+        
+        guard let previouslyDequeuedBucket = bucketQueueHolder.allDequeuedBuckets.first(where: {
+            $0.enqueuedBucket.bucket.bucketId == bucketId && $0.workerId == workerId
+        }) else {
+            throw BucketQueueAcceptanceError.noDequeuedBucket(bucketId: bucketId, workerId: workerId)
         }
+        return previouslyDequeuedBucket
     }
     
-    private func previouslyDequeuedBucket(bucketId: BucketId, workerId: WorkerId) -> DequeuedBucket? {
-        return bucketQueueHolder.allDequeuedBuckets.first {
-            $0.enqueuedBucket.bucket.bucketId == bucketId && $0.workerId == workerId
-        }
-    }
+    
 }

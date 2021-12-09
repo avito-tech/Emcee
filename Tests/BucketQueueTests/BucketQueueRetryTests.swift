@@ -91,18 +91,22 @@ final class BucketQueueRetryTests: XCTestCase {
         
         let result = try bucketQueue.accept(
             bucketId: bucket.bucketId,
-            testingResult: TestingResultFixtures(
-                testEntry: testEntry,
-                manuallyTestDestination: nil,
-                unfilteredResults: [
-                    TestEntryResult.lost(testEntry: testEntry)
-                ]
-            ).testingResult(),
+            bucketResult: .testingResult(
+                TestingResultFixtures(
+                    testEntry: testEntry,
+                    manuallyTestDestination: nil,
+                    unfilteredResults: [
+                        TestEntryResult.lost(testEntry: testEntry)
+                    ]
+                ).testingResult()
+            ),
             workerId: failingWorker
         )
         XCTAssertEqual(
-            result.testingResultToCollect.unfilteredResults,
-            [],
+            result.bucketResultToCollect,
+            .testingResult(
+                TestingResultFixtures().testingResult()
+            ),
             "Result to collect must not contain lost test"
         )
         
@@ -155,7 +159,9 @@ final class BucketQueueRetryTests: XCTestCase {
 
         _ = try bucketQueue.accept(
             bucketId: dequeuedBucket.enqueuedBucket.bucket.bucketId,
-            testingResult: testingResultFixtures.testingResult(),
+            bucketResult: .testingResult(
+                testingResultFixtures.testingResult()
+            ),
             workerId: workerId
         )
     }

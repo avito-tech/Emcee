@@ -152,7 +152,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         )
         let resultOutputGenerator = ResultingOutputGenerator(
             logger: logger,
-            testingResults: jobResults.testingResults,
+            bucketResults: jobResults.bucketResults,
             commonReportOutput: commonReportOutput,
             testDestinationConfigurations: testArgFile.testDestinationConfigurations
         )

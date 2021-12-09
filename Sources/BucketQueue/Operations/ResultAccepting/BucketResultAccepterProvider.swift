@@ -1,5 +1,5 @@
-public protocol BucketResultAccepterProvider {
-    func createBucketResultAccepter(
+public protocol BucketResultAcceptorProvider {
+    func createBucketResultAcceptor(
         bucketQueueHolder: BucketQueueHolder
-    ) -> BucketResultAccepter
+    ) -> BucketResultAcceptor
 }

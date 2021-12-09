@@ -98,10 +98,20 @@ public final class Scheduler {
             let acquireResources = try resourceSemaphore.acquire(.of(runningTests: 1))
             let runTestsInBucketAfterAcquiringResources = BlockOperation {
                 do {
-                    let testingResult = self.execute(bucket: bucket, dateProvider: dateProvider, logger: logger)
+                    let testingResult = self.execute(
+                        bucket: bucket,
+                        dateProvider: dateProvider,
+                        logger: logger
+                    )
                     try self.resourceSemaphore.release(.of(runningTests: 1))
-                    self.schedulerDelegate?.scheduler(self, obtainedTestingResult: testingResult, forBucket: bucket)
-                    self.fetchAndRunBucket(dateProvider: dateProvider)
+                    self.schedulerDelegate?.scheduler(
+                        self,
+                        obtainedBucketResult: .testingResult(testingResult),
+                        forBucket: bucket
+                    )
+                    self.fetchAndRunBucket(
+                        dateProvider: dateProvider
+                    )
                 } catch {
                     logger.error("Error running tests from fetched bucket with error: \(error). Bucket: \(bucket)")
                 }

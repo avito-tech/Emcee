@@ -1,15 +1,17 @@
 import BalancingBucketQueue
 import BucketQueue
+import BucketQueueModels
 import DateProvider
 import Foundation
+import Graphite
 import LocalHostDeterminer
 import EmceeLogging
 import Metrics
 import MetricsExtensions
 import QueueModels
 
-public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
-    private let bucketResultAccepter: BucketResultAccepter
+public class BucketResultAcceptorWithMetricSupport: BucketResultAcceptor {
+    private let bucketResultAcceptor: BucketResultAcceptor
     private let dateProvider: DateProvider
     private let jobStateProvider: JobStateProvider
     private let logger: ContextualLogger
@@ -18,7 +20,7 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
     private let version: Version
 
     public init(
-        bucketResultAccepter: BucketResultAccepter,
+        bucketResultAcceptor: BucketResultAcceptor,
         dateProvider: DateProvider,
         jobStateProvider: JobStateProvider,
         logger: ContextualLogger,
@@ -26,7 +28,7 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
         statefulBucketQueue: StatefulBucketQueue,
         version: Version
     ) {
-        self.bucketResultAccepter = bucketResultAccepter
+        self.bucketResultAcceptor = bucketResultAcceptor
         self.dateProvider = dateProvider
         self.jobStateProvider = jobStateProvider
         self.logger = logger
@@ -37,12 +39,12 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
     
     public func accept(
         bucketId: BucketId,
-        testingResult: TestingResult,
+        bucketResult: BucketResult,
         workerId: WorkerId
     ) throws -> BucketQueueAcceptResult {
-        let acceptResult = try bucketResultAccepter.accept(
+        let acceptResult = try bucketResultAcceptor.accept(
             bucketId: bucketId,
-            testingResult: testingResult,
+            bucketResult: bucketResult,
             workerId: workerId
         )
         
@@ -51,7 +53,9 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
         return acceptResult
     }
     
-    private func sendMetrics(acceptResult: BucketQueueAcceptResult) {
+    private func sendMetrics(
+        acceptResult: BucketQueueAcceptResult
+    ) {
         let jobStates = jobStateProvider.allJobStates
         let queueStateMetricGatherer = QueueStateMetricGatherer(
             dateProvider: dateProvider,
@@ -63,24 +67,21 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
             runningQueueState: statefulBucketQueue.runningQueueState
         )
         
-        let testTimeToStartMetrics: [TimeToStartTestMetric] = acceptResult.testingResultToCollect.unfilteredResults.flatMap { testEntryResult -> [TimeToStartTestMetric] in
-            testEntryResult.testRunResults.map { testRunResult in
-                let timeToStart = testRunResult.startTime.date.timeIntervalSince(acceptResult.dequeuedBucket.enqueuedBucket.enqueueTimestamp)
-                return TimeToStartTestMetric(
-                    testEntry: testEntryResult.testEntry,
-                    version: version,
-                    queueHost: LocalHostDeterminer.currentHostAddress,
-                    timeToStartTest: timeToStart,
-                    timestamp: dateProvider.currentDate()
-                )
-            }
+        let bucketResultMetrics: [GraphiteMetric]
+        
+        switch acceptResult.bucketResultToCollect {
+        case .testingResult(let testingResult):
+            bucketResultMetrics = testingResultMetrics(
+                testingResult: testingResult,
+                dequeuedBucket: acceptResult.dequeuedBucket
+            )
         }
         
         do {
             let specificMetricRecorder = try specificMetricRecorderProvider.specificMetricRecorder(
                 analyticsConfiguration: acceptResult.dequeuedBucket.enqueuedBucket.bucket.analyticsConfiguration
             )
-            specificMetricRecorder.capture(testTimeToStartMetrics + queueStateMetrics)
+            specificMetricRecorder.capture(bucketResultMetrics + queueStateMetrics)
             if let persistentMetricsJobId = acceptResult.dequeuedBucket.enqueuedBucket.bucket.analyticsConfiguration.persistentMetricsJobId {
                 specificMetricRecorder.capture(
                     BucketProcessingDurationMetric(
@@ -95,5 +96,24 @@ public class BucketResultAccepterWithMetricSupport: BucketResultAccepter {
         } catch {
             logger.error("Failed to send metrics: \(error)")
         }
+    }
+    
+    private func testingResultMetrics(
+        testingResult: TestingResult,
+        dequeuedBucket: DequeuedBucket
+    ) -> [GraphiteMetric] {
+        let testTimeToStartMetrics: [TimeToStartTestMetric] = testingResult.unfilteredResults.flatMap { testEntryResult -> [TimeToStartTestMetric] in
+            testEntryResult.testRunResults.map { testRunResult in
+                let timeToStart = testRunResult.startTime.date.timeIntervalSince(dequeuedBucket.enqueuedBucket.enqueueTimestamp)
+                return TimeToStartTestMetric(
+                    testEntry: testEntryResult.testEntry,
+                    version: version,
+                    queueHost: LocalHostDeterminer.currentHostAddress,
+                    timeToStartTest: timeToStart,
+                    timestamp: dateProvider.currentDate()
+                )
+            }
+        }
+        return testTimeToStartMetrics
     }
 }

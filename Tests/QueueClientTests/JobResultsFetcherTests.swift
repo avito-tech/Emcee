@@ -14,7 +14,7 @@ final class JobResultsFetcherTests: XCTestCase {
     func test() {
         let jobResults = JobResults(
             jobId: "jobId",
-            testingResults: []
+            bucketResults: []
         )
         
         requestSender.validateRequest = { sender in

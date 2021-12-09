@@ -1,5 +1,6 @@
 import BucketQueue
 import BucketQueueModels
+import BucketQueueTestHelpers
 import Foundation
 import QueueCommunication
 import QueueCommunicationTestHelpers
@@ -12,7 +13,10 @@ import XCTest
 
 final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
     lazy var bucketQueueHolder = BucketQueueHolder()
-    lazy var bucketEnqueuer = FakeBucketEnqueuer()
+    lazy var enqueuedBuckets = [Bucket]()
+    lazy var bucketEnqueuer = FakeBucketEnqueuer { buckets in
+        self.enqueuedBuckets.append(contentsOf: buckets)
+    }
     lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator()
     lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(
         knownWorkerIds: [workerId],
@@ -48,7 +52,7 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
         )
         
         XCTAssertTrue(try reenqueuer.reenqueueStuckBuckets().isEmpty)
-        XCTAssertTrue(bucketEnqueuer.enqueuedBuckets.isEmpty)
+        XCTAssertTrue(enqueuedBuckets.isEmpty)
     }
     
     func test___when_worker_stops_processing_bucket___bucket_gets_reenqueued_into_individual_buckets_for_each_test_entry() {
@@ -81,7 +85,7 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
         XCTAssertTrue(bucketQueueHolder.allDequeuedBuckets.isEmpty)
         
         XCTAssertEqual(
-            bucketEnqueuer.enqueuedBuckets.map { $0.payload.testEntries },
+            enqueuedBuckets.map { $0.payload.testEntries },
             testEntries.map { [$0] }
         )
     }
@@ -116,7 +120,7 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
         XCTAssertTrue(bucketQueueHolder.allDequeuedBuckets.isEmpty)
         
         XCTAssertEqual(
-            bucketEnqueuer.enqueuedBuckets.map { $0.payload.testEntries },
+            enqueuedBuckets.map { $0.payload.testEntries },
             testEntries.map { [$0] }
         )
     }

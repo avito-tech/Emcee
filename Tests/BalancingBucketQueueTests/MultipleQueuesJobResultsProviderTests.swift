@@ -21,7 +21,9 @@ final class MultipleQueuesJobResultsProviderTests: XCTestCase {
     func test___results_for_deleted_job() {
         let resultsCollector = ResultsCollector()
         resultsCollector.append(
-            testingResult: TestingResultFixtures().addingResult(success: true).testingResult()
+            bucketResult: .testingResult(
+                TestingResultFixtures().addingResult(success: true).testingResult()
+            )
         )
         
         container.add(
@@ -35,14 +37,16 @@ final class MultipleQueuesJobResultsProviderTests: XCTestCase {
         
         XCTAssertEqual(
             try provider.results(jobId: "jobId"),
-            JobResults(jobId: "jobId", testingResults: resultsCollector.collectedResults)
+            JobResults(jobId: "jobId", bucketResults: resultsCollector.collectedResults)
         )
     }
     
     func test___results_for_running_job() {
         let resultsCollector = ResultsCollector()
         resultsCollector.append(
-            testingResult: TestingResultFixtures().addingResult(success: true).testingResult()
+            bucketResult: .testingResult(
+                TestingResultFixtures().addingResult(success: true).testingResult()
+            )
         )
         
         container.add(
@@ -54,7 +58,7 @@ final class MultipleQueuesJobResultsProviderTests: XCTestCase {
         
         XCTAssertEqual(
             try provider.results(jobId: "jobId"),
-            JobResults(jobId: "jobId", testingResults: resultsCollector.collectedResults)
+            JobResults(jobId: "jobId", bucketResults: resultsCollector.collectedResults)
         )
     }
 }

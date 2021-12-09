@@ -3,7 +3,7 @@ import Foundation
 import SimulatorPoolModels
 
 /// A result of a single test run.
-public struct TestRunResult: Codable, CustomStringConvertible, Equatable {
+public struct TestRunResult: Codable, CustomStringConvertible, Hashable {
     public let succeeded: Bool
     public let exceptions: [TestException]
     public let logs: [TestLogEntry]

@@ -2,43 +2,43 @@ import BucketQueue
 import Foundation
 import QueueModels
 
-public final class MultipleQueuesBucketResultAccepter: BucketResultAccepter {
-    private let bucketResultAccepterProvider: BucketResultAccepterProvider
+public final class MultipleQueuesBucketResultAcceptor: BucketResultAcceptor {
+    private let bucketResultAcceptorProvider: BucketResultAcceptorProvider
     private let multipleQueuesContainer: MultipleQueuesContainer
     
     public init(
-        bucketResultAccepterProvider: BucketResultAccepterProvider,
+        bucketResultAcceptorProvider: BucketResultAcceptorProvider,
         multipleQueuesContainer: MultipleQueuesContainer
     ) {
-        self.bucketResultAccepterProvider = bucketResultAccepterProvider
+        self.bucketResultAcceptorProvider = bucketResultAcceptorProvider
         self.multipleQueuesContainer = multipleQueuesContainer
     }
     
     public func accept(
         bucketId: BucketId,
-        testingResult: TestingResult,
+        bucketResult: BucketResult,
         workerId: WorkerId
     ) throws -> BucketQueueAcceptResult {
         try multipleQueuesContainer.performWithExclusiveAccess {
             let appropriateJobQueues = multipleQueuesContainer.runningAndDeletedJobQueues()
             for jobQueue in appropriateJobQueues {
                 do {
-                    let bucketResultAccepter = bucketResultAccepterProvider.createBucketResultAccepter(
+                    let bucketResultAcceptor = bucketResultAcceptorProvider.createBucketResultAcceptor(
                         bucketQueueHolder: jobQueue.bucketQueueHolder
                     )
-                    let result = try bucketResultAccepter.accept(
+                    let result = try bucketResultAcceptor.accept(
                         bucketId: bucketId,
-                        testingResult: testingResult,
+                        bucketResult: bucketResult,
                         workerId: workerId
                     )
-                    jobQueue.resultsCollector.append(testingResult: result.testingResultToCollect)
+                    jobQueue.resultsCollector.append(bucketResult: result.bucketResultToCollect)
                     return result
                 } catch {
                     // jobQueue is not associated with bucketId, move over to the next jobQueue
                 }
             }
             
-            throw MultipleQueuesBucketResultAccepterError.noMatchingQueueFound(
+            throw MultipleQueuesBucketResultAcceptorError.noMatchingQueueFound(
                 bucketId: bucketId,
                 workerId: workerId
             )
@@ -46,7 +46,7 @@ public final class MultipleQueuesBucketResultAccepter: BucketResultAccepter {
     }
 }
 
-public enum MultipleQueuesBucketResultAccepterError: Error, CustomStringConvertible {
+public enum MultipleQueuesBucketResultAcceptorError: Error, CustomStringConvertible {
     case noMatchingQueueFound(bucketId: BucketId, workerId: WorkerId)
     
     public var description: String {

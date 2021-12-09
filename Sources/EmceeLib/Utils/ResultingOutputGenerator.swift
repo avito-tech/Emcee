@@ -5,44 +5,63 @@ import TestArgFile
 
 public final class ResultingOutputGenerator {
     private let logger: ContextualLogger
-    private let testingResults: [TestingResult]
+    private let bucketResults: [BucketResult]
     private let commonReportOutput: ReportOutput
     private let testDestinationConfigurations: [TestDestinationConfiguration]
 
     public init(
         logger: ContextualLogger,
-        testingResults: [TestingResult],
+        bucketResults: [BucketResult],
         commonReportOutput: ReportOutput,
         testDestinationConfigurations: [TestDestinationConfiguration]
     ) {
         self.logger = logger
-        self.testingResults = testingResults
+        self.bucketResults = bucketResults
         self.commonReportOutput = commonReportOutput
         self.testDestinationConfigurations = testDestinationConfigurations
     }
     
     public func generateOutput() throws {
-        try generateDestinationSpecificOutputs()
-        try generateCommonOutput()
+        let testingResults = bucketResults.compactMap { (bucketResult: BucketResult) -> TestingResult? in
+            switch bucketResult {
+            case .testingResult(let testingResult):
+                return testingResult
+            }
+            return nil
+        }
+        
+        try generateOutput(testingResults: testingResults)
     }
     
-    private func generateDestinationSpecificOutputs() throws {
+    private func generateOutput(testingResults: [TestingResult]) throws {
+        try generateDestinationSpecificOutputs(testingResults: testingResults)
+        try generateCommonOutput(testingResults: testingResults)
+    }
+    
+    private func generateDestinationSpecificOutputs(testingResults: [TestingResult]) throws {
         for testDestinationConfiguration in testDestinationConfigurations {
-            try generateDestinationSpecificOutput(testDestinationConfiguration: testDestinationConfiguration)
+            try generateDestinationSpecificOutput(
+                testDestinationConfiguration: testDestinationConfiguration,
+                testingResults: testingResults
+            )
         }
     }
     
-    private func generateDestinationSpecificOutput(testDestinationConfiguration: TestDestinationConfiguration) throws {
-        let testingResults = self.testingResults.filter {
+    private func generateDestinationSpecificOutput(
+        testDestinationConfiguration: TestDestinationConfiguration,
+        testingResults: [TestingResult]
+    ) throws {
+        let matchingTestingResults = testingResults.filter {
             $0.testDestination == testDestinationConfiguration.testDestination
         }
-        let combinedTestingResults = CombinedTestingResults(testingResults: testingResults)
+        let combinedTestingResults = CombinedTestingResults(testingResults: matchingTestingResults)
         try generateOutput(
             combinedTestingResults: combinedTestingResults,
-            reportOutput: testDestinationConfiguration.reportOutput)
+            reportOutput: testDestinationConfiguration.reportOutput
+        )
     }
     
-    private func generateCommonOutput() throws {
+    private func generateCommonOutput(testingResults: [TestingResult]) throws {
         let combinedTestingResults = CombinedTestingResults(testingResults: testingResults)
         try generateOutput(combinedTestingResults: combinedTestingResults, reportOutput: commonReportOutput)
     }

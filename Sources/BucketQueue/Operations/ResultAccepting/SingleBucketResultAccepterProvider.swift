@@ -2,31 +2,27 @@ import EmceeLogging
 import Foundation
 import TestHistoryTracker
 
-public final class SingleBucketResultAccepterProvider: BucketResultAccepterProvider {
-    private let bucketEnqueuerProvider: BucketEnqueuerProvider
+public final class SingleBucketResultAcceptorProvider: BucketResultAcceptorProvider {
     private let logger: ContextualLogger
-    private let testHistoryTracker: TestHistoryTracker
+    private let testingResultAcceptorProvider: TestingResultAcceptorProvider
     
     public init(
-        bucketEnqueuerProvider: BucketEnqueuerProvider,
         logger: ContextualLogger,
-        testHistoryTracker: TestHistoryTracker
+        testingResultAcceptorProvider: TestingResultAcceptorProvider
     ) {
-        self.bucketEnqueuerProvider = bucketEnqueuerProvider
         self.logger = logger
-        self.testHistoryTracker = testHistoryTracker
+        self.testingResultAcceptorProvider = testingResultAcceptorProvider
     }
     
-    public func createBucketResultAccepter(
+    public func createBucketResultAcceptor(
         bucketQueueHolder: BucketQueueHolder
-    ) -> BucketResultAccepter {
-        SingleBucketResultAccepter(
-            bucketEnqueuer: bucketEnqueuerProvider.createBucketEnqueuer(
-                bucketQueueHolder: bucketQueueHolder
-            ),
+    ) -> BucketResultAcceptor {
+        SingleBucketResultAcceptor(
             bucketQueueHolder: bucketQueueHolder,
             logger: logger,
-            testHistoryTracker: testHistoryTracker
+            testingResultAcceptor: testingResultAcceptorProvider.create(
+                bucketQueueHolder: bucketQueueHolder
+            )
         )
     }
 }

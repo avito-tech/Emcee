@@ -1,6 +1,6 @@
 import Foundation
 
-public struct TestEntryResult: Codable, CustomStringConvertible, Equatable {
+public struct TestEntryResult: Codable, CustomStringConvertible, Hashable {
     public let testEntry: TestEntry
     public let testRunResults: [TestRunResult]
     

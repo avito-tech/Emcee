@@ -3,7 +3,7 @@ import RunnerModels
 import SimulatorPoolModels
 
 /// Represents the result of running a single Bucket.
-public struct TestingResult: Codable, Equatable {
+public struct TestingResult: Codable, Hashable {
     
     /// A test destination used to run the tests.
     public let testDestination: TestDestination

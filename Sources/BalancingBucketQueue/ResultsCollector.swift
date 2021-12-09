@@ -4,17 +4,17 @@ import QueueModels
 
 public final class ResultsCollector {
     private let lock = NSLock()
-    private var testingResults = [TestingResult]()
+    private var bucketResults = [BucketResult]()
     
     public init() {}
     
-    public func append(testingResult: TestingResult) {
+    public func append(bucketResult: BucketResult) {
         lock.whileLocked {
-            testingResults.append(testingResult)
+            bucketResults.append(bucketResult)
         }
     }
     
-    public var collectedResults: [TestingResult] {
-        lock.whileLocked { testingResults }
+    public var collectedResults: [BucketResult] {
+        lock.whileLocked { bucketResults }
     }
 }

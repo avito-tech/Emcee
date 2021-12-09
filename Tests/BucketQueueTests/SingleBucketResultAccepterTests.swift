@@ -1,5 +1,6 @@
 import BucketQueue
 import BucketQueueModels
+import BucketQueueTestHelpers
 import Foundation
 import QueueModels
 import QueueModelsTestHelpers
@@ -9,23 +10,20 @@ import TestHistoryTestHelpers
 import TestHistoryTracker
 import XCTest
 
-final class SingleBucketResultAccepterTests: XCTestCase {
+final class SingleBucketResultAcceptorTests: XCTestCase {
     lazy var bucketQueueHolder = BucketQueueHolder()
-    lazy var testHistoryTracker = FakeTestHistoryTracker()
-    lazy var bucketEnqueuer = FakeBucketEnqueuer()
-    
-    lazy var accepter = SingleBucketResultAccepter(
-        bucketEnqueuer: bucketEnqueuer,
+    lazy var testingResultAcceptor = FakeTestingResultAcceptor()
+    lazy var accepter = SingleBucketResultAcceptor(
         bucketQueueHolder: bucketQueueHolder,
         logger: .noOp,
-        testHistoryTracker: testHistoryTracker
+        testingResultAcceptor: testingResultAcceptor
     )
     
     func test___accepting_result_with_unknown_id_and_worker___throws_error() {
         assertThrows {
             _ = try accepter.accept(
                 bucketId: "bucketId",
-                testingResult: TestingResultFixtures().testingResult(),
+                bucketResult: .testingResult(TestingResultFixtures().testingResult()),
                 workerId: "worker"
             )
         }
@@ -48,64 +46,15 @@ final class SingleBucketResultAccepterTests: XCTestCase {
         assertDoesNotThrow {
             _ = try accepter.accept(
                 bucketId: bucket.bucketId,
-                testingResult: TestingResultFixtures()
-                    .with(testEntry: bucket.payload.testEntries[0])
-                    .addingResult(success: true)
-                    .testingResult(),
+                bucketResult: .testingResult(
+                    TestingResultFixtures()
+                        .with(testEntry: bucket.payload.testEntries[0])
+                        .addingResult(success: true)
+                        .testingResult()
+                ),
                 workerId: "workerId"
             )
         }
-    }
-    
-    func test___reports_both_original_and_additional_lost_results___and_reenqueues_lost_tests() {
-        let bucket = BucketFixtures.createBucket()
-        let enqueuedBucket = EnqueuedBucket(
-            bucket: bucket,
-            enqueueTimestamp: Date(),
-            uniqueIdentifier: "id"
-        )
-        let dequeuedBucket = DequeuedBucket(
-            enqueuedBucket: enqueuedBucket,
-            workerId: "workerId"
-        )
-        bucketQueueHolder.add(dequeuedBucket: dequeuedBucket)
-        
-        let bucketToBeReenqueued = BucketFixtures.createBucket()
-        
-        testHistoryTracker.acceptValidator = { testingResult, _, _ in
-            if testingResult.unfilteredResults.isEmpty {
-                return TestHistoryTrackerAcceptResult(
-                    bucketsToReenqueue: [],
-                    testingResult: testingResult
-                )
-            }
-            XCTAssertEqual(
-                testingResult,
-                TestingResult(
-                    testDestination: bucket.payload.testDestination,
-                    unfilteredResults: bucket.payload.testEntries.map { testEntry in
-                        TestEntryResult.lost(testEntry: testEntry)
-                    }
-                )
-            )
-            return TestHistoryTrackerAcceptResult(
-                bucketsToReenqueue: [bucketToBeReenqueued],
-                testingResult: testingResult
-            )
-        }
-        
-        assertDoesNotThrow {
-            _ = try accepter.accept(
-                bucketId: bucket.bucketId,
-                testingResult: TestingResultFixtures().testingResult(),
-                workerId: "workerId"
-            )
-        }
-        
-        XCTAssertEqual(
-            bucketEnqueuer.enqueuedBuckets,
-            [bucketToBeReenqueued]
-        )
     }
 }
 

@@ -24,6 +24,6 @@ public class QueueServerFixture: QueueServer {
     }
     
     public func queueResults(jobId: JobId) throws -> JobResults {
-        return JobResults(jobId: jobId, testingResults: [])
+        return JobResults(jobId: jobId, bucketResults: [])
     }    
 }

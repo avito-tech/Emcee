@@ -1,6 +1,6 @@
 import Foundation
 
-public struct TestLogEntry: Codable, CustomStringConvertible, Equatable {
+public struct TestLogEntry: Codable, CustomStringConvertible, Hashable {
     public let contents: String
     
     public init(contents: String) {

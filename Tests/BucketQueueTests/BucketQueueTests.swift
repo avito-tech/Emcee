@@ -68,7 +68,7 @@ final class BucketQueueTests: XCTestCase {
         assertDoesNotThrow {
             _ = try bucketQueue.accept(
                 bucketId: bucket.bucketId,
-                testingResult: testingResult,
+                bucketResult: .testingResult(testingResult),
                 workerId: workerId
             )
         }
@@ -146,7 +146,7 @@ final class BucketQueueTests: XCTestCase {
         assertDoesNotThrow {
             _ = try bucketQueue.accept(
                 bucketId: bucket.bucketId,
-                testingResult: testingResult,
+                bucketResult: .testingResult(testingResult),
                 workerId: workerId
             )
         }
@@ -168,7 +168,7 @@ final class BucketQueueTests: XCTestCase {
         assertThrows {
             try bucketQueue.accept(
                 bucketId: "bucket id",
-                testingResult: testingResult,
+                bucketResult: .testingResult(testingResult),
                 workerId: workerId
             )
         }
@@ -190,7 +190,7 @@ final class BucketQueueTests: XCTestCase {
         assertThrows {
             try bucketQueue.accept(
                 bucketId: bucket.bucketId,
-                testingResult: testingResult,
+                bucketResult: .testingResult(testingResult),
                 workerId: "wrong id"
             )
         }

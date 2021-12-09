@@ -188,18 +188,21 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
     
     public func scheduler(
         _ sender: Scheduler,
-        obtainedTestingResult testingResult: TestingResult,
+        obtainedBucketResult bucketResult: BucketResult,
         forBucket bucket: SchedulerBucket
     ) {
-        logger.debug("Obtained testing result for bucket \(bucket.bucketId): \(testingResult)")
-        didReceiveTestResult(testingResult: testingResult, bucketId: bucket.bucketId)
+        logger.debug("Obtained result for bucket \(bucket.bucketId): \(bucketResult)")
+        didReceive(bucketResult: bucketResult, bucketId: bucket.bucketId)
     }
     
-    private func didReceiveTestResult(testingResult: TestingResult, bucketId: BucketId) {
+    private func didReceive(
+        bucketResult: BucketResult,
+        bucketId: BucketId
+    ) {
         do {
             try di.get(BucketResultSender.self).send(
                 bucketId: bucketId,
-                testingResult: testingResult,
+                bucketResult: bucketResult,
                 workerId: workerId,
                 payloadSignature: try payloadSignature.dematerialize(),
                 callbackQueue: callbackQueue,

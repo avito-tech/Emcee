@@ -129,6 +129,11 @@ public final class QueueServerImpl: QueueServer {
             emptyableBucketQueueProvider: singleEmptyableBucketQueueProvider,
             multipleQueuesContainer: multipleQueuesContainer
         )
+        let testingResultAcceptorProvider = TestingResultAcceptorProviderImpl(
+            bucketEnqueuerProvider: singleBucketQueueEnqueuerProvider,
+            logger: logger,
+            testHistoryTracker: testHistoryTracker
+        )
         self.statefulBucketQueue = MultipleQueuesStatefulBucketQueue(
             multipleQueuesContainer: multipleQueuesContainer,
             statefulBucketQueueProvider: singleStatefulBucketQueueProvider
@@ -155,11 +160,10 @@ public final class QueueServerImpl: QueueServer {
             specificMetricRecorderProvider: specificMetricRecorderProvider,
             version: emceeVersion
         )
-        let bucketResultAccepter: BucketResultAccepter = MultipleQueuesBucketResultAccepter(
-            bucketResultAccepterProvider: SingleBucketResultAccepterProvider(
-                bucketEnqueuerProvider: singleBucketQueueEnqueuerProvider,
+        let bucketResultAcceptor: BucketResultAcceptor = MultipleQueuesBucketResultAcceptor(
+            bucketResultAcceptorProvider: SingleBucketResultAcceptorProvider(
                 logger: logger,
-                testHistoryTracker: testHistoryTracker
+                testingResultAcceptorProvider: testingResultAcceptorProvider
             ),
             multipleQueuesContainer: multipleQueuesContainer
         )
@@ -213,8 +217,8 @@ public final class QueueServerImpl: QueueServer {
             workerAlivenessProvider: workerAlivenessProvider
         )
         self.bucketResultRegistrar = BucketResultRegistrar(
-            bucketResultAccepter: BucketResultAccepterWithMetricSupport(
-                bucketResultAccepter: bucketResultAccepter,
+            bucketResultAcceptor: BucketResultAcceptorWithMetricSupport(
+                bucketResultAcceptor: bucketResultAcceptor,
                 dateProvider: dateProvider,
                 jobStateProvider: jobStateProvider,
                 logger: logger,
