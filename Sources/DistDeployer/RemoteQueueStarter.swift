@@ -1,40 +1,44 @@
 import Deployer
 import EmceeLogging
+import FileSystem
 import Foundation
 import PathLib
-import ProcessController
 import QueueModels
 import Tmp
 import UniqueIdentifierGenerator
+import Zip
 
 public final class RemoteQueueStarter {
     private let deploymentId: String
     private let deploymentDestination: DeploymentDestination
     private let emceeVersion: Version
+    private let fileSystem: FileSystem
     private let logger: ContextualLogger
-    private let processControllerProvider: ProcessControllerProvider
     private let queueServerConfigurationLocation: QueueServerConfigurationLocation
     private let tempFolder: TemporaryFolder
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
+    private let zipCompressor: ZipCompressor
 
     public init(
         deploymentId: String,
         deploymentDestination: DeploymentDestination,
         emceeVersion: Version,
+        fileSystem: FileSystem,
         logger: ContextualLogger,
-        processControllerProvider: ProcessControllerProvider,
         queueServerConfigurationLocation: QueueServerConfigurationLocation,
         tempFolder: TemporaryFolder,
-        uniqueIdentifierGenerator: UniqueIdentifierGenerator
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator,
+        zipCompressor: ZipCompressor
     ) {
         self.deploymentId = deploymentId
         self.deploymentDestination = deploymentDestination
         self.emceeVersion = emceeVersion
+        self.fileSystem = fileSystem
         self.logger = logger
-        self.processControllerProvider = processControllerProvider
         self.queueServerConfigurationLocation = queueServerConfigurationLocation
         self.tempFolder = tempFolder
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
+        self.zipCompressor = zipCompressor
     }
     
     public func deployAndStart() throws {
@@ -85,10 +89,11 @@ public final class RemoteQueueStarter {
                 launchctlDeployableCommands.forceUnloadFromBackgroundCommand(),
                 launchctlDeployableCommands.forceLoadInBackgroundCommand()
             ],
+            fileSystem: fileSystem,
             logger: logger,
-            processControllerProvider: processControllerProvider,
             tempFolder: tempFolder,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+            zipCompressor: zipCompressor
         )
         try deployer.deploy()
     }

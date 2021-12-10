@@ -5,7 +5,7 @@ import QueueModels
 
 /// Represents --test-arg-file file contents which describes test plan.
 public struct TestArgFile: Codable, Equatable {
-    public let entries: [TestArgFileEntry]
+    public private(set) var entries: [TestArgFileEntry]
     public let prioritizedJob: PrioritizedJob
     public let testDestinationConfigurations: [TestDestinationConfiguration]
     
@@ -17,6 +17,12 @@ public struct TestArgFile: Codable, Equatable {
         self.entries = entries
         self.prioritizedJob = prioritizedJob
         self.testDestinationConfigurations = testDestinationConfigurations
+    }
+    
+    public func with(entries: [TestArgFileEntry]) -> Self {
+        var result = self
+        result.entries = entries
+        return result
     }
     
     private enum CodingKeys: String, CodingKey {

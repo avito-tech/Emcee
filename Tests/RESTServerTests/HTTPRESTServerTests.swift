@@ -9,7 +9,7 @@ import XCTest
 
 final class HTTPRESTServerTests: XCTestCase {
     lazy var automaticTerminationController = AutomaticTerminationControllerFixture(isTerminationAllowed: false)
-    lazy var anyPortProvider = PortProviderWrapper { 0 }
+    lazy var anyPortProvider = AnyAvailablePortProvider()
     lazy var server = HTTPRESTServer(
         automaticTerminationController: automaticTerminationController,
         logger: .noOp,

@@ -1,18 +1,27 @@
 @testable import Deployer
 @testable import SSHDeployer
+import FileSystemTestHelpers
 import Foundation
 import PathLib
-import ProcessControllerTestHelpers
 import Tmp
 import TestHelpers
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
+import ZipTestHelpers
 
 class SSHDeployerTests: XCTestCase {
     private let uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: "fixed")
     private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
+    private lazy var fileSystem = FakeFileSystem(rootPath: tempFolder.absolutePath)
+    private lazy var zipCompressor = FakeZipCompressor { path, _, _ in
+        path.appending(extension: "fakezip")
+    }
     
     func testForInputCorrectness() throws {
+        let filePropertiesContainer = FakeFilePropertiesContainer()
+        fileSystem.propertiesProvider = { _ in filePropertiesContainer }
+        filePropertiesContainer.pathExists = false
+
         let deploymentId = UUID().uuidString
         let deployableWithSingleFile = DeployableItem(
             name: "deployable_name",
@@ -24,7 +33,8 @@ class SSHDeployerTests: XCTestCase {
             port: 1034,
             username: "user",
             authentication: .password("pa$$"),
-            remoteDeploymentPath: "/some/remote/container")
+            remoteDeploymentPath: "/some/remote/container"
+        )
         
         let deployer = try SSHDeployer(
             sshClientType: FakeSSHClient.self,
@@ -37,10 +47,11 @@ class SSHDeployerTests: XCTestCase {
                 ]
             ],
             destination: destination,
+            fileSystem: fileSystem,
             logger: .noOp,
-            processControllerProvider: FakeProcessControllerProvider(),
             temporaryFolder: tempFolder,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+            zipCompressor: zipCompressor
         )
         try deployer.deploy()
         
@@ -66,20 +77,32 @@ class SSHDeployerTests: XCTestCase {
         XCTAssertEqual(client.uploadCommands.count, 1)
         let uploadCommand = client.uploadCommands[0]
         
-        XCTAssertEqual(
-            Array(uploadCommand.keys),
-            [tempFolder.pathWith(components: ["fixed", "deployable_name.zip"]).fileUrl]
-        )
-        XCTAssertEqual(
-            Array(uploadCommand.values),
-            ["/some/remote/container/\(deploymentId)/deployable_name/_package.zip"])
+        assert {
+            uploadCommand.local
+        } equals: {
+            tempFolder.pathWith(components: ["fixed", "deployable_name.fakezip"])
+        }
+        assert {
+            uploadCommand.remote
+        } equals: {
+            AbsolutePath("/some/remote/container/\(deploymentId)/deployable_name/_package.zip")
+        }
         
-        XCTAssertEqual(
-            client.executeCommands[2],
-            ["unzip", "\(destination.remoteDeploymentPath)/\(deploymentId)/deployable_name/_package.zip",
-                "-d", "\(destination.remoteDeploymentPath)/\(deploymentId)/deployable_name"])
-        XCTAssertEqual(
-            client.executeCommands[3],
-            ["string_arg", "/some/remote/container/\(deploymentId)/deployable_name/remote/file.swift"])
+        assert {
+            client.executeCommands[2]
+        } equals: {
+            [
+                "unzip",
+                "\(destination.remoteDeploymentPath)/\(deploymentId)/deployable_name/_package.zip",
+                "-d",
+                "\(destination.remoteDeploymentPath)/\(deploymentId)/deployable_name",
+            ]
+        }
+        
+        assert {
+            client.executeCommands[3]
+        } equals: {
+            ["string_arg", "/some/remote/container/\(deploymentId)/deployable_name/remote/file.swift"]
+        }
     }
 }

@@ -1,10 +1,11 @@
 import Deployer
+import FileSystem
 import Foundation
 import EmceeLogging
 import PathLib
-import ProcessController
 import Tmp
 import UniqueIdentifierGenerator
+import Zip
 
 public final class SSHDeployer: Deployer {
     
@@ -17,10 +18,11 @@ public final class SSHDeployer: Deployer {
         deployables: [DeployableItem],
         deployableCommands: [DeployableCommand],
         destination: DeploymentDestination,
+        fileSystem: FileSystem,
         logger: ContextualLogger,
-        processControllerProvider: ProcessControllerProvider,
         temporaryFolder: TemporaryFolder,
-        uniqueIdentifierGenerator: UniqueIdentifierGenerator
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator,
+        zipCompressor: ZipCompressor
     ) throws {
         self.sshClientType = sshClientType
         self.logger = logger
@@ -29,10 +31,11 @@ public final class SSHDeployer: Deployer {
             deployables: deployables,
             deployableCommands: deployableCommands,
             destination: destination,
+            fileSystem: fileSystem,
             logger: logger,
-            processControllerProvider: processControllerProvider,
             temporaryFolder: temporaryFolder,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+            zipCompressor: zipCompressor
         )
     }
     
@@ -130,7 +133,7 @@ public final class SSHDeployer: Deployer {
         remoteAbsolutePath: AbsolutePath
     ) throws {
         log(destination, "Uploading \(localAbsolutePath) -> \(remoteAbsolutePath)")
-        try sshClient.upload(localUrl: localAbsolutePath.fileUrl, remotePath: remoteAbsolutePath.pathString)
+        try sshClient.upload(localPath: localAbsolutePath, remotePath: remoteAbsolutePath)
         log(destination, "Uploaded \(localAbsolutePath) -> \(remoteAbsolutePath)")
     }
     

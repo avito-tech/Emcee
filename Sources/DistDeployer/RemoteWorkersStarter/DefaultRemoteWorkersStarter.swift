@@ -1,35 +1,39 @@
 import Deployer
+import FileSystem
 import Foundation
 import EmceeLogging
 import PathLib
-import ProcessController
 import QueueModels
 import SocketModels
 import Tmp
 import UniqueIdentifierGenerator
+import Zip
 
 public final class DefaultRemoteWorkersStarter: RemoteWorkerStarter {
     private let deploymentDestination: DeploymentDestination
     private let emceeVersion: Version
+    private let fileSystem: FileSystem
     private let logger: ContextualLogger
-    private let processControllerProvider: ProcessControllerProvider
     private let tempFolder: TemporaryFolder
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
+    private let zipCompressor: ZipCompressor
 
     public init(
         deploymentDestination: DeploymentDestination,
         emceeVersion: Version,
+        fileSystem: FileSystem,
         logger: ContextualLogger,
-        processControllerProvider: ProcessControllerProvider,
         tempFolder: TemporaryFolder,
-        uniqueIdentifierGenerator: UniqueIdentifierGenerator
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator,
+        zipCompressor: ZipCompressor
     ) {
         self.deploymentDestination = deploymentDestination
         self.emceeVersion = emceeVersion
+        self.fileSystem = fileSystem
         self.logger = logger
-        self.processControllerProvider = processControllerProvider
         self.tempFolder = tempFolder
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
+        self.zipCompressor = zipCompressor
     }
     
     public func deployAndStartWorker(
@@ -82,10 +86,11 @@ public final class DefaultRemoteWorkersStarter: RemoteWorkerStarter {
                 ],
                 launchctlDeployableCommands.forceLoadInBackgroundCommand()
             ],
+            fileSystem: fileSystem,
             logger: logger,
-            processControllerProvider: processControllerProvider,
             tempFolder: tempFolder,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+            zipCompressor: zipCompressor
         )
         
         try deployer.deploy()

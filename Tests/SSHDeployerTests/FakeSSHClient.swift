@@ -1,6 +1,7 @@
 import Foundation
 @testable import SSHDeployer
 import Deployer
+import PathLib
 
 class FakeSSHClient: SSHClient {
     let host: String
@@ -10,7 +11,7 @@ class FakeSSHClient: SSHClient {
     
     var calledConnectAndAuthenticate = false
     var executeCommands = [[String]]()
-    var uploadCommands = [[URL: String]]()
+    var uploadCommands = [(local: AbsolutePath, remote: AbsolutePath)]()
     
     required init(host: String, port: Int32, username: String, authentication: DeploymentDestinationAuthenticationType) throws {
         self.host = host
@@ -31,8 +32,8 @@ class FakeSSHClient: SSHClient {
         return 0
     }
     
-    func upload(localUrl: URL, remotePath: String) throws {
-        uploadCommands.append([localUrl: remotePath])
+    func upload(localPath: AbsolutePath, remotePath: AbsolutePath) throws {
+        uploadCommands.append((local: localPath, remote: remotePath))
     }
     
     static var lastCreatedInstance: FakeSSHClient? 

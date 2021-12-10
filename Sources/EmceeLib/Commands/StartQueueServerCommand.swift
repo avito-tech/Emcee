@@ -136,11 +136,12 @@ public final class StartQueueServerCommand: Command {
         
         let remoteWorkerStarterProvider = DefaultRemoteWorkerStarterProvider(
             emceeVersion: emceeVersion,
+            fileSystem: try di.get(),
             logger: logger,
-            processControllerProvider: try di.get(),
             tempFolder: try TemporaryFolder(),
             uniqueIdentifierGenerator: try di.get(),
-            workerDeploymentDestinations: workerDestinations
+            workerDeploymentDestinations: workerDestinations,
+            zipCompressor: try di.get()
         )
         let workerConfigurations = try createWorkerConfigurations(
             queueServerConfiguration: queueServerConfiguration

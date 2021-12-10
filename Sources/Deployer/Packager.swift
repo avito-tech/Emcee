@@ -1,15 +1,19 @@
 import Foundation
+import FileSystem
 import PathLib
-import ProcessController
-import Tmp
+import Zip
 
 /** Packs DeployableItem, returns URL to a single file with a package. */
 public final class Packager {
-    private let fileManager = FileManager()
-    private let processControllerProvider: ProcessControllerProvider
+    private let fileSystem: FileSystem
+    private let zipCompressor: ZipCompressor
     
-    public init(processControllerProvider: ProcessControllerProvider) {
-        self.processControllerProvider = processControllerProvider
+    public init(
+        fileSystem: FileSystem,
+        zipCompressor: ZipCompressor
+    ) {
+        self.fileSystem = fileSystem
+        self.zipCompressor = zipCompressor
     }
     
     /**
@@ -17,37 +21,32 @@ public final class Packager {
      * If the DeployableItem has been already packed, it will return URL without re-packing it.
      */
     public func preparePackage(deployable: DeployableItem, packageFolder: AbsolutePath) throws -> AbsolutePath {
-        let archivePath = deployable.name.components(separatedBy: "/").reduce(packageFolder) { $0.appending($1) }
-        try fileManager.createDirectory(atPath: archivePath.removingLastComponent)
+        let archivePath = deployable.name.components(separatedBy: "/")
+            .reduce(packageFolder) { $0.appending($1) }
 
-        if fileManager.fileExists(atPath: archivePath.pathString) {
+        try fileSystem.createDirectory(
+            path: archivePath.removingLastComponent,
+            withIntermediateDirectories: true,
+            ignoreExisting: true
+        )
+        
+        if fileSystem.exists(path: archivePath) {
             return archivePath
         }
-        
-        let temporaryFolder = try TemporaryFolder()
         
         for file in deployable.files {
-            let containerPath = file.destination.removingLastComponent
-            if !fileManager.fileExists(atPath: containerPath.pathString) {
-                _ = try temporaryFolder.createDirectory(components: containerPath.components)
-            }
-            try fileManager.copyItem(
-                atPath: file.source.pathString,
-                toPath: temporaryFolder.absolutePath.appending(relativePath: file.destination).pathString
+            try fileSystem.copy(
+                source: file.source,
+                destination: packageFolder.appending(relativePath: file.destination),
+                overwrite: false,
+                ensureDirectoryExists: true
             )
         }
         
-        let controller = try processControllerProvider.createProcessController(
-            subprocess: Subprocess(
-                arguments: ["/usr/bin/zip", archivePath.pathString, "-r", "."],
-                workingDirectory: temporaryFolder.absolutePath
-            )
+        return try zipCompressor.createArchive(
+            archivePath: archivePath,
+            workingDirectory: packageFolder,
+            contentsToCompress: "."
         )
-        try controller.startAndListenUntilProcessDies()
-        if archivePath.extension.isEmpty {
-            return archivePath.appending(extension: "zip")
-        } else {
-            return archivePath
-        }
     }
 }

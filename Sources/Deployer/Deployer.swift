@@ -1,9 +1,10 @@
+import FileSystem
 import Foundation
 import EmceeLogging
 import PathLib
-import ProcessController
 import Tmp
 import UniqueIdentifierGenerator
+import Zip
 
 /** Basic class that defines a logic for deploying a number of DeployableItems. */
 open class Deployer {
@@ -11,29 +12,32 @@ open class Deployer {
     public let deployables: [DeployableItem]
     public let deployableCommands: [DeployableCommand]
     public let destination: DeploymentDestination
+    private let fileSystem: FileSystem
     private let logger: ContextualLogger
-    private let processControllerProvider: ProcessControllerProvider
     private let temporaryFolder: TemporaryFolder
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
+    private let zipCompressor: ZipCompressor
 
     public init(
         deploymentId: String,
         deployables: [DeployableItem],
         deployableCommands: [DeployableCommand],
         destination: DeploymentDestination,
+        fileSystem: FileSystem,
         logger: ContextualLogger,
-        processControllerProvider: ProcessControllerProvider,
         temporaryFolder: TemporaryFolder,
-        uniqueIdentifierGenerator: UniqueIdentifierGenerator
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator,
+        zipCompressor: ZipCompressor
     ) throws {
         self.deploymentId = deploymentId
         self.deployables = deployables
         self.deployableCommands = deployableCommands
         self.destination = destination
+        self.fileSystem = fileSystem
         self.logger = logger
-        self.processControllerProvider = processControllerProvider
         self.temporaryFolder = temporaryFolder
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
+        self.zipCompressor = zipCompressor
     }
     
     /** Deploys all the deployable items and invokes deployment commands. */
@@ -51,7 +55,10 @@ open class Deployer {
         let syncQueue = DispatchQueue(label: "Deployer.syncQueue")
         var deployablesFailedToPrepare = [DeployableItem]()
         var pathToDeployable = [AbsolutePath: DeployableItem]()
-        let packager = Packager(processControllerProvider: processControllerProvider)
+        let packager = Packager(
+            fileSystem: fileSystem,
+            zipCompressor: zipCompressor
+        )
         
         let queue = DispatchQueue(
             label: "Deployer.queue",

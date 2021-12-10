@@ -1,35 +1,39 @@
 import Deployer
 import DistDeployer
 import EmceeLogging
+import FileSystem
 import Foundation
-import ProcessController
 import QueueModels
 import SocketModels
 import Tmp
 import UniqueIdentifierGenerator
+import Zip
 
 public final class DefaultRemoteWorkerStarterProvider: RemoteWorkerStarterProvider {
     private let emceeVersion: Version
+    private let fileSystem: FileSystem
     private let logger: ContextualLogger
-    private let processControllerProvider: ProcessControllerProvider
     private let tempFolder: TemporaryFolder
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let workerDeploymentDestinations: [DeploymentDestination]
+    private let zipCompressor: ZipCompressor
     
     public init(
         emceeVersion: Version,
+        fileSystem: FileSystem,
         logger: ContextualLogger,
-        processControllerProvider: ProcessControllerProvider,
         tempFolder: TemporaryFolder,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
-        workerDeploymentDestinations: [DeploymentDestination]
+        workerDeploymentDestinations: [DeploymentDestination],
+        zipCompressor: ZipCompressor
     ) {
         self.emceeVersion = emceeVersion
+        self.fileSystem = fileSystem
         self.logger = logger
-        self.processControllerProvider = processControllerProvider
         self.tempFolder = tempFolder
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.workerDeploymentDestinations = workerDeploymentDestinations
+        self.zipCompressor = zipCompressor
     }
     
     public enum DefaultRemoteWorkerStarterProviderError: Error, CustomStringConvertible {
@@ -53,10 +57,11 @@ public final class DefaultRemoteWorkerStarterProvider: RemoteWorkerStarterProvid
         return DefaultRemoteWorkersStarter(
             deploymentDestination: deploymentDestination,
             emceeVersion: emceeVersion,
+            fileSystem: fileSystem,
             logger: logger,
-            processControllerProvider: processControllerProvider,
             tempFolder: tempFolder,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+            zipCompressor: zipCompressor
         )
     }
 }

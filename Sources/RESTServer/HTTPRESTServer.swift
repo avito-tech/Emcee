@@ -1,6 +1,7 @@
 import AutomaticTermination
 import Foundation
 import EmceeLogging
+import PathLib
 import RESTMethods
 import SocketModels
 import Swifter
@@ -29,6 +30,13 @@ public final class HTTPRESTServer {
             endpoint: handler
         )
     }
+    
+    public func add(
+        requestPath: AbsolutePath,
+        localFilePath: AbsolutePath
+    ) {
+        server[requestPath.pathString] = shareFile(localFilePath.pathString)
+    }
 
     private func processRequest<T, R>(
         endpoint: RESTEndpointOf<T, R>
@@ -51,6 +59,7 @@ public final class HTTPRESTServer {
         }
     }
     
+    @discardableResult
     public func start() throws -> SocketModels.Port {
         let port = try portProvider.localPort()
         try server.start(in_port_t(port.value), forceIPv4: false, priority: .default)

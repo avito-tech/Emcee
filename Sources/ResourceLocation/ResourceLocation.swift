@@ -172,4 +172,13 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
             }
         }
     }
+    
+    public func mapLocalFile(_ mapper: (String) throws -> Self) rethrows -> Self {
+        switch self {
+        case .localFilePath(let string):
+            return try mapper(string)
+        case .remoteUrl:
+            return self
+        }
+    }
 }

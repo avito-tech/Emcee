@@ -9,7 +9,7 @@ import SimulatorPoolModels
 import WorkerCapabilitiesModels
 
 public struct TestArgFileEntry: Codable, Equatable {
-    public let buildArtifacts: BuildArtifacts
+    public private(set) var buildArtifacts: BuildArtifacts
     public let developerDir: DeveloperDir
     public let environment: [String: String]
     public let numberOfRetries: UInt
@@ -48,6 +48,12 @@ public struct TestArgFileEntry: Codable, Equatable {
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testsToRun = testsToRun
         self.workerCapabilityRequirements = workerCapabilityRequirements
+    }
+    
+    public func with(buildArtifacts: BuildArtifacts) -> Self {
+        var result = self
+        result.buildArtifacts = buildArtifacts
+        return result
     }
     
     public init(from decoder: Decoder) throws {

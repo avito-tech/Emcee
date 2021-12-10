@@ -282,11 +282,12 @@ let package = Package(
             name: "Deployer",
             dependencies: [
                 "EmceeLogging",
+                .product(name: "FileSystem", package: "CommandLineToolkit"),
                 .product(name: "PathLib", package: "CommandLineToolkit"),
-                .product(name: "ProcessController", package: "CommandLineToolkit"),
                 "QueueModels",
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 "UniqueIdentifierGenerator",
+                "Zip",
             ],
             path: "Sources/Deployer"
         ),
@@ -302,12 +303,12 @@ let package = Package(
             name: "DeployerTests",
             dependencies: [
                 "Deployer",
+                .product(name: "FileSystemTestHelpers", package: "CommandLineToolkit"),
                 .product(name: "PathLib", package: "CommandLineToolkit"),
-                .product(name: "ProcessController", package: "CommandLineToolkit"),
-                .product(name: "ProcessControllerTestHelpers", package: "CommandLineToolkit"),
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 "UniqueIdentifierGeneratorTestHelpers",
+                "ZipTestHelpers",
             ],
             path: "Tests/DeployerTests"
         ),
@@ -352,15 +353,16 @@ let package = Package(
             dependencies: [
                 "Deployer",
                 "EmceeLogging",
+                .product(name: "FileSystem", package: "CommandLineToolkit"),
                 .product(name: "LaunchdUtils", package: "CommandLineToolkit"),
                 .product(name: "PathLib", package: "CommandLineToolkit"),
-                .product(name: "ProcessController", package: "CommandLineToolkit"),
                 "QueueModels",
                 "SSHDeployer",
                 .product(name: "SocketModels", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 "TypedResourceLocation",
                 "UniqueIdentifierGenerator",
+                "Zip",
             ],
             path: "Sources/DistDeployer"
         ),
@@ -541,6 +543,7 @@ let package = Package(
                 "QueueServer",
                 "QueueServerPortProvider",
                 "RESTMethods",
+                "RESTServer",
                 "RemotePortDeterminer",
                 "RequestSender",
                 "ResourceLocation",
@@ -554,6 +557,7 @@ let package = Package(
                 "SimulatorPoolModels",
                 .product(name: "SocketModels", package: "CommandLineToolkit"),
                 .product(name: "Statsd", package: "CommandLineToolkit"),
+                .product(name: "Swifter", package: "Swifter"),
                 .product(name: "SynchronousWaiter", package: "CommandLineToolkit"),
                 "TestArgFile",
                 "TestDiscovery",
@@ -565,6 +569,7 @@ let package = Package(
                 "WorkerAlivenessProvider",
                 "WorkerCapabilities",
                 "WorkerCapabilitiesModels",
+                "Zip",
             ],
             path: "Sources/EmceeLib"
         ),
@@ -774,10 +779,10 @@ let package = Package(
                 "DistWorkerModels",
                 "EmceeLogging",
                 "FileLock",
+                .product(name: "FileSystem", package: "CommandLineToolkit"),
                 "LocalHostDeterminer",
                 "LoggingSetup",
                 "MetricsExtensions",
-                .product(name: "ProcessController", package: "CommandLineToolkit"),
                 "QueueCommunication",
                 "QueueModels",
                 "QueueServer",
@@ -787,6 +792,7 @@ let package = Package(
                 .product(name: "SynchronousWaiter", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 "UniqueIdentifierGenerator",
+                "Zip",
             ],
             path: "Sources/LocalQueueServerRunner"
         ),
@@ -1262,6 +1268,7 @@ let package = Package(
             dependencies: [
                 "AutomaticTermination",
                 "EmceeLogging",
+                .product(name: "PathLib", package: "CommandLineToolkit"),
                 "QueueModels",
                 "RESTInterfaces",
                 "RESTMethods",
@@ -1559,11 +1566,12 @@ let package = Package(
             dependencies: [
                 "Deployer",
                 "EmceeLogging",
+                .product(name: "FileSystem", package: "CommandLineToolkit"),
                 .product(name: "PathLib", package: "CommandLineToolkit"),
-                .product(name: "ProcessController", package: "CommandLineToolkit"),
                 .product(name: "Shout", package: "Shout"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 "UniqueIdentifierGenerator",
+                "Zip",
             ],
             path: "Sources/SSHDeployer"
         ),
@@ -1571,12 +1579,13 @@ let package = Package(
             name: "SSHDeployerTests",
             dependencies: [
                 "Deployer",
+                .product(name: "FileSystemTestHelpers", package: "CommandLineToolkit"),
                 .product(name: "PathLib", package: "CommandLineToolkit"),
-                .product(name: "ProcessControllerTestHelpers", package: "CommandLineToolkit"),
                 "SSHDeployer",
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 "UniqueIdentifierGeneratorTestHelpers",
+                "ZipTestHelpers",
             ],
             path: "Tests/SSHDeployerTests"
         ),
@@ -2071,6 +2080,33 @@ let package = Package(
             dependencies: [
             ],
             path: "Sources/XcodebuildTestRunnerConstants"
+        ),
+        .target(
+            name: "Zip",
+            dependencies: [
+                .product(name: "PathLib", package: "CommandLineToolkit"),
+                .product(name: "ProcessController", package: "CommandLineToolkit"),
+            ],
+            path: "Sources/Zip"
+        ),
+        .target(
+            name: "ZipTestHelpers",
+            dependencies: [
+                .product(name: "PathLib", package: "CommandLineToolkit"),
+                .product(name: "TestHelpers", package: "CommandLineToolkit"),
+                "Zip",
+            ],
+            path: "Tests/ZipTestHelpers"
+        ),
+        .testTarget(
+            name: "ZipTests",
+            dependencies: [
+                .product(name: "PathLib", package: "CommandLineToolkit"),
+                .product(name: "ProcessControllerTestHelpers", package: "CommandLineToolkit"),
+                .product(name: "TestHelpers", package: "CommandLineToolkit"),
+                "Zip",
+            ],
+            path: "Tests/ZipTests"
         ),
     ]
 )

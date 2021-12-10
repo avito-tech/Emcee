@@ -25,6 +25,7 @@ import SynchronousWaiter
 import TestDiscovery
 import URLResource
 import UniqueIdentifierGenerator
+import Zip
 
 public final class InProcessMain {
     public init() {}
@@ -192,6 +193,12 @@ public final class InProcessMain {
         di.set(
             SynchronousWaiter(),
             for: Waiter.self
+        )
+        di.set(
+            ZipCompressorImpl(
+                processControllerProvider: try di.get()
+            ),
+            for: ZipCompressor.self
         )
         
         let commandInvoker = CommandInvoker(

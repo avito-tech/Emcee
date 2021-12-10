@@ -1,7 +1,7 @@
-import Foundation
-import Shout
-import PathLib
 import Deployer
+import Foundation
+import PathLib
+import Shout
 
 public final class DefaultSSHClient: SSHClient {
     private let ssh: SSH
@@ -31,7 +31,7 @@ public final class DefaultSSHClient: SSHClient {
         return try ssh.execute(shellCommand) { _ in }
     }
     
-    public func upload(localUrl: URL, remotePath: String) throws {
-        try ssh.openSftp().upload(localURL: localUrl, remotePath: remotePath)
+    public func upload(localPath: AbsolutePath, remotePath: AbsolutePath) throws {
+        try ssh.openSftp().upload(localURL: localPath.fileUrl, remotePath: remotePath.pathString)
     }
 }

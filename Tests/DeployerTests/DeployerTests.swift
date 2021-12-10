@@ -1,12 +1,12 @@
 @testable import Deployer
 import Foundation
+import FileSystemTestHelpers
 import PathLib
-import ProcessController
-import ProcessControllerTestHelpers
 import TestHelpers
 import Tmp
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
+import ZipTestHelpers
 
 class DeployerTests: XCTestCase {
     private let uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(value: "fixed")
@@ -16,12 +16,45 @@ class DeployerTests: XCTestCase {
         source: deployableFileSource,
         destination: RelativePath("remote/file.swift")
     )
+    lazy var fileSystem = FakeFileSystem(rootPath: tempFolder.absolutePath)
+    lazy var zipCompressor = FakeZipCompressor()
     
     func testDeployer() throws {
         let deployableWithSingleFile = DeployableItem(
             name: "simple_file",
             files: [deployableFile]
         )
+        
+        let filePropertiesContainer = FakeFilePropertiesContainer()
+        fileSystem.propertiesProvider = { _ in filePropertiesContainer }
+        filePropertiesContainer.pathExists = false
+        
+        let zipCompressorInvoker = XCTestExpectation()
+        zipCompressor.handler = { (archivePath: AbsolutePath,
+                                    workingDirectory: AbsolutePath,
+                                    contentsToCompress: RelativePath) -> AbsolutePath in
+            assert {
+                archivePath
+            } equals: {
+                self.tempFolder.pathWith(components: ["fixed", "simple_file"])
+            }
+            
+            assert {
+                workingDirectory
+            } equals: {
+                self.tempFolder.pathWith(components: ["fixed"])
+            }
+            
+            assert {
+                contentsToCompress
+            } equals: {
+                RelativePath("./")
+            }
+            
+            zipCompressorInvoker.fulfill()
+            
+            return archivePath.appending(extension: "fake.zip")
+        }
         
         let deployer = try FakeDeployer(
             deploymentId: "ID",
@@ -34,16 +67,11 @@ class DeployerTests: XCTestCase {
                 authentication: .password("pass"),
                 remoteDeploymentPath: "/remote/path"
             ),
+            fileSystem: fileSystem,
             logger: .noOp,
-            processControllerProvider: FakeProcessControllerProvider { subprocess -> ProcessController in
-                XCTAssertEqual(
-                    try subprocess.arguments.map { try $0.stringValue() },
-                    ["/usr/bin/zip", self.tempFolder.pathWith(components: ["fixed", "simple_file"]).pathString, "-r", "."]
-                )
-                return FakeProcessController(subprocess: subprocess)
-            },
             temporaryFolder: tempFolder,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
+            zipCompressor: zipCompressor
         )
         try deployer.deploy()
         XCTAssertEqual(deployer.pathsAskedToBeDeployed.count, 1)
@@ -55,6 +83,8 @@ class DeployerTests: XCTestCase {
                 Set([deployableFile])
             )
         }
+        
+        wait(for: [zipCompressorInvoker], timeout: 3)
     }
     
     func testDeployerDeletesItsTemporaryStuff() throws {
@@ -66,6 +96,7 @@ class DeployerTests: XCTestCase {
         var paths = [AbsolutePath]()
         
         let deployerWork = {
+            self.zipCompressor.handler = { archive, _, _ in archive }
             let deployer = try FakeDeployer(
                 deploymentId: "ID",
                 deployables: [deployableWithSingleFile],
@@ -77,10 +108,11 @@ class DeployerTests: XCTestCase {
                     authentication: .password("pass"),
                     remoteDeploymentPath: "/remote/path"
                 ),
+                fileSystem: self.fileSystem,
                 logger: .noOp,
-                processControllerProvider: FakeProcessControllerProvider(),
                 temporaryFolder: self.tempFolder,
-                uniqueIdentifierGenerator: self.uniqueIdentifierGenerator
+                uniqueIdentifierGenerator: self.uniqueIdentifierGenerator,
+                zipCompressor: self.zipCompressor
             )
             try deployer.deploy()
             paths = Array(deployer.pathsAskedToBeDeployed.keys)

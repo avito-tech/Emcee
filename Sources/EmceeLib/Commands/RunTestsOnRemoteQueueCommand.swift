@@ -1,4 +1,5 @@
 import ArgLib
+import AutomaticTermination
 import BucketQueue
 import EmceeDI
 import DateProvider
@@ -20,6 +21,7 @@ import QueueClient
 import QueueCommunication
 import QueueModels
 import QueueServer
+import RESTServer
 import RemotePortDeterminer
 import RequestSender
 import ResourceLocationResolver
@@ -48,26 +50,68 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     
     private let callbackQueue = DispatchQueue(label: "RunTestsOnRemoteQueueCommand.callbackQueue")
     private let di: DI
+    private let httpRestServer: HTTPRESTServer
     
     public init(di: DI) throws {
         self.di = di
+        self.httpRestServer = HTTPRESTServer(
+            automaticTerminationController: StayAliveTerminationController(),
+            logger: try di.get(),
+            portProvider: AnyAvailablePortProvider()
+        )
     }
     
     public func run(payload: CommandPayload) throws {
+        try httpRestServer.start()
+        
         let commonReportOutput = ReportOutput(
             junit: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.junit.name),
             tracingReport: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.trace.name)
         )
 
-        let queueServerConfigurationLocation: QueueServerConfigurationLocation = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerConfigurationLocation.name)
-        let queueServerConfiguration = try ArgumentsReader.queueServerConfiguration(
-            location: queueServerConfigurationLocation,
-            resourceLocationResolver: try di.get()
-        )
-
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
         let tempFolder = try TemporaryFolder(containerPath: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.tempFolder.name))
-        let testArgFile = try ArgumentsReader.testArgFile(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testArgFile.name))
+        let logger = try di.get(ContextualLogger.self)
+
+        let remoteCacheConfig = try ArgumentsReader.remoteCacheConfig(
+            try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.remoteCacheConfig.name)
+        )
+        
+        di.set(tempFolder, for: TemporaryFolder.self)
+        
+        di.set(
+            SwifterRemotelyAccessibleUrlForLocalFileProvider(
+                server: httpRestServer,
+                serverRoot: "/build-artifacts/",
+                uniqueIdentifierGenerator: try di.get()
+            ),
+            for: RemotelyAccessibleUrlForLocalFileProvider.self
+        )
+        
+        let localTypedResourceLocationPreparer = LocalTypedResourceLocationPreparerImpl(
+            logger: try di.get(),
+            pathForStoringArchives: try tempFolder.createDirectory(
+                components: ["job_prepatation"]
+            ),
+            remotelyAccessibleUrlForLocalFileProvider: try di.get(),
+            uniqueIdentifierGenerator: try di.get(),
+            zipCompressor: try di.get()
+        )
+        di.set(localTypedResourceLocationPreparer, for: LocalTypedResourceLocationPreparer.self)
+        
+        let buildArtifactsPreparer = BuildArtifactsPreparerImpl(
+            localTypedResourceLocationPreparer: try di.get(),
+            logger: try di.get()
+        )
+        di.set(buildArtifactsPreparer, for: BuildArtifactsPreparer.self)
+        
+        let testArgFile = try preprocessTestArgFile(
+            testArgFile: try ArgumentsReader.testArgFile(
+                try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testArgFile.name)
+            ),
+            buildArtifactsPreparer: buildArtifactsPreparer,
+            logger: logger
+        )
         
         if let kibanaConfiguration = testArgFile.prioritizedJob.analyticsConfiguration.kibanaConfiguration {
             try di.get(LoggingSetup.self).set(kibanaConfiguration: kibanaConfiguration)
@@ -80,13 +124,16 @@ public final class RunTestsOnRemoteQueueCommand: Command {
                 analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration
             )
         )
-        let logger = try di.get(ContextualLogger.self)
-
-        let remoteCacheConfig = try ArgumentsReader.remoteCacheConfig(
-            try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.remoteCacheConfig.name)
-        )
         
-        di.set(tempFolder, for: TemporaryFolder.self)
+        let queueServerConfigurationLocation: QueueServerConfigurationLocation = try localTypedResourceLocationPreparer.generateRemotelyAccessibleTypedResourceLocation(
+            try payload.expectedSingleTypedValue(
+                argumentName: ArgumentDescriptions.queueServerConfigurationLocation.name
+            )
+        )
+        let queueServerConfiguration = try ArgumentsReader.queueServerConfiguration(
+            location: queueServerConfigurationLocation,
+            resourceLocationResolver: try di.get()
+        )
 
         let runningQueueServerAddress = try detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
             emceeVersion: emceeVersion,
@@ -98,6 +145,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         let jobResults = try runTestsOnRemotelyRunningQueue(
             queueServerAddress: runningQueueServerAddress,
             remoteCacheConfig: remoteCacheConfig,
+            tempFolder: tempFolder,
             testArgFile: testArgFile,
             version: emceeVersion,
             logger: logger
@@ -109,6 +157,27 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             testDestinationConfigurations: testArgFile.testDestinationConfigurations
         )
         try resultOutputGenerator.generateOutput()
+    }
+    
+    private func preprocessTestArgFile(
+        testArgFile: TestArgFile,
+        buildArtifactsPreparer: BuildArtifactsPreparer,
+        logger: ContextualLogger
+    ) throws -> TestArgFile {
+        logger.info("Preparing build artifacts to be accessible by workers...")
+        defer {
+            logger.info("Build artifacts are now accessible by workers")
+        }
+        
+        return testArgFile.with(
+            entries: try testArgFile.entries.map { testArgFileEntry in
+                testArgFileEntry.with(
+                    buildArtifacts: try buildArtifactsPreparer.prepare(
+                        buildArtifacts: testArgFileEntry.buildArtifacts
+                    )
+                )
+            }
+        )
     }
     
     private func detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
@@ -169,11 +238,12 @@ public final class RunTestsOnRemoteQueueCommand: Command {
                     deploymentId: jobId.value,
                     deploymentDestination: queueServerDeploymentDestination,
                     emceeVersion: emceeVersion,
+                    fileSystem: try di.get(),
                     logger: logger,
-                    processControllerProvider: try di.get(),
                     queueServerConfigurationLocation: queueServerConfigurationLocation,
                     tempFolder: try di.get(),
-                    uniqueIdentifierGenerator: try di.get()
+                    uniqueIdentifierGenerator: try di.get(),
+                    zipCompressor: try di.get()
                 )
                 try remoteQueueStarter.deployAndStart()
                 logger.debug("Started queue on \(queueServerDeploymentDestination.host)")
@@ -190,6 +260,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     private func runTestsOnRemotelyRunningQueue(
         queueServerAddress: SocketAddress,
         remoteCacheConfig: RuntimeDumpRemoteCacheConfig?,
+        tempFolder: TemporaryFolder,
         testArgFile: TestArgFile,
         version: Version,
         logger: ContextualLogger
@@ -240,7 +311,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             ),
             for: JobDeleter.self
         )
-        
         defer {
             deleteJob(jobId: testArgFile.prioritizedJob.jobId, logger: logger)
         }
