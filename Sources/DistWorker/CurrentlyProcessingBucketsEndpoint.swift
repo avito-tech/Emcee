@@ -25,7 +25,7 @@ public final class CurrentlyProcessingBucketsEndpoint: RESTEndpoint {
     
     public func handle(payload: VoidPayload) throws -> CurrentlyProcessingBucketsResponse {
         let bucketIds = Array(currentlyBeingProcessedBucketsTracker.bucketIdsBeingProcessed)
-        logger.debug("Processing \(bucketIds.count) buckets")
+        logger.debug("Currently processing \(bucketIds.count) buckets: \(bucketIds)")
         return CurrentlyProcessingBucketsResponse(
             bucketIds: bucketIds
         )

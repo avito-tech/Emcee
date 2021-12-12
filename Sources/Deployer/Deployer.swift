@@ -72,12 +72,12 @@ open class Deployer {
             group.enter()
             queue.async {
                 do {
-                    self.logger.debug("Preparing deployable '\(deployable.name)'...")
+                    self.logger.trace("Preparing deployable '\(deployable.name)'...")
                     let path = try packager.preparePackage(
                         deployable: deployable,
                         packageFolder: try self.temporaryFolder.createDirectory(components: [self.uniqueIdentifierGenerator.generate()])
                     )
-                    self.logger.debug("'\(deployable.name)' package path: \(path)")
+                    self.logger.trace("'\(deployable.name)' package path: \(path)")
                     syncQueue.sync { pathToDeployable[path] = deployable }
                 } catch {
                     self.logger.error("Failed to prepare deployable \(deployable.name): \(error)")

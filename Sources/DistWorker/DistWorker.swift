@@ -118,12 +118,12 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
                 }
                 
                 strongSelf.payloadSignature = .success(workerConfiguration.payloadSignature)
-                strongSelf.logger.debug("Registered with server. Worker configuration: \(workerConfiguration)")
+                strongSelf.logger.trace("Registered with server. Worker configuration: \(workerConfiguration)")
                 
                 _ = try strongSelf.runTests(
                     workerConfiguration: workerConfiguration
                 )
-                strongSelf.logger.debug("Dist worker has finished")
+                strongSelf.logger.trace("Dist worker has finished")
             } catch {
                 strongSelf.logger.error("Caught unexpected error: \(error)")
             }
@@ -167,10 +167,10 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
 
             switch result {
             case .checkLater(let after):
-                logger.debug("Server asked to wait for \(after) seconds and fetch next bucket again")
+                logger.trace("Server asked to fetch again after \(after) seconds")
                 return .checkAgain(after: after)
             case .bucket(let fetchedBucket):
-                logger.debug("Received \(fetchedBucket.bucketId)")
+                logger.trace("Received \(fetchedBucket.bucketId)")
                 tracker.willProcess(bucketId: fetchedBucket.bucketId)
                 return .result(
                     SchedulerBucket(
@@ -186,13 +186,16 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
     public func nextBucket() -> SchedulerBucket? {
         while true {
             do {
-                logger.debug("Fetching next bucket from server", workerId: workerId)
                 let fetchResult = try nextBucketFetchResult()
                 switch fetchResult {
                 case .result(let result):
                     return result
                 case .checkAgain(let after):
-                    try di.get(Waiter.self).wait(timeout: after, description: "Pause before checking queue server again")
+                    try di.get(Waiter.self).wait(
+                        pollPeriod: 1.0,
+                        timeout: after,
+                        description: "Pause before fetching bucket"
+                    )
                 }
             } catch {
                 logger.error("Failed to fetch next bucket: \(error)")
@@ -206,7 +209,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
         obtainedBucketResult bucketResult: BucketResult,
         forBucket bucket: SchedulerBucket
     ) {
-        logger.debug("Obtained result for bucket \(bucket.bucketId): \(bucketResult)")
+        logger.trace("Obtained result for bucket \(bucket.bucketId): \(bucketResult)")
         didReceive(bucketResult: bucketResult, bucketId: bucket.bucketId)
     }
     
@@ -234,7 +237,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
                                 expected: bucketId
                             )
                         }
-                        logger.debug("Successfully sent test run result for bucket \(bucketId)")
+                        logger.trace("Successfully sent test run result for bucket \(bucketId)")
                     } catch {
                         logger.error("Server response for results of bucket \(bucketId) has error: \(error)")
                     }

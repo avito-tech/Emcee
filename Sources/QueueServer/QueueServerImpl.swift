@@ -303,10 +303,7 @@ public final class QueueServerImpl: QueueServer {
         workerAlivenessMetricCapturer.start()
         workerAlivenessPoller.startPolling()
         
-        let port = try httpRestServer.start()
-        logger.info("Started queue server on port \(port)")
-        
-        return port
+        return try httpRestServer.start()
     }
     
     public func schedule(

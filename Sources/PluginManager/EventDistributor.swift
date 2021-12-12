@@ -29,16 +29,16 @@ public final class EventDistributor {
     
     public func start() throws {
         try queue.sync {
-            logger.debug("Starting web socket server")
+            logger.trace("Starting web socket server")
             server["/"] = websocket(text: nil, binary: onBinary, pong: nil, connected: nil, disconnected: nil)
             try server.start(0, forceIPv4: false, priority: .default)
         }
-        logger.debug("Web socket server is available at: \(try webSocketAddress())")
+        logger.trace("Web socket server is available at: \(try webSocketAddress())")
     }
     
     public func stop() {
         queue.sync {
-            logger.debug("Stopping web socket server")
+            logger.trace("Stopping web socket server")
             server.stop()
         }
     }
@@ -89,7 +89,7 @@ public final class EventDistributor {
             acknowledgement = .error("Internal error: '\(error)'")
         }
         
-        logger.debug("New connection from plugin with acknowledgement: '\(acknowledgement)'")
+        logger.trace("New connection from plugin with acknowledgement: '\(acknowledgement)'")
         
         do {
             let data = try encoder.encode(acknowledgement)

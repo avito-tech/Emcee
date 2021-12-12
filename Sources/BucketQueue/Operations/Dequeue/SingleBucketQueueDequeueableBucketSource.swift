@@ -64,7 +64,7 @@ public final class SingleBucketQueueDequeueableBucketSource: DequeueableBucketSo
                     requirements: enqueuedBucket.bucket.workerCapabilityRequirements,
                     workerCapabilities: workerCapabilities
                 ) else {
-                    logger.debug("capabilities \(workerCapabilities) of \(workerId) do not meet bucket requirements: \(enqueuedBucket.bucket.workerCapabilityRequirements)")
+                    logger.trace("Capabilities \(workerCapabilities) of \(workerId) do not meet bucket requirements: \(enqueuedBucket.bucket.workerCapabilityRequirements)")
                     return nil
                 }
                 
@@ -83,7 +83,7 @@ public final class SingleBucketQueueDequeueableBucketSource: DequeueableBucketSo
         
         bucketQueueHolder.replacePreviouslyEnqueuedBucket(withDequeuedBucket: dequeuedBucket)
         
-        logger.debug("Dequeued new bucket: \(dequeuedBucket)")
+        logger.trace("Dequeued new bucket: \(dequeuedBucket)")
         
         workerAlivenessProvider.didDequeueBucket(
             bucketId: dequeuedBucket.enqueuedBucket.bucket.bucketId,

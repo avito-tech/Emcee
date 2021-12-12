@@ -31,7 +31,7 @@ public class DefaultWorkersMappingCache: WorkersMappingCache {
         let timeSinceCacheCreation = dateProvider.currentDate().timeIntervalSince(cache.creationDate)
         
         if timeSinceCacheCreation >= cacheIvalidationTime {
-            logger.debug("Invalidating workers mapping cache, time since cache creation: \(timeSinceCacheCreation)")
+            logger.trace("Invalidating workers mapping cache")
             self.cache = nil
         }
         
@@ -39,7 +39,7 @@ public class DefaultWorkersMappingCache: WorkersMappingCache {
     }
     
     public func cache(mapping: WorkersPerQueue) {
-        logger.debug("Caching workers mapping: \(mapping)")
+        logger.trace("Caching workers mapping: \(mapping)")
         self.cache = CacheData(
             mapping: mapping,
             creationDate: dateProvider.currentDate()

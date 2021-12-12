@@ -97,7 +97,7 @@ public final class LocalQueueServerRunner {
     }
     
     private func startWorkers(port: SocketModels.Port) throws {
-        logger.info("Deploying and starting workers in background")
+        logger.trace("Deploying and starting workers in background")
         
         let dispatchGroup = DispatchGroup()
         
@@ -120,7 +120,7 @@ public final class LocalQueueServerRunner {
         }
         
         dispatchGroup.notify(queue: .global()) {
-            self.logger.debug("Finished deploying workers")
+            self.logger.trace("Finished deploying workers")
         }
     }
     

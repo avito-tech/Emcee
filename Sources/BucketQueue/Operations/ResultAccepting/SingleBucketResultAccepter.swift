@@ -62,7 +62,7 @@ public final class SingleBucketResultAcceptor: BucketResultAcceptor {
         bucketId: BucketId,
         workerId: WorkerId
     ) throws -> DequeuedBucket {
-        logger.debug("Validating result for \(bucketId) from \(workerId)")
+        logger.trace("Validating result for \(bucketId) from \(workerId)")
         
         guard let previouslyDequeuedBucket = bucketQueueHolder.allDequeuedBuckets.first(where: {
             $0.enqueuedBucket.bucket.bucketId == bucketId && $0.workerId == workerId

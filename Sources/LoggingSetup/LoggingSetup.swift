@@ -26,7 +26,10 @@ public final class LoggingSetup {
         self.fileSystem = fileSystem
     }
     
-    public func setupLogging(stderrVerbosity: Verbosity) throws -> ContextualLogger {
+    public func setupLogging(
+        stderrVerbosity: Verbosity,
+        detailedLogVerbosity: Verbosity
+    ) throws -> ContextualLogger {
         let filename = logFilePrefix + String(ProcessInfo.processInfo.processIdentifier)
         let detailedLogPath = try TemporaryFile(
             containerPath: try logsContainerFolder(),
@@ -35,8 +38,17 @@ public final class LoggingSetup {
             deleteOnDealloc: false
         )
         
-        GlobalLoggerConfig.loggerHandler.append(handler: createStderrInfoLoggerHandler(verbosity: stderrVerbosity))
-        GlobalLoggerConfig.loggerHandler.append(handler: createDetailedLoggerHandler(fileHandle: detailedLogPath.fileHandleForWriting))
+        GlobalLoggerConfig.loggerHandler.append(
+            handler: createStderrInfoLoggerHandler(
+                verbosity: stderrVerbosity
+            )
+        )
+        GlobalLoggerConfig.loggerHandler.append(
+            handler: createDetailedLoggerHandler(
+                fileHandle: detailedLogPath.fileHandleForWriting,
+                verbosity: detailedLogVerbosity
+            )
+        )
         
         LoggingSystem.bootstrap { _ in GlobalLoggerConfig.loggerHandler }
         
@@ -83,11 +95,11 @@ public final class LoggingSetup {
         guard dateProvider.currentDate().timeIntervalSince(
             try emceeLogsCleanUpMarkerFileProperties.modificationDate()
         ) > logFilesCleanUpRegularity else {
-            logger.debug("Skipping log clean up since last clean up happened recently")
+            logger.trace("Skipping log clean up since last clean up happened recently")
             return
         }
         
-        logger.info("Cleaning up old log files")
+        logger.trace("Cleaning up old log files")
         try emceeLogsCleanUpMarkerFileProperties.touch()
         
         let logsEnumerator = fileSystem.contentEnumerator(forPath: try fileSystem.emceeLogsFolder(), style: .deep)
@@ -123,11 +135,14 @@ public final class LoggingSetup {
         )
     }
     
-    private func createDetailedLoggerHandler(fileHandle: FileHandle) -> LoggerHandler {
+    private func createDetailedLoggerHandler(
+        fileHandle: FileHandle,
+        verbosity: Verbosity
+    ) -> LoggerHandler {
         return FileHandleLoggerHandler(
             dateProvider: dateProvider,
             fileHandle: fileHandle,
-            verbosity: Verbosity.verboseDebug,
+            verbosity: verbosity,
             logEntryTextFormatter: NSLogLikeLogEntryTextFormatter(),
             fileHandleShouldBeClosed: true,
             skipMetadataFlag: .skipFileOutput

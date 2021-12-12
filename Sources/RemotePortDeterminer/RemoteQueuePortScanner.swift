@@ -36,7 +36,7 @@ public final class RemoteQueuePortScanner: RemotePortDeterminer {
             for port in portRange {
                 group.enter()
                 let socketAddress = SocketAddress(host: host, port: port)
-                logger.debug("Checking availability of \(socketAddress)")
+                logger.trace("Checking queue presence at \(socketAddress)")
 
                 let queueServerVersionFetcher = QueueServerVersionFetcherImpl(
                     requestSender: requestSenderProvider.requestSender(
@@ -48,7 +48,7 @@ public final class RemoteQueuePortScanner: RemotePortDeterminer {
                     callbackQueue: workQueue
                 ) { (result: Either<Version, Error>) in
                     if let version = try? result.dematerialize() {
-                        self.logger.debug("Found queue server with \(version) version at \(socketAddress)")
+                        self.logger.trace("Found queue server with \(version) version at \(socketAddress)")
                         socketToVersion.withExclusiveAccess {
                             $0[socketAddress] = version
                         }

@@ -29,7 +29,7 @@ public final class Plugin {
     /// - Parameters:
     ///     - eventBus:             The event bus which will receive the events from the main process
     public init(eventBus: EventBus) throws {
-        self.logger = try loggingSetup.setupLogging(stderrVerbosity: Verbosity.info)
+        self.logger = try loggingSetup.setupLogging(stderrVerbosity: Verbosity.info, detailedLogVerbosity: .debug)
         self.eventBus = eventBus
         self.jsonStreamToEventBusAdapter = JSONStreamToEventBusAdapter(
             eventBus: eventBus,
@@ -66,13 +66,13 @@ public final class Plugin {
         let jsonReader = JSONReader(inputStream: jsonInputStream, eventStream: jsonStreamToEventBusAdapter)
         jsonReaderQueue.async {
             do {
-                self.logger.debug("Starting JSON stream parser")
+                self.logger.trace("Starting JSON stream parser")
                 try jsonReader.start()
             } catch {
                 self.jsonStreamHasFinished = true
                 self.logger.error("JSON stream error: \(error)")
             }
-            self.logger.debug("JSON stream parser finished")
+            self.logger.trace("JSON stream parser finished")
         }
     }
     

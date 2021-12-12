@@ -12,7 +12,7 @@ public final class NoOpRemoteWorkerStarterProvider: RemoteWorkerStarterProvider 
     }
     
     public func remoteWorkerStarter(workerId: WorkerId) throws -> RemoteWorkerStarter {
-        logger.debug("Request to start worker \(workerId) will be ignored")
+        logger.trace("Request to start worker \(workerId) will be ignored")
         
         return NoOpRemoteWorkerStarter()
     }

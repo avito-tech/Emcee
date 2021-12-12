@@ -29,9 +29,9 @@ public final class LocalPortDeterminer {
     
     public func availableLocalPort() throws -> SocketModels.Port {
         for port in portRange {
-            logger.debug("Checking availability of local port \(port)")
+            logger.trace("Checking availability of local port \(port)")
             if isPortAvailable(port: UInt16(port.value)) {
-                logger.debug("Port \(port) appears to be available")
+                logger.trace("Port \(port) appears to be available")
                 return port
             }
         }

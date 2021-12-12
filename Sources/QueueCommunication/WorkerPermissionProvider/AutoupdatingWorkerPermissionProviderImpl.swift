@@ -41,19 +41,19 @@ public class AutoupdatingWorkerPermissionProviderImpl: AutoupdatingWorkerPermiss
     }
     
     public func startUpdating() {
-        logger.debug("Starting polling workers to utilize")
+        logger.trace("Starting polling workers to utilize")
         pollingTrigger.start { [weak self] timer in
             guard let strongSelf = self else {
                 return timer.stop()
             }
             
-            strongSelf.logger.debug("Fetching workers to utilize")
+            strongSelf.logger.trace("Fetching workers to utilize")
             strongSelf.fetchWorkersToUtilize()
         }
     }
     
     public func stopUpdatingAndRestoreDefaultConfig() {
-        logger.debug("Stopping polling workers to utilize")
+        logger.trace("Stopping polling workers to utilize")
         pollingTrigger.stop()
         workerIdsToUtilize.set(initialWorkerIds)
         reportMetric()

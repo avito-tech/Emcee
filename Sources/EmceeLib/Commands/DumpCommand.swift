@@ -80,7 +80,7 @@ public final class DumpCommand: Command {
         di.set(onDemandSimulatorPool, for: OnDemandSimulatorPool.self)
         
         SignalHandling.addSignalHandler(signals: [.term, .int]) { [logger] signal in
-            logger.debug("Got signal: \(signal)")
+            logger.trace("Got signal: \(signal)")
             onDemandSimulatorPool.deleteSimulators()
         }
         
@@ -120,7 +120,7 @@ public final class DumpCommand: Command {
         do {
             let encodedResult = try encoder.encode(dumpedTests)
             try encodedResult.write(to: outputPath.fileUrl, options: [.atomic])
-            logger.debug("Wrote run time tests dump to file \(outputPath)")
+            logger.info("Wrote test discovery result into \(outputPath)")
         } catch {
             logger.error("Failed to write output: \(error)")
         }

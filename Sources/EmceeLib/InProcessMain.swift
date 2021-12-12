@@ -92,7 +92,7 @@ public final class InProcessMain {
             logCleaningQueue.waitUntilAllOperationsAreFinished()
         }
         
-        logger.info("Arguments: \(ProcessInfo.processInfo.arguments)")
+        logger.trace("Arguments: \(ProcessInfo.processInfo.arguments)")
 
         di.set(
             try DetailedActivityLoggableProcessControllerProvider(di: di),
@@ -247,7 +247,10 @@ public final class InProcessMain {
     
     private func setupLogging(di: DI, logsTimeToLive: TimeUnit, queue: OperationQueue) throws -> ContextualLogger {
         let loggingSetup: LoggingSetup = try di.get()
-        let logger = try loggingSetup.setupLogging(stderrVerbosity: .info)
+        let logger = try loggingSetup.setupLogging(
+            stderrVerbosity: .info,
+            detailedLogVerbosity: .debug
+        )
         
         try loggingSetup.cleanUpLogs(
             logger: logger,

@@ -92,7 +92,7 @@ public final class StartQueueServerCommand: Command {
         di.set(
             PayloadSignature(value: try di.get(UniqueIdentifierGenerator.self).generate())
         )
-        logger.debug("Generated payload signature: \(try di.get(PayloadSignature.self))")
+        logger.trace("Generated payload signature: \(try di.get(PayloadSignature.self))")
         
         let automaticTerminationController = AutomaticTerminationControllerFactory(
             automaticTerminationPolicy: queueServerConfiguration.queueServerTerminationPolicy

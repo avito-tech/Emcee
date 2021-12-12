@@ -13,7 +13,7 @@ public struct TestDestination: Hashable, CustomStringConvertible, Codable {
     }
     
     public var description: String {
-        return "<\(type(of: self)) device: \(deviceType), runtime: \(runtime)>"
+        return "<\(deviceType) \(runtime)>"
     }
 
     private static func validateRuntime(_ runtime: String) throws -> String {

@@ -50,7 +50,7 @@ public final class HTTPRESTServer {
                     try $0.write(Data("\(type(of: self)) has been deallocated".utf8))
                 }
             }
-            strongSelf.logger.debug("Processing request to \(httpRequest.path)")
+            strongSelf.logger.trace("Processing request to \(httpRequest.path)")
             
             if endpoint.requestIndicatesActivity {
                 strongSelf.automaticTerminationController.indicateActivityFinished()
@@ -77,7 +77,7 @@ public final class HTTPRESTServer {
         try server.start(in_port_t(port.value), forceIPv4: useOnlyIPv4, priority: .default)
         
         let actualPort = try server.port()
-        logger.debug("Started REST server on \(actualPort) port")
+        logger.info("Started REST server on \(actualPort) port")
         return Port(value: actualPort)
     }
     

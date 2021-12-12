@@ -93,13 +93,10 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             analyticsConfiguration: configuration.analyticsConfiguration
         )
         
-        configuration.logger.debug("Trying to fetch cached runtime dump entries for bundle: \(configuration.xcTestBundleLocation)")
         if let cachedRuntimeTests = try? configuration.remoteCache.results(xcTestBundleLocation: configuration.xcTestBundleLocation) {
-            configuration.logger.debug("Fetched cached runtime dump entries for test bundle \(configuration.xcTestBundleLocation): \(cachedRuntimeTests)")
             return cachedRuntimeTests
         }
 
-        configuration.logger.debug("No cached runtime dump entries found for bundle: \(configuration.xcTestBundleLocation)")
         let dumpedTests = try discoveredTests(configuration: configuration, specificMetricRecorder: specificMetricRecorder)
 
         try? configuration.remoteCache.store(tests: dumpedTests, xcTestBundleLocation: configuration.xcTestBundleLocation)
@@ -155,7 +152,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             } catch {
                 let pauseDuration = TimeInterval(retryIndex) * 2.0
                 logger.error("[\(retryIndex)/\(times)] Failed to get runtime dump for test bundle \(xcTestBundleLocation): \(error)")
-                logger.debug("Waiting for \(LoggableDuration(pauseDuration, suffix: "sec")) before attempting again")
+                logger.trace("Waiting for \(LoggableDuration(pauseDuration, suffix: "sec")) before attempting again")
                 waiter.wait(timeout: pauseDuration, description: "Pause between runtime dump retries")
             }
         }

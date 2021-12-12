@@ -69,7 +69,7 @@ public final class DistWorkCommand: Command {
         )
         
         SignalHandling.addSignalHandler(signals: [.term, .int]) { [logger] signal in
-            logger.debug("Got signal: \(signal)")
+            logger.trace("Got signal: \(signal)")
             onDemandSimulatorPool.deleteSimulators()
         }
         
@@ -144,7 +144,7 @@ public final class DistWorkCommand: Command {
         try distWorker.start { isWorking = false }
         
         SignalHandling.addSignalHandler(signals: [.term, .int]) { [logger] signal in
-            logger.debug("Got signal: \(signal)")
+            logger.trace("Got signal: \(signal)")
             isWorking = false
         }
         

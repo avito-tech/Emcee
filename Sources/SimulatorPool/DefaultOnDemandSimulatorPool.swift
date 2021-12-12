@@ -28,7 +28,6 @@ public class DefaultOnDemandSimulatorPool: OnDemandSimulatorPool {
     public func pool(key: OnDemandSimulatorPoolKey) throws -> SimulatorPool {
         return try syncQueue.sync {
             if let existingPool = pools[key] {
-                logger.debug("Got SimulatorPool for key \(key)")
                 return existingPool
             } else {
                 let pool = try DefaultSimulatorPool(
@@ -39,7 +38,6 @@ public class DefaultOnDemandSimulatorPool: OnDemandSimulatorPool {
                     testDestination: key.testDestination
                 )
                 pools[key] = pool
-                logger.debug("Created SimulatorPool for key \(key)")
                 return pool
             }
         }

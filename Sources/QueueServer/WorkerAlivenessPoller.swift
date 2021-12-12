@@ -55,7 +55,7 @@ public final class WorkerAlivenessPoller {
             let sender = self.requestSenderProvider.requestSender(
                 socketAddress: socketAddress
             )
-            logger.debug("Polling \(workerId) for currently processing buckets")
+            logger.trace("Polling \(workerId) for currently processing buckets")
             sender.sendRequestWithCallback(
                 request: CurrentlyProcessingBucketsNetworkRequest(
                     timeout: pollInterval
@@ -82,6 +82,6 @@ public final class WorkerAlivenessPoller {
         }
         
         group.wait()
-        logger.debug("Finished polling workers for currently processing buckets")
+        logger.trace("Finished polling workers for currently processing buckets")
     }
 }

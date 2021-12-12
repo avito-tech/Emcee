@@ -23,7 +23,7 @@ public final class JsonToResultStreamEventStream: JSONReaderEventStream {
     }
     
     public func newArray(_ array: NSArray, data: Data) {
-        logger.debug("Skipped xcresultstream event: array is an unexpected kind of root object")
+        logger.warning("Skipped xcresultstream event: array is an unexpected kind of root object")
     }
     
     public func newObject(_ object: NSDictionary, data: Data) {

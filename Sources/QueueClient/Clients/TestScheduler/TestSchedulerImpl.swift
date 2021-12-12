@@ -26,7 +26,7 @@ public final class TestSchedulerImpl: TestScheduler {
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<Void, Error>) -> ()
     ) {
-        logger.debug("Will schedule \(testEntryConfigurations.count) tests")
+        logger.trace("Will schedule \(testEntryConfigurations.count) tests")
         requestSender.sendRequestWithCallback(
             request: ScheduleTestsRequest(
                 payload: ScheduleTestsPayload(

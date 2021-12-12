@@ -141,7 +141,6 @@ public final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
         }
         
         let components = try TestNameParser.components(moduledTestName: moduledTestName)
-        logger.debug("Extracted components: moduleName \(components.module), className \(components.className), methodName \(components.methodName)")
         
         guard components.methodName.hasPrefix("test") else {
             return nil

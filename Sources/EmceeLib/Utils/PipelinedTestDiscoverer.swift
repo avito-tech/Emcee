@@ -47,7 +47,7 @@ public final class PipelinedTestDiscoverer {
         let collectedErrors = AtomicValue<[Error]>([])
         
         let rootOperation = BlockOperation { [logger] in
-            logger.debug("Finished pipelined test discovery")
+            logger.trace("Finished pipelined test discovery")
         }
         
         testArgFile.entries.enumerated().forEach { index, testArgFileEntry in
@@ -59,7 +59,7 @@ public final class PipelinedTestDiscoverer {
                             let handler = BlockingURLResourceHandler()
                             urlResource.fetchResource(url: url, handler: handler, headers: artifact.headers)
                             let path = try handler.wait(limit: 30, remoteUrl: url)
-                            logger.debug("Prefetched contents of URL \(url) to \(path)")
+                            logger.trace("Prefetched contents of URL \(url) to \(path)")
                         }
                     }
                 } catch {
@@ -94,7 +94,7 @@ public final class PipelinedTestDiscoverer {
                     let result = try testDiscoveryQuerier.query(
                         configuration: configuration
                     ).discoveredTests.tests
-                    logger.debug("Test bundle \(testArgFileEntry.buildArtifacts.xcTestBundle) contains \(result.count) tests")
+                    logger.trace("Test bundle \(testArgFileEntry.buildArtifacts.xcTestBundle) contains \(result.count) tests")
                     discoveredTests.withExclusiveAccess {
                         $0[index] = result
                     }

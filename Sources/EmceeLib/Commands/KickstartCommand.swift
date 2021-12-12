@@ -50,7 +50,7 @@ public final class KickstartCommand: Command {
                     let workerId = try result.dematerialize()
                     logger.info("Successfully kickstarted \(workerId)")
                 } catch {
-                    logger.error("Failed to start worker \(workerId): \(error)")
+                    logger.error("Failed to kickstart worker \(workerId): \(error)")
                 }
             }
         }

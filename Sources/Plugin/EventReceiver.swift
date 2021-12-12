@@ -43,24 +43,24 @@ public final class EventReceiver: WebSocketDelegate {
     }
     
     public func start() {
-        logger.debug("Connecting to web socket: \(address)")
+        logger.trace("Connecting to web socket: \(address)")
         didHandshake = false
         socket.delegate = self
         socket.connect()
     }
     
     public func stop() {
-        logger.debug("Disconnecting from web socket: \(address)")
+        logger.trace("Disconnecting from web socket: \(address)")
         socket.disconnect()
     }
     
     public func websocketDidConnect(socket: WebSocketClient) {
-        logger.debug("Connected to web socket")
+        logger.trace("Connected to web socket")
         do {
             let handshakeRequest = PluginHandshakeRequest(pluginIdentifier: pluginIdentifier)
             let data = try encoder.encode(handshakeRequest)
             socket.write(data: data)
-            logger.debug("Sent handshake request")
+            logger.trace("Sent handshake request")
         } catch {
             logger.error("Failed to encode handshake request: \(error)")
         }
@@ -70,24 +70,24 @@ public final class EventReceiver: WebSocketDelegate {
         didHandshake = false
         if let error = error {
             if let wsError = error as? WSError, wsError.code == CloseCode.normal.rawValue {
-                logger.debug("Disconnected from web socket normally")
+                logger.trace("Disconnected from web socket normally")
                 onDisconnect?()
             } else {
                 logger.error("Web socket error: \(error)")
                 onError?(error)
             }
         } else {
-            logger.debug("Disconnected from web socket without error")
+            logger.trace("Disconnected from web socket without error")
             onDisconnect?()
         }
     }
     
     public func websocketDidReceiveMessage(socket: WebSocketClient, text: String) {
-        logger.debug("Received message from web socket: \(text)")
+        logger.warning("Received unexpected message from web socket: \(text)")
     }
     
     public func websocketDidReceiveData(socket: WebSocketClient, data: Data) {
-        logger.debug("Received data from web socket: \(data.count) bytes")
+        logger.trace("Received data from web socket: \(data.count) bytes")
         
         if didHandshake {
             onData?(data)

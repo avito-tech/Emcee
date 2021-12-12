@@ -60,12 +60,12 @@ public final class SingleBucketQueueStuckBucketsReenqueuer: StuckBucketsReenqueu
             }
             
             if !buckets.isEmpty {
-                logger.debug("Got \(stuckBuckets.count) stuck buckets")
+                logger.trace("Got \(stuckBuckets.count) stuck buckets")
                 do {
                     try bucketEnqueuer.enqueue(buckets: buckets)
-                    logger.debug("Reenqueued \(stuckBuckets.count) stuck buckets as \(buckets.count) new buckets:")
+                    logger.trace("Reenqueued \(stuckBuckets.count) stuck buckets as \(buckets.count) new buckets:")
                     for bucket in buckets {
-                        logger.debug("-- \(bucket.bucketId)")
+                        logger.trace("-- \(bucket.bucketId)")
                     }
                 } catch {
                     logger.error("Failed to reenqueue \(stuckBuckets.count) buckets: \(error)")

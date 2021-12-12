@@ -4,8 +4,8 @@ import Logging
 extension Verbosity {
     var level: Logging.Logger.Level {
         switch self {
-        case .verboseDebug:
-            return .debug
+        case .trace:
+            return .trace
         case .debug:
             return .debug
         case .info:

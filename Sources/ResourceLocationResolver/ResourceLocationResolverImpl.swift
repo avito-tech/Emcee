@@ -72,8 +72,6 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
                         "zip_contents_\(UUID().uuidString)"
                     )
                     
-                    logger.debug("Will unzip \(zipFilePath) into \(temporaryContentsPath)")
-                    
                     let processController = try processControllerProvider.createProcessController(
                         subprocess: Subprocess(
                             arguments: ["/usr/bin/unzip", zipFilePath, "-d", temporaryContentsPath]
@@ -81,12 +79,10 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
                     )
                     do {
                         try processController.startAndWaitForSuccessfulTermination()
-                        logger.debug("Moving \(temporaryContentsPath) to \(contentsPath)")
                         try fileSystem.move(source: temporaryContentsPath, destination: contentsPath)
                     } catch {
                         logger.error("Failed to unzip file: \(error)")
                         do {
-                            logger.debug("Removing downloaded file at \(url)")
                             try urlResource.deleteResource(url: url)
                             try fileSystem.delete(path: temporaryContentsPath)
                         } catch {
@@ -99,7 +95,6 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
                 // Once we unzip the contents, we don't want to keep zip file on disk since its contents is available under zip_contents.
                 // We erase it and keep empty file, to make sure cache does not refetch it when we access cached item.
                 if let zipFileSize = try? fileSystem.properties(forFileAtPath: zipFilePath).size(), zipFileSize != 0 {
-                    logger.debug("Will replace ZIP file at \(zipFilePath) with empty contents")
                     let handle = try FileHandle(forWritingTo: zipFilePath.fileUrl)
                     handle.truncateFile(atOffset: 0)
                     handle.closeFile()
@@ -116,8 +111,8 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
         let evictBarrierDate = Date().addingTimeInterval(-cacheElementTimeToLive)
         
         var evictedEntryPaths = (try? urlResource.evictResources(olderThan: evictBarrierDate)) ?? []
-        logger.debug("Evicted \(evictedEntryPaths.count) cached items older than: \(LoggableDate(evictBarrierDate))")
+        logger.trace("Evicted \(evictedEntryPaths.count) cached items older than: \(LoggableDate(evictBarrierDate))")
         evictedEntryPaths = (try? urlResource.evictResources(toFitSize: maximumCacheSize)) ?? []
-        logger.debug("Evicted \(evictedEntryPaths.count) cached items to limit cache size to \(maximumCacheSize) bytes")
+        logger.trace("Evicted \(evictedEntryPaths.count) cached items to limit cache size to \(maximumCacheSize) bytes")
     }
 }

@@ -12,9 +12,9 @@ public class DefaultWorkersToUtilizeCalculator: WorkersToUtilizeCalculator {
     }
     
     public func disjointWorkers(mapping: WorkersPerQueue) -> WorkersPerQueue {
-        logger.debug("Received workers to disjoint: \(mapping)")
+        logger.trace("Received workers to disjoint: \(mapping)")
         let calculatedMapping = calculateMapping(clusters: splitDestinationsToClusters(mapping: mapping))
-        logger.debug("Disjoint workers: \(calculatedMapping)")
+        logger.trace("Disjoint workers: \(calculatedMapping)")
         return calculatedMapping
     }
     

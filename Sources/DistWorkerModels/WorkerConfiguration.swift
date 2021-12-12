@@ -23,4 +23,8 @@ public struct WorkerConfiguration: Codable, Equatable {
         self.maximumCacheSize = maximumCacheSize
         self.maximumCacheTTL = maximumCacheTTL
     }
+    
+    public var description: String {
+        "<\(type(of: self)): globalAnalyticsConfiguration=\(globalAnalyticsConfiguration), numberOfSimulators=\(numberOfSimulators)>"
+    }
 }

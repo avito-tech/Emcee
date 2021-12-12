@@ -32,7 +32,7 @@ public final class LocalTypedResourceLocationPreparerImpl: LocalTypedResourceLoc
         return try TypedResourceLocation<T>(
             from.resourceLocation.mapLocalFile { value in
                 let localPath = try AbsolutePath.validating(string: value)
-                logger.debug("Preparing local file at \(value) to be accessible remotely")
+                logger.trace("Preparing local file at \(value) to be accessible remotely")
                 
                 let archivePath = try zipCompressor.createArchive(
                     archivePath: pathForStoringArchives
@@ -42,13 +42,13 @@ public final class LocalTypedResourceLocationPreparerImpl: LocalTypedResourceLoc
                     contentsToCompress: RelativePath(localPath.lastComponent)
                 )
                 
-                logger.debug("Generated archive at \(archivePath)")
+                logger.trace("Generated archive at \(archivePath)")
                 let url = try remotelyAccessibleUrlForLocalFileProvider.remotelyAccessibleUrlForLocalFile(
                     archivePath: archivePath,
                     inArchivePath: RelativePath(localPath.lastComponent)
                 )
                 
-                logger.debug("Archive should be accessible via URL: \(url)")
+                logger.trace("Archive should be accessible via URL: \(url)")
                 return .remoteUrl(url, nil)
             }
         )

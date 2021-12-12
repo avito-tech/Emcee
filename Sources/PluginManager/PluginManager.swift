@@ -93,7 +93,7 @@ public final class PluginManager: EventStream {
         let pluginBundles = try pathsToPluginBundles()
         
         for bundlePath in pluginBundles {
-            logger.debug("Starting plugin at '\(bundlePath)'")
+            logger.trace("Starting plugin at \(bundlePath)")
             let pluginExecutable = bundlePath.appending(PluginManager.pluginExecutableName)
             let pluginIdentifier = try pluginExecutable.pathString.avito_sha256Hash()
             eventDistributor.add(pluginIdentifier: pluginIdentifier)
@@ -127,7 +127,7 @@ public final class PluginManager: EventStream {
     }
     
     private func killPlugins() {
-        logger.debug("Killing plugins that are still alive")
+        logger.trace("Killing plugins that are still alive")
         for controller in processControllers {
             controller.interruptAndForceKillIfNeeded()
         }
@@ -153,7 +153,7 @@ public final class PluginManager: EventStream {
             try SynchronousWaiter().waitWhile(timeout: tearDownAllowance, description: "Tear down plugins") {
                 processControllers.map { $0.isProcessRunning }.contains(true)
             }
-            logger.debug("All plugins torn down successfully without force killing.")
+            logger.trace("All plugins torn down successfully")
         } catch {
             killPlugins()
         }

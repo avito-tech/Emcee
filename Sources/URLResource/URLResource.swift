@@ -86,12 +86,10 @@ public final class URLResourceImpl: URLResource {
         var request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 20)
         if let headers = headers {
             headers.forEach { key, value in
-                logger.debug("Add header \(key) to \(url)")
                 request.setValue(value, forHTTPHeaderField: key)
             }
         }
 
-        logger.debug("Will fetch resource '\(url)'")
         let task = createDownloadTask(request: request, url: url)
         task.resume()
     }
@@ -137,7 +135,6 @@ public final class URLResourceImpl: URLResource {
                 
                 try fileCache.store(contentsPath: AbsolutePath(localUrl), ofUrl: url, operation: .move)
                 let path = try fileCache.pathForCachedContents(ofUrl: url)
-                self.logger.debug("Stored resource for '\(url)' in file cache")
                 handlersWrapper.resource(path: path, forUrl: url)
             } catch {
                 handlersWrapper.failedToGetContents(forUrl: url, error: error)
@@ -159,7 +156,7 @@ public final class URLResourceImpl: URLResource {
         
         let sizeInBytes = downloadedSize.intValue
         let speedInKBytesPerSecond = Int(Double(sizeInBytes) / 1024 / timeToDownload)
-        logger.debug("Downloaded resource for '\(url)' in \(Int(timeToDownload)) seconds, size: \(sizeInBytes) bytes, speed: \(speedInKBytesPerSecond) KB/s")
+        logger.trace("Downloaded resource for '\(url)' in \(Int(timeToDownload)) seconds, size: \(sizeInBytes) bytes, speed: \(speedInKBytesPerSecond) KB/s")
         
         if response.expectedContentLength > 0, response.expectedContentLength != sizeInBytes {
             throw URLResourceError.unexpectedDownloadSize(url: url, expected: response.expectedContentLength, actual: downloadedSize.intValue)

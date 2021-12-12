@@ -76,7 +76,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         configuration: TestDiscoveryConfiguration
     ) throws -> [DiscoveredTestEntry] {
         let runtimeEntriesJSONPath = tempFolder.pathWith(components: [uniqueIdentifierGenerator.generate()])
-        configuration.logger.debug("Will dump runtime tests into file: \(runtimeEntriesJSONPath)")
+        configuration.logger.trace("Will write test discovery into file: \(runtimeEntriesJSONPath)")
         
         let runner = Runner(
             dateProvider: dateProvider,

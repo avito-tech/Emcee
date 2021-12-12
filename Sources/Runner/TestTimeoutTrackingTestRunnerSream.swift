@@ -67,12 +67,13 @@ public final class TestTimeoutTrackingTestRunnerSream: TestRunnerStream {
             }
         }
         
-        logger().debug("Started monitoring duration of test \(testName)")
+        logger().trace("Started monitoring duration of test \(testName)")
     }
     
     private func stopMonitoringForHangs(testStoppedEvent: TestStoppedEvent) {
         stopTimer()
-        logger().debug("Stopped monitoring duration of test \(testStoppedEvent.testName), test finished with result \(testStoppedEvent.result)")
+        
+        logger().trace("Stopped monitoring duration of test \(testStoppedEvent.testName), test finished with result \(testStoppedEvent.result)")
     }
     
     private func didDetectLongRunningTest(lastStartedTestInfo: LastStartedTestInfo) {

@@ -146,7 +146,7 @@ public final class Runner {
                 TestTimeoutTrackingTestRunnerSream(
                     dateProvider: dateProvider,
                     detectedLongRunningTest: { [dateProvider] testName, testStartedAt in
-                        logger.debug("Detected long running test \(testName)")
+                        logger.warning("Detected long running test \(testName)")
                         collectedTestStoppedEvents.append(
                             TestStoppedEvent(
                                 testName: testName,
@@ -175,10 +175,10 @@ public final class Runner {
                 ),
                 TestRunnerStreamWrapper(
                     onOpenStream: {
-                        logger.debug("Started executing tests")
+                        logger.trace("Started executing tests")
                     },
                     onTestStarted: { testName in
-                        logger.debug("Test started: \(testName)")
+                        logger.info("Test started: \(testName)")
                     },
                     onTestException: { testException in
                         collectedTestExceptions.append(testException)
@@ -201,21 +201,21 @@ public final class Runner {
                         collectedTestStoppedEvents.append(testStoppedEvent)
                         collectedTestExceptions = []
                         collectedLogs = []
-                        logger.debug("Test stopped: \(testStoppedEvent.testName), \(testStoppedEvent.result)")
+                        logger.info("Test stopped: \(testStoppedEvent.testName), \(testStoppedEvent.result)")
                     },
                     onCloseStream: {
-                        logger.debug("Finished executing tests")
+                        logger.trace("Finished executing tests")
                         streamClosedCallback.set(result: ())
                     }
                 ),
                 PreflightPostflightTimeoutTrackingTestRunnerStream(
                     dateProvider: dateProvider,
                     onPreflightTimeout: {
-                        logger.debug("Detected preflight timeout")
+                        logger.warning("Detected preflight timeout")
                         testRunnerRunningInvocationContainer.currentValue()?.cancel()
                     },
                     onPostflightTimeout: { testName in
-                        logger.debug("Detected postflight timeout, last finished test was \(testName)")
+                        logger.warning("Detected postflight timeout, last finished test was \(testName)")
                         testRunnerRunningInvocationContainer.currentValue()?.cancel()
                     },
                     maximumPreflightDuration: configuration.testTimeoutConfiguration.testRunnerMaximumSilenceDuration,
@@ -252,8 +252,7 @@ public final class Runner {
             simulatorId: configuration.simulator.udid
         )
         
-        logger.debug("Attempted to run \(entriesToRun.count) tests on simulator \(configuration.simulator): \(entriesToRun)")
-        logger.debug("Did get \(result.count) results: \(result)")
+        logger.trace("Got \(result.count) of expected \(entriesToRun.count) results after running tests on \(configuration.simulator): \(result)")
         
         return RunnerRunResult(
             entriesToRun: entriesToRun,

@@ -88,7 +88,7 @@ public final class Scheduler {
                 return
             }
             guard let bucket = self.schedulerDataSource?.nextBucket() else {
-                self.rootLogger.debug("Data Source returned no bucket")
+                self.rootLogger.trace("Data Source returned no bucket. Will stop polling for new buckets.")
                 return
             }
             let logger = self.rootLogger.with(

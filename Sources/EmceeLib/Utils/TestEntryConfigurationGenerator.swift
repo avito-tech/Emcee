@@ -26,7 +26,7 @@ public final class TestEntryConfigurationGenerator {
     }
     
     public func createTestEntryConfigurations() -> [TestEntryConfiguration] {
-        logger.debug("Preparing test entry configurations for \(testArgFileEntry.testsToRun.count) tests: \(testArgFileEntry.testsToRun)")
+        logger.trace("Preparing test entry configurations for \(testArgFileEntry.testsToRun.count) tests: \(testArgFileEntry.testsToRun)")
         
         let testArgFileEntryConfigurations = testArgFileEntry.testsToRun.flatMap { testToRun -> [TestEntryConfiguration] in
             let testEntries = testEntriesMatching(

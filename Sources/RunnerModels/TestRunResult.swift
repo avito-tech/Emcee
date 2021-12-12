@@ -36,11 +36,10 @@ public struct TestRunResult: Codable, CustomStringConvertible, Hashable {
     
     public var description: String {
         var result: [String] = ["\(type(of: self)) \(succeeded ? "succeeded" : "failed")"]
-        result += ["duration \(duration) sec"]
-        result += ["hostName \(hostName)"]
+        result += ["duration \(String(format: "%.3f", duration)) sec"]
         result += ["\(simulatorId)"]
         if !exceptions.isEmpty {
-            result += ["exceptions: \(exceptions)"]
+            result += ["\(exceptions.count) exceptions"]
         }
         if !logs.isEmpty {
             result += ["\(logs.count) log entries"]

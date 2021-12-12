@@ -19,7 +19,7 @@ public final class WorkerCurrentlyProcessingBucketsTracker {
     public func set(bucketIdsBeingProcessed bucketIds: Set<BucketId>, byWorkerId workerId: WorkerId) {
         if values[workerId] != bucketIds {
             values[workerId] = bucketIds
-            logger.debug("Worker \(workerId) is processing \(bucketIds.count) buckets: \(bucketIds)")
+            logger.trace("Worker \(workerId) is processing \(bucketIds.count) buckets: \(bucketIds)")
         }
     }
     

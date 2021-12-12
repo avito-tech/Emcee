@@ -50,7 +50,7 @@ public final class WorkerRegistrar: RESTEndpoint {
         guard let workerConfiguration = workerConfigurations.workerConfiguration(workerId: payload.workerId) else {
             throw WorkerRegistrarError.missingWorkerConfiguration(workerId: payload.workerId)
         }
-        logger.debug("Registration request from worker with id: \(payload.workerId)")
+        logger.trace("Registration request from worker with id: \(payload.workerId)")
         
         workerCapabilitiesStorage.set(workerCapabilities: payload.workerCapabilities, forWorkerId: payload.workerId)
         
@@ -59,7 +59,7 @@ public final class WorkerRegistrar: RESTEndpoint {
             throw WorkerRegistrarError.workerIsAlreadyRegistered(workerId: payload.workerId)
         }
         workerAlivenessProvider.didRegisterWorker(workerId: payload.workerId)
-        logger.debug("Worker \(payload.workerId) has acceptable status")
+        logger.trace("Worker \(payload.workerId) has acceptable status")
         workerDetailsHolder.update(
             workerId: payload.workerId,
             restAddress: payload.workerRestAddress

@@ -101,7 +101,7 @@ extension Logging.Logger.Level {
     var verbosity: Verbosity {
         switch self {
         case .trace:
-            return .verboseDebug
+            return .trace
         case .debug:
             return .debug
         case .info:

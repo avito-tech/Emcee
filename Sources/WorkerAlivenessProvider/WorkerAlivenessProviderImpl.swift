@@ -79,7 +79,7 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     public func enableWorker(workerId: WorkerId) {
         lock.whileLocked {
             if unsafe_disabledWorkerIds.contains(workerId) {
-                logger.debug("Enabling \(workerId)")
+                logger.trace("Enabling \(workerId)")
                 _ = unsafe_disabledWorkerIds.remove(workerId)
             }
         }
@@ -88,7 +88,7 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     public func disableWorker(workerId: WorkerId) {
         lock.whileLocked {
             if !unsafe_disabledWorkerIds.contains(workerId) {
-                logger.debug("Disabling \(workerId)")
+                logger.trace("Disabling \(workerId)")
                 _ = unsafe_disabledWorkerIds.insert(workerId)
             }
         }
@@ -115,14 +115,14 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     private func unsafe_markWorkerAsAlive(workerId: WorkerId) {
         let previousMember = unsafe_silentWorkerIds.remove(workerId)
         if previousMember != nil {
-            logger.debug("Marked \(workerId) as alive")
+            logger.trace("Marked \(workerId) as alive")
         }
     }
     
     private func unsafe_markWorkerAsSilent(workerId: WorkerId) {
         let result = unsafe_silentWorkerIds.insert(workerId)
         if result.inserted {
-            logger.debug("Marked \(workerId) as silent")
+            logger.trace("Marked \(workerId) as silent")
         }
     }
     

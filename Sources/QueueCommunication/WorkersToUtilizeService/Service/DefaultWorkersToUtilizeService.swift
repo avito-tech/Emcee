@@ -29,10 +29,10 @@ public class DefaultWorkersToUtilizeService: WorkersToUtilizeService {
         initialWorkerIds: Set<WorkerId>,
         queueInfo: QueueInfo
     ) -> Set<WorkerId> {
-        logger.debug("Preparing workers to utilize for queue \(queueInfo.queueAddress) \(queueInfo.queueVersion) with initial workers \(initialWorkerIds.sorted())")
+        logger.trace("Preparing workers to utilize for queue \(queueInfo.queueAddress) \(queueInfo.queueVersion) with initial workers \(initialWorkerIds.sorted())")
         
         if let cachedWorkers = cache.cachedMapping()?[queueInfo] {
-            logger.debug("Use cached workers to utilize: \(cachedWorkers) for version: \(queueInfo.queueVersion)")
+            logger.trace("Use cached workers to utilize: \(cachedWorkers) for version: \(queueInfo.queueVersion)")
             return cachedWorkers
         }
         
@@ -44,7 +44,7 @@ public class DefaultWorkersToUtilizeService: WorkersToUtilizeService {
             return initialWorkerIds
         }
         
-        logger.debug("Use workers to utilize: \(workers) for queue \(queueInfo.queueAddress) \(queueInfo.queueVersion)")
+        logger.trace("Use workers to utilize: \(workers) for queue \(queueInfo.queueAddress) \(queueInfo.queueVersion)")
         return workers
     }
     
