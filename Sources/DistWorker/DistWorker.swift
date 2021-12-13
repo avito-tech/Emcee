@@ -156,12 +156,10 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
                 logger.debug("Received \(fetchedBucket.bucketId)")
                 tracker.willProcess(bucketId: fetchedBucket.bucketId)
                 return .result(
-                    SchedulerBucket.from(
-                        bucket: fetchedBucket,
-                        testExecutionBehavior: TestExecutionBehavior(
-                            environment: fetchedBucket.payload.testExecutionBehavior.environment,
-                            numberOfRetries: 0
-                        )
+                    SchedulerBucket(
+                        bucketId: fetchedBucket.bucketId,
+                        analyticsConfiguration: fetchedBucket.analyticsConfiguration,
+                        payload: fetchedBucket.payload
                     )
                 )
             }

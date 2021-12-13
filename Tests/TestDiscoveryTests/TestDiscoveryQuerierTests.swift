@@ -247,7 +247,11 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: TestDestinationFixtures.testDestination,
-            testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 0),
+            testExecutionBehavior: TestExecutionBehavior(
+                environment: [:],
+                numberOfRetries: 0,
+                testRetryMode: .retryThroughQueue
+            ),
             testTimeoutConfiguration: TestTimeoutConfiguration(
                 singleTestMaximumDuration: 10,
                 testRunnerMaximumSilenceDuration: 10

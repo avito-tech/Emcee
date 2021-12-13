@@ -11,6 +11,10 @@ public final class TestExecutionBehaviorFixtures {
     }
     
     public func build() -> TestExecutionBehavior {
-        return TestExecutionBehavior(environment: environment, numberOfRetries: numberOfRetries)
+        return TestExecutionBehavior(
+            environment: environment,
+            numberOfRetries: numberOfRetries,
+            testRetryMode: .retryThroughQueue
+        )
     }
 }

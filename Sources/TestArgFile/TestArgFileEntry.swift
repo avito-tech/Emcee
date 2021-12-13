@@ -13,6 +13,7 @@ public struct TestArgFileEntry: Codable, Equatable {
     public let developerDir: DeveloperDir
     public let environment: [String: String]
     public let numberOfRetries: UInt
+    public let testRetryMode: TestRetryMode
     public let pluginLocations: Set<PluginLocation>
     public let scheduleStrategy: ScheduleStrategy
     public let simulatorOperationTimeouts: SimulatorOperationTimeouts
@@ -27,6 +28,7 @@ public struct TestArgFileEntry: Codable, Equatable {
         developerDir: DeveloperDir,
         environment: [String: String],
         numberOfRetries: UInt,
+        testRetryMode: TestRetryMode,
         pluginLocations: Set<PluginLocation>,
         scheduleStrategy: ScheduleStrategy,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,
@@ -40,6 +42,7 @@ public struct TestArgFileEntry: Codable, Equatable {
         self.developerDir = developerDir
         self.environment = environment
         self.numberOfRetries = numberOfRetries
+        self.testRetryMode = testRetryMode
         self.pluginLocations = pluginLocations
         self.scheduleStrategy = scheduleStrategy
         self.simulatorOperationTimeouts = simulatorOperationTimeouts
@@ -69,6 +72,8 @@ public struct TestArgFileEntry: Codable, Equatable {
             TestArgFileDefaultValues.environment
         let numberOfRetries = try container.decodeIfPresent(UInt.self, forKey: .numberOfRetries) ??
             TestArgFileDefaultValues.numberOfRetries
+        let testRetryMode = try container.decodeIfPresent(TestRetryMode.self, forKey: .testRetryMode) ??
+            TestArgFileDefaultValues.testRetryMode
         let pluginLocations = try container.decodeIfPresent(Set<PluginLocation>.self, forKey: .pluginLocations) ??
             TestArgFileDefaultValues.pluginLocations
         let scheduleStrategy = try container.decodeIfPresent(ScheduleStrategy.self, forKey: .scheduleStrategy) ??
@@ -88,6 +93,7 @@ public struct TestArgFileEntry: Codable, Equatable {
             developerDir: developerDir,
             environment: environment,
             numberOfRetries: numberOfRetries,
+            testRetryMode: testRetryMode,
             pluginLocations: pluginLocations,
             scheduleStrategy: scheduleStrategy,
             simulatorOperationTimeouts: simulatorOperationTimeouts,

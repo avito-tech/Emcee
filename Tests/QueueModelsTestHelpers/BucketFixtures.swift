@@ -29,7 +29,8 @@ public final class BucketFixtures {
                 testEntries: testEntries,
                 testExecutionBehavior: TestExecutionBehavior(
                     environment: [:],
-                    numberOfRetries: numberOfRetries
+                    numberOfRetries: numberOfRetries,
+                    testRetryMode: .retryThroughQueue
                 ),
                 testTimeoutConfiguration: TestTimeoutConfiguration(
                     singleTestMaximumDuration: 0,

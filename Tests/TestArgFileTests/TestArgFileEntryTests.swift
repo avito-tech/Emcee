@@ -26,6 +26,7 @@ final class TestArgFileEntryTests: XCTestCase {
                     "value": "key"
                 },
                 "numberOfRetries": 42,
+                "testRetryMode": "retryOnWorker",
                 "testDestination": {
                     "deviceType": "iPhone SE",
                     "runtime": "11.3"
@@ -117,6 +118,7 @@ final class TestArgFileEntryTests: XCTestCase {
                 developerDir: .current,
                 environment: ["value": "key"],
                 numberOfRetries: 42,
+                testRetryMode: .retryOnWorker,
                 pluginLocations: [
                     PluginLocation(.remoteUrl(URL(string: "http://example.com/plugin.zip#sample.emceeplugin")!, [:]))
                 ],
@@ -201,6 +203,7 @@ final class TestArgFileEntryTests: XCTestCase {
                 developerDir: TestArgFileDefaultValues.developerDir,
                 environment: TestArgFileDefaultValues.environment,
                 numberOfRetries: TestArgFileDefaultValues.numberOfRetries,
+                testRetryMode: TestArgFileDefaultValues.testRetryMode,
                 pluginLocations: TestArgFileDefaultValues.pluginLocations,
                 scheduleStrategy: TestArgFileDefaultValues.scheduleStrategy,
                 simulatorOperationTimeouts: TestArgFileDefaultValues.simulatorOperationTimeouts,

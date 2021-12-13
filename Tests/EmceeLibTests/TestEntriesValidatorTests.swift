@@ -115,6 +115,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             developerDir: .current,
             environment: [:],
             numberOfRetries: 1,
+            testRetryMode: .retryOnWorker,
             pluginLocations: [],
             scheduleStrategy: ScheduleStrategy(testSplitterType: .unsplit),
             simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),

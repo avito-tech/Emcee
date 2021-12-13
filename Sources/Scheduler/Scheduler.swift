@@ -132,7 +132,11 @@ public final class Scheduler {
     ) -> TestingResult {
         let startedAt = dateProvider.dateSince1970ReferenceDate()
         do {
-            return try runRetrying(bucket: bucket, logger: logger)
+            return try runRetrying(
+                bucket: bucket,
+                logger: logger,
+                numberOfRetries: bucket.payload.testExecutionBehavior.numberOfRetriesOnWorker()
+            )
         } catch {
             logger.error("Failed to execute bucket \(bucket.bucketId): \(error)")
             return TestingResult(
@@ -167,7 +171,8 @@ public final class Scheduler {
      */
     private func runRetrying(
         bucket: SchedulerBucket,
-        logger: ContextualLogger
+        logger: ContextualLogger,
+        numberOfRetries: UInt
     ) throws -> TestingResult {
         let firstRun = try runBucketOnce(
             bucket: bucket,
@@ -175,20 +180,18 @@ public final class Scheduler {
             logger: logger
         )
         
-        guard bucket.payload.testExecutionBehavior.numberOfRetries > 0 else {
-            return firstRun
-        }
+        guard numberOfRetries > 0 else { return firstRun }
         
         var lastRunResults = firstRun
         var results = [firstRun]
-        for retryNumber in 0 ..< bucket.payload.testExecutionBehavior.numberOfRetries {
+        for retryNumber in 0 ..< numberOfRetries {
             let failedTestEntriesAfterLastRun = lastRunResults.failedTests.map { $0.testEntry }
             if failedTestEntriesAfterLastRun.isEmpty {
                 logger.debug("No failed tests after last retry, so nothing to run.")
                 break
             }
             logger.debug("After last run \(failedTestEntriesAfterLastRun.count) tests have failed: \(failedTestEntriesAfterLastRun).")
-            logger.debug("Retrying them, attempt #\(retryNumber + 1) of maximum \(bucket.payload.testExecutionBehavior.numberOfRetries) attempts")
+            logger.debug("Retrying them, attempt #\(retryNumber + 1) of maximum \(numberOfRetries) attempts")
             lastRunResults = try runBucketOnce(bucket: bucket, testsToRun: failedTestEntriesAfterLastRun, logger: logger)
             results.append(lastRunResults)
         }

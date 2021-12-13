@@ -14,6 +14,7 @@ public enum TestArgFileDefaultValues {
     public static let developerDir = DeveloperDir.current
     public static let environment: [String: String] = [:]
     public static let numberOfRetries: UInt = 1
+    public static let testRetryMode: TestRetryMode = .retryThroughQueue
     public static let pluginLocations: Set<PluginLocation> = []
     public static let priority = Priority.medium
     public static let scheduleStrategy = ScheduleStrategy(

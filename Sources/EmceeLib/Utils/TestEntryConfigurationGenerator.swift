@@ -45,7 +45,8 @@ public final class TestEntryConfigurationGenerator {
                     testEntry: testEntry,
                     testExecutionBehavior: TestExecutionBehavior(
                         environment: testArgFileEntry.environment,
-                        numberOfRetries: testArgFileEntry.numberOfRetries
+                        numberOfRetries: testArgFileEntry.numberOfRetries,
+                        testRetryMode: testArgFileEntry.testRetryMode
                     ),
                     testTimeoutConfiguration: testArgFileEntry.testTimeoutConfiguration,
                     workerCapabilityRequirements: testArgFileEntry.workerCapabilityRequirements

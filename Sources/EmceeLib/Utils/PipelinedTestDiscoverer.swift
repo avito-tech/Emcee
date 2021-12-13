@@ -78,7 +78,8 @@ public final class PipelinedTestDiscoverer {
                         testDestination: testArgFileEntry.testDestination,
                         testExecutionBehavior: TestExecutionBehavior(
                             environment: testArgFileEntry.environment,
-                            numberOfRetries: testArgFileEntry.numberOfRetries
+                            numberOfRetries: testArgFileEntry.numberOfRetries,
+                            testRetryMode: testArgFileEntry.testRetryMode
                         ),
                         testTimeoutConfiguration: testTimeoutConfigurationForRuntimeDump,
                         testsToValidate: testArgFileEntry.testsToRun,

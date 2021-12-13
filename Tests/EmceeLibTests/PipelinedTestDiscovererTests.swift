@@ -169,6 +169,7 @@ extension TestArgFile {
                     developerDir: TestArgFileDefaultValues.developerDir,
                     environment: TestArgFileDefaultValues.environment,
                     numberOfRetries: 0,
+                    testRetryMode: .retryOnWorker,
                     pluginLocations: [],
                     scheduleStrategy: TestArgFileDefaultValues.scheduleStrategy,
                     simulatorOperationTimeouts: TestArgFileDefaultValues.simulatorOperationTimeouts,

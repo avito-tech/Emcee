@@ -38,22 +38,4 @@ public struct SchedulerBucket: CustomStringConvertible, Equatable {
         self.analyticsConfiguration = analyticsConfiguration
         self.payload = payload
     }
-    
-    public static func from(bucket: Bucket, testExecutionBehavior: TestExecutionBehavior) -> SchedulerBucket {
-        return SchedulerBucket(
-            bucketId: bucket.bucketId,
-            analyticsConfiguration: bucket.analyticsConfiguration,
-            payload: Payload(
-                buildArtifacts: bucket.payload.buildArtifacts,
-                developerDir: bucket.payload.developerDir,
-                pluginLocations: bucket.payload.pluginLocations,
-                simulatorOperationTimeouts: bucket.payload.simulatorOperationTimeouts,
-                simulatorSettings: bucket.payload.simulatorSettings,
-                testDestination: bucket.payload.testDestination,
-                testEntries: bucket.payload.testEntries,
-                testExecutionBehavior: testExecutionBehavior,
-                testTimeoutConfiguration: bucket.payload.testTimeoutConfiguration
-            )
-        )
-    }
 }

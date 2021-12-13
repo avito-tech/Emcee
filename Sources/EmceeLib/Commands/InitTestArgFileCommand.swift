@@ -81,6 +81,7 @@ public final class InitTestArgFileCommand: Command {
                         "SomeEnvName": "These envs will be available from inside tests, usually via ProcessInfo.environment API",
                     ],
                     numberOfRetries: 0,
+                    testRetryMode: .retryThroughQueue,
                     pluginLocations: [
                         PluginLocation(
                             .remoteUrl(
