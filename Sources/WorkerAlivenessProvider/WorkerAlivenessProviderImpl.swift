@@ -9,7 +9,6 @@ import WorkerAlivenessModels
 
 public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     private let lock = NSLock()
-    private let knownWorkerIds: Set<WorkerId>
     private let logger: ContextualLogger
     private var unsafe_registeredWorkerIds = Set<WorkerId>()
     private var unsafe_disabledWorkerIds = Set<WorkerId>()
@@ -18,11 +17,9 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     private let workerBucketIdsBeingProcessed: WorkerCurrentlyProcessingBucketsTracker
 
     public init(
-        knownWorkerIds: Set<WorkerId>,
         logger: ContextualLogger,
         workerPermissionProvider: WorkerPermissionProvider
     ) {
-        self.knownWorkerIds = knownWorkerIds
         self.logger = logger
         self.workerPermissionProvider = workerPermissionProvider
         self.workerBucketIdsBeingProcessed = WorkerCurrentlyProcessingBucketsTracker(logger: logger)
@@ -130,11 +127,19 @@ public final class WorkerAlivenessProviderImpl: WorkerAlivenessProvider {
     }
     
     private func unsafe_workerAliveness() -> [WorkerId: WorkerAliveness] {
-        var workerAliveness = [WorkerId: WorkerAliveness](minimumCapacity: knownWorkerIds.count)
-        for id in knownWorkerIds {
+        var workerAliveness = [WorkerId: WorkerAliveness]()
+        for id in unsafe_knownWorkerIds() {
             workerAliveness[id] = unsafe_alivenessForWorker(workerId: id)
         }
         return workerAliveness
+    }
+    
+    private func unsafe_knownWorkerIds() -> Set<WorkerId> {
+        var result = Set<WorkerId>()
+        result.formUnion(unsafe_registeredWorkerIds)
+        result.formUnion(unsafe_disabledWorkerIds)
+        result.formUnion(unsafe_silentWorkerIds)
+        return result
     }
     
     private func unsafe_alivenessForWorker(workerId: WorkerId) -> WorkerAliveness {

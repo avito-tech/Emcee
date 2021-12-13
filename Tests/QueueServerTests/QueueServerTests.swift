@@ -26,7 +26,7 @@ import WorkerCapabilities
 import XCTest
 
 final class QueueServerTests: XCTestCase {
-    private let workerConfigurations = WorkerConfigurations()
+    private let workerConfigurations = FixedWorkerConfigurations()
     private let workerId: WorkerId = "workerId"
     private let jobId: JobId = "jobId"
     private lazy var prioritizedJob = PrioritizedJob(
@@ -50,7 +50,6 @@ final class QueueServerTests: XCTestCase {
     private let bucketSplitInfo = BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1)
     private let payloadSignature = PayloadSignature(value: "expectedPayloadSignature")
     private lazy var workerAlivenessProvider: WorkerAlivenessProvider = WorkerAlivenessProviderImpl(
-        knownWorkerIds: workerConfigurations.workerIds,
         logger: .noOp,
         workerPermissionProvider: FakeWorkerPermissionProvider()
     )

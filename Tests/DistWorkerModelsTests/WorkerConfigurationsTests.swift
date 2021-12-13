@@ -3,17 +3,18 @@ import DistWorkerModelsTestHelpers
 import Foundation
 import XCTest
 
-final class WorkerConfigurationsTests: XCTestCase {
+final class FixedWorkerConfigurationsTests: XCTestCase {
+    lazy var configurations = FixedWorkerConfigurations()
+
     func test__if_worker_is_unknown__configuration_is_nil() {
-        let configurations = WorkerConfigurations()
         XCTAssertNil(configurations.workerConfiguration(workerId: "worker"))
     }
     
     func test__if_worker_unknown__configuration_is_expected() {
         let config = WorkerConfigurationFixtures.workerConfiguration
         
-        let configurations = WorkerConfigurations()
         configurations.add(workerId: "some_worker", configuration: config)
+        
         XCTAssertEqual(configurations.workerConfiguration(workerId: "some_worker"), config)
     }
 }

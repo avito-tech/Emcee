@@ -12,11 +12,10 @@ import XCTest
 
 final class KickstartWorkerEndpointTests: XCTestCase {
     lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(
-        knownWorkerIds: [workerId],
         logger: .noOp,
         workerPermissionProvider: FakeWorkerPermissionProvider()
     )
-    lazy var workerConfigurations = WorkerConfigurations()
+    lazy var workerConfigurations = FixedWorkerConfigurations()
     lazy var workerId = WorkerId(value: "worker")
     lazy var onDemandWorkerStarter = FakeOnDemandWorkerStarter()
     lazy var endpoint = KickstartWorkerEndpoint(

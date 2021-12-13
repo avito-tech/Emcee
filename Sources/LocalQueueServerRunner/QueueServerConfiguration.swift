@@ -12,6 +12,7 @@ public struct QueueServerConfiguration: Codable {
     public let queueServerDeploymentDestinations: [DeploymentDestination]
     public let queueServerTerminationPolicy: AutomaticTerminationPolicy
     public let workerDeploymentDestinations: [DeploymentDestination]
+    public let defaultWorkerConfiguration: WorkerSpecificConfiguration?
     public let workerSpecificConfigurations: [WorkerId: WorkerSpecificConfiguration]
     public let workerStartMode: WorkerStartMode
     
@@ -21,6 +22,7 @@ public struct QueueServerConfiguration: Codable {
         queueServerDeploymentDestinations: [DeploymentDestination],
         queueServerTerminationPolicy: AutomaticTerminationPolicy,
         workerDeploymentDestinations: [DeploymentDestination],
+        defaultWorkerSpecificConfiguration: WorkerSpecificConfiguration?,
         workerSpecificConfigurations: [WorkerId: WorkerSpecificConfiguration],
         workerStartMode: WorkerStartMode
     ) {
@@ -29,6 +31,7 @@ public struct QueueServerConfiguration: Codable {
         self.queueServerDeploymentDestinations = queueServerDeploymentDestinations
         self.queueServerTerminationPolicy = queueServerTerminationPolicy
         self.workerDeploymentDestinations = workerDeploymentDestinations
+        self.defaultWorkerConfiguration = defaultWorkerSpecificConfiguration
         self.workerSpecificConfigurations = workerSpecificConfigurations
         self.workerStartMode = workerStartMode
     }
@@ -39,6 +42,7 @@ public struct QueueServerConfiguration: Codable {
         case queueServerDeploymentDestinations
         case queueServerTerminationPolicy
         case workerDeploymentDestinations
+        case defaultWorkerConfiguration
         case workerSpecificConfigurations
         case workerStartMode
     }
@@ -51,6 +55,7 @@ public struct QueueServerConfiguration: Codable {
         let queueServerDeploymentDestinations = try container.decode([DeploymentDestination].self, forKey: .queueServerDeploymentDestinations)
         let queueServerTerminationPolicy = try container.decode(AutomaticTerminationPolicy.self, forKey: .queueServerTerminationPolicy)
         let workerDeploymentDestinations = try container.decode([DeploymentDestination].self, forKey: .workerDeploymentDestinations)
+        let defaultWorkerSpecificConfiguration = try container.decodeIfPresent(WorkerSpecificConfiguration.self, forKey: .defaultWorkerConfiguration)
         let workerSpecificConfigurations = Dictionary(
             uniqueKeysWithValues: try container.decode(
                 [String: WorkerSpecificConfiguration].self,
@@ -67,6 +72,7 @@ public struct QueueServerConfiguration: Codable {
             queueServerDeploymentDestinations: queueServerDeploymentDestinations,
             queueServerTerminationPolicy: queueServerTerminationPolicy,
             workerDeploymentDestinations: workerDeploymentDestinations,
+            defaultWorkerSpecificConfiguration: defaultWorkerSpecificConfiguration,
             workerSpecificConfigurations: workerSpecificConfigurations,
             workerStartMode: workerStartMode
         )
@@ -80,6 +86,7 @@ public struct QueueServerConfiguration: Codable {
         try container.encode(queueServerDeploymentDestinations, forKey: .queueServerDeploymentDestinations)
         try container.encode(queueServerTerminationPolicy, forKey: .queueServerTerminationPolicy)
         try container.encode(workerDeploymentDestinations, forKey: .workerDeploymentDestinations)
+        try container.encodeIfPresent(defaultWorkerConfiguration, forKey: .defaultWorkerConfiguration)
         try container.encode(
             Dictionary(
                 uniqueKeysWithValues: workerSpecificConfigurations.map { item in

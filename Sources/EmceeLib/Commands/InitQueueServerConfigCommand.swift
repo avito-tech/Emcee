@@ -81,9 +81,9 @@ public final class InitQueueServerConfigCommand: Command {
                     remoteDeploymentPath: AbsolutePath("/Users/emcee/worker/")
                 )
             ],
+            defaultWorkerSpecificConfiguration: WorkerSpecificConfiguration(numberOfSimulators: 3),
             workerSpecificConfigurations: [
-                WorkerId(value: "emceeWorker01.example.com") : WorkerSpecificConfiguration(numberOfSimulators: 5),
-                WorkerId(value: "emceeWorker02.example.com") : WorkerSpecificConfiguration(numberOfSimulators: 3),
+                WorkerId(value: "emceeWorker01.example.com - use to specify special settings") : WorkerSpecificConfiguration(numberOfSimulators: 5),
             ],
             workerStartMode: .queueStartsItsWorkersOverSshAndLaunchd
         )

@@ -14,12 +14,11 @@ import XCTest
 
 final class WorkerRegistrarTests: XCTestCase {
     lazy var alivenessTracker = WorkerAlivenessProviderImpl(
-        knownWorkerIds: [workerId],
         logger: .noOp,
         workerPermissionProvider: FakeWorkerPermissionProvider()
     )
     lazy var workerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()
-    lazy var workerConfigurations = WorkerConfigurations()
+    lazy var workerConfigurations = FixedWorkerConfigurations()
     lazy var workerId: WorkerId = "worker_id"
     
     override func setUp() {

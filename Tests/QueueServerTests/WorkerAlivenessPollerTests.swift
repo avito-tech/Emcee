@@ -20,7 +20,6 @@ final class WorkerAlivenessPollerTests: XCTestCase {
     lazy var worker1 = WorkerId("worker1")
     lazy var worker2 = WorkerId("worker2")
     lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(
-        knownWorkerIds: [worker1, worker2],
         logger: .noOp,
         workerPermissionProvider: FakeWorkerPermissionProvider()
     )

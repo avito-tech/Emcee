@@ -3,7 +3,7 @@ import Dispatch
 import Foundation
 import QueueModels
 
-public final class WorkerConfigurations {
+public final class FixedWorkerConfigurations: WorkerConfigurations {
     private let lock = NSLock()
     private var workerIdToRunConfiguration = [WorkerId: WorkerConfiguration]()
     
@@ -15,9 +15,5 @@ public final class WorkerConfigurations {
     
     public func workerConfiguration(workerId: WorkerId) -> WorkerConfiguration? {
         lock.whileLocked { workerIdToRunConfiguration[workerId] }
-    }
-    
-    public var workerIds: Set<WorkerId> {
-        return Set(lock.whileLocked{ workerIdToRunConfiguration.keys })
     }
 }

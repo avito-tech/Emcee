@@ -176,7 +176,6 @@ public final class StartQueueServerCommand: Command {
             requestSenderProvider: try di.get(),
             uniqueIdentifierGenerator: try di.get(),
             workerAlivenessProvider: WorkerAlivenessProviderImpl(
-                knownWorkerIds: workerConfigurations.workerIds,
                 logger: logger,
                 workerPermissionProvider: autoupdatingWorkerPermissionProvider
             ),
@@ -237,7 +236,17 @@ public final class StartQueueServerCommand: Command {
     private func createWorkerConfigurations(
         queueServerConfiguration: QueueServerConfiguration
     ) throws -> WorkerConfigurations {
-        let configurations = WorkerConfigurations()
+        var configurations: WorkerConfigurations = FixedWorkerConfigurations()
+        if let defaultWorkerConfiguration = queueServerConfiguration.defaultWorkerConfiguration {
+            configurations = WorkerConfigurationsWithDefaultConfiguration(
+                defaultConfiguration: queueServerConfiguration.workerConfiguration(
+                    workerSpecificConfiguration: defaultWorkerConfiguration,
+                    payloadSignature: try di.get()
+                ),
+                wrapped: configurations
+            )
+        }
+        
         for (workerId, workerSpecificConfiguration) in queueServerConfiguration.workerSpecificConfigurations {
             configurations.add(
                 workerId: workerId,

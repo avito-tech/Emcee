@@ -25,7 +25,6 @@ final class IntegrationTests: XCTestCase {
     private lazy var workerPermissionProvider = FakeWorkerPermissionProvider()
     private lazy var uniqueIdentifierGenerator = UuidBasedUniqueIdentifierGenerator()
     private lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(
-        knownWorkerIds: [workerId],
         logger: .noOp,
         workerPermissionProvider: workerPermissionProvider
     )
