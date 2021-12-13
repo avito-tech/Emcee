@@ -6,6 +6,7 @@ import MetricsExtensions
 import LoggingSetup
 import QueueModels
 import SocketModels
+import TestHelpers
 import XCTest
 
 final class QueueServerConfigurationTests: XCTestCase {
@@ -34,7 +35,7 @@ final class QueueServerConfigurationTests: XCTestCase {
                       "numberOfSimulators": 3
                     }
                   },
-                  "queueServerDeploymentDestination": {
+                  "queueServerDeploymentDestinations": [{
                     "host": "queue",
                     "port": 22,
                     "username": "q_user",
@@ -42,7 +43,7 @@ final class QueueServerConfigurationTests: XCTestCase {
                         "password": "pass"
                     },
                     "remoteDeploymentPath": "/remote/queue/depl/path"
-                  },
+                  }],
                   "queueServerTerminationPolicy": {
                     "caseId": "stayAlive"
                   },
@@ -57,7 +58,8 @@ final class QueueServerConfigurationTests: XCTestCase {
                       },
                       "remoteDeploymentPath": "/remote/deployment/path"
                     }
-                  ]
+                  ],
+                  "workerStartMode": "unknownWayOfStartingWorkers"
                 }
             """.utf8
         )
@@ -96,6 +98,11 @@ final class QueueServerConfigurationTests: XCTestCase {
                 DeploymentDestination(host: "host", port: 1, username: "username", authentication: .password("pass"), remoteDeploymentPath: "/remote/deployment/path")
             ]
         )
+        assert {
+            config.workerStartMode
+        } equals: {
+            WorkerStartMode.unknownWayOfStartingWorkers
+        }
     }
     
     func test___deployment_destination_with_key_parsing() throws {

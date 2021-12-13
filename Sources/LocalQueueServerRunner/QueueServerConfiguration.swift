@@ -13,6 +13,7 @@ public struct QueueServerConfiguration: Codable {
     public let queueServerTerminationPolicy: AutomaticTerminationPolicy
     public let workerDeploymentDestinations: [DeploymentDestination]
     public let workerSpecificConfigurations: [WorkerId: WorkerSpecificConfiguration]
+    public let workerStartMode: WorkerStartMode
     
     public init(
         globalAnalyticsConfiguration: AnalyticsConfiguration,
@@ -20,7 +21,8 @@ public struct QueueServerConfiguration: Codable {
         queueServerDeploymentDestinations: [DeploymentDestination],
         queueServerTerminationPolicy: AutomaticTerminationPolicy,
         workerDeploymentDestinations: [DeploymentDestination],
-        workerSpecificConfigurations: [WorkerId: WorkerSpecificConfiguration]
+        workerSpecificConfigurations: [WorkerId: WorkerSpecificConfiguration],
+        workerStartMode: WorkerStartMode
     ) {
         self.globalAnalyticsConfiguration = globalAnalyticsConfiguration
         self.checkAgainTimeInterval = checkAgainTimeInterval
@@ -28,16 +30,17 @@ public struct QueueServerConfiguration: Codable {
         self.queueServerTerminationPolicy = queueServerTerminationPolicy
         self.workerDeploymentDestinations = workerDeploymentDestinations
         self.workerSpecificConfigurations = workerSpecificConfigurations
+        self.workerStartMode = workerStartMode
     }
     
     private enum CodingKeys: String, CodingKey {
         case globalAnalyticsConfiguration
         case checkAgainTimeInterval
-        case queueServerDeploymentDestination // deprecated
         case queueServerDeploymentDestinations
         case queueServerTerminationPolicy
         case workerDeploymentDestinations
         case workerSpecificConfigurations
+        case workerStartMode
     }
     
     public init(from decoder: Decoder) throws {
@@ -45,8 +48,7 @@ public struct QueueServerConfiguration: Codable {
         
         let globalAnalyticsConfiguration = try container.decode(AnalyticsConfiguration.self, forKey: .globalAnalyticsConfiguration)
         let checkAgainTimeInterval = try container.decode(TimeInterval.self, forKey: .checkAgainTimeInterval)
-        let queueServerDeploymentDestinations = try container.decodeIfPresent([DeploymentDestination].self, forKey: .queueServerDeploymentDestinations)
-        ?? [try container.decode(DeploymentDestination.self, forKey: .queueServerDeploymentDestination)]
+        let queueServerDeploymentDestinations = try container.decode([DeploymentDestination].self, forKey: .queueServerDeploymentDestinations)
         let queueServerTerminationPolicy = try container.decode(AutomaticTerminationPolicy.self, forKey: .queueServerTerminationPolicy)
         let workerDeploymentDestinations = try container.decode([DeploymentDestination].self, forKey: .workerDeploymentDestinations)
         let workerSpecificConfigurations = Dictionary(
@@ -57,6 +59,7 @@ public struct QueueServerConfiguration: Codable {
                 (WorkerId(key), value)
             }
         )
+        let workerStartMode = try container.decodeIfPresent(WorkerStartMode.self, forKey: .workerStartMode) ?? .queueStartsItsWorkersOverSshAndLaunchd
         
         self.init(
             globalAnalyticsConfiguration: globalAnalyticsConfiguration,
@@ -64,7 +67,8 @@ public struct QueueServerConfiguration: Codable {
             queueServerDeploymentDestinations: queueServerDeploymentDestinations,
             queueServerTerminationPolicy: queueServerTerminationPolicy,
             workerDeploymentDestinations: workerDeploymentDestinations,
-            workerSpecificConfigurations: workerSpecificConfigurations
+            workerSpecificConfigurations: workerSpecificConfigurations,
+            workerStartMode: workerStartMode
         )
     }
     
@@ -84,6 +88,7 @@ public struct QueueServerConfiguration: Codable {
             ),
             forKey: .workerSpecificConfigurations
         )
+        try container.encode(workerStartMode, forKey: .workerStartMode)
     }
     
     public func workerConfiguration(

@@ -134,14 +134,12 @@ public final class StartQueueServerCommand: Command {
             portDeterminer: remotePortDeterminer
         )
         
-        let remoteWorkerStarterProvider = DefaultRemoteWorkerStarterProvider(
+        let remoteWorkerStarterProvider = try createRemoteWorkerStarterProvider(
+            di: di,
             emceeVersion: emceeVersion,
-            fileSystem: try di.get(),
             logger: logger,
-            tempFolder: try TemporaryFolder(),
-            uniqueIdentifierGenerator: try di.get(),
-            workerDeploymentDestinations: workerDestinations,
-            zipCompressor: try di.get()
+            workerStartMode: queueServerConfiguration.workerStartMode,
+            workerDestinations: workerDestinations
         )
         let workerConfigurations = try createWorkerConfigurations(
             queueServerConfiguration: queueServerConfiguration
@@ -211,6 +209,29 @@ public final class StartQueueServerCommand: Command {
             autoupdatingWorkerPermissionProvider: autoupdatingWorkerPermissionProvider
         )
         try localQueueServerRunner.start(emceeVersion: emceeVersion)
+    }
+    
+    private func createRemoteWorkerStarterProvider(
+        di: DI,
+        emceeVersion: Version,
+        logger: ContextualLogger,
+        workerStartMode: WorkerStartMode,
+        workerDestinations: [DeploymentDestination]
+    ) throws -> RemoteWorkerStarterProvider {
+        switch workerStartMode {
+        case .queueStartsItsWorkersOverSshAndLaunchd:
+            return DefaultRemoteWorkerStarterProvider(
+                emceeVersion: emceeVersion,
+                fileSystem: try di.get(),
+                logger: logger,
+                tempFolder: try TemporaryFolder(),
+                uniqueIdentifierGenerator: try di.get(),
+                workerDeploymentDestinations: workerDestinations,
+                zipCompressor: try di.get()
+            )
+        case .unknownWayOfStartingWorkers:
+            return NoOpRemoteWorkerStarterProvider(logger: logger)
+        }
     }
     
     private func createWorkerConfigurations(
