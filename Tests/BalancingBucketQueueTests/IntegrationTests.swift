@@ -6,6 +6,7 @@ import Foundation
 import MetricsExtensions
 import RunnerModels
 import RunnerTestHelpers
+import SimulatorPoolTestHelpers
 import TestHelpers
 import TestHistoryStorage
 import TestHistoryTracker
@@ -66,7 +67,8 @@ final class IntegrationTests: XCTestCase {
     private lazy var testingResultAcceptorProvider = TestingResultAcceptorProviderImpl(
         bucketEnqueuerProvider: bucketEnqueuerProvider,
         logger: .noOp,
-        testHistoryTracker: testHistoryTracker
+        testHistoryTracker: testHistoryTracker,
+        uniqueIdentifierGenerator: uniqueIdentifierGenerator
     )
     private lazy var bucketResultAcceptorProvider = SingleBucketResultAcceptorProvider(
         logger: .noOp,
@@ -172,7 +174,10 @@ final class IntegrationTests: XCTestCase {
     // Tests
     
     func test___state_has_enqueued_buckets___after_enqueueing_buckets_for_job() throws {
-        let bucket = BucketFixtures.createBucket()
+        let payload = BucketFixtures.createRunIosTestsPayload()
+        let bucket = BucketFixtures.createBucket(
+            bucketPayloadContainer: .runIosTests(payload)
+        )
         
         try enqueue(bucket: bucket)
         
@@ -184,7 +189,7 @@ final class IntegrationTests: XCTestCase {
                 queueState: QueueState.running(
                     RunningQueueState(
                         enqueuedBucketCount: 1,
-                        enqueuedTests: bucket.payload.testEntries.map { $0.testName },
+                        enqueuedTests: payload.testEntries.map { $0.testName },
                         dequeuedBucketCount: 0,
                         dequeuedTests: [:]
                     )
@@ -207,7 +212,10 @@ final class IntegrationTests: XCTestCase {
                 queueState: QueueState.running(
                     RunningQueueState(
                         enqueuedBucketCount: 2,
-                        enqueuedTests: bucket.payload.testEntries.map { $0.testName } + bucket.payload.testEntries.map { $0.testName },
+                        enqueuedTests: [
+                            TestEntryFixtures.testEntry().testName,
+                            TestEntryFixtures.testEntry().testName,
+                        ],
                         dequeuedBucketCount: 0,
                         dequeuedTests: [:]
                     )
@@ -305,10 +313,22 @@ final class IntegrationTests: XCTestCase {
             jobPriority: .medium
         )
         
-        let bucket1 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class1")])
+        let bucket1 = BucketFixtures.createBucket(
+            bucketPayloadContainer: .runIosTests(
+                BucketFixtures.createRunIosTestsPayload(
+                    testEntries: [TestEntryFixtures.testEntry(className: "class1")]
+                )
+            )
+        )
         try enqueue(bucket: bucket1, prioritizedJob: prioritizedJob)
         
-        let bucket2 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class2")])
+        let bucket2 = BucketFixtures.createBucket(
+            bucketPayloadContainer: .runIosTests(
+                BucketFixtures.createRunIosTestsPayload(
+                    testEntries: [TestEntryFixtures.testEntry(className: "class2")]
+                )
+            )
+        )
         try enqueue(bucket: bucket2, prioritizedJob: anotherPrioritizedJob)
         
         assert {
@@ -327,7 +347,9 @@ final class IntegrationTests: XCTestCase {
                         enqueuedBucketCount: 0,
                         enqueuedTests: [],
                         dequeuedBucketCount: 1,
-                        dequeuedTests: [workerId: bucket1.payload.testEntries.map { $0.testName }]
+                        dequeuedTests: [
+                            workerId: [TestName(className: "class1", methodName: "test")],
+                        ]
                     )
                 )
             )
@@ -349,7 +371,9 @@ final class IntegrationTests: XCTestCase {
                         enqueuedBucketCount: 0,
                         enqueuedTests: [],
                         dequeuedBucketCount: 1,
-                        dequeuedTests: [workerId: bucket2.payload.testEntries.map { $0.testName }]
+                        dequeuedTests: [
+                            workerId: [TestName(className: "class2", methodName: "test")],
+                        ]
                     )
                 )
             )
@@ -357,10 +381,22 @@ final class IntegrationTests: XCTestCase {
     }
     
     func test___dequeueing_bucket_from_job_with_priority() throws {
-       let bucket1 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class1")])
+        let bucket1 = BucketFixtures.createBucket(
+            bucketPayloadContainer: .runIosTests(
+                BucketFixtures.createRunIosTestsPayload(
+                    testEntries: [TestEntryFixtures.testEntry(className: "class1")]
+                )
+            )
+        )
         try enqueue(bucket: bucket1, prioritizedJob: prioritizedJob)
         
-        let bucket2 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class2")])
+        let bucket2 = BucketFixtures.createBucket(
+            bucketPayloadContainer: .runIosTests(
+                BucketFixtures.createRunIosTestsPayload(
+                    testEntries: [TestEntryFixtures.testEntry(className: "class2")]
+                )
+            )
+        )
         try enqueue(bucket: bucket2, prioritizedJob: highlyPrioritizedJob)
         
         assert {
@@ -371,7 +407,13 @@ final class IntegrationTests: XCTestCase {
     }
     
     func test___dequeueing_bucket_with_job_groups_with_priority() throws {
-        let bucket1 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class1")])
+        let bucket1 = BucketFixtures.createBucket(
+            bucketPayloadContainer: .runIosTests(
+                BucketFixtures.createRunIosTestsPayload(
+                    testEntries: [TestEntryFixtures.testEntry(className: "class1")]
+                )
+            )
+        )
         try enqueue(
             bucket: bucket1,
             prioritizedJob: PrioritizedJob(
@@ -383,7 +425,13 @@ final class IntegrationTests: XCTestCase {
             )
         )
         
-        let bucket2 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class2")])
+        let bucket2 = BucketFixtures.createBucket(
+            bucketPayloadContainer: .runIosTests(
+                BucketFixtures.createRunIosTestsPayload(
+                    testEntries: [TestEntryFixtures.testEntry(className: "class2")]
+                )
+            )
+        )
         try enqueue(
             bucket: bucket2,
             prioritizedJob: PrioritizedJob(
@@ -403,13 +451,25 @@ final class IntegrationTests: XCTestCase {
     }
     
     func test___reenqueueing_stuck_buckets___works_for_all_bucket_queues() throws {
-        let bucket1 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class1")])
+        let bucket1 = BucketFixtures.createBucket(
+            bucketPayloadContainer: .runIosTests(
+                BucketFixtures.createRunIosTestsPayload(
+                    testEntries: [TestEntryFixtures.testEntry(className: "class1")]
+                )
+            )
+        )
         try enqueue(bucket: bucket1, prioritizedJob: prioritizedJob)
         assertNotNil {
             dequeue()
         }
         
-        let bucket2 = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "class2")])
+        let bucket2 = BucketFixtures.createBucket(
+            bucketPayloadContainer: .runIosTests(
+                BucketFixtures.createRunIosTestsPayload(
+                    testEntries: [TestEntryFixtures.testEntry(className: "class2")]
+                )
+            )
+        )
         try enqueue(bucket: bucket2, prioritizedJob: highlyPrioritizedJob)
         assertNotNil {
             dequeue()
@@ -440,15 +500,14 @@ final class IntegrationTests: XCTestCase {
     }
     
     func test___accepting_results___provides_back_results_for_job() throws {
-        let testEntry = TestEntryFixtures.testEntry()
-        let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
+        let bucket = BucketFixtures.createBucket()
         let expectedBucketResult = BucketResult.testingResult(
             TestingResultFixtures(
-                testEntry: testEntry,
-                manuallyTestDestination: bucket.payload.testDestination,
+                testEntry: TestEntryFixtures.testEntry(),
+                manuallyTestDestination: TestDestinationFixtures.testDestination,
                 unfilteredResults: [
                     TestEntryResult.withResult(
-                        testEntry: testEntry,
+                        testEntry: TestEntryFixtures.testEntry(),
                         testRunResult: TestRunResultFixtures.testRunResult()
                     )
                 ]
@@ -484,15 +543,14 @@ final class IntegrationTests: XCTestCase {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
-        let testEntry = TestEntryFixtures.testEntry()
-        let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
+        let bucket = BucketFixtures.createBucket()
         let expectedBucketResult = BucketResult.testingResult(
             TestingResultFixtures(
-                testEntry: testEntry,
-                manuallyTestDestination: bucket.payload.testDestination,
+                testEntry: TestEntryFixtures.testEntry(),
+                manuallyTestDestination: TestDestinationFixtures.testDestination,
                 unfilteredResults: [
                     TestEntryResult.withResult(
-                        testEntry: testEntry,
+                        testEntry: TestEntryFixtures.testEntry(),
                         testRunResult: TestRunResultFixtures.testRunResult()
                     )
                 ]

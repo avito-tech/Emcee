@@ -24,7 +24,7 @@ public protocol TestRunner {
     ) -> [String: String]
     
     func prepareTestRun(
-        buildArtifacts: BuildArtifacts,
+        buildArtifacts: IosBuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         logger: ContextualLogger,

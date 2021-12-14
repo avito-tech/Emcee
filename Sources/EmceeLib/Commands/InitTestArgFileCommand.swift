@@ -38,7 +38,7 @@ public final class InitTestArgFileCommand: Command {
         let testArgFile = TestArgFile(
             entries: [
                 TestArgFileEntry(
-                    buildArtifacts: BuildArtifacts.iosUiTests(
+                    buildArtifacts: IosBuildArtifacts.iosUiTests(
                         xcTestBundle: XcTestBundle(
                             location: TestBundleLocation(
                                 .remoteUrl(

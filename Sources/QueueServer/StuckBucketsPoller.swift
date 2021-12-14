@@ -19,7 +19,7 @@ public final class StuckBucketsPoller {
     private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
     private let statefulBucketQueue: StatefulBucketQueue
     private let stuckBucketsReenqueuer: StuckBucketsReenqueuer
-    private let stuckBucketsTrigger = DispatchBasedTimer(repeating: .seconds(1), leeway: .seconds(5))
+    private let stuckBucketsTrigger = DispatchBasedTimer(repeating: .seconds(5), leeway: .seconds(5))
     private let version: Version
     
     public init(

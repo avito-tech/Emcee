@@ -17,15 +17,34 @@ public final class SingleStatefulBucketQueue: StatefulBucketQueue {
         
         var dequeuedTests = MapWithCollection<WorkerId, TestName>()
         for dequeuedBucket in dequeuedBuckets {
-            dequeuedTests.append(
-                key: dequeuedBucket.workerId,
-                elements: dequeuedBucket.enqueuedBucket.bucket.payload.testEntries.map { $0.testName }
-            )
+            switch dequeuedBucket.enqueuedBucket.bucket.payloadContainer {
+            case .runIosTests(let runIosTestsPayload):
+                dequeuedTests.append(
+                    key: dequeuedBucket.workerId,
+                    elements: runIosTestsPayload.testEntries.map { $0.testName }
+                )
+            case .runAndroidTests(let runAndroidTestsPayload):
+                dequeuedTests.append(
+                    key: dequeuedBucket.workerId,
+                    elements: runAndroidTestsPayload.testEntries.map { $0.testName }
+                )
+            }
         }
+        
+        let enqueuedTests = enqueuedBuckets
+            .flatMap { enqueuedBucket -> [TestEntry] in
+                switch enqueuedBucket.bucket.payloadContainer {
+                case .runIosTests(let runIosTestsPayload):
+                    return runIosTestsPayload.testEntries
+                case .runAndroidTests(let runAndroidTestsPayload):
+                    return runAndroidTestsPayload.testEntries
+                }
+            }
+            .map(\.testName)
         
         return RunningQueueState(
             enqueuedBucketCount: enqueuedBuckets.count,
-            enqueuedTests: enqueuedBuckets.flatMap { $0.bucket.payload.testEntries.map { $0.testName } },
+            enqueuedTests: enqueuedTests,
             dequeuedBucketCount: dequeuedBuckets.count,
             dequeuedTests: dequeuedTests
         )

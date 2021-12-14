@@ -153,7 +153,7 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertEqual(testArgFile.entries[0].testDestination, try TestDestination(deviceType: "iPhone X", runtime: "11.3"))
         XCTAssertEqual(
             testArgFile.entries[0].buildArtifacts,
-            BuildArtifacts.iosUiTests(
+            IosBuildArtifacts.iosUiTests(
                 xcTestBundle: XcTestBundle(
                     location: TestBundleLocation(try .from("http://example.com/App.zip#Tests/UITests-Runner.app/PlugIns/UITests.xctest")),
                     testDiscoveryMode: .parseFunctionSymbols

@@ -43,7 +43,7 @@ final class PipelinedTestDiscovererTests: XCTestCase {
         ]
         
         var buildArtifacts = urls.map {
-            BuildArtifacts.iosLogicTests(
+            IosBuildArtifacts.iosLogicTests(
                 xcTestBundle: XcTestBundle(
                     location: TestBundleLocation(.remoteUrl($0, [:])),
                     testDiscoveryMode: .parseFunctionSymbols
@@ -55,7 +55,7 @@ final class PipelinedTestDiscovererTests: XCTestCase {
         let testBundleUrl = URL(string: "http://example.com/testBundle")!
         
         buildArtifacts.append(
-            BuildArtifacts.iosApplicationTests(
+            IosBuildArtifacts.iosApplicationTests(
                 xcTestBundle: XcTestBundle(
                     location: TestBundleLocation(.remoteUrl(testBundleUrl, [:])),
                     testDiscoveryMode: .runtimeAppTest
@@ -90,7 +90,7 @@ final class PipelinedTestDiscovererTests: XCTestCase {
         ]
         
         let buildArtifacts = urls.map {
-            BuildArtifacts.iosLogicTests(
+            IosBuildArtifacts.iosLogicTests(
                 xcTestBundle: XcTestBundle(
                     location: TestBundleLocation(.remoteUrl($0, [:])),
                     testDiscoveryMode: .parseFunctionSymbols
@@ -161,7 +161,7 @@ private class FakeRuntimeDumpRemoteCacheProvider: RuntimeDumpRemoteCacheProvider
 }
 
 extension TestArgFile {
-    static func create(buildArtifacts: [BuildArtifacts]) -> TestArgFile {
+    static func create(buildArtifacts: [IosBuildArtifacts]) -> TestArgFile {
         TestArgFile(
             entries: buildArtifacts.map {
                 TestArgFileEntry(

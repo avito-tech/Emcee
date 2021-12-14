@@ -36,16 +36,18 @@ public class BucketGeneratorImpl: BucketGenerator {
                 bucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
                 analyticsConfiguration: entry.analyticsConfiguration,
                 workerCapabilityRequirements: entry.workerCapabilityRequirements,
-                payload: Payload(
-                    buildArtifacts: entry.buildArtifacts,
-                    developerDir: entry.developerDir,
-                    pluginLocations: entry.pluginLocations,
-                    simulatorOperationTimeouts: entry.simulatorOperationTimeouts,
-                    simulatorSettings: entry.simulatorSettings,
-                    testDestination: entry.testDestination,
-                    testEntries: group.map { $0.testEntry },
-                    testExecutionBehavior: entry.testExecutionBehavior,
-                    testTimeoutConfiguration: entry.testTimeoutConfiguration
+                payloadContainer: .runIosTests(
+                    RunIosTestsPayload(
+                        buildArtifacts: entry.buildArtifacts,
+                        developerDir: entry.developerDir,
+                        pluginLocations: entry.pluginLocations,
+                        simulatorOperationTimeouts: entry.simulatorOperationTimeouts,
+                        simulatorSettings: entry.simulatorSettings,
+                        testDestination: entry.testDestination,
+                        testEntries: group.map { $0.testEntry },
+                        testExecutionBehavior: entry.testExecutionBehavior,
+                        testTimeoutConfiguration: entry.testTimeoutConfiguration
+                    )
                 )
             )
         }

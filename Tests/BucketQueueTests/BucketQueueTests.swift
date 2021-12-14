@@ -9,6 +9,7 @@ import QueueModels
 import QueueModelsTestHelpers
 import RunnerModels
 import RunnerTestHelpers
+import SimulatorPoolTestHelpers
 import TestHelpers
 import TestHistoryTestHelpers
 import UniqueIdentifierGenerator
@@ -29,6 +30,19 @@ final class BucketQueueTests: XCTestCase {
     lazy var workerId: WorkerId = "worker_id"
     let capableWorkerId: WorkerId = "capableWorkerId"
     
+    private func createBucket(
+        testEntries: [TestEntry] = [TestEntryFixtures.testEntry()],
+        workerCapabilityRequirements: Set<WorkerCapabilityRequirement> = []
+    ) -> Bucket {
+        let payload = BucketFixtures.createRunIosTestsPayload(
+            testEntries: testEntries
+        )
+        return BucketFixtures.createBucket(
+            bucketPayloadContainer: .runIosTests(payload),
+            workerCapabilityRequirements: workerCapabilityRequirements
+        )
+    }
+    
     override func setUp() {
         continueAfterFailure = false
         workerAlivenessProvider.didRegisterWorker(workerId: capableWorkerId)
@@ -42,26 +56,26 @@ final class BucketQueueTests: XCTestCase {
     
     func test__if_buckets_enqueued__queue_is_not_depleted() throws {
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: workerAlivenessProvider)
-        try bucketQueue.enqueue(buckets: [BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])])
+        try bucketQueue.enqueue(buckets: [createBucket()])
         XCTAssertFalse(bucketQueue.runningQueueState.isDepleted)
     }
     
     func test__if_buckets_dequeued__queue_is_not_depleted() throws {
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: workerAlivenessProvider)
-        try bucketQueue.enqueue(buckets: [BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])])
+        try bucketQueue.enqueue(buckets: [createBucket()])
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         XCTAssertFalse(bucketQueue.runningQueueState.isDepleted)
     }
     
     func test__when_all_results_accepted__queue_is_depleted() throws {
-        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
+        let bucket = createBucket()
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: workerAlivenessProvider)
         try bucketQueue.enqueue(buckets: [bucket])
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            testDestination: bucket.payload.testDestination,
+            testDestination: TestDestinationFixtures.testDestination,
             unfilteredResults: []
         )
         assertDoesNotThrow {
@@ -76,7 +90,7 @@ final class BucketQueueTests: XCTestCase {
     }
     
     func test___dequeues_bucket___when_dequeueing_buckets_from_non_empty_queue() throws {
-        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
+        let bucket = createBucket()
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(
             dateProvider: dateProvider,
@@ -106,7 +120,7 @@ final class BucketQueueTests: XCTestCase {
     }
     
     func test___reponse_is_nil___when_queue_has_dequeued_buckets() throws {
-        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
+        let bucket = createBucket()
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: workerAlivenessProvider)
         try bucketQueue.enqueue(buckets: [bucket])
@@ -133,13 +147,13 @@ final class BucketQueueTests: XCTestCase {
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: workerAlivenessProvider)
         
         let testEntry = TestEntryFixtures.testEntry(className: "class", methodName: "test")
-        let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
+        let bucket = createBucket(testEntries: [testEntry])
         try bucketQueue.enqueue(buckets: [bucket])
         
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            testDestination: bucket.payload.testDestination,
+            testDestination: TestDestinationFixtures.testDestination,
             unfilteredResults: [TestEntryResult.lost(testEntry: testEntry)]
         )
         assertDoesNotThrow {
@@ -155,13 +169,13 @@ final class BucketQueueTests: XCTestCase {
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: workerAlivenessProvider)
         
         let testEntry = TestEntryFixtures.testEntry(className: "class", methodName: "test")
-        let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
+        let bucket = createBucket(testEntries: [testEntry])
         try bucketQueue.enqueue(buckets: [bucket])
         
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            testDestination: bucket.payload.testDestination,
+            testDestination: TestDestinationFixtures.testDestination,
             unfilteredResults: [ /* empty - misses testEntry */ ]
         )
         assertThrows {
@@ -177,13 +191,13 @@ final class BucketQueueTests: XCTestCase {
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: workerAlivenessProvider)
         
         let testEntry = TestEntryFixtures.testEntry(className: "class", methodName: "test")
-        let bucket = BucketFixtures.createBucket(testEntries: [testEntry])
+        let bucket = createBucket(testEntries: [testEntry])
         try bucketQueue.enqueue(buckets: [bucket])
         
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            testDestination: bucket.payload.testDestination,
+            testDestination: TestDestinationFixtures.testDestination,
             unfilteredResults: [ /* empty - misses testEntry */ ]
         )
         assertThrows {
@@ -196,7 +210,7 @@ final class BucketQueueTests: XCTestCase {
     }
     
     func test__when_worker_is_silent__its_dequeued_buckets_removed() throws {
-        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
+        let bucket = createBucket()
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: workerAlivenessProvider)
         try bucketQueue.enqueue(buckets: [bucket])
@@ -212,7 +226,7 @@ final class BucketQueueTests: XCTestCase {
     }
         
     func test___when_worker_loses_bucket___it_is_removed_as_stuck() throws {
-        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
+        let bucket = createBucket()
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: workerAlivenessProvider)
         
@@ -232,7 +246,7 @@ final class BucketQueueTests: XCTestCase {
     }
     
     func test___when_bucket_is_dequeued___aliveness_tracker_is_updated_with_its_id() throws {
-        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
+        let bucket = createBucket()
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: workerAlivenessProvider)
         
@@ -246,7 +260,7 @@ final class BucketQueueTests: XCTestCase {
     }
     
     func test___when_bucket_is_dequeued___stuck_buckets_are_empty() throws {
-        let bucket = BucketFixtures.createBucket(testEntries: [])
+        let bucket = createBucket(testEntries: [])
         
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: workerAlivenessProvider)
         
@@ -262,8 +276,8 @@ final class BucketQueueTests: XCTestCase {
     func test___removing_enqueued_buckets___affects_state() throws {
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: workerAlivenessProvider)
         
-        try bucketQueue.enqueue(buckets: [BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(methodName: "test1")])])
-        try bucketQueue.enqueue(buckets: [BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(methodName: "test2")])])
+        try bucketQueue.enqueue(buckets: [createBucket(testEntries: [TestEntryFixtures.testEntry(methodName: "test1")])])
+        try bucketQueue.enqueue(buckets: [createBucket(testEntries: [TestEntryFixtures.testEntry(methodName: "test2")])])
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         bucketQueue.removeAllEnqueuedBuckets()
@@ -278,13 +292,14 @@ final class BucketQueueTests: XCTestCase {
     func test___enqueuing_same_bucket___reflects_queue_state() throws {
         let bucketQueue = BucketQueueFixtures.bucketQueue(workerAlivenessProvider: workerAlivenessProvider)
 
-        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
+        let testEntry = TestEntryFixtures.testEntry()
+        let bucket = createBucket(testEntries: [testEntry])
         
         try bucketQueue.enqueue(buckets: [bucket, bucket])
         
         XCTAssertEqual(
             bucketQueue.runningQueueState.enqueuedTests,
-            bucket.payload.testEntries.map { $0.testName } + bucket.payload.testEntries.map { $0.testName },
+            [testEntry.testName, testEntry.testName],
             "Enqueuing the same bucket multiple times should be reflected in the queue state"
         )
     }
@@ -295,7 +310,7 @@ final class BucketQueueTests: XCTestCase {
             workerAlivenessProvider: workerAlivenessProvider
         )
         
-        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
+        let bucket = createBucket()
         
         try bucketQueue.enqueue(buckets: [bucket, bucket])
         guard let dequeuedBucket = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId) else {
@@ -309,7 +324,7 @@ final class BucketQueueTests: XCTestCase {
         )
         XCTAssertEqual(
             bucketQueue.runningQueueState.enqueuedTests,
-            bucket.payload.testEntries.map { $0.testName },
+            [TestEntryFixtures.testEntry().testName],
             "Dequeueing one of the similar buckets should correctly update queue state"
         )
     }
@@ -321,7 +336,7 @@ final class BucketQueueTests: XCTestCase {
             workerCapabilitiesStorage: workerCapabilitiesStorage
         )
         
-        let bucket = BucketFixtures.createBucket(
+        let bucket = createBucket(
             testEntries: [TestEntryFixtures.testEntry()],
             workerCapabilityRequirements: Set([WorkerCapabilityRequirement(capabilityName: "capability", constraint: .equal("1"))])
         )
@@ -342,7 +357,7 @@ final class BucketQueueTests: XCTestCase {
             workerCapabilitiesStorage: workerCapabilitiesStorage
         )
         
-        let bucket = BucketFixtures.createBucket(
+        let bucket = createBucket(
             testEntries: [TestEntryFixtures.testEntry()],
             workerCapabilityRequirements: Set([WorkerCapabilityRequirement(capabilityName: "capability", constraint: .equal("1"))])
         )
@@ -366,7 +381,7 @@ final class BucketQueueTests: XCTestCase {
         
         workerCapabilitiesStorage.set(workerCapabilities: [WorkerCapability(name: "capability", value: "correct")], forWorkerId: capableWorkerId)
         
-        let bucket = BucketFixtures.createBucket(
+        let bucket = createBucket(
             testEntries: [TestEntryFixtures.testEntry()],
             workerCapabilityRequirements: Set([WorkerCapabilityRequirement(capabilityName: "capability", constraint: .equal("correct"))])
         )
@@ -402,7 +417,7 @@ final class BucketQueueTests: XCTestCase {
             workerAlivenessProvider: workerAlivenessProvider
         )
         
-        let bucket = BucketFixtures.createBucket(
+        let bucket = createBucket(
             testEntries: [TestEntryFixtures.testEntry()],
             workerCapabilityRequirements: Set([WorkerCapabilityRequirement(capabilityName: "unmeetable.capability", constraint: .equal("correct"))])
         )
@@ -427,7 +442,7 @@ final class BucketQueueTests: XCTestCase {
             testHistoryTracker: testHistoryTracker,
             workerAlivenessProvider: workerAlivenessProvider
         )
-        let bucket = BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry()])
+        let bucket = createBucket(testEntries: [TestEntryFixtures.testEntry()])
         try bucketQueue.enqueue(buckets: [bucket])
         
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: capableWorkerId)

@@ -19,7 +19,7 @@ import Tmp
 import UniqueIdentifierGenerator
 
 public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
-    private let buildArtifacts: BuildArtifacts
+    private let buildArtifacts: IosBuildArtifacts
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let fileSystem: FileSystem
@@ -37,7 +37,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let specificMetricRecorder: SpecificMetricRecorder
     
     public init(
-        buildArtifacts: BuildArtifacts,
+        buildArtifacts: IosBuildArtifacts,
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         fileSystem: FileSystem,
@@ -117,7 +117,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     }
     
     private func buildRunnerConfiguration(
-        buildArtifacts: BuildArtifacts,
+        buildArtifacts: IosBuildArtifacts,
         configuration: TestDiscoveryConfiguration,
         runtimeEntriesJSONPath: AbsolutePath,
         simulator: Simulator

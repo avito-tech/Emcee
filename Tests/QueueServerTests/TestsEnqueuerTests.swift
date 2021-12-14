@@ -47,9 +47,7 @@ final class TestsEnqueuerTests: XCTestCase {
         XCTAssertEqual(
             enqueueableBucketReceptor.enqueuedJobs[prioritizedJob],
             [
-                BucketFixtures.createBucket(
-                    bucketId: bucketId, testEntries: [TestEntryFixtures.testEntry()]
-                )
+                BucketFixtures.createBucket(bucketId: bucketId),
             ]
         )
     }

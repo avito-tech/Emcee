@@ -35,13 +35,31 @@ public final class SingleBucketQueueDequeueableBucketSource: DequeueableBucketSo
         workerCapabilitiesStorage.set(workerCapabilities: workerCapabilities, forWorkerId: workerId)
         
         return bucketQueueHolder.performWithExclusiveAccess {
-            let bucketToDequeueOrNil = testHistoryTracker.bucketToDequeue(
+            let payloadToDequeueOrNil = testHistoryTracker.enqueuedPayloadToDequeue(
                 workerId: workerId,
-                queue: bucketQueueHolder.allEnqueuedBuckets,
+                queue: bucketQueueHolder.allEnqueuedBuckets.compactMap {
+                    switch $0.bucket.payloadContainer {
+                    case .runIosTests(let runIosTestsPayload):
+                        return EnqueuedRunTestsPayload(
+                            bucketId: $0.bucket.bucketId,
+                            testDestination: runIosTestsPayload.testDestination,
+                            testEntries: runIosTestsPayload.testEntries,
+                            numberOfRetries: runIosTestsPayload.testExecutionBehavior.numberOfRetries
+                        )
+                    case .runAndroidTests(let runAndroidTestsPayload):
+                        return EnqueuedRunTestsPayload(
+                            bucketId: $0.bucket.bucketId,
+                            testDestination: runAndroidTestsPayload.testDestination,
+                            testEntries: runAndroidTestsPayload.testEntries,
+                            numberOfRetries: runAndroidTestsPayload.testExecutionBehavior.numberOfRetries
+                        )
+                    }
+                },
                 workerIdsInWorkingCondition: workerAlivenessProvider.workerIdsInWorkingCondition
             )
             
-            if let enqueuedBucket = bucketToDequeueOrNil {
+            if let enqueuedPayload = payloadToDequeueOrNil, let enqueuedBucket = bucketQueueHolder.enqueuedBucket(bucketId: enqueuedPayload.bucketId) {
+                
                 guard workerCapabilityConstraintResolver.requirementsSatisfied(
                     requirements: enqueuedBucket.bucket.workerCapabilityRequirements,
                     workerCapabilities: workerCapabilities

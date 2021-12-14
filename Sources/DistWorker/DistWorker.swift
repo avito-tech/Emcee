@@ -42,6 +42,8 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
         target: .global()
     )
     private let currentlyBeingProcessedBucketsTracker = DefaultCurrentlyBeingProcessedBucketsTracker()
+    private let dateProvider: DateProvider
+    private let fileSystem: FileSystem
     private let httpRestServer: HTTPRESTServer
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TemporaryFolder
@@ -63,6 +65,8 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
         workerId: WorkerId
     ) throws {
         self.di = di
+        self.dateProvider = try di.get()
+        self.fileSystem = try di.get()
         self.logger = try di.get(ContextualLogger.self)
         self.httpRestServer = HTTPRESTServer(
             automaticTerminationController: StayAliveTerminationController(),
@@ -133,7 +137,8 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
     ) throws {
         let scheduler = Scheduler(
             di: di,
-            fileSystem: try di.get(),
+            dateProvider: dateProvider,
+            fileSystem: fileSystem,
             logger: logger,
             resourceLocationResolver: resourceLocationResolver,
             schedulerDataSource: self,
@@ -169,9 +174,9 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
                 tracker.willProcess(bucketId: fetchedBucket.bucketId)
                 return .result(
                     SchedulerBucket(
-                        bucketId: fetchedBucket.bucketId,
                         analyticsConfiguration: fetchedBucket.analyticsConfiguration,
-                        payload: fetchedBucket.payload
+                        bucketId: fetchedBucket.bucketId,
+                        bucketPayloadContainer: fetchedBucket.payloadContainer
                     )
                 )
             }

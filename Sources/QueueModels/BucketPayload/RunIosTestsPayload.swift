@@ -5,19 +5,19 @@ import PluginSupport
 import RunnerModels
 import SimulatorPoolModels
 
-public struct Payload: Codable, Hashable, CustomStringConvertible {
-    public let buildArtifacts: BuildArtifacts
+public struct RunIosTestsPayload: BucketPayload, CustomStringConvertible, BucketPayloadWithTests {
+    public let buildArtifacts: IosBuildArtifacts
     public let developerDir: DeveloperDir
     public let pluginLocations: Set<PluginLocation>
     public let simulatorOperationTimeouts: SimulatorOperationTimeouts
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
-    public let testEntries: [TestEntry]
+    public private(set) var testEntries: [TestEntry]
     public let testExecutionBehavior: TestExecutionBehavior
     public let testTimeoutConfiguration: TestTimeoutConfiguration
 
     public init(
-        buildArtifacts: BuildArtifacts,
+        buildArtifacts: IosBuildArtifacts,
         developerDir: DeveloperDir,
         pluginLocations: Set<PluginLocation>,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,
@@ -39,20 +39,12 @@ public struct Payload: Codable, Hashable, CustomStringConvertible {
     }
 
     public var description: String {
-        "run \(testEntries.count) tests"
+        "run \(testEntries.count) tests: \(testEntries.map { $0.testName.stringValue }.joined(separator: ", "))"
     }
 
     public func with(testEntries newTestEntries: [TestEntry]) -> Self {
-        Self(
-            buildArtifacts: buildArtifacts,
-            developerDir: developerDir,
-            pluginLocations: pluginLocations,
-            simulatorOperationTimeouts: simulatorOperationTimeouts,
-            simulatorSettings: simulatorSettings,
-            testDestination: testDestination,
-            testEntries: newTestEntries,
-            testExecutionBehavior: testExecutionBehavior,
-            testTimeoutConfiguration: testTimeoutConfiguration
-        )
+        var result = self
+        result.testEntries = newTestEntries
+        return result
     }
 }

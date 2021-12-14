@@ -62,7 +62,7 @@ public final class RunTestsCommand: Command {
         let appBundlePath: AbsolutePath? = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.app.name)
         let runnerBundlePath: AbsolutePath? = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.runner.name)
         
-        let buildArtifacts: BuildArtifacts
+        let buildArtifacts: IosBuildArtifacts
         if let runnerBundlePath = runnerBundlePath, let appBundlePath = appBundlePath {
             buildArtifacts = .iosUiTests(
                 xcTestBundle: xcTestBundle,

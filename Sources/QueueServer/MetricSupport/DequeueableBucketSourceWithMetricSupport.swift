@@ -3,6 +3,7 @@ import BucketQueue
 import BucketQueueModels
 import DateProvider
 import Foundation
+import Graphite
 import LocalHostDeterminer
 import EmceeLogging
 import Metrics
@@ -60,19 +61,12 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
             jobStates: jobStates,
             runningQueueState: statefulBucketQueue.runningQueueState
         )
-        let bucketAndTestMetrics = [
+        var bucketAndTestMetrics: [GraphiteMetric] = [
             DequeueBucketsMetric(
                 workerId: workerId,
                 version: version,
                 queueHost: LocalHostDeterminer.currentHostAddress,
                 numberOfBuckets: 1,
-                timestamp: dateProvider.currentDate()
-            ),
-            DequeueTestsMetric(
-                workerId: workerId,
-                version: version,
-                queueHost: LocalHostDeterminer.currentHostAddress,
-                numberOfTests: dequeuedBucket.enqueuedBucket.bucket.payload.testEntries.count,
                 timestamp: dateProvider.currentDate()
             ),
             TimeToDequeueBucketMetric(
@@ -82,6 +76,16 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
                 timestamp: dateProvider.currentDate()
             )
         ]
+        
+        bucketAndTestMetrics.append(
+            DequeueTestsMetric(
+                workerId: workerId,
+                version: version,
+                queueHost: LocalHostDeterminer.currentHostAddress,
+                numberOfTests: dequeuedBucket.enqueuedBucket.bucket.payloadContainer.payloadWithTests.testEntries.count,
+                timestamp: dateProvider.currentDate()
+            )
+        )
         
         do {
             try specificMetricRecorderProvider.specificMetricRecorder(

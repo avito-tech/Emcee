@@ -1,17 +1,30 @@
 import BucketQueueModels
 import QueueModels
+import RunnerModels
 import TestHistoryModels
 
 public protocol TestHistoryTracker {
-    func bucketToDequeue(
-        workerId: WorkerId,
-        queue: [EnqueuedBucket],
-        workerIdsInWorkingCondition: @autoclosure () -> [WorkerId]
-    ) -> EnqueuedBucket?
     
+    /// Selects the most appropriate payload to be dequeued from the provided queue of payloads.
+    /// Provided `workerId` may have failed all payloads in the `queue` in the past, or it may be not in appropriate state (e.g. silent).
+    /// This may result in returning `nil` value.
+    func enqueuedPayloadToDequeue(
+        workerId: WorkerId,
+        queue: [EnqueuedRunTestsPayload],
+        workerIdsInWorkingCondition: @autoclosure () -> [WorkerId]
+    ) -> EnqueuedRunTestsPayload?
+    
+    /// Associates the provided result for the given `bucketId`, indicating that results are coming from `workerId`.
+    /// - Note: `numberOfRetries` is ORIGINAL retry count for tests in the bucket with `bucketId`. Do not decrement this value.
     func accept(
         testingResult: TestingResult,
-        bucket: Bucket,
+        bucketId: BucketId,
+        numberOfRetries: UInt,
         workerId: WorkerId
     ) throws -> TestHistoryTrackerAcceptResult
+    
+    func willReenqueuePreviouslyFailedTests(
+        whichFailedUnderBucketId oldBucketId: BucketId,
+        underNewBucketIds testEntryByBucketId: [BucketId: TestEntry]
+    )
 }

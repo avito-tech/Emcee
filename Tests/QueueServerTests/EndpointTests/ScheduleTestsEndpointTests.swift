@@ -36,8 +36,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
             enqueueableBucketReceptor.enqueuedJobs[prioritizedJob],
             [
                 BucketFixtures.createBucket(
-                    bucketId: fixedBucketId,
-                    testEntries: [TestEntryFixtures.testEntry()]
+                    bucketId: fixedBucketId
                 )
             ]
         )

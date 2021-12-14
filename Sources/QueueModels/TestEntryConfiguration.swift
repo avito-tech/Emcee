@@ -9,7 +9,7 @@ import WorkerCapabilitiesModels
 
 public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable {
     public let analyticsConfiguration: AnalyticsConfiguration
-    public let buildArtifacts: BuildArtifacts
+    public let buildArtifacts: IosBuildArtifacts
     public let developerDir: DeveloperDir
     public let pluginLocations: Set<PluginLocation>
     public let simulatorOperationTimeouts: SimulatorOperationTimeouts
@@ -22,7 +22,7 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
 
     public init(
         analyticsConfiguration: AnalyticsConfiguration,
-        buildArtifacts: BuildArtifacts,
+        buildArtifacts: IosBuildArtifacts,
         developerDir: DeveloperDir,
         pluginLocations: Set<PluginLocation>,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,

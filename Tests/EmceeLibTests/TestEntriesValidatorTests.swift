@@ -45,7 +45,7 @@ final class TestEntriesValidatorTests: XCTestCase {
 
     func test__pass_app_test_data__if_flag_is_true() throws {
         let appBundleLocation = AppBundleLocation(.localFilePath("/app"))
-        let buildArtifacts = BuildArtifacts.iosApplicationTests(
+        let buildArtifacts = IosBuildArtifacts.iosApplicationTests(
             xcTestBundle: XcTestBundle(
                 location: TestBundleLocation(.localFilePath("/bundle")),
                 testDiscoveryMode: .runtimeAppTest
@@ -108,7 +108,7 @@ final class TestEntriesValidatorTests: XCTestCase {
     }
 
     private func createTestEntry(
-        buildArtifacts: BuildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
+        buildArtifacts: IosBuildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
     ) throws -> TestArgFileEntry {
         return TestArgFileEntry(
             buildArtifacts: buildArtifacts,

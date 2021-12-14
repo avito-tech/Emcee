@@ -17,7 +17,7 @@ final class GroupedTestEntryConfigurations {
     
     public func grouped() -> [[TestEntryConfiguration]] {
         struct Key: Hashable {
-            let buildArtifacts: BuildArtifacts
+            let buildArtifacts: IosBuildArtifacts
             let developerDir: DeveloperDir
             let pluginLocations: Set<PluginLocation>
             let simulatorOperationTimeouts: SimulatorOperationTimeouts

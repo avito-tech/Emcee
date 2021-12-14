@@ -5,9 +5,12 @@ import Foundation
 import QueueModels
 import QueueModelsTestHelpers
 import RunnerModels
+import RunnerTestHelpers
 import TestHelpers
 import TestHistoryTestHelpers
 import TestHistoryTracker
+import UniqueIdentifierGenerator
+import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class TestingResultAcceptorTests: XCTestCase {
@@ -17,16 +20,21 @@ final class TestingResultAcceptorTests: XCTestCase {
     }
     lazy var bucketQueueHolder = BucketQueueHolder()
     lazy var testHistoryTracker = FakeTestHistoryTracker()
+    lazy var uniqueIdentifierGenerator = HistoryTrackingUniqueIdentifierGenerator(
+        delegate: UuidBasedUniqueIdentifierGenerator()
+    )
     
     lazy var testingResultAcceptor = TestingResultAcceptorImpl(
         bucketEnqueuer: bucketEnqueuer,
         bucketQueueHolder: bucketQueueHolder,
         logger: .noOp,
-        testHistoryTracker: testHistoryTracker
+        testHistoryTracker: testHistoryTracker,
+        uniqueIdentifierGenerator: uniqueIdentifierGenerator
     )
     
     func test___reports_both_original_and_additional_lost_results___and_reenqueues_lost_tests() {
-        let bucket = BucketFixtures.createBucket()
+        let runIosTestsPayload = BucketFixtures.createRunIosTestsPayload()
+        let bucket = BucketFixtures.createBucket(bucketPayloadContainer: .runIosTests(runIosTestsPayload))
         let enqueuedBucket = EnqueuedBucket(
             bucket: bucket,
             enqueueTimestamp: Date(),
@@ -38,40 +46,63 @@ final class TestingResultAcceptorTests: XCTestCase {
         )
         bucketQueueHolder.add(dequeuedBucket: dequeuedBucket)
         
-        let bucketToBeReenqueued = BucketFixtures.createBucket()
-        
-        testHistoryTracker.acceptValidator = { testingResult, _, _ in
+        let acceptValidatorInvoked = XCTestExpectation()
+        testHistoryTracker.acceptValidator = { testingResult, _, _, _ in
+            defer {
+                acceptValidatorInvoked.fulfill()
+            }
+            
             if testingResult.unfilteredResults.isEmpty {
                 return TestHistoryTrackerAcceptResult(
-                    bucketsToReenqueue: [],
+                    testEntriesToReenqueue: [],
                     testingResult: testingResult
                 )
             }
             XCTAssertEqual(
                 testingResult,
                 TestingResult(
-                    testDestination: bucket.payload.testDestination,
-                    unfilteredResults: bucket.payload.testEntries.map { testEntry in
+                    testDestination: runIosTestsPayload.testDestination,
+                    unfilteredResults: runIosTestsPayload.testEntries.map { testEntry in
                         TestEntryResult.lost(testEntry: testEntry)
                     }
                 )
             )
             return TestHistoryTrackerAcceptResult(
-                bucketsToReenqueue: [bucketToBeReenqueued],
+                testEntriesToReenqueue: [
+                    TestEntryFixtures.testEntry(),
+                ],
                 testingResult: testingResult
             )
+        }
+        
+        let willReenqueueHandlerInvoked = XCTestExpectation()
+        testHistoryTracker.willReenqueueHandler = { [uniqueIdentifierGenerator] bucketId, testEntryByNewBucketId in
+            assert { bucketId } equals: { bucket.bucketId }
+            
+            XCTAssertEqual(
+                testEntryByNewBucketId,
+                [BucketId(uniqueIdentifierGenerator.history[0]): TestEntryFixtures.testEntry()]
+            )
+            
+            willReenqueueHandlerInvoked.fulfill()
         }
         
         assertDoesNotThrow {
             _ = try testingResultAcceptor.acceptTestingResult(
                 dequeuedBucket: dequeuedBucket,
+                bucketPayloadWithTests: runIosTestsPayload,
                 testingResult: TestingResultFixtures().testingResult()
             )
         }
         
-        XCTAssertEqual(
-            enqueuedBuckets,
-            [bucketToBeReenqueued]
-        )
+        assert {
+            enqueuedBuckets
+        } equals: {
+            [
+                try bucket.with(newBucketId: BucketId(uniqueIdentifierGenerator.history[0]))
+            ]
+        }
+        
+        wait(for: [acceptValidatorInvoked, willReenqueueHandlerInvoked], timeout: 15)
     }
 }

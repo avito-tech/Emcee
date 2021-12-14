@@ -135,7 +135,8 @@ public final class QueueServerImpl: QueueServer {
         let testingResultAcceptorProvider = TestingResultAcceptorProviderImpl(
             bucketEnqueuerProvider: singleBucketQueueEnqueuerProvider,
             logger: logger,
-            testHistoryTracker: testHistoryTracker
+            testHistoryTracker: testHistoryTracker,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
         self.statefulBucketQueue = MultipleQueuesStatefulBucketQueue(
             multipleQueuesContainer: multipleQueuesContainer,

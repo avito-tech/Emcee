@@ -6,7 +6,7 @@ public final class TestToRunIntoTestEntryTransformer {
     public init() {}
     
     public func transform(
-        buildArtifacts: BuildArtifacts,
+        buildArtifacts: IosBuildArtifacts,
         testDiscoveryResult: TestDiscoveryResult
     ) throws -> [ValidatedTestEntry] {
         guard testDiscoveryResult.unavailableTestsToRun.isEmpty else {

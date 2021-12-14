@@ -2,9 +2,9 @@ import BucketQueueModels
 import Foundation
 import EmceeLogging
 import QueueModels
+import RunnerModels
 import UniqueIdentifierGenerator
 import WorkerAlivenessProvider
-
 
 public final class SingleBucketQueueStuckBucketsReenqueuer: StuckBucketsReenqueuer {
     private let bucketEnqueuer: BucketEnqueuer
@@ -53,16 +53,10 @@ public final class SingleBucketQueueStuckBucketsReenqueuer: StuckBucketsReenqueu
                 )
             }
             
-            // Every stucked test produces a single bucket with itself
-            let buckets = try stuckBuckets.flatMap { stuckBucket in
-                try stuckBucket.bucket.payload.testEntries.map { testEntry in
-                    try stuckBucket.bucket.with(
-                        newBucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
-                        newPayload: stuckBucket.bucket.payload.with(
-                            testEntries: [testEntry]
-                        )
-                    )
-                }
+            let buckets: [Bucket] = try stuckBuckets.map { (stuckBucket: StuckBucket) -> Bucket in
+                return try stuckBucket.bucket.with(
+                    newBucketId: BucketId(value: uniqueIdentifierGenerator.generate())
+                )
             }
             
             if !buckets.isEmpty {

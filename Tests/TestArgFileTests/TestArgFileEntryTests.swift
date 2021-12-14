@@ -228,7 +228,7 @@ final class TestArgFileEntryTests: XCTestCase {
         )
     }
     
-    private func buildArtifacts() -> BuildArtifacts {
+    private func buildArtifacts() -> IosBuildArtifacts {
         .iosUiTests(
             xcTestBundle: XcTestBundle(
                 location: TestBundleLocation(.localFilePath("/xcTestBundle")),

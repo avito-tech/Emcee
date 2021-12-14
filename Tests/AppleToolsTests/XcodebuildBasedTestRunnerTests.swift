@@ -85,7 +85,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         location: TestBundleLocation(.localFilePath(testBundlePath.pathString)),
         testDiscoveryMode: .runtimeLogicTest
     )
-    private lazy var uiTestBuildArtifacts = BuildArtifacts.iosUiTests(
+    private lazy var uiTestBuildArtifacts = IosBuildArtifacts.iosUiTests(
         xcTestBundle: xcTestBundle,
         appBundle: AppBundleLocation(.localFilePath(appBundlePath.pathString)),
         runner: RunnerAppLocation(.localFilePath(runnerAppPath.pathString)),
@@ -93,11 +93,11 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             AdditionalAppBundleLocation(.localFilePath(additionalAppPath.pathString)),
         ]
     )
-    private lazy var appTestBuildArtifacts = BuildArtifacts.iosApplicationTests(
+    private lazy var appTestBuildArtifacts = IosBuildArtifacts.iosApplicationTests(
         xcTestBundle: xcTestBundle,
         appBundle: AppBundleLocation(.localFilePath(appBundlePath.pathString))
     )
-    private lazy var logicTestBuildArtifacts = BuildArtifacts.iosLogicTests(
+    private lazy var logicTestBuildArtifacts = IosBuildArtifacts.iosLogicTests(
         xcTestBundle: xcTestBundle
     )
     

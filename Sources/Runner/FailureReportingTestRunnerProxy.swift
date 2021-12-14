@@ -21,7 +21,7 @@ public final class FailureReportingTestRunnerProxy: TestRunner {
     }
     
     public func prepareTestRun(
-        buildArtifacts: BuildArtifacts,
+        buildArtifacts: IosBuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         logger: ContextualLogger,

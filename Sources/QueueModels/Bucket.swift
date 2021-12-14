@@ -10,22 +10,22 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible {
     public private(set) var bucketId: BucketId
     public let analyticsConfiguration: AnalyticsConfiguration
     public let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
-    public private(set) var payload: Payload
+    public private(set) var payloadContainer: BucketPayloadContainer
 
     private init(
         bucketId: BucketId,
         analyticsConfiguration: AnalyticsConfiguration,
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement>,
-        payload: Payload
+        payloadContainer: BucketPayloadContainer
     ) {
         self.bucketId = bucketId
         self.analyticsConfiguration = analyticsConfiguration
         self.workerCapabilityRequirements = workerCapabilityRequirements
-        self.payload = payload
+        self.payloadContainer = payloadContainer
     }
     
     public var description: String {
-        return "<\((type(of: self))) \(bucketId) payload: \(payload)>"
+        return "<\((type(of: self))) \(bucketId) payload: \(payloadContainer)>"
     }
 
     /// Explicit method to make it clear that you usually should not create new bucket directly.
@@ -33,13 +33,13 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible {
         bucketId: BucketId,
         analyticsConfiguration: AnalyticsConfiguration,
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement>,
-        payload: Payload
+        payloadContainer: BucketPayloadContainer
     ) -> Bucket {
         return Bucket(
             bucketId: bucketId,
             analyticsConfiguration: analyticsConfiguration,
             workerCapabilityRequirements: workerCapabilityRequirements,
-            payload: payload
+            payloadContainer: payloadContainer
         )
     }
 
@@ -50,7 +50,9 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible {
         }
     }
     
-    public func with(newBucketId: BucketId) throws -> Bucket {
+    public func with(
+        newBucketId: BucketId
+    ) throws -> Bucket {
         guard newBucketId != bucketId else {
             throw RepeatedBucketIdError(matchingId: bucketId)
         }
@@ -63,10 +65,10 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible {
     /// This method will throw error if previous bucket id matches new bucket id.
     public func with(
         newBucketId: BucketId,
-        newPayload: Payload
+        newPayloadContainer: BucketPayloadContainer
     ) throws -> Bucket {
         var bucket = try with(newBucketId: newBucketId)
-        bucket.payload = newPayload
+        bucket.payloadContainer = newPayloadContainer
         return bucket
     }
 }

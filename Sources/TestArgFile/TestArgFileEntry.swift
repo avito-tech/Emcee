@@ -9,7 +9,7 @@ import SimulatorPoolModels
 import WorkerCapabilitiesModels
 
 public struct TestArgFileEntry: Codable, Equatable {
-    public private(set) var buildArtifacts: BuildArtifacts
+    public private(set) var buildArtifacts: IosBuildArtifacts
     public let developerDir: DeveloperDir
     public let environment: [String: String]
     public let userInsertedLibraries: [String]
@@ -27,7 +27,7 @@ public struct TestArgFileEntry: Codable, Equatable {
     public let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
     
     public init(
-        buildArtifacts: BuildArtifacts,
+        buildArtifacts: IosBuildArtifacts,
         developerDir: DeveloperDir,
         environment: [String: String],
         userInsertedLibraries: [String],
@@ -62,7 +62,7 @@ public struct TestArgFileEntry: Codable, Equatable {
         self.workerCapabilityRequirements = workerCapabilityRequirements
     }
     
-    public func with(buildArtifacts: BuildArtifacts) -> Self {
+    public func with(buildArtifacts: IosBuildArtifacts) -> Self {
         var result = self
         result.buildArtifacts = buildArtifacts
         return result
@@ -71,7 +71,7 @@ public struct TestArgFileEntry: Codable, Equatable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        let buildArtifacts = try container.decode(BuildArtifacts.self, forKey: .buildArtifacts)
+        let buildArtifacts = try container.decode(IosBuildArtifacts.self, forKey: .buildArtifacts)
         let testDestination = try container.decode(TestDestination.self, forKey: .testDestination)
         let testsToRun = try container.decode([TestToRun].self, forKey: .testsToRun)
         

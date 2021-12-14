@@ -9,7 +9,7 @@ import Runner
 import RunnerModels
 
 public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConvertible {
-    private let buildArtifacts: BuildArtifacts
+    private let buildArtifacts: IosBuildArtifacts
     private let entriesToRun: [TestEntry]
     private let path: AbsolutePath
     private let resourceLocationResolver: ResourceLocationResolver
@@ -28,7 +28,7 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
     }
 
     public init(
-        buildArtifacts: BuildArtifacts,
+        buildArtifacts: IosBuildArtifacts,
         entriesToRun: [TestEntry],
         path: AbsolutePath,
         resourceLocationResolver: ResourceLocationResolver,

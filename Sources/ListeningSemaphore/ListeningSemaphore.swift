@@ -16,8 +16,7 @@ public final class ListeningSemaphore<T: ListeningSemaphoreAmounts> {
     
     /// Returns the operation which will be ready to be executed by the moment when required resources will be acquired.
     /// If resource amounts that need to be acquired are higher than maximum amounts, they will be capped to them.
-    /// Operation may be returned in already completed state. You should subscribe add your dependency to the operation
-    /// and perform your resource requiring job once the operation will be completed and not cancelled.
+    /// Operation may be returned in already completed state. 
     ///
     /// You typically create your own operation and add the operation returned by this method as a dependency to
     /// your operation, and perform resource-critical code inside your operation.

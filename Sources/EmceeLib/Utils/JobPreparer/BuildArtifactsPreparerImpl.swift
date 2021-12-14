@@ -17,13 +17,13 @@ public final class BuildArtifactsPreparerImpl: BuildArtifactsPreparer {
         self.logger = logger
     }
     
-    public func prepare(buildArtifacts: BuildArtifacts) throws -> BuildArtifacts {
+    public func prepare(buildArtifacts: IosBuildArtifacts) throws -> IosBuildArtifacts {
         try remotelyAccessibleBuildArtifacts(buildArtifacts: buildArtifacts)
     }
     
     private func remotelyAccessibleBuildArtifacts(
-        buildArtifacts: BuildArtifacts
-    ) throws -> BuildArtifacts {
+        buildArtifacts: IosBuildArtifacts
+    ) throws -> IosBuildArtifacts {
         let remotelyAccessibleTestBundle = XcTestBundle(
             location: try localTypedResourceLocationPreparer.generateRemotelyAccessibleTypedResourceLocation(buildArtifacts.xcTestBundle.location),
             testDiscoveryMode: buildArtifacts.xcTestBundle.testDiscoveryMode

@@ -19,6 +19,13 @@ public final class AllocatedSimulator {
         self.simulator = simulator
         self.releaseSimulator = releaseSimulator
     }
+    
+    public func withAutoreleasingSimulator<T>(_ work: (Simulator) throws -> T) rethrows -> T {
+        defer {
+            releaseSimulator()
+        }
+        return try work(simulator)
+    }
 }
 
 public extension SimulatorPool {

@@ -68,7 +68,7 @@ public final class FakeTestRunner: TestRunner {
     public var isRunCalled = false
     
     public func prepareTestRun(
-        buildArtifacts: BuildArtifacts,
+        buildArtifacts: IosBuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         logger: ContextualLogger,

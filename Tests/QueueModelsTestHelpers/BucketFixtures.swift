@@ -11,34 +11,42 @@ import WorkerCapabilitiesModels
 public final class BucketFixtures {
     public static func createBucket(
         bucketId: BucketId = BucketId(value: "BucketFixturesFixedBucketId"),
-        testEntries: [TestEntry] = [TestEntryFixtures.testEntry()],
-        numberOfRetries: UInt = 0,
+        bucketPayloadContainer: BucketPayloadContainer? = nil,
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement> = []
     ) -> Bucket {
+        let bucketPayloadContainer = bucketPayloadContainer ?? .runIosTests(Self.createRunIosTestsPayload())
+        
         return Bucket.newBucket(
             bucketId: bucketId,
             analyticsConfiguration: AnalyticsConfiguration(),
             workerCapabilityRequirements: workerCapabilityRequirements,
-            payload: Payload(
-                buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
-                developerDir: .current,
-                pluginLocations: [],
-                simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
-                simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-                testDestination: TestDestinationFixtures.testDestination,
-                testEntries: testEntries,
-                testExecutionBehavior: TestExecutionBehavior(
-                    environment: [:],
-                    userInsertedLibraries: [],
-                    numberOfRetries: numberOfRetries,
-                    testRetryMode: .retryThroughQueue,
-                    logCapturingMode: .noLogs,
-                    runnerWasteCleanupPolicy: .clean
-                ),
-                testTimeoutConfiguration: TestTimeoutConfiguration(
-                    singleTestMaximumDuration: 0,
-                    testRunnerMaximumSilenceDuration: 0
-                )
+            payloadContainer: bucketPayloadContainer
+        )
+    }
+    
+    public static func createRunIosTestsPayload(
+        testEntries: [TestEntry] = [TestEntryFixtures.testEntry()],
+        numberOfRetries: UInt = 0
+    ) -> RunIosTestsPayload {
+        RunIosTestsPayload(
+            buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
+            developerDir: .current,
+            pluginLocations: [],
+            simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
+            simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
+            testDestination: TestDestinationFixtures.testDestination,
+            testEntries: testEntries,
+            testExecutionBehavior: TestExecutionBehavior(
+                environment: [:],
+                userInsertedLibraries: [],
+                numberOfRetries: numberOfRetries,
+                testRetryMode: .retryThroughQueue,
+                logCapturingMode: .noLogs,
+                runnerWasteCleanupPolicy: .clean
+            ),
+            testTimeoutConfiguration: TestTimeoutConfiguration(
+                singleTestMaximumDuration: 0,
+                testRunnerMaximumSilenceDuration: 0
             )
         )
     }

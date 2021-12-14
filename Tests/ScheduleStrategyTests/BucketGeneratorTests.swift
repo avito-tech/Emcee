@@ -1,4 +1,5 @@
 import Foundation
+import QueueModels
 import QueueModelsTestHelpers
 import RunnerTestHelpers
 import ScheduleStrategy
@@ -95,8 +96,16 @@ final class BucketGeneratorTests: XCTestCase {
             testSplitter: UnsplitBucketSplitter()
         )
         XCTAssertEqual(buckets.count, 3)
-        XCTAssertEqual(buckets[0].payload.testEntries, expectedBucketEntries)
-        XCTAssertEqual(buckets[1].payload.testEntries, expectedBucketEntries)
-        XCTAssertEqual(buckets[2].payload.testEntries, expectedBucketEntries)
+        
+        for bucket in buckets {
+            switch bucket.payloadContainer {
+            case .runIosTests(let runIosTestsPayload):
+                assert { runIosTestsPayload.testEntries } equals: {
+                    expectedBucketEntries
+                }
+            case .runAndroidTests:
+                failTest("Unexpected payload")
+            }
+        }
     }
 }
