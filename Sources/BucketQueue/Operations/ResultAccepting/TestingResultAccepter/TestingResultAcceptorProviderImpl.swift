@@ -1,20 +1,24 @@
 import EmceeLogging
 import Foundation
 import TestHistoryTracker
+import UniqueIdentifierGenerator
 
 public final class TestingResultAcceptorProviderImpl: TestingResultAcceptorProvider {
     private let bucketEnqueuerProvider: BucketEnqueuerProvider
     private let logger: ContextualLogger
     private let testHistoryTracker: TestHistoryTracker
+    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     
     public init(
         bucketEnqueuerProvider: BucketEnqueuerProvider,
         logger: ContextualLogger,
-        testHistoryTracker: TestHistoryTracker
+        testHistoryTracker: TestHistoryTracker,
+        uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
         self.bucketEnqueuerProvider = bucketEnqueuerProvider
         self.logger = logger
         self.testHistoryTracker = testHistoryTracker
+        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
     public func create(
@@ -26,7 +30,8 @@ public final class TestingResultAcceptorProviderImpl: TestingResultAcceptorProvi
             ),
             bucketQueueHolder: bucketQueueHolder,
             logger: logger,
-            testHistoryTracker: testHistoryTracker
+            testHistoryTracker: testHistoryTracker,
+            uniqueIdentifierGenerator: uniqueIdentifierGenerator
         )
     }
 }

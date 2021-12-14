@@ -5,7 +5,9 @@ import Foundation
 import QueueModels
 import QueueModelsTestHelpers
 import RunnerTestHelpers
+import SimulatorPoolTestHelpers
 import TestHelpers
+import TestHistoryStorage
 import TestHistoryTestHelpers
 import TestHistoryTracker
 import UniqueIdentifierGenerator
@@ -23,27 +25,26 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         delegate: UuidBasedUniqueIdentifierGenerator()
     )
     
-    private lazy var testHistoryTracker = TestHistoryTrackerFixtures.testHistoryTracker(
+    private lazy var testHistoryTracker = TestHistoryTrackerImpl(
+        testHistoryStorage: TestHistoryStorageImpl(),
         uniqueIdentifierGenerator: bucketIdGenerator
     )
 
     private lazy var oneFailResultsFixtures = TestingResultFixtures()
         .addingResult(success: false)
-    private lazy var bucketFixture = BucketFixtures.createBucket(
-        bucketId: BucketId(value: bucketIdGenerator.generate())
-    )
-
+    
     func test___accept___tells_to_accept_failures___when_retrying_is_disabled() throws {
         // When
         let acceptResult = try testHistoryTracker.accept(
             testingResult: oneFailResultsFixtures.testingResult(),
-            bucket: bucketFixture,
+            bucketId: createBucketId(),
+            numberOfRetries: 0,
             workerId: failingWorkerId
         )
         
         // Then
         XCTAssertEqual(
-            acceptResult.bucketsToReenqueue,
+            acceptResult.testEntriesToReenqueue,
             [],
             "When there is no retries then bucketsToReenqueue is empty"
         )
@@ -55,23 +56,19 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
     }
 
     func test___accept___tells_to_retry___when_retrying_is_possible() throws {
-        let testBucket = BucketFixtures.createBucket(
-            bucketId: BucketId(value: bucketIdGenerator.generate()),
-            numberOfRetries: 1
-        )
-
         // When
         let acceptResult = try testHistoryTracker.accept(
             testingResult: oneFailResultsFixtures.testingResult(),
-            bucket: testBucket,
+            bucketId: createBucketId(),
+            numberOfRetries: 1,
             workerId: failingWorkerId
         )
         
         // Then
         XCTAssertEqual(
-            acceptResult.bucketsToReenqueue,
+            acceptResult.testEntriesToReenqueue,
             [
-                try testBucket.with(newBucketId: BucketId(assertNotNil { bucketIdGenerator.history.last })),
+                TestEntryFixtures.testEntry(),
             ],
             "If test failed once and numberOfRetries > 0 then bucket will be rescheduled"
         )
@@ -85,27 +82,33 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
     
     func test___accept___tells_to_accept_failures___when_maximum_numbers_of_attempts_reached() throws {
         // Given
-        let bucket = BucketFixtures.createBucket(
-            bucketId: BucketId(value: bucketIdGenerator.generate()),
-            numberOfRetries: 1
+        let bucketId = createBucketId()
+        _ = try testHistoryTracker.accept(
+            testingResult: oneFailResultsFixtures.testingResult(),
+            bucketId: bucketId,
+            numberOfRetries: 1,
+            workerId: failingWorkerId
         )
         
-        let initialAcceptResult = try testHistoryTracker.accept(
-            testingResult: oneFailResultsFixtures.testingResult(),
-            bucket: bucket,
-            workerId: failingWorkerId
+        let newBucketId = createBucketId()
+        testHistoryTracker.willReenqueuePreviouslyFailedTests(
+            whichFailedUnderBucketId: bucketId,
+            underNewBucketIds: [
+                newBucketId: TestEntryFixtures.testEntry(),
+            ]
         )
         
         // When
         let acceptResult = try testHistoryTracker.accept(
             testingResult: oneFailResultsFixtures.testingResult(),
-            bucket: assertNotNil { initialAcceptResult.bucketsToReenqueue.first },
+            bucketId: newBucketId,
+            numberOfRetries: 1,
             workerId: failingWorkerId
         )
         
         // Then
         XCTAssertEqual(
-            acceptResult.bucketsToReenqueue,
+            acceptResult.testEntriesToReenqueue,
             []
         )
         
@@ -119,36 +122,28 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         // Given
         _ = try testHistoryTracker.accept(
             testingResult: oneFailResultsFixtures.testingResult(),
-            bucket: BucketFixtures.createBucket(
-                bucketId: BucketId(value: bucketIdGenerator.generate()),
-                numberOfRetries: 1
-            ),
+            bucketId: createBucketId(),
+            numberOfRetries: 1,
             workerId: failingWorkerId
         )
         
         let secondBucket = BucketFixtures.createBucket(
-            bucketId: BucketId(value: "secondIdentifier"),
-            numberOfRetries: 1
+            bucketId: BucketId(value: "secondIdentifier")
         )
         
         // When
         let acceptResult = try testHistoryTracker.accept(
             testingResult: oneFailResultsFixtures.testingResult(),
-            bucket: BucketFixtures.createBucket(
-                bucketId: secondBucket.bucketId,
-                numberOfRetries: 1
-            ),
+            bucketId: secondBucket.bucketId,
+            numberOfRetries: 1,
             workerId: failingWorkerId
         )
         
         // Then
         XCTAssertEqual(
-            acceptResult.bucketsToReenqueue,
+            acceptResult.testEntriesToReenqueue,
             [
-                BucketFixtures.createBucket(
-                    bucketId: BucketId(assertNotNil { bucketIdGenerator.history.last }),
-                    numberOfRetries: 1
-                )
+                TestEntryFixtures.testEntry(),
             ]
         )
         
@@ -159,97 +154,153 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
     }
     
     func test___bucketToDequeue___is_not_nil___initially() {
+        // Given
+        let queue = [
+            EnqueuedRunIosTestsPayload(
+                bucketId: createBucketId(),
+                testDestination: TestDestinationFixtures.testDestination,
+                testEntries: [TestEntryFixtures.testEntry()],
+                numberOfRetries: 1
+            )
+        ]
+        
         // When
-        let bucketToDequeue = testHistoryTracker.bucketToDequeue(
+        let payloadToDequeue = testHistoryTracker.enqueuedPayloadToDequeue(
             workerId: failingWorkerId,
-            queue: [
-                EnqueuedBucket(bucket: bucketFixture, enqueueTimestamp: fixedDate, uniqueIdentifier: "fixedIdentifier")
-            ],
+            queue: queue,
             workerIdsInWorkingCondition: workerIdsInWorkingCondition
         )
         
         // Then
-        XCTAssertEqual(bucketToDequeue?.bucket, bucketFixture)
+        XCTAssertEqual(payloadToDequeue, queue[0])
     }
     
     func test___bucketToDequeue___is_nil___for_failing_worker() throws {
         // Given
+        let bucketId = createBucketId()
+        
+        let payload = EnqueuedRunIosTestsPayload(
+            bucketId: bucketId,
+            testDestination: TestDestinationFixtures.testDestination,
+            testEntries: [TestEntryFixtures.testEntry()],
+            numberOfRetries: 0
+        )
+        
         try failOnce(
             tracker: testHistoryTracker,
+            bucketId: bucketId,
             workerId: failingWorkerId
         )
         
         // When
-        let bucketToDequeue = testHistoryTracker.bucketToDequeue(
+        let payloadToDequeue = testHistoryTracker.enqueuedPayloadToDequeue(
             workerId: failingWorkerId,
             queue: [
-                EnqueuedBucket(bucket: bucketFixture, enqueueTimestamp: fixedDate, uniqueIdentifier: "fixedIdentifier")
+                payload,
             ],
             workerIdsInWorkingCondition: workerIdsInWorkingCondition
         )
         
         // Then
-        XCTAssertEqual(bucketToDequeue, nil)
+        XCTAssertEqual(payloadToDequeue, nil)
     }
     
     func test___bucketToDequeue___is_not_nil___if_there_are_not_yet_failed_buckets_in_queue() throws {
         // Given
+        let bucketId = createBucketId()
+        
+        let payload = EnqueuedRunIosTestsPayload(
+            bucketId: bucketId,
+            testDestination: TestDestinationFixtures.testDestination,
+            testEntries: [TestEntryFixtures.testEntry()],
+            numberOfRetries: 0
+        )
+        
         try failOnce(
             tracker: testHistoryTracker,
+            bucketId: bucketId,
             workerId: failingWorkerId
         )
-        let notFailedBucket = BucketFixtures.createBucket(
-            testEntries: [TestEntryFixtures.testEntry(className: "notFailed")]
+        
+        let notFailedPayload = EnqueuedRunIosTestsPayload(
+            bucketId: createBucketId(),
+            testDestination: TestDestinationFixtures.testDestination,
+            testEntries: [TestEntryFixtures.testEntry(className: "notFailed")],
+            numberOfRetries: 0
         )
         
         // When
-        let bucketToDequeue = testHistoryTracker.bucketToDequeue(
+        let payloadToDequeue = testHistoryTracker.enqueuedPayloadToDequeue(
             workerId: failingWorkerId,
             queue: [
-                EnqueuedBucket(bucket: bucketFixture, enqueueTimestamp: fixedDate, uniqueIdentifier: "fixedIdentifier"),
-                EnqueuedBucket(bucket: notFailedBucket, enqueueTimestamp: fixedDate, uniqueIdentifier: "fixedIdentifier"),
+                payload,
+                notFailedPayload,
             ],
             workerIdsInWorkingCondition: workerIdsInWorkingCondition
         )
-        
         // Then
-        XCTAssertEqual(bucketToDequeue?.bucket, notFailedBucket)
+        XCTAssertEqual(payloadToDequeue, notFailedPayload)
     }
     
     func test___bucketToDequeue___is_not_nil___for_not_failing_worker() throws {
-
         // Given
+        let bucketId = createBucketId()
+        
+        let payload = EnqueuedRunIosTestsPayload(
+            bucketId: bucketId,
+            testDestination: TestDestinationFixtures.testDestination,
+            testEntries: [TestEntryFixtures.testEntry()],
+            numberOfRetries: 0
+        )
+        
         try failOnce(
             tracker: testHistoryTracker,
+            bucketId: bucketId,
             workerId: failingWorkerId
         )
         
         // When
-        let bucketToDequeue = testHistoryTracker.bucketToDequeue(
+        let payloadToDequeue = testHistoryTracker.enqueuedPayloadToDequeue(
             workerId: notFailingWorkerId,
             queue: [
-                EnqueuedBucket(bucket: bucketFixture, enqueueTimestamp: fixedDate, uniqueIdentifier: "fixedIdentifier"),
+                payload,
             ],
             workerIdsInWorkingCondition: workerIdsInWorkingCondition
         )
         
         // Then
-        XCTAssertEqual(bucketToDequeue?.bucket, bucketFixture)
+        XCTAssertEqual(payloadToDequeue, payload)
     }
     
-    private func failOnce(tracker: TestHistoryTracker, workerId: WorkerId) throws {
-        _ = tracker.bucketToDequeue(
-            workerId: failingWorkerId,
+    private func failOnce(
+        tracker: TestHistoryTracker,
+        bucketId: BucketId,
+        numberOfRetries: UInt = 0,
+        workerId: WorkerId
+    ) throws {
+        _ = tracker.enqueuedPayloadToDequeue(
+            workerId: workerId,
             queue: [
-                EnqueuedBucket(bucket: bucketFixture, enqueueTimestamp: fixedDate, uniqueIdentifier: "fixedIdentifier"),
+                EnqueuedRunIosTestsPayload(
+                    bucketId: bucketId,
+                    testDestination: TestDestinationFixtures.testDestination,
+                    testEntries: [TestEntryFixtures.testEntry()],
+                    numberOfRetries: numberOfRetries
+                ),
             ],
             workerIdsInWorkingCondition: workerIdsInWorkingCondition
         )
+        
         _ = try tracker.accept(
             testingResult: oneFailResultsFixtures.testingResult(),
-            bucket: bucketFixture,
+            bucketId: bucketId,
+            numberOfRetries: numberOfRetries,
             workerId: workerId
         )
+    }
+    
+    private func createBucketId() -> BucketId {
+        BucketId(value: bucketIdGenerator.generate())
     }
 }
 

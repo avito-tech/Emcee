@@ -17,23 +17,28 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
-    public func bucketToDequeue(
+    public func enqueuedPayloadToDequeue(
         workerId: WorkerId,
-        queue: [EnqueuedBucket],
+        queue: [EnqueuedRunIosTestsPayload],
         workerIdsInWorkingCondition: @autoclosure () -> [WorkerId]
-    ) -> EnqueuedBucket? {
-        let bucketThatWasNotFailingOnWorkerOrNil = queue.first { enqueuedBucket in
-            !bucketWasFailingOnWorker(bucket: enqueuedBucket.bucket, workerId: workerId)
+    ) -> EnqueuedRunIosTestsPayload? {
+        let bucketThatWasNotFailingOnWorkerOrNil = queue.first { enqueuedRunIosTestsPayload in
+            !bucketWasFailingOnWorker(
+                bucketId: enqueuedRunIosTestsPayload.bucketId,
+                testEntries: enqueuedRunIosTestsPayload.testEntries,
+                workerId: workerId
+            )
         }
         
-        if let bucketToDequeue = bucketThatWasNotFailingOnWorkerOrNil {
-            return bucketToDequeue
+        if let payloadToDequeue = bucketThatWasNotFailingOnWorkerOrNil {
+            return payloadToDequeue
         } else {
             let computedWorkerIdsInWorkingCondition = workerIdsInWorkingCondition()
             
-            let bucketThatWasFailingOnEveryWorkerOrNil = queue.first { enqueuedBucket in
+            let bucketThatWasFailingOnEveryWorkerOrNil = queue.first { enqueuedRunIosTestsPayload in
                 bucketWasFailingOnEveryWorker(
-                    bucket: enqueuedBucket.bucket,
+                    bucketId: enqueuedRunIosTestsPayload.bucketId,
+                    testEntries: enqueuedRunIosTestsPayload.testEntries,
                     workerIdsInWorkingCondition: computedWorkerIdsInWorkingCondition
                 )
             }
@@ -44,7 +49,8 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
     
     public func accept(
         testingResult: TestingResult,
-        bucket: Bucket,
+        bucketId: BucketId,
+        numberOfRetries: UInt,
         workerId: WorkerId
     ) throws -> TestHistoryTrackerAcceptResult {
         var resultsOfSuccessfulTests = [TestEntryResult]()
@@ -53,7 +59,7 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         
         for testEntryResult in testingResult.unfilteredResults {
             let id = TestEntryHistoryId(
-                bucketId: bucket.bucketId,
+                bucketId: bucketId,
                 testEntry: testEntryResult.testEntry
             )
             
@@ -66,7 +72,7 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
             if testEntryResult.succeeded {
                 resultsOfSuccessfulTests.append(testEntryResult)
             } else {
-                if testEntryHistory.numberOfAttempts < numberOfAttemptsToRunTests(bucket: bucket) {
+                if testEntryHistory.numberOfAttempts < numberOfAttemptsToRunTests(numberOfRetries: numberOfRetries) {
                     resultsOfTestsToRetry.append(testEntryResult)
                 } else {
                     resultsOfFailedTests.append(testEntryResult)
@@ -75,55 +81,53 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         }
         
         let testingResult = TestingResult(
-            testDestination: bucket.payload.testDestination,
+            testDestination: testingResult.testDestination,
             unfilteredResults: resultsOfSuccessfulTests + resultsOfFailedTests
         )
         
-        // Every failed test produces a single bucket with itself
-        let bucketsToReenqueue = try resultsOfTestsToRetry.map { testEntryResult -> Bucket in
-            try bucket.with(
-                newBucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
-                newPayload: bucket.payload.with(
-                    testEntries: [testEntryResult.testEntry]
-                )
-            )
-        }
-        
-        bucketsToReenqueue.forEach { reenqueuingBucket in
-            reenqueuingBucket.payload.testEntries.forEach { entry in
-                let id = TestEntryHistoryId(
-                    bucketId: bucket.bucketId,
-                    testEntry: entry
-                )
-
-                testHistoryStorage.registerReenqueuedBucketId(
-                    testEntryHistoryId: id,
-                    enqueuedBucketId: reenqueuingBucket.bucketId
-                )
-            }
-        }
+        let testEntriesToReenqueue = resultsOfTestsToRetry.map(\.testEntry)
         
         return TestHistoryTrackerAcceptResult(
-            bucketsToReenqueue: bucketsToReenqueue,
+            testEntriesToReenqueue: testEntriesToReenqueue,
             testingResult: testingResult
         )
     }
     
+    public func willReenqueuePreviouslyFailedTests(
+        whichFailedUnderBucketId oldBucketId: BucketId,
+        underNewBucketIds testEntryByBucketId: [BucketId: TestEntry]
+    ) {
+        // Every failed test produces a single bucket with itself
+        testEntryByBucketId.forEach { bucketIdWithTestEntry in
+            let id = TestEntryHistoryId(
+                bucketId: oldBucketId,
+                testEntry: bucketIdWithTestEntry.value
+            )
+            testHistoryStorage.registerReenqueuedBucketId(
+                testEntryHistoryId: id,
+                enqueuedBucketId: bucketIdWithTestEntry.key
+            )
+        }
+    }
+    
     private func bucketWasFailingOnWorker(
-        bucket: Bucket,
+        bucketId: BucketId,
+        testEntries: [TestEntry],
         workerId: WorkerId
     ) -> Bool {
         let onWorker: (TestEntryHistory) -> Bool = { testEntryHistory in
             testEntryHistory.isFailingOnWorker(workerId: workerId)
         }
         return bucketWasFailing(
-            bucket: bucket,
+            bucketId: bucketId,
+            testEntries: testEntries,
             whereItWasFailing: onWorker
         )
     }
     
     private func bucketWasFailingOnEveryWorker(
-        bucket: Bucket,
+        bucketId: BucketId,
+        testEntries: [TestEntry],
         workerIdsInWorkingCondition: [WorkerId]
     ) -> Bool {
         let onEveryWorker: (TestEntryHistory) -> Bool = { testEntryHistory in
@@ -133,19 +137,21 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
             return everyWorkerFailed
         }
         return bucketWasFailing(
-            bucket: bucket,
+            bucketId: bucketId,
+            testEntries: testEntries,
             whereItWasFailing: onEveryWorker
         )
     }
     
     private func bucketWasFailing(
-        bucket: Bucket,
+        bucketId: BucketId,
+        testEntries: [TestEntry],
         whereItWasFailing: (TestEntryHistory) -> Bool
     ) -> Bool {
-        return bucket.payload.testEntries.contains { testEntry in
+        return testEntries.contains { testEntry in
             testEntryWasFailing(
                 testEntry: testEntry,
-                bucket: bucket,
+                bucketId: bucketId,
                 whereItWasFailing: whereItWasFailing
             )
         }
@@ -153,11 +159,11 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
     
     private func testEntryWasFailing(
         testEntry: TestEntry,
-        bucket: Bucket,
+        bucketId: BucketId,
         whereItWasFailing: (TestEntryHistory) -> Bool
     ) -> Bool {
         let testEntryHistoryId = TestEntryHistoryId(
-            bucketId: bucket.bucketId,
+            bucketId: bucketId,
             testEntry: testEntry
         )
         let testEntryHistory = testHistoryStorage.history(id: testEntryHistoryId)
@@ -165,7 +171,7 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         return whereItWasFailing(testEntryHistory)
     }
     
-    private func numberOfAttemptsToRunTests(bucket: Bucket) -> UInt {
-        return 1 + bucket.payload.testExecutionBehavior.numberOfRetries
+    private func numberOfAttemptsToRunTests(numberOfRetries: UInt) -> UInt {
+        return 1 + numberOfRetries
     }
 }

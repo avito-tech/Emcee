@@ -17,15 +17,24 @@ public final class SingleStatefulBucketQueue: StatefulBucketQueue {
         
         var dequeuedTests = MapWithCollection<WorkerId, TestName>()
         for dequeuedBucket in dequeuedBuckets {
-            dequeuedTests.append(
-                key: dequeuedBucket.workerId,
-                elements: dequeuedBucket.enqueuedBucket.bucket.payload.testEntries.map { $0.testName }
-            )
+            if let runIosTestsPayload = try? dequeuedBucket.enqueuedBucket.bucket.payload.cast(RunIosTestsPayload.self) {
+                dequeuedTests.append(
+                    key: dequeuedBucket.workerId,
+                    elements: runIosTestsPayload.testEntries.map { $0.testName }
+                )
+            }
         }
+        
+        let enqueuedTests = enqueuedBuckets
+            .compactMap { enqueuedBucket in
+                try? enqueuedBucket.bucket.payload.cast(RunIosTestsPayload.self)
+            }
+            .flatMap(\.testEntries)
+            .map(\.testName)
         
         return RunningQueueState(
             enqueuedBucketCount: enqueuedBuckets.count,
-            enqueuedTests: enqueuedBuckets.flatMap { $0.bucket.payload.testEntries.map { $0.testName } },
+            enqueuedTests: enqueuedTests,
             dequeuedBucketCount: dequeuedBuckets.count,
             dequeuedTests: dequeuedTests
         )

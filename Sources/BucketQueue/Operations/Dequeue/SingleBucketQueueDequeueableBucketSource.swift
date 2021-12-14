@@ -35,13 +35,24 @@ public final class SingleBucketQueueDequeueableBucketSource: DequeueableBucketSo
         workerCapabilitiesStorage.set(workerCapabilities: workerCapabilities, forWorkerId: workerId)
         
         return bucketQueueHolder.performWithExclusiveAccess {
-            let bucketToDequeueOrNil = testHistoryTracker.bucketToDequeue(
+            let payloadToDequeueOrNil = testHistoryTracker.enqueuedPayloadToDequeue(
                 workerId: workerId,
-                queue: bucketQueueHolder.allEnqueuedBuckets,
+                queue: bucketQueueHolder.allEnqueuedBuckets.compactMap {
+                    guard let runIosTestsPayload = try? $0.bucket.payload.cast(RunIosTestsPayload.self) else {
+                        return nil
+                    }
+                    return EnqueuedRunIosTestsPayload(
+                        bucketId: $0.bucket.bucketId,
+                        testDestination: runIosTestsPayload.testDestination,
+                        testEntries: runIosTestsPayload.testEntries,
+                        numberOfRetries: runIosTestsPayload.testExecutionBehavior.numberOfRetries
+                    )
+                },
                 workerIdsInWorkingCondition: workerAlivenessProvider.workerIdsInWorkingCondition
             )
             
-            if let enqueuedBucket = bucketToDequeueOrNil {
+            if let enqueuedPayload = payloadToDequeueOrNil, let enqueuedBucket = bucketQueueHolder.enqueuedBucket(bucketId: enqueuedPayload.bucketId) {
+                
                 guard workerCapabilityConstraintResolver.requirementsSatisfied(
                     requirements: enqueuedBucket.bucket.workerCapabilityRequirements,
                     workerCapabilities: workerCapabilities

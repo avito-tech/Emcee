@@ -1,6 +1,7 @@
 import BucketQueueModels
 import EmceeExtensions
 import Foundation
+import QueueModels
 
 /// Defines a mutable state of a single bucket queue. All mutation should happen through `SinglaBucketQueueXXX` impls.
 public final class BucketQueueHolder {
@@ -30,6 +31,14 @@ public final class BucketQueueHolder {
     
     public var allDequeuedBuckets: Set<DequeuedBucket> {
         accessLock.whileLocked { dequeuedBuckets }
+    }
+    
+    public func enqueuedBucket(bucketId: BucketId) -> EnqueuedBucket? {
+        accessLock.whileLocked {
+            enqueuedBuckets.first { enqueuedBucket in
+                enqueuedBucket.bucket.bucketId == bucketId
+            }
+        }
     }
     
     public func remove(dequeuedBucket: DequeuedBucket) {

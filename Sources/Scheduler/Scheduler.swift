@@ -24,6 +24,7 @@ import UniqueIdentifierGenerator
 
 public final class Scheduler {
     private let di: DI
+    private let dateProvider: DateProvider
     private let rootLogger: ContextualLogger
     private let queue = OperationQueue()
     private let resourceSemaphore: ListeningSemaphore<ResourceAmounts>
@@ -33,6 +34,7 @@ public final class Scheduler {
     
     public init(
         di: DI,
+        dateProvider: DateProvider,
         logger: ContextualLogger,
         numberOfSimulators: UInt,
         schedulerDataSource: SchedulerDataSource,
@@ -40,6 +42,7 @@ public final class Scheduler {
         version: Version
     ) {
         self.di = di
+        self.dateProvider = dateProvider
         self.rootLogger = logger
         self.resourceSemaphore = ListeningSemaphore(
             maximumValues: .of(
@@ -52,9 +55,8 @@ public final class Scheduler {
     }
     
     public func run() throws {
-        startFetchingAndRunningTests(
-            dateProvider: try di.get()
-        )
+        startFetchingAndRunningTests()
+        
         try SynchronousWaiter().waitWhile(pollPeriod: 1.0) {
             queue.operationCount > 0
         }
@@ -62,17 +64,13 @@ public final class Scheduler {
     
     // MARK: - Running on Queue
     
-    private func startFetchingAndRunningTests(
-        dateProvider: DateProvider
-    ) {
+    private func startFetchingAndRunningTests() {
         for _ in 0 ..< resourceSemaphore.availableResources.runningTests {
-            fetchAndRunBucket(dateProvider: dateProvider)
+            fetchAndRunBucket()
         }
     }
     
-    private func fetchAndRunBucket(
-        dateProvider: DateProvider
-    ) {
+    private func fetchAndRunBucket() {
         queue.addOperation {
             if self.resourceSemaphore.availableResources.runningTests == 0 {
                 return
@@ -85,33 +83,35 @@ public final class Scheduler {
                 analyticsConfiguration: bucket.analyticsConfiguration
             )
             logger.debug("Data Source returned bucket: \(bucket)")
-            self.runTestsFromFetchedBucket(bucket: bucket, dateProvider: dateProvider, logger: logger)
+            self.runTestsFromFetchedBucket(bucket: bucket, logger: logger)
         }
     }
     
     private func runTestsFromFetchedBucket(
         bucket: SchedulerBucket,
-        dateProvider: DateProvider,
         logger: ContextualLogger
     ) {
         do {
             let acquireResources = try resourceSemaphore.acquire(.of(runningTests: 1))
             let runTestsInBucketAfterAcquiringResources = BlockOperation {
                 do {
-                    let testingResult = self.execute(
-                        bucket: bucket,
-                        dateProvider: dateProvider,
-                        logger: logger
-                    )
+                    let bucketResult: BucketResult
+                    switch bucket.bucketPayload {
+                    case .runIosTests(let runIosTestsPayload):
+                        bucketResult = self.executeIosTestsBucket(
+                            analyticsConfiguration: bucket.analyticsConfiguration,
+                            bucketId: bucket.bucketId,
+                            runIosTestsPayload: runIosTestsPayload,
+                            logger: logger
+                        )
+                    }
                     try self.resourceSemaphore.release(.of(runningTests: 1))
                     self.schedulerDelegate?.scheduler(
                         self,
-                        obtainedBucketResult: .testingResult(testingResult),
+                        obtainedBucketResult: bucketResult,
                         forBucket: bucket
                     )
-                    self.fetchAndRunBucket(
-                        dateProvider: dateProvider
-                    )
+                    self.fetchAndRunBucket()
                 } catch {
                     logger.error("Error running tests from fetched bucket with error: \(error). Bucket: \(bucket)")
                 }
@@ -123,25 +123,28 @@ public final class Scheduler {
         }
     }
     
-    // MARK: - Running the Tests
+    // MARK: - Running iOS Tests
     
-    private func execute(
-        bucket: SchedulerBucket,
-        dateProvider: DateProvider,
+    private func executeIosTestsBucket(
+        analyticsConfiguration: AnalyticsConfiguration,
+        bucketId: BucketId,
+        runIosTestsPayload: RunIosTestsPayload,
         logger: ContextualLogger
-    ) -> TestingResult {
+    ) -> BucketResult {
         let startedAt = dateProvider.dateSince1970ReferenceDate()
+        let testingResult: TestingResult
         do {
-            return try runRetrying(
-                bucket: bucket,
+            testingResult = try runRetrying(
+                analyticsConfiguration: analyticsConfiguration,
+                runIosTestsPayload: runIosTestsPayload,
                 logger: logger,
-                numberOfRetries: bucket.payload.testExecutionBehavior.numberOfRetriesOnWorker()
+                numberOfRetries: runIosTestsPayload.testExecutionBehavior.numberOfRetriesOnWorker()
             )
         } catch {
-            logger.error("Failed to execute bucket \(bucket.bucketId): \(error)")
-            return TestingResult(
-                testDestination: bucket.payload.testDestination,
-                unfilteredResults: bucket.payload.testEntries.map { testEntry -> TestEntryResult in
+            logger.error("Failed to execute bucket \(bucketId): \(error)")
+            testingResult = TestingResult(
+                testDestination: runIosTestsPayload.testDestination,
+                unfilteredResults: runIosTestsPayload.testEntries.map { testEntry -> TestEntryResult in
                     TestEntryResult.withResult(
                         testEntry: testEntry,
                         testRunResult: TestRunResult(
@@ -164,19 +167,22 @@ public final class Scheduler {
                 }
             )
         }
+        return .testingResult(testingResult)
     }
     
     /**
      Runs tests in a given Bucket, retrying failed tests multiple times if necessary.
      */
     private func runRetrying(
-        bucket: SchedulerBucket,
+        analyticsConfiguration: AnalyticsConfiguration,
+        runIosTestsPayload: RunIosTestsPayload,
         logger: ContextualLogger,
         numberOfRetries: UInt
     ) throws -> TestingResult {
         let firstRun = try runBucketOnce(
-            bucket: bucket,
-            testsToRun: bucket.payload.testEntries,
+            analyticsConfiguration: analyticsConfiguration,
+            runIosTestsPayload: runIosTestsPayload,
+            testsToRun: runIosTestsPayload.testEntries,
             logger: logger
         )
         
@@ -192,46 +198,52 @@ public final class Scheduler {
             }
             logger.debug("After last run \(failedTestEntriesAfterLastRun.count) tests have failed: \(failedTestEntriesAfterLastRun).")
             logger.debug("Retrying them, attempt #\(retryNumber + 1) of maximum \(numberOfRetries) attempts")
-            lastRunResults = try runBucketOnce(bucket: bucket, testsToRun: failedTestEntriesAfterLastRun, logger: logger)
+            lastRunResults = try runBucketOnce(
+                analyticsConfiguration: analyticsConfiguration,
+                runIosTestsPayload: runIosTestsPayload,
+                testsToRun: failedTestEntriesAfterLastRun,
+                logger: logger
+            )
             results.append(lastRunResults)
         }
         return try combine(runResults: results)
     }
     
     private func runBucketOnce(
-        bucket: SchedulerBucket,
+        analyticsConfiguration: AnalyticsConfiguration,
+        runIosTestsPayload: RunIosTestsPayload,
         testsToRun: [TestEntry],
         logger: ContextualLogger
     ) throws -> TestingResult {
         let simulatorPool = try di.get(OnDemandSimulatorPool.self).pool(
             key: OnDemandSimulatorPoolKey(
-                developerDir: bucket.payload.developerDir,
-                testDestination: bucket.payload.testDestination
+                developerDir: runIosTestsPayload.developerDir,
+                testDestination: runIosTestsPayload.testDestination
             )
         )
         
         let specificMetricRecorderProvider: SpecificMetricRecorderProvider = try di.get()
         let specificMetricRecorder = try specificMetricRecorderProvider.specificMetricRecorder(
-            analyticsConfiguration: bucket.analyticsConfiguration
+            analyticsConfiguration: analyticsConfiguration
         )
 
         let allocatedSimulator = try simulatorPool.allocateSimulator(
-            dateProvider: try di.get(),
+            dateProvider: dateProvider,
             logger: logger,
-            simulatorOperationTimeouts: bucket.payload.simulatorOperationTimeouts,
+            simulatorOperationTimeouts: runIosTestsPayload.simulatorOperationTimeouts,
             version: version,
             globalMetricRecorder: try di.get()
         )
         defer { allocatedSimulator.releaseSimulator() }
         
         try di.get(SimulatorSettingsModifier.self).apply(
-            developerDir: bucket.payload.developerDir,
-            simulatorSettings: bucket.payload.simulatorSettings,
+            developerDir: runIosTestsPayload.developerDir,
+            simulatorSettings: runIosTestsPayload.simulatorSettings,
             toSimulator: allocatedSimulator.simulator
         )
         
         let runner = Runner(
-            dateProvider: try di.get(),
+            dateProvider: dateProvider,
             developerDirLocator: try di.get(),
             fileSystem: try di.get(),
             logger: logger,
@@ -248,15 +260,15 @@ public final class Scheduler {
         let runnerResult = try runner.runOnce(
             entriesToRun: testsToRun,
             configuration: RunnerConfiguration(
-                buildArtifacts: bucket.payload.buildArtifacts,
-                developerDir: bucket.payload.developerDir,
-                environment: bucket.payload.testExecutionBehavior.environment,
+                buildArtifacts: runIosTestsPayload.buildArtifacts,
+                developerDir:runIosTestsPayload.developerDir,
+                environment: runIosTestsPayload.testExecutionBehavior.environment,
                 lostTestProcessingMode: .reportError,
-                persistentMetricsJobId: bucket.analyticsConfiguration.persistentMetricsJobId,
-                pluginLocations: bucket.payload.pluginLocations,
+                persistentMetricsJobId: analyticsConfiguration.persistentMetricsJobId,
+                pluginLocations: runIosTestsPayload.pluginLocations,
                 simulator: allocatedSimulator.simulator,
-                simulatorSettings: bucket.payload.simulatorSettings,
-                testTimeoutConfiguration: bucket.payload.testTimeoutConfiguration
+                simulatorSettings: runIosTestsPayload.simulatorSettings,
+                testTimeoutConfiguration: runIosTestsPayload.testTimeoutConfiguration
             )
         )
         
@@ -265,7 +277,7 @@ public final class Scheduler {
         }
         
         return TestingResult(
-            testDestination: bucket.payload.testDestination,
+            testDestination: runIosTestsPayload.testDestination,
             unfilteredResults: runnerResult.testEntryResults
         )
     }

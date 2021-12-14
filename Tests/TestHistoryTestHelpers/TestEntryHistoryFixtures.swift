@@ -7,18 +7,19 @@ import TestHistoryModels
 
 public final class TestEntryHistoryFixtures {
     public let testEntry: TestEntry
-    public let bucket: Bucket
+    public let bucketId: BucketId
     
-    public init(testEntry: TestEntry, bucket: Bucket? = nil) {
-        let bucket = bucket ?? BucketFixtures.createBucket(testEntries: [testEntry])
-        
+    public init(
+        testEntry: TestEntry,
+        bucketId: BucketId = BucketId("fixedBucketId")
+    ) {
         self.testEntry = testEntry
-        self.bucket = bucket
+        self.bucketId = bucketId
     }
     
     public func testEntryHistoryId() -> TestEntryHistoryId {
         return TestEntryHistoryId(
-            bucketId: bucket.bucketId,
+            bucketId: bucketId,
             testEntry: testEntry
         )
     }

@@ -5,7 +5,7 @@ import PluginSupport
 import RunnerModels
 import SimulatorPoolModels
 
-public struct Payload: Codable, Hashable, CustomStringConvertible {
+public struct RunIosTestsPayload: Codable, Hashable, CustomStringConvertible {
     public let buildArtifacts: BuildArtifacts
     public let developerDir: DeveloperDir
     public let pluginLocations: Set<PluginLocation>

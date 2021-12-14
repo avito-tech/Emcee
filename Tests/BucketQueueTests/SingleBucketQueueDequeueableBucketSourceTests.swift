@@ -1,6 +1,7 @@
 import BucketQueue
 import BucketQueueModels
 import Foundation
+import TestHistoryTracker
 import TestHistoryTestHelpers
 import QueueCommunicationTestHelpers
 import QueueModels
@@ -54,7 +55,7 @@ final class SingleBucketQueueDequeueableBucketSourceTests: XCTestCase {
     func test___returns_nil___when_history_tracker_returns_nil() {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         
-        testHistoryTracker.bucketToDequeueProvider = { _, _, workerId in
+        testHistoryTracker.enqueuedPayloadToDequeueProvider = { _, _, workerId in
             return nil
         }
         
@@ -66,18 +67,31 @@ final class SingleBucketQueueDequeueableBucketSourceTests: XCTestCase {
     func test___returns_dequeued_bucket___when_worker_satisifies_bucket_requirements() {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         
+        let runIosTestsPayload = BucketFixtures.createRunIosTestsPayload()
+        
         let bucket = BucketFixtures.createBucket(
+            bucketPayload: .runIosTests(runIosTestsPayload),
             workerCapabilityRequirements: [
                 WorkerCapabilityRequirement(capabilityName: "name", constraint: .present)
             ]
         )
-        let enqueudBucket = EnqueuedBucket(
+        
+        let enqueuedBucket = EnqueuedBucket(
             bucket: bucket,
             enqueueTimestamp: Date(),
             uniqueIdentifier: "id"
         )
         
-        testHistoryTracker.bucketToDequeueProvider = { _, _, _ in enqueudBucket }
+        bucketQueueHolder.insert(enqueuedBuckets: [enqueuedBucket], position: 0)
+        
+        testHistoryTracker.enqueuedPayloadToDequeueProvider = { _, _, _ in
+            EnqueuedRunIosTestsPayload(
+                bucketId: bucket.bucketId,
+                testDestination: runIosTestsPayload.testDestination,
+                testEntries: runIosTestsPayload.testEntries,
+                numberOfRetries: runIosTestsPayload.testExecutionBehavior.numberOfRetries
+            )
+        }
         
         let dequeuedBucket = source.dequeueBucket(
             workerCapabilities: [
@@ -87,25 +101,30 @@ final class SingleBucketQueueDequeueableBucketSourceTests: XCTestCase {
         )
         XCTAssertEqual(
             dequeuedBucket,
-            DequeuedBucket(enqueuedBucket: enqueudBucket, workerId: workerId)
+            DequeuedBucket(enqueuedBucket: enqueuedBucket, workerId: workerId)
         )
     }
     
     func test___returns_nil___when_worker_does_not_satisfy_bucket_requirements() {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         
+        let runIosTestsPayload = BucketFixtures.createRunIosTestsPayload()
+        
         let bucket = BucketFixtures.createBucket(
+            bucketPayload: .runIosTests(runIosTestsPayload),
             workerCapabilityRequirements: [
                 WorkerCapabilityRequirement(capabilityName: "name", constraint: .present)
             ]
         )
-        let enqueudBucket = EnqueuedBucket(
-            bucket: bucket,
-            enqueueTimestamp: Date(),
-            uniqueIdentifier: "id"
-        )
         
-        testHistoryTracker.bucketToDequeueProvider = { _, _, _ in enqueudBucket }
+        let payload = EnqueuedRunIosTestsPayload(
+            bucketId: bucket.bucketId,
+            testDestination: runIosTestsPayload.testDestination,
+            testEntries: runIosTestsPayload.testEntries,
+            numberOfRetries: runIosTestsPayload.testExecutionBehavior.numberOfRetries
+        )
+
+        testHistoryTracker.enqueuedPayloadToDequeueProvider = { _, _, _ in payload }
         
         let dequeuedBucket = source.dequeueBucket(
             workerCapabilities: [],
@@ -119,7 +138,7 @@ final class SingleBucketQueueDequeueableBucketSourceTests: XCTestCase {
     func test___queries_test_history_tracker_when_workers_in_working_condition() {
         let checked1 = XCTestExpectation()
         
-        testHistoryTracker.bucketToDequeueProvider = { _, _, workerIds in
+        testHistoryTracker.enqueuedPayloadToDequeueProvider = { _, _, workerIds in
             XCTAssertTrue(workerIds.isEmpty)
             checked1.fulfill()
             return nil
@@ -128,7 +147,7 @@ final class SingleBucketQueueDequeueableBucketSourceTests: XCTestCase {
         
         let checked2 = XCTestExpectation()
         
-        testHistoryTracker.bucketToDequeueProvider = { [workerId] _, _, workerIds in
+        testHistoryTracker.enqueuedPayloadToDequeueProvider = { [workerId] _, _, workerIds in
             XCTAssertEqual(workerIds, [workerId])
             checked2.fulfill()
             return nil

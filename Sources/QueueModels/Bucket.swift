@@ -10,13 +10,13 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible {
     public private(set) var bucketId: BucketId
     public let analyticsConfiguration: AnalyticsConfiguration
     public let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
-    public private(set) var payload: Payload
+    public private(set) var payload: BucketPayload
 
     private init(
         bucketId: BucketId,
         analyticsConfiguration: AnalyticsConfiguration,
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement>,
-        payload: Payload
+        payload: BucketPayload
     ) {
         self.bucketId = bucketId
         self.analyticsConfiguration = analyticsConfiguration
@@ -33,7 +33,7 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible {
         bucketId: BucketId,
         analyticsConfiguration: AnalyticsConfiguration,
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement>,
-        payload: Payload
+        payload: BucketPayload
     ) -> Bucket {
         return Bucket(
             bucketId: bucketId,
@@ -63,7 +63,7 @@ public struct Bucket: Codable, Hashable, CustomStringConvertible {
     /// This method will throw error if previous bucket id matches new bucket id.
     public func with(
         newBucketId: BucketId,
-        newPayload: Payload
+        newPayload: BucketPayload
     ) throws -> Bucket {
         var bucket = try with(newBucketId: newBucketId)
         bucket.payload = newPayload

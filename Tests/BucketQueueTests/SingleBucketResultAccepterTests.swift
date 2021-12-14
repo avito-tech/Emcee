@@ -30,7 +30,8 @@ final class SingleBucketResultAcceptorTests: XCTestCase {
     }
     
     func test___accepting_result_with_known_bucket_id_and_matching_worker_id() {
-        let bucket = BucketFixtures.createBucket()
+        let runIosTestsPayload = BucketFixtures.createRunIosTestsPayload()
+        let bucket = BucketFixtures.createBucket(bucketPayload: .runIosTests(runIosTestsPayload))
         let enqueuedBucket = EnqueuedBucket(
             bucket: bucket,
             enqueueTimestamp: Date(),
@@ -48,7 +49,7 @@ final class SingleBucketResultAcceptorTests: XCTestCase {
                 bucketId: bucket.bucketId,
                 bucketResult: .testingResult(
                     TestingResultFixtures()
-                        .with(testEntry: bucket.payload.testEntries[0])
+                        .with(testEntry: runIosTestsPayload.testEntries[0])
                         .addingResult(success: true)
                         .testingResult()
                 ),

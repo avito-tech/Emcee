@@ -105,7 +105,8 @@ public final class BucketQueueImpl {
                 ),
                 bucketQueueHolder: bucketQueueHolder,
                 logger: logger,
-                testHistoryTracker: testHistoryTracker
+                testHistoryTracker: testHistoryTracker,
+                uniqueIdentifierGenerator: uniqueIdentifierGenerator
             )
         ).accept(
             bucketId: bucketId,

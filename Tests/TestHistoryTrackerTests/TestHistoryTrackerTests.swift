@@ -2,8 +2,10 @@ import BucketQueue
 import BucketQueueModels
 import BucketQueueTestHelpers
 import Foundation
+import QueueModels
 import QueueModelsTestHelpers
 import RunnerTestHelpers
+import SimulatorPoolTestHelpers
 import TestHistoryTestHelpers
 import TestHistoryTracker
 import UniqueIdentifierGeneratorTestHelpers
@@ -19,13 +21,14 @@ final class TestHistoryTests: XCTestCase {
     private let fixedIdentifier = "identifier"
     private let firstTest = TestEntryFixtures.testEntry(className: "first")
     private let secondTest = TestEntryFixtures.testEntry(className: "second")
-    private lazy var twoTestsBucket: EnqueuedBucket = EnqueuedBucket(
-        bucket: BucketFixtures.createBucket(testEntries: [firstTest, secondTest]),
-        enqueueTimestamp: fixedDate,
-        uniqueIdentifier: fixedIdentifier
+    private lazy var twoTestsPayload = EnqueuedRunIosTestsPayload(
+        bucketId: BucketId(fixedIdentifier),
+        testDestination: TestDestinationFixtures.testDestination,
+        testEntries: [firstTest, secondTest],
+        numberOfRetries: 0
     )
-    private lazy var firstTestFixtures = TestEntryHistoryFixtures(testEntry: firstTest, bucket: twoTestsBucket.bucket)
-    private lazy var secondTestFixtures = TestEntryHistoryFixtures(testEntry: secondTest, bucket: twoTestsBucket.bucket)
+    private lazy var firstTestFixtures = TestEntryHistoryFixtures(testEntry: firstTest, bucketId: twoTestsPayload.bucketId)
+    private lazy var secondTestFixtures = TestEntryHistoryFixtures(testEntry: secondTest, bucketId: twoTestsPayload.bucketId)
     
     func test___bucketToDequeue___returns_nil___if_some_of_tests_are_failed_in_bucket_for_worker_but_not_all() {
         // Given
@@ -39,14 +42,14 @@ final class TestHistoryTests: XCTestCase {
         )
         
         // When
-        let bucketToDequeue = tracker.bucketToDequeue(
+        let payloadToDequeue = tracker.enqueuedPayloadToDequeue(
             workerId: "1",
-            queue: [twoTestsBucket],
+            queue: [twoTestsPayload],
             workerIdsInWorkingCondition: ["1", "2"]
         )
         
         // Then
-        XCTAssertEqual(bucketToDequeue, nil)
+        XCTAssertEqual(payloadToDequeue, nil)
     }
     
     func test___bucketToDequeue___returns_bucket_that_is_not_failed___event_if_it_is_not_first_in_queue() {
@@ -57,18 +60,22 @@ final class TestHistoryTests: XCTestCase {
         )
         
         // When
-        let otherBucket = EnqueuedBucket(
-            bucket: BucketFixtures.createBucket(testEntries: [TestEntryFixtures.testEntry(className: "other")]),
-            enqueueTimestamp: fixedDate,
-            uniqueIdentifier: fixedIdentifier
+        let otherPayload = EnqueuedRunIosTestsPayload(
+            bucketId: BucketId("otherBucketId"),
+            testDestination: TestDestinationFixtures.testDestination,
+            testEntries: [TestEntryFixtures.testEntry(className: "other")],
+            numberOfRetries: 5
         )
-        let bucketToDequeue = tracker.bucketToDequeue(
+        let payloadToDequeue = tracker.enqueuedPayloadToDequeue(
             workerId: "1",
-            queue: [twoTestsBucket, otherBucket],
+            queue: [
+                twoTestsPayload,
+                otherPayload,
+            ],
             workerIdsInWorkingCondition: ["1", "2"]
         )
         
         // Then
-        XCTAssertEqual(bucketToDequeue, otherBucket)
+        XCTAssertEqual(payloadToDequeue, otherPayload)
     }
 }

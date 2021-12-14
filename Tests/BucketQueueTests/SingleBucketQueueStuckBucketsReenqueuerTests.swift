@@ -61,8 +61,11 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
             TestEntry(testName: TestName(className: "class", methodName: "method1"), tags: [], caseId: nil),
             TestEntry(testName: TestName(className: "class", methodName: "method2"), tags: [], caseId: nil),
         ]
-        let bucket = BucketFixtures.createBucket(
+        let runIosTestsPayload = BucketFixtures.createRunIosTestsPayload(
             testEntries: testEntries
+        )
+        let bucket = BucketFixtures.createBucket(
+            bucketPayload: .runIosTests(runIosTestsPayload)
         )
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
@@ -84,7 +87,7 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
         XCTAssertTrue(bucketQueueHolder.allDequeuedBuckets.isEmpty)
         
         XCTAssertEqual(
-            enqueuedBuckets.map { $0.payload.testEntries },
+            try enqueuedBuckets.map { try $0.payload.cast(RunIosTestsPayload.self).testEntries },
             testEntries.map { [$0] }
         )
     }
@@ -96,8 +99,11 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
             TestEntry(testName: TestName(className: "class", methodName: "method1"), tags: [], caseId: nil),
             TestEntry(testName: TestName(className: "class", methodName: "method2"), tags: [], caseId: nil),
         ]
-        let bucket = BucketFixtures.createBucket(
+        let runIosTestsPayload = BucketFixtures.createRunIosTestsPayload(
             testEntries: testEntries
+        )
+        let bucket = BucketFixtures.createBucket(
+            bucketPayload: .runIosTests(runIosTestsPayload)
         )
         workerAlivenessProvider.setWorkerIsSilent(workerId: workerId)
         
@@ -119,7 +125,7 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
         XCTAssertTrue(bucketQueueHolder.allDequeuedBuckets.isEmpty)
         
         XCTAssertEqual(
-            enqueuedBuckets.map { $0.payload.testEntries },
+            try enqueuedBuckets.map { try $0.payload.cast(RunIosTestsPayload.self).testEntries },
             testEntries.map { [$0] }
         )
     }
