@@ -168,6 +168,7 @@ extension TestArgFile {
                     buildArtifacts: $0,
                     developerDir: TestArgFileDefaultValues.developerDir,
                     environment: TestArgFileDefaultValues.environment,
+                    userInsertedLibraries: TestArgFileDefaultValues.userInsertedLibraries,
                     numberOfRetries: 0,
                     testRetryMode: .retryOnWorker,
                     pluginLocations: [],

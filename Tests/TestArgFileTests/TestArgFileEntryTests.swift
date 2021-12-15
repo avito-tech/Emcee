@@ -117,6 +117,7 @@ final class TestArgFileEntryTests: XCTestCase {
                 buildArtifacts: buildArtifacts(),
                 developerDir: .current,
                 environment: ["value": "key"],
+                userInsertedLibraries: [],
                 numberOfRetries: 42,
                 testRetryMode: .retryOnWorker,
                 pluginLocations: [
@@ -202,6 +203,7 @@ final class TestArgFileEntryTests: XCTestCase {
                 buildArtifacts: buildArtifacts(),
                 developerDir: TestArgFileDefaultValues.developerDir,
                 environment: TestArgFileDefaultValues.environment,
+                userInsertedLibraries: TestArgFileDefaultValues.userInsertedLibraries,
                 numberOfRetries: TestArgFileDefaultValues.numberOfRetries,
                 testRetryMode: TestArgFileDefaultValues.testRetryMode,
                 pluginLocations: TestArgFileDefaultValues.pluginLocations,

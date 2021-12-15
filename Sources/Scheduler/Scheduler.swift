@@ -251,6 +251,7 @@ public final class Scheduler {
                 buildArtifacts: bucket.payload.buildArtifacts,
                 developerDir: bucket.payload.developerDir,
                 environment: bucket.payload.testExecutionBehavior.environment,
+                userInsertedLibraries: bucket.payload.testExecutionBehavior.userInsertedLibraries,
                 lostTestProcessingMode: .reportError,
                 persistentMetricsJobId: bucket.analyticsConfiguration.persistentMetricsJobId,
                 pluginLocations: bucket.payload.pluginLocations,

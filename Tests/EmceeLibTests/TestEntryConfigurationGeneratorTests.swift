@@ -48,6 +48,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 buildArtifacts: buildArtifacts,
                 developerDir: .current,
                 environment: [:],
+                userInsertedLibraries: [],
                 numberOfRetries: 10,
                 testRetryMode: .retryOnWorker,
                 pluginLocations: [],
@@ -70,7 +71,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
             .with(simulatorSettings: simulatorSettings)
             .with(testDestination: argFileDestination)
             .with(testTimeoutConfiguration: testTimeoutConfiguration)
-            .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10, testRetryMode: .retryOnWorker))
+            .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], userInsertedLibraries: [], numberOfRetries: 10, testRetryMode: .retryOnWorker))
             .testEntryConfigurations()
         
         XCTAssertEqual(Set(configurations), Set(expectedConfigurations))
@@ -84,6 +85,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 buildArtifacts: buildArtifacts,
                 developerDir: .current,
                 environment: [:],
+                userInsertedLibraries: [],
                 numberOfRetries: 10,
                 testRetryMode: .retryOnWorker,
                 pluginLocations: [],
@@ -103,7 +105,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1"))
                 .with(buildArtifacts: buildArtifacts)
                 .with(simulatorSettings: simulatorSettings)
-                .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10, testRetryMode: .retryOnWorker))
+                .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], userInsertedLibraries: [], numberOfRetries: 10, testRetryMode: .retryOnWorker))
                 .with(testDestination: argFileDestination)
                 .with(testTimeoutConfiguration: testTimeoutConfiguration)
                 .testEntryConfigurations()
@@ -122,6 +124,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 buildArtifacts: buildArtifacts,
                 developerDir: .current,
                 environment: [:],
+                userInsertedLibraries: [],
                 numberOfRetries: 10,
                 testRetryMode: .retryOnWorker,
                 pluginLocations: [],
@@ -141,14 +144,14 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1"))
                 .with(buildArtifacts: buildArtifacts)
                 .with(testDestination: argFileDestination)
-                .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10, testRetryMode: .retryOnWorker))
+                .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], userInsertedLibraries: [], numberOfRetries: 10, testRetryMode: .retryOnWorker))
                 .with(testTimeoutConfiguration: testTimeoutConfiguration)
                 .testEntryConfigurations(),
             TestEntryConfigurationFixtures()
                 .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test2"))
                 .with(buildArtifacts: buildArtifacts)
                 .with(testDestination: argFileDestination)
-                .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], numberOfRetries: 10, testRetryMode: .retryOnWorker))
+                .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], userInsertedLibraries: [], numberOfRetries: 10, testRetryMode: .retryOnWorker))
                 .with(testTimeoutConfiguration: testTimeoutConfiguration)
                 .testEntryConfigurations()
             ].flatMap { $0 }

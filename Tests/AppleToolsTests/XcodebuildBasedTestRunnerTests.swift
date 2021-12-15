@@ -126,6 +126,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             contextId: contextId,
             developerDir: DeveloperDir.current,
             environment: environment,
+            userInsertedLibraries: [],
             simulatorPath: simulator.path,
             simulatorUdid: simulator.udid,
             testDestination: simulator.testDestination,

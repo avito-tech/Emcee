@@ -298,6 +298,7 @@ public final class Runner {
             contextId: contextId,
             developerDir: configuration.developerDir,
             environment: environment,
+            userInsertedLibraries: configuration.userInsertedLibraries,
             simulatorPath: configuration.simulator.path,
             simulatorUdid: configuration.simulator.udid,
             testDestination: configuration.simulator.testDestination,

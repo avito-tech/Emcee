@@ -29,6 +29,7 @@ public final class BucketFixtures {
                 testEntries: testEntries,
                 testExecutionBehavior: TestExecutionBehavior(
                     environment: [:],
+                    userInsertedLibraries: [],
                     numberOfRetries: numberOfRetries,
                     testRetryMode: .retryThroughQueue
                 ),

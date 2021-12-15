@@ -61,6 +61,7 @@ public final class TestEntriesValidator {
             testDestination: testArgFileEntry.testDestination,
             testExecutionBehavior: TestExecutionBehavior(
                 environment: testArgFileEntry.environment,
+                userInsertedLibraries: testArgFileEntry.userInsertedLibraries,
                 numberOfRetries: testArgFileEntry.numberOfRetries,
                 testRetryMode: testArgFileEntry.testRetryMode
             ),

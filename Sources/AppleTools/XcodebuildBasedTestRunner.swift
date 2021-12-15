@@ -60,7 +60,9 @@ public final class XcodebuildBasedTestRunner: TestRunner {
             path: testContext.testRunnerWorkingDirectory.appending("testrun.xctestrun"),
             resourceLocationResolver: resourceLocationResolver,
             testContext: testContext,
-            testingEnvironment: XcTestRunTestingEnvironment(insertedLibraries: [])
+            testingEnvironment: XcTestRunTestingEnvironment(
+                insertedLibraries: testContext.userInsertedLibraries
+            )
         )
         
         let processController = try processControllerProvider.createProcessController(

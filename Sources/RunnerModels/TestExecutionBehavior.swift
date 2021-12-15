@@ -6,6 +6,9 @@ public struct TestExecutionBehavior: Codable, Hashable, CustomStringConvertible 
     /// Test environment
     public let environment: [String: String]
     
+    /// Paths that will be appended to DYLD_INSERT_LIBRARIES environment variable
+    public let userInsertedLibraries: [String]
+    
     /// How many times each failed test should be attempted to restart
     public let numberOfRetries: UInt
     
@@ -23,16 +26,18 @@ public struct TestExecutionBehavior: Codable, Hashable, CustomStringConvertible 
 
     public init(
         environment: [String: String],
+        userInsertedLibraries: [String],
         numberOfRetries: UInt,
         testRetryMode: TestRetryMode
     )
     {
         self.environment = environment
+        self.userInsertedLibraries = userInsertedLibraries
         self.numberOfRetries = numberOfRetries
         self.testRetryMode = testRetryMode
     }
     
     public var description: String {
-        return "numberOfRetries: \(numberOfRetries), testRetryMode: \(testRetryMode), environment: \(environment)"
+        return "numberOfRetries: \(numberOfRetries), testRetryMode: \(testRetryMode), environment: \(environment), userInsertedLibraries: \(userInsertedLibraries)"
     }
 }

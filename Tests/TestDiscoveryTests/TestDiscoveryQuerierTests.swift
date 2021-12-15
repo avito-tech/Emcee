@@ -249,6 +249,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             testDestination: TestDestinationFixtures.testDestination,
             testExecutionBehavior: TestExecutionBehavior(
                 environment: [:],
+                userInsertedLibraries: [],
                 numberOfRetries: 0,
                 testRetryMode: .retryThroughQueue
             ),

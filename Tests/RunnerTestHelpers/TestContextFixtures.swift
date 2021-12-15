@@ -9,6 +9,7 @@ public final class TestContextFixtures {
     public var contextId: String
     public var developerDir: DeveloperDir
     public var environment: [String: String]
+    public var userInsertedLibraries: [String]
     public var simulatorPath: AbsolutePath
     public var simulatorUdid: UDID
     public var testDestination: TestDestination
@@ -19,6 +20,7 @@ public final class TestContextFixtures {
         contextId: String = UUID().uuidString,
         developerDir: DeveloperDir = DeveloperDir.current,
         environment: [String: String] = [:],
+        userInsertedLibraries: [String] = [],
         simulatorPath: AbsolutePath = AbsolutePath(NSTemporaryDirectory()),
         simulatorUdid: UDID = UDID(value: "fixture_test_context_udid"),
         testDestination: TestDestination = TestDestinationFixtures.testDestination,
@@ -28,6 +30,7 @@ public final class TestContextFixtures {
         self.contextId = contextId
         self.developerDir = developerDir
         self.environment = environment
+        self.userInsertedLibraries = userInsertedLibraries
         self.simulatorPath = simulatorPath
         self.simulatorUdid = simulatorUdid
         self.testDestination = testDestination
@@ -40,6 +43,7 @@ public final class TestContextFixtures {
             contextId: contextId,
             developerDir: developerDir,
             environment: environment,
+            userInsertedLibraries: userInsertedLibraries,
             simulatorPath: simulatorPath,
             simulatorUdid: simulatorUdid,
             testDestination: testDestination,

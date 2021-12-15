@@ -12,6 +12,7 @@ public struct TestArgFileEntry: Codable, Equatable {
     public private(set) var buildArtifacts: BuildArtifacts
     public let developerDir: DeveloperDir
     public let environment: [String: String]
+    public let userInsertedLibraries: [String]
     public let numberOfRetries: UInt
     public let testRetryMode: TestRetryMode
     public let pluginLocations: Set<PluginLocation>
@@ -27,6 +28,7 @@ public struct TestArgFileEntry: Codable, Equatable {
         buildArtifacts: BuildArtifacts,
         developerDir: DeveloperDir,
         environment: [String: String],
+        userInsertedLibraries: [String],
         numberOfRetries: UInt,
         testRetryMode: TestRetryMode,
         pluginLocations: Set<PluginLocation>,
@@ -41,6 +43,7 @@ public struct TestArgFileEntry: Codable, Equatable {
         self.buildArtifacts = buildArtifacts
         self.developerDir = developerDir
         self.environment = environment
+        self.userInsertedLibraries = userInsertedLibraries
         self.numberOfRetries = numberOfRetries
         self.testRetryMode = testRetryMode
         self.pluginLocations = pluginLocations
@@ -70,6 +73,8 @@ public struct TestArgFileEntry: Codable, Equatable {
             TestArgFileDefaultValues.developerDir
         let environment = try container.decodeIfPresent([String: String].self, forKey: .environment) ??
             TestArgFileDefaultValues.environment
+        let userInsertedLibraries = try container.decodeIfPresent([String].self, forKey: .userInsertedLibraries) ??
+            TestArgFileDefaultValues.userInsertedLibraries
         let numberOfRetries = try container.decodeIfPresent(UInt.self, forKey: .numberOfRetries) ??
             TestArgFileDefaultValues.numberOfRetries
         let testRetryMode = try container.decodeIfPresent(TestRetryMode.self, forKey: .testRetryMode) ??
@@ -92,6 +97,7 @@ public struct TestArgFileEntry: Codable, Equatable {
             buildArtifacts: buildArtifacts,
             developerDir: developerDir,
             environment: environment,
+            userInsertedLibraries: userInsertedLibraries,
             numberOfRetries: numberOfRetries,
             testRetryMode: testRetryMode,
             pluginLocations: pluginLocations,

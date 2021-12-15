@@ -545,6 +545,7 @@ public final class RunnerTests: XCTestCase {
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
             developerDir: .current,
             environment: environment,
+            userInsertedLibraries: [],
             lostTestProcessingMode: .reportError,
             persistentMetricsJobId: nil,
             pluginLocations: [],

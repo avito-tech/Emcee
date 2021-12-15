@@ -13,6 +13,7 @@ public final class TestExecutionBehaviorFixtures {
     public func build() -> TestExecutionBehavior {
         return TestExecutionBehavior(
             environment: environment,
+            userInsertedLibraries: [],
             numberOfRetries: numberOfRetries,
             testRetryMode: .retryThroughQueue
         )

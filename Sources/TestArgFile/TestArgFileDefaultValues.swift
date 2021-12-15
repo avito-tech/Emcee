@@ -14,6 +14,7 @@ import WorkerCapabilitiesModels
 public enum TestArgFileDefaultValues {
     public static let developerDir = DeveloperDir.current
     public static let environment: [String: String] = [:]
+    public static let userInsertedLibraries: [String] = []
     public static let numberOfRetries: UInt = 1
     public static let testRetryMode: TestRetryMode = .retryThroughQueue
     public static let pluginLocations: Set<PluginLocation> = []

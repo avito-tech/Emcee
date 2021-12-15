@@ -45,6 +45,7 @@ public final class TestEntryConfigurationGenerator {
                     testEntry: testEntry,
                     testExecutionBehavior: TestExecutionBehavior(
                         environment: testArgFileEntry.environment,
+                        userInsertedLibraries: testArgFileEntry.userInsertedLibraries,
                         numberOfRetries: testArgFileEntry.numberOfRetries,
                         testRetryMode: testArgFileEntry.testRetryMode
                     ),

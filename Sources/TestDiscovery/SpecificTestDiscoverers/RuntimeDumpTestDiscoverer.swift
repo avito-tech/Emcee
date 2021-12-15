@@ -129,6 +129,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
                 configuration: configuration,
                 runtimeEntriesJSONPath: runtimeEntriesJSONPath
             ),
+            userInsertedLibraries: configuration.testExecutionBehavior.userInsertedLibraries,
             lostTestProcessingMode: .reportError,
             persistentMetricsJobId: configuration.analyticsConfiguration.persistentMetricsJobId,
             pluginLocations: configuration.pluginLocations,

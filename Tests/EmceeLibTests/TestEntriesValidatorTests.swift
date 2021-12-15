@@ -114,6 +114,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             buildArtifacts: buildArtifacts,
             developerDir: .current,
             environment: [:],
+            userInsertedLibraries: [],
             numberOfRetries: 1,
             testRetryMode: .retryOnWorker,
             pluginLocations: [],
