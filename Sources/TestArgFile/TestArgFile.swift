@@ -1,3 +1,4 @@
+import EmceeExtensions
 import Foundation
 import LoggingSetup
 import MetricsExtensions
@@ -40,20 +41,15 @@ public struct TestArgFile: Codable, Equatable {
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-
-        let entries = try container.decode([TestArgFileEntry].self, forKey: .entries)
+        let entries = try container.decodeExplaining([TestArgFileEntry].self, forKey: .entries)
         
-        let prioritizedJob = try container.decodeIfPresent(PrioritizedJob.self, forKey: .prioritizedJob) ?? { () -> PrioritizedJob in
-            let jobId = try container.decodeIfPresent(JobId.self, forKey: .jobId) ??
-                TestArgFileDefaultValues.createAutomaticJobId()
-            let jobPriority = try container.decodeIfPresent(Priority.self, forKey: .jobPriority) ??
-                TestArgFileDefaultValues.priority
-            let jobGroupId = try container.decodeIfPresent(JobGroupId.self, forKey: .jobGroupId) ??
-                JobGroupId(jobId.value)
-            let jobGroupPriority = try container.decodeIfPresent(Priority.self, forKey: .jobGroupPriority) ??
-                jobPriority
-            let analyticsConfiguration = try container.decodeIfPresent(AnalyticsConfiguration.self, forKey: .analyticsConfiguration) ??
-                TestArgFileDefaultValues.analyticsConfiguration
+        let prioritizedJob = try container.decodeIfPresentExplaining(PrioritizedJob.self, forKey: .prioritizedJob) ?? { () -> PrioritizedJob in
+            let jobId = try container.decodeIfPresentExplaining(JobId.self, forKey: .jobId) ?? TestArgFileDefaultValues.createAutomaticJobId()
+            let jobPriority = try container.decodeIfPresentExplaining(Priority.self, forKey: .jobPriority) ?? TestArgFileDefaultValues.priority
+            let jobGroupId = try container.decodeIfPresentExplaining(JobGroupId.self, forKey: .jobGroupId) ?? JobGroupId(jobId.value)
+            let jobGroupPriority = try container.decodeIfPresentExplaining(Priority.self, forKey: .jobGroupPriority) ?? jobPriority
+            let analyticsConfiguration = try container.decodeIfPresentExplaining(AnalyticsConfiguration.self, forKey: .analyticsConfiguration) ?? TestArgFileDefaultValues.analyticsConfiguration
+            
             return PrioritizedJob(
                 analyticsConfiguration: analyticsConfiguration,
                 jobGroupId: jobGroupId,
@@ -63,8 +59,7 @@ public struct TestArgFile: Codable, Equatable {
             )
         }()
 
-        let testDestinationConfigurations = try container.decodeIfPresent([TestDestinationConfiguration].self, forKey: .testDestinationConfigurations) ??
-            []
+        let testDestinationConfigurations = try container.decodeIfPresentExplaining([TestDestinationConfiguration].self, forKey: .testDestinationConfigurations) ?? []
     
         self.init(
             entries: entries,

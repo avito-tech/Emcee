@@ -38,7 +38,7 @@ final class RequestParserTests: XCTestCase {
             httpResponse: httpResponse,
             isBadRequestResponseWithText:
             """
-            Failed to process request with path "request_path", error: "typeMismatch(Swift.String, Swift.DecodingError.Context(codingPath: [_JSONKey(stringValue: "value", intValue: nil)], debugDescription: "Expected to decode String but found a number instead.", underlyingError: nil))"
+            Failed to process request with path "request_path", error: \"type mismatch at: value\"
             """
         )
     }

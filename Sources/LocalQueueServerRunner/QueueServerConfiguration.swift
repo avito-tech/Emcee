@@ -1,6 +1,7 @@
 import AutomaticTermination
 import Deployer
 import DistWorkerModels
+import EmceeExtensions
 import Foundation
 import MetricsExtensions
 import LoggingSetup
@@ -50,12 +51,12 @@ public struct QueueServerConfiguration: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        let globalAnalyticsConfiguration = try container.decode(AnalyticsConfiguration.self, forKey: .globalAnalyticsConfiguration)
-        let checkAgainTimeInterval = try container.decode(TimeInterval.self, forKey: .checkAgainTimeInterval)
-        let queueServerDeploymentDestinations = try container.decode([DeploymentDestination].self, forKey: .queueServerDeploymentDestinations)
-        let queueServerTerminationPolicy = try container.decode(AutomaticTerminationPolicy.self, forKey: .queueServerTerminationPolicy)
-        let workerDeploymentDestinations = try container.decode([DeploymentDestination].self, forKey: .workerDeploymentDestinations)
-        let defaultWorkerSpecificConfiguration = try container.decodeIfPresent(WorkerSpecificConfiguration.self, forKey: .defaultWorkerConfiguration)
+        let globalAnalyticsConfiguration = try container.decodeExplaining(AnalyticsConfiguration.self, forKey: .globalAnalyticsConfiguration)
+        let checkAgainTimeInterval = try container.decodeExplaining(TimeInterval.self, forKey: .checkAgainTimeInterval)
+        let queueServerDeploymentDestinations = try container.decodeExplaining([DeploymentDestination].self, forKey: .queueServerDeploymentDestinations)
+        let queueServerTerminationPolicy = try container.decodeExplaining(AutomaticTerminationPolicy.self, forKey: .queueServerTerminationPolicy)
+        let workerDeploymentDestinations = try container.decodeExplaining([DeploymentDestination].self, forKey: .workerDeploymentDestinations)
+        let defaultWorkerSpecificConfiguration = try container.decodeIfPresentExplaining(WorkerSpecificConfiguration.self, forKey: .defaultWorkerConfiguration)
         let workerSpecificConfigurations = Dictionary(
             uniqueKeysWithValues: try container.decode(
                 [String: WorkerSpecificConfiguration].self,
@@ -64,7 +65,7 @@ public struct QueueServerConfiguration: Codable {
                 (WorkerId(key), value)
             }
         )
-        let workerStartMode = try container.decodeIfPresent(WorkerStartMode.self, forKey: .workerStartMode) ?? .queueStartsItsWorkersOverSshAndLaunchd
+        let workerStartMode = try container.decodeIfPresentExplaining(WorkerStartMode.self, forKey: .workerStartMode) ?? .queueStartsItsWorkersOverSshAndLaunchd
         
         self.init(
             globalAnalyticsConfiguration: globalAnalyticsConfiguration,

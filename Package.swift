@@ -777,6 +777,7 @@ let package = Package(
                 "Deployer",
                 "DistDeployer",
                 "DistWorkerModels",
+                "EmceeExtensions",
                 "EmceeLogging",
                 "FileLock",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),

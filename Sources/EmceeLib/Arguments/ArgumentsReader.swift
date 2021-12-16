@@ -1,5 +1,6 @@
 import Deployer
 import DistDeployer
+import EmceeExtensions
 import Foundation
 import LocalQueueServerRunner
 import ResourceLocationResolver
@@ -63,6 +64,6 @@ final class ArgumentsReader {
         }
         
         let data = try Data(contentsOf: URL(fileURLWithPath: file))
-        return try jsonDecoder.decode(T.self, from: data)
+        return try jsonDecoder.decodeExplaining(T.self, from: data, context: file)
     }
 }
