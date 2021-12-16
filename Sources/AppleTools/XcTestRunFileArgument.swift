@@ -84,9 +84,9 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
         let testBundlePath = try resolvableXcTestBundle.resolve().directlyAccessibleResourcePath()
         let testHostPath = "__PLATFORMS__/iPhoneSimulator.platform/Developer/Library/Xcode/Agents/xctest"
         
-        let insertedLibraries = [
+        let insertedLibraries = testingEnvironment.insertedLibraries + [
             "__PLATFORMS__/iPhoneSimulator.platform/Developer/usr/lib/libXCTestBundleInject.dylib"
-        ] + testingEnvironment.insertedLibraries
+        ]
         
         let xctestSpecificEnvironment = [
             "DYLD_INSERT_LIBRARIES": insertedLibraries.joined(separator: ":"),
@@ -137,9 +137,9 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
             throw XcTestRunFileArgumentError.cannotObtainBundleIdentifier(path: hostAppPath)
         }
         
-        let insertedLibraries = [
+        let insertedLibraries = testingEnvironment.insertedLibraries + [
             "__PLATFORMS__/iPhoneSimulator.platform/Developer/usr/lib/libXCTestBundleInject.dylib"
-        ] + testingEnvironment.insertedLibraries
+        ]
             
         let xctestSpecificEnvironment = [
             "DYLD_INSERT_LIBRARIES": insertedLibraries.joined(separator: ":"),
