@@ -221,6 +221,7 @@ public final class InProcessMain {
                 try ToggleWorkersSharingCommand(di: di),
                 try InitTestArgFileCommand(di: di),
                 try InitQueueServerConfigCommand(di: di),
+                try RunTestsCommand(di: di),
                 VersionCommand(),
             ],
             helpCommandType: .generateAutomatically

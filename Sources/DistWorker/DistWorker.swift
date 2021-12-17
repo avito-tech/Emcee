@@ -43,6 +43,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
     )
     private let currentlyBeingProcessedBucketsTracker = DefaultCurrentlyBeingProcessedBucketsTracker()
     private let httpRestServer: HTTPRESTServer
+    private let tempFolder: TemporaryFolder
     private let version: Version
     private let workerId: WorkerId
     private let logger: ContextualLogger
@@ -55,6 +56,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
     
     public init(
         di: DI,
+        tempFolder: TemporaryFolder,
         version: Version,
         workerId: WorkerId
     ) throws {
@@ -66,6 +68,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
             portProvider: AnyAvailablePortProvider(),
             useOnlyIPv4: false
         )
+        self.tempFolder = tempFolder
         self.version = version
         self.workerId = workerId
     }
@@ -131,6 +134,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
             numberOfSimulators: workerConfiguration.numberOfSimulators,
             schedulerDataSource: self,
             schedulerDelegate: self,
+            tempFolder: tempFolder,
             version: version
         )
         try scheduler.run()

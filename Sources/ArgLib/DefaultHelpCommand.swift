@@ -34,6 +34,18 @@ public final class DefaultHelpCommand: HelpCommand {
         }
     }
     
+    public func payload(commandName: String?) -> CommandPayload {
+        guard let commandName = commandName else {
+            return CommandPayload(valueHolders: [])
+            
+        }
+        return CommandPayload(
+            valueHolders: [
+                ArgumentValueHolder(argumentName: DefaultHelpCommand.commandArgumentName, stringValue: commandName)
+            ]
+        )
+    }
+    
     private func printUsage(commandName: String) {
         if let command = supportedCommandsWithHelp.first(where: { $0.name == commandName }) {
             printHelpLine("Command overview: \(command.description)")

@@ -3,12 +3,14 @@ import EmceeLogging
 import Foundation
 import QueueModels
 import SimulatorPool
+import Tmp
 
 public final class OnDemandSimulatorPoolFactory {
     public static func create(
         di: DI,
         logger: ContextualLogger,
         simulatorBootQueue: DispatchQueue = DispatchQueue(label: "SimulatorBootQueue"),
+        tempFolder: TemporaryFolder,
         version: Version
     ) throws -> OnDemandSimulatorPool {
         DefaultOnDemandSimulatorPool(
@@ -29,7 +31,7 @@ public final class OnDemandSimulatorPoolFactory {
                     globalMetricRecorder: try di.get()
                 )
             ),
-            tempFolder: try di.get()
+            tempFolder: tempFolder
         )
     }
 }

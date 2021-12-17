@@ -27,6 +27,7 @@ public final class Scheduler {
     private let rootLogger: ContextualLogger
     private let queue = OperationQueue()
     private let resourceSemaphore: ListeningSemaphore<ResourceAmounts>
+    private let tempFolder: TemporaryFolder
     private let version: Version
     private weak var schedulerDataSource: SchedulerDataSource?
     private weak var schedulerDelegate: SchedulerDelegate?
@@ -37,6 +38,7 @@ public final class Scheduler {
         numberOfSimulators: UInt,
         schedulerDataSource: SchedulerDataSource,
         schedulerDelegate: SchedulerDelegate,
+        tempFolder: TemporaryFolder,
         version: Version
     ) {
         self.di = di
@@ -48,6 +50,7 @@ public final class Scheduler {
         )
         self.schedulerDataSource = schedulerDataSource
         self.schedulerDelegate = schedulerDelegate
+        self.tempFolder = tempFolder
         self.version = version
     }
     
@@ -238,7 +241,7 @@ public final class Scheduler {
             pluginEventBusProvider: try di.get(),
             runnerWasteCollectorProvider: try di.get(),
             specificMetricRecorder: specificMetricRecorder,
-            tempFolder: try di.get(),
+            tempFolder: tempFolder,
             testRunnerProvider: try di.get(),
             uniqueIdentifierGenerator: try di.get(),
             version: version,

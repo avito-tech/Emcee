@@ -48,3 +48,12 @@ extension Version: ParsableArgument {
         self.init(value: argumentValue)
     }
 }
+
+extension URL: ParsableArgument {
+    public init(argumentValue: String) throws {
+        guard let result = Self(string: argumentValue) else {
+            throw GenericParseError<Self>(argumentValue: argumentValue)
+        }
+        self = result
+    }
+}

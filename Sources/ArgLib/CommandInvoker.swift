@@ -33,8 +33,14 @@ public final class CommandInvoker {
                 commandFrom: commands + [helpCommand],
                 stringValues: arguments
             )
+            if arguments.contains("-h") || arguments.contains("--help") {
+                return InvokableCommand(
+                    command: helpCommand,
+                    commandPayload: helpCommand.payload(commandName: command.name)
+                )
+            }
         } catch {
-            try helpCommand.run(payload: CommandPayload(valueHolders: []))
+            try helpCommand.run(payload: helpCommand.payload(commandName: nil))
             throw error
         }
         

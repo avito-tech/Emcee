@@ -1,6 +1,6 @@
 import Foundation
 
-public final class ArgumentValueHolder: Equatable {
+public final class ArgumentValueHolder: Equatable, CustomStringConvertible {
     public let argumentName: ArgumentName
     public let stringValue: String
     

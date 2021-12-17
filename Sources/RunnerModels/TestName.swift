@@ -57,8 +57,9 @@ public struct TestName: CustomStringConvertible, Codable, Hashable {
             }
         }
     }
-
-    private static func createFromTestNameString(stringValue: String) throws -> TestName {
+    
+    /// Attempts to create a test name from a string in a form of `ClassName/testMethodName`
+    public static func createFromTestNameString(stringValue: String) throws -> TestName {
         let components = stringValue.components(separatedBy: "/")
         guard components.count == 2, let className = components.first, let methodName = components.last else {
             throw TestNameError.unableToExctractClassAndMethodNames(stringValue: stringValue)

@@ -46,3 +46,17 @@ final class CommandC: Command {
         optionalValue = try payload.optionalSingleTypedValue(argumentName: .doubleDashed(dashlessName: "optional"))
     }
 }
+
+final class CommandD: Command {
+    let name = "command_d"
+    let description = "command d"
+    let arguments: Arguments = [
+        ArgumentDescription(name: .doubleDashed(dashlessName: "int"), overview: "required int-s").asRequired.asMultiple,
+    ]
+    
+    var requiredValues: [Int] = []
+    
+    func run(payload: CommandPayload) throws {
+        requiredValues = try payload.nonEmptyCollectionOfValues(argumentName: .doubleDashed(dashlessName: "int"))
+    }
+}

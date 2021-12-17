@@ -22,25 +22,36 @@ public final class CommandParser {
     ) throws -> [ArgumentValueHolder] {
         var stringValues = stringValues
         
-        let result = try commandArguments.compactMap { argumentDescription -> ArgumentValueHolder? in
-            guard let index = stringValues.firstIndex(of: argumentDescription.name.expectedInputValue) else {
+        let result = try commandArguments.flatMap { argumentDescription -> [ArgumentValueHolder] in
+            let indexes: [Int] = stringValues.enumerated().compactMap { (element: EnumeratedSequence<[String]>.Iterator.Element) -> Int? in
+                if element.element == argumentDescription.name.expectedInputValue {
+                    return element.offset
+                }
+                return nil
+            }
+            
+            if indexes.isEmpty {
                 if argumentDescription.optional {
-                    return nil
+                    return []
                 }
                 throw CommandParserError.expectedArgument(argumentDescription.name)
             }
-            
-            guard index + 1 < stringValues.count else {
-                throw CommandParserError.missingArgumentValue(argumentDescription.name)
+
+            for index in indexes {
+                guard index + 1 < stringValues.count else {
+                    throw CommandParserError.missingArgumentValue(argumentDescription.name)
+                }
             }
-            
-            let stringValue = stringValues.remove(at: index + 1)
-            stringValues.remove(at: index)
-            
-            return ArgumentValueHolder(
-                argumentName: argumentDescription.name,
-                stringValue: stringValue
-            )
+
+            return indexes.reversed().map { index -> ArgumentValueHolder in
+                let stringValue = stringValues.remove(at: index + 1)
+                stringValues.remove(at: index)
+                
+                return ArgumentValueHolder(
+                    argumentName: argumentDescription.name,
+                    stringValue: stringValue
+                )
+            }.reversed()
         }
         
         if !stringValues.isEmpty {

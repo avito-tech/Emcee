@@ -13,6 +13,19 @@ final class ArgumentDescriptions {
     static let testArgFile = doubleDashedDescription(dashlessName: "test-arg-file", overview: "JSON file with test plan. See: https://github.com/avito-tech/Emcee/wiki/Test-Arg-File")
     static let trace = doubleDashedDescription(dashlessName: "trace", overview: "Path where the combined (for all test destinations) Chrome trace file should be created")
     static let workerId = doubleDashedDescription(dashlessName: "worker-id", overview: "An identifier used to distinguish between workers. Useful to match with deployment destination's identifier")
+    
+    static let worker = doubleDashedDescription(dashlessName: "worker", overview: "URL which describes a worker to spawn")
+    static let queue = doubleDashedDescription(dashlessName: "queue", overview: "URL which describes a queue to spawn")
+    
+    static let testBundle = doubleDashedDescription(dashlessName: "test-bundle", overview: "Path to an .xctest bundle")
+    static let app = doubleDashedDescription(dashlessName: "app", overview: "Path to an .app bundle")
+    static let runner = doubleDashedDescription(dashlessName: "runner", overview: "Path to an XX-Runner.app")
+    
+    static let test = doubleDashedDescription(dashlessName: "test", overview: "Test to execute, e.g. ClassName/testMethod")
+    static let retries = doubleDashedDescription(dashlessName: "retries", overview: "How many retries to attempt")
+    static let testTimeout = doubleDashedDescription(dashlessName: "test-timeout", overview: "Maximum test execution duration")
+    static let device = doubleDashedDescription(dashlessName: "device", overview: "Device to run test on, e.g. 'iPhone X'")
+    static let runtime = doubleDashedDescription(dashlessName: "runtime", overview: "Runtime to run test on, e.g. '15.0'")
 
     private static func doubleDashedDescription(dashlessName: String, overview: String, multiple: Bool = false) -> ArgumentDescription {
         return ArgumentDescription(name: .doubleDashed(dashlessName: dashlessName), overview: overview, multiple: multiple)

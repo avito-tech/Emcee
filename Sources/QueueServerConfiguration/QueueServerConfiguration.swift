@@ -66,7 +66,7 @@ public struct QueueServerConfiguration: Codable {
                 try container.decodeIfPresentExplaining(
                     [String: WorkerSpecificConfiguration].self,
                     forKey: .workerSpecificConfigurations
-                ) ?? QueueServerConfigurationDefaultValues.workerSpecificConfigurations
+                ) ?? [:]
             ).map { key, value in
                 (WorkerId(key), value)
             }

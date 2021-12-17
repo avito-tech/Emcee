@@ -46,24 +46,26 @@ public final class DistWorkCommand: Command {
         let workerId: WorkerId = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.workerId.name)
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
         
-        di.set(try createScopedTemporaryFolder(), for: TemporaryFolder.self)
-        
         let logger = try di.get(ContextualLogger.self)
+        let tempFolder = try createScopedTemporaryFolder()
 
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
             logger: logger,
+            tempFolder: tempFolder,
             version: emceeVersion
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
         
         di.set(onDemandSimulatorPool, for: OnDemandSimulatorPool.self)
+        
 
         let distWorker = try createDistWorker(
             queueServerAddress: queueServerAddress,
             version: emceeVersion,
             workerId: workerId,
-            logger: logger
+            logger: logger,
+            tempFolder: tempFolder
         )
         
         SignalHandling.addSignalHandler(signals: [.term, .int]) { [logger] signal in
@@ -81,7 +83,8 @@ public final class DistWorkCommand: Command {
         queueServerAddress: SocketAddress,
         version: Version,
         workerId: WorkerId,
-        logger: ContextualLogger
+        logger: ContextualLogger,
+        tempFolder: TemporaryFolder
     ) throws -> DistWorker {
         let requestSender = try di.get(RequestSenderProvider.self).requestSender(socketAddress: queueServerAddress)
         
@@ -93,7 +96,7 @@ public final class DistWorkCommand: Command {
             SimulatorSettingsModifierImpl(
                 developerDirLocator: try di.get(),
                 processControllerProvider: try di.get(),
-                tempFolder: try di.get(),
+                tempFolder: tempFolder,
                 uniqueIdentifierGenerator: try di.get(),
                 resourceLocationResolver: try di.get()
             ),
@@ -125,6 +128,7 @@ public final class DistWorkCommand: Command {
         
         return try DistWorker(
             di: di,
+            tempFolder: tempFolder,
             version: version,
             workerId: workerId
         )

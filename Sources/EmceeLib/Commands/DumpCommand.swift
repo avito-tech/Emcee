@@ -56,8 +56,6 @@ public final class DumpCommand: Command {
         )
         let outputPath: AbsolutePath = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.output.name)
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
-
-        di.set(tempFolder, for: TemporaryFolder.self)
         
         try di.get(GlobalMetricRecorder.self).set(analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration)
         if let kibanaConfiguration = testArgFile.prioritizedJob.analyticsConfiguration.kibanaConfiguration {
@@ -74,6 +72,7 @@ public final class DumpCommand: Command {
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
             logger: logger,
+            tempFolder: tempFolder,
             version: emceeVersion
         )
         defer { onDemandSimulatorPool.deleteSimulators() }
@@ -97,7 +96,7 @@ public final class DumpCommand: Command {
                 processControllerProvider: try di.get(),
                 resourceLocationResolver: try di.get(),
                 runnerWasteCollectorProvider: try di.get(),
-                tempFolder: try di.get(),
+                tempFolder: tempFolder,
                 testRunnerProvider: try di.get(),
                 uniqueIdentifierGenerator: try di.get(),
                 version: emceeVersion,

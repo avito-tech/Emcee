@@ -5,6 +5,7 @@ import XCTest
 class CommandParserTests: XCTestCase {
     let commandA = CommandA()
     let commandB = CommandB()
+    let commandD = CommandD()
     
     lazy var commands: [Command] = [
         commandA,
@@ -81,6 +82,19 @@ class CommandParserTests: XCTestCase {
                 stringValues: ["--string", "hello", "--int"],
                 to: commandB.arguments.argumentDescriptions
             )
+        )
+    }
+    
+    func test___parsing_multiple_arguments() {
+        XCTAssertEqual(
+            try CommandParser.map(
+                stringValues: ["--int", "1", "--int", "2"],
+                to: commandD.arguments.argumentDescriptions
+            ),
+            [
+                ArgumentValueHolder(argumentName: .doubleDashed(dashlessName: "int"), stringValue: "1"),
+                ArgumentValueHolder(argumentName: .doubleDashed(dashlessName: "int"), stringValue: "2"),
+            ]
         )
     }
 }
