@@ -1765,6 +1765,7 @@ let package = Package(
             dependencies: [
                 "BuildArtifacts",
                 "DeveloperDirModels",
+                "EmceeExtensions",
                 "LoggingSetup",
                 "MetricsExtensions",
                 "PluginSupport",

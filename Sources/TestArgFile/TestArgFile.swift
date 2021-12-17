@@ -44,7 +44,8 @@ public struct TestArgFile: Codable, Equatable {
         let entries = try container.decode([TestArgFileEntry].self, forKey: .entries)
         
         let prioritizedJob = try container.decodeIfPresent(PrioritizedJob.self, forKey: .prioritizedJob) ?? { () -> PrioritizedJob in
-            let jobId = try container.decode(JobId.self, forKey: .jobId)
+            let jobId = try container.decodeIfPresent(JobId.self, forKey: .jobId) ??
+                TestArgFileDefaultValues.createAutomaticJobId()
             let jobPriority = try container.decodeIfPresent(Priority.self, forKey: .jobPriority) ??
                 TestArgFileDefaultValues.priority
             let jobGroupId = try container.decodeIfPresent(JobGroupId.self, forKey: .jobGroupId) ??

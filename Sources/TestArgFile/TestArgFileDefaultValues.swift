@@ -1,5 +1,6 @@
 import BuildArtifacts
 import DeveloperDirModels
+import EmceeExtensions
 import Foundation
 import LoggingSetup
 import MetricsExtensions
@@ -16,6 +17,9 @@ public enum TestArgFileDefaultValues {
     public static let numberOfRetries: UInt = 1
     public static let testRetryMode: TestRetryMode = .retryThroughQueue
     public static let pluginLocations: Set<PluginLocation> = []
+    public static func createAutomaticJobId() -> JobId {
+        JobId(value: "automaticJobId_" + String.randomString(length: 10))
+    }
     public static let priority = Priority.medium
     public static let scheduleStrategy = ScheduleStrategy(
         testSplitterType: .progressive

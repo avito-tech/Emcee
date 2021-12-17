@@ -116,7 +116,6 @@ final class TestArgFileTests: XCTestCase {
         let json = Data(
             """
             {
-                "jobId": "jobId",
                 "entries": [
                     {
                         "testsToRun": [
@@ -148,7 +147,7 @@ final class TestArgFileTests: XCTestCase {
             try JSONDecoder().decode(TestArgFile.self, from: json)
         }
 
-        XCTAssertEqual(testArgFile.prioritizedJob.jobId, "jobId")
+        XCTAssertTrue(testArgFile.prioritizedJob.jobId.value.hasPrefix("automaticJobId_")) 
         XCTAssertEqual(testArgFile.entries.count, 1)
         XCTAssertEqual(testArgFile.entries[0].testsToRun, [.allDiscoveredTests])
         XCTAssertEqual(testArgFile.entries[0].testDestination, try TestDestination(deviceType: "iPhone X", runtime: "11.3"))
