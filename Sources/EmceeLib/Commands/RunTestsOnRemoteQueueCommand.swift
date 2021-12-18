@@ -57,7 +57,8 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         self.httpRestServer = HTTPRESTServer(
             automaticTerminationController: StayAliveTerminationController(),
             logger: try di.get(),
-            portProvider: AnyAvailablePortProvider()
+            portProvider: AnyAvailablePortProvider(),
+            useOnlyIPv4: false
         )
     }
     
@@ -79,9 +80,26 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         
         di.set(tempFolder, for: TemporaryFolder.self)
         
+        let queueServerConfigurationLocation: QueueServerConfigurationLocation = try payload.expectedSingleTypedValue(
+            argumentName: ArgumentDescriptions.queueServerConfigurationLocation.name
+        )
+        let queueServerConfiguration = try ArgumentsReader.queueServerConfiguration(
+            location: queueServerConfigurationLocation,
+            resourceLocationResolver: try di.get()
+        )
+
+        let runningQueueServerAddress = try detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
+            emceeVersion: emceeVersion,
+            queueServerDeploymentDestinations: queueServerConfiguration.queueServerDeploymentDestinations,
+            queueServerConfigurationLocation: queueServerConfigurationLocation,
+            logger: logger
+        )
+        
         di.set(
             SwifterRemotelyAccessibleUrlForLocalFileProvider(
                 server: httpRestServer,
+                requestSenderProvider: try di.get(),
+                queueServerAddress: runningQueueServerAddress,
                 serverRoot: "/build-artifacts/",
                 uniqueIdentifierGenerator: try di.get()
             ),
@@ -125,23 +143,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             )
         )
         
-        let queueServerConfigurationLocation: QueueServerConfigurationLocation = try localTypedResourceLocationPreparer.generateRemotelyAccessibleTypedResourceLocation(
-            try payload.expectedSingleTypedValue(
-                argumentName: ArgumentDescriptions.queueServerConfigurationLocation.name
-            )
-        )
-        let queueServerConfiguration = try ArgumentsReader.queueServerConfiguration(
-            location: queueServerConfigurationLocation,
-            resourceLocationResolver: try di.get()
-        )
-
-        let runningQueueServerAddress = try detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
-            emceeVersion: emceeVersion,
-            queueServerDeploymentDestinations: queueServerConfiguration.queueServerDeploymentDestinations,
-            queueServerConfigurationLocation: queueServerConfigurationLocation,
-            jobId: testArgFile.prioritizedJob.jobId,
-            logger: logger
-        )
         let jobResults = try runTestsOnRemotelyRunningQueue(
             queueServerAddress: runningQueueServerAddress,
             remoteCacheConfig: remoteCacheConfig,
@@ -184,7 +185,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         emceeVersion: Version,
         queueServerDeploymentDestinations: [DeploymentDestination],
         queueServerConfigurationLocation: QueueServerConfigurationLocation,
-        jobId: JobId,
         logger: ContextualLogger
     ) throws -> SocketAddress {
         logger.info("Searching for queue server on '\(queueServerDeploymentDestinations.map(\.host))' with queue version \(emceeVersion)")
@@ -205,7 +205,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         }
         
         try startNewInstanceOfRemoteQueueServer(
-            jobId: jobId,
             queueServerDeploymentDestinations: queueServerDeploymentDestinations,
             emceeVersion: emceeVersion,
             queueServerConfigurationLocation: queueServerConfigurationLocation,
@@ -223,7 +222,6 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     }
     
     private func startNewInstanceOfRemoteQueueServer(
-        jobId: JobId,
         queueServerDeploymentDestinations: [DeploymentDestination],
         emceeVersion: Version,
         queueServerConfigurationLocation: QueueServerConfigurationLocation,
@@ -235,7 +233,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             do {
                 logger.debug("Trying to start queue on \(queueServerDeploymentDestination.host)")
                 let remoteQueueStarter = RemoteQueueStarter(
-                    deploymentId: jobId.value,
+                    deploymentId: try di.get(UniqueIdentifierGenerator.self).generate(),
                     deploymentDestination: queueServerDeploymentDestination,
                     emceeVersion: emceeVersion,
                     fileSystem: try di.get(),

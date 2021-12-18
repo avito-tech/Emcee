@@ -182,7 +182,8 @@ public final class StartQueueServerCommand: Command {
             workerCapabilitiesStorage: WorkerCapabilitiesStorageImpl(),
             workerConfigurations: workerConfigurations,
             workerIds: Set(workerDestinations.map { $0.workerId }),
-            workersToUtilizeService: workersToUtilizeService
+            workersToUtilizeService: workersToUtilizeService,
+            useOnlyIPv4: queueServerConfiguration.useOnlyIPv4
         )
         queueServerPortProvider.source = queueServer.queueServerPortProvider
         

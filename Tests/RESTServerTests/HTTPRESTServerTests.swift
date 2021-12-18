@@ -13,7 +13,8 @@ final class HTTPRESTServerTests: XCTestCase {
     lazy var server = HTTPRESTServer(
         automaticTerminationController: automaticTerminationController,
         logger: .noOp,
-        portProvider: anyPortProvider
+        portProvider: anyPortProvider,
+        useOnlyIPv4: false
     )
     
     func test___processing_request() throws {

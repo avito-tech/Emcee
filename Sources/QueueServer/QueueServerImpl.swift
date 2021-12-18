@@ -45,6 +45,7 @@ public final class QueueServerImpl: QueueServer {
     private let stuckBucketsPoller: StuckBucketsPoller
     private let testsEnqueuer: TestsEnqueuer
     private let toggleWorkersSharingEndpoint: ToggleWorkersSharingEndpoint
+    private let whatIsMyIpEndpoint: WhatIsMyIpEndpoint
     private let workerAlivenessMetricCapturer: WorkerAlivenessMetricCapturer
     private let workerAlivenessPoller: WorkerAlivenessPoller
     private let workerAlivenessProvider: WorkerAlivenessProvider
@@ -74,13 +75,15 @@ public final class QueueServerImpl: QueueServer {
         workerCapabilitiesStorage: WorkerCapabilitiesStorage,
         workerConfigurations: WorkerConfigurations,
         workerIds: Set<WorkerId>,
-        workersToUtilizeService: WorkersToUtilizeService
+        workersToUtilizeService: WorkersToUtilizeService,
+        useOnlyIPv4: Bool
     ) {
         self.logger = logger
         self.httpRestServer = HTTPRESTServer(
             automaticTerminationController: automaticTerminationController,
             logger: logger,
-            portProvider: localPortDeterminer
+            portProvider: localPortDeterminer,
+            useOnlyIPv4: useOnlyIPv4
         )
         
         let alivenessPollingInterval: TimeInterval = 20
@@ -274,6 +277,7 @@ public final class QueueServerImpl: QueueServer {
         self.toggleWorkersSharingEndpoint = ToggleWorkersSharingEndpoint(
             autoupdatingWorkerPermissionProvider: autoupdatingWorkerPermissionProvider
         )
+        self.whatIsMyIpEndpoint = WhatIsMyIpEndpoint()
     }
     
     public func start() throws -> SocketModels.Port {
@@ -288,6 +292,7 @@ public final class QueueServerImpl: QueueServer {
         httpRestServer.add(handler: RESTEndpointOf(queueServerVersionHandler))
         httpRestServer.add(handler: RESTEndpointOf(scheduleTestsHandler))
         httpRestServer.add(handler: RESTEndpointOf(toggleWorkersSharingEndpoint))
+        httpRestServer.add(handler: RESTEndpointOf(whatIsMyIpEndpoint))
         httpRestServer.add(handler: RESTEndpointOf(workerIdsEndpoint))
         httpRestServer.add(handler: RESTEndpointOf(workerRegistrar))
         httpRestServer.add(handler: RESTEndpointOf(workerStatusEndpoint))

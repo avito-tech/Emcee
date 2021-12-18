@@ -16,6 +16,7 @@ public struct QueueServerConfiguration: Codable {
     public let defaultWorkerConfiguration: WorkerSpecificConfiguration?
     public let workerSpecificConfigurations: [WorkerId: WorkerSpecificConfiguration]
     public let workerStartMode: WorkerStartMode
+    public let useOnlyIPv4: Bool
     
     public init(
         globalAnalyticsConfiguration: AnalyticsConfiguration,
@@ -25,7 +26,8 @@ public struct QueueServerConfiguration: Codable {
         workerDeploymentDestinations: [DeploymentDestination],
         defaultWorkerSpecificConfiguration: WorkerSpecificConfiguration?,
         workerSpecificConfigurations: [WorkerId: WorkerSpecificConfiguration],
-        workerStartMode: WorkerStartMode
+        workerStartMode: WorkerStartMode,
+        useOnlyIPv4: Bool
     ) {
         self.globalAnalyticsConfiguration = globalAnalyticsConfiguration
         self.checkAgainTimeInterval = checkAgainTimeInterval
@@ -35,6 +37,7 @@ public struct QueueServerConfiguration: Codable {
         self.defaultWorkerConfiguration = defaultWorkerSpecificConfiguration
         self.workerSpecificConfigurations = workerSpecificConfigurations
         self.workerStartMode = workerStartMode
+        self.useOnlyIPv4 = useOnlyIPv4
     }
     
     private enum CodingKeys: String, CodingKey {
@@ -46,6 +49,7 @@ public struct QueueServerConfiguration: Codable {
         case defaultWorkerConfiguration
         case workerSpecificConfigurations
         case workerStartMode
+        case useOnlyIPv4
     }
     
     public init(from decoder: Decoder) throws {
@@ -66,6 +70,7 @@ public struct QueueServerConfiguration: Codable {
             }
         )
         let workerStartMode = try container.decodeIfPresentExplaining(WorkerStartMode.self, forKey: .workerStartMode) ?? .queueStartsItsWorkersOverSshAndLaunchd
+        let useOnlyIPv4 = try container.decodeIfPresentExplaining(Bool.self, forKey: .useOnlyIPv4) ?? false
         
         self.init(
             globalAnalyticsConfiguration: globalAnalyticsConfiguration,
@@ -75,7 +80,8 @@ public struct QueueServerConfiguration: Codable {
             workerDeploymentDestinations: workerDeploymentDestinations,
             defaultWorkerSpecificConfiguration: defaultWorkerSpecificConfiguration,
             workerSpecificConfigurations: workerSpecificConfigurations,
-            workerStartMode: workerStartMode
+            workerStartMode: workerStartMode,
+            useOnlyIPv4: useOnlyIPv4
         )
     }
     
@@ -97,6 +103,7 @@ public struct QueueServerConfiguration: Codable {
             forKey: .workerSpecificConfigurations
         )
         try container.encode(workerStartMode, forKey: .workerStartMode)
+        try container.encode(useOnlyIPv4, forKey: .useOnlyIPv4)
     }
     
     public func workerConfiguration(

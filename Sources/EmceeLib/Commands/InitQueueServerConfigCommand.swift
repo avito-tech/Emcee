@@ -85,7 +85,8 @@ public final class InitQueueServerConfigCommand: Command {
             workerSpecificConfigurations: [
                 WorkerId(value: "emceeWorker01.example.com - use to specify special settings") : WorkerSpecificConfiguration(numberOfSimulators: 5),
             ],
-            workerStartMode: .queueStartsItsWorkersOverSshAndLaunchd
+            workerStartMode: .queueStartsItsWorkersOverSshAndLaunchd,
+            useOnlyIPv4: false
         )
         
         let data = try JSONEncoder.pretty().encode(config)

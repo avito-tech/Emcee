@@ -84,7 +84,8 @@ final class QueueServerTests: XCTestCase {
             workerCapabilitiesStorage: workerCapabilitiesStorage,
             workerConfigurations: workerConfigurations,
             workerIds: [],
-            workersToUtilizeService: FakeWorkersToUtilizeService()
+            workersToUtilizeService: FakeWorkersToUtilizeService(),
+            useOnlyIPv4: false
         )
         XCTAssertThrowsError(try server.queueResults(jobId: jobId))
     }
@@ -132,7 +133,8 @@ final class QueueServerTests: XCTestCase {
             workerCapabilitiesStorage: workerCapabilitiesStorage,
             workerConfigurations: workerConfigurations,
             workerIds: [],
-            workersToUtilizeService: FakeWorkersToUtilizeService()
+            workersToUtilizeService: FakeWorkersToUtilizeService(),
+            useOnlyIPv4: false
         )
         try server.schedule(
             testEntryConfigurations: testEntryConfigurations,

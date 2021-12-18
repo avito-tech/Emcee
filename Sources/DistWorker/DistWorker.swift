@@ -63,7 +63,8 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
         self.httpRestServer = HTTPRESTServer(
             automaticTerminationController: StayAliveTerminationController(),
             logger: logger,
-            portProvider: AnyAvailablePortProvider()
+            portProvider: AnyAvailablePortProvider(),
+            useOnlyIPv4: false
         )
         self.version = version
         self.workerId = workerId

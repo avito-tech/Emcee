@@ -12,15 +12,18 @@ public final class HTTPRESTServer {
     private let portProvider: PortProvider
     private let requestParser = RequestParser()
     private let server = HttpServer()
+    private let useOnlyIPv4: Bool
     
     public init(
         automaticTerminationController: AutomaticTerminationController,
         logger: ContextualLogger,
-        portProvider: PortProvider
+        portProvider: PortProvider,
+        useOnlyIPv4: Bool
     ) {
         self.automaticTerminationController = automaticTerminationController
         self.logger = logger
         self.portProvider = portProvider
+        self.useOnlyIPv4 = useOnlyIPv4
     }
 
     public func add<Request, Response>(
@@ -38,8 +41,8 @@ public final class HTTPRESTServer {
         server[requestPath.pathString] = shareFile(localFilePath.pathString)
     }
 
-    private func processRequest<T, R>(
-        endpoint: RESTEndpointOf<T, R>
+    private func processRequest<Endpoint: RESTEndpoint>(
+        endpoint: Endpoint
     ) -> ((HttpRequest) -> HttpResponse) {
         return { [weak self] (httpRequest: HttpRequest) -> HttpResponse in
             guard let strongSelf = self else {
@@ -53,8 +56,17 @@ public final class HTTPRESTServer {
                 strongSelf.automaticTerminationController.indicateActivityFinished()
             }
             
-            return strongSelf.requestParser.parse(request: httpRequest) { decodedPayload in
-                try endpoint.handle(payload: decodedPayload)
+            return strongSelf.requestParser.parse(request: httpRequest) { (decodedPayload: Endpoint.PayloadType) -> Endpoint.ResponseType in
+                if let address = httpRequest.address {
+                    return try endpoint.handle(
+                        payload: decodedPayload,
+                        metadata: PayloadMetadata(
+                            requesterAddress: address
+                        )
+                    )
+                } else {
+                    return try endpoint.handle(payload: decodedPayload)
+                }
             }
         }
     }
@@ -62,7 +74,7 @@ public final class HTTPRESTServer {
     @discardableResult
     public func start() throws -> SocketModels.Port {
         let port = try portProvider.localPort()
-        try server.start(in_port_t(port.value), forceIPv4: false, priority: .default)
+        try server.start(in_port_t(port.value), forceIPv4: useOnlyIPv4, priority: .default)
         
         let actualPort = try server.port()
         logger.debug("Started REST server on \(actualPort) port")

@@ -11,4 +11,11 @@ public protocol RESTEndpoint {
     var requestIndicatesActivity: Bool { get }
     
     func handle(payload: PayloadType) throws -> ResponseType
+    func handle(payload: PayloadType, metadata: PayloadMetadata) throws -> ResponseType
+}
+
+extension RESTEndpoint {
+    public func handle(payload: PayloadType, metadata: PayloadMetadata) throws -> ResponseType {
+        try handle(payload: payload)
+    }
 }
