@@ -1,44 +1,15 @@
 import Foundation
 
-public enum BucketPayload: Hashable {
+public enum BucketPayload: Codable, CustomStringConvertible, Hashable {
     case runIosTests(RunIosTestsPayload)
-}
 
-extension BucketPayload {
-    public func cast<T>(_ type: T.Type) throws -> T {
-        switch self {
-        case .runIosTests(let runIosTestsPayload):
-            return try cast(containedValue: runIosTestsPayload, to: type)
-        }
-    }
-    
-    public struct CastingError<V, T>: Error, CustomStringConvertible {
-        public let containedValue: V
-        public let targetType: T
-        
-        public var description: String {
-            "Can't cast value \(containedValue) to type \(T.self)"
-        }
-    }
-    
-    private func cast<V, T>(containedValue: V, to type: T.Type) throws -> T {
-        guard let result = containedValue as? T else {
-            throw CastingError(containedValue: containedValue, targetType: T.self)
-        }
-        return result
-    }
-}
-
-extension BucketPayload: CustomStringConvertible {
     public var description: String {
         switch self {
         case .runIosTests(let runIosTestsPayload):
             return runIosTestsPayload.description
         }
     }
-}
 
-extension BucketPayload: Codable {
     private enum BucketPayloadType: String, Codable {
         case runIosTests
     }

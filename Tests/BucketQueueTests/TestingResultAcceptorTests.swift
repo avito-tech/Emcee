@@ -90,6 +90,7 @@ final class TestingResultAcceptorTests: XCTestCase {
         assertDoesNotThrow {
             _ = try testingResultAcceptor.acceptTestingResult(
                 dequeuedBucket: dequeuedBucket,
+                runIosTestsPayload: runIosTestsPayload,
                 testingResult: TestingResultFixtures().testingResult()
             )
         }

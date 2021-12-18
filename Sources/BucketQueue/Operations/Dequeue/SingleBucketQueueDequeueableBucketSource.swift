@@ -38,15 +38,15 @@ public final class SingleBucketQueueDequeueableBucketSource: DequeueableBucketSo
             let payloadToDequeueOrNil = testHistoryTracker.enqueuedPayloadToDequeue(
                 workerId: workerId,
                 queue: bucketQueueHolder.allEnqueuedBuckets.compactMap {
-                    guard let runIosTestsPayload = try? $0.bucket.payload.cast(RunIosTestsPayload.self) else {
-                        return nil
+                    switch $0.bucket.payload {
+                    case .runIosTests(let runIosTestsPayload):
+                        return EnqueuedRunIosTestsPayload(
+                            bucketId: $0.bucket.bucketId,
+                            testDestination: runIosTestsPayload.testDestination,
+                            testEntries: runIosTestsPayload.testEntries,
+                            numberOfRetries: runIosTestsPayload.testExecutionBehavior.numberOfRetries
+                        )
                     }
-                    return EnqueuedRunIosTestsPayload(
-                        bucketId: $0.bucket.bucketId,
-                        testDestination: runIosTestsPayload.testDestination,
-                        testEntries: runIosTestsPayload.testEntries,
-                        numberOfRetries: runIosTestsPayload.testExecutionBehavior.numberOfRetries
-                    )
                 },
                 workerIdsInWorkingCondition: workerAlivenessProvider.workerIdsInWorkingCondition
             )

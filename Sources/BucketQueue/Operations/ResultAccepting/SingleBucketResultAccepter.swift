@@ -31,13 +31,14 @@ public final class SingleBucketResultAcceptor: BucketResultAcceptor {
                 workerId: workerId
             )
             
-            switch bucketResult {
-            case .testingResult(let testingResult):
+            switch (previouslyDequeuedBucket.enqueuedBucket.bucket.payload, bucketResult) {
+            case (.runIosTests(let runIosTestsPayload), .testingResult(let testingResult)):
                 return BucketQueueAcceptResult(
                     dequeuedBucket: previouslyDequeuedBucket,
                     bucketResultToCollect: .testingResult(
                         try testingResultAcceptor.acceptTestingResult(
                             dequeuedBucket: previouslyDequeuedBucket,
+                            runIosTestsPayload: runIosTestsPayload,
                             testingResult: testingResult
                         )
                     )

@@ -77,7 +77,8 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
             )
         ]
         
-        if let runIosTestsPayload = try? dequeuedBucket.enqueuedBucket.bucket.payload.cast(RunIosTestsPayload.self) {
+        switch dequeuedBucket.enqueuedBucket.bucket.payload {
+        case .runIosTests(let runIosTestsPayload):
             bucketAndTestMetrics.append(
                 DequeueTestsMetric(
                     workerId: workerId,

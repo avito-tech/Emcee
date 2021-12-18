@@ -29,68 +29,72 @@ public final class TestingResultAcceptorImpl: TestingResultAcceptor {
     
     public func acceptTestingResult(
         dequeuedBucket: DequeuedBucket,
+        runIosTestsPayload: RunIosTestsPayload,
         testingResult: TestingResult
     ) throws -> TestingResult {
-        let runIosTestsPayload = try dequeuedBucket.enqueuedBucket.bucket.payload.cast(RunIosTestsPayload.self)
+        let bucket = dequeuedBucket.enqueuedBucket.bucket
+        let workerId = dequeuedBucket.workerId
         
         try reenqueueLostResults(
+            bucket: bucket,
+            runIosTestsPayload: runIosTestsPayload,
             testingResult: testingResult,
-            dequeuedBucket: dequeuedBucket,
-            runIosTestsPayload: runIosTestsPayload
+            workerId: workerId
         )
         
         let acceptResult = try testHistoryTracker.accept(
             testingResult: testingResult,
-            bucketId: dequeuedBucket.enqueuedBucket.bucket.bucketId,
+            bucketId: bucket.bucketId,
             numberOfRetries: runIosTestsPayload.testExecutionBehavior.numberOfRetries,
-            workerId: dequeuedBucket.workerId
+            workerId: workerId
         )
         
         bucketQueueHolder.remove(dequeuedBucket: dequeuedBucket)
-        logger.debug("Accepted result for \(dequeuedBucket.enqueuedBucket.bucket.bucketId) from \(dequeuedBucket.workerId)")
+        logger.debug("Accepted result for \(bucket.bucketId) from \(workerId)")
         
         try reenqueue(
             testEntries: acceptResult.testEntriesToReenqueue,
-            dequeuedBucket: dequeuedBucket,
-            runIosTestsPayload: runIosTestsPayload
+            originalBucket: dequeuedBucket.enqueuedBucket.bucket,
+            originalRunIosTestsPayload: runIosTestsPayload
         )
         
         return acceptResult.testingResult
     }
     
     private func reenqueueLostResults(
+        bucket: Bucket,
+        runIosTestsPayload: RunIosTestsPayload,
         testingResult: TestingResult,
-        dequeuedBucket: DequeuedBucket,
-        runIosTestsPayload: RunIosTestsPayload
+        workerId: WorkerId
     ) throws {
         let actualTestEntries = Set(testingResult.unfilteredResults.map { $0.testEntry })
         let expectedTestEntries = Set(runIosTestsPayload.testEntries)
         
         let lostTestEntries = expectedTestEntries.subtracting(actualTestEntries)
         if !lostTestEntries.isEmpty {
-            logger.debug("Test result for \(dequeuedBucket.enqueuedBucket.bucket.bucketId) from \(dequeuedBucket.workerId) contains lost test entries: \(lostTestEntries)")
+            logger.debug("Test result for \(bucket.bucketId) from \(workerId) contains lost test entries: \(lostTestEntries)")
             let lostResult = try testHistoryTracker.accept(
                 testingResult: TestingResult(
                     testDestination: testingResult.testDestination,
                     unfilteredResults: lostTestEntries.map { .lost(testEntry: $0) }
                 ),
-                bucketId: dequeuedBucket.enqueuedBucket.bucket.bucketId,
+                bucketId: bucket.bucketId,
                 numberOfRetries: runIosTestsPayload.testExecutionBehavior.numberOfRetries,
-                workerId: dequeuedBucket.workerId
+                workerId: workerId
             )
             
             try reenqueue(
                 testEntries: lostResult.testEntriesToReenqueue,
-                dequeuedBucket: dequeuedBucket,
-                runIosTestsPayload: runIosTestsPayload
+                originalBucket: bucket,
+                originalRunIosTestsPayload: runIosTestsPayload
             )
         }
     }
     
     private func reenqueue(
         testEntries: [TestEntry],
-        dequeuedBucket: DequeuedBucket,
-        runIosTestsPayload: RunIosTestsPayload
+        originalBucket: Bucket,
+        originalRunIosTestsPayload: RunIosTestsPayload
     ) throws {
         guard !testEntries.isEmpty else { return }
         
@@ -98,10 +102,10 @@ public final class TestingResultAcceptorImpl: TestingResultAcceptor {
         var testEntryByBucketId = [BucketId: TestEntry]()
         
         try testEntries.forEach { testEntry in
-            let newBucket = try dequeuedBucket.enqueuedBucket.bucket.with(
+            let newBucket = try originalBucket.with(
                 newBucketId: BucketId(uniqueIdentifierGenerator.generate()),
                 newPayload: .runIosTests(
-                    runIosTestsPayload.with(
+                    originalRunIosTestsPayload.with(
                         testEntries: [testEntry]
                     )
                 )
@@ -111,7 +115,7 @@ public final class TestingResultAcceptorImpl: TestingResultAcceptor {
         }
         
         testHistoryTracker.willReenqueuePreviouslyFailedTests(
-            whichFailedUnderBucketId: dequeuedBucket.enqueuedBucket.bucket.bucketId,
+            whichFailedUnderBucketId: originalBucket.bucketId,
             underNewBucketIds: testEntryByBucketId
         )
         

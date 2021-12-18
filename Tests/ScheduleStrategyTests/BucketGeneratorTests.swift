@@ -96,17 +96,14 @@ final class BucketGeneratorTests: XCTestCase {
             testSplitter: UnsplitBucketSplitter()
         )
         XCTAssertEqual(buckets.count, 3)
-        XCTAssertEqual(
-            try buckets[0].payload.cast(RunIosTestsPayload.self).testEntries,
-            expectedBucketEntries
-        )
-        XCTAssertEqual(
-            try buckets[1].payload.cast(RunIosTestsPayload.self).testEntries,
-            expectedBucketEntries
-        )
-        XCTAssertEqual(
-            try buckets[2].payload.cast(RunIosTestsPayload.self).testEntries,
-            expectedBucketEntries
-        )
+        
+        for bucket in buckets {
+            switch bucket.payload {
+            case .runIosTests(let runIosTestsPayload):
+                assert { runIosTestsPayload.testEntries } equals: {
+                    expectedBucketEntries
+                }
+            }
+        }
     }
 }

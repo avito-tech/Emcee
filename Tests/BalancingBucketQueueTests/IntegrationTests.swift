@@ -174,7 +174,10 @@ final class IntegrationTests: XCTestCase {
     // Tests
     
     func test___state_has_enqueued_buckets___after_enqueueing_buckets_for_job() throws {
-        let bucket = BucketFixtures.createBucket()
+        let payload = BucketFixtures.createRunIosTestsPayload()
+        let bucket = BucketFixtures.createBucket(
+            bucketPayload: .runIosTests(payload)
+        )
         
         try enqueue(bucket: bucket)
         
@@ -186,7 +189,7 @@ final class IntegrationTests: XCTestCase {
                 queueState: QueueState.running(
                     RunningQueueState(
                         enqueuedBucketCount: 1,
-                        enqueuedTests: try bucket.payload.cast(RunIosTestsPayload.self).testEntries.map { $0.testName },
+                        enqueuedTests: payload.testEntries.map { $0.testName },
                         dequeuedBucketCount: 0,
                         dequeuedTests: [:]
                     )
@@ -209,12 +212,10 @@ final class IntegrationTests: XCTestCase {
                 queueState: QueueState.running(
                     RunningQueueState(
                         enqueuedBucketCount: 2,
-                        enqueuedTests:
-                            try bucket.payload.cast(RunIosTestsPayload.self).testEntries.map {
-                                $0.testName
-                            } + bucket.payload.cast(RunIosTestsPayload.self).testEntries.map {
-                                $0.testName
-                            },
+                        enqueuedTests: [
+                            TestEntryFixtures.testEntry().testName,
+                            TestEntryFixtures.testEntry().testName,
+                        ],
                         dequeuedBucketCount: 0,
                         dequeuedTests: [:]
                     )
@@ -347,7 +348,7 @@ final class IntegrationTests: XCTestCase {
                         enqueuedTests: [],
                         dequeuedBucketCount: 1,
                         dequeuedTests: [
-                            workerId: try bucket1.payload.cast(RunIosTestsPayload.self).testEntries.map { $0.testName },
+                            workerId: [TestName(className: "class1", methodName: "test")],
                         ]
                     )
                 )
@@ -371,7 +372,7 @@ final class IntegrationTests: XCTestCase {
                         enqueuedTests: [],
                         dequeuedBucketCount: 1,
                         dequeuedTests: [
-                            workerId: try bucket2.payload.cast(RunIosTestsPayload.self).testEntries.map { $0.testName },
+                            workerId: [TestName(className: "class2", methodName: "test")],
                         ]
                     )
                 )

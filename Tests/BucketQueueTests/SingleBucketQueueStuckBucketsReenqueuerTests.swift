@@ -87,7 +87,12 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
         XCTAssertTrue(bucketQueueHolder.allDequeuedBuckets.isEmpty)
         
         XCTAssertEqual(
-            try enqueuedBuckets.map { try $0.payload.cast(RunIosTestsPayload.self).testEntries },
+            enqueuedBuckets.map {
+                switch $0.payload {
+                case .runIosTests(let runIosTestsPayload):
+                    return runIosTestsPayload.testEntries
+                }
+            },
             testEntries.map { [$0] }
         )
     }
@@ -125,7 +130,12 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
         XCTAssertTrue(bucketQueueHolder.allDequeuedBuckets.isEmpty)
         
         XCTAssertEqual(
-            try enqueuedBuckets.map { try $0.payload.cast(RunIosTestsPayload.self).testEntries },
+            enqueuedBuckets.map {
+                switch $0.payload {
+                case .runIosTests(let runIosTestsPayload):
+                    return runIosTestsPayload.testEntries
+                }
+            },
             testEntries.map { [$0] }
         )
     }
