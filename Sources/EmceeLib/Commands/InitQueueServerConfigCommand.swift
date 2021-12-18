@@ -7,6 +7,7 @@ import LocalQueueServerRunner
 import MetricsExtensions
 import PathLib
 import QueueModels
+import QueueServerConfiguration
 import SocketModels
 
 public final class InitQueueServerConfigCommand: Command {

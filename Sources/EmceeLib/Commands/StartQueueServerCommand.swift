@@ -18,6 +18,7 @@ import ProcessController
 import QueueCommunication
 import QueueModels
 import QueueServer
+import QueueServerConfiguration
 import QueueServerPortProvider
 import RemotePortDeterminer
 import RequestSender

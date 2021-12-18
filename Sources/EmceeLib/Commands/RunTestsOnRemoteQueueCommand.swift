@@ -21,6 +21,7 @@ import QueueClient
 import QueueCommunication
 import QueueModels
 import QueueServer
+import QueueServerConfiguration
 import RESTServer
 import RemotePortDeterminer
 import RequestSender
@@ -91,7 +92,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         let runningQueueServerAddress = try detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
             emceeVersion: emceeVersion,
             queueServerDeploymentDestinations: queueServerConfiguration.queueServerDeploymentDestinations,
-            queueServerConfigurationLocation: queueServerConfigurationLocation,
+            queueServerConfiguration: queueServerConfiguration,
             logger: logger
         )
         
@@ -184,7 +185,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     private func detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
         emceeVersion: Version,
         queueServerDeploymentDestinations: [DeploymentDestination],
-        queueServerConfigurationLocation: QueueServerConfigurationLocation,
+        queueServerConfiguration: QueueServerConfiguration,
         logger: ContextualLogger
     ) throws -> SocketAddress {
         logger.info("Searching for queue server on '\(queueServerDeploymentDestinations.map(\.host))' with queue version \(emceeVersion)")
@@ -207,7 +208,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         try startNewInstanceOfRemoteQueueServer(
             queueServerDeploymentDestinations: queueServerDeploymentDestinations,
             emceeVersion: emceeVersion,
-            queueServerConfigurationLocation: queueServerConfigurationLocation,
+            queueServerConfiguration: queueServerConfiguration,
             logger: logger
         )
         
@@ -224,7 +225,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
     private func startNewInstanceOfRemoteQueueServer(
         queueServerDeploymentDestinations: [DeploymentDestination],
         emceeVersion: Version,
-        queueServerConfigurationLocation: QueueServerConfigurationLocation,
+        queueServerConfiguration: QueueServerConfiguration,
         logger: ContextualLogger
     ) throws {
         logger.info("No running queue server has been found. Will deploy and start remote queue.")
@@ -238,7 +239,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
                     emceeVersion: emceeVersion,
                     fileSystem: try di.get(),
                     logger: logger,
-                    queueServerConfigurationLocation: queueServerConfigurationLocation,
+                    queueServerConfiguration: queueServerConfiguration,
                     tempFolder: try di.get(),
                     uniqueIdentifierGenerator: try di.get(),
                     zipCompressor: try di.get()

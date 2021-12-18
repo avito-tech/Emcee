@@ -7,22 +7,16 @@ import QueueModels
 import XCTest
 
 final class RemoteQueueLaunchdPlistTests: XCTestCase {
-    let remoteConfigUrl = URL(string: "http://example.com/file.zip#config.json")!
+    let queueServerConfigurationPath: AbsolutePath = "/path/to/queueServerConfiguration.json"
+    let containerPath: AbsolutePath = "/path/to/container"
+    let remoteQueueServerBinaryPath: AbsolutePath = "/path/to/remoteQueueServerBinary"
     let emceeVersion: Version = "emceeVersion"
     lazy var launchdPlist = RemoteQueueLaunchdPlist(
         deploymentId: "deploymentId",
-        deploymentDestination: DeploymentDestinationFixtures().build(),
-        emceeDeployableItem: DeployableItem(
-            name: "emcee",
-            files: [
-                DeployableFile(
-                    source: AbsolutePath("local_file"),
-                    destination: RelativePath("remote_filename")
-                )
-            ]
-        ),
         emceeVersion: emceeVersion,
-        queueServerConfigurationLocation: QueueServerConfigurationLocation(.remoteUrl(remoteConfigUrl, [:]))
+        queueServerConfigurationPath: self.queueServerConfigurationPath,
+        containerPath: self.containerPath,
+        remoteQueueServerBinaryPath: self.remoteQueueServerBinaryPath
     )
     
     func test() throws {
@@ -35,15 +29,15 @@ final class RemoteQueueLaunchdPlistTests: XCTestCase {
         XCTAssertEqual(
             decodedDict["ProgramArguments"] as? Array,
             [
-                "/Users/username/path/deploymentId/emcee/remote_filename",
+                "/path/to/remoteQueueServerBinary",
                 "startLocalQueueServer",
                 "--emcee-version", emceeVersion.value,
-                "--queue-server-configuration-location", remoteConfigUrl.absoluteString
+                "--queue-server-configuration-location", "/path/to/queueServerConfiguration.json"
             ]
         )
         XCTAssertEqual(
             decodedDict["WorkingDirectory"] as? String,
-            "/Users/username/path/deploymentId/emcee"
+            "/path/to/container"
         )
         XCTAssertEqual(
             decodedDict["Disabled"] as? Bool,

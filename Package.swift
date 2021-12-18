@@ -357,6 +357,7 @@ let package = Package(
                 .product(name: "LaunchdUtils", package: "CommandLineToolkit"),
                 .product(name: "PathLib", package: "CommandLineToolkit"),
                 "QueueModels",
+                "QueueServerConfiguration",
                 "SSHDeployer",
                 .product(name: "SocketModels", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
@@ -541,6 +542,7 @@ let package = Package(
                 "QueueCommunication",
                 "QueueModels",
                 "QueueServer",
+                "QueueServerConfiguration",
                 "QueueServerPortProvider",
                 "RESTMethods",
                 "RESTServer",
@@ -782,8 +784,6 @@ let package = Package(
                 "FileLock",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
                 "LocalHostDeterminer",
-                "LoggingSetup",
-                "MetricsExtensions",
                 "QueueCommunication",
                 "QueueModels",
                 "QueueServer",
@@ -1167,6 +1167,18 @@ let package = Package(
                 "WorkerCapabilitiesModels",
             ],
             path: "Sources/QueueServer"
+        ),
+        .target(
+            name: "QueueServerConfiguration",
+            dependencies: [
+                "AutomaticTermination",
+                "Deployer",
+                "DistWorkerModels",
+                "LoggingSetup",
+                "MetricsExtensions",
+                "QueueModels",
+            ],
+            path: "Sources/QueueServerConfiguration"
         ),
         .target(
             name: "QueueServerPortProvider",

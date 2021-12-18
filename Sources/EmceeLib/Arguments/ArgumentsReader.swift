@@ -3,6 +3,7 @@ import DistDeployer
 import EmceeExtensions
 import Foundation
 import LocalQueueServerRunner
+import QueueServerConfiguration
 import ResourceLocationResolver
 import TestArgFile
 import TestDiscovery

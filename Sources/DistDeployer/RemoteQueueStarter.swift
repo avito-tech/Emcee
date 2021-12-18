@@ -4,6 +4,8 @@ import FileSystem
 import Foundation
 import PathLib
 import QueueModels
+import QueueServerConfiguration
+import SSHDeployer
 import Tmp
 import UniqueIdentifierGenerator
 import Zip
@@ -14,7 +16,7 @@ public final class RemoteQueueStarter {
     private let emceeVersion: Version
     private let fileSystem: FileSystem
     private let logger: ContextualLogger
-    private let queueServerConfigurationLocation: QueueServerConfigurationLocation
+    private let queueServerConfiguration: QueueServerConfiguration
     private let tempFolder: TemporaryFolder
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let zipCompressor: ZipCompressor
@@ -25,7 +27,7 @@ public final class RemoteQueueStarter {
         emceeVersion: Version,
         fileSystem: FileSystem,
         logger: ContextualLogger,
-        queueServerConfigurationLocation: QueueServerConfigurationLocation,
+        queueServerConfiguration: QueueServerConfiguration,
         tempFolder: TemporaryFolder,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         zipCompressor: ZipCompressor
@@ -35,7 +37,7 @@ public final class RemoteQueueStarter {
         self.emceeVersion = emceeVersion
         self.fileSystem = fileSystem
         self.logger = logger
-        self.queueServerConfigurationLocation = queueServerConfigurationLocation
+        self.queueServerConfiguration = queueServerConfiguration
         self.tempFolder = tempFolder
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.zipCompressor = zipCompressor
@@ -56,13 +58,45 @@ public final class RemoteQueueStarter {
         deployableItems: [DeployableItem],
         emceeBinaryDeployableItem: DeployableItem
     ) throws {
+        let containerPath = SSHDeployer.remoteContainerPath(
+            forDeployable: emceeBinaryDeployableItem,
+            destination: deploymentDestination,
+            deploymentId: deploymentId
+        )
+        let remoteQueueServerBinaryPath = SSHDeployer.remotePath(
+            deployable: emceeBinaryDeployableItem,
+            file: try DeployableItemSingleFileExtractor(
+                deployableItem: emceeBinaryDeployableItem
+            ).singleDeployableFile(),
+            destination: deploymentDestination,
+            deploymentId: deploymentId
+        )
+        
+        let queueServerConfigurationTargetPath = "queue_server_configuration.json"
+        let queueServerConfigurationDirectory = "queue_server_configuration"
+        let queueServerConfigurationDeployableItem = DeployableItem(
+            name: queueServerConfigurationDirectory,
+            files: [
+                DeployableFile(
+                    source: try tempFolder.createFile(
+                        filename: queueServerConfigurationTargetPath,
+                        contents: JSONEncoder().encode(queueServerConfiguration)
+                    ),
+                    destination: RelativePath(queueServerConfigurationTargetPath)
+                )
+            ]
+        )
+        
         let launchdPlistTargetPath = "queue_server_launchd.plist"
         let launchdPlist = RemoteQueueLaunchdPlist(
             deploymentId: deploymentId,
-            deploymentDestination: deploymentDestination,
-            emceeDeployableItem: emceeBinaryDeployableItem,
             emceeVersion: emceeVersion,
-            queueServerConfigurationLocation: queueServerConfigurationLocation
+            queueServerConfigurationPath: containerPath.removingLastComponent.appending(
+                queueServerConfigurationDirectory,
+                queueServerConfigurationTargetPath
+            ),
+            containerPath: containerPath,
+            remoteQueueServerBinaryPath: remoteQueueServerBinaryPath
         )
         let launchdPlistDeployableItem = DeployableItem(
             name: "queue_server_launchd_plist",
@@ -84,7 +118,10 @@ public final class RemoteQueueStarter {
         let deployer = DistDeployer(
             deploymentId: deploymentId,
             deploymentDestination: deploymentDestination,
-            deployableItems: deployableItems + [launchdPlistDeployableItem],
+            deployableItems: deployableItems + [
+                launchdPlistDeployableItem,
+                queueServerConfigurationDeployableItem
+            ],
             deployableCommands: [
                 launchctlDeployableCommands.forceUnloadFromBackgroundCommand(),
                 launchctlDeployableCommands.forceLoadInBackgroundCommand()

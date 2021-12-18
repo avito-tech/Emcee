@@ -5,6 +5,7 @@ import LocalQueueServerRunner
 import MetricsExtensions
 import LoggingSetup
 import QueueModels
+import QueueServerConfiguration
 import SocketModels
 import TestHelpers
 import XCTest

@@ -1,6 +1,7 @@
 import Deployer
 import Foundation
 import LaunchdUtils
+import PathLib
 import QueueModels
 import SSHDeployer
 import Tmp
@@ -8,44 +9,30 @@ import Tmp
 public final class RemoteQueueLaunchdPlist {
     /// Unique deployment id
     private let deploymentId: String
-    /// Deployment destination where queue should start
-    private let deploymentDestination: DeploymentDestination
     /// Emcee binary version
     private let emceeVersion: Version
-    /// Queue server executable
-    private let queueServerBinaryDeployableItem: DeployableItem
-    /// A JSON file location that contains QueueServerConfiguration for queue server
-    private let queueServerConfigurationLocation: QueueServerConfigurationLocation
+    /// Path to QueueServerConfiguration JSON at the deployment location
+    private let queueServerConfigurationPath: AbsolutePath
+    /// Path to the working directory of an Emcee binary at the deployment location
+    private let containerPath: AbsolutePath
+    /// Path to the Emcee binary at the deployment location
+    private let remoteQueueServerBinaryPath: AbsolutePath
 
     public init(
         deploymentId: String,
-        deploymentDestination: DeploymentDestination,
-        emceeDeployableItem: DeployableItem,
         emceeVersion: Version,
-        queueServerConfigurationLocation: QueueServerConfigurationLocation
+        queueServerConfigurationPath: AbsolutePath,
+        containerPath: AbsolutePath,
+        remoteQueueServerBinaryPath: AbsolutePath
     ) {
         self.deploymentId = deploymentId
-        self.deploymentDestination = deploymentDestination
         self.emceeVersion = emceeVersion
-        self.queueServerBinaryDeployableItem = emceeDeployableItem
-        self.queueServerConfigurationLocation = queueServerConfigurationLocation
+        self.queueServerConfigurationPath = queueServerConfigurationPath
+        self.containerPath = containerPath
+        self.remoteQueueServerBinaryPath = remoteQueueServerBinaryPath
     }
     
     public func plistData() throws -> Data {
-        let containerPath = SSHDeployer.remoteContainerPath(
-            forDeployable: queueServerBinaryDeployableItem,
-            destination: deploymentDestination,
-            deploymentId: deploymentId
-        )
-        let remoteQueueServerBinaryPath = SSHDeployer.remotePath(
-            deployable: queueServerBinaryDeployableItem,
-            file: try DeployableItemSingleFileExtractor(
-                deployableItem: queueServerBinaryDeployableItem
-            ).singleDeployableFile(),
-            destination: deploymentDestination,
-            deploymentId: deploymentId
-        )
-        
         let jobLabel = "ru.avito.emcee.queueServer.\(deploymentId.removingWhitespaces())"
         
         let launchdPlist = LaunchdPlist(
@@ -56,7 +43,7 @@ public final class RemoteQueueLaunchdPlist {
                 programArguments: [
                     remoteQueueServerBinaryPath.pathString, "startLocalQueueServer",
                     "--emcee-version", emceeVersion.value,
-                    "--queue-server-configuration-location", try queueServerConfigurationLocation.resourceLocation.stringValue()
+                    "--queue-server-configuration-location", queueServerConfigurationPath.pathString,
                 ],
                 environmentVariables: [:],
                 workingDirectory: containerPath.pathString,
