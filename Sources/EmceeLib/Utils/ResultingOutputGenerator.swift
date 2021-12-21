@@ -26,6 +26,8 @@ public final class ResultingOutputGenerator {
             switch bucketResult {
             case .testingResult(let testingResult):
                 return testingResult
+            case .pong:
+                return nil
             }
         }
         

@@ -43,6 +43,13 @@ public final class SingleBucketResultAcceptor: BucketResultAcceptor {
                         )
                     )
                 )
+            case (.ping, .pong):
+                return BucketQueueAcceptResult(
+                    dequeuedBucket: previouslyDequeuedBucket,
+                    bucketResultToCollect: .pong
+                )
+            case (.ping, .testingResult), (.runIosTests, .pong):
+                throw BucketPayloadResultTypeMismatch()
             }
         }
     }
@@ -61,5 +68,9 @@ public final class SingleBucketResultAcceptor: BucketResultAcceptor {
         return previouslyDequeuedBucket
     }
     
-    
+    public struct BucketPayloadResultTypeMismatch: Error, CustomStringConvertible {
+        public var description: String {
+            "// TODO"
+        }
+    }
 }

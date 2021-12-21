@@ -88,6 +88,8 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
                     timestamp: dateProvider.currentDate()
                 )
             )
+        case .ping:
+            break
         }
         
         do {

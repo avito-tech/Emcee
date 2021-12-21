@@ -103,6 +103,8 @@ final class BucketGeneratorTests: XCTestCase {
                 assert { runIosTestsPayload.testEntries } equals: {
                     expectedBucketEntries
                 }
+            case .ping:
+                failTest("Unexpected payload")
             }
         }
     }

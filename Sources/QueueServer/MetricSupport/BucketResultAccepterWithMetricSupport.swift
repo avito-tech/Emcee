@@ -75,6 +75,8 @@ public class BucketResultAcceptorWithMetricSupport: BucketResultAcceptor {
                 testingResult: testingResult,
                 dequeuedBucket: acceptResult.dequeuedBucket
             )
+        case .pong:
+            bucketResultMetrics = []
         }
         
         do {

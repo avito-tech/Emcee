@@ -23,14 +23,18 @@ public final class SingleStatefulBucketQueue: StatefulBucketQueue {
                     key: dequeuedBucket.workerId,
                     elements: runIosTestsPayload.testEntries.map { $0.testName }
                 )
+            case .ping:
+                break
             }
         }
         
         let enqueuedTests = enqueuedBuckets
-            .compactMap { enqueuedBucket -> RunIosTestsPayload in
+            .compactMap { enqueuedBucket -> RunIosTestsPayload? in
                 switch enqueuedBucket.bucket.payload {
                 case .runIosTests(let runIosTestsPayload):
                     return runIosTestsPayload
+                case .ping:
+                    return nil
                 }
             }
             .flatMap(\.testEntries)

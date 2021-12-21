@@ -136,6 +136,17 @@ final class SingleBucketQueueDequeueableBucketSourceTests: XCTestCase {
     }
     
     func test___queries_test_history_tracker_when_workers_in_working_condition() {
+        bucketQueueHolder.insert(
+            enqueuedBuckets: [
+                EnqueuedBucket(
+                    bucket: BucketFixtures.createBucket(),
+                    enqueueTimestamp: Date(),
+                    uniqueIdentifier: ""
+                )
+            ],
+            position: 0
+        )
+        
         let checked1 = XCTestExpectation()
         
         testHistoryTracker.enqueuedPayloadToDequeueProvider = { _, _, workerIds in
@@ -158,4 +169,3 @@ final class SingleBucketQueueDequeueableBucketSourceTests: XCTestCase {
         wait(for: [checked1, checked2], timeout: 5)
     }
 }
-

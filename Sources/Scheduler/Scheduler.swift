@@ -104,6 +104,12 @@ public final class Scheduler {
                             runIosTestsPayload: runIosTestsPayload,
                             logger: logger
                         )
+                    case .ping:
+                        bucketResult = self.executePing(
+                            analyticsConfiguration: bucket.analyticsConfiguration,
+                            bucketId: bucket.bucketId,
+                            logger: logger
+                        )
                     }
                     try self.resourceSemaphore.release(.of(runningTests: 1))
                     self.schedulerDelegate?.scheduler(
@@ -206,7 +212,6 @@ public final class Scheduler {
             )
             results.append(lastRunResults)
         }
-        
         return try TestingResult.byMerging(testingResults: results)
     }
     
@@ -282,4 +287,17 @@ public final class Scheduler {
             unfilteredResults: runnerResult.testEntryResults
         )
     }
+<<<<<<< HEAD
+=======
+    
+    // MARK: - Ping
+    
+    private func executePing(
+        analyticsConfiguration: AnalyticsConfiguration,
+        bucketId: BucketId,
+        logger: ContextualLogger
+    ) -> BucketResult {
+        return .pong
+    }
+>>>>>>> 6f0a74d5 (Ping)
 }
