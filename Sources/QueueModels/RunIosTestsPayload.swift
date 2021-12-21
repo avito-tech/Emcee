@@ -39,7 +39,7 @@ public struct RunIosTestsPayload: Codable, Hashable, CustomStringConvertible {
     }
 
     public var description: String {
-        "run \(testEntries.count) tests"
+        "run \(testEntries.count) tests: \(testEntries.map { $0.testName.stringValue }.joined(separator: ", "))"
     }
 
     public func with(testEntries newTestEntries: [TestEntry]) -> Self {

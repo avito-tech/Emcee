@@ -27,7 +27,6 @@ public final class ResultingOutputGenerator {
             case .testingResult(let testingResult):
                 return testingResult
             }
-            return nil
         }
         
         try generateOutput(testingResults: testingResults)

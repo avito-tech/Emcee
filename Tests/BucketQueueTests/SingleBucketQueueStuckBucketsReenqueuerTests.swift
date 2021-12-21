@@ -7,6 +7,7 @@ import QueueCommunicationTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
 import RunnerModels
+import TestHelpers
 import WorkerAlivenessProvider
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
@@ -54,7 +55,7 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
         XCTAssertTrue(enqueuedBuckets.isEmpty)
     }
     
-    func test___when_worker_stops_processing_bucket___bucket_gets_reenqueued_into_individual_buckets_for_each_test_entry() {
+    func test___when_worker_stops_processing_bucket___bucket_gets_reenqueued() {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         
         let testEntries = [
@@ -80,24 +81,21 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
             )
         )
         
-        XCTAssertEqual(
-            try reenqueuer.reenqueueStuckBuckets(),
+        assert {
+            try reenqueuer.reenqueueStuckBuckets()
+        } equals: {
             [StuckBucket(reason: .bucketLost, bucket: bucket, workerId: workerId)]
-        )
-        XCTAssertTrue(bucketQueueHolder.allDequeuedBuckets.isEmpty)
+        }
+        assertTrue { bucketQueueHolder.allDequeuedBuckets.isEmpty }
         
-        XCTAssertEqual(
-            enqueuedBuckets.map {
-                switch $0.payload {
-                case .runIosTests(let runIosTestsPayload):
-                    return runIosTestsPayload.testEntries
-                }
-            },
-            testEntries.map { [$0] }
-        )
+        assert { enqueuedBuckets.count } equals: { 1 }
+            
+        assert { enqueuedBuckets[0].payload } equals: {
+            .runIosTests(runIosTestsPayload)
+        }
     }
     
-    func test___when_worker_is_silent___bucket_gets_reenqueued_into_individual_buckets_for_each_test_entry() {
+    func test___when_worker_is_silent___bucket_gets_reenqueued() {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         
         let testEntries = [
@@ -123,21 +121,17 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
             )
         )
         
-        XCTAssertEqual(
-            try reenqueuer.reenqueueStuckBuckets(),
+        assert {
+            try reenqueuer.reenqueueStuckBuckets()
+        } equals: {
             [StuckBucket(reason: .workerIsSilent, bucket: bucket, workerId: workerId)]
-        )
-        XCTAssertTrue(bucketQueueHolder.allDequeuedBuckets.isEmpty)
+        }
         
-        XCTAssertEqual(
-            enqueuedBuckets.map {
-                switch $0.payload {
-                case .runIosTests(let runIosTestsPayload):
-                    return runIosTestsPayload.testEntries
-                }
-            },
-            testEntries.map { [$0] }
-        )
+        assert { enqueuedBuckets.count } equals: { 1 }
+        
+        assert { enqueuedBuckets[0].payload } equals: {
+            .runIosTests(runIosTestsPayload)
+        }
     }
 }
 

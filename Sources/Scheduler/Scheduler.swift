@@ -206,7 +206,8 @@ public final class Scheduler {
             )
             results.append(lastRunResults)
         }
-        return try combine(runResults: results)
+        
+        return try TestingResult.byMerging(testingResults: results)
     }
     
     private func runBucketOnce(
@@ -280,17 +281,5 @@ public final class Scheduler {
             testDestination: runIosTestsPayload.testDestination,
             unfilteredResults: runnerResult.testEntryResults
         )
-    }
-    
-    // MARK: - Utility Methods
-    
-    /**
-     Combines several TestingResult objects of the same Bucket, after running and retrying tests,
-     so if some tests become green, the resulting combined object will have it in a green state.
-     */
-    private func combine(runResults: [TestingResult]) throws -> TestingResult {
-        // All successful tests should be merged into a single array.
-        // Last run's `failedTests` contains all tests that failed after all attempts to rerun failed tests.
-        try TestingResult.byMerging(testingResults: runResults)
     }
 }

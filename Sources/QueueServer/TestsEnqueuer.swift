@@ -66,13 +66,7 @@ public final class TestsEnqueuer {
         
         logger.info("Enqueued \(buckets.count) buckets for job '\(prioritizedJob)'")
         for bucket in buckets {
-            switch bucket.payload {
-            case .runIosTests(let runIosTestsPayload):
-                logger.debug("-- \(bucket.bucketId) with tests:")
-                for testEntries in runIosTestsPayload.testEntries {
-                    logger.debug("-- -- \(testEntries)")
-                }
-            }
+            logger.debug("-- \(bucket.bucketId) with payload \(bucket.payload)")
         }
     }
 }

@@ -53,19 +53,10 @@ public final class SingleBucketQueueStuckBucketsReenqueuer: StuckBucketsReenqueu
                 )
             }
             
-            // Every stucked test produces a single bucket with itself
-            let buckets: [Bucket] = try stuckBuckets.flatMap { (stuckBucket: StuckBucket) -> [Bucket] in
-                switch stuckBucket.bucket.payload {
-                case .runIosTests(let runIosTestsPayload):
-                    return try runIosTestsPayload.testEntries.map { (testEntry: TestEntry) -> Bucket in
-                        return try stuckBucket.bucket.with(
-                            newBucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
-                            newPayload: .runIosTests(
-                                runIosTestsPayload.with(testEntries: [testEntry])
-                            )
-                        )
-                    }
-                }
+            let buckets: [Bucket] = try stuckBuckets.map { (stuckBucket: StuckBucket) -> Bucket in
+                return try stuckBucket.bucket.with(
+                    newBucketId: BucketId(value: uniqueIdentifierGenerator.generate())
+                )
             }
             
             if !buckets.isEmpty {
