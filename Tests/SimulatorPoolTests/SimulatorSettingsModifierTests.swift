@@ -147,6 +147,16 @@ final class SimulatorSettingsModifierTests: XCTestCase {
         )
     }
     
+    func test___when_global_preferences_plist_has_correct_state___with_extra_values___it_does_not_get_overwritten() throws {
+        addChecksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: expectedGlobalPreferencesPlistContentsWithExtraContents, domain: ".GlobalPreferences.plist")
+        
+        try modifier.apply(
+            developerDir: .current,
+            simulatorSettings: simulatorSettings,
+            toSimulator: simulator
+        )
+    }
+    
     func test___when_preferences_plist_has_correct_state___it_does_not_get_overwritten() throws {
         addChecksWhenPlistIsAlreadyPresentImportDoesNotHappen(plist: expectedPreferencesPlistContents, domain: "com.apple.Preferences")
         
@@ -348,6 +358,17 @@ final class SimulatorSettingsModifierTests: XCTestCase {
             "ApplePasscodeKeyboards": .array(simulatorSettings.simulatorLocalizationSettings.passcodeKeyboards.map { .string($0) }),
             "AppleKeyboardsExpanded": .number(simulatorSettings.simulatorLocalizationSettings.enableKeyboardExpansion ? 1 : 0),
             "AddingEmojiKeybordHandled": .bool(simulatorSettings.simulatorLocalizationSettings.addingEmojiKeybordHandled)
+        ])
+    )
+    lazy var expectedGlobalPreferencesPlistContentsWithExtraContents = Plist(
+        rootPlistEntry: .dict([
+            "AppleLocale": .string(simulatorSettings.simulatorLocalizationSettings.localeIdentifier),
+            "AppleLanguages": .array(simulatorSettings.simulatorLocalizationSettings.languages.map { .string($0) }),
+            "AppleKeyboards": .array(simulatorSettings.simulatorLocalizationSettings.keyboards.map { .string($0) }),
+            "ApplePasscodeKeyboards": .array(simulatorSettings.simulatorLocalizationSettings.passcodeKeyboards.map { .string($0) }),
+            "AppleKeyboardsExpanded": .number(simulatorSettings.simulatorLocalizationSettings.enableKeyboardExpansion ? 1 : 0),
+            "AddingEmojiKeybordHandled": .bool(simulatorSettings.simulatorLocalizationSettings.addingEmojiKeybordHandled),
+            "SomeExtraValueThatSystemAdds": .string("yes"),
         ])
     )
     lazy var expectedPreferencesPlistContents = Plist(

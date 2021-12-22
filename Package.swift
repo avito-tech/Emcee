@@ -492,6 +492,7 @@ let package = Package(
             name: "EmceeExtensions",
             dependencies: [
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
+                .product(name: "PlistLib", package: "CommandLineToolkit"),
             ],
             path: "Sources/EmceeExtensions"
         ),
@@ -499,6 +500,8 @@ let package = Package(
             name: "EmceeExtensionsTests",
             dependencies: [
                 "EmceeExtensions",
+                .product(name: "PlistLib", package: "CommandLineToolkit"),
+                .product(name: "TestHelpers", package: "CommandLineToolkit"),
             ],
             path: "Tests/EmceeExtensionsTests"
         ),
@@ -778,8 +781,6 @@ let package = Package(
                 "AutomaticTermination",
                 "Deployer",
                 "DistDeployer",
-                "DistWorkerModels",
-                "EmceeExtensions",
                 "EmceeLogging",
                 "FileLock",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
@@ -811,6 +812,7 @@ let package = Package(
                 "QueueCommunicationTestHelpers",
                 "QueueModels",
                 "QueueServer",
+                "QueueServerConfiguration",
                 "QueueServerPortProviderTestHelpers",
                 "QueueServerTestHelpers",
                 "RemotePortDeterminer",
@@ -1174,6 +1176,7 @@ let package = Package(
                 "AutomaticTermination",
                 "Deployer",
                 "DistWorkerModels",
+                "EmceeExtensions",
                 "LoggingSetup",
                 "MetricsExtensions",
                 "QueueModels",
@@ -1675,6 +1678,7 @@ let package = Package(
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
                 "DeveloperDirLocator",
                 "DeveloperDirModels",
+                "EmceeExtensions",
                 "EmceeLogging",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
                 .product(name: "Graphite", package: "CommandLineToolkit"),

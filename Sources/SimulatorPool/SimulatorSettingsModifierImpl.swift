@@ -1,5 +1,6 @@
 import DeveloperDirLocator
 import DeveloperDirModels
+import EmceeExtensions
 import Foundation
 import PlistLib
 import ProcessController
@@ -149,7 +150,7 @@ public final class SimulatorSettingsModifierImpl: SimulatorSettingsModifier {
         } catch {
             entriesInCurrentPlist = [:]
         }
-        if try plistToImport.root.plistEntry.dictEntry() == entriesInCurrentPlist {
+        if PlistEntry.dict(entriesInCurrentPlist).containsSameValues(asInPlistEntry: plistToImport.root.plistEntry) {
             return false
         }
         
