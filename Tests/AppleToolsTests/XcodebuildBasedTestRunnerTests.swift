@@ -126,7 +126,9 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             contextId: contextId,
             developerDir: DeveloperDir.current,
             environment: environment,
-            userInsertedLibraries: [],
+            userInsertedLibraries: [
+                "__TESTHOST__/Frameworks/FrameworkToInsert.framework/FrameworkToInsert",
+            ],
             simulatorPath: simulator.path,
             simulatorUdid: simulator.udid,
             testDestination: simulator.testDestination,
@@ -163,7 +165,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                     skipTestIdentifiers: [],
                     onlyTestIdentifiers: [TestEntryFixtures.testEntry().testName.stringValue],
                     testingEnvironmentVariables: [
-                        "DYLD_INSERT_LIBRARIES": "__PLATFORMS__/iPhoneSimulator.platform/Developer/usr/lib/libXCTestBundleInject.dylib",
+                        "DYLD_INSERT_LIBRARIES": "__TESTHOST__/Frameworks/FrameworkToInsert.framework/FrameworkToInsert:__PLATFORMS__/iPhoneSimulator.platform/Developer/usr/lib/libXCTestBundleInject.dylib",
                         "XCInjectBundleInto": "__PLATFORMS__/iPhoneSimulator.platform/Developer/Library/Xcode/Agents/xctest",
                     ],
                     isUITestBundle: false,
@@ -232,7 +234,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                     skipTestIdentifiers: [],
                     onlyTestIdentifiers: [TestEntryFixtures.testEntry().testName.stringValue],
                     testingEnvironmentVariables: [
-                        "DYLD_INSERT_LIBRARIES": "__PLATFORMS__/iPhoneSimulator.platform/Developer/usr/lib/libXCTestBundleInject.dylib",
+                        "DYLD_INSERT_LIBRARIES": "__TESTHOST__/Frameworks/FrameworkToInsert.framework/FrameworkToInsert:__PLATFORMS__/iPhoneSimulator.platform/Developer/usr/lib/libXCTestBundleInject.dylib",
                         "XCInjectBundleInto": self.appBundlePath.pathString,
                     ],
                     isUITestBundle: false,
@@ -279,6 +281,42 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             }
             
             self.assertArgumentsAreCorrect(arguments: subprocess.arguments)
+            
+            XCTAssertEqual(
+                try self.createdXcTestRun(),
+                XcTestRun(
+                    testTargetName: self.testBundleName,
+                    bundleIdentifiersForCrashReportEmphasis: [],
+                    dependentProductPaths: [
+                        self.appBundlePath.pathString,
+                        self.testBundlePath.pathString,
+                        self.runnerAppPath.pathString,
+                        self.additionalAppPath.pathString,
+                    ],
+                    testBundlePath: self.testBundlePath.pathString,
+                    testHostPath: self.runnerAppPath.pathString,
+                    testHostBundleIdentifier: "StubBundleId",
+                    uiTargetAppPath: self.appBundlePath.pathString,
+                    environmentVariables: [:],
+                    commandLineArguments: [],
+                    uiTargetAppEnvironmentVariables: [:],
+                    uiTargetAppCommandLineArguments: [],
+                    uiTargetAppMainThreadCheckerEnabled: false,
+                    skipTestIdentifiers: [],
+                    onlyTestIdentifiers: [TestEntryFixtures.testEntry().testName.stringValue],
+                    testingEnvironmentVariables: [
+                        "DYLD_FRAMEWORK_PATH": "__PLATFORMS__/iPhoneOS.platform/Developer/Library/Frameworks",
+                        "DYLD_INSERT_LIBRARIES": "__TESTHOST__/Frameworks/FrameworkToInsert.framework/FrameworkToInsert",
+                        "DYLD_LIBRARY_PATH": "__PLATFORMS__/iPhoneOS.platform/Developer/Library/Frameworks",
+                    ],
+                    isUITestBundle: true,
+                    isAppHostedTestBundle: false,
+                    isXCTRunnerHostedTestBundle: true,
+                    testTargetProductModuleName: self.testBundleName,
+                    systemAttachmentLifetime: .deleteOnSuccess,
+                    userAttachmentLifetime: .deleteOnSuccess
+                )
+            )
             
             argsValidatedExpectation.fulfill()
             
