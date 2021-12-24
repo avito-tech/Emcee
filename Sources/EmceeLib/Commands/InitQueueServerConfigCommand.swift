@@ -55,7 +55,7 @@ public final class InitQueueServerConfigCommand: Command {
                     "WhatToPutHere": "Usually you'd put an empty dict here '{}', because these events are top level ones, but you can add any metadata as needed",
                 ]
             ),
-            checkAgainTimeInterval: 30,
+            checkAgainTimeInterval: QueueServerConfigurationDefaultValues.checkAgainTimeInterval,
             queueServerDeploymentDestinations: [
                 DeploymentDestination(
                     host: "emceequeue.example.com - host name where queue should be started, and SSH port",
@@ -65,7 +65,7 @@ public final class InitQueueServerConfigCommand: Command {
                     remoteDeploymentPath: AbsolutePath("Working directory for EmceeQueueServer process. It should be writable by the provided username. Emcee will upload itself into this folder and start queue in daemon mode by using launchd. It will create plist and use launchctl (without sudo) to spawn a new daemon. Emcee queue has built-in protection to avoid starting multiple similar queues on the same machine.")
                 )
             ],
-            queueServerTerminationPolicy: .stayAlive,
+            queueServerTerminationPolicy: QueueServerConfigurationDefaultValues.queueServerTerminationPolicy,
             workerDeploymentDestinations: [
                 DeploymentDestination(
                     host: "emceeWorker01.example.com - host name where WORKER should be started, and SSH port",
@@ -82,7 +82,7 @@ public final class InitQueueServerConfigCommand: Command {
                     remoteDeploymentPath: AbsolutePath("/Users/emcee/worker/")
                 )
             ],
-            defaultWorkerSpecificConfiguration: WorkerSpecificConfiguration(numberOfSimulators: 3),
+            defaultWorkerSpecificConfiguration: QueueServerConfigurationDefaultValues.defaultWorkerConfiguration,
             workerSpecificConfigurations: [
                 WorkerId(value: "emceeWorker01.example.com - use to specify special settings") : WorkerSpecificConfiguration(numberOfSimulators: 5),
             ],

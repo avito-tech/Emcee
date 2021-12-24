@@ -8,7 +8,7 @@ import LoggingSetup
 import QueueModels
 
 public struct QueueServerConfiguration: Codable {
-    public let globalAnalyticsConfiguration: AnalyticsConfiguration
+    public let globalAnalyticsConfiguration: AnalyticsConfiguration?
     public let checkAgainTimeInterval: TimeInterval
     public let queueServerDeploymentDestinations: [DeploymentDestination]
     public let queueServerTerminationPolicy: AutomaticTerminationPolicy
@@ -19,7 +19,7 @@ public struct QueueServerConfiguration: Codable {
     public let useOnlyIPv4: Bool
     
     public init(
-        globalAnalyticsConfiguration: AnalyticsConfiguration,
+        globalAnalyticsConfiguration: AnalyticsConfiguration?,
         checkAgainTimeInterval: TimeInterval,
         queueServerDeploymentDestinations: [DeploymentDestination],
         queueServerTerminationPolicy: AutomaticTerminationPolicy,
@@ -55,22 +55,24 @@ public struct QueueServerConfiguration: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        let globalAnalyticsConfiguration = try container.decodeExplaining(AnalyticsConfiguration.self, forKey: .globalAnalyticsConfiguration)
-        let checkAgainTimeInterval = try container.decodeExplaining(TimeInterval.self, forKey: .checkAgainTimeInterval)
+        let globalAnalyticsConfiguration = try container.decodeIfPresentExplaining(AnalyticsConfiguration.self, forKey: .globalAnalyticsConfiguration)
+        let checkAgainTimeInterval = try container.decodeIfPresentExplaining(TimeInterval.self, forKey: .checkAgainTimeInterval) ?? QueueServerConfigurationDefaultValues.checkAgainTimeInterval
         let queueServerDeploymentDestinations = try container.decodeExplaining([DeploymentDestination].self, forKey: .queueServerDeploymentDestinations)
-        let queueServerTerminationPolicy = try container.decodeExplaining(AutomaticTerminationPolicy.self, forKey: .queueServerTerminationPolicy)
+        let queueServerTerminationPolicy = try container.decodeIfPresentExplaining(AutomaticTerminationPolicy.self, forKey: .queueServerTerminationPolicy) ?? QueueServerConfigurationDefaultValues.queueServerTerminationPolicy
         let workerDeploymentDestinations = try container.decodeExplaining([DeploymentDestination].self, forKey: .workerDeploymentDestinations)
-        let defaultWorkerSpecificConfiguration = try container.decodeIfPresentExplaining(WorkerSpecificConfiguration.self, forKey: .defaultWorkerConfiguration)
+        let defaultWorkerSpecificConfiguration = try container.decodeIfPresentExplaining(WorkerSpecificConfiguration.self, forKey: .defaultWorkerConfiguration) ?? QueueServerConfigurationDefaultValues.defaultWorkerConfiguration
         let workerSpecificConfigurations = Dictionary(
-            uniqueKeysWithValues: try container.decode(
-                [String: WorkerSpecificConfiguration].self,
-                forKey: .workerSpecificConfigurations
+            uniqueKeysWithValues: (
+                try container.decodeIfPresentExplaining(
+                    [String: WorkerSpecificConfiguration].self,
+                    forKey: .workerSpecificConfigurations
+                ) ?? QueueServerConfigurationDefaultValues.workerSpecificConfigurations
             ).map { key, value in
                 (WorkerId(key), value)
             }
         )
-        let workerStartMode = try container.decodeIfPresentExplaining(WorkerStartMode.self, forKey: .workerStartMode) ?? .queueStartsItsWorkersOverSshAndLaunchd
-        let useOnlyIPv4 = try container.decodeIfPresentExplaining(Bool.self, forKey: .useOnlyIPv4) ?? false
+        let workerStartMode = try container.decodeIfPresentExplaining(WorkerStartMode.self, forKey: .workerStartMode) ?? QueueServerConfigurationDefaultValues.workerStartMode
+        let useOnlyIPv4 = try container.decodeIfPresentExplaining(Bool.self, forKey: .useOnlyIPv4) ?? QueueServerConfigurationDefaultValues.useOnlyIPv4
         
         self.init(
             globalAnalyticsConfiguration: globalAnalyticsConfiguration,
@@ -88,7 +90,7 @@ public struct QueueServerConfiguration: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encode(globalAnalyticsConfiguration, forKey: .globalAnalyticsConfiguration)
+        try container.encodeIfPresent(globalAnalyticsConfiguration, forKey: .globalAnalyticsConfiguration)
         try container.encode(checkAgainTimeInterval, forKey: .checkAgainTimeInterval)
         try container.encode(queueServerDeploymentDestinations, forKey: .queueServerDeploymentDestinations)
         try container.encode(queueServerTerminationPolicy, forKey: .queueServerTerminationPolicy)

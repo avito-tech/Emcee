@@ -4,12 +4,12 @@ import LoggingSetup
 import QueueModels
 
 public struct WorkerConfiguration: Codable, Equatable {
-    public let globalAnalyticsConfiguration: AnalyticsConfiguration
+    public let globalAnalyticsConfiguration: AnalyticsConfiguration?
     public let numberOfSimulators: UInt
     public let payloadSignature: PayloadSignature
 
     public init(
-        globalAnalyticsConfiguration: AnalyticsConfiguration,
+        globalAnalyticsConfiguration: AnalyticsConfiguration?,
         numberOfSimulators: UInt,
         payloadSignature: PayloadSignature
     ) {
