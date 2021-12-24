@@ -150,15 +150,19 @@ public final class StartQueueServerCommand: Command {
             queueServerConfiguration: queueServerConfiguration
         )
         
+        let numberOfParallelBuckets = queueServerConfiguration.workerDeploymentDestinations.reduce(into: 1, { result, keyValue in
+            result += queueServerConfiguration.workerSpecificConfigurations[
+                keyValue.workerId
+            ]?.numberOfSimulators ?? queueServerConfiguration.defaultWorkerConfiguration?.numberOfSimulators ?? 0
+        })
+        
         let queueServer = QueueServerImpl(
             automaticTerminationController: automaticTerminationController,
             autoupdatingWorkerPermissionProvider: autoupdatingWorkerPermissionProvider,
             bucketGenerator: try di.get(),
             bucketSplitInfo: BucketSplitInfo(
-                numberOfWorkers: UInt(queueServerConfiguration.workerSpecificConfigurations.count),
-                numberOfParallelBuckets: queueServerConfiguration.workerSpecificConfigurations.reduce(into: 0, { result, keyValue in
-                    result += keyValue.value.numberOfSimulators
-                })
+                numberOfWorkers: UInt(queueServerConfiguration.workerDeploymentDestinations.count),
+                numberOfParallelBuckets: UInt(numberOfParallelBuckets)
             ),
             checkAgainTimeInterval: queueServerConfiguration.checkAgainTimeInterval,
             dateProvider: try di.get(),
