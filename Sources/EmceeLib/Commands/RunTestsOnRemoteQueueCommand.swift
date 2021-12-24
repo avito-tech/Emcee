@@ -154,6 +154,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         )
         let resultOutputGenerator = ResultingOutputGenerator(
             logger: logger,
+            resourceLocationResolver: try di.get(),
             bucketResults: jobResults.bucketResults,
             commonReportOutput: commonReportOutput,
             testDestinationConfigurations: testArgFile.testDestinationConfigurations

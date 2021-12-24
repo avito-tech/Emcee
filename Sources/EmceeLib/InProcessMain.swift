@@ -140,13 +140,21 @@ public final class InProcessMain {
         )
         
         di.set(
+            DefaultCommonlyUsedPathsProvider(
+                fileManager: FileManager()
+            ),
+            for: CommonlyUsedPathsProvider.self
+        )
+        
+        di.set(
             ResourceLocationResolverImpl(
                 fileSystem: try di.get(),
                 logger: logger,
                 urlResource: try di.get(),
                 cacheElementTimeToLive: cacheElementTimeToLive.timeInterval,
                 maximumCacheSize: cacheMaximumSize,
-                processControllerProvider: try di.get()
+                processControllerProvider: try di.get(),
+                commonlyUsedPathsProvider: try di.get()
             ),
             for: ResourceLocationResolver.self
         )

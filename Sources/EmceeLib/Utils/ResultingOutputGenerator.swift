@@ -1,21 +1,25 @@
 import Foundation
 import EmceeLogging
 import QueueModels
+import ResourceLocationResolver
 import TestArgFile
 
 public final class ResultingOutputGenerator {
     private let logger: ContextualLogger
+    private let resourceLocationResolver: ResourceLocationResolver
     private let bucketResults: [BucketResult]
     private let commonReportOutput: ReportOutput
     private let testDestinationConfigurations: [TestDestinationConfiguration]
 
     public init(
         logger: ContextualLogger,
+        resourceLocationResolver: ResourceLocationResolver,
         bucketResults: [BucketResult],
         commonReportOutput: ReportOutput,
         testDestinationConfigurations: [TestDestinationConfiguration]
     ) {
         self.logger = logger
+        self.resourceLocationResolver = resourceLocationResolver
         self.bucketResults = bucketResults
         self.commonReportOutput = commonReportOutput
         self.testDestinationConfigurations = testDestinationConfigurations
@@ -69,6 +73,7 @@ public final class ResultingOutputGenerator {
     private func generateOutput(combinedTestingResults: CombinedTestingResults, reportOutput: ReportOutput) throws {
         let reportsGenerator = ReportsGenerator(
             logger: logger,
+            resourceLocationResolver: resourceLocationResolver,
             testingResult: combinedTestingResults,
             reportOutput: reportOutput
         )

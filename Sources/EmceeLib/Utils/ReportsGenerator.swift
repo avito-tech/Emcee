@@ -2,6 +2,7 @@ import ChromeTracing
 import Foundation
 import JunitReporting
 import EmceeLogging
+import ResourceLocationResolver
 import RunnerModels
 import TestArgFile
 
@@ -9,24 +10,37 @@ public final class ReportsGenerator {
     private let testingResult: CombinedTestingResults
     private let reportOutput: ReportOutput
     private let logger: ContextualLogger
+    private let resourceLocationResolver: ResourceLocationResolver
     
     public init(
         logger: ContextualLogger,
+        resourceLocationResolver: ResourceLocationResolver,
         testingResult: CombinedTestingResults,
         reportOutput: ReportOutput
     ) {
         self.logger = logger
+        self.resourceLocationResolver = resourceLocationResolver
         self.testingResult = testingResult
         self.reportOutput = reportOutput
     }
     
     public func prepareReports() throws {
         if let junitPath = reportOutput.junit {
-            try prepareJunitReport(testingResult: testingResult, path: junitPath)
+            try prepareJunitReport(
+                testingResult: testingResult,
+                path: resourceLocationResolver.resolvePath(
+                    resourceLocation: .localFilePath(junitPath)
+                ).directlyAccessibleResourcePath().pathString
+            )
         }
         
         if let tracePath = reportOutput.tracingReport {
-            try prepareTraceReport(testingResult: testingResult, path: tracePath)
+            try prepareTraceReport(
+                testingResult: testingResult,
+                path: resourceLocationResolver.resolvePath(
+                    resourceLocation: .localFilePath(tracePath)
+                ).directlyAccessibleResourcePath().pathString
+            )
         }
         
         prepareConsoleReport(testingResult: testingResult)

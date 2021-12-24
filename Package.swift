@@ -1415,6 +1415,7 @@ let package = Package(
                 "EmceeLogging",
                 "FileCache",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
+                .product(name: "FileSystemTestHelpers", package: "CommandLineToolkit"),
                 .product(name: "PathLib", package: "CommandLineToolkit"),
                 .product(name: "ProcessController", package: "CommandLineToolkit"),
                 "ResourceLocation",

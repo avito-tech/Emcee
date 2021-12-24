@@ -18,6 +18,7 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
     private let cacheElementTimeToLive: TimeInterval
     private let maximumCacheSize: Int
     private let processControllerProvider: ProcessControllerProvider
+    private let commonlyUsedPathsProvider: CommonlyUsedPathsProvider
     private let unarchiveQueue = DispatchQueue(label: "ResourceLocationResolverImpl.unarchiveQueue")
     
     public enum ValidationError: Error, CustomStringConvertible {
@@ -37,7 +38,8 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
         urlResource: URLResource,
         cacheElementTimeToLive: TimeInterval,
         maximumCacheSize: Int,
-        processControllerProvider: ProcessControllerProvider
+        processControllerProvider: ProcessControllerProvider,
+        commonlyUsedPathsProvider: CommonlyUsedPathsProvider
     ) {
         self.fileSystem = fileSystem
         self.logger = logger
@@ -45,12 +47,19 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
         self.cacheElementTimeToLive = cacheElementTimeToLive
         self.maximumCacheSize = maximumCacheSize
         self.processControllerProvider = processControllerProvider
+        self.commonlyUsedPathsProvider = commonlyUsedPathsProvider
     }
     
     public func resolvePath(resourceLocation: ResourceLocation) throws -> ResolvingResult {
         switch resourceLocation {
         case .localFilePath(let path):
-            return .directlyAccessibleFile(path: AbsolutePath(path))
+            let filePath: AbsolutePath
+            if AbsolutePath.isAbsolute(path: path) {
+                filePath = AbsolutePath(path)
+            } else {
+                filePath = commonlyUsedPathsProvider.currentWorkingDirectory.appending(path)
+            }
+            return .directlyAccessibleFile(path: filePath)
         case .remoteUrl(let url, let headers):
             let path = try cachedContentsOfUrl(url, headers)
             let filenameInArchive = url.fragment

@@ -15,6 +15,7 @@ import TestHelpers
 import URLResource
 import URLSessionTestHelpers
 import XCTest
+import FileSystemTestHelpers
 
 final class ResourceLocationResolverTests: XCTestCase {
     
@@ -39,6 +40,18 @@ final class ResourceLocationResolverTests: XCTestCase {
         switch result {
         case .directlyAccessibleFile(let actualPath):
             XCTAssertEqual(expectedPath, actualPath)
+        case .contentsOfArchive:
+            XCTFail("Unexpected result")
+        }
+    }
+    
+    func test___resolving_local_file___resolves_relative_to_working_directory___when_local_file_path_is_relative() throws {
+        let relativeLocalFile = "relative_local_file"
+        let result = try resolver.resolvePath(resourceLocation: .localFilePath(relativeLocalFile))
+        
+        switch result {
+        case .directlyAccessibleFile(let actualPath):
+            XCTAssertEqual(workingDirectory.appending(relativeLocalFile), actualPath)
         case .contentsOfArchive:
             XCTFail("Unexpected result")
         }
@@ -187,6 +200,8 @@ final class ResourceLocationResolverTests: XCTestCase {
     var urlSession = URLSession.shared
     let fakeSession = FakeURLSession()
     let dateProvider = SystemDateProvider()
+    let rootPath = AbsolutePath("/some/root/path/")
+    let workingDirectory = AbsolutePath("/some/working/directory")
     lazy var resolver = ResourceLocationResolverImpl(
         fileSystem: fileSystem,
         logger: .noOp,
@@ -196,6 +211,12 @@ final class ResourceLocationResolverTests: XCTestCase {
         processControllerProvider: DefaultProcessControllerProvider(
             dateProvider: dateProvider,
             filePropertiesProvider: FilePropertiesProviderImpl()
+        ),
+        commonlyUsedPathsProvider: FakeCommonlyUsedPathsProvider(
+            applicationsProvider: { _ in self.rootPath.appending("Applications") },
+            cachesProvider: { _ in self.rootPath.appending("Library", "Caches") },
+            libraryProvider: { _ in self.rootPath.appending("Library") },
+            currentWorkingDirectoryProvider: { self.workingDirectory }
         )
     )
     lazy var fileSystem = LocalFileSystemProvider().create()
