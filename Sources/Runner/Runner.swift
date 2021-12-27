@@ -37,6 +37,7 @@ public final class Runner {
     private let waiter: Waiter
     
     public static let logCapturingModeEnvName = "EMCEE_LOG_CAPTURE_MODE"
+    public static let wasteCleanUpDisabledEnvName = "EMCEE_WASTE_CLEAN_UP_DISABLED"
     
     public static let runnerWorkingDir = "runnerWorkingDir"
     public static let testsWorkingDir = "testsWorkingDir"
@@ -113,10 +114,17 @@ public final class Runner {
             fileSystem: fileSystem,
             pluginLocations: configuration.pluginLocations
         )
+        let runnerWasteCleaner: RunnerWasteCleaner
+        if configuration.environment[Self.wasteCleanUpDisabledEnvName] != "true" {
+            runnerWasteCleaner = RunnerWasteCleanerImpl(fileSystem: fileSystem)
+        } else {
+            runnerWasteCleaner = NoOpRunnerWasteCleaner(logger: logger)
+        }
+        
         defer {
-            pluginTearDownQueue.addOperation { [fileSystem] in
+            pluginTearDownQueue.addOperation {
                 eventBus.tearDown()
-                RunnerWasteCleanerImpl(fileSystem: fileSystem).cleanWaste(runnerWasteCollector: runnerWasteCollector)
+                runnerWasteCleaner.cleanWaste(runnerWasteCollector: runnerWasteCollector)
             }
         }
         
@@ -232,8 +240,6 @@ public final class Runner {
             developerDirLocator: developerDirLocator,
             entriesToRun: entriesToRun,
             logger: logger,
-            runnerWasteCollector: runnerWasteCollector,
-            simulator: configuration.simulator,
             testContext: testContext,
             testRunnerStream: testRunnerStream
         ).startExecutingTests()

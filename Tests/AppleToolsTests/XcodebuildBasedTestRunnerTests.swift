@@ -37,13 +37,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
     private lazy var resourceLocationResolver = FakeResourceLocationResolver(
         resolvingResult: .directlyAccessibleFile(path: tempFolder.absolutePath)
     )
-    private lazy var simulator = Simulator(
-        testDestination: TestDestinationFixtures.testDestination,
-        udid: UDID(value: UUID().uuidString),
-        path: assertDoesNotThrow {
-            try tempFolder.createDirectory(components: ["simulator"])
-        }
-    )
     private lazy var testContext = assertDoesNotThrow { try createTestContext() }
     private lazy var xcResultTool = FakeXcResultTool()
     private lazy var runner = XcodebuildBasedTestRunner(
@@ -107,7 +100,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
     private lazy var logicTestBuildArtifacts = BuildArtifacts.iosLogicTests(
         xcTestBundle: xcTestBundle
     )
-    private lazy var runnerWasteCollector = RunnerWasteCollectorImpl()
     
     private var testRunnerWorkingDirectory: AbsolutePath {
         assertDoesNotThrow {
@@ -129,9 +121,9 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             userInsertedLibraries: [
                 "__TESTHOST__/Frameworks/FrameworkToInsert.framework/FrameworkToInsert",
             ],
-            simulatorPath: simulator.path,
-            simulatorUdid: simulator.udid,
-            testDestination: simulator.testDestination,
+            simulatorPath: try tempFolder.createDirectory(components: ["simulator"]),
+            simulatorUdid: UDID(value: UUID().uuidString),
+            testDestination: TestDestinationFixtures.testDestination,
             testRunnerWorkingDirectory: testRunnerWorkingDirectory,
             testsWorkingDirectory: testsWorkingDirectory
         )
@@ -192,8 +184,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                     TestEntryFixtures.testEntry()
                 ],
                 logger: .noOp,
-                runnerWasteCollector: runnerWasteCollector,
-                simulator: simulator,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream
             )
@@ -261,8 +251,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                     TestEntryFixtures.testEntry()
                 ],
                 logger: .noOp,
-                runnerWasteCollector: runnerWasteCollector,
-                simulator: simulator,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream
             )
@@ -333,8 +321,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                     TestEntryFixtures.testEntry()
                 ],
                 logger: .noOp,
-                runnerWasteCollector: runnerWasteCollector,
-                simulator: simulator,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream
             )
@@ -354,8 +340,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 TestEntryFixtures.testEntry()
             ],
             logger: .noOp,
-            runnerWasteCollector: runnerWasteCollector,
-            simulator: simulator,
             testContext: testContext,
             testRunnerStream: testRunnerStream
         )
@@ -374,8 +358,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 TestEntryFixtures.testEntry()
             ],
             logger: .noOp,
-            runnerWasteCollector: runnerWasteCollector,
-            simulator: simulator,
             testContext: testContext,
             testRunnerStream: testRunnerStream
         )
@@ -413,8 +395,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             developerDirLocator: developerDirLocator,
             entriesToRun: [TestEntry(testName: testName, tags: [], caseId: nil)],
             logger: .noOp,
-            runnerWasteCollector: runnerWasteCollector,
-            simulator: simulator,
             testContext: testContext,
             testRunnerStream: testRunnerStream
         )
@@ -479,8 +459,6 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 TestEntryFixtures.testEntry(className: "ClassName", methodName: "testMethod"),
             ],
             logger: .noOp,
-            runnerWasteCollector: runnerWasteCollector,
-            simulator: simulator,
             testContext: testContext,
             testRunnerStream: testRunnerStream
         )
@@ -525,7 +503,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             [
                 "/usr/bin/xcrun",
                 "xcodebuild",
-                "-destination", "platform=iOS Simulator,id=" + simulator.udid.value,
+                "-destination", "platform=iOS Simulator,id=" + testContext.simulatorUdid.value,
                 "-derivedDataPath", testRunnerWorkingDirectory.appending("derivedData").pathString,
                 "-resultBundlePath", testRunnerWorkingDirectory.appending("resultBundle.xcresult").pathString,
                 "-resultStreamPath", testRunnerWorkingDirectory.appending("result_stream.json").pathString,

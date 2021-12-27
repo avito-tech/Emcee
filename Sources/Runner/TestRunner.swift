@@ -28,8 +28,6 @@ public protocol TestRunner {
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         logger: ContextualLogger,
-        runnerWasteCollector: RunnerWasteCollector,
-        simulator: Simulator,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream
     ) throws -> TestRunnerInvocation

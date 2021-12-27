@@ -11,7 +11,6 @@ import ResultStream
 import ResultStreamModels
 import Runner
 import RunnerModels
-import SimulatorPoolModels
 import Tmp
 import PathLib
 import XcodebuildTestRunnerConstants
@@ -42,8 +41,6 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         logger: ContextualLogger,
-        runnerWasteCollector: RunnerWasteCollector,
-        simulator: Simulator,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream
     ) throws -> TestRunnerInvocation {
@@ -70,7 +67,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                 arguments: [
                     "/usr/bin/xcrun",
                     "xcodebuild",
-                    "-destination", XcodebuildSimulatorDestinationArgument(destinationId: simulator.udid),
+                    "-destination", XcodebuildSimulatorDestinationArgument(destinationId: testContext.simulatorUdid),
                     "-derivedDataPath", testContext.testRunnerWorkingDirectory.appending("derivedData"),
                     "-resultBundlePath", xcresultBundlePath,
                     "-resultStreamPath", resultStreamFile,

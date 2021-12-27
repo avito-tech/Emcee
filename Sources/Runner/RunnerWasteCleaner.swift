@@ -1,3 +1,4 @@
+import EmceeLogging
 import FileSystem
 import Foundation
 
@@ -20,3 +21,20 @@ public final class RunnerWasteCleanerImpl: RunnerWasteCleaner {
         }
     }
 }
+
+public final class NoOpRunnerWasteCleaner: RunnerWasteCleaner {
+    private let logger: ContextualLogger
+    
+    public init(
+        logger: ContextualLogger
+    ) {
+        self.logger = logger
+    }
+    
+    public func cleanWaste(runnerWasteCollector: RunnerWasteCollector) {
+        for path in runnerWasteCollector.collectedPaths {
+            logger.debug("Skipping clean up of: \(path)")
+        }
+    }
+}
+ 

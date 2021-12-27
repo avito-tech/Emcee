@@ -25,8 +25,6 @@ public final class FailureReportingTestRunnerProxy: TestRunner {
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         logger: ContextualLogger,
-        runnerWasteCollector: RunnerWasteCollector,
-        simulator: Simulator,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream
     ) throws -> TestRunnerInvocation {
@@ -36,8 +34,6 @@ public final class FailureReportingTestRunnerProxy: TestRunner {
                 developerDirLocator: developerDirLocator,
                 entriesToRun: entriesToRun,
                 logger: logger,
-                runnerWasteCollector: runnerWasteCollector,
-                simulator: simulator,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream
             )
