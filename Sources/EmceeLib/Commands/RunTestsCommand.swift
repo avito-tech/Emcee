@@ -17,6 +17,7 @@ import Tmp
 import UniqueIdentifierGenerator
 import LocalQueueServerRunner
 import RESTServer
+import ResourceLocationResolver
 
 public final class RunTestsCommand: Command {
     public let name = "runTests"
@@ -56,11 +57,33 @@ public final class RunTestsCommand: Command {
         let workerUrls: [URL] = try payload.nonEmptyCollectionOfValues(argumentName: ArgumentDescriptions.worker.name)
         let workerDeploymentDestinations = try workerUrls.map { try $0.deploymentDestination() }
         
-        let testBundlePath: AbsolutePath = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testBundle.name)
+        let resourceLocationResolver: ResourceLocationResolver = try di.get()
+        let testBundlePath: AbsolutePath = try resourceLocationResolver.resolvePath(
+            resourceLocation: .localFilePath(
+                try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testBundle.name)
+            )
+        ).directlyAccessibleResourcePath()
         let xcTestBundle = XcTestBundle(location: TestBundleLocation(.localFilePath(testBundlePath.pathString)), testDiscoveryMode: .parseFunctionSymbols)
         
-        let appBundlePath: AbsolutePath? = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.app.name)
-        let runnerBundlePath: AbsolutePath? = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.runner.name)
+        let appBundleLocation: String? = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.app.name)
+        let appBundlePath: AbsolutePath?
+        if let appBundleLocation = appBundleLocation {
+            appBundlePath = try resourceLocationResolver.resolvePath(
+                resourceLocation: .localFilePath(appBundleLocation)
+            ).directlyAccessibleResourcePath()
+        } else {
+            appBundlePath = nil
+        }
+        
+        let runnerBundleLocation: String? = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.runner.name)
+        let runnerBundlePath: AbsolutePath?
+        if let runnerBundleLocation = runnerBundleLocation {
+            runnerBundlePath = try resourceLocationResolver.resolvePath(
+                resourceLocation: .localFilePath(runnerBundleLocation)
+            ).directlyAccessibleResourcePath()
+        } else {
+            runnerBundlePath = nil
+        }
         
         let buildArtifacts: IosBuildArtifacts
         if let runnerBundlePath = runnerBundlePath, let appBundlePath = appBundlePath {
