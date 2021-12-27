@@ -115,7 +115,9 @@ public struct QueueServerConfiguration: Codable {
         return WorkerConfiguration(
             globalAnalyticsConfiguration: globalAnalyticsConfiguration,
             numberOfSimulators: workerSpecificConfiguration.numberOfSimulators,
-            payloadSignature: payloadSignature
+            payloadSignature: payloadSignature,
+            maximumCacheSize: workerSpecificConfiguration.maximumCacheSize,
+            maximumCacheTTL: workerSpecificConfiguration.maximumCacheTTL
         )
     }
 }

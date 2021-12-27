@@ -128,6 +128,7 @@ public final class DistWorkCommand: Command {
         
         return try DistWorker(
             di: di,
+            resourceLocationResolver: try di.get(),
             tempFolder: tempFolder,
             version: version,
             workerId: workerId

@@ -1,4 +1,3 @@
-import AtomicModels
 import Dispatch
 import FileCache
 import FileSystem
@@ -14,9 +13,6 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
     private let fileSystem: FileSystem
     private let logger: ContextualLogger
     private let urlResource: URLResource
-    private let cacheAccessCount = AtomicValue<Int>(0)
-    private let cacheElementTimeToLive: TimeInterval
-    private let maximumCacheSize: Int
     private let processControllerProvider: ProcessControllerProvider
     private let commonlyUsedPathsProvider: CommonlyUsedPathsProvider
     private let unarchiveQueue = DispatchQueue(label: "ResourceLocationResolverImpl.unarchiveQueue")
@@ -36,16 +32,12 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
         fileSystem: FileSystem,
         logger: ContextualLogger,
         urlResource: URLResource,
-        cacheElementTimeToLive: TimeInterval,
-        maximumCacheSize: Int,
         processControllerProvider: ProcessControllerProvider,
         commonlyUsedPathsProvider: CommonlyUsedPathsProvider
     ) {
         self.fileSystem = fileSystem
         self.logger = logger
         self.urlResource = urlResource
-        self.cacheElementTimeToLive = cacheElementTimeToLive
-        self.maximumCacheSize = maximumCacheSize
         self.processControllerProvider = processControllerProvider
         self.commonlyUsedPathsProvider = commonlyUsedPathsProvider
     }
@@ -68,8 +60,6 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
     }
     
     private func cachedContentsOfUrl(_ url: URL, _ headers: [String: String]?) throws -> AbsolutePath {
-        evictOldCache()
-        
         let handler = BlockingURLResourceHandler()
         urlResource.fetchResource(url: url, handler: handler, headers: headers)
         let zipFilePath = try handler.wait(limit: 120, remoteUrl: url)
@@ -119,21 +109,15 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
         return contentsPath
     }
     
-    private func evictOldCache() {
-        let evictionRegularity = 10
+    public func evictOldCache(
+        cacheElementTimeToLive: TimeInterval,
+        maximumCacheSize: Int
+    ) {
+        let evictBarrierDate = Date().addingTimeInterval(-cacheElementTimeToLive)
         
-        cacheAccessCount.withExclusiveAccess { (counter: inout Int) in
-            let evictBarrierDate = Date().addingTimeInterval(-cacheElementTimeToLive)
-            
-            if counter % evictionRegularity == 0 {
-                counter = 1
-                var evictedEntryPaths = (try? urlResource.evictResources(olderThan: evictBarrierDate)) ?? []
-                logger.debug("Evicted \(evictedEntryPaths.count) cached items older than: \(LoggableDate(evictBarrierDate))")
-                evictedEntryPaths = (try? urlResource.evictResources(toFitSize: maximumCacheSize)) ?? []
-                logger.debug("Evicted \(evictedEntryPaths.count) cached items to limit cache size to \(maximumCacheSize) bytes")
-            } else {
-                counter = counter + 1
-            }
-        }
+        var evictedEntryPaths = (try? urlResource.evictResources(olderThan: evictBarrierDate)) ?? []
+        logger.debug("Evicted \(evictedEntryPaths.count) cached items older than: \(LoggableDate(evictBarrierDate))")
+        evictedEntryPaths = (try? urlResource.evictResources(toFitSize: maximumCacheSize)) ?? []
+        logger.debug("Evicted \(evictedEntryPaths.count) cached items to limit cache size to \(maximumCacheSize) bytes")
     }
 }

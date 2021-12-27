@@ -2,6 +2,7 @@ import EmceeDI
 import DateProvider
 import DeveloperDirLocator
 import Dispatch
+import DistWorkerModels
 import FileSystem
 import Foundation
 import ListeningSemaphore
@@ -26,32 +27,37 @@ public final class Scheduler {
     private let di: DI
     private let rootLogger: ContextualLogger
     private let queue = OperationQueue()
+    private let resourceLocationResolver: ResourceLocationResolver
     private let resourceSemaphore: ListeningSemaphore<ResourceAmounts>
     private let tempFolder: TemporaryFolder
     private let version: Version
+    private let workerConfiguration: WorkerConfiguration
     private weak var schedulerDataSource: SchedulerDataSource?
     private weak var schedulerDelegate: SchedulerDelegate?
     
     public init(
         di: DI,
         logger: ContextualLogger,
-        numberOfSimulators: UInt,
+        resourceLocationResolver: ResourceLocationResolver,
         schedulerDataSource: SchedulerDataSource,
         schedulerDelegate: SchedulerDelegate,
         tempFolder: TemporaryFolder,
-        version: Version
+        version: Version,
+        workerConfiguration: WorkerConfiguration
     ) {
         self.di = di
         self.rootLogger = logger
+        self.resourceLocationResolver = resourceLocationResolver
         self.resourceSemaphore = ListeningSemaphore(
             maximumValues: .of(
-                runningTests: Int(numberOfSimulators)
+                runningTests: Int(workerConfiguration.numberOfSimulators)
             )
         )
         self.schedulerDataSource = schedulerDataSource
         self.schedulerDelegate = schedulerDelegate
         self.tempFolder = tempFolder
         self.version = version
+        self.workerConfiguration = workerConfiguration
     }
     
     public func run() throws {
@@ -88,6 +94,12 @@ public final class Scheduler {
                 analyticsConfiguration: bucket.analyticsConfiguration
             )
             logger.debug("Data Source returned bucket: \(bucket)")
+            
+            self.resourceLocationResolver.evictOldCache(
+                cacheElementTimeToLive: self.workerConfiguration.maximumCacheTTL,
+                maximumCacheSize: self.workerConfiguration.maximumCacheSize
+            )
+            
             self.runTestsFromFetchedBucket(bucket: bucket, dateProvider: dateProvider, logger: logger)
         }
     }

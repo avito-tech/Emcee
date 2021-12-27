@@ -67,8 +67,6 @@ public final class InProcessMain {
         let globalMetricRecorder: GlobalMetricRecorder = try di.get()
         let specificMetricRecorderProvider: SpecificMetricRecorderProvider = try di.get()
         
-        let cacheElementTimeToLive = TimeUnit.hours(1)
-        let cacheMaximumSize = 10 * 1024 * 1024 * 1024
         let logsTimeToLive = TimeUnit.days(5)
         
         let logCleaningQueue = OperationQueue()
@@ -151,8 +149,6 @@ public final class InProcessMain {
                 fileSystem: try di.get(),
                 logger: logger,
                 urlResource: try di.get(),
-                cacheElementTimeToLive: cacheElementTimeToLive.timeInterval,
-                maximumCacheSize: cacheMaximumSize,
                 processControllerProvider: try di.get(),
                 commonlyUsedPathsProvider: try di.get()
             ),

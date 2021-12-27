@@ -27,13 +27,19 @@ final class QueueServerConfigurationTests: XCTestCase {
                   },
                   "workerSpecificConfigurations": {
                     "worker_1": {
-                      "numberOfSimulators": 1
+                      "numberOfSimulators": 1,
+                      "maximumCacheSize": 42,
+                      "maximumCacheTTL": 800
                     },
                     "worker_2": {
-                      "numberOfSimulators": 2
+                      "numberOfSimulators": 2,
+                      "maximumCacheSize": 42,
+                      "maximumCacheTTL": 800
                     },
                     "worker_3": {
-                      "numberOfSimulators": 3
+                      "numberOfSimulators": 3,
+                      "maximumCacheSize": 42,
+                      "maximumCacheTTL": 800
                     }
                   },
                   "queueServerDeploymentDestinations": [{
@@ -76,9 +82,21 @@ final class QueueServerConfigurationTests: XCTestCase {
         XCTAssertEqual(
             config.workerSpecificConfigurations,
             [
-                WorkerId("worker_1"): WorkerSpecificConfiguration(numberOfSimulators: 1),
-                WorkerId("worker_2"): WorkerSpecificConfiguration(numberOfSimulators: 2),
-                WorkerId("worker_3"): WorkerSpecificConfiguration(numberOfSimulators: 3),
+                WorkerId("worker_1"): WorkerSpecificConfiguration(
+                    numberOfSimulators: 1,
+                    maximumCacheSize: 42,
+                    maximumCacheTTL: 800
+                ),
+                WorkerId("worker_2"): WorkerSpecificConfiguration(
+                    numberOfSimulators: 2,
+                    maximumCacheSize: 42,
+                    maximumCacheTTL: 800
+                ),
+                WorkerId("worker_3"): WorkerSpecificConfiguration(
+                    numberOfSimulators: 3,
+                    maximumCacheSize: 42,
+                    maximumCacheTTL: 800
+                ),
             ]
         )
         XCTAssertEqual(

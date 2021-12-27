@@ -206,8 +206,6 @@ final class ResourceLocationResolverTests: XCTestCase {
         fileSystem: fileSystem,
         logger: .noOp,
         urlResource: urlResource,
-        cacheElementTimeToLive: 0,
-        maximumCacheSize: 0,
         processControllerProvider: DefaultProcessControllerProvider(
             dateProvider: dateProvider,
             filePropertiesProvider: FilePropertiesProviderImpl()

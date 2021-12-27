@@ -50,4 +50,8 @@ public final class FakeResourceLocationResolver: ResourceLocationResolver {
             return resolvingResult
         }
     }
+    
+    public func evictOldCache(cacheElementTimeToLive: TimeInterval, maximumCacheSize: Int) {
+        
+    }
 }

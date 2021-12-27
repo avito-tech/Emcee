@@ -84,7 +84,7 @@ public final class InitQueueServerConfigCommand: Command {
             ],
             defaultWorkerSpecificConfiguration: QueueServerConfigurationDefaultValues.defaultWorkerConfiguration,
             workerSpecificConfigurations: [
-                WorkerId(value: "emceeWorker01.example.com - use to specify special settings") : WorkerSpecificConfiguration(numberOfSimulators: 5),
+                WorkerId(value: "emceeWorker01.example.com - use to specify special settings"): QueueServerConfigurationDefaultValues.defaultWorkerConfiguration,
             ],
             workerStartMode: .queueStartsItsWorkersOverSshAndLaunchd,
             useOnlyIPv4: false

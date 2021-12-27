@@ -1385,7 +1385,6 @@ let package = Package(
         .target(
             name: "ResourceLocationResolver",
             dependencies: [
-                .product(name: "AtomicModels", package: "CommandLineToolkit"),
                 "EmceeLogging",
                 "FileCache",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
@@ -1648,6 +1647,7 @@ let package = Package(
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
                 "DeveloperDirLocator",
                 "DeveloperDirModels",
+                "DistWorkerModels",
                 "EmceeDI",
                 "EmceeLogging",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
