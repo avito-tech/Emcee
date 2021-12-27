@@ -33,6 +33,8 @@ public final class RunTestsCommand: Command {
         ArgumentDescriptions.test.asOptional,
         ArgumentDescriptions.retries.asOptional,
         ArgumentDescriptions.testTimeout.asOptional,
+        ArgumentDescriptions.junit.asOptional,
+        ArgumentDescriptions.trace.asOptional,
     ]
     
     private let di: DI
@@ -168,7 +170,10 @@ public final class RunTestsCommand: Command {
         )
         
         try RunTestsOnRemoteQueueLogic(di: di).run(
-            commonReportOutput: ReportOutput(junit: nil, tracingReport: nil),
+            commonReportOutput: ReportOutput(
+                junit: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.junit.name),
+                tracingReport: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.trace.name)
+            ),
             emceeVersion: EmceeVersion.version,
             logger: try di.get(),
             queueServerConfiguration: queueServerConfiguration,
