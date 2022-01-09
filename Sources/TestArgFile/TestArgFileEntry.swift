@@ -15,6 +15,8 @@ public struct TestArgFileEntry: Codable, Equatable {
     public let userInsertedLibraries: [String]
     public let numberOfRetries: UInt
     public let testRetryMode: TestRetryMode
+    public let logCapturingMode: LogCapturingMode
+    public let runnerWasteCleanupPolicy: RunnerWasteCleanupPolicy
     public let pluginLocations: Set<PluginLocation>
     public let scheduleStrategy: ScheduleStrategy
     public let simulatorOperationTimeouts: SimulatorOperationTimeouts
@@ -31,6 +33,8 @@ public struct TestArgFileEntry: Codable, Equatable {
         userInsertedLibraries: [String],
         numberOfRetries: UInt,
         testRetryMode: TestRetryMode,
+        logCapturingMode: LogCapturingMode,
+        runnerWasteCleanupPolicy: RunnerWasteCleanupPolicy,
         pluginLocations: Set<PluginLocation>,
         scheduleStrategy: ScheduleStrategy,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,
@@ -46,6 +50,8 @@ public struct TestArgFileEntry: Codable, Equatable {
         self.userInsertedLibraries = userInsertedLibraries
         self.numberOfRetries = numberOfRetries
         self.testRetryMode = testRetryMode
+        self.logCapturingMode = logCapturingMode
+        self.runnerWasteCleanupPolicy = runnerWasteCleanupPolicy
         self.pluginLocations = pluginLocations
         self.scheduleStrategy = scheduleStrategy
         self.simulatorOperationTimeouts = simulatorOperationTimeouts
@@ -79,6 +85,8 @@ public struct TestArgFileEntry: Codable, Equatable {
             TestArgFileDefaultValues.numberOfRetries
         let testRetryMode = try container.decodeIfPresent(TestRetryMode.self, forKey: .testRetryMode) ??
             TestArgFileDefaultValues.testRetryMode
+        let logCapturingMode = try container.decodeIfPresent(LogCapturingMode.self, forKey: .logCapturingMode) ??
+            TestArgFileDefaultValues.logCapturingMode
         let pluginLocations = try container.decodeIfPresent(Set<PluginLocation>.self, forKey: .pluginLocations) ??
             TestArgFileDefaultValues.pluginLocations
         let scheduleStrategy = try container.decodeIfPresent(ScheduleStrategy.self, forKey: .scheduleStrategy) ??
@@ -87,6 +95,8 @@ public struct TestArgFileEntry: Codable, Equatable {
             TestArgFileDefaultValues.simulatorOperationTimeouts
         let simulatorSettings = try container.decodeIfPresent(SimulatorSettings.self, forKey: .simulatorSettings) ??
             TestArgFileDefaultValues.simulatorSettings
+        let runnerWasteCleanupPolicy = try container.decodeIfPresent(RunnerWasteCleanupPolicy.self, forKey: .runnerWasteCleanupPolicy) ??
+            TestArgFileDefaultValues.runnerWasteCleanupPolicy
         
         let testTimeoutConfiguration = try container.decodeIfPresent(TestTimeoutConfiguration.self, forKey: .testTimeoutConfiguration) ??
             TestArgFileDefaultValues.testTimeoutConfiguration
@@ -100,6 +110,8 @@ public struct TestArgFileEntry: Codable, Equatable {
             userInsertedLibraries: userInsertedLibraries,
             numberOfRetries: numberOfRetries,
             testRetryMode: testRetryMode,
+            logCapturingMode: logCapturingMode,
+            runnerWasteCleanupPolicy: runnerWasteCleanupPolicy,
             pluginLocations: pluginLocations,
             scheduleStrategy: scheduleStrategy,
             simulatorOperationTimeouts: simulatorOperationTimeouts,

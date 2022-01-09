@@ -242,17 +242,18 @@ public final class RunnerTests: XCTestCase {
         wait(for: [handlerInvokedExpectation], timeout: 5)
     }
     
-    func test___deletes_tests_working_directory___after_run() throws {
-        let testsWorkingDirDeletedExpectation = XCTestExpectation(description: "testsWorkingDir is deleted")
-        fileSystem.onDelete = { [tempFolder, uniqueIdentifierGenerator] path in
-            if path == tempFolder.pathWith(components: [Runner.testsWorkingDir, uniqueIdentifierGenerator.generate()]) {
-                testsWorkingDirDeletedExpectation.fulfill()
-            }
+    func test___adds_waste_into_result___after_run() throws {
+        let result = try runTestEntries([testEntry])
+        
+        assert {
+            result.runnerWasteCollector.collectedPaths
+        } equals: {
+            Set([
+                tempFolder.absolutePath.appending("runnerWorkingDir/someId"),
+                tempFolder.absolutePath.appending("testsWorkingDir/someId"),
+                tempFolder.absolutePath.appending("data/Library/Caches/com.apple.containermanagerd/Dead"),
+            ])
         }
-        
-        _ = try runTestEntries([testEntry])
-        
-        wait(for: [testsWorkingDirDeletedExpectation], timeout: 15)
     }
     
     func test___when_exception_without_related_test_happens_outside_test_started_test_finished___these_exceptions_are_appended_to_all_lost_tests() throws {
@@ -338,7 +339,7 @@ public final class RunnerTests: XCTestCase {
             testRunnerStream.logCaptured(entry: TestLogEntry(contents: "second log"))
         }
 
-        let runnerResults = try runTestEntries([testEntry], environment: [Runner.logCapturingModeEnvName: Runner.LogCapturingMode.allLogs.rawValue])
+        let runnerResults = try runTestEntries([testEntry], logCapturingMode: .allLogs)
         
         guard runnerResults.testEntryResults.count == 1, let testResult = runnerResults.testEntryResults.first else {
             failTest("Unexpected number of test results")
@@ -382,7 +383,7 @@ public final class RunnerTests: XCTestCase {
             testRunnerStream.logCaptured(entry: crashLogEntry)
         }
 
-        let runnerResults = try runTestEntries([testEntry], environment: [Runner.logCapturingModeEnvName: Runner.LogCapturingMode.onlyCrashLogs.rawValue])
+        let runnerResults = try runTestEntries([testEntry], logCapturingMode: .onlyCrashLogs)
         
         guard runnerResults.testEntryResults.count == 1, let testResult = runnerResults.testEntryResults.first else {
             failTest("Unexpected number of test results")
@@ -408,7 +409,7 @@ public final class RunnerTests: XCTestCase {
         let testEntry1 = TestEntryFixtures.testEntry(className: "class1", methodName: "test1")
         let testEntry2 = TestEntryFixtures.testEntry(className: "class2", methodName: "test2")
 
-        let runnerResults = try runTestEntries([testEntry1, testEntry2], environment: [Runner.logCapturingModeEnvName: Runner.LogCapturingMode.allLogs.rawValue])
+        let runnerResults = try runTestEntries([testEntry1, testEntry2], logCapturingMode: .allLogs)
 
         guard runnerResults.testEntryResults.count == 2 else {
             failTest("Unexpected number of test results")
@@ -509,7 +510,8 @@ public final class RunnerTests: XCTestCase {
     
     private func runTestEntries(
         _ testEntries: [TestEntry],
-        environment: [String: String] = [:]
+        environment: [String: String] = [:],
+        logCapturingMode: LogCapturingMode = .noLogs
     ) throws -> RunnerRunResult {
         let runner = Runner(
             dateProvider: dateProvider,
@@ -530,7 +532,10 @@ public final class RunnerTests: XCTestCase {
         )
         return try runner.runOnce(
             entriesToRun: testEntries,
-            configuration: createRunnerConfig(environment: environment)
+            configuration: createRunnerConfig(
+                environment: environment,
+                logCapturingMode: logCapturingMode
+            )
         )
     }
     
@@ -540,11 +545,15 @@ public final class RunnerTests: XCTestCase {
         path: tempFolder.absolutePath
     )
 
-    private func createRunnerConfig(environment: [String: String]) -> RunnerConfiguration {
+    private func createRunnerConfig(
+        environment: [String: String],
+        logCapturingMode: LogCapturingMode
+    ) -> RunnerConfiguration {
         return RunnerConfiguration(
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
             developerDir: .current,
             environment: environment,
+            logCapturingMode: logCapturingMode,
             userInsertedLibraries: [],
             lostTestProcessingMode: .reportError,
             persistentMetricsJobId: nil,

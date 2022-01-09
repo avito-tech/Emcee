@@ -56,4 +56,6 @@ public enum TestArgFileDefaultValues {
     )
     public static let workerCapabilityRequirements: Set<WorkerCapabilityRequirement> = []
     public static let analyticsConfiguration = AnalyticsConfiguration()
+    public static let logCapturingMode = LogCapturingMode.onlyCrashLogs
+    public static let runnerWasteCleanupPolicy = RunnerWasteCleanupPolicy.clean
 }

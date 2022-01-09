@@ -133,6 +133,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
     ) throws {
         let scheduler = Scheduler(
             di: di,
+            fileSystem: try di.get(),
             logger: logger,
             resourceLocationResolver: resourceLocationResolver,
             schedulerDataSource: self,

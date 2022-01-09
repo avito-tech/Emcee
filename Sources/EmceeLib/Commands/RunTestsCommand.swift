@@ -110,6 +110,8 @@ public final class RunTestsCommand: Command {
                     userInsertedLibraries: [],
                     numberOfRetries: numberOfRetries,
                     testRetryMode: TestArgFileDefaultValues.testRetryMode,
+                    logCapturingMode: TestArgFileDefaultValues.logCapturingMode,
+                    runnerWasteCleanupPolicy: TestArgFileDefaultValues.runnerWasteCleanupPolicy,
                     pluginLocations: [],
                     scheduleStrategy: TestArgFileDefaultValues.scheduleStrategy,
                     simulatorOperationTimeouts: TestArgFileDefaultValues.simulatorOperationTimeouts,

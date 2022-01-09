@@ -1,6 +1,6 @@
 import Foundation
 
-/// A per-test configuration that extends the global TestRunExecutionBehavior
+/// Per-test configuration.
 public struct TestExecutionBehavior: Codable, Hashable, CustomStringConvertible {
 
     /// Test environment
@@ -15,6 +15,12 @@ public struct TestExecutionBehavior: Codable, Hashable, CustomStringConvertible 
     /// Defines where test reties occur.
     public let testRetryMode: TestRetryMode
     
+    /// Defines what logs to capture.
+    public let logCapturingMode: LogCapturingMode
+    
+    /// Defines what happens to temporary and auxiliary files after test finishes.
+    public let runnerWasteCleanupPolicy: RunnerWasteCleanupPolicy
+    
     public func numberOfRetriesOnWorker() -> UInt {
         switch testRetryMode {
         case .retryOnWorker:
@@ -28,16 +34,19 @@ public struct TestExecutionBehavior: Codable, Hashable, CustomStringConvertible 
         environment: [String: String],
         userInsertedLibraries: [String],
         numberOfRetries: UInt,
-        testRetryMode: TestRetryMode
-    )
-    {
+        testRetryMode: TestRetryMode,
+        logCapturingMode: LogCapturingMode,
+        runnerWasteCleanupPolicy: RunnerWasteCleanupPolicy
+    ) {
         self.environment = environment
         self.userInsertedLibraries = userInsertedLibraries
         self.numberOfRetries = numberOfRetries
         self.testRetryMode = testRetryMode
+        self.logCapturingMode = logCapturingMode
+        self.runnerWasteCleanupPolicy = runnerWasteCleanupPolicy
     }
     
     public var description: String {
-        return "numberOfRetries: \(numberOfRetries), testRetryMode: \(testRetryMode), environment: \(environment), userInsertedLibraries: \(userInsertedLibraries)"
+        return "numberOfRetries: \(numberOfRetries), testRetryMode: \(testRetryMode), environment: \(environment), userInsertedLibraries: \(userInsertedLibraries) logCapturingMode: \(logCapturingMode) runnerWasteCleanupPolicy: \(runnerWasteCleanupPolicy)"
     }
 }

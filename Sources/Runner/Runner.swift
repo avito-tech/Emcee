@@ -36,9 +36,6 @@ public final class Runner {
     private let version: Version
     private let waiter: Waiter
     
-    public static let logCapturingModeEnvName = "EMCEE_LOG_CAPTURE_MODE"
-    public static let wasteCleanUpDisabledEnvName = "EMCEE_WASTE_CLEAN_UP_DISABLED"
-    
     public static let runnerWorkingDir = "runnerWorkingDir"
     public static let testsWorkingDir = "testsWorkingDir"
     
@@ -77,15 +74,16 @@ public final class Runner {
         entriesToRun: [TestEntry],
         configuration: RunnerConfiguration
     ) throws -> RunnerRunResult {
+        let runnerWasteCollector = runnerWasteCollectorProvider.createRunnerWasteCollector()
+        
         if entriesToRun.isEmpty {
             return RunnerRunResult(
                 entriesToRun: entriesToRun,
+                runnerWasteCollector: runnerWasteCollector,
                 testEntryResults: []
             )
         }
         
-        let logCapturingMode = LogCapturingMode(rawValue: configuration.environment[Self.logCapturingModeEnvName] ?? LogCapturingMode.noLogs.rawValue) ?? .noLogs
-
         var collectedTestStoppedEvents = [TestStoppedEvent]()
         var collectedTestExceptions = [TestException]()
         var collectedLogs = [TestLogEntry]()
@@ -100,7 +98,7 @@ public final class Runner {
             testRunner: testRunner
         )
         
-        let runnerWasteCollector = runnerWasteCollectorProvider.createRunnerWasteCollector()
+        
         runnerWasteCollector.scheduleCollection(path: testContext.testsWorkingDirectory)
         runnerWasteCollector.scheduleCollection(path: testContext.testRunnerWorkingDirectory)
         runnerWasteCollector.scheduleCollection(path: configuration.simulator.path.appending(relativePath: "data/Library/Caches/com.apple.containermanagerd/Dead"))
@@ -114,17 +112,9 @@ public final class Runner {
             fileSystem: fileSystem,
             pluginLocations: configuration.pluginLocations
         )
-        let runnerWasteCleaner: RunnerWasteCleaner
-        if configuration.environment[Self.wasteCleanUpDisabledEnvName] != "true" {
-            runnerWasteCleaner = RunnerWasteCleanerImpl(fileSystem: fileSystem)
-        } else {
-            runnerWasteCleaner = NoOpRunnerWasteCleaner(logger: logger)
-        }
-        
         defer {
             pluginTearDownQueue.addOperation {
                 eventBus.tearDown()
-                runnerWasteCleaner.cleanWaste(runnerWasteCollector: runnerWasteCollector)
             }
         }
         
@@ -194,7 +184,7 @@ public final class Runner {
                         collectedTestExceptions.append(testException)
                     },
                     onLog: { logEntry in
-                        switch logCapturingMode {
+                        switch configuration.logCapturingMode {
                         case .noLogs:
                             break
                         case .allLogs:
@@ -267,14 +257,9 @@ public final class Runner {
         
         return RunnerRunResult(
             entriesToRun: entriesToRun,
+            runnerWasteCollector: runnerWasteCollector,
             testEntryResults: result
         )
-    }
-    
-    public enum LogCapturingMode: String, Equatable {
-        case allLogs
-        case onlyCrashLogs
-        case noLogs
     }
     
     private func createTestContext(

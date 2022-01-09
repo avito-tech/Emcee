@@ -15,7 +15,9 @@ public final class TestExecutionBehaviorFixtures {
             environment: environment,
             userInsertedLibraries: [],
             numberOfRetries: numberOfRetries,
-            testRetryMode: .retryThroughQueue
+            testRetryMode: .retryThroughQueue,
+            logCapturingMode: .noLogs,
+            runnerWasteCleanupPolicy: .clean
         )
     }
 }

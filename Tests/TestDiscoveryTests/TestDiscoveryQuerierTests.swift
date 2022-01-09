@@ -251,7 +251,9 @@ final class TestDiscoveryQuerierTests: XCTestCase {
                 environment: [:],
                 userInsertedLibraries: [],
                 numberOfRetries: 0,
-                testRetryMode: .retryThroughQueue
+                testRetryMode: .retryThroughQueue,
+                logCapturingMode: .noLogs,
+                runnerWasteCleanupPolicy: .clean
             ),
             testTimeoutConfiguration: TestTimeoutConfiguration(
                 singleTestMaximumDuration: 10,

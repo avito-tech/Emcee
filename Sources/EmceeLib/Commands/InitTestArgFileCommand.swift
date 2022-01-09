@@ -83,6 +83,8 @@ public final class InitTestArgFileCommand: Command {
                     userInsertedLibraries: [],
                     numberOfRetries: 0,
                     testRetryMode: .retryThroughQueue,
+                    logCapturingMode: .onlyCrashLogs,
+                    runnerWasteCleanupPolicy: .clean,
                     pluginLocations: [
                         PluginLocation(
                             .remoteUrl(

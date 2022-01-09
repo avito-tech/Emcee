@@ -27,6 +27,8 @@ final class TestArgFileEntryTests: XCTestCase {
                 },
                 "numberOfRetries": 42,
                 "testRetryMode": "retryOnWorker",
+                "logCapturingMode": "allLogs",
+                "runnerWasteCleanupPolicy": "keep",
                 "testDestination": {
                     "deviceType": "iPhone SE",
                     "runtime": "11.3"
@@ -120,6 +122,8 @@ final class TestArgFileEntryTests: XCTestCase {
                 userInsertedLibraries: [],
                 numberOfRetries: 42,
                 testRetryMode: .retryOnWorker,
+                logCapturingMode: .allLogs,
+                runnerWasteCleanupPolicy: .keep,
                 pluginLocations: [
                     PluginLocation(.remoteUrl(URL(string: "http://example.com/plugin.zip#sample.emceeplugin")!, [:]))
                 ],
@@ -206,6 +210,8 @@ final class TestArgFileEntryTests: XCTestCase {
                 userInsertedLibraries: TestArgFileDefaultValues.userInsertedLibraries,
                 numberOfRetries: TestArgFileDefaultValues.numberOfRetries,
                 testRetryMode: TestArgFileDefaultValues.testRetryMode,
+                logCapturingMode: TestArgFileDefaultValues.logCapturingMode,
+                runnerWasteCleanupPolicy: TestArgFileDefaultValues.runnerWasteCleanupPolicy,
                 pluginLocations: TestArgFileDefaultValues.pluginLocations,
                 scheduleStrategy: TestArgFileDefaultValues.scheduleStrategy,
                 simulatorOperationTimeouts: TestArgFileDefaultValues.simulatorOperationTimeouts,

@@ -171,6 +171,8 @@ extension TestArgFile {
                     userInsertedLibraries: TestArgFileDefaultValues.userInsertedLibraries,
                     numberOfRetries: 0,
                     testRetryMode: .retryOnWorker,
+                    logCapturingMode: .noLogs,
+                    runnerWasteCleanupPolicy: .clean,
                     pluginLocations: [],
                     scheduleStrategy: TestArgFileDefaultValues.scheduleStrategy,
                     simulatorOperationTimeouts: TestArgFileDefaultValues.simulatorOperationTimeouts,

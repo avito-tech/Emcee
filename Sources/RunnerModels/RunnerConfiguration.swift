@@ -8,6 +8,7 @@ public struct RunnerConfiguration {
     public let buildArtifacts: BuildArtifacts
     public let developerDir: DeveloperDir
     public let environment: [String: String]
+    public let logCapturingMode: LogCapturingMode
     public let userInsertedLibraries: [String]
     public let lostTestProcessingMode: LostTestProcessingMode
     public let persistentMetricsJobId: String?
@@ -20,6 +21,7 @@ public struct RunnerConfiguration {
         buildArtifacts: BuildArtifacts,
         developerDir: DeveloperDir,
         environment: [String: String],
+        logCapturingMode: LogCapturingMode,
         userInsertedLibraries: [String],
         lostTestProcessingMode: LostTestProcessingMode,
         persistentMetricsJobId: String?,
@@ -31,6 +33,7 @@ public struct RunnerConfiguration {
         self.buildArtifacts = buildArtifacts
         self.developerDir = developerDir
         self.environment = environment
+        self.logCapturingMode = logCapturingMode
         self.userInsertedLibraries = userInsertedLibraries
         self.lostTestProcessingMode = lostTestProcessingMode
         self.persistentMetricsJobId = persistentMetricsJobId

@@ -8,14 +8,17 @@ public protocol RunnerWasteCleaner {
 
 public final class RunnerWasteCleanerImpl: RunnerWasteCleaner {
     private let fileSystem: FileSystem
+    private let logger: ContextualLogger
     
-    public init(fileSystem: FileSystem) {
+    public init(fileSystem: FileSystem, logger: ContextualLogger) {
         self.fileSystem = fileSystem
+        self.logger = logger
     }
     
     public func cleanWaste(runnerWasteCollector: RunnerWasteCollector) {
         for path in runnerWasteCollector.collectedPaths {
             if fileSystem.properties(forFileAtPath: path).exists() {
+                logger.debug("Deleting \(path)")
                 try? fileSystem.delete(path: path)
             }
         }

@@ -31,7 +31,9 @@ public final class BucketFixtures {
                     environment: [:],
                     userInsertedLibraries: [],
                     numberOfRetries: numberOfRetries,
-                    testRetryMode: .retryThroughQueue
+                    testRetryMode: .retryThroughQueue,
+                    logCapturingMode: .noLogs,
+                    runnerWasteCleanupPolicy: .clean
                 ),
                 testTimeoutConfiguration: TestTimeoutConfiguration(
                     singleTestMaximumDuration: 0,

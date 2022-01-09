@@ -117,6 +117,8 @@ final class TestEntriesValidatorTests: XCTestCase {
             userInsertedLibraries: [],
             numberOfRetries: 1,
             testRetryMode: .retryOnWorker,
+            logCapturingMode: .noLogs,
+            runnerWasteCleanupPolicy: .clean,
             pluginLocations: [],
             scheduleStrategy: ScheduleStrategy(testSplitterType: .unsplit),
             simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),

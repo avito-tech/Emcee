@@ -173,7 +173,14 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
             .shuffled()
         let testEntryConfiguration2 = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
-            .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], userInsertedLibraries: [], numberOfRetries: 1, testRetryMode: .retryThroughQueue))
+            .with(testExecutionBehavior: TestExecutionBehavior(
+                environment: [:],
+                userInsertedLibraries: [],
+                numberOfRetries: 1,
+                testRetryMode: .retryThroughQueue,
+                logCapturingMode: .noLogs,
+                runnerWasteCleanupPolicy: .clean
+            ))
             .testEntryConfigurations()
         let mixedTestEntryConfigurations = [
             testEntryConfiguration2[0],
@@ -267,7 +274,14 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
             .testEntryConfigurations()[0]
         let testEntryConfiguration2 = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
-            .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], userInsertedLibraries: [], numberOfRetries: 1, testRetryMode: .retryThroughQueue))
+            .with(testExecutionBehavior: TestExecutionBehavior(
+                environment: [:],
+                userInsertedLibraries: [],
+                numberOfRetries: 1,
+                testRetryMode: .retryThroughQueue,
+                logCapturingMode: .noLogs,
+                runnerWasteCleanupPolicy: .clean
+            ))
             .testEntryConfigurations()[0]
         let testEntryConfiguration3 = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))

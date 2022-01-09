@@ -63,7 +63,9 @@ public final class TestEntriesValidator {
                 environment: testArgFileEntry.environment,
                 userInsertedLibraries: testArgFileEntry.userInsertedLibraries,
                 numberOfRetries: testArgFileEntry.numberOfRetries,
-                testRetryMode: testArgFileEntry.testRetryMode
+                testRetryMode: testArgFileEntry.testRetryMode,
+                logCapturingMode: testArgFileEntry.logCapturingMode,
+                runnerWasteCleanupPolicy: testArgFileEntry.runnerWasteCleanupPolicy
             ),
             testTimeoutConfiguration: testTimeoutConfigurationForRuntimeDump,
             testsToValidate: testArgFileEntry.testsToRun,

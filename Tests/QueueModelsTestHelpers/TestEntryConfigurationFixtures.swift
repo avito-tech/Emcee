@@ -24,7 +24,14 @@ public final class TestEntryConfigurationFixtures {
     )
     public var testDestination = TestDestinationFixtures.testDestination
     public var testEntries = [TestEntry]()
-    public var testExecutionBehavior = TestExecutionBehavior(environment: [:], userInsertedLibraries: [], numberOfRetries: 0, testRetryMode: .retryThroughQueue)
+    public var testExecutionBehavior = TestExecutionBehavior(
+        environment: [:],
+        userInsertedLibraries: [],
+        numberOfRetries: 0,
+        testRetryMode: .retryThroughQueue,
+        logCapturingMode: .noLogs,
+        runnerWasteCleanupPolicy: .clean
+    )
     public var testTimeoutConfiguration = TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0)
     public var developerDir = DeveloperDir.current
     public var persistentMetricsJobId: String = ""

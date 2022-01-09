@@ -25,6 +25,7 @@ import UniqueIdentifierGenerator
 
 public final class Scheduler {
     private let di: DI
+    private let fileSystem: FileSystem
     private let rootLogger: ContextualLogger
     private let queue = OperationQueue()
     private let resourceLocationResolver: ResourceLocationResolver
@@ -37,6 +38,7 @@ public final class Scheduler {
     
     public init(
         di: DI,
+        fileSystem: FileSystem,
         logger: ContextualLogger,
         resourceLocationResolver: ResourceLocationResolver,
         schedulerDataSource: SchedulerDataSource,
@@ -46,6 +48,7 @@ public final class Scheduler {
         workerConfiguration: WorkerConfiguration
     ) {
         self.di = di
+        self.fileSystem = fileSystem
         self.rootLogger = logger
         self.resourceLocationResolver = resourceLocationResolver
         self.resourceSemaphore = ListeningSemaphore(
@@ -248,7 +251,7 @@ public final class Scheduler {
         let runner = Runner(
             dateProvider: try di.get(),
             developerDirLocator: try di.get(),
-            fileSystem: try di.get(),
+            fileSystem: fileSystem,
             logger: logger,
             pluginEventBusProvider: try di.get(),
             runnerWasteCollectorProvider: try di.get(),
@@ -266,6 +269,7 @@ public final class Scheduler {
                 buildArtifacts: bucket.payload.buildArtifacts,
                 developerDir: bucket.payload.developerDir,
                 environment: bucket.payload.testExecutionBehavior.environment,
+                logCapturingMode: bucket.payload.testExecutionBehavior.logCapturingMode,
                 userInsertedLibraries: bucket.payload.testExecutionBehavior.userInsertedLibraries,
                 lostTestProcessingMode: .reportError,
                 persistentMetricsJobId: bucket.analyticsConfiguration.persistentMetricsJobId,
@@ -276,6 +280,12 @@ public final class Scheduler {
             )
         )
         
+        cleanup(
+            runnerWasteCleanupPolicy: bucket.payload.testExecutionBehavior.runnerWasteCleanupPolicy,
+            runnerWasteCollector: runnerResult.runnerWasteCollector,
+            logger: logger
+        )
+        
         runnerResult.testEntryResults.filter { $0.isLost }.forEach {
             logger.debug("Lost result for \($0)")
         }
@@ -284,6 +294,21 @@ public final class Scheduler {
             testDestination: bucket.payload.testDestination,
             unfilteredResults: runnerResult.testEntryResults
         )
+    }
+    
+    private func cleanup(
+        runnerWasteCleanupPolicy: RunnerWasteCleanupPolicy,
+        runnerWasteCollector: RunnerWasteCollector,
+        logger: ContextualLogger
+    ) {
+        let wasteCleaner: RunnerWasteCleaner
+        switch runnerWasteCleanupPolicy {
+        case .keep:
+            wasteCleaner = NoOpRunnerWasteCleaner(logger: logger)
+        case .clean:
+            wasteCleaner = RunnerWasteCleanerImpl(fileSystem: fileSystem, logger: logger)
+        }
+        wasteCleaner.cleanWaste(runnerWasteCollector: runnerWasteCollector)
     }
     
     // MARK: - Utility Methods
