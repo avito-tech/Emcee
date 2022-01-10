@@ -8,6 +8,7 @@ import Runner
 import RunnerModels
 import SimulatorPool
 import SimulatorPoolModels
+import Tmp
 
 public final class RunIosTestsPayloadExecutor {
     private let dateProvider: DateProvider
@@ -16,6 +17,7 @@ public final class RunIosTestsPayloadExecutor {
     private let runnerProvider: RunnerProvider
     private let simulatorSettingsModifier: SimulatorSettingsModifier
     private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
+    private let tempFolder: TemporaryFolder
     private let version: Version
     
     public init(
@@ -25,6 +27,7 @@ public final class RunIosTestsPayloadExecutor {
         runnerProvider: RunnerProvider,
         simulatorSettingsModifier: SimulatorSettingsModifier,
         specificMetricRecorderProvider: SpecificMetricRecorderProvider,
+        tempFolder: TemporaryFolder,
         version: Version
     ) {
         self.dateProvider = dateProvider
@@ -33,6 +36,7 @@ public final class RunIosTestsPayloadExecutor {
         self.runnerProvider = runnerProvider
         self.simulatorSettingsModifier = simulatorSettingsModifier
         self.specificMetricRecorderProvider = specificMetricRecorderProvider
+        self.tempFolder = tempFolder
         self.version = version
     }
     
@@ -152,7 +156,9 @@ public final class RunIosTestsPayloadExecutor {
             let runner = runnerProvider.create(
                 specificMetricRecorder: try specificMetricRecorderProvider.specificMetricRecorder(
                     analyticsConfiguration: analyticsConfiguration
-                )
+                ),
+                tempFolder: tempFolder,
+                version: version
             )
 
             let runnerResult = try runner.runOnce(

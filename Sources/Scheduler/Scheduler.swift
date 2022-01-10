@@ -160,7 +160,8 @@ public final class Scheduler {
             runnerProvider: try di.get(),
             simulatorSettingsModifier: try di.get(),
             specificMetricRecorderProvider: try di.get(),
-            version: try di.get()
+            tempFolder: tempFolder,
+            version: version
         )
     }
     

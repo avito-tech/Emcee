@@ -19,12 +19,8 @@ public final class RunnerProviderImpl: RunnerProvider {
     private let logger: ContextualLogger
     private let pluginEventBusProvider: PluginEventBusProvider
     private let runnerWasteCollectorProvider: RunnerWasteCollectorProvider
-    private let specificMetricRecorder: SpecificMetricRecorder
-    private let tempFolder: TemporaryFolder
     private let testRunnerProvider: TestRunnerProvider
-    private let testTimeoutCheckInterval: DispatchTimeInterval
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
-    private let version: Version
     private let waiter: Waiter
     
     public init(
@@ -34,12 +30,8 @@ public final class RunnerProviderImpl: RunnerProvider {
         logger: ContextualLogger,
         pluginEventBusProvider: PluginEventBusProvider,
         runnerWasteCollectorProvider: RunnerWasteCollectorProvider,
-        specificMetricRecorder: SpecificMetricRecorder,
-        tempFolder: TemporaryFolder,
         testRunnerProvider: TestRunnerProvider,
-        testTimeoutCheckInterval: DispatchTimeInterval,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
-        version: Version,
         waiter: Waiter
     ) {
         self.dateProvider = dateProvider
@@ -48,17 +40,15 @@ public final class RunnerProviderImpl: RunnerProvider {
         self.logger = logger
         self.pluginEventBusProvider = pluginEventBusProvider
         self.runnerWasteCollectorProvider = runnerWasteCollectorProvider
-        self.specificMetricRecorder = specificMetricRecorder
-        self.tempFolder = tempFolder
         self.testRunnerProvider = testRunnerProvider
-        self.testTimeoutCheckInterval = testTimeoutCheckInterval
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
-        self.version = version
         self.waiter = waiter
     }
     
     public func create(
-        specificMetricRecorder: SpecificMetricRecorder
+        specificMetricRecorder: SpecificMetricRecorder,
+        tempFolder: TemporaryFolder,
+        version: Version
     ) -> Runner {
         return Runner(
             dateProvider: dateProvider,
@@ -70,7 +60,6 @@ public final class RunnerProviderImpl: RunnerProvider {
             specificMetricRecorder: specificMetricRecorder,
             tempFolder: tempFolder,
             testRunnerProvider: testRunnerProvider,
-            testTimeoutCheckInterval: testTimeoutCheckInterval,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             version: version,
             waiter: waiter

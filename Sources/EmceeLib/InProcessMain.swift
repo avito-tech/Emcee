@@ -212,12 +212,8 @@ public final class InProcessMain {
                 logger: try di.get(),
                 pluginEventBusProvider: try di.get(),
                 runnerWasteCollectorProvider: try di.get(),
-                specificMetricRecorder: try di.get(),
-                tempFolder: try di.get(),
                 testRunnerProvider: try di.get(),
-                testTimeoutCheckInterval: try di.get(),
                 uniqueIdentifierGenerator: try di.get(),
-                version: try di.get(),
                 waiter: try di.get()
             ),
             for: RunnerProvider.self
