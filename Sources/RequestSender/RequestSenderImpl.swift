@@ -73,19 +73,8 @@ public final class RequestSenderImpl: RequestSender {
     }
 
     private func buildHttpBody<PayloadType: Encodable>(payload: PayloadType?) throws -> Data? {
-        guard let payload = payload else {
-            return nil
-        }
-
-        let jsonData = try JSONEncoder.pretty().encode(payload)
-        
-        if let stringJson = String(data: jsonData, encoding: .utf8) {
-            logger.debug("Payload: \(stringJson)")
-        } else {
-            logger.debug("Unable to get string for payload data \(jsonData.count) bytes")
-        }
-
-        return jsonData
+        guard let payload = payload else { return nil }
+        return try JSONEncoder.pretty().encode(payload)
     }
 
     private func launchDataTask<ResponseType: Decodable>(
@@ -119,7 +108,7 @@ public final class RequestSenderImpl: RequestSender {
             if let data = data {
                 do {
                     let decodedObject = try JSONDecoder().decode(ResponseType.self, from: data)
-                    logger.debug("Successfully decoded object from response of request to \(url): \(decodedObject)")
+                    logger.debug("Successfully decoded object from response of request to \(url): \(type(of: decodedObject))")
                     callbackQueue.async { callback(.success(decodedObject)) }
                 } catch {
                     logger.debug("Failed to decode object from response of request to \(url): \(error)")
