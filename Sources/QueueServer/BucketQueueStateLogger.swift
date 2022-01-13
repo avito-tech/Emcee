@@ -17,14 +17,14 @@ public final class BucketQueueStateLogger {
     public func printQueueSize() {
         let dequeuedTests = runningQueueState.dequeuedTests.asDictionary
         
+        let logger = logger.skippingKibana
+        
         for workerId in Array(dequeuedTests.keys).sorted() {
             if let testsOnWorker = dequeuedTests[workerId] {
-                print("\(workerId.value) is executing \(testsOnWorker.map { $0.stringValue }.sorted().joined(separator: ", "))")
+                logger.info("\(workerId.value) is executing \(testsOnWorker.map(\.stringValue).sorted().joined(separator: ", "))")
             }
         }
 
-        logger
-            .skippingKibana
-            .info("Enqueued tests: \(runningQueueState.enqueuedTests.count), running tests: \(runningQueueState.dequeuedTests.flattenValues.count)")
+        logger.info("Enqueued tests: \(runningQueueState.enqueuedTests.count), running tests: \(runningQueueState.dequeuedTests.flattenValues.count)")
     }
 }

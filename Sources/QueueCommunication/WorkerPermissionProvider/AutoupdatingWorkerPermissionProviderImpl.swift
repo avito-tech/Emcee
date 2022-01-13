@@ -79,7 +79,7 @@ public class AutoupdatingWorkerPermissionProviderImpl: AutoupdatingWorkerPermiss
                 
                 do {
                     let workerIds = try result.dematerialize()
-                    strongSelf.logger.debug("Fetched workerIds to utilize: \(workerIds)")
+                    strongSelf.logger.debug("Fetched workerIds to utilize: \(workerIds.map(\.value).sorted())")
                     strongSelf.workerIdsToUtilize.set(workerIds)
                     strongSelf.reportMetric()
                 } catch {

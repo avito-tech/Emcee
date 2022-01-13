@@ -1,4 +1,4 @@
-import QueueCommunication
+@testable import QueueCommunication
 import QueueModels
 import SocketModels
 import TestHelpers
@@ -12,7 +12,7 @@ class WorkersToUtilizeCalculatorTests: XCTestCase {
         let initialMapping = buildMapping(versionCount: 4, workers: initialWorkers)
         
         let mapping = calculator.disjointWorkers(mapping: initialMapping)
-        let workers = mapping.values.flatMap { $0 }
+        let workers = mapping.flattenedWorkerIds
         
         XCTAssertEqual(mapping[buildQueueInfo(version: "V1")]?.count, 1)
         XCTAssertEqual(mapping[buildQueueInfo(version: "V2")]?.count, 1)
@@ -26,7 +26,7 @@ class WorkersToUtilizeCalculatorTests: XCTestCase {
         let initialMapping = buildMapping(versionCount: 2, workers: initialWorkers)
         
         let mapping = calculator.disjointWorkers(mapping: initialMapping)
-        let workers = mapping.values.flatMap { $0 }
+        let workers = mapping.flattenedWorkerIds
         
         XCTAssertEqual(mapping[buildQueueInfo(version: "V1")]?.count, 2)
         XCTAssertEqual(mapping[buildQueueInfo(version: "V2")]?.count, 2)
@@ -38,7 +38,7 @@ class WorkersToUtilizeCalculatorTests: XCTestCase {
         let initialMapping = buildMapping(versionCount: 4, workers: initialWorkers)
         
         let mapping = calculator.disjointWorkers(mapping: initialMapping)
-        let workers = mapping.values.flatMap { $0 }
+        let workers = mapping.flattenedWorkerIds
         
         XCTAssertEqual(mapping[buildQueueInfo(version: "V1")]?.count, 1)
         XCTAssertEqual(mapping[buildQueueInfo(version: "V2")]?.count, 1)
@@ -214,7 +214,7 @@ class WorkersToUtilizeCalculatorTests: XCTestCase {
     }
     
     private func buildMapping(versionCount: Int, workers: Set<WorkerId>) -> WorkersPerQueue {
-        var mapping = WorkersPerQueue()
+        let mapping = WorkersPerQueue()
         for i in 1...versionCount {
             mapping[buildQueueInfo(version: Version("V\(i)"))] = workers
         }
@@ -233,5 +233,13 @@ class WorkersToUtilizeCalculatorTests: XCTestCase {
             ),
             queueVersion: version
         )
+    }
+}
+
+extension WorkersPerQueue {
+    var flattenedWorkerIds: Set<WorkerId> {
+        Set(workersByQueueInfo.values.flatMap {
+            $0
+        })
     }
 }

@@ -90,6 +90,7 @@ public final class LocalQueueServerRunner {
         
         try addressToQueueServerVersion.forEach { (item: (key: SocketAddress, value: Version)) in
             if item.value == version {
+                logger.error("Queue with version \(version.value) is already running at \(item.key)")
                 throw LocalQueueServerError.sameVersionQueueIsAlreadyRunning(address: item.key, version: version)
             }
         }

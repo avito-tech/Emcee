@@ -1,7 +1,7 @@
 import Foundation
 import SocketModels
 
-public struct QueueInfo: Codable, Comparable, Hashable {
+public struct QueueInfo: Codable, Comparable, Hashable, CustomStringConvertible {
     public static func < (lhs: QueueInfo, rhs: QueueInfo) -> Bool {
         if lhs.queueAddress == rhs.queueAddress {
             return lhs.queueVersion < rhs.queueVersion
@@ -18,5 +18,9 @@ public struct QueueInfo: Codable, Comparable, Hashable {
     ) {
         self.queueAddress = queueAddress
         self.queueVersion = queueVersion
+    }
+    
+    public var description: String {
+        "\(queueVersion.value)@\(queueAddress)"
     }
 }

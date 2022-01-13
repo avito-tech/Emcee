@@ -20,9 +20,7 @@ public class DefaultWorkersToUtilizeCalculator: WorkersToUtilizeCalculator {
     
     // Map destinations to list of its emcee versions
     private func splitDestinationsToClusters(mapping: WorkersPerQueue) -> VersionClusters {
-        let mapping = mapping.sorted { left, right in
-            left.key < right.key
-        }
+        let mapping = mapping.sorted { left, right in left < right }
         
         var owners = MapWithCollection<WorkerId, QueueInfo>()
         
@@ -60,6 +58,8 @@ public class DefaultWorkersToUtilizeCalculator: WorkersToUtilizeCalculator {
             }
         }
         
-        return mapping.asDictionary.mapValues { Set($0) }
+        return WorkersPerQueue(
+            mapping.asDictionary.mapValues { Set($0) }
+        )
     }
 }
