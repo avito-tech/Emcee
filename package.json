@@ -75,7 +75,7 @@
   "platforms" : [
     {
       "name" : "macOS",
-      "version" : "10.15"
+      "version" : "11"
     }
   ],
   "products" : [{
@@ -207,6 +207,6 @@
           "XcodebuildTestRunnerConstants"
       ]
   }],
-  "swiftToolsVersion" : "5.2",
+  "swiftToolsVersion" : "5.3",
   "targets" : "discoverAutomatically"
 }
