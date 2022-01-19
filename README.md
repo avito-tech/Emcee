@@ -4,10 +4,6 @@ Welcome to Emcee project, an ultimate solution for running iOS tests in parallel
 
 Emcee allows you to run UI tests on many physical machines, distributing the work and getting the results of the test run faster. Shared queue manages the order of test execution. Emcee workers execute tests and maintain lifecycle of their simulators automatically. Emcee can generate the Junit and trace reports to make you see how the test run behaved on different machines.
 
-# Using Emcee
-
-Up to date documentation is available on [Wiki](https://github.com/avito-tech/Emcee/wiki).
-
 # Features
 
 - Rich test plans using simple JSON file format
@@ -34,7 +30,7 @@ Up to date documentation is available on [Wiki](https://github.com/avito-tech/Em
 
 # Getting started
 
-Here we will demonstrate how to use Emcee. We will use two MacOS machines to run tests from a sample project. You can also use a single machine to try out Emcee to see if it works for your project. In this case, a single machine will act as a `queue` and a `worker` simultaneously. Alternatively, you can scale this guide to as many machines as you have.
+In this guide will demonstrate how to use Emcee. We will use two MacOS machines to run unit and UI tests from a sample project. You can also use a single machine to try out Emcee to see if it works for your project. In this case, a single machine will act as a `queue` and a `worker` simultaneously. Alternatively, you can scale this guide to as many machines as you have.
 
 If you encounter any issues while proceeding through the guide, please open an issue or reach out via https://t.me/emcee_ios.
 
@@ -50,6 +46,11 @@ If you encounter any issues while proceeding through the guide, please open an i
 
 ## Setting up machines <a name="setup"></a>
 
+You will need to grant SSH access to your machines.
+
+<details>
+<summary>Expand to see how to set up your machines.</summary>
+
 We will be using two machines: `ios-build-machine77` and `ios-build-machine78`.
 
 ![machines](Resources/machines.webp)
@@ -63,12 +64,13 @@ Install [Xcode](https://developer.apple.com/download/all/) and `sudo xcode-selec
 
 We will use `Xcode 13.0 (13A233)` and the `iOS 15.0` simulator runtime bundled with this Xcode. If you want to use a specific version of simulator runtime, proceed to `Xcode -> Preferences... -> Components -> Simulators` and install the runtime on all the worker machines, where you want the tests to execute with the specific runtime version.
 
-Emcee uses ssh to deploy itself to the machines specified as `queue` and `workers`. Enable ssh by running the following lines on all of your machines:
+Emcee uses ssh to deploy itself to the machines specified as `queue` and `workers`. Enable SSH in your `System Preferences -> Sharing -> Remote Login`. To open this pane execute:
 
 ```sh
-sudo systemsetup -setremotelogin on
-sudo dseditgroup -o edit -a emcee -t user com.apple.access_ssh
+$ open "x-apple.systempreferences:com.apple.preferences.sharing?Services_RemoteLogin"
 ```
+
+![Remote Login SSH Settings](Resources/remote_login_ssh_settings.webp)
 
 Now make sure that machines are accessible by ssh. For example:
 
@@ -76,9 +78,20 @@ Now make sure that machines are accessible by ssh. For example:
 ssh emcee@ios-build-machine77
 ```
 
-If your machines are not accessible by DNS, use an IP address instead.
+If your machines are not accessible by DNS, use their IP addresses instead. You can check IP address in `System Preferences -> Sharing`. Please note IP addresses may change over time. To open this pane execute:
+
+```sh
+$ open "x-apple.systempreferences:com.apple.preferences.sharing"
+```
+
+</details>
 
 ## Building the sample project <a name="building_sample"></a>
+
+In this step, we will build a sample project that features different types of tests. Xcode and `xcodebuild` will produce build artifacts in derived data.
+
+<details>
+<summary>Expand to see how to build the sample project for testing purposes.</summary> 
 
 You can run this step from either machine. Clone the sample project:
 
@@ -110,18 +123,20 @@ Xcodebuild will place the build products in:
 derivedData/Build/Products/Debug-iphonesimulator
 ```
 
+</details>
+
 ## Running tests using Emcee <a name="running_emcee"></a>
 
 Now that the machines are ready, and the project is built, download Emcee on the same machine where you built the project by running:
 
 ```sh
-curl -L https://github.com/avito-tech/Emcee/releases/download/16.0.0/Emcee -o Emcee
+curl -L https://github.com/avito-tech/Emcee/releases/download/16.0.0/Emcee -o Emcee && chmod +x Emcee
 ```
 
-If you download Emcee using a browser you will need to clear attributes:
+If you download Emcee using a browser you will need to clear attributes and set the executable bit:
 
 ```sh
-xattr -c Emcee
+xattr -c Emcee && chmod +x Emcee
 ```
 
 With Emcee installed it is finally time to run the tests. The sample project includes [3 test types](https://github.com/avito-tech/Emcee/wiki/Build-Artifacts-and-Test-Types):
@@ -218,6 +233,8 @@ This is how the test run will look:
 ![running_tests](Resources/running_tests_vstack.webp)
 
 ## Advanced Emcee configuration <a name="advanced_emcee"></a>
+
+Complete documentation is available in our [Wiki](https://github.com/avito-tech/Emcee/wiki).
 
 `runTests` command allows you to get Emcee up and running quickly; however, it doesn't allow for a lot of configuration. On the other hand, `runTestsOnRemoteQueue` command allows for fine-grained control of how your tests execute. To get started with `runTestsOnRemoteQueue` check out the [Queue Server Configuration](https://github.com/avito-tech/Emcee/wiki/Queue-Server-Configuration) and [Test Arg File](https://github.com/avito-tech/Emcee/wiki/Test-Arg-File) wiki pages.
 
