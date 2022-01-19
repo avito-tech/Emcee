@@ -18,8 +18,9 @@ let package = Package(
         .package(name: "CountedSet", url: "https://github.com/0x7fs/CountedSet", .branch("master")),
         .package(name: "OrderedSet", url: "https://github.com/Weebly/OrderedSet", .exact("5.0.0")),
         .package(name: "Shout", url: "https://github.com/jakeheis/Shout.git", .exact("0.5.4")),
+        .package(name: "Socket", url: "https://github.com/IBM-Swift/BlueSocket", .exact("1.0.46")),
         .package(name: "Starscream", url: "https://github.com/daltoniam/Starscream.git", .exact("3.0.6")),
-        .package(name: "Swifter", url: "https://github.com/httpswift/swifter.git", .exact("1.4.6")),
+        .package(name: "Swifter", url: "https://github.com/httpswift/swifter.git", .exact("1.5.0")),
         .package(name: "swift-log", url: "https://github.com/apple/swift-log.git", .exact("1.4.1")),
     ],
     targets: [
@@ -978,8 +979,8 @@ let package = Package(
             name: "PortDeterminer",
             dependencies: [
                 "EmceeLogging",
+                .product(name: "Socket", package: "Socket"),
                 .product(name: "SocketModels", package: "CommandLineToolkit"),
-                .product(name: "Swifter", package: "Swifter"),
             ],
             path: "Sources/PortDeterminer"
         ),

@@ -1,8 +1,8 @@
 import Darwin
 import Foundation
 import EmceeLogging
+import Socket
 import SocketModels
-import Swifter
 
 public final class LocalPortDeterminer {
     private let logger: ContextualLogger
@@ -39,11 +39,27 @@ public final class LocalPortDeterminer {
     }
     
     private func isPortAvailable(port: in_port_t) -> Bool {
-        if let socket = try? Socket.tcpSocketForListen(port) {
-            socket.close()
+        do {
+            guard let signature = try Socket.Signature(
+                protocolFamily: .inet,
+                socketType: .stream,
+                proto: .tcp,
+                hostname: "localhost",
+                port: Int32(port)
+            ) else {
+                logger.warning("Can't create socket signature for port \(port)")
+                return false
+            }
+            
+            let socket = try Socket.create(connectedUsing: signature)
+            if socket.isConnected {
+                socket.close()
+                return false
+            }
             return true
-        } else {
-            return false
+        } catch {
+            // connection failure means port is free
+            return true
         }
     }
 }
