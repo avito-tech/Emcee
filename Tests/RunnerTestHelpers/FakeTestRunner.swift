@@ -2,6 +2,7 @@ import BuildArtifacts
 import DeveloperDirLocator
 import EmceeLogging
 import Foundation
+import MetricsExtensions
 import ProcessController
 import Runner
 import RunnerModels
@@ -72,6 +73,7 @@ public final class FakeTestRunner: TestRunner {
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         logger: ContextualLogger,
+        specificMetricRecorder: SpecificMetricRecorder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream
     ) throws -> TestRunnerInvocation {

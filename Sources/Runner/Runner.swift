@@ -230,6 +230,7 @@ public final class Runner {
             developerDirLocator: developerDirLocator,
             entriesToRun: entriesToRun,
             logger: logger,
+            specificMetricRecorder: specificMetricRecorder,
             testContext: testContext,
             testRunnerStream: testRunnerStream
         ).startExecutingTests()

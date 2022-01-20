@@ -187,8 +187,10 @@ public final class InProcessMain {
             DefaultTestRunnerProvider(
                 dateProvider: try di.get(),
                 fileSystem: try di.get(),
+                host: LocalHostDeterminer.currentHostAddress,
                 processControllerProvider: try di.get(),
                 resourceLocationResolver: try di.get(),
+                version: EmceeVersion.version,
                 xcResultTool: try di.get()
             ),
             for: TestRunnerProvider.self

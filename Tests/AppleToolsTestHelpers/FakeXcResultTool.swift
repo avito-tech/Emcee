@@ -1,9 +1,10 @@
 import AppleTools
 import PathLib
 import ResultStreamModels
+import Types
 
 open class FakeXcResultTool: XcResultTool {
-    public var result: RSActionsInvocationRecord
+    public var result: Either<RSActionsInvocationRecord, Error>
 
     public static var defaultResult = RSActionsInvocationRecord(
         actions: [],
@@ -13,12 +14,12 @@ open class FakeXcResultTool: XcResultTool {
     )
 
     public init(
-        result: RSActionsInvocationRecord = FakeXcResultTool.defaultResult
+        result: Either<RSActionsInvocationRecord, Error> = .success(FakeXcResultTool.defaultResult)
     ) {
         self.result = result
     }
 
     public func get(path: AbsolutePath) throws -> RSActionsInvocationRecord {
-        result
+        try result.dematerialize()
     }
 }

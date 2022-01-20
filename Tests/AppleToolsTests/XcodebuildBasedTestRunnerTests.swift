@@ -7,12 +7,17 @@ import DeveloperDirLocator
 import DeveloperDirLocatorTestHelpers
 import DeveloperDirModels
 import EmceeTypes
+import Graphite
+import Metrics
+import MetricsExtensions
+import MetricsTestHelpers
 import FileCache
 import FileSystemTestHelpers
 import Foundation
 import PathLib
 import ProcessController
 import ProcessControllerTestHelpers
+import QueueModels
 import ResourceLocationResolver
 import ResourceLocationResolverTestHelpers
 import ResultStreamModels
@@ -39,13 +44,18 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
     )
     private lazy var testContext = assertDoesNotThrow { try createTestContext() }
     private lazy var xcResultTool = FakeXcResultTool()
+    private lazy var host = "example.com"
+    private lazy var version = Version("doesnotmatter")
     private lazy var runner = XcodebuildBasedTestRunner(
         dateProvider: dateProvider,
         fileSystem: fileSystem,
+        host: host,
         processControllerProvider: processControllerProvider,
         resourceLocationResolver: resourceLocationResolver,
+        version: version,
         xcResultTool: xcResultTool
     )
+    private lazy var specificMetricRecorder = SpecificMetricRecorderWrapper(NoOpMetricRecorder())
     private lazy var developerDirLocator = FakeDeveloperDirLocator(
         result: tempFolder.absolutePath.appending("xcode.app")
     )
@@ -184,6 +194,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                     TestEntryFixtures.testEntry()
                 ],
                 logger: .noOp,
+                specificMetricRecorder: specificMetricRecorder,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream
             )
@@ -251,6 +262,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                     TestEntryFixtures.testEntry()
                 ],
                 logger: .noOp,
+                specificMetricRecorder: specificMetricRecorder,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream
             )
@@ -321,6 +333,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                     TestEntryFixtures.testEntry()
                 ],
                 logger: .noOp,
+                specificMetricRecorder: specificMetricRecorder,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream
             )
@@ -340,6 +353,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 TestEntryFixtures.testEntry()
             ],
             logger: .noOp,
+            specificMetricRecorder: specificMetricRecorder,
             testContext: testContext,
             testRunnerStream: testRunnerStream
         )
@@ -358,6 +372,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 TestEntryFixtures.testEntry()
             ],
             logger: .noOp,
+            specificMetricRecorder: specificMetricRecorder,
             testContext: testContext,
             testRunnerStream: testRunnerStream
         )
@@ -395,6 +410,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             developerDirLocator: developerDirLocator,
             entriesToRun: [TestEntry(testName: testName, tags: [], caseId: nil)],
             logger: .noOp,
+            specificMetricRecorder: specificMetricRecorder,
             testContext: testContext,
             testRunnerStream: testRunnerStream
         )
@@ -434,20 +450,22 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         )
     }
     
-    func test___providing_xcresultool_errors() throws {
-        xcResultTool.result = RSActionsInvocationRecord(
-            actions: [],
-            issues: RSResultIssueSummaries(testFailureSummaries: [
-                RSTestFailureIssueSummary(
-                    issueType: "whatever",
-                    message: "message",
-                    producingTarget: nil,
-                    documentLocationInCreatingWorkspace: nil,
-                    testCaseName: "ClassName.testMethod()"
-                )
-            ]),
-            metadataRef: RSReference(id: "metadataRef"),
-            metrics: RSResultMetrics(testsCount: nil, testsFailedCount: nil, warningCount: nil)
+    func test___providing_errors_from_xcresult_bundle() throws {
+        xcResultTool.result = .success(
+            RSActionsInvocationRecord(
+                actions: [],
+                issues: RSResultIssueSummaries(testFailureSummaries: [
+                    RSTestFailureIssueSummary(
+                        issueType: "whatever",
+                        message: "message",
+                        producingTarget: nil,
+                        documentLocationInCreatingWorkspace: nil,
+                        testCaseName: "ClassName.testMethod()"
+                    )
+                ]),
+                metadataRef: RSReference(id: "metadataRef"),
+                metrics: RSResultMetrics(testsCount: nil, testsFailedCount: nil, warningCount: nil)
+            )
         )
         
         testRunnerStream.streamIsOpen = true
@@ -459,6 +477,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 TestEntryFixtures.testEntry(className: "ClassName", methodName: "testMethod"),
             ],
             logger: .noOp,
+            specificMetricRecorder: specificMetricRecorder,
             testContext: testContext,
             testRunnerStream: testRunnerStream
         )
@@ -479,6 +498,62 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             )
         } equals: {
             testRunnerStream.castTo(TestException.self, index: 0)
+        }
+    }
+    
+    func test___errors_from_xcresulttool_provided_back___and___metric_is_logged() throws {
+        xcResultTool.result = .error(
+            ErrorForTestingPurposes(text: "Some error from xcresult tool, e.g. bundle is corrupted")
+        )
+        let metricHandler = FakeMetricHandler<GraphiteMetric>()
+
+        specificMetricRecorder = SpecificMetricRecorderWrapper(
+            MetricRecorderImpl(
+                graphiteMetricHandler: metricHandler,
+                statsdMetricHandler: NoOpMetricHandler())
+        )
+        
+        testRunnerStream.streamIsOpen = true
+        
+        let invocation = try runner.prepareTestRun(
+            buildArtifacts: logicTestBuildArtifacts,
+            developerDirLocator: developerDirLocator,
+            entriesToRun: [
+                TestEntryFixtures.testEntry(className: "ClassName", methodName: "testMethod"),
+            ],
+            logger: .noOp,
+            specificMetricRecorder: specificMetricRecorder,
+            testContext: testContext,
+            testRunnerStream: testRunnerStream
+        )
+        
+        let streamIsClosed = XCTestExpectation(description: "Stream closed")
+        testRunnerStream.onCloseStream = streamIsClosed.fulfill
+        try invocation.startExecutingTests().cancel()
+        
+        wait(for: [streamIsClosed], timeout: 10)
+        
+        assert {
+            testRunnerStream.castTo(TestException.self, index: 0)
+        } equals: {
+            TestException(
+                reason: "Error parsing xcresult bundle: ErrorForTestingPurposes Some error from xcresult tool, e.g. bundle is corrupted",
+                filePathInProject: testRunnerWorkingDirectory.appending("resultBundle.xcresult").pathString,
+                lineNumber: 0,
+                relatedTestName: nil
+            )
+        }
+        
+        assert {
+            metricHandler.metrics
+        } equals: {
+            [
+                CorruptedXcresultBundleMetric(
+                    host: host,
+                    version: version,
+                    timestamp: dateProvider.currentDate()
+                )
+            ]
         }
     }
     

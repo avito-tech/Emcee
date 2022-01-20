@@ -1,11 +1,13 @@
 import BuildArtifacts
 import DateProvider
 import DeveloperDirLocator
+import EmceeLogging
 import FileSystem
 import Foundation
-import EmceeLogging
+import MetricsExtensions
 import ObservableFileReader
 import ProcessController
+import QueueModels
 import ResourceLocationResolver
 import ResultStream
 import ResultStreamModels
@@ -18,21 +20,27 @@ import XcodebuildTestRunnerConstants
 public final class XcodebuildBasedTestRunner: TestRunner {
     private let dateProvider: DateProvider
     private let fileSystem: FileSystem
+    private let host: String
     private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
+    private let version: Version
     private let xcResultTool: XcResultTool
     
     public init(
         dateProvider: DateProvider,
         fileSystem: FileSystem,
+        host: String,
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver,
+        version: Version,
         xcResultTool: XcResultTool
     ) {
         self.dateProvider = dateProvider
         self.fileSystem = fileSystem
+        self.host = host
         self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
+        self.version = version
         self.xcResultTool = xcResultTool
     }
     
@@ -41,6 +49,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         logger: ContextualLogger,
+        specificMetricRecorder: SpecificMetricRecorder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream
     ) throws -> TestRunnerInvocation {
@@ -107,6 +116,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                 if let strongSelf = self {
                     strongSelf.readResultBundle(
                         path: xcresultBundlePath,
+                        specificMetricRecorder: specificMetricRecorder,
                         testRunnerStream: testRunnerStream
                     )
                 }
@@ -135,6 +145,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
     
     private func readResultBundle(
         path: AbsolutePath,
+        specificMetricRecorder: SpecificMetricRecorder,
         testRunnerStream: TestRunnerStream
     ) {
         do {
@@ -145,6 +156,13 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                 )
             }
         } catch {
+            specificMetricRecorder.capture(
+                CorruptedXcresultBundleMetric(
+                    host: host,
+                    version: version,
+                    timestamp: dateProvider.currentDate()
+                )
+            )
             testRunnerStream.caughtException(
                 testException: TestException(
                     reason: "Error parsing xcresult bundle: \(error)",

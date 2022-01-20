@@ -2,6 +2,7 @@ import BuildArtifacts
 import DateProvider
 import DeveloperDirLocator
 import EmceeLogging
+import MetricsExtensions
 import SimulatorPoolModels
 import Tmp
 import RunnerModels
@@ -25,6 +26,7 @@ public final class FailureReportingTestRunnerProxy: TestRunner {
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         logger: ContextualLogger,
+        specificMetricRecorder: SpecificMetricRecorder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream
     ) throws -> TestRunnerInvocation {
@@ -34,6 +36,7 @@ public final class FailureReportingTestRunnerProxy: TestRunner {
                 developerDirLocator: developerDirLocator,
                 entriesToRun: entriesToRun,
                 logger: logger,
+                specificMetricRecorder: specificMetricRecorder,
                 testContext: testContext,
                 testRunnerStream: testRunnerStream
             )

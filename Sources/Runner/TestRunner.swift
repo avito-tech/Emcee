@@ -1,7 +1,8 @@
 import BuildArtifacts
 import DeveloperDirLocator
-import Foundation
 import EmceeLogging
+import Foundation
+import MetricsExtensions
 import ProcessController
 import RunnerModels
 import SimulatorPoolModels
@@ -28,6 +29,7 @@ public protocol TestRunner {
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         logger: ContextualLogger,
+        specificMetricRecorder: SpecificMetricRecorder,
         testContext: TestContext,
         testRunnerStream: TestRunnerStream
     ) throws -> TestRunnerInvocation
