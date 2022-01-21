@@ -65,7 +65,8 @@ final class QueueServerConfigurationTests: XCTestCase {
                       "remoteDeploymentPath": "/remote/deployment/path"
                     }
                   ],
-                  "workerStartMode": "unknownWayOfStartingWorkers"
+                  "workerStartMode": "unknownWayOfStartingWorkers",
+                  "logStreamingMode": "disabled"
                 }
             """.utf8
         )
@@ -84,17 +85,20 @@ final class QueueServerConfigurationTests: XCTestCase {
                 WorkerId("worker_1"): WorkerSpecificConfiguration(
                     numberOfSimulators: 1,
                     maximumCacheSize: 42,
-                    maximumCacheTTL: 800
+                    maximumCacheTTL: 800,
+                    logStreamingMode: .disabled
                 ),
                 WorkerId("worker_2"): WorkerSpecificConfiguration(
                     numberOfSimulators: 2,
                     maximumCacheSize: 42,
-                    maximumCacheTTL: 800
+                    maximumCacheTTL: 800,
+                    logStreamingMode: .disabled
                 ),
                 WorkerId("worker_3"): WorkerSpecificConfiguration(
                     numberOfSimulators: 3,
                     maximumCacheSize: 42,
-                    maximumCacheTTL: 800
+                    maximumCacheTTL: 800,
+                    logStreamingMode: .disabled
                 ),
             ]
         )

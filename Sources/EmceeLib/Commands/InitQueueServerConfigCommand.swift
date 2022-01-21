@@ -4,6 +4,7 @@ import EmceeLogging
 import Foundation
 import EmceeDI
 import LocalQueueServerRunner
+import LogStreamingModels
 import MetricsExtensions
 import PathLib
 import QueueModels
@@ -87,7 +88,11 @@ public final class InitQueueServerConfigCommand: Command {
                 WorkerId(value: "emceeWorker01.example.com - use to specify special settings"): QueueServerConfigurationDefaultValues.defaultWorkerConfiguration,
             ],
             workerStartMode: .queueStartsItsWorkersOverSshAndLaunchd,
-            useOnlyIPv4: false
+            useOnlyIPv4: false,
+            logStreamingModes: QueueLogStreamingModes(
+                streamsToClient: true,
+                streamsToLocalLog: true
+            )
         )
         
         let data = try JSONEncoder.pretty().encode(config)

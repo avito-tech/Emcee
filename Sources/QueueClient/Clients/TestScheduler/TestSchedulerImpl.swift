@@ -1,6 +1,7 @@
 import Dispatch
 import Foundation
 import EmceeLogging
+import LogStreamingModels
 import QueueModels
 import RESTMethods
 import RequestSender
@@ -20,6 +21,7 @@ public final class TestSchedulerImpl: TestScheduler {
     }
     
     public func scheduleTests(
+        clientDetails: ClientDetails,
         prioritizedJob: PrioritizedJob,
         scheduleStrategy: ScheduleStrategy,
         testEntryConfigurations: [TestEntryConfiguration],
@@ -30,6 +32,7 @@ public final class TestSchedulerImpl: TestScheduler {
         requestSender.sendRequestWithCallback(
             request: ScheduleTestsRequest(
                 payload: ScheduleTestsPayload(
+                    clientDetails: clientDetails,
                     prioritizedJob: prioritizedJob,
                     scheduleStrategy: scheduleStrategy,
                     testEntryConfigurations: testEntryConfigurations

@@ -1,3 +1,4 @@
+import DateProviderTestHelpers
 import EmceeLogging
 import EmceeLoggingModels
 import Foundation
@@ -6,8 +7,12 @@ import TestHelpers
 import XCTest
 
 final class KibanaLoggerHandlerTests: XCTestCase {
+    lazy var dateProvider = DateProviderFixture(Date(timeIntervalSince1970: 999))
     lazy var kibanaClient = FakeKibanaClient()
-    lazy var handler = KibanaLoggerHandler(kibanaClient: kibanaClient)
+    lazy var handler = KibanaLoggerHandler(
+        dateProvider: dateProvider,
+        kibanaClient: kibanaClient
+    )
     
     func test___via_log_entry() {
         handler.handle(

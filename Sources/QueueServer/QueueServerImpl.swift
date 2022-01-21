@@ -6,6 +6,7 @@ import Deployer
 import DistWorkerModels
 import Foundation
 import EmceeLogging
+import LogStreaming
 import Metrics
 import MetricsExtensions
 import PortDeterminer
@@ -26,6 +27,7 @@ import UniqueIdentifierGenerator
 import WhatIsMyAddress
 import WorkerAlivenessProvider
 import WorkerCapabilities
+import WhatIsMyAddress
 
 public final class QueueServerImpl: QueueServer {
     private let bucketProvider: BucketProviderEndpoint
@@ -40,6 +42,7 @@ public final class QueueServerImpl: QueueServer {
     private let jobStateProvider: JobStateProvider
     private let kickstartWorkerEndpoint: KickstartWorkerEndpoint
     private let logger: ContextualLogger
+    private let logEntryEndpoint: LogEntryEndpoint
     private let queueServerVersionHandler: QueueServerVersionEndpoint
     private let scheduleTestsHandler: ScheduleTestsEndpoint
     private let statefulBucketQueue: StatefulBucketQueue
@@ -61,6 +64,7 @@ public final class QueueServerImpl: QueueServer {
         bucketGenerator: BucketGenerator,
         bucketSplitInfo: BucketSplitInfo,
         checkAgainTimeInterval: TimeInterval,
+        clientDetailsHolder: ClientDetailsHolder,
         dateProvider: DateProvider,
         emceeVersion: Version,
         localPortDeterminer: LocalPortDeterminer,
@@ -71,6 +75,7 @@ public final class QueueServerImpl: QueueServer {
         payloadSignature: PayloadSignature,
         queueServerLock: QueueServerLock,
         requestSenderProvider: RequestSenderProvider,
+        rootLoggerHandler: LoggerHandler,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         workerAlivenessProvider: WorkerAlivenessProvider,
         workerCapabilitiesStorage: WorkerCapabilitiesStorage,
@@ -193,7 +198,6 @@ public final class QueueServerImpl: QueueServer {
         )
         self.scheduleTestsHandler = ScheduleTestsEndpoint(
             testsEnqueuer: testsEnqueuer,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             waitForCapableWorkerTimeout: alivenessPollingInterval * 2,
             workerAlivenessProvider: workerAlivenessProvider,
             workerCapabilitiesStorage: workerCapabilitiesStorage
@@ -280,6 +284,25 @@ public final class QueueServerImpl: QueueServer {
             autoupdatingWorkerPermissionProvider: autoupdatingWorkerPermissionProvider
         )
         self.whatIsMyAddressEndpoint = WhatIsMyAddressEndpoint()
+        
+        let deliverLogsIntoClientsQueue = DispatchQueue(label: "QueueServer.deliverLogsIntoClientsQueue")
+        self.logEntryEndpoint = LogEntryEndpoint(
+            logStreamer: QueueSideLogStreamer(
+                clientSpecificLogStreamerProvider: ClientSpecificLogStreamerProviderImpl(
+                    clientDetailsHolder: clientDetailsHolder,
+                    logger: logger,
+                    logEntrySenderProvider: LogEntrySenderProviderImpl(
+                        requestSenderProvider: requestSenderProvider
+                    ),
+                    queue: deliverLogsIntoClientsQueue,
+                    willSendLogEntry: {  },
+                    didSendLogEntry: { _ /* error */ in }
+                ),
+                localLogStreamer: LoggerHandlerLogStreamer(
+                    loggerHandler: rootLoggerHandler
+                )
+            )
+        )
     }
     
     public func start() throws -> SocketModels.Port {
@@ -299,6 +322,7 @@ public final class QueueServerImpl: QueueServer {
         httpRestServer.add(handler: RESTEndpointOf(workerRegistrar))
         httpRestServer.add(handler: RESTEndpointOf(workerStatusEndpoint))
         httpRestServer.add(handler: RESTEndpointOf(workersToUtilizeEndpoint))
+        httpRestServer.add(handler: RESTEndpointOf(logEntryEndpoint))
 
         stuckBucketsPoller.startTrackingStuckBuckets()
         workerAlivenessMetricCapturer.start()

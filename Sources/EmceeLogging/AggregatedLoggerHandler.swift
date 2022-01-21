@@ -1,3 +1,4 @@
+import DateProvider
 import Dispatch
 import EmceeLoggingModels
 import Foundation
@@ -6,7 +7,9 @@ public final class AggregatedLoggerHandler: LoggerHandler {
     private var handlers: [LoggerHandler]
     private let syncQueue = DispatchQueue(label: "ru.avito.emcee.AggregatedLoggerHandler.syncQueue")
     
-    public init(handlers: [LoggerHandler]) {
+    public init(
+        handlers: [LoggerHandler]
+    ) {
         self.handlers = handlers
     }
     

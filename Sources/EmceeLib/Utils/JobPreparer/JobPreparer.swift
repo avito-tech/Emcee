@@ -2,6 +2,7 @@ import EmceeDI
 import Dispatch
 import Foundation
 import EmceeLogging
+import LogStreamingModels
 import Metrics
 import MetricsExtensions
 import QueueClient
@@ -22,6 +23,7 @@ public final class JobPreparer {
     }
     
     public func formJob(
+        clientServerAddress: SocketAddress,
         emceeVersion: Version,
         queueServerAddress: SocketAddress,
         remoteCacheConfig: RuntimeDumpRemoteCacheConfig?,
@@ -30,6 +32,7 @@ public final class JobPreparer {
         try TimeMeasurerImpl(dateProvider: try di.get()).measure(
             work: {
                 try validateTestArgFileAndPrepareJob(
+                    clientServerAddress: clientServerAddress,
                     queueServerAddress: queueServerAddress,
                     remoteCacheConfig: remoteCacheConfig,
                     testArgFile: testArgFile
@@ -48,6 +51,7 @@ public final class JobPreparer {
     }
     
     private func validateTestArgFileAndPrepareJob(
+        clientServerAddress: SocketAddress,
         queueServerAddress: SocketAddress,
         remoteCacheConfig: RuntimeDumpRemoteCacheConfig?,
         testArgFile: TestArgFile
@@ -78,6 +82,10 @@ public final class JobPreparer {
             
             let callbackWaiter: CallbackWaiter<Either<Void, Error>> = try di.get(Waiter.self).createCallbackWaiter()
             testScheduler.scheduleTests(
+                clientDetails: ClientDetails(
+                    socketAddress: clientServerAddress,
+                    clientLogStreamingMode: testArgFile.logStreamingMode
+                ),
                 prioritizedJob: testArgFile.prioritizedJob,
                 scheduleStrategy: testArgFileEntry.scheduleStrategy,
                 testEntryConfigurations: testEntryConfigurations,

@@ -3,7 +3,9 @@ import DateProviderTestHelpers
 import DistWorkerModels
 import DistWorkerModelsTestHelpers
 import EmceeLogging
+import EmceeLoggingTestHelpers
 import Foundation
+import LogStreaming
 import MetricsExtensions
 import MetricsTestHelpers
 import PortDeterminer
@@ -69,6 +71,7 @@ final class QueueServerTests: XCTestCase {
             bucketGenerator: bucketGenerator,
             bucketSplitInfo: bucketSplitInfo,
             checkAgainTimeInterval: .infinity,
+            clientDetailsHolder: NoOpClientDetailsHolder.instance,
             dateProvider: DateProviderFixture(),
             emceeVersion: "emceeVersion",
             localPortDeterminer: localPortDeterminer,
@@ -79,6 +82,7 @@ final class QueueServerTests: XCTestCase {
             payloadSignature: payloadSignature,
             queueServerLock: NeverLockableQueueServerLock(),
             requestSenderProvider: DefaultRequestSenderProvider(logger: .noOp),
+            rootLoggerHandler: FakeLoggerHandle(),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessProvider: workerAlivenessProvider,
             workerCapabilitiesStorage: workerCapabilitiesStorage,
@@ -122,6 +126,7 @@ final class QueueServerTests: XCTestCase {
             bucketGenerator: bucketGenerator,
             bucketSplitInfo: bucketSplitInfo,
             checkAgainTimeInterval: .infinity,
+            clientDetailsHolder: NoOpClientDetailsHolder.instance,
             dateProvider: DateProviderFixture(),
             emceeVersion: "emceeVersion",
             localPortDeterminer: localPortDeterminer,
@@ -132,6 +137,7 @@ final class QueueServerTests: XCTestCase {
             payloadSignature: payloadSignature,
             queueServerLock: NeverLockableQueueServerLock(),
             requestSenderProvider: DefaultRequestSenderProvider(logger: .noOp),
+            rootLoggerHandler: FakeLoggerHandle(),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             workerAlivenessProvider: workerAlivenessProvider,
             workerCapabilitiesStorage: workerCapabilitiesStorage,

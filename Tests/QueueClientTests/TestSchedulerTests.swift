@@ -1,10 +1,12 @@
 import Dispatch
+import LogStreamingModels
 import MetricsExtensions
 import QueueClient
 import QueueModels
 import RESTMethods
 import RequestSenderTestHelpers
 import ScheduleStrategy
+import SocketModels
 import TestHelpers
 import Types
 import XCTest
@@ -13,6 +15,10 @@ final class TestSchedulerTests: XCTestCase {
     private lazy var scheduler = TestSchedulerImpl(
         logger: .noOp,
         requestSender: requestSender
+    )
+    private let clientDetails = ClientDetails(
+        socketAddress: SocketAddress(host: "doesnotmatter", port: 42),
+        clientLogStreamingMode: .disabled
     )
     private let callbackQueue = DispatchQueue(label: "callbackQueue")
     private let expectation = XCTestExpectation(description: "Response provided")
@@ -38,6 +44,7 @@ final class TestSchedulerTests: XCTestCase {
             XCTAssertEqual(
                 scheduleTestsRequest.payload,
                 ScheduleTestsPayload(
+                    clientDetails: self.clientDetails,
                     prioritizedJob: self.prioritizedJob,
                     scheduleStrategy: self.unsplitScheduleStrategy,
                     testEntryConfigurations: []
@@ -46,6 +53,7 @@ final class TestSchedulerTests: XCTestCase {
         }
         
         scheduler.scheduleTests(
+            clientDetails: clientDetails,
             prioritizedJob: prioritizedJob,
             scheduleStrategy: unsplitScheduleStrategy,
             testEntryConfigurations: [],
@@ -65,6 +73,7 @@ final class TestSchedulerTests: XCTestCase {
         requestSender.requestSenderError = .noData
         
         scheduler.scheduleTests(
+            clientDetails: clientDetails,
             prioritizedJob: prioritizedJob,
             scheduleStrategy: individualScheduleStrategy,
             testEntryConfigurations: [],

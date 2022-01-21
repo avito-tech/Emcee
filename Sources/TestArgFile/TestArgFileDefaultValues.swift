@@ -9,6 +9,7 @@ import RunnerModels
 import ScheduleStrategy
 import SimulatorPoolModels
 import WorkerCapabilitiesModels
+import LogStreamingModels
 
 public enum TestArgFileDefaultValues {
     public static let developerDir = DeveloperDir.current
@@ -58,4 +59,5 @@ public enum TestArgFileDefaultValues {
     public static let analyticsConfiguration = AnalyticsConfiguration()
     public static let logCapturingMode = LogCapturingMode.onlyCrashLogs
     public static let runnerWasteCleanupPolicy = RunnerWasteCleanupPolicy.clean
+    public static let logStreamingMode: ClientLogStreamingMode = .disabled
 }

@@ -1,5 +1,6 @@
 import DateProviderTestHelpers
 import Foundation
+import LogStreamingModels
 import MetricsExtensions
 import MetricsTestHelpers
 import QueueCommunicationTestHelpers
@@ -9,6 +10,7 @@ import QueueServer
 import RESTMethods
 import RunnerTestHelpers
 import ScheduleStrategy
+import SocketModels
 import TestHelpers
 import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessProvider
@@ -24,6 +26,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         
         let response = try endpoint.handle(
             payload: ScheduleTestsPayload(
+                clientDetails: clientDetails,
                 prioritizedJob: prioritizedJob,
                 scheduleStrategy: individualScheduleStrategy,
                 testEntryConfigurations: testEntryConfigurations
@@ -49,6 +52,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         
         let response = try endpoint.handle(
             payload: ScheduleTestsPayload(
+                clientDetails: clientDetails,
                 prioritizedJob: prioritizedJob,
                 scheduleStrategy: individualScheduleStrategy,
                 testEntryConfigurations: []
@@ -64,6 +68,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         assertThrows {
             try endpoint.handle(
                 payload: ScheduleTestsPayload(
+                    clientDetails: clientDetails,
                     prioritizedJob: prioritizedJob,
                     scheduleStrategy: individualScheduleStrategy,
                     testEntryConfigurations: testEntryConfigurations
@@ -79,6 +84,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         assertThrows {
             try endpoint.handle(
                 payload: ScheduleTestsPayload(
+                    clientDetails: clientDetails,
                     prioritizedJob: prioritizedJob,
                     scheduleStrategy: individualScheduleStrategy,
                     testEntryConfigurations: TestEntryConfigurationFixtures()
@@ -100,6 +106,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         
         let response = try endpoint.handle(
             payload: ScheduleTestsPayload(
+                clientDetails: clientDetails,
                 prioritizedJob: prioritizedJob,
                 scheduleStrategy: individualScheduleStrategy,
                 testEntryConfigurations: testEntryConfigurations
@@ -128,6 +135,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         
         let response = try endpoint.handle(
             payload: ScheduleTestsPayload(
+                clientDetails: clientDetails,
                 prioritizedJob: prioritizedJob,
                 scheduleStrategy: individualScheduleStrategy,
                 testEntryConfigurations: TestEntryConfigurationFixtures()
@@ -151,7 +159,6 @@ final class ScheduleTestsEndpointTests: XCTestCase {
     private func createEndpoint(timeout: TimeInterval) -> ScheduleTestsEndpoint {
         ScheduleTestsEndpoint(
             testsEnqueuer: testsEnqueuer,
-            uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             waitForCapableWorkerTimeout: timeout,
             workerAlivenessProvider: workerAlivenessProvider,
             workerCapabilitiesStorage: workerCapabilitiesStorage
@@ -198,5 +205,9 @@ final class ScheduleTestsEndpointTests: XCTestCase {
     lazy var workerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()
     private lazy var individualScheduleStrategy = ScheduleStrategy(
         testSplitterType: .individual
+    )
+    private lazy var clientDetails = ClientDetails(
+        socketAddress: SocketAddress(host: "doesnotmatter", port: 42),
+        clientLogStreamingMode: .disabled
     )
 }

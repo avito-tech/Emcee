@@ -5,6 +5,7 @@ import RESTMethods
 import RESTServer
 import RequestSender
 import SocketModels
+import SynchronousWaiter
 import Swifter
 import Types
 import UniqueIdentifierGenerator
@@ -33,14 +34,11 @@ public final class SwifterRemotelyAccessibleUrlForLocalFileProvider: RemotelyAcc
     
     public enum Errors: Error, CustomStringConvertible {
         case noUrlError(components: URLComponents)
-        case missingResponse
 
         public var description: String {
             switch self {
             case .noUrlError(let components):
                 return "Failed to generate URL from components \(components)"
-            case .missingResponse:
-                return "Missing response in SwifterRemotelyAccessibleUrlForLocalFileProvider"
             }
         }
     }

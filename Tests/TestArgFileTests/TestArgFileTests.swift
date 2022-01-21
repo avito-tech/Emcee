@@ -20,6 +20,7 @@ final class TestArgFileTests: XCTestCase {
                 "jobGroupPriority": 100,
                 "jobId": "jobId",
                 "jobPriority": 500,
+                "logStreamingMode": "jobSpecific",
                 "testDestinationConfigurations": [],
                 "analyticsConfiguration": {
                     "graphiteConfiguration": {
@@ -77,7 +78,8 @@ final class TestArgFileTests: XCTestCase {
                     jobId: "jobId",
                     jobPriority: 500
                 ),
-                testDestinationConfigurations: []
+                testDestinationConfigurations: [],
+                logStreamingMode: .jobSpecific
             )
         )
     }
@@ -107,7 +109,8 @@ final class TestArgFileTests: XCTestCase {
                     jobId: "jobId",
                     jobPriority: TestArgFileDefaultValues.priority
                 ),
-                testDestinationConfigurations: []
+                testDestinationConfigurations: [],
+                logStreamingMode: .disabled
             )
         )
     }

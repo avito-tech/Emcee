@@ -53,6 +53,9 @@ public final class ContextualLogger {
         
         /// If subprocess is started via `xcrun`, this key contains a name of a launched tool, e.g. `simctl`
         case xcrunToolName
+
+        /// Bucket id to which logs are related        
+        case bucketId
         
         public static func stringSetForAllRawValues() -> Set<String> {
             Set(allCases.map { $0.rawValue })

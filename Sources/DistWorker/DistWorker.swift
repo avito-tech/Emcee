@@ -10,6 +10,7 @@ import EventBus
 import FileSystem
 import Foundation
 import LocalHostDeterminer
+import LogStreaming
 import Metrics
 import MetricsExtensions
 import PathLib
@@ -44,6 +45,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
     private let dateProvider: DateProvider
     private let fileSystem: FileSystem
     private let httpRestServer: HTTPRESTServer
+    private let logEntrySender: LogEntrySender
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TemporaryFolder
     private let version: Version
@@ -58,6 +60,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
     
     public init(
         di: DI,
+        logEntrySender: LogEntrySender,
         resourceLocationResolver: ResourceLocationResolver,
         tempFolder: TemporaryFolder,
         version: Version,
@@ -66,6 +69,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
         self.di = di
         self.dateProvider = try di.get()
         self.fileSystem = try di.get()
+        self.logEntrySender = logEntrySender
         self.logger = try di.get(ContextualLogger.self)
         self.httpRestServer = HTTPRESTServer(
             automaticTerminationController: StayAliveTerminationController(),
@@ -117,6 +121,13 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
                 strongSelf.payloadSignature = .success(workerConfiguration.payloadSignature)
                 strongSelf.logger.trace("Registered with server. Worker configuration: \(workerConfiguration)")
                 
+                try strongSelf.di.get(LoggingSetup.self).add(
+                    loggerHandler: SendLogsToQueueLoggerHandler(
+                        logEntrySender: strongSelf.logEntrySender,
+                        logger: strongSelf.logger1
+                    )
+                )
+
                 _ = try strongSelf.runTests(
                     workerConfiguration: workerConfiguration
                 )

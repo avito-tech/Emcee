@@ -10,7 +10,6 @@ final class FileHandleLoggerHandlerTests: XCTestCase {
     lazy var tempFile = assertDoesNotThrow { try TemporaryFile(deleteOnDealloc: true) }
     
     lazy var loggerHandler = FileHandleLoggerHandler(
-        dateProvider: DateProviderFixture(),
         fileHandle: tempFile.fileHandleForWriting,
         verbosity: .info,
         logEntryTextFormatter: SimpleLogEntryTextFormatter(),
@@ -120,7 +119,6 @@ final class FileHandleLoggerHandlerTests: XCTestCase {
     func test___non_closable_file___is_not_closed() throws {
         let fileHandler = FakeFileHandle()
         let loggerHandler = FileHandleLoggerHandler(
-            dateProvider: DateProviderFixture(),
             fileHandle: fileHandler,
             verbosity: .always,
             logEntryTextFormatter: SimpleLogEntryTextFormatter(),
@@ -135,7 +133,6 @@ final class FileHandleLoggerHandlerTests: XCTestCase {
     func test___closable_file___is_closed() throws {
         let fileHandler = FakeFileHandle()
         let loggerHandler = FileHandleLoggerHandler(
-            dateProvider: DateProviderFixture(),
             fileHandle: fileHandler,
             verbosity: .always,
             logEntryTextFormatter: SimpleLogEntryTextFormatter(),
@@ -150,7 +147,6 @@ final class FileHandleLoggerHandlerTests: XCTestCase {
     func test___closable_file___is_closed_only_once() throws {
         let fileHandler = FakeFileHandle()
         let loggerHandler = FileHandleLoggerHandler(
-            dateProvider: DateProviderFixture(),
             fileHandle: fileHandler,
             verbosity: .always,
             logEntryTextFormatter: SimpleLogEntryTextFormatter(),

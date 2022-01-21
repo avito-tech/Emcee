@@ -4,6 +4,8 @@ import Types
 import Deployer
 import DistDeployer
 import Foundation
+import LogStreaming
+import LogStreamingModels
 import MetricsExtensions
 import TestArgFile
 import TestDiscovery
@@ -19,8 +21,10 @@ import SocketModels
 import SignalHandling
 import SimulatorPool
 import RequestSender
+import RESTInterfaces
 import SynchronousWaiter
 import UniqueIdentifierGenerator
+import WhatIsMyAddress
 
 final class RunTestsOnRemoteQueueLogic {
     private let di: DI
@@ -37,11 +41,24 @@ final class RunTestsOnRemoteQueueLogic {
         logger: ContextualLogger,
         queueServerConfiguration: QueueServerConfiguration,
         remoteCacheConfig: RuntimeDumpRemoteCacheConfig?,
+        rootLoggerHandler: LoggerHandler,
         tempFolder: TemporaryFolder,
         testArgFile: TestArgFile,
         httpRestServer: HTTPRESTServer
     ) throws {
         try httpRestServer.start()
+        
+        if testArgFile.logStreamingMode.anyTypeOfStreamingIsEnabled {
+            httpRestServer.add(
+                handler: RESTEndpointOf(
+                    LogEntryEndpoint(
+                        logStreamer: LoggerHandlerLogStreamer(
+                            loggerHandler: rootLoggerHandler
+                        )
+                    )
+                )
+            )
+        }
         
         let runningQueueServerAddress = try detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
             emceeVersion: emceeVersion,
@@ -49,6 +66,13 @@ final class RunTestsOnRemoteQueueLogic {
             queueServerConfiguration: queueServerConfiguration,
             logger: logger,
             tempFolder: tempFolder
+        )
+        
+        let clientServerAddress = SocketAddress(
+            host: try di.get(SynchronousMyAddressFetcherProvider.self).create(
+                queueAddress: runningQueueServerAddress
+            ).fetch(timeout: 10),
+            port: try httpRestServer.port()
         )
         
         di.set(
@@ -98,6 +122,7 @@ final class RunTestsOnRemoteQueueLogic {
         )
         
         let jobResults = try runTestsOnRemotelyRunningQueue(
+            clientServerAddress: clientServerAddress,
             queueServerAddress: runningQueueServerAddress,
             remoteCacheConfig: remoteCacheConfig,
             tempFolder: tempFolder,
@@ -214,6 +239,7 @@ final class RunTestsOnRemoteQueueLogic {
     }
     
     private func runTestsOnRemotelyRunningQueue(
+        clientServerAddress: SocketAddress,
         queueServerAddress: SocketAddress,
         remoteCacheConfig: RuntimeDumpRemoteCacheConfig?,
         tempFolder: TemporaryFolder,
@@ -273,6 +299,7 @@ final class RunTestsOnRemoteQueueLogic {
         }
         
         try JobPreparer(di: di).formJob(
+            clientServerAddress: clientServerAddress,
             emceeVersion: version,
             queueServerAddress: queueServerAddress,
             remoteCacheConfig: remoteCacheConfig,

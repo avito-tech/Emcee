@@ -3,6 +3,7 @@ import AutomaticTermination
 import BuildArtifacts
 import Deployer
 import EmceeDI
+import EmceeLogging
 import EmceeVersion
 import Foundation
 import MetricsExtensions
@@ -158,7 +159,8 @@ public final class RunTestsCommand: Command {
                 jobId: JobId("autoJobId_" + uniqueIdentifierGenerator.generate()),
                 jobPriority: .medium
             ),
-            testDestinationConfigurations: []
+            testDestinationConfigurations: [],
+            logStreamingMode: .disabled
         )
         
         let queueServerConfiguration = QueueServerConfiguration(
@@ -170,7 +172,8 @@ public final class RunTestsCommand: Command {
             defaultWorkerSpecificConfiguration: QueueServerConfigurationDefaultValues.defaultWorkerConfiguration,
             workerSpecificConfigurations: [:],
             workerStartMode: QueueServerConfigurationDefaultValues.workerStartMode,
-            useOnlyIPv4: QueueServerConfigurationDefaultValues.useOnlyIPv4
+            useOnlyIPv4: QueueServerConfigurationDefaultValues.useOnlyIPv4,
+            logStreamingModes: QueueServerConfigurationDefaultValues.logStreamingModes
         )
         
         try RunTestsOnRemoteQueueLogic(di: di).run(
@@ -182,6 +185,7 @@ public final class RunTestsCommand: Command {
             logger: try di.get(),
             queueServerConfiguration: queueServerConfiguration,
             remoteCacheConfig: nil,
+            rootLoggerHandler: try di.get(LoggingSetup.self).rootLoggerHandler,
             tempFolder: try TemporaryFolder(),
             testArgFile: testArgFile,
             httpRestServer: httpRestServer

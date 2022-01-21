@@ -3,6 +3,7 @@ import Deployer
 import DistWorkerModels
 import EmceeExtensions
 import Foundation
+import LogStreamingModels
 import MetricsExtensions
 import QueueModels
 
@@ -16,6 +17,7 @@ public struct QueueServerConfiguration: Codable {
     public let workerSpecificConfigurations: [WorkerId: WorkerSpecificConfiguration]
     public let workerStartMode: WorkerStartMode
     public let useOnlyIPv4: Bool
+    public let logStreamingModes: QueueLogStreamingModes
     
     public init(
         globalAnalyticsConfiguration: AnalyticsConfiguration,
@@ -26,7 +28,8 @@ public struct QueueServerConfiguration: Codable {
         defaultWorkerSpecificConfiguration: WorkerSpecificConfiguration?,
         workerSpecificConfigurations: [WorkerId: WorkerSpecificConfiguration],
         workerStartMode: WorkerStartMode,
-        useOnlyIPv4: Bool
+        useOnlyIPv4: Bool,
+        logStreamingModes: QueueLogStreamingModes
     ) {
         self.globalAnalyticsConfiguration = globalAnalyticsConfiguration
         self.checkAgainTimeInterval = checkAgainTimeInterval
@@ -37,6 +40,7 @@ public struct QueueServerConfiguration: Codable {
         self.workerSpecificConfigurations = workerSpecificConfigurations
         self.workerStartMode = workerStartMode
         self.useOnlyIPv4 = useOnlyIPv4
+        self.logStreamingModes = logStreamingModes
     }
     
     private enum CodingKeys: String, CodingKey {
@@ -49,12 +53,14 @@ public struct QueueServerConfiguration: Codable {
         case workerSpecificConfigurations
         case workerStartMode
         case useOnlyIPv4
+        case logStreamingModes
     }
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        let globalAnalyticsConfiguration = try container.decodeIfPresentExplaining(AnalyticsConfiguration.self, forKey: .globalAnalyticsConfiguration) ?? QueueServerConfigurationDefaultValues.globalAnalyticsConfiguration
+        let globalAnalyticsConfiguration = try container.decodeIfPresentExplaining(AnalyticsConfiguration.self, forKey: .globalAnalyticsConfiguration) ??
+            QueueServerConfigurationDefaultValues.globalAnalyticsConfiguration
         let checkAgainTimeInterval = try container.decodeIfPresentExplaining(TimeInterval.self, forKey: .checkAgainTimeInterval) ?? QueueServerConfigurationDefaultValues.checkAgainTimeInterval
         let queueServerDeploymentDestinations = try container.decodeExplaining([DeploymentDestination].self, forKey: .queueServerDeploymentDestinations)
         let queueServerTerminationPolicy = try container.decodeIfPresentExplaining(AutomaticTerminationPolicy.self, forKey: .queueServerTerminationPolicy) ?? QueueServerConfigurationDefaultValues.queueServerTerminationPolicy
@@ -72,6 +78,8 @@ public struct QueueServerConfiguration: Codable {
         )
         let workerStartMode = try container.decodeIfPresentExplaining(WorkerStartMode.self, forKey: .workerStartMode) ?? QueueServerConfigurationDefaultValues.workerStartMode
         let useOnlyIPv4 = try container.decodeIfPresentExplaining(Bool.self, forKey: .useOnlyIPv4) ?? QueueServerConfigurationDefaultValues.useOnlyIPv4
+        let logStreamingModes = try container.decodeIfPresentExplaining(QueueLogStreamingModes.self, forKey: .logStreamingModes) ??
+            QueueServerConfigurationDefaultValues.logStreamingModes
         
         self.init(
             globalAnalyticsConfiguration: globalAnalyticsConfiguration,
@@ -82,14 +90,15 @@ public struct QueueServerConfiguration: Codable {
             defaultWorkerSpecificConfiguration: defaultWorkerSpecificConfiguration,
             workerSpecificConfigurations: workerSpecificConfigurations,
             workerStartMode: workerStartMode,
-            useOnlyIPv4: useOnlyIPv4
+            useOnlyIPv4: useOnlyIPv4,
+            logStreamingModes: logStreamingModes
         )
     }
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        try container.encodeIfPresent(globalAnalyticsConfiguration, forKey: .globalAnalyticsConfiguration)
+        try container.encode(globalAnalyticsConfiguration, forKey: .globalAnalyticsConfiguration)
         try container.encode(checkAgainTimeInterval, forKey: .checkAgainTimeInterval)
         try container.encode(queueServerDeploymentDestinations, forKey: .queueServerDeploymentDestinations)
         try container.encode(queueServerTerminationPolicy, forKey: .queueServerTerminationPolicy)
@@ -105,6 +114,7 @@ public struct QueueServerConfiguration: Codable {
         )
         try container.encode(workerStartMode, forKey: .workerStartMode)
         try container.encode(useOnlyIPv4, forKey: .useOnlyIPv4)
+        try container.encode(logStreamingModes, forKey: .logStreamingModes)
     }
     
     public func workerConfiguration(

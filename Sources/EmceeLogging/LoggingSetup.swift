@@ -69,6 +69,7 @@ public final class LoggingSetup {
     
     public func set(kibanaConfiguration: KibanaConfiguration) throws {
         let handler = KibanaLoggerHandler(
+            dateProvider: dateProvider,
             kibanaClient: try HttpKibanaClient(
                 dateProvider: dateProvider,
                 endpoints: try kibanaConfiguration.endpoints.map { try KibanaHttpEndpoint.from(url: $0) },
@@ -137,7 +138,6 @@ public final class LoggingSetup {
     
     private func createStderrInfoLoggerHandler(verbosity: Verbosity) -> LoggerHandler {
         return FileHandleLoggerHandler(
-            dateProvider: dateProvider,
             fileHandle: FileHandle.standardError,
             verbosity: verbosity,
             logEntryTextFormatter: NSLogLikeLogEntryTextFormatter(),
@@ -151,7 +151,6 @@ public final class LoggingSetup {
         verbosity: Verbosity
     ) -> LoggerHandler {
         return FileHandleLoggerHandler(
-            dateProvider: dateProvider,
             fileHandle: fileHandle,
             verbosity: verbosity,
             logEntryTextFormatter: NSLogLikeLogEntryTextFormatter(),

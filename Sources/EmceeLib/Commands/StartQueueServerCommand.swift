@@ -8,6 +8,7 @@ import EmceeVersion
 import Foundation
 import LocalHostDeterminer
 import LocalQueueServerRunner
+import LogStreaming
 import EmceeLogging
 import Metrics
 import MetricsExtensions
@@ -162,6 +163,7 @@ public final class StartQueueServerCommand: Command {
                 numberOfParallelBuckets: UInt(numberOfParallelBuckets)
             ),
             checkAgainTimeInterval: queueServerConfiguration.checkAgainTimeInterval,
+            clientDetailsHolder: ClientDetailsHolderImpl(),
             dateProvider: try di.get(),
             emceeVersion: emceeVersion,
             localPortDeterminer: LocalPortDeterminer(
@@ -180,6 +182,7 @@ public final class StartQueueServerCommand: Command {
                 automaticTerminationController: automaticTerminationController
             ),
             requestSenderProvider: try di.get(),
+            rootLoggerHandler: try di.get(LoggingSetup.self).rootLoggerHandler,
             uniqueIdentifierGenerator: try di.get(),
             workerAlivenessProvider: WorkerAlivenessProviderImpl(
                 logger: logger,

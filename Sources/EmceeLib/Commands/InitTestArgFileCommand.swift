@@ -169,7 +169,8 @@ public final class InitTestArgFileCommand: Command {
                         tracingReport: "Absolute path to where Chrome trace specific for _this test destination_ should be created. --trace will contain the complete trace for the whole test run."
                     )
                 ),
-            ]
+            ],
+            logStreamingMode: .disabled
         )
         
         let data = try JSONEncoder.pretty().encode(testArgFile)

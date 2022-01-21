@@ -412,6 +412,7 @@ let package = Package(
                 "EventBus",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
                 "LocalHostDeterminer",
+                "LogStreaming",
                 .product(name: "Metrics", package: "CommandLineToolkit"),
                 "MetricsExtensions",
                 .product(name: "PathLib", package: "CommandLineToolkit"),
@@ -547,6 +548,8 @@ let package = Package(
                 "JunitReporting",
                 "LocalHostDeterminer",
                 "LocalQueueServerRunner",
+                "LogStreaming",
+                "LogStreamingModels",
                 .product(name: "Metrics", package: "CommandLineToolkit"),
                 "MetricsExtensions",
                 .product(name: "PathLib", package: "CommandLineToolkit"),
@@ -560,6 +563,7 @@ let package = Package(
                 "QueueServer",
                 "QueueServerConfiguration",
                 "QueueServerPortProvider",
+                "RESTInterfaces",
                 "RESTMethods",
                 "RESTServer",
                 "RemotePortDeterminer",
@@ -656,6 +660,8 @@ let package = Package(
         .target(
             name: "EmceeLoggingTestHelpers",
             dependencies: [
+                .product(name: "DateProvider", package: "CommandLineToolkit"),
+                .product(name: "DateProviderTestHelpers", package: "CommandLineToolkit"),
                 "EmceeLogging",
                 "EmceeLoggingModels",
             ],
@@ -849,6 +855,30 @@ let package = Package(
             ],
             path: "Tests/LocalQueueServerRunnerTests"
         ),
+        .target(
+            name: "LogStreaming",
+            dependencies: [
+                .product(name: "AtomicModels", package: "CommandLineToolkit"),
+                "EmceeLogging",
+                "EmceeLoggingModels",
+                "QueueClient",
+                "QueueModels",
+                "RESTInterfaces",
+                "RESTMethods",
+                "RESTServer",
+                "RequestSender",
+                .product(name: "SocketModels", package: "CommandLineToolkit"),
+                .product(name: "Types", package: "CommandLineToolkit"),
+            ],
+            path: "Sources/LogStreaming"
+        ),
+        .target(
+            name: "LogStreamingModels",
+            dependencies: [
+                .product(name: "SocketModels", package: "CommandLineToolkit"),
+            ],
+            path: "Sources/LogStreamingModels"
+        ),
         .testTarget(
             name: "LoggingTests",
             dependencies: [
@@ -1000,6 +1030,7 @@ let package = Package(
                 .product(name: "AtomicModels", package: "CommandLineToolkit"),
                 "DistWorkerModels",
                 "EmceeLogging",
+                "LogStreamingModels",
                 "QueueModels",
                 "RESTMethods",
                 "RequestSender",
@@ -1017,6 +1048,7 @@ let package = Package(
             dependencies: [
                 "DistWorkerModels",
                 "DistWorkerModelsTestHelpers",
+                "LogStreamingModels",
                 "MetricsExtensions",
                 "QueueClient",
                 "QueueModels",
@@ -1158,6 +1190,7 @@ let package = Package(
                 "EventBus",
                 .product(name: "Graphite", package: "CommandLineToolkit"),
                 "LocalHostDeterminer",
+                "LogStreaming",
                 .product(name: "Metrics", package: "CommandLineToolkit"),
                 "MetricsExtensions",
                 "PortDeterminer",
@@ -1194,6 +1227,7 @@ let package = Package(
                 "Deployer",
                 "DistWorkerModels",
                 "EmceeExtensions",
+                "LogStreamingModels",
                 "MetricsExtensions",
                 "QueueModels",
             ],
@@ -1238,7 +1272,10 @@ let package = Package(
                 "DistWorkerModels",
                 "DistWorkerModelsTestHelpers",
                 "EmceeLogging",
+                "EmceeLoggingTestHelpers",
                 .product(name: "Graphite", package: "CommandLineToolkit"),
+                "LogStreaming",
+                "LogStreamingModels",
                 .product(name: "Metrics", package: "CommandLineToolkit"),
                 "MetricsExtensions",
                 .product(name: "MetricsTestHelpers", package: "CommandLineToolkit"),
@@ -1286,6 +1323,9 @@ let package = Package(
             dependencies: [
                 "Deployer",
                 "DistWorkerModels",
+                "EmceeLogging",
+                "EmceeLoggingModels",
+                "LogStreamingModels",
                 "QueueModels",
                 "RESTInterfaces",
                 "RequestSender",
@@ -1820,6 +1860,7 @@ let package = Package(
                 "BuildArtifacts",
                 "DeveloperDirModels",
                 "EmceeExtensions",
+                "LogStreamingModels",
                 "MetricsExtensions",
                 "PluginSupport",
                 "QueueModels",

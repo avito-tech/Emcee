@@ -1,3 +1,4 @@
+import DateProvider
 import EmceeExtensions
 import EmceeLoggingModels
 import Foundation
@@ -5,6 +6,7 @@ import Kibana
 import MetricsExtensions
 
 public final class KibanaLoggerHandler: LoggerHandler {
+    public let dateProvider: DateProvider
     private let group = DispatchGroup()
     private let kibanaClient: KibanaClient
     
@@ -12,7 +14,11 @@ public final class KibanaLoggerHandler: LoggerHandler {
         case skippingKibana
     }
     
-    public init(kibanaClient: KibanaClient) {
+    public init(
+        dateProvider: DateProvider,
+        kibanaClient: KibanaClient
+    ) {
+        self.dateProvider = dateProvider
         self.kibanaClient = kibanaClient
     }
     

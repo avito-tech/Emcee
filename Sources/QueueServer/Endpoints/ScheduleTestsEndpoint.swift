@@ -10,11 +10,9 @@ import SynchronousWaiter
 import WorkerAlivenessModels
 import WorkerAlivenessProvider
 import WorkerCapabilities
-import UniqueIdentifierGenerator
 
 public final class ScheduleTestsEndpoint: RESTEndpoint {
     private let testsEnqueuer: TestsEnqueuer
-    private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let waitForCapableWorkerTimeout: TimeInterval
     private let workerAlivenessProvider: WorkerAlivenessProvider
     private let workerCapabilityConstraintResolver = WorkerCapabilityConstraintResolver()
@@ -24,13 +22,11 @@ public final class ScheduleTestsEndpoint: RESTEndpoint {
     
     public init(
         testsEnqueuer: TestsEnqueuer,
-        uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         waitForCapableWorkerTimeout: TimeInterval,
         workerAlivenessProvider: WorkerAlivenessProvider,
         workerCapabilitiesStorage: WorkerCapabilitiesStorage
     ) {
         self.testsEnqueuer = testsEnqueuer
-        self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.waitForCapableWorkerTimeout = waitForCapableWorkerTimeout
         self.workerAlivenessProvider = workerAlivenessProvider
         self.workerCapabilitiesStorage = workerCapabilitiesStorage

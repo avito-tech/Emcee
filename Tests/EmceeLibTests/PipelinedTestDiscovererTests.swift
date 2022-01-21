@@ -191,7 +191,8 @@ extension TestArgFile {
                 jobId: "jobId",
                 jobPriority: .medium
             ),
-            testDestinationConfigurations: []
+            testDestinationConfigurations: [],
+            logStreamingMode: .disabled
         )
     }
 }

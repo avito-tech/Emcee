@@ -8,6 +8,7 @@ import FileSystem
 import Foundation
 import EmceeLogging
 import EmceeLoggingModels
+import LogStreaming
 import Metrics
 import PathLib
 import PluginManager
@@ -91,6 +92,7 @@ public final class DistWorkCommand: Command {
         di.set(WorkerRegistererImpl(requestSender: requestSender), for: WorkerRegisterer.self)
         di.set(BucketResultSenderImpl(requestSender: requestSender), for: BucketResultSender.self)
         di.set(BucketFetcherImpl(requestSender: requestSender), for: BucketFetcher.self)
+        di.set(LogEntrySenderImpl(requestSender: requestSender), for: LogEntrySender.self)
         
         di.set(
             SimulatorSettingsModifierImpl(
@@ -128,6 +130,7 @@ public final class DistWorkCommand: Command {
         
         return try DistWorker(
             di: di,
+            logEntrySender: try di.get(),
             resourceLocationResolver: try di.get(),
             tempFolder: tempFolder,
             version: version,

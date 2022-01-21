@@ -5,7 +5,6 @@ import EmceeLoggingModels
 import Foundation
 
 public final class FileHandleLoggerHandler: LoggerHandler {
-    private let dateProvider: DateProvider
     private let fileState: AtomicValue<FileState>
     private let verbosity: Verbosity
     private let logEntryTextFormatter: LogEntryTextFormatter
@@ -19,7 +18,6 @@ public final class FileHandleLoggerHandler: LoggerHandler {
     }
 
     public init(
-        dateProvider: DateProvider,
         fileHandle: FileHandle,
         verbosity: Verbosity,
         logEntryTextFormatter: LogEntryTextFormatter,
@@ -27,7 +25,6 @@ public final class FileHandleLoggerHandler: LoggerHandler {
         skipMetadataFlag: SkipMetadataFlags?,
         coordinateNamesToSkipFromTextualOutput: Set<String> = ContextualLogger.ContextKeys.stringSetForAllRawValues()
     ) {
-        self.dateProvider = dateProvider
         self.fileState = AtomicValue(FileState.open(fileHandle))
         self.verbosity = verbosity
         self.logEntryTextFormatter = logEntryTextFormatter

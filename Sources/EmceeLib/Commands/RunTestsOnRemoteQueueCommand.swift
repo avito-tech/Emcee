@@ -92,6 +92,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
             logger: logger,
             queueServerConfiguration: queueServerConfiguration,
             remoteCacheConfig: remoteCacheConfig,
+            rootLoggerHandler: try di.get(LoggingSetup.self).rootLoggerHandler,
             tempFolder: tempFolder,
             testArgFile: testArgFile,
             httpRestServer: httpRestServer
