@@ -18,6 +18,7 @@ public struct TestDiscoveryConfiguration {
     public let testDestination: TestDestination
     public let testExecutionBehavior: TestExecutionBehavior
     public let testTimeoutConfiguration: TestTimeoutConfiguration
+    public let testAttachmentLifetime: TestAttachmentLifetime
     public let testsToValidate: [TestToRun]
     public let xcTestBundleLocation: TestBundleLocation
     public let remoteCache: RuntimeDumpRemoteCache
@@ -33,6 +34,7 @@ public struct TestDiscoveryConfiguration {
         testDestination: TestDestination,
         testExecutionBehavior: TestExecutionBehavior,
         testTimeoutConfiguration: TestTimeoutConfiguration,
+        testAttachmentLifetime: TestAttachmentLifetime,
         testsToValidate: [TestToRun],
         xcTestBundleLocation: TestBundleLocation,
         remoteCache: RuntimeDumpRemoteCache,
@@ -47,6 +49,7 @@ public struct TestDiscoveryConfiguration {
         self.testDestination = testDestination
         self.testExecutionBehavior = testExecutionBehavior
         self.testTimeoutConfiguration = testTimeoutConfiguration
+        self.testAttachmentLifetime = testAttachmentLifetime
         self.testsToValidate = testsToValidate
         self.xcTestBundleLocation = xcTestBundleLocation
         self.remoteCache = remoteCache

@@ -136,7 +136,8 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             pluginLocations: configuration.pluginLocations,
             simulator: simulator,
             simulatorSettings: configuration.simulatorSettings,
-            testTimeoutConfiguration: configuration.testTimeoutConfiguration
+            testTimeoutConfiguration: configuration.testTimeoutConfiguration,
+            testAttachmentLifetime: configuration.testAttachmentLifetime
         )
     }
 

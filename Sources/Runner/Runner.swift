@@ -294,7 +294,8 @@ public final class Runner {
             simulatorUdid: configuration.simulator.udid,
             testDestination: configuration.simulator.testDestination,
             testRunnerWorkingDirectory: testRunnerWorkingDirectory,
-            testsWorkingDirectory: testsWorkingDirectory
+            testsWorkingDirectory: testsWorkingDirectory,
+            testAttachmentLifetime: configuration.testAttachmentLifetime
         )
     }
     

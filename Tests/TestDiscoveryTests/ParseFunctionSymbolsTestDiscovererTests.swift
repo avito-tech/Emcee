@@ -91,6 +91,7 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
         testDestination: TestDestinationFixtures.testDestination,
         testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
         testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
+        testAttachmentLifetime: .deleteOnSuccess,
         testsToValidate: [],
         xcTestBundleLocation: testBundleLocation,
         remoteCache: NoOpRuntimeDumpRemoteCache(),

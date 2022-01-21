@@ -23,6 +23,7 @@ public struct TestArgFileEntry: Codable, Equatable {
     public let simulatorSettings: SimulatorSettings
     public let testDestination: TestDestination
     public let testTimeoutConfiguration: TestTimeoutConfiguration
+    public let testAttachmentLifetime: TestAttachmentLifetime
     public let testsToRun: [TestToRun]
     public let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
     
@@ -41,6 +42,7 @@ public struct TestArgFileEntry: Codable, Equatable {
         simulatorSettings: SimulatorSettings,
         testDestination: TestDestination,
         testTimeoutConfiguration: TestTimeoutConfiguration,
+        testAttachmentLifetime: TestAttachmentLifetime,
         testsToRun: [TestToRun],
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
     ) {
@@ -58,6 +60,7 @@ public struct TestArgFileEntry: Codable, Equatable {
         self.simulatorSettings = simulatorSettings
         self.testDestination = testDestination
         self.testTimeoutConfiguration = testTimeoutConfiguration
+        self.testAttachmentLifetime = testAttachmentLifetime
         self.testsToRun = testsToRun
         self.workerCapabilityRequirements = workerCapabilityRequirements
     }
@@ -100,6 +103,7 @@ public struct TestArgFileEntry: Codable, Equatable {
         
         let testTimeoutConfiguration = try container.decodeIfPresent(TestTimeoutConfiguration.self, forKey: .testTimeoutConfiguration) ??
             TestArgFileDefaultValues.testTimeoutConfiguration
+        let testAttachmentLifetime = try container.decodeIfPresent(TestAttachmentLifetime.self, forKey: .testAttachmentLifetime) ?? TestArgFileDefaultValues.testAttachmentLifetime
         let workerCapabilityRequirements = try container.decodeIfPresent(Set<WorkerCapabilityRequirement>.self, forKey: .workerCapabilityRequirements) ??
             TestArgFileDefaultValues.workerCapabilityRequirements
 
@@ -118,6 +122,7 @@ public struct TestArgFileEntry: Codable, Equatable {
             simulatorSettings: simulatorSettings,
             testDestination: testDestination,
             testTimeoutConfiguration: testTimeoutConfiguration,
+            testAttachmentLifetime: testAttachmentLifetime,
             testsToRun: testsToRun,
             workerCapabilityRequirements: workerCapabilityRequirements
         )

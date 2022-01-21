@@ -179,6 +179,7 @@ extension TestArgFile {
                     simulatorSettings: TestArgFileDefaultValues.simulatorSettings,
                     testDestination: TestDestinationFixtures.testDestination,
                     testTimeoutConfiguration: TestArgFileDefaultValues.testTimeoutConfiguration,
+                    testAttachmentLifetime: TestArgFileDefaultValues.testAttachmentLifetime,
                     testsToRun: [],
                     workerCapabilityRequirements: []
                 )

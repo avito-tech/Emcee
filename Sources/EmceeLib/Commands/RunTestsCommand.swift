@@ -143,6 +143,7 @@ public final class RunTestsCommand: Command {
                     simulatorSettings: TestArgFileDefaultValues.simulatorSettings,
                     testDestination: testDestination,
                     testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: testTimeout, testRunnerMaximumSilenceDuration: testTimeout),
+                    testAttachmentLifetime: TestArgFileDefaultValues.testAttachmentLifetime,
                     testsToRun: testsToRun,
                     workerCapabilityRequirements: TestArgFileDefaultValues.workerCapabilityRequirements
                 )

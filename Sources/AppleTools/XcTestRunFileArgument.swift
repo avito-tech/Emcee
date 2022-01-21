@@ -118,8 +118,12 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
             isAppHostedTestBundle: false,
             isXCTRunnerHostedTestBundle: false,
             testTargetProductModuleName: testTargetProductModuleName,
-            systemAttachmentLifetime: .deleteOnSuccess,
-            userAttachmentLifetime: .deleteOnSuccess
+            systemAttachmentLifetime: XcTestRunAttachmentLifetime(
+                testAttachmentLifetime: testContext.testAttachmentLifetime
+            ),
+            userAttachmentLifetime: XcTestRunAttachmentLifetime(
+                testAttachmentLifetime: testContext.testAttachmentLifetime
+            )
         )
     }
 
@@ -169,8 +173,12 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
             isAppHostedTestBundle: true,
             isXCTRunnerHostedTestBundle: false,
             testTargetProductModuleName: testTargetProductModuleName,
-            systemAttachmentLifetime: .deleteOnSuccess,
-            userAttachmentLifetime: .deleteOnSuccess
+            systemAttachmentLifetime: XcTestRunAttachmentLifetime(
+                testAttachmentLifetime: testContext.testAttachmentLifetime
+            ),
+            userAttachmentLifetime: XcTestRunAttachmentLifetime(
+                testAttachmentLifetime: testContext.testAttachmentLifetime
+            )
         )
     }
 
@@ -218,8 +226,12 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
             isAppHostedTestBundle: false,
             isXCTRunnerHostedTestBundle: true,
             testTargetProductModuleName: testTargetProductModuleName,
-            systemAttachmentLifetime: .deleteOnSuccess,
-            userAttachmentLifetime: .deleteOnSuccess
+            systemAttachmentLifetime: XcTestRunAttachmentLifetime(
+                testAttachmentLifetime: testContext.testAttachmentLifetime
+            ),
+            userAttachmentLifetime: XcTestRunAttachmentLifetime(
+                testAttachmentLifetime: testContext.testAttachmentLifetime
+            )
         )
     }
     

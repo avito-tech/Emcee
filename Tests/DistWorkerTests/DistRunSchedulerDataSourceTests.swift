@@ -27,8 +27,8 @@ final class DistRunSchedulerDataSourceTests: XCTestCase {
                         testTimeoutConfiguration: TestTimeoutConfiguration(
                             singleTestMaximumDuration: 0,
                             testRunnerMaximumSilenceDuration: 0
-                        )
-
+                        ),
+                        testAttachmentLifetime: .deleteOnSuccess
                     )
                 )
             )

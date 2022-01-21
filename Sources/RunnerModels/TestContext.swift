@@ -13,6 +13,7 @@ public struct TestContext: Codable, Hashable, CustomStringConvertible {
     public let testDestination: TestDestination
     public let testRunnerWorkingDirectory: AbsolutePath
     public let testsWorkingDirectory: AbsolutePath
+    public let testAttachmentLifetime: TestAttachmentLifetime
     
     public init(
         contextId: String,
@@ -23,7 +24,8 @@ public struct TestContext: Codable, Hashable, CustomStringConvertible {
         simulatorUdid: UDID,
         testDestination: TestDestination,
         testRunnerWorkingDirectory: AbsolutePath,
-        testsWorkingDirectory: AbsolutePath
+        testsWorkingDirectory: AbsolutePath,
+        testAttachmentLifetime: TestAttachmentLifetime
     ) {
         self.contextId = contextId
         self.developerDir = developerDir
@@ -34,9 +36,10 @@ public struct TestContext: Codable, Hashable, CustomStringConvertible {
         self.testDestination = testDestination
         self.testRunnerWorkingDirectory = testRunnerWorkingDirectory
         self.testsWorkingDirectory = testsWorkingDirectory
+        self.testAttachmentLifetime = testAttachmentLifetime
     }
     
     public var description: String {
-        return "<\(type(of: self)): contextId: \(contextId) simulator: \(simulatorUdid) \(testDestination), developerDir: \(developerDir), testRunnerWorkingDirectory: \(testRunnerWorkingDirectory), testsWorkingDirectory: \(testsWorkingDirectory), env: \(environment), userInsertedLibraries: \(userInsertedLibraries)>"
+        return "<\(type(of: self)): contextId: \(contextId) simulator: \(simulatorUdid) \(testDestination), developerDir: \(developerDir), testRunnerWorkingDirectory: \(testRunnerWorkingDirectory), testsWorkingDirectory: \(testsWorkingDirectory), env: \(environment), userInsertedLibraries: \(userInsertedLibraries), testAttachmentLifetime: \(testAttachmentLifetime)>"
     }
 }

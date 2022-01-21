@@ -259,6 +259,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
                 singleTestMaximumDuration: 10,
                 testRunnerMaximumSilenceDuration: 10
             ),
+            testAttachmentLifetime: .deleteOnSuccess,
             testsToValidate: testsToValidate,
             xcTestBundleLocation: xcTestBundleLocation,
             remoteCache: remoteCache,

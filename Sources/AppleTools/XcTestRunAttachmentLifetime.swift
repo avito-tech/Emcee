@@ -1,3 +1,5 @@
+import RunnerModels
+
 public enum XcTestRunAttachmentLifetime: String, CaseIterable {
     
     /// Attachments enabled, but will be deleted for success tests
@@ -23,5 +25,16 @@ public enum XcTestRunAttachmentLifetime: String, CaseIterable {
             throw UnknownRawValue(value: value)
         }
         self = attachmentLifetime
+    }
+    
+    public init(testAttachmentLifetime: TestAttachmentLifetime) {
+        switch testAttachmentLifetime {
+        case .deleteOnSuccess:
+            self = .deleteOnSuccess
+        case .keepAlways:
+            self = .keepAlways
+        case .keepNever:
+            self = .keepNever
+        }
     }
 }

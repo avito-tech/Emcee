@@ -125,6 +125,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
             testDestination: try TestDestination(deviceType: "iPhoneXL", runtime: "10.3"),
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
+            testAttachmentLifetime: .deleteOnSuccess,
             testsToRun: [.testName(TestName(className: "MyTest", methodName: "test"))],
             workerCapabilityRequirements: []
         )

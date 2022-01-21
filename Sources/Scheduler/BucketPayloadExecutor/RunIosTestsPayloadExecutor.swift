@@ -174,7 +174,8 @@ public final class RunIosTestsPayloadExecutor {
                     pluginLocations: runIosTestsPayload.pluginLocations,
                     simulator: allocatedSimulator.simulator,
                     simulatorSettings: runIosTestsPayload.simulatorSettings,
-                    testTimeoutConfiguration: runIosTestsPayload.testTimeoutConfiguration
+                    testTimeoutConfiguration: runIosTestsPayload.testTimeoutConfiguration,
+                    testAttachmentLifetime: runIosTestsPayload.testAttachmentLifetime
                 )
             )
             

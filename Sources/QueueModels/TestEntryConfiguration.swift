@@ -18,6 +18,7 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
     public let testEntry: TestEntry
     public let testExecutionBehavior: TestExecutionBehavior
     public let testTimeoutConfiguration: TestTimeoutConfiguration
+    public let testAttachmentLifetime: TestAttachmentLifetime
     public let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
 
     public init(
@@ -31,6 +32,7 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
         testEntry: TestEntry,
         testExecutionBehavior: TestExecutionBehavior,
         testTimeoutConfiguration: TestTimeoutConfiguration,
+        testAttachmentLifetime: TestAttachmentLifetime,
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
     ) {
         self.analyticsConfiguration = analyticsConfiguration
@@ -43,10 +45,11 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
         self.testEntry = testEntry
         self.testExecutionBehavior = testExecutionBehavior
         self.testTimeoutConfiguration = testTimeoutConfiguration
+        self.testAttachmentLifetime = testAttachmentLifetime
         self.workerCapabilityRequirements = workerCapabilityRequirements
     }
     
     public var description: String {
-        return "<\(type(of: self)): \(testEntry) \(testDestination) \(buildArtifacts) \(pluginLocations) \(simulatorSettings) \(testExecutionBehavior) \(testTimeoutConfiguration) \(simulatorOperationTimeouts) \(developerDir) \(workerCapabilityRequirements) \(analyticsConfiguration)>"
+        return "<\(type(of: self)): \(testEntry) \(testDestination) \(buildArtifacts) \(pluginLocations) \(simulatorSettings) \(testExecutionBehavior) \(testTimeoutConfiguration) \(simulatorOperationTimeouts) \(developerDir) \(workerCapabilityRequirements) \(analyticsConfiguration) \(testAttachmentLifetime)>"
     }
 }

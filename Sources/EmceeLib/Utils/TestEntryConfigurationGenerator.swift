@@ -52,6 +52,7 @@ public final class TestEntryConfigurationGenerator {
                         runnerWasteCleanupPolicy: testArgFileEntry.runnerWasteCleanupPolicy
                     ),
                     testTimeoutConfiguration: testArgFileEntry.testTimeoutConfiguration,
+                    testAttachmentLifetime: testArgFileEntry.testAttachmentLifetime,
                     workerCapabilityRequirements: testArgFileEntry.workerCapabilityRequirements
                 )
             }

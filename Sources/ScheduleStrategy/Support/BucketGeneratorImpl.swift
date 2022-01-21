@@ -46,7 +46,8 @@ public class BucketGeneratorImpl: BucketGenerator {
                         testDestination: entry.testDestination,
                         testEntries: group.map { $0.testEntry },
                         testExecutionBehavior: entry.testExecutionBehavior,
-                        testTimeoutConfiguration: entry.testTimeoutConfiguration
+                        testTimeoutConfiguration: entry.testTimeoutConfiguration,
+                        testAttachmentLifetime: entry.testAttachmentLifetime
                     )
                 )
             )

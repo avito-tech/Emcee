@@ -59,6 +59,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 simulatorSettings: simulatorSettings,
                 testDestination: argFileDestination,
                 testTimeoutConfiguration: testTimeoutConfiguration,
+                testAttachmentLifetime: .deleteOnSuccess,
                 testsToRun: [.testName(argFileTestToRun1)],
                 workerCapabilityRequirements: []
             ),
@@ -98,6 +99,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 simulatorSettings: simulatorSettings,
                 testDestination: argFileDestination,
                 testTimeoutConfiguration: testTimeoutConfiguration,
+                testAttachmentLifetime: .deleteOnSuccess,
                 testsToRun: [.testName(argFileTestToRun1), .testName(argFileTestToRun1)],
                 workerCapabilityRequirements: []
             ),
@@ -139,6 +141,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 simulatorSettings: simulatorSettings,
                 testDestination: argFileDestination,
                 testTimeoutConfiguration: testTimeoutConfiguration,
+                testAttachmentLifetime: .deleteOnSuccess,
                 testsToRun: [.allDiscoveredTests],
                 workerCapabilityRequirements: []
             ),

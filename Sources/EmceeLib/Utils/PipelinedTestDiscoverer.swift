@@ -85,6 +85,7 @@ public final class PipelinedTestDiscoverer {
                             runnerWasteCleanupPolicy: testArgFileEntry.runnerWasteCleanupPolicy
                         ),
                         testTimeoutConfiguration: testTimeoutConfigurationForRuntimeDump,
+                        testAttachmentLifetime: testArgFileEntry.testAttachmentLifetime,
                         testsToValidate: testArgFileEntry.testsToRun,
                         xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location,
                         remoteCache: runtimeDumpRemoteCacheProvider.remoteCache(config: remoteCacheConfig),

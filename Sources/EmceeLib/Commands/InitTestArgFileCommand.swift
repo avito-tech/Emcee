@@ -108,6 +108,7 @@ public final class InitTestArgFileCommand: Command {
                     simulatorSettings: TestArgFileDefaultValues.simulatorSettings,
                     testDestination: testDestination,
                     testTimeoutConfiguration: TestArgFileDefaultValues.testTimeoutConfiguration,
+                    testAttachmentLifetime: TestArgFileDefaultValues.testAttachmentLifetime,
                     testsToRun: [
                         .testName(TestName(className: "ClassName", methodName: "test")),
                         .testName(TestName(className: "ClassName", methodName: "testSpecificTestMethodName__youCanRepeatTestNamesMultipleTimes__toMakeTestRunSeveralTimes")),

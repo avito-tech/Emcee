@@ -48,7 +48,8 @@ public final class TestContextFixtures {
             simulatorUdid: simulatorUdid,
             testDestination: testDestination,
             testRunnerWorkingDirectory: testRunnerWorkingDirectory,
-            testsWorkingDirectory: testsWorkingDirectory
+            testsWorkingDirectory: testsWorkingDirectory,
+            testAttachmentLifetime: .deleteOnSuccess
         )
     }
 }

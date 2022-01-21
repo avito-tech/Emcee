@@ -68,6 +68,7 @@ public final class TestEntriesValidator {
                 runnerWasteCleanupPolicy: testArgFileEntry.runnerWasteCleanupPolicy
             ),
             testTimeoutConfiguration: testTimeoutConfigurationForRuntimeDump,
+            testAttachmentLifetime: testArgFileEntry.testAttachmentLifetime,
             testsToValidate: testArgFileEntry.testsToRun,
             xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location,
             remoteCache: remoteCache,

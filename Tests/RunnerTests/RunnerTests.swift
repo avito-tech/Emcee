@@ -563,7 +563,8 @@ public final class RunnerTests: XCTestCase {
             testTimeoutConfiguration: TestTimeoutConfiguration(
                 singleTestMaximumDuration: testTimeout,
                 testRunnerMaximumSilenceDuration: 0
-            )
+            ),
+            testAttachmentLifetime: .deleteOnSuccess
         )
     }
 }

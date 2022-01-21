@@ -135,7 +135,8 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             simulatorUdid: UDID(value: UUID().uuidString),
             testDestination: TestDestinationFixtures.testDestination,
             testRunnerWorkingDirectory: testRunnerWorkingDirectory,
-            testsWorkingDirectory: testsWorkingDirectory
+            testsWorkingDirectory: testsWorkingDirectory,
+            testAttachmentLifetime: .deleteOnSuccess
         )
     }
     

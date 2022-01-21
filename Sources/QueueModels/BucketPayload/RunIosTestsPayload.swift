@@ -15,6 +15,7 @@ public struct RunIosTestsPayload: BucketPayload, CustomStringConvertible, Bucket
     public private(set) var testEntries: [TestEntry]
     public let testExecutionBehavior: TestExecutionBehavior
     public let testTimeoutConfiguration: TestTimeoutConfiguration
+    public let testAttachmentLifetime: TestAttachmentLifetime
 
     public init(
         buildArtifacts: IosBuildArtifacts,
@@ -25,7 +26,8 @@ public struct RunIosTestsPayload: BucketPayload, CustomStringConvertible, Bucket
         testDestination: TestDestination,
         testEntries: [TestEntry],
         testExecutionBehavior: TestExecutionBehavior,
-        testTimeoutConfiguration: TestTimeoutConfiguration
+        testTimeoutConfiguration: TestTimeoutConfiguration,
+        testAttachmentLifetime: TestAttachmentLifetime
     ) {
         self.buildArtifacts = buildArtifacts
         self.developerDir = developerDir
@@ -36,6 +38,7 @@ public struct RunIosTestsPayload: BucketPayload, CustomStringConvertible, Bucket
         self.testEntries = testEntries
         self.testExecutionBehavior = testExecutionBehavior
         self.testTimeoutConfiguration = testTimeoutConfiguration
+        self.testAttachmentLifetime = testAttachmentLifetime
     }
 
     public var description: String {

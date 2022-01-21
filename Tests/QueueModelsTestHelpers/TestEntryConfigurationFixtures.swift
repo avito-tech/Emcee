@@ -107,6 +107,7 @@ public final class TestEntryConfigurationFixtures {
                 testEntry: testEntry,
                 testExecutionBehavior: testExecutionBehavior,
                 testTimeoutConfiguration: testTimeoutConfiguration,
+                testAttachmentLifetime: .deleteOnSuccess,
                 workerCapabilityRequirements: workerCapabilityRequirements
             )
         }

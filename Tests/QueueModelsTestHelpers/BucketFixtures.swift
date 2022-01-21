@@ -47,7 +47,8 @@ public final class BucketFixtures {
             testTimeoutConfiguration: TestTimeoutConfiguration(
                 singleTestMaximumDuration: 0,
                 testRunnerMaximumSilenceDuration: 0
-            )
+            ),
+            testAttachmentLifetime: .deleteOnSuccess
         )
     }
 }

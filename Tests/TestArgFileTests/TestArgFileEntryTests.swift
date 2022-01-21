@@ -151,6 +151,7 @@ final class TestArgFileEntryTests: XCTestCase {
                     singleTestMaximumDuration: 42,
                     testRunnerMaximumSilenceDuration: 24
                 ),
+                testAttachmentLifetime: .deleteOnSuccess,
                 testsToRun: [.testName(TestName(className: "ClassName", methodName: "testMethod"))],
                 workerCapabilityRequirements: []
             )
@@ -218,6 +219,7 @@ final class TestArgFileEntryTests: XCTestCase {
                 simulatorSettings: TestArgFileDefaultValues.simulatorSettings,
                 testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
                 testTimeoutConfiguration: TestArgFileDefaultValues.testTimeoutConfiguration,
+                testAttachmentLifetime: .deleteOnSuccess,
                 testsToRun: [
                     .allDiscoveredTests,
                     .testName(TestName(className: "ClassName", methodName: "testMethod")),

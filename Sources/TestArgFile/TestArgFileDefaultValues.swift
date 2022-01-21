@@ -54,6 +54,7 @@ public enum TestArgFileDefaultValues {
         singleTestMaximumDuration: 180,
         testRunnerMaximumSilenceDuration: 60
     )
+    public static let testAttachmentLifetime: TestAttachmentLifetime = .deleteOnSuccess
     public static let workerCapabilityRequirements: Set<WorkerCapabilityRequirement> = []
     public static let analyticsConfiguration = AnalyticsConfiguration()
     public static let logCapturingMode = LogCapturingMode.onlyCrashLogs
