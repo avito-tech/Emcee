@@ -67,7 +67,7 @@ public final class TestEntriesValidator {
                 logCapturingMode: testArgFileEntry.logCapturingMode,
                 runnerWasteCleanupPolicy: testArgFileEntry.runnerWasteCleanupPolicy
             ),
-            testTimeoutConfiguration: testTimeoutConfigurationForRuntimeDump,
+            testTimeoutConfiguration: testArgFileEntry.testTimeoutConfiguration,
             testAttachmentLifetime: testArgFileEntry.testAttachmentLifetime,
             testsToValidate: testArgFileEntry.testsToRun,
             xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location,
