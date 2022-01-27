@@ -7,7 +7,6 @@ import DeveloperDirLocator
 import DeveloperDirLocatorTestHelpers
 import DeveloperDirModels
 import EmceeTypes
-import Graphite
 import Metrics
 import MetricsExtensions
 import MetricsTestHelpers
@@ -27,6 +26,7 @@ import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
+import Statsd
 import Tmp
 import TestHelpers
 import URLResource
@@ -506,12 +506,13 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         xcResultTool.result = .error(
             ErrorForTestingPurposes(text: "Some error from xcresult tool, e.g. bundle is corrupted")
         )
-        let metricHandler = FakeMetricHandler<GraphiteMetric>()
+        let metricHandler = FakeMetricHandler<StatsdMetric>()
 
         specificMetricRecorder = SpecificMetricRecorderWrapper(
             MetricRecorderImpl(
-                graphiteMetricHandler: metricHandler,
-                statsdMetricHandler: NoOpMetricHandler())
+                graphiteMetricHandler: NoOpMetricHandler(),
+                statsdMetricHandler: metricHandler
+            )
         )
         
         testRunnerStream.streamIsOpen = true

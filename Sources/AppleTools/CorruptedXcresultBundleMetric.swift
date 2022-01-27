@@ -1,8 +1,8 @@
 import Foundation
 import QueueModels
-import Graphite
+import Statsd
 
-public final class CorruptedXcresultBundleMetric: GraphiteMetric {
+public final class CorruptedXcresultBundleMetric: StatsdMetric {
     public init(
         host: String,
         version: Version,
@@ -16,13 +16,12 @@ public final class CorruptedXcresultBundleMetric: GraphiteMetric {
             variableComponents: [
                 host,
                 version.value,
-                GraphiteMetric.reservedField,
-                GraphiteMetric.reservedField,
-                GraphiteMetric.reservedField,
-                GraphiteMetric.reservedField,
+                StatsdMetric.reservedField,
+                StatsdMetric.reservedField,
+                StatsdMetric.reservedField,
+                StatsdMetric.reservedField,
             ],
-            value: 1.0,
-            timestamp: timestamp
+            value: .count(1)
         )
     }
 }
