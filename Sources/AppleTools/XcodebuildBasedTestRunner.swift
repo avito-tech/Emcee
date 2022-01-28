@@ -16,6 +16,7 @@ import RunnerModels
 import Tmp
 import PathLib
 import XcodebuildTestRunnerConstants
+import OSLog
 
 public final class XcodebuildBasedTestRunner: TestRunner {
     private let dateProvider: DateProvider
@@ -100,6 +101,8 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         
         var observableFileReaderHandler: ObservableFileReaderHandler?
         
+        let uuid = UUID().uuidString
+        
         processController.onStart { [logger] sender, _ in
             testRunnerStream.openStream()
             do {
@@ -113,20 +116,33 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                     logger.error("Result stream error: \(error)", subprocessPidInfo: sender.subprocessInfo.pidInfo)
                 }
                 
+                self?.osLogger.debug("\(uuid, privacy: .public) - Stream contents completion")
                 if let strongSelf = self {
                     strongSelf.readResultBundle(
                         path: xcresultBundlePath,
                         specificMetricRecorder: specificMetricRecorder,
-                        testRunnerStream: testRunnerStream
+                        testRunnerStream: testRunnerStream,
+                        uuid: uuid
                     )
                 }
-                
+
                 testRunnerStream.closeStream()
             }
         }
-        processController.onTermination { _, _ in
+        processController.onTermination { [weak self] _, _ in
             observableFileReaderHandler?.cancel()
             resultStream.close()
+            self?.osLogger.debug("\(uuid, privacy: .public) - Result stream is closed")
+            
+//            if let strongSelf = self {
+//                strongSelf.readResultBundle(
+//                    path: xcresultBundlePath,
+//                    specificMetricRecorder: specificMetricRecorder,
+//                    testRunnerStream: testRunnerStream
+//                )
+//            }
+//
+//            testRunnerStream.closeStream()
         }
         return ProcessControllerWrappingTestRunnerInvocation(
             processController: processController
@@ -143,19 +159,36 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         return testRunnerWorkingDirectory.appending("resultBundle.xcresult")
     }
     
+    let osLogger = Logger(subsystem: "ru.avito.emcee", category: "ResultBundle")
+    
     private func readResultBundle(
         path: AbsolutePath,
         specificMetricRecorder: SpecificMetricRecorder,
-        testRunnerStream: TestRunnerStream
+        testRunnerStream: TestRunnerStream,
+        uuid: String
     ) {
+        
         do {
+//            try! FileManager.default.copyItem(
+//                atPath: path.pathString,
+//                toPath: "/Users/tssolonin/Desktop/bundles/normal_\(path.basename)_\(CFAbsoluteTimeGetCurrent())_\(ProcessInfo.processInfo.processIdentifier)_\(UUID().uuidString).xcresult"
+//            )
+            
             let actionsInvocationRecord = try xcResultTool.get(path: path)
             actionsInvocationRecord.issues.testFailureSummaries?.values.forEach{ (testFailureIssueSummary: RSTestFailureIssueSummary) in
                 testRunnerStream.caughtException(
                     testException: testFailureIssueSummary.testException()
                 )
             }
+            
+            osLogger.debug("\(uuid, privacy: .public) - Parsed bundle")
         } catch {
+//            try! FileManager.default.copyItem(
+//                atPath: path.pathString,
+//                toPath: "/Users/tssolonin/Desktop/bundles/\(path.basename)_\(CFAbsoluteTimeGetCurrent())_\(ProcessInfo.processInfo.processIdentifier)_\(UUID().uuidString).xcresult"
+//            )
+            
+            osLogger.debug("\(uuid, privacy: .public) - Failed to parse bundle")
             specificMetricRecorder.capture(
                 CorruptedXcresultBundleMetric(
                     host: host,

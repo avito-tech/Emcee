@@ -6,7 +6,7 @@ public enum QueueServerConfigurationDefaultValues {
     public static let checkAgainTimeInterval: TimeInterval = 30
     public static let queueServerTerminationPolicy: AutomaticTerminationPolicy = .stayAlive
     public static let defaultWorkerConfiguration: WorkerSpecificConfiguration = WorkerSpecificConfiguration(
-        numberOfSimulators: 3,
+        numberOfSimulators: 6,
         maximumCacheSize: 10 * 1024 * 1024 * 1024,
         maximumCacheTTL: 3600
     )
