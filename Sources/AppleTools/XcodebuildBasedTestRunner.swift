@@ -112,21 +112,21 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                 if let error = error {
                     logger.error("Result stream error: \(error)", subprocessPidInfo: sender.subprocessInfo.pidInfo)
                 }
-                
-                if let strongSelf = self {
-                    strongSelf.readResultBundle(
-                        path: xcresultBundlePath,
-                        specificMetricRecorder: specificMetricRecorder,
-                        testRunnerStream: testRunnerStream
-                    )
-                }
-                
-                testRunnerStream.closeStream()
             }
         }
-        processController.onTermination { _, _ in
+        processController.onTermination { [weak self] _, _ in
             observableFileReaderHandler?.cancel()
             resultStream.close()
+            
+            if let strongSelf = self {
+                strongSelf.readResultBundle(
+                    path: xcresultBundlePath,
+                    specificMetricRecorder: specificMetricRecorder,
+                    testRunnerStream: testRunnerStream
+                )
+            }
+
+            testRunnerStream.closeStream()
         }
         return ProcessControllerWrappingTestRunnerInvocation(
             processController: processController
