@@ -108,13 +108,11 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
             do {
                 let workerConfiguration = try result.dematerialize()
                 
-                if let globalAnalyticsConfiguration = workerConfiguration.globalAnalyticsConfiguration {
-                    try strongSelf.di.get(GlobalMetricRecorder.self).set(
-                        analyticsConfiguration: globalAnalyticsConfiguration
-                    )
-                    if let kibanaConfiguration = globalAnalyticsConfiguration.kibanaConfiguration {
-                        try strongSelf.di.get(LoggingSetup.self).set(kibanaConfiguration: kibanaConfiguration)
-                    }
+                try strongSelf.di.get(GlobalMetricRecorder.self).set(
+                    analyticsConfiguration: workerConfiguration.globalAnalyticsConfiguration
+                )
+                if let kibanaConfiguration = workerConfiguration.globalAnalyticsConfiguration.kibanaConfiguration {
+                    try strongSelf.di.get(LoggingSetup.self).set(kibanaConfiguration: kibanaConfiguration)
                 }
                 
                 strongSelf.payloadSignature = .success(workerConfiguration.payloadSignature)

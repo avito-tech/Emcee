@@ -8,7 +8,7 @@ import LoggingSetup
 import QueueModels
 
 public struct QueueServerConfiguration: Codable {
-    public let globalAnalyticsConfiguration: AnalyticsConfiguration?
+    public let globalAnalyticsConfiguration: AnalyticsConfiguration
     public let checkAgainTimeInterval: TimeInterval
     public let queueServerDeploymentDestinations: [DeploymentDestination]
     public let queueServerTerminationPolicy: AutomaticTerminationPolicy
@@ -19,7 +19,7 @@ public struct QueueServerConfiguration: Codable {
     public let useOnlyIPv4: Bool
     
     public init(
-        globalAnalyticsConfiguration: AnalyticsConfiguration?,
+        globalAnalyticsConfiguration: AnalyticsConfiguration,
         checkAgainTimeInterval: TimeInterval,
         queueServerDeploymentDestinations: [DeploymentDestination],
         queueServerTerminationPolicy: AutomaticTerminationPolicy,
@@ -55,7 +55,7 @@ public struct QueueServerConfiguration: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        let globalAnalyticsConfiguration = try container.decodeIfPresentExplaining(AnalyticsConfiguration.self, forKey: .globalAnalyticsConfiguration)
+        let globalAnalyticsConfiguration = try container.decodeIfPresentExplaining(AnalyticsConfiguration.self, forKey: .globalAnalyticsConfiguration) ?? QueueServerConfigurationDefaultValues.globalAnalyticsConfiguration
         let checkAgainTimeInterval = try container.decodeIfPresentExplaining(TimeInterval.self, forKey: .checkAgainTimeInterval) ?? QueueServerConfigurationDefaultValues.checkAgainTimeInterval
         let queueServerDeploymentDestinations = try container.decodeExplaining([DeploymentDestination].self, forKey: .queueServerDeploymentDestinations)
         let queueServerTerminationPolicy = try container.decodeIfPresentExplaining(AutomaticTerminationPolicy.self, forKey: .queueServerTerminationPolicy) ?? QueueServerConfigurationDefaultValues.queueServerTerminationPolicy

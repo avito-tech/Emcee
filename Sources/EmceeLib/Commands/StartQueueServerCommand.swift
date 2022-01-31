@@ -56,19 +56,17 @@ public final class StartQueueServerCommand: Command {
             resourceLocationResolver: try di.get()
         )
         
-        if let globalAnalyticsConfiguration = queueServerConfiguration.globalAnalyticsConfiguration {
-            try di.get(GlobalMetricRecorder.self).set(
-                analyticsConfiguration: globalAnalyticsConfiguration
-            )
-            if let kibanaConfiguration = globalAnalyticsConfiguration.kibanaConfiguration {
-                try di.get(LoggingSetup.self).set(kibanaConfiguration: kibanaConfiguration)
-            }
-            di.set(
-                try di.get(ContextualLogger.self).with(
-                    analyticsConfiguration: globalAnalyticsConfiguration
-                )
-            )
+        try di.get(GlobalMetricRecorder.self).set(
+            analyticsConfiguration: queueServerConfiguration.globalAnalyticsConfiguration
+        )
+        if let kibanaConfiguration = queueServerConfiguration.globalAnalyticsConfiguration.kibanaConfiguration {
+            try di.get(LoggingSetup.self).set(kibanaConfiguration: kibanaConfiguration)
         }
+        di.set(
+            try di.get(ContextualLogger.self).with(
+                analyticsConfiguration: queueServerConfiguration.globalAnalyticsConfiguration
+            )
+        )
         
         di.set(
             BucketGeneratorImpl(uniqueIdentifierGenerator: try di.get()),
