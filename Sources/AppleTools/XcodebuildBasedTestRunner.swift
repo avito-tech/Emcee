@@ -108,7 +108,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                 logger.error("Failed to read stream file: \(error)", subprocessPidInfo: sender.subprocessInfo.pidInfo)
                 return sender.terminateAndForceKillIfNeeded()
             }
-            resultStream.streamContents { [weak self] error in
+            resultStream.streamContents { error in
                 if let error = error {
                     logger.error("Result stream error: \(error)", subprocessPidInfo: sender.subprocessInfo.pidInfo)
                 }
