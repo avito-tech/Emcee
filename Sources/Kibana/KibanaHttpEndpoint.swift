@@ -1,3 +1,4 @@
+import EmceeExtensions
 import Foundation
 import SocketModels
 
@@ -45,13 +46,6 @@ public struct KibanaHttpEndpoint {
     }
     
     public func singleEventUrl(indexPattern: String) throws -> URL {
-        struct FailedToBuildUrlError: Error, CustomStringConvertible {
-            let scheme: Scheme
-            let socketAddress: SocketAddress
-            let path: String
-            var description: String { "Cannot build URL with scheme \(scheme), address \(socketAddress), path \(path)" }
-        }
-        
         let path = "/\(indexPattern)/_doc"
         
         var components = URLComponents()
@@ -59,9 +53,6 @@ public struct KibanaHttpEndpoint {
         components.host = socketAddress.host
         components.port = socketAddress.port.value
         components.path = path
-        guard let url = components.url else {
-            throw FailedToBuildUrlError(scheme: scheme, socketAddress: socketAddress, path: path)
-        }
-        return url
+        return try components.createUrl()
     }
 }

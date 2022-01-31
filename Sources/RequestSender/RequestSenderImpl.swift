@@ -1,4 +1,5 @@
 import Foundation
+import EmceeExtensions
 import EmceeLogging
 import SocketModels
 import Types
@@ -128,9 +129,6 @@ public final class RequestSenderImpl: RequestSender {
         components.host = queueServerAddress.host
         components.port = queueServerAddress.port.value
         components.path = pathWithSlash
-        guard let url = components.url else {
-            throw RequestSenderError.unableToCreateUrl(components)
-        }
-        return url
+        return try components.createUrl()
     }
 }

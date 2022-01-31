@@ -1,3 +1,4 @@
+import EmceeExtensions
 import Foundation
 
 /// A location of the resource.
@@ -52,7 +53,7 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
             return decoded
         }
         let components = try urlComponents(string)
-        guard let url = components.url else { throw ValidationError.cannotCreateUrl(string) }
+        let url = try components.createUrl()
         if url.isFileURL {
             return try withPathString(string)
         } else {
@@ -80,7 +81,7 @@ public enum ResourceLocation: Hashable, CustomStringConvertible, Codable {
     
     private static func withoutValueValidation(_ string: String, _ headers: [String: String]?) throws -> ResourceLocation {
         let components = try urlComponents(string)
-        guard let url = components.url else { throw ValidationError.cannotCreateUrl(string) }
+        let url = try components.createUrl()
         if url.isFileURL {
             return .localFilePath(string)
         } else {

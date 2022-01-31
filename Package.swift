@@ -750,6 +750,7 @@ let package = Package(
             name: "Kibana",
             dependencies: [
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
+                "EmceeExtensions",
                 .product(name: "SocketModels", package: "CommandLineToolkit"),
             ],
             path: "Sources/Kibana"
@@ -1361,6 +1362,7 @@ let package = Package(
         .target(
             name: "RequestSender",
             dependencies: [
+                "EmceeExtensions",
                 "EmceeLogging",
                 .product(name: "SocketModels", package: "CommandLineToolkit"),
                 .product(name: "Types", package: "CommandLineToolkit"),
@@ -1390,6 +1392,7 @@ let package = Package(
         .target(
             name: "ResourceLocation",
             dependencies: [
+                "EmceeExtensions",
                 .product(name: "PathLib", package: "CommandLineToolkit"),
             ],
             path: "Sources/ResourceLocation"
