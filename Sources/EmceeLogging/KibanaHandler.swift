@@ -8,7 +8,9 @@ public final class KibanaLoggerHandler: LoggerHandler {
     private let group = DispatchGroup()
     private let kibanaClient: KibanaClient
     
-    public static let skipMetadataFlag = "skipKibana"
+    public enum SkipMetadataFlags: String {
+        case skippingKibana
+    }
     
     public init(kibanaClient: KibanaClient) {
         self.kibanaClient = kibanaClient
@@ -31,7 +33,7 @@ public final class KibanaLoggerHandler: LoggerHandler {
         function: String,
         line: UInt
     ) {
-        guard metadata?[Self.skipMetadataFlag] == nil else { return }
+        guard metadata?[Self.SkipMetadataFlags.skippingKibana.rawValue] == nil else { return }
         
         var kibanaPayload = [
             "fileLine": "\(file.lastPathComponent):\(line)",
@@ -69,4 +71,10 @@ public final class KibanaLoggerHandler: LoggerHandler {
     
     public var metadata: Logging.Logger.Metadata = [:]
     public var logLevel: Logging.Logger.Level = .debug
+}
+
+extension ContextualLogger {
+    public var skippingKibana: ContextualLogger {
+        withMetadata(key: KibanaLoggerHandler.SkipMetadataFlags.skippingKibana.rawValue, value: "true")
+    }
 }

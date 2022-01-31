@@ -10,7 +10,6 @@ import EventBus
 import FileSystem
 import Foundation
 import LocalHostDeterminer
-import LoggingSetup
 import Metrics
 import MetricsExtensions
 import PathLib

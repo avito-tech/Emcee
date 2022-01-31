@@ -4,7 +4,6 @@ import DistWorkerModels
 import EmceeExtensions
 import Foundation
 import MetricsExtensions
-import LoggingSetup
 import QueueModels
 
 public struct QueueServerConfiguration: Codable {

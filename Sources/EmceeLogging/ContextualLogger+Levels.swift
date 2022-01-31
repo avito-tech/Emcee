@@ -42,12 +42,4 @@ public extension ContextualLogger {
         }
         return self
     }
-    
-    var skippingStdOutput: ContextualLogger {
-        withMetadata(key: FileHandleLoggerHandler.SkipMetadataFlag.skipStdOutput.rawValue, value: "true")
-    }
-    
-    var skippingKibana: ContextualLogger {
-        withMetadata(key: KibanaLoggerHandler.skipMetadataFlag, value: "true")
-    }
 }

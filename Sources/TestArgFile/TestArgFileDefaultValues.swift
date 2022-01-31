@@ -2,7 +2,6 @@ import BuildArtifacts
 import DeveloperDirModels
 import EmceeExtensions
 import Foundation
-import LoggingSetup
 import MetricsExtensions
 import PluginSupport
 import QueueModels

@@ -10,7 +10,6 @@ import FileCache
 import FileSystem
 import Foundation
 import LocalHostDeterminer
-import LoggingSetup
 import Logging
 import Metrics
 import MetricsExtensions
@@ -70,12 +69,11 @@ public final class InProcessMain {
         let logsTimeToLive = TimeUnit.days(5)
         
         let logCleaningQueue = OperationQueue()
-        di.set(
-            LoggingSetup(
-                dateProvider: try di.get(),
-                fileSystem: try di.get()
-            )
+        let loggingSetup = LoggingSetup(
+            dateProvider: try di.get(),
+            fileSystem: try di.get()
         )
+        di.set(loggingSetup)
         
         let logger = try setupLogging(di: di, logsTimeToLive: logsTimeToLive, queue: logCleaningQueue)
             .withMetadata(key: .hostname, value: LocalHostDeterminer.currentHostAddress)
@@ -86,7 +84,7 @@ public final class InProcessMain {
         
         defer {
             let timeout: TimeInterval = 10
-            LoggingSetup.tearDown(timeout: timeout)
+            loggingSetup.tearDown(timeout: timeout)
             specificMetricRecorderProvider.tearDown(timeout: timeout)
             globalMetricRecorder.tearDown(timeout: timeout)
             logCleaningQueue.waitUntilAllOperationsAreFinished()
@@ -251,7 +249,8 @@ public final class InProcessMain {
         let loggingSetup: LoggingSetup = try di.get()
         let logger = try loggingSetup.setupLogging(
             stderrVerbosity: .info,
-            detailedLogVerbosity: .debug
+            detailedLogVerbosity: .debug,
+            hostname: LocalHostDeterminer.currentHostAddress
         )
         
         try loggingSetup.cleanUpLogs(

@@ -10,9 +10,9 @@ public final class FileHandleLoggerHandler: LoggerHandler {
     private let verbosity: Verbosity
     private let logEntryTextFormatter: LogEntryTextFormatter
     private let fileHandleShouldBeClosed: Bool
-    private let skipMetadataFlag: SkipMetadataFlag?
+    private let skipMetadataFlag: SkipMetadataFlags?
     
-    public enum SkipMetadataFlag: String {
+    public enum SkipMetadataFlags: String {
         case skipStdOutput
         case skipFileOutput
     }
@@ -23,7 +23,7 @@ public final class FileHandleLoggerHandler: LoggerHandler {
         verbosity: Verbosity,
         logEntryTextFormatter: LogEntryTextFormatter,
         fileHandleShouldBeClosed: Bool,
-        skipMetadataFlag: SkipMetadataFlag?
+        skipMetadataFlag: SkipMetadataFlags?
     ) {
         self.dateProvider = dateProvider
         self.fileState = AtomicValue(FileState.open(fileHandle))
@@ -115,5 +115,15 @@ extension Logging.Logger.Level {
         case .critical:
             return .error
         }
+    }
+}
+
+extension ContextualLogger {
+    public var skippingStdOutput: ContextualLogger {
+        withMetadata(key: FileHandleLoggerHandler.SkipMetadataFlags.skipStdOutput.rawValue, value: "true")
+    }
+    
+    public var skippingFileLogOutput: ContextualLogger {
+        withMetadata(key: FileHandleLoggerHandler.SkipMetadataFlags.skipFileOutput.rawValue, value: "true")
     }
 }

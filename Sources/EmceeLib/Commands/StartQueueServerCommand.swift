@@ -9,7 +9,6 @@ import Foundation
 import LocalHostDeterminer
 import LocalQueueServerRunner
 import EmceeLogging
-import LoggingSetup
 import Metrics
 import MetricsExtensions
 import PluginManager

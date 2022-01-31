@@ -4,7 +4,6 @@ import Types
 import Deployer
 import DistDeployer
 import Foundation
-import LoggingSetup
 import MetricsExtensions
 import TestArgFile
 import TestDiscovery

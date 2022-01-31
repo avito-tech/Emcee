@@ -11,7 +11,7 @@ let package = Package(
         .library(name: "EmceePlugin", targets: ["EmceeLogging", "Plugin"]),
         .library(name: "EmceeCommunications", targets: ["PortDeterminer", "QueueClient", "QueueCommunication", "RemotePortDeterminer", "RequestSender"]),
         .library(name: "EmceeInterfaces", targets: ["BuildArtifacts", "DeveloperDirModels", "EmceeVersion", "PluginSupport", "QueueModels", "ResourceLocation", "ResourceLocationResolver", "RunnerModels", "SimulatorPoolModels", "SimulatorVideoRecorder", "TestArgFile", "TestDiscovery", "TestsWorkingDirectorySupport", "TypedResourceLocation", "WorkerAlivenessModels", "WorkerCapabilitiesModels", "XcodebuildTestRunnerConstants"]),
-        .library(name: "EmceeGuts", targets: ["AppleTools", "ArgLib", "AutomaticTermination", "BalancingBucketQueue", "BucketQueue", "BucketQueueModels", "BuildArtifacts", "ChromeTracing", "Deployer", "DeveloperDirLocator", "DeveloperDirModels", "DistDeployer", "DistWorker", "DistWorkerModels", "EmceeDI", "EmceeExtensions", "EmceeLib", "EmceeLogging", "EmceeTypes", "EmceeVersion", "EventBus", "FileCache", "FileLock", "JunitReporting", "Kibana", "ListeningSemaphore", "LocalHostDeterminer", "LocalQueueServerRunner", "LoggingSetup", "MetricsExtensions", "ObservableFileReader", "Plugin", "PluginManager", "PluginSupport", "PortDeterminer", "QueueClient", "QueueCommunication", "QueueCommunicationModels", "QueueModels", "QueueServer", "QueueServerPortProvider", "RemotePortDeterminer", "RequestSender", "ResourceLocation", "ResourceLocationResolver", "RESTInterfaces", "RESTMethods", "RESTServer", "ResultStream", "ResultStreamModels", "Runner", "RunnerModels", "Scheduler", "ScheduleStrategy", "SimulatorPool", "SimulatorPoolModels", "SimulatorVideoRecorder", "SSHDeployer", "TestArgFile", "TestDiscovery", "TestHistoryModels", "TestHistoryStorage", "TestHistoryTracker", "TestsWorkingDirectorySupport", "TypedResourceLocation", "UniqueIdentifierGenerator", "URLResource", "WorkerAlivenessModels", "WorkerAlivenessProvider", "WorkerCapabilities", "WorkerCapabilitiesModels", "XcodebuildTestRunnerConstants"]),
+        .library(name: "EmceeGuts", targets: ["AppleTools", "ArgLib", "AutomaticTermination", "BalancingBucketQueue", "BucketQueue", "BucketQueueModels", "BuildArtifacts", "ChromeTracing", "Deployer", "DeveloperDirLocator", "DeveloperDirModels", "DistDeployer", "DistWorker", "DistWorkerModels", "EmceeDI", "EmceeExtensions", "EmceeLib", "EmceeLogging", "EmceeTypes", "EmceeVersion", "EventBus", "FileCache", "FileLock", "JunitReporting", "Kibana", "ListeningSemaphore", "LocalHostDeterminer", "LocalQueueServerRunner", "MetricsExtensions", "ObservableFileReader", "Plugin", "PluginManager", "PluginSupport", "PortDeterminer", "QueueClient", "QueueCommunication", "QueueCommunicationModels", "QueueModels", "QueueServer", "QueueServerPortProvider", "RemotePortDeterminer", "RequestSender", "ResourceLocation", "ResourceLocationResolver", "RESTInterfaces", "RESTMethods", "RESTServer", "ResultStream", "ResultStreamModels", "Runner", "RunnerModels", "Scheduler", "ScheduleStrategy", "SimulatorPool", "SimulatorPoolModels", "SimulatorVideoRecorder", "SSHDeployer", "TestArgFile", "TestDiscovery", "TestHistoryModels", "TestHistoryStorage", "TestHistoryTracker", "TestsWorkingDirectorySupport", "TypedResourceLocation", "UniqueIdentifierGenerator", "URLResource", "WorkerAlivenessModels", "WorkerAlivenessProvider", "WorkerCapabilities", "WorkerCapabilitiesModels", "XcodebuildTestRunnerConstants"]),
     ],
     dependencies: [
         .package(name: "CommandLineToolkit", url: "https://github.com/avito-tech/CommandLineToolkit.git", .exact("1.0.9")),
@@ -408,7 +408,6 @@ let package = Package(
                 "EventBus",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
                 "LocalHostDeterminer",
-                "LoggingSetup",
                 .product(name: "Metrics", package: "CommandLineToolkit"),
                 "MetricsExtensions",
                 .product(name: "PathLib", package: "CommandLineToolkit"),
@@ -438,7 +437,6 @@ let package = Package(
             name: "DistWorkerModels",
             dependencies: [
                 .product(name: "CLTExtensions", package: "CommandLineToolkit"),
-                "LoggingSetup",
                 "MetricsExtensions",
                 "QueueModels",
                 "RESTInterfaces",
@@ -449,7 +447,6 @@ let package = Package(
             name: "DistWorkerModelsTestHelpers",
             dependencies: [
                 "DistWorkerModels",
-                "LoggingSetup",
                 "MetricsExtensions",
                 "QueueModels",
             ],
@@ -545,7 +542,6 @@ let package = Package(
                 "LocalHostDeterminer",
                 "LocalQueueServerRunner",
                 .product(name: "Logging", package: "swift-log"),
-                "LoggingSetup",
                 .product(name: "Metrics", package: "CommandLineToolkit"),
                 "MetricsExtensions",
                 .product(name: "PathLib", package: "CommandLineToolkit"),
@@ -602,7 +598,6 @@ let package = Package(
                 "EmceeLogging",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
                 .product(name: "FileSystemTestHelpers", package: "CommandLineToolkit"),
-                "LoggingSetup",
                 "MetricsExtensions",
                 .product(name: "MetricsTestHelpers", package: "CommandLineToolkit"),
                 .product(name: "PathLib", package: "CommandLineToolkit"),
@@ -632,11 +627,15 @@ let package = Package(
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
                 "EmceeExtensions",
                 "EmceeVersion",
+                .product(name: "FileSystem", package: "CommandLineToolkit"),
                 "Kibana",
                 .product(name: "Logging", package: "swift-log"),
+                .product(name: "Metrics", package: "CommandLineToolkit"),
                 "MetricsExtensions",
+                .product(name: "PathLib", package: "CommandLineToolkit"),
                 .product(name: "ProcessController", package: "CommandLineToolkit"),
                 "QueueModels",
+                .product(name: "Tmp", package: "CommandLineToolkit"),
             ],
             path: "Sources/EmceeLogging"
         ),
@@ -784,7 +783,6 @@ let package = Package(
         .target(
             name: "LocalHostDeterminer",
             dependencies: [
-                "EmceeLogging",
             ],
             path: "Sources/LocalHostDeterminer"
         ),
@@ -819,7 +817,6 @@ let package = Package(
                 "Deployer",
                 "DistDeployer",
                 "LocalQueueServerRunner",
-                "LoggingSetup",
                 "MetricsExtensions",
                 .product(name: "ProcessControllerTestHelpers", package: "CommandLineToolkit"),
                 "QueueCommunicationTestHelpers",
@@ -836,22 +833,6 @@ let package = Package(
                 "UniqueIdentifierGenerator",
             ],
             path: "Tests/LocalQueueServerRunnerTests"
-        ),
-        .target(
-            name: "LoggingSetup",
-            dependencies: [
-                .product(name: "DateProvider", package: "CommandLineToolkit"),
-                "EmceeLogging",
-                .product(name: "FileSystem", package: "CommandLineToolkit"),
-                "Kibana",
-                "LocalHostDeterminer",
-                .product(name: "Logging", package: "swift-log"),
-                .product(name: "Metrics", package: "CommandLineToolkit"),
-                "MetricsExtensions",
-                .product(name: "PathLib", package: "CommandLineToolkit"),
-                .product(name: "Tmp", package: "CommandLineToolkit"),
-            ],
-            path: "Sources/LoggingSetup"
         ),
         .testTarget(
             name: "LoggingTests",
@@ -918,7 +899,7 @@ let package = Package(
                 "EventBus",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
                 .product(name: "JSONStream", package: "CommandLineToolkit"),
-                "LoggingSetup",
+                "LocalHostDeterminer",
                 "PluginSupport",
                 .product(name: "Starscream", package: "Starscream"),
                 .product(name: "SynchronousWaiter", package: "CommandLineToolkit"),
@@ -1190,7 +1171,6 @@ let package = Package(
                 "Deployer",
                 "DistWorkerModels",
                 "EmceeExtensions",
-                "LoggingSetup",
                 "MetricsExtensions",
                 "QueueModels",
             ],
@@ -1801,7 +1781,6 @@ let package = Package(
                 "BuildArtifacts",
                 "DeveloperDirModels",
                 "EmceeExtensions",
-                "LoggingSetup",
                 "MetricsExtensions",
                 "PluginSupport",
                 "QueueModels",
@@ -1817,7 +1796,6 @@ let package = Package(
             dependencies: [
                 "BuildArtifacts",
                 "BuildArtifactsTestHelpers",
-                "LoggingSetup",
                 "MetricsExtensions",
                 "PluginSupport",
                 "QueueModels",

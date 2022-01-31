@@ -1,6 +1,5 @@
 import EmceeExtensions
 import Foundation
-import LoggingSetup
 import MetricsExtensions
 import QueueModels
 

@@ -2,7 +2,6 @@ import EmceeDI
 import Foundation
 import EmceeLogging
 import EmceeExtensions
-import LoggingSetup
 import PathLib
 import ProcessController
 

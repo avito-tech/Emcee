@@ -170,7 +170,6 @@
           "ListeningSemaphore",
           "LocalHostDeterminer",
           "LocalQueueServerRunner",
-          "LoggingSetup",
           "MetricsExtensions",
           "ObservableFileReader",
           "Plugin",

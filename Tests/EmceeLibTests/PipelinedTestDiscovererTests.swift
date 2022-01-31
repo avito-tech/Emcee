@@ -4,7 +4,6 @@ import BuildArtifactsTestHelpers
 import EmceeLogging
 import EmceeLib
 import Foundation
-import LoggingSetup
 import PathLib
 import QueueModels
 import SimulatorPoolTestHelpers

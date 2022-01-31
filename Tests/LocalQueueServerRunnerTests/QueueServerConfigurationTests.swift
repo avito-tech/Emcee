@@ -3,7 +3,6 @@ import Deployer
 import Foundation
 import LocalQueueServerRunner
 import MetricsExtensions
-import LoggingSetup
 import QueueModels
 import QueueServerConfiguration
 import SocketModels

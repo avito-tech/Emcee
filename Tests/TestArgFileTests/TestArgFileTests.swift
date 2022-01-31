@@ -1,6 +1,5 @@
 import BuildArtifacts
 import Foundation
-import LoggingSetup
 import MetricsExtensions
 import QueueModels
 import ResourceLocation

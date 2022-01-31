@@ -1,7 +1,6 @@
 import DistWorkerModels
 import Foundation
 import MetricsExtensions
-import LoggingSetup
 import QueueModels
 
 public final class WorkerConfigurationFixtures {

@@ -1,16 +1,16 @@
 import DateProvider
 import Dispatch
-import EmceeLogging
 import FileSystem
 import Foundation
 import Kibana
-import LocalHostDeterminer
 import Logging
 import Metrics
 import MetricsExtensions
 import PathLib
 import Tmp
 
+/// Only single instance of `LoggingSetup` should exist!
+/// Because swift-log is singleton (see `LoggingSystem.bootstrap {}`)
 public final class LoggingSetup {
     private let dateProvider: DateProvider
     private let fileSystem: FileSystem
@@ -18,17 +18,24 @@ public final class LoggingSetup {
     private let logFilePrefix = "pid_"
     private let logFilesCleanUpRegularity: TimeInterval = 10800
     
+    private let aggregatedLoggerHandler: AggregatedLoggerHandler
+    
+    public let rootLoggerHandler: LoggerHandler
+    
     public init(
         dateProvider: DateProvider,
         fileSystem: FileSystem
     ) {
         self.dateProvider = dateProvider
         self.fileSystem = fileSystem
+        self.aggregatedLoggerHandler = AggregatedLoggerHandler(handlers: [])
+        self.rootLoggerHandler = self.aggregatedLoggerHandler
     }
     
     public func setupLogging(
         stderrVerbosity: Verbosity,
-        detailedLogVerbosity: Verbosity
+        detailedLogVerbosity: Verbosity,
+        hostname: String
     ) throws -> ContextualLogger {
         let filename = logFilePrefix + String(ProcessInfo.processInfo.processIdentifier)
         let detailedLogPath = try TemporaryFile(
@@ -38,24 +45,24 @@ public final class LoggingSetup {
             deleteOnDealloc: false
         )
         
-        GlobalLoggerConfig.loggerHandler.append(
-            handler: createStderrInfoLoggerHandler(
+        add(
+            loggerHandler: createStderrInfoLoggerHandler(
                 verbosity: stderrVerbosity
             )
         )
-        GlobalLoggerConfig.loggerHandler.append(
-            handler: createDetailedLoggerHandler(
+        add(
+            loggerHandler: createDetailedLoggerHandler(
                 fileHandle: detailedLogPath.fileHandleForWriting,
                 verbosity: detailedLogVerbosity
             )
         )
         
-        LoggingSystem.bootstrap { _ in GlobalLoggerConfig.loggerHandler }
+        LoggingSystem.bootstrap { [aggregatedLoggerHandler] _ in aggregatedLoggerHandler }
         
         let logger = ContextualLogger(logger: Logger(label: "emcee"), addedMetadata: [:])
         
         logger.info("To fetch detailed verbose log:")
-        logger.info("$ scp \(NSUserName())@\(LocalHostDeterminer.currentHostAddress):\(detailedLogPath.absolutePath) /tmp/\(filename).log && open /tmp/\(filename).log")
+        logger.info("$ scp \(NSUserName())@\(hostname):\(detailedLogPath.absolutePath) /tmp/\(filename).log && open /tmp/\(filename).log")
         
         return logger
     }
@@ -69,7 +76,7 @@ public final class LoggingSetup {
                 urlSession: .shared
             )
         )
-        GlobalLoggerConfig.loggerHandler.append(handler: handler)
+        add(loggerHandler: handler)
     }
     
     public func childProcessLogsContainerProvider() throws -> ChildProcessLogsContainerProvider {
@@ -79,8 +86,12 @@ public final class LoggingSetup {
         )
     }
     
-    public static func tearDown(timeout: TimeInterval) {
-        GlobalLoggerConfig.loggerHandler.tearDownLogging(timeout: timeout)
+    public func add(loggerHandler: LoggerHandler) {
+        aggregatedLoggerHandler.append(handler: loggerHandler)
+    }
+    
+    public func tearDown(timeout: TimeInterval) {
+        aggregatedLoggerHandler.tearDownLogging(timeout: timeout)
     }
     
     public func cleanUpLogs(

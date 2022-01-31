@@ -9,7 +9,6 @@ import EmceeVersion
 import FileSystem
 import Foundation
 import EmceeLogging
-import LoggingSetup
 import Metrics
 import MetricsExtensions
 import PathLib

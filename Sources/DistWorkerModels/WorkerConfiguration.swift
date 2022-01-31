@@ -1,6 +1,5 @@
 import Foundation
 import MetricsExtensions
-import LoggingSetup
 import QueueModels
 
 public struct WorkerConfiguration: Codable, Equatable {

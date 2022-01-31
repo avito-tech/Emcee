@@ -6,7 +6,7 @@ import FileSystem
 import Foundation
 import JSONStream
 import EmceeLogging
-import LoggingSetup
+import LocalHostDeterminer
 import PluginSupport
 import SynchronousWaiter
 
@@ -29,7 +29,11 @@ public final class Plugin {
     /// - Parameters:
     ///     - eventBus:             The event bus which will receive the events from the main process
     public init(eventBus: EventBus) throws {
-        self.logger = try loggingSetup.setupLogging(stderrVerbosity: Verbosity.info, detailedLogVerbosity: .debug)
+        self.logger = try loggingSetup.setupLogging(
+            stderrVerbosity: Verbosity.info,
+            detailedLogVerbosity: .debug,
+            hostname: LocalHostDeterminer.currentHostAddress
+        )
         self.eventBus = eventBus
         self.jsonStreamToEventBusAdapter = JSONStreamToEventBusAdapter(
             eventBus: eventBus,
@@ -52,7 +56,7 @@ public final class Plugin {
         try? SynchronousWaiter().waitWhile(description: "Wait for JSON stream to finish") {
             return jsonStreamHasFinished == false
         }
-        LoggingSetup.tearDown(timeout: 10)
+        loggingSetup.tearDown(timeout: 10)
     }
     
     private func automaticallyInterruptOnTearDown() {
