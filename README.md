@@ -53,7 +53,7 @@ You will need to grant SSH access to your machines.
 
 We will be using two machines: `ios-build-machine77` and `ios-build-machine78`.
 
-![machines](Resources/machines.webp)
+![machines](https://raw.github.com/avito-tech/Emcee/master/Resources/machines.webp)
 
 * `ios-build-machine77` will be a worker and a queue - it will provide workers with tests to execute and execute some of those tests.
 * `ios-build-machine78` will be a worker - it will only execute tests.
@@ -70,7 +70,7 @@ Emcee uses ssh to deploy itself to the machines specified as `queue` and `worker
 $ open "x-apple.systempreferences:com.apple.preferences.sharing?Services_RemoteLogin"
 ```
 
-![Remote Login SSH Settings](Resources/remote_login_ssh_settings.webp)
+![Remote Login SSH Settings](https://raw.github.com/avito-tech/Emcee/master/Resources/remote_login_ssh_settings.webp)
 
 Now make sure that machines are accessible by ssh. For example:
 
@@ -230,7 +230,7 @@ Finally, we will run XCUI tests by adding a `--runner` option and changing the `
 
 This is how the test run will look:
 
-![running_tests](Resources/running_tests_vstack.webp)
+![running_tests](https://raw.github.com/avito-tech/Emcee/master/Resources/running_tests_vstack.webp)
 
 ## Advanced Emcee configuration <a name="advanced_emcee"></a>
 
