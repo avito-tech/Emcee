@@ -23,6 +23,7 @@ import SynchronousWaiter
 import TestHistoryStorage
 import TestHistoryTracker
 import UniqueIdentifierGenerator
+import WhatIsMyAddress
 import WorkerAlivenessProvider
 import WorkerCapabilities
 
@@ -45,7 +46,7 @@ public final class QueueServerImpl: QueueServer {
     private let stuckBucketsPoller: StuckBucketsPoller
     private let testsEnqueuer: TestsEnqueuer
     private let toggleWorkersSharingEndpoint: ToggleWorkersSharingEndpoint
-    private let whatIsMyIpEndpoint: WhatIsMyIpEndpoint
+    private let whatIsMyAddressEndpoint: WhatIsMyAddressEndpoint
     private let workerAlivenessMetricCapturer: WorkerAlivenessMetricCapturer
     private let workerAlivenessPoller: WorkerAlivenessPoller
     private let workerAlivenessProvider: WorkerAlivenessProvider
@@ -278,7 +279,7 @@ public final class QueueServerImpl: QueueServer {
         self.toggleWorkersSharingEndpoint = ToggleWorkersSharingEndpoint(
             autoupdatingWorkerPermissionProvider: autoupdatingWorkerPermissionProvider
         )
-        self.whatIsMyIpEndpoint = WhatIsMyIpEndpoint()
+        self.whatIsMyAddressEndpoint = WhatIsMyAddressEndpoint()
     }
     
     public func start() throws -> SocketModels.Port {
@@ -293,7 +294,7 @@ public final class QueueServerImpl: QueueServer {
         httpRestServer.add(handler: RESTEndpointOf(queueServerVersionHandler))
         httpRestServer.add(handler: RESTEndpointOf(scheduleTestsHandler))
         httpRestServer.add(handler: RESTEndpointOf(toggleWorkersSharingEndpoint))
-        httpRestServer.add(handler: RESTEndpointOf(whatIsMyIpEndpoint))
+        httpRestServer.add(handler: RESTEndpointOf(whatIsMyAddressEndpoint))
         httpRestServer.add(handler: RESTEndpointOf(workerIdsEndpoint))
         httpRestServer.add(handler: RESTEndpointOf(workerRegistrar))
         httpRestServer.add(handler: RESTEndpointOf(workerStatusEndpoint))

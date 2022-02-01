@@ -579,6 +579,7 @@ let package = Package(
                 .product(name: "Types", package: "CommandLineToolkit"),
                 "URLResource",
                 "UniqueIdentifierGenerator",
+                "WhatIsMyAddress",
                 "WorkerAlivenessProvider",
                 "WorkerCapabilities",
                 "WorkerCapabilitiesModels",
@@ -1157,6 +1158,7 @@ let package = Package(
                 .product(name: "Timer", package: "CommandLineToolkit"),
                 .product(name: "Types", package: "CommandLineToolkit"),
                 "UniqueIdentifierGenerator",
+                "WhatIsMyAddress",
                 "WorkerAlivenessModels",
                 "WorkerAlivenessProvider",
                 "WorkerCapabilities",
@@ -2027,6 +2029,33 @@ let package = Package(
                 "UniqueIdentifierGenerator",
             ],
             path: "Tests/UniqueIdentifierGeneratorTestHelpers"
+        ),
+        .target(
+            name: "WhatIsMyAddress",
+            dependencies: [
+                .product(name: "AtomicModels", package: "CommandLineToolkit"),
+                "DistWorkerModels",
+                "EmceeLogging",
+                "QueueModels",
+                "RESTInterfaces",
+                "RESTMethods",
+                "RESTServer",
+                "RequestSender",
+                .product(name: "SocketModels", package: "CommandLineToolkit"),
+                .product(name: "Swifter", package: "Swifter"),
+                .product(name: "SynchronousWaiter", package: "CommandLineToolkit"),
+                .product(name: "Types", package: "CommandLineToolkit"),
+                "WorkerAlivenessProvider",
+            ],
+            path: "Sources/WhatIsMyAddress"
+        ),
+        .target(
+            name: "WhatIsMyAddressTestHelpers",
+            dependencies: [
+                .product(name: "Types", package: "CommandLineToolkit"),
+                "WhatIsMyAddress",
+            ],
+            path: "Sources/WhatIsMyAddressTestHelpers"
         ),
         .target(
             name: "WorkerAlivenessModels",

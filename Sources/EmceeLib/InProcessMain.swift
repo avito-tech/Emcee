@@ -24,6 +24,7 @@ import SynchronousWaiter
 import TestDiscovery
 import URLResource
 import UniqueIdentifierGenerator
+import WhatIsMyAddress
 import Zip
 
 public final class InProcessMain {
@@ -217,6 +218,19 @@ public final class InProcessMain {
                 waiter: try di.get()
             ),
             for: RunnerProvider.self
+        )
+        di.set(
+            MyAddressFetcherProviderImpl(
+                requestSenderProvider: try di.get()
+            ),
+            for: MyAddressFetcherProvider.self
+        )
+        di.set(
+            SynchronousMyAddressFetcherProviderImpl(
+                myAddressFetcherProvider: try di.get(),
+                waiter: try di.get()
+            ),
+            for: SynchronousMyAddressFetcherProvider.self
         )
         
         let commandInvoker = CommandInvoker(

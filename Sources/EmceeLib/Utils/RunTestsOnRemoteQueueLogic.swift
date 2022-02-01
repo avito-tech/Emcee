@@ -53,10 +53,10 @@ final class RunTestsOnRemoteQueueLogic {
         
         di.set(
             SwifterRemotelyAccessibleUrlForLocalFileProvider(
-                server: httpRestServer,
-                requestSenderProvider: try di.get(),
                 queueServerAddress: runningQueueServerAddress,
+                server: httpRestServer,
                 serverRoot: "/build-artifacts/",
+                synchronousMyAddressFetcherProvider: try di.get(),
                 uniqueIdentifierGenerator: try di.get()
             ),
             for: RemotelyAccessibleUrlForLocalFileProvider.self

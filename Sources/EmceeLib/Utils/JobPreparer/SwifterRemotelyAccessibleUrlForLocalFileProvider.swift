@@ -8,25 +8,26 @@ import SocketModels
 import Swifter
 import Types
 import UniqueIdentifierGenerator
+import WhatIsMyAddress
 
 public final class SwifterRemotelyAccessibleUrlForLocalFileProvider: RemotelyAccessibleUrlForLocalFileProvider {
     private let server: HTTPRESTServer
-    private let requestSenderProvider: RequestSenderProvider
     private let queueServerAddress: SocketAddress
     private let serverRoot: AbsolutePath
+    private let synchronousMyAddressFetcherProvider: SynchronousMyAddressFetcherProvider
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     
     public init(
-        server: HTTPRESTServer,
-        requestSenderProvider: RequestSenderProvider,
         queueServerAddress: SocketAddress,
+        server: HTTPRESTServer,
         serverRoot: AbsolutePath,
+        synchronousMyAddressFetcherProvider: SynchronousMyAddressFetcherProvider,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator
     ) {
-        self.server = server
-        self.requestSenderProvider = requestSenderProvider
         self.queueServerAddress = queueServerAddress
+        self.server = server
         self.serverRoot = serverRoot
+        self.synchronousMyAddressFetcherProvider = synchronousMyAddressFetcherProvider
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
     }
     
@@ -58,28 +59,11 @@ public final class SwifterRemotelyAccessibleUrlForLocalFileProvider: RemotelyAcc
             localFilePath: archivePath
         )
         
-        let group = DispatchGroup()
-        group.enter()
-        var response: Either<WhatIsMyIpRequest.Response, RequestSenderError>?
-        requestSenderProvider.requestSender(socketAddress: queueServerAddress).sendRequestWithCallback(
-            request: WhatIsMyIpRequest(payload: WhatIsMyIpPayload()),
-            callbackQueue: DispatchQueue(label: "SwifterRemotelyAccessibleUrlForLocalFileProvider.syncQueue"),
-            callback: {
-                response = $0
-                group.leave()
-            }
+        let address = try synchronousMyAddressFetcherProvider.create(
+            queueAddress: queueServerAddress
+        ).fetch(
+            timeout: 10
         )
-        group.wait()
-        
-        let address: String
-        switch response {
-        case nil:
-            throw Errors.missingResponse
-        case .right(let error):
-            throw error
-        case .left(let response):
-            address = response.address
-        }
         
         var urlComponents = URLComponents()
         urlComponents.scheme = "http"
