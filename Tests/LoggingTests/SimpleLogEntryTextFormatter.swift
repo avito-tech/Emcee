@@ -1,5 +1,6 @@
 import Foundation
 import EmceeLogging
+import EmceeLoggingModels
 
 final class SimpleLogEntryTextFormatter: LogEntryTextFormatter {
     func format(logEntry: LogEntry) -> String {
@@ -7,7 +8,7 @@ final class SimpleLogEntryTextFormatter: LogEntryTextFormatter {
         result += "\(logEntry.timestamp)"
         
         if !logEntry.coordinates.isEmpty {
-            result += " " + logEntry.coordinates.joined(separator: " ")
+            result += " " + logEntry.coordinates.map { $0.stringValue }.joined(separator: " ")
         }
         
         result += ":"

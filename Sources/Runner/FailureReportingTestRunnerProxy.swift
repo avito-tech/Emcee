@@ -2,6 +2,7 @@ import BuildArtifacts
 import DateProvider
 import DeveloperDirLocator
 import EmceeLogging
+import EmceeLoggingModels
 import MetricsExtensions
 import SimulatorPoolModels
 import Tmp

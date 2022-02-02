@@ -1,6 +1,6 @@
 import Foundation
 
-public enum Verbosity: UInt, Comparable {
+public enum Verbosity: UInt, Codable, Comparable {
     /// Detailed debug info suitable for tracing program execution
     case trace = 999
     /// Debug logs

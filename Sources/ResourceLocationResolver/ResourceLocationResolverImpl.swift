@@ -111,7 +111,7 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
         let evictBarrierDate = Date().addingTimeInterval(-cacheElementTimeToLive)
         
         var evictedEntryPaths = (try? urlResource.evictResources(olderThan: evictBarrierDate)) ?? []
-        logger.trace("Evicted \(evictedEntryPaths.count) cached items older than: \(LoggableDate(evictBarrierDate))")
+        logger.trace("Evicted \(evictedEntryPaths.count) cached items older than: \(evictBarrierDate.loggable())")
         evictedEntryPaths = (try? urlResource.evictResources(toFitSize: maximumCacheSize)) ?? []
         logger.trace("Evicted \(evictedEntryPaths.count) cached items to limit cache size to \(maximumCacheSize) bytes")
     }

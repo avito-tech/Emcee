@@ -1,8 +1,9 @@
-import EmceeVersion
+import DateProvider
+import EmceeLoggingModels
 import Foundation
-import Logging
 import ProcessController
 import QueueModels
+import EmceeLoggingModels
 
 /// # Philosophy behind a contextual logging system
 /// Each layer of a software might want to log different information on top of other information added by layers on top.
@@ -18,49 +19,75 @@ import QueueModels
 /// `process executor` will again append its own metadata and use new instance to log its stuff.
 /// This way metadata can be derived between layers of software, extending it where needed, and still allowing layers to log data with its set of metadata without being affected by other layers.
 public final class ContextualLogger {
-    private let logger: Logging.Logger
+    private let dateProvider: DateProvider
+    private let loggerHandler: LoggerHandler
+    private let metadata: [String: String?]
     
-    public enum ContextKeys: String {
+    public enum ContextKeys: String, CaseIterable {
+        /// Id of a subprocess started by Emcee process
         case subprocessId
+        
+        /// Name of a subprocess started by Emcee process
         case subprocessName
+        
+        /// Emcee process id
         case processId
+        
+        /// Emcee process name
         case processName
+        
+        /// Worker id
         case workerId
+        
+        /// Command being executed by Emcee process, e.g. `runTests`
         case emceeCommand
+        
+        /// Emcee version
         case emceeVersion
+        
+        /// Id (or type) of a job which is persistent across jobs, e.g. `E2eTests`
         case persistentMetricsJobId
+        
+        /// Hostname where Emcee process is being executed
         case hostname
+        
+        /// If subprocess is started via `xcrun`, this key contains a name of a launched tool, e.g. `simctl`
         case xcrunToolName
+        
+        public static func stringSetForAllRawValues() -> Set<String> {
+            Set(allCases.map { $0.rawValue })
+        }
     }
     
     public static let noOp: ContextualLogger = ContextualLogger(
-        logger: Logging.Logger(
-            label: "no-op",
-            factory: { _ in SwiftLogNoOpLogHandler() }
-        ),
-        addedMetadata: [:]
+        dateProvider: SystemDateProvider(),
+        loggerHandler: AggregatedLoggerHandler(handlers: []),
+        metadata: [:]
     )
 
-    public init(logger: Logging.Logger, addedMetadata: [String: String]) {
-        self.logger = logger
-        self.addedMetadata = addedMetadata
+    public init(
+        dateProvider: DateProvider,
+        loggerHandler: LoggerHandler,
+        metadata: [String: String?]
+    ) {
+        self.dateProvider = dateProvider
+        self.loggerHandler = loggerHandler
+        self.metadata = metadata
     }
     
-    private let addedMetadata: [String: String]
-    
-    func withMetadata(_ keyValues: [String: String]) -> ContextualLogger {
-        var addedMetadata = self.addedMetadata
-        addedMetadata.merge(keyValues) { _, new -> String in new }
-        return ContextualLogger(logger: logger, addedMetadata: addedMetadata)
+    public func withMetadata(_ keyValues: [String: String?]) -> ContextualLogger {
+        var metadata = self.metadata
+        metadata.merge(keyValues) { _, new -> String? in new }
+        return ContextualLogger(dateProvider: dateProvider, loggerHandler: loggerHandler, metadata: metadata)
     }
     
-    public func withMetadata(key: String, value: String) -> ContextualLogger {
-        var addedMetadata = self.addedMetadata
-        addedMetadata[key] = value
-        return ContextualLogger(logger: logger, addedMetadata: addedMetadata)
+    public func withMetadata(key: String, value: String?) -> ContextualLogger {
+        var metadata = self.metadata
+        metadata[key] = value
+        return ContextualLogger(dateProvider: dateProvider, loggerHandler: loggerHandler, metadata: metadata)
     }
     
-    public func withMetadata(key: ContextKeys, value: String) -> ContextualLogger {
+    public func withMetadata(key: ContextKeys, value: String?) -> ContextualLogger {
         withMetadata(key: key.rawValue, value: value)
     }
     
@@ -75,33 +102,34 @@ public final class ContextualLogger {
         function: String,
         line: UInt
     ) {
-        var metadata: Logging.Logger.Metadata = [:]
-        
-        for keyValue in addedMetadata {
-            metadata[keyValue.key] = .string(keyValue.value)
-        }
+        var flattenedMetadata = self.metadata
         
         if let subprocessPidInfo = subprocessPidInfo {
-            metadata[ContextKeys.subprocessId.rawValue] = .string("\(subprocessPidInfo.pid)")
-            metadata[ContextKeys.subprocessName.rawValue] = .string(subprocessPidInfo.name)
+            flattenedMetadata[ContextKeys.subprocessId.rawValue] = "\(subprocessPidInfo.pid)"
+            flattenedMetadata[ContextKeys.subprocessName.rawValue] = "\(subprocessPidInfo.name)"
         }
         
         if let workerId = workerId {
-            metadata[ContextKeys.workerId.rawValue] = .string(workerId.value)
+            flattenedMetadata[ContextKeys.workerId.rawValue] = workerId.value
         }
         
         if let persistentMetricsJobId = persistentMetricsJobId {
-            metadata[ContextKeys.persistentMetricsJobId.rawValue] = .string(persistentMetricsJobId)
+            flattenedMetadata[ContextKeys.persistentMetricsJobId.rawValue] = persistentMetricsJobId
         }
         
-        logger.log(
-            level: verbosity.level,
-            "\(message)",
-            metadata: metadata,
-            source: source,
+        let coordinates = flattenedMetadata.map { (key: String, value: String?) in
+            LogEntryCoordinate(name: key, value: value)
+        }
+        
+        let logEntry = LogEntry(
             file: file,
-            function: function,
-            line: line
+            line: line,
+            coordinates: coordinates,
+            message: message,
+            timestamp: dateProvider.currentDate(),
+            verbosity: verbosity
         )
+        
+        loggerHandler.handle(logEntry: logEntry)
     }
 }

@@ -14,8 +14,7 @@ public final class EnqueuedBucket: Hashable, Comparable, CustomStringConvertible
     }
     
     public var description: String {
-        let formattedTimestamp = NSLogLikeLogEntryTextFormatter.logDateFormatter.string(from: enqueueTimestamp)
-        return "<\(type(of: self)) at \(formattedTimestamp) uniqueIdentifier: \(uniqueIdentifier) bucket: \(bucket)>"
+        return "<\(type(of: self)) at \(enqueueTimestamp.loggable()) uniqueIdentifier: \(uniqueIdentifier) bucket: \(bucket)>"
     }
     
     public func hash(into hasher: inout Hasher) {

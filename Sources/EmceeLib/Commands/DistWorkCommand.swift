@@ -7,6 +7,7 @@ import EmceeVersion
 import FileSystem
 import Foundation
 import EmceeLogging
+import EmceeLoggingModels
 import Metrics
 import PathLib
 import PluginManager

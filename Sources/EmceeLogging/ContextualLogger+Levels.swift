@@ -1,3 +1,4 @@
+import EmceeLoggingModels
 import Foundation
 import QueueModels
 
@@ -30,16 +31,5 @@ public extension ContextualLogger {
         _ message: String, subprocessPidInfo: PidInfo? = nil, workerId: WorkerId? = nil, persistentMetricsJobId: String? = nil, source: String? = nil, file: String = #file, function: String = #function, line: UInt = #line
     ) {
         log(.warning, message, subprocessPidInfo: subprocessPidInfo, workerId: workerId, persistentMetricsJobId: persistentMetricsJobId, source: source, file: file, function: function, line: line)
-    }
-    
-    func withMetadata(key: ContextKeys, value: String?) -> ContextualLogger {
-        withMetadata(key: key.rawValue, value: value)
-    }
-    
-    func withMetadata(key: String, value: String?) -> ContextualLogger {
-        if let value = value {
-            return withMetadata(key: key, value: value)
-        }
-        return self
     }
 }

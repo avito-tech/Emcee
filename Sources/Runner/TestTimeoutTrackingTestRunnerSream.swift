@@ -77,7 +77,7 @@ public final class TestTimeoutTrackingTestRunnerSream: TestRunnerStream {
     }
     
     private func didDetectLongRunningTest(lastStartedTestInfo: LastStartedTestInfo) {
-        logger().warning("Detected a long running test: \(lastStartedTestInfo.testName) was running for more than \(LoggableDuration(maximumTestDuration)), test started at: \(LoggableDate(lastStartedTestInfo.testStartedAt.date))")
+        logger().warning("Detected a long running test: \(lastStartedTestInfo.testName) was running for more than \(maximumTestDuration.loggableInSeconds()), test started at: \(lastStartedTestInfo.testStartedAt.date.loggable())")
         
         detectedLongRunningTest(lastStartedTestInfo.testName, lastStartedTestInfo.testStartedAt)
     }

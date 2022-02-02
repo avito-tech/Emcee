@@ -1,16 +1,14 @@
 import DateProvider
 import Dispatch
 import FileSystem
+import EmceeLoggingModels
 import Foundation
 import Kibana
-import Logging
 import Metrics
 import MetricsExtensions
 import PathLib
 import Tmp
 
-/// Only single instance of `LoggingSetup` should exist!
-/// Because swift-log is singleton (see `LoggingSystem.bootstrap {}`)
 public final class LoggingSetup {
     private let dateProvider: DateProvider
     private let fileSystem: FileSystem
@@ -57,9 +55,11 @@ public final class LoggingSetup {
             )
         )
         
-        LoggingSystem.bootstrap { [aggregatedLoggerHandler] _ in aggregatedLoggerHandler }
-        
-        let logger = ContextualLogger(logger: Logger(label: "emcee"), addedMetadata: [:])
+        let logger = ContextualLogger(
+            dateProvider: dateProvider,
+            loggerHandler: rootLoggerHandler,
+            metadata: [:]
+        )
         
         logger.info("To fetch detailed verbose log:")
         logger.info("$ scp \(NSUserName())@\(hostname):\(detailedLogPath.absolutePath) /tmp/\(filename).log && open /tmp/\(filename).log")

@@ -1,11 +1,12 @@
 import DateProvider
 import Dispatch
+import EmceeLogging
+import EmceeLoggingModels
 import EventBus
 import EmceeExtensions
 import FileSystem
 import Foundation
 import JSONStream
-import EmceeLogging
 import LocalHostDeterminer
 import PluginSupport
 import SynchronousWaiter

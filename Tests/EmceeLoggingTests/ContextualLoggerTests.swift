@@ -1,39 +1,84 @@
-import Logging
+import DateProviderTestHelpers
 import EmceeLogging
+import EmceeLoggingModels
 import EmceeLoggingTestHelpers
 import Foundation
-import Logging
 import QueueModels
+import TestHelpers
 import XCTest
 
 final class ContextualLoggerTests: XCTestCase {
-    lazy var handler = FakeLoggerHandle()
+    lazy var dateProvider = DateProviderFixture()
+    lazy var loggerHandler = FakeLoggerHandle()
+    lazy var logger = ContextualLogger(
+        dateProvider: dateProvider,
+        loggerHandler: loggerHandler,
+        metadata: [:]
+    )
     
     func test___basic_logging() {
-        let logger = ContextualLogger(logger: Logging.Logger(label: "label", factory: { _ in handler }), addedMetadata: [:])
-        logger.debug("hello")
+        logger.debug("hello", file: "file", line: 42)
         
-        XCTAssertTrue(handler.logCalls.count == 1)
-        XCTAssertTrue(handler.logCalls[0].message == "hello")
-        XCTAssertEqual(handler.logCalls[0].metadata?.isEmpty, true)
+        assert {
+            loggerHandler.logEntries
+        } equals: {
+            [
+                LogEntry(
+                    file: "file",
+                    line: 42,
+                    coordinates: [],
+                    message: "hello",
+                    timestamp: dateProvider.currentDate(),
+                    verbosity: .debug
+                )
+            ]
+        }
     }
     
     func test___chained_logger_with_metadata() {
-        let logger = ContextualLogger(logger: Logging.Logger(label: "label", factory: { _ in handler }), addedMetadata: [:])
+        logger
             .withMetadata(key: "new", value: "metadata")
-        logger.debug("hello")
+            .debug("hello", file: "file", line: 42)
         
-        XCTAssertTrue(handler.logCalls.count == 1)
-        XCTAssertEqual(handler.logCalls[0].metadata, ["new": "metadata"])
+        assert {
+            loggerHandler.logEntries
+        } equals: {
+            [
+                LogEntry(
+                    file: "file",
+                    line: 42,
+                    coordinates: [
+                        LogEntryCoordinate(name: "new", value: "metadata"),
+                    ],
+                    message: "hello",
+                    timestamp: dateProvider.currentDate(),
+                    verbosity: .debug
+                )
+            ]
+        }
     }
     
     func test___chained_logger_with_overriden_metadata() {
-        let logger = ContextualLogger(logger: Logging.Logger(label: "label", factory: { _ in handler }), addedMetadata: [:])
-            .withMetadata(key: .workerId, value: "abc")
+        let logger = logger
+            .withMetadata(key: .workerId, value: "oldValue")
+            
+        logger.debug("hello", workerId: "newValue", file: "file", line: 42)
         
-        logger.debug("workerId", workerId: WorkerId("workerId"))
-        
-        XCTAssertTrue(handler.logCalls.count == 1)
-        XCTAssertEqual(handler.logCalls[0].metadata, ["workerId": "workerId"])
+        assert {
+            loggerHandler.logEntries
+        } equals: {
+            [
+                LogEntry(
+                    file: "file",
+                    line: 42,
+                    coordinates: [
+                        LogEntryCoordinate(name: "workerId", value: "newValue"),
+                    ],
+                    message: "hello",
+                    timestamp: dateProvider.currentDate(),
+                    verbosity: .debug
+                )
+            ]
+        }
     }
 }

@@ -53,15 +53,6 @@
                 "Shout"
             ]
         },
-        "swift-log": {
-            "url": "https://github.com/apple/swift-log.git",
-            "version": {
-                "exact": "1.4.1"
-            },
-            "targetNames": [
-                "Logging"
-            ]
-        },
         "Socket": {
             "url": "https://github.com/IBM-Swift/BlueSocket",
             "version": {

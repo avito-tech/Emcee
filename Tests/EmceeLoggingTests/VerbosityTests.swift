@@ -1,4 +1,5 @@
 import EmceeLogging
+import EmceeLoggingModels
 import Foundation
 import TestHelpers
 import XCTest

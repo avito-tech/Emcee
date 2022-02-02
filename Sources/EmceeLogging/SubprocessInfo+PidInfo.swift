@@ -1,3 +1,4 @@
+import EmceeLoggingModels
 import Foundation
 import ProcessController
 

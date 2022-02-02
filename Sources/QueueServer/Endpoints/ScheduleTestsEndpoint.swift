@@ -89,7 +89,7 @@ private struct NoSuitableWorkerAppearedError: Error, CustomStringConvertible {
     let timeout: TimeInterval
     
     var description: String {
-        "Some worker requirements cannot be met after waiting for \(LoggableDuration(timeout)) for any worker with suitable capabilities to appear: " +
+        "Some worker requirements cannot be met after waiting for \(timeout.loggableInSeconds()) for any worker with suitable capabilities to appear: " +
             testEntryConfigurationsWithUnmetRequirements.map { "\($0)" }.joined(separator: ", ")
     }
 }

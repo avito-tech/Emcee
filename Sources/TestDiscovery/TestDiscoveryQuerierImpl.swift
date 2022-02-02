@@ -152,7 +152,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             } catch {
                 let pauseDuration = TimeInterval(retryIndex) * 2.0
                 logger.error("[\(retryIndex)/\(times)] Failed to get runtime dump for test bundle \(xcTestBundleLocation): \(error)")
-                logger.trace("Waiting for \(LoggableDuration(pauseDuration, suffix: "sec")) before attempting again")
+                logger.trace("Waiting for \(pauseDuration.loggableInSeconds()) before attempting again")
                 waiter.wait(timeout: pauseDuration, description: "Pause between runtime dump retries")
             }
         }

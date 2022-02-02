@@ -1,5 +1,6 @@
 import Foundation
-@testable import EmceeLogging
+import EmceeLogging
+import EmceeLoggingModels
 import XCTest
 
 final class NSLogLikeLogEntryTextFormatterTests: XCTestCase {
@@ -8,8 +9,8 @@ final class NSLogLikeLogEntryTextFormatterTests: XCTestCase {
             file: "file",
             line: 42,
             coordinates: [
-                "some",
-                "coordinates",
+                LogEntryCoordinate(name: "some"),
+                LogEntryCoordinate(name: "coordinate", value: "value"),
             ],
             message: "message",
             timestamp: Date(),
@@ -21,7 +22,7 @@ final class NSLogLikeLogEntryTextFormatterTests: XCTestCase {
         
         XCTAssertEqual(
             text,
-            "[ALWAYS] \(expectedTimestamp) file:42 some coordinates: message"
+            "[ALWAYS] \(expectedTimestamp) file:42 some coordinate:value: message"
         )
     }
 }

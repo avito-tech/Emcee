@@ -1,3 +1,4 @@
+import EmceeLoggingModels
 import Foundation
 import ProcessController
 import QueueModels
@@ -54,9 +55,7 @@ public extension ContextualLogger {
         function: String,
         line: UInt
     ) {
-        let logger = withMetadata(
-            key: "subprocessPipe", value: subprocessPipe.rawValue
-        )
+        let logger = withMetadata(key: "subprocessPipe", value: subprocessPipe.rawValue)
         guard let string = String(data: data, encoding: .utf8) else {
             logger.error(
                 "Failed to get string from data (\(data.count) bytes), BASE64: \(data.base64EncodedString())",

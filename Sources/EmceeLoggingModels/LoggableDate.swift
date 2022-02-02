@@ -16,3 +16,11 @@ public final class LoggableDate: CustomStringConvertible {
         dateFormatter.string(from: date)
     }
 }
+
+extension Date {
+    public func loggable(
+        dateFormatter: DateFormatter = NSLogLikeLogEntryTextFormatter.logDateFormatter
+    ) -> LoggableDate {
+        LoggableDate(self, dateFormatter: dateFormatter)
+    }
+}

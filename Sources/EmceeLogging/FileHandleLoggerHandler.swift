@@ -1,8 +1,8 @@
 import AtomicModels
 import DateProvider
 import EmceeExtensions
+import EmceeLoggingModels
 import Foundation
-import Logging
 
 public final class FileHandleLoggerHandler: LoggerHandler {
     private let dateProvider: DateProvider
@@ -11,6 +11,7 @@ public final class FileHandleLoggerHandler: LoggerHandler {
     private let logEntryTextFormatter: LogEntryTextFormatter
     private let fileHandleShouldBeClosed: Bool
     private let skipMetadataFlag: SkipMetadataFlags?
+    private let coordinateNamesToSkipFromTextualOutput: Set<String>
     
     public enum SkipMetadataFlags: String {
         case skipStdOutput
@@ -23,19 +24,38 @@ public final class FileHandleLoggerHandler: LoggerHandler {
         verbosity: Verbosity,
         logEntryTextFormatter: LogEntryTextFormatter,
         fileHandleShouldBeClosed: Bool,
-        skipMetadataFlag: SkipMetadataFlags?
+        skipMetadataFlag: SkipMetadataFlags?,
+        coordinateNamesToSkipFromTextualOutput: Set<String> = ContextualLogger.ContextKeys.stringSetForAllRawValues()
     ) {
         self.dateProvider = dateProvider
         self.fileState = AtomicValue(FileState.open(fileHandle))
         self.verbosity = verbosity
         self.logEntryTextFormatter = logEntryTextFormatter
         self.fileHandleShouldBeClosed = fileHandleShouldBeClosed
-        self.logLevel = verbosity.level
         self.skipMetadataFlag = skipMetadataFlag
+        self.coordinateNamesToSkipFromTextualOutput = coordinateNamesToSkipFromTextualOutput
     }
     
     public func handle(logEntry: LogEntry) {
         guard logEntry.verbosity <= verbosity else { return }
+        
+        if let skipMetadataFlag = skipMetadataFlag, logEntry.coordinates.contains(where: { $0.name == skipMetadataFlag.rawValue }) {
+            return
+        }
+        
+        var coordinates = logEntry.coordinates.filter {
+            !coordinateNamesToSkipFromTextualOutput.contains($0.name)
+        }
+        
+        if let subprocessId = logEntry.coordinate(name: ContextualLogger.ContextKeys.subprocessId.rawValue)?.value {
+            if let xcrunToolName = logEntry.coordinate(name: ContextualLogger.ContextKeys.xcrunToolName.rawValue)?.value {
+                coordinates.append(LogEntryCoordinate(name: xcrunToolName, value: "\(subprocessId)"))
+            } else if let subprocessName = logEntry.coordinate(name: ContextualLogger.ContextKeys.subprocessName.rawValue)?.value {
+                coordinates.append(LogEntryCoordinate(name: subprocessName, value: "\(subprocessId)"))
+            }
+        }
+        
+        let logEntry = logEntry.with(coordinates: coordinates)
         
         let text = logEntryTextFormatter.format(logEntry: logEntry)
         fileState.withExclusiveAccess { fileState in
@@ -51,79 +71,14 @@ public final class FileHandleLoggerHandler: LoggerHandler {
             }
         }
     }
-    
-    public func log(
-        level: Logging.Logger.Level,
-        message: Logging.Logger.Message,
-        metadata: Logging.Logger.Metadata?,
-        source: String,
-        file: String,
-        function: String,
-        line: UInt
-    ) {
-        if let skipMetadataFlag = skipMetadataFlag, metadata?[skipMetadataFlag.rawValue] != nil { return }
-        
-        var coordinates = [String]()
-        if let subprocessId = metadata?[ContextualLogger.ContextKeys.subprocessId.rawValue] {
-            if let xcrunToolName = metadata?[ContextualLogger.ContextKeys.xcrunToolName.rawValue]{
-                coordinates.append("\(xcrunToolName):\(subprocessId)")
-            } else if let subprocessName = metadata?[ContextualLogger.ContextKeys.subprocessName.rawValue] {
-                coordinates.append("\(subprocessName):\(subprocessId)")
-            }
-        }
-        
-        let entry = LogEntry(
-            file: file,
-            line: line,
-            coordinates: coordinates,
-            message: message.description,
-            timestamp: dateProvider.currentDate(),
-            verbosity: level.verbosity
-        )
-        handle(logEntry: entry)
-    }
-    
-    public var logLevel: Logging.Logger.Level
-    
-    public var metadata: Logging.Logger.Metadata = [:]
-    
-    public subscript(metadataKey _: String) -> Logging.Logger.Metadata.Value? {
-        get {
-            return nil
-        }
-        set(newValue) {
-            
-        }
-    }
-}
-
-extension Logging.Logger.Level {
-    var verbosity: Verbosity {
-        switch self {
-        case .trace:
-            return .trace
-        case .debug:
-            return .debug
-        case .info:
-            return .info
-        case .notice:
-            return .info
-        case .warning:
-            return .warning
-        case .error:
-            return .error
-        case .critical:
-            return .error
-        }
-    }
 }
 
 extension ContextualLogger {
     public var skippingStdOutput: ContextualLogger {
-        withMetadata(key: FileHandleLoggerHandler.SkipMetadataFlags.skipStdOutput.rawValue, value: "true")
+        withMetadata(key: FileHandleLoggerHandler.SkipMetadataFlags.skipStdOutput.rawValue, value: nil)
     }
     
     public var skippingFileLogOutput: ContextualLogger {
-        withMetadata(key: FileHandleLoggerHandler.SkipMetadataFlags.skipFileOutput.rawValue, value: "true")
+        withMetadata(key: FileHandleLoggerHandler.SkipMetadataFlags.skipFileOutput.rawValue, value: nil)
     }
 }

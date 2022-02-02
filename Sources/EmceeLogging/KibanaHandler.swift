@@ -1,7 +1,7 @@
 import EmceeExtensions
+import EmceeLoggingModels
 import Foundation
 import Kibana
-import Logging
 import MetricsExtensions
 
 public final class KibanaLoggerHandler: LoggerHandler {
@@ -17,44 +17,23 @@ public final class KibanaLoggerHandler: LoggerHandler {
     }
     
     public func handle(logEntry: LogEntry) {
-        // no-op and should not be used.
-    }
-    
-    public func tearDownLogging(timeout: TimeInterval) {
-        _ = group.wait(timeout: .now() + timeout)
-    }
-    
-    public func log(
-        level: Logging.Logger.Level,
-        message: Logging.Logger.Message,
-        metadata: Logging.Logger.Metadata?,
-        source: String,
-        file: String,
-        function: String,
-        line: UInt
-    ) {
-        guard metadata?[Self.SkipMetadataFlags.skippingKibana.rawValue] == nil else { return }
-        
-        var kibanaPayload = [
-            "fileLine": "\(file.lastPathComponent):\(line)",
-        ]
-        
-        for keyValue in metadata ?? [:] {
-            switch keyValue.value {
-            case let .string(value):
-                kibanaPayload[keyValue.key] = value
-            case let .stringConvertible(value):
-                kibanaPayload[keyValue.key] = value.description
-            case .array, .dictionary:
-                break
-            }
+        guard !logEntry.coordinates.contains(where: { $0.name == SkipMetadataFlags.skippingKibana.rawValue }) else {
+            return
         }
         
         do {
+            var kibanaPayload = [
+                "fileLine": "\(logEntry.file):\(logEntry.line)"
+            ]
+            
+            for keyValue in logEntry.coordinates {
+                kibanaPayload[keyValue.name] = keyValue.value ?? "null"
+            }
+            
             group.enter()
             try kibanaClient.send(
-                level: level.rawValue,
-                message: message.description,
+                level: logEntry.verbosity.levelForKibana,
+                message: logEntry.message,
                 metadata: kibanaPayload
             ) { [group] _ in
                 group.leave()
@@ -64,17 +43,19 @@ public final class KibanaLoggerHandler: LoggerHandler {
         }
     }
     
-    public subscript(metadataKey _: String) -> Logging.Logger.Metadata.Value? {
-        get { nil }
-        set(newValue) {}
+    public func tearDownLogging(timeout: TimeInterval) {
+        _ = group.wait(timeout: .now() + timeout)
     }
-    
-    public var metadata: Logging.Logger.Metadata = [:]
-    public var logLevel: Logging.Logger.Level = .debug
 }
 
 extension ContextualLogger {
     public var skippingKibana: ContextualLogger {
-        withMetadata(key: KibanaLoggerHandler.SkipMetadataFlags.skippingKibana.rawValue, value: "true")
+        withMetadata(key: KibanaLoggerHandler.SkipMetadataFlags.skippingKibana.rawValue, value: nil)
+    }
+}
+
+extension Verbosity {
+    var levelForKibana: String {
+        stringCode.lowercased()
     }
 }

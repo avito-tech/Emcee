@@ -1,6 +1,7 @@
 import BuildArtifacts
 import DeveloperDirLocator
 import EmceeLogging
+import EmceeLoggingModels
 import Foundation
 import MetricsExtensions
 import ProcessController

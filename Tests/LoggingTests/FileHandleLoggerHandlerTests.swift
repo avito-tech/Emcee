@@ -1,6 +1,7 @@
 import DateProviderTestHelpers
-import Foundation
 import EmceeLogging
+import EmceeLoggingModels
+import Foundation
 import TestHelpers
 import Tmp
 import XCTest
@@ -55,7 +56,10 @@ final class FileHandleLoggerHandlerTests: XCTestCase {
         let logEntry = LogEntry(
             file: "file",
             line: 42,
-            coordinates: ["coordinate", "123"],
+            coordinates: [
+                LogEntryCoordinate(name: "coordinate"),
+                LogEntryCoordinate(name: "123"),
+            ],
             message: "message",
             timestamp: Date(),
             verbosity: Verbosity.info
@@ -65,6 +69,34 @@ final class FileHandleLoggerHandlerTests: XCTestCase {
         XCTAssertEqual(
             try tempFileContents(),
             SimpleLogEntryTextFormatter().format(logEntry: logEntry) + "\n"
+        )
+    }
+    
+    func test___handling_coordinates___alters_message___filters_out_context_key_coordinates() throws {
+        let logEntry = LogEntry(
+            file: "file",
+            line: 42,
+            coordinates: [
+                LogEntryCoordinate(name: "coordinate"),
+                LogEntryCoordinate(name: "123"),
+                LogEntryCoordinate(name: ContextualLogger.ContextKeys.workerId.rawValue, value: "value"),
+            ],
+            message: "message",
+            timestamp: Date(),
+            verbosity: Verbosity.info
+        )
+        loggerHandler.handle(logEntry: logEntry)
+        
+        XCTAssertEqual(
+            try tempFileContents(),
+            SimpleLogEntryTextFormatter().format(
+                logEntry: logEntry.with(
+                    coordinates: [
+                        LogEntryCoordinate(name: "coordinate"),
+                        LogEntryCoordinate(name: "123"),
+                    ]
+                )
+            ) + "\n"
         )
     }
     

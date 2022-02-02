@@ -21,7 +21,6 @@ let package = Package(
         .package(name: "Socket", url: "https://github.com/IBM-Swift/BlueSocket", .exact("1.0.46")),
         .package(name: "Starscream", url: "https://github.com/daltoniam/Starscream.git", .exact("3.0.6")),
         .package(name: "Swifter", url: "https://github.com/httpswift/swifter.git", .exact("1.5.0")),
-        .package(name: "swift-log", url: "https://github.com/apple/swift-log.git", .exact("1.4.1")),
     ],
     targets: [
         .target(
@@ -534,6 +533,7 @@ let package = Package(
                 "EmceeDI",
                 "EmceeExtensions",
                 "EmceeLogging",
+                "EmceeLoggingModels",
                 "EmceeVersion",
                 "EventBus",
                 "FileCache",
@@ -541,7 +541,6 @@ let package = Package(
                 "JunitReporting",
                 "LocalHostDeterminer",
                 "LocalQueueServerRunner",
-                .product(name: "Logging", package: "swift-log"),
                 .product(name: "Metrics", package: "CommandLineToolkit"),
                 "MetricsExtensions",
                 .product(name: "PathLib", package: "CommandLineToolkit"),
@@ -627,10 +626,9 @@ let package = Package(
                 .product(name: "AtomicModels", package: "CommandLineToolkit"),
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
                 "EmceeExtensions",
-                "EmceeVersion",
+                "EmceeLoggingModels",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
                 "Kibana",
-                .product(name: "Logging", package: "swift-log"),
                 .product(name: "Metrics", package: "CommandLineToolkit"),
                 "MetricsExtensions",
                 .product(name: "PathLib", package: "CommandLineToolkit"),
@@ -641,20 +639,27 @@ let package = Package(
             path: "Sources/EmceeLogging"
         ),
         .target(
+            name: "EmceeLoggingModels",
+            dependencies: [
+            ],
+            path: "Sources/EmceeLoggingModels"
+        ),
+        .target(
             name: "EmceeLoggingTestHelpers",
             dependencies: [
                 "EmceeLogging",
-                .product(name: "Logging", package: "swift-log"),
+                "EmceeLoggingModels",
             ],
             path: "Tests/EmceeLoggingTestHelpers"
         ),
         .testTarget(
             name: "EmceeLoggingTests",
             dependencies: [
+                .product(name: "DateProviderTestHelpers", package: "CommandLineToolkit"),
                 "EmceeLogging",
+                "EmceeLoggingModels",
                 "EmceeLoggingTestHelpers",
                 "Kibana",
-                .product(name: "Logging", package: "swift-log"),
                 "QueueModels",
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
             ],
@@ -835,11 +840,18 @@ let package = Package(
             ],
             path: "Tests/LocalQueueServerRunnerTests"
         ),
+        .target(
+            name: "LogStreaming",
+            dependencies: [
+            ],
+            path: "Sources/LogStreaming"
+        ),
         .testTarget(
             name: "LoggingTests",
             dependencies: [
                 .product(name: "DateProviderTestHelpers", package: "CommandLineToolkit"),
                 "EmceeLogging",
+                "EmceeLoggingModels",
                 "EmceeLoggingTestHelpers",
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
@@ -897,6 +909,7 @@ let package = Package(
                 .product(name: "DateProvider", package: "CommandLineToolkit"),
                 "EmceeExtensions",
                 "EmceeLogging",
+                "EmceeLoggingModels",
                 "EventBus",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
                 .product(name: "JSONStream", package: "CommandLineToolkit"),
@@ -1493,6 +1506,7 @@ let package = Package(
                 "DeveloperDirLocator",
                 "DeveloperDirModels",
                 "EmceeLogging",
+                "EmceeLoggingModels",
                 "EmceeTypes",
                 "EventBus",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
@@ -1534,6 +1548,7 @@ let package = Package(
                 "DeveloperDirLocator",
                 "DeveloperDirModels",
                 "EmceeLogging",
+                "EmceeLoggingModels",
                 "EmceeTypes",
                 "MetricsExtensions",
                 .product(name: "PathLib", package: "CommandLineToolkit"),

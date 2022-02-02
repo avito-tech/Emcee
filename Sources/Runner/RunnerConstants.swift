@@ -17,7 +17,7 @@ public enum RunnerConstants: CustomStringConvertible {
         case .failedToStartTestRunner(let error):
             return "Test runner failed to start with error: \(error)"
         case .testTimeout(_, let duration):
-            return "Test timed out. Test has been running longer than the given duration (\(LoggableDuration(duration)))"
+            return "Test timed out. Test has been running longer than the given duration (\(duration.loggableInSeconds()))"
         }
     }
     

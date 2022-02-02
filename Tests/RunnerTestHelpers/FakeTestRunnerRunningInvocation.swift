@@ -1,5 +1,6 @@
 import Foundation
 import EmceeLogging
+import EmceeLoggingModels
 import ProcessController
 import Runner
 

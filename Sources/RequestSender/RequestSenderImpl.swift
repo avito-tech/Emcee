@@ -84,7 +84,7 @@ public final class RequestSenderImpl: RequestSender {
         callbackQueue: DispatchQueue,
         callback: @escaping (Either<ResponseType, RequestSenderError>) -> ()
     ) {
-        let logger = self.logger.withMetadata(key: "url", value: "\(url)")
+        let logger = self.logger.withMetadata(key: "url", value: url.absoluteString)
         
         let dataTask = urlSession.dataTask(with: urlRequest) { (data: Data?, response: URLResponse?, error: Error?) in
             if let error = error {

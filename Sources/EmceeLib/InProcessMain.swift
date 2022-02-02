@@ -10,7 +10,6 @@ import FileCache
 import FileSystem
 import Foundation
 import LocalHostDeterminer
-import Logging
 import Metrics
 import MetricsExtensions
 import PathLib
@@ -253,7 +252,8 @@ public final class InProcessMain {
         let invokableCommand = try commandInvoker.invokableCommand()
         
         di.set(
-            try di.get(ContextualLogger.self).withMetadata(key: .emceeCommand, value: invokableCommand.command.name)
+            try di.get(ContextualLogger.self)
+                .withMetadata(key: .emceeCommand, value: invokableCommand.command.name)
         )
         
         try invokableCommand.invoke()
