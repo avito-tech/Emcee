@@ -10,6 +10,7 @@ import QueueModelsTestHelpers
 import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolTestHelpers
+import TestDestinationTestHelpers
 import TestHelpers
 import TestHistoryTestHelpers
 import UniqueIdentifierGenerator
@@ -75,7 +76,7 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            testDestination: TestDestinationFixtures.testDestination,
+            testDestination: TestDestinationFixtures.iOSTestDestination,
             unfilteredResults: []
         )
         assertDoesNotThrow {
@@ -153,7 +154,7 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            testDestination: TestDestinationFixtures.testDestination,
+            testDestination: TestDestinationFixtures.iOSTestDestination,
             unfilteredResults: [TestEntryResult.lost(testEntry: testEntry)]
         )
         assertDoesNotThrow {
@@ -175,7 +176,7 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            testDestination: TestDestinationFixtures.testDestination,
+            testDestination: TestDestinationFixtures.iOSTestDestination,
             unfilteredResults: [ /* empty - misses testEntry */ ]
         )
         assertThrows {
@@ -197,7 +198,7 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            testDestination: TestDestinationFixtures.testDestination,
+            testDestination: TestDestinationFixtures.iOSTestDestination,
             unfilteredResults: [ /* empty - misses testEntry */ ]
         )
         assertThrows {

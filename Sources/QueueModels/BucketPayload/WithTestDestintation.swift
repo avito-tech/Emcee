@@ -1,5 +1,5 @@
 import Foundation
-import SimulatorPoolModels
+import TestDestination
 
 public protocol WithTestDestination {
     var testDestination: TestDestination { get }

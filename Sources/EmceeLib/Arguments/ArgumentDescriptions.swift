@@ -25,6 +25,7 @@ final class ArgumentDescriptions {
     static let retries = doubleDashedDescription(dashlessName: "retries", overview: "How many retries to attempt")
     static let testTimeout = doubleDashedDescription(dashlessName: "test-timeout", overview: "Maximum test execution duration")
     static let device = doubleDashedDescription(dashlessName: "device", overview: "Device to run test on, e.g. 'iPhone X'")
+    static let kind = doubleDashedDescription(dashlessName: "kind", overview: "Runtime kind, e.g. 'iOS' or 'tvOS'")
     static let runtime = doubleDashedDescription(dashlessName: "runtime", overview: "Runtime to run test on, e.g. '15.0'")
 
     private static func doubleDashedDescription(dashlessName: String, overview: String, multiple: Bool = false) -> ArgumentDescription {

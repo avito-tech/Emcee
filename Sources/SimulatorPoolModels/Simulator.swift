@@ -1,5 +1,6 @@
 import Foundation
 import PathLib
+import TestDestination
 
 public struct Simulator: Hashable, CustomStringConvertible {
     public let testDestination: TestDestination
@@ -13,7 +14,7 @@ public struct Simulator: Hashable, CustomStringConvertible {
     }
     
     public var description: String {
-        return "Simulator \(udid) \(testDestination.deviceType) \(testDestination.runtime) at \(path)"
+        return "Simulator \(udid) \(testDestination.simDeviceType) \(testDestination.simRuntime) at \(path)"
     }
     
     public var simulatorSetPath: AbsolutePath {

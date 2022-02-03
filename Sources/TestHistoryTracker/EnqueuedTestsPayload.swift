@@ -2,6 +2,7 @@ import Foundation
 import QueueModels
 import RunnerModels
 import SimulatorPoolModels
+import TestDestination
 
 public struct EnqueuedRunTestsPayload: Hashable {
     public let bucketId: BucketId

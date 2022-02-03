@@ -4,6 +4,8 @@ import PathLib
 import RunnerModels
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
+import TestDestination
+import TestDestinationTestHelpers
 
 public final class TestContextFixtures {
     public var contextId: String
@@ -23,7 +25,7 @@ public final class TestContextFixtures {
         userInsertedLibraries: [String] = [],
         simulatorPath: AbsolutePath = AbsolutePath(NSTemporaryDirectory()),
         simulatorUdid: UDID = UDID(value: "fixture_test_context_udid"),
-        testDestination: TestDestination = TestDestinationFixtures.testDestination,
+        testDestination: TestDestination = TestDestinationFixtures.iOSTestDestination,
         testRunnerWorkingDirectory: AbsolutePath = AbsolutePath(NSTemporaryDirectory()),
         testsWorkingDirectory: AbsolutePath = AbsolutePath(NSTemporaryDirectory())
     ) {

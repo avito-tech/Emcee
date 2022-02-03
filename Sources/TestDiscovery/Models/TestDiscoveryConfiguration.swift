@@ -7,6 +7,7 @@ import PluginSupport
 import RunnerModels
 import SimulatorPoolModels
 import TestArgFile
+import TestDestination
 
 public struct TestDiscoveryConfiguration {
     public let analyticsConfiguration: AnalyticsConfiguration

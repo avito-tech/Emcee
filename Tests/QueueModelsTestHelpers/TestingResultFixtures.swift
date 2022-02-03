@@ -4,6 +4,8 @@ import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
+import TestDestination
+import TestDestinationTestHelpers
 
 public final class TestingResultFixtures {
     public let unfilteredResults: [TestEntryResult]    
@@ -15,7 +17,7 @@ public final class TestingResultFixtures {
         if let manuallyTestDestination = manuallyTestDestination {
             return manuallyTestDestination
         } else {
-            return TestDestinationFixtures.testDestination
+            return TestDestinationFixtures.iOSTestDestination
         }
     }
     

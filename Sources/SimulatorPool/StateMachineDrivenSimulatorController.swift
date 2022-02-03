@@ -8,6 +8,7 @@ import PathLib
 import PlistLib
 import SimulatorPoolModels
 import SynchronousWaiter
+import TestDestination
 import Tmp
 
 public final class StateMachineDrivenSimulatorController: SimulatorController, CustomStringConvertible {

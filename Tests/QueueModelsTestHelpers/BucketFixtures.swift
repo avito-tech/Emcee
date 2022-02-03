@@ -6,6 +6,7 @@ import QueueModels
 import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolTestHelpers
+import TestDestinationTestHelpers
 import WorkerCapabilitiesModels
 
 public final class BucketFixtures {
@@ -34,7 +35,7 @@ public final class BucketFixtures {
             pluginLocations: [],
             simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-            testDestination: TestDestinationFixtures.testDestination,
+            testDestination: TestDestinationFixtures.iOSTestDestination,
             testEntries: testEntries,
             testExecutionBehavior: TestExecutionBehavior(
                 environment: [:],

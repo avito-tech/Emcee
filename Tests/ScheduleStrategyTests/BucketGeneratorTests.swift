@@ -5,14 +5,16 @@ import RunnerTestHelpers
 import ScheduleStrategy
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
+import TestDestination
+import TestDestinationTestHelpers
 import TestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class BucketGeneratorTests: XCTestCase {
-    lazy var testDestination1 = TestDestinationFixtures.testDestination
-    lazy var testDestination2 = assertDoesNotThrow { try TestDestination(deviceType: "device2", runtime: "11.0") }
+    lazy var testDestination1 = TestDestinationFixtures.iOSTestDestination
+    lazy var testDestination2 = TestDestination.iOSSimulator(deviceType: "device2", version: "11.0")
     
     func test_splits_into_matrix_of_test_destination_by_test_entry() {
         let testEntryConfigurations =

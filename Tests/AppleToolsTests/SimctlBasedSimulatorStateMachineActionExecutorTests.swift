@@ -5,6 +5,8 @@ import ProcessController
 import ProcessControllerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
+import TestDestination
+import TestDestinationTestHelpers
 import TestHelpers
 import Tmp
 import XCTest
@@ -16,7 +18,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         try tempFolder.createDirectory(components: [udid.value])
     }
     private lazy var simulator = Simulator(
-        testDestination: TestDestinationFixtures.testDestination,
+        testDestination: TestDestinationFixtures.iOSTestDestination,
         udid: udid,
         path: pathToSimulator
     )
@@ -33,7 +35,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         assertThrows {
             try executor.performCreateSimulatorAction(
                 environment: [:],
-                testDestination: TestDestinationFixtures.testDestination,
+                testDestination: TestDestinationFixtures.iOSTestDestination,
                 timeout: 60
             )
         }
@@ -52,7 +54,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         assertThrows {
             try executor.performCreateSimulatorAction(
                 environment: [:],
-                testDestination: TestDestinationFixtures.testDestination,
+                testDestination: TestDestinationFixtures.iOSTestDestination,
                 timeout: 60
             )
         }
@@ -77,12 +79,12 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         assertDoesNotThrow {
             let simulator = try executor.performCreateSimulatorAction(
                 environment: [:],
-                testDestination: TestDestinationFixtures.testDestination,
+                testDestination: TestDestinationFixtures.iOSTestDestination,
                 timeout: 60
             )
-            XCTAssertEqual(simulator.testDestination, TestDestinationFixtures.testDestination)
-            XCTAssertEqual(simulator.udid, UDID(value: expectedUdid))
-            XCTAssertEqual(simulator.simulatorSetPath, tempFolder.absolutePath)
+            assert { simulator.testDestination } equals: { TestDestinationFixtures.iOSTestDestination }
+            assert { simulator.udid } equals: { UDID(value: expectedUdid) }
+            assert { simulator.simulatorSetPath } equals: { tempFolder.absolutePath }
         }
     }
     
@@ -102,29 +104,31 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
             simulatorSetPath: tempFolder.absolutePath
         )
         
-        assertDoesNotThrow {
-            let simulator = try executor.performCreateSimulatorAction(
+        assert {
+            try executor.performCreateSimulatorAction(
                 environment: [:],
-                testDestination: TestDestinationFixtures.testDestination,
+                testDestination: TestDestinationFixtures.iOSTestDestination,
                 timeout: 60
-            )
-            XCTAssertEqual(simulator.udid, UDID(value: expectedUdid.trimmingCharacters(in: .whitespacesAndNewlines)))
+            ).udid
+        } equals: {
+            UDID(value: expectedUdid.trimmingCharacters(in: .whitespacesAndNewlines))
         }
     }
     
     func test___create_simulator_simctl_args() {
         let executor = SimctlBasedSimulatorStateMachineActionExecutor(
             processControllerProvider: FakeProcessControllerProvider { subprocess in
-                XCTAssertEqual(
-                    try subprocess.arguments.map { try $0.stringValue() },
+                assert {
+                    try subprocess.arguments.map { try $0.stringValue() }
+                } equals: {
                     [
                         "/usr/bin/xcrun", "simctl",
                         "--set", self.tempFolder.absolutePath.pathString,
-                        "create", "Emcee Sim iPhone SE 11.3",
+                        "create", "Emcee Sim iPhone_SE iOS_11_3",
                         "com.apple.CoreSimulator.SimDeviceType.iPhone-SE",
                         "com.apple.CoreSimulator.SimRuntime.iOS-11-3"
                     ]
-                )
+                }
                 
                 let controller = FakeProcessController(subprocess: subprocess)
                 controller.overridedProcessStatus = ProcessStatus.terminated(exitCode: 1)
@@ -136,7 +140,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         assertThrows {
             try executor.performCreateSimulatorAction(
                 environment: [:],
-                testDestination: assertDoesNotThrow { try TestDestination(deviceType: "iPhone SE", runtime: "11.3") },
+                testDestination: TestDestination.iOSSimulator(deviceType: "iPhone SE", version: "11.3"),
                 timeout: 60
             )
         }
@@ -145,15 +149,16 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
     func test___boot_simulator_simctl_args() {
         let executor = SimctlBasedSimulatorStateMachineActionExecutor(
             processControllerProvider: FakeProcessControllerProvider { subprocess in
-                XCTAssertEqual(
-                    try subprocess.arguments.map { try $0.stringValue() },
+                assert {
+                    try subprocess.arguments.map { try $0.stringValue() }
+                } equals: {
                     [
                         "/usr/bin/xcrun", "simctl",
                         "--set", self.pathToSimulator.removingLastComponent.pathString,
                         "bootstatus", self.udid.value,
                         "-bd"
                     ]
-                )
+                }
                 
                 let controller = FakeProcessController(subprocess: subprocess)
                 controller.overridedProcessStatus = ProcessStatus.terminated(exitCode: 0)
@@ -165,7 +170,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         assertDoesNotThrow {
             try executor.performBootSimulatorAction(
                 environment: [:],
-                simulator: Simulator(testDestination: TestDestinationFixtures.testDestination, udid: udid, path: pathToSimulator),
+                simulator: Simulator(testDestination: TestDestinationFixtures.iOSTestDestination, udid: udid, path: pathToSimulator),
                 timeout: 10
             )
         }
@@ -193,14 +198,15 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
     func test___shutdown_simulator_simctl_args() {
         let executor = SimctlBasedSimulatorStateMachineActionExecutor(
             processControllerProvider: FakeProcessControllerProvider { subprocess in
-                XCTAssertEqual(
-                    try subprocess.arguments.map { try $0.stringValue() },
+                assert {
+                    try subprocess.arguments.map { try $0.stringValue() }
+                } equals: {
                     [
                         "/usr/bin/xcrun", "simctl",
                         "--set", self.pathToSimulator.removingLastComponent.pathString,
                         "shutdown", self.udid.value
                     ]
-                )
+                }
                 
                 let controller = FakeProcessController(subprocess: subprocess)
                 controller.overridedProcessStatus = ProcessStatus.terminated(exitCode: 0)
@@ -240,14 +246,15 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
     func test___delete_simulator_simctl_args() {
         let executor = SimctlBasedSimulatorStateMachineActionExecutor(
             processControllerProvider: FakeProcessControllerProvider { subprocess in
-                XCTAssertEqual(
-                    try subprocess.arguments.map { try $0.stringValue() },
+                assert {
+                    try subprocess.arguments.map { try $0.stringValue() }
+                } equals: {
                     [
                         "/usr/bin/xcrun", "simctl",
                         "--set", self.pathToSimulator.removingLastComponent.pathString,
                         "delete", self.udid.value
                     ]
-                )
+                }
                 
                 let controller = FakeProcessController(subprocess: subprocess)
                 controller.overridedProcessStatus = ProcessStatus.terminated(exitCode: 0)

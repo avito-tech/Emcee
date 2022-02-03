@@ -5,6 +5,7 @@ import EmceeLogging
 import ResourceLocationResolver
 import RunnerModels
 import SimulatorPoolModels
+import TestDestination
 import Tmp
 
 public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible {
@@ -17,7 +18,7 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
     private let syncQueue = DispatchQueue(label: "DefaultSimulatorPool.syncQueue")
     
     public var description: String {
-        return "<\(type(of: self)): '\(testDestination.deviceType)'+'\(testDestination.runtime)'>"
+        return "<\(type(of: self)): '\(testDestination.deviceTypeForMetrics)'+'\(testDestination.runtimeForMetrics)'>"
     }
     
     public init(

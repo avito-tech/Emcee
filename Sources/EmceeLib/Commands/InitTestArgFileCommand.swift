@@ -12,6 +12,7 @@ import RunnerModels
 import SimulatorPoolModels
 import SocketModels
 import TestArgFile
+import TestDestination
 import WorkerCapabilities
 import WorkerCapabilitiesModels
 
@@ -33,7 +34,7 @@ public final class InitTestArgFileCommand: Command {
     public func run(payload: CommandPayload) throws {
         let outputPath: AbsolutePath = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.output.name)
         
-        let testDestination = try TestDestination(deviceType: "iPhone X", runtime: "15.1")
+        let testDestination = TestDestination.iOSSimulator(deviceType: "iPhone X", version: "15.1")
         
         let testArgFile = TestArgFile(
             entries: [

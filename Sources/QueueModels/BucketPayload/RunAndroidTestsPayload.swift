@@ -4,6 +4,7 @@ import Foundation
 import PluginSupport
 import RunnerModels
 import SimulatorPoolModels
+import TestDestination
 
 public struct RunAndroidTestsPayload: BucketPayload, CustomStringConvertible, BucketPayloadWithTests {
     public let buildArtifacts: AndroidBuildArtifacts

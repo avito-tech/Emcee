@@ -8,6 +8,7 @@ import ProcessController
 import ResourceLocationResolver
 import SimulatorPool
 import SimulatorPoolModels
+import TestDestination
 
 public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor, CustomStringConvertible {
     
@@ -40,9 +41,9 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                     "/usr/bin/xcrun", "simctl",
                     "--set", simulatorSetPath,
                     "create",
-                    "Emcee Sim \(testDestination.deviceType) \(testDestination.runtime)",
-                    "com.apple.CoreSimulator.SimDeviceType." + testDestination.deviceType.replacingOccurrences(of: " ", with: "-"),
-                    "com.apple.CoreSimulator.SimRuntime.iOS-" + testDestination.runtime.replacingOccurrences(of: ".", with: "-")
+                    "Emcee Sim \(testDestination.deviceTypeForMetrics) \(testDestination.runtimeForMetrics)",
+                    testDestination.simDeviceType,
+                    testDestination.simRuntime,
                 ],
                 environment: Environment(environment),
                 automaticManagement: .sigintThenKillAfterRunningFor(interval: timeout)

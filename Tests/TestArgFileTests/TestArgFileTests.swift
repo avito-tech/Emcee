@@ -6,6 +6,7 @@ import ResourceLocation
 import SimulatorPoolModels
 import SocketModels
 import TestArgFile
+import TestDestination
 import TestHelpers
 import XCTest
 
@@ -149,7 +150,7 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertTrue(testArgFile.prioritizedJob.jobId.value.hasPrefix("automaticJobId_")) 
         XCTAssertEqual(testArgFile.entries.count, 1)
         XCTAssertEqual(testArgFile.entries[0].testsToRun, [.allDiscoveredTests])
-        XCTAssertEqual(testArgFile.entries[0].testDestination, try TestDestination(deviceType: "iPhone X", runtime: "11.3"))
+        XCTAssertEqual(testArgFile.entries[0].testDestination, TestDestination.iOSSimulator(deviceType: "iPhone X", version: "11.3"))
         XCTAssertEqual(
             testArgFile.entries[0].buildArtifacts,
             IosBuildArtifacts.iosUiTests(

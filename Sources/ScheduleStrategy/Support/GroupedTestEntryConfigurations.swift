@@ -5,6 +5,7 @@ import PluginSupport
 import QueueModels
 import RunnerModels
 import SimulatorPoolModels
+import TestDestination
 import Types
 import WorkerCapabilitiesModels
 

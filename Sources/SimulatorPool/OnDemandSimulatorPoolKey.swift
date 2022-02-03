@@ -1,6 +1,7 @@
 import DeveloperDirModels
 import Foundation
 import SimulatorPoolModels
+import TestDestination
 
 public struct OnDemandSimulatorPoolKey: Hashable, CustomStringConvertible {
     public let developerDir: DeveloperDir

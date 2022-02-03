@@ -6,8 +6,9 @@ import ProcessController
 import ProcessControllerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
-import Tmp
+import TestDestinationTestHelpers
 import TestHelpers
+import Tmp
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
@@ -321,7 +322,7 @@ final class SimulatorSettingsModifierTests: XCTestCase {
     )
     lazy var processControllerProvider = FakeProcessControllerProvider()
     lazy var simulator = Simulator(
-        testDestination: TestDestinationFixtures.testDestination,
+        testDestination: TestDestinationFixtures.iOSTestDestination,
         udid: UDID(value: "sim_udid"),
         path: tempFolder.absolutePath.appending("sim_path")
     )

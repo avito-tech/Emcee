@@ -13,6 +13,7 @@ import RunnerModels
 import ScheduleStrategy
 import SimulatorPoolModels
 import TestArgFile
+import TestDestination
 import Tmp
 import UniqueIdentifierGenerator
 import LocalQueueServerRunner
@@ -26,6 +27,7 @@ public final class RunTestsCommand: Command {
         ArgumentDescriptions.queue.asRequired.asMultiple,
         ArgumentDescriptions.worker.asRequired.asMultiple,
         ArgumentDescriptions.device.asRequired,
+        ArgumentDescriptions.kind.asRequired,
         ArgumentDescriptions.runtime.asRequired,
         ArgumentDescriptions.testBundle.asRequired,
         ArgumentDescriptions.app.asOptional,
@@ -107,9 +109,10 @@ public final class RunTestsCommand: Command {
         let testNamesToRun: [TestName] = try payload.possiblyEmptyCollectionOfValues(argumentName: ArgumentDescriptions.test.name)
         let numberOfRetries: UInt = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.retries.name) ?? TestArgFileDefaultValues.numberOfRetries
         let testTimeout: TimeInterval = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.testTimeout.name) ?? TestArgFileDefaultValues.testTimeoutConfiguration.singleTestMaximumDuration
-        let testDestination = try TestDestination(
+        let testDestination = TestDestination.appleSimulator(
             deviceType: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.device.name),
-            runtime: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.runtime.name)
+            kind: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.kind.name) ?? .iOS,
+            version: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.runtime.name)
         )
         
         var testsToRun: [TestToRun] = []

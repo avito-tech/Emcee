@@ -9,6 +9,8 @@ import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
+import TestDestination
+import TestDestinationTestHelpers
 import WorkerCapabilitiesModels
 
 public final class TestEntryConfigurationFixtures {
@@ -22,7 +24,7 @@ public final class TestEntryConfigurationFixtures {
         ),
         watchdogSettings: WatchdogSettings(bundleIds: [], timeout: 0)
     )
-    public var testDestination = TestDestinationFixtures.testDestination
+    public var testDestination = TestDestinationFixtures.iOSTestDestination
     public var testEntries = [TestEntry]()
     public var testExecutionBehavior = TestExecutionBehavior(
         environment: [:],

@@ -2,6 +2,7 @@ import DeveloperDirModels
 import Foundation
 import PathLib
 import SimulatorPoolModels
+import TestDestination
 
 public struct TestContext: Codable, Hashable, CustomStringConvertible {
     public let contextId: String

@@ -3,6 +3,8 @@ import Foundation
 import QueueModels
 import ResourceLocation
 import SocketModels
+import SimulatorPoolModels
+import TestDestination
 import TypedResourceLocation
 
 extension TypedResourceLocation: ParsableArgument {
@@ -52,6 +54,15 @@ extension Version: ParsableArgument {
 extension URL: ParsableArgument {
     public init(argumentValue: String) throws {
         guard let result = Self(string: argumentValue) else {
+            throw GenericParseError<Self>(argumentValue: argumentValue)
+        }
+        self = result
+    }
+}
+
+extension AppleRuntimeKind: ParsableArgument {
+    public init(argumentValue: String) throws {
+        guard let result = Self(rawValue: argumentValue) else {
             throw GenericParseError<Self>(argumentValue: argumentValue)
         }
         self = result

@@ -5,6 +5,7 @@ import MetricsExtensions
 import PluginSupport
 import RunnerModels
 import SimulatorPoolModels
+import TestDestination
 import WorkerCapabilitiesModels
 
 public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable {

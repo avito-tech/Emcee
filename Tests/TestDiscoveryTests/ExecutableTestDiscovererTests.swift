@@ -16,8 +16,9 @@ import ResourceLocationResolverTestHelpers
 import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolTestHelpers
-import Tmp
+import TestDestinationTestHelpers
 import TestHelpers
+import Tmp
 import URLResource
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
@@ -27,7 +28,7 @@ final class ExecutableTestDiscovererTests: XCTestCase {
     func test___test_discovery___discovers_test_entries___from_executable_response() {
         let discoveredTestEntries = assertDoesNotThrow {
             try createExecutableTestDiscoverer(
-                simctlResponse: simctResponse(runtimeName: "iOS 12.0"),
+                simctlResponse: simctlResponse(runtimeName: "iOS 12.0"),
                 executableResponse: executableResponse
             ).discoverTestEntries(
                 configuration: configuration
@@ -43,7 +44,7 @@ final class ExecutableTestDiscovererTests: XCTestCase {
     func test___test_discovery___throws___when_runtime_is_not_found() {
         assertThrows {
             try createExecutableTestDiscoverer(
-                simctlResponse: simctResponse(runtimeName: "nonexistent runtime"),
+                simctlResponse: simctlResponse(runtimeName: "nonexistent runtime"),
                 executableResponse: executableResponse
             ).discoverTestEntries(
                 configuration: configuration
@@ -54,7 +55,7 @@ final class ExecutableTestDiscovererTests: XCTestCase {
     func test___test_discovery___throws___when_output_file_format_is_incorrect() {
         assertThrows {
             try createExecutableTestDiscoverer(
-                simctlResponse: simctResponse(runtimeName: "iOS 12.0"),
+                simctlResponse: simctlResponse(runtimeName: "iOS 12.0"),
                 executableResponse: """
                 [
                     {
@@ -74,7 +75,7 @@ final class ExecutableTestDiscovererTests: XCTestCase {
         assertDoesNotThrow {
             _ = try createExecutableTestDiscoverer(
                 onSubprocessCreate: { subprocesses.append($0) },
-                simctlResponse: simctResponse(runtimeName: "iOS 12.0"),
+                simctlResponse: simctlResponse(runtimeName: "iOS 12.0"),
                 executableResponse: executableResponse
             ).discoverTestEntries(
                 configuration: configuration
@@ -93,7 +94,7 @@ final class ExecutableTestDiscovererTests: XCTestCase {
         assertDoesNotThrow {
             _ = try createExecutableTestDiscoverer(
                 onSubprocessCreate: { subprocesses.append($0) },
-                simctlResponse: simctResponse(runtimeName: "iOS 12.0"),
+                simctlResponse: simctlResponse(runtimeName: "iOS 12.0"),
                 executableResponse: executableResponse
             ).discoverTestEntries(
                 configuration: configuration
@@ -120,13 +121,16 @@ final class ExecutableTestDiscovererTests: XCTestCase {
         )
     }
     
-    private func simctResponse(runtimeName: String) -> String {
+    private func simctlResponse(runtimeName: String) -> String {
+        let identifier = runtimeName
+            .replacingOccurrences(of: " ", with: "-")
+            .replacingOccurrences(of: ".", with: "-")
         return """
         {
           "runtimes": [
             {
               "bundlePath": "\\/path\\/to\\/\(runtimeName).simruntime",
-              "name": "\(runtimeName)"
+              "identifier": "com.apple.CoreSimulator.SimRuntime.\(identifier)"
             }
           ]
         }
@@ -221,7 +225,7 @@ final class ExecutableTestDiscovererTests: XCTestCase {
         testDiscoveryMode: .runtimeExecutableLaunch(appBundleLocation),
         simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
         simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-        testDestination: TestDestinationFixtures.testDestination,
+        testDestination: TestDestinationFixtures.iOSTestDestination,
         testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
         testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
         testAttachmentLifetime: .deleteOnSuccess,

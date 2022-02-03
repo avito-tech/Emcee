@@ -7,6 +7,7 @@ import MetricsExtensions
 import PathLib
 import QueueModels
 import SimulatorPoolModels
+import TestDestination
 import Types
 
 public final class MetricSupportingSimulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor {

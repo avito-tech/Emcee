@@ -1,6 +1,6 @@
 import Foundation
 import RunnerModels
-import SimulatorPoolModels
+import TestDestination
 
 /// Represents the result of running a single Bucket.
 public struct TestingResult: Codable, Hashable {

@@ -8,14 +8,16 @@ import SimulatorPool
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import SynchronousWaiter
-import Tmp
+import TestDestination
+import TestDestinationTestHelpers
 import TestHelpers
+import Tmp
 import XCTest
 
 final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
     private let expectedDeveloperDirPath = AbsolutePath("/tmp/some/dev/dir")
     private let expectedSimulatorPath = AbsolutePath("/tmp/some/simulator/path")
-    private let expectedTestDestination = TestDestinationFixtures.testDestination
+    private let expectedTestDestination = TestDestinationFixtures.iOSTestDestination
     private let expectedTimeout: TimeInterval = 42.0
     private let expectedUdid = UDID(value: "some_UDID")
     private let coreSimulatorStateProvider = FakeCoreSimulatorStateProvider()

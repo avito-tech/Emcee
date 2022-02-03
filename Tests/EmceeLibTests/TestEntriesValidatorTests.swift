@@ -9,6 +9,7 @@ import ScheduleStrategy
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import TestArgFile
+import TestDestination
 import TestDiscovery
 import XCTest
 
@@ -123,7 +124,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             scheduleStrategy: ScheduleStrategy(testSplitterType: .unsplit),
             simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-            testDestination: try TestDestination(deviceType: "iPhoneXL", runtime: "10.3"),
+            testDestination: TestDestination.iOSSimulator(deviceType: "iPhoneXL", version: "10.3"),
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
             testAttachmentLifetime: .deleteOnSuccess,
             testsToRun: [.testName(TestName(className: "MyTest", methodName: "test"))],

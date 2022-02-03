@@ -8,6 +8,7 @@ import PathLib
 import ProcessController
 import ResourceLocationResolver
 import SimulatorPoolModels
+import TestDestination
 import Tmp
 import UniqueIdentifierGenerator
 
@@ -130,7 +131,7 @@ public final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
         let runtimes = try JSONDecoder().decode(SimulatorRuntimes.self, from: capturedData)
         
         guard let runtime = runtimes.runtimes.first(
-            where: { $0.name == "iOS \(testDestination.runtime)" }
+            where: { $0.identifier == testDestination.simRuntime }
         ) else {
             throw Errors.runtimeRootNotFound(testDestination: testDestination)
         }

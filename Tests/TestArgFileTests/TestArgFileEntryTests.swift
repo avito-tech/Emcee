@@ -8,6 +8,7 @@ import ScheduleStrategy
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import TestArgFile
+import TestDestination
 import TestHelpers
 import XCTest
 
@@ -146,7 +147,7 @@ final class TestArgFileEntryTests: XCTestCase {
                     ),
                     watchdogSettings: WatchdogSettings(bundleIds: ["sample.app"], timeout: 42)
                 ),
-                testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
+                testDestination: TestDestination.iOSSimulator(deviceType: "iPhone SE", version: "11.3"),
                 testTimeoutConfiguration: TestTimeoutConfiguration(
                     singleTestMaximumDuration: 42,
                     testRunnerMaximumSilenceDuration: 24
@@ -217,7 +218,7 @@ final class TestArgFileEntryTests: XCTestCase {
                 scheduleStrategy: TestArgFileDefaultValues.scheduleStrategy,
                 simulatorOperationTimeouts: TestArgFileDefaultValues.simulatorOperationTimeouts,
                 simulatorSettings: TestArgFileDefaultValues.simulatorSettings,
-                testDestination: try TestDestination(deviceType: "iPhone SE", runtime: "11.3"),
+                testDestination: TestDestination.iOSSimulator(deviceType: "iPhone SE", version: "11.3"),
                 testTimeoutConfiguration: TestArgFileDefaultValues.testTimeoutConfiguration,
                 testAttachmentLifetime: .deleteOnSuccess,
                 testsToRun: [

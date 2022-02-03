@@ -3,7 +3,7 @@ import PathLib
 struct SimulatorRuntimes: Decodable {
     struct Runtime: Decodable {
         let bundlePath: AbsolutePath
-        let name: String
+        let identifier: String
     }
     
     let runtimes: [Runtime]

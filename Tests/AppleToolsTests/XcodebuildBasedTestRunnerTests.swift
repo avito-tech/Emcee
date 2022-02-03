@@ -27,8 +27,9 @@ import RunnerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import Statsd
-import Tmp
+import TestDestinationTestHelpers
 import TestHelpers
+import Tmp
 import URLResource
 import XCTest
 
@@ -133,7 +134,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             ],
             simulatorPath: try tempFolder.createDirectory(components: ["simulator"]),
             simulatorUdid: UDID(value: UUID().uuidString),
-            testDestination: TestDestinationFixtures.testDestination,
+            testDestination: TestDestinationFixtures.iOSTestDestination,
             testRunnerWorkingDirectory: testRunnerWorkingDirectory,
             testsWorkingDirectory: testsWorkingDirectory,
             testAttachmentLifetime: .deleteOnSuccess

@@ -3,8 +3,9 @@ import DeveloperDirModels
 import ResourceLocationResolver
 import SimulatorPoolTestHelpers
 import SynchronousWaiter
-import Tmp
+import TestDestinationTestHelpers
 import TestHelpers
+import Tmp
 import XCTest
 
 class DefaultSimulatorPoolTests: XCTestCase {
@@ -22,7 +23,7 @@ class DefaultSimulatorPoolTests: XCTestCase {
             logger: .noOp,
             simulatorControllerProvider: simulatorControllerProvider,
             tempFolder: tempFolder,
-            testDestination: TestDestinationFixtures.testDestination
+            testDestination: TestDestinationFixtures.iOSTestDestination
         )
     }
     

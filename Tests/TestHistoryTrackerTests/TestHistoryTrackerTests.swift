@@ -6,6 +6,7 @@ import QueueModels
 import QueueModelsTestHelpers
 import RunnerTestHelpers
 import SimulatorPoolTestHelpers
+import TestDestinationTestHelpers
 import TestHistoryTestHelpers
 import TestHistoryTracker
 import UniqueIdentifierGeneratorTestHelpers
@@ -23,7 +24,7 @@ final class TestHistoryTests: XCTestCase {
     private let secondTest = TestEntryFixtures.testEntry(className: "second")
     private lazy var twoTestsPayload = EnqueuedRunTestsPayload(
         bucketId: BucketId(fixedIdentifier),
-        testDestination: TestDestinationFixtures.testDestination,
+        testDestination: TestDestinationFixtures.iOSTestDestination,
         testEntries: [firstTest, secondTest],
         numberOfRetries: 0
     )
@@ -62,7 +63,7 @@ final class TestHistoryTests: XCTestCase {
         // When
         let otherPayload = EnqueuedRunTestsPayload(
             bucketId: BucketId("otherBucketId"),
-            testDestination: TestDestinationFixtures.testDestination,
+            testDestination: TestDestinationFixtures.iOSTestDestination,
             testEntries: [TestEntryFixtures.testEntry(className: "other")],
             numberOfRetries: 5
         )

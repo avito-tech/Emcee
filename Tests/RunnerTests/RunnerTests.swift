@@ -16,8 +16,9 @@ import RunnerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import SynchronousWaiter
-import Tmp
+import TestDestinationTestHelpers
 import TestHelpers
+import Tmp
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
@@ -540,7 +541,7 @@ public final class RunnerTests: XCTestCase {
     }
     
     private lazy var simulator = Simulator(
-        testDestination: TestDestinationFixtures.testDestination,
+        testDestination: TestDestinationFixtures.iOSTestDestination,
         udid: UDID(value: UUID().uuidString),
         path: tempFolder.absolutePath
     )

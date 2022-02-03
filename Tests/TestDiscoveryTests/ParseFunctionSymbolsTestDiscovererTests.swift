@@ -11,8 +11,9 @@ import ResourceLocationResolverTestHelpers
 import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolTestHelpers
-import Tmp
+import TestDestinationTestHelpers
 import TestHelpers
+import Tmp
 import XCTest
 
 final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
@@ -88,7 +89,7 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
         testDiscoveryMode: .parseFunctionSymbols,
         simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
         simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-        testDestination: TestDestinationFixtures.testDestination,
+        testDestination: TestDestinationFixtures.iOSTestDestination,
         testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
         testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
         testAttachmentLifetime: .deleteOnSuccess,

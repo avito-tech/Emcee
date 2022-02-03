@@ -6,6 +6,7 @@ import QueueModels
 import RunnerModels
 import ScheduleStrategy
 import SimulatorPoolModels
+import TestDestination
 import WorkerCapabilitiesModels
 
 public struct TestArgFileEntry: Codable, Equatable {
