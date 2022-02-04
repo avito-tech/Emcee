@@ -1,3 +1,4 @@
+import AtomicModels
 import BuildArtifacts
 import BuildArtifactsTestHelpers
 import DateProviderTestHelpers
@@ -240,6 +241,47 @@ public final class RunnerTests: XCTestCase {
         _ = try runTestEntries([testEntry])
         
         wait(for: [handlerInvokedExpectation], timeout: 5)
+    }
+    
+    func test___didRun_is_sent_after_stream_closes() throws {
+        let closeStreamInvoked = XCTestExpectation(description: "testRunnerStream.closeStream() called")
+        let streamClosed = AtomicValue<Bool>(false)
+        
+        let didRunEventDelivered = XCTestExpectation(description: "EventBus.runnerEvent.didRun delivered")
+        let didRunEventSent = AtomicValue<Bool>(false)
+        
+        noOpPluginEventBusProvider.eventBus.add(
+            stream: BlockBasedEventStream { busEvent in
+                switch busEvent {
+                case .runnerEvent(let runnerEvent):
+                    switch runnerEvent {
+                    case .willRun, .testStarted, .testFinished:
+                        break
+                    case .didRun:
+                        assertTrue {
+                            streamClosed.currentValue()
+                        }
+                        didRunEventSent.set(true)
+                        didRunEventDelivered.fulfill()
+                    }
+                case .tearDown:
+                    break
+                }
+            }
+        )
+        
+        testRunnerProvider.predefinedFakeTestRunner.onStreamClose = {
+            streamClosed.set(true)
+            assertFalse {
+                didRunEventSent.currentValue()
+            }
+            $0.closeStream()
+            closeStreamInvoked.fulfill()
+        }
+        
+        _ = try runTestEntries([testEntry])
+        
+        wait(for: [closeStreamInvoked, didRunEventDelivered], timeout: 15)
     }
     
     func test___adds_waste_into_result___after_run() throws {
