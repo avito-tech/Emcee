@@ -23,7 +23,7 @@ final class ProcessControllerWrappingTestRunnerInvocationTests: XCTestCase {
     func test___cancelling_test_execution___terminates_process() throws {
         try testRunnerInvocation.startExecutingTests().cancel()
         XCTAssertFalse(processController.isProcessRunning)
-        XCTAssertEqual(processController.signalsSent, [SIGTERM])
+        XCTAssertEqual(processController.signalsSent, [SIGINT])
     }
     
     func test___waiting_for_test_execution_to_complete___waits_for_process_to_terminate() throws {

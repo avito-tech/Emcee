@@ -17,7 +17,7 @@ public class ProcessControllerWrappingTestRunnerInvocation: TestRunnerInvocation
     }
     
     public func cancel() {
-        processController.terminateAndForceKillIfNeeded()
+        processController.interruptAndForceKillIfNeeded()
     }
     
     public var pidInfo: PidInfo {
