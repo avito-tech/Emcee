@@ -840,12 +840,6 @@ let package = Package(
             ],
             path: "Tests/LocalQueueServerRunnerTests"
         ),
-        .target(
-            name: "LogStreaming",
-            dependencies: [
-            ],
-            path: "Sources/LogStreaming"
-        ),
         .testTarget(
             name: "LoggingTests",
             dependencies: [

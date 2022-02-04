@@ -45,7 +45,7 @@ public final class DetailedActivityLoggableProcessControllerProvider: ProcessCon
         }
         
         processController.onTermination { [logger] sender, _ in
-            logger.debug("Process terminated", subprocessPidInfo: sender.subprocessInfo.pidInfo)
+            logger.debug("Process terminated, \(sender.processStatus())", subprocessPidInfo: sender.subprocessInfo.pidInfo)
         }
         
         return processController

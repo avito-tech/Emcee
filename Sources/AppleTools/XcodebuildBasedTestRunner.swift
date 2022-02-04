@@ -120,6 +120,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
             
             if let strongSelf = self {
                 strongSelf.readResultBundle(
+                    logger: logger,
                     path: xcresultBundlePath,
                     specificMetricRecorder: specificMetricRecorder,
                     testRunnerStream: testRunnerStream
@@ -144,6 +145,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
     }
     
     private func readResultBundle(
+        logger: ContextualLogger,
         path: AbsolutePath,
         specificMetricRecorder: SpecificMetricRecorder,
         testRunnerStream: TestRunnerStream
@@ -156,6 +158,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                 )
             }
         } catch {
+            logger.error("Error parsing xcresult bundle at \(path): \(error)")
             specificMetricRecorder.capture(
                 CorruptedXcresultBundleMetric(
                     host: host,
