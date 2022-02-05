@@ -6,25 +6,25 @@ import RunnerModels
 import SimulatorPoolModels
 import TestDestination
 
-public struct RunIosTestsPayload: BucketPayload, CustomStringConvertible, BucketPayloadWithTests {
-    public let buildArtifacts: IosBuildArtifacts
+public struct RunAppleTestsPayload: BucketPayload, CustomStringConvertible, BucketPayloadWithTests {
+    public let buildArtifacts: AppleBuildArtifacts
     public let developerDir: DeveloperDir
-    public let pluginLocations: Set<PluginLocation>
+    public let pluginLocations: Set<AppleTestPluginLocation>
     public let simulatorOperationTimeouts: SimulatorOperationTimeouts
     public let simulatorSettings: SimulatorSettings
-    public let testDestination: TestDestination
+    public let testDestination: AppleTestDestination
     public private(set) var testEntries: [TestEntry]
     public let testExecutionBehavior: TestExecutionBehavior
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testAttachmentLifetime: TestAttachmentLifetime
 
     public init(
-        buildArtifacts: IosBuildArtifacts,
+        buildArtifacts: AppleBuildArtifacts,
         developerDir: DeveloperDir,
-        pluginLocations: Set<PluginLocation>,
+        pluginLocations: Set<AppleTestPluginLocation>,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,
         simulatorSettings: SimulatorSettings,
-        testDestination: TestDestination,
+        testDestination: AppleTestDestination,
         testEntries: [TestEntry],
         testExecutionBehavior: TestExecutionBehavior,
         testTimeoutConfiguration: TestTimeoutConfiguration,

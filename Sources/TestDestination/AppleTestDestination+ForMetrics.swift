@@ -1,5 +1,5 @@
 
-extension TestDestination {
+extension AppleTestDestination {
     public var deviceTypeForMetrics: String {
         guard let value = simDeviceType.split(separator: ".").last else {
             return "unknown_device_type"

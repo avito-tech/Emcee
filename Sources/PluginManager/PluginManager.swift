@@ -13,7 +13,7 @@ public final class PluginManager: EventStream {
     private let eventDistributor: EventDistributor
     private let fileSystem: FileSystem
     private let logger: ContextualLogger
-    private let pluginLocations: Set<PluginLocation>
+    private let pluginLocations: Set<AppleTestPluginLocation>
     private let pluginsConnectionTimeout: TimeInterval = 30.0
     private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
@@ -27,7 +27,7 @@ public final class PluginManager: EventStream {
     public init(
         fileSystem: FileSystem,
         logger: ContextualLogger,
-        pluginLocations: Set<PluginLocation>,
+        pluginLocations: Set<AppleTestPluginLocation>,
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver
     ) {
@@ -139,14 +139,14 @@ public final class PluginManager: EventStream {
     public func process(event: BusEvent) {
         send(busEvent: event)
         switch event {
-        case .runnerEvent(let event):
+        case .appleRunnerEvent(let event):
             runnerEvent(event)
         case .tearDown:
             tearDown()
         }
     }
     
-    private func runnerEvent(_ event: RunnerEvent) {}
+    private func runnerEvent(_ event: AppleRunnerEvent) {}
     
     private func tearDown() {
         do {

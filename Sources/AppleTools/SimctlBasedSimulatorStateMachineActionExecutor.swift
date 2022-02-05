@@ -32,7 +32,7 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
     
     public func performCreateSimulatorAction(
         environment: [String: String],
-        testDestination: TestDestination,
+        testDestination: AppleTestDestination,
         timeout: TimeInterval
     ) throws -> Simulator {
         let controller = try processControllerProvider.createProcessController(

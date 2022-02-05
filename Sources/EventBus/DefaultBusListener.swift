@@ -6,13 +6,13 @@ open class DefaultBusListener: EventStream {
     
     open func process(event: BusEvent) {
         switch event {
-        case .runnerEvent(let runnerEvent):
+        case .appleRunnerEvent(let runnerEvent):
             self.runnerEvent(runnerEvent)
         case .tearDown:
             tearDown()
         }
     }
     
-    open func runnerEvent(_ event: RunnerEvent) {}
+    open func runnerEvent(_ event: AppleRunnerEvent) {}
     open func tearDown() {}
 }

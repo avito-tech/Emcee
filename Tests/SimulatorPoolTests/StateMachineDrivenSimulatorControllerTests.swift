@@ -318,7 +318,7 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
     
     private func createSimulator(
         environment: [String: String],
-        testDestination: TestDestination,
+        testDestination: AppleTestDestination,
         timeout: TimeInterval
     ) -> Simulator {
         return Simulator(

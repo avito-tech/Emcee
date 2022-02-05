@@ -14,7 +14,7 @@ import XCTest
 
 final class BucketGeneratorTests: XCTestCase {
     lazy var testDestination1 = TestDestinationFixtures.iOSTestDestination
-    lazy var testDestination2 = TestDestination.iOSSimulator(deviceType: "device2", version: "11.0")
+    lazy var testDestination2 = AppleTestDestination.iOSSimulator(deviceType: "device2", version: "11.0")
     
     func test_splits_into_matrix_of_test_destination_by_test_entry() {
         let testEntryConfigurations =

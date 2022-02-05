@@ -25,7 +25,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     private let simulatorStateMachine: SimulatorStateMachine
     private let simulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor
     private let temporaryFolder: TemporaryFolder
-    private let testDestination: TestDestination
+    private let testDestination: AppleTestDestination
     private let waiter: Waiter
     private var simulator: Simulator?
 
@@ -40,7 +40,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
         simulatorStateMachine: SimulatorStateMachine,
         simulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor,
         temporaryFolder: TemporaryFolder,
-        testDestination: TestDestination,
+        testDestination: AppleTestDestination,
         waiter: Waiter = SynchronousWaiter()
     ) {
         self.additionalBootAttempts = additionalBootAttempts

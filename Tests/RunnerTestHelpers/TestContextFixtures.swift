@@ -14,7 +14,7 @@ public final class TestContextFixtures {
     public var userInsertedLibraries: [String]
     public var simulatorPath: AbsolutePath
     public var simulatorUdid: UDID
-    public var testDestination: TestDestination
+    public var testDestination: AppleTestDestination
     public var testRunnerWorkingDirectory: AbsolutePath
     public var testsWorkingDirectory: AbsolutePath
     
@@ -25,7 +25,7 @@ public final class TestContextFixtures {
         userInsertedLibraries: [String] = [],
         simulatorPath: AbsolutePath = AbsolutePath(NSTemporaryDirectory()),
         simulatorUdid: UDID = UDID(value: "fixture_test_context_udid"),
-        testDestination: TestDestination = TestDestinationFixtures.iOSTestDestination,
+        testDestination: AppleTestDestination = TestDestinationFixtures.iOSTestDestination,
         testRunnerWorkingDirectory: AbsolutePath = AbsolutePath(NSTemporaryDirectory()),
         testsWorkingDirectory: AbsolutePath = AbsolutePath(NSTemporaryDirectory())
     ) {
@@ -40,8 +40,8 @@ public final class TestContextFixtures {
         self.testsWorkingDirectory = testsWorkingDirectory
     }
     
-    public var testContext: TestContext {
-        return TestContext(
+    public var testContext: AppleTestContext {
+        return AppleTestContext(
             contextId: contextId,
             developerDir: developerDir,
             environment: environment,

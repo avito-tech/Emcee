@@ -40,7 +40,7 @@ final class PluginManagerTests: XCTestCase {
             fileSystem: fileSystem,
             logger: .noOp,
             pluginLocations: [
-                PluginLocation(.localFilePath(pluginBundlePath.pathString))
+                AppleTestPluginLocation(.localFilePath(pluginBundlePath.pathString))
             ],
             processControllerProvider: FakeProcessControllerProvider(),
             resourceLocationResolver: resolver
@@ -58,7 +58,7 @@ final class PluginManagerTests: XCTestCase {
             fileSystem: fileSystem,
             logger: .noOp,
             pluginLocations: [
-                PluginLocation(.localFilePath(executablePath.pathString))
+                AppleTestPluginLocation(.localFilePath(executablePath.pathString))
             ],
             processControllerProvider: FakeProcessControllerProvider(),
             resourceLocationResolver: resolver
@@ -85,7 +85,7 @@ final class PluginManagerTests: XCTestCase {
             fileSystem: fileSystem,
             logger: .noOp,
             pluginLocations: [
-                PluginLocation(.localFilePath(pluginBundlePath.pathString))
+                AppleTestPluginLocation(.localFilePath(pluginBundlePath.pathString))
             ],
             processControllerProvider: DefaultProcessControllerProvider(
                 dateProvider: SystemDateProvider(),
@@ -95,7 +95,7 @@ final class PluginManagerTests: XCTestCase {
         )
         try manager.startPlugins()
         
-        let runnerEvent = RunnerEvent.willRun(
+        let runnerEvent = AppleRunnerEvent.willRun(
             testEntries: [TestEntryFixtures.testEntry()],
             testContext: TestContextFixtures(
                 environment: ["EMCEE_TEST_PLUGIN_OUTPUT": outputPath.absolutePath.pathString]
@@ -104,11 +104,11 @@ final class PluginManagerTests: XCTestCase {
         
         let eventBus = EventBus()
         eventBus.add(stream: manager)
-        eventBus.post(event: .runnerEvent(runnerEvent))
+        eventBus.post(event: .appleRunnerEvent(runnerEvent))
         eventBus.tearDown()
         
         let data = try Data(contentsOf: URL(fileURLWithPath: outputPath.absolutePath.pathString))
-        let runnerEventCapturedByPlugin = try JSONDecoder().decode(RunnerEvent.self, from: data)
+        let runnerEventCapturedByPlugin = try JSONDecoder().decode(AppleRunnerEvent.self, from: data)
         
         XCTAssertEqual(runnerEventCapturedByPlugin, runnerEvent)
     }

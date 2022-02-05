@@ -26,12 +26,12 @@ public protocol TestRunner {
     ) -> [String: String]
     
     func prepareTestRun(
-        buildArtifacts: IosBuildArtifacts,
+        buildArtifacts: AppleBuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         logger: ContextualLogger,
         specificMetricRecorder: SpecificMetricRecorder,
-        testContext: TestContext,
+        testContext: AppleTestContext,
         testRunnerStream: TestRunnerStream
     ) throws -> TestRunnerInvocation
 }

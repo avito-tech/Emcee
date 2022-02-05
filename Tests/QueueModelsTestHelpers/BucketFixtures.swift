@@ -28,8 +28,8 @@ public final class BucketFixtures {
     public static func createRunIosTestsPayload(
         testEntries: [TestEntry] = [TestEntryFixtures.testEntry()],
         numberOfRetries: UInt = 0
-    ) -> RunIosTestsPayload {
-        RunIosTestsPayload(
+    ) -> RunAppleTestsPayload {
+        RunAppleTestsPayload(
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
             developerDir: .current,
             pluginLocations: [],

@@ -11,7 +11,7 @@ final class EventBusReportingTestRunnerStreamTests: XCTestCase {
         let eventStream = BlockBasedEventStream { [testEntry, testContext, expectation] event in
             XCTAssertEqual(
                 event,
-                .runnerEvent(.testStarted(testEntry: testEntry, testContext: testContext))
+                .appleRunnerEvent(.testStarted(testEntry: testEntry, testContext: testContext))
             )
             expectation.fulfill()
         }
@@ -39,7 +39,7 @@ final class EventBusReportingTestRunnerStreamTests: XCTestCase {
         let eventStream = BlockBasedEventStream { [testEntry, testContext, expectation] event in
             XCTAssertEqual(
                 event,
-                .runnerEvent(.testFinished(testEntry: testEntry, succeeded: false, testContext: testContext))
+                .appleRunnerEvent(.testFinished(testEntry: testEntry, succeeded: false, testContext: testContext))
             )
             expectation.fulfill()
         }
@@ -89,7 +89,7 @@ final class EventBusReportingTestRunnerStreamTests: XCTestCase {
         let eventStream = BlockBasedEventStream { [testEntry, testContext, expectation] event in
             XCTAssertEqual(
                 event,
-                .runnerEvent(.willRun(testEntries: [testEntry], testContext: testContext))
+                .appleRunnerEvent(.willRun(testEntries: [testEntry], testContext: testContext))
             )
             expectation.fulfill()
         }
@@ -104,7 +104,7 @@ final class EventBusReportingTestRunnerStreamTests: XCTestCase {
         let eventStream = BlockBasedEventStream { [testEntryResult, testContext, expectation] event in
             XCTAssertEqual(
                 event,
-                .runnerEvent(.didRun(results: [testEntryResult], testContext: testContext))
+                .appleRunnerEvent(.didRun(results: [testEntryResult], testContext: testContext))
             )
             expectation.fulfill()
         }
@@ -128,7 +128,7 @@ final class EventBusReportingTestRunnerStreamTests: XCTestCase {
         duration: 5,
         startTime: 5,
         hostName: "host",
-        simulatorId: UDID(value: "UDID")
+        udid: UDID(value: "UDID")
     )
     lazy var testStoppedEvent = TestStoppedEvent(
         testName: testEntry.testName,
@@ -138,7 +138,7 @@ final class EventBusReportingTestRunnerStreamTests: XCTestCase {
         logs: [],
         testStartTimestamp: 2
     )
-    lazy var testStream = EventBusReportingTestRunnerStream(
+    lazy var testStream = AppleEventBusReportingTestRunnerStream(
         entriesToRun: [testEntry],
         eventBus: eventBus,
         logger: { .noOp },

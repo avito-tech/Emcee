@@ -150,10 +150,10 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertTrue(testArgFile.prioritizedJob.jobId.value.hasPrefix("automaticJobId_")) 
         XCTAssertEqual(testArgFile.entries.count, 1)
         XCTAssertEqual(testArgFile.entries[0].testsToRun, [.allDiscoveredTests])
-        XCTAssertEqual(testArgFile.entries[0].testDestination, TestDestination.iOSSimulator(deviceType: "iPhone X", version: "11.3"))
+        XCTAssertEqual(testArgFile.entries[0].testDestination, AppleTestDestination.iOSSimulator(deviceType: "iPhone X", version: "11.3"))
         XCTAssertEqual(
             testArgFile.entries[0].buildArtifacts,
-            IosBuildArtifacts.iosUiTests(
+            AppleBuildArtifacts.iosUiTests(
                 xcTestBundle: XcTestBundle(
                     location: TestBundleLocation(try .from("http://example.com/App.zip#Tests/UITests-Runner.app/PlugIns/UITests.xctest")),
                     testDiscoveryMode: .parseFunctionSymbols

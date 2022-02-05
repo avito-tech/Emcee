@@ -34,12 +34,12 @@ public final class InitTestArgFileCommand: Command {
     public func run(payload: CommandPayload) throws {
         let outputPath: AbsolutePath = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.output.name)
         
-        let testDestination = TestDestination.iOSSimulator(deviceType: "iPhone X", version: "15.1")
+        let testDestination = AppleTestDestination.iOSSimulator(deviceType: "iPhone X", version: "15.1")
         
         let testArgFile = TestArgFile(
             entries: [
                 TestArgFileEntry(
-                    buildArtifacts: IosBuildArtifacts.iosUiTests(
+                    buildArtifacts: AppleBuildArtifacts.iosUiTests(
                         xcTestBundle: XcTestBundle(
                             location: TestBundleLocation(
                                 .remoteUrl(
@@ -87,7 +87,7 @@ public final class InitTestArgFileCommand: Command {
                     logCapturingMode: .onlyCrashLogs,
                     runnerWasteCleanupPolicy: .clean,
                     pluginLocations: [
-                        PluginLocation(
+                        AppleTestPluginLocation(
                             .remoteUrl(
                                 URL(string: "http://storage.example.com/emceeplugins/MyPlugin.zip#MyPlugin.emceeplugin")!,
                                 [

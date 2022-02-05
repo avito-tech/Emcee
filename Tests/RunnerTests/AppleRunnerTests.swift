@@ -104,7 +104,7 @@ public final class RunnerTests: XCTestCase {
         noOpPluginEventBusProvider.eventBus.add(
             stream: BlockBasedEventStream { (busEvent: BusEvent) in
                 switch busEvent {
-                case .runnerEvent:
+                case .appleRunnerEvent:
                     break
                 case .tearDown:
                     busTornDownExpectation.fulfill()
@@ -444,7 +444,7 @@ public final class RunnerTests: XCTestCase {
 
         XCTAssertEqual(
             testRunnerProvider.predefinedFakeTestRunner.testContext?.testRunnerWorkingDirectory,
-            tempFolder.absolutePath.appending(Runner.runnerWorkingDir, uniqueIdentifierGenerator.value)
+            tempFolder.absolutePath.appending(RunnerConstants.runnerWorkingDir, uniqueIdentifierGenerator.value)
         )
     }
     
@@ -453,7 +453,7 @@ public final class RunnerTests: XCTestCase {
 
         XCTAssertEqual(
             testRunnerProvider.predefinedFakeTestRunner.testContext?.testsWorkingDirectory,
-            tempFolder.absolutePath.appending(Runner.testsWorkingDir, uniqueIdentifierGenerator.value)
+            tempFolder.absolutePath.appending(RunnerConstants.testsWorkingDir, uniqueIdentifierGenerator.value)
         )
     }
     
@@ -462,7 +462,7 @@ public final class RunnerTests: XCTestCase {
         
         assertTrue {
             runnerWasteCollector.collectedPaths.contains { path in
-                path == tempFolder.pathWith(components: [Runner.runnerWorkingDir, uniqueIdentifierGenerator.value])
+                path == tempFolder.pathWith(components: [RunnerConstants.runnerWorkingDir, uniqueIdentifierGenerator.value])
             }
         }
     }
@@ -472,7 +472,7 @@ public final class RunnerTests: XCTestCase {
         
         assertTrue {
             runnerWasteCollector.collectedPaths.contains { path in
-                path == tempFolder.absolutePath.appending(Runner.testsWorkingDir, uniqueIdentifierGenerator.value)
+                path == tempFolder.absolutePath.appending(RunnerConstants.testsWorkingDir, uniqueIdentifierGenerator.value)
             }
         }
     }
@@ -493,7 +493,7 @@ public final class RunnerTests: XCTestCase {
         noOpPluginEventBusProvider.eventBus.add(
             stream: BlockBasedEventStream { (busEvent: BusEvent) in
                 switch busEvent {
-                case let .runnerEvent(runnerEvent):
+                case let .appleRunnerEvent(runnerEvent):
                     switch runnerEvent {
                     case .didRun:
                         eventExpectation.fulfill()
@@ -514,7 +514,7 @@ public final class RunnerTests: XCTestCase {
         environment: [String: String] = [:],
         logCapturingMode: LogCapturingMode = .noLogs
     ) throws -> RunnerRunResult {
-        let runner = Runner(
+        let runner = AppleRunner(
             dateProvider: dateProvider,
             developerDirLocator: FakeDeveloperDirLocator(result: tempFolder.absolutePath),
             fileSystem: fileSystem,
@@ -549,8 +549,8 @@ public final class RunnerTests: XCTestCase {
     private func createRunnerConfig(
         environment: [String: String],
         logCapturingMode: LogCapturingMode
-    ) -> RunnerConfiguration {
-        return RunnerConfiguration(
+    ) -> AppleRunnerConfiguration {
+        return AppleRunnerConfiguration(
             buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
             developerDir: .current,
             environment: environment,

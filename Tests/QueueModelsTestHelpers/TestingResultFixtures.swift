@@ -11,9 +11,9 @@ public final class TestingResultFixtures {
     public let unfilteredResults: [TestEntryResult]    
     public let testEntry: TestEntry
     
-    private let manuallyTestDestination: TestDestination?
+    private let manuallyTestDestination: AppleTestDestination?
     
-    public var testDestination: TestDestination {
+    public var testDestination: AppleTestDestination {
         if let manuallyTestDestination = manuallyTestDestination {
             return manuallyTestDestination
         } else {
@@ -31,7 +31,7 @@ public final class TestingResultFixtures {
     
     public init(
         testEntry: TestEntry,
-        manuallyTestDestination: TestDestination?,
+        manuallyTestDestination: AppleTestDestination?,
         unfilteredResults: [TestEntryResult])
     {
         self.testEntry = testEntry

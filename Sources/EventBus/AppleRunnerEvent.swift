@@ -1,27 +1,27 @@
 import Foundation
 import RunnerModels
 
-public enum RunnerEvent: Codable, Equatable, CustomStringConvertible {
+public enum AppleRunnerEvent: Codable, Equatable, CustomStringConvertible {
     /// Event indicates that a set of tests will be run.
-    case willRun(testEntries: [TestEntry], testContext: TestContext)
+    case willRun(testEntries: [TestEntry], testContext: AppleTestContext)
 
     /// Event occurs after test starts.
     /// At this time there is no information about its result yet.
     /// This event will be triggered for each test from the set of tests which has started before.
-    case testStarted(testEntry: TestEntry, testContext: TestContext)
+    case testStarted(testEntry: TestEntry, testContext: AppleTestContext)
     
     /// Event occurs after test finishes. At this time only a limited test result information is available.
     /// At the moment of this event triggering, some tests still may be up to be executed by the test runner.
     /// This event will be triggered for each test from the set of tests which has started before.
     /// This event is not an appropriate place to process test results, because not all test results can be available, or test results may be not complete.
-    case testFinished(testEntry: TestEntry, succeeded: Bool, testContext: TestContext)
+    case testFinished(testEntry: TestEntry, succeeded: Bool, testContext: AppleTestContext)
     
     /// This event indicates that test runner has finished running all tests from the test set it has been executing.
     /// At this point, all test results are final and contain maximum details test runner managed to obtain.
     /// This event is a good place to process test results.
-    case didRun(results: [TestEntryResult], testContext: TestContext)
+    case didRun(results: [TestEntryResult], testContext: AppleTestContext)
     
-    public var testContext: TestContext {
+    public var testContext: AppleTestContext {
         switch self {
         case .willRun(_, let testContext):
             return testContext
@@ -36,7 +36,7 @@ public enum RunnerEvent: Codable, Equatable, CustomStringConvertible {
     
     public var description: String {
         let eventName: String
-        let testContext: TestContext
+        let testContext: AppleTestContext
         let additionalInfo: String
         
         switch self {
@@ -84,19 +84,19 @@ public enum RunnerEvent: Codable, Equatable, CustomStringConvertible {
         switch eventType {
         case .willRun:
             let testEntries = try container.decode([TestEntry].self, forKey: .testEntries)
-            let testContext = try container.decode(TestContext.self, forKey: .testContext)
+            let testContext = try container.decode(AppleTestContext.self, forKey: .testContext)
             self = .willRun(testEntries: testEntries, testContext: testContext)
         case .didRun:
             let results = try container.decode([TestEntryResult].self, forKey: .results)
-            let testContext = try container.decode(TestContext.self, forKey: .testContext)
+            let testContext = try container.decode(AppleTestContext.self, forKey: .testContext)
             self = .didRun(results: results, testContext: testContext)
         case .testStarted:
             let testEntry = try container.decode(TestEntry.self, forKey: .testEntry)
-            let testContext = try container.decode(TestContext.self, forKey: .testContext)
+            let testContext = try container.decode(AppleTestContext.self, forKey: .testContext)
             self = .testStarted(testEntry: testEntry, testContext: testContext)
         case .testFinished:
             let testEntry = try container.decode(TestEntry.self, forKey: .testEntry)
-            let testContext = try container.decode(TestContext.self, forKey: .testContext)
+            let testContext = try container.decode(AppleTestContext.self, forKey: .testContext)
             let succeeded = try container.decode(Bool.self, forKey: .succeeded)
             self = .testFinished(testEntry: testEntry, succeeded: succeeded, testContext: testContext)
         }

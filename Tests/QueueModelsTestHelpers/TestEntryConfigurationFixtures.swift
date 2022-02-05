@@ -16,7 +16,7 @@ import WorkerCapabilitiesModels
 public final class TestEntryConfigurationFixtures {
     public var analyticsConfiguration = AnalyticsConfiguration()
     public var buildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
-    public var pluginLocations = Set<PluginLocation>()
+    public var pluginLocations = Set<AppleTestPluginLocation>()
     public var simulatorSettings = SimulatorSettings(
         simulatorLocalizationSettings: SimulatorLocalizationSettingsFixture().simulatorLocalizationSettings(),
         simulatorKeychainSettings: SimulatorKeychainSettings(
@@ -56,12 +56,12 @@ public final class TestEntryConfigurationFixtures {
         return self
     }
     
-    public func with(buildArtifacts: IosBuildArtifacts) -> Self {
+    public func with(buildArtifacts: AppleBuildArtifacts) -> Self {
         self.buildArtifacts = buildArtifacts
         return self
     }
     
-    public func with(pluginLocations: Set<PluginLocation>) -> Self {
+    public func with(pluginLocations: Set<AppleTestPluginLocation>) -> Self {
         self.pluginLocations = pluginLocations
         return self
     }
@@ -71,7 +71,7 @@ public final class TestEntryConfigurationFixtures {
         return self
     }
     
-    public func with(testDestination: TestDestination) -> Self {
+    public func with(testDestination: AppleTestDestination) -> Self {
         self.testDestination = testDestination
         return self
     }

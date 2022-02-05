@@ -96,7 +96,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         location: TestBundleLocation(.localFilePath(testBundlePath.pathString)),
         testDiscoveryMode: .runtimeLogicTest
     )
-    private lazy var uiTestBuildArtifacts = IosBuildArtifacts.iosUiTests(
+    private lazy var uiTestBuildArtifacts = AppleBuildArtifacts.iosUiTests(
         xcTestBundle: xcTestBundle,
         appBundle: AppBundleLocation(.localFilePath(appBundlePath.pathString)),
         runner: RunnerAppLocation(.localFilePath(runnerAppPath.pathString)),
@@ -104,28 +104,28 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             AdditionalAppBundleLocation(.localFilePath(additionalAppPath.pathString)),
         ]
     )
-    private lazy var appTestBuildArtifacts = IosBuildArtifacts.iosApplicationTests(
+    private lazy var appTestBuildArtifacts = AppleBuildArtifacts.iosApplicationTests(
         xcTestBundle: xcTestBundle,
         appBundle: AppBundleLocation(.localFilePath(appBundlePath.pathString))
     )
-    private lazy var logicTestBuildArtifacts = IosBuildArtifacts.iosLogicTests(
+    private lazy var logicTestBuildArtifacts = AppleBuildArtifacts.iosLogicTests(
         xcTestBundle: xcTestBundle
     )
     
     private var testRunnerWorkingDirectory: AbsolutePath {
         assertDoesNotThrow {
-            try tempFolder.createDirectory(components: [Runner.runnerWorkingDir, contextId])
+            try tempFolder.createDirectory(components: [RunnerConstants.runnerWorkingDir, contextId])
         }
     }
     
     private var testsWorkingDirectory: AbsolutePath {
         assertDoesNotThrow {
-            try tempFolder.createDirectory(components: [Runner.testsWorkingDir, contextId])
+            try tempFolder.createDirectory(components: [RunnerConstants.testsWorkingDir, contextId])
         }
     }
     
-    private func createTestContext(environment: [String: String] = [:]) throws -> TestContext {
-        TestContext(
+    private func createTestContext(environment: [String: String] = [:]) throws -> AppleTestContext {
+        AppleTestContext(
             contextId: contextId,
             developerDir: DeveloperDir.current,
             environment: environment,

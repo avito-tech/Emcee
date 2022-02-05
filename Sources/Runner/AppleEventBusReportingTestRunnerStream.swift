@@ -4,18 +4,18 @@ import Foundation
 import EmceeLogging
 import RunnerModels
 
-public final class EventBusReportingTestRunnerStream: TestRunnerStream {
+public final class AppleEventBusReportingTestRunnerStream: TestRunnerStream {
     private let entriesToRun: [TestEntry]
     private let eventBus: EventBus
     private let logger: () -> ContextualLogger
-    private let testContext: TestContext
+    private let testContext: AppleTestContext
     private let resultsProvider: () -> [TestEntryResult]
     
     public init(
         entriesToRun: [TestEntry],
         eventBus: EventBus,
         logger: @escaping () -> ContextualLogger,
-        testContext: TestContext,
+        testContext: AppleTestContext,
         resultsProvider: @escaping () -> [TestEntryResult]
     ) {
         self.entriesToRun = entriesToRun
@@ -27,7 +27,7 @@ public final class EventBusReportingTestRunnerStream: TestRunnerStream {
     
     public func openStream() {
         eventBus.post(
-            event: .runnerEvent(.willRun(testEntries: entriesToRun, testContext: testContext))
+            event: .appleRunnerEvent(.willRun(testEntries: entriesToRun, testContext: testContext))
         )
     }
     
@@ -37,7 +37,7 @@ public final class EventBusReportingTestRunnerStream: TestRunnerStream {
         }
         
         eventBus.post(
-            event: .runnerEvent(.testStarted(testEntry: testEntry, testContext: testContext))
+            event: .appleRunnerEvent(.testStarted(testEntry: testEntry, testContext: testContext))
         )
     }
     
@@ -51,13 +51,13 @@ public final class EventBusReportingTestRunnerStream: TestRunnerStream {
         }
         
         eventBus.post(
-            event: .runnerEvent(.testFinished(testEntry: testEntry, succeeded: testStoppedEvent.succeeded, testContext: testContext))
+            event: .appleRunnerEvent(.testFinished(testEntry: testEntry, succeeded: testStoppedEvent.succeeded, testContext: testContext))
         )
     }
     
     public func closeStream() {
         eventBus.post(
-            event: .runnerEvent(.didRun(results: resultsProvider(), testContext: testContext))
+            event: .appleRunnerEvent(.didRun(results: resultsProvider(), testContext: testContext))
         )
     }
     

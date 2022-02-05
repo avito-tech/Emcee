@@ -10,11 +10,11 @@ import SimulatorPool
 import SimulatorPoolModels
 import Tmp
 
-public final class RunIosTestsPayloadExecutor {
+public final class RunAppleTestsPayloadExecutor {
     private let dateProvider: DateProvider
     private let globalMetricRecorder: GlobalMetricRecorder
     private let onDemandSimulatorPool: OnDemandSimulatorPool
-    private let runnerProvider: RunnerProvider
+    private let runnerProvider: AppleRunnerProvider
     private let simulatorSettingsModifier: SimulatorSettingsModifier
     private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
     private let tempFolder: TemporaryFolder
@@ -24,7 +24,7 @@ public final class RunIosTestsPayloadExecutor {
         dateProvider: DateProvider,
         globalMetricRecorder: GlobalMetricRecorder,
         onDemandSimulatorPool: OnDemandSimulatorPool,
-        runnerProvider: RunnerProvider,
+        runnerProvider: AppleRunnerProvider,
         simulatorSettingsModifier: SimulatorSettingsModifier,
         specificMetricRecorderProvider: SpecificMetricRecorderProvider,
         tempFolder: TemporaryFolder,
@@ -44,7 +44,7 @@ public final class RunIosTestsPayloadExecutor {
         analyticsConfiguration: AnalyticsConfiguration,
         bucketId: BucketId,
         logger: ContextualLogger,
-        payload: RunIosTestsPayload
+        payload: RunAppleTestsPayload
     ) -> BucketResult {
         let startedAt = dateProvider.dateSince1970ReferenceDate()
         let testingResult: TestingResult
@@ -76,7 +76,7 @@ public final class RunIosTestsPayloadExecutor {
                             duration: dateProvider.currentDate().timeIntervalSince(startedAt.date),
                             startTime: startedAt,
                             hostName: LocalHostDeterminer.currentHostAddress,
-                            simulatorId: UDID(value: "undefined")
+                            udid: UDID(value: "undefined")
                         )
                     )
                 }
@@ -90,7 +90,7 @@ public final class RunIosTestsPayloadExecutor {
      */
     private func runRetrying(
         analyticsConfiguration: AnalyticsConfiguration,
-        runIosTestsPayload: RunIosTestsPayload,
+        runIosTestsPayload: RunAppleTestsPayload,
         logger: ContextualLogger,
         numberOfRetries: UInt
     ) throws -> TestingResult {
@@ -127,7 +127,7 @@ public final class RunIosTestsPayloadExecutor {
     
     private func runBucketOnce(
         analyticsConfiguration: AnalyticsConfiguration,
-        runIosTestsPayload: RunIosTestsPayload,
+        runIosTestsPayload: RunAppleTestsPayload,
         testsToRun: [TestEntry],
         logger: ContextualLogger
     ) throws -> TestingResult {
@@ -163,7 +163,7 @@ public final class RunIosTestsPayloadExecutor {
 
             let runnerResult = try runner.runOnce(
                 entriesToRun: testsToRun,
-                configuration: RunnerConfiguration(
+                configuration: AppleRunnerConfiguration(
                     buildArtifacts: runIosTestsPayload.buildArtifacts,
                     developerDir:runIosTestsPayload.developerDir,
                     environment: runIosTestsPayload.testExecutionBehavior.environment,

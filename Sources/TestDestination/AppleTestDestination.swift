@@ -1,6 +1,6 @@
 import Foundation
 
-public struct TestDestination: Hashable, CustomStringConvertible, Codable {
+public struct AppleTestDestination: Hashable, CustomStringConvertible, Codable {
     /// Device type. Examples:
     /// - `com.apple.CoreSimulator.SimDeviceType.iPhone-X`
     /// - `com.apple.CoreSimulator.SimDeviceType.iPad-mini-6th-generation`

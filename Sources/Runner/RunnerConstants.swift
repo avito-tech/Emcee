@@ -3,6 +3,12 @@ import EmceeLogging
 import RunnerModels
 
 public enum RunnerConstants: CustomStringConvertible {
+    /// Folder name where runner can store its auxiliary files
+    public static let runnerWorkingDir = "runnerWorkingDir"
+    
+    /// Folder name where tests can store its auxiliary files
+    public static let testsWorkingDir = "testsWorkingDir"
+    
     /// Test failure reason that will be given back if test actually fails to start after all attempts to revive, even though test runner has started.
     case testDidNotRun(TestName)
     /// Test failure reason that will be given back if test runner fails to start for any reason.

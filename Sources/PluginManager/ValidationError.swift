@@ -3,9 +3,9 @@ import PathLib
 import PluginSupport
 
 public enum ValidationError: Error, CustomStringConvertible {
-    case unexpectedExtension(PluginLocation, actual: String, expected: String)
-    case noExecutableFound(PluginLocation, expectedLocation: AbsolutePath)
-    case noPluginsFound(PluginLocation)
+    case unexpectedExtension(AppleTestPluginLocation, actual: String, expected: String)
+    case noExecutableFound(AppleTestPluginLocation, expectedLocation: AbsolutePath)
+    case noPluginsFound(AppleTestPluginLocation)
     
     public var description: String {
         switch self {

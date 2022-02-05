@@ -1,7 +1,7 @@
 import Foundation
 
 public enum BusEvent: Codable, Equatable {
-    case runnerEvent(RunnerEvent)
+    case appleRunnerEvent(AppleRunnerEvent)
     case tearDown
     
     enum CodingKeys: CodingKey {
@@ -19,8 +19,8 @@ public enum BusEvent: Codable, Equatable {
         let eventType = try container.decode(EventType.self, forKey: .eventType)
         switch eventType {
         case .runnerEvent:
-            let runnerEvent = try container.decode(RunnerEvent.self, forKey: .runnerEvent)
-            self = .runnerEvent(runnerEvent)
+            let runnerEvent = try container.decode(AppleRunnerEvent.self, forKey: .runnerEvent)
+            self = .appleRunnerEvent(runnerEvent)
         case .tearDown:
             self = .tearDown
         }
@@ -29,7 +29,7 @@ public enum BusEvent: Codable, Equatable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch self {
-        case .runnerEvent(let runnerEvent):
+        case .appleRunnerEvent(let runnerEvent):
             try container.encode(EventType.runnerEvent, forKey: .eventType)
             try container.encode(runnerEvent, forKey: .runnerEvent)
         case .tearDown:

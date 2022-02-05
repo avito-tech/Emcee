@@ -3,11 +3,11 @@ import PathLib
 import TestDestination
 
 public struct Simulator: Hashable, CustomStringConvertible {
-    public let testDestination: TestDestination
+    public let testDestination: AppleTestDestination
     public let udid: UDID
     public let path: AbsolutePath
 
-    public init(testDestination: TestDestination, udid: UDID, path: AbsolutePath) {
+    public init(testDestination: AppleTestDestination, udid: UDID, path: AbsolutePath) {
         self.testDestination = testDestination
         self.udid = udid
         self.path = path

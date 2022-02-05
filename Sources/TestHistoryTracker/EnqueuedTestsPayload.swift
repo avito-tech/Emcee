@@ -6,13 +6,13 @@ import TestDestination
 
 public struct EnqueuedRunTestsPayload: Hashable {
     public let bucketId: BucketId
-    public let testDestination: TestDestination
+    public let testDestination: AppleTestDestination
     public let testEntries: [TestEntry]
     public let numberOfRetries: UInt
     
     public init(
         bucketId: BucketId,
-        testDestination: TestDestination,
+        testDestination: AppleTestDestination,
         testEntries: [TestEntry],
         numberOfRetries: UInt
     ) {

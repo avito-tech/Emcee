@@ -140,7 +140,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         assertThrows {
             try executor.performCreateSimulatorAction(
                 environment: [:],
-                testDestination: TestDestination.iOSSimulator(deviceType: "iPhone SE", version: "11.3"),
+                testDestination: AppleTestDestination.iOSSimulator(deviceType: "iPhone SE", version: "11.3"),
                 timeout: 60
             )
         }

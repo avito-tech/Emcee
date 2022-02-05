@@ -23,12 +23,12 @@ public final class FailureReportingTestRunnerProxy: TestRunner {
     }
     
     public func prepareTestRun(
-        buildArtifacts: IosBuildArtifacts,
+        buildArtifacts: AppleBuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         logger: ContextualLogger,
         specificMetricRecorder: SpecificMetricRecorder,
-        testContext: TestContext,
+        testContext: AppleTestContext,
         testRunnerStream: TestRunnerStream
     ) throws -> TestRunnerInvocation {
         do {

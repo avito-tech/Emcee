@@ -10,12 +10,12 @@ import WorkerCapabilitiesModels
 
 public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable {
     public let analyticsConfiguration: AnalyticsConfiguration
-    public let buildArtifacts: IosBuildArtifacts
+    public let buildArtifacts: AppleBuildArtifacts
     public let developerDir: DeveloperDir
-    public let pluginLocations: Set<PluginLocation>
+    public let pluginLocations: Set<AppleTestPluginLocation>
     public let simulatorOperationTimeouts: SimulatorOperationTimeouts
     public let simulatorSettings: SimulatorSettings
-    public let testDestination: TestDestination
+    public let testDestination: AppleTestDestination
     public let testEntry: TestEntry
     public let testExecutionBehavior: TestExecutionBehavior
     public let testTimeoutConfiguration: TestTimeoutConfiguration
@@ -24,12 +24,12 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
 
     public init(
         analyticsConfiguration: AnalyticsConfiguration,
-        buildArtifacts: IosBuildArtifacts,
+        buildArtifacts: AppleBuildArtifacts,
         developerDir: DeveloperDir,
-        pluginLocations: Set<PluginLocation>,
+        pluginLocations: Set<AppleTestPluginLocation>,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,
         simulatorSettings: SimulatorSettings,
-        testDestination: TestDestination,
+        testDestination: AppleTestDestination,
         testEntry: TestEntry,
         testExecutionBehavior: TestExecutionBehavior,
         testTimeoutConfiguration: TestTimeoutConfiguration,

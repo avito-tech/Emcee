@@ -104,7 +104,7 @@ public final class ReportsGenerator {
         for testEntryResult in testingResult.failedTests {
             logger.info("Test \(testEntryResult.testEntry) failed after \(testEntryResult.testRunResults.count) runs")
             for testRunResult in testEntryResult.testRunResults {
-                logger.info("   executed on \(testRunResult.hostName) at \(testRunResult.startTime.date.loggable()) using \(testRunResult.simulatorId)")
+                logger.info("   executed on \(testRunResult.hostName) at \(testRunResult.startTime.date.loggable()) using \(testRunResult.udid)")
                 if !testRunResult.exceptions.isEmpty {
                     logger.info("   caught \(testRunResult.exceptions.count) exceptions")
                     for exception in testRunResult.exceptions {

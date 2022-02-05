@@ -19,7 +19,7 @@ import Tmp
 import UniqueIdentifierGenerator
 
 public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
-    private let buildArtifacts: IosBuildArtifacts
+    private let buildArtifacts: AppleBuildArtifacts
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let fileSystem: FileSystem
@@ -37,7 +37,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let specificMetricRecorder: SpecificMetricRecorder
     
     public init(
-        buildArtifacts: IosBuildArtifacts,
+        buildArtifacts: AppleBuildArtifacts,
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         fileSystem: FileSystem,
@@ -78,7 +78,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         let runtimeEntriesJSONPath = tempFolder.pathWith(components: [uniqueIdentifierGenerator.generate()])
         configuration.logger.trace("Will write test discovery into file: \(runtimeEntriesJSONPath)")
         
-        let runner = Runner(
+        let runner = AppleRunner(
             dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
@@ -117,12 +117,12 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     }
     
     private func buildRunnerConfiguration(
-        buildArtifacts: IosBuildArtifacts,
+        buildArtifacts: AppleBuildArtifacts,
         configuration: TestDiscoveryConfiguration,
         runtimeEntriesJSONPath: AbsolutePath,
         simulator: Simulator
-    ) -> RunnerConfiguration {
-        return RunnerConfiguration(
+    ) -> AppleRunnerConfiguration {
+        return AppleRunnerConfiguration(
             buildArtifacts: buildArtifacts,
             developerDir: configuration.developerDir,
             environment: environment(

@@ -8,14 +8,14 @@ import TestDestination
 
 public struct RunAndroidTestsPayload: BucketPayload, CustomStringConvertible, BucketPayloadWithTests {
     public let buildArtifacts: AndroidBuildArtifacts
-    public let testDestination: TestDestination
+    public let testDestination: AppleTestDestination
     public private(set) var testEntries: [TestEntry]
     public let testExecutionBehavior: TestExecutionBehavior
     public let testTimeoutConfiguration: TestTimeoutConfiguration
 
     public init(
         buildArtifacts: AndroidBuildArtifacts,
-        testDestination: TestDestination,
+        testDestination: AppleTestDestination,
         testEntries: [TestEntry],
         testExecutionBehavior: TestExecutionBehavior,
         testTimeoutConfiguration: TestTimeoutConfiguration

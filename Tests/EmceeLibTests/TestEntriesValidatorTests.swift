@@ -46,7 +46,7 @@ final class TestEntriesValidatorTests: XCTestCase {
 
     func test__pass_app_test_data__if_flag_is_true() throws {
         let appBundleLocation = AppBundleLocation(.localFilePath("/app"))
-        let buildArtifacts = IosBuildArtifacts.iosApplicationTests(
+        let buildArtifacts = AppleBuildArtifacts.iosApplicationTests(
             xcTestBundle: XcTestBundle(
                 location: TestBundleLocation(.localFilePath("/bundle")),
                 testDiscoveryMode: .runtimeAppTest
@@ -109,7 +109,7 @@ final class TestEntriesValidatorTests: XCTestCase {
     }
 
     private func createTestEntry(
-        buildArtifacts: IosBuildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
+        buildArtifacts: AppleBuildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
     ) throws -> TestArgFileEntry {
         return TestArgFileEntry(
             buildArtifacts: buildArtifacts,
@@ -124,7 +124,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             scheduleStrategy: ScheduleStrategy(testSplitterType: .unsplit),
             simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-            testDestination: TestDestination.iOSSimulator(deviceType: "iPhoneXL", version: "10.3"),
+            testDestination: AppleTestDestination.iOSSimulator(deviceType: "iPhoneXL", version: "10.3"),
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
             testAttachmentLifetime: .deleteOnSuccess,
             testsToRun: [.testName(TestName(className: "MyTest", methodName: "test"))],

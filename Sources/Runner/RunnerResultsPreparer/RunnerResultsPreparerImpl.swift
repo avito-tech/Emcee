@@ -20,12 +20,12 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
         collectedTestExceptions: [TestException],
         collectedLogs: [TestLogEntry],
         requestedEntriesToRun: [TestEntry],
-        simulatorId: UDID
+        udid: UDID
     ) -> [TestEntryResult] {
         return requestedEntriesToRun.map { requestedEntryToRun in
             prepareResult(
                 requestedEntryToRun: requestedEntryToRun,
-                simulatorId: simulatorId,
+                udid: udid,
                 collectedTestStoppedEvents: collectedTestStoppedEvents,
                 collectedTestExceptions: collectedTestExceptions,
                 collectedLogs: collectedLogs
@@ -35,7 +35,7 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
     
     private func prepareResult(
         requestedEntryToRun: TestEntry,
-        simulatorId: UDID,
+        udid: UDID,
         collectedTestStoppedEvents: [TestStoppedEvent],
         collectedTestExceptions: [TestException],
         collectedLogs: [TestLogEntry]
@@ -45,7 +45,7 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
             collectedTestStoppedEvents: collectedTestStoppedEvents
         )
         return testEntryResultForFinishedTest(
-            simulatorId: simulatorId,
+            udid: udid,
             testEntry: requestedEntryToRun,
             testStoppedEvents: correspondingTestStoppedEvents,
             collectedTestExceptions: collectedTestExceptions,
@@ -54,7 +54,7 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
     }
     
     private func testEntryResultForFinishedTest(
-        simulatorId: UDID,
+        udid: UDID,
         testEntry: TestEntry,
         testStoppedEvents: [TestStoppedEvent],
         collectedTestExceptions: [TestException],
@@ -66,7 +66,7 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
                 return .lost(testEntry: testEntry)
             case .reportError:
                 return resultForSingleTestThatDidNotRun(
-                    simulatorId: simulatorId,
+                    udid: udid,
                     testEntry: testEntry,
                     collectedTestExceptions: collectedTestExceptions,
                     collectedLogs: collectedLogs
@@ -84,7 +84,7 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
                     duration: testStoppedEvent.testDuration,
                     startTime: testStoppedEvent.testStartTimestamp,
                     hostName: LocalHostDeterminer.currentHostAddress,
-                    simulatorId: simulatorId
+                    udid: udid
                 )
             }
         )
@@ -98,7 +98,7 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
     }
     
     private func resultForSingleTestThatDidNotRun(
-        simulatorId: UDID,
+        udid: UDID,
         testEntry: TestEntry,
         collectedTestExceptions: [TestException],
         collectedLogs: [TestLogEntry]
@@ -112,7 +112,7 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
                 duration: 0,
                 startTime: dateProvider.dateSince1970ReferenceDate(),
                 hostName: LocalHostDeterminer.currentHostAddress,
-                simulatorId: simulatorId
+                udid: udid
             )
         )
     }

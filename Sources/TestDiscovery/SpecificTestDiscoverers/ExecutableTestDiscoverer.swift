@@ -16,7 +16,7 @@ public final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
     
     enum Errors: Error, CustomStringConvertible {
         case bundleExecutableNotFound(path: AbsolutePath)
-        case runtimeRootNotFound(testDestination: TestDestination)
+        case runtimeRootNotFound(testDestination: AppleTestDestination)
         
         var description: String {
             switch self {
@@ -104,7 +104,7 @@ public final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
     }
     
     private func findRuntimeRoot(
-        testDestination: TestDestination,
+        testDestination: AppleTestDestination,
         developerDir: DeveloperDir,
         logger: ContextualLogger
     ) throws -> String {

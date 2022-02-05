@@ -12,7 +12,7 @@ import UniqueIdentifierGenerator
 import SynchronousWaiter
 import QueueModels
 
-public final class RunnerProviderImpl: RunnerProvider {
+public final class AppleRunnerProvider: RunnerProvider {
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let fileSystem: FileSystem
@@ -49,8 +49,8 @@ public final class RunnerProviderImpl: RunnerProvider {
         specificMetricRecorder: SpecificMetricRecorder,
         tempFolder: TemporaryFolder,
         version: Version
-    ) -> Runner {
-        return Runner(
+    ) -> AppleRunner {
+        return AppleRunner(
             dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,

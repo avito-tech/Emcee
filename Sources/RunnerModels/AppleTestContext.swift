@@ -4,14 +4,14 @@ import PathLib
 import SimulatorPoolModels
 import TestDestination
 
-public struct TestContext: Codable, Hashable, CustomStringConvertible {
+public struct AppleTestContext: Codable, Hashable, CustomStringConvertible {
     public let contextId: String
     public let developerDir: DeveloperDir
     public let environment: [String: String]
     public let userInsertedLibraries: [String]
     public let simulatorPath: AbsolutePath
     public let simulatorUdid: UDID
-    public let testDestination: TestDestination
+    public let testDestination: AppleTestDestination
     public let testRunnerWorkingDirectory: AbsolutePath
     public let testsWorkingDirectory: AbsolutePath
     public let testAttachmentLifetime: TestAttachmentLifetime
@@ -23,7 +23,7 @@ public struct TestContext: Codable, Hashable, CustomStringConvertible {
         userInsertedLibraries: [String],
         simulatorPath: AbsolutePath,
         simulatorUdid: UDID,
-        testDestination: TestDestination,
+        testDestination: AppleTestDestination,
         testRunnerWorkingDirectory: AbsolutePath,
         testsWorkingDirectory: AbsolutePath,
         testAttachmentLifetime: TestAttachmentLifetime

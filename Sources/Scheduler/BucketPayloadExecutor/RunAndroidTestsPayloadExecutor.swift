@@ -35,7 +35,7 @@ public final class RunAndroidTestsPayloadExecutor {
                             succeeded: false,
                             exceptions: [
                                 TestException(
-                                    reason: "Android tests are not supported by iOS worker",
+                                    reason: "Android tests are not supported by Apple worker",
                                     filePathInProject: "Unknown",
                                     lineNumber: 0,
                                     relatedTestName: testEntry.testName
@@ -45,7 +45,7 @@ public final class RunAndroidTestsPayloadExecutor {
                             duration: 0,
                             startTime: dateProvider.dateSince1970ReferenceDate(),
                             hostName: LocalHostDeterminer.currentHostAddress,
-                            simulatorId: "n/a"
+                            udid: "n/a"
                         )
                     ]
                 )

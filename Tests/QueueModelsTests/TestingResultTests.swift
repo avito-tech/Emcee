@@ -97,8 +97,8 @@ final class TestingResultTests: XCTestCase {
     }
     
     func testMergingMismatchingBucketsFails() {
-        let testDestination1 = TestDestination.iOSSimulator(deviceType: "device", version: "11.3")
-        let testDestination2 = TestDestination.iOSSimulator(deviceType: "device", version: "10.0")
+        let testDestination1 = AppleTestDestination.iOSSimulator(deviceType: "device", version: "11.3")
+        let testDestination2 = AppleTestDestination.iOSSimulator(deviceType: "device", version: "10.0")
         let testEntry = TestEntryFixtures.testEntry(className: "success", methodName: "")
         
         let result1 = TestingResult(

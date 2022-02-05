@@ -12,7 +12,7 @@ import PathLib
 public final class FakeTestRunner: TestRunner {
     public var entriesToRun: [TestEntry]?
     public var errorToThrowOnRun: Error?
-    public var testContext: TestContext?
+    public var testContext: AppleTestContext?
     
     public struct SomeError: Error, CustomStringConvertible {
         public let description = "some error happened"
@@ -69,12 +69,12 @@ public final class FakeTestRunner: TestRunner {
     public var isRunCalled = false
     
     public func prepareTestRun(
-        buildArtifacts: IosBuildArtifacts,
+        buildArtifacts: AppleBuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         logger: ContextualLogger,
         specificMetricRecorder: SpecificMetricRecorder,
-        testContext: TestContext,
+        testContext: AppleTestContext,
         testRunnerStream: TestRunnerStream
     ) throws -> TestRunnerInvocation {
         isRunCalled = true

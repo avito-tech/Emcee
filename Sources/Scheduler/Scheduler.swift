@@ -152,8 +152,8 @@ public final class Scheduler {
         }
     }
     
-    private func createRunIosTestsPayloadExecutor() throws -> RunIosTestsPayloadExecutor {
-        RunIosTestsPayloadExecutor(
+    private func createRunIosTestsPayloadExecutor() throws -> RunAppleTestsPayloadExecutor {
+        RunAppleTestsPayloadExecutor(
             dateProvider: try di.get(),
             globalMetricRecorder: try di.get(),
             onDemandSimulatorPool: try di.get(),
@@ -167,7 +167,7 @@ public final class Scheduler {
     
     private func runBucketOnce(
         analyticsConfiguration: AnalyticsConfiguration,
-        runIosTestsPayload: RunIosTestsPayload,
+        runIosTestsPayload: RunAppleTestsPayload,
         testsToRun: [TestEntry],
         logger: ContextualLogger
     ) throws -> TestingResult {
@@ -198,7 +198,7 @@ public final class Scheduler {
             toSimulator: allocatedSimulator.simulator
         )
         
-        let runner = Runner(
+        let runner = AppleRunner(
             dateProvider: dateProvider,
             developerDirLocator: try di.get(),
             fileSystem: fileSystem,
@@ -215,7 +215,7 @@ public final class Scheduler {
 
         let runnerResult = try runner.runOnce(
             entriesToRun: testsToRun,
-            configuration: RunnerConfiguration(
+            configuration: AppleRunnerConfiguration(
                 buildArtifacts: runIosTestsPayload.buildArtifacts,
                 developerDir:runIosTestsPayload.developerDir,
                 environment: runIosTestsPayload.testExecutionBehavior.environment,

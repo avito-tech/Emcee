@@ -10,7 +10,7 @@ public struct TestRunResult: Codable, CustomStringConvertible, Hashable {
     public let duration: TimeInterval
     public let startTime: DateSince1970ReferenceDate
     public let hostName: String
-    public let simulatorId: UDID
+    public let udid: UDID
 
     public var finishTime: DateSince1970ReferenceDate {
         return startTime.addingTimeInterval(duration)
@@ -23,7 +23,7 @@ public struct TestRunResult: Codable, CustomStringConvertible, Hashable {
         duration: TimeInterval,
         startTime: DateSince1970ReferenceDate,
         hostName: String,
-        simulatorId: UDID
+        udid: UDID
     ) {
         self.succeeded = succeeded
         self.exceptions = exceptions
@@ -31,13 +31,13 @@ public struct TestRunResult: Codable, CustomStringConvertible, Hashable {
         self.duration = duration
         self.startTime = startTime
         self.hostName = hostName
-        self.simulatorId = simulatorId
+        self.udid = udid
     }
     
     public var description: String {
         var result: [String] = ["\(type(of: self)) \(succeeded ? "succeeded" : "failed")"]
         result += ["duration \(String(format: "%.3f", duration)) sec"]
-        result += ["\(simulatorId)"]
+        result += ["\(udid)"]
         if !exceptions.isEmpty {
             result += ["\(exceptions.count) exceptions"]
         }

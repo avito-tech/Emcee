@@ -16,7 +16,7 @@ public enum TestArgFileDefaultValues {
     public static let userInsertedLibraries: [String] = []
     public static let numberOfRetries: UInt = 1
     public static let testRetryMode: TestRetryMode = .retryThroughQueue
-    public static let pluginLocations: Set<PluginLocation> = []
+    public static let pluginLocations: Set<AppleTestPluginLocation> = []
     public static func createAutomaticJobId() -> JobId {
         JobId(value: "automaticJobId_" + String.randomString(length: 10))
     }

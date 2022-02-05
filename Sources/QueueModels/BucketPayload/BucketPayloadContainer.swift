@@ -1,7 +1,7 @@
 import Foundation
 
 public enum BucketPayloadContainer: Codable, CustomStringConvertible, Hashable {
-    case runIosTests(RunIosTestsPayload)
+    case runIosTests(RunAppleTestsPayload)
     case runAndroidTests(RunAndroidTestsPayload)
     
     public var payloadWithTests: BucketPayloadWithTests {
@@ -50,7 +50,7 @@ public enum BucketPayloadContainer: Codable, CustomStringConvertible, Hashable {
         let bucketPayloadType = try container.decode(BucketPayloadType.self, forKey: .payloadType)
         switch bucketPayloadType {
         case .runIosTests:
-            self = .runIosTests(try container.decode(RunIosTestsPayload.self, forKey: .payload))
+            self = .runIosTests(try container.decode(RunAppleTestsPayload.self, forKey: .payload))
         case .runAndroidTests:
             self = .runAndroidTests(try container.decode(RunAndroidTestsPayload.self, forKey: .payload))
         }

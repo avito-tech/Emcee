@@ -20,7 +20,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
     lazy var argFileTestToRun1 = TestName(className: "classFromArgs", methodName: "test1")
     lazy var argFileTestToRun2 = TestName(className: "classFromArgs", methodName: "test2")
     lazy var buildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
-    lazy var argFileDestination = TestDestination.iOSSimulator(deviceType: "doesnotmatter", version: "10.1")
+    lazy var argFileDestination = AppleTestDestination.iOSSimulator(deviceType: "doesnotmatter", version: "10.1")
     lazy var simulatorSettings = SimulatorSettingsFixtures().simulatorSettings()
     lazy var testTimeoutConfiguration = TestTimeoutConfiguration(singleTestMaximumDuration: 10, testRunnerMaximumSilenceDuration: 20)
     lazy var analyticsConfiguration = AnalyticsConfiguration()

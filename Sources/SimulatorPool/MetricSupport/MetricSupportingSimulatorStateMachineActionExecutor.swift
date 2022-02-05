@@ -30,7 +30,7 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
     
     public func performCreateSimulatorAction(
         environment: [String: String],
-        testDestination: TestDestination,
+        testDestination: AppleTestDestination,
         timeout: TimeInterval
     ) throws -> Simulator {
         return try measure(
@@ -102,7 +102,7 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
     
     private func measure<T>(
         action: SimulatorDurationMetric.Action,
-        testDestination: TestDestination,
+        testDestination: AppleTestDestination,
         work: () throws -> T
     ) throws -> T {
         let result: Either<T, Error>

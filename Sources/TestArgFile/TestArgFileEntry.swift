@@ -10,7 +10,7 @@ import TestDestination
 import WorkerCapabilitiesModels
 
 public struct TestArgFileEntry: Codable, Equatable {
-    public private(set) var buildArtifacts: IosBuildArtifacts
+    public private(set) var buildArtifacts: AppleBuildArtifacts
     public let developerDir: DeveloperDir
     public let environment: [String: String]
     public let userInsertedLibraries: [String]
@@ -18,18 +18,18 @@ public struct TestArgFileEntry: Codable, Equatable {
     public let testRetryMode: TestRetryMode
     public let logCapturingMode: LogCapturingMode
     public let runnerWasteCleanupPolicy: RunnerWasteCleanupPolicy
-    public let pluginLocations: Set<PluginLocation>
+    public let pluginLocations: Set<AppleTestPluginLocation>
     public let scheduleStrategy: ScheduleStrategy
     public let simulatorOperationTimeouts: SimulatorOperationTimeouts
     public let simulatorSettings: SimulatorSettings
-    public let testDestination: TestDestination
+    public let testDestination: AppleTestDestination
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testAttachmentLifetime: TestAttachmentLifetime
     public let testsToRun: [TestToRun]
     public let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
     
     public init(
-        buildArtifacts: IosBuildArtifacts,
+        buildArtifacts: AppleBuildArtifacts,
         developerDir: DeveloperDir,
         environment: [String: String],
         userInsertedLibraries: [String],
@@ -37,11 +37,11 @@ public struct TestArgFileEntry: Codable, Equatable {
         testRetryMode: TestRetryMode,
         logCapturingMode: LogCapturingMode,
         runnerWasteCleanupPolicy: RunnerWasteCleanupPolicy,
-        pluginLocations: Set<PluginLocation>,
+        pluginLocations: Set<AppleTestPluginLocation>,
         scheduleStrategy: ScheduleStrategy,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,
         simulatorSettings: SimulatorSettings,
-        testDestination: TestDestination,
+        testDestination: AppleTestDestination,
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testAttachmentLifetime: TestAttachmentLifetime,
         testsToRun: [TestToRun],
@@ -66,7 +66,7 @@ public struct TestArgFileEntry: Codable, Equatable {
         self.workerCapabilityRequirements = workerCapabilityRequirements
     }
     
-    public func with(buildArtifacts: IosBuildArtifacts) -> Self {
+    public func with(buildArtifacts: AppleBuildArtifacts) -> Self {
         var result = self
         result.buildArtifacts = buildArtifacts
         return result
@@ -75,8 +75,8 @@ public struct TestArgFileEntry: Codable, Equatable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        let buildArtifacts = try container.decode(IosBuildArtifacts.self, forKey: .buildArtifacts)
-        let testDestination = try container.decode(TestDestination.self, forKey: .testDestination)
+        let buildArtifacts = try container.decode(AppleBuildArtifacts.self, forKey: .buildArtifacts)
+        let testDestination = try container.decode(AppleTestDestination.self, forKey: .testDestination)
         let testsToRun = try container.decode([TestToRun].self, forKey: .testsToRun)
         
         let developerDir = try container.decodeIfPresent(DeveloperDir.self, forKey: .developerDir) ??
@@ -91,7 +91,7 @@ public struct TestArgFileEntry: Codable, Equatable {
             TestArgFileDefaultValues.testRetryMode
         let logCapturingMode = try container.decodeIfPresent(LogCapturingMode.self, forKey: .logCapturingMode) ??
             TestArgFileDefaultValues.logCapturingMode
-        let pluginLocations = try container.decodeIfPresent(Set<PluginLocation>.self, forKey: .pluginLocations) ??
+        let pluginLocations = try container.decodeIfPresent(Set<AppleTestPluginLocation>.self, forKey: .pluginLocations) ??
             TestArgFileDefaultValues.pluginLocations
         let scheduleStrategy = try container.decodeIfPresent(ScheduleStrategy.self, forKey: .scheduleStrategy) ??
             TestArgFileDefaultValues.scheduleStrategy

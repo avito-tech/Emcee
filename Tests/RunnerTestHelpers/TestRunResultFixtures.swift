@@ -14,7 +14,7 @@ public final class TestRunResultFixtures {
             duration: 0,
             startTime: timestamp,
             hostName: "",
-            simulatorId: ""
+            udid: ""
         )
     }
 }

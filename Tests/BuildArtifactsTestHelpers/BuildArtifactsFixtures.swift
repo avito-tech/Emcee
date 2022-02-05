@@ -7,7 +7,7 @@ public final class BuildArtifactsFixtures {
     public static func fakeEmptyBuildArtifacts(
         testBundlePath: String = "/bundle",
         testDiscoveryMode: XcTestBundleTestDiscoveryMode = .parseFunctionSymbols
-    ) -> IosBuildArtifacts {
+    ) -> AppleBuildArtifacts {
         .iosLogicTests(
             xcTestBundle: XcTestBundle(
                 location: TestBundleLocation(.localFilePath(testBundlePath)),

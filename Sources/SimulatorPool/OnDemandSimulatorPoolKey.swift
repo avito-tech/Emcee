@@ -5,11 +5,11 @@ import TestDestination
 
 public struct OnDemandSimulatorPoolKey: Hashable, CustomStringConvertible {
     public let developerDir: DeveloperDir
-    public let testDestination: TestDestination
+    public let testDestination: AppleTestDestination
     
     public init(
         developerDir: DeveloperDir,
-        testDestination: TestDestination
+        testDestination: AppleTestDestination
     ) {
         self.developerDir = developerDir
         self.testDestination = testDestination

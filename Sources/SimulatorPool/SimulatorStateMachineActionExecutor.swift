@@ -6,7 +6,7 @@ import TestDestination
 public protocol SimulatorStateMachineActionExecutor {
     func performCreateSimulatorAction(
         environment: [String: String],
-        testDestination: TestDestination,
+        testDestination: AppleTestDestination,
         timeout: TimeInterval
     ) throws -> Simulator
     

@@ -205,7 +205,7 @@ public final class InProcessMain {
             for: ZipCompressor.self
         )
         di.set(
-            RunnerProviderImpl(
+            AppleRunnerProvider(
                 dateProvider: try di.get(),
                 developerDirLocator: try di.get(),
                 fileSystem: try di.get(),
@@ -216,7 +216,7 @@ public final class InProcessMain {
                 uniqueIdentifierGenerator: try di.get(),
                 waiter: try di.get()
             ),
-            for: RunnerProvider.self
+            for: AppleRunnerProvider.self
         )
         di.set(
             MyAddressFetcherProviderImpl(

@@ -93,14 +93,14 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
     
     func test___grouping_by_TestDestination___preserves_order_and_sorts_by_test_count() {
         let testEntryConfigurations1 = TestEntryConfigurationFixtures()
-            .with(testDestination: TestDestination.iOSSimulator(deviceType: "1", version: "11.0"))
+            .with(testDestination: AppleTestDestination.iOSSimulator(deviceType: "1", version: "11.0"))
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
             .add(testEntry: TestEntryFixtures.testEntry(className: "class2", methodName: "test"))
             .add(testEntry: TestEntryFixtures.testEntry(className: "class3", methodName: "test"))
             .testEntryConfigurations()
             .shuffled()
         let testEntryConfigurations2 = TestEntryConfigurationFixtures()
-            .with(testDestination: TestDestination.iOSSimulator(deviceType: "2", version: "11.0"))
+            .with(testDestination: AppleTestDestination.iOSSimulator(deviceType: "2", version: "11.0"))
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
             .add(testEntry: TestEntryFixtures.testEntry(className: "class2", methodName: "test"))
             .testEntryConfigurations()
@@ -223,12 +223,12 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
             .add(testEntry: TestEntryFixtures.testEntry(className: "class2", methodName: "test"))
             .add(testEntry: TestEntryFixtures.testEntry(className: "class3", methodName: "test"))
-            .with(pluginLocations: [PluginLocation(.localFilePath("plugin1"))])
+            .with(pluginLocations: [AppleTestPluginLocation(.localFilePath("plugin1"))])
             .testEntryConfigurations()
             .shuffled()
         let testEntryConfiguration2 = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
-            .with(pluginLocations: [PluginLocation(.localFilePath("plugin2"))])
+            .with(pluginLocations: [AppleTestPluginLocation(.localFilePath("plugin2"))])
             .testEntryConfigurations()
         
         let grouper = GroupedTestEntryConfigurations(testEntryConfigurations: testEntryConfiguration2 + testEntryConfigurations1)
@@ -242,15 +242,15 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
     func test___grouping_merges_tests_by_plugins() {
         let testEntryConfiguration1 = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test1"))
-            .with(pluginLocations: [PluginLocation(.localFilePath("plugin1"))])
+            .with(pluginLocations: [AppleTestPluginLocation(.localFilePath("plugin1"))])
             .testEntryConfigurations()
         let testEntryConfiguration2 = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test2"))
-            .with(pluginLocations: [PluginLocation(.localFilePath("plugin2"))])
+            .with(pluginLocations: [AppleTestPluginLocation(.localFilePath("plugin2"))])
             .testEntryConfigurations()
         let testEntryConfiguration3 = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test3"))
-            .with(pluginLocations: [PluginLocation(.localFilePath("plugin1"))])
+            .with(pluginLocations: [AppleTestPluginLocation(.localFilePath("plugin1"))])
             .testEntryConfigurations()
         
         let grouper = GroupedTestEntryConfigurations(testEntryConfigurations: testEntryConfiguration1 + testEntryConfiguration2 + testEntryConfiguration3)
@@ -286,7 +286,7 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
             .testEntryConfigurations()[0]
         let testEntryConfiguration3 = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
-            .with(testDestination: TestDestination.iOSSimulator(deviceType: "1", version: "11.0"))
+            .with(testDestination: AppleTestDestination.iOSSimulator(deviceType: "1", version: "11.0"))
             .testEntryConfigurations()[0]
         
         let mixedTestEntryConfigurations = [
@@ -308,7 +308,7 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
     func test___grouping_same_test_entries_into_different_groups___with_one_class() {
         let testEntry = TestEntryFixtures.testEntry(className: "class", methodName: "test")
         let testEntryConfigurations = TestEntryConfigurationFixtures()
-            .with(testDestination: TestDestination.iOSSimulator(deviceType: "1", version: "11.0"))
+            .with(testDestination: AppleTestDestination.iOSSimulator(deviceType: "1", version: "11.0"))
             .add(testEntry: testEntry)
             .add(testEntry: testEntry)
             .add(testEntry: testEntry)
@@ -333,7 +333,7 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
         let testEntry2 = TestEntryFixtures.testEntry(className: "class2", methodName: "test")
         let testEntry3 = TestEntryFixtures.testEntry(className: "class3", methodName: "test")
         let testEntryConfigurations = TestEntryConfigurationFixtures()
-            .with(testDestination: TestDestination.iOSSimulator(deviceType: "1", version: "11.0"))
+            .with(testDestination: AppleTestDestination.iOSSimulator(deviceType: "1", version: "11.0"))
             .add(testEntry: testEntry1)
             .add(testEntry: testEntry1)
             .add(testEntry: testEntry1)
@@ -347,7 +347,7 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
             .shuffled()
         let expectedConfigurations = Set(
             TestEntryConfigurationFixtures()
-            .with(testDestination: TestDestination.iOSSimulator(deviceType: "1", version: "11.0"))
+            .with(testDestination: AppleTestDestination.iOSSimulator(deviceType: "1", version: "11.0"))
             .add(testEntry: testEntry1)
             .add(testEntry: testEntry2)
             .add(testEntry: testEntry3)

@@ -126,7 +126,7 @@ final class TestArgFileEntryTests: XCTestCase {
                 logCapturingMode: .allLogs,
                 runnerWasteCleanupPolicy: .keep,
                 pluginLocations: [
-                    PluginLocation(.remoteUrl(URL(string: "http://example.com/plugin.zip#sample.emceeplugin")!, [:]))
+                    AppleTestPluginLocation(.remoteUrl(URL(string: "http://example.com/plugin.zip#sample.emceeplugin")!, [:]))
                 ],
                 scheduleStrategy: ScheduleStrategy(testSplitterType: .unsplit),
                 simulatorOperationTimeouts: SimulatorOperationTimeouts(
@@ -147,7 +147,7 @@ final class TestArgFileEntryTests: XCTestCase {
                     ),
                     watchdogSettings: WatchdogSettings(bundleIds: ["sample.app"], timeout: 42)
                 ),
-                testDestination: TestDestination.iOSSimulator(deviceType: "iPhone SE", version: "11.3"),
+                testDestination: AppleTestDestination.iOSSimulator(deviceType: "iPhone SE", version: "11.3"),
                 testTimeoutConfiguration: TestTimeoutConfiguration(
                     singleTestMaximumDuration: 42,
                     testRunnerMaximumSilenceDuration: 24
@@ -218,7 +218,7 @@ final class TestArgFileEntryTests: XCTestCase {
                 scheduleStrategy: TestArgFileDefaultValues.scheduleStrategy,
                 simulatorOperationTimeouts: TestArgFileDefaultValues.simulatorOperationTimeouts,
                 simulatorSettings: TestArgFileDefaultValues.simulatorSettings,
-                testDestination: TestDestination.iOSSimulator(deviceType: "iPhone SE", version: "11.3"),
+                testDestination: AppleTestDestination.iOSSimulator(deviceType: "iPhone SE", version: "11.3"),
                 testTimeoutConfiguration: TestArgFileDefaultValues.testTimeoutConfiguration,
                 testAttachmentLifetime: .deleteOnSuccess,
                 testsToRun: [
@@ -231,7 +231,7 @@ final class TestArgFileEntryTests: XCTestCase {
         )
     }
     
-    private func buildArtifacts() -> IosBuildArtifacts {
+    private func buildArtifacts() -> AppleBuildArtifacts {
         .iosUiTests(
             xcTestBundle: XcTestBundle(
                 location: TestBundleLocation(.localFilePath("/xcTestBundle")),

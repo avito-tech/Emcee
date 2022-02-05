@@ -45,12 +45,12 @@ public final class XcodebuildBasedTestRunner: TestRunner {
     }
     
     public func prepareTestRun(
-        buildArtifacts: IosBuildArtifacts,
+        buildArtifacts: AppleBuildArtifacts,
         developerDirLocator: DeveloperDirLocator,
         entriesToRun: [TestEntry],
         logger: ContextualLogger,
         specificMetricRecorder: SpecificMetricRecorder,
-        testContext: TestContext,
+        testContext: AppleTestContext,
         testRunnerStream: TestRunnerStream
     ) throws -> TestRunnerInvocation {
         let resultStreamFile = testContext.testRunnerWorkingDirectory.appending("result_stream.json")

@@ -12,11 +12,11 @@ import TestDestination
 public struct TestDiscoveryConfiguration {
     public let analyticsConfiguration: AnalyticsConfiguration
     public let developerDir: DeveloperDir
-    public let pluginLocations: Set<PluginLocation>
+    public let pluginLocations: Set<AppleTestPluginLocation>
     public let testDiscoveryMode: TestDiscoveryMode
     public let simulatorOperationTimeouts: SimulatorOperationTimeouts
     public let simulatorSettings: SimulatorSettings
-    public let testDestination: TestDestination
+    public let testDestination: AppleTestDestination
     public let testExecutionBehavior: TestExecutionBehavior
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testAttachmentLifetime: TestAttachmentLifetime
@@ -28,11 +28,11 @@ public struct TestDiscoveryConfiguration {
     public init(
         analyticsConfiguration: AnalyticsConfiguration,
         developerDir: DeveloperDir,
-        pluginLocations: Set<PluginLocation>,
+        pluginLocations: Set<AppleTestPluginLocation>,
         testDiscoveryMode: TestDiscoveryMode,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,
         simulatorSettings: SimulatorSettings,
-        testDestination: TestDestination,
+        testDestination: AppleTestDestination,
         testExecutionBehavior: TestExecutionBehavior,
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testAttachmentLifetime: TestAttachmentLifetime,

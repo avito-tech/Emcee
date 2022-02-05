@@ -1,6 +1,6 @@
 import Foundation
 
-public enum IosBuildArtifacts: Codable, Hashable, CustomStringConvertible {
+public enum AppleBuildArtifacts: Codable, Hashable, CustomStringConvertible {
     case iosLogicTests(
         xcTestBundle: XcTestBundle
     )

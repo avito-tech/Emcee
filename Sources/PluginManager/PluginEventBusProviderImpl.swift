@@ -23,7 +23,7 @@ public final class PluginEventBusProviderImpl: PluginEventBusProvider {
     
     public func createEventBus(
         fileSystem: FileSystem,
-        pluginLocations: Set<PluginLocation>
+        pluginLocations: Set<AppleTestPluginLocation>
     ) throws -> EventBus {
         let eventBus = EventBus()
         try startPluginManager(
@@ -37,7 +37,7 @@ public final class PluginEventBusProviderImpl: PluginEventBusProvider {
     private func startPluginManager(
         fileSystem: FileSystem,
         eventBus: EventBus,
-        pluginLocations: Set<PluginLocation>
+        pluginLocations: Set<AppleTestPluginLocation>
     ) throws {
         let pluginManager = PluginManager(
             fileSystem: fileSystem,

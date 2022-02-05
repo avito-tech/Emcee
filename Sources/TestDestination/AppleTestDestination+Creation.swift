@@ -1,4 +1,4 @@
-extension TestDestination {
+extension AppleTestDestination {
     /// - Parameters:
     ///   - deviceType: Human-readable device name, e.g. `iPhone X`. All `.,()` symbols will be replaced with `-` in attempt to match `SimDeviceType` name.
     ///   - version: Human-readable OS version, e.g. `15.0`. All `.` symbols will be replaced with `-` in attempt to match `SimRuntime` name.

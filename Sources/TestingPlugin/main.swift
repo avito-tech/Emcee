@@ -5,9 +5,9 @@ import Foundation
 import Plugin
 
 class Listener: DefaultBusListener {
-    var allEvents = [RunnerEvent]()
+    var allEvents = [AppleRunnerEvent]()
     
-    override func runnerEvent(_ event: RunnerEvent) {
+    override func runnerEvent(_ event: AppleRunnerEvent) {
         allEvents.append(event)
     }
     

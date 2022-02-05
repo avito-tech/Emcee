@@ -18,12 +18,12 @@ final class GroupedTestEntryConfigurations {
     
     public func grouped() -> [[TestEntryConfiguration]] {
         struct Key: Hashable {
-            let buildArtifacts: IosBuildArtifacts
+            let buildArtifacts: AppleBuildArtifacts
             let developerDir: DeveloperDir
-            let pluginLocations: Set<PluginLocation>
+            let pluginLocations: Set<AppleTestPluginLocation>
             let simulatorOperationTimeouts: SimulatorOperationTimeouts
             let simulatorSettings: SimulatorSettings
-            let testDestination: TestDestination
+            let testDestination: AppleTestDestination
             let testExecutionBehavior: TestExecutionBehavior
             let testTimeoutConfiguration: TestTimeoutConfiguration
             let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>

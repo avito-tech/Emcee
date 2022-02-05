@@ -148,7 +148,7 @@ private enum CollectedError: Error, CustomStringConvertible {
     }
 }
 
-private extension IosBuildArtifacts {
+private extension AppleBuildArtifacts {
     struct BuildArtifactsMisconfiguration: Error, CustomStringConvertible {
         let description = "Test discovery requires app bundle to be present but it is missing in build artifacts"
     }

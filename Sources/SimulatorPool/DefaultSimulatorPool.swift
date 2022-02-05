@@ -13,7 +13,7 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
     private let logger: ContextualLogger
     private let simulatorControllerProvider: SimulatorControllerProvider
     private let tempFolder: TemporaryFolder
-    private let testDestination: TestDestination
+    private let testDestination: AppleTestDestination
     private var controllers = [SimulatorController]()
     private let syncQueue = DispatchQueue(label: "DefaultSimulatorPool.syncQueue")
     
@@ -26,7 +26,7 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
         logger: ContextualLogger,
         simulatorControllerProvider: SimulatorControllerProvider,
         tempFolder: TemporaryFolder,
-        testDestination: TestDestination
+        testDestination: AppleTestDestination
     ) throws {
         self.developerDir = developerDir
         self.logger = logger

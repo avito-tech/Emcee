@@ -9,11 +9,11 @@ import Runner
 import RunnerModels
 
 public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConvertible {
-    private let buildArtifacts: IosBuildArtifacts
+    private let buildArtifacts: AppleBuildArtifacts
     private let entriesToRun: [TestEntry]
     private let path: AbsolutePath
     private let resourceLocationResolver: ResourceLocationResolver
-    private let testContext: TestContext
+    private let testContext: AppleTestContext
     private let testingEnvironment: XcTestRunTestingEnvironment
     
     public enum XcTestRunFileArgumentError: CustomStringConvertible, Error {
@@ -28,11 +28,11 @@ public final class XcTestRunFileArgument: SubprocessArgument, CustomStringConver
     }
 
     public init(
-        buildArtifacts: IosBuildArtifacts,
+        buildArtifacts: AppleBuildArtifacts,
         entriesToRun: [TestEntry],
         path: AbsolutePath,
         resourceLocationResolver: ResourceLocationResolver,
-        testContext: TestContext,
+        testContext: AppleTestContext,
         testingEnvironment: XcTestRunTestingEnvironment
     ) {
         self.buildArtifacts = buildArtifacts

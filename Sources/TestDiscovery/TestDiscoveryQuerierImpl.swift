@@ -284,7 +284,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     }
     
     private func createRuntimeDumpBasedTestDiscoverer(
-        buildArtifacts: IosBuildArtifacts,
+        buildArtifacts: AppleBuildArtifacts,
         specificMetricRecorder: SpecificMetricRecorder
     ) -> RuntimeDumpTestDiscoverer {
         RuntimeDumpTestDiscoverer(

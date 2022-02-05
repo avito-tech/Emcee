@@ -16,7 +16,7 @@ final class DistRunSchedulerDataSourceTests: XCTestCase {
                 analyticsConfiguration: AnalyticsConfiguration(),
                 bucketId: "id",
                 bucketPayloadContainer: .runIosTests(
-                    RunIosTestsPayload(
+                    RunAppleTestsPayload(
                         buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
                         developerDir: .current,
                         pluginLocations: [],

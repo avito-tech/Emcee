@@ -38,7 +38,7 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
     public func createSimulatorController(
         developerDir: DeveloperDir,
         temporaryFolder: TemporaryFolder,
-        testDestination: TestDestination
+        testDestination: AppleTestDestination
     ) throws -> SimulatorController {
         return ActivityAwareSimulatorController(
             automaticDeleteTimePeriod: 3600,

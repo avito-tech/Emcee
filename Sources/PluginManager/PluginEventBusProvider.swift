@@ -6,6 +6,6 @@ import PluginSupport
 public protocol PluginEventBusProvider {
     func createEventBus(
         fileSystem: FileSystem,
-        pluginLocations: Set<PluginLocation>
+        pluginLocations: Set<AppleTestPluginLocation>
     ) throws -> EventBus
 }

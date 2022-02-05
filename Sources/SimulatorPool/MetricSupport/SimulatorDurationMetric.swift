@@ -16,7 +16,7 @@ public final class SimulatorDurationMetric: GraphiteMetric {
     public init(
         action: Action,
         host: String,
-        testDestination: TestDestination,
+        testDestination: AppleTestDestination,
         isSuccessful: Bool,
         duration: Double,
         version: Version,

@@ -4,12 +4,12 @@ import RunnerModels
 public struct ValidatedTestEntry: Hashable {
     public let testName: TestName
     public let testEntries : [TestEntry]
-    public let buildArtifacts: IosBuildArtifacts
+    public let buildArtifacts: AppleBuildArtifacts
 
     public init(
         testName: TestName,
         testEntries : [TestEntry],
-        buildArtifacts: IosBuildArtifacts
+        buildArtifacts: AppleBuildArtifacts
     ) {
         self.testName = testName
         self.testEntries = testEntries

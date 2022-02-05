@@ -8,6 +8,6 @@ public protocol RunnerResultsPreparer {
         collectedTestExceptions: [TestException],
         collectedLogs: [TestLogEntry],
         requestedEntriesToRun: [TestEntry],
-        simulatorId: UDID
+        udid: UDID
     ) -> [TestEntryResult]
 }

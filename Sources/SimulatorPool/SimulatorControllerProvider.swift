@@ -9,6 +9,6 @@ public protocol SimulatorControllerProvider {
     func createSimulatorController(
         developerDir: DeveloperDir,
         temporaryFolder: TemporaryFolder,
-        testDestination: TestDestination
+        testDestination: AppleTestDestination
     ) throws -> SimulatorController
 }
