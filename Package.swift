@@ -849,6 +849,61 @@ let package = Package(
             ],
             path: "Tests/LocalQueueServerRunnerTests"
         ),
+        .target(
+            name: "LogStreaming",
+            dependencies: [
+                .product(name: "AtomicModels", package: "CommandLineToolkit"),
+                .product(name: "CLTExtensions", package: "CommandLineToolkit"),
+                "EmceeLogging",
+                "EmceeLoggingModels",
+                "LogStreamingModels",
+                "QueueClient",
+                "QueueModels",
+                "RESTInterfaces",
+                "RESTMethods",
+                "RESTServer",
+                "RequestSender",
+                .product(name: "SocketModels", package: "CommandLineToolkit"),
+                .product(name: "Types", package: "CommandLineToolkit"),
+            ],
+            path: "Sources/LogStreaming"
+        ),
+        .target(
+            name: "LogStreamingModels",
+            dependencies: [
+                .product(name: "SocketModels", package: "CommandLineToolkit"),
+            ],
+            path: "Sources/LogStreamingModels"
+        ),
+        .target(
+            name: "LogStreamingTestHelpers",
+            dependencies: [
+                "EmceeLogging",
+                "EmceeLoggingModels",
+                "EmceeLoggingTestHelpers",
+                "LogStreaming",
+                "QueueModels",
+                .product(name: "SocketModels", package: "CommandLineToolkit"),
+            ],
+            path: "Tests/LogStreamingTestHelpers"
+        ),
+        .testTarget(
+            name: "LogStreamingTests",
+            dependencies: [
+                "EmceeLogging",
+                "EmceeLoggingModels",
+                "EmceeLoggingTestHelpers",
+                "LogStreaming",
+                "LogStreamingModels",
+                "LogStreamingTestHelpers",
+                "QueueModels",
+                "RequestSender",
+                "RequestSenderTestHelpers",
+                .product(name: "SocketModels", package: "CommandLineToolkit"),
+                .product(name: "TestHelpers", package: "CommandLineToolkit"),
+            ],
+            path: "Tests/LogStreamingTests"
+        ),
         .testTarget(
             name: "LoggingTests",
             dependencies: [

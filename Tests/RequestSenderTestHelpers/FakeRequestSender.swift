@@ -2,7 +2,7 @@ import Foundation
 import RequestSender
 import Types
 
-public final class FakeRequestSender: RequestSender {
+open class FakeRequestSender: RequestSender {
     
     public var result: Any?
     public var requestSenderError: RequestSenderError?
@@ -13,11 +13,16 @@ public final class FakeRequestSender: RequestSender {
     /// Called after `callbackQueue` processes `callback` made by this request sender.
     /// This may be used as a kind of an indication that request has finished its work.
     /// Note: `callback` may start some asynchronous work and that likely won't be finished by the moment when `requestCompleted` will be executing.
-    public var requestCompleted: (FakeRequestSender) -> () = { _ in }
+    public var requestCompleted: (FakeRequestSender) -> ()
 
-    public init(result: Any? = nil, requestSenderError: RequestSenderError? = nil) {
+    public init(
+        result: Any? = nil,
+        requestSenderError: RequestSenderError? = nil,
+        requestCompleted: @escaping (FakeRequestSender) -> () = { _ in }
+    ) {
         self.result = result
         self.requestSenderError = requestSenderError
+        self.requestCompleted = requestCompleted
     }
 
     public var request: Any?

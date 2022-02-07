@@ -87,6 +87,12 @@ public final class ContextualLogger {
         return ContextualLogger(dateProvider: dateProvider, loggerHandler: loggerHandler, metadata: metadata)
     }
     
+    public func withMetadata(_ coordinate: LogEntryCoordinate) -> ContextualLogger {
+        var metadata = self.metadata
+        metadata[coordinate.name] = coordinate.value
+        return ContextualLogger(dateProvider: dateProvider, loggerHandler: loggerHandler, metadata: metadata)
+    }
+    
     public func withMetadata(key: ContextKeys, value: String?) -> ContextualLogger {
         withMetadata(key: key.rawValue, value: value)
     }
