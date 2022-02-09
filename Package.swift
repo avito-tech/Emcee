@@ -871,6 +871,8 @@ let package = Package(
         .target(
             name: "LogStreamingModels",
             dependencies: [
+                "EmceeLoggingModels",
+                "QueueModels",
                 .product(name: "SocketModels", package: "CommandLineToolkit"),
             ],
             path: "Sources/LogStreamingModels"
