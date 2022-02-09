@@ -8,7 +8,6 @@ import PathLib
 import PlistLib
 import SimulatorPoolModels
 import SynchronousWaiter
-import TestDestination
 import Tmp
 
 public final class StateMachineDrivenSimulatorController: SimulatorController, CustomStringConvertible {
@@ -20,12 +19,20 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     private let fileSystem: FileSystem
     private let logger: ContextualLogger
     private let simulatorOperationTimeouts = AtomicValue<SimulatorOperationTimeouts>(
-        SimulatorOperationTimeouts(create: 30, boot: 180, delete: 20, shutdown: 20, automaticSimulatorShutdown: 3600, automaticSimulatorDelete: 7200)
+        SimulatorOperationTimeouts(
+            create: 30,
+            boot: 180,
+            delete: 20,
+            shutdown: 20,
+            automaticSimulatorShutdown: 3600,
+            automaticSimulatorDelete: 7200
+        )
     )
     private let simulatorStateMachine: SimulatorStateMachine
     private let simulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor
     private let temporaryFolder: TemporaryFolder
-    private let testDestination: AppleTestDestination
+    private let simRuntime: SimRuntime
+    private let simDeviceType: SimDeviceType
     private let waiter: Waiter
     private var simulator: Simulator?
 
@@ -39,8 +46,9 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
         logger: ContextualLogger,
         simulatorStateMachine: SimulatorStateMachine,
         simulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor,
+        simDeviceType: SimDeviceType,
+        simRuntime: SimRuntime,
         temporaryFolder: TemporaryFolder,
-        testDestination: AppleTestDestination,
         waiter: Waiter = SynchronousWaiter()
     ) {
         self.additionalBootAttempts = additionalBootAttempts
@@ -53,7 +61,8 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
         self.simulatorStateMachine = simulatorStateMachine
         self.simulatorStateMachineActionExecutor = simulatorStateMachineActionExecutor
         self.temporaryFolder = temporaryFolder
-        self.testDestination = testDestination
+        self.simDeviceType = simDeviceType
+        self.simRuntime = simRuntime
         self.waiter = waiter
     }
     
@@ -137,11 +146,12 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     }
     
     private func create() throws -> Simulator {
-        logger.trace("Creating simulator with \(testDestination)")
+        logger.trace("Creating simulator with \(simRuntime) \(simDeviceType)")
 
         let simulator = try simulatorStateMachineActionExecutor.performCreateSimulatorAction(
             environment: try environment(),
-            testDestination: testDestination,
+            simDeviceType: simDeviceType,
+            simRuntime: simRuntime,
             timeout: simulatorOperationTimeouts.currentValue().create
         )
         logger.trace("Created simulator: \(simulator)")
@@ -178,7 +188,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
                     logger.trace("Booted simulator \(simulator) using #\(bootAttempt + 1) attempts")
                     break
                 } catch {
-                    logger.error("Attempt to boot simulator \(simulator.testDestination) failed: \(error)")
+                    logger.error("Attempt to boot simulator \(simulator) failed: \(error)")
                     bootAttempt += 1
                     if bootAttempt < 1 + additionalBootAttempts {
                         waiter.wait(timeout: Double(bootAttempt) * 3.0, description: "Time gap between reboot attempts")
@@ -243,7 +253,7 @@ public final class StateMachineDrivenSimulatorController: SimulatorController, C
     
     public var description: String {
         let udid = simulator?.udid ?? UDID(value: "unknown")
-        return "<\(type(of: self)) \(testDestination) \(udid) \(currentSimulatorState)>"
+        return "<\(type(of: self)) \(simDeviceType) \(simRuntime) \(udid) \(currentSimulatorState)>"
     }
     
     // MARK: - Envrironment

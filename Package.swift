@@ -24,6 +24,13 @@ let package = Package(
     ],
     targets: [
         .target(
+            name: "AndroidEmulatorModels",
+            dependencies: [
+                "TestDestination",
+            ],
+            path: "Sources/AndroidEmulatorModels"
+        ),
+        .target(
             name: "AppleTools",
             dependencies: [
                 .product(name: "AtomicModels", package: "CommandLineToolkit"),
@@ -47,7 +54,6 @@ let package = Package(
                 "SimulatorPool",
                 "SimulatorPoolModels",
                 .product(name: "Statsd", package: "CommandLineToolkit"),
-                "TestDestination",
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 "XcodebuildTestRunnerConstants",
             ],
@@ -94,8 +100,6 @@ let package = Package(
                 "SimulatorPoolModels",
                 "SimulatorPoolTestHelpers",
                 .product(name: "Statsd", package: "CommandLineToolkit"),
-                "TestDestination",
-                "TestDestinationTestHelpers",
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 "URLResource",
@@ -177,7 +181,6 @@ let package = Package(
                 "RunnerModels",
                 "RunnerTestHelpers",
                 "SimulatorPoolTestHelpers",
-                "TestDestinationTestHelpers",
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 "TestHistoryStorage",
                 "TestHistoryTracker",
@@ -252,7 +255,6 @@ let package = Package(
                 "RunnerModels",
                 "RunnerTestHelpers",
                 "SimulatorPoolTestHelpers",
-                "TestDestinationTestHelpers",
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 "TestHistoryTestHelpers",
                 "TestHistoryTracker",
@@ -476,7 +478,6 @@ let package = Package(
                 "RunnerTestHelpers",
                 "Scheduler",
                 "SimulatorPoolTestHelpers",
-                "TestDestinationTestHelpers",
             ],
             path: "Tests/DistWorkerTests"
         ),
@@ -620,7 +621,6 @@ let package = Package(
                 "SimulatorPoolTestHelpers",
                 "TestArgFile",
                 "TestDestination",
-                "TestDestinationTestHelpers",
                 "TestDiscovery",
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
@@ -1155,6 +1155,7 @@ let package = Package(
         .target(
             name: "QueueModels",
             dependencies: [
+                "AndroidEmulatorModels",
                 "BuildArtifacts",
                 "DeveloperDirModels",
                 "MetricsExtensions",
@@ -1182,7 +1183,6 @@ let package = Package(
                 "SimulatorPoolModels",
                 "SimulatorPoolTestHelpers",
                 "TestDestination",
-                "TestDestinationTestHelpers",
                 .product(name: "Types", package: "CommandLineToolkit"),
                 "WorkerCapabilitiesModels",
             ],
@@ -1196,7 +1196,6 @@ let package = Package(
                 "SimulatorPoolModels",
                 "SimulatorPoolTestHelpers",
                 "TestDestination",
-                "TestDestinationTestHelpers",
             ],
             path: "Tests/QueueModelsTests"
         ),
@@ -1316,11 +1315,11 @@ let package = Package(
                 "RunnerModels",
                 "RunnerTestHelpers",
                 "ScheduleStrategy",
+                "SimulatorPoolModels",
                 "SimulatorPoolTestHelpers",
                 .product(name: "SocketModels", package: "CommandLineToolkit"),
                 .product(name: "Swifter", package: "Swifter"),
                 .product(name: "SynchronousWaiter", package: "CommandLineToolkit"),
-                "TestDestinationTestHelpers",
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 .product(name: "Types", package: "CommandLineToolkit"),
                 "UniqueIdentifierGeneratorTestHelpers",
@@ -1604,7 +1603,6 @@ let package = Package(
                 .product(name: "PathLib", package: "CommandLineToolkit"),
                 "PluginSupport",
                 "SimulatorPoolModels",
-                "TestDestination",
             ],
             path: "Sources/RunnerModels"
         ),
@@ -1624,8 +1622,6 @@ let package = Package(
                 "RunnerModels",
                 "SimulatorPoolModels",
                 "SimulatorPoolTestHelpers",
-                "TestDestination",
-                "TestDestinationTestHelpers",
             ],
             path: "Tests/RunnerTestHelpers"
         ),
@@ -1653,7 +1649,6 @@ let package = Package(
                 "SimulatorPoolModels",
                 "SimulatorPoolTestHelpers",
                 .product(name: "SynchronousWaiter", package: "CommandLineToolkit"),
-                "TestDestinationTestHelpers",
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 "UniqueIdentifierGeneratorTestHelpers",
@@ -1698,7 +1693,6 @@ let package = Package(
                 "QueueModels",
                 "RunnerModels",
                 "SimulatorPoolModels",
-                "TestDestination",
                 .product(name: "Types", package: "CommandLineToolkit"),
                 "UniqueIdentifierGenerator",
                 "WorkerCapabilitiesModels",
@@ -1718,8 +1712,6 @@ let package = Package(
                 "ScheduleStrategy",
                 "SimulatorPoolModels",
                 "SimulatorPoolTestHelpers",
-                "TestDestination",
-                "TestDestinationTestHelpers",
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
@@ -1781,7 +1773,6 @@ let package = Package(
                 "RunnerModels",
                 "SimulatorPoolModels",
                 .product(name: "SynchronousWaiter", package: "CommandLineToolkit"),
-                "TestDestination",
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 .product(name: "Types", package: "CommandLineToolkit"),
                 "UniqueIdentifierGenerator",
@@ -1818,7 +1809,6 @@ let package = Package(
                 "SimulatorPool",
                 "SimulatorPoolModels",
                 "TestDestination",
-                "TestDestinationTestHelpers",
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 .product(name: "Types", package: "CommandLineToolkit"),
             ],
@@ -1846,7 +1836,6 @@ let package = Package(
                 "SimulatorPoolTestHelpers",
                 .product(name: "SynchronousWaiter", package: "CommandLineToolkit"),
                 "TestDestination",
-                "TestDestinationTestHelpers",
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 "UniqueIdentifierGenerator",
@@ -1918,7 +1907,6 @@ let package = Package(
         .target(
             name: "TestDestinationTestHelpers",
             dependencies: [
-                "SimulatorPoolModels",
                 "TestDestination",
             ],
             path: "Tests/TestDestinationTestHelpers"
@@ -1926,6 +1914,7 @@ let package = Package(
         .testTarget(
             name: "TestDestinationTests",
             dependencies: [
+                "EmceeExtensions",
                 "TestDestination",
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
             ],
@@ -1961,7 +1950,6 @@ let package = Package(
                 .product(name: "Statsd", package: "CommandLineToolkit"),
                 .product(name: "SynchronousWaiter", package: "CommandLineToolkit"),
                 "TestArgFile",
-                "TestDestination",
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 .product(name: "Types", package: "CommandLineToolkit"),
                 "UniqueIdentifierGenerator",
@@ -2002,7 +1990,6 @@ let package = Package(
                 .product(name: "SocketModels", package: "CommandLineToolkit"),
                 .product(name: "SynchronousWaiter", package: "CommandLineToolkit"),
                 "TestArgFile",
-                "TestDestinationTestHelpers",
                 "TestDiscovery",
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
@@ -2071,7 +2058,6 @@ let package = Package(
                 "QueueModelsTestHelpers",
                 "RunnerTestHelpers",
                 "SimulatorPoolTestHelpers",
-                "TestDestinationTestHelpers",
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 "TestHistoryModels",
                 "TestHistoryStorage",

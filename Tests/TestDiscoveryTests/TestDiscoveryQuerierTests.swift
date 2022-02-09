@@ -21,7 +21,6 @@ import SimulatorPoolTestHelpers
 import SynchronousWaiter
 import Tmp
 import TestArgFile
-import TestDestinationTestHelpers
 import TestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
@@ -247,7 +246,8 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             testDiscoveryMode: .runtimeLogicTest,
             simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-            testDestination: TestDestinationFixtures.iOSTestDestination,
+            simDeviceType: SimDeviceTypeFixture.fixture(),
+            simRuntime: SimRuntimeFixture.fixture(),
             testExecutionBehavior: TestExecutionBehavior(
                 environment: [:],
                 userInsertedLibraries: [],

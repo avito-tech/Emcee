@@ -5,7 +5,6 @@ import MetricsExtensions
 import PluginSupport
 import RunnerModels
 import SimulatorPoolModels
-import TestDestination
 import WorkerCapabilitiesModels
 
 public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable {
@@ -15,7 +14,8 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
     public let pluginLocations: Set<AppleTestPluginLocation>
     public let simulatorOperationTimeouts: SimulatorOperationTimeouts
     public let simulatorSettings: SimulatorSettings
-    public let testDestination: AppleTestDestination
+    public let simDeviceType: SimDeviceType
+    public let simRuntime: SimRuntime
     public let testEntry: TestEntry
     public let testExecutionBehavior: TestExecutionBehavior
     public let testTimeoutConfiguration: TestTimeoutConfiguration
@@ -29,7 +29,8 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
         pluginLocations: Set<AppleTestPluginLocation>,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,
         simulatorSettings: SimulatorSettings,
-        testDestination: AppleTestDestination,
+        simDeviceType: SimDeviceType,
+        simRuntime: SimRuntime,
         testEntry: TestEntry,
         testExecutionBehavior: TestExecutionBehavior,
         testTimeoutConfiguration: TestTimeoutConfiguration,
@@ -42,7 +43,8 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
         self.pluginLocations = pluginLocations
         self.simulatorOperationTimeouts = simulatorOperationTimeouts
         self.simulatorSettings = simulatorSettings
-        self.testDestination = testDestination
+        self.simDeviceType = simDeviceType
+        self.simRuntime = simRuntime
         self.testEntry = testEntry
         self.testExecutionBehavior = testExecutionBehavior
         self.testTimeoutConfiguration = testTimeoutConfiguration
@@ -51,6 +53,6 @@ public struct TestEntryConfiguration: Codable, CustomStringConvertible, Hashable
     }
     
     public var description: String {
-        return "<\(type(of: self)): \(testEntry) \(testDestination) \(buildArtifacts) \(pluginLocations) \(simulatorSettings) \(testExecutionBehavior) \(testTimeoutConfiguration) \(simulatorOperationTimeouts) \(developerDir) \(workerCapabilityRequirements) \(analyticsConfiguration) \(testAttachmentLifetime)>"
+        return "<\(type(of: self)): \(testEntry) \(simDeviceType) \(simRuntime) \(buildArtifacts) \(pluginLocations) \(simulatorSettings) \(testExecutionBehavior) \(testTimeoutConfiguration) \(simulatorOperationTimeouts) \(developerDir) \(workerCapabilityRequirements) \(analyticsConfiguration) \(testAttachmentLifetime)>"
     }
 }

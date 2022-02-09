@@ -109,7 +109,7 @@ public final class RunTestsCommand: Command {
         let testNamesToRun: [TestName] = try payload.possiblyEmptyCollectionOfValues(argumentName: ArgumentDescriptions.test.name)
         let numberOfRetries: UInt = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.retries.name) ?? TestArgFileDefaultValues.numberOfRetries
         let testTimeout: TimeInterval = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.testTimeout.name) ?? TestArgFileDefaultValues.testTimeoutConfiguration.singleTestMaximumDuration
-        let testDestination = AppleTestDestination.appleSimulator(
+        let testDestination = TestDestination.appleSimulator(
             deviceType: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.device.name),
             kind: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.kind.name) ?? .iOS,
             version: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.runtime.name)

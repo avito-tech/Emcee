@@ -1,17 +1,17 @@
 import Foundation
 import PathLib
 import SimulatorPoolModels
-import TestDestination
-import TestDestinationTestHelpers
 
 public final class SimulatorFixture {
     public static func simulator(
-        testDestination: AppleTestDestination = TestDestinationFixtures.iOSTestDestination,
+        simDeviceType: SimDeviceType = SimDeviceTypeFixture.fixture(),
+        simRuntime: SimRuntime = SimRuntimeFixture.fixture(),
         udid: UDID = UDID(value: "fixture_udid"),
-        path: AbsolutePath = AbsolutePath(NSTemporaryDirectory()).appending("emcee_fixtures", "fixture_udid")
+        path: AbsolutePath
     ) -> Simulator {
         return Simulator(
-            testDestination: testDestination,
+            simDeviceType: simDeviceType,
+            simRuntime: simRuntime,
             udid: udid,
             path: path
         )

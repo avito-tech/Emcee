@@ -16,7 +16,6 @@ import ResourceLocationResolverTestHelpers
 import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolTestHelpers
-import TestDestinationTestHelpers
 import TestHelpers
 import Tmp
 import URLResource
@@ -225,7 +224,8 @@ final class ExecutableTestDiscovererTests: XCTestCase {
         testDiscoveryMode: .runtimeExecutableLaunch(appBundleLocation),
         simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
         simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-        testDestination: TestDestinationFixtures.iOSTestDestination,
+        simDeviceType: SimDeviceTypeFixture.fixture(),
+        simRuntime: SimRuntimeFixture.iOS("12.0"),
         testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
         testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
         testAttachmentLifetime: .deleteOnSuccess,

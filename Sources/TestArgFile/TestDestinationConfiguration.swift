@@ -4,10 +4,10 @@ import SimulatorPoolModels
 import TestDestination
 
 public struct TestDestinationConfiguration: Codable, Equatable {
-    public let testDestination: AppleTestDestination
+    public let testDestination: TestDestination
     public let reportOutput: ReportOutput
 
-    public init(testDestination: AppleTestDestination, reportOutput: ReportOutput) {
+    public init(testDestination: TestDestination, reportOutput: ReportOutput) {
         self.testDestination = testDestination
         self.reportOutput = reportOutput
     }

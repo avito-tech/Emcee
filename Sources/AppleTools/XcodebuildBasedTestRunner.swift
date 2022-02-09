@@ -76,7 +76,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                 arguments: [
                     "/usr/bin/xcrun",
                     "xcodebuild",
-                    "-destination", XcodebuildSimulatorDestinationArgument(destinationId: testContext.simulatorUdid),
+                    "-destination", XcodebuildSimulatorDestinationArgument(destinationId: testContext.simulator.udid),
                     "-derivedDataPath", testContext.testRunnerWorkingDirectory.appending("derivedData"),
                     "-resultBundlePath", xcresultBundlePath,
                     "-resultStreamPath", resultStreamFile,

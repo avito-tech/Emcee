@@ -27,7 +27,6 @@ import RunnerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import Statsd
-import TestDestinationTestHelpers
 import TestHelpers
 import Tmp
 import URLResource
@@ -132,9 +131,9 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             userInsertedLibraries: [
                 "__TESTHOST__/Frameworks/FrameworkToInsert.framework/FrameworkToInsert",
             ],
-            simulatorPath: try tempFolder.createDirectory(components: ["simulator"]),
-            simulatorUdid: UDID(value: UUID().uuidString),
-            testDestination: TestDestinationFixtures.iOSTestDestination,
+            simulator: SimulatorFixture.simulator(
+                path: try tempFolder.createDirectory(components: ["simulator"])
+            ),
             testRunnerWorkingDirectory: testRunnerWorkingDirectory,
             testsWorkingDirectory: testsWorkingDirectory,
             testAttachmentLifetime: .deleteOnSuccess
@@ -581,7 +580,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             [
                 "/usr/bin/xcrun",
                 "xcodebuild",
-                "-destination", "platform=iOS Simulator,id=" + testContext.simulatorUdid.value,
+                "-destination", "platform=iOS Simulator,id=" + testContext.simulator.udid.value,
                 "-derivedDataPath", testRunnerWorkingDirectory.appending("derivedData").pathString,
                 "-resultBundlePath", testRunnerWorkingDirectory.appending("resultBundle.xcresult").pathString,
                 "-resultStreamPath", testRunnerWorkingDirectory.appending("result_stream.json").pathString,

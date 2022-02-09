@@ -13,7 +13,9 @@ public final class SimulatorPoolMock: SimulatorPool {
     
     public func allocateSimulatorController() throws -> SimulatorController {
         let controller = FakeSimulatorController(
-            simulator: SimulatorFixture.simulator(),
+            simulator: SimulatorFixture.simulator(
+                path: "/tmp/DOES_NOT_MATTER"
+            ),
             developerDir: .current
         )
         controller.simulatorBecameBusy()

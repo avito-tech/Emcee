@@ -58,7 +58,8 @@ public final class TestEntriesValidator {
             ),
             simulatorOperationTimeouts: testArgFileEntry.simulatorOperationTimeouts,
             simulatorSettings: testArgFileEntry.simulatorSettings,
-            testDestination: testArgFileEntry.testDestination,
+            simDeviceType: try testArgFileEntry.testDestination.simDeviceType(),
+            simRuntime: try testArgFileEntry.testDestination.simRuntime(),
             testExecutionBehavior: TestExecutionBehavior(
                 environment: testArgFileEntry.environment,
                 userInsertedLibraries: testArgFileEntry.userInsertedLibraries,

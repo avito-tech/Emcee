@@ -26,16 +26,17 @@ public class DefaultOnDemandSimulatorPool: OnDemandSimulatorPool {
     }
     
     public func pool(key: OnDemandSimulatorPoolKey) throws -> SimulatorPool {
-        return try syncQueue.sync {
+        return syncQueue.sync {
             if let existingPool = pools[key] {
                 return existingPool
             } else {
-                let pool = try DefaultSimulatorPool(
+                let pool = DefaultSimulatorPool(
                     developerDir: key.developerDir,
                     logger: logger,
                     simulatorControllerProvider: simulatorControllerProvider,
-                    tempFolder: tempFolder,
-                    testDestination: key.testDestination
+                    simDeviceType: key.simDeviceType,
+                    simRuntime: key.simRuntime,
+                    tempFolder: tempFolder
                 )
                 pools[key] = pool
                 return pool

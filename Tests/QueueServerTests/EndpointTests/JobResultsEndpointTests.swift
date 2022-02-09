@@ -6,7 +6,6 @@ import RESTMethods
 import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolTestHelpers
-import TestDestinationTestHelpers
 import XCTest
 
 final class JobResultsEndpointTests: XCTestCase, JobResultsProvider {
@@ -17,8 +16,10 @@ final class JobResultsEndpointTests: XCTestCase, JobResultsProvider {
         bucketResults: [
             .testingResult(
                 TestingResult(
-                    testDestination: TestDestinationFixtures.iOSTestDestination,
-                    unfilteredResults: [TestEntryResult.lost(testEntry: TestEntryFixtures.testEntry())]
+                    testDestination: TestDestinationAppleFixtures.iOSTestDestination,
+                    unfilteredResults: [
+                        TestEntryResult.lost(testEntry: TestEntryFixtures.testEntry()),
+                    ]
                 )
             )
         ]

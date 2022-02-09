@@ -3,29 +3,33 @@ import DeveloperDirModels
 import ResourceLocationResolver
 import SimulatorPoolTestHelpers
 import SynchronousWaiter
-import TestDestinationTestHelpers
 import TestHelpers
 import Tmp
 import XCTest
 
 class DefaultSimulatorPoolTests: XCTestCase {
     
-    var tempFolder = try! TemporaryFolder()
-    lazy var simulatorControllerProvider = FakeSimulatorControllerProvider { testDestination -> SimulatorController in
+    private lazy var tempFolder = assertDoesNotThrow {
+        try TemporaryFolder()
+    }
+    private lazy var simulatorControllerProvider = FakeSimulatorControllerProvider { [tempFolder] simDeviceType, simRuntime -> SimulatorController in
         return FakeSimulatorController(
-            simulator: SimulatorFixture.simulator(),
+            simulator: SimulatorFixture.simulator(
+                simDeviceType: simDeviceType,
+                simRuntime: simRuntime,
+                path: tempFolder.absolutePath
+            ),
             developerDir: .current
         )
     }
-    lazy var pool = assertDoesNotThrow {
-        try DefaultSimulatorPool(
-            developerDir: DeveloperDir.current,
-            logger: .noOp,
-            simulatorControllerProvider: simulatorControllerProvider,
-            tempFolder: tempFolder,
-            testDestination: TestDestinationFixtures.iOSTestDestination
-        )
-    }
+    private lazy var pool = DefaultSimulatorPool(
+        developerDir: DeveloperDir.current,
+        logger: .noOp,
+        simulatorControllerProvider: simulatorControllerProvider,
+        simDeviceType: SimDeviceTypeFixture.fixture(),
+        simRuntime: SimRuntimeFixture.fixture(),
+        tempFolder: tempFolder
+    )
     
     func test___simulator_is_busy___after_allocation() throws {
         guard let controller = try pool.allocateSimulatorController() as? FakeSimulatorController else {

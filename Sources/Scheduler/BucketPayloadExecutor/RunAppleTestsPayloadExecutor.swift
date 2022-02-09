@@ -134,7 +134,8 @@ public final class RunAppleTestsPayloadExecutor {
         let simulatorPool = try onDemandSimulatorPool.pool(
             key: OnDemandSimulatorPoolKey(
                 developerDir: runIosTestsPayload.developerDir,
-                testDestination: runIosTestsPayload.testDestination
+                simDeviceType: runIosTestsPayload.simDeviceType,
+                simRuntime: runIosTestsPayload.simRuntime
             )
         )
         

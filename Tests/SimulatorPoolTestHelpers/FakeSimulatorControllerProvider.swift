@@ -3,21 +3,21 @@ import Foundation
 import RunnerModels
 import SimulatorPool
 import SimulatorPoolModels
-import TestDestination
 import Tmp
 
 public final class FakeSimulatorControllerProvider: SimulatorControllerProvider {
-    public var result: (AppleTestDestination) -> SimulatorController
+    public var result: (SimDeviceType, SimRuntime) -> SimulatorController
     
-    public init(result: @escaping (AppleTestDestination) -> SimulatorController) {
+    public init(result: @escaping (SimDeviceType, SimRuntime) -> SimulatorController) {
         self.result = result
     }
     
     public func createSimulatorController(
         developerDir: DeveloperDir,
-        temporaryFolder: TemporaryFolder,
-        testDestination: AppleTestDestination
+        simDeviceType: SimDeviceType,
+        simRuntime: SimRuntime,
+        temporaryFolder: TemporaryFolder
     ) throws -> SimulatorController {
-        return result(testDestination)
+        return result(simDeviceType, simRuntime)
     }
 }

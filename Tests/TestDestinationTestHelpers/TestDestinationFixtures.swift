@@ -1,10 +1,15 @@
 import Foundation
-import SimulatorPoolModels
 import TestDestination
 
-public enum TestDestinationFixtures {
-    public static let iOSTestDestination = AppleTestDestination.iOSSimulator(
-        deviceType: "device",
-        version: "12.0"
-    )
+public final class TestDestinationFixture {
+    static func fixture(
+        _ stringValues: [String: String] = ["TestDestinationFixture": "Value"],
+        _ intValues: [String: Int] = [:]
+    ) -> TestDestination {
+        var result = TestDestination()
+        stringValues.forEach { (key: String, value: String) in
+            result = result.add(key: key, value: value)
+        }
+        return result
+    }
 }

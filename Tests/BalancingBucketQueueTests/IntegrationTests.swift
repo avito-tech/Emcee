@@ -7,7 +7,6 @@ import MetricsExtensions
 import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolTestHelpers
-import TestDestinationTestHelpers
 import TestHelpers
 import TestHistoryStorage
 import TestHistoryTracker
@@ -505,7 +504,7 @@ final class IntegrationTests: XCTestCase {
         let expectedBucketResult = BucketResult.testingResult(
             TestingResultFixtures(
                 testEntry: TestEntryFixtures.testEntry(),
-                manuallyTestDestination: TestDestinationFixtures.iOSTestDestination,
+                manuallyTestDestination: TestDestinationAppleFixtures.iOSTestDestination,
                 unfilteredResults: [
                     TestEntryResult.withResult(
                         testEntry: TestEntryFixtures.testEntry(),
@@ -548,7 +547,7 @@ final class IntegrationTests: XCTestCase {
         let expectedBucketResult = BucketResult.testingResult(
             TestingResultFixtures(
                 testEntry: TestEntryFixtures.testEntry(),
-                manuallyTestDestination: TestDestinationFixtures.iOSTestDestination,
+                manuallyTestDestination: TestDestinationAppleFixtures.iOSTestDestination,
                 unfilteredResults: [
                     TestEntryResult.withResult(
                         testEntry: TestEntryFixtures.testEntry(),

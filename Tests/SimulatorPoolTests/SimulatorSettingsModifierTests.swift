@@ -6,7 +6,6 @@ import ProcessController
 import ProcessControllerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
-import TestDestinationTestHelpers
 import TestHelpers
 import Tmp
 import UniqueIdentifierGenerator
@@ -321,9 +320,7 @@ final class SimulatorSettingsModifierTests: XCTestCase {
         result: self.tempFolder.absolutePath.appending("Dev_Dir")
     )
     lazy var processControllerProvider = FakeProcessControllerProvider()
-    lazy var simulator = Simulator(
-        testDestination: TestDestinationFixtures.iOSTestDestination,
-        udid: UDID(value: "sim_udid"),
+    lazy var simulator = SimulatorFixture.simulator(
         path: tempFolder.absolutePath.appending("sim_path")
     )
     lazy var simulatorSettings = SimulatorSettings(

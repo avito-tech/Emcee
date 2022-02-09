@@ -12,7 +12,8 @@ public struct RunAppleTestsPayload: BucketPayload, CustomStringConvertible, Buck
     public let pluginLocations: Set<AppleTestPluginLocation>
     public let simulatorOperationTimeouts: SimulatorOperationTimeouts
     public let simulatorSettings: SimulatorSettings
-    public let testDestination: AppleTestDestination
+    public let simDeviceType: SimDeviceType
+    public let simRuntime: SimRuntime
     public private(set) var testEntries: [TestEntry]
     public let testExecutionBehavior: TestExecutionBehavior
     public let testTimeoutConfiguration: TestTimeoutConfiguration
@@ -24,7 +25,8 @@ public struct RunAppleTestsPayload: BucketPayload, CustomStringConvertible, Buck
         pluginLocations: Set<AppleTestPluginLocation>,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,
         simulatorSettings: SimulatorSettings,
-        testDestination: AppleTestDestination,
+        simDeviceType: SimDeviceType,
+        simRuntime: SimRuntime,
         testEntries: [TestEntry],
         testExecutionBehavior: TestExecutionBehavior,
         testTimeoutConfiguration: TestTimeoutConfiguration,
@@ -35,7 +37,8 @@ public struct RunAppleTestsPayload: BucketPayload, CustomStringConvertible, Buck
         self.pluginLocations = pluginLocations
         self.simulatorOperationTimeouts = simulatorOperationTimeouts
         self.simulatorSettings = simulatorSettings
-        self.testDestination = testDestination
+        self.simDeviceType = simDeviceType
+        self.simRuntime = simRuntime
         self.testEntries = testEntries
         self.testExecutionBehavior = testExecutionBehavior
         self.testTimeoutConfiguration = testTimeoutConfiguration
@@ -50,5 +53,12 @@ public struct RunAppleTestsPayload: BucketPayload, CustomStringConvertible, Buck
         var result = self
         result.testEntries = newTestEntries
         return result
+    }
+    
+    public var testDestination: TestDestination {
+        TestDestination.appleSimulator(
+            simDeviceType: simDeviceType,
+            simRuntime: simRuntime
+        )
     }
 }

@@ -1,12 +1,12 @@
 import Foundation
 import PathLib
 import SimulatorPoolModels
-import TestDestination
 
 public protocol SimulatorStateMachineActionExecutor {
     func performCreateSimulatorAction(
         environment: [String: String],
-        testDestination: AppleTestDestination,
+        simDeviceType: SimDeviceType,
+        simRuntime: SimRuntime,
         timeout: TimeInterval
     ) throws -> Simulator
     

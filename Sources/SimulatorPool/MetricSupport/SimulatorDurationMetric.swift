@@ -3,7 +3,6 @@ import Graphite
 import Metrics
 import QueueModels
 import SimulatorPoolModels
-import TestDestination
 
 public final class SimulatorDurationMetric: GraphiteMetric {
     public enum Action: String {
@@ -16,7 +15,8 @@ public final class SimulatorDurationMetric: GraphiteMetric {
     public init(
         action: Action,
         host: String,
-        testDestination: AppleTestDestination,
+        deviceType: SimDeviceType,
+        runtime: SimRuntime,
         isSuccessful: Bool,
         duration: Double,
         version: Version,
@@ -31,8 +31,8 @@ public final class SimulatorDurationMetric: GraphiteMetric {
             variableComponents: [
                 action.rawValue,
                 host,
-                testDestination.deviceTypeForMetrics,
-                testDestination.runtimeForMetrics,
+                deviceType.shortForMetrics,
+                runtime.shortForMetrics,
                 isSuccessful ? "success" : "failure",
                 version.value,
                 GraphiteMetric.reservedField,

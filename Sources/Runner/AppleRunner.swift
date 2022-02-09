@@ -287,9 +287,7 @@ public final class AppleRunner: Runner {
             developerDir: configuration.developerDir,
             environment: environment,
             userInsertedLibraries: configuration.userInsertedLibraries,
-            simulatorPath: configuration.simulator.path,
-            simulatorUdid: configuration.simulator.udid,
-            testDestination: configuration.simulator.testDestination,
+            simulator: configuration.simulator,
             testRunnerWorkingDirectory: testRunnerWorkingDirectory,
             testsWorkingDirectory: testsWorkingDirectory,
             testAttachmentLifetime: configuration.testAttachmentLifetime

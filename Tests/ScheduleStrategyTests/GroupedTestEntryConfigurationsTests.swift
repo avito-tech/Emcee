@@ -9,7 +9,6 @@ import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
-import TestDestination
 import XCTest
 
 final class GroupedTestEntryConfigurationsTests: XCTestCase {
@@ -93,14 +92,14 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
     
     func test___grouping_by_TestDestination___preserves_order_and_sorts_by_test_count() {
         let testEntryConfigurations1 = TestEntryConfigurationFixtures()
-            .with(testDestination: AppleTestDestination.iOSSimulator(deviceType: "1", version: "11.0"))
+            .with(simDeviceType: SimDeviceTypeFixture.fixture("device1"))
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
             .add(testEntry: TestEntryFixtures.testEntry(className: "class2", methodName: "test"))
             .add(testEntry: TestEntryFixtures.testEntry(className: "class3", methodName: "test"))
             .testEntryConfigurations()
             .shuffled()
         let testEntryConfigurations2 = TestEntryConfigurationFixtures()
-            .with(testDestination: AppleTestDestination.iOSSimulator(deviceType: "2", version: "11.0"))
+            .with(simDeviceType: SimDeviceTypeFixture.fixture("device2"))
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
             .add(testEntry: TestEntryFixtures.testEntry(className: "class2", methodName: "test"))
             .testEntryConfigurations()
@@ -286,7 +285,7 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
             .testEntryConfigurations()[0]
         let testEntryConfiguration3 = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry(className: "class1", methodName: "test"))
-            .with(testDestination: AppleTestDestination.iOSSimulator(deviceType: "1", version: "11.0"))
+            .with(simDeviceType: SimDeviceTypeFixture.fixture("device"))
             .testEntryConfigurations()[0]
         
         let mixedTestEntryConfigurations = [
@@ -308,7 +307,7 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
     func test___grouping_same_test_entries_into_different_groups___with_one_class() {
         let testEntry = TestEntryFixtures.testEntry(className: "class", methodName: "test")
         let testEntryConfigurations = TestEntryConfigurationFixtures()
-            .with(testDestination: AppleTestDestination.iOSSimulator(deviceType: "1", version: "11.0"))
+            .with(simDeviceType: SimDeviceTypeFixture.fixture("device"))
             .add(testEntry: testEntry)
             .add(testEntry: testEntry)
             .add(testEntry: testEntry)
@@ -333,7 +332,7 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
         let testEntry2 = TestEntryFixtures.testEntry(className: "class2", methodName: "test")
         let testEntry3 = TestEntryFixtures.testEntry(className: "class3", methodName: "test")
         let testEntryConfigurations = TestEntryConfigurationFixtures()
-            .with(testDestination: AppleTestDestination.iOSSimulator(deviceType: "1", version: "11.0"))
+            .with(simDeviceType: SimDeviceTypeFixture.fixture("device"))
             .add(testEntry: testEntry1)
             .add(testEntry: testEntry1)
             .add(testEntry: testEntry1)
@@ -347,7 +346,7 @@ final class GroupedTestEntryConfigurationsTests: XCTestCase {
             .shuffled()
         let expectedConfigurations = Set(
             TestEntryConfigurationFixtures()
-            .with(testDestination: AppleTestDestination.iOSSimulator(deviceType: "1", version: "11.0"))
+            .with(simDeviceType: SimDeviceTypeFixture.fixture("device"))
             .add(testEntry: testEntry1)
             .add(testEntry: testEntry2)
             .add(testEntry: testEntry3)

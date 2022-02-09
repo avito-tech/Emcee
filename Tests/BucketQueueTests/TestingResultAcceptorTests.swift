@@ -91,7 +91,9 @@ final class TestingResultAcceptorTests: XCTestCase {
             _ = try testingResultAcceptor.acceptTestingResult(
                 dequeuedBucket: dequeuedBucket,
                 bucketPayloadWithTests: runIosTestsPayload,
-                testingResult: TestingResultFixtures().testingResult()
+                testingResult: TestingResultFixtures(
+                    manuallyTestDestination: runIosTestsPayload.testDestination
+                ).testingResult()
             )
         }
         

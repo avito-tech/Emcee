@@ -174,7 +174,8 @@ public final class Scheduler {
         let simulatorPool = try di.get(OnDemandSimulatorPool.self).pool(
             key: OnDemandSimulatorPoolKey(
                 developerDir: runIosTestsPayload.developerDir,
-                testDestination: runIosTestsPayload.testDestination
+                simDeviceType: runIosTestsPayload.simDeviceType,
+                simRuntime: runIosTestsPayload.simRuntime
             )
         )
         

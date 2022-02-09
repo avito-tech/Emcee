@@ -8,7 +8,6 @@ import ProcessController
 import ResourceLocationResolver
 import SimulatorPool
 import SimulatorPoolModels
-import TestDestination
 
 public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor, CustomStringConvertible {
     
@@ -32,7 +31,8 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
     
     public func performCreateSimulatorAction(
         environment: [String: String],
-        testDestination: AppleTestDestination,
+        simDeviceType: SimDeviceType,
+        simRuntime: SimRuntime,
         timeout: TimeInterval
     ) throws -> Simulator {
         let controller = try processControllerProvider.createProcessController(
@@ -41,9 +41,9 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
                     "/usr/bin/xcrun", "simctl",
                     "--set", simulatorSetPath,
                     "create",
-                    "Emcee Sim \(testDestination.deviceTypeForMetrics) \(testDestination.runtimeForMetrics)",
-                    testDestination.simDeviceType,
-                    testDestination.simRuntime,
+                    "Emcee Sim \(simDeviceType.shortForMetrics) \(simRuntime.shortForMetrics)",
+                    simDeviceType.fullyQualifiedId,
+                    simRuntime.fullyQualifiedId,
                 ],
                 environment: Environment(environment),
                 automaticManagement: .sigintThenKillAfterRunningFor(interval: timeout)
@@ -60,7 +60,8 @@ public final class SimctlBasedSimulatorStateMachineActionExecutor: SimulatorStat
         let udid = UDID(value: createdUdid.trimmingCharacters(in: .whitespacesAndNewlines))
         
         return Simulator(
-            testDestination: testDestination,
+            simDeviceType: simDeviceType,
+            simRuntime: simRuntime,
             udid: udid,
             path: simulatorSetPath.appending(udid.value)
         )

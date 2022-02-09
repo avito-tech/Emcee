@@ -150,7 +150,8 @@ final class TestArgFileTests: XCTestCase {
         XCTAssertTrue(testArgFile.prioritizedJob.jobId.value.hasPrefix("automaticJobId_")) 
         XCTAssertEqual(testArgFile.entries.count, 1)
         XCTAssertEqual(testArgFile.entries[0].testsToRun, [.allDiscoveredTests])
-        XCTAssertEqual(testArgFile.entries[0].testDestination, AppleTestDestination.iOSSimulator(deviceType: "iPhone X", version: "11.3"))
+        XCTAssertEqual(try testArgFile.entries[0].testDestination.simDeviceType(), try TestDestination.iOSSimulator(deviceType: "iPhone X", version: "11.3").simDeviceType())
+        XCTAssertEqual(try testArgFile.entries[0].testDestination.simRuntime(), try TestDestination.iOSSimulator(deviceType: "iPhone X", version: "11.3").simRuntime())
         XCTAssertEqual(
             testArgFile.entries[0].buildArtifacts,
             AppleBuildArtifacts.iosUiTests(

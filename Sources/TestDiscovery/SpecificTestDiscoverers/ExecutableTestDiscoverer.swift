@@ -8,7 +8,6 @@ import PathLib
 import ProcessController
 import ResourceLocationResolver
 import SimulatorPoolModels
-import TestDestination
 import Tmp
 import UniqueIdentifierGenerator
 
@@ -16,14 +15,14 @@ public final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
     
     enum Errors: Error, CustomStringConvertible {
         case bundleExecutableNotFound(path: AbsolutePath)
-        case runtimeRootNotFound(testDestination: AppleTestDestination)
+        case runtimeRootNotFound(simRuntime: SimRuntime)
         
         var description: String {
             switch self {
             case .bundleExecutableNotFound(let path):
                 return "Bundle executable not found in \(path)"
-            case .runtimeRootNotFound(let testDestination):
-                return "Runtime root not found for \(testDestination)"
+            case .runtimeRootNotFound(let simRuntime):
+                return "Runtime root not found for \(simRuntime)"
             }
         }
     }
@@ -58,9 +57,9 @@ public final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
         configuration.logger.debug("Will discover tests in \(configuration.xcTestBundleLocation) into file: \(runtimeEntriesJSONPath)")
         
         let latestRuntimeRoot = try findRuntimeRoot(
-            testDestination: configuration.testDestination,
             developerDir: configuration.developerDir,
-            logger: configuration.logger
+            logger: configuration.logger,
+            simRuntime: configuration.simRuntime
         )
         
         let appBundlePath = try resourceLocationResolver.resolvable(
@@ -104,9 +103,9 @@ public final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
     }
     
     private func findRuntimeRoot(
-        testDestination: AppleTestDestination,
         developerDir: DeveloperDir,
-        logger: ContextualLogger
+        logger: ContextualLogger,
+        simRuntime: SimRuntime
     ) throws -> String {
         let controller = try processControllerProvider.createProcessController(
             subprocess: Subprocess(
@@ -131,9 +130,9 @@ public final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
         let runtimes = try JSONDecoder().decode(SimulatorRuntimes.self, from: capturedData)
         
         guard let runtime = runtimes.runtimes.first(
-            where: { $0.identifier == testDestination.simRuntime }
+            where: { $0.identifier == simRuntime.fullyQualifiedId }
         ) else {
-            throw Errors.runtimeRootNotFound(testDestination: testDestination)
+            throw Errors.runtimeRootNotFound(simRuntime: simRuntime)
         }
         
         return runtime.bundlePath.appending("Contents/Resources/RuntimeRoot").pathString

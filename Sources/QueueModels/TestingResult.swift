@@ -6,7 +6,7 @@ import TestDestination
 public struct TestingResult: Codable, Hashable {
     
     /// A test destination used to run the tests.
-    public let testDestination: AppleTestDestination
+    public let testDestination: TestDestination
     
     /// All test results
     public let unfilteredResults: [TestEntryResult]
@@ -22,7 +22,7 @@ public struct TestingResult: Codable, Hashable {
     }
 
     public init(
-        testDestination: AppleTestDestination,
+        testDestination: TestDestination,
         unfilteredResults: [TestEntryResult])
     {
         self.testDestination = testDestination
@@ -32,7 +32,7 @@ public struct TestingResult: Codable, Hashable {
 
 public enum MergeError: Error, CustomStringConvertible {
     case nothingToMerge
-    case multipleBucketsFound([TestingResult], [AppleTestDestination])
+    case multipleBucketsFound([TestingResult], [TestDestination])
     
     public var description: String {
         switch self {

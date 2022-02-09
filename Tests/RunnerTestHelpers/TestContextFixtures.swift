@@ -4,8 +4,6 @@ import PathLib
 import RunnerModels
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
-import TestDestination
-import TestDestinationTestHelpers
 
 public final class TestContextFixtures {
     public var contextId: String
@@ -14,7 +12,8 @@ public final class TestContextFixtures {
     public var userInsertedLibraries: [String]
     public var simulatorPath: AbsolutePath
     public var simulatorUdid: UDID
-    public var testDestination: AppleTestDestination
+    public var simRuntime: SimRuntime
+    public var simDeviceType: SimDeviceType
     public var testRunnerWorkingDirectory: AbsolutePath
     public var testsWorkingDirectory: AbsolutePath
     
@@ -25,7 +24,8 @@ public final class TestContextFixtures {
         userInsertedLibraries: [String] = [],
         simulatorPath: AbsolutePath = AbsolutePath(NSTemporaryDirectory()),
         simulatorUdid: UDID = UDID(value: "fixture_test_context_udid"),
-        testDestination: AppleTestDestination = TestDestinationFixtures.iOSTestDestination,
+        simRuntime: SimRuntime = SimRuntimeFixture.fixture(),
+        simDeviceType: SimDeviceType = SimDeviceTypeFixture.fixture(),
         testRunnerWorkingDirectory: AbsolutePath = AbsolutePath(NSTemporaryDirectory()),
         testsWorkingDirectory: AbsolutePath = AbsolutePath(NSTemporaryDirectory())
     ) {
@@ -35,7 +35,8 @@ public final class TestContextFixtures {
         self.userInsertedLibraries = userInsertedLibraries
         self.simulatorPath = simulatorPath
         self.simulatorUdid = simulatorUdid
-        self.testDestination = testDestination
+        self.simRuntime = simRuntime
+        self.simDeviceType = simDeviceType
         self.testRunnerWorkingDirectory = testRunnerWorkingDirectory
         self.testsWorkingDirectory = testsWorkingDirectory
     }
@@ -46,9 +47,12 @@ public final class TestContextFixtures {
             developerDir: developerDir,
             environment: environment,
             userInsertedLibraries: userInsertedLibraries,
-            simulatorPath: simulatorPath,
-            simulatorUdid: simulatorUdid,
-            testDestination: testDestination,
+            simulator: Simulator(
+                simDeviceType: simDeviceType,
+                simRuntime: simRuntime,
+                udid: simulatorUdid,
+                path: simulatorPath
+            ),
             testRunnerWorkingDirectory: testRunnerWorkingDirectory,
             testsWorkingDirectory: testsWorkingDirectory,
             testAttachmentLifetime: .deleteOnSuccess

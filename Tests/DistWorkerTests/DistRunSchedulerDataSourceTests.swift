@@ -6,7 +6,6 @@ import RunnerModels
 import RunnerTestHelpers
 import Scheduler
 import SimulatorPoolTestHelpers
-import TestDestinationTestHelpers
 import XCTest
 
 final class DistRunSchedulerDataSourceTests: XCTestCase {
@@ -22,7 +21,8 @@ final class DistRunSchedulerDataSourceTests: XCTestCase {
                         pluginLocations: [],
                         simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
                         simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-                        testDestination: TestDestinationFixtures.iOSTestDestination,
+                        simDeviceType: SimDeviceTypeFixture.fixture(),
+                        simRuntime: SimRuntimeFixture.fixture(),
                         testEntries: [TestEntryFixtures.testEntry()],
                         testExecutionBehavior: TestExecutionBehaviorFixtures(environment: ["a": "b"]).build(),
                         testTimeoutConfiguration: TestTimeoutConfiguration(

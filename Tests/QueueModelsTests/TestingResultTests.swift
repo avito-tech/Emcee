@@ -4,13 +4,12 @@ import RunnerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import TestDestination
-import TestDestinationTestHelpers
 import XCTest
 
 final class TestingResultTests: XCTestCase {
     func testFilteringResults() throws {
         let result = TestingResult(
-            testDestination: TestDestinationFixtures.iOSTestDestination,
+            testDestination: TestDestinationAppleFixtures.iOSTestDestination,
             unfilteredResults: [
                 .withResult(
                     testEntry: TestEntryFixtures.testEntry(className: "success", methodName: ""),
@@ -31,7 +30,7 @@ final class TestingResultTests: XCTestCase {
     
     func testFilteringResultsWithMultipleRuns() throws {
         let result = TestingResult(
-            testDestination: TestDestinationFixtures.iOSTestDestination,
+            testDestination: TestDestinationAppleFixtures.iOSTestDestination,
             unfilteredResults: [
                 .withResults(
                     testEntry: TestEntryFixtures.testEntry(className: "success", methodName: ""),
@@ -48,7 +47,7 @@ final class TestingResultTests: XCTestCase {
     }
     
     func testMerging() throws {
-        let testDestination = TestDestinationFixtures.iOSTestDestination
+        let testDestination = TestDestinationAppleFixtures.iOSTestDestination
         let testEntry1 = TestEntryFixtures.testEntry(className: "success", methodName: "")
         let testEntry2 = TestEntryFixtures.testEntry(className: "failure", methodName: "")
         
@@ -97,8 +96,8 @@ final class TestingResultTests: XCTestCase {
     }
     
     func testMergingMismatchingBucketsFails() {
-        let testDestination1 = AppleTestDestination.iOSSimulator(deviceType: "device", version: "11.3")
-        let testDestination2 = AppleTestDestination.iOSSimulator(deviceType: "device", version: "10.0")
+        let testDestination1 = TestDestination.iOSSimulator(deviceType: "device", version: "11.3")
+        let testDestination2 = TestDestination.iOSSimulator(deviceType: "device", version: "10.0")
         let testEntry = TestEntryFixtures.testEntry(className: "success", methodName: "")
         
         let result1 = TestingResult(
@@ -126,7 +125,7 @@ final class TestingResultTests: XCTestCase {
     
     func testTreatingLostResultAsFailure() {
         let result = TestingResult(
-            testDestination: TestDestinationFixtures.iOSTestDestination,
+            testDestination: TestDestinationAppleFixtures.iOSTestDestination,
             unfilteredResults: [
                 .lost(testEntry: TestEntryFixtures.testEntry(className: "lost", methodName: ""))
             ])

@@ -5,34 +5,36 @@ import EmceeLogging
 import ResourceLocationResolver
 import RunnerModels
 import SimulatorPoolModels
-import TestDestination
 import Tmp
 
 public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible {
     private let developerDir: DeveloperDir
     private let logger: ContextualLogger
     private let simulatorControllerProvider: SimulatorControllerProvider
+    private let simDeviceType: SimDeviceType
+    private let simRuntime: SimRuntime
     private let tempFolder: TemporaryFolder
-    private let testDestination: AppleTestDestination
     private var controllers = [SimulatorController]()
     private let syncQueue = DispatchQueue(label: "DefaultSimulatorPool.syncQueue")
     
     public var description: String {
-        return "<\(type(of: self)): '\(testDestination.deviceTypeForMetrics)'+'\(testDestination.runtimeForMetrics)'>"
+        return "<\(type(of: self)): '\(simRuntime.shortForMetrics)'+'\(simDeviceType.shortForMetrics)'>"
     }
     
     public init(
         developerDir: DeveloperDir,
         logger: ContextualLogger,
         simulatorControllerProvider: SimulatorControllerProvider,
-        tempFolder: TemporaryFolder,
-        testDestination: AppleTestDestination
-    ) throws {
+        simDeviceType: SimDeviceType,
+        simRuntime: SimRuntime,
+        tempFolder: TemporaryFolder
+    ) {
         self.developerDir = developerDir
         self.logger = logger
         self.simulatorControllerProvider = simulatorControllerProvider
+        self.simDeviceType = simDeviceType
+        self.simRuntime = simRuntime
         self.tempFolder = tempFolder
-        self.testDestination = testDestination
     }
     
     deinit {
@@ -48,8 +50,9 @@ public final class DefaultSimulatorPool: SimulatorPool, CustomStringConvertible 
             }
             let controller = try simulatorControllerProvider.createSimulatorController(
                 developerDir: developerDir,
-                temporaryFolder: tempFolder,
-                testDestination: testDestination
+                simDeviceType: simDeviceType,
+                simRuntime: simRuntime,
+                temporaryFolder: tempFolder
             )
             logger.trace("Allocated new simulator: \(controller)")
             controller.simulatorBecameBusy()

@@ -6,7 +6,7 @@ public struct TestExecutionBehavior: Codable, Hashable, CustomStringConvertible 
     /// Test environment
     public let environment: [String: String]
     
-    /// Paths that will be appended to DYLD_INSERT_LIBRARIES environment variable
+    /// Paths that will be appended to `DYLD_INSERT_LIBRARIES` environment variable
     public let userInsertedLibraries: [String]
     
     /// How many times each failed test should be attempted to restart

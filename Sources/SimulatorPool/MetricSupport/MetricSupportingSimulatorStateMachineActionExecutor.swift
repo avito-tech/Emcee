@@ -7,7 +7,6 @@ import MetricsExtensions
 import PathLib
 import QueueModels
 import SimulatorPoolModels
-import TestDestination
 import Types
 
 public final class MetricSupportingSimulatorStateMachineActionExecutor: SimulatorStateMachineActionExecutor {
@@ -30,16 +29,19 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
     
     public func performCreateSimulatorAction(
         environment: [String: String],
-        testDestination: AppleTestDestination,
+        simDeviceType: SimDeviceType,
+        simRuntime: SimRuntime,
         timeout: TimeInterval
     ) throws -> Simulator {
         return try measure(
             action: .create,
-            testDestination: testDestination,
+            deviceType: simDeviceType,
+            runtime: simRuntime,
             work: {
                 try delegate.performCreateSimulatorAction(
                     environment: environment,
-                    testDestination: testDestination,
+                    simDeviceType: simDeviceType,
+                    simRuntime: simRuntime,
                     timeout: timeout
                 )
             }
@@ -53,7 +55,8 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
     ) throws {
         try measure(
             action: .boot,
-            testDestination: simulator.testDestination,
+            deviceType: simulator.simDeviceType,
+            runtime: simulator.simRuntime,
             work: {
                 try delegate.performBootSimulatorAction(
                     environment: environment,
@@ -71,7 +74,8 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
     ) throws {
         try measure(
             action: .shutdown,
-            testDestination: simulator.testDestination,
+            deviceType: simulator.simDeviceType,
+            runtime: simulator.simRuntime,
             work: {
                 try delegate.performShutdownSimulatorAction(
                     environment: environment,
@@ -89,7 +93,8 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
     ) throws {
         try measure(
             action: .delete,
-            testDestination: simulator.testDestination,
+            deviceType: simulator.simDeviceType,
+            runtime: simulator.simRuntime,
             work: {
                 try delegate.performDeleteSimulatorAction(
                     environment: environment,
@@ -102,7 +107,8 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
     
     private func measure<T>(
         action: SimulatorDurationMetric.Action,
-        testDestination: AppleTestDestination,
+        deviceType: SimDeviceType,
+        runtime: SimRuntime,
         work: () throws -> T
     ) throws -> T {
         let result: Either<T, Error>
@@ -117,7 +123,8 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
             SimulatorDurationMetric(
                 action: action,
                 host: LocalHostDeterminer.currentHostAddress,
-                testDestination: testDestination,
+                deviceType: deviceType,
+                runtime: runtime,
                 isSuccessful: result.isSuccess,
                 duration: dateProvider.currentDate().timeIntervalSince(startTime),
                 version: version,

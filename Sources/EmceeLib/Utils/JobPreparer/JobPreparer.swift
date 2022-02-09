@@ -68,7 +68,7 @@ public final class JobPreparer {
                 testArgFileEntry: testArgFileEntry,
                 logger: logger
             )
-            let testEntryConfigurations = testEntryConfigurationGenerator.createTestEntryConfigurations()
+            let testEntryConfigurations = try testEntryConfigurationGenerator.createTestEntryConfigurations()
             logger.info("Will schedule \(testEntryConfigurations.count) tests to queue server at \(queueServerAddress)")
             
             let testScheduler = TestSchedulerImpl(

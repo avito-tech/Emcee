@@ -8,7 +8,6 @@ import PathLib
 import QueueModels
 import SimulatorPoolTestHelpers
 import TestArgFile
-import TestDestinationTestHelpers
 import TestDiscovery
 import TestHelpers
 import URLResource
@@ -177,7 +176,7 @@ extension TestArgFile {
                     scheduleStrategy: TestArgFileDefaultValues.scheduleStrategy,
                     simulatorOperationTimeouts: TestArgFileDefaultValues.simulatorOperationTimeouts,
                     simulatorSettings: TestArgFileDefaultValues.simulatorSettings,
-                    testDestination: TestDestinationFixtures.iOSTestDestination,
+                    testDestination: TestDestinationAppleFixtures.iOSTestDestination,
                     testTimeoutConfiguration: TestArgFileDefaultValues.testTimeoutConfiguration,
                     testAttachmentLifetime: TestArgFileDefaultValues.testAttachmentLifetime,
                     testsToRun: [],

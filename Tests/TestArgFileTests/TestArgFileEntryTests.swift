@@ -147,7 +147,9 @@ final class TestArgFileEntryTests: XCTestCase {
                     ),
                     watchdogSettings: WatchdogSettings(bundleIds: ["sample.app"], timeout: 42)
                 ),
-                testDestination: AppleTestDestination.iOSSimulator(deviceType: "iPhone SE", version: "11.3"),
+                testDestination: TestDestination()
+                    .add(key: AppleTestDestinationFields.deviceType, value: "iPhone SE")
+                    .add(key: AppleTestDestinationFields.runtime, value: "11.3"),
                 testTimeoutConfiguration: TestTimeoutConfiguration(
                     singleTestMaximumDuration: 42,
                     testRunnerMaximumSilenceDuration: 24
@@ -218,7 +220,9 @@ final class TestArgFileEntryTests: XCTestCase {
                 scheduleStrategy: TestArgFileDefaultValues.scheduleStrategy,
                 simulatorOperationTimeouts: TestArgFileDefaultValues.simulatorOperationTimeouts,
                 simulatorSettings: TestArgFileDefaultValues.simulatorSettings,
-                testDestination: AppleTestDestination.iOSSimulator(deviceType: "iPhone SE", version: "11.3"),
+                testDestination: TestDestination()
+                    .add(key: AppleTestDestinationFields.deviceType, value: "iPhone SE")
+                    .add(key: AppleTestDestinationFields.runtime, value: "11.3"),
                 testTimeoutConfiguration: TestArgFileDefaultValues.testTimeoutConfiguration,
                 testAttachmentLifetime: .deleteOnSuccess,
                 testsToRun: [

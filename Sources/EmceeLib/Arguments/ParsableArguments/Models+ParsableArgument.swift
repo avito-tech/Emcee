@@ -4,7 +4,6 @@ import QueueModels
 import ResourceLocation
 import SocketModels
 import SimulatorPoolModels
-import TestDestination
 import TypedResourceLocation
 
 extension TypedResourceLocation: ParsableArgument {

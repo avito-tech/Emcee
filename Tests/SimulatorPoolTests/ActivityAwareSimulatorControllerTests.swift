@@ -6,7 +6,9 @@ import XCTest
 
 final class ActivityAwareSimulatorControllerTests: XCTestCase {
     let fakeSimulatorController = FakeSimulatorController(
-        simulator: SimulatorFixture.simulator(),
+        simulator: SimulatorFixture.simulator(
+            path: "/tmp/does-not-matter"
+        ),
         developerDir: .current
     )
     

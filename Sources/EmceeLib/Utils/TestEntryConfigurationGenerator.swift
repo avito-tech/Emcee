@@ -25,15 +25,15 @@ public final class TestEntryConfigurationGenerator {
         self.logger = logger
     }
     
-    public func createTestEntryConfigurations() -> [TestEntryConfiguration] {
+    public func createTestEntryConfigurations() throws -> [TestEntryConfiguration] {
         logger.trace("Preparing test entry configurations for \(testArgFileEntry.testsToRun.count) tests: \(testArgFileEntry.testsToRun)")
         
-        let testArgFileEntryConfigurations = testArgFileEntry.testsToRun.flatMap { testToRun -> [TestEntryConfiguration] in
+        let testArgFileEntryConfigurations = try testArgFileEntry.testsToRun.flatMap { testToRun -> [TestEntryConfiguration] in
             let testEntries = testEntriesMatching(
                 buildArtifacts: testArgFileEntry.buildArtifacts,
                 testToRun: testToRun
             )
-            return testEntries.map { testEntry -> TestEntryConfiguration in
+            return try testEntries.map { testEntry -> TestEntryConfiguration in
                 TestEntryConfiguration(
                     analyticsConfiguration: analyticsConfiguration,
                     buildArtifacts: testArgFileEntry.buildArtifacts,
@@ -41,7 +41,8 @@ public final class TestEntryConfigurationGenerator {
                     pluginLocations: testArgFileEntry.pluginLocations,
                     simulatorOperationTimeouts: testArgFileEntry.simulatorOperationTimeouts,
                     simulatorSettings: testArgFileEntry.simulatorSettings,
-                    testDestination: testArgFileEntry.testDestination,
+                    simDeviceType: try testArgFileEntry.testDestination.simDeviceType(),
+                    simRuntime: try testArgFileEntry.testDestination.simRuntime(),
                     testEntry: testEntry,
                     testExecutionBehavior: TestExecutionBehavior(
                         environment: testArgFileEntry.environment,

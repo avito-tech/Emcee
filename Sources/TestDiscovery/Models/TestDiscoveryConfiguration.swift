@@ -7,7 +7,6 @@ import PluginSupport
 import RunnerModels
 import SimulatorPoolModels
 import TestArgFile
-import TestDestination
 
 public struct TestDiscoveryConfiguration {
     public let analyticsConfiguration: AnalyticsConfiguration
@@ -16,7 +15,8 @@ public struct TestDiscoveryConfiguration {
     public let testDiscoveryMode: TestDiscoveryMode
     public let simulatorOperationTimeouts: SimulatorOperationTimeouts
     public let simulatorSettings: SimulatorSettings
-    public let testDestination: AppleTestDestination
+    public let simDeviceType: SimDeviceType
+    public let simRuntime: SimRuntime
     public let testExecutionBehavior: TestExecutionBehavior
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testAttachmentLifetime: TestAttachmentLifetime
@@ -32,7 +32,8 @@ public struct TestDiscoveryConfiguration {
         testDiscoveryMode: TestDiscoveryMode,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,
         simulatorSettings: SimulatorSettings,
-        testDestination: AppleTestDestination,
+        simDeviceType: SimDeviceType,
+        simRuntime: SimRuntime,
         testExecutionBehavior: TestExecutionBehavior,
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testAttachmentLifetime: TestAttachmentLifetime,
@@ -47,7 +48,8 @@ public struct TestDiscoveryConfiguration {
         self.testDiscoveryMode = testDiscoveryMode
         self.simulatorOperationTimeouts = simulatorOperationTimeouts
         self.simulatorSettings = simulatorSettings
-        self.testDestination = testDestination
+        self.simDeviceType = simDeviceType
+        self.simRuntime = simRuntime
         self.testExecutionBehavior = testExecutionBehavior
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testAttachmentLifetime = testAttachmentLifetime

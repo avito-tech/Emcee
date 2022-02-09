@@ -5,35 +5,26 @@ import RunnerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import TestDestination
-import TestDestinationTestHelpers
 
 public final class TestingResultFixtures {
     public let unfilteredResults: [TestEntryResult]    
     public let testEntry: TestEntry
     
-    private let manuallyTestDestination: AppleTestDestination?
+    private let manuallyTestDestination: TestDestination?
     
-    public var testDestination: AppleTestDestination {
+    public var testDestination: TestDestination {
         if let manuallyTestDestination = manuallyTestDestination {
             return manuallyTestDestination
         } else {
-            return TestDestinationFixtures.iOSTestDestination
+            return TestDestination()
         }
     }
-    
-    public convenience init() {
-        self.init(
-            testEntry: TestEntryFixtures.testEntry(),
-            manuallyTestDestination: nil,
-            unfilteredResults: []
-        )
-    }
-    
+
     public init(
-        testEntry: TestEntry,
-        manuallyTestDestination: AppleTestDestination?,
-        unfilteredResults: [TestEntryResult])
-    {
+        testEntry: TestEntry = TestEntryFixtures.testEntry(),
+        manuallyTestDestination: TestDestination? = nil,
+        unfilteredResults: [TestEntryResult] = []
+    ) {
         self.testEntry = testEntry
         self.manuallyTestDestination = manuallyTestDestination
         self.unfilteredResults = unfilteredResults

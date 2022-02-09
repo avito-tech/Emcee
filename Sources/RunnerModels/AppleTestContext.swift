@@ -2,16 +2,13 @@ import DeveloperDirModels
 import Foundation
 import PathLib
 import SimulatorPoolModels
-import TestDestination
 
 public struct AppleTestContext: Codable, Hashable, CustomStringConvertible {
     public let contextId: String
     public let developerDir: DeveloperDir
     public let environment: [String: String]
     public let userInsertedLibraries: [String]
-    public let simulatorPath: AbsolutePath
-    public let simulatorUdid: UDID
-    public let testDestination: AppleTestDestination
+    public let simulator: Simulator
     public let testRunnerWorkingDirectory: AbsolutePath
     public let testsWorkingDirectory: AbsolutePath
     public let testAttachmentLifetime: TestAttachmentLifetime
@@ -21,9 +18,7 @@ public struct AppleTestContext: Codable, Hashable, CustomStringConvertible {
         developerDir: DeveloperDir,
         environment: [String: String],
         userInsertedLibraries: [String],
-        simulatorPath: AbsolutePath,
-        simulatorUdid: UDID,
-        testDestination: AppleTestDestination,
+        simulator: Simulator,
         testRunnerWorkingDirectory: AbsolutePath,
         testsWorkingDirectory: AbsolutePath,
         testAttachmentLifetime: TestAttachmentLifetime
@@ -32,15 +27,13 @@ public struct AppleTestContext: Codable, Hashable, CustomStringConvertible {
         self.developerDir = developerDir
         self.environment = environment
         self.userInsertedLibraries = userInsertedLibraries
-        self.simulatorPath = simulatorPath
-        self.simulatorUdid = simulatorUdid
-        self.testDestination = testDestination
+        self.simulator = simulator
         self.testRunnerWorkingDirectory = testRunnerWorkingDirectory
         self.testsWorkingDirectory = testsWorkingDirectory
         self.testAttachmentLifetime = testAttachmentLifetime
     }
     
     public var description: String {
-        return "<\(type(of: self)): contextId: \(contextId) simulator: \(simulatorUdid) \(testDestination), developerDir: \(developerDir), testRunnerWorkingDirectory: \(testRunnerWorkingDirectory), testsWorkingDirectory: \(testsWorkingDirectory), env: \(environment), userInsertedLibraries: \(userInsertedLibraries), testAttachmentLifetime: \(testAttachmentLifetime)>"
+        return "<\(type(of: self)): contextId: \(contextId) simulator: \(simulator), developerDir: \(developerDir), testRunnerWorkingDirectory: \(testRunnerWorkingDirectory), testsWorkingDirectory: \(testsWorkingDirectory), env: \(environment), userInsertedLibraries: \(userInsertedLibraries), testAttachmentLifetime: \(testAttachmentLifetime)>"
     }
 }

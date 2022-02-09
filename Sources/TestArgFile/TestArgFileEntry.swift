@@ -22,7 +22,7 @@ public struct TestArgFileEntry: Codable, Equatable {
     public let scheduleStrategy: ScheduleStrategy
     public let simulatorOperationTimeouts: SimulatorOperationTimeouts
     public let simulatorSettings: SimulatorSettings
-    public let testDestination: AppleTestDestination
+    public let testDestination: TestDestination
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testAttachmentLifetime: TestAttachmentLifetime
     public let testsToRun: [TestToRun]
@@ -41,7 +41,7 @@ public struct TestArgFileEntry: Codable, Equatable {
         scheduleStrategy: ScheduleStrategy,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,
         simulatorSettings: SimulatorSettings,
-        testDestination: AppleTestDestination,
+        testDestination: TestDestination,
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testAttachmentLifetime: TestAttachmentLifetime,
         testsToRun: [TestToRun],
@@ -76,7 +76,7 @@ public struct TestArgFileEntry: Codable, Equatable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         let buildArtifacts = try container.decode(AppleBuildArtifacts.self, forKey: .buildArtifacts)
-        let testDestination = try container.decode(AppleTestDestination.self, forKey: .testDestination)
+        let testDestination = try container.decode(TestDestination.self, forKey: .testDestination)
         let testsToRun = try container.decode([TestToRun].self, forKey: .testsToRun)
         
         let developerDir = try container.decodeIfPresent(DeveloperDir.self, forKey: .developerDir) ??

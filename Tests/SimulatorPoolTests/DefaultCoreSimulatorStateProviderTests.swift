@@ -4,17 +4,13 @@ import SimulatorPool
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import Tmp
-import TestDestinationTestHelpers
 import TestHelpers
 import XCTest
 
 final class DefaultCoreSimulatorStateProviderTests: XCTestCase {
     lazy var provider = DefaultCoreSimulatorStateProvider()
     lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
-    lazy var udid = UDID(value: "udid")
-    lazy var simulator = Simulator(
-        testDestination: TestDestinationFixtures.iOSTestDestination,
-        udid: udid,
+    lazy var simulator = SimulatorFixture.simulator(
         path: tempFolder.absolutePath
     )
     

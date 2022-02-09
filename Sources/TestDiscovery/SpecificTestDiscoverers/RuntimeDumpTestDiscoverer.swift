@@ -147,7 +147,8 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         let simulatorPool = try onDemandSimulatorPool.pool(
             key: OnDemandSimulatorPoolKey(
                 developerDir: configuration.developerDir,
-                testDestination: configuration.testDestination
+                simDeviceType: configuration.simDeviceType,
+                simRuntime: configuration.simRuntime
             )
         )
         return try simulatorPool.allocateSimulator(

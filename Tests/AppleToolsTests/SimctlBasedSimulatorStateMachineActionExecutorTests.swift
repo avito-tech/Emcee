@@ -5,8 +5,6 @@ import ProcessController
 import ProcessControllerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
-import TestDestination
-import TestDestinationTestHelpers
 import TestHelpers
 import Tmp
 import XCTest
@@ -17,8 +15,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
     private lazy var pathToSimulator = assertDoesNotThrow {
         try tempFolder.createDirectory(components: [udid.value])
     }
-    private lazy var simulator = Simulator(
-        testDestination: TestDestinationFixtures.iOSTestDestination,
+    private lazy var simulator = SimulatorFixture.simulator(
         udid: udid,
         path: pathToSimulator
     )
@@ -35,7 +32,8 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         assertThrows {
             try executor.performCreateSimulatorAction(
                 environment: [:],
-                testDestination: TestDestinationFixtures.iOSTestDestination,
+                simDeviceType: SimDeviceTypeFixture.fixture(),
+                simRuntime: SimRuntimeFixture.fixture(),
                 timeout: 60
             )
         }
@@ -54,7 +52,8 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         assertThrows {
             try executor.performCreateSimulatorAction(
                 environment: [:],
-                testDestination: TestDestinationFixtures.iOSTestDestination,
+                simDeviceType: SimDeviceTypeFixture.fixture(),
+                simRuntime: SimRuntimeFixture.fixture(),
                 timeout: 60
             )
         }
@@ -79,10 +78,12 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         assertDoesNotThrow {
             let simulator = try executor.performCreateSimulatorAction(
                 environment: [:],
-                testDestination: TestDestinationFixtures.iOSTestDestination,
+                simDeviceType: SimDeviceTypeFixture.fixture(),
+                simRuntime: SimRuntimeFixture.fixture(),
                 timeout: 60
             )
-            assert { simulator.testDestination } equals: { TestDestinationFixtures.iOSTestDestination }
+            assert { simulator.simDeviceType } equals: { SimDeviceTypeFixture.fixture() }
+            
             assert { simulator.udid } equals: { UDID(value: expectedUdid) }
             assert { simulator.simulatorSetPath } equals: { tempFolder.absolutePath }
         }
@@ -107,7 +108,8 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         assert {
             try executor.performCreateSimulatorAction(
                 environment: [:],
-                testDestination: TestDestinationFixtures.iOSTestDestination,
+                simDeviceType: SimDeviceTypeFixture.fixture(),
+                simRuntime: SimRuntimeFixture.fixture(),
                 timeout: 60
             ).udid
         } equals: {
@@ -126,7 +128,7 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
                         "--set", self.tempFolder.absolutePath.pathString,
                         "create", "Emcee Sim iPhone_SE iOS_11_3",
                         "com.apple.CoreSimulator.SimDeviceType.iPhone-SE",
-                        "com.apple.CoreSimulator.SimRuntime.iOS-11-3"
+                        "com.apple.CoreSimulator.SimRuntime.iOS-11-3",
                     ]
                 }
                 
@@ -140,7 +142,8 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         assertThrows {
             try executor.performCreateSimulatorAction(
                 environment: [:],
-                testDestination: AppleTestDestination.iOSSimulator(deviceType: "iPhone SE", version: "11.3"),
+                simDeviceType: SimDeviceType(fullyQualifiedId: "com.apple.CoreSimulator.SimDeviceType.iPhone-SE"),
+                simRuntime: SimRuntime(fullyQualifiedId: "com.apple.CoreSimulator.SimRuntime.iOS-11-3"),
                 timeout: 60
             )
         }
@@ -170,7 +173,10 @@ final class SimctlBasedSimulatorStateMachineActionExecutorTests: XCTestCase {
         assertDoesNotThrow {
             try executor.performBootSimulatorAction(
                 environment: [:],
-                simulator: Simulator(testDestination: TestDestinationFixtures.iOSTestDestination, udid: udid, path: pathToSimulator),
+                simulator: SimulatorFixture.simulator(
+                    udid: udid,
+                    path: pathToSimulator
+                ),
                 timeout: 10
             )
         }

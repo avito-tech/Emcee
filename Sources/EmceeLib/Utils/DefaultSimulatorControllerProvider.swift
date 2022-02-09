@@ -8,7 +8,6 @@ import PathLib
 import RunnerModels
 import SimulatorPool
 import SimulatorPoolModels
-import TestDestination
 import Tmp
 
 public final class DefaultSimulatorControllerProvider: SimulatorControllerProvider {
@@ -37,8 +36,9 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
 
     public func createSimulatorController(
         developerDir: DeveloperDir,
-        temporaryFolder: TemporaryFolder,
-        testDestination: AppleTestDestination
+        simDeviceType: SimDeviceType,
+        simRuntime: SimRuntime,
+        temporaryFolder: TemporaryFolder
     ) throws -> SimulatorController {
         return ActivityAwareSimulatorController(
             automaticDeleteTimePeriod: 3600,
@@ -53,8 +53,9 @@ public final class DefaultSimulatorControllerProvider: SimulatorControllerProvid
                 logger: logger,
                 simulatorStateMachine: SimulatorStateMachine(),
                 simulatorStateMachineActionExecutor: try simulatorStateMachineActionExecutorProvider.simulatorStateMachineActionExecutor(),
-                temporaryFolder: temporaryFolder,
-                testDestination: testDestination
+                simDeviceType: simDeviceType,
+                simRuntime: simRuntime,
+                temporaryFolder: temporaryFolder
             ),
             logger: logger
         )

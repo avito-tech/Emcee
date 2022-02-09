@@ -8,8 +8,6 @@ import SimulatorPool
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import SynchronousWaiter
-import TestDestination
-import TestDestinationTestHelpers
 import TestHelpers
 import Tmp
 import XCTest
@@ -17,7 +15,8 @@ import XCTest
 final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
     private let expectedDeveloperDirPath = AbsolutePath("/tmp/some/dev/dir")
     private let expectedSimulatorPath = AbsolutePath("/tmp/some/simulator/path")
-    private let expectedTestDestination = TestDestinationFixtures.iOSTestDestination
+    private let expectedSimDeviceType = SimDeviceTypeFixture.fixture()
+    private let expectedSimRuntime = SimRuntimeFixture.fixture()
     private let expectedTimeout: TimeInterval = 42.0
     private let expectedUdid = UDID(value: "some_UDID")
     private let coreSimulatorStateProvider = FakeCoreSimulatorStateProvider()
@@ -86,12 +85,18 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
             try createController(
                 additionalBootAttempts: 0,
                 actionExecutor: FakeSimulatorStateMachineActionExecutor(
-                    create: { (environment, testDestination, timeout) -> Simulator in
-                        XCTAssertEqual(environment["DEVELOPER_DIR"], self.expectedDeveloperDirPath.pathString)
-                        XCTAssertEqual(testDestination, self.expectedTestDestination)
-                        XCTAssertEqual(timeout, self.expectedTimeout)
+                    create: { (environment, simDeviceType, simRuntime, timeout) -> Simulator in
+                        assert { environment["DEVELOPER_DIR"] } equals: { self.expectedDeveloperDirPath.pathString }
+                        assert { simDeviceType } equals: { self.expectedSimDeviceType }
+                        assert { simRuntime } equals: { self.expectedSimRuntime }
+                        assert { timeout } equals: { self.expectedTimeout }
                         
-                        return self.createSimulator(environment: environment, testDestination: testDestination, timeout: timeout)
+                        return self.createSimulator(
+                            environment: environment,
+                            simDeviceType: simDeviceType,
+                            simRuntime: simRuntime,
+                            timeout: timeout
+                        )
                     }
                 ),
                 developerDirLocator: FakeDeveloperDirLocator(result: expectedDeveloperDirPath),
@@ -187,12 +192,17 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
         let tempFolder = try TemporaryFolder()
         
         let actionExecutor = FakeSimulatorStateMachineActionExecutor(
-            create: { _, testDestination, _ -> Simulator in
-                self.coreSimulatorStateProvider.result = .left(.shutdown)
-                return Simulator(testDestination: testDestination, udid: UDID(value: "udid"), path: tempFolder.absolutePath)
+            create: { _, simDeviceType, simRuntime, _ -> Simulator in
+                self.coreSimulatorStateProvider.result = .success(.shutdown)
+                return Simulator(
+                    simDeviceType: simDeviceType,
+                    simRuntime: simRuntime,
+                    udid: UDID(value: "udid"),
+                    path: tempFolder.absolutePath
+                )
             },
             boot: { _, _, _, _ in
-                self.coreSimulatorStateProvider.result = .left(.booted)
+                self.coreSimulatorStateProvider.result = .success(.booted)
             },
             shutdown: { _, _, _, _ in
                 throw ErrorForTestingPurposes(text: "Even though shutdown throws an error, plist has an updated state, that is, consequent shutdown should not be performed")
@@ -251,10 +261,15 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
         return try createController(
             additionalBootAttempts: additionalBootAttempts,
             actionExecutor: FakeSimulatorStateMachineActionExecutor(
-                create: { environment, testDestination, timeout in
+                create: { environment, simDeviceType, simRuntime, timeout in
                     try create()
                     self.coreSimulatorStateProvider.result = .left(.shutdown)
-                    return self.createSimulator(environment: environment, testDestination: testDestination, timeout: timeout)
+                    return self.createSimulator(
+                        environment: environment,
+                        simDeviceType: simDeviceType,
+                        simRuntime: simRuntime,
+                        timeout: timeout
+                    )
                 },
                 boot: { _, _, _, _ in
                     try boot()
@@ -290,8 +305,9 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
             logger: .noOp,
             simulatorStateMachine: SimulatorStateMachine(),
             simulatorStateMachineActionExecutor: actionExecutor,
+            simDeviceType: expectedSimDeviceType,
+            simRuntime: expectedSimRuntime,
             temporaryFolder: tempFolder,
-            testDestination: expectedTestDestination,
             waiter: NoOpWaiter()
         )
         controller.apply(simulatorOperationTimeouts: timeouts)
@@ -318,11 +334,13 @@ final class StateMachineDrivenSimulatorControllerTests: XCTestCase {
     
     private func createSimulator(
         environment: [String: String],
-        testDestination: AppleTestDestination,
+        simDeviceType: SimDeviceType,
+        simRuntime: SimRuntime,
         timeout: TimeInterval
     ) -> Simulator {
         return Simulator(
-            testDestination: testDestination,
+            simDeviceType: simDeviceType,
+            simRuntime: simRuntime,
             udid: expectedUdid,
             path: expectedSimulatorPath
         )

@@ -20,7 +20,12 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
     lazy var argFileTestToRun1 = TestName(className: "classFromArgs", methodName: "test1")
     lazy var argFileTestToRun2 = TestName(className: "classFromArgs", methodName: "test2")
     lazy var buildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
-    lazy var argFileDestination = AppleTestDestination.iOSSimulator(deviceType: "doesnotmatter", version: "10.1")
+    lazy var simDeviceType = SimDeviceTypeFixture.fixture()
+    lazy var simRuntime = SimRuntimeFixture.fixture()
+    lazy var argFileDestination = TestDestination.appleSimulator(
+        simDeviceType: simDeviceType,
+        simRuntime: simRuntime
+    )
     lazy var simulatorSettings = SimulatorSettingsFixtures().simulatorSettings()
     lazy var testTimeoutConfiguration = TestTimeoutConfiguration(singleTestMaximumDuration: 10, testRunnerMaximumSilenceDuration: 20)
     lazy var analyticsConfiguration = AnalyticsConfiguration()
@@ -41,7 +46,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
         ]
     }()
     
-    func test() {
+    func test() throws {
         let generator = TestEntryConfigurationGenerator(
             analyticsConfiguration: analyticsConfiguration,
             validatedEntries: validatedEntries,
@@ -67,18 +72,23 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
             logger: .noOp
         )
         
-        let configurations = generator.createTestEntryConfigurations()
+        let configurations = try generator.createTestEntryConfigurations()
         
         let expectedConfigurations = TestEntryConfigurationFixtures()
             .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1"))
             .with(buildArtifacts: buildArtifacts)
             .with(simulatorSettings: simulatorSettings)
-            .with(testDestination: argFileDestination)
+            .with(simDeviceType: simDeviceType)
+            .with(simRuntime: simRuntime)
             .with(testTimeoutConfiguration: testTimeoutConfiguration)
             .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], userInsertedLibraries: [], numberOfRetries: 10, testRetryMode: .retryOnWorker, logCapturingMode: .noLogs, runnerWasteCleanupPolicy: .clean))
             .testEntryConfigurations()
         
-        XCTAssertEqual(Set(configurations), Set(expectedConfigurations))
+        assert {
+            Set(configurations)
+        } equals: {
+            Set(expectedConfigurations)
+        }
     }
     
     func test_repeated_items() {
@@ -113,14 +123,16 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
                 .with(buildArtifacts: buildArtifacts)
                 .with(simulatorSettings: simulatorSettings)
                 .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], userInsertedLibraries: [], numberOfRetries: 10, testRetryMode: .retryOnWorker, logCapturingMode: .noLogs, runnerWasteCleanupPolicy: .clean))
-                .with(testDestination: argFileDestination)
+                .with(simDeviceType: simDeviceType)
+                .with(simRuntime: simRuntime)
                 .with(testTimeoutConfiguration: testTimeoutConfiguration)
                 .testEntryConfigurations()
         
-        XCTAssertEqual(
-            generator.createTestEntryConfigurations(),
+        assert {
+            try generator.createTestEntryConfigurations()
+        } equals: {
             expectedTestEntryConfigurations + expectedTestEntryConfigurations
-        )
+        }
     }
     
     func test__all_available_tests() {
@@ -153,22 +165,25 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
             TestEntryConfigurationFixtures()
                 .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1"))
                 .with(buildArtifacts: buildArtifacts)
-                .with(testDestination: argFileDestination)
+                .with(simDeviceType: simDeviceType)
+                .with(simRuntime: simRuntime)
                 .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], userInsertedLibraries: [], numberOfRetries: 10, testRetryMode: .retryOnWorker, logCapturingMode: .noLogs, runnerWasteCleanupPolicy: .clean))
                 .with(testTimeoutConfiguration: testTimeoutConfiguration)
                 .testEntryConfigurations(),
             TestEntryConfigurationFixtures()
                 .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test2"))
                 .with(buildArtifacts: buildArtifacts)
-                .with(testDestination: argFileDestination)
+                .with(simDeviceType: simDeviceType)
+                .with(simRuntime: simRuntime)
                 .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], userInsertedLibraries: [], numberOfRetries: 10, testRetryMode: .retryOnWorker, logCapturingMode: .noLogs, runnerWasteCleanupPolicy: .clean))
                 .with(testTimeoutConfiguration: testTimeoutConfiguration)
                 .testEntryConfigurations()
             ].flatMap { $0 }
         
-        XCTAssertEqual(
-            Set(generator.createTestEntryConfigurations()),
+        assert {
+            Set(try generator.createTestEntryConfigurations())
+        } equals: {
             Set(expectedConfigurations)
-        )
+        }
     }
 }

@@ -5,7 +5,6 @@ import PluginSupport
 import QueueModels
 import RunnerModels
 import SimulatorPoolModels
-import TestDestination
 import Types
 import WorkerCapabilitiesModels
 
@@ -23,7 +22,8 @@ final class GroupedTestEntryConfigurations {
             let pluginLocations: Set<AppleTestPluginLocation>
             let simulatorOperationTimeouts: SimulatorOperationTimeouts
             let simulatorSettings: SimulatorSettings
-            let testDestination: AppleTestDestination
+            let simDeviceType: SimDeviceType
+            let simRuntime: SimRuntime
             let testExecutionBehavior: TestExecutionBehavior
             let testTimeoutConfiguration: TestTimeoutConfiguration
             let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
@@ -38,7 +38,8 @@ final class GroupedTestEntryConfigurations {
                 pluginLocations: testEntryConfiguration.pluginLocations,
                 simulatorOperationTimeouts: testEntryConfiguration.simulatorOperationTimeouts,
                 simulatorSettings: testEntryConfiguration.simulatorSettings,
-                testDestination: testEntryConfiguration.testDestination,
+                simDeviceType: testEntryConfiguration.simDeviceType,
+                simRuntime: testEntryConfiguration.simRuntime,
                 testExecutionBehavior: testEntryConfiguration.testExecutionBehavior,
                 testTimeoutConfiguration: testEntryConfiguration.testTimeoutConfiguration,
                 workerCapabilityRequirements: testEntryConfiguration.workerCapabilityRequirements

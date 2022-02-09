@@ -5,16 +5,14 @@ import RunnerTestHelpers
 import ScheduleStrategy
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
-import TestDestination
-import TestDestinationTestHelpers
 import TestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class BucketGeneratorTests: XCTestCase {
-    lazy var testDestination1 = TestDestinationFixtures.iOSTestDestination
-    lazy var testDestination2 = AppleTestDestination.iOSSimulator(deviceType: "device2", version: "11.0")
+    lazy var simDeviceType1 = SimDeviceTypeFixture.fixture("device1")
+    lazy var simDeviceType2 = SimDeviceTypeFixture.fixture("device2")
     
     func test_splits_into_matrix_of_test_destination_by_test_entry() {
         let testEntryConfigurations =
@@ -23,7 +21,7 @@ final class BucketGeneratorTests: XCTestCase {
                 .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod2"))
                 .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3"))
                 .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod4"))
-                .with(testDestination: testDestination1)
+                .with(simDeviceType: simDeviceType1)
                 .testEntryConfigurations()
                 +
                 TestEntryConfigurationFixtures()
@@ -31,7 +29,7 @@ final class BucketGeneratorTests: XCTestCase {
                     .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod2"))
                     .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3"))
                     .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod4"))
-                    .with(testDestination: testDestination2)
+                    .with(simDeviceType: simDeviceType2)
                     .testEntryConfigurations()
         
         let splitter = BucketGeneratorImpl(
@@ -53,7 +51,7 @@ final class BucketGeneratorTests: XCTestCase {
                 .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod"))
                 .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod"))
                 .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod"))
-                .with(testDestination: testDestination1)
+                .with(simDeviceType: simDeviceType1)
                 .testEntryConfigurations()
 
         let splitter = BucketGeneratorImpl(
@@ -80,7 +78,7 @@ final class BucketGeneratorTests: XCTestCase {
                 .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3"))
                 .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3"))
                 .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3"))
-                .with(testDestination: testDestination1)
+                .with(simDeviceType: simDeviceType1)
                 .testEntryConfigurations()
         let expectedBucketEntries = [
             TestEntryFixtures.testEntry(className: "class", methodName: "testMethod1"),

@@ -10,7 +10,6 @@ import QueueModelsTestHelpers
 import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolTestHelpers
-import TestDestinationTestHelpers
 import TestHelpers
 import TestHistoryTestHelpers
 import UniqueIdentifierGenerator
@@ -76,7 +75,7 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            testDestination: TestDestinationFixtures.iOSTestDestination,
+            testDestination: TestDestinationAppleFixtures.iOSTestDestination,
             unfilteredResults: []
         )
         assertDoesNotThrow {
@@ -154,7 +153,7 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            testDestination: TestDestinationFixtures.iOSTestDestination,
+            testDestination: TestDestinationAppleFixtures.iOSTestDestination,
             unfilteredResults: [TestEntryResult.lost(testEntry: testEntry)]
         )
         assertDoesNotThrow {
@@ -176,7 +175,7 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            testDestination: TestDestinationFixtures.iOSTestDestination,
+            testDestination: TestDestinationAppleFixtures.iOSTestDestination,
             unfilteredResults: [ /* empty - misses testEntry */ ]
         )
         assertThrows {
@@ -198,7 +197,7 @@ final class BucketQueueTests: XCTestCase {
         _ = bucketQueue.dequeueBucket(workerCapabilities: [], workerId: workerId)
         
         let testingResult = TestingResult(
-            testDestination: TestDestinationFixtures.iOSTestDestination,
+            testDestination: TestDestinationAppleFixtures.iOSTestDestination,
             unfilteredResults: [ /* empty - misses testEntry */ ]
         )
         assertThrows {

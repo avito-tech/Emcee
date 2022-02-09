@@ -11,6 +11,7 @@ import SimulatorPoolTestHelpers
 import TestArgFile
 import TestDestination
 import TestDiscovery
+import TestHelpers
 import XCTest
 
 final class TestEntriesValidatorTests: XCTestCase {
@@ -26,10 +27,11 @@ final class TestEntriesValidatorTests: XCTestCase {
             return XCTFail("configuration is unexpectedly nil")
         }
 
-        XCTAssertEqual(querierConfiguration.testDiscoveryMode, .parseFunctionSymbols)
-        XCTAssertEqual(querierConfiguration.xcTestBundleLocation, testArgFileEntry.buildArtifacts.xcTestBundle.location)
-        XCTAssertEqual(querierConfiguration.testDestination, testArgFileEntry.testDestination)
-        XCTAssertEqual(querierConfiguration.testsToValidate.count, 1)
+        assert { querierConfiguration.testDiscoveryMode } equals: { .parseFunctionSymbols }
+        assert { querierConfiguration.xcTestBundleLocation } equals: { testArgFileEntry.buildArtifacts.xcTestBundle.location }
+        assert { querierConfiguration.simDeviceType } equals: { try testArgFileEntry.testDestination.simDeviceType() }
+        assert { querierConfiguration.simRuntime } equals: { try testArgFileEntry.testDestination.simRuntime() }
+        assert { querierConfiguration.testsToValidate.count } equals: { 1 }
     }
 
     func test__dont_pass_app_test_data__if_no_app_tests_in_configuration() throws {
@@ -124,7 +126,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             scheduleStrategy: ScheduleStrategy(testSplitterType: .unsplit),
             simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
             simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-            testDestination: AppleTestDestination.iOSSimulator(deviceType: "iPhoneXL", version: "10.3"),
+            testDestination: TestDestination.iOSSimulator(deviceType: "iPhoneXL", version: "10.3"),
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
             testAttachmentLifetime: .deleteOnSuccess,
             testsToRun: [.testName(TestName(className: "MyTest", methodName: "test"))],

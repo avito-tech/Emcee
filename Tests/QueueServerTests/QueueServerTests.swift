@@ -16,6 +16,8 @@ import RemotePortDeterminerTestHelpers
 import RequestSender
 import RequestSenderTestHelpers
 import RunnerTestHelpers
+import SimulatorPoolModels
+import SimulatorPoolTestHelpers
 import ScheduleStrategy
 import SocketModels
 import TestHelpers
@@ -92,21 +94,23 @@ final class QueueServerTests: XCTestCase {
     
     func test__queue_returns_results_after_depletion() throws {
         let testEntry = TestEntryFixtures.testEntry(className: "class", methodName: "test")
+        let runIosTestsPayload = BucketFixtures.createRunIosTestsPayload(
+            testEntries: [testEntry]
+        )
         let bucket = BucketFixtures.createBucket(
             bucketId: fixedBucketId,
-            bucketPayloadContainer: .runIosTests(
-                BucketFixtures.createRunIosTestsPayload(
-                    testEntries: [testEntry]
-                )
-            )
+            bucketPayloadContainer: .runIosTests(runIosTestsPayload)
         )
         let testEntryConfigurations = TestEntryConfigurationFixtures()
             .add(testEntry: testEntry)
             .testEntryConfigurations()
-        let testingResult = TestingResultFixtures()
+        let testingResult = TestingResultFixtures(
+            testEntry: testEntry,
+            manuallyTestDestination: runIosTestsPayload.testDestination
+        )
             .with(testEntry: testEntry)
-            .addingLostResult()
             .testingResult()
+        
         let bucketResult = BucketResult.testingResult(testingResult)
         
         workerConfigurations.add(workerId: workerId, configuration: WorkerConfigurationFixtures.workerConfiguration)

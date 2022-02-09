@@ -6,7 +6,6 @@ import QueueModels
 import QueueModelsTestHelpers
 import RunnerTestHelpers
 import SimulatorPoolTestHelpers
-import TestDestinationTestHelpers
 import TestHelpers
 import TestHistoryStorage
 import TestHistoryTestHelpers
@@ -159,7 +158,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         let queue = [
             EnqueuedRunTestsPayload(
                 bucketId: createBucketId(),
-                testDestination: TestDestinationFixtures.iOSTestDestination,
+                testDestination: TestDestinationAppleFixtures.iOSTestDestination,
                 testEntries: [TestEntryFixtures.testEntry()],
                 numberOfRetries: 1
             )
@@ -182,7 +181,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         
         let payload = EnqueuedRunTestsPayload(
             bucketId: bucketId,
-            testDestination: TestDestinationFixtures.iOSTestDestination,
+            testDestination: TestDestinationAppleFixtures.iOSTestDestination,
             testEntries: [TestEntryFixtures.testEntry()],
             numberOfRetries: 0
         )
@@ -212,7 +211,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         
         let payload = EnqueuedRunTestsPayload(
             bucketId: bucketId,
-            testDestination: TestDestinationFixtures.iOSTestDestination,
+            testDestination: TestDestinationAppleFixtures.iOSTestDestination,
             testEntries: [TestEntryFixtures.testEntry()],
             numberOfRetries: 0
         )
@@ -225,7 +224,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         
         let notFailedPayload = EnqueuedRunTestsPayload(
             bucketId: createBucketId(),
-            testDestination: TestDestinationFixtures.iOSTestDestination,
+            testDestination: TestDestinationAppleFixtures.iOSTestDestination,
             testEntries: [TestEntryFixtures.testEntry(className: "notFailed")],
             numberOfRetries: 0
         )
@@ -249,7 +248,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
         
         let payload = EnqueuedRunTestsPayload(
             bucketId: bucketId,
-            testDestination: TestDestinationFixtures.iOSTestDestination,
+            testDestination: TestDestinationAppleFixtures.iOSTestDestination,
             testEntries: [TestEntryFixtures.testEntry()],
             numberOfRetries: 0
         )
@@ -284,7 +283,7 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
             queue: [
                 EnqueuedRunTestsPayload(
                     bucketId: bucketId,
-                    testDestination: TestDestinationFixtures.iOSTestDestination,
+                    testDestination: TestDestinationAppleFixtures.iOSTestDestination,
                     testEntries: [TestEntryFixtures.testEntry()],
                     numberOfRetries: numberOfRetries
                 ),

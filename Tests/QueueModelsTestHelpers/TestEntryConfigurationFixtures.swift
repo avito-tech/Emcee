@@ -9,8 +9,6 @@ import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
-import TestDestination
-import TestDestinationTestHelpers
 import WorkerCapabilitiesModels
 
 public final class TestEntryConfigurationFixtures {
@@ -24,7 +22,8 @@ public final class TestEntryConfigurationFixtures {
         ),
         watchdogSettings: WatchdogSettings(bundleIds: [], timeout: 0)
     )
-    public var testDestination = TestDestinationFixtures.iOSTestDestination
+    public var simDeviceType = SimDeviceTypeFixture.fixture()
+    public var simRuntime = SimRuntimeFixture.fixture()
     public var testEntries = [TestEntry]()
     public var testExecutionBehavior = TestExecutionBehavior(
         environment: [:],
@@ -71,8 +70,13 @@ public final class TestEntryConfigurationFixtures {
         return self
     }
     
-    public func with(testDestination: AppleTestDestination) -> Self {
-        self.testDestination = testDestination
+    public func with(simDeviceType: SimDeviceType) -> Self {
+        self.simDeviceType = simDeviceType
+        return self
+    }
+    
+    public func with(simRuntime: SimRuntime) -> Self {
+        self.simRuntime = simRuntime
         return self
     }
     
@@ -105,7 +109,8 @@ public final class TestEntryConfigurationFixtures {
                 pluginLocations: pluginLocations,
                 simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
                 simulatorSettings: simulatorSettings,
-                testDestination: testDestination,
+                simDeviceType: simDeviceType,
+                simRuntime: simRuntime,
                 testEntry: testEntry,
                 testExecutionBehavior: testExecutionBehavior,
                 testTimeoutConfiguration: testTimeoutConfiguration,
