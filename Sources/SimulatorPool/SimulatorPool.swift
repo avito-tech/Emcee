@@ -4,7 +4,6 @@ import Foundation
 import EmceeLogging
 import ResourceLocationResolver
 import SimulatorPoolModels
-import RunnerModels
 
 /**
  * Every 'borrow' must have a corresponding 'free' call, otherwise the next borrow will throw an error.

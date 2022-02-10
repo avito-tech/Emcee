@@ -6,9 +6,9 @@ public struct UnsplitBucketSplitter: TestSplitter {
     public init() {}
     
     public func split(
-        testEntryConfigurations: [TestEntryConfiguration],
+        configuredTestEntries: [ConfiguredTestEntry],
         bucketSplitInfo: BucketSplitInfo
-    ) -> [[TestEntryConfiguration]] {
-        return [testEntryConfigurations]
+    ) -> [[ConfiguredTestEntry]] {
+        return [configuredTestEntries]
     }
 }

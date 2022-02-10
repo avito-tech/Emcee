@@ -1,5 +1,7 @@
 @testable import TestDiscovery
 import BuildArtifacts
+import CommonTestModels
+import CommonTestModelsTestHelpers
 import DateProvider
 import DeveloperDirLocator
 import FileSystem
@@ -8,8 +10,6 @@ import MetricsExtensions
 import ProcessController
 import ProcessControllerTestHelpers
 import ResourceLocationResolverTestHelpers
-import RunnerModels
-import RunnerTestHelpers
 import SimulatorPoolTestHelpers
 import TestHelpers
 import Tmp
@@ -90,7 +90,7 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
         simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
         simDeviceType: SimDeviceTypeFixture.fixture(),
         simRuntime: SimRuntimeFixture.fixture(),
-        testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
+        testExecutionBehavior: TestExecutionBehaviorFixtures().testExecutionBehavior(),
         testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
         testAttachmentLifetime: .deleteOnSuccess,
         testsToValidate: [],

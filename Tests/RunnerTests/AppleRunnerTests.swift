@@ -1,5 +1,7 @@
 import BuildArtifacts
 import BuildArtifactsTestHelpers
+import CommonTestModels
+import CommonTestModelsTestHelpers
 import DateProviderTestHelpers
 import DeveloperDirLocatorTestHelpers
 import EventBus
@@ -20,8 +22,9 @@ import TestHelpers
 import Tmp
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
+import AppleTestModelsTestHelpers
 
-public final class RunnerTests: XCTestCase {
+public final class AppleRunnerTests: XCTestCase {
     lazy var testEntry = TestEntryFixtures.testEntry()
     lazy var noOpPluginEventBusProvider = NoOoPluginEventBusProvider()
     lazy var testTimeout: TimeInterval = 3
@@ -548,21 +551,23 @@ public final class RunnerTests: XCTestCase {
         logCapturingMode: LogCapturingMode
     ) -> AppleRunnerConfiguration {
         return AppleRunnerConfiguration(
-            buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
-            developerDir: .current,
-            environment: environment,
-            logCapturingMode: logCapturingMode,
-            userInsertedLibraries: [],
+            appleTestConfiguration: AppleTestConfigurationFixture()
+                .with(
+                    testExecutionBehavior: TestExecutionBehaviorFixtures()
+                        .with(environment: environment)
+                        .with(logCapturingMode: logCapturingMode)
+                        .testExecutionBehavior()
+                )
+                .with(
+                    testTimeoutConfiguration: TestTimeoutConfiguration(
+                        singleTestMaximumDuration: testTimeout,
+                        testRunnerMaximumSilenceDuration: 0
+                    )
+                )
+                .appleTestConfiguration(),
             lostTestProcessingMode: .reportError,
             persistentMetricsJobId: nil,
-            pluginLocations: [],
-            simulator: simulator,
-            simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-            testTimeoutConfiguration: TestTimeoutConfiguration(
-                singleTestMaximumDuration: testTimeout,
-                testRunnerMaximumSilenceDuration: 0
-            ),
-            testAttachmentLifetime: .deleteOnSuccess
+            simulator: simulator
         )
     }
 }

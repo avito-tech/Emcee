@@ -1,3 +1,4 @@
+import CommonTestModels
 import DeveloperDirModels
 import Foundation
 import PathLib
@@ -5,7 +6,7 @@ import RunnerModels
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 
-public final class TestContextFixtures {
+public final class AppleTestContextFixtures {
     public var contextId: String
     public var developerDir: DeveloperDir
     public var environment: [String: String]

@@ -1,13 +1,13 @@
-import BucketQueue
+import AppleTestModelsTestHelpers
 import BucketQueueModels
 import BucketQueueTestHelpers
+import CommonTestModels
+import CommonTestModelsTestHelpers
 import DateProviderTestHelpers
 import Foundation
 import QueueCommunicationTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
-import RunnerModels
-import RunnerTestHelpers
 import TestHelpers
 import TestHistoryTestHelpers
 import UniqueIdentifierGenerator
@@ -104,7 +104,7 @@ final class BucketQueueRetryTests: XCTestCase {
         )
         XCTAssertEqual(
             result.bucketResultToCollect,
-            .testingResult(
+            BucketResult.testingResult(
                 TestingResultFixtures().testingResult()
             ),
             "Result to collect must not contain lost test"
@@ -166,14 +166,39 @@ final class BucketQueueRetryTests: XCTestCase {
     }
     
     private let testEntry = TestEntryFixtures.testEntry()
-    private lazy var runAppleTestsPayload = BucketFixtures.createrunAppleTestsPayload(
-        testEntries: [testEntry],
-        numberOfRetries: 2
-    )
-    private lazy var bucketWithTwoRetires = BucketFixtures.createBucket(
-        bucketId: BucketId(uniqueIdentifierGenerator.generate()),
-        bucketPayloadContainer: .runAppleTests(runAppleTestsPayload)
-    )
+    
+    private lazy var bucket = BucketFixtures()
+        .with(
+            runAppleTestsPayload: RunAppleTestsPayloadFixture()
+                .with(testEntries: [testEntry])
+                .with(
+                    testsConfiguration: AppleTestConfigurationFixture()
+                        .with(
+                            testExecutionBehavior: TestExecutionBehaviorFixtures().with(
+                                numberOfRetries: 2
+                            ).testExecutionBehavior()
+                        )
+                        .appleTestConfiguration()
+                )
+                .runAppleTestsPayload()
+        )
+        .bucket()
+    private lazy var bucketWithTwoRetires = BucketFixtures()
+        .with(
+            runAppleTestsPayload: RunAppleTestsPayloadFixture()
+                .with(testEntries: [testEntry])
+                .with(
+                    testsConfiguration: AppleTestConfigurationFixture()
+                        .with(
+                            testExecutionBehavior: TestExecutionBehaviorFixtures().with(
+                                numberOfRetries: 2
+                            ).testExecutionBehavior()
+                        )
+                        .appleTestConfiguration()
+                )
+                .runAppleTestsPayload()
+        )
+        .bucket()
     
     private let testingResultFixtures: TestingResultFixtures = TestingResultFixtures()
         .addingResult(success: false)

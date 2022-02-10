@@ -1,6 +1,6 @@
+import CommonTestModels
 import BucketQueueModels
 import QueueModels
-import RunnerModels
 import TestHistoryModels
 
 public protocol TestHistoryTracker {

@@ -22,17 +22,17 @@ public final class TestSchedulerImpl: TestScheduler {
     public func scheduleTests(
         prioritizedJob: PrioritizedJob,
         scheduleStrategy: ScheduleStrategy,
-        testEntryConfigurations: [TestEntryConfiguration],
+        similarlyConfiguredTestEntries: SimilarlyConfiguredTestEntries,
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<Void, Error>) -> ()
     ) {
-        logger.trace("Will schedule \(testEntryConfigurations.count) tests")
+        logger.trace("Will schedule \(similarlyConfiguredTestEntries.testEntries.count) tests")
         requestSender.sendRequestWithCallback(
             request: ScheduleTestsRequest(
                 payload: ScheduleTestsPayload(
                     prioritizedJob: prioritizedJob,
                     scheduleStrategy: scheduleStrategy,
-                    testEntryConfigurations: testEntryConfigurations
+                    similarlyConfiguredTestEntries: similarlyConfiguredTestEntries
                 )
             ),
             callbackQueue: callbackQueue

@@ -1,17 +1,17 @@
 @testable import SimulatorPool
+import DeveloperDirModels
 import DeveloperDirLocatorTestHelpers
 import Foundation
 import PlistLib
 import ProcessController
 import ProcessControllerTestHelpers
+import ResourceLocationResolverTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import TestHelpers
 import Tmp
-import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
-import ResourceLocationResolverTestHelpers
 
 final class SimulatorSettingsModifierTests: XCTestCase {
     

@@ -1,5 +1,4 @@
 import BalancingBucketQueue
-import BucketQueue
 import BucketQueueTestHelpers
 import MetricsExtensions
 import QueueModels
@@ -26,7 +25,7 @@ final class MultipleQueuesEnqueueableBucketReceptorTests: XCTestCase {
     )
     
     func test___enqueueing_to_new_job___creates_job_queue__and_then_enqueues() {
-        let bucket = BucketFixtures.createBucket()
+        let bucket = BucketFixtures().bucket()
         
         let enqueueRoutineInvoked = XCTestExpectation()
         bucketEnqueuerProvider.fakeBucketEnqueuer.onEnqueue = { buckets in
@@ -67,7 +66,7 @@ final class MultipleQueuesEnqueueableBucketReceptorTests: XCTestCase {
             runningJobQueue: runningJobQueue
         )
         
-        let bucket = BucketFixtures.createBucket()
+        let bucket = BucketFixtures().bucket()
         
         XCTAssertEqual(
             container.allRunningJobQueues()[0].bucketQueueHolder.allEnqueuedBuckets.map { $0.bucket },
@@ -109,7 +108,7 @@ final class MultipleQueuesEnqueueableBucketReceptorTests: XCTestCase {
             ]
         )
                 
-        let bucket = BucketFixtures.createBucket()
+        let bucket = BucketFixtures().bucket()
         
         var didRemoveBucketsFromQueue = false
         emptyableBucketQueueProvider.fakeEmptyableBucketQueue.onRemoveAllEnqueuedBuckets = {

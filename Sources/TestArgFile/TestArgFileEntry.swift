@@ -1,9 +1,10 @@
+import AppleTestModels
 import BuildArtifacts
+import CommonTestModels
 import DeveloperDirModels
 import Foundation
 import PluginSupport
 import QueueModels
-import RunnerModels
 import ScheduleStrategy
 import SimulatorPoolModels
 import TestDestination

@@ -1,14 +1,9 @@
 import DateProvider
-import EmceeLogging
-import EmceeTypes
+import CommonTestModels
 import Foundation
 import LocalHostDeterminer
 import MetricsExtensions
 import QueueModels
-import Runner
-import RunnerModels
-import SimulatorPool
-import SimulatorPoolModels
 
 public final class RunAndroidTestsPayloadExecutor {
     private let dateProvider: DateProvider
@@ -22,7 +17,6 @@ public final class RunAndroidTestsPayloadExecutor {
     public func execute(
         analyticsConfiguration: AnalyticsConfiguration,
         bucketId: BucketId,
-        logger: ContextualLogger,
         payload: RunAndroidTestsPayload
     ) -> BucketResult {
         let testingResult = TestingResult(

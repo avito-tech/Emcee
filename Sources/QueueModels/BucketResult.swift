@@ -1,3 +1,4 @@
+import CommonTestModels
 import Foundation
 
 public enum BucketResult: Codable, CustomStringConvertible, Hashable {

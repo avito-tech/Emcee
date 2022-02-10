@@ -7,7 +7,6 @@ import ProcessController
 import QueueModels
 import ResourceLocationResolver
 import Runner
-import RunnerModels
 
 public final class DefaultTestRunnerProvider: TestRunnerProvider {
     private let dateProvider: DateProvider

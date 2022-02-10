@@ -1,5 +1,5 @@
+import CommonTestModels
 import Foundation
-import RunnerModels
 
 public protocol TestRunnerStream {
     func openStream()

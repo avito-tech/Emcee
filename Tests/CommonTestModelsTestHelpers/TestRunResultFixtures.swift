@@ -1,6 +1,6 @@
+import CommonTestModels
 import EmceeTypes
 import Foundation
-import RunnerModels
 
 public final class TestRunResultFixtures {
     public static func testRunResult(

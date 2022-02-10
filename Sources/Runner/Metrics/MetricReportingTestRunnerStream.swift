@@ -1,11 +1,11 @@
 import AtomicModels
+import CommonTestModels
 import DateProvider
 import Foundation
 import LocalHostDeterminer
 import Metrics
 import MetricsExtensions
 import QueueModels
-import RunnerModels
 
 public final class MetricReportingTestRunnerStream: TestRunnerStream {
     private let dateProvider: DateProvider

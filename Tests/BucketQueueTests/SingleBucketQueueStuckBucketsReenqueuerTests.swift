@@ -1,12 +1,12 @@
 import BucketQueue
 import BucketQueueModels
 import BucketQueueTestHelpers
+import CommonTestModels
 import Foundation
 import QueueCommunication
 import QueueCommunicationTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
-import RunnerModels
 import TestHelpers
 import WorkerAlivenessProvider
 import UniqueIdentifierGeneratorTestHelpers
@@ -37,7 +37,7 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
     func test___when_no_stuck_buckets___nothing_reenqueued() {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         
-        let bucket = BucketFixtures.createBucket()
+        let bucket = BucketFixtures().bucket()
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [bucket.bucketId], workerId: workerId)
         
         bucketQueueHolder.add(
@@ -62,12 +62,13 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
             TestEntry(testName: TestName(className: "class", methodName: "method1"), tags: [], caseId: nil),
             TestEntry(testName: TestName(className: "class", methodName: "method2"), tags: [], caseId: nil),
         ]
-        let runAppleTestsPayload = BucketFixtures.createrunAppleTestsPayload(
-            testEntries: testEntries
-        )
-        let bucket = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runAppleTests(runAppleTestsPayload)
-        )
+        let runAppleTestsPayload = RunAppleTestsPayloadFixture()
+            .with(testEntries: testEntries)
+            .runAppleTestsPayload()
+        let bucket = BucketFixtures()
+            .with(runAppleTestsPayload: runAppleTestsPayload)
+            .bucket()
+        
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
         bucketQueueHolder.add(
@@ -102,12 +103,13 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
             TestEntry(testName: TestName(className: "class", methodName: "method1"), tags: [], caseId: nil),
             TestEntry(testName: TestName(className: "class", methodName: "method2"), tags: [], caseId: nil),
         ]
-        let runAppleTestsPayload = BucketFixtures.createrunAppleTestsPayload(
-            testEntries: testEntries
-        )
-        let bucket = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runAppleTests(runAppleTestsPayload)
-        )
+        let runAppleTestsPayload = RunAppleTestsPayloadFixture()
+            .with(testEntries: testEntries)
+            .runAppleTestsPayload()
+        let bucket = BucketFixtures()
+            .with(runAppleTestsPayload: runAppleTestsPayload)
+            .bucket()
+
         workerAlivenessProvider.setWorkerIsSilent(workerId: workerId)
         
         bucketQueueHolder.add(

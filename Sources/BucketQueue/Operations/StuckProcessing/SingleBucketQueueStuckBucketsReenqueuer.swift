@@ -2,7 +2,6 @@ import BucketQueueModels
 import Foundation
 import EmceeLogging
 import QueueModels
-import RunnerModels
 import UniqueIdentifierGenerator
 import WorkerAlivenessProvider
 

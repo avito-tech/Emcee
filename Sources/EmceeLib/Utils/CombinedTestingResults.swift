@@ -1,5 +1,5 @@
+import CommonTestModels
 import QueueModels
-import RunnerModels
 
 /// A combination of TestingResult of all Buckets
 public struct CombinedTestingResults {

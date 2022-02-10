@@ -1,5 +1,5 @@
+import CommonTestModels
 import Foundation
-import RunnerModels
 
 public enum RSTestStartedTestInput {
     public static func input(testName: TestName) -> String {

@@ -1,8 +1,8 @@
 import BalancingBucketQueue
 import BucketQueueTestHelpers
+import CommonTestModels
 import Foundation
 import QueueModels
-import RunnerModels
 import TestHelpers
 import XCTest
 

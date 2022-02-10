@@ -1,5 +1,5 @@
+import CommonTestModels
 import QueueModels
-import RunnerModels
 import TestHistoryModels
 
 public final class TestHistoryStorageImpl: TestHistoryStorage {
@@ -16,9 +16,8 @@ public final class TestHistoryStorageImpl: TestHistoryStorage {
     public func registerAttempt(
         id: TestEntryHistoryId,
         testEntryResult: TestEntryResult,
-        workerId: WorkerId)
-        -> TestEntryHistory
-    {
+        workerId: WorkerId
+    ) -> TestEntryHistory {
         let history = historyByTest[
             id,
             default: TestEntryHistory(id: id, testEntryHistoryItems: [])
@@ -43,7 +42,6 @@ public final class TestHistoryStorageImpl: TestHistoryStorage {
         testEntryHistoryId: TestEntryHistoryId,
         enqueuedBucketId: BucketId
     ) {
-        
         let newTestEntryHistoryId = TestEntryHistoryId(
             bucketId: enqueuedBucketId,
             testEntry: testEntryHistoryId.testEntry

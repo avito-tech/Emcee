@@ -1,7 +1,6 @@
 import Dispatch
 import Foundation
 import EmceeLogging
-import RunnerModels
 import Tmp
 
 public class DefaultOnDemandSimulatorPool: OnDemandSimulatorPool {

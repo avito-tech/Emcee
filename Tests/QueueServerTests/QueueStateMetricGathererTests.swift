@@ -1,10 +1,10 @@
+import CommonTestModels
 import DateProviderTestHelpers
 import Foundation
 import Graphite
 import Metrics
 import QueueModels
 import QueueServer
-import RunnerModels
 import Types
 import XCTest
 

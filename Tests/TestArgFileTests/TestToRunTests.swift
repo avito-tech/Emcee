@@ -1,6 +1,6 @@
+import CommonTestModels
 import Foundation
 import TestArgFile
-import RunnerModels
 import XCTest
 
 final class TestToRunTests: XCTestCase {

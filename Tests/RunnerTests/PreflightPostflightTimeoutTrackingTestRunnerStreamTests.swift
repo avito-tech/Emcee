@@ -1,7 +1,7 @@
+import CommonTestModels
 import DateProviderTestHelpers
 import Foundation
 import Runner
-import RunnerModels
 import XCTest
 
 final class PreflightPostflightTimeoutTrackingTestRunnerStreamTests: XCTestCase {

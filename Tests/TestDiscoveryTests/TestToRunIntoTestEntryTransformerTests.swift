@@ -1,13 +1,13 @@
 @testable import TestDiscovery
+import CommonTestModels
 import BuildArtifacts
 import BuildArtifactsTestHelpers
 import Foundation
 import TestArgFile
-import RunnerModels
 import XCTest
 
 final class TestToRunIntoTestEntryTransformerTests: XCTestCase {
-    private let fakeBuildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
+    private let fakeBuildArtifacts = AppleBuildArtifactsFixture().appleBuildArtifacts()
     private let transformer = TestToRunIntoTestEntryTransformer()
 
     func test__transforming_concrete_test_names() throws {

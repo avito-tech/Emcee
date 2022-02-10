@@ -13,7 +13,11 @@ final class SingleEmpyableBucketQueueTests: XCTestCase {
     func test() {
         bucketQueueHolder.insert(
             enqueuedBuckets: [
-                EnqueuedBucket(bucket: BucketFixtures.createBucket(), enqueueTimestamp: Date(), uniqueIdentifier: "id")
+                EnqueuedBucket(
+                    bucket: BucketFixtures().bucket(),
+                    enqueueTimestamp: Date(),
+                    uniqueIdentifier: "id"
+                )
             ],
             position: 0
         )

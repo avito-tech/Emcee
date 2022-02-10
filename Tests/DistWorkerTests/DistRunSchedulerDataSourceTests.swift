@@ -1,9 +1,10 @@
 import BuildArtifactsTestHelpers
+import CommonTestModels
+import CommonTestModelsTestHelpers
 import DistWorker
 import MetricsExtensions
 import QueueModels
-import RunnerModels
-import RunnerTestHelpers
+import QueueModelsTestHelpers
 import Scheduler
 import SimulatorPoolTestHelpers
 import XCTest
@@ -15,22 +16,7 @@ final class DistRunSchedulerDataSourceTests: XCTestCase {
                 analyticsConfiguration: AnalyticsConfiguration(),
                 bucketId: "id",
                 bucketPayloadContainer: .runAppleTests(
-                    RunAppleTestsPayload(
-                        buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(),
-                        developerDir: .current,
-                        pluginLocations: [],
-                        simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
-                        simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-                        simDeviceType: SimDeviceTypeFixture.fixture(),
-                        simRuntime: SimRuntimeFixture.fixture(),
-                        testEntries: [TestEntryFixtures.testEntry()],
-                        testExecutionBehavior: TestExecutionBehaviorFixtures(environment: ["a": "b"]).build(),
-                        testTimeoutConfiguration: TestTimeoutConfiguration(
-                            singleTestMaximumDuration: 0,
-                            testRunnerMaximumSilenceDuration: 0
-                        ),
-                        testAttachmentLifetime: .deleteOnSuccess
-                    )
+                    RunAppleTestsPayloadFixture().runAppleTestsPayload()
                 )
             )
         }

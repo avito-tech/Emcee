@@ -1,4 +1,4 @@
-import RunnerModels
+import AppleTestModels
 
 public enum XcTestRunAttachmentLifetime: String, CaseIterable {
     

@@ -1,31 +1,18 @@
-import AndroidEmulatorModels
-import BuildArtifacts
+import AndroidTestModels
+import CommonTestModels
 import Foundation
-import RunnerModels
 import TestDestination
 
 public struct RunAndroidTestsPayload: BucketPayload, CustomStringConvertible, BucketPayloadWithTests {
-    public let buildArtifacts: AndroidBuildArtifacts
-    public let deviceType: String
-    public let sdkVersion: Int
     public private(set) var testEntries: [TestEntry]
-    public let testExecutionBehavior: TestExecutionBehavior
-    public let testMaximumDuration: TimeInterval
+    public let testConfiguration: AndroidTestConfiguration
 
     public init(
-        buildArtifacts: AndroidBuildArtifacts,
-        deviceType: String,
-        sdkVersion: Int,
         testEntries: [TestEntry],
-        testExecutionBehavior: TestExecutionBehavior,
-        testMaximumDuration: TimeInterval
+        testConfiguration: AndroidTestConfiguration
     ) {
-        self.buildArtifacts = buildArtifacts
-        self.deviceType = deviceType
-        self.sdkVersion = sdkVersion
         self.testEntries = testEntries
-        self.testExecutionBehavior = testExecutionBehavior
-        self.testMaximumDuration = testMaximumDuration
+        self.testConfiguration = testConfiguration
     }
 
     public var description: String {
@@ -39,6 +26,10 @@ public struct RunAndroidTestsPayload: BucketPayload, CustomStringConvertible, Bu
     }
     
     public var testDestination: TestDestination {
-        TestDestination.androidEmulator(deviceType: deviceType, sdkVersion: sdkVersion)
+        testConfiguration.testDestination
+    }
+    
+    public var testExecutionBehavior: TestExecutionBehavior {
+        testConfiguration.testExecutionBehavior
     }
 }

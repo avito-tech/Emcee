@@ -1,11 +1,12 @@
+import AppleTestModels
 import BuildArtifacts
+import CommonTestModels
 import DeveloperDirModels
 import EmceeExtensions
 import Foundation
 import MetricsExtensions
 import PluginSupport
 import QueueModels
-import RunnerModels
 import ScheduleStrategy
 import SimulatorPoolModels
 import WorkerCapabilitiesModels

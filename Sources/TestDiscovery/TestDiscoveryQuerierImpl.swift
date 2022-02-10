@@ -1,4 +1,5 @@
 import BuildArtifacts
+import CommonTestModels
 import DateProvider
 import DeveloperDirLocator
 import FileSystem
@@ -13,7 +14,6 @@ import QueueModels
 import LocalHostDeterminer
 import ResourceLocationResolver
 import Runner
-import RunnerModels
 import SimulatorPool
 import SimulatorPoolModels
 import SynchronousWaiter

@@ -5,7 +5,6 @@ import EmceeLogging
 import FileSystem
 import Foundation
 import PathLib
-import RunnerModels
 import SimulatorPool
 import SimulatorPoolModels
 import Tmp

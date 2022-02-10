@@ -1,18 +1,16 @@
 import Foundation
-import QueueModelsTestHelpers
-import RunnerTestHelpers
 import ScheduleStrategy
 import TestHelpers
 import XCTest
 
 final class FixedBucketSizeSplitterTest: XCTestCase {
     func test___splitting() {
-        let testEntryConfigurations = createTestEntryConfigurations(count: 12)
+        let configuredTestEntries = createConfiguredTestEntries(count: 12)
         
         let splitter = FixedBucketSizeSplitter(size: 5)
         
         let result = splitter.split(
-            testEntryConfigurations: testEntryConfigurations,
+            configuredTestEntries: configuredTestEntries,
             bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1)
         )
         
@@ -20,9 +18,9 @@ final class FixedBucketSizeSplitterTest: XCTestCase {
             result
         } equals: {
             [
-                Array(testEntryConfigurations[0...4]),
-                Array(testEntryConfigurations[5...9]),
-                Array(testEntryConfigurations[10...11]),
+                Array(configuredTestEntries[0...4]),
+                Array(configuredTestEntries[5...9]),
+                Array(configuredTestEntries[10...11]),
             ]
         }
     }

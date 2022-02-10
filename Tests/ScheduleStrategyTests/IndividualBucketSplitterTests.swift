@@ -1,7 +1,8 @@
+import CommonTestModels
+import CommonTestModelsTestHelpers
 import Foundation
 import QueueModels
 import QueueModelsTestHelpers
-import RunnerTestHelpers
 import ScheduleStrategy
 import TestHelpers
 import XCTest
@@ -14,28 +15,33 @@ final class IndividualBucketSplitterTests: XCTestCase {
         TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3"),
         TestEntryFixtures.testEntry(className: "class", methodName: "testMethod4"),
     ]
-    lazy var testEntryConfigurations = TestEntryConfigurationFixtures().add(testEntries: testEntries).testEntryConfigurations()
+    lazy var configuredTestEntries = testEntries.map { testEntry in
+        ConfiguredTestEntry(
+            testEntry: testEntry,
+            testEntryConfiguration: TestEntryConfigurationFixtures().testEntryConfiguration()
+        )
+    }
     
     func test___individual_splitter_splits_to_buckets_with_single_test() {
         let groups = individualSplitter.split(
-            testEntryConfigurations: testEntryConfigurations,
+            configuredTestEntries: configuredTestEntries,
             bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 4)
         )
         assert {
             groups
         } equals: {
-            testEntryConfigurations.map { [$0] }
+            configuredTestEntries.map { [$0] }
         }
     }
     
     func test___individual_splitter_splits_same_way_regardless_of_number_of_destinations() {
         XCTAssertEqual(
             individualSplitter.split(
-                testEntryConfigurations: testEntryConfigurations,
+                configuredTestEntries: configuredTestEntries,
                 bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1)
             ),
             individualSplitter.split(
-                testEntryConfigurations: testEntryConfigurations,
+                configuredTestEntries: configuredTestEntries,
                 bucketSplitInfo: BucketSplitInfo(numberOfWorkers: 5, numberOfParallelBuckets: 10)
             )
         )

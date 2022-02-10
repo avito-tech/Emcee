@@ -1,6 +1,6 @@
+@testable import BalancingBucketQueue
 import BucketQueue
 import BucketQueueTestHelpers
-@testable import BalancingBucketQueue
 import Foundation
 import QueueModels
 import XCTest

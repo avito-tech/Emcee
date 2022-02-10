@@ -6,12 +6,12 @@ public struct EquallyDividedBucketSplitter: TestSplitter {
     public init() {}
     
     public func split(
-        testEntryConfigurations: [TestEntryConfiguration],
+        configuredTestEntries: [ConfiguredTestEntry],
         bucketSplitInfo: BucketSplitInfo
-    ) -> [[TestEntryConfiguration]] {
+    ) -> [[ConfiguredTestEntry]] {
         let size = UInt(
-            ceil(Double(testEntryConfigurations.count) / Double(bucketSplitInfo.numberOfParallelBuckets))
+            ceil(Double(configuredTestEntries.count) / Double(bucketSplitInfo.numberOfParallelBuckets))
         )
-        return testEntryConfigurations.splitToChunks(withSize: size)
+        return configuredTestEntries.splitToChunks(withSize: size)
     }
 }

@@ -1,5 +1,5 @@
-import DateProvider
 import BucketQueue
+import DateProvider
 import Foundation
 import QueueModels
 import Metrics

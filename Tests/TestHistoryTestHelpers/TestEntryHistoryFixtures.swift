@@ -1,8 +1,6 @@
-import BucketQueue
+import CommonTestModels
+import CommonTestModelsTestHelpers
 import QueueModels
-import QueueModelsTestHelpers
-import RunnerModels
-import RunnerTestHelpers
 import TestHistoryModels
 
 public final class TestEntryHistoryFixtures {

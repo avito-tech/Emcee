@@ -1,7 +1,6 @@
+import CommonTestModels
 import Foundation
 import QueueModels
-import RunnerModels
-import RunnerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import TestDestination
@@ -10,7 +9,7 @@ public final class TestingResultFixtures {
     public let unfilteredResults: [TestEntryResult]    
     public let testEntry: TestEntry
     
-    private let manuallyTestDestination: TestDestination?
+    public var manuallyTestDestination: TestDestination?
     
     public var testDestination: TestDestination {
         if let manuallyTestDestination = manuallyTestDestination {
@@ -38,6 +37,14 @@ public final class TestingResultFixtures {
     }
     
     public func with(testEntry: TestEntry) -> TestingResultFixtures {
+        return TestingResultFixtures(
+            testEntry: testEntry,
+            manuallyTestDestination: manuallyTestDestination,
+            unfilteredResults: unfilteredResults
+        )
+    }
+    
+    public func with(manuallyTestDestination: TestDestination?) -> TestingResultFixtures {
         return TestingResultFixtures(
             testEntry: testEntry,
             manuallyTestDestination: manuallyTestDestination,

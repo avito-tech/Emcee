@@ -2,6 +2,7 @@ import BalancingBucketQueue
 import BucketQueue
 import BucketQueueModels
 import BucketQueueTestHelpers
+import CommonTestModelsTestHelpers
 import Foundation
 import QueueModels
 import QueueModelsTestHelpers
@@ -25,7 +26,9 @@ final class MultipleQueuesBucketResultAcceptorTests: XCTestCase {
         assertThrows {
             _ = try multipleQueuesBucketResultAcceptor.accept(
                 bucketId: "bucket_id",
-                bucketResult: .testingResult(TestingResultFixtures().testingResult()),
+                bucketResult: .testingResult(
+                    TestingResultFixtures().testingResult()
+                ),
                 workerId: workerId
             )
         }
@@ -46,7 +49,7 @@ final class MultipleQueuesBucketResultAcceptorTests: XCTestCase {
             return BucketQueueAcceptResult(
                 dequeuedBucket: DequeuedBucket(
                     enqueuedBucket: EnqueuedBucket(
-                        bucket: BucketFixtures.createBucket(bucketId: "bucket_id"),
+                        bucket: BucketFixtures().with(bucketId: "bucket_id").bucket(),
                         enqueueTimestamp: Date(),
                         uniqueIdentifier: "doesnotmatter"
                     ),
@@ -82,7 +85,7 @@ final class MultipleQueuesBucketResultAcceptorTests: XCTestCase {
             return BucketQueueAcceptResult(
                 dequeuedBucket: DequeuedBucket(
                     enqueuedBucket: EnqueuedBucket(
-                        bucket: BucketFixtures.createBucket(bucketId: "bucket_id"),
+                        bucket: BucketFixtures().with(bucketId: "bucket_id").bucket(),
                         enqueueTimestamp: Date(),
                         uniqueIdentifier: "doesnotmatter"
                     ),

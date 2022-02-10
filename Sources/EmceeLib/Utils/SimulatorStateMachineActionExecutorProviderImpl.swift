@@ -6,7 +6,6 @@ import MetricsExtensions
 import PathLib
 import ProcessController
 import QueueModels
-import RunnerModels
 import SimulatorPool
 import SimulatorPoolModels
 import Tmp

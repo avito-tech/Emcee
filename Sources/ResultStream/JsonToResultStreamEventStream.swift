@@ -1,9 +1,9 @@
 import DateProvider
-import Foundation
+import CommonTestModels
 import EmceeLogging
+import Foundation
 import ResultStreamModels
 import Runner
-import RunnerModels
 import JSONStream
 
 public final class JsonToResultStreamEventStream: JSONReaderEventStream {

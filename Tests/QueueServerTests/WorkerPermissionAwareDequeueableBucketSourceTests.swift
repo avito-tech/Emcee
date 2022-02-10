@@ -12,7 +12,7 @@ final class WorkerPermissionAwareDequeueableBucketSourceTests: XCTestCase {
     
     lazy var dequeuedBucket = DequeuedBucket(
         enqueuedBucket: EnqueuedBucket(
-            bucket: BucketFixtures.createBucket(),
+            bucket: BucketFixtures().bucket(),
             enqueueTimestamp: Date(),
             uniqueIdentifier: "id"
         ),

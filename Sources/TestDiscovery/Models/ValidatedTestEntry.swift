@@ -1,5 +1,5 @@
 import BuildArtifacts
-import RunnerModels
+import CommonTestModels
 
 public struct ValidatedTestEntry: Hashable {
     public let testName: TestName

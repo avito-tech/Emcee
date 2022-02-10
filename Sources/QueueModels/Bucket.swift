@@ -2,7 +2,6 @@
 import Foundation
 import MetricsExtensions
 import PluginSupport
-import RunnerModels
 import SimulatorPoolModels
 import WorkerCapabilitiesModels
 

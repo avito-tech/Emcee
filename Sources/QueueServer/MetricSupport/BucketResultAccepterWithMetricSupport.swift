@@ -1,6 +1,7 @@
 import BalancingBucketQueue
 import BucketQueue
 import BucketQueueModels
+import CommonTestModels
 import DateProvider
 import Foundation
 import Graphite

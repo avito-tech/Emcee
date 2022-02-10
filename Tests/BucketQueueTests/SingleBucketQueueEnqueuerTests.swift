@@ -3,9 +3,9 @@ import BucketQueueModels
 import DateProviderTestHelpers
 import Foundation
 import TestHelpers
+import QueueCommunicationTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
-import QueueCommunicationTestHelpers
 import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessProvider
 import WorkerCapabilities
@@ -33,7 +33,7 @@ final class SingleBucketQueueEnqueuerTests: XCTestCase {
     )
     
     func test___throws___when_no_suitable_workers_are_available() {
-        let bucket = BucketFixtures.createBucket()
+        let bucket = BucketFixtures().bucket()
         assertThrows {
             try enqueuer.enqueue(buckets: [bucket])
         }
@@ -42,7 +42,7 @@ final class SingleBucketQueueEnqueuerTests: XCTestCase {
     func test___enqueues___when_suitable_worker_is_available() {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         
-        let bucket = BucketFixtures.createBucket()
+        let bucket = BucketFixtures().bucket()
         assertDoesNotThrow {
             try enqueuer.enqueue(buckets: [bucket])
         }
@@ -62,11 +62,13 @@ final class SingleBucketQueueEnqueuerTests: XCTestCase {
     func test___validating_bucket_for_requirements___throws_when_capabilities_mismatch() {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         
-        let bucket = BucketFixtures.createBucket(
-            workerCapabilityRequirements: [
-                WorkerCapabilityRequirement(capabilityName: "name", constraint: .present)
-            ]
-        )
+        let bucket = BucketFixtures()
+            .with(
+                workerCapabilityRequirements: [
+                    WorkerCapabilityRequirement(capabilityName: "name", constraint: .present)
+                ]
+            )
+            .bucket()
         
         assertThrows {
             try enqueuer.enqueue(buckets: [bucket])
@@ -81,11 +83,13 @@ final class SingleBucketQueueEnqueuerTests: XCTestCase {
             forWorkerId: workerId
         )
         
-        let bucket = BucketFixtures.createBucket(
-            workerCapabilityRequirements: [
-                WorkerCapabilityRequirement(capabilityName: "name", constraint: .present)
-            ]
-        )
+        let bucket = BucketFixtures()
+            .with(
+                workerCapabilityRequirements: [
+                    WorkerCapabilityRequirement(capabilityName: "name", constraint: .present)
+                ]
+            )
+            .bucket()
         
         assertDoesNotThrow {
             try enqueuer.enqueue(buckets: [bucket])

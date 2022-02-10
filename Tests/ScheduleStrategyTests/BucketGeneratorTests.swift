@@ -1,7 +1,9 @@
+import AppleTestModelsTestHelpers
+import CommonTestModels
+import CommonTestModelsTestHelpers
 import Foundation
 import QueueModels
 import QueueModelsTestHelpers
-import RunnerTestHelpers
 import ScheduleStrategy
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
@@ -15,29 +17,45 @@ final class BucketGeneratorTests: XCTestCase {
     lazy var simDeviceType2 = SimDeviceTypeFixture.fixture("device2")
     
     func test_splits_into_matrix_of_test_destination_by_test_entry() {
-        let testEntryConfigurations =
-            TestEntryConfigurationFixtures()
-                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod1"))
-                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod2"))
-                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3"))
-                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod4"))
-                .with(simDeviceType: simDeviceType1)
-                .testEntryConfigurations()
-                +
-                TestEntryConfigurationFixtures()
-                    .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod1"))
-                    .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod2"))
-                    .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3"))
-                    .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod4"))
-                    .with(simDeviceType: simDeviceType2)
-                    .testEntryConfigurations()
+        let testEntries = [
+            TestEntryFixtures.testEntry(className: "class", methodName: "testMethod1"),
+            TestEntryFixtures.testEntry(className: "class", methodName: "testMethod2"),
+            TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3"),
+            TestEntryFixtures.testEntry(className: "class", methodName: "testMethod4"),
+        ]
+        
+        let configuredTestEntries =
+        testEntries.map { testEntry in
+            ConfiguredTestEntryFixture()
+                .with(testEntry: testEntry)
+                .with(
+                    testEntryConfiguration: TestEntryConfigurationFixtures().with(
+                        appleTestConfiguration: AppleTestConfigurationFixture()
+                            .with(simDeviceType: simDeviceType1)
+                            .appleTestConfiguration()
+                    ).testEntryConfiguration()
+                )
+                .build()
+        } +
+        testEntries.map { testEntry in
+            ConfiguredTestEntryFixture()
+                .with(testEntry: testEntry)
+                .with(
+                    testEntryConfiguration: TestEntryConfigurationFixtures().with(
+                        appleTestConfiguration: AppleTestConfigurationFixture()
+                            .with(simDeviceType: simDeviceType2)
+                            .appleTestConfiguration()
+                    ).testEntryConfiguration()
+                )
+                .build()
+        }
         
         let splitter = BucketGeneratorImpl(
             uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator()
         )
         
         let buckets = splitter.generateBuckets(
-            testEntryConfigurations: testEntryConfigurations,
+            configuredTestEntries: configuredTestEntries,
             splitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1),
             testSplitter: UnsplitBucketSplitter()
         )
@@ -45,21 +63,31 @@ final class BucketGeneratorTests: XCTestCase {
     }
 
     func test_splits_same_tests_in_different_buckets_with_one_test() {
-        let testEntryConfigurations =
-            TestEntryConfigurationFixtures()
-                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod"))
-                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod"))
-                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod"))
-                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod"))
-                .with(simDeviceType: simDeviceType1)
-                .testEntryConfigurations()
+        let testEntries: [TestEntry] = Array(
+            repeating: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod"),
+            count: 4
+        )
+        
+        let configuredTestEntries =
+        testEntries.map { testEntry in
+            ConfiguredTestEntryFixture()
+                .with(testEntry: testEntry)
+                .with(
+                    testEntryConfiguration: TestEntryConfigurationFixtures().with(
+                        appleTestConfiguration: AppleTestConfigurationFixture()
+                            .with(simDeviceType: simDeviceType1)
+                            .appleTestConfiguration()
+                    ).testEntryConfiguration()
+                )
+                .build()
+        }
 
         let splitter = BucketGeneratorImpl(
             uniqueIdentifierGenerator: FixedValueUniqueIdentifierGenerator()
         )
 
         let buckets = splitter.generateBuckets(
-            testEntryConfigurations: testEntryConfigurations,
+            configuredTestEntries: configuredTestEntries,
             splitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1),
             testSplitter: UnsplitBucketSplitter()
         )
@@ -67,19 +95,32 @@ final class BucketGeneratorTests: XCTestCase {
     }
 
     func test_splits_same_tests_in_different_buckets_with_many_tests() {
-        let testEntryConfigurations =
-            TestEntryConfigurationFixtures()
-                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod1"))
-                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod1"))
-                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod1"))
-                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod2"))
-                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod2"))
-                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod2"))
-                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3"))
-                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3"))
-                .add(testEntry: TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3"))
-                .with(simDeviceType: simDeviceType1)
-                .testEntryConfigurations()
+        let testEntries = [
+            TestEntryFixtures.testEntry(className: "class", methodName: "testMethod1"),
+            TestEntryFixtures.testEntry(className: "class", methodName: "testMethod1"),
+            TestEntryFixtures.testEntry(className: "class", methodName: "testMethod1"),
+            TestEntryFixtures.testEntry(className: "class", methodName: "testMethod2"),
+            TestEntryFixtures.testEntry(className: "class", methodName: "testMethod2"),
+            TestEntryFixtures.testEntry(className: "class", methodName: "testMethod2"),
+            TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3"),
+            TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3"),
+            TestEntryFixtures.testEntry(className: "class", methodName: "testMethod3"),
+        ]
+        
+        let configuredTestEntries =
+        testEntries.map { testEntry in
+            ConfiguredTestEntryFixture()
+                .with(testEntry: testEntry)
+                .with(
+                    testEntryConfiguration: TestEntryConfigurationFixtures().with(
+                        appleTestConfiguration: AppleTestConfigurationFixture()
+                            .with(simDeviceType: simDeviceType1)
+                            .appleTestConfiguration()
+                    ).testEntryConfiguration()
+                )
+                .build()
+        }
+
         let expectedBucketEntries = [
             TestEntryFixtures.testEntry(className: "class", methodName: "testMethod1"),
             TestEntryFixtures.testEntry(className: "class", methodName: "testMethod2"),
@@ -91,7 +132,7 @@ final class BucketGeneratorTests: XCTestCase {
         )
 
         let buckets = splitter.generateBuckets(
-            testEntryConfigurations: testEntryConfigurations,
+            configuredTestEntries: configuredTestEntries,
             splitInfo: BucketSplitInfo(numberOfWorkers: 1, numberOfParallelBuckets: 1),
             testSplitter: UnsplitBucketSplitter()
         )

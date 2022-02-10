@@ -2,24 +2,18 @@ import AutomaticTermination
 import BalancingBucketQueue
 import BucketQueue
 import DateProvider
-import Deployer
 import DistWorkerModels
 import Foundation
 import EmceeLogging
-import Metrics
 import MetricsExtensions
 import PortDeterminer
 import QueueCommunication
 import QueueModels
 import QueueServerPortProvider
-import RESTInterfaces
-import RESTMethods
 import RESTServer
 import RequestSender
 import ScheduleStrategy
 import SocketModels
-import Swifter
-import SynchronousWaiter
 import TestHistoryStorage
 import TestHistoryTracker
 import UniqueIdentifierGenerator
@@ -308,12 +302,12 @@ public final class QueueServerImpl: QueueServer {
     }
     
     public func schedule(
-        testEntryConfigurations: [TestEntryConfiguration],
+        configuredTestEntries: [ConfiguredTestEntry],
         testSplitter: TestSplitter,
         prioritizedJob: PrioritizedJob
     ) throws {
         try testsEnqueuer.enqueue(
-            testEntryConfigurations: testEntryConfigurations,
+            configuredTestEntries: configuredTestEntries,
             testSplitter: testSplitter,
             prioritizedJob: prioritizedJob
         )

@@ -1,5 +1,4 @@
 import Runner
-import RunnerModels
 
 public final class FakeTestRunnerProvider: TestRunnerProvider {
     public lazy var predefinedFakeTestRunner = FakeTestRunner()

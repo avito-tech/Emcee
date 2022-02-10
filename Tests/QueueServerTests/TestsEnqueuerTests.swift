@@ -7,7 +7,6 @@ import QueueModels
 import QueueModelsTestHelpers
 import QueueServer
 import RESTMethods
-import RunnerTestHelpers
 import ScheduleStrategy
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
@@ -37,9 +36,9 @@ final class TestsEnqueuerTests: XCTestCase {
         )
         
         try testsEnqueuer.enqueue(
-            testEntryConfigurations: TestEntryConfigurationFixtures()
-                .add(testEntry: TestEntryFixtures.testEntry())
-                .testEntryConfigurations(),
+            configuredTestEntries: [
+                ConfiguredTestEntryFixture().build(),
+            ],
             testSplitter: IndividualBucketSplitter(),
             prioritizedJob: prioritizedJob
         )
@@ -47,7 +46,7 @@ final class TestsEnqueuerTests: XCTestCase {
         XCTAssertEqual(
             enqueueableBucketReceptor.enqueuedJobs[prioritizedJob],
             [
-                BucketFixtures.createBucket(bucketId: bucketId),
+                BucketFixtures().with(bucketId: bucketId).bucket(),
             ]
         )
     }

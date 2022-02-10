@@ -1,14 +1,13 @@
-import BucketQueue
 import BucketQueueModels
 import BucketQueueTestHelpers
+import CommonTestModels
+import CommonTestModelsTestHelpers
 import DateProviderTestHelpers
 import DistWorkerModels
 import Foundation
 import QueueCommunicationTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
-import RunnerModels
-import RunnerTestHelpers
 import SimulatorPoolTestHelpers
 import TestHelpers
 import TestHistoryTestHelpers
@@ -34,13 +33,16 @@ final class BucketQueueTests: XCTestCase {
         testEntries: [TestEntry] = [TestEntryFixtures.testEntry()],
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement> = []
     ) -> Bucket {
-        let payload = BucketFixtures.createrunAppleTestsPayload(
-            testEntries: testEntries
-        )
-        return BucketFixtures.createBucket(
-            bucketPayloadContainer: .runAppleTests(payload),
-            workerCapabilityRequirements: workerCapabilityRequirements
-        )
+        return BucketFixtures()
+            .with(
+                runAppleTestsPayload: RunAppleTestsPayloadFixture()
+                    .with(testEntries: testEntries)
+                    .runAppleTestsPayload()
+            )
+            .with(
+                workerCapabilityRequirements: workerCapabilityRequirements
+            )
+            .bucket()
     }
     
     override func setUp() {

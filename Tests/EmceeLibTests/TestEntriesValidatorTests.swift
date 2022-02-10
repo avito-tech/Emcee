@@ -1,10 +1,9 @@
 @testable import TestDiscovery
 import BuildArtifacts
 import BuildArtifactsTestHelpers
+import CommonTestModels
 import EmceeLib
 import MetricsExtensions
-import RunnerModels
-import RunnerTestHelpers
 import ScheduleStrategy
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
@@ -76,9 +75,13 @@ final class TestEntriesValidatorTests: XCTestCase {
 
     func test__throws_error__if_app_is_not_provided_for_app_tests() throws {
         let appTestEntry = try createTestEntry(
-            buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(
-                testDiscoveryMode: .runtimeAppTest
-            )
+            buildArtifacts: AppleBuildArtifactsFixture()
+                .logicTests(
+                    xcTestBundle: XcTestBundleFixture()
+                        .with(testDiscoveryMode: .runtimeAppTest)
+                        .xcTestBundle()
+                )
+                .appleBuildArtifacts()
         )
         let validator = createValidator(testArgFileEntries: [appTestEntry])
 
@@ -87,10 +90,22 @@ final class TestEntriesValidatorTests: XCTestCase {
 
     func test__querier_called_several_times__if_configuration_contains_several_build_artifacts() throws {
         let appTestEntry1 = try createTestEntry(
-            buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(testBundlePath: "/bundle1")
+            buildArtifacts: AppleBuildArtifactsFixture()
+                .logicTests(
+                    xcTestBundle: XcTestBundleFixture()
+                        .with(localPath: "/bundle1")
+                        .xcTestBundle()
+                )
+                .appleBuildArtifacts()
         )
         let appTestEntry2 = try createTestEntry(
-            buildArtifacts: BuildArtifactsFixtures.fakeEmptyBuildArtifacts(testBundlePath: "/bundle2")
+            buildArtifacts: AppleBuildArtifactsFixture()
+                .logicTests(
+                    xcTestBundle: XcTestBundleFixture()
+                        .with(localPath: "/bundle2")
+                        .xcTestBundle()
+                )
+                .appleBuildArtifacts()
         )
         let validator = createValidator(testArgFileEntries: [appTestEntry1, appTestEntry2])
 
@@ -111,7 +126,7 @@ final class TestEntriesValidatorTests: XCTestCase {
     }
 
     private func createTestEntry(
-        buildArtifacts: AppleBuildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
+        buildArtifacts: AppleBuildArtifacts = AppleBuildArtifactsFixture().appleBuildArtifacts()
     ) throws -> TestArgFileEntry {
         return TestArgFileEntry(
             buildArtifacts: buildArtifacts,

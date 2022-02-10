@@ -1,5 +1,5 @@
+import CommonTestModels
 import Foundation
-import RunnerModels
 import TestArgFile
 
 public enum TransformationError: Error, CustomStringConvertible {

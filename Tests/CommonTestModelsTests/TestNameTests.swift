@@ -1,5 +1,5 @@
+import CommonTestModels
 import Foundation
-import RunnerModels
 import XCTest
 
 final class TestNameTests: XCTestCase {

@@ -1,8 +1,8 @@
+import CommonTestModels
 import Foundation
 import Graphite
 import Metrics
 import QueueModels
-import RunnerModels
 
 public final class TimeToStartTestMetric: GraphiteMetric {
     public init(

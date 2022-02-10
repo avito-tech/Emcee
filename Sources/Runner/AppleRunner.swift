@@ -1,4 +1,5 @@
 import AtomicModels
+import CommonTestModels
 import DateProvider
 import DeveloperDirLocator
 import DeveloperDirModels
@@ -108,7 +109,7 @@ public final class AppleRunner: Runner {
         
         let eventBus = try pluginEventBusProvider.createEventBus(
             fileSystem: fileSystem,
-            pluginLocations: configuration.pluginLocations
+            pluginLocations: configuration.appleTestConfiguration.pluginLocations
         )
         defer {
             pluginTearDownQueue.addOperation {
@@ -119,7 +120,7 @@ public final class AppleRunner: Runner {
         var logger = self.logger
         logger.debug("Will run \(entriesToRun.count) tests on simulator \(configuration.simulator)")
         
-        let singleTestMaximumDuration = configuration.testTimeoutConfiguration.singleTestMaximumDuration
+        let singleTestMaximumDuration = configuration.appleTestConfiguration.testTimeoutConfiguration.singleTestMaximumDuration
         
         let testRunnerRunningInvocationContainer = AtomicValue<TestRunnerRunningInvocation?>(nil)
         let streamClosedCallback: CallbackWaiter<()> = waiter.createCallbackWaiter()
@@ -182,7 +183,7 @@ public final class AppleRunner: Runner {
                         collectedTestExceptions.append(testException)
                     },
                     onLog: { logEntry in
-                        switch configuration.logCapturingMode {
+                        switch configuration.appleTestConfiguration.testExecutionBehavior.logCapturingMode {
                         case .noLogs:
                             break
                         case .allLogs:
@@ -216,15 +217,15 @@ public final class AppleRunner: Runner {
                         logger.warning("Detected postflight timeout, last finished test was \(testName)")
                         testRunnerRunningInvocationContainer.currentValue()?.cancel()
                     },
-                    maximumPreflightDuration: configuration.testTimeoutConfiguration.testRunnerMaximumSilenceDuration,
-                    maximumPostflightDuration: configuration.testTimeoutConfiguration.testRunnerMaximumSilenceDuration,
+                    maximumPreflightDuration: configuration.appleTestConfiguration.testTimeoutConfiguration.testRunnerMaximumSilenceDuration,
+                    maximumPostflightDuration: configuration.appleTestConfiguration.testTimeoutConfiguration.testRunnerMaximumSilenceDuration,
                     pollPeriod: testTimeoutCheckInterval
                 )
             ]
         )
         
         let runningInvocation = try testRunner.prepareTestRun(
-            buildArtifacts: configuration.buildArtifacts,
+            buildArtifacts: configuration.appleTestConfiguration.buildArtifacts,
             developerDirLocator: developerDirLocator,
             entriesToRun: entriesToRun,
             logger: logger,
@@ -271,11 +272,13 @@ public final class AppleRunner: Runner {
             components: [RunnerConstants.runnerWorkingDir, contextId]
         )
         
-        let additionalEnvironment = testRunner.additionalEnvironment(testRunnerWorkingDirectory: testRunnerWorkingDirectory)
-        var environment = configuration.environment
+        let additionalEnvironment = testRunner.additionalEnvironment(
+            testRunnerWorkingDirectory: testRunnerWorkingDirectory
+        )
+        var environment = configuration.appleTestConfiguration.testExecutionBehavior.environment
         environment[TestsWorkingDirectorySupport.envTestsWorkingDirectory] = testsWorkingDirectory.pathString
         environment = try developerDirLocator.suitableEnvironment(
-            forDeveloperDir: configuration.developerDir,
+            forDeveloperDir: configuration.appleTestConfiguration.developerDir,
             byUpdatingEnvironment: environment
         )
         additionalEnvironment.forEach {
@@ -284,13 +287,13 @@ public final class AppleRunner: Runner {
         
         return AppleTestContext(
             contextId: contextId,
-            developerDir: configuration.developerDir,
+            developerDir: configuration.appleTestConfiguration.developerDir,
             environment: environment,
-            userInsertedLibraries: configuration.userInsertedLibraries,
+            userInsertedLibraries: configuration.appleTestConfiguration.testExecutionBehavior.userInsertedLibraries,
             simulator: configuration.simulator,
             testRunnerWorkingDirectory: testRunnerWorkingDirectory,
             testsWorkingDirectory: testsWorkingDirectory,
-            testAttachmentLifetime: configuration.testAttachmentLifetime
+            testAttachmentLifetime: configuration.appleTestConfiguration.testAttachmentLifetime
         )
     }
     

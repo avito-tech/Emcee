@@ -1,13 +1,12 @@
-import BucketQueue
 import BucketQueueModels
 import BucketQueueTestHelpers
+import CommonTestModelsTestHelpers
 import Foundation
 import QueueCommunicationTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
 import QueueServer
 import RESTMethods
-import RunnerTestHelpers
 import TestHelpers
 import WorkerAlivenessProvider
 import WorkerCapabilities
@@ -58,13 +57,13 @@ final class BucketProviderTests: XCTestCase {
         
         let dequeuedBucket = DequeuedBucket(
             enqueuedBucket: EnqueuedBucket(
-                bucket: BucketFixtures.createBucket(
-                    bucketPayloadContainer: .runAppleTests(
-                        BucketFixtures.createrunAppleTestsPayload(
-                            testEntries: [TestEntryFixtures.testEntry(className: "class", methodName: "test")]
-                        )
+                bucket: BucketFixtures()
+                    .with(
+                        runAppleTestsPayload: RunAppleTestsPayloadFixture()
+                            .with(testEntries: [TestEntryFixtures.testEntry(className: "class", methodName: "test")])
+                            .runAppleTestsPayload()
                     )
-                ),
+                    .bucket(),
                 enqueueTimestamp: Date(),
                 uniqueIdentifier: "identifier"
             ),

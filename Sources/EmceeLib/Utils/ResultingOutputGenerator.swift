@@ -1,5 +1,6 @@
-import Foundation
+import CommonTestModels
 import EmceeLogging
+import Foundation
 import QueueModels
 import ResourceLocationResolver
 import TestArgFile

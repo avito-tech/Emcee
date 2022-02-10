@@ -1,13 +1,14 @@
+import AppleTestModels
 import BuildArtifacts
+import CommonTestModels
 import Foundation
 import EmceeLogging
 import MetricsExtensions
 import QueueModels
-import RunnerModels
 import TestArgFile
 import TestDiscovery
 
-public final class TestEntryConfigurationGenerator {
+public final class SimilarlyConfiguredTestEntryGenerator {
     private let analyticsConfiguration: AnalyticsConfiguration
     private let validatedEntries: [ValidatedTestEntry]
     private let testArgFileEntry: TestArgFileEntry
@@ -25,17 +26,13 @@ public final class TestEntryConfigurationGenerator {
         self.logger = logger
     }
     
-    public func createTestEntryConfigurations() throws -> [TestEntryConfiguration] {
-        logger.trace("Preparing test entry configurations for \(testArgFileEntry.testsToRun.count) tests: \(testArgFileEntry.testsToRun)")
+    public func createSimilarlyConfiguredTestEntries() throws -> SimilarlyConfiguredTestEntries {
+        logger.trace("Preparing configured test entries for \(testArgFileEntry.testsToRun.count) tests: \(testArgFileEntry.testsToRun)")
         
-        let testArgFileEntryConfigurations = try testArgFileEntry.testsToRun.flatMap { testToRun -> [TestEntryConfiguration] in
-            let testEntries = testEntriesMatching(
-                buildArtifacts: testArgFileEntry.buildArtifacts,
-                testToRun: testToRun
-            )
-            return try testEntries.map { testEntry -> TestEntryConfiguration in
-                TestEntryConfiguration(
-                    analyticsConfiguration: analyticsConfiguration,
+        let testEntryConfiguration = TestEntryConfiguration(
+            analyticsConfiguration: analyticsConfiguration,
+            testConfigurationContainer: .appleTest(
+                AppleTestConfiguration(
                     buildArtifacts: testArgFileEntry.buildArtifacts,
                     developerDir: testArgFileEntry.developerDir,
                     pluginLocations: testArgFileEntry.pluginLocations,
@@ -43,7 +40,6 @@ public final class TestEntryConfigurationGenerator {
                     simulatorSettings: testArgFileEntry.simulatorSettings,
                     simDeviceType: try testArgFileEntry.testDestination.simDeviceType(),
                     simRuntime: try testArgFileEntry.testDestination.simRuntime(),
-                    testEntry: testEntry,
                     testExecutionBehavior: TestExecutionBehavior(
                         environment: testArgFileEntry.environment,
                         userInsertedLibraries: testArgFileEntry.userInsertedLibraries,
@@ -53,12 +49,24 @@ public final class TestEntryConfigurationGenerator {
                         runnerWasteCleanupPolicy: testArgFileEntry.runnerWasteCleanupPolicy
                     ),
                     testTimeoutConfiguration: testArgFileEntry.testTimeoutConfiguration,
-                    testAttachmentLifetime: testArgFileEntry.testAttachmentLifetime,
-                    workerCapabilityRequirements: testArgFileEntry.workerCapabilityRequirements
+                    testAttachmentLifetime: testArgFileEntry.testAttachmentLifetime
                 )
-            }
+            ),
+            workerCapabilityRequirements: testArgFileEntry.workerCapabilityRequirements
+        )
+        
+        let testEntries = testArgFileEntry.testsToRun.flatMap { (testToRun: TestToRun) -> [TestEntry] in
+            testEntriesMatching(
+                buildArtifacts: testArgFileEntry.buildArtifacts,
+                testToRun: testToRun
+            )
         }
-        return testArgFileEntryConfigurations
+        
+        let similarlyConfiguredTestEntries = SimilarlyConfiguredTestEntries(
+            testEntries: testEntries,
+            testEntryConfiguration: testEntryConfiguration
+        )
+        return similarlyConfiguredTestEntries
     }
 
     private func testEntriesMatching(

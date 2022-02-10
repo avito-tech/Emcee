@@ -1,3 +1,5 @@
+import CommonTestModels
+import CommonTestModelsTestHelpers
 import DateProviderTestHelpers
 import Foundation
 import MetricsExtensions
@@ -7,7 +9,6 @@ import QueueModels
 import QueueModelsTestHelpers
 import QueueServer
 import RESTMethods
-import RunnerTestHelpers
 import ScheduleStrategy
 import TestHelpers
 import UniqueIdentifierGeneratorTestHelpers
@@ -26,7 +27,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
             payload: ScheduleTestsPayload(
                 prioritizedJob: prioritizedJob,
                 scheduleStrategy: individualScheduleStrategy,
-                testEntryConfigurations: testEntryConfigurations
+                similarlyConfiguredTestEntries: similarlyConfiguredTestEntries
             )
         )
         
@@ -35,9 +36,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         XCTAssertEqual(
             enqueueableBucketReceptor.enqueuedJobs[prioritizedJob],
             [
-                BucketFixtures.createBucket(
-                    bucketId: fixedBucketId
-                )
+                BucketFixtures().with(bucketId: fixedBucketId).bucket(),
             ]
         )
     }
@@ -51,7 +50,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
             payload: ScheduleTestsPayload(
                 prioritizedJob: prioritizedJob,
                 scheduleStrategy: individualScheduleStrategy,
-                testEntryConfigurations: []
+                similarlyConfiguredTestEntries: similarlyConfiguredTestEntries
             )
         )
         
@@ -66,7 +65,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
                 payload: ScheduleTestsPayload(
                     prioritizedJob: prioritizedJob,
                     scheduleStrategy: individualScheduleStrategy,
-                    testEntryConfigurations: testEntryConfigurations
+                    similarlyConfiguredTestEntries: similarlyConfiguredTestEntries
                 )
             )
         }
@@ -81,10 +80,18 @@ final class ScheduleTestsEndpointTests: XCTestCase {
                 payload: ScheduleTestsPayload(
                     prioritizedJob: prioritizedJob,
                     scheduleStrategy: individualScheduleStrategy,
-                    testEntryConfigurations: TestEntryConfigurationFixtures()
-                        .add(testEntry: TestEntryFixtures.testEntry())
-                        .with(workerCapabilityRequirements: [WorkerCapabilityRequirement(capabilityName: "name", constraint: .present)])
-                        .testEntryConfigurations()
+                    similarlyConfiguredTestEntries: SimilarlyConfiguredTestEntries(
+                        testEntries: [
+                            TestEntryFixtures.testEntry(),
+                        ],
+                        testEntryConfiguration: TestEntryConfigurationFixtures()
+                            .with(
+                                workerCapabilityRequirements: [
+                                    WorkerCapabilityRequirement(capabilityName: "name", constraint: .present),
+                                ]
+                            )
+                            .testEntryConfiguration()
+                    )
                 )
             )
         }
@@ -102,7 +109,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
             payload: ScheduleTestsPayload(
                 prioritizedJob: prioritizedJob,
                 scheduleStrategy: individualScheduleStrategy,
-                testEntryConfigurations: testEntryConfigurations
+                similarlyConfiguredTestEntries: similarlyConfiguredTestEntries
             )
         )
         
@@ -130,10 +137,18 @@ final class ScheduleTestsEndpointTests: XCTestCase {
             payload: ScheduleTestsPayload(
                 prioritizedJob: prioritizedJob,
                 scheduleStrategy: individualScheduleStrategy,
-                testEntryConfigurations: TestEntryConfigurationFixtures()
-                    .add(testEntry: TestEntryFixtures.testEntry())
-                    .with(workerCapabilityRequirements: [WorkerCapabilityRequirement(capabilityName: "name", constraint: .equal("value"))])
-                    .testEntryConfigurations()
+                similarlyConfiguredTestEntries: SimilarlyConfiguredTestEntries(
+                    testEntries: [
+                        TestEntryFixtures.testEntry(),
+                    ],
+                    testEntryConfiguration: TestEntryConfigurationFixtures()
+                        .with(
+                            workerCapabilityRequirements: [
+                                WorkerCapabilityRequirement(capabilityName: "name", constraint: .equal("value")),
+                            ]
+                        )
+                        .testEntryConfiguration()
+                )
             )
         )
         
@@ -158,27 +173,32 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         )
     }
 
-    private let fixedBucketId: BucketId = "fixedBucketId"
+    private lazy var fixedBucketId: BucketId = "fixedBucketId"
     private lazy var uniqueIdentifierGenerator = FixedValueUniqueIdentifierGenerator(
         value: fixedBucketId.value
     )
-    let bucketSplitInfo = BucketSplitInfo(
+    private lazy var bucketSplitInfo = BucketSplitInfo(
         numberOfWorkers: 0,
         numberOfParallelBuckets: 0
     )
-    let jobId = JobId(value: "jobId")
-    lazy var prioritizedJob = PrioritizedJob(
+    private lazy var jobId = JobId(value: "jobId")
+    private lazy var prioritizedJob = PrioritizedJob(
         analyticsConfiguration: AnalyticsConfiguration(),
         jobGroupId: "groupId",
         jobGroupPriority: .medium,
         jobId: jobId,
         jobPriority: .medium
     )
-    let testEntryConfigurations = TestEntryConfigurationFixtures()
-        .add(testEntry: TestEntryFixtures.testEntry())
-        .testEntryConfigurations()
-    let enqueueableBucketReceptor = FakeEnqueueableBucketReceptor()
-    lazy var testsEnqueuer = TestsEnqueuer(
+    
+    private lazy var similarlyConfiguredTestEntries = SimilarlyConfiguredTestEntries(
+        testEntries: [
+            TestEntryFixtures.testEntry(),
+        ],
+        testEntryConfiguration: TestEntryConfigurationFixtures().testEntryConfiguration()
+    )
+    
+    private lazy var enqueueableBucketReceptor = FakeEnqueueableBucketReceptor()
+    private lazy var testsEnqueuer = TestsEnqueuer(
         bucketGenerator: BucketGeneratorImpl(
             uniqueIdentifierGenerator: uniqueIdentifierGenerator
         ),
@@ -189,13 +209,13 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         version: Version(value: "version"),
         specificMetricRecorderProvider: NoOpSpecificMetricRecorderProvider()
     )
-    lazy var workerId: WorkerId = "worker"
-    lazy var capableWorkerId: WorkerId = "capableWorkerId"
-    lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(
+    private lazy var workerId: WorkerId = "worker"
+    private lazy var capableWorkerId: WorkerId = "capableWorkerId"
+    private lazy var workerAlivenessProvider = WorkerAlivenessProviderImpl(
         logger: .noOp,
         workerPermissionProvider: FakeWorkerPermissionProvider()
     )
-    lazy var workerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()
+    private lazy var workerCapabilitiesStorage = WorkerCapabilitiesStorageImpl()
     private lazy var individualScheduleStrategy = ScheduleStrategy(
         testSplitterType: .individual
     )

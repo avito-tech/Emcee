@@ -2,10 +2,13 @@ import DateProvider
 import BalancingBucketQueue
 import BucketQueue
 import BucketQueueModels
+import CommonTestModels
+import CommonTestModelsTestHelpers
 import Foundation
 import MetricsExtensions
-import RunnerModels
-import RunnerTestHelpers
+import QueueCommunicationTestHelpers
+import QueueModels
+import QueueModelsTestHelpers
 import SimulatorPoolTestHelpers
 import TestHelpers
 import TestHistoryStorage
@@ -15,9 +18,6 @@ import WorkerAlivenessProvider
 import WorkerCapabilities
 import WorkerCapabilitiesModels
 import XCTest
-import QueueCommunicationTestHelpers
-import QueueModels
-import QueueModelsTestHelpers
 
 final class IntegrationTests: XCTestCase {
     // Misc
@@ -174,10 +174,11 @@ final class IntegrationTests: XCTestCase {
     // Tests
     
     func test___state_has_enqueued_buckets___after_enqueueing_buckets_for_job() throws {
-        let payload = BucketFixtures.createrunAppleTestsPayload()
-        let bucket = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runAppleTests(payload)
-        )
+        let payload = RunAppleTestsPayloadFixture().runAppleTestsPayload()
+        
+        let bucket = BucketFixtures().with(
+            runAppleTestsPayload: payload
+        ).bucket()
         
         try enqueue(bucket: bucket)
         
@@ -199,7 +200,7 @@ final class IntegrationTests: XCTestCase {
     }
     
     func test___state_has_correct_enqueued_buckets___after_enqueueing_buckets_for_same_job() throws {
-        let bucket = BucketFixtures.createBucket()
+        let bucket = BucketFixtures().bucket()
         
         try enqueue(bucket: bucket)
         try enqueue(bucket: bucket)
@@ -225,7 +226,7 @@ final class IntegrationTests: XCTestCase {
     }
     
     func test___deleting_job() throws {
-        let bucket = BucketFixtures.createBucket()
+        let bucket = BucketFixtures().bucket()
         
         try enqueue(bucket: bucket)
         
@@ -241,7 +242,7 @@ final class IntegrationTests: XCTestCase {
     }
     
     func test___state_of_deleted_job() throws {
-        let bucket = BucketFixtures.createBucket()
+        let bucket = BucketFixtures().bucket()
         
         try enqueue(bucket: bucket)
         try deleteJob()
@@ -257,7 +258,7 @@ final class IntegrationTests: XCTestCase {
     }
     
     func test___repeated_deletion_of_job_throws() throws {
-        let bucket = BucketFixtures.createBucket()
+        let bucket = BucketFixtures().bucket()
         
         try enqueue(bucket: bucket)
         try deleteJob()
@@ -268,7 +269,7 @@ final class IntegrationTests: XCTestCase {
     }
     
     func test___results_for_deleted_job_available() throws {
-        let bucket = BucketFixtures.createBucket()
+        let bucket = BucketFixtures().bucket()
         
         try enqueue(bucket: bucket)
         try deleteJob()
@@ -292,7 +293,7 @@ final class IntegrationTests: XCTestCase {
     }
     
     func test___dequeueing_bucket___after_enqueueing_it() throws {
-        let bucket = BucketFixtures.createBucket()
+        let bucket = BucketFixtures().bucket()
         
         try enqueue(bucket: bucket)
         
@@ -313,22 +314,20 @@ final class IntegrationTests: XCTestCase {
             jobPriority: .medium
         )
         
-        let bucket1 = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runAppleTests(
-                BucketFixtures.createrunAppleTestsPayload(
-                    testEntries: [TestEntryFixtures.testEntry(className: "class1")]
-                )
-            )
-        )
+        let bucket1 = BucketFixtures().with(
+            runAppleTestsPayload: RunAppleTestsPayloadFixture().with(
+                testEntries: [TestEntryFixtures.testEntry(className: "class1")]
+            ).runAppleTestsPayload()
+        ).bucket()
+        
         try enqueue(bucket: bucket1, prioritizedJob: prioritizedJob)
         
-        let bucket2 = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runAppleTests(
-                BucketFixtures.createrunAppleTestsPayload(
-                    testEntries: [TestEntryFixtures.testEntry(className: "class2")]
-                )
-            )
-        )
+        let bucket2 = BucketFixtures().with(
+            runAppleTestsPayload: RunAppleTestsPayloadFixture().with(
+                testEntries: [TestEntryFixtures.testEntry(className: "class2")]
+            ).runAppleTestsPayload()
+        ).bucket()
+        
         try enqueue(bucket: bucket2, prioritizedJob: anotherPrioritizedJob)
         
         assert {
@@ -381,22 +380,19 @@ final class IntegrationTests: XCTestCase {
     }
     
     func test___dequeueing_bucket_from_job_with_priority() throws {
-        let bucket1 = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runAppleTests(
-                BucketFixtures.createrunAppleTestsPayload(
-                    testEntries: [TestEntryFixtures.testEntry(className: "class1")]
-                )
-            )
-        )
+        let bucket1 = BucketFixtures().with(
+            runAppleTestsPayload: RunAppleTestsPayloadFixture().with(
+                testEntries: [TestEntryFixtures.testEntry(className: "class1")]
+            ).runAppleTestsPayload()
+        ).bucket()
         try enqueue(bucket: bucket1, prioritizedJob: prioritizedJob)
         
-        let bucket2 = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runAppleTests(
-                BucketFixtures.createrunAppleTestsPayload(
-                    testEntries: [TestEntryFixtures.testEntry(className: "class2")]
-                )
-            )
-        )
+        let bucket2 = BucketFixtures().with(
+            runAppleTestsPayload: RunAppleTestsPayloadFixture().with(
+                testEntries: [TestEntryFixtures.testEntry(className: "class2")]
+            ).runAppleTestsPayload()
+        ).bucket()
+        
         try enqueue(bucket: bucket2, prioritizedJob: highlyPrioritizedJob)
         
         assert {
@@ -407,13 +403,11 @@ final class IntegrationTests: XCTestCase {
     }
     
     func test___dequeueing_bucket_with_job_groups_with_priority() throws {
-        let bucket1 = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runAppleTests(
-                BucketFixtures.createrunAppleTestsPayload(
-                    testEntries: [TestEntryFixtures.testEntry(className: "class1")]
-                )
-            )
-        )
+        let bucket1 = BucketFixtures().with(
+            runAppleTestsPayload: RunAppleTestsPayloadFixture().with(
+                testEntries: [TestEntryFixtures.testEntry(className: "class1")]
+            ).runAppleTestsPayload()
+        ).bucket()
         try enqueue(
             bucket: bucket1,
             prioritizedJob: PrioritizedJob(
@@ -425,13 +419,12 @@ final class IntegrationTests: XCTestCase {
             )
         )
         
-        let bucket2 = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runAppleTests(
-                BucketFixtures.createrunAppleTestsPayload(
-                    testEntries: [TestEntryFixtures.testEntry(className: "class2")]
-                )
-            )
-        )
+        let bucket2 = BucketFixtures().with(
+            runAppleTestsPayload: RunAppleTestsPayloadFixture().with(
+                testEntries: [TestEntryFixtures.testEntry(className: "class2")]
+            ).runAppleTestsPayload()
+        ).bucket()
+        
         try enqueue(
             bucket: bucket2,
             prioritizedJob: PrioritizedJob(
@@ -451,25 +444,23 @@ final class IntegrationTests: XCTestCase {
     }
     
     func test___reenqueueing_stuck_buckets___works_for_all_bucket_queues() throws {
-        let bucket1 = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runAppleTests(
-                BucketFixtures.createrunAppleTestsPayload(
-                    testEntries: [TestEntryFixtures.testEntry(className: "class1")]
-                )
-            )
-        )
+        let bucket1 = BucketFixtures().with(
+            runAppleTestsPayload: RunAppleTestsPayloadFixture().with(
+                testEntries: [TestEntryFixtures.testEntry(className: "class1")]
+            ).runAppleTestsPayload()
+        ).bucket()
+
         try enqueue(bucket: bucket1, prioritizedJob: prioritizedJob)
         assertNotNil {
             dequeue()
         }
         
-        let bucket2 = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runAppleTests(
-                BucketFixtures.createrunAppleTestsPayload(
-                    testEntries: [TestEntryFixtures.testEntry(className: "class2")]
-                )
-            )
-        )
+        let bucket2 = BucketFixtures().with(
+            runAppleTestsPayload: RunAppleTestsPayloadFixture().with(
+                testEntries: [TestEntryFixtures.testEntry(className: "class2")]
+            ).runAppleTestsPayload()
+        ).bucket()
+
         try enqueue(bucket: bucket2, prioritizedJob: highlyPrioritizedJob)
         assertNotNil {
             dequeue()
@@ -488,7 +479,7 @@ final class IntegrationTests: XCTestCase {
     }
     
     func test___getting_results_for_job_with_no_results___provides_back_empty_results() throws {
-        let bucket = BucketFixtures.createBucket()
+        let bucket = BucketFixtures().bucket()
         
         try enqueue(bucket: bucket)
         
@@ -500,7 +491,7 @@ final class IntegrationTests: XCTestCase {
     }
     
     func test___accepting_results___provides_back_results_for_job() throws {
-        let bucket = BucketFixtures.createBucket()
+        let bucket = BucketFixtures().bucket()
         let expectedBucketResult = BucketResult.testingResult(
             TestingResultFixtures(
                 testEntry: TestEntryFixtures.testEntry(),
@@ -543,7 +534,7 @@ final class IntegrationTests: XCTestCase {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
-        let bucket = BucketFixtures.createBucket()
+        let bucket = BucketFixtures().bucket()
         let expectedBucketResult = BucketResult.testingResult(
             TestingResultFixtures(
                 testEntry: TestEntryFixtures.testEntry(),
@@ -574,7 +565,7 @@ final class IntegrationTests: XCTestCase {
     }
     
     func test___accepting_results_for_wrong_bucket_id___throws() throws {
-        let bucket = BucketFixtures.createBucket()
+        let bucket = BucketFixtures().bucket()
         
         try enqueue(bucket: bucket)
         assertNotNil {
@@ -592,7 +583,7 @@ final class IntegrationTests: XCTestCase {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
-        let bucket = BucketFixtures.createBucket()
+        let bucket = BucketFixtures().bucket()
         
         try enqueue(bucket: bucket)
         assertNotNil {
@@ -608,8 +599,8 @@ final class IntegrationTests: XCTestCase {
     }
     
     func test___ongoing_job_ids() throws {
-        try enqueue(bucket: BucketFixtures.createBucket(), prioritizedJob: prioritizedJob)
-        try enqueue(bucket: BucketFixtures.createBucket(), prioritizedJob: highlyPrioritizedJob)
+        try enqueue(bucket: BucketFixtures().bucket(), prioritizedJob: prioritizedJob)
+        try enqueue(bucket: BucketFixtures().bucket(), prioritizedJob: highlyPrioritizedJob)
         
         assert {
             multipleQueuesJobStateProvider.ongoingJobIds
@@ -621,8 +612,8 @@ final class IntegrationTests: XCTestCase {
     func test___scheduling_job___appends_to_ongoing_job_groups() throws {
         assert { prioritizedJob.jobGroupId } equals: { highlyPrioritizedJob.jobGroupId }
         
-        try enqueue(bucket: BucketFixtures.createBucket(), prioritizedJob: prioritizedJob)
-        try enqueue(bucket: BucketFixtures.createBucket(), prioritizedJob: highlyPrioritizedJob)
+        try enqueue(bucket: BucketFixtures().bucket(), prioritizedJob: prioritizedJob)
+        try enqueue(bucket: BucketFixtures().bucket(), prioritizedJob: highlyPrioritizedJob)
         
         assert {
             multipleQueuesJobStateProvider.ongoingJobGroupIds
@@ -632,8 +623,8 @@ final class IntegrationTests: XCTestCase {
     }
     
     func test___if_after_deleting_job_job_group_contains_other_jobs___job_group_is_kept_in_ongoing_job_groups() throws {
-        try enqueue(bucket: BucketFixtures.createBucket(), prioritizedJob: prioritizedJob)
-        try enqueue(bucket: BucketFixtures.createBucket(), prioritizedJob: highlyPrioritizedJob)
+        try enqueue(bucket: BucketFixtures().bucket(), prioritizedJob: prioritizedJob)
+        try enqueue(bucket: BucketFixtures().bucket(), prioritizedJob: highlyPrioritizedJob)
         
         try deleteJob()
         
@@ -646,7 +637,7 @@ final class IntegrationTests: XCTestCase {
     
     
     func test___removing_last_job_in_group___removes_group_from_ongoing_job_groups() throws {
-        let bucket = BucketFixtures.createBucket()
+        let bucket = BucketFixtures().bucket()
         try enqueue(bucket: bucket)
         try deleteJob()
         

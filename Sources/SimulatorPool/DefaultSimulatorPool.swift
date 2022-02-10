@@ -3,7 +3,6 @@ import Dispatch
 import Foundation
 import EmceeLogging
 import ResourceLocationResolver
-import RunnerModels
 import SimulatorPoolModels
 import Tmp
 

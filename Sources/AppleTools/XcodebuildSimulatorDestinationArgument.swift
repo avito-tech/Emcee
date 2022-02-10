@@ -1,6 +1,6 @@
+import CommonTestModels
 import Foundation
 import ProcessController
-import SimulatorPoolModels
 
 public class XcodebuildSimulatorDestinationArgument: SubprocessArgument, CustomStringConvertible {
     private let xcodeDestinationString: String

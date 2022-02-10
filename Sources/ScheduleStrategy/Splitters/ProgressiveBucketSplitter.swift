@@ -7,9 +7,9 @@ public struct ProgressiveBucketSplitter: TestSplitter {
     public init() {}
     
     public func split(
-        testEntryConfigurations: [TestEntryConfiguration],
+        configuredTestEntries: [ConfiguredTestEntry],
         bucketSplitInfo: BucketSplitInfo
-    ) -> [[TestEntryConfiguration]] {
+    ) -> [[ConfiguredTestEntry]] {
         /*
          Here we split all tests to achieve a better loading of the remote machines:
          
@@ -20,7 +20,7 @@ public struct ProgressiveBucketSplitter: TestSplitter {
          Group C, Group D, ... - each group will have even a smaller number of tests
          */
         
-        let groupedEntriesToRunEqually = testEntryConfigurations.splitToVariableChunks(
+        let groupedEntriesToRunEqually = configuredTestEntries.splitToVariableChunks(
             withStartingRelativeSize: 0.7,
             changingRelativeSizeBy: 0.4
         ).flatMap {

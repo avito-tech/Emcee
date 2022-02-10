@@ -1,3 +1,4 @@
+import CommonTestModelsTestHelpers
 import DateProvider
 import EventBus
 import EmceeExtensions
@@ -97,7 +98,7 @@ final class PluginManagerTests: XCTestCase {
         
         let runnerEvent = AppleRunnerEvent.willRun(
             testEntries: [TestEntryFixtures.testEntry()],
-            testContext: TestContextFixtures(
+            testContext: AppleTestContextFixtures(
                 environment: ["EMCEE_TEST_PLUGIN_OUTPUT": outputPath.absolutePath.pathString]
             ).testContext
         )

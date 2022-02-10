@@ -1,3 +1,4 @@
+import CommonTestModels
 import BucketQueueModels
 import EmceeLogging
 import Foundation

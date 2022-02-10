@@ -1,8 +1,8 @@
+import CommonTestModels
 import EventBus
 import EmceeLogging
 import MetricsExtensions
 import ResourceLocationResolver
-import RunnerModels
 import SimulatorPool
 import Tmp
 import TestArgFile

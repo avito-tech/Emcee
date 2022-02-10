@@ -1,8 +1,8 @@
+import CommonTestModels
 import DateProvider
 import EmceeTypes
 import Foundation
 import ResultStreamModels
-import RunnerModels
 
 extension RSTestFinished {
     func testStoppedEvent(

@@ -1,4 +1,5 @@
 import BalancingBucketQueue
+import CommonTestModels
 import DateProvider
 import Foundation
 import LocalHostDeterminer
@@ -36,12 +37,12 @@ public final class TestsEnqueuer {
     }
     
     public func enqueue(
-        testEntryConfigurations: [TestEntryConfiguration],
+        configuredTestEntries: [ConfiguredTestEntry],
         testSplitter: TestSplitter,
         prioritizedJob: PrioritizedJob
     ) throws {
         let buckets = bucketGenerator.generateBuckets(
-            testEntryConfigurations: testEntryConfigurations,
+            configuredTestEntries: configuredTestEntries,
             splitInfo: bucketSplitInfo,
             testSplitter: testSplitter
         )
@@ -53,7 +54,7 @@ public final class TestsEnqueuer {
             EnqueueTestsMetric(
                 version: version,
                 queueHost: LocalHostDeterminer.currentHostAddress,
-                numberOfTests: testEntryConfigurations.count,
+                numberOfTests: configuredTestEntries.count,
                 timestamp: dateProvider.currentDate()
             ),
             EnqueueBucketsMetric(

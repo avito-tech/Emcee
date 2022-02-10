@@ -1,7 +1,7 @@
+import CommonTestModelsTestHelpers
 import Foundation
 import QueueClient
 import QueueModels
-import QueueModelsTestHelpers
 import RESTMethods
 import RequestSender
 import RequestSenderTestHelpers

@@ -1,5 +1,5 @@
+import CommonTestModels
 import QueueModels
-import RunnerModels
 import TestHistoryModels
 
 public protocol TestHistoryStorage {

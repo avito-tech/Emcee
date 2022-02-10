@@ -1,11 +1,12 @@
+import AppleTestModelsTestHelpers
 import BucketQueue
 import BucketQueueModels
 import BucketQueueTestHelpers
+import CommonTestModels
+import CommonTestModelsTestHelpers
 import Foundation
 import QueueModels
 import QueueModelsTestHelpers
-import RunnerModels
-import RunnerTestHelpers
 import TestHelpers
 import TestHistoryTestHelpers
 import TestHistoryTracker
@@ -33,8 +34,11 @@ final class TestingResultAcceptorTests: XCTestCase {
     )
     
     func test___reports_both_original_and_additional_lost_results___and_reenqueues_lost_tests() {
-        let runAppleTestsPayload = BucketFixtures.createrunAppleTestsPayload()
-        let bucket = BucketFixtures.createBucket(bucketPayloadContainer: .runAppleTests(runAppleTestsPayload))
+        let runAppleTestsPayload = RunAppleTestsPayloadFixture().runAppleTestsPayload()
+        let bucket = BucketFixtures()
+            .with(runAppleTestsPayload: runAppleTestsPayload)
+            .bucket()
+        
         let enqueuedBucket = EnqueuedBucket(
             bucket: bucket,
             enqueueTimestamp: Date(),

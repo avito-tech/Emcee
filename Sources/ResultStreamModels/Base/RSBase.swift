@@ -1,5 +1,4 @@
 import Foundation
-import RunnerModels
 
 public protocol RSTypedValue {
     static var typeName: String { get }

@@ -1,8 +1,8 @@
 import AtomicModels
+import CommonTestModels
 import DateProvider
 import Foundation
 import EmceeLogging
-import RunnerModels
 import Timer
 
 /// Tracks hangs that happen before starting any tests. or after fninishing any test, including in between test invocations.

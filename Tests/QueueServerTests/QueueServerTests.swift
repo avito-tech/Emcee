@@ -1,26 +1,19 @@
 import AutomaticTermination
+import CommonTestModelsTestHelpers
 import DateProviderTestHelpers
 import DistWorkerModels
 import DistWorkerModelsTestHelpers
-import EmceeLogging
-import Foundation
 import MetricsExtensions
-import MetricsTestHelpers
 import PortDeterminer
 import QueueClient
 import QueueCommunicationTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
 import QueueServer
-import RemotePortDeterminerTestHelpers
 import RequestSender
 import RequestSenderTestHelpers
-import RunnerTestHelpers
-import SimulatorPoolModels
-import SimulatorPoolTestHelpers
 import ScheduleStrategy
 import SocketModels
-import TestHelpers
 import Types
 import UniqueIdentifierGeneratorTestHelpers
 import WorkerAlivenessProvider
@@ -94,21 +87,20 @@ final class QueueServerTests: XCTestCase {
     
     func test__queue_returns_results_after_depletion() throws {
         let testEntry = TestEntryFixtures.testEntry(className: "class", methodName: "test")
-        let runAppleTestsPayload = BucketFixtures.createrunAppleTestsPayload(
-            testEntries: [testEntry]
-        )
-        let bucket = BucketFixtures.createBucket(
-            bucketId: fixedBucketId,
-            bucketPayloadContainer: .runAppleTests(runAppleTestsPayload)
-        )
-        let testEntryConfigurations = TestEntryConfigurationFixtures()
-            .add(testEntry: testEntry)
-            .testEntryConfigurations()
-        let testingResult = TestingResultFixtures(
-            testEntry: testEntry,
-            manuallyTestDestination: runAppleTestsPayload.testDestination
-        )
+        let runAppleTestsPayload = RunAppleTestsPayloadFixture()
+            .with(testEntries: [testEntry])
+            .runAppleTestsPayload()
+        let bucket = BucketFixtures()
+            .with(bucketId: fixedBucketId)
+            .with(runAppleTestsPayload: runAppleTestsPayload)
+            .bucket()
+        
+        let configuredTestEntry = ConfiguredTestEntryFixture()
             .with(testEntry: testEntry)
+            .build()
+        let testingResult = TestingResultFixtures()
+            .with(testEntry: testEntry)
+            .with(manuallyTestDestination: runAppleTestsPayload.testDestination)
             .testingResult()
         
         let bucketResult = BucketResult.testingResult(testingResult)
@@ -145,7 +137,7 @@ final class QueueServerTests: XCTestCase {
             useOnlyIPv4: false
         )
         try server.schedule(
-            testEntryConfigurations: testEntryConfigurations,
+            configuredTestEntries: [configuredTestEntry],
             testSplitter: IndividualBucketSplitter(),
             prioritizedJob: prioritizedJob
         )

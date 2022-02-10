@@ -1,12 +1,11 @@
 import BuildArtifacts
+import CommonTestModels
 import DeveloperDirLocator
 import EmceeLogging
 import Foundation
 import MetricsExtensions
-import ProcessController
 import Runner
 import RunnerModels
-import SimulatorPoolModels
 import PathLib
 
 public final class FakeTestRunner: TestRunner {

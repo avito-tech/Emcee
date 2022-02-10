@@ -1,4 +1,5 @@
 import BuildArtifacts
+import CommonTestModels
 import Foundation
 import EmceeLogging
 import PathLib

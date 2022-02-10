@@ -10,9 +10,9 @@ public struct FixedBucketSizeSplitter: TestSplitter {
     }
     
     public func split(
-        testEntryConfigurations: [TestEntryConfiguration],
+        configuredTestEntries: [ConfiguredTestEntry],
         bucketSplitInfo: BucketSplitInfo
-    ) -> [[TestEntryConfiguration]] {
-        return testEntryConfigurations.splitToChunks(withSize: UInt(size))
+    ) -> [[ConfiguredTestEntry]] {
+        return configuredTestEntries.splitToChunks(withSize: UInt(size))
     }
 }

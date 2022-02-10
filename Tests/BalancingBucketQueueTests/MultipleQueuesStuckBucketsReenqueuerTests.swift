@@ -1,5 +1,4 @@
 import BalancingBucketQueue
-import BucketQueue
 import BucketQueueModels
 import BucketQueueTestHelpers
 import QueueModelsTestHelpers
@@ -18,7 +17,7 @@ final class MultipleQueuesStuckBucketsReenqueuerTests: XCTestCase {
     func test() {
         let stuckBucket = StuckBucket(
             reason: .bucketLost,
-            bucket: BucketFixtures.createBucket(),
+            bucket: BucketFixtures().bucket(),
             workerId: "worker"
         )
         multipleQueuesContainer.add(runningJobQueue: createJobQueue())

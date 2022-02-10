@@ -8,7 +8,7 @@ public protocol TestScheduler {
     func scheduleTests(
         prioritizedJob: PrioritizedJob,
         scheduleStrategy: ScheduleStrategy,
-        testEntryConfigurations: [TestEntryConfiguration],
+        similarlyConfiguredTestEntries: SimilarlyConfiguredTestEntries,
         callbackQueue: DispatchQueue,
         completion: @escaping (Either<Void, Error>) -> ()
     )

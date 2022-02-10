@@ -4,7 +4,6 @@ import DeveloperDirLocatorTestHelpers
 import PathLib
 import SimulatorPoolModels
 import Tmp
-import RunnerModels
 
 public final class SimulatorPoolMock: SimulatorPool {
     public var freedSimulatorContoller: SimulatorController?

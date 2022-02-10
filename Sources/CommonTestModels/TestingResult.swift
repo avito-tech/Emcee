@@ -1,5 +1,4 @@
 import Foundation
-import RunnerModels
 import TestDestination
 
 /// Represents the result of running a single Bucket.

@@ -1,8 +1,5 @@
 @testable import ScheduleStrategy
 import QueueModels
-import QueueModelsTestHelpers
-import RunnerModels
-import RunnerTestHelpers
 import TestHelpers
 import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
@@ -110,10 +107,10 @@ final class ProgressiveSplitterTests: XCTestCase {
     }
     
     func test___result_does_not_repeat_entries() {
-        let inputs = createTestEntryConfigurations(count: 999)
+        let inputs = createConfiguredTestEntries(count: 999)
         
         let splitResult = progressiveSplitter.split(
-            testEntryConfigurations: createTestEntryConfigurations(count: 999),
+            configuredTestEntries: createConfiguredTestEntries(count: 999),
             bucketSplitInfo: BucketSplitInfo(
                 numberOfWorkers: 99,
                 numberOfParallelBuckets: 99 * 4
@@ -133,7 +130,7 @@ final class ProgressiveSplitterTests: XCTestCase {
         eachWorkerProcessesBuckets: UInt
     ) -> [Int] {
         progressiveSplitter.split(
-            testEntryConfigurations: createTestEntryConfigurations(count: testCount),
+            configuredTestEntries: createConfiguredTestEntries(count: testCount),
             bucketSplitInfo: BucketSplitInfo(
                 numberOfWorkers: workerCount,
                 numberOfParallelBuckets: workerCount * eachWorkerProcessesBuckets

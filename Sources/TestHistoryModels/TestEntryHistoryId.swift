@@ -1,7 +1,6 @@
-import BuildArtifacts
+import CommonTestModels
 import Foundation
 import QueueModels
-import RunnerModels
 
 public struct TestEntryHistoryId: Hashable {
     public let bucketId: BucketId

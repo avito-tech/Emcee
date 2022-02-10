@@ -1,3 +1,4 @@
+import CommonTestModels
 import DeveloperDirLocator
 import DeveloperDirLocatorTestHelpers
 import FileSystemTestHelpers

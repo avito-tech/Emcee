@@ -1,5 +1,4 @@
-import Foundation
-import RunnerModels
+import CommonTestModels
 
 public protocol WithTestExecutionBehavior {
     var testExecutionBehavior: TestExecutionBehavior { get }

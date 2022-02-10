@@ -1,5 +1,4 @@
 import BuildArtifacts
-import RunnerModels
 import SimulatorPoolModels
 
 public struct RuntimeDumpApplicationTestSupport: Hashable {

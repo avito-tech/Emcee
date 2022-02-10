@@ -5,7 +5,6 @@ import Dispatch
 import Foundation
 import EmceeLogging
 import QueueModels
-import RunnerModels
 import TestHistoryTracker
 import Types
 import UniqueIdentifierGenerator

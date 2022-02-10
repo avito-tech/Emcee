@@ -1,12 +1,15 @@
+import AppleTestModels
+import AppleTestModelsTestHelpers
 import BuildArtifacts
 import BuildArtifactsTestHelpers
+import CommonTestModels
+import CommonTestModelsTestHelpers
 import EmceeLib
 import EmceeLogging
 import Foundation
 import MetricsExtensions
+import QueueModels
 import QueueModelsTestHelpers
-import RunnerModels
-import RunnerTestHelpers
 import ScheduleStrategy
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
@@ -16,10 +19,10 @@ import TestDiscovery
 import TestHelpers
 import XCTest
 
-final class TestEntryConfigurationGeneratorTests: XCTestCase {
+final class ConfiguredTestEntryGeneratorTests: XCTestCase {
     lazy var argFileTestToRun1 = TestName(className: "classFromArgs", methodName: "test1")
     lazy var argFileTestToRun2 = TestName(className: "classFromArgs", methodName: "test2")
-    lazy var buildArtifacts = BuildArtifactsFixtures.fakeEmptyBuildArtifacts()
+    lazy var buildArtifacts = AppleBuildArtifactsFixture().appleBuildArtifacts()
     lazy var simDeviceType = SimDeviceTypeFixture.fixture()
     lazy var simRuntime = SimRuntimeFixture.fixture()
     lazy var argFileDestination = TestDestination.appleSimulator(
@@ -47,7 +50,7 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
     }()
     
     func test() throws {
-        let generator = TestEntryConfigurationGenerator(
+        let generator = SimilarlyConfiguredTestEntryGenerator(
             analyticsConfiguration: analyticsConfiguration,
             validatedEntries: validatedEntries,
             testArgFileEntry: TestArgFileEntry(
@@ -72,27 +75,33 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
             logger: .noOp
         )
         
-        let configurations = try generator.createTestEntryConfigurations()
-        
-        let expectedConfigurations = TestEntryConfigurationFixtures()
-            .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1"))
-            .with(buildArtifacts: buildArtifacts)
-            .with(simulatorSettings: simulatorSettings)
-            .with(simDeviceType: simDeviceType)
-            .with(simRuntime: simRuntime)
-            .with(testTimeoutConfiguration: testTimeoutConfiguration)
-            .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], userInsertedLibraries: [], numberOfRetries: 10, testRetryMode: .retryOnWorker, logCapturingMode: .noLogs, runnerWasteCleanupPolicy: .clean))
-            .testEntryConfigurations()
+        let expected = SimilarlyConfiguredTestEntries(
+            testEntries: [
+                TestEntryFixtures.testEntry(testName: argFileTestToRun1),
+            ],
+            testEntryConfiguration: TestEntryConfigurationFixtures()
+                .with(
+                    appleTestConfiguration: AppleTestConfigurationFixture()
+                        .with(buildArtifacts: buildArtifacts)
+                        .with(simulatorSettings: simulatorSettings)
+                        .with(simDeviceType: simDeviceType)
+                        .with(simRuntime: simRuntime)
+                        .with(testTimeoutConfiguration: testTimeoutConfiguration)
+                        .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], userInsertedLibraries: [], numberOfRetries: 10, testRetryMode: .retryOnWorker, logCapturingMode: .noLogs, runnerWasteCleanupPolicy: .clean))
+                        .appleTestConfiguration()
+                )
+                .testEntryConfiguration()
+        )
         
         assert {
-            Set(configurations)
+            try generator.createSimilarlyConfiguredTestEntries()
         } equals: {
-            Set(expectedConfigurations)
+            expected
         }
     }
     
     func test_repeated_items() {
-        let generator = TestEntryConfigurationGenerator(
+        let generator = SimilarlyConfiguredTestEntryGenerator(
             analyticsConfiguration: analyticsConfiguration,
             validatedEntries: validatedEntries,
             testArgFileEntry: TestArgFileEntry(
@@ -117,26 +126,34 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
             logger: .noOp
         )
         
-        let expectedTestEntryConfigurations =
-            TestEntryConfigurationFixtures()
-                .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1"))
-                .with(buildArtifacts: buildArtifacts)
-                .with(simulatorSettings: simulatorSettings)
-                .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], userInsertedLibraries: [], numberOfRetries: 10, testRetryMode: .retryOnWorker, logCapturingMode: .noLogs, runnerWasteCleanupPolicy: .clean))
-                .with(simDeviceType: simDeviceType)
-                .with(simRuntime: simRuntime)
-                .with(testTimeoutConfiguration: testTimeoutConfiguration)
-                .testEntryConfigurations()
-        
+        let expected = SimilarlyConfiguredTestEntries(
+            testEntries: [
+                TestEntryFixtures.testEntry(testName: argFileTestToRun1),
+                TestEntryFixtures.testEntry(testName: argFileTestToRun1),
+            ],
+            testEntryConfiguration: TestEntryConfigurationFixtures()
+                .with(
+                    appleTestConfiguration: AppleTestConfigurationFixture()
+                        .with(buildArtifacts: buildArtifacts)
+                        .with(simulatorSettings: simulatorSettings)
+                        .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], userInsertedLibraries: [], numberOfRetries: 10, testRetryMode: .retryOnWorker, logCapturingMode: .noLogs, runnerWasteCleanupPolicy: .clean))
+                        .with(simDeviceType: simDeviceType)
+                        .with(simRuntime: simRuntime)
+                        .with(testTimeoutConfiguration: testTimeoutConfiguration)
+                        .appleTestConfiguration()
+                )
+                .testEntryConfiguration()
+        )
+
         assert {
-            try generator.createTestEntryConfigurations()
+            try generator.createSimilarlyConfiguredTestEntries()
         } equals: {
-            expectedTestEntryConfigurations + expectedTestEntryConfigurations
+            expected
         }
     }
     
     func test__all_available_tests() {
-        let generator = TestEntryConfigurationGenerator(
+        let generator = SimilarlyConfiguredTestEntryGenerator(
             analyticsConfiguration: analyticsConfiguration,
             validatedEntries: validatedEntries,
             testArgFileEntry: TestArgFileEntry(
@@ -161,29 +178,28 @@ final class TestEntryConfigurationGeneratorTests: XCTestCase {
             logger: .noOp
         )
         
-        let expectedConfigurations = [
-            TestEntryConfigurationFixtures()
-                .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test1"))
-                .with(buildArtifacts: buildArtifacts)
-                .with(simDeviceType: simDeviceType)
-                .with(simRuntime: simRuntime)
-                .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], userInsertedLibraries: [], numberOfRetries: 10, testRetryMode: .retryOnWorker, logCapturingMode: .noLogs, runnerWasteCleanupPolicy: .clean))
-                .with(testTimeoutConfiguration: testTimeoutConfiguration)
-                .testEntryConfigurations(),
-            TestEntryConfigurationFixtures()
-                .add(testEntry: TestEntryFixtures.testEntry(className: "classFromArgs", methodName: "test2"))
-                .with(buildArtifacts: buildArtifacts)
-                .with(simDeviceType: simDeviceType)
-                .with(simRuntime: simRuntime)
-                .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], userInsertedLibraries: [], numberOfRetries: 10, testRetryMode: .retryOnWorker, logCapturingMode: .noLogs, runnerWasteCleanupPolicy: .clean))
-                .with(testTimeoutConfiguration: testTimeoutConfiguration)
-                .testEntryConfigurations()
-            ].flatMap { $0 }
+        let expected = SimilarlyConfiguredTestEntries(
+            testEntries: [
+                TestEntryFixtures.testEntry(testName: argFileTestToRun1),
+                TestEntryFixtures.testEntry(testName: argFileTestToRun2),
+            ],
+            testEntryConfiguration: TestEntryConfigurationFixtures()
+                .with(
+                    appleTestConfiguration: AppleTestConfigurationFixture()
+                        .with(buildArtifacts: buildArtifacts)
+                        .with(simDeviceType: simDeviceType)
+                        .with(simRuntime: simRuntime)
+                        .with(testExecutionBehavior: TestExecutionBehavior(environment: [:], userInsertedLibraries: [], numberOfRetries: 10, testRetryMode: .retryOnWorker, logCapturingMode: .noLogs, runnerWasteCleanupPolicy: .clean))
+                        .with(testTimeoutConfiguration: testTimeoutConfiguration)
+                        .appleTestConfiguration()
+                )
+                .testEntryConfiguration()
+        )
         
         assert {
-            Set(try generator.createTestEntryConfigurations())
+            try generator.createSimilarlyConfiguredTestEntries()
         } equals: {
-            Set(expectedConfigurations)
+            expected
         }
     }
 }

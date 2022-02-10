@@ -1,6 +1,7 @@
+import CommonTestModels
+import CommonTestModelsTestHelpers
 import Foundation
 import Runner
-import RunnerModels
 import RunnerTestHelpers
 import XCTest
 

@@ -1,5 +1,5 @@
 @testable import TestDiscovery
-import RunnerModels
+import CommonTestModels
 import TestArgFile
 
 final class TestDiscoveryResultFixtures {

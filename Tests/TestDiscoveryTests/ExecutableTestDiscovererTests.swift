@@ -1,26 +1,18 @@
 @testable import TestDiscovery
-import AppleTools
 import BuildArtifacts
-import DeveloperDirLocator
+import CommonTestModels
+import CommonTestModelsTestHelpers
 import DeveloperDirLocatorTestHelpers
-import FileCache
-import Foundation
-import EmceeLogging
 import MetricsExtensions
 import PathLib
 import ProcessController
 import ProcessControllerTestHelpers
 import ResourceLocation
-import ResourceLocationResolver
 import ResourceLocationResolverTestHelpers
-import RunnerModels
-import RunnerTestHelpers
 import SimulatorPoolTestHelpers
 import TestHelpers
 import Tmp
-import URLResource
 import UniqueIdentifierGenerator
-import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
 final class ExecutableTestDiscovererTests: XCTestCase {
@@ -226,7 +218,7 @@ final class ExecutableTestDiscovererTests: XCTestCase {
         simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
         simDeviceType: SimDeviceTypeFixture.fixture(),
         simRuntime: SimRuntimeFixture.iOS("12.0"),
-        testExecutionBehavior: TestExecutionBehaviorFixtures().build(),
+        testExecutionBehavior: TestExecutionBehaviorFixtures().testExecutionBehavior(),
         testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
         testAttachmentLifetime: .deleteOnSuccess,
         testsToValidate: [],

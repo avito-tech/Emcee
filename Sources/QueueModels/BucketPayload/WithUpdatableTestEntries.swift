@@ -1,5 +1,4 @@
-import Foundation
-import RunnerModels
+import CommonTestModels
 
 public protocol WithUpdatableTestEntries: WithTestEntries {
     func with(

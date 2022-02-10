@@ -1,9 +1,9 @@
 import AtomicModels
+import CommonTestModels
 import DateProvider
 import Foundation
 import EmceeLogging
 import EmceeTypes
-import RunnerModels
 import Timer
 
 public final class TestTimeoutTrackingTestRunnerSream: TestRunnerStream {

@@ -1,28 +1,22 @@
-@testable import TestDiscovery
+import TestDiscovery
 import BuildArtifacts
+import CommonTestModels
 import DateProviderTestHelpers
 import DeveloperDirLocatorTestHelpers
 import DeveloperDirModels
 import FileSystemTestHelpers
-import Foundation
 import MetricsExtensions
-import MetricsTestHelpers
 import PluginManagerTestHelpers
-import ProcessController
 import ProcessControllerTestHelpers
 import QueueModels
 import ResourceLocation
-import ResourceLocationResolver
 import ResourceLocationResolverTestHelpers
-import Runner
-import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolTestHelpers
 import SynchronousWaiter
 import Tmp
 import TestArgFile
 import TestHelpers
-import UniqueIdentifierGenerator
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 
@@ -33,7 +27,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
     lazy var fileSystem = FakeFileSystem(rootPath: tempFolder.absolutePath)
     lazy var dumpFilename = UUID().uuidString
     lazy var remoteCache = FakeRuntimeDumpRemoteCache()
-    lazy var resourceLocationResolver: ResourceLocationResolver = FakeResourceLocationResolver.throwing()
+    lazy var resourceLocationResolver = FakeResourceLocationResolver.throwing()
     lazy var simulatorPool = FakeOnDemandSimulatorPool()
     lazy var testRunnerProvider = FakeTestRunnerProvider()
     lazy var version = Version(value: "version")

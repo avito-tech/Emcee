@@ -1,3 +1,4 @@
+import CommonTestModels
 import DateProvider
 import EmceeLogging
 import Foundation
@@ -133,24 +134,24 @@ public final class RunAppleTestsPayloadExecutor {
     ) throws -> TestingResult {
         let simulatorPool = try onDemandSimulatorPool.pool(
             key: OnDemandSimulatorPoolKey(
-                developerDir: runAppleTestsPayload.developerDir,
-                simDeviceType: runAppleTestsPayload.simDeviceType,
-                simRuntime: runAppleTestsPayload.simRuntime
+                developerDir: runAppleTestsPayload.testsConfiguration.developerDir,
+                simDeviceType: runAppleTestsPayload.testsConfiguration.simDeviceType,
+                simRuntime: runAppleTestsPayload.testsConfiguration.simRuntime
             )
         )
         
         let allocatedSimulator = try simulatorPool.allocateSimulator(
             dateProvider: dateProvider,
             logger: logger,
-            simulatorOperationTimeouts: runAppleTestsPayload.simulatorOperationTimeouts,
+            simulatorOperationTimeouts: runAppleTestsPayload.testsConfiguration.simulatorOperationTimeouts,
             version: version,
             globalMetricRecorder: globalMetricRecorder
         )
         
         return try allocatedSimulator.withAutoreleasingSimulator { simulator -> TestingResult in
             try simulatorSettingsModifier.apply(
-                developerDir: runAppleTestsPayload.developerDir,
-                simulatorSettings: runAppleTestsPayload.simulatorSettings,
+                developerDir: runAppleTestsPayload.testsConfiguration.developerDir,
+                simulatorSettings: runAppleTestsPayload.testsConfiguration.simulatorSettings,
                 toSimulator: allocatedSimulator.simulator
             )
             
@@ -165,18 +166,10 @@ public final class RunAppleTestsPayloadExecutor {
             let runnerResult = try runner.runOnce(
                 entriesToRun: testsToRun,
                 configuration: AppleRunnerConfiguration(
-                    buildArtifacts: runAppleTestsPayload.buildArtifacts,
-                    developerDir:runAppleTestsPayload.developerDir,
-                    environment: runAppleTestsPayload.testExecutionBehavior.environment,
-                    logCapturingMode: runAppleTestsPayload.testExecutionBehavior.logCapturingMode,
-                    userInsertedLibraries: runAppleTestsPayload.testExecutionBehavior.userInsertedLibraries,
+                    appleTestConfiguration: runAppleTestsPayload.testsConfiguration,
                     lostTestProcessingMode: .reportError,
                     persistentMetricsJobId: analyticsConfiguration.persistentMetricsJobId,
-                    pluginLocations: runAppleTestsPayload.pluginLocations,
-                    simulator: allocatedSimulator.simulator,
-                    simulatorSettings: runAppleTestsPayload.simulatorSettings,
-                    testTimeoutConfiguration: runAppleTestsPayload.testTimeoutConfiguration,
-                    testAttachmentLifetime: runAppleTestsPayload.testAttachmentLifetime
+                    simulator: allocatedSimulator.simulator
                 )
             )
             

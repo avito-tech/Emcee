@@ -1,7 +1,7 @@
 import ArgLib
 import AutomaticTermination
 import BuildArtifacts
-import Deployer
+import CommonTestModels
 import EmceeDI
 import EmceeVersion
 import Foundation
@@ -9,16 +9,12 @@ import MetricsExtensions
 import PathLib
 import QueueModels
 import QueueServerConfiguration
-import RunnerModels
-import ScheduleStrategy
-import SimulatorPoolModels
+import RESTServer
+import ResourceLocationResolver
 import TestArgFile
 import TestDestination
 import Tmp
 import UniqueIdentifierGenerator
-import LocalQueueServerRunner
-import RESTServer
-import ResourceLocationResolver
 
 public final class RunTestsCommand: Command {
     public let name = "runTests"

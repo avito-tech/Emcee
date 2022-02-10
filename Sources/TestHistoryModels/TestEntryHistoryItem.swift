@@ -1,5 +1,5 @@
+import CommonTestModels
 import QueueModels
-import RunnerModels
 
 public final class TestEntryHistoryItem: Equatable {
     public let result: TestEntryResult
@@ -7,8 +7,8 @@ public final class TestEntryHistoryItem: Equatable {
     
     public init(
         result: TestEntryResult,
-        workerId: WorkerId)
-    {
+        workerId: WorkerId
+    ) {
         self.result = result
         self.workerId = workerId
     }

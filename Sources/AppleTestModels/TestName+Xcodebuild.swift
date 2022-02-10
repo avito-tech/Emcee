@@ -1,5 +1,5 @@
+import CommonTestModels
 import Foundation
-import RunnerModels
 
 public extension TestName {
     /// Converts objc test name in form of `-[ModuleName.TestClassName testMethod]`  into `TestName`

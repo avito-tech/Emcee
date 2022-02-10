@@ -62,14 +62,14 @@ public final class JobPreparer {
         let logger = try di.get(ContextualLogger.self)
 
         _ = try testEntriesValidator.validatedTestEntries(logger: logger) { testArgFileEntry, validatedTestEntry in
-            let testEntryConfigurationGenerator = TestEntryConfigurationGenerator(
+            let similarlyConfiguredTestEntryGenerator = SimilarlyConfiguredTestEntryGenerator(
                 analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration,
                 validatedEntries: validatedTestEntry,
                 testArgFileEntry: testArgFileEntry,
                 logger: logger
             )
-            let testEntryConfigurations = try testEntryConfigurationGenerator.createTestEntryConfigurations()
-            logger.info("Will schedule \(testEntryConfigurations.count) tests to queue server at \(queueServerAddress)")
+            let similarlyConfiguredTestEntries = try similarlyConfiguredTestEntryGenerator.createSimilarlyConfiguredTestEntries()
+            logger.info("Will schedule \(similarlyConfiguredTestEntries.testEntries.count) tests to queue server at \(queueServerAddress)")
             
             let testScheduler = TestSchedulerImpl(
                 logger: logger,
@@ -80,7 +80,7 @@ public final class JobPreparer {
             testScheduler.scheduleTests(
                 prioritizedJob: testArgFile.prioritizedJob,
                 scheduleStrategy: testArgFileEntry.scheduleStrategy,
-                testEntryConfigurations: testEntryConfigurations,
+                similarlyConfiguredTestEntries: similarlyConfiguredTestEntries,
                 callbackQueue: callbackQueue,
                 completion: callbackWaiter.set
             )

@@ -1,6 +1,5 @@
+import CommonTestModels
 import Foundation
-import RunnerModels
-import SimulatorPoolModels
 
 public protocol RunnerResultsPreparer {
     func prepareResults(

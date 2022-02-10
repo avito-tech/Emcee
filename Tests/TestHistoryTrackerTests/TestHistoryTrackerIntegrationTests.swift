@@ -1,10 +1,7 @@
-import BucketQueue
-import BucketQueueModels
-import BucketQueueTestHelpers
+import CommonTestModelsTestHelpers
 import Foundation
 import QueueModels
 import QueueModelsTestHelpers
-import RunnerTestHelpers
 import SimulatorPoolTestHelpers
 import TestHelpers
 import TestHistoryStorage
@@ -127,9 +124,9 @@ final class TestHistoryTrackerIntegrationTests: XCTestCase {
             workerId: failingWorkerId
         )
         
-        let secondBucket = BucketFixtures.createBucket(
-            bucketId: BucketId(value: "secondIdentifier")
-        )
+        let secondBucket = BucketFixtures()
+            .with(bucketId: "secondIdentfier")
+            .bucket()
         
         // When
         let acceptResult = try testHistoryTracker.accept(

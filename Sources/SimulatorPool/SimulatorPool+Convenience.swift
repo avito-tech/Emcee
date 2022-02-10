@@ -5,7 +5,6 @@ import EmceeLogging
 import Metrics
 import MetricsExtensions
 import QueueModels
-import RunnerModels
 import SimulatorPoolModels
 
 public final class AllocatedSimulator {

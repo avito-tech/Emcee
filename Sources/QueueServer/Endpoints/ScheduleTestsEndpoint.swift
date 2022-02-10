@@ -1,4 +1,5 @@
 import BalancingBucketQueue
+import CommonTestModels
 import Dispatch
 import Foundation
 import EmceeLogging
@@ -40,7 +41,7 @@ public final class ScheduleTestsEndpoint: RESTEndpoint {
         try waitForAnySuitableWorker(payload: payload)
         
         try testsEnqueuer.enqueue(
-            testEntryConfigurations: payload.testEntryConfigurations,
+            configuredTestEntries: payload.similarlyConfiguredTestEntries.configuredTestEntries,
             testSplitter: payload.scheduleStrategy.testSplitter,
             prioritizedJob: payload.prioritizedJob
         )
@@ -48,35 +49,34 @@ public final class ScheduleTestsEndpoint: RESTEndpoint {
     }
     
     private func waitForAnySuitableWorker(payload: ScheduleTestsPayload) throws {
-        guard !payload.testEntryConfigurations.isEmpty else { return }
+        guard !payload.similarlyConfiguredTestEntries.testEntries.isEmpty else { return }
         
-        let testEntryConfigurationsWithUnmetRequirements = {
-            payload.testEntryConfigurations.filter { testEntryConfiguration -> Bool in
-                let workersThatMeetRequirements = self.workerAlivenessProvider.workerAliveness.filter { (item: (workerId: WorkerId, aliveness: WorkerAliveness)) -> Bool in
+        let configurationHasAllRequirementsMet: () -> Bool = {
+            self.workerAlivenessProvider.workerAliveness.contains(
+                where: { (item: (workerId: WorkerId, aliveness: WorkerAliveness)) -> Bool in
                     guard item.aliveness.isInWorkingCondition else { return false }
                     return self.workerCapabilityConstraintResolver.requirementsSatisfied(
-                        requirements: testEntryConfiguration.workerCapabilityRequirements,
+                        requirements: payload.similarlyConfiguredTestEntries.testEntryConfiguration.workerCapabilityRequirements,
                         workerCapabilities: self.workerCapabilitiesStorage.workerCapabilities(
                             forWorkerId: item.workerId
                         )
                     )
                 }
-                return workersThatMeetRequirements.isEmpty
-            }
+            )
         }
         
         try SynchronousWaiter().mapErrorIfTimeout(
             work: { waiter in
                 try waiter.waitWhile(
                     timeout: waitForCapableWorkerTimeout,
-                    description: "All test entry configuration requirements can be satisfied"
+                    description: "Test entry configuration requirements can be satisfied"
                 ) {
-                    !testEntryConfigurationsWithUnmetRequirements().isEmpty
+                    configurationHasAllRequirementsMet() == false
                 }
             },
             timeoutToErrorTransformation: { timeout -> Error in
                 NoSuitableWorkerAppearedError(
-                    testEntryConfigurationsWithUnmetRequirements: testEntryConfigurationsWithUnmetRequirements(),
+                    testEntryConfiguration: payload.similarlyConfiguredTestEntries.testEntryConfiguration,
                     timeout: timeout.value
                 )
             }
@@ -85,11 +85,10 @@ public final class ScheduleTestsEndpoint: RESTEndpoint {
 }
 
 private struct NoSuitableWorkerAppearedError: Error, CustomStringConvertible {
-    let testEntryConfigurationsWithUnmetRequirements: [TestEntryConfiguration]
+    let testEntryConfiguration: TestEntryConfiguration
     let timeout: TimeInterval
     
     var description: String {
-        "Some worker requirements cannot be met after waiting for \(timeout.loggableInSeconds()) for any worker with suitable capabilities to appear: " +
-            testEntryConfigurationsWithUnmetRequirements.map { "\($0)" }.joined(separator: ", ")
+        "Some worker requirements cannot be met after waiting for \(timeout.loggableInSeconds()) for any worker with suitable capabilities to appear: \(testEntryConfiguration)"
     }
 }

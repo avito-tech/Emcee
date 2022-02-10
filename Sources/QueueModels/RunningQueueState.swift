@@ -1,5 +1,5 @@
+import CommonTestModels
 import Foundation
-import RunnerModels
 import Types
 
 public struct RunningQueueState: Equatable, CustomStringConvertible, Codable {

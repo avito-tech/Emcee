@@ -1,8 +1,8 @@
 import BucketQueueModels
+import CommonTestModels
 import EmceeLogging
 import Foundation
 import QueueModels
-import RunnerModels
 import TestHistoryTracker
 import UniqueIdentifierGenerator
 

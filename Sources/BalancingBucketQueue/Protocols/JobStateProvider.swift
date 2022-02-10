@@ -1,4 +1,3 @@
-import BucketQueue
 import QueueModels
 
 public protocol JobStateProvider {

@@ -1,10 +1,10 @@
 import BucketQueue
 import BucketQueueModels
 import BucketQueueTestHelpers
+import CommonTestModelsTestHelpers
 import Foundation
 import QueueModels
 import QueueModelsTestHelpers
-import RunnerModels
 import TestHelpers
 import TestHistoryTestHelpers
 import TestHistoryTracker
@@ -23,15 +23,19 @@ final class SingleBucketResultAcceptorTests: XCTestCase {
         assertThrows {
             _ = try accepter.accept(
                 bucketId: "bucketId",
-                bucketResult: .testingResult(TestingResultFixtures().testingResult()),
+                bucketResult: .testingResult(
+                    TestingResultFixtures().testingResult()
+                ),
                 workerId: "worker"
             )
         }
     }
     
     func test___accepting_result_with_known_bucket_id_and_matching_worker_id() {
-        let runAppleTestsPayload = BucketFixtures.createrunAppleTestsPayload()
-        let bucket = BucketFixtures.createBucket(bucketPayloadContainer: .runAppleTests(runAppleTestsPayload))
+        let runAppleTestsPayload = RunAppleTestsPayloadFixture().runAppleTestsPayload()
+        let bucket = BucketFixtures()
+            .with(runAppleTestsPayload: runAppleTestsPayload)
+            .bucket()
         let enqueuedBucket = EnqueuedBucket(
             bucket: bucket,
             enqueueTimestamp: Date(),

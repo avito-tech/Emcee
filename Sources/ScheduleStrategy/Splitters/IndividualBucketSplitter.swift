@@ -6,9 +6,9 @@ public struct IndividualBucketSplitter: TestSplitter {
     public init() {}
     
     public func split(
-        testEntryConfigurations: [TestEntryConfiguration],
+        configuredTestEntries: [ConfiguredTestEntry],
         bucketSplitInfo: BucketSplitInfo
-    ) -> [[TestEntryConfiguration]] {
-        return testEntryConfigurations.map { [$0] }
+    ) -> [[ConfiguredTestEntry]] {
+        return configuredTestEntries.map { [$0] }
     }
 }

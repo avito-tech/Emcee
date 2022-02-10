@@ -10,15 +10,15 @@ public class BucketGeneratorImpl: BucketGenerator {
     }
     
     public func generateBuckets(
-        testEntryConfigurations: [TestEntryConfiguration],
+        configuredTestEntries: [ConfiguredTestEntry],
         splitInfo: BucketSplitInfo,
         testSplitter: TestSplitter
     ) -> [Bucket] {
-        let groups = GroupedTestEntryConfigurations(testEntryConfigurations: testEntryConfigurations).grouped()
+        let groups = GroupedConfiguredTestEntry(configuredTestEntries: configuredTestEntries).grouped()
         
-        return groups.flatMap { (groupOfTestEntryConfigurations: [TestEntryConfiguration]) -> [Bucket] in
+        return groups.flatMap { (groupConfiguredTestEntries: [ConfiguredTestEntry]) -> [Bucket] in
             let chunks = testSplitter.split(
-                testEntryConfigurations: groupOfTestEntryConfigurations,
+                configuredTestEntries: groupConfiguredTestEntries,
                 bucketSplitInfo: splitInfo
             )
             return chunks.flatMap {
@@ -27,30 +27,37 @@ public class BucketGeneratorImpl: BucketGenerator {
         }
     }
     
-    private func map(chunk: [TestEntryConfiguration], bucketSplitInfo: BucketSplitInfo) -> [Bucket] {
-        let groups = GroupedTestEntryConfigurations(testEntryConfigurations: chunk).grouped()
+    private func map(chunk: [ConfiguredTestEntry], bucketSplitInfo: BucketSplitInfo) -> [Bucket] {
+        let groups = GroupedConfiguredTestEntry(configuredTestEntries: chunk).grouped()
         
-        return groups.compactMap { (group: [TestEntryConfiguration]) -> Bucket? in
+        return groups.compactMap { (group: [ConfiguredTestEntry]) -> Bucket? in
             guard let entry = group.first else { return nil }
-            return Bucket.newBucket(
-                bucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
-                analyticsConfiguration: entry.analyticsConfiguration,
-                workerCapabilityRequirements: entry.workerCapabilityRequirements,
-                payloadContainer: .runAppleTests(
+            
+            let testEntries = group.map { $0.testEntry }
+            
+            let payloadContainer: BucketPayloadContainer
+            switch entry.testEntryConfiguration.testConfigurationContainer {
+            case .appleTest(let appleTestConfiguration):
+                payloadContainer = .runAppleTests(
                     RunAppleTestsPayload(
-                        buildArtifacts: entry.buildArtifacts,
-                        developerDir: entry.developerDir,
-                        pluginLocations: entry.pluginLocations,
-                        simulatorOperationTimeouts: entry.simulatorOperationTimeouts,
-                        simulatorSettings: entry.simulatorSettings,
-                        simDeviceType: entry.simDeviceType,
-                        simRuntime: entry.simRuntime,
-                        testEntries: group.map { $0.testEntry },
-                        testExecutionBehavior: entry.testExecutionBehavior,
-                        testTimeoutConfiguration: entry.testTimeoutConfiguration,
-                        testAttachmentLifetime: entry.testAttachmentLifetime
+                        testEntries: testEntries,
+                        testsConfiguration: appleTestConfiguration
                     )
                 )
+            case .androidTest(let androidTestConfiguration):
+                payloadContainer = .runAndroidTests(
+                    RunAndroidTestsPayload(
+                        testEntries: testEntries,
+                        testConfiguration: androidTestConfiguration
+                    )
+                )
+            }
+            
+            return Bucket.newBucket(
+                bucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
+                analyticsConfiguration: entry.testEntryConfiguration.analyticsConfiguration,
+                workerCapabilityRequirements: entry.testEntryConfiguration.workerCapabilityRequirements,
+                payloadContainer: payloadContainer
             )
         }
     }

@@ -7,7 +7,6 @@ import MetricsExtensions
 import MetricsTestHelpers
 import ProcessControllerTestHelpers
 import QueueModels
-import RunnerTestHelpers
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import TestHelpers

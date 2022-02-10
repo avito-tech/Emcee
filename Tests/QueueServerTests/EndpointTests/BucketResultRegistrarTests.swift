@@ -2,13 +2,13 @@ import BalancingBucketQueue
 import BucketQueue
 import BucketQueueModels
 import BucketQueueTestHelpers
+import CommonTestModelsTestHelpers
 import Foundation
 import QueueCommunicationTestHelpers
 import QueueModels
 import QueueModelsTestHelpers
 import QueueServer
 import RESTMethods
-import RunnerTestHelpers
 import TestHelpers
 import Types
 import XCTest
@@ -28,26 +28,30 @@ final class BucketResultRegistrarTests: XCTestCase {
         expectedPayloadSignature: expectedPayloadSignature
     )
     lazy var acceptedResults = [BucketResult]()
+    lazy var bucketId = BucketId("bucket id")
+    lazy var workerId = WorkerId("worker")
 
     func test__results_collector_receives_results__if_bucket_queue_accepts_results() {
-        buckerResultAcceptor.result = { (_: BucketId, bucketResult: BucketResult, workerId: WorkerId) in
+        buckerResultAcceptor.result = { (_: BucketId, bucketResult: BucketResult, providedWorkerId: WorkerId) in
             self.acceptedResults.append(bucketResult)
             return BucketQueueAcceptResult(
                 dequeuedBucket: DequeuedBucket(
                     enqueuedBucket: EnqueuedBucket(
-                        bucket: BucketFixtures.createBucket(bucketId: "bucket id"),
+                        bucket: BucketFixtures()
+                            .with(bucketId: self.bucketId)
+                            .bucket(),
                         enqueueTimestamp: Date(),
                         uniqueIdentifier: "doesnotmatter"
                     ),
-                    workerId: workerId
+                    workerId: providedWorkerId
                 ),
                 bucketResultToCollect: bucketResult
             )
         }
         
         let request = BucketResultPayload(
-            bucketId: "bucket id",
-            workerId: "worker",
+            bucketId: bucketId,
+            workerId: workerId,
             bucketResult: bucketResult,
             payloadSignature: expectedPayloadSignature
         )
@@ -64,8 +68,8 @@ final class BucketResultRegistrarTests: XCTestCase {
     
     func test___throws___if_accepted_throws() {
         let request = BucketResultPayload(
-            bucketId: "bucket id",
-            workerId: "worker",
+            bucketId: bucketId,
+            workerId: workerId,
             bucketResult: bucketResult,
             payloadSignature: expectedPayloadSignature
         )
@@ -88,8 +92,8 @@ final class BucketResultRegistrarTests: XCTestCase {
         assertThrows {
             try registrar.handle(
                 payload: BucketResultPayload(
-                    bucketId: "bucket id",
-                    workerId: "worker",
+                    bucketId: bucketId,
+                    workerId: workerId,
                     bucketResult: bucketResult,
                     payloadSignature: PayloadSignature(value: UUID().uuidString)
                 )

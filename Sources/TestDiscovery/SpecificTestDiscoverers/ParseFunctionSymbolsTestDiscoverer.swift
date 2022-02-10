@@ -9,7 +9,6 @@ import PluginManager
 import ProcessController
 import ResourceLocationResolver
 import Runner
-import RunnerModels
 import SimulatorPool
 import SimulatorPoolModels
 import SynchronousWaiter

@@ -1,8 +1,7 @@
 import Foundation
-import RunnerModels
 
 extension TestStoppedEvent {
-    func byMerging(
+    public func byMerging(
         testExceptions: [TestException],
         logs: [TestLogEntry]
     ) -> TestStoppedEvent {

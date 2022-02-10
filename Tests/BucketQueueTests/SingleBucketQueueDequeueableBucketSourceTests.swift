@@ -67,14 +67,16 @@ final class SingleBucketQueueDequeueableBucketSourceTests: XCTestCase {
     func test___returns_dequeued_bucket___when_worker_satisifies_bucket_requirements() {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         
-        let runAppleTestsPayload = BucketFixtures.createrunAppleTestsPayload()
+        let runAppleTestsPayload = RunAppleTestsPayloadFixture().runAppleTestsPayload()
         
-        let bucket = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runAppleTests(runAppleTestsPayload),
-            workerCapabilityRequirements: [
-                WorkerCapabilityRequirement(capabilityName: "name", constraint: .present)
-            ]
-        )
+        let bucket = BucketFixtures()
+            .with(runAppleTestsPayload: runAppleTestsPayload)
+            .with(
+                workerCapabilityRequirements: [
+                    WorkerCapabilityRequirement(capabilityName: "name", constraint: .present)
+                ]
+            )
+            .bucket()
         
         let enqueuedBucket = EnqueuedBucket(
             bucket: bucket,
@@ -108,14 +110,15 @@ final class SingleBucketQueueDequeueableBucketSourceTests: XCTestCase {
     func test___returns_nil___when_worker_does_not_satisfy_bucket_requirements() {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         
-        let runAppleTestsPayload = BucketFixtures.createrunAppleTestsPayload()
-        
-        let bucket = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runAppleTests(runAppleTestsPayload),
-            workerCapabilityRequirements: [
-                WorkerCapabilityRequirement(capabilityName: "name", constraint: .present)
-            ]
-        )
+        let runAppleTestsPayload = RunAppleTestsPayloadFixture().runAppleTestsPayload()
+        let bucket = BucketFixtures()
+            .with(runAppleTestsPayload: runAppleTestsPayload)
+            .with(
+                workerCapabilityRequirements: [
+                    WorkerCapabilityRequirement(capabilityName: "name", constraint: .present)
+                ]
+            )
+            .bucket()
         
         let payload = EnqueuedRunTestsPayload(
             bucketId: bucket.bucketId,

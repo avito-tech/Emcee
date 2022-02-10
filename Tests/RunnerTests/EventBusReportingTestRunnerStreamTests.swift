@@ -1,7 +1,8 @@
+import CommonTestModels
+import CommonTestModelsTestHelpers
 import EventBus
 import Foundation
 import Runner
-import RunnerModels
 import RunnerTestHelpers
 import SimulatorPoolModels
 import XCTest
@@ -117,7 +118,7 @@ final class EventBusReportingTestRunnerStreamTests: XCTestCase {
     
     lazy var eventBus = EventBus()
     lazy var expectation = XCTestExpectation(description: "event bus delivered expected event")
-    lazy var testContext = TestContextFixtures().testContext
+    lazy var testContext = AppleTestContextFixtures().testContext
     lazy var testEntry = TestEntryFixtures.testEntry()
     lazy var testEntryResult = TestEntryResult.withResult(testEntry: testEntry, testRunResult: testRunResult)
     lazy var testException = TestException(reason: "", filePathInProject: "", lineNumber: 0, relatedTestName: nil)

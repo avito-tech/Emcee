@@ -1,6 +1,6 @@
+import CommonTestModels
 import Foundation
 import Runner
-import RunnerModels
 
 public final class AccumulatingTestRunnerStream: TestRunnerStream {
     public var accumulatedData = [Any]()

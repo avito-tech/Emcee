@@ -1,4 +1,6 @@
+import AppleTestModels
 import BuildArtifacts
+import CommonTestModels
 import DateProvider
 import DeveloperDirLocator
 import FileSystem
@@ -123,21 +125,21 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         simulator: Simulator
     ) -> AppleRunnerConfiguration {
         return AppleRunnerConfiguration(
-            buildArtifacts: buildArtifacts,
-            developerDir: configuration.developerDir,
-            environment: environment(
-                configuration: configuration,
-                runtimeEntriesJSONPath: runtimeEntriesJSONPath
+            appleTestConfiguration: AppleTestConfiguration(
+                buildArtifacts: buildArtifacts,
+                developerDir: configuration.developerDir,
+                pluginLocations: [],
+                simulatorOperationTimeouts: configuration.simulatorOperationTimeouts,
+                simulatorSettings: configuration.simulatorSettings,
+                simDeviceType: configuration.simDeviceType,
+                simRuntime: configuration.simRuntime,
+                testExecutionBehavior: configuration.testExecutionBehavior,
+                testTimeoutConfiguration: configuration.testTimeoutConfiguration,
+                testAttachmentLifetime: configuration.testAttachmentLifetime
             ),
-            logCapturingMode: configuration.testExecutionBehavior.logCapturingMode,
-            userInsertedLibraries: configuration.testExecutionBehavior.userInsertedLibraries,
-            lostTestProcessingMode: .reportError,
+            lostTestProcessingMode: .reportLost,
             persistentMetricsJobId: configuration.analyticsConfiguration.persistentMetricsJobId,
-            pluginLocations: configuration.pluginLocations,
-            simulator: simulator,
-            simulatorSettings: configuration.simulatorSettings,
-            testTimeoutConfiguration: configuration.testTimeoutConfiguration,
-            testAttachmentLifetime: configuration.testAttachmentLifetime
+            simulator: simulator
         )
     }
 

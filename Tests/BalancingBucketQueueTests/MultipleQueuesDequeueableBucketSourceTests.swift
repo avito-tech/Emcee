@@ -1,5 +1,4 @@
 import BalancingBucketQueue
-import BucketQueue
 import BucketQueueModels
 import BucketQueueTestHelpers
 import QueueModels
@@ -31,7 +30,7 @@ final class MultipleQueuesDequeueableBucketSourceTests: XCTestCase {
     func test___dequeueing() {
         let expectedDequeuedBucket = DequeuedBucket(
             enqueuedBucket: EnqueuedBucket(
-                bucket: BucketFixtures.createBucket(),
+                bucket: BucketFixtures().bucket(),
                 enqueueTimestamp: Date(),
                 uniqueIdentifier: "id"
             ),

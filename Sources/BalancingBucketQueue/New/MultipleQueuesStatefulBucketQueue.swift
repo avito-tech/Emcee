@@ -1,7 +1,7 @@
 import BucketQueue
+import CommonTestModels
 import Foundation
 import QueueModels
-import RunnerModels
 import Types
 
 public final class MultipleQueuesStatefulBucketQueue: StatefulBucketQueue {

@@ -1,6 +1,6 @@
+import CommonTestModels
 import Foundation
 import ResultStreamModels
-import RunnerModels
 
 extension RSTestFailureIssueSummary {
     public func testException() -> TestException {

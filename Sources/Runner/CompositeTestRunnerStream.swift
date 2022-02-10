@@ -1,6 +1,5 @@
-import AtomicModels
+import CommonTestModels
 import Foundation
-import RunnerModels
 
 public final class CompositeTestRunnerStream: TestRunnerStream {
     private let testRunnerStreams: [TestRunnerStream]

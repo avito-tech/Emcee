@@ -1,6 +1,6 @@
 import ChromeTracing
+import CommonTestModels
 import Foundation
-import RunnerModels
 
 public final class ChromeTraceGenerator {
     private let testingResult: CombinedTestingResults

@@ -1,7 +1,7 @@
+import CommonTestModels
 import Foundation
 import ResultStreamModels
 import ResultStreamModelsTestHelpers
-import RunnerModels
 import XCTest
 
 public final class RSTestStartedTests: XCTestCase {

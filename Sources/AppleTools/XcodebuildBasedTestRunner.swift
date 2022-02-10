@@ -1,4 +1,5 @@
 import BuildArtifacts
+import CommonTestModels
 import DateProvider
 import DeveloperDirLocator
 import EmceeLogging
@@ -152,7 +153,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
     ) {
         do {
             let actionsInvocationRecord = try xcResultTool.get(path: path)
-            actionsInvocationRecord.issues.testFailureSummaries?.values.forEach{ (testFailureIssueSummary: RSTestFailureIssueSummary) in
+            actionsInvocationRecord.issues.testFailureSummaries?.values.forEach { (testFailureIssueSummary: RSTestFailureIssueSummary) in
                 testRunnerStream.caughtException(
                     testException: testFailureIssueSummary.testException()
                 )

@@ -1,10 +1,10 @@
 import BalancingBucketQueue
+import CommonTestModels
+import CommonTestModelsTestHelpers
 import Foundation
 import QueueModels
 import QueueServer
 import RESTMethods
-import RunnerModels
-import RunnerTestHelpers
 import SimulatorPoolTestHelpers
 import XCTest
 

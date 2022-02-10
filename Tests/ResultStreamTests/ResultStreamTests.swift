@@ -1,9 +1,9 @@
+import CommonTestModels
 import DateProviderTestHelpers
 import Foundation
 import TestHelpers
 import ResultStream
 import ResultStreamModels
-import RunnerModels
 import RunnerTestHelpers
 import SynchronousWaiter
 import XCTest

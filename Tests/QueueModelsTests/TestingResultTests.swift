@@ -1,7 +1,6 @@
+import CommonTestModels
+import CommonTestModelsTestHelpers
 import Foundation
-import QueueModels
-import RunnerTestHelpers
-import SimulatorPoolModels
 import SimulatorPoolTestHelpers
 import TestDestination
 import XCTest

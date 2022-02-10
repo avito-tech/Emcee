@@ -1,9 +1,9 @@
 import BuildArtifacts
 import BuildArtifactsTestHelpers
+import CommonTestModels
+import CommonTestModelsTestHelpers
 import Foundation
 import PluginSupport
-import RunnerModels
-import RunnerTestHelpers
 import ScheduleStrategy
 import SimulatorPoolModels
 import SimulatorPoolTestHelpers

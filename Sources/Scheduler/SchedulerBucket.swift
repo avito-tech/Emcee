@@ -5,7 +5,6 @@ import MetricsExtensions
 import PluginSupport
 import QueueModels
 import SimulatorPoolModels
-import RunnerModels
 
 public struct SchedulerBucket: CustomStringConvertible, Equatable {
     public let analyticsConfiguration: AnalyticsConfiguration

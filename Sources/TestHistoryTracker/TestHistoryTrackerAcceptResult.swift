@@ -1,5 +1,4 @@
-import QueueModels
-import RunnerModels
+import CommonTestModels
 
 public final class TestHistoryTrackerAcceptResult {
     /// Indicates that these tests may need to be rescheduled into the queue for retry.

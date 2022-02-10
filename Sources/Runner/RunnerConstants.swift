@@ -1,6 +1,6 @@
+import CommonTestModels
 import Foundation
 import EmceeLogging
-import RunnerModels
 
 public enum RunnerConstants: CustomStringConvertible {
     /// Folder name where runner can store its auxiliary files

@@ -1,9 +1,8 @@
-import BucketQueue
+import CommonTestModels
+import CommonTestModelsTestHelpers
 import TestHistoryModels
 import TestHistoryStorage
 import QueueModels
-import RunnerModels
-import RunnerTestHelpers
 
 public final class TestHistoryStorageMock: TestHistoryStorage {
     public init() {}

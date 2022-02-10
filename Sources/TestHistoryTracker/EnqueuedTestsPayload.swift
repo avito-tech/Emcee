@@ -1,7 +1,6 @@
+import CommonTestModels
 import Foundation
 import QueueModels
-import RunnerModels
-import SimulatorPoolModels
 import TestDestination
 
 public struct EnqueuedRunTestsPayload: Hashable {

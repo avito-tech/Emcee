@@ -1,8 +1,8 @@
+import CommonTestModels
 import DateProviderTestHelpers
 import EmceeLogging
 import Foundation
 import Runner
-import RunnerModels
 import XCTest
 
 final class TestTimeoutTrackingTestRunnerSreamTests: XCTestCase {

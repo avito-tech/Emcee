@@ -3,7 +3,6 @@ import FileSystem
 import FileSystemTestHelpers
 import Foundation
 import ResourceLocationResolverTestHelpers
-import RunnerTestHelpers
 import SimulatorPoolModels
 import Tmp
 import TestHelpers

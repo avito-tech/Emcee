@@ -3,7 +3,7 @@ import QueueModels
 
 public protocol TestSplitter {
     func split(
-        testEntryConfigurations: [TestEntryConfiguration],
+        configuredTestEntries: [ConfiguredTestEntry],
         bucketSplitInfo: BucketSplitInfo
-    ) -> [[TestEntryConfiguration]]
+    ) -> [[ConfiguredTestEntry]]
 }

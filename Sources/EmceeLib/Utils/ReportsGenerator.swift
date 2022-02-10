@@ -1,9 +1,9 @@
 import ChromeTracing
+import CommonTestModels
 import Foundation
 import JunitReporting
 import EmceeLogging
 import ResourceLocationResolver
-import RunnerModels
 import TestArgFile
 
 public final class ReportsGenerator {

@@ -8,6 +8,7 @@ import ScheduleStrategy
 import TestHelpers
 import Types
 import XCTest
+import QueueModelsTestHelpers
 
 final class TestSchedulerTests: XCTestCase {
     private lazy var scheduler = TestSchedulerImpl(
@@ -26,6 +27,11 @@ final class TestSchedulerTests: XCTestCase {
         jobId: "job",
         jobPriority: .highest
     )
+    private lazy var similarlyConfiguredTestEntries = SimilarlyConfiguredTestEntries(
+        testEntries: [],
+        testEntryConfiguration: TestEntryConfigurationFixtures()
+            .testEntryConfiguration()
+    )
     
     func test___success_scenario() {
         requestSender.result = ScheduleTestsResponse.scheduledTests
@@ -35,20 +41,21 @@ final class TestSchedulerTests: XCTestCase {
                 failTest("Unexpected request")
             }
             
-            XCTAssertEqual(
-                scheduleTestsRequest.payload,
+            assert {
+                scheduleTestsRequest.payload
+            } equals: {
                 ScheduleTestsPayload(
                     prioritizedJob: self.prioritizedJob,
                     scheduleStrategy: self.unsplitScheduleStrategy,
-                    testEntryConfigurations: []
+                    similarlyConfiguredTestEntries: self.similarlyConfiguredTestEntries
                 )
-            )
+            }
         }
         
         scheduler.scheduleTests(
             prioritizedJob: prioritizedJob,
             scheduleStrategy: unsplitScheduleStrategy,
-            testEntryConfigurations: [],
+            similarlyConfiguredTestEntries: similarlyConfiguredTestEntries,
             callbackQueue: callbackQueue,
             completion: { (response: Either<Void, Error>) in
                 assertDoesNotThrow {
@@ -67,7 +74,7 @@ final class TestSchedulerTests: XCTestCase {
         scheduler.scheduleTests(
             prioritizedJob: prioritizedJob,
             scheduleStrategy: individualScheduleStrategy,
-            testEntryConfigurations: [],
+            similarlyConfiguredTestEntries: similarlyConfiguredTestEntries,
             callbackQueue: callbackQueue,
             completion: { response in
                 XCTAssertTrue(response.isError)

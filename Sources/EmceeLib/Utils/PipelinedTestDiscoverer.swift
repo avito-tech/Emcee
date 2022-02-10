@@ -1,11 +1,11 @@
 import AtomicModels
 import BuildArtifacts
+import CommonTestModels
 import EmceeDI
 import EmceeLogging
 import Foundation
 import QueueModels
 import ResourceLocation
-import RunnerModels
 import TestArgFile
 import TestDiscovery
 import URLResource

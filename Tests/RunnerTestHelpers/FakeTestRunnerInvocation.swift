@@ -1,8 +1,7 @@
+import CommonTestModels
 import EmceeTypes
 import Foundation
-import ProcessController
 import Runner
-import RunnerModels
 
 public final class FakeTestRunnerInvocation: TestRunnerInvocation {
     private let entriesToRun: [TestEntry]

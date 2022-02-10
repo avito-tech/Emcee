@@ -16,7 +16,7 @@ public class QueueServerFixture: QueueServer {
     }
     
     public func schedule(
-        testEntryConfigurations: [TestEntryConfiguration],
+        configuredTestEntries: [ConfiguredTestEntry],
         testSplitter: TestSplitter,
         prioritizedJob: PrioritizedJob
     ) throws {

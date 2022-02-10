@@ -5,15 +5,15 @@ import ScheduleStrategy
 public struct ScheduleTestsPayload: Codable, Equatable {
     public let prioritizedJob: PrioritizedJob
     public let scheduleStrategy: ScheduleStrategy
-    public let testEntryConfigurations: [TestEntryConfiguration]
+    public let similarlyConfiguredTestEntries: SimilarlyConfiguredTestEntries
 
     public init(
         prioritizedJob: PrioritizedJob,
         scheduleStrategy: ScheduleStrategy,
-        testEntryConfigurations: [TestEntryConfiguration]
+        similarlyConfiguredTestEntries: SimilarlyConfiguredTestEntries
     ) {
         self.prioritizedJob = prioritizedJob
         self.scheduleStrategy = scheduleStrategy
-        self.testEntryConfigurations = testEntryConfigurations
+        self.similarlyConfiguredTestEntries = similarlyConfiguredTestEntries
     }
 }

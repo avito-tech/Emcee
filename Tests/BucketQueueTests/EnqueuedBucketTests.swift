@@ -1,4 +1,3 @@
-import BucketQueue
 import BucketQueueModels
 import Foundation
 import QueueModelsTestHelpers
@@ -6,7 +5,7 @@ import XCTest
 
 final class EnqueuedBucketTests: XCTestCase {
     let date = Date()
-    let bucket = BucketFixtures.createBucket()
+    let bucket = BucketFixtures().bucket()
     
     func test___enqueued_buckets_are_not_equal___when_unique_identifiers_not_equal() {
         XCTAssertNotEqual(

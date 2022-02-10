@@ -1,5 +1,5 @@
+import CommonTestModels
 import Foundation
-import RunnerModels
 
 final class TestRunnerStreamWrapper: TestRunnerStream {
     private let onOpenStream: () -> ()

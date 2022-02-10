@@ -1,3 +1,4 @@
+import CommonTestModels
 import DateProviderTestHelpers
 import Foundation
 import Metrics
@@ -6,8 +7,6 @@ import MetricsTestHelpers
 import Graphite
 import QueueModels
 import Runner
-import RunnerModels
-import RunnerTestHelpers
 import XCTest
 
 final class MetricReportingTestRunnerStreamTests: XCTestCase {

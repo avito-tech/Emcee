@@ -1,10 +1,11 @@
+import AppleTestModels
 import BuildArtifacts
+import CommonTestModels
 import DeveloperDirModels
 import EmceeLogging
 import Foundation
 import MetricsExtensions
 import PluginSupport
-import RunnerModels
 import SimulatorPoolModels
 import TestArgFile
 

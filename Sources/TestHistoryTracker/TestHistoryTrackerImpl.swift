@@ -1,6 +1,6 @@
 import BucketQueueModels
+import CommonTestModels
 import QueueModels
-import RunnerModels
 import TestHistoryModels
 import TestHistoryStorage
 import UniqueIdentifierGenerator
