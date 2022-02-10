@@ -10,7 +10,7 @@ public struct RunAndroidTestsPayload: BucketPayload, CustomStringConvertible, Bu
     public let sdkVersion: Int
     public private(set) var testEntries: [TestEntry]
     public let testExecutionBehavior: TestExecutionBehavior
-    public let testTimeoutConfiguration: TestTimeoutConfiguration
+    public let testMaximumDuration: TimeInterval
 
     public init(
         buildArtifacts: AndroidBuildArtifacts,
@@ -18,14 +18,14 @@ public struct RunAndroidTestsPayload: BucketPayload, CustomStringConvertible, Bu
         sdkVersion: Int,
         testEntries: [TestEntry],
         testExecutionBehavior: TestExecutionBehavior,
-        testTimeoutConfiguration: TestTimeoutConfiguration
+        testMaximumDuration: TimeInterval
     ) {
         self.buildArtifacts = buildArtifacts
         self.deviceType = deviceType
         self.sdkVersion = sdkVersion
         self.testEntries = testEntries
         self.testExecutionBehavior = testExecutionBehavior
-        self.testTimeoutConfiguration = testTimeoutConfiguration
+        self.testMaximumDuration = testMaximumDuration
     }
 
     public var description: String {
