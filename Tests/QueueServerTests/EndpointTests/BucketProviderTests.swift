@@ -59,8 +59,8 @@ final class BucketProviderTests: XCTestCase {
         let dequeuedBucket = DequeuedBucket(
             enqueuedBucket: EnqueuedBucket(
                 bucket: BucketFixtures.createBucket(
-                    bucketPayloadContainer: .runIosTests(
-                        BucketFixtures.createRunIosTestsPayload(
+                    bucketPayloadContainer: .runAppleTests(
+                        BucketFixtures.createrunAppleTestsPayload(
                             testEntries: [TestEntryFixtures.testEntry(className: "class", methodName: "test")]
                         )
                     )

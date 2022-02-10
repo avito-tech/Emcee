@@ -99,8 +99,8 @@ final class BucketGeneratorTests: XCTestCase {
         
         for bucket in buckets {
             switch bucket.payloadContainer {
-            case .runIosTests(let runIosTestsPayload):
-                assert { runIosTestsPayload.testEntries } equals: {
+            case .runAppleTests(let runAppleTestsPayload):
+                assert { runAppleTestsPayload.testEntries } equals: {
                     expectedBucketEntries
                 }
             case .runAndroidTests:

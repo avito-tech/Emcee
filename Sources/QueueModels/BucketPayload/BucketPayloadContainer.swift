@@ -1,13 +1,13 @@
 import Foundation
 
 public enum BucketPayloadContainer: Codable, CustomStringConvertible, Hashable {
-    case runIosTests(RunAppleTestsPayload)
+    case runAppleTests(RunAppleTestsPayload)
     case runAndroidTests(RunAndroidTestsPayload)
     
     public var payloadWithTests: BucketPayloadWithTests {
         switch self {
-        case .runIosTests(let runIosTestsPayload):
-            return runIosTestsPayload
+        case .runAppleTests(let runAppleTestsPayload):
+            return runAppleTestsPayload
         case .runAndroidTests(let runAndroidTestsPayload):
             return runAndroidTestsPayload
         }
@@ -15,15 +15,15 @@ public enum BucketPayloadContainer: Codable, CustomStringConvertible, Hashable {
 
     public var description: String {
         switch self {
-        case .runIosTests(let runIosTestsPayload):
-            return runIosTestsPayload.description
+        case .runAppleTests(let runAppleTestsPayload):
+            return runAppleTestsPayload.description
         case .runAndroidTests(let runAndroidTestsPayload):
             return runAndroidTestsPayload.description
         }
     }
 
     private enum BucketPayloadType: String, Codable {
-        case runIosTests
+        case runAppleTests
         case runAndroidTests
     }
     
@@ -36,9 +36,9 @@ public enum BucketPayloadContainer: Codable, CustomStringConvertible, Hashable {
         var container = encoder.container(keyedBy: Keys.self)
         
         switch self {
-        case .runIosTests(let runIosTestsPayload):
-            try container.encode(BucketPayloadType.runIosTests, forKey: .payloadType)
-            try container.encode(runIosTestsPayload, forKey: .payload)
+        case .runAppleTests(let runAppleTestsPayload):
+            try container.encode(BucketPayloadType.runAppleTests, forKey: .payloadType)
+            try container.encode(runAppleTestsPayload, forKey: .payload)
         case .runAndroidTests(let runAndroidTestsPayload):
             try container.encode(BucketPayloadType.runAndroidTests, forKey: .payloadType)
             try container.encode(runAndroidTestsPayload, forKey: .payload)
@@ -49,8 +49,8 @@ public enum BucketPayloadContainer: Codable, CustomStringConvertible, Hashable {
         let container = try decoder.container(keyedBy: Keys.self)
         let bucketPayloadType = try container.decode(BucketPayloadType.self, forKey: .payloadType)
         switch bucketPayloadType {
-        case .runIosTests:
-            self = .runIosTests(try container.decode(RunAppleTestsPayload.self, forKey: .payload))
+        case .runAppleTests:
+            self = .runAppleTests(try container.decode(RunAppleTestsPayload.self, forKey: .payload))
         case .runAndroidTests:
             self = .runAndroidTests(try container.decode(RunAndroidTestsPayload.self, forKey: .payload))
         }

@@ -36,7 +36,7 @@ public class BucketGeneratorImpl: BucketGenerator {
                 bucketId: BucketId(value: uniqueIdentifierGenerator.generate()),
                 analyticsConfiguration: entry.analyticsConfiguration,
                 workerCapabilityRequirements: entry.workerCapabilityRequirements,
-                payloadContainer: .runIosTests(
+                payloadContainer: .runAppleTests(
                     RunAppleTestsPayload(
                         buildArtifacts: entry.buildArtifacts,
                         developerDir: entry.developerDir,

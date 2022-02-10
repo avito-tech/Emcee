@@ -39,12 +39,12 @@ public final class SingleBucketQueueDequeueableBucketSource: DequeueableBucketSo
                 workerId: workerId,
                 queue: bucketQueueHolder.allEnqueuedBuckets.compactMap {
                     switch $0.bucket.payloadContainer {
-                    case .runIosTests(let runIosTestsPayload):
+                    case .runAppleTests(let runAppleTestsPayload):
                         return EnqueuedRunTestsPayload(
                             bucketId: $0.bucket.bucketId,
-                            testDestination: runIosTestsPayload.testDestination,
-                            testEntries: runIosTestsPayload.testEntries,
-                            numberOfRetries: runIosTestsPayload.testExecutionBehavior.numberOfRetries
+                            testDestination: runAppleTestsPayload.testDestination,
+                            testEntries: runAppleTestsPayload.testEntries,
+                            numberOfRetries: runAppleTestsPayload.testExecutionBehavior.numberOfRetries
                         )
                     case .runAndroidTests(let runAndroidTestsPayload):
                         return EnqueuedRunTestsPayload(

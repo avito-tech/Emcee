@@ -32,13 +32,13 @@ public final class SingleBucketResultAcceptor: BucketResultAcceptor {
             )
             
             switch (previouslyDequeuedBucket.enqueuedBucket.bucket.payloadContainer, bucketResult) {
-            case (.runIosTests(let runIosTestsPayload), .testingResult(let testingResult)):
+            case (.runAppleTests(let runAppleTestsPayload), .testingResult(let testingResult)):
                 return BucketQueueAcceptResult(
                     dequeuedBucket: previouslyDequeuedBucket,
                     bucketResultToCollect: .testingResult(
                         try testingResultAcceptor.acceptTestingResult(
                             dequeuedBucket: previouslyDequeuedBucket,
-                            bucketPayloadWithTests: runIosTestsPayload,
+                            bucketPayloadWithTests: runAppleTestsPayload,
                             testingResult: testingResult
                         )
                     )

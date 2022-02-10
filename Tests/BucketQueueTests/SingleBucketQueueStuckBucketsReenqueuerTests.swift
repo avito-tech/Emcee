@@ -62,11 +62,11 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
             TestEntry(testName: TestName(className: "class", methodName: "method1"), tags: [], caseId: nil),
             TestEntry(testName: TestName(className: "class", methodName: "method2"), tags: [], caseId: nil),
         ]
-        let runIosTestsPayload = BucketFixtures.createRunIosTestsPayload(
+        let runAppleTestsPayload = BucketFixtures.createrunAppleTestsPayload(
             testEntries: testEntries
         )
         let bucket = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runIosTests(runIosTestsPayload)
+            bucketPayloadContainer: .runAppleTests(runAppleTestsPayload)
         )
         workerAlivenessProvider.set(bucketIdsBeingProcessed: [], workerId: workerId)
         
@@ -91,7 +91,7 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
         assert { enqueuedBuckets.count } equals: { 1 }
             
         assert { enqueuedBuckets[0].payloadContainer } equals: {
-            .runIosTests(runIosTestsPayload)
+            .runAppleTests(runAppleTestsPayload)
         }
     }
     
@@ -102,11 +102,11 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
             TestEntry(testName: TestName(className: "class", methodName: "method1"), tags: [], caseId: nil),
             TestEntry(testName: TestName(className: "class", methodName: "method2"), tags: [], caseId: nil),
         ]
-        let runIosTestsPayload = BucketFixtures.createRunIosTestsPayload(
+        let runAppleTestsPayload = BucketFixtures.createrunAppleTestsPayload(
             testEntries: testEntries
         )
         let bucket = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runIosTests(runIosTestsPayload)
+            bucketPayloadContainer: .runAppleTests(runAppleTestsPayload)
         )
         workerAlivenessProvider.setWorkerIsSilent(workerId: workerId)
         
@@ -130,7 +130,7 @@ final class SingleBucketQueueStuckBucketsReenqueuerTests: XCTestCase {
         assert { enqueuedBuckets.count } equals: { 1 }
         
         assert { enqueuedBuckets[0].payloadContainer } equals: {
-            .runIosTests(runIosTestsPayload)
+            .runAppleTests(runAppleTestsPayload)
         }
     }
 }

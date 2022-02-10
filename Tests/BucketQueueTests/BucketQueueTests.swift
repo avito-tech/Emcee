@@ -34,11 +34,11 @@ final class BucketQueueTests: XCTestCase {
         testEntries: [TestEntry] = [TestEntryFixtures.testEntry()],
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement> = []
     ) -> Bucket {
-        let payload = BucketFixtures.createRunIosTestsPayload(
+        let payload = BucketFixtures.createrunAppleTestsPayload(
             testEntries: testEntries
         )
         return BucketFixtures.createBucket(
-            bucketPayloadContainer: .runIosTests(payload),
+            bucketPayloadContainer: .runAppleTests(payload),
             workerCapabilityRequirements: workerCapabilityRequirements
         )
     }

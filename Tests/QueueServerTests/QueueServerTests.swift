@@ -94,19 +94,19 @@ final class QueueServerTests: XCTestCase {
     
     func test__queue_returns_results_after_depletion() throws {
         let testEntry = TestEntryFixtures.testEntry(className: "class", methodName: "test")
-        let runIosTestsPayload = BucketFixtures.createRunIosTestsPayload(
+        let runAppleTestsPayload = BucketFixtures.createrunAppleTestsPayload(
             testEntries: [testEntry]
         )
         let bucket = BucketFixtures.createBucket(
             bucketId: fixedBucketId,
-            bucketPayloadContainer: .runIosTests(runIosTestsPayload)
+            bucketPayloadContainer: .runAppleTests(runAppleTestsPayload)
         )
         let testEntryConfigurations = TestEntryConfigurationFixtures()
             .add(testEntry: testEntry)
             .testEntryConfigurations()
         let testingResult = TestingResultFixtures(
             testEntry: testEntry,
-            manuallyTestDestination: runIosTestsPayload.testDestination
+            manuallyTestDestination: runAppleTestsPayload.testDestination
         )
             .with(testEntry: testEntry)
             .testingResult()

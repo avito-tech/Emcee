@@ -103,8 +103,8 @@ public final class TestingResultAcceptorImpl: TestingResultAcceptor {
             switch originalBucket.payloadContainer {
             case .runAndroidTests(let payload):
                 newPayloadContainer = .runAndroidTests(payload.with(testEntries: [testEntry]))
-            case .runIosTests(let payload):
-                newPayloadContainer = .runIosTests(payload.with(testEntries: [testEntry]))
+            case .runAppleTests(let payload):
+                newPayloadContainer = .runAppleTests(payload.with(testEntries: [testEntry]))
             }
             
             let newBucket = try originalBucket.with(

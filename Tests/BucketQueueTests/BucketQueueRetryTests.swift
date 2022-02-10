@@ -166,13 +166,13 @@ final class BucketQueueRetryTests: XCTestCase {
     }
     
     private let testEntry = TestEntryFixtures.testEntry()
-    private lazy var runIosTestsPayload = BucketFixtures.createRunIosTestsPayload(
+    private lazy var runAppleTestsPayload = BucketFixtures.createrunAppleTestsPayload(
         testEntries: [testEntry],
         numberOfRetries: 2
     )
     private lazy var bucketWithTwoRetires = BucketFixtures.createBucket(
         bucketId: BucketId(uniqueIdentifierGenerator.generate()),
-        bucketPayloadContainer: .runIosTests(runIosTestsPayload)
+        bucketPayloadContainer: .runAppleTests(runAppleTestsPayload)
     )
     
     private let testingResultFixtures: TestingResultFixtures = TestingResultFixtures()

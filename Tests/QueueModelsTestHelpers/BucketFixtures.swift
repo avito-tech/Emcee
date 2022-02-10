@@ -14,7 +14,7 @@ public final class BucketFixtures {
         bucketPayloadContainer: BucketPayloadContainer? = nil,
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement> = []
     ) -> Bucket {
-        let bucketPayloadContainer = bucketPayloadContainer ?? .runIosTests(Self.createRunIosTestsPayload())
+        let bucketPayloadContainer = bucketPayloadContainer ?? .runAppleTests(Self.createrunAppleTestsPayload())
         
         return Bucket.newBucket(
             bucketId: bucketId,
@@ -24,7 +24,7 @@ public final class BucketFixtures {
         )
     }
     
-    public static func createRunIosTestsPayload(
+    public static func createrunAppleTestsPayload(
         testEntries: [TestEntry] = [TestEntryFixtures.testEntry()],
         numberOfRetries: UInt = 0
     ) -> RunAppleTestsPayload {

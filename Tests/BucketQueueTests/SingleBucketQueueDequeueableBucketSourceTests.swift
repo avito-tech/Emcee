@@ -67,10 +67,10 @@ final class SingleBucketQueueDequeueableBucketSourceTests: XCTestCase {
     func test___returns_dequeued_bucket___when_worker_satisifies_bucket_requirements() {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         
-        let runIosTestsPayload = BucketFixtures.createRunIosTestsPayload()
+        let runAppleTestsPayload = BucketFixtures.createrunAppleTestsPayload()
         
         let bucket = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runIosTests(runIosTestsPayload),
+            bucketPayloadContainer: .runAppleTests(runAppleTestsPayload),
             workerCapabilityRequirements: [
                 WorkerCapabilityRequirement(capabilityName: "name", constraint: .present)
             ]
@@ -87,9 +87,9 @@ final class SingleBucketQueueDequeueableBucketSourceTests: XCTestCase {
         testHistoryTracker.enqueuedPayloadToDequeueProvider = { _, _, _ in
             EnqueuedRunTestsPayload(
                 bucketId: bucket.bucketId,
-                testDestination: runIosTestsPayload.testDestination,
-                testEntries: runIosTestsPayload.testEntries,
-                numberOfRetries: runIosTestsPayload.testExecutionBehavior.numberOfRetries
+                testDestination: runAppleTestsPayload.testDestination,
+                testEntries: runAppleTestsPayload.testEntries,
+                numberOfRetries: runAppleTestsPayload.testExecutionBehavior.numberOfRetries
             )
         }
         
@@ -108,10 +108,10 @@ final class SingleBucketQueueDequeueableBucketSourceTests: XCTestCase {
     func test___returns_nil___when_worker_does_not_satisfy_bucket_requirements() {
         workerAlivenessProvider.didRegisterWorker(workerId: workerId)
         
-        let runIosTestsPayload = BucketFixtures.createRunIosTestsPayload()
+        let runAppleTestsPayload = BucketFixtures.createrunAppleTestsPayload()
         
         let bucket = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runIosTests(runIosTestsPayload),
+            bucketPayloadContainer: .runAppleTests(runAppleTestsPayload),
             workerCapabilityRequirements: [
                 WorkerCapabilityRequirement(capabilityName: "name", constraint: .present)
             ]
@@ -119,9 +119,9 @@ final class SingleBucketQueueDequeueableBucketSourceTests: XCTestCase {
         
         let payload = EnqueuedRunTestsPayload(
             bucketId: bucket.bucketId,
-            testDestination: runIosTestsPayload.testDestination,
-            testEntries: runIosTestsPayload.testEntries,
-            numberOfRetries: runIosTestsPayload.testExecutionBehavior.numberOfRetries
+            testDestination: runAppleTestsPayload.testDestination,
+            testEntries: runAppleTestsPayload.testEntries,
+            numberOfRetries: runAppleTestsPayload.testExecutionBehavior.numberOfRetries
         )
 
         testHistoryTracker.enqueuedPayloadToDequeueProvider = { _, _, _ in payload }

@@ -33,8 +33,8 @@ final class TestingResultAcceptorTests: XCTestCase {
     )
     
     func test___reports_both_original_and_additional_lost_results___and_reenqueues_lost_tests() {
-        let runIosTestsPayload = BucketFixtures.createRunIosTestsPayload()
-        let bucket = BucketFixtures.createBucket(bucketPayloadContainer: .runIosTests(runIosTestsPayload))
+        let runAppleTestsPayload = BucketFixtures.createrunAppleTestsPayload()
+        let bucket = BucketFixtures.createBucket(bucketPayloadContainer: .runAppleTests(runAppleTestsPayload))
         let enqueuedBucket = EnqueuedBucket(
             bucket: bucket,
             enqueueTimestamp: Date(),
@@ -61,8 +61,8 @@ final class TestingResultAcceptorTests: XCTestCase {
             XCTAssertEqual(
                 testingResult,
                 TestingResult(
-                    testDestination: runIosTestsPayload.testDestination,
-                    unfilteredResults: runIosTestsPayload.testEntries.map { testEntry in
+                    testDestination: runAppleTestsPayload.testDestination,
+                    unfilteredResults: runAppleTestsPayload.testEntries.map { testEntry in
                         TestEntryResult.lost(testEntry: testEntry)
                     }
                 )
@@ -90,9 +90,9 @@ final class TestingResultAcceptorTests: XCTestCase {
         assertDoesNotThrow {
             _ = try testingResultAcceptor.acceptTestingResult(
                 dequeuedBucket: dequeuedBucket,
-                bucketPayloadWithTests: runIosTestsPayload,
+                bucketPayloadWithTests: runAppleTestsPayload,
                 testingResult: TestingResultFixtures(
-                    manuallyTestDestination: runIosTestsPayload.testDestination
+                    manuallyTestDestination: runAppleTestsPayload.testDestination
                 ).testingResult()
             )
         }

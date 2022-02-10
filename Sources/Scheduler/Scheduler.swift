@@ -119,12 +119,12 @@ public final class Scheduler {
                 do {
                     let bucketResult: BucketResult
                     switch bucket.bucketPayloadContainer {
-                    case .runIosTests(let runIosTestsPayload):
-                        bucketResult = try strongSelf.createRunIosTestsPayloadExecutor().execute(
+                    case .runAppleTests(let runAppleTestsPayload):
+                        bucketResult = try strongSelf.createRunAppleTestsPayloadExecutor().execute(
                             analyticsConfiguration: bucket.analyticsConfiguration,
                             bucketId: bucket.bucketId,
                             logger: logger,
-                            payload: runIosTestsPayload
+                            payload: runAppleTestsPayload
                         )
                     case .runAndroidTests(let runAndroidTestsPayload):
                         bucketResult = try strongSelf.createRunAndroidTestsPayloadExecutor().execute(
@@ -152,7 +152,7 @@ public final class Scheduler {
         }
     }
     
-    private func createRunIosTestsPayloadExecutor() throws -> RunAppleTestsPayloadExecutor {
+    private func createRunAppleTestsPayloadExecutor() throws -> RunAppleTestsPayloadExecutor {
         RunAppleTestsPayloadExecutor(
             dateProvider: try di.get(),
             globalMetricRecorder: try di.get(),
@@ -167,15 +167,15 @@ public final class Scheduler {
     
     private func runBucketOnce(
         analyticsConfiguration: AnalyticsConfiguration,
-        runIosTestsPayload: RunAppleTestsPayload,
+        runAppleTestsPayload: RunAppleTestsPayload,
         testsToRun: [TestEntry],
         logger: ContextualLogger
     ) throws -> TestingResult {
         let simulatorPool = try di.get(OnDemandSimulatorPool.self).pool(
             key: OnDemandSimulatorPoolKey(
-                developerDir: runIosTestsPayload.developerDir,
-                simDeviceType: runIosTestsPayload.simDeviceType,
-                simRuntime: runIosTestsPayload.simRuntime
+                developerDir: runAppleTestsPayload.developerDir,
+                simDeviceType: runAppleTestsPayload.simDeviceType,
+                simRuntime: runAppleTestsPayload.simRuntime
             )
         )
         
@@ -187,15 +187,15 @@ public final class Scheduler {
         let allocatedSimulator = try simulatorPool.allocateSimulator(
             dateProvider: dateProvider,
             logger: logger,
-            simulatorOperationTimeouts: runIosTestsPayload.simulatorOperationTimeouts,
+            simulatorOperationTimeouts: runAppleTestsPayload.simulatorOperationTimeouts,
             version: version,
             globalMetricRecorder: try di.get()
         )
         defer { allocatedSimulator.releaseSimulator() }
         
         try di.get(SimulatorSettingsModifier.self).apply(
-            developerDir: runIosTestsPayload.developerDir,
-            simulatorSettings: runIosTestsPayload.simulatorSettings,
+            developerDir: runAppleTestsPayload.developerDir,
+            simulatorSettings: runAppleTestsPayload.simulatorSettings,
             toSimulator: allocatedSimulator.simulator
         )
         
@@ -217,23 +217,23 @@ public final class Scheduler {
         let runnerResult = try runner.runOnce(
             entriesToRun: testsToRun,
             configuration: AppleRunnerConfiguration(
-                buildArtifacts: runIosTestsPayload.buildArtifacts,
-                developerDir:runIosTestsPayload.developerDir,
-                environment: runIosTestsPayload.testExecutionBehavior.environment,
-                logCapturingMode: runIosTestsPayload.testExecutionBehavior.logCapturingMode,
-                userInsertedLibraries: runIosTestsPayload.testExecutionBehavior.userInsertedLibraries,
+                buildArtifacts: runAppleTestsPayload.buildArtifacts,
+                developerDir:runAppleTestsPayload.developerDir,
+                environment: runAppleTestsPayload.testExecutionBehavior.environment,
+                logCapturingMode: runAppleTestsPayload.testExecutionBehavior.logCapturingMode,
+                userInsertedLibraries: runAppleTestsPayload.testExecutionBehavior.userInsertedLibraries,
                 lostTestProcessingMode: .reportError,
                 persistentMetricsJobId: analyticsConfiguration.persistentMetricsJobId,
-                pluginLocations: runIosTestsPayload.pluginLocations,
+                pluginLocations: runAppleTestsPayload.pluginLocations,
                 simulator: allocatedSimulator.simulator,
-                simulatorSettings: runIosTestsPayload.simulatorSettings,
-                testTimeoutConfiguration: runIosTestsPayload.testTimeoutConfiguration,
-                testAttachmentLifetime: runIosTestsPayload.testAttachmentLifetime
+                simulatorSettings: runAppleTestsPayload.simulatorSettings,
+                testTimeoutConfiguration: runAppleTestsPayload.testTimeoutConfiguration,
+                testAttachmentLifetime: runAppleTestsPayload.testAttachmentLifetime
             )
         )
         
         cleanup(
-            runnerWasteCleanupPolicy: runIosTestsPayload.testExecutionBehavior.runnerWasteCleanupPolicy,
+            runnerWasteCleanupPolicy: runAppleTestsPayload.testExecutionBehavior.runnerWasteCleanupPolicy,
             runnerWasteCollector: runnerResult.runnerWasteCollector,
             logger: logger
         )
@@ -243,7 +243,7 @@ public final class Scheduler {
         }
         
         return TestingResult(
-            testDestination: runIosTestsPayload.testDestination,
+            testDestination: runAppleTestsPayload.testDestination,
             unfilteredResults: runnerResult.testEntryResults
         )
     }

@@ -3,7 +3,6 @@ import QueueModels
 import RunnerModels
 import Types
 
-
 public final class SingleStatefulBucketQueue: StatefulBucketQueue {
     private let bucketQueueHolder: BucketQueueHolder
     
@@ -18,10 +17,10 @@ public final class SingleStatefulBucketQueue: StatefulBucketQueue {
         var dequeuedTests = MapWithCollection<WorkerId, TestName>()
         for dequeuedBucket in dequeuedBuckets {
             switch dequeuedBucket.enqueuedBucket.bucket.payloadContainer {
-            case .runIosTests(let runIosTestsPayload):
+            case .runAppleTests(let runAppleTestsPayload):
                 dequeuedTests.append(
                     key: dequeuedBucket.workerId,
-                    elements: runIosTestsPayload.testEntries.map { $0.testName }
+                    elements: runAppleTestsPayload.testEntries.map { $0.testName }
                 )
             case .runAndroidTests(let runAndroidTestsPayload):
                 dequeuedTests.append(
@@ -34,8 +33,8 @@ public final class SingleStatefulBucketQueue: StatefulBucketQueue {
         let enqueuedTests = enqueuedBuckets
             .flatMap { enqueuedBucket -> [TestEntry] in
                 switch enqueuedBucket.bucket.payloadContainer {
-                case .runIosTests(let runIosTestsPayload):
-                    return runIosTestsPayload.testEntries
+                case .runAppleTests(let runAppleTestsPayload):
+                    return runAppleTestsPayload.testEntries
                 case .runAndroidTests(let runAndroidTestsPayload):
                     return runAndroidTestsPayload.testEntries
                 }

@@ -174,9 +174,9 @@ final class IntegrationTests: XCTestCase {
     // Tests
     
     func test___state_has_enqueued_buckets___after_enqueueing_buckets_for_job() throws {
-        let payload = BucketFixtures.createRunIosTestsPayload()
+        let payload = BucketFixtures.createrunAppleTestsPayload()
         let bucket = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runIosTests(payload)
+            bucketPayloadContainer: .runAppleTests(payload)
         )
         
         try enqueue(bucket: bucket)
@@ -314,8 +314,8 @@ final class IntegrationTests: XCTestCase {
         )
         
         let bucket1 = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runIosTests(
-                BucketFixtures.createRunIosTestsPayload(
+            bucketPayloadContainer: .runAppleTests(
+                BucketFixtures.createrunAppleTestsPayload(
                     testEntries: [TestEntryFixtures.testEntry(className: "class1")]
                 )
             )
@@ -323,8 +323,8 @@ final class IntegrationTests: XCTestCase {
         try enqueue(bucket: bucket1, prioritizedJob: prioritizedJob)
         
         let bucket2 = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runIosTests(
-                BucketFixtures.createRunIosTestsPayload(
+            bucketPayloadContainer: .runAppleTests(
+                BucketFixtures.createrunAppleTestsPayload(
                     testEntries: [TestEntryFixtures.testEntry(className: "class2")]
                 )
             )
@@ -382,8 +382,8 @@ final class IntegrationTests: XCTestCase {
     
     func test___dequeueing_bucket_from_job_with_priority() throws {
         let bucket1 = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runIosTests(
-                BucketFixtures.createRunIosTestsPayload(
+            bucketPayloadContainer: .runAppleTests(
+                BucketFixtures.createrunAppleTestsPayload(
                     testEntries: [TestEntryFixtures.testEntry(className: "class1")]
                 )
             )
@@ -391,8 +391,8 @@ final class IntegrationTests: XCTestCase {
         try enqueue(bucket: bucket1, prioritizedJob: prioritizedJob)
         
         let bucket2 = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runIosTests(
-                BucketFixtures.createRunIosTestsPayload(
+            bucketPayloadContainer: .runAppleTests(
+                BucketFixtures.createrunAppleTestsPayload(
                     testEntries: [TestEntryFixtures.testEntry(className: "class2")]
                 )
             )
@@ -408,8 +408,8 @@ final class IntegrationTests: XCTestCase {
     
     func test___dequeueing_bucket_with_job_groups_with_priority() throws {
         let bucket1 = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runIosTests(
-                BucketFixtures.createRunIosTestsPayload(
+            bucketPayloadContainer: .runAppleTests(
+                BucketFixtures.createrunAppleTestsPayload(
                     testEntries: [TestEntryFixtures.testEntry(className: "class1")]
                 )
             )
@@ -426,8 +426,8 @@ final class IntegrationTests: XCTestCase {
         )
         
         let bucket2 = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runIosTests(
-                BucketFixtures.createRunIosTestsPayload(
+            bucketPayloadContainer: .runAppleTests(
+                BucketFixtures.createrunAppleTestsPayload(
                     testEntries: [TestEntryFixtures.testEntry(className: "class2")]
                 )
             )
@@ -452,8 +452,8 @@ final class IntegrationTests: XCTestCase {
     
     func test___reenqueueing_stuck_buckets___works_for_all_bucket_queues() throws {
         let bucket1 = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runIosTests(
-                BucketFixtures.createRunIosTestsPayload(
+            bucketPayloadContainer: .runAppleTests(
+                BucketFixtures.createrunAppleTestsPayload(
                     testEntries: [TestEntryFixtures.testEntry(className: "class1")]
                 )
             )
@@ -464,8 +464,8 @@ final class IntegrationTests: XCTestCase {
         }
         
         let bucket2 = BucketFixtures.createBucket(
-            bucketPayloadContainer: .runIosTests(
-                BucketFixtures.createRunIosTestsPayload(
+            bucketPayloadContainer: .runAppleTests(
+                BucketFixtures.createrunAppleTestsPayload(
                     testEntries: [TestEntryFixtures.testEntry(className: "class2")]
                 )
             )

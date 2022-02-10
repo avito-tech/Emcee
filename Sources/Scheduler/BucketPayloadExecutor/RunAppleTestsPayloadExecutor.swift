@@ -51,7 +51,7 @@ public final class RunAppleTestsPayloadExecutor {
         do {
             testingResult = try runRetrying(
                 analyticsConfiguration: analyticsConfiguration,
-                runIosTestsPayload: payload,
+                runAppleTestsPayload: payload,
                 logger: logger,
                 numberOfRetries: payload.testExecutionBehavior.numberOfRetriesOnWorker()
             )
@@ -90,14 +90,14 @@ public final class RunAppleTestsPayloadExecutor {
      */
     private func runRetrying(
         analyticsConfiguration: AnalyticsConfiguration,
-        runIosTestsPayload: RunAppleTestsPayload,
+        runAppleTestsPayload: RunAppleTestsPayload,
         logger: ContextualLogger,
         numberOfRetries: UInt
     ) throws -> TestingResult {
         let firstRun = try runBucketOnce(
             analyticsConfiguration: analyticsConfiguration,
-            runIosTestsPayload: runIosTestsPayload,
-            testsToRun: runIosTestsPayload.testEntries,
+            runAppleTestsPayload: runAppleTestsPayload,
+            testsToRun: runAppleTestsPayload.testEntries,
             logger: logger
         )
         
@@ -115,7 +115,7 @@ public final class RunAppleTestsPayloadExecutor {
             logger.debug("Retrying them, attempt #\(retryNumber + 1) of maximum \(numberOfRetries) attempts")
             lastRunResults = try runBucketOnce(
                 analyticsConfiguration: analyticsConfiguration,
-                runIosTestsPayload: runIosTestsPayload,
+                runAppleTestsPayload: runAppleTestsPayload,
                 testsToRun: failedTestEntriesAfterLastRun,
                 logger: logger
             )
@@ -127,30 +127,30 @@ public final class RunAppleTestsPayloadExecutor {
     
     private func runBucketOnce(
         analyticsConfiguration: AnalyticsConfiguration,
-        runIosTestsPayload: RunAppleTestsPayload,
+        runAppleTestsPayload: RunAppleTestsPayload,
         testsToRun: [TestEntry],
         logger: ContextualLogger
     ) throws -> TestingResult {
         let simulatorPool = try onDemandSimulatorPool.pool(
             key: OnDemandSimulatorPoolKey(
-                developerDir: runIosTestsPayload.developerDir,
-                simDeviceType: runIosTestsPayload.simDeviceType,
-                simRuntime: runIosTestsPayload.simRuntime
+                developerDir: runAppleTestsPayload.developerDir,
+                simDeviceType: runAppleTestsPayload.simDeviceType,
+                simRuntime: runAppleTestsPayload.simRuntime
             )
         )
         
         let allocatedSimulator = try simulatorPool.allocateSimulator(
             dateProvider: dateProvider,
             logger: logger,
-            simulatorOperationTimeouts: runIosTestsPayload.simulatorOperationTimeouts,
+            simulatorOperationTimeouts: runAppleTestsPayload.simulatorOperationTimeouts,
             version: version,
             globalMetricRecorder: globalMetricRecorder
         )
         
         return try allocatedSimulator.withAutoreleasingSimulator { simulator -> TestingResult in
             try simulatorSettingsModifier.apply(
-                developerDir: runIosTestsPayload.developerDir,
-                simulatorSettings: runIosTestsPayload.simulatorSettings,
+                developerDir: runAppleTestsPayload.developerDir,
+                simulatorSettings: runAppleTestsPayload.simulatorSettings,
                 toSimulator: allocatedSimulator.simulator
             )
             
@@ -165,18 +165,18 @@ public final class RunAppleTestsPayloadExecutor {
             let runnerResult = try runner.runOnce(
                 entriesToRun: testsToRun,
                 configuration: AppleRunnerConfiguration(
-                    buildArtifacts: runIosTestsPayload.buildArtifacts,
-                    developerDir:runIosTestsPayload.developerDir,
-                    environment: runIosTestsPayload.testExecutionBehavior.environment,
-                    logCapturingMode: runIosTestsPayload.testExecutionBehavior.logCapturingMode,
-                    userInsertedLibraries: runIosTestsPayload.testExecutionBehavior.userInsertedLibraries,
+                    buildArtifacts: runAppleTestsPayload.buildArtifacts,
+                    developerDir:runAppleTestsPayload.developerDir,
+                    environment: runAppleTestsPayload.testExecutionBehavior.environment,
+                    logCapturingMode: runAppleTestsPayload.testExecutionBehavior.logCapturingMode,
+                    userInsertedLibraries: runAppleTestsPayload.testExecutionBehavior.userInsertedLibraries,
                     lostTestProcessingMode: .reportError,
                     persistentMetricsJobId: analyticsConfiguration.persistentMetricsJobId,
-                    pluginLocations: runIosTestsPayload.pluginLocations,
+                    pluginLocations: runAppleTestsPayload.pluginLocations,
                     simulator: allocatedSimulator.simulator,
-                    simulatorSettings: runIosTestsPayload.simulatorSettings,
-                    testTimeoutConfiguration: runIosTestsPayload.testTimeoutConfiguration,
-                    testAttachmentLifetime: runIosTestsPayload.testAttachmentLifetime
+                    simulatorSettings: runAppleTestsPayload.simulatorSettings,
+                    testTimeoutConfiguration: runAppleTestsPayload.testTimeoutConfiguration,
+                    testAttachmentLifetime: runAppleTestsPayload.testAttachmentLifetime
                 )
             )
             
@@ -185,7 +185,7 @@ public final class RunAppleTestsPayloadExecutor {
             }
             
             return TestingResult(
-                testDestination: runIosTestsPayload.testDestination,
+                testDestination: runAppleTestsPayload.testDestination,
                 unfilteredResults: runnerResult.testEntryResults
             )
         }
