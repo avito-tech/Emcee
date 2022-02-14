@@ -44,15 +44,6 @@
                 "Swifter"
             ]
         },
-        "Shout": {
-            "url": "https://github.com/jakeheis/Shout.git",
-            "version": {
-                "exact": "0.5.4"
-            },
-            "targetNames": [
-                "Shout"
-            ]
-        },
         "Socket": {
             "url": "https://github.com/IBM-Swift/BlueSocket",
             "version": {

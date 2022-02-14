@@ -11,6 +11,7 @@ import UniqueIdentifierGenerator
 import Zip
 
 public final class RemoteQueueStarter {
+    private let sshClientProvider: SSHClientProvider
     private let deploymentId: String
     private let deploymentDestination: DeploymentDestination
     private let emceeVersion: Version
@@ -22,6 +23,7 @@ public final class RemoteQueueStarter {
     private let zipCompressor: ZipCompressor
 
     public init(
+        sshClientProvider: SSHClientProvider,
         deploymentId: String,
         deploymentDestination: DeploymentDestination,
         emceeVersion: Version,
@@ -32,6 +34,7 @@ public final class RemoteQueueStarter {
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         zipCompressor: ZipCompressor
     ) {
+        self.sshClientProvider = sshClientProvider
         self.deploymentId = deploymentId
         self.deploymentDestination = deploymentDestination
         self.emceeVersion = emceeVersion
@@ -117,6 +120,7 @@ public final class RemoteQueueStarter {
         )
 
         let deployer = DistDeployer(
+            sshClientProvider: sshClientProvider,
             deploymentId: deploymentId,
             deploymentDestination: deploymentDestination,
             deployableItems: deployableItems + [

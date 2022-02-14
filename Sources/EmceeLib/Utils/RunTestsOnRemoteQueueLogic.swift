@@ -193,6 +193,7 @@ final class RunTestsOnRemoteQueueLogic {
             do {
                 logger.debug("Trying to start queue on \(queueServerDeploymentDestination.host)")
                 let remoteQueueStarter = RemoteQueueStarter(
+                    sshClientProvider: try di.get(),
                     deploymentId: try di.get(UniqueIdentifierGenerator.self).generate(),
                     deploymentDestination: queueServerDeploymentDestination,
                     emceeVersion: emceeVersion,

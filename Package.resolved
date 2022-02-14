@@ -20,15 +20,6 @@
         }
       },
       {
-        "package": "CommandLineToolkit",
-        "repositoryURL": "https://github.com/avito-tech/CommandLineToolkit.git",
-        "state": {
-          "branch": null,
-          "revision": "16612e46a7e6af9678d37a851a65500c533da65e",
-          "version": "1.0.10"
-        }
-      },
-      {
         "package": "CountedSet",
         "repositoryURL": "https://github.com/0x7fs/CountedSet",
         "state": {
@@ -47,21 +38,21 @@
         }
       },
       {
+        "package": "CommandLineToolkit",
+        "repositoryURL": "https://github.com/avito-tech/CommandLineToolkit.git",
+        "state": {
+          "branch": null,
+          "revision": "16612e46a7e6af9678d37a851a65500c533da65e",
+          "version": "1.0.10"
+        }
+      },
+      {
         "package": "OrderedSet",
         "repositoryURL": "https://github.com/Weebly/OrderedSet",
         "state": {
           "branch": null,
           "revision": "07d99831674bca6bf69967b70ced6cc19ca346ec",
           "version": "5.0.0"
-        }
-      },
-      {
-        "package": "Shout",
-        "repositoryURL": "https://github.com/jakeheis/Shout.git",
-        "state": {
-          "branch": null,
-          "revision": "dbb02940a3a96c2f126079891589902a562d0e8d",
-          "version": "0.5.4"
         }
       },
       {

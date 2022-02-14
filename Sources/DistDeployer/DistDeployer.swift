@@ -10,6 +10,7 @@ import Zip
 /// Class for generic usage: it deploys the provided deployable items to the provided deployment destinations, and
 /// invokes the provided deployable commands.
 final class DistDeployer {
+    private let sshClientProvider: SSHClientProvider
     private let deploymentId: String
     private let deploymentDestination: DeploymentDestination
     private let deployableItems: [DeployableItem]
@@ -21,6 +22,7 @@ final class DistDeployer {
     private let zipCompressor: ZipCompressor
     
     public init(
+        sshClientProvider: SSHClientProvider,
         deploymentId: String,
         deploymentDestination: DeploymentDestination,
         deployableItems: [DeployableItem],
@@ -31,6 +33,7 @@ final class DistDeployer {
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         zipCompressor: ZipCompressor
     ) {
+        self.sshClientProvider = sshClientProvider
         self.deploymentId = deploymentId
         self.deploymentDestination = deploymentDestination
         self.deployableItems = deployableItems
@@ -44,7 +47,7 @@ final class DistDeployer {
     
     public func deploy() throws {
         let deployer = try SSHDeployer(
-            sshClientType: DefaultSSHClient.self,
+            sshClientProvider: sshClientProvider,
             deploymentId: deploymentId,
             deployables: deployableItems,
             deployableCommands: deployableCommands,

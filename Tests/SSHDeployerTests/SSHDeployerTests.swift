@@ -16,6 +16,7 @@ class SSHDeployerTests: XCTestCase {
     private lazy var zipCompressor = FakeZipCompressor { path, _, _ in
         path.appending(extension: "fakezip")
     }
+    private lazy var sshClientProvider = FakeSSHClientProvider()
     
     func testForInputCorrectness() throws {
         let filePropertiesContainer = FakeFilePropertiesContainer()
@@ -38,7 +39,7 @@ class SSHDeployerTests: XCTestCase {
         )
         
         let deployer = try SSHDeployer(
-            sshClientType: FakeSSHClient.self,
+            sshClientProvider: sshClientProvider,
             deploymentId: deploymentId,
             deployables: [deployableWithSingleFile],
             deployableCommands: [
@@ -56,8 +57,8 @@ class SSHDeployerTests: XCTestCase {
         )
         try deployer.deploy()
         
-        guard let client = FakeSSHClient.lastCreatedInstance else {
-            XCTFail("Expected FakeSSHClient.lastCreatedInstance to be non nil as instance should be created")
+        guard let client = sshClientProvider.providedClients.last as? FakeSSHClient else {
+            XCTFail("Expected sshClientProvider.providedClients.last to be a FakeSSHClient instance")
             return
         }
         
@@ -65,7 +66,6 @@ class SSHDeployerTests: XCTestCase {
         XCTAssertEqual(client.port, destination.port)
         XCTAssertEqual(client.username, destination.username)
         XCTAssertEqual(client.authentication, destination.authentication)
-        XCTAssertTrue(client.calledConnectAndAuthenticate)
         
         XCTAssertEqual(client.executeCommands.count, 4)
         XCTAssertEqual(

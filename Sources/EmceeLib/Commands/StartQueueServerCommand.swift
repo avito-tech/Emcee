@@ -229,6 +229,7 @@ public final class StartQueueServerCommand: Command {
                 emceeVersion: emceeVersion,
                 fileSystem: try di.get(),
                 logger: logger,
+                sshClientProvider: try di.get(),
                 tempFolder: try TemporaryFolder(),
                 uniqueIdentifierGenerator: try di.get(),
                 workerDeploymentDestinations: workerDestinations,

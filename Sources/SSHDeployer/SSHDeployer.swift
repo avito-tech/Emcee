@@ -8,12 +8,11 @@ import UniqueIdentifierGenerator
 import Zip
 
 public final class SSHDeployer: Deployer {
-    
-    private let sshClientType: SSHClient.Type
+    private let sshClientProvider: SSHClientProvider
     private let logger: ContextualLogger
     
     public init(
-        sshClientType: SSHClient.Type,
+        sshClientProvider: SSHClientProvider,
         deploymentId: String,
         deployables: [DeployableItem],
         deployableCommands: [DeployableCommand],
@@ -24,7 +23,7 @@ public final class SSHDeployer: Deployer {
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         zipCompressor: ZipCompressor
     ) throws {
-        self.sshClientType = sshClientType
+        self.sshClientProvider = sshClientProvider
         self.logger = logger
         try super.init(
             deploymentId: deploymentId,
@@ -83,13 +82,12 @@ public final class SSHDeployer: Deployer {
         pathToDeployable: [AbsolutePath: DeployableItem]
     ) throws {
         log(destination, "Connecting")
-        let sshClient = try self.sshClientType.init(
+        let sshClient = try sshClientProvider.createClient(
             host: destination.host,
             port: destination.port,
             username: destination.username,
             authentication: destination.authentication
         )
-        try sshClient.connectAndAuthenticate()
         log(destination, "Connected and authenticated")
         
         try pathToDeployable.forEach { (absolutePath: AbsolutePath, deployable: DeployableItem) in
@@ -98,8 +96,8 @@ public final class SSHDeployer: Deployer {
                 destination: destination,
                 deploymentId: deploymentId
             )
-            try sshClient.execute(["rm", "-rf", remoteDeploymentPath.pathString])
-            try sshClient.execute(["mkdir", "-p", remoteDeploymentPath.pathString])
+            try sshClient.executeAndCheckResult(["rm", "-rf", remoteDeploymentPath.pathString])
+            try sshClient.executeAndCheckResult(["mkdir", "-p", remoteDeploymentPath.pathString])
             let remotePackagePath = remoteDeploymentPath.appending("_package.zip")
             
             try uploadFile(
@@ -145,8 +143,7 @@ public final class SSHDeployer: Deployer {
         remoteDeploymentPath: AbsolutePath
     ) throws {
         log(destination, "Deploying '\(deployable.name)'")
-        try sshClient.execute(["unzip", remotePackagePath.pathString, "-d", remoteDeploymentPath.pathString])
-        log(destination, "Deployed '\(deployable.name)'")
+        try sshClient.executeAndCheckResult(["unzip", remotePackagePath.pathString, "-d", remoteDeploymentPath.pathString])
     }
     
     // MARK: - Private - Command Invocatoin
@@ -169,8 +166,7 @@ public final class SSHDeployer: Deployer {
                 }
             }
             log(destination, "Executing command: \(command)")
-            try sshClient.execute(commandArgs)
-            log(destination, "Executed command")
+            try sshClient.executeAndCheckResult(commandArgs)
         }
     }
     

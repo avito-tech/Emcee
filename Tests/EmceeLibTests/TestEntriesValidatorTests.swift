@@ -23,7 +23,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         _ = try validator.validatedTestEntries(logger: .noOp) { _, _ in }
 
         let querierConfiguration = assertNotNil {
-            testDiscoveryQuerier.configuration
+            testDiscoveryQuerier.configuration.currentValue()
         }
 
         assert { querierConfiguration.testDiscoveryMode } equals: { .parseFunctionSymbols }
@@ -55,7 +55,7 @@ final class TestEntriesValidatorTests: XCTestCase {
 
         _ = try validator.validatedTestEntries(logger: .noOp) { _, _ in }
 
-        guard let querierConfiguration = testDiscoveryQuerier.configuration else {
+        guard let querierConfiguration = testDiscoveryQuerier.configuration.currentValue() else {
             return XCTFail("configuration is unexpectedly nil")
         }
         XCTAssertEqual(querierConfiguration.testDiscoveryMode, .parseFunctionSymbols)
@@ -75,7 +75,7 @@ final class TestEntriesValidatorTests: XCTestCase {
 
         _ = try validator.validatedTestEntries(logger: .noOp) { _, _ in }
 
-        guard let querierConfiguration = testDiscoveryQuerier.configuration else {
+        guard let querierConfiguration = testDiscoveryQuerier.configuration.currentValue() else {
             return XCTFail("configuration is unexpectedly nil")
         }
 
@@ -127,7 +127,7 @@ final class TestEntriesValidatorTests: XCTestCase {
 
         _ = try validator.validatedTestEntries(logger: .noOp) { _, _ in }
 
-        XCTAssertEqual(testDiscoveryQuerier.numberOfCalls, 2)
+        XCTAssertEqual(testDiscoveryQuerier.numberOfCalls.currentValue(), 2)
     }
 
     private func createValidator(

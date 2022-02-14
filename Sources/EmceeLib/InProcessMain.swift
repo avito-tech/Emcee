@@ -20,6 +20,7 @@ import QueueModels
 import RequestSender
 import ResourceLocationResolver
 import Runner
+import SSHDeployer
 import SynchronousWaiter
 import TestDiscovery
 import URLResource
@@ -95,6 +96,13 @@ public final class InProcessMain {
         di.set(
             try DetailedActivityLoggableProcessControllerProvider(di: di),
             for: ProcessControllerProvider.self
+        )
+        
+        di.set(
+            SubprocessSSHClientProvider(
+                processControllerProvider: try di.get()
+            ),
+            for: SSHClientProvider.self
         )
         
         di.set(

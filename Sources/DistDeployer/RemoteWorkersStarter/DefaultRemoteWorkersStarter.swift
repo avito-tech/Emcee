@@ -5,11 +5,13 @@ import EmceeLogging
 import PathLib
 import QueueModels
 import SocketModels
+import SSHDeployer
 import Tmp
 import UniqueIdentifierGenerator
 import Zip
 
 public final class DefaultRemoteWorkersStarter: RemoteWorkerStarter {
+    private let sshClientProvider: SSHClientProvider
     private let deploymentDestination: DeploymentDestination
     private let emceeVersion: Version
     private let fileSystem: FileSystem
@@ -19,6 +21,7 @@ public final class DefaultRemoteWorkersStarter: RemoteWorkerStarter {
     private let zipCompressor: ZipCompressor
 
     public init(
+        sshClientProvider: SSHClientProvider,
         deploymentDestination: DeploymentDestination,
         emceeVersion: Version,
         fileSystem: FileSystem,
@@ -27,6 +30,7 @@ public final class DefaultRemoteWorkersStarter: RemoteWorkerStarter {
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         zipCompressor: ZipCompressor
     ) {
+        self.sshClientProvider = sshClientProvider
         self.deploymentDestination = deploymentDestination
         self.emceeVersion = emceeVersion
         self.fileSystem = fileSystem
@@ -76,6 +80,7 @@ public final class DefaultRemoteWorkersStarter: RemoteWorkerStarter {
         )
         
         let deployer = DistDeployer(
+            sshClientProvider: sshClientProvider,
             deploymentId: emceeVersion.value,
             deploymentDestination: deploymentDestination,
             deployableItems: deployableItems + [launchdDeployableItem],

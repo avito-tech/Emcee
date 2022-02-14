@@ -261,9 +261,3 @@ General commands that help you with a development workflow:
 - To run unit tests: `make test`
 
 `Package.swift` file is generated automatically. You must update it before submitting a pull request (run `make package`). CI checks will fail if you forget to do so.
-
-# Dependencies
-
-## libssh2
-
-`brew install libssh2`
