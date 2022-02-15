@@ -26,8 +26,7 @@ public final class Packager {
 
         try fileSystem.createDirectory(
             path: archivePath.removingLastComponent,
-            withIntermediateDirectories: true,
-            ignoreExisting: true
+            withIntermediateDirectories: true
         )
         
         if fileSystem.exists(path: archivePath) {

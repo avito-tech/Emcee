@@ -131,7 +131,8 @@ public final class XcodebuildBasedTestRunner: TestRunner {
             testRunnerStream.closeStream()
         }
         return ProcessControllerWrappingTestRunnerInvocation(
-            processController: processController
+            processController: processController,
+            logger: logger
         )
     }
     

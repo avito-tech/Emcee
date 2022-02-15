@@ -6,10 +6,11 @@ import XCTest
 
 final class ProcessControllerWrappingTestRunnerInvocationTests: XCTestCase {
     lazy var processController = FakeProcessController(
-        subprocess: Subprocess(arguments: [])
+        subprocess: Subprocess(arguments: ["test"])
     )
     lazy var testRunnerInvocation = ProcessControllerWrappingTestRunnerInvocation(
-        processController: processController
+        processController: processController,
+        logger: .noOp
     )
     
     func test___starting_test_invocation___executes_process() throws {
