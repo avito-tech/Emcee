@@ -172,11 +172,7 @@ public final class Scheduler {
         logger: ContextualLogger
     ) throws -> TestingResult {
         let simulatorPool = try di.get(OnDemandSimulatorPool.self).pool(
-            key: OnDemandSimulatorPoolKey(
-                developerDir: runAppleTestsPayload.testsConfiguration.developerDir,
-                simDeviceType: runAppleTestsPayload.testsConfiguration.simDeviceType,
-                simRuntime: runAppleTestsPayload.testsConfiguration.simRuntime
-            )
+            key: runAppleTestsPayload.testsConfiguration.onDemandSimulatorPoolKey
         )
         
         let specificMetricRecorderProvider: SpecificMetricRecorderProvider = try di.get()

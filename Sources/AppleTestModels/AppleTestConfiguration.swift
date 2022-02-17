@@ -42,6 +42,14 @@ public final class AppleTestConfiguration: Codable, Hashable {
         self.testAttachmentLifetime = testAttachmentLifetime
     }
     
+    public var onDemandSimulatorPoolKey: OnDemandSimulatorPoolKey {
+        OnDemandSimulatorPoolKey(
+            developerDir: developerDir,
+            simDeviceType: simDeviceType,
+            simRuntime: simRuntime
+        )
+    }
+    
     public var testDestination: TestDestination {
         TestDestination.appleSimulator(
             simDeviceType: simDeviceType,

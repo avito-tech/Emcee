@@ -22,15 +22,31 @@ final class TestEntriesValidatorTests: XCTestCase {
 
         _ = try validator.validatedTestEntries(logger: .noOp) { _, _ in }
 
-        guard let querierConfiguration = testDiscoveryQuerier.configuration else {
-            return XCTFail("configuration is unexpectedly nil")
+        let querierConfiguration = assertNotNil {
+            testDiscoveryQuerier.configuration
         }
 
         assert { querierConfiguration.testDiscoveryMode } equals: { .parseFunctionSymbols }
-        assert { querierConfiguration.xcTestBundleLocation } equals: { testArgFileEntry.buildArtifacts.xcTestBundle.location }
-        assert { querierConfiguration.simDeviceType } equals: { try testArgFileEntry.testDestination.simDeviceType() }
-        assert { querierConfiguration.simRuntime } equals: { try testArgFileEntry.testDestination.simRuntime() }
-        assert { querierConfiguration.testsToValidate.count } equals: { 1 }
+        assert {
+            querierConfiguration.testConfiguration.buildArtifacts.xcTestBundle.location
+        } equals: {
+            testArgFileEntry.buildArtifacts.xcTestBundle.location
+        }
+        assert {
+            querierConfiguration.testConfiguration.simDeviceType
+        } equals: {
+            try testArgFileEntry.testDestination.simDeviceType()
+        }
+        assert {
+            querierConfiguration.testConfiguration.simRuntime
+        } equals: {
+            try testArgFileEntry.testDestination.simRuntime()
+        }
+        assert {
+            querierConfiguration.testsToValidate.count
+        } equals: {
+            1
+        }
     }
 
     func test__dont_pass_app_test_data__if_no_app_tests_in_configuration() throws {

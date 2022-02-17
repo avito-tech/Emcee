@@ -1,6 +1,7 @@
 import Dispatch
 import Foundation
 import EmceeLogging
+import SimulatorPoolModels
 import Tmp
 
 public class DefaultOnDemandSimulatorPool: OnDemandSimulatorPool {

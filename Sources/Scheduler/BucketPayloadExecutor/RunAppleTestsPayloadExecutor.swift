@@ -133,11 +133,7 @@ public final class RunAppleTestsPayloadExecutor {
         logger: ContextualLogger
     ) throws -> TestingResult {
         let simulatorPool = try onDemandSimulatorPool.pool(
-            key: OnDemandSimulatorPoolKey(
-                developerDir: runAppleTestsPayload.testsConfiguration.developerDir,
-                simDeviceType: runAppleTestsPayload.testsConfiguration.simDeviceType,
-                simRuntime: runAppleTestsPayload.testsConfiguration.simRuntime
-            )
+            key: runAppleTestsPayload.testsConfiguration.onDemandSimulatorPoolKey
         )
         
         let allocatedSimulator = try simulatorPool.allocateSimulator(

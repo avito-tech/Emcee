@@ -93,13 +93,18 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             analyticsConfiguration: configuration.analyticsConfiguration
         )
         
-        if let cachedRuntimeTests = try? configuration.remoteCache.results(xcTestBundleLocation: configuration.xcTestBundleLocation) {
+        if let cachedRuntimeTests = try? configuration.remoteCache.results(
+            xcTestBundleLocation: configuration.testConfiguration.buildArtifacts.xcTestBundle.location
+        ) {
             return cachedRuntimeTests
         }
 
         let dumpedTests = try discoveredTests(configuration: configuration, specificMetricRecorder: specificMetricRecorder)
 
-        try? configuration.remoteCache.store(tests: dumpedTests, xcTestBundleLocation: configuration.xcTestBundleLocation)
+        try? configuration.remoteCache.store(
+            tests: dumpedTests,
+            xcTestBundleLocation: configuration.testConfiguration.buildArtifacts.xcTestBundle.location
+        )
         return dumpedTests
     }
 
@@ -117,8 +122,8 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
                 
                 let foundTestEntries = try runRetrying(
                     logger: configuration.logger,
-                    xcTestBundleLocation: configuration.xcTestBundleLocation,
-                    times: configuration.testExecutionBehavior.numberOfRetries
+                    xcTestBundleLocation: configuration.testConfiguration.buildArtifacts.xcTestBundle.location,
+                    times: configuration.testConfiguration.testExecutionBehavior.numberOfRetries
                 ) {
                     try internalTestDiscoverer.discoverTestEntries(
                         configuration: configuration
@@ -196,14 +201,16 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         specificMetricRecorder: SpecificMetricRecorder
     ) throws {
         let lastPathComponent: String
-        switch configuration.xcTestBundleLocation.resourceLocation {
-        case .localFilePath(_):
-            lastPathComponent = try configuration.xcTestBundleLocation.resourceLocation.stringValue().lastPathComponent
+        
+        let resourceLocation = configuration.testConfiguration.buildArtifacts.xcTestBundle.location.resourceLocation
+        switch resourceLocation {
+        case .localFilePath:
+            lastPathComponent = try resourceLocation.stringValue().lastPathComponent
         case .remoteUrl(let url, _):
             lastPathComponent = url.lastPathComponent
         }
         let testBundleName = lastPathComponent
-        configuration.logger.info("Test discovery in \(configuration.xcTestBundleLocation.resourceLocation): bundle has \(testCaseCount) XCTestCases, \(testCount) tests")
+        configuration.logger.info("Test discovery in \(resourceLocation): bundle has \(testCaseCount) XCTestCases, \(testCount) tests")
         specificMetricRecorder.capture(
             RuntimeDumpTestCountMetric(
                 testBundleName: testBundleName,
@@ -263,7 +270,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             return createRuntimeDumpBasedTestDiscoverer(
                 buildArtifacts: .iosLogicTests(
                     xcTestBundle: XcTestBundle(
-                        location: configuration.xcTestBundleLocation,
+                        location: configuration.testConfiguration.buildArtifacts.xcTestBundle.location,
                         testDiscoveryMode: .runtimeLogicTest
                     )
                 ),
@@ -273,7 +280,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             return createRuntimeDumpBasedTestDiscoverer(
                 buildArtifacts: .iosApplicationTests(
                     xcTestBundle: XcTestBundle(
-                        location: configuration.xcTestBundleLocation,
+                        location: configuration.testConfiguration.buildArtifacts.xcTestBundle.location,
                         testDiscoveryMode: .runtimeAppTest
                     ),
                     appBundle: runtimeDumpApplicationTestSupport.appBundle

@@ -54,12 +54,12 @@ public final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
         configuration: TestDiscoveryConfiguration
     ) throws -> [DiscoveredTestEntry] {
         let runtimeEntriesJSONPath = tempFolder.pathWith(components: [uniqueIdentifierGenerator.generate()])
-        configuration.logger.debug("Will discover tests in \(configuration.xcTestBundleLocation) into file: \(runtimeEntriesJSONPath)")
+        configuration.logger.debug("Will discover tests in \(configuration.testConfiguration.buildArtifacts.xcTestBundle.location.resourceLocation) into file: \(runtimeEntriesJSONPath)")
         
         let latestRuntimeRoot = try findRuntimeRoot(
-            developerDir: configuration.developerDir,
+            developerDir: configuration.testConfiguration.developerDir,
             logger: configuration.logger,
-            simRuntime: configuration.simRuntime
+            simRuntime: configuration.testConfiguration.simRuntime
         )
         
         let appBundlePath = try resourceLocationResolver.resolvable(
@@ -71,7 +71,7 @@ public final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
         }
         
         let loadableBundlePath = try resourceLocationResolver.resolvable(
-            resourceLocation: configuration.xcTestBundleLocation.resourceLocation
+            resourceLocation: configuration.testConfiguration.buildArtifacts.xcTestBundle.location.resourceLocation
         ).resolve().directlyAccessibleResourcePath()
         
         let controller = try processControllerProvider.createProcessController(
@@ -87,7 +87,7 @@ public final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
                     ).pathString,
                     "EMCEE_RUNTIME_TESTS_EXPORT_PATH": runtimeEntriesJSONPath.pathString,
                     "EMCEE_XCTEST_BUNDLE_PATH": loadableBundlePath.pathString,
-                ]).merge(with: configuration.testExecutionBehavior.environment)
+                ]).merge(with: configuration.testConfiguration.testExecutionBehavior.environment)
             )
         )
         

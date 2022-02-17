@@ -32,8 +32,8 @@ public final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
         configuration: TestDiscoveryConfiguration
     ) throws -> [DiscoveredTestEntry] {
         try discoverTestEntries(
-            developerDir: configuration.developerDir,
-            xcTestBundleLocation: configuration.xcTestBundleLocation,
+            developerDir: configuration.testConfiguration.developerDir,
+            xcTestBundleLocation: configuration.testConfiguration.buildArtifacts.xcTestBundle.location,
             logger: configuration.logger
         )
     }

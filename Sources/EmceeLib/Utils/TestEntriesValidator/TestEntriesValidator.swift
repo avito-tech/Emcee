@@ -1,3 +1,4 @@
+import AppleTestModels
 import CommonTestModels
 import EventBus
 import EmceeLogging
@@ -51,29 +52,13 @@ public final class TestEntriesValidator {
     ) throws -> [ValidatedTestEntry] {
         let configuration = TestDiscoveryConfiguration(
             analyticsConfiguration: analyticsConfiguration,
-            developerDir: testArgFileEntry.developerDir,
-            pluginLocations: testArgFileEntry.pluginLocations,
+            logger: logger,
+            remoteCache: remoteCache,
+            testsToValidate: testArgFileEntry.testsToRun,
             testDiscoveryMode: try TestDiscoveryModeDeterminer.testDiscoveryMode(
                 testArgFileEntry: testArgFileEntry
             ),
-            simulatorOperationTimeouts: testArgFileEntry.simulatorOperationTimeouts,
-            simulatorSettings: testArgFileEntry.simulatorSettings,
-            simDeviceType: try testArgFileEntry.testDestination.simDeviceType(),
-            simRuntime: try testArgFileEntry.testDestination.simRuntime(),
-            testExecutionBehavior: TestExecutionBehavior(
-                environment: testArgFileEntry.environment,
-                userInsertedLibraries: testArgFileEntry.userInsertedLibraries,
-                numberOfRetries: testArgFileEntry.numberOfRetries,
-                testRetryMode: testArgFileEntry.testRetryMode,
-                logCapturingMode: testArgFileEntry.logCapturingMode,
-                runnerWasteCleanupPolicy: testArgFileEntry.runnerWasteCleanupPolicy
-            ),
-            testTimeoutConfiguration: testArgFileEntry.testTimeoutConfiguration,
-            testAttachmentLifetime: testArgFileEntry.testAttachmentLifetime,
-            testsToValidate: testArgFileEntry.testsToRun,
-            xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location,
-            remoteCache: remoteCache,
-            logger: logger
+            testConfiguration: try testArgFileEntry.appleTestConfiguration()
         )
 
         return try transformer.transform(

@@ -1,5 +1,7 @@
+import AppleTestModelsTestHelpers
 import TestDiscovery
 import BuildArtifacts
+import BuildArtifactsTestHelpers
 import CommonTestModels
 import DateProviderTestHelpers
 import DeveloperDirLocatorTestHelpers
@@ -19,6 +21,7 @@ import TestArgFile
 import TestHelpers
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
+// TODO: check imports
 
 final class TestDiscoveryQuerierTests: XCTestCase {
     lazy var developerDirLocator = FakeDeveloperDirLocator(result: tempFolder.absolutePath)
@@ -41,8 +44,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
         
         let querier = testDiscoveryQuerier()
         let configuration = testDiscoveryConfiguration(
-            testsToValidate: [],
-            applicationTestSupport: nil
+            testsToValidate: []
         )
         let queryResult = try querier.query(configuration: configuration)
         XCTAssertEqual(queryResult.discoveredTests.tests, runtimeTestEntries)
@@ -58,8 +60,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
         
         let querier = testDiscoveryQuerier()
         let configuration = testDiscoveryConfiguration(
-            testsToValidate: [.allDiscoveredTests],
-            applicationTestSupport: nil
+            testsToValidate: [.allDiscoveredTests]
         )
         let queryResult = try querier.query(configuration: configuration)
         XCTAssertEqual(queryResult.discoveredTests.tests, runtimeTestEntries)
@@ -75,8 +76,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
         
         let querier = testDiscoveryQuerier()
         let configuration = testDiscoveryConfiguration(
-            testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
-            applicationTestSupport: nil
+            testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))]
         )
         let queryResult = try querier.query(configuration: configuration)
         XCTAssertEqual(queryResult.discoveredTests.tests, runtimeTestEntries)
@@ -86,8 +86,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
     func test__when_JSON_file_is_missing_throws__without_application_test_support() throws {
         let querier = testDiscoveryQuerier()
         let configuration = testDiscoveryConfiguration(
-            testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
-            applicationTestSupport: nil
+            testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))]
         )
         XCTAssertThrowsError(_ = try querier.query(configuration: configuration))
     }
@@ -99,8 +98,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
         )
         let querier = testDiscoveryQuerier()
         let configuration = testDiscoveryConfiguration(
-            testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
-            applicationTestSupport: nil
+            testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))]
         )
         XCTAssertThrowsError(_ = try querier.query(configuration: configuration))
     }
@@ -114,8 +112,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
 
         let querier = testDiscoveryQuerier()
         let configuration = testDiscoveryConfiguration(
-            testsToValidate: [],
-            applicationTestSupport: buildApplicationTestSupport()
+            testsToValidate: []
         )
         let queryResult = try querier.query(configuration: configuration)
         XCTAssertEqual(queryResult.discoveredTests.tests, runtimeTestEntries)
@@ -131,8 +128,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
 
         let querier = testDiscoveryQuerier()
         let configuration = testDiscoveryConfiguration(
-            testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
-            applicationTestSupport: buildApplicationTestSupport()
+            testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))]
         )
         let queryResult = try querier.query(configuration: configuration)
         XCTAssertEqual(queryResult.discoveredTests.tests, runtimeTestEntries)
@@ -142,8 +138,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
     func test__when_JSON_file_is_missing_throws__with_application_test_support() throws {
         let querier = testDiscoveryQuerier()
         let configuration = testDiscoveryConfiguration(
-            testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
-            applicationTestSupport: buildApplicationTestSupport()
+            testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))]
         )
         XCTAssertThrowsError(_ = try querier.query(configuration: configuration))
     }
@@ -155,8 +150,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
         )
         let querier = testDiscoveryQuerier()
         let configuration = testDiscoveryConfiguration(
-            testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
-            applicationTestSupport: buildApplicationTestSupport()
+            testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))]
         )
         XCTAssertThrowsError(_ = try querier.query(configuration: configuration))
     }
@@ -169,7 +163,6 @@ final class TestDiscoveryQuerierTests: XCTestCase {
         let xcTestBundleLocation = TestBundleLocation(ResourceLocation.localFilePath("xcTestBundleLocationPathForCacheTest"))
         let configuration = testDiscoveryConfiguration(
             testsToValidate: [],
-            applicationTestSupport: nil,
             xcTestBundleLocation: xcTestBundleLocation
         )
         let queryResult = try querier.query(configuration: configuration)
@@ -187,7 +180,6 @@ final class TestDiscoveryQuerierTests: XCTestCase {
         let xcTestBundleLocation = TestBundleLocation(ResourceLocation.localFilePath("xcTestBundleLocationPathForCacheTest"))
         let configuration = testDiscoveryConfiguration(
             testsToValidate: [TestToRun.testName(TestName(className: "Class", methodName: "testNonexistingtest"))],
-            applicationTestSupport: buildApplicationTestSupport(),
             xcTestBundleLocation: xcTestBundleLocation
         )
 
@@ -230,35 +222,26 @@ final class TestDiscoveryQuerierTests: XCTestCase {
     
     private func testDiscoveryConfiguration(
         testsToValidate: [TestToRun],
-        applicationTestSupport: RuntimeDumpApplicationTestSupport?,
         xcTestBundleLocation: TestBundleLocation = TestBundleLocation(ResourceLocation.localFilePath(""))
     ) -> TestDiscoveryConfiguration {
         return TestDiscoveryConfiguration(
             analyticsConfiguration: AnalyticsConfiguration(),
-            developerDir: DeveloperDir.current,
-            pluginLocations: [],
-            testDiscoveryMode: .runtimeLogicTest,
-            simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
-            simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-            simDeviceType: SimDeviceTypeFixture.fixture(),
-            simRuntime: SimRuntimeFixture.fixture(),
-            testExecutionBehavior: TestExecutionBehavior(
-                environment: [:],
-                userInsertedLibraries: [],
-                numberOfRetries: 0,
-                testRetryMode: .retryThroughQueue,
-                logCapturingMode: .noLogs,
-                runnerWasteCleanupPolicy: .clean
-            ),
-            testTimeoutConfiguration: TestTimeoutConfiguration(
-                singleTestMaximumDuration: 10,
-                testRunnerMaximumSilenceDuration: 10
-            ),
-            testAttachmentLifetime: .deleteOnSuccess,
-            testsToValidate: testsToValidate,
-            xcTestBundleLocation: xcTestBundleLocation,
+            logger: .noOp,
             remoteCache: remoteCache,
-            logger: .noOp
+            testsToValidate: testsToValidate,
+            testDiscoveryMode: .runtimeLogicTest,
+            testConfiguration: AppleTestConfigurationFixture()
+                .with(
+                    buildArtifacts: AppleBuildArtifactsFixture()
+                        .logicTests(
+                            xcTestBundle: XcTestBundle(
+                                location: xcTestBundleLocation,
+                                testDiscoveryMode: .parseFunctionSymbols
+                            )
+                        )
+                        .appleBuildArtifacts()
+                    )
+                .appleTestConfiguration()
         )
     }
 

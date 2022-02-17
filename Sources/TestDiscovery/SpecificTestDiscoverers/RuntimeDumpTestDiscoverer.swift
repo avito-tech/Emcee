@@ -125,18 +125,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         simulator: Simulator
     ) -> AppleRunnerConfiguration {
         return AppleRunnerConfiguration(
-            appleTestConfiguration: AppleTestConfiguration(
-                buildArtifacts: buildArtifacts,
-                developerDir: configuration.developerDir,
-                pluginLocations: [],
-                simulatorOperationTimeouts: configuration.simulatorOperationTimeouts,
-                simulatorSettings: configuration.simulatorSettings,
-                simDeviceType: configuration.simDeviceType,
-                simRuntime: configuration.simRuntime,
-                testExecutionBehavior: configuration.testExecutionBehavior,
-                testTimeoutConfiguration: configuration.testTimeoutConfiguration,
-                testAttachmentLifetime: configuration.testAttachmentLifetime
-            ),
+            appleTestConfiguration: configuration.testConfiguration,
             lostTestProcessingMode: .reportLost,
             persistentMetricsJobId: configuration.analyticsConfiguration.persistentMetricsJobId,
             simulator: simulator
@@ -147,16 +136,12 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         configuration: TestDiscoveryConfiguration
     ) throws -> AllocatedSimulator {
         let simulatorPool = try onDemandSimulatorPool.pool(
-            key: OnDemandSimulatorPoolKey(
-                developerDir: configuration.developerDir,
-                simDeviceType: configuration.simDeviceType,
-                simRuntime: configuration.simRuntime
-            )
+            key: configuration.testConfiguration.onDemandSimulatorPoolKey
         )
         return try simulatorPool.allocateSimulator(
             dateProvider: dateProvider,
             logger: configuration.logger,
-            simulatorOperationTimeouts: configuration.simulatorOperationTimeouts,
+            simulatorOperationTimeouts: configuration.testConfiguration.simulatorOperationTimeouts,
             version: version,
             globalMetricRecorder: globalMetricRecorder
         )
@@ -166,7 +151,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         configuration: TestDiscoveryConfiguration,
         runtimeEntriesJSONPath: AbsolutePath
     ) -> [String: String] {
-        var environment = configuration.testExecutionBehavior.environment
+        var environment = configuration.testConfiguration.testExecutionBehavior.environment
         environment["EMCEE_RUNTIME_TESTS_EXPORT_PATH"] = runtimeEntriesJSONPath.pathString
         return environment
     }

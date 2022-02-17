@@ -1,5 +1,6 @@
 import Foundation
 import SimulatorPool
+import SimulatorPoolModels
 
 public final class FakeOnDemandSimulatorPool: OnDemandSimulatorPool {
     public var pools = [OnDemandSimulatorPoolKey: SimulatorPoolMock]()

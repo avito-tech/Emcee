@@ -1,5 +1,7 @@
 @testable import TestDiscovery
+import AppleTestModelsTestHelpers
 import BuildArtifacts
+import BuildArtifactsTestHelpers
 import CommonTestModels
 import CommonTestModelsTestHelpers
 import DeveloperDirLocatorTestHelpers
@@ -211,20 +213,23 @@ final class ExecutableTestDiscovererTests: XCTestCase {
     )
     private lazy var configuration = TestDiscoveryConfiguration(
         analyticsConfiguration: AnalyticsConfiguration(),
-        developerDir: .current,
-        pluginLocations: [],
-        testDiscoveryMode: .runtimeExecutableLaunch(appBundleLocation),
-        simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
-        simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-        simDeviceType: SimDeviceTypeFixture.fixture(),
-        simRuntime: SimRuntimeFixture.iOS("12.0"),
-        testExecutionBehavior: TestExecutionBehaviorFixtures().testExecutionBehavior(),
-        testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
-        testAttachmentLifetime: .deleteOnSuccess,
-        testsToValidate: [],
-        xcTestBundleLocation: testBundleLocation,
+        logger: .noOp,
         remoteCache: NoOpRuntimeDumpRemoteCache(),
-        logger: .noOp
+        testsToValidate: [],
+        testDiscoveryMode: .runtimeExecutableLaunch(appBundleLocation),
+        testConfiguration: AppleTestConfigurationFixture()
+            .with(simRuntime: SimRuntimeFixture.iOS("12.0"))
+            .with(
+                buildArtifacts: AppleBuildArtifactsFixture()
+                    .logicTests(
+                        xcTestBundle: XcTestBundle(
+                            location: testBundleLocation,
+                            testDiscoveryMode: .parseFunctionSymbols
+                        )
+                    )
+                    .appleBuildArtifacts()
+            )
+            .appleTestConfiguration()
     )
     private lazy var tempFolder = assertDoesNotThrow { try TemporaryFolder() }
 }

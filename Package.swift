@@ -1850,6 +1850,7 @@ let package = Package(
             name: "SimulatorPoolModels",
             dependencies: [
                 "CommonTestModels",
+                "DeveloperDirModels",
                 .product(name: "PathLib", package: "CommandLineToolkit"),
                 "TestDestination",
                 "TypedResourceLocation",
@@ -2030,6 +2031,7 @@ let package = Package(
         .testTarget(
             name: "TestDiscoveryTests",
             dependencies: [
+                "AppleTestModelsTestHelpers",
                 "BuildArtifacts",
                 "BuildArtifactsTestHelpers",
                 "CommonTestModels",

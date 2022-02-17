@@ -73,6 +73,28 @@ public struct TestArgFileEntry: Codable, Equatable {
         return result
     }
     
+    public func appleTestConfiguration() throws -> AppleTestConfiguration {
+        AppleTestConfiguration(
+            buildArtifacts: buildArtifacts,
+            developerDir: developerDir,
+            pluginLocations: pluginLocations,
+            simulatorOperationTimeouts: simulatorOperationTimeouts,
+            simulatorSettings: simulatorSettings,
+            simDeviceType: try testDestination.simDeviceType(),
+            simRuntime: try testDestination.simRuntime(),
+            testExecutionBehavior: TestExecutionBehavior(
+                environment: environment,
+                userInsertedLibraries: userInsertedLibraries,
+                numberOfRetries: numberOfRetries,
+                testRetryMode: testRetryMode,
+                logCapturingMode: logCapturingMode,
+                runnerWasteCleanupPolicy: runnerWasteCleanupPolicy
+            ),
+            testTimeoutConfiguration: testTimeoutConfiguration,
+            testAttachmentLifetime: testAttachmentLifetime
+        )
+    }
+    
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 

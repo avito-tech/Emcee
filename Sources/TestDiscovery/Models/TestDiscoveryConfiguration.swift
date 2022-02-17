@@ -11,52 +11,25 @@ import TestArgFile
 
 public struct TestDiscoveryConfiguration {
     public let analyticsConfiguration: AnalyticsConfiguration
-    public let developerDir: DeveloperDir
-    public let pluginLocations: Set<AppleTestPluginLocation>
-    public let testDiscoveryMode: TestDiscoveryMode
-    public let simulatorOperationTimeouts: SimulatorOperationTimeouts
-    public let simulatorSettings: SimulatorSettings
-    public let simDeviceType: SimDeviceType
-    public let simRuntime: SimRuntime
-    public let testExecutionBehavior: TestExecutionBehavior
-    public let testTimeoutConfiguration: TestTimeoutConfiguration
-    public let testAttachmentLifetime: TestAttachmentLifetime
-    public let testsToValidate: [TestToRun]
-    public let xcTestBundleLocation: TestBundleLocation
-    public let remoteCache: RuntimeDumpRemoteCache
     public let logger: ContextualLogger
+    public let remoteCache: RuntimeDumpRemoteCache
+    public let testsToValidate: [TestToRun]
+    public let testDiscoveryMode: TestDiscoveryMode
+    public let testConfiguration: AppleTestConfiguration
 
     public init(
         analyticsConfiguration: AnalyticsConfiguration,
-        developerDir: DeveloperDir,
-        pluginLocations: Set<AppleTestPluginLocation>,
-        testDiscoveryMode: TestDiscoveryMode,
-        simulatorOperationTimeouts: SimulatorOperationTimeouts,
-        simulatorSettings: SimulatorSettings,
-        simDeviceType: SimDeviceType,
-        simRuntime: SimRuntime,
-        testExecutionBehavior: TestExecutionBehavior,
-        testTimeoutConfiguration: TestTimeoutConfiguration,
-        testAttachmentLifetime: TestAttachmentLifetime,
-        testsToValidate: [TestToRun],
-        xcTestBundleLocation: TestBundleLocation,
+        logger: ContextualLogger,
         remoteCache: RuntimeDumpRemoteCache,
-        logger: ContextualLogger
+        testsToValidate: [TestToRun],
+        testDiscoveryMode: TestDiscoveryMode,
+        testConfiguration: AppleTestConfiguration
     ) {
         self.analyticsConfiguration = analyticsConfiguration
-        self.developerDir = developerDir
-        self.pluginLocations = pluginLocations
-        self.testDiscoveryMode = testDiscoveryMode
-        self.simulatorOperationTimeouts = simulatorOperationTimeouts
-        self.simulatorSettings = simulatorSettings
-        self.simDeviceType = simDeviceType
-        self.simRuntime = simRuntime
-        self.testExecutionBehavior = testExecutionBehavior
-        self.testTimeoutConfiguration = testTimeoutConfiguration
-        self.testAttachmentLifetime = testAttachmentLifetime
-        self.testsToValidate = testsToValidate
-        self.xcTestBundleLocation = xcTestBundleLocation
-        self.remoteCache = remoteCache
         self.logger = logger
+        self.remoteCache = remoteCache
+        self.testsToValidate = testsToValidate
+        self.testDiscoveryMode = testDiscoveryMode
+        self.testConfiguration = testConfiguration
     }
 }

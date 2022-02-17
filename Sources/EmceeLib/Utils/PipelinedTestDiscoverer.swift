@@ -70,27 +70,13 @@ public final class PipelinedTestDiscoverer {
                 do {
                     let configuration = TestDiscoveryConfiguration(
                         analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration,
-                        developerDir: testArgFileEntry.developerDir,
-                        pluginLocations: testArgFileEntry.pluginLocations,
-                        testDiscoveryMode: try TestDiscoveryModeDeterminer.testDiscoveryMode(testArgFileEntry: testArgFileEntry),
-                        simulatorOperationTimeouts: testArgFileEntry.simulatorOperationTimeouts,
-                        simulatorSettings: testArgFileEntry.simulatorSettings,
-                        simDeviceType: try testArgFileEntry.testDestination.simDeviceType(),
-                        simRuntime: try testArgFileEntry.testDestination.simRuntime(),
-                        testExecutionBehavior: TestExecutionBehavior(
-                            environment: testArgFileEntry.environment,
-                            userInsertedLibraries: testArgFileEntry.userInsertedLibraries,
-                            numberOfRetries: testArgFileEntry.numberOfRetries,
-                            testRetryMode: testArgFileEntry.testRetryMode,
-                            logCapturingMode: testArgFileEntry.logCapturingMode,
-                            runnerWasteCleanupPolicy: testArgFileEntry.runnerWasteCleanupPolicy
-                        ),
-                        testTimeoutConfiguration: testArgFileEntry.testTimeoutConfiguration,
-                        testAttachmentLifetime: testArgFileEntry.testAttachmentLifetime,
-                        testsToValidate: testArgFileEntry.testsToRun,
-                        xcTestBundleLocation: testArgFileEntry.buildArtifacts.xcTestBundle.location,
+                        logger: logger,
                         remoteCache: runtimeDumpRemoteCacheProvider.remoteCache(config: remoteCacheConfig),
-                        logger: logger
+                        testsToValidate: testArgFileEntry.testsToRun,
+                        testDiscoveryMode: try TestDiscoveryModeDeterminer.testDiscoveryMode(
+                            testArgFileEntry: testArgFileEntry
+                        ),
+                        testConfiguration: try testArgFileEntry.appleTestConfiguration()
                     )
                     
                     let result = try testDiscoveryQuerier.query(

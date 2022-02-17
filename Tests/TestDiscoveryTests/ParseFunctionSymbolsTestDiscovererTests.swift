@@ -1,5 +1,6 @@
 @testable import TestDiscovery
 import BuildArtifacts
+import BuildArtifactsTestHelpers
 import CommonTestModels
 import CommonTestModelsTestHelpers
 import DateProvider
@@ -14,6 +15,7 @@ import SimulatorPoolTestHelpers
 import TestHelpers
 import Tmp
 import XCTest
+import AppleTestModelsTestHelpers
 
 final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
     func test___empty_test_bundle___discovers_no_tests() {
@@ -83,19 +85,21 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
     private lazy var testBundleLocation = TestBundleLocation(.localFilePath(testBundlePathInTempFolder.pathString))
     private lazy var configuration = TestDiscoveryConfiguration(
         analyticsConfiguration: AnalyticsConfiguration(),
-        developerDir: .current,
-        pluginLocations: [],
-        testDiscoveryMode: .parseFunctionSymbols,
-        simulatorOperationTimeouts: SimulatorOperationTimeoutsFixture().simulatorOperationTimeouts(),
-        simulatorSettings: SimulatorSettingsFixtures().simulatorSettings(),
-        simDeviceType: SimDeviceTypeFixture.fixture(),
-        simRuntime: SimRuntimeFixture.fixture(),
-        testExecutionBehavior: TestExecutionBehaviorFixtures().testExecutionBehavior(),
-        testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
-        testAttachmentLifetime: .deleteOnSuccess,
-        testsToValidate: [],
-        xcTestBundleLocation: testBundleLocation,
+        logger: .noOp,
         remoteCache: NoOpRuntimeDumpRemoteCache(),
-        logger: .noOp
+        testsToValidate: [],
+        testDiscoveryMode: .parseFunctionSymbols,
+        testConfiguration: AppleTestConfigurationFixture()
+            .with(
+                buildArtifacts: AppleBuildArtifactsFixture()
+                    .logicTests(
+                        xcTestBundle: XcTestBundle(
+                            location: testBundleLocation,
+                            testDiscoveryMode: .parseFunctionSymbols
+                        )
+                    )
+                    .appleBuildArtifacts()
+            )
+            .appleTestConfiguration()
     )
 }

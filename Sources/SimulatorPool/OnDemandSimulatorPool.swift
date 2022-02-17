@@ -1,5 +1,5 @@
 import Foundation
-import EmceeLogging
+import SimulatorPoolModels
 
 public protocol OnDemandSimulatorPool {
     func pool(key: OnDemandSimulatorPoolKey) throws -> SimulatorPool

@@ -32,25 +32,7 @@ public final class SimilarlyConfiguredTestEntryGenerator {
         let testEntryConfiguration = TestEntryConfiguration(
             analyticsConfiguration: analyticsConfiguration,
             testConfigurationContainer: .appleTest(
-                AppleTestConfiguration(
-                    buildArtifacts: testArgFileEntry.buildArtifacts,
-                    developerDir: testArgFileEntry.developerDir,
-                    pluginLocations: testArgFileEntry.pluginLocations,
-                    simulatorOperationTimeouts: testArgFileEntry.simulatorOperationTimeouts,
-                    simulatorSettings: testArgFileEntry.simulatorSettings,
-                    simDeviceType: try testArgFileEntry.testDestination.simDeviceType(),
-                    simRuntime: try testArgFileEntry.testDestination.simRuntime(),
-                    testExecutionBehavior: TestExecutionBehavior(
-                        environment: testArgFileEntry.environment,
-                        userInsertedLibraries: testArgFileEntry.userInsertedLibraries,
-                        numberOfRetries: testArgFileEntry.numberOfRetries,
-                        testRetryMode: testArgFileEntry.testRetryMode,
-                        logCapturingMode: testArgFileEntry.logCapturingMode,
-                        runnerWasteCleanupPolicy: testArgFileEntry.runnerWasteCleanupPolicy
-                    ),
-                    testTimeoutConfiguration: testArgFileEntry.testTimeoutConfiguration,
-                    testAttachmentLifetime: testArgFileEntry.testAttachmentLifetime
-                )
+                try testArgFileEntry.appleTestConfiguration()
             ),
             workerCapabilityRequirements: testArgFileEntry.workerCapabilityRequirements
         )

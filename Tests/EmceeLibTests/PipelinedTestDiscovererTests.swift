@@ -99,7 +99,7 @@ final class PipelinedTestDiscovererTests: XCTestCase {
         
         let discoveredTestEntry = DiscoveredTestEntry(className: "class", path: "", testMethods: [], caseId: nil, tags: [])
         testDiscoveryQuerier.resultProvider = { testDiscoveryConfiguration in
-            if testDiscoveryConfiguration.xcTestBundleLocation.description.contains("1") {
+            if testDiscoveryConfiguration.testConfiguration.buildArtifacts.xcTestBundle.location.description.contains("1") {
                 return TestDiscoveryResult(
                     discoveredTests: DiscoveredTests(tests: []),
                     unavailableTestsToRun: []
