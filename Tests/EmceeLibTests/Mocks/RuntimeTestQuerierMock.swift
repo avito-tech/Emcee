@@ -1,14 +1,14 @@
 @testable import TestDiscovery
 
-final class TestDiscoveryQuerierMock: TestDiscoveryQuerier {
+final class TestDiscoveryQuerierMock: AppleTestDiscoverer {
     var numberOfCalls = 0
-    var configuration: TestDiscoveryConfiguration?
+    var configuration: AppleTestDiscoveryConfiguration?
     
-    var resultProvider: (TestDiscoveryConfiguration) -> TestDiscoveryResult = { _ in
+    var resultProvider: (AppleTestDiscoveryConfiguration) -> TestDiscoveryResult = { _ in
         TestDiscoveryResult(discoveredTests: DiscoveredTests(tests: []), unavailableTestsToRun: [])
     }
      
-    func query(configuration: TestDiscoveryConfiguration) throws -> TestDiscoveryResult {
+    func query(configuration: AppleTestDiscoveryConfiguration) throws -> TestDiscoveryResult {
         numberOfCalls += 1
         self.configuration = configuration
         

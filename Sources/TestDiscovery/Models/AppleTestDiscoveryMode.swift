@@ -2,7 +2,7 @@ import BuildArtifacts
 import Foundation
 import SimulatorPoolModels
 
-public enum TestDiscoveryMode: Hashable {
+public enum AppleTestDiscoveryMode: Hashable {
     case parseFunctionSymbols
     case runtimeExecutableLaunch(AppBundleLocation)
     case runtimeLogicTest

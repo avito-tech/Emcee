@@ -12,7 +12,7 @@ import URLResource
 
 public final class PipelinedTestDiscoverer {
     private let runtimeDumpRemoteCacheProvider: RuntimeDumpRemoteCacheProvider
-    private let testDiscoveryQuerier: TestDiscoveryQuerier
+    private let testDiscoveryQuerier: AppleTestDiscoverer
     private let urlResource: URLResource
     
     private let downloadQueue = OperationQueue.create(
@@ -28,7 +28,7 @@ public final class PipelinedTestDiscoverer {
     
     public init(
         runtimeDumpRemoteCacheProvider: RuntimeDumpRemoteCacheProvider,
-        testDiscoveryQuerier: TestDiscoveryQuerier,
+        testDiscoveryQuerier: AppleTestDiscoverer,
         urlResource: URLResource
     ) {
         self.runtimeDumpRemoteCacheProvider = runtimeDumpRemoteCacheProvider
@@ -68,9 +68,8 @@ public final class PipelinedTestDiscoverer {
             }
             let dumpOperation = BlockOperation { [logger, runtimeDumpRemoteCacheProvider, testDiscoveryQuerier] in
                 do {
-                    let configuration = TestDiscoveryConfiguration(
+                    let configuration = AppleTestDiscoveryConfiguration(
                         analyticsConfiguration: testArgFile.prioritizedJob.analyticsConfiguration,
-                        logger: logger,
                         remoteCache: runtimeDumpRemoteCacheProvider.remoteCache(config: remoteCacheConfig),
                         testsToValidate: testArgFileEntry.testsToRun,
                         testDiscoveryMode: try TestDiscoveryModeDeterminer.testDiscoveryMode(

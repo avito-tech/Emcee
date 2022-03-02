@@ -235,6 +235,7 @@ final class RunTestsOnRemoteQueueLogic {
                 dateProvider: try di.get(),
                 developerDirLocator: try di.get(),
                 fileSystem: try di.get(),
+                logger: try di.get(),
                 globalMetricRecorder: try di.get(),
                 specificMetricRecorderProvider: try di.get(),
                 onDemandSimulatorPool: try di.get(),
@@ -248,7 +249,7 @@ final class RunTestsOnRemoteQueueLogic {
                 version: version,
                 waiter: try di.get()
             ),
-            for: TestDiscoveryQuerier.self
+            for: AppleTestDiscoverer.self
         )
         di.set(
             JobStateFetcherImpl(

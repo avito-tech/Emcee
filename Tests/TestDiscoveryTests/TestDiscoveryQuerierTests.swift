@@ -200,11 +200,12 @@ final class TestDiscoveryQuerierTests: XCTestCase {
         )
     }
     
-    private func testDiscoveryQuerier() -> TestDiscoveryQuerier {
+    private func testDiscoveryQuerier() -> AppleTestDiscoverer {
         return TestDiscoveryQuerierImpl(
             dateProvider: DateProviderFixture(),
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
+            logger: .noOp,
             globalMetricRecorder: GlobalMetricRecorderImpl(),
             specificMetricRecorderProvider: NoOpSpecificMetricRecorderProvider(),
             onDemandSimulatorPool: simulatorPool,
@@ -223,10 +224,9 @@ final class TestDiscoveryQuerierTests: XCTestCase {
     private func testDiscoveryConfiguration(
         testsToValidate: [TestToRun],
         xcTestBundleLocation: TestBundleLocation = TestBundleLocation(ResourceLocation.localFilePath(""))
-    ) -> TestDiscoveryConfiguration {
-        return TestDiscoveryConfiguration(
+    ) -> AppleTestDiscoveryConfiguration {
+        return AppleTestDiscoveryConfiguration(
             analyticsConfiguration: AnalyticsConfiguration(),
-            logger: .noOp,
             remoteCache: remoteCache,
             testsToValidate: testsToValidate,
             testDiscoveryMode: .runtimeLogicTest,

@@ -3,6 +3,6 @@ import EmceeLogging
 
 public protocol SpecificTestDiscoverer {
     func discoverTestEntries(
-        configuration: TestDiscoveryConfiguration
+        configuration: AppleTestDiscoveryConfiguration
     ) throws -> [DiscoveredTestEntry]
 }

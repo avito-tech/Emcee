@@ -25,6 +25,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let fileSystem: FileSystem
+    private let logger: ContextualLogger
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let pluginEventBusProvider: PluginEventBusProvider
     private let resourceLocationResolver: ResourceLocationResolver
@@ -43,6 +44,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         fileSystem: FileSystem,
+        logger: ContextualLogger,
         onDemandSimulatorPool: OnDemandSimulatorPool,
         pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver,
@@ -60,6 +62,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.fileSystem = fileSystem
+        self.logger = logger
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
@@ -75,16 +78,16 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     }
     
     public func discoverTestEntries(
-        configuration: TestDiscoveryConfiguration
+        configuration: AppleTestDiscoveryConfiguration
     ) throws -> [DiscoveredTestEntry] {
         let runtimeEntriesJSONPath = tempFolder.pathWith(components: [uniqueIdentifierGenerator.generate()])
-        configuration.logger.trace("Will write test discovery into file: \(runtimeEntriesJSONPath)")
+        logger.trace("Will write test discovery into file: \(runtimeEntriesJSONPath)")
         
         let runner = AppleRunner(
             dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
-            logger: configuration.logger,
+            logger: logger,
             pluginEventBusProvider: pluginEventBusProvider,
             runnerWasteCollectorProvider: runnerWasteCollectorProvider,
             specificMetricRecorder: specificMetricRecorder,
@@ -120,7 +123,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     
     private func buildRunnerConfiguration(
         buildArtifacts: AppleBuildArtifacts,
-        configuration: TestDiscoveryConfiguration,
+        configuration: AppleTestDiscoveryConfiguration,
         runtimeEntriesJSONPath: AbsolutePath,
         simulator: Simulator
     ) -> AppleRunnerConfiguration {
@@ -133,14 +136,14 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     }
 
     private func simulatorForTestDiscovery(
-        configuration: TestDiscoveryConfiguration
+        configuration: AppleTestDiscoveryConfiguration
     ) throws -> AllocatedSimulator {
         let simulatorPool = try onDemandSimulatorPool.pool(
             key: configuration.testConfiguration.onDemandSimulatorPoolKey
         )
         return try simulatorPool.allocateSimulator(
             dateProvider: dateProvider,
-            logger: configuration.logger,
+            logger: logger,
             simulatorOperationTimeouts: configuration.testConfiguration.simulatorOperationTimeouts,
             version: version,
             globalMetricRecorder: globalMetricRecorder
@@ -148,7 +151,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     }
     
     private func environment(
-        configuration: TestDiscoveryConfiguration,
+        configuration: AppleTestDiscoveryConfiguration,
         runtimeEntriesJSONPath: AbsolutePath
     ) -> [String: String] {
         var environment = configuration.testConfiguration.testExecutionBehavior.environment

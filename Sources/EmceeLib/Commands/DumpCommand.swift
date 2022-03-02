@@ -72,6 +72,7 @@ public final class DumpCommand: Command {
                 dateProvider: try di.get(),
                 developerDirLocator: try di.get(),
                 fileSystem: try di.get(),
+                logger: try di.get(),
                 globalMetricRecorder: try di.get(),
                 specificMetricRecorderProvider: try di.get(),
                 onDemandSimulatorPool: try di.get(),
@@ -85,7 +86,7 @@ public final class DumpCommand: Command {
                 version: emceeVersion,
                 waiter: try di.get()
             ),
-            for: TestDiscoveryQuerier.self
+            for: AppleTestDiscoverer.self
         )
         
         let discoverer = PipelinedTestDiscoverer(

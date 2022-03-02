@@ -15,33 +15,34 @@ import SynchronousWaiter
 
 public final class ParseFunctionSymbolsTestDiscoverer: SpecificTestDiscoverer {
     private let developerDirLocator: DeveloperDirLocator
+    private let logger: ContextualLogger
     private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
 
     public init(
         developerDirLocator: DeveloperDirLocator,
+        logger: ContextualLogger,
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver
     ) {
         self.developerDirLocator = developerDirLocator
+        self.logger = logger
         self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
     }
     
     public func discoverTestEntries(
-        configuration: TestDiscoveryConfiguration
+        configuration: AppleTestDiscoveryConfiguration
     ) throws -> [DiscoveredTestEntry] {
         try discoverTestEntries(
             developerDir: configuration.testConfiguration.developerDir,
-            xcTestBundleLocation: configuration.testConfiguration.buildArtifacts.xcTestBundle.location,
-            logger: configuration.logger
+            xcTestBundleLocation: configuration.testConfiguration.buildArtifacts.xcTestBundle.location
         )
     }
     
     public func discoverTestEntries(
         developerDir: DeveloperDir,
-        xcTestBundleLocation: TestBundleLocation,
-        logger: ContextualLogger
+        xcTestBundleLocation: TestBundleLocation
     ) throws -> [DiscoveredTestEntry] {
         let nmProcess = try processControllerProvider.createProcessController(
             subprocess: Subprocess(

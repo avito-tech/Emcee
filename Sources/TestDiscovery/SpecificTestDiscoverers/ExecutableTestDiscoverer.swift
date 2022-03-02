@@ -29,6 +29,7 @@ public final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
     
     private let appBundleLocation: AppBundleLocation
     private let developerDirLocator: DeveloperDirLocator
+    private let logger: ContextualLogger
     private let resourceLocationResolver: ResourceLocationResolver
     private let processControllerProvider: ProcessControllerProvider
     private let tempFolder: TemporaryFolder
@@ -37,6 +38,7 @@ public final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
     public init(
         appBundleLocation: AppBundleLocation,
         developerDirLocator: DeveloperDirLocator,
+        logger: ContextualLogger,
         resourceLocationResolver: ResourceLocationResolver,
         processControllerProvider: ProcessControllerProvider,
         tempFolder: TemporaryFolder,
@@ -44,6 +46,7 @@ public final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
     ) {
         self.appBundleLocation = appBundleLocation
         self.developerDirLocator = developerDirLocator
+        self.logger = logger
         self.resourceLocationResolver = resourceLocationResolver
         self.processControllerProvider = processControllerProvider
         self.tempFolder = tempFolder
@@ -51,14 +54,14 @@ public final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
     }
     
     public func discoverTestEntries(
-        configuration: TestDiscoveryConfiguration
+        configuration: AppleTestDiscoveryConfiguration
     ) throws -> [DiscoveredTestEntry] {
         let runtimeEntriesJSONPath = tempFolder.pathWith(components: [uniqueIdentifierGenerator.generate()])
-        configuration.logger.debug("Will discover tests in \(configuration.testConfiguration.buildArtifacts.xcTestBundle.location.resourceLocation) into file: \(runtimeEntriesJSONPath)")
+        logger.debug("Will discover tests in \(configuration.testConfiguration.buildArtifacts.xcTestBundle.location.resourceLocation) into file: \(runtimeEntriesJSONPath)")
         
         let latestRuntimeRoot = try findRuntimeRoot(
             developerDir: configuration.testConfiguration.developerDir,
-            logger: configuration.logger,
+            logger: logger,
             simRuntime: configuration.testConfiguration.simRuntime
         )
         
@@ -91,7 +94,7 @@ public final class ExecutableTestDiscoverer: SpecificTestDiscoverer {
             )
         )
         
-        let processLogger = configuration.logger.skippingStdOutput
+        let processLogger = logger.skippingStdOutput
         processLogger.attachToProcess(processController: controller)
         
         try controller.startAndWaitForSuccessfulTermination()

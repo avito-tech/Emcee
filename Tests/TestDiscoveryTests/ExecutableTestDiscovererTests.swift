@@ -168,6 +168,7 @@ final class ExecutableTestDiscovererTests: XCTestCase {
         return ExecutableTestDiscoverer(
             appBundleLocation: appBundleLocation,
             developerDirLocator: FakeDeveloperDirLocator(result: AbsolutePath("/path/to/developer_dir")),
+            logger: .noOp,
             resourceLocationResolver: FakeResourceLocationResolver.resolvingTo(
                 path: AbsolutePath(try testBundleLocation.resourceLocation.stringValue())
             ),
@@ -211,9 +212,8 @@ final class ExecutableTestDiscovererTests: XCTestCase {
             Bundle.main.bundlePath
         )
     )
-    private lazy var configuration = TestDiscoveryConfiguration(
+    private lazy var configuration = AppleTestDiscoveryConfiguration(
         analyticsConfiguration: AnalyticsConfiguration(),
-        logger: .noOp,
         remoteCache: NoOpRuntimeDumpRemoteCache(),
         testsToValidate: [],
         testDiscoveryMode: .runtimeExecutableLaunch(appBundleLocation),

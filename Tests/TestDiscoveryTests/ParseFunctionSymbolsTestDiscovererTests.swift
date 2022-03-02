@@ -60,6 +60,7 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
                     filePropertiesProvider: FilePropertiesProviderImpl()
                 )
             ),
+            logger: .noOp,
             processControllerProvider: FakeProcessControllerProvider { subprocess -> ProcessController in
                 XCTAssertEqual(
                     try subprocess.arguments.map { try $0.stringValue() },
@@ -83,9 +84,8 @@ final class ParseFunctionSymbolsTestDiscovererTests: XCTestCase {
     private lazy var tempFolder: TemporaryFolder = assertDoesNotThrow { try TemporaryFolder() }
     private lazy var testBundlePathInTempFolder = tempFolder.absolutePath.appending("bundle.xctest")
     private lazy var testBundleLocation = TestBundleLocation(.localFilePath(testBundlePathInTempFolder.pathString))
-    private lazy var configuration = TestDiscoveryConfiguration(
+    private lazy var configuration = AppleTestDiscoveryConfiguration(
         analyticsConfiguration: AnalyticsConfiguration(),
-        logger: .noOp,
         remoteCache: NoOpRuntimeDumpRemoteCache(),
         testsToValidate: [],
         testDiscoveryMode: .parseFunctionSymbols,

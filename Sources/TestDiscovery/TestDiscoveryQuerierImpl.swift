@@ -21,10 +21,11 @@ import TestArgFile
 import Tmp
 import UniqueIdentifierGenerator
 
-public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
+public final class TestDiscoveryQuerierImpl: AppleTestDiscoverer {
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let fileSystem: FileSystem
+    private let logger: ContextualLogger
     private let globalMetricRecorder: GlobalMetricRecorder
     private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
     private let onDemandSimulatorPool: OnDemandSimulatorPool
@@ -42,6 +43,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         fileSystem: FileSystem,
+        logger: ContextualLogger,
         globalMetricRecorder: GlobalMetricRecorder,
         specificMetricRecorderProvider: SpecificMetricRecorderProvider,
         onDemandSimulatorPool: OnDemandSimulatorPool,
@@ -58,6 +60,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.fileSystem = fileSystem
+        self.logger = logger
         self.globalMetricRecorder = globalMetricRecorder
         self.specificMetricRecorderProvider = specificMetricRecorderProvider
         self.onDemandSimulatorPool = onDemandSimulatorPool
@@ -72,7 +75,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         self.waiter = waiter
     }
     
-    public func query(configuration: TestDiscoveryConfiguration) throws -> TestDiscoveryResult {
+    public func query(configuration: AppleTestDiscoveryConfiguration) throws -> TestDiscoveryResult {
         let discoveredTests = try obtainDiscoveredTests(configuration: configuration)
 
         let unavailableTestEntries = requestedTestsNotAvailable(
@@ -88,7 +91,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         return result
     }
 
-    private func obtainDiscoveredTests(configuration: TestDiscoveryConfiguration) throws -> DiscoveredTests {
+    private func obtainDiscoveredTests(configuration: AppleTestDiscoveryConfiguration) throws -> DiscoveredTests {
         let specificMetricRecorder = try specificMetricRecorderProvider.specificMetricRecorder(
             analyticsConfiguration: configuration.analyticsConfiguration
         )
@@ -110,7 +113,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
 
     
     private func discoveredTests(
-        configuration: TestDiscoveryConfiguration,
+        configuration: AppleTestDiscoveryConfiguration,
         specificMetricRecorder: SpecificMetricRecorder
     ) throws -> DiscoveredTests {
         try TimeMeasurerImpl(dateProvider: dateProvider).measure(
@@ -121,7 +124,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
                 )
                 
                 let foundTestEntries = try runRetrying(
-                    logger: configuration.logger,
+                    logger: logger,
                     xcTestBundleLocation: configuration.testConfiguration.buildArtifacts.xcTestBundle.location,
                     times: configuration.testConfiguration.testExecutionBehavior.numberOfRetries
                 ) {
@@ -165,7 +168,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     }
     
     private func requestedTestsNotAvailable(
-        configuration: TestDiscoveryConfiguration,
+        configuration: AppleTestDiscoveryConfiguration,
         discoveredTests: DiscoveredTests
     ) -> [TestToRun] {
         if configuration.testsToValidate.isEmpty { return [] }
@@ -197,7 +200,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     private func reportStats(
         testCaseCount: Int,
         testCount: Int,
-        configuration: TestDiscoveryConfiguration,
+        configuration: AppleTestDiscoveryConfiguration,
         specificMetricRecorder: SpecificMetricRecorder
     ) throws {
         let lastPathComponent: String
@@ -210,7 +213,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             lastPathComponent = url.lastPathComponent
         }
         let testBundleName = lastPathComponent
-        configuration.logger.info("Test discovery in \(resourceLocation): bundle has \(testCaseCount) XCTestCases, \(testCount) tests")
+        logger.info("Test discovery in \(resourceLocation): bundle has \(testCaseCount) XCTestCases, \(testCount) tests")
         specificMetricRecorder.capture(
             RuntimeDumpTestCountMetric(
                 testBundleName: testBundleName,
@@ -247,13 +250,14 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     }
     
     private func createSpecificTestDiscoverer(
-        configuration: TestDiscoveryConfiguration,
+        configuration: AppleTestDiscoveryConfiguration,
         specificMetricRecorder: SpecificMetricRecorder
     ) -> SpecificTestDiscoverer {
         switch configuration.testDiscoveryMode {
         case .parseFunctionSymbols:
             return ParseFunctionSymbolsTestDiscoverer(
                 developerDirLocator: developerDirLocator,
+                logger: logger,
                 processControllerProvider: processControllerProvider,
                 resourceLocationResolver: resourceLocationResolver
             )
@@ -261,6 +265,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             return ExecutableTestDiscoverer(
                 appBundleLocation: appBundleLocation,
                 developerDirLocator: developerDirLocator,
+                logger: logger,
                 resourceLocationResolver: resourceLocationResolver,
                 processControllerProvider: processControllerProvider,
                 tempFolder: tempFolder,
@@ -299,6 +304,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
+            logger: logger,
             onDemandSimulatorPool: onDemandSimulatorPool,
             pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,

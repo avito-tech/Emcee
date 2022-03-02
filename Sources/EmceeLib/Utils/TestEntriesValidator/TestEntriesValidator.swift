@@ -12,14 +12,14 @@ import TestDiscovery
 public final class TestEntriesValidator {
     private let remoteCache: RuntimeDumpRemoteCache
     private let testArgFileEntries: [TestArgFileEntry]
-    private let testDiscoveryQuerier: TestDiscoveryQuerier
+    private let testDiscoveryQuerier: AppleTestDiscoverer
     private let analyticsConfiguration: AnalyticsConfiguration
     private let transformer = TestToRunIntoTestEntryTransformer()
 
     public init(
         remoteCache: RuntimeDumpRemoteCache,
         testArgFileEntries: [TestArgFileEntry],
-        testDiscoveryQuerier: TestDiscoveryQuerier,
+        testDiscoveryQuerier: AppleTestDiscoverer,
         analyticsConfiguration: AnalyticsConfiguration
     ) {
         self.remoteCache = remoteCache
@@ -29,14 +29,12 @@ public final class TestEntriesValidator {
     }
     
     public func validatedTestEntries(
-        logger: ContextualLogger,
         intermediateResult: (TestArgFileEntry, [ValidatedTestEntry]) throws -> ()
     ) throws -> [ValidatedTestEntry] {
         var result = [ValidatedTestEntry]()
         
         for testArgFileEntry in testArgFileEntries {
             let validatedTestEntries = try self.validatedTestEntries(
-                logger: logger,
                 testArgFileEntry: testArgFileEntry
             )
             try intermediateResult(testArgFileEntry, validatedTestEntries)
@@ -47,12 +45,10 @@ public final class TestEntriesValidator {
     }
 
     private func validatedTestEntries(
-        logger: ContextualLogger,
         testArgFileEntry: TestArgFileEntry
     ) throws -> [ValidatedTestEntry] {
-        let configuration = TestDiscoveryConfiguration(
+        let configuration = AppleTestDiscoveryConfiguration(
             analyticsConfiguration: analyticsConfiguration,
-            logger: logger,
             remoteCache: remoteCache,
             testsToValidate: testArgFileEntry.testsToRun,
             testDiscoveryMode: try TestDiscoveryModeDeterminer.testDiscoveryMode(

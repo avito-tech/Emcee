@@ -20,7 +20,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         let testArgFileEntry = try createTestEntry()
         let validator = createValidator(testArgFileEntries: [testArgFileEntry])
 
-        _ = try validator.validatedTestEntries(logger: .noOp) { _, _ in }
+        _ = try validator.validatedTestEntries { _, _ in }
 
         let querierConfiguration = assertNotNil {
             testDiscoveryQuerier.configuration
@@ -53,7 +53,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         let uiTestEntry = try createTestEntry()
         let validator = createValidator(testArgFileEntries: [uiTestEntry])
 
-        _ = try validator.validatedTestEntries(logger: .noOp) { _, _ in }
+        _ = try validator.validatedTestEntries { _, _ in }
 
         guard let querierConfiguration = testDiscoveryQuerier.configuration else {
             return XCTFail("configuration is unexpectedly nil")
@@ -73,7 +73,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         let appTestEntry = try createTestEntry(buildArtifacts: buildArtifacts)
         let validator = createValidator(testArgFileEntries: [appTestEntry])
 
-        _ = try validator.validatedTestEntries(logger: .noOp) { _, _ in }
+        _ = try validator.validatedTestEntries { _, _ in }
 
         guard let querierConfiguration = testDiscoveryQuerier.configuration else {
             return XCTFail("configuration is unexpectedly nil")
@@ -101,7 +101,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         )
         let validator = createValidator(testArgFileEntries: [appTestEntry])
 
-        XCTAssertThrowsError(_ = try validator.validatedTestEntries(logger: .noOp) { _, _ in })
+        XCTAssertThrowsError(_ = try validator.validatedTestEntries { _, _ in })
     }
 
     func test__querier_called_several_times__if_configuration_contains_several_build_artifacts() throws {
@@ -125,7 +125,7 @@ final class TestEntriesValidatorTests: XCTestCase {
         )
         let validator = createValidator(testArgFileEntries: [appTestEntry1, appTestEntry2])
 
-        _ = try validator.validatedTestEntries(logger: .noOp) { _, _ in }
+        _ = try validator.validatedTestEntries { _, _ in }
 
         XCTAssertEqual(testDiscoveryQuerier.numberOfCalls, 2)
     }
