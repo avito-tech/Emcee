@@ -18,14 +18,15 @@ final class URL_DeploymentDestinationTests: XCTestCase {
                 port: 42,
                 username: "user",
                 authentication: .password("pass"),
-                remoteDeploymentPath: AbsolutePath("/some/path")
+                remoteDeploymentPath: AbsolutePath("/some/path"),
+                configuration: WorkerSpecificConfigurationDefaultValues.defaultWorkerConfiguration
             )
         }
     }
     
     func test___key_auth___in_default_location() {
         let url = assertNotNil {
-            URL(string: "ssh://user@example.com/some/path?some_id")
+            URL(string: "ssh://user@example.com/some/path?sshKeyName=some_id")
         }
         
         assert {
@@ -36,14 +37,15 @@ final class URL_DeploymentDestinationTests: XCTestCase {
                 port: 22,
                 username: "user",
                 authentication: .keyInDefaultSshLocation(filename: "some_id"),
-                remoteDeploymentPath: AbsolutePath("/some/path")
+                remoteDeploymentPath: AbsolutePath("/some/path"),
+                configuration: WorkerSpecificConfigurationDefaultValues.defaultWorkerConfiguration
             )
         }
     }
     
     func test___key_auth___in_custom_location() {
         let url = assertNotNil {
-            URL(string: "ssh://user@example.com/some/path#/path/to/some_id")
+            URL(string: "ssh://user@example.com/some/path?absoluteSshKeyPath=/path/to/some_id")
         }
         
         assert {
@@ -54,7 +56,8 @@ final class URL_DeploymentDestinationTests: XCTestCase {
                 port: 22,
                 username: "user",
                 authentication: .key(path: AbsolutePath("/path/to/some_id")),
-                remoteDeploymentPath: AbsolutePath("/some/path")
+                remoteDeploymentPath: AbsolutePath("/some/path"),
+                configuration: WorkerSpecificConfigurationDefaultValues.defaultWorkerConfiguration
             )
         }
     }
@@ -70,12 +73,32 @@ final class URL_DeploymentDestinationTests: XCTestCase {
             try assertNotNil { URL(string: "ssh://user@example.com/some/path") }.deploymentDestination()
         }
         
-        assertThrows {
-            try assertNotNil { URL(string: "ssh://user@example.com/some/path#path") }.deploymentDestination()
+        assertDoesNotThrow {
+            try assertNotNil { URL(string: "ssh://user@example.com/some/path?absoluteSshKeyPath=/path") }.deploymentDestination()
+        }
+    }
+    
+    func test___number_of_simulators() {
+        let numberOfSimulators: UInt = 9
+        let url = assertNotNil {
+            URL(string: "ssh://user@example.com/some/path?absoluteSshKeyPath=/path/to/some_id&numberOfSimulators=\(numberOfSimulators)")
         }
         
-        assertDoesNotThrow {
-            try assertNotNil { URL(string: "ssh://user@example.com/some/path#/path") }.deploymentDestination()
+        assert {
+            try url.deploymentDestination()
+        } equals: {
+            DeploymentDestination(
+                host: "example.com",
+                port: 22,
+                username: "user",
+                authentication: .key(path: AbsolutePath("/path/to/some_id")),
+                remoteDeploymentPath: AbsolutePath("/some/path"),
+                configuration: WorkerSpecificConfiguration(
+                    numberOfSimulators: numberOfSimulators,
+                    maximumCacheSize: WorkerSpecificConfigurationDefaultValues.defaultWorkerConfiguration.maximumCacheSize,
+                    maximumCacheTTL: WorkerSpecificConfigurationDefaultValues.defaultWorkerConfiguration.maximumCacheTTL
+                )
+            )
         }
     }
     
@@ -92,7 +115,8 @@ final class URL_DeploymentDestinationTests: XCTestCase {
                 port: 22,
                 username: "user",
                 authentication: .password("pass"),
-                remoteDeploymentPath: AbsolutePath("/Users/user/emcee.noindex")
+                remoteDeploymentPath: AbsolutePath("/Users/user/emcee.noindex"),
+                configuration: WorkerSpecificConfigurationDefaultValues.defaultWorkerConfiguration
             )
         }
     }

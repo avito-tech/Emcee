@@ -19,10 +19,11 @@ public struct WorkerSpecificConfiguration: Codable, Hashable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        numberOfSimulators = try container.decode(UInt.self, forKey: .numberOfSimulators)
+        numberOfSimulators = try container.decodeIfPresent(UInt.self, forKey: .numberOfSimulators) ??
+        WorkerSpecificConfigurationDefaultValues.defaultWorkerConfiguration.numberOfSimulators
         maximumCacheSize = try container.decodeIfPresent(Int.self, forKey: .maximumCacheSize) ??
-            QueueServerConfigurationDefaultValues.defaultWorkerConfiguration.maximumCacheSize
+        WorkerSpecificConfigurationDefaultValues.defaultWorkerConfiguration.maximumCacheSize
         maximumCacheTTL = try container.decodeIfPresent(TimeInterval.self, forKey: .maximumCacheTTL) ??
-            QueueServerConfigurationDefaultValues.defaultWorkerConfiguration.maximumCacheTTL
+        WorkerSpecificConfigurationDefaultValues.defaultWorkerConfiguration.maximumCacheTTL
     }
 }

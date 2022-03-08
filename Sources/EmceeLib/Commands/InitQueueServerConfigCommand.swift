@@ -62,7 +62,8 @@ public final class InitQueueServerConfigCommand: Command {
                     port: 22,
                     username: "ssh username to use",
                     authentication: DeploymentDestinationAuthenticationType.password("ssh password. But you can auth by key too!"),
-                    remoteDeploymentPath: AbsolutePath("Working directory for EmceeQueueServer process. It should be writable by the provided username. Emcee will upload itself into this folder and start queue in daemon mode by using launchd. It will create plist and use launchctl (without sudo) to spawn a new daemon. Emcee queue has built-in protection to avoid starting multiple similar queues on the same machine.")
+                    remoteDeploymentPath: AbsolutePath("Working directory for EmceeQueueServer process. It should be writable by the provided username. Emcee will upload itself into this folder and start queue in daemon mode by using launchd. It will create plist and use launchctl (without sudo) to spawn a new daemon. Emcee queue has built-in protection to avoid starting multiple similar queues on the same machine."),
+                    configuration: nil
                 )
             ],
             queueServerTerminationPolicy: QueueServerConfigurationDefaultValues.queueServerTerminationPolicy,
@@ -72,20 +73,19 @@ public final class InitQueueServerConfigCommand: Command {
                     port: 22,
                     username: "ssh username to use on this worker. We recommend creating a separate standard user for this.",
                     authentication: DeploymentDestinationAuthenticationType.key(path: "/arbitrary/path/to/key.pub - you can pass any absolute path"),
-                    remoteDeploymentPath: AbsolutePath("Working directory for EmceeWorker process on this host. It should be writable by the provided username. Emcee will upload itself into this folder and start worker in daemon mode by using launchd. It will create plist and use launchctl (without sudo) to spawn a new daemon. Worker will die right after queue dies.")
+                    remoteDeploymentPath: AbsolutePath("Working directory for EmceeWorker process on this host. It should be writable by the provided username. Emcee will upload itself into this folder and start worker in daemon mode by using launchd. It will create plist and use launchctl (without sudo) to spawn a new daemon. Worker will die right after queue dies."),
+                    configuration: nil
                 ),
                 DeploymentDestination(
                     host: "emceeWorker02.example.com - host name where WORKER should be started, and SSH port",
                     port: 22,
                     username: "emcee",
                     authentication: DeploymentDestinationAuthenticationType.keyInDefaultSshLocation(filename: "key name inside ~/.ssh - most common location for SSH keys"),
-                    remoteDeploymentPath: AbsolutePath("/Users/emcee/worker/")
+                    remoteDeploymentPath: AbsolutePath("/Users/emcee/worker/"),
+                    configuration: nil
                 )
             ],
-            defaultWorkerSpecificConfiguration: QueueServerConfigurationDefaultValues.defaultWorkerConfiguration,
-            workerSpecificConfigurations: [
-                WorkerId(value: "emceeWorker01.example.com - use to specify special settings"): QueueServerConfigurationDefaultValues.defaultWorkerConfiguration,
-            ],
+            defaultWorkerSpecificConfiguration: WorkerSpecificConfigurationDefaultValues.defaultWorkerConfiguration,
             workerStartMode: .queueStartsItsWorkersOverSshAndLaunchd,
             useOnlyIPv4: false
         )

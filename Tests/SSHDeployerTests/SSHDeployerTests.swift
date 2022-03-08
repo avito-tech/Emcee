@@ -33,7 +33,8 @@ class SSHDeployerTests: XCTestCase {
             port: 1034,
             username: "user",
             authentication: .password("pa$$"),
-            remoteDeploymentPath: "/some/remote/container"
+            remoteDeploymentPath: "/some/remote/container",
+            configuration: nil
         )
         
         let deployer = try SSHDeployer(

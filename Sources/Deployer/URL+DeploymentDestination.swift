@@ -11,8 +11,8 @@ public struct UrlAnalysisError: Error, CustomStringConvertible {
             text,
             "Please make sure your URL is correct",
             "You can use password based auth: ssh://username:PASSWORD@example.com",
-            "You can use key based auth: ssh://username@example.com?custom_rsa",
-            "You can provide key outside ~/.ssh: ssh://username@example.com#/absolute/path/to/custom_rsa",
+            "You can use key based auth: ssh://username@example.com?sshKeyName=custom_rsa",
+            "You can provide key outside ~/.ssh: ssh://username@example.com?absoluteSshKeyPath=/absolute/path/to/custom_rsa",
             "By default Emcee will use ~/emcee.noindex as working directory, but you can alter it: ssh://username@example.com/Users/username/TestRunner",
         ].joined(separator: ".\n")
     }
@@ -32,13 +32,29 @@ extension URL {
             path = "/Users/\(user)/emcee.noindex"
         }
         
+        var sshAuthentication: DeploymentDestinationAuthenticationType?
+        var numberOfSimulators = WorkerSpecificConfigurationDefaultValues.defaultWorkerConfiguration.numberOfSimulators
+        if let components = URLComponents(url: self, resolvingAgainstBaseURL: true)?.queryItems {
+            try components.forEach { item in
+                switch try DeploymentDestinationQueryParameter(
+                    name: item.name,
+                    value: item.value
+                ) {
+                case .absoluteSshKey(let path):
+                    sshAuthentication = .key(path: path)
+                case .sshKey(let name):
+                    sshAuthentication = .keyInDefaultSshLocation(filename: name)
+                case .numberOfSimulators(let numberOfSimulatorsValue):
+                    numberOfSimulators = numberOfSimulatorsValue
+                }
+            }
+        }
+        
         let authenticationType: DeploymentDestinationAuthenticationType
-        if let password = self.password {
+        if let sshAuthentication = sshAuthentication {
+            authenticationType = sshAuthentication
+        } else if let password = self.password {
             authenticationType = .password(password)
-        } else if let query = self.query {
-            authenticationType = .keyInDefaultSshLocation(filename: query)
-        } else if let fragment = self.fragment {
-            authenticationType = .key(path: try AbsolutePath.validating(string: fragment))
         } else {
             throw UrlAnalysisError(url: self, text: "Can't determine authentication method")
         }
@@ -48,7 +64,12 @@ extension URL {
             port: Int32(port),
             username: user,
             authentication: authenticationType,
-            remoteDeploymentPath: AbsolutePath(path)
+            remoteDeploymentPath: AbsolutePath(path),
+            configuration: WorkerSpecificConfiguration(
+                numberOfSimulators: numberOfSimulators,
+                maximumCacheSize: WorkerSpecificConfigurationDefaultValues.defaultWorkerConfiguration.maximumCacheSize,
+                maximumCacheTTL: WorkerSpecificConfigurationDefaultValues.defaultWorkerConfiguration.maximumCacheTTL
+            )
         )
     }
 }

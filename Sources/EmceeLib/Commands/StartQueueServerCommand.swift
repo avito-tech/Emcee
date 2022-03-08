@@ -142,9 +142,7 @@ public final class StartQueueServerCommand: Command {
         )
         
         let numberOfParallelBuckets = queueServerConfiguration.workerDeploymentDestinations.reduce(into: 1, { result, keyValue in
-            result += queueServerConfiguration.workerSpecificConfigurations[
-                keyValue.workerId
-            ]?.numberOfSimulators ?? queueServerConfiguration.defaultWorkerConfiguration?.numberOfSimulators ?? 0
+            result += keyValue.configuration?.numberOfSimulators ?? queueServerConfiguration.defaultWorkerConfiguration?.numberOfSimulators ?? 0
         })
         
         let queueServer = QueueServerImpl(
@@ -248,14 +246,16 @@ public final class StartQueueServerCommand: Command {
             )
         }
         
-        for (workerId, workerSpecificConfiguration) in queueServerConfiguration.workerSpecificConfigurations {
-            configurations.add(
-                workerId: workerId,
-                configuration: queueServerConfiguration.workerConfiguration(
-                    workerSpecificConfiguration: workerSpecificConfiguration,
-                    payloadSignature: try di.get()
+        for deploymentDestination in queueServerConfiguration.workerDeploymentDestinations {
+            if let workerSpecificConfiguration = deploymentDestination.configuration {
+                configurations.add(
+                    workerId: deploymentDestination.workerId,
+                    configuration: queueServerConfiguration.workerConfiguration(
+                        workerSpecificConfiguration: workerSpecificConfiguration,
+                        payloadSignature: try di.get()
+                    )
                 )
-            )
+            }
         }
         return configurations
     }

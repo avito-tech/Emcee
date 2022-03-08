@@ -43,7 +43,8 @@ public final class DeploymentDestinationFixtures {
             port: port,
             username: username,
             authentication: authentication,
-            remoteDeploymentPath: remoteDeploymentPath
+            remoteDeploymentPath: remoteDeploymentPath,
+            configuration: WorkerSpecificConfigurationDefaultValues.defaultWorkerConfiguration
         )
     }
 }

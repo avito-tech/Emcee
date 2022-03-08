@@ -9,6 +9,7 @@ public struct DeploymentDestination: Codable, CustomStringConvertible, Hashable 
     public let username: String
     public let authentication: DeploymentDestinationAuthenticationType
     public let remoteDeploymentPath: AbsolutePath
+    public let configuration: WorkerSpecificConfiguration?
     
     enum CodingKeys: String, CodingKey {
         case host
@@ -16,6 +17,7 @@ public struct DeploymentDestination: Codable, CustomStringConvertible, Hashable 
         case username
         case authentication
         case remoteDeploymentPath
+        case configuration
     }
     
     public init(from decoder: Decoder) throws {
@@ -25,13 +27,15 @@ public struct DeploymentDestination: Codable, CustomStringConvertible, Hashable 
         let username = try container.decode(String.self, forKey: .username)
         let authentication = try container.decode(DeploymentDestinationAuthenticationType.self, forKey: .authentication)
         let remoteDeploymentPath = try container.decode(AbsolutePath.self, forKey: .remoteDeploymentPath)
+        let configuration = try container.decodeIfPresent(WorkerSpecificConfiguration.self, forKey: .configuration)
         
         self.init(
             host: host,
             port: port,
             username: username,
             authentication: authentication,
-            remoteDeploymentPath: remoteDeploymentPath
+            remoteDeploymentPath: remoteDeploymentPath,
+            configuration: configuration
         )
     }
 
@@ -40,7 +44,8 @@ public struct DeploymentDestination: Codable, CustomStringConvertible, Hashable 
         port: Int32,
         username: String,
         authentication: DeploymentDestinationAuthenticationType,
-        remoteDeploymentPath: AbsolutePath
+        remoteDeploymentPath: AbsolutePath,
+        configuration: WorkerSpecificConfiguration?
     ) {
         self.workerId = WorkerId(value: host)
         self.host = host
@@ -48,6 +53,7 @@ public struct DeploymentDestination: Codable, CustomStringConvertible, Hashable 
         self.username = username
         self.authentication = authentication
         self.remoteDeploymentPath = remoteDeploymentPath
+        self.configuration = configuration
     }
     
     public var description: String {

@@ -2,6 +2,7 @@ import ArgLib
 import AutomaticTermination
 import BuildArtifacts
 import CommonTestModels
+import Deployer
 import EmceeDI
 import EmceeVersion
 import Foundation
@@ -163,8 +164,7 @@ public final class RunTestsCommand: Command {
             queueServerDeploymentDestinations: queueDeploymentDestinations,
             queueServerTerminationPolicy: QueueServerConfigurationDefaultValues.queueServerTerminationPolicy,
             workerDeploymentDestinations: workerDeploymentDestinations,
-            defaultWorkerSpecificConfiguration: QueueServerConfigurationDefaultValues.defaultWorkerConfiguration,
-            workerSpecificConfigurations: [:],
+            defaultWorkerSpecificConfiguration: WorkerSpecificConfigurationDefaultValues.defaultWorkerConfiguration,
             workerStartMode: QueueServerConfigurationDefaultValues.workerStartMode,
             useOnlyIPv4: QueueServerConfigurationDefaultValues.useOnlyIPv4
         )

@@ -79,28 +79,8 @@ final class QueueServerConfigurationTests: XCTestCase {
             )
         )
         XCTAssertEqual(
-            config.workerSpecificConfigurations,
-            [
-                WorkerId("worker_1"): WorkerSpecificConfiguration(
-                    numberOfSimulators: 1,
-                    maximumCacheSize: 42,
-                    maximumCacheTTL: 800
-                ),
-                WorkerId("worker_2"): WorkerSpecificConfiguration(
-                    numberOfSimulators: 2,
-                    maximumCacheSize: 42,
-                    maximumCacheTTL: 800
-                ),
-                WorkerId("worker_3"): WorkerSpecificConfiguration(
-                    numberOfSimulators: 3,
-                    maximumCacheSize: 42,
-                    maximumCacheTTL: 800
-                ),
-            ]
-        )
-        XCTAssertEqual(
             config.queueServerDeploymentDestinations,
-            [DeploymentDestination(host: "queue", port: 22, username: "q_user", authentication: .password("pass"), remoteDeploymentPath: "/remote/queue/depl/path")]
+            [DeploymentDestination(host: "queue", port: 22, username: "q_user", authentication: .password("pass"), remoteDeploymentPath: "/remote/queue/depl/path", configuration: nil)]
         )
         XCTAssertEqual(
             config.queueServerTerminationPolicy,
@@ -113,7 +93,7 @@ final class QueueServerConfigurationTests: XCTestCase {
         XCTAssertEqual(
             config.workerDeploymentDestinations,
             [
-                DeploymentDestination(host: "host", port: 1, username: "username", authentication: .password("pass"), remoteDeploymentPath: "/remote/deployment/path")
+                DeploymentDestination(host: "host", port: 1, username: "username", authentication: .password("pass"), remoteDeploymentPath: "/remote/deployment/path", configuration: nil)
             ]
         )
         assert {
@@ -139,7 +119,7 @@ final class QueueServerConfigurationTests: XCTestCase {
         let config = try JSONDecoder().decode(DeploymentDestination.self, from: data)
         XCTAssertEqual(
             config,
-            DeploymentDestination(host: "host", port: 1, username: "username", authentication: .key(path: "/path/to/key"), remoteDeploymentPath: "/remote/deployment/path")
+            DeploymentDestination(host: "host", port: 1, username: "username", authentication: .key(path: "/path/to/key"), remoteDeploymentPath: "/remote/deployment/path", configuration: nil)
         )
     }
     
@@ -159,7 +139,7 @@ final class QueueServerConfigurationTests: XCTestCase {
         let config = try JSONDecoder().decode(DeploymentDestination.self, from: data)
         XCTAssertEqual(
             config,
-            DeploymentDestination(host: "host", port: 1, username: "username", authentication: .keyInDefaultSshLocation(filename: "key"), remoteDeploymentPath: "/remote/deployment/path")
+            DeploymentDestination(host: "host", port: 1, username: "username", authentication: .keyInDefaultSshLocation(filename: "key"), remoteDeploymentPath: "/remote/deployment/path", configuration: nil)
         )
     }
 }

@@ -65,7 +65,8 @@ class DeployerTests: XCTestCase {
                 port: 32,
                 username: "user",
                 authentication: .password("pass"),
-                remoteDeploymentPath: "/remote/path"
+                remoteDeploymentPath: "/remote/path",
+                configuration: nil
             ),
             fileSystem: fileSystem,
             logger: .noOp,
@@ -106,7 +107,8 @@ class DeployerTests: XCTestCase {
                     port: 32,
                     username: "user",
                     authentication: .password("pass"),
-                    remoteDeploymentPath: "/remote/path"
+                    remoteDeploymentPath: "/remote/path",
+                    configuration: nil
                 ),
                 fileSystem: self.fileSystem,
                 logger: .noOp,
