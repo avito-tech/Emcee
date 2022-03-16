@@ -285,8 +285,9 @@ final class RunTestsOnRemoteQueueLogic {
     
     private func waitForJobQueueToDeplete(jobId: JobId, logger: ContextualLogger) throws {
         var caughtSignal = false
-        SignalHandling.addSignalHandler(signals: [.int, .term]) { [logger] signal in
+        SignalHandling.addSignalHandler(signals: [.int, .term]) { [logger, weak self] signal in
             logger.info("Caught \(signal) signal")
+            self?.deleteJob(jobId: jobId, logger: logger)
             caughtSignal = true
         }
         
@@ -342,6 +343,7 @@ final class RunTestsOnRemoteQueueLogic {
                 completion: callbackWaiter.set
             )
             try callbackWaiter.wait(timeout: .infinity, description: "Deleting job").dematerialize()
+            logger.info("Job deleted successfully")
         } catch {
             logger.warning("Failed to delete job")
         }
